@@ -1,0 +1,20 @@
+{
+  "display": "Node 16",
+  "compilerOptions": {
+    "lib": [
+      "es2020"
+    ],
+    "module": "ESNext",
+    "target": "ESNext",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
+    "jsx": "react-jsx",
+    "moduleResolution": "node"
+  },
+  "ts-node": {
+    "esm": true
+  }
+}
