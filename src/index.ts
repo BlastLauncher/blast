@@ -194,6 +194,10 @@ const JSONRPCRenderer = Reconciler<
     // Noop
   },
 
+  clearContainer(container: Container) {
+    logger.debug('clearContainer');
+  },
+
   // The `isPrimaryRenderer` property should be set to true if this renderer is the primary renderer.
   isPrimaryRenderer: true,
 
