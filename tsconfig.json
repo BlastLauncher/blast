@@ -4,7 +4,7 @@
     "lib": [
       "es2020"
     ],
-    "module": "ESNext",
+    "module": "CommonJS",
     "target": "ESNext",
     "strict": true,
     "esModuleInterop": true,
@@ -12,7 +12,8 @@
     "forceConsistentCasingInFileNames": true,
     "allowSyntheticDefaultImports": true,
     "jsx": "react-jsx",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "allowJs": true
   },
   "ts-node": {
     "esm": true
