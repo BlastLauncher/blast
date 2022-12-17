@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "webpack --config webpack.config.ts --watch --progress",
+    "dev:start": "cross-env DEBUG=blast* nodemon dist/bundle.js",
     "build": "webpack --config webpack.config.ts --progress",
     "start": "node dist/bundle.js",
     "test-client": "node dist/testClient.js",
@@ -16,19 +17,22 @@
   "license": "ISC",
   "dependencies": {
     "@raycast/api": "^1.45.0",
+    "debug": "^4.3.4",
+    "global": "^4.4.0",
     "react": "^18.2.0",
     "react-reconciler": "^0.28.0",
     "rpc-websockets": "^7.5.0",
-    "websocket": "^1.0.34",
-    "winston": "^3.8.2"
+    "websocket": "^1.0.34"
   },
   "devDependencies": {
+    "@types/debug": "^4.1.7",
     "@types/node": "^18.8.3",
     "@types/react-reconciler": "^0.28.0",
     "@types/webpack": "^5.28.0",
     "@types/websocket": "^1.0.5",
-    "@types/winston": "^2.4.4",
+    "cross-env": "^7.0.3",
     "nanoid": "^4.0.0",
+    "nodemon": "^2.0.20",
     "patch-package": "^6.5.0",
     "react-devtools": "^4.27.1",
     "ts-loader": "^9.4.2",

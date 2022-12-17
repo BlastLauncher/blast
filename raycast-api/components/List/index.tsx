@@ -1,19 +1,15 @@
 import React from 'react';
 import { Dropdown } from './Dropdown';
-import logger from '../../../src/logger';
+import { EmptyView } from './EmptyView';
+import { createDebug } from '../../../src/debug';
+import { ComponentType } from '../../constants';
 
-const LIST = 'LIST';
-const EMPTY_VIEW = 'EMPTY_VIEW';
+const debug = createDebug('blast:components:List');
 
 export const List = (props: any) => {
-  logger.debug(props);
+  debug(props);
 
-  return React.createElement(LIST, props);
-};
-
-export const EmptyView = (props: any) => {
-  logger.debug(props);
-  return React.createElement(EMPTY_VIEW);
+  return React.createElement(ComponentType.List, props);
 };
 
 List.Dropdown = Dropdown;
