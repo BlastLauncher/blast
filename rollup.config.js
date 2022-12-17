@@ -16,9 +16,6 @@ export default [
       file: './dist/bundle.js',
       format: 'es',
     },
-    watch: {
-      include: ['./dist/**'],
-    },
     plugins: [
       typescript(),
       alias({
@@ -27,5 +24,13 @@ export default [
         ],
       }),
     ],
+  },
+  {
+    input: './src/testClient.ts',
+    output: {
+      file: './dist/testClient.js',
+      format: 'es',
+    },
+    plugins: [typescript()],
   },
 ];

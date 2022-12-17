@@ -3,6 +3,7 @@ import React from 'react';
 import { DefaultEventPriority } from 'react-reconciler/constants.js';
 import Component from '../examples/todo-list/src/index';
 import logger from './logger';
+import { runServer } from './server';
 
 type Type = any;
 type Props = Record<string, any>;
@@ -275,3 +276,5 @@ const ReactRenderer = {
 };
 
 ReactRenderer.render(React.createElement(Component), {});
+
+runServer();
