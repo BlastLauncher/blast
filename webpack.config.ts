@@ -42,6 +42,11 @@ const configs: webpack.Configuration[] = [
         fs: false,
       },
     },
+    plugins: [
+      new webpack.ProvidePlugin({
+        window: 'global/window',
+      }),
+    ],
   },
 ];
 

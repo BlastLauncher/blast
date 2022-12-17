@@ -9,8 +9,7 @@
     "dev:start": "cross-env DEBUG=blast* nodemon dist/bundle.js",
     "build": "webpack --config webpack.config.ts --progress",
     "start": "node dist/bundle.js",
-    "test-client": "node dist/testClient.js",
-    "postinstall": "patch-package"
+    "test-client": "node dist/testClient.js"
   },
   "keywords": [],
   "author": "",
@@ -33,7 +32,6 @@
     "cross-env": "^7.0.3",
     "nanoid": "^4.0.0",
     "nodemon": "^2.0.20",
-    "patch-package": "^6.5.0",
     "react-devtools": "^4.27.1",
     "ts-loader": "^9.4.2",
     "ts-node": "^10.9.1",
