@@ -9,7 +9,6 @@ declare module "react-devtools-core/backend" {
     isAppActive?: () => boolean;
     websocket?: WebSocket | null;
     devToolsSettingsManager?: DevToolsSettingsManager | null;
-    // ...
   }
 
   export function connectToDevTools(options?: ConnectOptions): void;
