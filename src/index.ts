@@ -261,6 +261,12 @@ const JSONRPCRenderer = Reconciler<
 
 const ReactRenderer = {
   render(component: any, container: any) {
+    JSONRPCRenderer.injectIntoDevTools({
+      bundleType: 1, // 0 for PROD, 1 for DEV
+      version: '0.1.0', // version for your renderer
+      rendererPackageName: 'blast-renderer', // package name
+    });
+
     const root = JSONRPCRenderer.createContainer(
       container,
       1,
