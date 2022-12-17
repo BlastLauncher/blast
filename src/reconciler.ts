@@ -4,28 +4,26 @@ import { DefaultEventPriority } from 'react-reconciler/constants.js';
 import Component from '../examples/todo-list/src/index';
 import { createDebug } from './debug';
 import { runServer } from './server';
+import {
+  Type,
+  Props,
+  Container,
+  Instance,
+  TextInstance,
+  SuspenseInstance,
+  HydratableInstance,
+  PublicInstance,
+  HostContext,
+  UpdatePayload,
+  ChildSet,
+  TimeoutHandle,
+  NoTimeout,
+  InternalInstanceHandle,
+} from './types';
 
 const server = runServer();
 
 const debug = createDebug('blast:renderer');
-
-type Type = string;
-type Props = Record<string, any>;
-type Container = any;
-type Instance = any;
-type TextInstance = any;
-type SuspenseInstance = any;
-type HydratableInstance = any;
-type PublicInstance = any;
-type HostContext = any;
-type UpdatePayload = any;
-type ChildSet = any;
-type TimeoutHandle = any;
-type NoTimeout = any;
-
-type InternalInstanceHandle = {
-  hostContext: HostContext;
-};
 
 const JSONRPCRenderer = Reconciler<
   Type,
@@ -257,7 +255,7 @@ const JSONRPCRenderer = Reconciler<
     type: any,
     rootContainer: any,
   ) {
-    debug('getChildHostContext');
+    debug('getChildHostContext', parentHostContext, type, rootContainer);
 
     return {};
   },
