@@ -1,9 +1,6 @@
 import Reconciler from 'react-reconciler';
-import React from 'react';
 import { DefaultEventPriority } from 'react-reconciler/constants.js';
-import Component from '../examples/todo-list/src/index';
-import { createDebug } from './debug';
-import { runServer } from './server';
+import { createDebug } from './utils/debug';
 import {
   Type,
   Props,
@@ -21,11 +18,9 @@ import {
   InternalInstanceHandle,
 } from './types';
 
-const server = runServer();
-
 const debug = createDebug('blast:renderer');
 
-const JSONRPCRenderer = Reconciler<
+export const JSONRPCReconciler = Reconciler<
   Type,
   Props,
   Container,
@@ -302,19 +297,4 @@ const JSONRPCRenderer = Reconciler<
   },
 });
 
-function render(component: any, container: any) {
-  const root = JSONRPCRenderer.createContainer(
-    container,
-    0,
-    null,
-    true,
-    null,
-    '',
-    () => {},
-    null,
-  );
-
-  JSONRPCRenderer.updateContainer(component, root, null);
-}
-
-render(React.createElement(Component), {});
+export default JSONRPCReconciler;

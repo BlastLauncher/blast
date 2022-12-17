@@ -1,6 +1,6 @@
-import { ComponentType } from '../../constants';
+import { ComponentType } from '../../elements/types';
 import React from 'react';
-import { createDebug } from '../../../src/debug';
+import { createDebug } from '../../utils/debug';
 
 const debug = createDebug('blast:components:EmptyView');
 

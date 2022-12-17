@@ -1,3 +1,10 @@
+export type BaseNode = {
+  props: any;
+  children: any;
+};
+
+export interface Node extends BaseNode {}
+
 export type Type = string;
 export type Props = Record<string, any>;
 export type Container = any;

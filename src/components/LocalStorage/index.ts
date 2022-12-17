@@ -1,4 +1,4 @@
-import { createDebug } from '../../../src/debug';
+import { createDebug } from '../../utils/debug';
 
 const debug = createDebug('blast:utils:LocalStorage');
 

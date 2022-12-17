@@ -24,7 +24,7 @@ const configs: webpack.Configuration[] = [
     target: 'node',
     resolve: {
       alias: {
-        '@raycast/api': path.join(__dirname, './raycast-api/index.ts'),
+        '@raycast/api': path.join(__dirname, './src/api.ts'),
       },
       extensions: ['.tsx', '.ts', '.js'],
       fallback: {

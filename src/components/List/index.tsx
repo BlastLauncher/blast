@@ -1,8 +1,8 @@
 import React from 'react';
 import { Dropdown } from './Dropdown';
 import { EmptyView } from './EmptyView';
-import { createDebug } from '../../../src/debug';
-import { ComponentType } from '../../constants';
+import { createDebug } from '../../utils/debug';
+import { ComponentType } from '../../elements/types';
 
 const debug = createDebug('blast:components:List');
 
