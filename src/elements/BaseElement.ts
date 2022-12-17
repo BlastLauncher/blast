@@ -1,3 +1,4 @@
+// Big thanks to https://github.com/clayrisser/create-react-renderer
 import { BaseNode, Node, Instance, Props } from '../types';
 
 export interface IElement {
