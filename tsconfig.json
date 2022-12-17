@@ -1,9 +1,7 @@
 {
   "display": "Node 16",
   "compilerOptions": {
-    "lib": [
-      "es2020"
-    ],
+    "lib": ["es2020"],
     "module": "CommonJS",
     "target": "ESNext",
     "strict": true,

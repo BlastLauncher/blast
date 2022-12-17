@@ -1,4 +1,4 @@
-declare module 'react-devtools-core/backend' {
+declare module "react-devtools-core/backend" {
   interface ConnectOptions {
     host?: string;
     nativeStyleEditorValidAttributes?: ReadonlyArray<string>;

@@ -1,4 +1,4 @@
-import JSONRPCReconciler from './reconciler';
+import JSONRPCReconciler from "./reconciler";
 
 export function render(component: any, container: any) {
   const root = JSONRPCReconciler.createContainer(
@@ -7,9 +7,11 @@ export function render(component: any, container: any) {
     null,
     true,
     null,
-    '',
-    () => {},
-    null,
+    "",
+    () => {
+      // noop
+    },
+    null
   );
 
   JSONRPCReconciler.updateContainer(component, root, null);

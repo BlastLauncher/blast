@@ -1,6 +1,5 @@
 declare namespace JSX {
-  // @ts-ignore
-  import { ReactNode, Ref } from 'react';
+  import { ReactNode, Ref } from "react";
 
   interface IntrinsicElements {
     List: {

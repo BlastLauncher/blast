@@ -1,1 +1,3 @@
-export const Item = () => {};
+export const Item = () => {
+  // noop
+};

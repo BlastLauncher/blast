@@ -1,5 +1,5 @@
 // Big thanks to https://github.com/clayrisser/create-react-renderer
-import { BaseNode, Node, Instance, Props } from '../types';
+import { BaseNode, Node, Instance, Props } from "../types";
 
 export interface IElement {
   new (props?: Props): BaseElement;
@@ -14,20 +14,27 @@ export default class BaseElement implements Instance {
 
   node: Node;
 
-  props?: Props;
-
-  children: BaseElement[] = [];
+  children: Instance[] = [];
+  props: Props = {};
 
   constructor(baseNode: BaseNode | BaseNode[], _props: Props = {}) {
-    if (Array.isArray(baseNode)) throw new Error('cannot be array');
+    if (Array.isArray(baseNode)) throw new Error("cannot be array");
     this.node = baseNode;
   }
 
-  appendChild(_child: BaseElement) {}
+  appendChild(_child: BaseElement) {
+    // noop
+  }
 
-  removeChild(_child: BaseElement) {}
+  removeChild(_child: BaseElement) {
+    // noop
+  }
 
-  commitMount() {}
+  commitMount() {
+    // noop
+  }
 
-  commitUpdate(_newProps: Props) {}
+  commitUpdate(_newProps: Props) {
+    // noop
+  }
 }

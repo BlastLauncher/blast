@@ -1,10 +1,10 @@
-import React from 'react';
-import { Dropdown } from './Dropdown';
-import { EmptyView } from './EmptyView';
-import { createDebug } from '../../utils/debug';
-import { ComponentType } from '../../elements/types';
+import React from "react";
+import { Dropdown } from "./Dropdown";
+import { EmptyView } from "./EmptyView";
+import { createDebug } from "../../utils/debug";
+import { ComponentType } from "../../elements/types";
 
-const debug = createDebug('blast:components:List');
+const debug = createDebug("blast:components:List");
 
 export const List = (props: any) => {
   debug(props);

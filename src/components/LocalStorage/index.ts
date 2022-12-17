@@ -1,6 +1,6 @@
-import { createDebug } from '../../utils/debug';
+import { createDebug } from "../../utils/debug";
 
-const debug = createDebug('blast:utils:LocalStorage');
+const debug = createDebug("blast:utils:LocalStorage");
 
 type Value = string | number | boolean;
 type Values = Record<string, Value>;

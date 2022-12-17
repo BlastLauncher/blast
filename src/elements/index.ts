@@ -1,1 +1,1 @@
-import { ComponentType } from './types';
+import { ComponentType } from "./types";

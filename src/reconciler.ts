@@ -1,6 +1,6 @@
-import Reconciler from 'react-reconciler';
-import { DefaultEventPriority } from 'react-reconciler/constants.js';
-import { createDebug } from './utils/debug';
+import Reconciler from "react-reconciler";
+import { DefaultEventPriority } from "react-reconciler/constants.js";
+import { createDebug } from "./utils/debug";
 import {
   Type,
   Props,
@@ -16,9 +16,9 @@ import {
   TimeoutHandle,
   NoTimeout,
   InternalInstanceHandle,
-} from './types';
+} from "./types";
 
-const debug = createDebug('blast:renderer');
+const debug = createDebug("blast:renderer");
 
 export const JSONRPCReconciler = Reconciler<
   Type,
@@ -42,7 +42,7 @@ export const JSONRPCReconciler = Reconciler<
     props: Props,
     rootContainerInstance: Container,
     hostContext: HostContext,
-    internalInstanceHandle: InternalInstanceHandle,
+    internalInstanceHandle: InternalInstanceHandle
   ) {
     debug(`createInstance(${type}, ${props})`);
 
@@ -74,40 +74,35 @@ export const JSONRPCReconciler = Reconciler<
     text: string,
     rootContainerInstance: Container,
     hostContext: object,
-    internalInstanceHandle: object,
+    internalInstanceHandle: object
   ) {
     debug(`createTextInstance(${text})`);
-    return {
-      type: 'Text',
-      text,
-    };
+
+    return null;
   },
 
   // The `appendInitialChild` method is called when a new child is added to a parent element.
   // It should append the child to the parent in the JSON-RPC object.
-  appendInitialChild(parentInstance: Instance, child: object) {
+  appendInitialChild(parentInstance: Instance, child: Instance | null) {
     debug(`appendInitialChild(${parentInstance}, ${child})`);
     // parentInstance.children.push(child);
-
-    // TODO:
   },
 
-  appendChildToContainer(container: Container, child: object) {
+  appendChildToContainer(container: Container, child: Instance | null) {
     debug(`appendChildToContainer(${container}, ${child})`);
     // container.children.push(child);
   },
 
-  // The `finalizeInitialChildren` method is called after all the initial children of a parent element have been added.
-  // It should return the final JSON-RPC object representing the parent element.
   finalizeInitialChildren(
     instance: Instance,
     type: Type,
     props: Props,
     rootContainer: Container,
-    hostContext: HostContext,
+    hostContext: HostContext
   ) {
     debug(`finalizeInitialChildren(${instance}, ${type}, ${props})`);
-    return instance;
+
+    return false;
   },
 
   // The `prepareUpdate` method is called when the props of an element are updated.
@@ -118,7 +113,7 @@ export const JSONRPCReconciler = Reconciler<
     oldProps: object,
     newProps: object,
     rootContainerInstance: Container,
-    hostContext: object,
+    hostContext: object
   ) {
     debug(`prepareUpdate(${domElement}, ${type}, ${oldProps}, ${newProps})`);
     return {
@@ -134,36 +129,29 @@ export const JSONRPCReconciler = Reconciler<
     type: Type,
     prevProps: Props,
     nextProps: Props,
-    internalHandle: InternalInstanceHandle,
+    internalHandle: InternalInstanceHandle
   ) {
-    debug(
-      `commitUpdate(${instance}, ${updatePayload}, ${type}, ${prevProps}, ${nextProps})`,
-    );
+    debug(`commitUpdate(${instance}, ${updatePayload}, ${type}, ${prevProps}, ${nextProps})`);
 
     // for (const propName in updatePayload) {
     //   instance.props[propName] = updatePayload[propName];
     // }
   },
 
-  commitMount(
-    instance: Instance,
-    type: Type,
-    newProps: Props,
-    internalInstanceHandle: InternalInstanceHandle,
-  ) {
+  commitMount(instance: Instance, type: Type, newProps: Props, internalInstanceHandle: InternalInstanceHandle) {
     debug(`commitMount(${instance}, ${type}, ${newProps})`);
   },
 
   // The `appendChild` method is called when a new child is added to a parent element.
   // It should append the child to the parent in the JSON-RPC object.
-  appendChild(parentInstance: object, child: object) {
+  appendChild(parentInstance: Instance, child: Instance) {
     debug(`appendChild(${parentInstance}, ${child})`);
     // parentInstance.children.push(child);
   },
 
   // The `insertBefore` method is called when a new child is inserted before an existing child in a parent element.
   // It should insert the child into the parent in the JSON-RPC object.
-  insertBefore(parentInstance: object, child: object, beforeChild: object) {
+  insertBefore(parentInstance: Instance, child: Instance, beforeChild: Instance) {
     debug(`insertBefore(${parentInstance}, ${child}, ${beforeChild})`);
     // const index = parentInstance.children.indexOf(beforeChild);
     // if (index >= 0) {
@@ -192,7 +180,7 @@ export const JSONRPCReconciler = Reconciler<
 
   // The `commitTextUpdate` method is called when the text content of an element is updated.
   // It should update the text content of the element in the JSON-RPC object.
-  commitTextUpdate(textInstance: object, oldText: string, newText: string) {
+  commitTextUpdate(textInstance: null, oldText: string, newText: string) {
     debug(`commitTextUpdate(${textInstance}, ${oldText}, ${newText})`);
     // textInstance.text = newText;
   },
@@ -231,7 +219,7 @@ export const JSONRPCReconciler = Reconciler<
   },
 
   clearContainer(container: Container) {
-    debug('clearContainer');
+    debug("clearContainer");
   },
 
   // The `isPrimaryRenderer` property should be set to true if this renderer is the primary renderer.
@@ -245,55 +233,46 @@ export const JSONRPCReconciler = Reconciler<
 
   // The `supportsHydration` property should be set to true if this renderer supports hydration.
   supportsHydration: false,
-  getChildHostContext: function (
-    parentHostContext: any,
-    type: any,
-    rootContainer: any,
-  ) {
-    debug('getChildHostContext', parentHostContext, type, rootContainer);
+  getChildHostContext: function (parentHostContext: any, type: any, rootContainer: any) {
+    debug("getChildHostContext", parentHostContext, type, rootContainer);
 
     return {};
   },
   getPublicInstance: function (instance: any) {
-    debug('getPublicInstance');
-    throw new Error('getPublicInstance not implemented.');
+    debug("getPublicInstance");
+    throw new Error("getPublicInstance not implemented.");
   },
   prepareForCommit: function (containerInfo: any): Record<string, any> | null {
-    debug('prepareForCommit');
+    debug("prepareForCommit");
     return null;
   },
   resetAfterCommit: function (containerInfo: any): void {
-    debug('resetAfterCommit');
+    debug("resetAfterCommit");
   },
   preparePortalMount: function (containerInfo: any): void {
-    throw new Error('preparePortalMount not implemented.');
+    throw new Error("preparePortalMount not implemented.");
   },
-  scheduleTimeout: function (
-    fn: (...args: unknown[]) => unknown,
-    delay?: number | undefined,
-  ) {
-    throw new Error('scheduleTimeout not implemented.');
+  scheduleTimeout: function (fn: (...args: unknown[]) => unknown, delay?: number | undefined) {
+    throw new Error("scheduleTimeout not implemented.");
   },
   cancelTimeout: function (id: any): void {
-    throw new Error('cancelTimeout not implemented.');
+    throw new Error("cancelTimeout not implemented.");
   },
   noTimeout: undefined,
   getCurrentEventPriority: function (): number {
     return DefaultEventPriority;
   },
-  getInstanceFromNode: function (
-    node: any,
-  ): Reconciler.Fiber | null | undefined {
-    throw new Error('getInstanceFromNode not implemented.');
+  getInstanceFromNode: function (node: any): Reconciler.Fiber | null | undefined {
+    throw new Error("getInstanceFromNode not implemented.");
   },
   prepareScopeUpdate: function (scopeInstance: any, instance: any): void {
-    throw new Error('prepareScopeUpdate not implemented.');
+    throw new Error("prepareScopeUpdate not implemented.");
   },
   getInstanceFromScope: function (scopeInstance: any) {
-    throw new Error('getInstanceFromScope not implemented.');
+    throw new Error("getInstanceFromScope not implemented.");
   },
   detachDeletedInstance: function (node: any): void {
-    throw new Error('detachDeletedInstance not implemented.');
+    throw new Error("detachDeletedInstance not implemented.");
   },
 });
 

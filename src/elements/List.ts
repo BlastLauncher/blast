@@ -1,5 +1,5 @@
-import BaseElement from './BaseElement';
-import { Props } from '../types';
+import BaseElement from "./BaseElement";
+import { Props } from "../types";
 
 export default class List extends BaseElement {
   static propTypes: object;
