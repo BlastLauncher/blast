@@ -31,4 +31,6 @@ export function runServer() {
   server.setAuth((params) => {
     return true;
   });
+
+  return server;
 }

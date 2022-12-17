@@ -4,6 +4,10 @@ import assert from 'assert';
 const ws = new Client('ws://localhost:6667');
 
 ws.on('open', function () {
+  ws.on('event', function (params) {
+    console.log('event', params);
+  });
+
   // call an RPC method with parameters
   ws.call('sum', [5, 3]).then(function (result) {
     assert.equal(result, 8);

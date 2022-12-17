@@ -5,7 +5,9 @@ import Component from '../examples/todo-list/src/index';
 import logger from './logger';
 import { runServer } from './server';
 
-type Type = any;
+const server = runServer();
+
+type Type = string;
 type Props = Record<string, any>;
 type Container = any;
 type Instance = any;
@@ -47,6 +49,8 @@ const JSONRPCRenderer = Reconciler<
     hostContext: HostContext,
     internalInstanceHandle: InternalInstanceHandle,
   ) {
+    logger.debug(`createInstance(${type}, ${props})`);
+
     // Convert the type and props to a JSON-RPC object
     const jsonRpcElement: any = {
       type,
@@ -77,6 +81,7 @@ const JSONRPCRenderer = Reconciler<
     hostContext: object,
     internalInstanceHandle: object,
   ) {
+    logger.debug(`createTextInstance(${text})`);
     return {
       type: 'Text',
       text,
@@ -86,7 +91,15 @@ const JSONRPCRenderer = Reconciler<
   // The `appendInitialChild` method is called when a new child is added to a parent element.
   // It should append the child to the parent in the JSON-RPC object.
   appendInitialChild(parentInstance: Instance, child: object) {
-    parentInstance.children.push(child);
+    logger.debug(`appendInitialChild(${parentInstance}, ${child})`);
+    // parentInstance.children.push(child);
+
+    // TODO:
+  },
+
+  appendChildToContainer(container: Container, child: object) {
+    logger.debug(`appendChildToContainer(${container}, ${child})`);
+    // container.children.push(child);
   },
 
   // The `finalizeInitialChildren` method is called after all the initial children of a parent element have been added.
@@ -98,6 +111,7 @@ const JSONRPCRenderer = Reconciler<
     rootContainer: Container,
     hostContext: HostContext,
   ) {
+    logger.debug(`finalizeInitialChildren(${instance}, ${type}, ${props})`);
     return instance;
   },
 
@@ -111,6 +125,9 @@ const JSONRPCRenderer = Reconciler<
     rootContainerInstance: Container,
     hostContext: object,
   ) {
+    logger.debug(
+      `prepareUpdate(${domElement}, ${type}, ${oldProps}, ${newProps})`,
+    );
     return {
       ...newProps,
     };
@@ -126,20 +143,34 @@ const JSONRPCRenderer = Reconciler<
     nextProps: Props,
     internalHandle: InternalInstanceHandle,
   ) {
+    logger.debug(
+      `commitUpdate(${instance}, ${updatePayload}, ${type}, ${prevProps}, ${nextProps})`,
+    );
     // for (const propName in updatePayload) {
     //   instance.props[propName] = updatePayload[propName];
     // }
   },
 
+  commitMount(
+    instance: Instance,
+    type: Type,
+    newProps: Props,
+    internalInstanceHandle: InternalInstanceHandle,
+  ) {
+    logger.debug(`commitMount(${instance}, ${type}, ${newProps})`);
+  },
+
   // The `appendChild` method is called when a new child is added to a parent element.
   // It should append the child to the parent in the JSON-RPC object.
   appendChild(parentInstance: object, child: object) {
+    logger.debug(`appendChild(${parentInstance}, ${child})`);
     // parentInstance.children.push(child);
   },
 
   // The `insertBefore` method is called when a new child is inserted before an existing child in a parent element.
   // It should insert the child into the parent in the JSON-RPC object.
   insertBefore(parentInstance: object, child: object, beforeChild: object) {
+    logger.debug(`insertBefore(${parentInstance}, ${child}, ${beforeChild})`);
     // const index = parentInstance.children.indexOf(beforeChild);
     // if (index >= 0) {
     //   parentInstance.children.splice(index, 0, child);
@@ -151,6 +182,7 @@ const JSONRPCRenderer = Reconciler<
   // The `removeChild` method is called when a child is removed from a parent element.
   // It should remove the child from the parent in the JSON-RPC object.
   removeChild(parentInstance: object, child: object) {
+    logger.debug(`removeChild(${parentInstance}, ${child})`);
     // const index = parentInstance.children.indexOf(child);
     // if (index >= 0) {
     //   parentInstance.children.splice(index, 1);
@@ -160,21 +192,28 @@ const JSONRPCRenderer = Reconciler<
   // The `resetTextContent` method is called when the text content of an element is reset.
   // It should reset the text content of the element in the JSON-RPC object.
   resetTextContent(domElement: object) {
+    logger.debug(`resetTextContent(${domElement})`);
     // domElement.text = '';
   },
 
   // The `commitTextUpdate` method is called when the text content of an element is updated.
   // It should update the text content of the element in the JSON-RPC object.
   commitTextUpdate(textInstance: object, oldText: string, newText: string) {
+    logger.debug(`commitTextUpdate(${textInstance}, ${oldText}, ${newText})`);
     // textInstance.text = newText;
   },
 
   // The `getRootHostContext` method is called when the root container is being prepared.
   // It should return the host context for the root container.
   getRootHostContext(rootContainerInstance: Container) {
+    logger.debug(
+      `getRootHostContext(${JSON.stringify(rootContainerInstance)})`,
+    );
+
     return {
       callEventHandler: (name: string, args: any[]) => {
-        // Call the event handler from the client
+        logger.debug(`callEventHandler(${name}, ${JSON.stringify(args)})`);
+        return null;
       },
     };
   },
@@ -182,6 +221,10 @@ const JSONRPCRenderer = Reconciler<
   // The `shouldSetTextContent` method is called when a parent element is being updated.
   // It should return true if the text content of the element should be reset.
   shouldSetTextContent(type: string, props: object) {
+    logger.debug(`shouldSetTextContent(${type}`);
+
+    logger.debug(props);
+
     return false;
   },
 
@@ -215,9 +258,12 @@ const JSONRPCRenderer = Reconciler<
     type: any,
     rootContainer: any,
   ) {
-    throw new Error('Function not implemented. getChildHostContext');
+    logger.debug('getChildHostContext');
+
+    return {};
   },
   getPublicInstance: function (instance: any) {
+    logger.debug('getPublicInstance');
     throw new Error('getPublicInstance not implemented.');
   },
   prepareForCommit: function (containerInfo: any): Record<string, any> | null {
@@ -259,28 +305,25 @@ const JSONRPCRenderer = Reconciler<
   },
 });
 
-const ReactRenderer = {
-  render(component: any, container: any) {
-    JSONRPCRenderer.injectIntoDevTools({
-      bundleType: 1, // 0 for PROD, 1 for DEV
-      version: '0.1.0', // version for your renderer
-      rendererPackageName: 'blast-renderer', // package name
-    });
+function render(component: any, container: any) {
+  JSONRPCRenderer.injectIntoDevTools({
+    bundleType: 1, // 0 for PROD, 1 for DEV
+    version: '0.1.0', // version for your renderer
+    rendererPackageName: 'blast-renderer', // package name
+  });
 
-    const root = JSONRPCRenderer.createContainer(
-      container,
-      1,
-      null,
-      true,
-      null,
-      '',
-      () => {},
-      null,
-    );
-    JSONRPCRenderer.updateContainer(component, root, null);
-  },
-};
+  const root = JSONRPCRenderer.createContainer(
+    container,
+    0,
+    null,
+    true,
+    null,
+    '',
+    () => {},
+    null,
+  );
 
-ReactRenderer.render(React.createElement(Component), {});
+  JSONRPCRenderer.updateContainer(component, root, null);
+}
 
-runServer();
+render(React.createElement(Component), {});
