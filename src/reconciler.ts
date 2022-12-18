@@ -17,8 +17,9 @@ import {
   NoTimeout,
   InternalInstanceHandle,
 } from "./types";
+import createElement from "./elements";
 
-const debug = createDebug("blast:renderer");
+const debug = createDebug("blast:reconciler");
 
 export const JSONRPCReconciler = Reconciler<
   Type,
@@ -46,26 +47,7 @@ export const JSONRPCReconciler = Reconciler<
   ) {
     debug(`createInstance(${type}, ${props})`);
 
-    // Convert the type and props to a JSON-RPC object
-    const jsonRpcElement: any = {
-      type,
-      props,
-    };
-
-    // Add event handlers to the JSON-RPC object
-    // for (const propName in props) {
-    //   if (typeof props[propName] === 'function') {
-    //     jsonRpcElement[propName] = function (...args: any[]) {
-    //       // Call the event handler from the client
-    //       return internalInstanceHandle.hostContext.callEventHandler(
-    //         propName,
-    //         args,
-    //       );
-    //     };
-    //   }
-    // }
-
-    return jsonRpcElement;
+    return createElement(type, props);
   },
 
   // The `createTextInstance` method is called when a new text node is created.
@@ -83,14 +65,18 @@ export const JSONRPCReconciler = Reconciler<
 
   // The `appendInitialChild` method is called when a new child is added to a parent element.
   // It should append the child to the parent in the JSON-RPC object.
-  appendInitialChild(parentInstance: Instance, child: Instance | null) {
+  appendInitialChild(parentInstance: Instance, child: Instance) {
     debug(`appendInitialChild(${parentInstance}, ${child})`);
-    // parentInstance.children.push(child);
+
+    parentInstance.appendChild(child);
   },
 
-  appendChildToContainer(container: Container, child: Instance | null) {
+  appendChildToContainer(container: Container, child: Instance) {
     debug(`appendChildToContainer(${container}, ${child})`);
-    // container.children.push(child);
+
+    debug(container);
+
+    container.appendChild(child);
   },
 
   finalizeInitialChildren(
@@ -116,6 +102,7 @@ export const JSONRPCReconciler = Reconciler<
     hostContext: object
   ) {
     debug(`prepareUpdate(${domElement}, ${type}, ${oldProps}, ${newProps})`);
+
     return {
       ...newProps,
     };
@@ -131,11 +118,11 @@ export const JSONRPCReconciler = Reconciler<
     nextProps: Props,
     internalHandle: InternalInstanceHandle
   ) {
-    debug(`commitUpdate(${instance}, ${updatePayload}, ${type}, ${prevProps}, ${nextProps})`);
+    debug(`commitUpdate`);
 
-    // for (const propName in updatePayload) {
-    //   instance.props[propName] = updatePayload[propName];
-    // }
+    instance.commitUpdate(nextProps);
+
+    debug(JSON.stringify(instance.serialize(), null, 2));
   },
 
   commitMount(instance: Instance, type: Type, newProps: Props, internalInstanceHandle: InternalInstanceHandle) {
@@ -146,7 +133,8 @@ export const JSONRPCReconciler = Reconciler<
   // It should append the child to the parent in the JSON-RPC object.
   appendChild(parentInstance: Instance, child: Instance) {
     debug(`appendChild(${parentInstance}, ${child})`);
-    // parentInstance.children.push(child);
+
+    parentInstance.appendChild(child);
   },
 
   // The `insertBefore` method is called when a new child is inserted before an existing child in a parent element.
@@ -188,7 +176,7 @@ export const JSONRPCReconciler = Reconciler<
   // The `getRootHostContext` method is called when the root container is being prepared.
   // It should return the host context for the root container.
   getRootHostContext(rootContainerInstance: Container) {
-    debug(`getRootHostContext(${JSON.stringify(rootContainerInstance)})`);
+    debug(`getRootHostContext`, rootContainerInstance);
 
     return {
       callEventHandler: (name: string, args: any[]) => {
@@ -201,9 +189,7 @@ export const JSONRPCReconciler = Reconciler<
   // The `shouldSetTextContent` method is called when a parent element is being updated.
   // It should return true if the text content of the element should be reset.
   shouldSetTextContent(type: string, props: object) {
-    debug(`shouldSetTextContent(${type}`);
-
-    debug(props);
+    debug("shouldSetTextContent", type);
 
     return false;
   },

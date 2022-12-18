@@ -1,7 +1,9 @@
 {
   "display": "Node 16",
   "compilerOptions": {
-    "lib": ["es2020"],
+    "lib": [
+      "es2020"
+    ],
     "module": "CommonJS",
     "target": "ESNext",
     "strict": true,
@@ -11,8 +13,15 @@
     "allowSyntheticDefaultImports": true,
     "jsx": "react-jsx",
     "moduleResolution": "node",
-    "allowJs": true
+    "allowJs": true,
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/@types"
+    ]
   },
+  "include": [
+    "src"
+  ],
   "ts-node": {
     "esm": true
   }

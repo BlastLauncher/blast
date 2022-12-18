@@ -1,8 +1,11 @@
 import JSONRPCReconciler from "./reconciler";
+import Command from "./elements/Command";
 
-export function render(component: any, container: any) {
+export function render(component: any) {
+  const rootElement = new Command();
+
   const root = JSONRPCReconciler.createContainer(
-    container,
+    rootElement,
     0,
     null,
     true,
@@ -15,4 +18,6 @@ export function render(component: any, container: any) {
   );
 
   JSONRPCReconciler.updateContainer(component, root, null);
+
+  return rootElement;
 }

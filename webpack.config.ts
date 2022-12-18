@@ -8,6 +8,7 @@ const configs: webpack.Configuration[] = [
       bundle: path.join(__dirname, "./src/index.ts"),
       testClient: path.join(__dirname, "./src/testClient.ts"),
     },
+    devtool: "eval-source-map",
     output: {
       path: path.resolve(__dirname, "dist"),
       filename: "[name].js",

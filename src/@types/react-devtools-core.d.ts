@@ -1,4 +1,8 @@
 declare module "react-devtools-core/backend" {
+  import { w3cwebsocket as W3CWebSocket } from "websocket";
+  type ResolveNativeStyle = any;
+  type DevToolsSettingsManager = any;
+
   interface ConnectOptions {
     host?: string;
     nativeStyleEditorValidAttributes?: ReadonlyArray<string>;
@@ -7,7 +11,7 @@ declare module "react-devtools-core/backend" {
     resolveRNStyle?: ResolveNativeStyle;
     retryConnectionDelay?: number;
     isAppActive?: () => boolean;
-    websocket?: WebSocket | null;
+    websocket?: WebSocket | W3CWebSocket | null;
     devToolsSettingsManager?: DevToolsSettingsManager | null;
   }
 

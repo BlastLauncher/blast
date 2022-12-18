@@ -1,40 +1,62 @@
 // Big thanks to https://github.com/clayrisser/create-react-renderer
-import { BaseNode, Node, Instance, Props } from "../types";
+import { Instance, Props } from "../types";
+import { createDebug } from "../utils/debug";
+import pick from "lodash/pick";
+
+const debug = createDebug("blast:elements:BaseElement");
 
 export interface IElement {
-  new (props?: Props): BaseElement;
+  new (type: string, props?: Props): BaseElement;
   propTypes: object;
   defaultProps: Props;
 }
 
 export default class BaseElement implements Instance {
   static defaultProps: Props = {};
-
   static propTypes: object = {};
 
-  node: Node;
-
-  children: Instance[] = [];
+  children: BaseElement[] = [];
   props: Props = {};
+  elementType = "BaseElement";
 
-  constructor(baseNode: BaseNode | BaseNode[], _props: Props = {}) {
-    if (Array.isArray(baseNode)) throw new Error("cannot be array");
-    this.node = baseNode;
+  constructor(type: string, props: Props = {}) {
+    this.props = props;
+    this.elementType = type;
   }
 
   appendChild(_child: BaseElement) {
-    // noop
+    debug(`appendChild(${_child})`);
+    this.children.push(_child as BaseElement);
   }
 
   removeChild(_child: BaseElement) {
-    // noop
+    debug(`removeChild()`);
+    this.children.splice(this.children.indexOf(_child), 1);
   }
 
   commitMount() {
     // noop
+    debug(`commitMount()`);
   }
 
   commitUpdate(_newProps: Props) {
-    // noop
+    debug(`commitUpdate()`);
+    this.props = _newProps;
+  }
+
+  // serialize to JSON
+  serialize(): any {
+    debug(`serialize()`);
+
+    return {
+      elementType: this.elementType,
+      props: pick(this.props, this.propsForSerialize()),
+      children: this.children.map((child) => child.serialize()),
+    };
+  }
+
+  // Preserve props that can be serialized
+  propsForSerialize(): string[] {
+    return Object.keys(this.props);
   }
 }

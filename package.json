@@ -20,6 +20,7 @@
     "@raycast/api": "^1.45.0",
     "debug": "^4.3.4",
     "global": "^4.4.0",
+    "lodash": "^4.17.21",
     "react": "^18.2.0",
     "react-reconciler": "^0.28.0",
     "rpc-websockets": "^7.5.0",
@@ -28,6 +29,7 @@
   "devDependencies": {
     "@types/debug": "^4.1.7",
     "@types/jest": "^29.2.4",
+    "@types/lodash": "^4.14.191",
     "@types/node": "^18.8.3",
     "@types/react-reconciler": "^0.28.0",
     "@types/webpack": "^5.28.0",

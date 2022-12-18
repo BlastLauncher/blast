@@ -7,4 +7,7 @@ import React from "react";
 import { render } from "./render";
 import Command from "../examples/todo-list/src/index";
 
-render(React.createElement(Command), {});
+const rootElement = render(React.createElement(Command));
+
+console.log("inspected generate tree");
+console.log(JSON.stringify(rootElement.serialize(), null, 2));

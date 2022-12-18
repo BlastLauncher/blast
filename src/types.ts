@@ -9,16 +9,20 @@ export type Type = string;
 
 export type Props = Record<string, any>;
 
-export type Container = any;
+export interface Container {
+  appendChild(child: Instance): void;
+}
 
 export interface Instance {
-  appendChild(child: Instance | TextInstance): void;
+  appendChild(child: Instance): void;
   children: Instance[];
   commitMount(): void;
   commitUpdate(newProps: Props): void;
-  node: Node;
   props: Props;
-  removeChild(child: Instance | TextInstance): void;
+  removeChild(child: Instance): void;
+  serialize(): any;
+  propsForSerialize(): string[];
+  elementType: string;
 }
 
 export type TextInstance = null;
@@ -27,7 +31,7 @@ export type SuspenseInstance = any;
 
 export type HydratableInstance = any;
 
-export type PublicInstance = Instance | TextInstance;
+export type PublicInstance = Instance;
 
 export type HostContext = {
   [key: string]: any;
