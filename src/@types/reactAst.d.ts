@@ -6,5 +6,9 @@ declare namespace JSX {
       ref?: Ref<any>;
       children?: ReactNode;
     };
+    EmptyView: {
+      ref?: Ref<any>;
+      children?: ReactNode;
+    };
   }
 }

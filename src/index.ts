@@ -1,3 +1,6 @@
+export * from "./render";
+export * from "./reconciler";
+
 import "./preloadDevtool";
 
 import React from "react";
