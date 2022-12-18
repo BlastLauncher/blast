@@ -5,7 +5,7 @@ const configs: webpack.Configuration[] = [
   {
     mode: "none",
     entry: {
-      bundle: path.join(__dirname, "./src/index.ts"),
+      bundle: path.join(__dirname, "./src/examples/index.ts"),
       testClient: path.join(__dirname, "./src/testClient.ts"),
     },
     devtool: "eval-source-map",

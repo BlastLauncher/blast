@@ -11,6 +11,8 @@ export type Props = Record<string, any>;
 
 export interface Container {
   appendChild(child: Instance): void;
+  clear(): void;
+  serialize(): any;
 }
 
 export interface Instance {

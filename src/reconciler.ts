@@ -50,8 +50,6 @@ export const JSONRPCReconciler = Reconciler<
     return createElement(type, props);
   },
 
-  // The `createTextInstance` method is called when a new text node is created.
-  // It should return a JSON-RPC object representing the text node.
   createTextInstance(
     text: string,
     rootContainerInstance: Container,
@@ -66,15 +64,13 @@ export const JSONRPCReconciler = Reconciler<
   // The `appendInitialChild` method is called when a new child is added to a parent element.
   // It should append the child to the parent in the JSON-RPC object.
   appendInitialChild(parentInstance: Instance, child: Instance) {
-    debug(`appendInitialChild(${parentInstance}, ${child})`);
+    debug(`appendInitialChild`, parentInstance.elementType, child.elementType);
 
     parentInstance.appendChild(child);
   },
 
   appendChildToContainer(container: Container, child: Instance) {
-    debug(`appendChildToContainer(${container}, ${child})`);
-
-    debug(container);
+    debug(`appendChildToContainer`, child.elementType);
 
     container.appendChild(child);
   },
@@ -86,9 +82,9 @@ export const JSONRPCReconciler = Reconciler<
     rootContainer: Container,
     hostContext: HostContext
   ) {
-    debug(`finalizeInitialChildren(${instance}, ${type}, ${props})`);
+    debug(`finalizeInitialChildren`, instance.elementType, type);
 
-    return false;
+    return true;
   },
 
   // The `prepareUpdate` method is called when the props of an element are updated.
@@ -101,11 +97,8 @@ export const JSONRPCReconciler = Reconciler<
     rootContainerInstance: Container,
     hostContext: object
   ) {
-    debug(`prepareUpdate(${domElement}, ${type}, ${oldProps}, ${newProps})`);
-
-    return {
-      ...newProps,
-    };
+    debug(`prepareUpdate`);
+    return true;
   },
 
   // The `commitUpdate` method is called after the props of an element have been updated.
@@ -121,18 +114,17 @@ export const JSONRPCReconciler = Reconciler<
     debug(`commitUpdate`);
 
     instance.commitUpdate(nextProps);
-
-    debug(JSON.stringify(instance.serialize(), null, 2));
   },
 
   commitMount(instance: Instance, type: Type, newProps: Props, internalInstanceHandle: InternalInstanceHandle) {
-    debug(`commitMount(${instance}, ${type}, ${newProps})`);
+    debug(`commitMount`, instance.elementType);
+    instance.commitMount();
   },
 
   // The `appendChild` method is called when a new child is added to a parent element.
   // It should append the child to the parent in the JSON-RPC object.
   appendChild(parentInstance: Instance, child: Instance) {
-    debug(`appendChild(${parentInstance}, ${child})`);
+    debug(`appendChild`, parentInstance.elementType, child.elementType);
 
     parentInstance.appendChild(child);
   },
@@ -140,29 +132,23 @@ export const JSONRPCReconciler = Reconciler<
   // The `insertBefore` method is called when a new child is inserted before an existing child in a parent element.
   // It should insert the child into the parent in the JSON-RPC object.
   insertBefore(parentInstance: Instance, child: Instance, beforeChild: Instance) {
-    debug(`insertBefore(${parentInstance}, ${child}, ${beforeChild})`);
-    // const index = parentInstance.children.indexOf(beforeChild);
-    // if (index >= 0) {
-    //   parentInstance.children.splice(index, 0, child);
-    // } else {
-    //   parentInstance.children.push(child);
-    // }
+    debug(`insertBefore`, parentInstance.elementType, child.elementType, beforeChild.elementType);
   },
 
   // The `removeChild` method is called when a child is removed from a parent element.
   // It should remove the child from the parent in the JSON-RPC object.
-  removeChild(parentInstance: object, child: object) {
-    debug(`removeChild(${parentInstance}, ${child})`);
-    // const index = parentInstance.children.indexOf(child);
-    // if (index >= 0) {
-    //   parentInstance.children.splice(index, 1);
-    // }
+  removeChild(parentInstance: Instance, child: Instance) {
+    debug(`removeChild`, parentInstance.elementType, child.elementType);
+  },
+
+  removeChildFromContainer(container: Container, child: Instance) {
+    debug(`removeChildFromContainer`);
   },
 
   // The `resetTextContent` method is called when the text content of an element is reset.
   // It should reset the text content of the element in the JSON-RPC object.
   resetTextContent(domElement: object) {
-    debug(`resetTextContent(${domElement})`);
+    debug(`resetTextContent`);
     // domElement.text = '';
   },
 
@@ -170,7 +156,8 @@ export const JSONRPCReconciler = Reconciler<
   // It should update the text content of the element in the JSON-RPC object.
   commitTextUpdate(textInstance: null, oldText: string, newText: string) {
     debug(`commitTextUpdate(${textInstance}, ${oldText}, ${newText})`);
-    // textInstance.text = newText;
+
+    throw new Error("commitTextUpdate should not be called");
   },
 
   // The `getRootHostContext` method is called when the root container is being prepared.
@@ -206,6 +193,8 @@ export const JSONRPCReconciler = Reconciler<
 
   clearContainer(container: Container) {
     debug("clearContainer");
+
+    container.clear();
   },
 
   // The `isPrimaryRenderer` property should be set to true if this renderer is the primary renderer.
@@ -219,6 +208,7 @@ export const JSONRPCReconciler = Reconciler<
 
   // The `supportsHydration` property should be set to true if this renderer supports hydration.
   supportsHydration: false,
+
   getChildHostContext: function (parentHostContext: any, type: any, rootContainer: any) {
     debug("getChildHostContext", parentHostContext, type, rootContainer);
 
@@ -226,25 +216,27 @@ export const JSONRPCReconciler = Reconciler<
   },
   getPublicInstance: function (instance: any) {
     debug("getPublicInstance");
-    throw new Error("getPublicInstance not implemented.");
+    return instance;
   },
-  prepareForCommit: function (containerInfo: any): Record<string, any> | null {
+  prepareForCommit: function (containerInfo: Container): Record<string, any> | null {
     debug("prepareForCommit");
     return null;
   },
-  resetAfterCommit: function (containerInfo: any): void {
+  resetAfterCommit: function (containerInfo: Container): void {
     debug("resetAfterCommit");
+
+    debug(JSON.stringify(containerInfo.serialize(), null, 2));
   },
-  preparePortalMount: function (containerInfo: any): void {
+  preparePortalMount: function (containerInfo: Container): void {
     throw new Error("preparePortalMount not implemented.");
   },
   scheduleTimeout: function (fn: (...args: unknown[]) => unknown, delay?: number | undefined) {
-    throw new Error("scheduleTimeout not implemented.");
+    return setTimeout(fn, delay);
   },
   cancelTimeout: function (id: any): void {
-    throw new Error("cancelTimeout not implemented.");
+    clearTimeout(id);
   },
-  noTimeout: undefined,
+  noTimeout: -1,
   getCurrentEventPriority: function (): number {
     return DefaultEventPriority;
   },

@@ -1,7 +1,7 @@
 import BaseElement from "./BaseElement";
-import { Props } from "../types";
+import { Container, Props } from "../types";
 
-export default class Command extends BaseElement {
+export default class Command extends BaseElement implements Container {
   static propTypes: object;
 
   static defaultProps: Props;
@@ -11,5 +11,9 @@ export default class Command extends BaseElement {
     // List, Detail
 
     super("CommandContainer", props);
+  }
+
+  clear(): void {
+    this.children = [];
   }
 }

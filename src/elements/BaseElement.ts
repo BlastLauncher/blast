@@ -46,8 +46,6 @@ export default class BaseElement implements Instance {
 
   // serialize to JSON
   serialize(): any {
-    debug(`serialize()`);
-
     return {
       elementType: this.elementType,
       props: pick(this.props, this.propsForSerialize()),
