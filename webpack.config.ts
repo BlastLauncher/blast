@@ -5,8 +5,8 @@ const configs: webpack.Configuration[] = [
   {
     mode: "none",
     entry: {
-      bundle: path.join(__dirname, "./src/examples/index.ts"),
-      testClient: path.join(__dirname, "./src/testClient.ts"),
+      bundle: ["windowPolyfill", path.join(__dirname, "./src/examples/index.ts")],
+      testClient: ["windowPolyfill", path.join(__dirname, "./src/testClient.ts")],
     },
     devtool: "eval-source-map",
     output: {
@@ -26,6 +26,7 @@ const configs: webpack.Configuration[] = [
     resolve: {
       alias: {
         "@raycast/api": path.join(__dirname, "./src/api.ts"),
+        windowPolyfill: path.resolve(__dirname, "./src/utils/window.js"),
       },
       extensions: [".tsx", ".ts", ".js"],
       fallback: {
@@ -43,11 +44,6 @@ const configs: webpack.Configuration[] = [
         fs: false,
       },
     },
-    plugins: [
-      new webpack.ProvidePlugin({
-        window: "global/window",
-      }),
-    ],
   },
 ];
 
