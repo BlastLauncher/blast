@@ -10,6 +10,7 @@ declare namespace JSX {
     Action: {
       ref?: Ref<any>;
       serializesKeys?: string[];
+      actionEventName: string;
     };
     List: {
       ref?: Ref<any>;
