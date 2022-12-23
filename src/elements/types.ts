@@ -6,3 +6,4 @@ export const Form = "Form";
 export const ActionPanel = "ActionPanel";
 export const Icon = "Icon";
 export const EmptyView = "EmptyView";
+export const Detail = "Detail";

@@ -1,5 +1,5 @@
 import { IElement } from "./BaseElement";
-import { Action, ActionPanel, EmptyView, List, View } from "./ExtendedElements";
+import { Action, ActionPanel, EmptyView, List, View, Detail } from "./ExtendedElements";
 import Command from "./Command";
 
 export const elements: { [key: string]: IElement } = {
@@ -9,4 +9,5 @@ export const elements: { [key: string]: IElement } = {
   Command,
   EmptyView,
   Action,
+  Detail,
 };

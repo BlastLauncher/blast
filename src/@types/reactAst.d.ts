@@ -21,5 +21,8 @@ declare namespace JSX {
       serializesKeys?: string[];
       children?: ReactNode;
     };
+    Detail: {
+      serializesKeys?: string[];
+    };
   }
 }

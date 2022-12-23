@@ -25,7 +25,7 @@ const configs: webpack.Configuration[] = [
     target: "node",
     resolve: {
       alias: {
-        "@raycast/api": path.join(__dirname, "./src/api.ts"),
+        "@raycast/api": path.join(__dirname, "./src/raycast/api.ts"),
         windowPolyfill: path.resolve(__dirname, "./src/utils/window.js"),
         "raycast-original": path.resolve(__dirname, "node_modules/@raycast/api"),
       },

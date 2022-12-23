@@ -44,3 +44,11 @@ export class Action extends BaseElement {
     super(props);
   }
 }
+
+export class Detail extends BaseElement {
+  static defaultProps = {};
+
+  constructor(props: any) {
+    super(props);
+  }
+}
