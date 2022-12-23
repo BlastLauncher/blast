@@ -3,12 +3,12 @@ import * as webpack from "webpack";
 
 const configs: webpack.Configuration[] = [
   {
-    mode: "none",
+    mode: "development",
     entry: {
       bundle: ["windowPolyfill", path.join(__dirname, "./src/examples/index.ts")],
       testClient: ["windowPolyfill", path.join(__dirname, "./src/testClient.ts")],
     },
-    devtool: "eval-source-map",
+    devtool: "source-map",
     output: {
       path: path.resolve(__dirname, "dist"),
       filename: "[name].js",
@@ -27,6 +27,7 @@ const configs: webpack.Configuration[] = [
       alias: {
         "@raycast/api": path.join(__dirname, "./src/api.ts"),
         windowPolyfill: path.resolve(__dirname, "./src/utils/window.js"),
+        "raycast-original": path.resolve(__dirname, "node_modules/@raycast/api"),
       },
       extensions: [".tsx", ".ts", ".js"],
       fallback: {

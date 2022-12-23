@@ -21,6 +21,7 @@
     "debug": "^4.3.4",
     "global": "^4.4.0",
     "lodash": "^4.17.21",
+    "prop-types": "^15.8.1",
     "react": "^18.2.0",
     "react-reconciler": "^0.28.0",
     "rpc-websockets": "^7.5.0",

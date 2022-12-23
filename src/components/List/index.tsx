@@ -1,11 +1,21 @@
 import React from "react";
+import union from "lodash/union";
+
 import { Dropdown } from "./Dropdown";
 import { EmptyView } from "./EmptyView";
-import { List as ListElement } from "../../elements/types";
+import { List as RaycastList } from "raycast-original";
+import * as ElementTypes from "../../elements/types";
 
-export const List = (props: any) => {
-  return <ListElement {...props} />;
+const navigationProps = ["navigationTitle", "isLoading"];
+const searchBarProps = ["filtering", "isLoading", "throttle"];
+const listProps = ["searchText", "enableFiltering", "searchBarPlaceholder", "selectedItemId", "isShowingDetail"];
+
+export const List = (props: RaycastList.Props) => {
+  return <ElementTypes.List serializesKeys={union(navigationProps, searchBarProps, listProps)} {...props} />;
 };
 
 List.Dropdown = Dropdown;
 List.EmptyView = EmptyView;
+
+export * from "./ActionPanel";
+export * from "./Action";

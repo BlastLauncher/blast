@@ -1,4 +1,5 @@
-import JSONRPCReconciler from "./reconciler";
+import { FiberRoot } from "react-reconciler";
+import JSONTreeRenderer from "./reconciler";
 import Command from "./elements/Command";
 import { createDebug } from "./utils/debug";
 const debug = createDebug("blast:render");
@@ -6,7 +7,7 @@ const debug = createDebug("blast:render");
 export function render(component: any) {
   const rootElement = new Command();
 
-  const root = JSONRPCReconciler.createContainer(
+  const root: FiberRoot | null = JSONTreeRenderer.createContainer(
     rootElement,
     0,
     null,
@@ -20,17 +21,15 @@ export function render(component: any) {
     null
   );
 
-  JSONRPCReconciler.injectIntoDevTools({
+  JSONTreeRenderer.injectIntoDevTools({
     bundleType: 1,
     rendererPackageName: "blast",
     version: "0.0.1",
-    findFiberByHostInstance: (instance) => {
-      debug(`findFiberByHostInstance`, instance);
-      return null;
-    },
   });
 
-  JSONRPCReconciler.updateContainer(component, root, null);
+  JSONTreeRenderer.updateContainer(component, root, null);
 
   return rootElement;
 }
+
+export default render;

@@ -19,14 +19,6 @@ export const Form = () => {
   // TODO
 };
 
-export const Action = () => {
-  // TODO
-};
-
-export const ActionPanel = () => {
-  // TODO
-};
-
 export const Icon = () => {
   // TODO
 };

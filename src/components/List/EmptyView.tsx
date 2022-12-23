@@ -1,6 +1,14 @@
-import { EmptyView as EmptyViewElement } from "../../elements/types";
 import React from "react";
+import { List } from "raycast-original";
 
-export const EmptyView = (props: any) => {
-  return <EmptyViewElement {...props} />;
+import * as ElementTypes from "../../elements/types";
+
+export const EmptyView = (props: List.EmptyView.Props) => {
+  const { actions, ...rest } = props;
+
+  return (
+    <ElementTypes.EmptyView serializesKeys={["title", "description"]} {...rest}>
+      {actions}
+    </ElementTypes.EmptyView>
+  );
 };

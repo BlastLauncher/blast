@@ -1,5 +1,5 @@
 import { connect } from "../preloadDevtool";
-import { run } from "./runComand";
+import { run } from "./runCommand";
 
 connect();
 run();

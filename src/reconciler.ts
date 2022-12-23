@@ -17,11 +17,11 @@ import {
   NoTimeout,
   InternalInstanceHandle,
 } from "./types";
-import createElement from "./elements";
+import createElement from "./elements/createElement";
 
 const debug = createDebug("blast:reconciler");
 
-export const JSONRPCReconciler = Reconciler<
+export const JSONTreeRenderer = Reconciler<
   Type,
   Props,
   Container,
@@ -250,8 +250,9 @@ export const JSONRPCReconciler = Reconciler<
     throw new Error("getInstanceFromScope not implemented.");
   },
   detachDeletedInstance: function (node: any): void {
-    throw new Error("detachDeletedInstance not implemented.");
+    debug("detachDeletedInstance");
+    // throw new Error("detachDeletedInstance not implemented.");
   },
 });
 
-export default JSONRPCReconciler;
+export default JSONTreeRenderer;

@@ -2,15 +2,12 @@ import BaseElement from "./BaseElement";
 import { Container, Props } from "../types";
 
 export default class Command extends BaseElement implements Container {
-  static propTypes: object;
-
-  static defaultProps: Props;
+  static defaultProps: Props = {
+    elementType: "Command",
+  };
 
   constructor(props: any = {}) {
-    // Command's children can only be one of the following types
-    // List, Detail
-
-    super("CommandContainer", props);
+    super(props);
   }
 
   clear(): void {

@@ -23,7 +23,7 @@ export interface Instance {
   props: Props;
   removeChild(child: Instance): void;
   serialize(): any;
-  propsForSerialize(): string[];
+  propsForSerialize: string[];
   elementType: string;
 }
 
