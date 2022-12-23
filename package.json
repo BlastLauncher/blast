@@ -6,8 +6,8 @@
   "scripts": {
     "test": "jest",
     "dev": "webpack --config webpack.config.ts --watch --progress",
-    "dev:start": "cross-env DEBUG=blast* nodemon dist/bundle.js",
     "build": "webpack --config webpack.config.ts --progress",
+    "start:dev": "cross-env DEBUG=blast* nodemon dist/bundle.js",
     "start": "node dist/bundle.js",
     "test-client": "node dist/testClient.js",
     "fmt": "prettier --write .",
