@@ -1,5 +1,10 @@
 import { connect } from "../preloadDevtool";
-import { run } from "./runCommand";
+import { run } from "./run";
+import Command from "../../examples/todo-list/src/index";
+import { runServer } from "../server";
 
 connect();
-run();
+
+run(Command, {
+  server: runServer(),
+});
