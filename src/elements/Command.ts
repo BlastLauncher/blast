@@ -1,6 +1,9 @@
 import BaseElement from "./BaseElement";
 import { Container } from "../types";
 import type { Server } from "rpc-websockets";
+import { createDebug } from "../utils/debug";
+
+const debug = createDebug("blast:Container:Command");
 
 export default class Command extends BaseElement implements Container {
   constructor(props: Record<string, any> & { server?: Server } = {}) {
@@ -23,5 +26,7 @@ export default class Command extends BaseElement implements Container {
     server.register("getTree", () => {
       return this.serialize();
     });
+
+    server.event("updateTree");
   }
 }

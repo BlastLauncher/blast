@@ -1,14 +1,29 @@
+import React from "react";
+import { createRoot } from "react-dom/client";
+
+import { setupWS } from "./renderer/setupWS";
+import { remoteBlastTree, BlastComponent } from "./renderer/store";
+import { App } from "./renderer/App";
 import "./index.css";
-import { Client } from "rpc-websockets";
 
-const ws = new Client("ws://localhost:8763");
+async function start() {
+  const container = document.getElementById("app");
+  const root = createRoot(container);
 
-ws.on("open", function () {
-  ws.on("updateTree", (data) => {
-    console.log("updateTree", data);
+  setupWS(async (ws) => {
+    const initialTree = (await ws.call("getTree")) as BlastComponent;
+
+    const state = remoteBlastTree.getState();
+    state.setTree(initialTree);
+
+    ws.subscribe("updateTree");
+    ws.on("updateTree", (data) => {
+      console.log("updateTree", data);
+      state.setTree(data);
+    });
   });
 
-  ws.call("getTree").then((data) => {
-    console.log("getTree", data);
-  });
-});
+  root.render(React.createElement(App));
+}
+
+start();

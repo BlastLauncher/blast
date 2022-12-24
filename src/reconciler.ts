@@ -163,7 +163,7 @@ export const JSONTreeRenderer = Reconciler<
   // The `getRootHostContext` method is called when the root container is being prepared.
   // It should return the host context for the root container.
   getRootHostContext(rootContainerInstance: Container) {
-    debug(`getRootHostContext`, rootContainerInstance);
+    debug(`getRootHostContext`);
 
     return {
       server: rootContainerInstance.server,
@@ -207,7 +207,7 @@ export const JSONTreeRenderer = Reconciler<
   supportsHydration: false,
 
   getChildHostContext: function (parentHostContext: any, type: any, rootContainer: Container) {
-    debug("getChildHostContext", rootContainer);
+    debug("getChildHostContext");
 
     return {
       server: rootContainer.server,
@@ -228,9 +228,9 @@ export const JSONTreeRenderer = Reconciler<
     const server = containerInfo.hostContext.server;
 
     if (server) {
-      debug("Emitting commit event");
+      debug("Emitting commit event: updateTree");
       server.emit("updateTree", jsonTree);
-      debug(JSON.stringify(jsonTree, null, 2));
+      // debug(JSON.stringify(jsonTree, null, 2));
     }
   },
   preparePortalMount: function (containerInfo: Container): void {

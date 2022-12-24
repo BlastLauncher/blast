@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { ActionPanel, Detail, Icon, List, LocalStorage, useNavigation } from "@raycast/api";
+import { ActionPanel, Icon, List, LocalStorage } from "@raycast/api";
 import { Filter, Todo } from "./types";
 import { nanoid } from "nanoid";
 import { CreateTodoAction, DeleteTodoAction, EmptyView, ToggleTodoAction } from "./components";
@@ -20,8 +20,6 @@ export default function Command() {
     todos: [],
     visibleTodos: [],
   });
-
-  const { push, pop } = useNavigation();
 
   useEffect(() => {
     (async () => {
