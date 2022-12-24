@@ -1,5 +1,5 @@
 declare namespace JSX {
-  import type { ActionPanel, Action, List, Detail } from "raycast-original";
+  import type { ActionPanel, Action, List, Detail, Form } from "raycast-original";
 
   type BlastNodeProps = {
     serializesKeys?: string[];
@@ -14,5 +14,7 @@ declare namespace JSX {
     List: List.Props & BlastNodeProps;
     EmptyView: List.EmptyView.Props & BlastNodeProps;
     Detail: Detail.Props & BlastNodeProps;
+    Form: Form.Props & BlastNodeProps;
+    TextField: Form.TextField.Props & BlastNodeProps;
   }
 }

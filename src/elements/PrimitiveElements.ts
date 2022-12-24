@@ -53,3 +53,19 @@ export class Detail extends BaseElement {
     super(props);
   }
 }
+
+export class Form extends BaseElement {
+  static defaultProps = {};
+
+  constructor(props: any) {
+    super(props);
+  }
+}
+
+export class TextField extends BaseElement {
+  static defaultProps = {};
+
+  constructor(props: any) {
+    super(props);
+  }
+}

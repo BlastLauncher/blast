@@ -7,3 +7,4 @@ export const ActionPanel = "ActionPanel";
 export const Icon = "Icon";
 export const EmptyView = "EmptyView";
 export const Detail = "Detail";
+export const TextField = "TextField";
