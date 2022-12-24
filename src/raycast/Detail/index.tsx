@@ -1,4 +1,5 @@
 import { Detail as RDetail } from "raycast-original";
+
 import * as ElementTypes from "../../elements/types";
 
 type DetailPropKeys = (keyof RDetail.Props)[];

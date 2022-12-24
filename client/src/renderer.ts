@@ -1,9 +1,9 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 
+import { App } from "./renderer/App";
 import { setupWS } from "./renderer/setupWS";
 import { remoteBlastTree, BlastComponent } from "./renderer/store";
-import { App } from "./renderer/App";
 import "./index.css";
 
 async function start() {

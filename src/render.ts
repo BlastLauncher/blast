@@ -1,8 +1,8 @@
 import { FiberRoot } from "react-reconciler";
 import type { Server } from "rpc-websockets";
 
-import JSONTreeRenderer from "./reconciler";
 import Command from "./elements/Command";
+import { JSONTreeRenderer } from "./reconciler";
 import { createDebug } from "./utils/debug";
 
 const debug = createDebug("blast:render");

@@ -1,7 +1,9 @@
-import BaseElement from "./BaseElement";
-import { Container } from "../types";
 import type { Server } from "rpc-websockets";
+
+import { Container } from "../types";
 import { createDebug } from "../utils/debug";
+
+import BaseElement from "./BaseElement";
 
 const debug = createDebug("blast:Container:Command");
 

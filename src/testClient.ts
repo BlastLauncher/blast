@@ -1,5 +1,6 @@
-import { Client } from "rpc-websockets";
 import assert from "assert";
+
+import { Client } from "rpc-websockets";
 
 const ws = new Client("ws://localhost:6667");
 

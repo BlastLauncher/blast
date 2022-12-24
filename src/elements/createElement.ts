@@ -1,7 +1,9 @@
+import { HostContext, Props } from "../types";
+
 import { IElement } from "./BaseElement";
 import { elements } from "./elements";
+
 import { debug } from ".";
-import { HostContext, Props } from "../types";
 
 export default function createElement(elementType: keyof typeof elements, props: Props, hostContext: HostContext) {
   const Element: IElement = elements[elementType];

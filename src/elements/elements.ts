@@ -1,6 +1,6 @@
 import { IElement } from "./BaseElement";
-import * as Primitives from "./PrimitiveElements";
 import Command from "./Command";
+import * as Primitives from "./PrimitiveElements";
 
 export const elements: { [key: string]: IElement } = {
   Command,

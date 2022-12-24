@@ -1,7 +1,9 @@
+import { List as RList } from "raycast-original";
+
+import * as ElementTypes from "../../elements/types";
+
 import { Dropdown } from "./Dropdown";
 import { EmptyView } from "./EmptyView";
-import { List as RList } from "raycast-original";
-import * as ElementTypes from "../../elements/types";
 
 type ListPropKeys = (keyof RList.Props)[];
 

@@ -1,7 +1,8 @@
 import React from "react";
 import type { Server } from "rpc-websockets";
-import { NavigationProvider } from "../raycast/Navigation";
+
 import { WsServerProvider } from "../raycast/internal/WsServerProvider";
+import { NavigationProvider } from "../raycast/Navigation";
 
 export type AppProps = {
   Command: React.FC;

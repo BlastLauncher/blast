@@ -1,4 +1,5 @@
 import { createDebug } from "../utils/debug";
+
 import BaseElement from "./BaseElement";
 
 const debug = createDebug("blast:elements:ExtendedElements");

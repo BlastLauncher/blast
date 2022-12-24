@@ -1,4 +1,5 @@
 import { List } from "raycast-original";
+
 import * as ElementTypes from "../../elements/types";
 
 type EmptyViewPropKeys = (keyof List.EmptyView.Props)[];
