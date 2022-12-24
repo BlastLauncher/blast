@@ -8,6 +8,9 @@ import { useNavigation } from "../../Navigation";
 
 const debug = createDebug("blast:action");
 
+type ActionPropKeys = (keyof RaycastAction.Props)[];
+const serializesKeys: ActionPropKeys = ["autoFocus", "icon", "id", "shortcut", "style", "title"];
+
 export const Action = (props: RaycastAction.Props) => {
   const server = useWsServer();
   const actionId = useId();
@@ -26,7 +29,7 @@ export const Action = (props: RaycastAction.Props) => {
 
   return (
     <ElementTypes.Action
-      serializesKeys={["title", "autoFocus", "shortcut", "style", "actionEventName"]}
+      serializesKeys={[...serializesKeys, "actionEventName"]}
       actionEventName={actionEventName}
       {...props}
     />

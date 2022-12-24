@@ -1,5 +1,5 @@
 import React from "react";
-import { Server } from "rpc-websockets";
+import type { Server } from "rpc-websockets";
 
 const WsContext = React.createContext<Server | null>(null);
 

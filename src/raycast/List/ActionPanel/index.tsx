@@ -1,8 +1,9 @@
-import React from "react";
-import { ActionPanel as RaycastAP } from "raycast-original";
-
+import { ActionPanel as RActionPanel } from "raycast-original";
 import * as ElementTypes from "../../../elements/types";
 
-export const ActionPanel = (props: RaycastAP.Props) => {
-  return <ElementTypes.ActionPanel {...props} />;
+type ActionPanelPropKeys = (keyof RActionPanel.Props)[];
+const serializesKeys: ActionPanelPropKeys = ["title"];
+
+export const ActionPanel = (props: RActionPanel.Props) => {
+  return <ElementTypes.ActionPanel serializesKeys={serializesKeys} {...props} />;
 };
