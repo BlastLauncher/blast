@@ -229,7 +229,7 @@ export const JSONTreeRenderer = Reconciler<
 
     if (server) {
       debug("Emitting commit event");
-      server.emit("commit", jsonTree);
+      server.emit("updateTree", jsonTree);
       debug(JSON.stringify(jsonTree, null, 2));
     }
   },

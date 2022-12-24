@@ -2,7 +2,7 @@ import { Server } from "rpc-websockets";
 
 export function runServer() {
   const server = new Server({
-    port: 6667,
+    port: 8763,
     host: "localhost",
   });
 
