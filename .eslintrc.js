@@ -8,6 +8,8 @@ module.exports = {
     "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:react-hooks/recommended",
+    "plugin:import/recommended",
+    "plugin:import/typescript",
     "prettier",
   ],
   overrides: [],
@@ -19,10 +21,25 @@ module.exports = {
   plugins: ["react", "@typescript-eslint"],
   rules: {
     "react/react-in-jsx-scope": "off",
+    "import/order": [
+      "error",
+      {
+        "newlines-between": "always",
+        alphabetize: {
+          order: "asc",
+          caseInsensitive: true,
+        },
+      },
+    ],
   },
   settings: {
     react: {
       version: "detect",
     },
+    "import/resolver": {
+      typescript: true,
+      node: true,
+    },
+    "import/core-modules": ["raycast-original"],
   },
 };
