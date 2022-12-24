@@ -1,16 +1,16 @@
 import BaseElement from "./BaseElement";
-import { Container, Props } from "../types";
+import { Container } from "../types";
 
 export default class Command extends BaseElement implements Container {
-  static defaultProps: Props = {
-    elementType: "Command",
-  };
-
-  constructor(props: any = {}) {
-    super(props);
+  constructor(props: Record<string, any> = {}) {
+    super(props, { server: props.server });
   }
 
   clear(): void {
     this.children = [];
+  }
+
+  get server() {
+    return this.props.server;
   }
 }

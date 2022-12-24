@@ -1,5 +1,5 @@
 // Big thanks to https://github.com/clayrisser/create-react-renderer
-import { Instance, Props } from "../types";
+import { HostContext, Instance, Props } from "../types";
 import { createDebug } from "../utils/debug";
 import PropTypes, { checkPropTypes } from "prop-types";
 import pick from "lodash/pick";
@@ -7,9 +7,9 @@ import pick from "lodash/pick";
 const debug = createDebug("blast:elements:BaseElement");
 
 export interface IElement {
-  new (props?: Props): BaseElement;
-  propTypes: object;
-  defaultProps: Props;
+  new (props?: Props, hostContext?: HostContext): BaseElement;
+  propTypes?: object;
+  defaultProps?: Props;
 }
 
 export default class BaseElement implements Instance {
@@ -19,11 +19,12 @@ export default class BaseElement implements Instance {
 
   children: BaseElement[] = [];
   props: Props = {};
-  elementType = "BaseElement";
   propsForSerialize: string[] = [];
+  _hostContext = {};
 
-  constructor(props: Props = {}) {
+  constructor(props: Props = {}, hostContext: HostContext = {}) {
     this.props = this.getProps(props);
+    this._hostContext = hostContext;
   }
 
   appendChild(_child: BaseElement) {
@@ -61,7 +62,7 @@ export default class BaseElement implements Instance {
 
   getProps(props: Props): Props {
     props = { ...props };
-    const { defaultProps, propTypes } = this.constructor as IElement;
+    const { defaultProps = {}, propTypes } = this.constructor as IElement;
     Object.keys(defaultProps).forEach((key) => {
       const defaultProp = defaultProps[key];
       if (typeof props[key] === "undefined" || props[key] === null) {
@@ -72,5 +73,13 @@ export default class BaseElement implements Instance {
     checkPropTypes(propTypes, props, "prop", this.constructor.name);
 
     return props;
+  }
+
+  get elementType() {
+    return this.constructor.name;
+  }
+
+  get hostContext() {
+    return this._hostContext;
   }
 }

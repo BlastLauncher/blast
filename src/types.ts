@@ -1,3 +1,5 @@
+import type { Server } from "rpc-websockets";
+
 export type BaseNode = {
   props: any;
   children: any;
@@ -13,6 +15,8 @@ export interface Container {
   appendChild(child: Instance): void;
   clear(): void;
   serialize(): any;
+  server: Server | null;
+  hostContext: HostContext;
 }
 
 export interface Instance {
@@ -25,6 +29,7 @@ export interface Instance {
   serialize(): any;
   propsForSerialize: string[];
   elementType: string;
+  hostContext: HostContext;
 }
 
 export type TextInstance = null;
@@ -36,7 +41,7 @@ export type HydratableInstance = any;
 export type PublicInstance = Instance;
 
 export type HostContext = {
-  [key: string]: any;
+  server?: Server | null;
 };
 
 export type UpdatePayload = any;

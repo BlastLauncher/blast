@@ -47,7 +47,7 @@ export const JSONTreeRenderer = Reconciler<
   ) {
     debug(`createInstance(${type}, ${props})`);
 
-    return createElement(type, props);
+    return createElement(type, props, hostContext);
   },
 
   createTextInstance(
@@ -166,10 +166,7 @@ export const JSONTreeRenderer = Reconciler<
     debug(`getRootHostContext`, rootContainerInstance);
 
     return {
-      callEventHandler: (name: string, args: any[]) => {
-        debug(`callEventHandler(${name}, ${JSON.stringify(args)})`);
-        return null;
-      },
+      server: rootContainerInstance.server,
     };
   },
 
@@ -209,10 +206,12 @@ export const JSONTreeRenderer = Reconciler<
   // The `supportsHydration` property should be set to true if this renderer supports hydration.
   supportsHydration: false,
 
-  getChildHostContext: function (parentHostContext: any, type: any, rootContainer: any) {
-    debug("getChildHostContext", parentHostContext, type, rootContainer);
+  getChildHostContext: function (parentHostContext: any, type: any, rootContainer: Container) {
+    debug("getChildHostContext", rootContainer);
 
-    return {};
+    return {
+      server: rootContainer.server,
+    };
   },
   getPublicInstance: function (instance: any) {
     debug("getPublicInstance");
@@ -225,7 +224,14 @@ export const JSONTreeRenderer = Reconciler<
   resetAfterCommit: function (containerInfo: Container): void {
     debug("resetAfterCommit");
 
-    debug(JSON.stringify(containerInfo.serialize(), null, 2));
+    const jsonTree = containerInfo.serialize();
+    const server = containerInfo.hostContext.server;
+
+    if (server) {
+      debug("Emitting commit event");
+      server.emit("commit", jsonTree);
+      debug(JSON.stringify(jsonTree, null, 2));
+    }
   },
   preparePortalMount: function (containerInfo: Container): void {
     throw new Error("preparePortalMount not implemented.");
