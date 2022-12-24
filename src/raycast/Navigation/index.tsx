@@ -1,4 +1,6 @@
-import React, { createContext, useCallback, useContext } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
+
+import { useWsServer } from "../internal/WsServerProvider";
 
 export const NavigationContext = createContext<{
   push: (component: React.ReactNode) => void;
@@ -13,7 +15,8 @@ export const NavigationContext = createContext<{
 });
 
 export const NavigationProvider = ({ children }: { children: React.ReactNode }) => {
-  const [stack, setStack] = React.useState<React.ReactNode[]>([]);
+  const [stack, setStack] = useState<React.ReactNode[]>([]);
+  const server = useWsServer();
 
   const push = useCallback(
     (component: React.ReactNode) => {
@@ -25,6 +28,22 @@ export const NavigationProvider = ({ children }: { children: React.ReactNode }) 
   const pop = useCallback(() => {
     setStack((previous) => previous.slice(0, -1));
   }, [setStack]);
+
+  useEffect(() => {
+    if (!server) {
+      return;
+    }
+
+    server.register("blast-global:pop", () => {
+      pop();
+
+      return null;
+    });
+
+    return () => {
+      server.removeListener("blast-global:pop", pop);
+    };
+  }, [pop, server]);
 
   return (
     <NavigationContext.Provider value={{ push, pop }}>{stack[stack.length - 1] || children}</NavigationContext.Provider>

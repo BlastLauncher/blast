@@ -11,10 +11,10 @@ export type AppProps = {
 
 export const App = ({ Command, server }: AppProps) => {
   return (
-    <NavigationProvider>
-      <WsServerProvider server={server}>
+    <WsServerProvider server={server}>
+      <NavigationProvider>
         <Command />
-      </WsServerProvider>
-    </NavigationProvider>
+      </NavigationProvider>
+    </WsServerProvider>
   );
 };

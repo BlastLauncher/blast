@@ -13,20 +13,30 @@ type ActionPropKeys = (keyof RaycastAction.Props)[];
 const serializesKeys: ActionPropKeys = ["autoFocus", "icon", "id", "shortcut", "style", "title"];
 
 export const Action = (props: RaycastAction.Props) => {
+  const { onAction } = props;
   const server = useWsServer();
   const actionId = useId();
   const actionEventName = useMemo(() => `action-${actionId}`, [actionId]);
 
   useEffect(() => {
-    if (props.onAction && server) {
-      debug("registering action event listener", actionEventName);
-      server.on(actionEventName, props.onAction);
+    const runRegister = !!onAction && !!server;
+
+    if (!runRegister) {
+      return;
     }
 
+    debug("registering action event listener", actionEventName);
+
+    server.register(actionEventName, () => {
+      onAction();
+
+      return null;
+    });
+
     return () => {
-      server?.removeAllListeners(actionEventName);
+      server.removeListener(actionEventName, onAction);
     };
-  }, [actionEventName, props.onAction, server]);
+  }, [actionEventName, onAction, server]);
 
   return (
     <ElementTypes.Action
@@ -53,3 +63,15 @@ const Push = (props: RaycastAction.Push.Props) => {
 };
 
 Action.Push = Push;
+
+const SubmitForm = (props: RaycastAction.SubmitForm.Props<any>) => {
+  const { onSubmit, title = "Submit Form", ...rest } = props;
+
+  const onAction = useCallback(() => {
+    // TODO: retrieve form values
+  }, []);
+
+  return <Action title={title} onAction={onAction} {...rest} />;
+};
+
+Action.SubmitForm = SubmitForm;
