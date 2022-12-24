@@ -15,6 +15,7 @@ async function start() {
 
     const state = remoteBlastTree.getState();
     state.setTree(initialTree);
+    state.setWs(ws);
 
     ws.subscribe("updateTree");
     ws.on("updateTree", (data) => {
