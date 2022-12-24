@@ -13,6 +13,7 @@ export type Props = Record<string, any>;
 
 export interface Container {
   appendChild(child: Instance): void;
+  removeChild(child: Instance): void;
   clear(): void;
   serialize(): any;
   server: Server | null;

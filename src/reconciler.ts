@@ -130,8 +130,6 @@ export const JSONTreeRenderer = Reconciler<
     parentInstance.appendChild(child);
   },
 
-  // The `insertBefore` method is called when a new child is inserted before an existing child in a parent element.
-  // It should insert the child into the parent in the JSON-RPC object.
   insertBefore(parentInstance: Instance, child: Instance, beforeChild: Instance) {
     debug(`insertBefore`, parentInstance.elementType, child.elementType, beforeChild.elementType);
   },
@@ -140,10 +138,14 @@ export const JSONTreeRenderer = Reconciler<
   // It should remove the child from the parent in the JSON-RPC object.
   removeChild(parentInstance: Instance, child: Instance) {
     debug(`removeChild`, parentInstance.elementType, child.elementType);
+
+    parentInstance.removeChild(child);
   },
 
   removeChildFromContainer(container: Container, child: Instance) {
     debug(`removeChildFromContainer`);
+
+    container.removeChild(child);
   },
 
   // The `resetTextContent` method is called when the text content of an element is reset.
