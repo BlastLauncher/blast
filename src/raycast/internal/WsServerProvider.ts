@@ -1,13 +1,13 @@
-import React from "react";
+import { createElement, createContext, useContext } from "react";
 import type { Server } from "rpc-websockets";
 
-const WsContext = React.createContext<Server | null>(null);
+const WsContext = createContext<Server | null>(null);
 
 export const WsServerProvider = ({ children, server }: { children: React.ReactNode; server: Server }) => {
-  return React.createElement(WsContext.Provider, { value: server }, children);
+  return createElement(WsContext.Provider, { value: server }, children);
 };
 
 export const useWsServer = () => {
-  const server = React.useContext(WsContext);
+  const server = useContext(WsContext);
   return server;
 };
