@@ -3,7 +3,8 @@ import { createRoot } from "react-dom/client";
 
 import { App } from "./renderer/App";
 import { setupWS } from "./renderer/setupWS";
-import { remoteBlastTree, BlastComponent } from "./renderer/store";
+import { remoteBlastTree } from "./renderer/store";
+import { BlastComponent } from "./renderer/types";
 import "./index.css";
 
 async function start() {
