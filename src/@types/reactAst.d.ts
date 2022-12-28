@@ -12,9 +12,20 @@ declare namespace JSX {
         actionEventName: string;
       };
     List: List.Props & BlastNodeProps;
-    EmptyView: List.EmptyView.Props & BlastNodeProps;
+    ListItem: List.Item.Props & BlastNodeProps;
+    EmptyView: List.EmptyView.Props &
+      BlastNodeProps & {
+        children?: React.ReactNode;
+      };
     Detail: Detail.Props & BlastNodeProps;
     Form: Form.Props & BlastNodeProps;
-    TextField: Form.TextField.Props & BlastNodeProps;
+    TextField: Form.TextField.Props &
+      BlastNodeProps & {
+        onChangeEventName: string;
+      };
+
+    NavigationRoot: {
+      children?: React.ReactNode;
+    };
   }
 }

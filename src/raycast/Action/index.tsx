@@ -2,10 +2,11 @@ import { Action as RaycastAction } from "raycast-original";
 
 import { useCallback, useEffect, useId, useMemo } from "react";
 
-import * as ElementTypes from "../../../elements/types";
-import { createDebug } from "../../../utils/debug";
-import { useWsServer } from "../../internal/WsServerProvider";
-import { useNavigation } from "../../Navigation";
+import * as ElementTypes from "../../elements/types";
+import { createDebug } from "../../utils/debug";
+import { useFormContext } from "../Form";
+import { useWsServer } from "../internal/WsServerProvider";
+import { useNavigation } from "../Navigation";
 
 const debug = createDebug("blast:action");
 
@@ -16,7 +17,7 @@ export const Action = (props: RaycastAction.Props) => {
   const { onAction } = props;
   const server = useWsServer();
   const actionId = useId();
-  const actionEventName = useMemo(() => `action-${actionId}`, [actionId]);
+  const actionEventName = useMemo(() => `action${actionId}`, [actionId]);
 
   useEffect(() => {
     const runRegister = !!onAction && !!server;
@@ -27,14 +28,20 @@ export const Action = (props: RaycastAction.Props) => {
 
     debug("registering action event listener", actionEventName);
 
-    server.register(actionEventName, () => {
+    const fn = () => {
       onAction();
 
       return null;
-    });
+    };
+
+    server.register(actionEventName, fn);
 
     return () => {
-      server.removeListener(actionEventName, onAction);
+      debug("unregistering action event listener", actionEventName);
+
+      delete (server as any).namespaces["/"].rpc_methods[actionEventName];
+
+      // server.removeListener(actionEventName, fn);
     };
   }, [actionEventName, onAction, server]);
 
@@ -66,10 +73,14 @@ Action.Push = Push;
 
 const SubmitForm = (props: RaycastAction.SubmitForm.Props<any>) => {
   const { onSubmit, title = "Submit Form", ...rest } = props;
+  const { formValues } = useFormContext();
 
   const onAction = useCallback(() => {
-    // TODO: retrieve form values
-  }, []);
+    if (onSubmit) {
+      debug("submitting form", formValues);
+      onSubmit(formValues);
+    }
+  }, [formValues, onSubmit]);
 
   return <Action title={title} onAction={onAction} {...rest} />;
 };

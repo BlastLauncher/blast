@@ -1,3 +1,5 @@
+import pick from "lodash/pick";
+
 import { createDebug } from "../utils/debug";
 
 import BaseElement from "./BaseElement";
@@ -63,6 +65,30 @@ export class Form extends BaseElement {
 }
 
 export class TextField extends BaseElement {
+  static defaultProps = {};
+
+  constructor(props: any) {
+    super(props);
+  }
+}
+
+export class NavigationRoot extends BaseElement {
+  static defaultProps = {};
+
+  constructor(props: any) {
+    super(props);
+  }
+
+  serialize() {
+    return {
+      elementType: this.constructor.name,
+      props: pick(this.props, this.props.serializesKeys),
+      children: this.children.slice(-1).map((child) => child.serialize()),
+    };
+  }
+}
+
+export class ListItem extends BaseElement {
   static defaultProps = {};
 
   constructor(props: any) {

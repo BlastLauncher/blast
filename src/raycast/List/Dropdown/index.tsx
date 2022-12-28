@@ -1,6 +1,6 @@
 import { Item } from "./Item";
 
 export const Dropdown = () => {
-  // noop
+  return null;
 };
 Dropdown.Item = Item;

@@ -1,5 +1,6 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
+import React, { Fragment, createContext, useCallback, useContext, useEffect, useState } from "react";
 
+import { NavigationRoot } from "../../elements/types";
 import { useWsServer } from "../internal/WsServerProvider";
 
 export const NavigationContext = createContext<{
@@ -41,12 +42,20 @@ export const NavigationProvider = ({ children }: { children: React.ReactNode }) 
     });
 
     return () => {
-      server.removeListener("blast-global:pop", pop);
+      delete (server as any).namespaces["/"].rpc_methods["blast-global:pop"];
+
+      // server.removeListener("blast-global:pop", pop);
     };
   }, [pop, server]);
 
   return (
-    <NavigationContext.Provider value={{ push, pop }}>{stack[stack.length - 1] || children}</NavigationContext.Provider>
+    <NavigationContext.Provider value={{ push, pop }}>
+      <NavigationRoot>
+        {children}
+
+        {stack.map((component, index) => component && <Fragment key={`navigation_${index}`}>{component}</Fragment>)}
+      </NavigationRoot>
+    </NavigationContext.Provider>
   );
 };
 

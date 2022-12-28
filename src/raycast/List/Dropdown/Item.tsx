@@ -1,3 +1,3 @@
 export const Item = () => {
-  // noop
+  return null;
 };

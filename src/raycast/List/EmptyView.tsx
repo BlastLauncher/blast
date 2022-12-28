@@ -9,9 +9,8 @@ export const EmptyView = (props: List.EmptyView.Props) => {
   const { actions, ...rest } = props;
 
   return (
-    <>
-      <ElementTypes.EmptyView serializesKeys={serializesKeys} {...rest} />
+    <ElementTypes.EmptyView serializesKeys={serializesKeys} {...rest}>
       {actions}
-    </>
+    </ElementTypes.EmptyView>
   );
 };

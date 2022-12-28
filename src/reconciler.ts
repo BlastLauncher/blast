@@ -210,7 +210,7 @@ export const JSONTreeRenderer = Reconciler<
   supportsHydration: false,
 
   getChildHostContext: function (parentHostContext: any, type: any, rootContainer: Container) {
-    debug("getChildHostContext");
+    debug("getChildHostContext", type);
 
     return {
       server: rootContainer.server,
