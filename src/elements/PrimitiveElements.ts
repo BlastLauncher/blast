@@ -20,9 +20,32 @@ export class List extends BaseElement {
   constructor(props: any) {
     super(props);
   }
+
+  serialize() {
+    let children;
+    if (this.children.find((child) => child instanceof ListItem)) {
+      children = this.children.filter((child) => !(child instanceof EmptyView)).map((child) => child.serialize());
+    } else {
+      children = this.children.map((child) => child.serialize());
+    }
+
+    return {
+      elementType: this.constructor.name,
+      props: pick(this.props, this.props.serializesKeys),
+      children,
+    };
+  }
 }
 
 export class ActionPanel extends BaseElement {
+  static defaultProps = {};
+
+  constructor(props: any) {
+    super(props);
+  }
+}
+
+export class ActionPanelSection extends BaseElement {
   static defaultProps = {};
 
   constructor(props: any) {

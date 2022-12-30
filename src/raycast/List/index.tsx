@@ -1,7 +1,5 @@
 import { List as RList } from "raycast-original";
 
-import React, { useMemo } from "react";
-
 import * as ElementTypes from "../../elements/types";
 
 import { Dropdown } from "./Dropdown";
@@ -28,31 +26,13 @@ const serializesKeys: ListPropKeys = [
   "isShowingDetail",
 ];
 
-const groupChildren = (children: React.ReactNode) => {
-  let emptyView;
-  const nonEmptyViewChildren: React.ReactNode[] = [];
-
-  React.Children.forEach(children, (child) => {
-    if (React.isValidElement(child) && child.type === EmptyView) {
-      emptyView = child;
-    } else {
-      nonEmptyViewChildren.push(child);
-    }
-  });
-
-  return { emptyView, nonEmptyViewChildren };
-};
-
 export const List = (props: RList.Props) => {
-  const { children, ...rest } = props;
-
-  const hasOnlyOneChildren = React.Children.count(children) === 1;
-
-  const { emptyView, nonEmptyViewChildren } = useMemo(() => groupChildren(children), [children]);
+  const { children, actions, ...rest } = props;
 
   return (
     <ElementTypes.List serializesKeys={serializesKeys} {...rest}>
-      {emptyView && hasOnlyOneChildren ? children : nonEmptyViewChildren}
+      {children}
+      {actions}
     </ElementTypes.List>
   );
 };

@@ -7,12 +7,16 @@ declare namespace JSX {
 
   interface IntrinsicElements {
     ActionPanel: ActionPanel.Props & BlastNodeProps;
+    ActionPanelSection: ActionPanel.Section.Props & BlastNodeProps;
     Action: Action.Props &
       BlastNodeProps & {
         actionEventName: string;
       };
     List: List.Props & BlastNodeProps;
-    ListItem: List.Item.Props & BlastNodeProps;
+    ListItem: List.Item.Props &
+      BlastNodeProps & {
+        children?: React.ReactNode;
+      };
     EmptyView: List.EmptyView.Props &
       BlastNodeProps & {
         children?: React.ReactNode;
