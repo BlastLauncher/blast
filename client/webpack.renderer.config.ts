@@ -4,8 +4,8 @@ import { plugins } from "./webpack.plugins";
 import { rules } from "./webpack.rules";
 
 rules.push({
-  test: /\.css$/,
-  use: [{ loader: "style-loader" }, { loader: "css-loader" }, { loader: "postcss-loader" }],
+  test: /\.(scss|css)$/,
+  use: [{ loader: "style-loader" }, { loader: "css-loader" }, { loader: "postcss-loader" }, { loader: "sass-loader" }],
 });
 
 rules.push({

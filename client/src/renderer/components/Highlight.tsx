@@ -12,7 +12,7 @@ export const Highlight = ({ children, className }: HighlightProps) => {
 
   useEffect(() => {
     if (ref.current) {
-      hljs.highlightBlock(ref.current);
+      hljs.highlightElement(ref.current);
     }
   }, [children]);
 
