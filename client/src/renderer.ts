@@ -7,7 +7,7 @@ import { remoteBlastTree } from "./renderer/store";
 import { BlastComponent } from "./renderer/types";
 import "./renderer/styles/index.css";
 import "./renderer/styles/global.scss";
-import "highlight.js/styles/tokyo-night-dark.css";
+import "highlight.js/styles/github-dark.css";
 
 async function start() {
   const container = document.getElementById("app");

@@ -1,7 +1,10 @@
 import * as Popover from "@radix-ui/react-popover";
+import type { Keyboard } from "@raycast/api";
 import { Command } from "cmdk";
-import React from "react";
+import React, { useMemo } from "react";
+import { Client } from "rpc-websockets";
 
+import { useRemoteBlastTree } from "../../store";
 import { BlastComponent } from "../../types";
 
 type ObjectFromList<T extends ReadonlyArray<string>, V = string> = {
@@ -28,14 +31,64 @@ const serializedKeys = [
 
 export type ListProps = ObjectFromList<typeof serializedKeys>;
 
+const keyToSymbol = {
+  ctrl: "⌃",
+  cmd: "⌘",
+  shift: "⇧",
+  option: "⌥",
+  enter: "↵",
+  esc: "⎋",
+  tab: "⇥",
+  up: "↑",
+  down: "↓",
+  left: "←",
+  right: "→",
+  space: "␣",
+  backspace: "⌫",
+  delete: "⌦",
+};
+
+const renderShortcutToString = (shortcut: Keyboard.Shortcut) => {
+  const modifiers = shortcut.modifiers.map((modifier) => keyToSymbol[modifier as keyof typeof keyToSymbol]).join(" ");
+
+  return `${modifiers} ${shortcut.key.toUpperCase()}`;
+};
+
+const renderActions = (actions: BlastComponent[], ws: Client) => {
+  return actions
+    .map((action) => {
+      const { elementType, props } = action;
+
+      if (elementType === "ActionPanelSection") {
+        return <Command.Group heading={props.title}>{renderActions(action.children, ws)}</Command.Group>;
+      } else if (elementType === "Action") {
+        return (
+          <SubItem
+            shortcut={action.props.shortcut ? renderShortcutToString(action.props.shortcut) : keyToSymbol.enter}
+            key={action.props.actionEventName}
+            onSelect={() => {
+              ws.call(action.props.actionEventName);
+            }}
+          >
+            {action.props.title}
+          </SubItem>
+        );
+      } else {
+        console.warn("Unknown action type", elementType);
+        return null;
+      }
+    })
+    .filter(Boolean);
+};
+
 function SubCommand({
   inputRef,
   listRef,
-  selectedValue,
+  actionData,
 }: {
   inputRef: React.RefObject<HTMLInputElement>;
   listRef: React.RefObject<HTMLElement>;
-  selectedValue: string;
+  actionData: BlastComponent;
 }) {
   const [open, setOpen] = React.useState(false);
 
@@ -66,6 +119,8 @@ function SubCommand({
     }
   }, [open, listRef]);
 
+  const { ws } = useRemoteBlastTree();
+
   return (
     <Popover.Root open={open} onOpenChange={setOpen} modal>
       <Popover.Trigger cmdk-raycast-subcommand-trigger="" onClick={() => setOpen(true)} aria-expanded={open}>
@@ -85,14 +140,8 @@ function SubCommand({
         }}
       >
         <Command>
-          <Command.List>
-            <Command.Group heading={selectedValue}>
-              <SubItem shortcut="↵">Open Application</SubItem>
-              <SubItem shortcut="⌘ ↵">Show in Finder</SubItem>
-              <SubItem shortcut="⌘ I">Show Info in Finder</SubItem>
-              <SubItem shortcut="⌘ ⇧ F">Add to Favorites</SubItem>
-            </Command.Group>
-          </Command.List>
+          {actionData && <Command.List>{renderActions(actionData.children, ws)}</Command.List>}
+
           <Command.Input placeholder="Search for actions..." />
         </Command>
       </Popover.Content>
@@ -113,9 +162,17 @@ function RaycastDarkIcon() {
   );
 }
 
-function SubItem({ children, shortcut }: { children: React.ReactNode; shortcut: string }) {
+function SubItem({
+  children,
+  shortcut,
+  onSelect,
+}: {
+  children: React.ReactNode;
+  shortcut: string;
+  onSelect: () => void;
+}) {
   return (
-    <Command.Item>
+    <Command.Item onSelect={onSelect}>
       {children}
       <div cmdk-raycast-submenu-shortcuts="">
         {shortcut.split(" ").map((key) => {
@@ -126,16 +183,40 @@ function SubItem({ children, shortcut }: { children: React.ReactNode; shortcut: 
   );
 }
 
+// ?NOTE: cmdk turn value into lowercase internally
+const getListItemValue = (itemIndex: number) => `listitem-${itemIndex}`;
+const getListIndexFromValue = (value: string) => parseInt(value.replace("listitem-", ""), 10);
+
 export const List = ({ children, props }: { children: BlastComponent[]; props: ListProps }): JSX.Element => {
   const listRef = React.useRef(null);
-  const [value, setValue] = React.useState("0");
+  const [value, setValue] = React.useState("");
   const inputRef = React.useRef<HTMLInputElement | null>(null);
 
   const listItems = children.filter((child) => child.elementType === "ListItem");
 
+  const currentListItem = useMemo(() => {
+    const index = getListIndexFromValue(value);
+
+    return listItems[index];
+  }, [value, listItems]);
+
+  const currentActionData = useMemo(() => {
+    if (!currentListItem) {
+      return null;
+    }
+
+    const { children } = currentListItem;
+
+    const actionPanel = children.find((child) => child.elementType === "ActionPanel");
+
+    return actionPanel;
+  }, [currentListItem]);
+
   return (
-    <div className="h-full raycast">
+    <div className="h-full raycast drag-area">
       <Command value={value} onValueChange={(v) => setValue(v)}>
+        <div className="absolute top-0 left-0 w-full h-2 drag-area" />
+
         <div cmdk-raycast-top-shine="" />
         <Command.Input ref={inputRef} />
         <hr cmdk-raycast-loader="" />
@@ -145,12 +226,13 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
 
           {listItems.map((listItem, index) => {
             const {
-              children,
               props: { title },
             } = listItem;
 
+            const value = getListItemValue(index);
+
             return (
-              <Command.Item value={`${index}`} key={index}>
+              <Command.Item key={value} value={value}>
                 {title}
               </Command.Item>
             );
@@ -167,7 +249,7 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
 
           <hr />
 
-          <SubCommand listRef={listRef} selectedValue={value} inputRef={inputRef} />
+          {currentActionData && <SubCommand listRef={listRef} inputRef={inputRef} actionData={currentActionData} />}
         </div>
       </Command>
     </div>

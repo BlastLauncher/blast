@@ -97,11 +97,11 @@ export const Devtool = () => {
           </div>
 
           <div className="flex flex-1 gap-2 mt-2">
-            <button className="px-2 py-1 text-white rounded-md bg-slate-600" onClick={onClick}>
+            <button className="px-4 text-white rounded-md bg-slate-600" onClick={onClick}>
               Send Action
             </button>
 
-            <button className="px-2 py-1 text-white rounded-md bg-slate-600" onClick={testPopAction}>
+            <button className="px-4 text-white rounded-md bg-slate-600" onClick={testPopAction}>
               Pop Action
             </button>
           </div>
