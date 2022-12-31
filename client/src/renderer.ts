@@ -6,6 +6,7 @@ import { setupWS } from "./renderer/setupWS";
 import { remoteBlastTree } from "./renderer/store";
 import { BlastComponent } from "./renderer/types";
 import "./index.css";
+import "highlight.js/styles/tokyo-night-dark.css";
 
 async function start() {
   const container = document.getElementById("app");
