@@ -51,7 +51,7 @@ export const Devtool = () => {
           "translate-y-full": !devtoolOpen,
         })}
       >
-        <Highlight className="max-h-[300px] overflow-auto language-json whitespace-pre">
+        <Highlight className="max-h-[300px] overflow-auto language-json whitespace-pre text-sm">
           {JSON.stringify(tree, null, 2)}
         </Highlight>
 
@@ -103,13 +103,6 @@ export const Devtool = () => {
             </button>
           </div>
         </div>
-
-        {/* <input type="text" ref={inputRef} defaultValue="action:r0:" />
-
-        <textarea className="font-mono" ref={textareaRef} />
-
-        <button onClick={onClick}>Test Action</button>
-        <button onClick={testPopAction}>Test Pop</button> */}
       </div>
 
       {/* open devtool button */}
@@ -121,7 +114,7 @@ export const Devtool = () => {
           {/* symbol open */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
+            className="h-3 w-2"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
