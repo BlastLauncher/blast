@@ -1,6 +1,6 @@
 import { BlastComponent } from "../types";
 
-import { ListBlastComponent } from "./List";
+import { List, ListProps } from "./List";
 // import { Form } from './Form'
 
 export const renderTreeComponent = (blastProps: BlastComponent) => {
@@ -19,10 +19,10 @@ export const renderTreeComponent = (blastProps: BlastComponent) => {
   // TODO: handle multiple children, but for now we only care about the first one
   const [firstChild] = children;
 
-  const { elementType } = firstChild;
+  const { elementType, props } = firstChild;
 
   if (elementType === "List") {
-    return <ListBlastComponent blastProps={firstChild} />;
+    return <List children={firstChild.children} props={props as ListProps} />;
   } else {
     // TODO: handle other types
   }

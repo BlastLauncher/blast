@@ -60,13 +60,13 @@ export const Devtool = () => {
 
         {/* close devtool button */}
         <button
-          className="absolute top-2 right-2 bg-slate-600 text-white rounded-md px-2 py-1"
+          className="absolute px-2 py-1 text-white rounded-md top-2 right-2 bg-slate-600"
           onClick={() => setDevtoolOpen(false)}
         >
           {/* symbol close */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
+            className="w-6 h-6"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -76,32 +76,32 @@ export const Devtool = () => {
         </button>
 
         {/* devtool form */}
-        <div className="flex-1 flex flex-col gap-1">
-          <div className="flex-1 flex gap-3">
+        <div className="flex flex-col flex-1 gap-1">
+          <div className="flex flex-1 gap-3">
             <label className="px-2 py-1" htmlFor="action">
               Action
             </label>
             <input className="px-2 py-1" type="text" id="action" ref={inputRef} defaultValue="action:r0:" />
           </div>
 
-          <div className="flex-1 flex gap-3">
+          <div className="flex flex-1 gap-3">
             <label className="px-2 py-1" htmlFor="params">
               Params
             </label>
             <textarea
-              className="px-2 py-1 font-mono flex-1"
+              className="flex-1 px-2 py-1 font-mono"
               id="params"
               ref={textareaRef}
               defaultValue='{"value": "hello world"}'
             />
           </div>
 
-          <div className="flex-1 flex gap-2 mt-2">
-            <button className="px-2 py-1 bg-slate-600 text-white rounded-md" onClick={onClick}>
+          <div className="flex flex-1 gap-2 mt-2">
+            <button className="px-2 py-1 text-white rounded-md bg-slate-600" onClick={onClick}>
               Send Action
             </button>
 
-            <button className="px-2 py-1 bg-slate-600 text-white rounded-md" onClick={testPopAction}>
+            <button className="px-2 py-1 text-white rounded-md bg-slate-600" onClick={testPopAction}>
               Pop Action
             </button>
           </div>
@@ -111,13 +111,13 @@ export const Devtool = () => {
       {/* open devtool button */}
       {!devtoolOpen && (
         <button
-          className="fixed bottom-2 right-2 bg-slate-600 text-white rounded-md px-2 py-1"
+          className="fixed px-2 py-1 text-white rounded-md top-2 right-2 bg-slate-600"
           onClick={() => setDevtoolOpen(true)}
         >
           {/* symbol open */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-3 w-2"
+            className="w-2 h-3"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"

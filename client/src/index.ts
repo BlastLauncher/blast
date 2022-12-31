@@ -19,6 +19,12 @@ const createWindow = (): void => {
     width: 750,
     darkTheme: true,
     frame: false,
+    vibrancy: "under-page",
+    transparent: true,
+    resizable: false,
+    backgroundColor: "#00000000",
+    visualEffectState: "followWindow",
+    thickFrame: false,
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
     },

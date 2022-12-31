@@ -4,17 +4,29 @@ import React from "react";
 
 import { BlastComponent } from "../../types";
 
-import { Item } from "./Item";
-
-export type ListProps = {
-  children: React.ReactNode;
+type ObjectFromList<T extends ReadonlyArray<string>, V = string> = {
+  [K in T extends ReadonlyArray<infer U> ? U : never]: V;
 };
 
-export const List = (props: ListProps) => {
-  return <div>{props.children}</div>;
-};
+const serializedKeys = [
+  // navigation props
+  "navigationTitle",
+  "isLoading",
 
-List.Item = Item;
+  // search bar props
+  "filtering",
+  "isLoading",
+  "throttle",
+
+  // list props
+  "searchText",
+  "enableFiltering",
+  "searchBarPlaceholder",
+  "selectedItemId",
+  "isShowingDetail",
+] as const;
+
+export type ListProps = ObjectFromList<typeof serializedKeys>;
 
 function SubCommand({
   inputRef,
@@ -114,12 +126,12 @@ function SubItem({ children, shortcut }: { children: React.ReactNode; shortcut: 
   );
 }
 
-export const ListBlastComponent = ({ blastProps }: { blastProps: BlastComponent }): JSX.Element => {
+export const List = ({ children, props }: { children: BlastComponent[]; props: ListProps }): JSX.Element => {
   const listRef = React.useRef(null);
   const [value, setValue] = React.useState("0");
   const inputRef = React.useRef<HTMLInputElement | null>(null);
 
-  const listItems = blastProps.children.filter((child) => child.elementType === "ListItem");
+  const listItems = children.filter((child) => child.elementType === "ListItem");
 
   return (
     <div className="h-full raycast">

@@ -8,48 +8,47 @@
     padding: 8px 0;
     font-family: var(--font-sans);
     // box-shadow: var(--cmdk-shadow);
-    // border: 1px solid var(--gray6);
+    border: 1px solid var(--gray6);
     position: relative;
     overflow: hidden;
 
     .dark & {
       background: var(--gray2);
-      border: 0;
 
-      &:after {
-        content: "";
-        background: linear-gradient(
-          to right,
-          var(--gray6) 20%,
-          var(--gray6) 40%,
-          var(--gray10) 50%,
-          var(--gray10) 55%,
-          var(--gray6) 70%,
-          var(--gray6) 100%
-        );
-        z-index: -1;
-        position: absolute;
-        border-radius: 12px;
-        top: -1px;
-        left: -1px;
-        width: calc(100% + 2px);
-        height: calc(100% + 2px);
-        animation: shine 3s ease forwards 0.1s;
-        background-size: 200% auto;
-      }
+      // &:after {
+      //   content: "";
+      //   background: linear-gradient(
+      //     to right,
+      //     var(--gray6) 20%,
+      //     var(--gray6) 40%,
+      //     var(--gray10) 50%,
+      //     var(--gray10) 55%,
+      //     var(--gray6) 70%,
+      //     var(--gray6) 100%
+      //   );
+      //   z-index: -1;
+      //   position: absolute;
+      //   border-radius: 12px;
+      //   top: -1px;
+      //   left: -1px;
+      //   width: calc(100% + 2px);
+      //   height: calc(100% + 2px);
+      //   animation: shine 3s ease forwards 0.1s;
+      //   background-size: 200% auto;
+      // }
 
-      &:before {
-        content: "";
-        z-index: -1;
-        position: absolute;
-        border-radius: 12px;
-        top: -1px;
-        left: -1px;
-        width: calc(100% + 2px);
-        height: calc(100% + 2px);
-        box-shadow: 0 0 0 1px transparent;
-        animation: border 1s linear forwards 0.5s;
-      }
+      // &:before {
+      //   content: "";
+      //   z-index: -1;
+      //   position: absolute;
+      //   border-radius: 12px;
+      //   top: -1px;
+      //   left: -1px;
+      //   width: calc(100% + 2px);
+      //   height: calc(100% + 2px);
+      //   box-shadow: 0 0 0 1px transparent;
+      //   animation: border 1s linear forwards 0.5s;
+      // }
     }
 
     kbd {
