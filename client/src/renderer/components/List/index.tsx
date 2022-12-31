@@ -54,31 +54,55 @@ const renderShortcutToString = (shortcut: Keyboard.Shortcut) => {
   return `${modifiers} ${shortcut.key.toUpperCase()}`;
 };
 
-const renderActions = (actions: BlastComponent[], ws: Client) => {
-  return actions
-    .map((action) => {
-      const { elementType, props } = action;
+const Action = ({ action, ws }: { action: BlastComponent; ws: Client }) => {
+  const {
+    props: { shortcut, actionEventName, title },
+  } = action;
 
-      if (elementType === "ActionPanelSection") {
-        return <Command.Group heading={props.title}>{renderActions(action.children, ws)}</Command.Group>;
-      } else if (elementType === "Action") {
-        return (
-          <SubItem
-            shortcut={action.props.shortcut ? renderShortcutToString(action.props.shortcut) : keyToSymbol.enter}
-            key={action.props.actionEventName}
-            onSelect={() => {
-              ws.call(action.props.actionEventName);
-            }}
-          >
-            {action.props.title}
-          </SubItem>
-        );
-      } else {
-        console.warn("Unknown action type", elementType);
-        return null;
-      }
-    })
-    .filter(Boolean);
+  return (
+    <SubItem
+      shortcut={shortcut ? renderShortcutToString(shortcut) : keyToSymbol.enter}
+      key={actionEventName}
+      onSelect={() => {
+        ws.call(actionEventName);
+      }}
+    >
+      {title}
+    </SubItem>
+  );
+};
+
+const ActionContainer = ({ actions, ws }: { actions: BlastComponent[]; ws: Client }) => {
+  return (
+    <>
+      {actions
+        .map((elem, index) => {
+          const { elementType, props, children } = elem;
+
+          if (elementType === "ActionPanelSection") {
+            return (
+              <Command.Group heading={props.title} key={`ActionGroup-${index}`}>
+                {children
+                  .map((child) => {
+                    if (child.elementType === "Action") {
+                      return <Action action={child} ws={ws} key={child.props.actionEventName} />;
+                    } else {
+                      return null;
+                    }
+                  })
+                  .filter(Boolean)}
+              </Command.Group>
+            );
+          } else if (elementType === "Action") {
+            return <Action action={elem} ws={ws} key={elem.props.actionEventName} />;
+          } else {
+            console.warn("Unknown action type", elementType);
+            return null;
+          }
+        })
+        .filter(Boolean)}
+    </>
+  );
 };
 
 function SubCommand({
@@ -140,7 +164,11 @@ function SubCommand({
         }}
       >
         <Command>
-          {actionData && <Command.List>{renderActions(actionData.children, ws)}</Command.List>}
+          {actionData && (
+            <Command.List>
+              <ActionContainer actions={actionData.children} ws={ws} />
+            </Command.List>
+          )}
 
           <Command.Input placeholder="Search for actions..." />
         </Command>
