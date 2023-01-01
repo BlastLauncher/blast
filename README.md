@@ -10,10 +10,9 @@ Blast is an open-source educational and experimental project that aims to utiliz
 
 Blast uses the following components:
 
-- Node.js engine
-- react-reconciler package
-- React.js
-- Electron
+- Node.js to write the backend and implement a custom React renderer with `react-reconciler`
+- Electron & React.js to write the front end and render the React element tree as HTML
+- Use `rpc-websockets` to communicate between the backend and front end
 
 In the architecture of Blast, the backend uses a Node.js engine and the react-reconciler package to implement a custom React renderer. The element tree created during this process is then emitted as a JSON object tree to the front end, which is an Electron app built with React.js and rendered as HTML. While the front end is built with React, it is also framework agnostic as it can accept the plain JSON element tree from the backend.
 
