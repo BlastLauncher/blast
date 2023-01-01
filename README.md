@@ -4,7 +4,7 @@ Blast is an open-source educational project that aims to utilize the extension e
 
 ## Demo
 
-![demo_todo](./docs/images/demo_todo.mp4)
+![demo_todo](./docs/media/demo_todo.gif)
 
 ## Architecture
 
