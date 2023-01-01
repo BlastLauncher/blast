@@ -1,6 +1,6 @@
 import * as Popover from "@radix-ui/react-popover";
 import type { Keyboard } from "@raycast/api";
-import { Command } from "cmdk";
+import { Command, useCommandState } from "cmdk";
 import React, { useMemo } from "react";
 import { Client } from "rpc-websockets";
 
@@ -108,13 +108,36 @@ const ActionContainer = ({ actions, ws }: { actions: BlastComponent[]; ws: Clien
 function SubCommand({
   inputRef,
   listRef,
-  actionData,
+  listItems,
 }: {
   inputRef: React.RefObject<HTMLInputElement>;
   listRef: React.RefObject<HTMLElement>;
-  actionData: BlastComponent;
+  listItems: BlastComponent[];
 }) {
   const [open, setOpen] = React.useState(false);
+  const value = useCommandState((state) => state.value);
+
+  const currentListItem = useMemo(() => {
+    if (!value) {
+      return null;
+    }
+
+    const index = getListIndexFromValue(value);
+
+    return listItems[index];
+  }, [value, listItems]);
+
+  const actionData = useMemo(() => {
+    if (!currentListItem) {
+      return null;
+    }
+
+    const { children } = currentListItem;
+
+    const actionPanel = children.find((child) => child.elementType === "ActionPanel");
+
+    return actionPanel;
+  }, [currentListItem]);
 
   React.useEffect(() => {
     function listener(e: KeyboardEvent) {
@@ -146,34 +169,34 @@ function SubCommand({
   const { ws } = useRemoteBlastTree();
 
   return (
-    <Popover.Root open={open} onOpenChange={setOpen} modal>
-      <Popover.Trigger cmdk-raycast-subcommand-trigger="" onClick={() => setOpen(true)} aria-expanded={open}>
-        Actions
-        <kbd>⌘</kbd>
-        <kbd>K</kbd>
-      </Popover.Trigger>
-      <Popover.Content
-        side="top"
-        align="end"
-        className="raycast-submenu"
-        sideOffset={16}
-        alignOffset={0}
-        onCloseAutoFocus={(e) => {
-          e.preventDefault();
-          inputRef?.current?.focus();
-        }}
-      >
-        <Command>
-          {actionData && (
+    actionData && (
+      <Popover.Root open={open} onOpenChange={setOpen} modal>
+        <Popover.Trigger cmdk-raycast-subcommand-trigger="" onClick={() => setOpen(true)} aria-expanded={open}>
+          Actions
+          <kbd>⌘</kbd>
+          <kbd>K</kbd>
+        </Popover.Trigger>
+        <Popover.Content
+          side="top"
+          align="end"
+          className="raycast-submenu"
+          sideOffset={16}
+          alignOffset={0}
+          onCloseAutoFocus={(e) => {
+            e.preventDefault();
+            inputRef?.current?.focus();
+          }}
+        >
+          <Command>
             <Command.List>
               <ActionContainer actions={actionData.children} ws={ws} />
             </Command.List>
-          )}
 
-          <Command.Input placeholder="Search for actions..." />
-        </Command>
-      </Popover.Content>
-    </Popover.Root>
+            <Command.Input placeholder="Search for actions..." />
+          </Command>
+        </Popover.Content>
+      </Popover.Root>
+    )
   );
 }
 
@@ -212,33 +235,20 @@ function SubItem({
 }
 
 // ?NOTE: cmdk turn value into lowercase internally
-const getListItemValue = (itemIndex: number) => `listitem-${itemIndex}`;
-const getListIndexFromValue = (value: string) => parseInt(value.replace("listitem-", ""), 10);
+function getListItemValue(itemIndex: number) {
+  return `listitem-${itemIndex}`;
+}
+
+function getListIndexFromValue(value: string) {
+  return parseInt(value.replace("listitem-", ""), 10);
+}
 
 export const List = ({ children, props }: { children: BlastComponent[]; props: ListProps }): JSX.Element => {
-  const listRef = React.useRef(null);
-  const [value, setValue] = React.useState("");
-  const inputRef = React.useRef<HTMLInputElement | null>(null);
-
   const listItems = children.filter((child) => child.elementType === "ListItem");
 
-  const currentListItem = useMemo(() => {
-    const index = getListIndexFromValue(value);
-
-    return listItems[index];
-  }, [value, listItems]);
-
-  const currentActionData = useMemo(() => {
-    if (!currentListItem) {
-      return null;
-    }
-
-    const { children } = currentListItem;
-
-    const actionPanel = children.find((child) => child.elementType === "ActionPanel");
-
-    return actionPanel;
-  }, [currentListItem]);
+  const listRef = React.useRef(null);
+  const [value, setValue] = React.useState(getListItemValue(0));
+  const inputRef = React.useRef<HTMLInputElement | null>(null);
 
   return (
     <div className="h-full raycast drag-area">
@@ -246,7 +256,7 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
         <div className="absolute top-0 left-0 w-full h-2 drag-area" />
 
         <div cmdk-raycast-top-shine="" />
-        <Command.Input ref={inputRef} />
+        <Command.Input ref={inputRef} style={{ paddingTop: 16 }} />
         <hr cmdk-raycast-loader="" />
 
         <Command.List ref={listRef}>
@@ -270,6 +280,7 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
         <div cmdk-raycast-footer="">
           <RaycastDarkIcon />
 
+          {/* TODO: extract first action from action panel */}
           <button cmdk-raycast-open-trigger="">
             Open Application
             <kbd>↵</kbd>
@@ -277,7 +288,7 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
 
           <hr />
 
-          {currentActionData && <SubCommand listRef={listRef} inputRef={inputRef} actionData={currentActionData} />}
+          <SubCommand listRef={listRef} inputRef={inputRef} listItems={listItems} />
         </div>
       </Command>
     </div>
