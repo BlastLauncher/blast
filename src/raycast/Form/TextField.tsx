@@ -16,7 +16,7 @@ type FormItemExposedMethods = {
 };
 
 type TextFieldPropKeys = (keyof Form.TextField.Props)[];
-const serializesKeys: TextFieldPropKeys = [
+const serializedKeys: TextFieldPropKeys = [
   "autoFocus",
   "defaultValue",
   "error",
@@ -97,7 +97,7 @@ const _TextField = (props: Form.TextField.Props, ref: React.ForwardedRef<FormIte
 
   return (
     <ElementTypes.TextField
-      serializesKeys={[...serializesKeys, "onChangeEventName"]}
+      serializedKeys={[...serializedKeys, "onChangeEventName"]}
       onChangeEventName={onChangeEventName}
       {...props}
     />

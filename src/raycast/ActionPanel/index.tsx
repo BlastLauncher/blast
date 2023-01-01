@@ -5,10 +5,10 @@ import * as ElementTypes from "../../elements/types";
 import { Section } from "./Section";
 
 type ActionPanelPropKeys = (keyof RActionPanel.Props)[];
-const serializesKeys: ActionPanelPropKeys = ["title"];
+const serializedKeys: ActionPanelPropKeys = ["title"];
 
 export const ActionPanel = (props: RActionPanel.Props) => {
-  return <ElementTypes.ActionPanel serializesKeys={serializesKeys} {...props} />;
+  return <ElementTypes.ActionPanel serializedKeys={serializedKeys} {...props} />;
 };
 
 ActionPanel.Section = Section;

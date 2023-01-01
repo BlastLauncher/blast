@@ -10,7 +10,7 @@ import { TextField } from "./TextField";
 const debug = createDebug("blast:form");
 
 type FormPropKeys = (keyof RForm.Props)[];
-const serializesKeys: FormPropKeys = ["enableDrafts", "isLoading", "navigationTitle"];
+const serializedKeys: FormPropKeys = ["enableDrafts", "isLoading", "navigationTitle"];
 
 export const FormContext = createContext<{
   updateValue: (id: string, value: string) => void;
@@ -46,7 +46,7 @@ export const Form = (props: RForm.Props) => {
         formValues,
       }}
     >
-      <ElementTypes.Form {...rest} serializesKeys={serializesKeys}>
+      <ElementTypes.Form {...rest} serializedKeys={serializedKeys}>
         {actions}
 
         {children}

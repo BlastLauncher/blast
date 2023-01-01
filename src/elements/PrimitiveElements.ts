@@ -34,7 +34,7 @@ export class List extends BaseElement {
 
     return {
       elementType: this.constructor.name,
-      props: pick(this.props, this.props.serializesKeys),
+      props: pick(this.props, this.props.serializedKeys),
       children,
     };
   }
@@ -108,7 +108,7 @@ export class NavigationRoot extends BaseElement {
   serialize() {
     return {
       elementType: this.constructor.name,
-      props: pick(this.props, this.props.serializesKeys),
+      props: pick(this.props, this.props.serializedKeys),
       children: this.children.slice(-1).map((child) => child.serialize()),
     };
   }

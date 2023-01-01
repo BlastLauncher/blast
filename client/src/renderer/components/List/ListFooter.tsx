@@ -4,6 +4,7 @@ import React, { useMemo } from "react";
 import { useRemoteBlastTree } from "../../store";
 import { BlastComponent } from "../../types";
 
+import { useDefaultAction } from "./hooks";
 import { RaycastDarkIcon } from "./RaycastDarkIcon";
 import { SubCommand } from "./SubCommand";
 
@@ -43,29 +44,7 @@ export const ListFooter = ({
     return actionPanel;
   }, [currentListItem]);
 
-  const action = useMemo(() => {
-    if (!actionData) {
-      return null;
-    }
-
-    const { children } = actionData;
-
-    const firstAction = children.find((child) => child.elementType === "Action");
-
-    const firstActionPanelSection = children.find(
-      (child) => child.elementType === "ActionPanelSection" && child.children.length > 0
-    );
-
-    if (firstActionPanelSection) {
-      const { children } = firstActionPanelSection;
-
-      const firstAction = children.find((child) => child.elementType === "Action");
-
-      return firstAction;
-    } else {
-      return firstAction;
-    }
-  }, [actionData]);
+  const action = useDefaultAction(actionData);
 
   return (
     <div cmdk-raycast-footer="">

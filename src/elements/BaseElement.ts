@@ -15,7 +15,7 @@ export interface IElement {
 
 export default class BaseElement implements Instance {
   static propTypes: object = {
-    serializesKeys: PropTypes.arrayOf(PropTypes.string),
+    serializedKeys: PropTypes.arrayOf(PropTypes.string),
   };
 
   children: BaseElement[] = [];
@@ -56,7 +56,7 @@ export default class BaseElement implements Instance {
   serialize(): any {
     return {
       elementType: this.constructor.name,
-      props: pick(this.props, this.props.serializesKeys),
+      props: pick(this.props, this.props.serializedKeys),
       children: this.children.map((child) => child.serialize()),
     };
   }

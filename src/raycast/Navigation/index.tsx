@@ -52,7 +52,7 @@ export const NavigationProvider = ({ children }: { children: React.ReactNode }) 
 
   return (
     <NavigationContext.Provider value={{ push, pop }}>
-      <NavigationRoot stacksLength={stacksLength} serializesKeys={["stacksLength"]}>
+      <NavigationRoot stacksLength={stacksLength} serializedKeys={["stacksLength"]}>
         {children}
 
         {stack.map((component, index) => component && <Fragment key={`navigation_${index}`}>{component}</Fragment>)}

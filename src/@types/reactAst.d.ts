@@ -2,7 +2,7 @@ declare namespace JSX {
   import type { ActionPanel, Action, List, Detail, Form } from "raycast-original";
 
   type BlastNodeProps = {
-    serializesKeys?: string[];
+    serializedKeys?: string[];
   };
 
   interface IntrinsicElements {

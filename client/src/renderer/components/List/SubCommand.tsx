@@ -12,8 +12,8 @@ export function SubCommand({
   listRef,
   actionData,
 }: {
-  inputRef: React.RefObject<HTMLInputElement>;
-  listRef: React.RefObject<HTMLElement>;
+  inputRef?: React.RefObject<HTMLInputElement>;
+  listRef?: React.RefObject<HTMLElement>;
   actionData: BlastComponent;
 }) {
   const [open, setOpen] = React.useState(false);
@@ -34,7 +34,7 @@ export function SubCommand({
   }, []);
 
   React.useEffect(() => {
-    const el = listRef.current;
+    const el = listRef?.current;
 
     if (!el) return;
 

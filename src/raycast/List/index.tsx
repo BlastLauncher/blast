@@ -8,7 +8,7 @@ import { Item } from "./Item";
 
 type ListPropKeys = (keyof RList.Props)[];
 
-const serializesKeys: ListPropKeys = [
+const serializedKeys: ListPropKeys = [
   // navigation props
   "navigationTitle",
   "isLoading",
@@ -30,7 +30,7 @@ export const List = (props: RList.Props) => {
   const { children, actions, ...rest } = props;
 
   return (
-    <ElementTypes.List serializesKeys={serializesKeys} {...rest}>
+    <ElementTypes.List serializedKeys={serializedKeys} {...rest}>
       {children}
       {actions}
     </ElementTypes.List>
