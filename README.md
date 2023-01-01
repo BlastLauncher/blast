@@ -56,3 +56,9 @@ Blast（爆破）應該滿星爆的吧！但星爆氣流斬原文是 starburst s
 - Jam Risser – [Building a Custom React Renderer](https://www.youtube.com/watch?v=SXx-CymMjDM)
   - and the example code: <https://github.com/clayrisser/create-react-renderer>
 - [ReactDOM Reconciler Host config](https://github.com/facebook/react/blob/main/packages/react-dom-bindings/src/client/ReactDOMHostConfig.js)
+
+## License
+
+MIT
+
+The repository of `raycast/extension` is released under MIT, but I borrowed some of their icon resources in `client/src/renderer/components/Icon`, if it's not okay, I will remove them.
