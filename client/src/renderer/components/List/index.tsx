@@ -166,7 +166,11 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
         <div className="absolute top-0 left-0 w-full h-2 drag-area" />
 
         <div cmdk-raycast-top-shine="" />
-        <Command.Input ref={inputRef} style={{ paddingTop: 16 }} />
+        <Command.Input
+          ref={inputRef}
+          style={{ paddingTop: 16 }}
+          placeholder={props.searchBarPlaceholder || "Search..."}
+        />
         <hr cmdk-raycast-loader="" />
 
         <Command.List ref={listRef}>
