@@ -37,7 +37,7 @@ npm run start:dev # nodemon start bundle
 
 ### Why naming blast?
 
-Because I ask ChatGPT to find words similar to "raycast" 🤣
+Because I asked ChatGPT to find words similar to "raycast" 🤣
 
 ### Why C8763?
 
