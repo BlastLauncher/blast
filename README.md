@@ -1,6 +1,6 @@
 # Blast (aka C8763)
 
-Blast is an open-source educational project that aims to utilize the extension ecosystem of Raycast Launcher, a closed-source platform built on top of React. In Raycast, extensions are implemented using custom React components, and each command within an extension can be thought of as a separate React application. Blast provides an open-source React renderer to render these Raycast extensions.
+Blast is an open-source educational and experimental project that aims to utilize the extension ecosystem of Raycast Launcher, a closed-source platform built on top of React. In Raycast, extensions are implemented using custom React components, and each command within an extension can be thought of as a separate React application. Blast provides an open-source React renderer to render these Raycast extensions.
 
 ## Demo
 
