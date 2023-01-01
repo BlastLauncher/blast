@@ -1,134 +1,134 @@
-// import AddPerson from "./images/add-person-16.svg";
-// import Airplane from "./images/airplane-16.svg";
-// import AirplaneFilled from "./images/airplane-filled-16.svg";
-// import AirplaneLanding from "./images/airplane-landing-16.svg";
-// import AirplaneTakeoff from "./images/airplane-takeoff-16.svg";
-// import Airpods from "./images/airpods-16.svg";
-// import Alarm from "./images/alarm-16.svg";
-// import AlarmRinging from "./images/alarm-ringing-16.svg";
-// import AlignCentre from "./images/align-centre-16.svg";
-// import AlignLeft from "./images/align-left-16.svg";
-// import AlignRight from "./images/align-right-16.svg";
-// import AmericanFootball from "./images/american-football-16.svg";
-// import Anchor from "./images/anchor-16.svg";
-// import AppWindow from "./images/app-window-16.svg";
-// import AppWindowGrid2x2 from "./images/app-window-grid-2x2-16.svg";
-// import AppWindowGrid3x3 from "./images/app-window-grid-3x3-16.svg";
-// import AppWindowList from "./images/app-window-list-16.svg";
-// import AppWindowSidebarLeft from "./images/app-window-sidebar-left-16.svg";
-// import AppWindowSidebarRight from "./images/app-window-sidebar-right-16.svg";
-// import ArrowClockwise from "./images/arrow-clockwise-16.svg";
-// import ArrowCounterClockwise from "./images/arrow-counter-clockwise-16.svg";
-// import ArrowDown from "./images/arrow-down-16.svg";
-// import ArrowDownCircle from "./images/arrow-down-circle-16.svg";
-// import ArrowDownCircleFilled from "./images/arrow-down-circle-filled-16.svg";
-// import ArrowLeft from "./images/arrow-left-16.svg";
-// import ArrowLeftCircle from "./images/arrow-left-circle-16.svg";
-// import ArrowLeftCircleFilled from "./images/arrow-left-circle-filled-16.svg";
-// import ArrowNe from "./images/arrow-ne-16.svg";
-// import ArrowRight from "./images/arrow-right-16.svg";
-// import ArrowRightCircle from "./images/arrow-right-circle-16.svg";
-// import ArrowRightCircleFilled from "./images/arrow-right-circle-filled-16.svg";
-// import ArrowUp from "./images/arrow-up-16.svg";
-// import ArrowUpCircle from "./images/arrow-up-circle-16.svg";
-// import ArrowUpCircleFilled from "./images/arrow-up-circle-filled-16.svg";
-// import AtSymbol from "./images/at-symbol-16.svg";
-// import BandAid from "./images/band-aid-16.svg";
-// import BankNote from "./images/bank-note-16.svg";
-// import BarChart from "./images/bar-chart-16.svg";
-// import BarCode from "./images/bar-code-16.svg";
-// import BathTub from "./images/bath-tub-16.svg";
-// import Battery from "./images/battery-16.svg";
-// import BatteryCharging from "./images/battery-charging-16.svg";
-// import BatteryDisabled from "./images/battery-disabled-16.svg";
-// import Bell from "./images/bell-16.svg";
-// import BellDisabled from "./images/bell-disabled-16.svg";
-// import Bike from "./images/bike-16.svg";
-// import Binoculars from "./images/binoculars-16.svg";
-// import Bird from "./images/bird-16.svg";
-// import BlankDocument from "./images/blank-document-16.svg";
-// import Bluetooth from "./images/bluetooth-16.svg";
-// import Boat from "./images/boat-16.svg";
-// import Bold from "./images/bold-16.svg";
-// import Bolt from "./images/bolt-16.svg";
-// import BoltDisabled from "./images/bolt-disabled-16.svg";
-// import Book from "./images/book-16.svg";
-// import Bookmark from "./images/bookmark-16.svg";
-// import Box from "./images/box-16.svg";
-// import Brush from "./images/brush-16.svg";
-// import Bubble from "./images/speech-bubble-16.svg";
-// import Bug from "./images/bug-16.svg";
-// import BulletPoints from "./images/bullet-points-16.svg";
-// import BullsEye from "./images/bulls-eye-16.svg";
-// import Buoy from "./images/buoy-16.svg";
-// import Calculator from "./images/calculator-16.svg";
-// import Calendar from "./images/calendar-16.svg";
-// import Camera from "./images/camera-16.svg";
-// import Car from "./images/car-16.svg";
-// import Cart from "./images/cart-16.svg";
-// import Cd from "./images/cd-16.svg";
-// import Center from "./images/center-16.svg";
-// import Check from "./images/check-16.svg";
+import AddPerson from "./images/add-person-16.svg";
+import Airplane from "./images/airplane-16.svg";
+import AirplaneFilled from "./images/airplane-filled-16.svg";
+import AirplaneLanding from "./images/airplane-landing-16.svg";
+import AirplaneTakeoff from "./images/airplane-takeoff-16.svg";
+import Airpods from "./images/airpods-16.svg";
+import Alarm from "./images/alarm-16.svg";
+import AlarmRinging from "./images/alarm-ringing-16.svg";
+import AlignCentre from "./images/align-centre-16.svg";
+import AlignLeft from "./images/align-left-16.svg";
+import AlignRight from "./images/align-right-16.svg";
+import AmericanFootball from "./images/american-football-16.svg";
+import Anchor from "./images/anchor-16.svg";
+import AppWindow from "./images/app-window-16.svg";
+import AppWindowGrid2x2 from "./images/app-window-grid-2x2-16.svg";
+import AppWindowGrid3x3 from "./images/app-window-grid-3x3-16.svg";
+import AppWindowList from "./images/app-window-list-16.svg";
+import AppWindowSidebarLeft from "./images/app-window-sidebar-left-16.svg";
+import AppWindowSidebarRight from "./images/app-window-sidebar-right-16.svg";
+import ArrowClockwise from "./images/arrow-clockwise-16.svg";
+import ArrowCounterClockwise from "./images/arrow-counter-clockwise-16.svg";
+import ArrowDown from "./images/arrow-down-16.svg";
+import ArrowDownCircle from "./images/arrow-down-circle-16.svg";
+import ArrowDownCircleFilled from "./images/arrow-down-circle-filled-16.svg";
+import ArrowLeft from "./images/arrow-left-16.svg";
+import ArrowLeftCircle from "./images/arrow-left-circle-16.svg";
+import ArrowLeftCircleFilled from "./images/arrow-left-circle-filled-16.svg";
+import ArrowNe from "./images/arrow-ne-16.svg";
+import ArrowRight from "./images/arrow-right-16.svg";
+import ArrowRightCircle from "./images/arrow-right-circle-16.svg";
+import ArrowRightCircleFilled from "./images/arrow-right-circle-filled-16.svg";
+import ArrowUp from "./images/arrow-up-16.svg";
+import ArrowUpCircle from "./images/arrow-up-circle-16.svg";
+import ArrowUpCircleFilled from "./images/arrow-up-circle-filled-16.svg";
+import AtSymbol from "./images/at-symbol-16.svg";
+import BandAid from "./images/band-aid-16.svg";
+import BankNote from "./images/bank-note-16.svg";
+import BarChart from "./images/bar-chart-16.svg";
+import BarCode from "./images/bar-code-16.svg";
+import BathTub from "./images/bath-tub-16.svg";
+import Battery from "./images/battery-16.svg";
+import BatteryCharging from "./images/battery-charging-16.svg";
+import BatteryDisabled from "./images/battery-disabled-16.svg";
+import Bell from "./images/bell-16.svg";
+import BellDisabled from "./images/bell-disabled-16.svg";
+import Bike from "./images/bike-16.svg";
+import Binoculars from "./images/binoculars-16.svg";
+import Bird from "./images/bird-16.svg";
+import BlankDocument from "./images/blank-document-16.svg";
+import Bluetooth from "./images/bluetooth-16.svg";
+import Boat from "./images/boat-16.svg";
+import Bold from "./images/bold-16.svg";
+import Bolt from "./images/bolt-16.svg";
+import BoltDisabled from "./images/bolt-disabled-16.svg";
+import Book from "./images/book-16.svg";
+import Bookmark from "./images/bookmark-16.svg";
+import Box from "./images/box-16.svg";
+import Brush from "./images/brush-16.svg";
+import Bubble from "./images/speech-bubble-16.svg";
+import Bug from "./images/bug-16.svg";
+import BulletPoints from "./images/bullet-points-16.svg";
+import BullsEye from "./images/bulls-eye-16.svg";
+import Buoy from "./images/buoy-16.svg";
+import Calculator from "./images/calculator-16.svg";
+import Calendar from "./images/calendar-16.svg";
+import Camera from "./images/camera-16.svg";
+import Car from "./images/car-16.svg";
+import Cart from "./images/cart-16.svg";
+import Cd from "./images/cd-16.svg";
+import Center from "./images/center-16.svg";
+import Check from "./images/check-16.svg";
 import CheckCircle from "./images/check-circle-16.svg";
-// import Checkmark from "./images/check-circle-16.svg";
-// import ChessPiece from "./images/chess-piece-16.svg";
-// import ChevronDown from "./images/chevron-down-16.svg";
-// import ChevronDownSmall from "./images/chevron-down-small-16.svg";
-// import ChevronLeft from "./images/chevron-left-16.svg";
-// import ChevronLeftSmall from "./images/chevron-left-small-16.svg";
-// import ChevronRight from "./images/chevron-right-16.svg";
-// import ChevronRightSmall from "./images/chevron-right-small-16.svg";
-// import ChevronUp from "./images/chevron-up-16.svg";
-// import ChevronUpSmall from "./images/chevron-up-small-16.svg";
+import Checkmark from "./images/check-circle-16.svg";
+import ChessPiece from "./images/chess-piece-16.svg";
+import ChevronDown from "./images/chevron-down-16.svg";
+import ChevronDownSmall from "./images/chevron-down-small-16.svg";
+import ChevronLeft from "./images/chevron-left-16.svg";
+import ChevronLeftSmall from "./images/chevron-left-small-16.svg";
+import ChevronRight from "./images/chevron-right-16.svg";
+import ChevronRightSmall from "./images/chevron-right-small-16.svg";
+import ChevronUp from "./images/chevron-up-16.svg";
+import ChevronUpSmall from "./images/chevron-up-small-16.svg";
 import Circle from "./images/circle-16.svg";
-// import CircleEllipsis from "./images/circle-ellipsis-16.svg";
-// import CircleFilled from "./images/circle-filled-16.svg";
-// import CircleProgress from "./images/circle-progress-16.svg";
-// import CircleProgress100 from "./images/circle-progress-100-16.svg";
-// import CircleProgress25 from "./images/circle-progress-25-16.svg";
-// import CircleProgress50 from "./images/circle-progress-50-16.svg";
-// import CircleProgress75 from "./images/circle-progress-75-16.svg";
-// import ClearFormatting from "./images/clear-formatting-16.svg";
-// import Clipboard from "./images/copy-clipboard-16.svg";
-// import Clock from "./images/clock-16.svg";
-// import Cloud from "./images/cloud-16.svg";
-// import CloudLightning from "./images/cloud-lightning-16.svg";
-// import CloudRain from "./images/cloud-rain-16.svg";
-// import CloudSnow from "./images/cloud-snow-16.svg";
-// import CloudSun from "./images/cloud-sun-16.svg";
-// import Code from "./images/code-16.svg";
-// import CodeBlock from "./images/code-block-16.svg";
-// import Cog from "./images/cog-16.svg";
-// import Coin from "./images/coin-16.svg";
-// import Coins from "./images/coins-16.svg";
-// import Compass from "./images/compass-16.svg";
-// import ComputerChip from "./images/computer-chip-16.svg";
-// import Contrast from "./images/contrast-16.svg";
-// import CopyClipboard from "./images/copy-clipboard-16.svg";
-// import CreditCard from "./images/credit-card-16.svg";
-// import CricketBall from "./images/cricket-ball-16.svg";
-// import Crop from "./images/crop-16.svg";
-// import Crown from "./images/crown-16.svg";
-// import Crypto from "./images/crypto-16.svg";
-// import DeleteDocument from "./images/delete-document-16.svg";
-// import Desktop from "./images/desktop-16.svg";
-// import Dna from "./images/dna-16.svg";
-// import Document from "./images/blank-document-16.svg";
-// import Dot from "./images/dot-16.svg";
-// import Download from "./images/download-16.svg";
-// import EditShape from "./images/edit-shape-16.svg";
-// import Eject from "./images/eject-16.svg";
-// import Ellipsis from "./images/ellipsis-16.svg";
-// import Emoji from "./images/emoji-16.svg";
-// import Envelope from "./images/envelope-16.svg";
-// import Eraser from "./images/eraser-16.svg";
-// import ExclamationMark from "./images/important-01-16.svg";
-// import Exclamationmark from "./images/exclamationmark-16.svg";
-// import Exclamationmark2 from "./images/exclamationmark-2-16.svg";
-// import Exclamationmark3 from "./images/exclamationmark-3-16.svg";
-// import Eye from "./images/eye-16.svg";
-// import EyeDisabled from "./images/eye-disabled-16.svg";
-// import EyeDropper from "./images/eye-dropper-16.svg";
+import CircleEllipsis from "./images/circle-ellipsis-16.svg";
+import CircleFilled from "./images/circle-filled-16.svg";
+import CircleProgress from "./images/circle-progress-16.svg";
+import CircleProgress100 from "./images/circle-progress-100-16.svg";
+import CircleProgress25 from "./images/circle-progress-25-16.svg";
+import CircleProgress50 from "./images/circle-progress-50-16.svg";
+import CircleProgress75 from "./images/circle-progress-75-16.svg";
+import ClearFormatting from "./images/clear-formatting-16.svg";
+import Clipboard from "./images/copy-clipboard-16.svg";
+import Clock from "./images/clock-16.svg";
+import Cloud from "./images/cloud-16.svg";
+import CloudLightning from "./images/cloud-lightning-16.svg";
+import CloudRain from "./images/cloud-rain-16.svg";
+import CloudSnow from "./images/cloud-snow-16.svg";
+import CloudSun from "./images/cloud-sun-16.svg";
+import Code from "./images/code-16.svg";
+import CodeBlock from "./images/code-block-16.svg";
+import Cog from "./images/cog-16.svg";
+import Coin from "./images/coin-16.svg";
+import Coins from "./images/coins-16.svg";
+import Compass from "./images/compass-16.svg";
+import ComputerChip from "./images/computer-chip-16.svg";
+import Contrast from "./images/contrast-16.svg";
+import CopyClipboard from "./images/copy-clipboard-16.svg";
+import CreditCard from "./images/credit-card-16.svg";
+import CricketBall from "./images/cricket-ball-16.svg";
+import Crop from "./images/crop-16.svg";
+import Crown from "./images/crown-16.svg";
+import Crypto from "./images/crypto-16.svg";
+import DeleteDocument from "./images/delete-document-16.svg";
+import Desktop from "./images/desktop-16.svg";
+import Dna from "./images/dna-16.svg";
+import Document from "./images/blank-document-16.svg";
+import Dot from "./images/dot-16.svg";
+import Download from "./images/download-16.svg";
+import EditShape from "./images/edit-shape-16.svg";
+import Eject from "./images/eject-16.svg";
+import Ellipsis from "./images/ellipsis-16.svg";
+import Emoji from "./images/emoji-16.svg";
+import Envelope from "./images/envelope-16.svg";
+import Eraser from "./images/eraser-16.svg";
+import ExclamationMark from "./images/important-01-16.svg";
+import Exclamationmark from "./images/exclamationmark-16.svg";
+import Exclamationmark2 from "./images/exclamationmark-2-16.svg";
+import Exclamationmark3 from "./images/exclamationmark-3-16.svg";
+import Eye from "./images/eye-16.svg";
+import EyeDisabled from "./images/eye-disabled-16.svg";
+import EyeDropper from "./images/eye-dropper-16.svg";
 // import Female from "./images/female-16.svg";
 // import FilmStrip from "./images/film-strip-16.svg";
 // import Filter from "./images/filter-16.svg";
@@ -423,134 +423,134 @@ import Circle from "./images/circle-16.svg";
 // import XmarkCircle from "./images/x-mark-circle-1.svg";
 
 const icons = {
-  // "add-person-16": AddPerson,
-  // "airplane-16": Airplane,
-  // "airplane-filled-16": AirplaneFilled,
-  // "airplane-landing-16": AirplaneLanding,
-  // "airplane-takeoff-16": AirplaneTakeoff,
-  // "airpods-16": Airpods,
-  // "alarm-16": Alarm,
-  // "alarm-ringing-16": AlarmRinging,
-  // "align-centre-16": AlignCentre,
-  // "align-left-16": AlignLeft,
-  // "align-right-16": AlignRight,
-  // "american-football-16": AmericanFootball,
-  // "anchor-16": Anchor,
-  // "app-window-16": AppWindow,
-  // "app-window-grid-2x2-16": AppWindowGrid2x2,
-  // "app-window-grid-3x3-16": AppWindowGrid3x3,
-  // "app-window-list-16": AppWindowList,
-  // "app-window-sidebar-left-16": AppWindowSidebarLeft,
-  // "app-window-sidebar-right-16": AppWindowSidebarRight,
-  // "arrow-clockwise-16": ArrowClockwise,
-  // "arrow-counter-clockwise-16": ArrowCounterClockwise,
-  // "arrow-down-16": ArrowDown,
-  // "arrow-down-circle-16": ArrowDownCircle,
-  // "arrow-down-circle-filled-16": ArrowDownCircleFilled,
-  // "arrow-left-16": ArrowLeft,
-  // "arrow-left-circle-16": ArrowLeftCircle,
-  // "arrow-left-circle-filled-16": ArrowLeftCircleFilled,
-  // "arrow-ne-16": ArrowNe,
-  // "arrow-right-16": ArrowRight,
-  // "arrow-right-circle-16": ArrowRightCircle,
-  // "arrow-right-circle-filled-16": ArrowRightCircleFilled,
-  // "arrow-up-16": ArrowUp,
-  // "arrow-up-circle-16": ArrowUpCircle,
-  // "arrow-up-circle-filled-16": ArrowUpCircleFilled,
-  // "at-symbol-16": AtSymbol,
-  // "band-aid-16": BandAid,
-  // "bank-note-16": BankNote,
-  // "bar-chart-16": BarChart,
-  // "bar-code-16": BarCode,
-  // "bath-tub-16": BathTub,
-  // "battery-16": Battery,
-  // "battery-charging-16": BatteryCharging,
-  // "battery-disabled-16": BatteryDisabled,
-  // "bell-16": Bell,
-  // "bell-disabled-16": BellDisabled,
-  // "bike-16": Bike,
-  // "binoculars-16": Binoculars,
-  // "bird-16": Bird,
-  // "blank-document-16": BlankDocument,
-  // "bluetooth-16": Bluetooth,
-  // "boat-16": Boat,
-  // "bold-16": Bold,
-  // "bolt-16": Bolt,
-  // "bolt-disabled-16": BoltDisabled,
-  // "book-16": Book,
-  // "bookmark-16": Bookmark,
-  // "box-16": Box,
-  // "brush-16": Brush,
-  // "speech-bubble-16": Bubble,
-  // "bug-16": Bug,
-  // "bullet-points-16": BulletPoints,
-  // "bulls-eye-16": BullsEye,
-  // "buoy-16": Buoy,
-  // "calculator-16": Calculator,
-  // "calendar-16": Calendar,
-  // "camera-16": Camera,
-  // "car-16": Car,
-  // "cart-16": Cart,
-  // "cd-16": Cd,
-  // "center-16": Center,
-  // "check-16": Check,
+  "add-person-16": AddPerson,
+  "airplane-16": Airplane,
+  "airplane-filled-16": AirplaneFilled,
+  "airplane-landing-16": AirplaneLanding,
+  "airplane-takeoff-16": AirplaneTakeoff,
+  "airpods-16": Airpods,
+  "alarm-16": Alarm,
+  "alarm-ringing-16": AlarmRinging,
+  "align-centre-16": AlignCentre,
+  "align-left-16": AlignLeft,
+  "align-right-16": AlignRight,
+  "american-football-16": AmericanFootball,
+  "anchor-16": Anchor,
+  "app-window-16": AppWindow,
+  "app-window-grid-2x2-16": AppWindowGrid2x2,
+  "app-window-grid-3x3-16": AppWindowGrid3x3,
+  "app-window-list-16": AppWindowList,
+  "app-window-sidebar-left-16": AppWindowSidebarLeft,
+  "app-window-sidebar-right-16": AppWindowSidebarRight,
+  "arrow-clockwise-16": ArrowClockwise,
+  "arrow-counter-clockwise-16": ArrowCounterClockwise,
+  "arrow-down-16": ArrowDown,
+  "arrow-down-circle-16": ArrowDownCircle,
+  "arrow-down-circle-filled-16": ArrowDownCircleFilled,
+  "arrow-left-16": ArrowLeft,
+  "arrow-left-circle-16": ArrowLeftCircle,
+  "arrow-left-circle-filled-16": ArrowLeftCircleFilled,
+  "arrow-ne-16": ArrowNe,
+  "arrow-right-16": ArrowRight,
+  "arrow-right-circle-16": ArrowRightCircle,
+  "arrow-right-circle-filled-16": ArrowRightCircleFilled,
+  "arrow-up-16": ArrowUp,
+  "arrow-up-circle-16": ArrowUpCircle,
+  "arrow-up-circle-filled-16": ArrowUpCircleFilled,
+  "at-symbol-16": AtSymbol,
+  "band-aid-16": BandAid,
+  "bank-note-16": BankNote,
+  "bar-chart-16": BarChart,
+  "bar-code-16": BarCode,
+  "bath-tub-16": BathTub,
+  "battery-16": Battery,
+  "battery-charging-16": BatteryCharging,
+  "battery-disabled-16": BatteryDisabled,
+  "bell-16": Bell,
+  "bell-disabled-16": BellDisabled,
+  "bike-16": Bike,
+  "binoculars-16": Binoculars,
+  "bird-16": Bird,
+  "blank-document-16": BlankDocument,
+  "bluetooth-16": Bluetooth,
+  "boat-16": Boat,
+  "bold-16": Bold,
+  "bolt-16": Bolt,
+  "bolt-disabled-16": BoltDisabled,
+  "book-16": Book,
+  "bookmark-16": Bookmark,
+  "box-16": Box,
+  "brush-16": Brush,
+  "speech-bubble-16": Bubble,
+  "bug-16": Bug,
+  "bullet-points-16": BulletPoints,
+  "bulls-eye-16": BullsEye,
+  "buoy-16": Buoy,
+  "calculator-16": Calculator,
+  "calendar-16": Calendar,
+  "camera-16": Camera,
+  "car-16": Car,
+  "cart-16": Cart,
+  "cd-16": Cd,
+  "center-16": Center,
+  "check-16": Check,
   "check-circle-16": CheckCircle,
-  // "chess-piece-16": ChessPiece,
-  // "chevron-down-16": ChevronDown,
-  // "chevron-down-small-16": ChevronDownSmall,
-  // "chevron-left-16": ChevronLeft,
-  // "chevron-left-small-16": ChevronLeftSmall,
-  // "chevron-right-16": ChevronRight,
-  // "chevron-right-small-16": ChevronRightSmall,
-  // "chevron-up-16": ChevronUp,
-  // "chevron-up-small-16": ChevronUpSmall,
+  "chess-piece-16": ChessPiece,
+  "chevron-down-16": ChevronDown,
+  "chevron-down-small-16": ChevronDownSmall,
+  "chevron-left-16": ChevronLeft,
+  "chevron-left-small-16": ChevronLeftSmall,
+  "chevron-right-16": ChevronRight,
+  "chevron-right-small-16": ChevronRightSmall,
+  "chevron-up-16": ChevronUp,
+  "chevron-up-small-16": ChevronUpSmall,
   "circle-16": Circle,
-  // "circle-ellipsis-16": CircleEllipsis,
-  // "circle-filled-16": CircleFilled,
-  // "circle-progress-16": CircleProgress,
-  // "circle-progress-100-16": CircleProgress100,
-  // "circle-progress-25-16": CircleProgress25,
-  // "circle-progress-50-16": CircleProgress50,
-  // "circle-progress-75-16": CircleProgress75,
-  // "clear-formatting-16": ClearFormatting,
-  // "copy-clipboard-16": Clipboard,
-  // "clock-16": Clock,
-  // "cloud-16": Cloud,
-  // "cloud-lightning-16": CloudLightning,
-  // "cloud-rain-16": CloudRain,
-  // "cloud-snow-16": CloudSnow,
-  // "cloud-sun-16": CloudSun,
-  // "code-16": Code,
-  // "code-block-16": CodeBlock,
-  // "cog-16": Cog,
-  // "coin-16": Coin,
-  // "coins-16": Coins,
-  // "compass-16": Compass,
-  // "computer-chip-16": ComputerChip,
-  // "contrast-16": Contrast,
-  // "credit-card-16": CreditCard,
-  // "cricket-ball-16": CricketBall,
-  // "crop-16": Crop,
-  // "crown-16": Crown,
-  // "crypto-16": Crypto,
-  // "delete-document-16": DeleteDocument,
-  // "desktop-16": Desktop,
-  // "dna-16": Dna,
-  // "dot-16": Dot,
-  // "download-16": Download,
-  // "edit-shape-16": EditShape,
-  // "eject-16": Eject,
-  // "ellipsis-16": Ellipsis,
-  // "emoji-16": Emoji,
-  // "envelope-16": Envelope,
-  // "eraser-16": Eraser,
-  // "important-01-16": ExclamationMark,
-  // "exclamationmark-16": Exclamationmark,
-  // "exclamationmark-2-16": Exclamationmark2,
-  // "exclamationmark-3-16": Exclamationmark3,
-  // "eye-16": Eye,
-  // "eye-disabled-16": EyeDisabled,
-  // "eye-dropper-16": EyeDropper,
+  "circle-ellipsis-16": CircleEllipsis,
+  "circle-filled-16": CircleFilled,
+  "circle-progress-16": CircleProgress,
+  "circle-progress-100-16": CircleProgress100,
+  "circle-progress-25-16": CircleProgress25,
+  "circle-progress-50-16": CircleProgress50,
+  "circle-progress-75-16": CircleProgress75,
+  "clear-formatting-16": ClearFormatting,
+  "copy-clipboard-16": Clipboard,
+  "clock-16": Clock,
+  "cloud-16": Cloud,
+  "cloud-lightning-16": CloudLightning,
+  "cloud-rain-16": CloudRain,
+  "cloud-snow-16": CloudSnow,
+  "cloud-sun-16": CloudSun,
+  "code-16": Code,
+  "code-block-16": CodeBlock,
+  "cog-16": Cog,
+  "coin-16": Coin,
+  "coins-16": Coins,
+  "compass-16": Compass,
+  "computer-chip-16": ComputerChip,
+  "contrast-16": Contrast,
+  "credit-card-16": CreditCard,
+  "cricket-ball-16": CricketBall,
+  "crop-16": Crop,
+  "crown-16": Crown,
+  "crypto-16": Crypto,
+  "delete-document-16": DeleteDocument,
+  "desktop-16": Desktop,
+  "dna-16": Dna,
+  "dot-16": Dot,
+  "download-16": Download,
+  "edit-shape-16": EditShape,
+  "eject-16": Eject,
+  "ellipsis-16": Ellipsis,
+  "emoji-16": Emoji,
+  "envelope-16": Envelope,
+  "eraser-16": Eraser,
+  "important-01-16": ExclamationMark,
+  "exclamationmark-16": Exclamationmark,
+  "exclamationmark-2-16": Exclamationmark2,
+  "exclamationmark-3-16": Exclamationmark3,
+  "eye-16": Eye,
+  "eye-disabled-16": EyeDisabled,
+  "eye-dropper-16": EyeDropper,
   // "female-16": Female,
   // "film-strip-16": FilmStrip,
   // "filter-16": Filter,
