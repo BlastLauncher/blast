@@ -40,7 +40,7 @@ export const Devtool = () => {
     }
   }, [ws]);
 
-  const testPopAction = useCallback(() => {
+  const popAction = useCallback(() => {
     ws.call("blast-global:pop");
   }, [ws]);
 
@@ -101,7 +101,7 @@ export const Devtool = () => {
               Send Action
             </button>
 
-            <button className="px-4 text-white rounded-md bg-slate-600" onClick={testPopAction}>
+            <button className="px-4 text-white rounded-md bg-slate-600" onClick={popAction}>
               Pop Action
             </button>
           </div>

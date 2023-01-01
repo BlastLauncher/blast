@@ -1,4 +1,4 @@
-import { renderTreeComponent } from "./components";
+import { TreeComponent } from "./components";
 import { Devtool } from "./components/Devtool";
 import { useRemoteBlastTree } from "./store";
 
@@ -7,7 +7,7 @@ export const App = () => {
 
   return (
     <>
-      <div className="dark h-full">{tree && renderTreeComponent(tree)}</div>
+      <div className="h-full dark">{tree && <TreeComponent blastProps={tree} />}</div>
 
       <Devtool />
     </>

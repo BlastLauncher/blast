@@ -1,16 +1,23 @@
+import { useRemoteBlastTree } from "../store";
 import { BlastComponent } from "../types";
 
+import { Form, FormProps } from "./Form";
 import { List, ListProps } from "./List";
-// import { Form } from './Form'
+import { NavigationContext } from "./Navigation/context";
 
-export const renderTreeComponent = (blastProps: BlastComponent) => {
+export const TreeComponent = ({ blastProps }: { blastProps: BlastComponent }) => {
+  const { ws } = useRemoteBlastTree();
+
   const NavigationRoot = findDeepComponent(blastProps, "NavigationRoot");
 
   if (!NavigationRoot) {
     return null;
   }
 
-  const { children } = NavigationRoot;
+  const {
+    children,
+    props: { stacksLength },
+  } = NavigationRoot;
 
   if (children.length === 0) {
     return null;
@@ -21,11 +28,24 @@ export const renderTreeComponent = (blastProps: BlastComponent) => {
 
   const { elementType, props } = firstChild;
 
-  if (elementType === "List") {
-    return <List children={firstChild.children} props={props as ListProps} />;
-  } else {
-    // TODO: handle other types
-  }
+  const canPop = stacksLength > 0;
+
+  return (
+    <NavigationContext.Provider
+      value={{
+        pop: () => {
+          if (canPop) {
+            ws.call("blast-global:pop");
+          }
+        },
+        canPop,
+      }}
+    >
+      {elementType === "List" ? <List children={firstChild.children} props={props as ListProps} /> : null}
+
+      {elementType === "Form" ? <Form children={firstChild.children} props={props as FormProps} /> : null}
+    </NavigationContext.Provider>
+  );
 };
 
 export const findDeepComponent = (blastProps: BlastComponent, type: string): BlastComponent => {

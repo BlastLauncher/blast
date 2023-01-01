@@ -94,3 +94,7 @@
   --blue11: hsl(210, 100%, 66.1%);
   --blue12: hsl(206, 98%, 95.8%);
 }
+
+.drag-area {
+  -webkit-app-region: drag;
+}
