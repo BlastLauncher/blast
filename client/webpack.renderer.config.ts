@@ -14,6 +14,11 @@ rules.push({
   exclude: /node_modules/,
 });
 
+rules.push({
+  test: /\.svg$/,
+  use: ["@svgr/webpack"],
+});
+
 export const rendererConfig: Configuration = {
   devtool: "source-map",
   module: {

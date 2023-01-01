@@ -6,6 +6,7 @@ import { Client } from "rpc-websockets";
 
 import { useRemoteBlastTree } from "../../store";
 import { BlastComponent } from "../../types";
+import Icons from "../Icon";
 
 type ObjectFromList<T extends ReadonlyArray<string>, V = string> = {
   [K in T extends ReadonlyArray<infer U> ? U : never]: V;
@@ -264,13 +265,17 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
 
           {listItems.map((listItem, index) => {
             const {
-              props: { title },
+              props: { title, icon },
             } = listItem;
 
             const value = getListItemValue(index);
 
+            const Icon = Icons[icon as keyof typeof Icons] as () => JSX.Element;
+
             return (
               <Command.Item key={value} value={value}>
+                <Icon />
+
                 {title}
               </Command.Item>
             );
