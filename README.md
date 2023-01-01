@@ -32,3 +32,15 @@ npm run start:dev # nodemon start bundle
 
 - [SunbeamLauncher](https://github.com/SunbeamLauncher/sunbeam): A frontend agnostic Launcher app, written in Go, and you can write extensions in any language.
 - [⌘K, cmdk][https://github.com/pacocoursey/cmdk]: A launcher React.js Component. The front end of Blast is based on this project. The author also provided several launcher themes, such as Linear, Raycast and Vercel, but they are only for demo purposes so you need to modify them to use.
+
+## FAQs
+
+### Why naming blast?
+
+Because I ask ChatGPT to find words similar to "raycast" 🤣
+
+### Why C8763?
+
+[label](https://www.google.com/url?sa%3Di%26url%3Dhttps%3A%2F%2Fforum.gamer.com.tw%2FCo.php%3Fbsn%3D60076%26sn%3D35393481%26psig%3DAOvVaw1E2lTYKMdW0CFwT7gzrCfb%26ust%3D1672659465987000%26source%3Dimages%26cd%3Dvfe%26ved%3D0CA8QjRxqFwoTCOD_75ukpvwCFQAAAAAdAAAAABAE)
+
+Blast（爆破）應該滿星爆的吧！
