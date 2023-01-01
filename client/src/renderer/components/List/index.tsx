@@ -123,36 +123,13 @@ const ActionContainer = ({ actions, ws }: { actions: BlastComponent[]; ws: Clien
 function SubCommand({
   inputRef,
   listRef,
-  listItems,
+  actionData,
 }: {
   inputRef: React.RefObject<HTMLInputElement>;
   listRef: React.RefObject<HTMLElement>;
-  listItems: BlastComponent[];
+  actionData: BlastComponent;
 }) {
   const [open, setOpen] = React.useState(false);
-  const value = useCommandState((state) => state.value);
-
-  const currentListItem = useMemo(() => {
-    if (!value) {
-      return null;
-    }
-
-    const index = getListIndexFromValue(value);
-
-    return listItems[index];
-  }, [value, listItems]);
-
-  const actionData = useMemo(() => {
-    if (!currentListItem) {
-      return null;
-    }
-
-    const { children } = currentListItem;
-
-    const actionPanel = children.find((child) => child.elementType === "ActionPanel");
-
-    return actionPanel;
-  }, [currentListItem]);
 
   React.useEffect(() => {
     function listener(e: KeyboardEvent) {
@@ -255,6 +232,87 @@ function SubItem({
   );
 }
 
+const ListFooter = ({
+  inputRef,
+  listItems,
+  listRef,
+}: {
+  listRef: React.RefObject<HTMLElement>;
+  inputRef: React.RefObject<HTMLInputElement>;
+  listItems: BlastComponent[];
+}) => {
+  const value = useCommandState((state) => state.value);
+  const { ws } = useRemoteBlastTree();
+
+  const currentListItem = useMemo(() => {
+    if (!value) {
+      return null;
+    }
+
+    const index = getListIndexFromValue(value);
+
+    return listItems[index];
+  }, [value, listItems]);
+
+  const actionData = useMemo(() => {
+    if (!currentListItem) {
+      return null;
+    }
+
+    const { children } = currentListItem;
+
+    const actionPanel = children.find((child) => child.elementType === "ActionPanel");
+
+    return actionPanel;
+  }, [currentListItem]);
+
+  const action = useMemo(() => {
+    if (!actionData) {
+      return null;
+    }
+
+    const { children } = actionData;
+
+    const firstAction = children.find((child) => child.elementType === "Action");
+
+    const firstActionPanelSection = children.find(
+      (child) => child.elementType === "ActionPanelSection" && child.children.length > 0
+    );
+
+    if (firstActionPanelSection) {
+      const { children } = firstActionPanelSection;
+
+      const firstAction = children.find((child) => child.elementType === "Action");
+
+      return firstAction;
+    } else {
+      return firstAction;
+    }
+  }, [actionData]);
+
+  return (
+    <div cmdk-raycast-footer="">
+      <RaycastDarkIcon />
+
+      {action && (
+        <button
+          cmdk-raycast-open-trigger=""
+          onClick={() => {
+            ws.call(action.props.actionEventName);
+          }}
+        >
+          {action.props.title}
+          <kbd>↵</kbd>
+        </button>
+      )}
+
+      <hr />
+
+      <SubCommand listRef={listRef} inputRef={inputRef} actionData={actionData} />
+    </div>
+  );
+};
+
 // ?NOTE: cmdk turn value into lowercase internally
 function getListItemValue(itemIndex: number) {
   return `listitem-${itemIndex}`;
@@ -301,19 +359,7 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
           })}
         </Command.List>
 
-        <div cmdk-raycast-footer="">
-          <RaycastDarkIcon />
-
-          {/* TODO: extract first action from action panel */}
-          <button cmdk-raycast-open-trigger="">
-            Open Application
-            <kbd>↵</kbd>
-          </button>
-
-          <hr />
-
-          <SubCommand listRef={listRef} inputRef={inputRef} listItems={listItems} />
-        </div>
+        <ListFooter listRef={listRef} inputRef={inputRef} listItems={listItems} />
       </Command>
     </div>
   );
