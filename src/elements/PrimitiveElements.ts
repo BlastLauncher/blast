@@ -121,3 +121,11 @@ export class ListItem extends BaseElement {
     super(props);
   }
 }
+
+export class Icon extends BaseElement {
+  static defaultProps = {};
+
+  constructor(props: any) {
+    super(props);
+  }
+}
