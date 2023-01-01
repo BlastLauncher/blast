@@ -22,6 +22,9 @@ export class List extends BaseElement {
   }
 
   serialize() {
+    // TODO: when there's no ListItem nor EmptyView provided
+    // Return an EmptyView with default property
+
     let children;
     if (this.children.find((child) => child instanceof ListItem)) {
       children = this.children.filter((child) => !(child instanceof EmptyView)).map((child) => child.serialize());
@@ -112,6 +115,14 @@ export class NavigationRoot extends BaseElement {
 }
 
 export class ListItem extends BaseElement {
+  static defaultProps = {};
+
+  constructor(props: any) {
+    super(props);
+  }
+}
+
+export class Icon extends BaseElement {
   static defaultProps = {};
 
   constructor(props: any) {

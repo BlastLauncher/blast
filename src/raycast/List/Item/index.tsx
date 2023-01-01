@@ -11,6 +11,7 @@ const serializesKeys: ListItemPropKeys = [
   "quickLook",
   "subtitle",
   "title",
+  "icon",
 ];
 
 export const Item = (props: List.Item.Props) => {

@@ -5,7 +5,9 @@ import { App } from "./renderer/App";
 import { setupWS } from "./renderer/setupWS";
 import { remoteBlastTree } from "./renderer/store";
 import { BlastComponent } from "./renderer/types";
-import "./index.css";
+import "./renderer/styles/index.css";
+import "./renderer/styles/global.scss";
+import "highlight.js/styles/github-dark.css";
 
 async function start() {
   const container = document.getElementById("app");

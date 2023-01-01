@@ -30,6 +30,7 @@ declare namespace JSX {
 
     NavigationRoot: {
       children?: React.ReactNode;
-    };
+      stacksLength?: number;
+    } & BlastNodeProps;
   }
 }
