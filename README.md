@@ -31,7 +31,7 @@ npm run start:dev # nodemon start bundle
 ## Inspiration and related projects
 
 - [SunbeamLauncher](https://github.com/SunbeamLauncher/sunbeam): A frontend agnostic Launcher app, written in Go, and you can write extensions in any language.
-- [⌘K, cmdk][https://github.com/pacocoursey/cmdk]: A launcher React.js Component. The front end of Blast is based on this project. The author also provided several launcher themes, such as Linear, Raycast and Vercel, but they are only for demo purposes so you need to modify them to use.
+- [⌘K, cmdk](https://github.com/pacocoursey/cmdk): A React.js Component to build Launcher app UI. The front end of Blast is based on this project. The author also provided several launcher themes, such as Linear, Raycast and Vercel, but they are only for demo purposes so you need to modify them to use.
 
 ## FAQs
 
