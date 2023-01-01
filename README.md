@@ -32,6 +32,11 @@ npm install
 npx react-devtools # Start react devtools
 npm run dev # Start webpack incremental build
 npm run start:dev # nodemon start bundle
+
+# in a new terminal
+cd client
+npm install
+npm run start
 ```
 
 ## Inspiration and related projects
