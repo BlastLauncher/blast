@@ -12,6 +12,17 @@ type ObjectFromList<T extends ReadonlyArray<string>, V = string> = {
   [K in T extends ReadonlyArray<infer U> ? U : never]: V;
 };
 
+const getIconComponent = (icon: string) => {
+  const Icon = Icons[icon as keyof typeof Icons] as () => JSX.Element;
+
+  if (!Icon) {
+    console.warn(`Icon ${icon} not found`);
+    return null;
+  }
+
+  return Icon;
+};
+
 const serializedKeys = [
   // navigation props
   "navigationTitle",
@@ -57,8 +68,10 @@ const renderShortcutToString = (shortcut: Keyboard.Shortcut) => {
 
 const Action = ({ action, ws }: { action: BlastComponent; ws: Client }) => {
   const {
-    props: { shortcut, actionEventName, title },
+    props: { shortcut, actionEventName, title, icon },
   } = action;
+
+  const Icon = getIconComponent(icon);
 
   return (
     <SubItem
@@ -67,6 +80,7 @@ const Action = ({ action, ws }: { action: BlastComponent; ws: Client }) => {
       onSelect={() => {
         ws.call(actionEventName);
       }}
+      icon={Icon && <Icon />}
     >
       {title}
     </SubItem>
@@ -218,14 +232,20 @@ function SubItem({
   children,
   shortcut,
   onSelect,
+  icon,
 }: {
   children: React.ReactNode;
   shortcut: string;
   onSelect: () => void;
+  icon?: React.ReactNode;
 }) {
   return (
     <Command.Item onSelect={onSelect}>
-      {children}
+      <div className="flex items-center gap-2">
+        {icon}
+        {children}
+      </div>
+
       <div cmdk-raycast-submenu-shortcuts="">
         {shortcut.split(" ").map((key) => {
           return <kbd key={key}>{key}</kbd>;
@@ -269,12 +289,11 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
             } = listItem;
 
             const value = getListItemValue(index);
-
-            const Icon = Icons[icon as keyof typeof Icons] as () => JSX.Element;
+            const Icon = getIconComponent(icon);
 
             return (
               <Command.Item key={value} value={value}>
-                <Icon />
+                {icon && <Icon />}
 
                 {title}
               </Command.Item>

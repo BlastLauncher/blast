@@ -312,7 +312,7 @@ import EyeDropper from "./images/eye-dropper-16.svg";
 // import Patch from "./images/patch-16.svg";
 // import Pause from "./images/pause-16.svg";
 // import PauseFilled from "./images/pause-filled-16.svg";
-// import Pencil from "./images/pencil-16.svg";
+import Pencil from "./images/pencil-16.svg";
 // import Person from "./images/person-16.svg";
 // import PersonCircle from "./images/person-circle-16.svg";
 // import PersonLines from "./images/person-lines-16.svg";
@@ -392,7 +392,7 @@ import EyeDropper from "./images/eye-dropper-16.svg";
 // import TextCursor from "./images/text-cursor-16.svg";
 // import Torch from "./images/torch-16.svg";
 // import Train from "./images/train-16.svg";
-// import Trash from "./images/trash-16.svg";
+import Trash from "./images/trash-16.svg";
 // import Tray from "./images/tray-16.svg";
 // import Tree from "./images/tree-16.svg";
 // import Trophy from "./images/trophy-16.svg";
@@ -729,7 +729,7 @@ const icons = {
   // "patch-16": Patch,
   // "pause-16": Pause,
   // "pause-filled-16": PauseFilled,
-  // "pencil-16": Pencil,
+  "pencil-16": Pencil,
   // "person-16": Person,
   // "person-circle-16": PersonCircle,
   // "person-lines-16": PersonLines,
@@ -808,7 +808,7 @@ const icons = {
   // "text-cursor-16": TextCursor,
   // "torch-16": Torch,
   // "train-16": Train,
-  // "trash-16": Trash,
+  "trash-16": Trash,
   // "tray-16": Tray,
   // "tree-16": Tree,
   // "trophy-16": Trophy,
