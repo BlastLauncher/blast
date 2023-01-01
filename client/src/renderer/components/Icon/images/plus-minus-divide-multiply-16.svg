@@ -4,6 +4,6 @@
 <path d="M12 12L14 10M12 12L10 14M12 12L14 14M12 12L10 10" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
 <path d="M9.75 4H12H14.25" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
 <path d="M1.75 12H4H6.25" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-<circle cx="4" cy="9.75" r="0.75" fill="black"/>
-<circle cx="4" cy="14.25" r="0.75" fill="black"/>
+<circle cx="4" cy="9.75" r="0.75" fill="white"/>
+<circle cx="4" cy="14.25" r="0.75" fill="white"/>
 </svg>
