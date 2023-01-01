@@ -41,9 +41,9 @@ Because I ask ChatGPT to find words similar to "raycast" 🤣
 
 ### Why C8763?
 
-[label](https://www.google.com/url?sa%3Di%26url%3Dhttps%3A%2F%2Fforum.gamer.com.tw%2FCo.php%3Fbsn%3D60076%26sn%3D35393481%26psig%3DAOvVaw1E2lTYKMdW0CFwT7gzrCfb%26ust%3D1672659465987000%26source%3Dimages%26cd%3Dvfe%26ved%3D0CA8QjRxqFwoTCOD_75ukpvwCFQAAAAAdAAAAABAE)
+![星爆臉素材](http://i.imgur.com/7SXzUno.png)
 
-Blast（爆破）應該滿星爆的吧！
+Blast（爆破）應該滿星爆的吧！但星爆氣流斬原文是 starburst stream。算了。
 
 ## Learning Resources
 
