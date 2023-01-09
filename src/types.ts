@@ -14,6 +14,7 @@ export type Props = Record<string, any>;
 export interface Container {
   appendChild(child: Instance): void;
   removeChild(child: Instance): void;
+  insertBefore(child: Instance, beforeChild: Instance): void;
   clear(): void;
   serialize(): any;
   server: Server | null;
@@ -25,6 +26,7 @@ export interface Instance {
   children: Instance[];
   commitMount(): void;
   commitUpdate(newProps: Props): void;
+  insertBefore(child: Instance, beforeChild: Instance): void;
   props: Props;
   removeChild(child: Instance): void;
   serialize(): any;

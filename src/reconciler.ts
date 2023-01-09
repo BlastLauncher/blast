@@ -132,6 +132,14 @@ export const JSONTreeRenderer = Reconciler<
 
   insertBefore(parentInstance: Instance, child: Instance, beforeChild: Instance) {
     debug(`insertBefore`, parentInstance.elementType, child.elementType, beforeChild.elementType);
+
+    parentInstance.insertBefore(child, beforeChild);
+  },
+
+  insertInContainerBefore(container: Container, child: Instance, beforeChild: Instance) {
+    debug(`insertInContainerBefore`, child.elementType, beforeChild.elementType);
+
+    container.insertBefore(child, beforeChild);
   },
 
   // The `removeChild` method is called when a child is removed from a parent element.

@@ -33,6 +33,19 @@ export default class BaseElement implements Instance {
     this.children.push(_child as BaseElement);
   }
 
+  insertBefore(_child: BaseElement, _beforeChild: BaseElement) {
+    debug(`${this.constructor.name}:insertBefore(${_child}, ${_beforeChild})`);
+
+    const existingIndex = this.children.indexOf(_child);
+    const index = this.children.indexOf(_beforeChild);
+
+    if (existingIndex > -1) {
+      this.children.splice(existingIndex, 1);
+    }
+
+    this.children.splice(index + 1, 0, _child);
+  }
+
   removeChild(_child: BaseElement) {
     debug(`${this.constructor.name}:removeChild()`);
     this.children.splice(this.children.indexOf(_child), 1);
