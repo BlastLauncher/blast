@@ -1,0 +1,37 @@
+{
+  "name": "blast-renderer",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [],
+  "license": "ISC",
+  "author": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "fmt": "prettier --write .",
+    "lint": "eslint .",
+    "test": "jest"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "verbose": true
+  },
+  "dependencies": {
+    "blast-utils": "workspace:*",
+    "fs-extra": "^11.1.0",
+    "global": "^4.4.0",
+    "lodash": "^4.17.21",
+    "prop-types": "^15.8.1",
+    "react": "^18.2.0",
+    "react-reconciler": "^0.28.0",
+    "rpc-websockets": "^7.5.0",
+    "websocket": "^1.0.34"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.191",
+    "@types/react-reconciler": "^0.28.0",
+    "@types/websocket": "^1.0.5",
+    "react-devtools": "^4.27.1"
+  }
+}
