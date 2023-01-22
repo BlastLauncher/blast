@@ -2,14 +2,18 @@
   "name": "blast-api",
   "version": "1.0.0",
   "description": "",
-  "scripts": {
-    "test": "jest",
-    "build": "tsc"
-  },
-  "main": "dist/index.js",
   "keywords": [],
-  "author": "",
   "license": "ISC",
+  "author": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "verbose": true
+  },
   "dependencies": {
     "blast-renderer": "workspace:*",
     "blast-utils": "workspace:*",
@@ -19,11 +23,7 @@
   "devDependencies": {
     "@types/fs-extra": "^9.0.13",
     "@types/node": "^18.8.3",
-    "rpc-websockets": "^7.5.0",
-    "raycast-original": "npm:@raycast/api@1.45.0"
-  },
-  "jest": {
-    "testEnvironment": "node",
-    "verbose": true
+    "raycast-original": "npm:@raycast/api@1.45.0",
+    "rpc-websockets": "^7.5.0"
   }
 }

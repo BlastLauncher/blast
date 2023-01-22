@@ -1,22 +1,24 @@
 {
   "name": "blast-client",
-  "productName": "blast",
   "version": "1.0.0",
   "description": "My Electron application description",
-  "main": ".webpack/main",
-  "scripts": {
-    "start": "electron-forge start",
-    "package": "electron-forge package",
-    "make": "electron-forge make",
-    "publish": "electron-forge publish",
-    "lint": "eslint --ext .ts,.tsx ."
-  },
   "keywords": [],
+  "license": "MIT",
   "author": {
     "name": "Yukai Huang",
     "email": "yukaihuangtw@gmail.com"
   },
-  "license": "MIT",
+  "main": ".webpack/main",
+  "scripts": {
+    "lint": "eslint --ext .ts,.tsx .",
+    "make": "electron-forge make",
+    "package": "electron-forge package",
+    "publish": "electron-forge publish",
+    "start": "electron-forge start"
+  },
+  "dependencies": {
+    "electron-squirrel-startup": "^1.0.0"
+  },
   "devDependencies": {
     "@electron-forge/cli": "^6.0.4",
     "@electron-forge/maker-deb": "^6.0.4",
@@ -57,7 +59,5 @@
     "webpack": "5",
     "zustand": "^4.1.5"
   },
-  "dependencies": {
-    "electron-squirrel-startup": "^1.0.0"
-  }
+  "productName": "blast"
 }
