@@ -2,8 +2,8 @@
 import pick from "lodash/pick";
 import PropTypes, { checkPropTypes } from "prop-types";
 
+import { createDebug } from "../../utils/debug";
 import { HostContext, Instance, Props } from "../types";
-import { createDebug } from "../utils/debug";
 
 const debug = createDebug("blast:elements:BaseElement");
 

@@ -2,7 +2,7 @@ import { Action as RaycastAction } from "raycast-original";
 
 import { useCallback, useEffect, useId, useMemo } from "react";
 
-import * as ElementTypes from "../../elements/types";
+import * as ElementTypes from "../../renderer/elements/types";
 import { createDebug } from "../../utils/debug";
 import { useFormContext } from "../Form";
 import { useWsServer } from "../internal/WsServerProvider";

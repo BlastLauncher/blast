@@ -1,2 +1,2 @@
-export * from "./render";
-export * from "./reconciler";
+export * from "./renderer/render";
+export * from "./renderer/reconciler";

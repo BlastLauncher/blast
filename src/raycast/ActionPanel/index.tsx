@@ -1,6 +1,6 @@
 import { ActionPanel as RActionPanel } from "raycast-original";
 
-import * as ElementTypes from "../../elements/types";
+import * as ElementTypes from "../../renderer/elements/types";
 
 import { Section } from "./Section";
 

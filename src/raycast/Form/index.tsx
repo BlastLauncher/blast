@@ -2,7 +2,7 @@ import { Form as RForm } from "raycast-original";
 
 import { createContext, useCallback, useContext, useState } from "react";
 
-import * as ElementTypes from "../../elements/types";
+import * as ElementTypes from "../../renderer/elements/types";
 import { createDebug } from "../../utils/debug";
 
 import { TextField } from "./TextField";

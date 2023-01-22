@@ -2,7 +2,7 @@ import { Form } from "raycast-original";
 
 import { forwardRef, useEffect, useId, useImperativeHandle, useMemo, useState } from "react";
 
-import * as ElementTypes from "../../elements/types";
+import * as ElementTypes from "../../renderer/elements/types";
 import { createDebug } from "../../utils/debug";
 import { useWsServer } from "../internal/WsServerProvider";
 

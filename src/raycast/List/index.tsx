@@ -1,6 +1,6 @@
 import { List as RList } from "raycast-original";
 
-import * as ElementTypes from "../../elements/types";
+import * as ElementTypes from "../../renderer/elements/types";
 
 import { Dropdown } from "./Dropdown";
 import { EmptyView } from "./EmptyView";

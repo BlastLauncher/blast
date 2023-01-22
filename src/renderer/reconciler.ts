@@ -2,6 +2,8 @@ import Reconciler from "react-reconciler";
 import { DefaultEventPriority } from "react-reconciler/constants.js";
 
 import createElement from "./elements/createElement";
+import { createDebug } from "../utils/debug";
+
 import {
   Type,
   Props,
@@ -18,7 +20,6 @@ import {
   NoTimeout,
   InternalInstanceHandle,
 } from "./types";
-import { createDebug } from "./utils/debug";
 
 const debug = createDebug("blast:reconciler");
 

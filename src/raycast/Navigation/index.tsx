@@ -1,6 +1,6 @@
 import React, { Fragment, createContext, useCallback, useContext, useEffect, useState } from "react";
 
-import { NavigationRoot } from "../../elements/types";
+import { NavigationRoot } from "../../renderer/elements/types";
 import { useWsServer } from "../internal/WsServerProvider";
 
 export const NavigationContext = createContext<{

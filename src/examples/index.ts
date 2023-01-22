@@ -1,8 +1,7 @@
 import Command from "../../examples/todo-list/src/index";
-import { connect } from "../preloadDevtool";
+import { run } from "../renderer/run";
 import { runServer } from "../server";
-
-import { run } from "./run";
+import { connect } from "../utils/preloadDevtool";
 
 connect();
 

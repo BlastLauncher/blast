@@ -1,3 +1,3 @@
-import * as ComponentTypes from "../elements/types";
+import * as ComponentTypes from "../renderer/elements/types";
 
 export { ComponentTypes };
