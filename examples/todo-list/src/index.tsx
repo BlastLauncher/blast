@@ -95,7 +95,7 @@ export default function Command() {
           <List.Dropdown.Item title="Completed" value={Filter.Completed} />
         </List.Dropdown>
       }
-      filtering
+      enableFiltering
       onSearchTextChange={(newValue) => {
         setState((previous) => ({ ...previous, searchText: newValue }));
       }}
