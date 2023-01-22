@@ -11,6 +11,10 @@ import "highlight.js/styles/github-dark.css";
 
 async function start() {
   const container = document.getElementById("app");
+  if (!container) {
+    return;
+  }
+
   const root = createRoot(container);
 
   setupWS(async (ws) => {
