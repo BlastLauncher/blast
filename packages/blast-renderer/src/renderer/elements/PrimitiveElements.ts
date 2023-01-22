@@ -1,4 +1,4 @@
-import { createDebug } from "blast-utils";
+import { createDebug } from "@blast/utils";
 import pick from "lodash/pick";
 
 import BaseElement from "./BaseElement";

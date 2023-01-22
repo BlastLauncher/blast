@@ -1,4 +1,4 @@
-import { runServer } from "blast-renderer";
+import { runServer } from "@blast/renderer";
 
 import { App } from "./App";
 import { connect } from "./utils/connectDevtools";

@@ -1,4 +1,4 @@
-import { ElementTypes } from "blast-renderer";
+import { ElementTypes } from "@blast/renderer";
 import React, { Fragment, createContext, useCallback, useContext, useEffect, useState } from "react";
 
 import { useWsServer } from "../internal/WsServerProvider";

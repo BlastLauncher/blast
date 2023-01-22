@@ -6,7 +6,7 @@ const configs: webpack.Configuration[] = [
   {
     mode: "development",
     entry: {
-      bundle: ["windowPolyfill", path.join(__dirname, "./src/index.ts")],
+      index: ["windowPolyfill", path.join(__dirname, "./src/index.ts")],
     },
     devtool: "cheap-module-source-map",
     output: {

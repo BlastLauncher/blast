@@ -140,17 +140,17 @@ importers:
 
   packages/blast-api:
     specifiers:
+      '@blast/renderer': workspace:*
+      '@blast/utils': workspace:*
       '@types/fs-extra': ^9.0.13
       '@types/node': ^18.8.3
-      blast-renderer: workspace:*
-      blast-utils: workspace:*
       fs-extra: ^11.1.0
       raycast-original: npm:@raycast/api@1.45.0
       react: ^18.2.0
       rpc-websockets: ^7.5.0
     dependencies:
-      blast-renderer: link:../blast-renderer
-      blast-utils: link:../blast-utils
+      '@blast/renderer': link:../blast-renderer
+      '@blast/utils': link:../blast-utils
       fs-extra: 11.1.0
       react: 18.2.0
     devDependencies:
@@ -161,10 +161,10 @@ importers:
 
   packages/blast-renderer:
     specifiers:
+      '@blast/utils': workspace:*
       '@types/lodash': ^4.14.191
       '@types/react-reconciler': ^0.28.0
       '@types/websocket': ^1.0.5
-      blast-utils: workspace:*
       fs-extra: ^11.1.0
       global: ^4.4.0
       lodash: ^4.17.21
@@ -175,7 +175,7 @@ importers:
       rpc-websockets: ^7.5.0
       websocket: ^1.0.34
     dependencies:
-      blast-utils: link:../blast-utils
+      '@blast/utils': link:../blast-utils
       fs-extra: 11.1.0
       global: 4.4.0
       lodash: 4.17.21
@@ -192,17 +192,17 @@ importers:
 
   packages/blast-runtime:
     specifiers:
-      '@raycast/api': workspace:blast-api@*
+      '@blast/renderer': workspace:*
+      '@raycast/api': workspace:@blast/api@*
       '@types/websocket': ^1.0.5
-      blast-renderer: workspace:*
       raycast-original: npm:@raycast/api@*
       react: ^18.2.0
       react-devtools-core: ^4.27.1
       rpc-websockets: ^7.5.0
       websocket: ^1.0.34
     dependencies:
+      '@blast/renderer': link:../blast-renderer
       '@raycast/api': link:../blast-api
-      blast-renderer: link:../blast-renderer
       react: 18.2.0
       react-devtools-core: 4.27.1
       websocket: 1.0.34

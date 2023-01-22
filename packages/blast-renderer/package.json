@@ -1,5 +1,5 @@
 {
-  "name": "blast-renderer",
+  "name": "@blast/renderer",
   "version": "1.0.0",
   "description": "",
   "keywords": [],
@@ -18,7 +18,7 @@
     "verbose": true
   },
   "dependencies": {
-    "blast-utils": "workspace:*",
+    "@blast/utils": "workspace:*",
     "fs-extra": "^11.1.0",
     "global": "^4.4.0",
     "lodash": "^4.17.21",

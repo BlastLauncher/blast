@@ -11,18 +11,18 @@
     "apps/*"
   ],
   "scripts": {
-    "build-api": "pnpm --filter blast-api run build",
-    "build-renderer": "pnpm --filter blast-renderer run build",
-    "build-utils": "pnpm --filter blast-utils run build",
+    "build-api": "pnpm --filter api run build",
+    "build-renderer": "pnpm --filter renderer run build",
+    "build-utils": "pnpm --filter utils run build",
     "dev": "pnpm run dev",
     "fmt": "prettier --write .",
     "lint": "eslint .",
     "start-client": "pnpm --filter electron-client run start",
-    "start-renderer": "pnpm --filter blast-renderer run start",
-    "start-renderer:dev": "pnpm --filter blast-renderer run start:dev",
-    "start-runtime:dev": "pnpm --filter blast-runtime run start:dev",
+    "start-renderer": "pnpm --filter renderer run start",
+    "start-renderer:dev": "pnpm --filter renderer run start:dev",
+    "start-runtime:dev": "pnpm --filter runtime run start:dev",
     "test": "pnpm run test",
-    "watch-runtime": "pnpm --filter blast-runtime run build:watch"
+    "watch-runtime": "pnpm --filter runtime run build:watch"
   },
   "jest": {
     "testEnvironment": "node",

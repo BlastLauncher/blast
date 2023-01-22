@@ -1,13 +1,14 @@
 {
-  "name": "blast-runtime",
+  "name": "@blast/runtime",
   "version": "1.0.0",
+  "main": "dist/index.js",
   "scripts": {
     "build:watch": "webpack --config webpack.config.ts --watch --progress",
-    "start:dev": "nodemon --watch dist --exec node dist/bundle.js"
+    "start:dev": "nodemon --watch dist --exec node dist/index.js"
   },
   "dependencies": {
-    "@raycast/api": "workspace:blast-api@*",
-    "blast-renderer": "workspace:*",
+    "@blast/renderer": "workspace:*",
+    "@raycast/api": "workspace:@blast/api@*",
     "react": "^18.2.0",
     "react-devtools-core": "^4.27.1",
     "websocket": "^1.0.34"

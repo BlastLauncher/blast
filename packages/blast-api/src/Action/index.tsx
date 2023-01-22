@@ -1,7 +1,7 @@
 import type { Action as RaycastAction } from "raycast-original";
 
-import { ElementTypes } from "blast-renderer";
-import { createDebug } from "blast-utils";
+import { ElementTypes } from "@blast/renderer";
+import { createDebug } from "@blast/utils";
 import { useCallback, useEffect, useId, useMemo } from "react";
 
 import { useFormContext } from "../Form";
