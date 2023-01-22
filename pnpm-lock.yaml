@@ -57,16 +57,15 @@ importers:
 
   packages/blast-api:
     specifiers:
-      '@raycast/api': ^1.45.0
       '@types/fs-extra': ^9.0.13
       '@types/node': ^18.8.3
       blast-renderer: workspace:*
       blast-utils: workspace:*
       fs-extra: ^11.1.0
+      raycast-original: npm:@raycast/api@1.45.0
       react: ^18.2.0
       rpc-websockets: ^7.5.0
     dependencies:
-      '@raycast/api': 1.45.0_@types+node@18.8.3
       blast-renderer: link:../blast-renderer
       blast-utils: link:../blast-utils
       fs-extra: 11.1.0
@@ -74,11 +73,11 @@ importers:
     devDependencies:
       '@types/fs-extra': 9.0.13
       '@types/node': 18.8.3
+      raycast-original: /@raycast/api/1.45.0_@types+node@18.8.3
       rpc-websockets: 7.5.0
 
   packages/blast-renderer:
     specifiers:
-      '@raycast/api': ^1.45.0
       '@types/lodash': ^4.14.191
       '@types/react-reconciler': ^0.28.0
       '@types/websocket': ^1.0.5
@@ -93,7 +92,6 @@ importers:
       rpc-websockets: ^7.5.0
       websocket: ^1.0.34
     dependencies:
-      '@raycast/api': 1.45.0
       blast-utils: link:../blast-utils
       fs-extra: 11.1.0
       global: 4.4.0
@@ -111,9 +109,22 @@ importers:
 
   packages/blast-runtime:
     specifiers:
-      '@raycast/api': workspace:blast-api@*
+      '@types/websocket': ^1.0.5
+      blast-api: workspace:*
+      raycast-original: npm:@raycast/api@*
+      react: ^18.2.0
+      react-devtools-core: ^4.27.1
+      rpc-websockets: ^7.5.0
+      websocket: ^1.0.34
     dependencies:
-      '@raycast/api': link:../blast-api
+      blast-api: link:../blast-api
+      react: 18.2.0
+      websocket: 1.0.34
+    devDependencies:
+      '@types/websocket': 1.0.5
+      raycast-original: /@raycast/api/1.45.0
+      react-devtools-core: 4.27.1
+      rpc-websockets: 7.5.0
 
   packages/blast-utils:
     specifiers: {}
@@ -859,10 +870,11 @@ packages:
       '@types/react':
         optional: true
     dependencies:
+      '@types/node': 18.8.3
       '@types/react': 18.0.9
       react: 18.1.0
       react-reconciler: 0.28.0_react@18.1.0
-    dev: false
+    dev: true
 
   /@raycast/api/1.45.0_@types+node@18.8.3:
     resolution: {integrity: sha512-3wHhb6u0uYgayVH5tWB2SkmxU8cuU3MXsxCsKMvvtLPAq8HQb/aJs/HSi1vH7moVdDbCYn0g7V/bzMK/d/QPhA==}
@@ -880,7 +892,7 @@ packages:
       '@types/react': 18.0.9
       react: 18.1.0
       react-reconciler: 0.28.0_react@18.1.0
-    dev: false
+    dev: true
 
   /@sinclair/typebox/0.24.51:
     resolution: {integrity: sha512-1P1OROm/rdubP5aFDSZQILU0vrLCJ4fvHt6EoqHEM+2D/G5MK3bIaymUKLit8Js9gbns5UyJnkP/TZROLw4tUA==}
@@ -1042,6 +1054,7 @@ packages:
 
   /@types/node/18.8.3:
     resolution: {integrity: sha512-0os9vz6BpGwxGe9LOhgP/ncvYN5Tx1fNcd2TM3rD/aCGBkysb+ZWpXEocG24h6ZzOi13+VB8HndAQFezsSOw1w==}
+    dev: true
 
   /@types/prettier/2.7.2:
     resolution: {integrity: sha512-KufADq8uQqo1pYKVIYzfKbJfBAc0sOeXqGbFaSpv8MRmC/zXgowNZmFcbngndGk922QDmOASEXUZCaY48gs4cg==}
@@ -1049,6 +1062,7 @@ packages:
 
   /@types/prop-types/15.7.5:
     resolution: {integrity: sha512-JCB8C6SnDoQf0cNycqd/35A7MjcnK+ZTqE7judS6o7utxUCg6imJg3QK2qzHKszlTjcj2cn+NwMB2i96ubpj7w==}
+    dev: true
 
   /@types/react-reconciler/0.28.0:
     resolution: {integrity: sha512-5cjk9ottZAj7eaTsqzPUIlrVbh3hBAO2YaEL1rkjHKB3xNAId7oU8GhzvAX+gfmlfoxTwJnBjPxEHyxkEA1Ffg==}
@@ -1062,6 +1076,7 @@ packages:
       '@types/prop-types': 15.7.5
       '@types/scheduler': 0.16.2
       csstype: 3.1.1
+    dev: true
 
   /@types/responselike/1.0.0:
     resolution: {integrity: sha512-85Y2BjiufFzaMIlvJDvTTB8Fxl2xfLo4HgmHzVBz08w4wDePCTjYw66PdrolO0kzli3yam/YCgRufyo1DdQVTA==}
@@ -1071,6 +1086,7 @@ packages:
 
   /@types/scheduler/0.16.2:
     resolution: {integrity: sha512-hppQEBDmlwhFAXKJX2KnWLYu5yMfi91yazPb2l+lbJiwW+wdo1gNeRA+3RgNSO39WYX2euey41KEwnqesU2Jew==}
+    dev: true
 
   /@types/semver/7.3.13:
     resolution: {integrity: sha512-21cFJr9z3g5dW8B0CVI9g2O9beqaThGQ6ZFBqHfwhzLDKUxaqTIy3vnfah/UPkfOiF2pLq+tGz+W8RyCskuslw==}
@@ -1962,6 +1978,7 @@ packages:
 
   /csstype/3.1.1:
     resolution: {integrity: sha512-DJR/VvkAvSZW9bTouZue2sSxDwdTN92uHjqeKVm+0dAqdfNykRzQ95tay8aXMBAAPpUiq4Qcug2L7neoRh2Egw==}
+    dev: true
 
   /d/1.0.1:
     resolution: {integrity: sha512-m62ShEObQ39CfralilEQRjH6oAMtNCV1xJyEx5LpRYUVN+EviphDgUc/F3hnYbADmkiNs67Y+3ylmlG7Lnu+FA==}
@@ -4575,7 +4592,7 @@ packages:
       loose-envify: 1.4.0
       react: 18.1.0
       scheduler: 0.22.0
-    dev: false
+    dev: true
 
   /react-reconciler/0.28.0_react@18.2.0:
     resolution: {integrity: sha512-sGIHDOpgVjRYgsi8NgosDnbkDvvkYFFSF900ZUhUw0+lSBEA5n76TcKFaVkfYMIuYm+7W6mT8Q673DLBfuTxcQ==}
@@ -4593,7 +4610,7 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       loose-envify: 1.4.0
-    dev: false
+    dev: true
 
   /react/18.2.0:
     resolution: {integrity: sha512-/3IjMdb2L9QbBdWiW5e3P2/npwMBaU9mHCSCUzNln0ZCYbcfTsGbTJrU/kGemdH2IWmB2ioZ+zkxtmq6g09fGQ==}
@@ -4772,7 +4789,6 @@ packages:
     resolution: {integrity: sha512-6QAm1BgQI88NPYymgGQLCZgvep4FyePDWFpXVK+zNSUgHwlqpJy8VEh8Et0KxTACS4VWwMousBElAZOH9nkkoQ==}
     dependencies:
       loose-envify: 1.4.0
-    dev: false
 
   /schema-utils/3.1.1:
     resolution: {integrity: sha512-Y5PQxS4ITlC+EahLuXaY86TXfR7Dc5lw294alXOq86JAHCihAIZfqv8nNCWvaEJvaC51uN9hbLGeV0cFBdH+Fw==}

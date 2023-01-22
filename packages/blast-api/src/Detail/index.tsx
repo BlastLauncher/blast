@@ -1,4 +1,5 @@
-import { Detail as RDetail } from "@raycast/api";
+import { Detail as RDetail } from "raycast-original";
+
 import { ElementTypes } from "blast-renderer";
 
 type DetailPropKeys = (keyof RDetail.Props)[];

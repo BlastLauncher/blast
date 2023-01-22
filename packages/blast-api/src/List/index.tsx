@@ -1,5 +1,7 @@
-import { List as RList } from "@raycast/api";
+import { List as RList } from "raycast-original";
+
 import { ElementTypes } from "blast-renderer";
+import { FunctionComponent } from "react";
 
 import { Dropdown } from "./Dropdown";
 import { EmptyView } from "./EmptyView";
@@ -25,7 +27,7 @@ const serializedKeys: ListPropKeys = [
   "isShowingDetail",
 ];
 
-export const List = (props: RList.Props) => {
+export const List: FunctionComponent<RList.Props> = (props: RList.Props) => {
   const { children, actions, ...rest } = props;
 
   return (
@@ -36,6 +38,6 @@ export const List = (props: RList.Props) => {
   );
 };
 
-List.Dropdown = Dropdown;
-List.EmptyView = EmptyView;
-List.Item = Item;
+(List as any).Dropdown = Dropdown;
+(List as any).EmptyView = EmptyView;
+(List as any).Item = Item;

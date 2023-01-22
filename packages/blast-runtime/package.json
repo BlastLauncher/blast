@@ -2,6 +2,14 @@
   "name": "blast-runtime",
   "version": "1.0.0",
   "dependencies": {
-    "@raycast/api": "workspace:blast-api@*"
+    "blast-api": "workspace:*",
+    "websocket": "^1.0.34",
+    "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/websocket": "^1.0.5",
+    "raycast-original": "npm:@raycast/api@*",
+    "react-devtools-core": "^4.27.1",
+    "rpc-websockets": "^7.5.0"
   }
 }

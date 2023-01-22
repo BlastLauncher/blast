@@ -1,7 +1,8 @@
-import { Form as RForm } from "@raycast/api";
+import { Form as RForm } from "raycast-original";
+
 import { ElementTypes } from "blast-renderer";
 import { createDebug } from "blast-utils";
-import { createContext, useCallback, useContext, useState } from "react";
+import { FunctionComponent, createContext, useCallback, useContext, useState } from "react";
 
 import { TextField } from "./TextField";
 
@@ -24,7 +25,7 @@ export const useFormContext = () => {
   return useContext(FormContext);
 };
 
-export const Form = (props: RForm.Props) => {
+export const Form: FunctionComponent<RForm.Props> = (props: RForm.Props) => {
   const { actions, children, ...rest } = props;
   const [formValues, setFormValues] = useState<Record<string, string>>({});
 
@@ -53,4 +54,4 @@ export const Form = (props: RForm.Props) => {
   );
 };
 
-Form.TextField = TextField;
+(Form as any).TextField = TextField;

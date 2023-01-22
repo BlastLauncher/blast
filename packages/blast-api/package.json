@@ -6,11 +6,11 @@
     "test": "jest",
     "build": "tsc"
   },
+  "main": "dist/index.js",
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@raycast/api": "^1.45.0",
     "blast-renderer": "workspace:*",
     "blast-utils": "workspace:*",
     "fs-extra": "^11.1.0",
@@ -19,7 +19,8 @@
   "devDependencies": {
     "@types/fs-extra": "^9.0.13",
     "@types/node": "^18.8.3",
-    "rpc-websockets": "^7.5.0"
+    "rpc-websockets": "^7.5.0",
+    "raycast-original": "npm:@raycast/api@1.45.0"
   },
   "jest": {
     "testEnvironment": "node",

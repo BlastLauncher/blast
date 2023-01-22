@@ -1,4 +1,5 @@
-import type { Action as RaycastAction } from "@raycast/api";
+import type { Action as RaycastAction } from "raycast-original";
+
 import { ElementTypes } from "blast-renderer";
 import { createDebug } from "blast-utils";
 import { useCallback, useEffect, useId, useMemo } from "react";

@@ -2,9 +2,11 @@
   "extends": "../../tsconfig.json",
   "include": [
     "src/**/*",
-    "src/@types"
+    "src/@types",
+    "node_modules/raycast-original"
   ],
   "compilerOptions": {
-    "outDir": "dist"
+    "outDir": "dist",
+    "declaration": true
   }
 }

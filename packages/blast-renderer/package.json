@@ -16,7 +16,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@raycast/api": "^1.45.0",
     "fs-extra": "^11.1.0",
     "global": "^4.4.0",
     "lodash": "^4.17.21",

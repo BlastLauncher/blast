@@ -1,7 +1,8 @@
-import { Form } from "@raycast/api";
+import { Form } from "raycast-original";
+
 import { ElementTypes } from "blast-renderer";
 import { createDebug } from "blast-utils";
-import { forwardRef, useEffect, useId, useImperativeHandle, useMemo, useState } from "react";
+import { FunctionComponent, forwardRef, useEffect, useId, useImperativeHandle, useMemo, useState } from "react";
 
 import { useWsServer } from "../internal/WsServerProvider";
 
@@ -103,4 +104,4 @@ const _TextField = (props: Form.TextField.Props, ref: React.ForwardedRef<FormIte
   );
 };
 
-export const TextField = forwardRef(_TextField);
+export const TextField: FunctionComponent<Form.TextField.Props> = forwardRef(_TextField);

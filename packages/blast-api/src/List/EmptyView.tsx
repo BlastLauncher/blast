@@ -1,4 +1,5 @@
-import { List } from "@raycast/api";
+import { List } from "raycast-original";
+
 import { ElementTypes } from "blast-renderer";
 
 type EmptyViewPropKeys = (keyof List.EmptyView.Props)[];

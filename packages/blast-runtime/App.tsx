@@ -1,8 +1,6 @@
+import { NavigationProvider, WsServerProvider } from "blast-api";
 import React from "react";
 import type { Server } from "rpc-websockets";
-
-import { WsServerProvider } from "../raycast/internal/WsServerProvider";
-import { NavigationProvider } from "../raycast/Navigation";
 
 export type AppProps = {
   Command: React.FC;
