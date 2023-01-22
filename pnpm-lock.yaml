@@ -192,8 +192,8 @@ importers:
 
   packages/blast-runtime:
     specifiers:
+      '@blast/api': workspace:*
       '@blast/renderer': workspace:*
-      '@raycast/api': workspace:@blast/api@*
       '@types/websocket': ^1.0.5
       raycast-original: npm:@raycast/api@*
       react: ^18.2.0
@@ -201,8 +201,8 @@ importers:
       rpc-websockets: ^7.5.0
       websocket: ^1.0.34
     dependencies:
+      '@blast/api': link:../blast-api
       '@blast/renderer': link:../blast-renderer
-      '@raycast/api': link:../blast-api
       react: 18.2.0
       react-devtools-core: 4.27.1
       websocket: 1.0.34

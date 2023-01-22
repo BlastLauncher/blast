@@ -1,5 +1,6 @@
-import { NavigationProvider, WsServerProvider } from "@raycast/api";
-import React from "react";
+import { List } from "@raycast/api";
+
+import { NavigationProvider, WsServerProvider } from "@blast/api";
 import type { Server } from "rpc-websockets";
 
 export type AppProps = {
@@ -7,11 +8,13 @@ export type AppProps = {
 };
 
 export const App = ({ server }: AppProps) => {
-  const commands = null;
-
   return (
     <WsServerProvider server={server}>
-      <NavigationProvider>{commands}</NavigationProvider>
+      <NavigationProvider>
+        <List isLoading={false} searchBarPlaceholder="Search...">
+          <List.Item title="Test item" />
+        </List>
+      </NavigationProvider>
     </WsServerProvider>
   );
 };

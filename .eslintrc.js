@@ -42,6 +42,5 @@ module.exports = {
       typescript: true,
       node: true,
     },
-    "import/core-modules": ["raycast-original"],
   },
 };

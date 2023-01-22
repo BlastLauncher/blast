@@ -7,8 +7,8 @@
     "start:dev": "nodemon --watch dist --exec node dist/index.js"
   },
   "dependencies": {
+    "@blast/api": "workspace:*",
     "@blast/renderer": "workspace:*",
-    "@raycast/api": "workspace:@blast/api@*",
     "react": "^18.2.0",
     "react-devtools-core": "^4.27.1",
     "websocket": "^1.0.34"

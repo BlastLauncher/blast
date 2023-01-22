@@ -26,6 +26,7 @@ const configs: webpack.Configuration[] = [
     resolve: {
       alias: {
         windowPolyfill: path.resolve(__dirname, "./src/utils/window.js"),
+        "@raycast/api": "@blast/api",
       },
       extensions: [".tsx", ".ts", ".js"],
       fallback: {
