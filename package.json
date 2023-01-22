@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "apps/*"
   ],
   "scripts": {
     "test": "pnpm run test",
@@ -14,6 +15,9 @@
     "start-renderer": "pnpm --filter blast-renderer run start",
     "build-api": "pnpm --filter blast-api run build",
     "build-utils": "pnpm --filter blast-utils run build",
+    "watch-runtime": "pnpm --filter blast-runtime run build:watch",
+    "start-runtime:dev": "pnpm --filter blast-runtime run start:dev",
+    "start-client": "pnpm --filter electron-client run start",
     "fmt": "prettier --write .",
     "lint": "eslint ."
   },

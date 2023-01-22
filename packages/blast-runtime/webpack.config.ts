@@ -6,7 +6,7 @@ const configs: webpack.Configuration[] = [
   {
     mode: "development",
     entry: {
-      bundle: ["windowPolyfill", path.join(__dirname, "./src/examples/index.ts")],
+      bundle: ["windowPolyfill", path.join(__dirname, "./src/index.ts")],
     },
     devtool: "cheap-module-source-map",
     output: {
@@ -25,9 +25,7 @@ const configs: webpack.Configuration[] = [
     target: "node",
     resolve: {
       alias: {
-        "@raycast/api": path.join(__dirname, "./src/raycast/api.ts"),
         windowPolyfill: path.resolve(__dirname, "./src/utils/window.js"),
-        "raycast-original": path.resolve(__dirname, "node_modules/@raycast/api"),
       },
       extensions: [".tsx", ".ts", ".js"],
       fallback: {

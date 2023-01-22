@@ -1,15 +1,20 @@
 {
   "name": "blast-runtime",
   "version": "1.0.0",
+  "scripts": {
+    "build:watch": "webpack --config webpack.config.ts --watch --progress",
+    "start:dev": "nodemon --watch dist --exec node dist/bundle.js"
+  },
   "dependencies": {
-    "blast-api": "workspace:*",
+    "@raycast/api": "workspace:blast-api@*",
+    "blast-renderer": "workspace:*",
+    "react-devtools-core": "^4.27.1",
     "websocket": "^1.0.34",
     "react": "^18.2.0"
   },
   "devDependencies": {
     "@types/websocket": "^1.0.5",
     "raycast-original": "npm:@raycast/api@*",
-    "react-devtools-core": "^4.27.1",
     "rpc-websockets": "^7.5.0"
   }
 }

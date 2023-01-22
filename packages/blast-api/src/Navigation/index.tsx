@@ -15,7 +15,7 @@ export const NavigationContext = createContext<{
   },
 });
 
-export const NavigationProvider = ({ children }: { children: React.ReactNode }) => {
+export const NavigationProvider = ({ children }: { children?: React.ReactNode }) => {
   const [stack, setStack] = useState<React.ReactNode[]>([]);
   const server = useWsServer();
 

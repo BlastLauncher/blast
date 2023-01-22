@@ -5,10 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "jest",
-    "dev": "webpack --config webpack.config.ts --watch --progress",
     "build": "tsc",
-    "start:dev": "cross-env DEBUG=blast* nodemon dist/bundle.js",
-    "start": "node dist/bundle.js",
+    "build:watch": "tsc --watch",
     "fmt": "prettier --write .",
     "lint": "eslint ."
   },
