@@ -1,6 +1,6 @@
+import { createDebug } from "blast-utils";
 import type { Server } from "rpc-websockets";
 
-import { createDebug } from "../../utils/debug";
 import { Container } from "../types";
 
 import BaseElement from "./BaseElement";

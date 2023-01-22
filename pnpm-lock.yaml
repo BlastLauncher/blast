@@ -3,19 +3,11 @@ lockfileVersion: 5.4
 importers:
 
   .:
-    specifiers: {}
-
-  packages/blast-renderer:
     specifiers:
-      '@raycast/api': ^1.45.0
       '@types/debug': ^4.1.7
-      '@types/fs-extra': ^9.0.13
       '@types/jest': ^29.2.4
-      '@types/lodash': ^4.14.191
       '@types/node': ^18.8.3
-      '@types/react-reconciler': ^0.28.0
       '@types/webpack': ^5.28.0
-      '@types/websocket': ^1.0.5
       '@typescript-eslint/eslint-plugin': ^5.46.1
       '@typescript-eslint/parser': ^5.47.0
       cross-env: ^7.0.3
@@ -27,45 +19,22 @@ importers:
       eslint-plugin-import: ^2.26.0
       eslint-plugin-react: ^7.31.11
       eslint-plugin-react-hooks: ^4.6.0
-      fs-extra: ^11.1.0
-      global: ^4.4.0
       jest: ^29.3.1
-      lodash: ^4.17.21
-      nanoid: ^4.0.0
       nodemon: ^2.0.20
       prettier: 2.8.1
-      prop-types: ^15.8.1
-      react: ^18.2.0
-      react-devtools: ^4.27.1
-      react-reconciler: ^0.28.0
-      rpc-websockets: ^7.5.0
       ts-loader: ^9.4.2
       ts-node: ^10.9.1
       tslib: ^2.4.1
       typescript: ^4.9.4
       webpack: '5'
       webpack-cli: ^5.0.1
-      websocket: ^1.0.34
     dependencies:
-      '@raycast/api': 1.45.0_@types+node@18.8.3
       debug: 4.3.4
-      fs-extra: 11.1.0
-      global: 4.4.0
-      lodash: 4.17.21
-      prop-types: 15.8.1
-      react: 18.2.0
-      react-reconciler: 0.28.0_react@18.2.0
-      rpc-websockets: 7.5.0
-      websocket: 1.0.34
     devDependencies:
       '@types/debug': 4.1.7
-      '@types/fs-extra': 9.0.13
       '@types/jest': 29.2.6
-      '@types/lodash': 4.14.191
       '@types/node': 18.8.3
-      '@types/react-reconciler': 0.28.0
       '@types/webpack': 5.28.0_webpack-cli@5.0.1
-      '@types/websocket': 1.0.5
       '@typescript-eslint/eslint-plugin': 5.48.2_caon6io6stgpr7lz2rtbhekxqy
       '@typescript-eslint/parser': 5.48.2_7uibuqfxkfaozanbtbziikiqje
       cross-env: 7.0.3
@@ -77,16 +46,77 @@ importers:
       eslint-plugin-react: 7.32.1_eslint@8.32.0
       eslint-plugin-react-hooks: 4.6.0_eslint@8.32.0
       jest: 29.3.1_pkv5rbbrzvo2m73htz5zokbhy4
-      nanoid: 4.0.0
       nodemon: 2.0.20
       prettier: 2.8.1
-      react-devtools: 4.27.1
       ts-loader: 9.4.2_3fkjkrd3audxnith3e7fo4fnxi
       ts-node: 10.9.1_t4t2xl5cbwbv3mmwukzoqpetvm
       tslib: 2.4.1
       typescript: 4.9.4
       webpack: 5.75.0_webpack-cli@5.0.1
       webpack-cli: 5.0.1_webpack@5.75.0
+
+  packages/blast-api:
+    specifiers:
+      '@raycast/api': ^1.45.0
+      '@types/fs-extra': ^9.0.13
+      '@types/node': ^18.8.3
+      blast-renderer: workspace:*
+      blast-utils: workspace:*
+      fs-extra: ^11.1.0
+      react: ^18.2.0
+      rpc-websockets: ^7.5.0
+    dependencies:
+      '@raycast/api': 1.45.0_@types+node@18.8.3
+      blast-renderer: link:../blast-renderer
+      blast-utils: link:../blast-utils
+      fs-extra: 11.1.0
+      react: 18.2.0
+    devDependencies:
+      '@types/fs-extra': 9.0.13
+      '@types/node': 18.8.3
+      rpc-websockets: 7.5.0
+
+  packages/blast-renderer:
+    specifiers:
+      '@raycast/api': ^1.45.0
+      '@types/lodash': ^4.14.191
+      '@types/react-reconciler': ^0.28.0
+      '@types/websocket': ^1.0.5
+      blast-utils: workspace:*
+      fs-extra: ^11.1.0
+      global: ^4.4.0
+      lodash: ^4.17.21
+      prop-types: ^15.8.1
+      react: ^18.2.0
+      react-devtools: ^4.27.1
+      react-reconciler: ^0.28.0
+      rpc-websockets: ^7.5.0
+      websocket: ^1.0.34
+    dependencies:
+      '@raycast/api': 1.45.0
+      blast-utils: link:../blast-utils
+      fs-extra: 11.1.0
+      global: 4.4.0
+      lodash: 4.17.21
+      prop-types: 15.8.1
+      react: 18.2.0
+      react-reconciler: 0.28.0_react@18.2.0
+      rpc-websockets: 7.5.0
+      websocket: 1.0.34
+    devDependencies:
+      '@types/lodash': 4.14.191
+      '@types/react-reconciler': 0.28.0
+      '@types/websocket': 1.0.5
+      react-devtools: 4.27.1
+
+  packages/blast-runtime:
+    specifiers:
+      '@raycast/api': workspace:blast-api@*
+    dependencies:
+      '@raycast/api': link:../blast-api
+
+  packages/blast-utils:
+    specifiers: {}
 
 packages:
 
@@ -395,7 +425,6 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       regenerator-runtime: 0.13.11
-    dev: false
 
   /@babel/template/7.20.7:
     resolution: {integrity: sha512-8SegXApWe6VoNw0r9JHpSteLKTpTiLZ4rMlGIm9JQ18KiCtyQiAMEazujAHrUS5flrcqYZa75ukev3P6QmUwUw==}
@@ -817,6 +846,23 @@ packages:
       tiny-glob: 0.2.9
       tslib: 2.4.1
     dev: true
+
+  /@raycast/api/1.45.0:
+    resolution: {integrity: sha512-3wHhb6u0uYgayVH5tWB2SkmxU8cuU3MXsxCsKMvvtLPAq8HQb/aJs/HSi1vH7moVdDbCYn0g7V/bzMK/d/QPhA==}
+    hasBin: true
+    requiresBuild: true
+    peerDependencies:
+      '@types/node': 18.8.3
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+      '@types/react':
+        optional: true
+    dependencies:
+      '@types/react': 18.0.9
+      react: 18.1.0
+      react-reconciler: 0.28.0_react@18.1.0
+    dev: false
 
   /@raycast/api/1.45.0_@types+node@18.8.3:
     resolution: {integrity: sha512-3wHhb6u0uYgayVH5tWB2SkmxU8cuU3MXsxCsKMvvtLPAq8HQb/aJs/HSi1vH7moVdDbCYn0g7V/bzMK/d/QPhA==}
@@ -1650,7 +1696,6 @@ packages:
     requiresBuild: true
     dependencies:
       node-gyp-build: 4.6.0
-    dev: false
 
   /cacheable-request/6.1.0:
     resolution: {integrity: sha512-Oj3cAGPCqOZX7Rz64Uny2GYAZNliQSqfbePrgAQ1wKAihYmCUnraBtJtKcGR4xz7wF+LoJC+ssFZvv5BgF9Igg==}
@@ -2521,7 +2566,6 @@ packages:
 
   /eventemitter3/4.0.7:
     resolution: {integrity: sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw==}
-    dev: false
 
   /events/3.3.0:
     resolution: {integrity: sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==}
@@ -4076,12 +4120,6 @@ packages:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
     dev: true
 
-  /nanoid/4.0.0:
-    resolution: {integrity: sha512-IgBP8piMxe/gf73RTQx7hmnhwz0aaEXYakvqZyE302IXW3HyVNhdNGC+O2MwMAVhLEnvXlvKtGbtJf6wvHihCg==}
-    engines: {node: ^14 || ^16 || >=18}
-    hasBin: true
-    dev: true
-
   /natural-compare-lite/1.4.0:
     resolution: {integrity: sha512-Tj+HTDSJJKaZnfiuw+iaF9skdPpTo2GtEly5JHnWV/hfv2Qj/9RKsGISQtLh2ox3l5EAGw487hnBee0sIJ6v2g==}
     dev: true
@@ -4101,7 +4139,6 @@ packages:
   /node-gyp-build/4.6.0:
     resolution: {integrity: sha512-NTZVKn9IylLwUzaKjkas1e4u2DLNcV4rdYagA4PWdPwW87Bi7z+BznyKSRwS/761tV/lzCGXplWsiaMjLqP2zQ==}
     hasBin: true
-    dev: false
 
   /node-int64/0.4.0:
     resolution: {integrity: sha512-O5lz91xSOeoXP6DulyHfllpq+Eg00MWitZIbtPfoSEvqIHdl5gfcY6hYzDWnj0qD5tz52PI08u9qUvSVeUBeHw==}
@@ -4593,7 +4630,6 @@ packages:
 
   /regenerator-runtime/0.13.11:
     resolution: {integrity: sha512-kY1AZVr2Ra+t+piVaJ4gxaFaReZVH40AKNo7UCX6W+dEwBo/2oZJzqfuN1qLq1oL45o56cPaTXELwrTh8Fpggg==}
-    dev: false
 
   /regexp.prototype.flags/1.4.3:
     resolution: {integrity: sha512-fjggEOO3slI6Wvgjwflkc4NFRCTZAu5CnNfBd5qOMYhWdn67nJBBu34/TkD++eeFmd8C9r9jfXJ27+nSiRkSUA==}
@@ -4709,7 +4745,6 @@ packages:
     optionalDependencies:
       bufferutil: 4.0.7
       utf-8-validate: 5.0.10
-    dev: false
 
   /run-parallel/1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
@@ -5374,7 +5409,6 @@ packages:
     requiresBuild: true
     dependencies:
       node-gyp-build: 4.6.0
-    dev: false
 
   /util-deprecate/1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
@@ -5383,7 +5417,6 @@ packages:
   /uuid/8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
     hasBin: true
-    dev: false
 
   /v8-compile-cache-lib/3.0.1:
     resolution: {integrity: sha512-wa7YjyUGfNZngI/vtK0UHAN+lgDCxBPCylVXGp0zu59Fz5aiGtNXaq3DhIov063MorB+VfufLh3JlF2KdTK3xg==}
@@ -5622,7 +5655,6 @@ packages:
     dependencies:
       bufferutil: 4.0.7
       utf-8-validate: 5.0.10
-    dev: false
 
   /xdg-basedir/3.0.0:
     resolution: {integrity: sha512-1Dly4xqlulvPD3fZUQJLY+FUIeqN3N2MM3uqe4rCJftAvOjFa3jFGfctOgluGx4ahPbUCsZkmJILiP0Vi4T6lQ==}

@@ -1,8 +1,8 @@
 // Big thanks to https://github.com/clayrisser/create-react-renderer
+import { createDebug } from "blast-utils";
 import pick from "lodash/pick";
 import PropTypes, { checkPropTypes } from "prop-types";
 
-import { createDebug } from "../../utils/debug";
 import { HostContext, Instance, Props } from "../types";
 
 const debug = createDebug("blast:elements:BaseElement");

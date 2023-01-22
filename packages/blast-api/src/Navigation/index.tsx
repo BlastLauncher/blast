@@ -1,6 +1,6 @@
+import { ElementTypes } from "blast-renderer";
 import React, { Fragment, createContext, useCallback, useContext, useEffect, useState } from "react";
 
-import { NavigationRoot } from "../../renderer/elements/types";
 import { useWsServer } from "../internal/WsServerProvider";
 
 export const NavigationContext = createContext<{
@@ -52,11 +52,11 @@ export const NavigationProvider = ({ children }: { children: React.ReactNode }) 
 
   return (
     <NavigationContext.Provider value={{ push, pop }}>
-      <NavigationRoot stacksLength={stacksLength} serializedKeys={["stacksLength"]}>
+      <ElementTypes.NavigationRoot stacksLength={stacksLength} serializedKeys={["stacksLength"]}>
         {children}
 
         {stack.map((component, index) => component && <Fragment key={`navigation_${index}`}>{component}</Fragment>)}
-      </NavigationRoot>
+      </ElementTypes.NavigationRoot>
     </NavigationContext.Provider>
   );
 };

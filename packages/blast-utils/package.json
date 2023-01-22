@@ -1,0 +1,9 @@
+{
+  "name": "blast-utils",
+  "version": "0.0.1",
+  "description": "Utilities for working with Blast",
+  "scripts": {
+    "build": "tsc"
+  },
+  "main": "dist/index.js"
+}

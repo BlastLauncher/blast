@@ -1,6 +1,5 @@
 import { List } from "@raycast/api";
-
-import { ComponentTypes } from "../../types";
+import { ElementTypes } from "blast-renderer";
 
 type ListItemPropKeys = (keyof List.Item.Props)[];
 const serializedKeys: ListItemPropKeys = [
@@ -18,8 +17,8 @@ export const Item = (props: List.Item.Props) => {
   const { actions, ...rest } = props;
 
   return (
-    <ComponentTypes.ListItem serializedKeys={serializedKeys} {...rest}>
+    <ElementTypes.ListItem serializedKeys={serializedKeys} {...rest}>
       {actions}
-    </ComponentTypes.ListItem>
+    </ElementTypes.ListItem>
   );
 };

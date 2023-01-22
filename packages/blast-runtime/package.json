@@ -1,0 +1,7 @@
+{
+  "name": "blast-runtime",
+  "version": "1.0.0",
+  "dependencies": {
+    "@raycast/api": "workspace:blast-api@*"
+  }
+}

@@ -1,9 +1,8 @@
+import { createDebug } from "blast-utils";
 import Reconciler from "react-reconciler";
 import { DefaultEventPriority } from "react-reconciler/constants.js";
 
 import createElement from "./elements/createElement";
-import { createDebug } from "../utils/debug";
-
 import {
   Type,
   Props,
