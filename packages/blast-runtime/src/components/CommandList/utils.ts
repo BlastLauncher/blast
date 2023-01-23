@@ -3,7 +3,7 @@ import fs from "fs";
 import _eval from "eval";
 import React from "react";
 
-export function evalJSModule(pkg: string) {
+export function evalCommandModule(pkg: string) {
   const jsCode = fs.readFileSync(pkg, "utf8");
 
   const mod = _eval(

@@ -2,12 +2,12 @@ import { ActionPanel, List, Action } from "@raycast/api";
 import os from "os";
 import path from "path";
 
-import { evalJSModule } from "./utils";
+import { evalCommandModule } from "./utils";
 
 // TODO: gather all available commands from modules
 const pkg = path.join(os.homedir(), ".blast/extensions/node_modules/@BlastLauncher/todo-list/index.js");
 
-const TODOCommand = evalJSModule(pkg);
+const TODOCommand = evalCommandModule(pkg);
 
 export const CommandList = () => {
   return (
