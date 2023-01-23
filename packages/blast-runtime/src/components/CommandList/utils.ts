@@ -6,7 +6,7 @@ import React from "react";
 export function evalCommandModule(pkg: string) {
   const jsCode = fs.readFileSync(pkg, "utf8");
 
-  const mod = _eval(
+  const mod: any = _eval(
     jsCode,
     pkg,
     {
@@ -16,5 +16,5 @@ export function evalCommandModule(pkg: string) {
     true
   );
 
-  return (mod as any).default;
+  return mod.default;
 }
