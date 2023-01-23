@@ -13,7 +13,7 @@ const TODOCommand = evalCommandModule(pkg);
 
 export const CommandList = () => {
   return (
-    <List isLoading={false} searchBarPlaceholder="Search...">
+    <List isLoading={false} searchBarPlaceholder="Search for apps and commands...">
       <List.Item
         title="Test item"
         actions={
