@@ -3,12 +3,15 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "scripts": {
-    "build:watch": "webpack --config webpack.config.ts --watch --progress",
-    "start:dev": "nodemon --watch dist --exec node dist/index.js"
+    "build:watch": "rimraf dist/ && tsc -w",
+    "start:dev": "nodemon --watch dist --exec node dist/index.js",
+    "start": "node dist/index.js"
   },
   "dependencies": {
     "@blast/api": "workspace:*",
     "@blast/renderer": "workspace:*",
+    "@raycast/api": "workspace:@blast/api@*",
+    "eval": "^0.1.8",
     "react": "^18.2.0",
     "react-devtools-core": "^4.27.1",
     "websocket": "^1.0.34"
@@ -16,6 +19,7 @@
   "devDependencies": {
     "@types/websocket": "^1.0.5",
     "raycast-original": "npm:@raycast/api@*",
+    "rimraf": "^4.1.1",
     "rpc-websockets": "^7.5.0"
   }
 }

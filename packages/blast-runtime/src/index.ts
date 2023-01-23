@@ -1,3 +1,5 @@
+import "./utils/window";
+
 import { runServer } from "@blast/renderer";
 
 import { App } from "./App";

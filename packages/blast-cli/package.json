@@ -1,0 +1,13 @@
+{
+  "name": "@blast/cli",
+  "version": "0.0.1",
+  "description": "Publish to npm",
+  "module": "index.js",
+  "scripts": {
+    "run": "node index.mjs"
+  },
+  "dependencies": {
+    "libnpmpack": "^5.0.7",
+    "libnpmpublish": "^7.0.6"
+  }
+}
