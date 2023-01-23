@@ -1,0 +1,15 @@
+{
+  "name": "@blast/cli",
+  "version": "0.0.1",
+  "description": "Publish to npm",
+  "module": "index.js",
+  "scripts": {
+    "run": "node index.mjs"
+  },
+  "dependencies": {
+    "@parcel/config-default": "^2.8.3",
+    "@parcel/core": "^2.8.3",
+    "libnpmpack": "^5.0.7",
+    "libnpmpublish": "^7.0.6"
+  }
+}
