@@ -5,6 +5,8 @@ import path from "path";
 import { evalCommandModule } from "./utils";
 
 // TODO: gather all available commands from modules
+// Install with the following command
+// npm install --prefix ~/.blast/extensions @BlastLauncher/todo-list@0.0.2
 const pkg = path.join(os.homedir(), ".blast/extensions/node_modules/@BlastLauncher/todo-list/index.js");
 
 const TODOCommand = evalCommandModule(pkg);
