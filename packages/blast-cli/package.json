@@ -7,8 +7,6 @@
     "run": "node index.mjs"
   },
   "dependencies": {
-    "@parcel/config-default": "^2.8.3",
-    "@parcel/core": "^2.8.3",
     "libnpmpack": "^5.0.7",
     "libnpmpublish": "^7.0.6"
   }

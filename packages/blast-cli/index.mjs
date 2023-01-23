@@ -58,8 +58,7 @@ async function publishPackage(dir) {
 async function buildPackage(dir) {
   const packageJson = require(`${dir}/package.json`);
 
-  // TODO: check ts or tsx file extensions
-  const inputs = packageJson.commands.map((command) => path.resolve(dir, `src/${command.name}.tsx`));
+  const inputs = packageJson.commands.map((command) => path.resolve(dir, `dist/${command.name}.js`));
 
   console.log(inputs);
 }
