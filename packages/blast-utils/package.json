@@ -1,5 +1,5 @@
 {
-  "name": "@blast/utils",
+  "name": "@blastlauncher/utils",
   "version": "0.0.1",
   "description": "Utilities for working with Blast",
   "main": "dist/index.js",

@@ -1,5 +1,5 @@
 {
-  "name": "@blast/api",
+  "name": "@blastlauncher/api",
   "version": "1.0.0",
   "description": "",
   "keywords": [],
@@ -15,8 +15,8 @@
     "verbose": true
   },
   "dependencies": {
-    "@blast/renderer": "workspace:*",
-    "@blast/utils": "workspace:*",
+    "@blastlauncher/renderer": "workspace:*",
+    "@blastlauncher/utils": "workspace:*",
     "fs-extra": "^11.1.0",
     "react": "^18.2.0"
   },

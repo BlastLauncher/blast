@@ -1,4 +1,4 @@
-import { createDebug } from "@blast/utils";
+import { createDebug } from "@blastlauncher/utils";
 import type { Server } from "rpc-websockets";
 
 import { Container } from "../types";

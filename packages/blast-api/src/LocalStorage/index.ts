@@ -1,7 +1,7 @@
 import os from "os";
 import path from "path";
 
-import { createDebug } from "@blast/utils";
+import { createDebug } from "@blastlauncher/utils";
 import fs from "fs-extra";
 
 const debug = createDebug("blast:utils:LocalStorage");

@@ -1,7 +1,7 @@
 import { Form as RForm } from "raycast-original";
 
-import { ElementTypes } from "@blast/renderer";
-import { createDebug } from "@blast/utils";
+import { ElementTypes } from "@blastlauncher/renderer";
+import { createDebug } from "@blastlauncher/utils";
 import { FunctionComponent, createContext, useCallback, useContext, useState } from "react";
 
 import { TextField } from "./TextField";

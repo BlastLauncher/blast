@@ -1,6 +1,6 @@
 import { ActionPanel } from "raycast-original";
 
-import { ElementTypes } from "@blast/renderer";
+import { ElementTypes } from "@blastlauncher/renderer";
 
 type ActionPanelSectionPropKeys = (keyof ActionPanel.Section.Props)[];
 const serializedKeys: ActionPanelSectionPropKeys = ["title"];

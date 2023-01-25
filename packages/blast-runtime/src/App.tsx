@@ -1,4 +1,4 @@
-import { NavigationProvider, WsServerProvider } from "@blast/api";
+import { NavigationProvider, WsServerProvider } from "@blastlauncher/api";
 import type { Server } from "rpc-websockets";
 
 import { CommandList } from "./components/CommandList";

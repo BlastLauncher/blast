@@ -1,7 +1,7 @@
 import { Form } from "raycast-original";
 
-import { ElementTypes } from "@blast/renderer";
-import { createDebug } from "@blast/utils";
+import { ElementTypes } from "@blastlauncher/renderer";
+import { createDebug } from "@blastlauncher/utils";
 import { FunctionComponent, forwardRef, useEffect, useId, useImperativeHandle, useMemo, useState } from "react";
 
 import { useWsServer } from "../internal/WsServerProvider";
