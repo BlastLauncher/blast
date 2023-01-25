@@ -21,5 +21,9 @@
     "raycast-original": "npm:@raycast/api@*",
     "rimraf": "^4.1.1",
     "rpc-websockets": "^7.5.0"
-  }
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "repository": "https://github.com/BlastLauncher/blast.git"
 }

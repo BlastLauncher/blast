@@ -33,5 +33,9 @@
     "@types/react-reconciler": "^0.28.0",
     "@types/websocket": "^1.0.5",
     "react-devtools": "^4.27.1"
-  }
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "repository": "https://github.com/BlastLauncher/blast.git"
 }

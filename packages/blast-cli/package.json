@@ -9,5 +9,9 @@
   "dependencies": {
     "libnpmpack": "^5.0.7",
     "libnpmpublish": "^7.0.6"
-  }
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "repository": "https://github.com/BlastLauncher/blast.git"
 }
