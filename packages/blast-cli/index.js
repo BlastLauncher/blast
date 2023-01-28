@@ -99,13 +99,14 @@ async function publishExtensions(paths, githubToken, extensionRepository) {
       continue;
     }
 
+    // !FIXME: do not rely on ray cli
+    // It's closed source and not available on macOS
     let rayBuildError;
     try {
       execSync(`ray build -e dist`);
     } catch (err) {
       rayBuildError = err;
     }
-
     if (rayBuildError) {
       console.log(`::error::Ray build failed for ${extensionFolder}`);
       continue;
