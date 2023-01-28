@@ -1,17 +1,27 @@
 {
   "name": "@blastlauncher/cli",
   "version": "0.0.1",
-  "description": "Publish to npm",
-  "module": "index.js",
+  "description": "Blast CLI Tools",
+  "module": "index.mjs",
   "scripts": {
     "run": "node index.mjs"
   },
+  "bin": {
+    "blast": "index.mjs"
+  },
   "dependencies": {
-    "libnpmpack": "^5.0.7",
-    "libnpmpublish": "^7.0.6"
+    "@octokit/core": "^4.2.0",
+    "fast-glob": "^3.2.12",
+    "libnpmpublish": "^7.0.6",
+    "meow": "^11.0.0",
+    "pacote": "^15.0.8",
+    "semver": "^7.3.8"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   },
-  "repository": "https://github.com/BlastLauncher/blast.git"
+  "repository": "https://github.com/BlastLauncher/blast.git",
+  "devDependencies": {
+    "pkg": "^5.8.0"
+  }
 }

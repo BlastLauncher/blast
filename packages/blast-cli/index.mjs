@@ -1,35 +1,182 @@
+#!/usr/bin/env node
+import { execSync } from "child_process";
 import fs from "fs";
-import { createRequire } from "node:module";
 import path from "path";
 
-import pack from "libnpmpack";
+import { Octokit } from "@octokit/core";
+import { publish } from "libnpmpublish";
+import meow from "meow";
+import pacote from "pacote";
+import semver from "semver";
 
-const require = createRequire(import.meta.url);
+const cli = meow(
+  `
+	Usage
+	  $ blast-cli <command> <paths> <github_token> <extension_repository>
 
-function getTargetDir() {
-  // read target directory from args
-  const targetDir = process.argv[2];
+	Options
+    command: publish
+    paths: paths to extensions, separated by new line
+    github_token: GitHub token to publish to GitHub packages
+    extension_repository: GitHub repository to publish to, e.g. BlastLauncher/extensions
 
-  if (!targetDir) {
-    console.error("Please specify a target directory");
-    return;
+	Examples
+	  $ blast-cli publish "path/to/extension1\\
+path/to/extension2" "github_token" "BlastLauncher/extensions"
+`,
+  {
+    importMeta: import.meta,
+    flags: {},
+  }
+);
+
+class PackageVersionHelper {
+  constructor(token, org, repo) {
+    this.octokit = new Octokit({
+      auth: token,
+    });
+    this.org = org;
+    this.repo = repo;
   }
 
-  if (!fs.existsSync(targetDir)) {
-    console.error("Target directory is not a valid path");
-    return;
+  async initialize() {
+    this.packageList = await this.fetchPackageList(this.org, this.repo);
   }
 
-  if (!fs.statSync(targetDir).isDirectory()) {
-    console.error("Target directory is not a directory");
-    return;
+  async fetchPackageList(org, repo) {
+    const res = await this.octokit.request("GET /orgs/{org}/packages?package_type=npm", {
+      org,
+    });
+
+    return res.data.filter((pkg) => pkg.repository.full_name === `${org}/${repo}`);
   }
 
-  return targetDir;
+  async getPackageVersion(packageName) {
+    // /orgs/BlastLauncher/packages/npm/todo-list/versions
+    const pkg = this.packageList.find((pkg) => pkg.name === packageName);
+
+    if (!pkg) {
+      return null;
+    }
+
+    const res = await this.octokit.request("GET /orgs/{org}/packages/npm/{package_name}/versions", {
+      org: this.org,
+      package_name: packageName,
+    });
+
+    console.log("version count", res.data.length);
+
+    if (res.data.length === 0) {
+      return null;
+    } else {
+      return res.data[0].version;
+    }
+  }
 }
 
-// add extra information to package.json
-function updatePackageInfo(targetDir) {
+function run() {
+  switch (cli.input[0]) {
+    case "publish":
+      if (cli.input.length < 4) {
+        console.log("Please specify paths and GitHub token");
+        return;
+      }
+
+      publishExtensions(cli.input[1], cli.input[2], cli.input[3]);
+      break;
+    default:
+      console.log("Please specify a command");
+      break;
+  }
+}
+
+run();
+
+/**
+ * @param {string} paths
+ * @param {string} githubToken
+ * @param {string} extensionRepository
+ */
+async function publishExtensions(paths, githubToken, extensionRepository) {
+  const [org, repo] = extensionRepository.split("/");
+
+  const versionHelper = new PackageVersionHelper(githubToken, org, repo);
+  await versionHelper.initialize();
+
+  for (const dir of paths.split("\n")) {
+    const extensionFolder = path.basename(dir);
+    console.log(`\nEntering ${dir}\n`);
+    execSync(`cd "${dir}"`);
+
+    try {
+      if (!fs.existsSync("./package-lock.json")) {
+        throw new Error(`Missing package-lock.json for ${extensionFolder}`);
+      }
+    } catch (err) {
+      console.log(`::error::${err.message}`);
+      process.exit(1);
+    }
+
+    try {
+      if (fs.existsSync("./yarn.lock")) {
+        throw new Error(`Remove yarn.lock for ${extensionFolder}`);
+      }
+    } catch (err) {
+      console.log(`::error::${err.message}`);
+      process.exit(1);
+    }
+
+    let npmCiError;
+    try {
+      execSync(`npm ci --silent`);
+    } catch (err) {
+      npmCiError = err;
+    }
+
+    if (npmCiError) {
+      console.log(`::error::Npm ci failed for ${extensionFolder}`);
+      continue;
+    }
+
+    let rayBuildError;
+    try {
+      execSync(`ray build -e dist`);
+    } catch (err) {
+      rayBuildError = err;
+    }
+
+    if (rayBuildError) {
+      console.log(`::error::Ray build failed for ${extensionFolder}`);
+      continue;
+    }
+
+    const pwd = process.cwd();
+    const distDir = path.join(pwd, "dist");
+
+    let version = await versionHelper.getPackageVersion(extensionFolder);
+    if (version) {
+      version = semver.inc(version, "major");
+    } else {
+      version = "1.0.0";
+    }
+
+    updatePackageInfo(distDir, version);
+
+    // publish to npm
+    const manifest = await pacote.manifest(distDir);
+    const tarData = await pacote.tarball(path);
+
+    await publish(manifest, tarData);
+  }
+}
+
+/**
+ * @param {string} targetDir
+ * @param {string} version
+ * @returns {void}
+ * add extra information to package.json
+ **/
+function updatePackageInfo(targetDir, version) {
   const packagePath = path.join(targetDir, "package.json");
   const packageJson = JSON.parse(fs.readFileSync(packagePath, "utf8"));
 
@@ -39,43 +186,15 @@ function updatePackageInfo(targetDir) {
   }
 
   // add repository field
-  packageJson.repository = "https://github.com/BlastLauncher/extensions-registry.git";
+  packageJson.repository = "https://github.com/BlastLauncher/extensions.git";
+
+  packageJson.publishConfig = {
+    registry: "https://npm.pkg.github.com",
+  };
 
   // add version
-  // TODO: fetch latest version from current registry
-  // if it's not published yet, use 0.0.1
-  // else bump minor version
-  packageJson.version = "0.0.1";
+  packageJson.version = version;
 
   // write package.json
   fs.writeFileSync(packagePath, JSON.stringify(packageJson, null, 2), "utf8");
 }
-
-async function publishPackage(dir) {
-  const tarball = await pack(dir);
-}
-
-async function buildPackage(dir) {
-  const packageJson = require(`${dir}/package.json`);
-
-  const inputs = packageJson.commands.map((command) => path.resolve(dir, `dist/${command.name}.js`));
-
-  console.log(inputs);
-}
-
-async function run() {
-  const targetDir = getTargetDir();
-
-  if (!targetDir) {
-    return;
-  }
-
-  // build package
-  await buildPackage(targetDir);
-
-  // updatePackageInfo(targetDir);
-
-  // await publishPackage(targetDir);
-}
-
-run();
