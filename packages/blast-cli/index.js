@@ -4,31 +4,10 @@ import fs from "fs";
 import path from "path";
 
 import { Octokit } from "@octokit/core";
+import { Command } from "commander";
 import { publish } from "libnpmpublish";
-import meow from "meow";
 import pacote from "pacote";
 import semver from "semver";
-
-const cli = meow(
-  `
-	Usage
-	  $ blast-cli <command> <paths> <github_token> <extension_repository>
-
-	Options
-    command: publish
-    paths: paths to extensions, separated by new line
-    github_token: GitHub token to publish to GitHub packages
-    extension_repository: GitHub repository to publish to, e.g. BlastLauncher/extensions
-
-	Examples
-	  $ blast-cli publish "path/to/extension1\\
-path/to/extension2" "github_token" "BlastLauncher/extensions"
-`,
-  {
-    importMeta: import.meta,
-    flags: {},
-  }
-);
 
 class PackageVersionHelper {
   constructor(token, org, repo) {
@@ -73,24 +52,6 @@ class PackageVersionHelper {
     }
   }
 }
-
-function run() {
-  switch (cli.input[0]) {
-    case "publish":
-      if (cli.input.length < 4) {
-        console.log("Please specify paths and GitHub token");
-        return;
-      }
-
-      publishExtensions(cli.input[1], cli.input[2], cli.input[3]);
-      break;
-    default:
-      console.log("Please specify a command");
-      break;
-  }
-}
-
-run();
 
 /**
  * @param {string} paths
@@ -198,3 +159,19 @@ function updatePackageInfo(targetDir, version) {
   // write package.json
   fs.writeFileSync(packagePath, JSON.stringify(packageJson, null, 2), "utf8");
 }
+
+const program = new Command();
+
+program.name("blast-cli").description("CLI for Blast Launcher");
+
+program
+  .command("publish")
+  .description("Publish extensions")
+  .argument("<paths>", "Paths to extensions, separated by new line")
+  .argument("<github_token>", "GitHub token to publish to GitHub packages")
+  .argument("<extension_repository>", "GitHub repository to publish to, e.g. BlastLauncher/extensions")
+  .action((paths, github_token, extension_repository) => {
+    return publishExtensions(paths, github_token, extension_repository);
+  });
+
+program.parse();

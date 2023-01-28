@@ -2,18 +2,19 @@
   "name": "@blastlauncher/cli",
   "version": "0.0.1",
   "description": "Blast CLI Tools",
-  "module": "index.mjs",
+  "main": "dist/index.cjs",
   "scripts": {
-    "run": "node index.mjs"
+    "build": "node build.js",
+    "package": "pkg ."
   },
   "bin": {
-    "blast": "index.mjs"
+    "blast": "dist/index.cjs"
   },
   "dependencies": {
     "@octokit/core": "^4.2.0",
+    "commander": "^10.0.0",
     "fast-glob": "^3.2.12",
     "libnpmpublish": "^7.0.6",
-    "meow": "^11.0.0",
     "pacote": "^15.0.8",
     "semver": "^7.3.8"
   },
@@ -22,6 +23,12 @@
   },
   "repository": "https://github.com/BlastLauncher/blast.git",
   "devDependencies": {
+    "esbuild": "^0.17.5",
+    "esbuild-node-externals": "^1.6.0",
     "pkg": "^5.8.0"
+  },
+  "pkg": {
+    "outputPath": "dist",
+    "outputName": "blast"
   }
 }
