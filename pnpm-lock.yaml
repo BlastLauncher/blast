@@ -133,6 +133,7 @@ importers:
       '@blastlauncher/utils': workspace:*
       '@types/fs-extra': ^9.0.13
       '@types/node': ^18.8.3
+      '@types/react': 18.0.9
       fs-extra: ^11.1.0
       raycast-original: npm:@raycast/api@1.45.0
       react: ^18.2.0
@@ -145,7 +146,8 @@ importers:
     devDependencies:
       '@types/fs-extra': 9.0.13
       '@types/node': 18.8.3
-      raycast-original: /@raycast/api/1.45.0_@types+node@18.8.3
+      '@types/react': 18.0.9
+      raycast-original: /@raycast/api/1.45.0_2cx2ipqrn5f7svdjipmu7pbevq
       rpc-websockets: 7.5.0
 
   packages/blast-cli:
@@ -197,6 +199,7 @@ importers:
     specifiers:
       '@blastlauncher/utils': workspace:*
       '@types/lodash': ^4.14.191
+      '@types/prop-types': ^15.7.5
       '@types/react-reconciler': ^0.28.0
       '@types/websocket': ^1.0.5
       fs-extra: ^11.1.0
@@ -220,6 +223,7 @@ importers:
       websocket: 1.0.34
     devDependencies:
       '@types/lodash': 4.14.191
+      '@types/prop-types': 15.7.5
       '@types/react-reconciler': 0.28.0
       '@types/websocket': 1.0.5
       react-devtools: 4.27.1
@@ -3167,12 +3171,13 @@ packages:
       '@babel/runtime': 7.20.13
     dev: true
 
-  /@raycast/api/1.45.0_@types+node@18.8.3:
+  /@raycast/api/1.45.0_2cx2ipqrn5f7svdjipmu7pbevq:
     resolution: {integrity: sha512-3wHhb6u0uYgayVH5tWB2SkmxU8cuU3MXsxCsKMvvtLPAq8HQb/aJs/HSi1vH7moVdDbCYn0g7V/bzMK/d/QPhA==}
     hasBin: true
     requiresBuild: true
     peerDependencies:
       '@types/node': 18.8.3
+      '@types/react': 18.0.9
     peerDependenciesMeta:
       '@types/node':
         optional: true
