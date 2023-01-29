@@ -17,6 +17,7 @@
     "websocket": "^1.0.34"
   },
   "devDependencies": {
+    "@types/react": "18.0.9",
     "@types/websocket": "^1.0.5",
     "raycast-original": "npm:@raycast/api@*",
     "rimraf": "^4.1.1",

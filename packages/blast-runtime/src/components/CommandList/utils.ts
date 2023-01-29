@@ -12,6 +12,7 @@ export function evalCommandModule(pkg: string) {
     {
       require,
       _jsx: React.createElement,
+      _jsxFragment: React.Fragment,
     },
     true
   );

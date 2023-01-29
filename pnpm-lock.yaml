@@ -229,6 +229,7 @@ importers:
       '@blastlauncher/api': workspace:*
       '@blastlauncher/renderer': workspace:*
       '@raycast/api': workspace:@blastlauncher/api@*
+      '@types/react': 18.0.9
       '@types/websocket': ^1.0.5
       eval: ^0.1.8
       raycast-original: npm:@raycast/api@*
@@ -246,8 +247,9 @@ importers:
       react-devtools-core: 4.27.1
       websocket: 1.0.34
     devDependencies:
+      '@types/react': 18.0.9
       '@types/websocket': 1.0.5
-      raycast-original: /@raycast/api/1.46.0
+      raycast-original: /@raycast/api/1.46.0_@types+react@18.0.9
       rimraf: 4.1.1
       rpc-websockets: 7.5.0
 
@@ -3171,24 +3173,6 @@ packages:
     requiresBuild: true
     peerDependencies:
       '@types/node': 18.8.3
-    peerDependenciesMeta:
-      '@types/node':
-        optional: true
-      '@types/react':
-        optional: true
-    dependencies:
-      '@types/node': 18.8.3
-      '@types/react': 18.0.9
-      react: 18.1.0
-      react-reconciler: 0.28.0_react@18.1.0
-    dev: true
-
-  /@raycast/api/1.46.0:
-    resolution: {integrity: sha512-+Te4/dPhVUY84JtiVxUhgb1fNs2l1PwD4VH9DgSWMEQVr7fCK3cr6LtZFp9YNfe44G69epT05z886UyVmkim3w==}
-    hasBin: true
-    requiresBuild: true
-    peerDependencies:
-      '@types/react': 18.0.9
     peerDependenciesMeta:
       '@types/node':
         optional: true
