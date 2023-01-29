@@ -10,8 +10,6 @@ import replace from "@rollup/plugin-replace";
 import terser from "@rollup/plugin-terser";
 import { Command } from "commander";
 import fs from "fs-extra";
-import { publish } from "libnpmpublish";
-import pacote from "pacote";
 import { rollup } from "rollup";
 import semver from "semver";
 
@@ -54,8 +52,21 @@ class PackageVersionHelper {
     if (res.data.length === 0) {
       return null;
     } else {
-      return res.data[0].version;
+      return res.data[0].name;
     }
+  }
+
+  getPackageName(extensionFolder) {
+    const packageJson = JSON.parse(fs.readFileSync(path.resolve(extensionFolder, "package.json"), "utf8"));
+    let packageName = packageJson.name;
+    if (packageName.startsWith("@")) {
+      packageName = packageName.split("/")[1];
+    }
+    packageName = packageName.toLowerCase();
+
+    console.debug(`package name is ${packageName}`);
+
+    return packageName;
   }
 }
 
@@ -73,33 +84,36 @@ async function publishExtensions(extensionFolder, githubToken, extensionReposito
   console.log(`\nEntering ${extensionFolder}\n`);
   execSync(`cd "${extensionFolder}"`);
 
-  const pwd = process.cwd();
-  const distDir = path.join(pwd, "dist");
+  const distDir = path.resolve(extensionFolder, "dist");
 
   if (!fs.existsSync(distDir)) {
     console.error(`dist directory does not exist at ${distDir}`);
     process.exit(1);
   }
 
-  let version = await versionHelper.getPackageVersion(extensionFolder);
+  const packageName = versionHelper.getPackageName(extensionFolder);
+  let version = await versionHelper.getPackageVersion(packageName);
   if (version) {
+    console.info(`current version is ${version}`);
     version = semver.inc(version, "major");
   } else {
+    console.info(`no version found, using 1.0.0`);
     version = "1.0.0";
   }
 
   updatePackageInfo(distDir, version);
 
-  // publish to npm
-  const manifest = await pacote.manifest(distDir);
-  const tarData = await pacote.tarball(path);
+  console.info(`publishing version ${version}`);
 
-  await publish(manifest, tarData);
+  // publish to npm
+  execSync(`npm publish --access public`, {
+    cwd: distDir,
+  });
 }
 
 async function buildExtension(extensionDir, outputFolder) {
   // Gather entry points from target extension's packages.json
-  const packageJson = JSON.parse(fs.readFileSync(path.join(extensionDir, "package.json"), "utf8"));
+  const packageJson = JSON.parse(fs.readFileSync(path.resolve(extensionDir, "package.json"), "utf8"));
 
   const commandNames = packageJson.commands.map((command) => command.name);
 
