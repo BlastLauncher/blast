@@ -60,82 +60,41 @@ class PackageVersionHelper {
 }
 
 /**
- * @param {string} paths
+ * @param {string} extensionFolder
  * @param {string} githubToken
  * @param {string} extensionRepository
  */
-async function publishExtensions(paths, githubToken, extensionRepository) {
+async function publishExtensions(extensionFolder, githubToken, extensionRepository) {
   const [org, repo] = extensionRepository.split("/");
 
   const versionHelper = new PackageVersionHelper(githubToken, org, repo);
   await versionHelper.initialize();
 
-  for (const dir of paths.split("\n")) {
-    const extensionFolder = path.basename(dir);
-    console.log(`\nEntering ${dir}\n`);
-    execSync(`cd "${dir}"`);
+  console.log(`\nEntering ${extensionFolder}\n`);
+  execSync(`cd "${extensionFolder}"`);
 
-    try {
-      if (!fs.existsSync("./package-lock.json")) {
-        throw new Error(`Missing package-lock.json for ${extensionFolder}`);
-      }
-    } catch (err) {
-      console.log(`::error::${err.message}`);
-      process.exit(1);
-    }
+  const pwd = process.cwd();
+  const distDir = path.join(pwd, "dist");
 
-    try {
-      if (fs.existsSync("./yarn.lock")) {
-        throw new Error(`Remove yarn.lock for ${extensionFolder}`);
-      }
-    } catch (err) {
-      console.log(`::error::${err.message}`);
-      process.exit(1);
-    }
-
-    let npmCiError;
-    try {
-      execSync(`npm ci --silent`);
-    } catch (err) {
-      npmCiError = err;
-    }
-
-    if (npmCiError) {
-      console.log(`::error::Npm ci failed for ${extensionFolder}`);
-      continue;
-    }
-
-    // !FIXME: do not rely on ray cli
-    // It's closed source and not available on macOS
-    let rayBuildError;
-    try {
-      execSync(`ray build -e dist`);
-    } catch (err) {
-      rayBuildError = err;
-    }
-    if (rayBuildError) {
-      console.log(`::error::Ray build failed for ${extensionFolder}`);
-      continue;
-    }
-
-    const pwd = process.cwd();
-    const distDir = path.join(pwd, "dist");
-
-    let version = await versionHelper.getPackageVersion(extensionFolder);
-    if (version) {
-      version = semver.inc(version, "major");
-    } else {
-      version = "1.0.0";
-    }
-
-    updatePackageInfo(distDir, version);
-
-    // publish to npm
-    const manifest = await pacote.manifest(distDir);
-    const tarData = await pacote.tarball(path);
-
-    await publish(manifest, tarData);
+  if (!fs.existsSync(distDir)) {
+    console.error(`dist directory does not exist at ${distDir}`);
+    process.exit(1);
   }
+
+  let version = await versionHelper.getPackageVersion(extensionFolder);
+  if (version) {
+    version = semver.inc(version, "major");
+  } else {
+    version = "1.0.0";
+  }
+
+  updatePackageInfo(distDir, version);
+
+  // publish to npm
+  const manifest = await pacote.manifest(distDir);
+  const tarData = await pacote.tarball(path);
+
+  await publish(manifest, tarData);
 }
 
 async function buildExtension(extensionDir, outputFolder) {
@@ -251,17 +210,17 @@ program.name("blast-cli").description("CLI for Blast Launcher");
 program
   .command("publish")
   .description("Publish extensions")
-  .argument("<paths>", "Paths to extensions, separated by new line")
+  .argument("<path>", "Path to extensions folder")
   .argument("<github_token>", "GitHub token to publish to GitHub packages")
   .argument("<extension_repository>", "GitHub repository to publish to, e.g. BlastLauncher/extensions")
-  .action((paths, github_token, extension_repository) => {
-    return publishExtensions(paths, github_token, extension_repository);
+  .action((dir, github_token, extension_repository) => {
+    return publishExtensions(dir, github_token, extension_repository);
   });
 
 program
   .command("build")
   .description("Build extensions")
-  .argument("<path>", "Paths to extension")
+  .argument("<path>", "Path to extension")
   .option("-o, --output <output>", "Output directory")
   .action((path, options) => {
     return buildExtension(path, options.output);
