@@ -17,5 +17,7 @@ export function evalCommandModule(pkg: string) {
     true
   );
 
-  return mod.default;
+  // Since we bundle the extension module with rollup, so the default namespace export is not available.
+  // return mod.default;
+  return mod;
 }
