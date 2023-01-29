@@ -1,12 +1,18 @@
 #!/usr/bin/env node
 import { execSync } from "child_process";
-import fs from "fs";
 import path from "path";
 
 import { Octokit } from "@octokit/core";
+import { babel } from "@rollup/plugin-babel";
+import commonjs from "@rollup/plugin-commonjs";
+import { nodeResolve } from "@rollup/plugin-node-resolve";
+import replace from "@rollup/plugin-replace";
+import terser from "@rollup/plugin-terser";
 import { Command } from "commander";
+import fs from "fs-extra";
 import { publish } from "libnpmpublish";
 import pacote from "pacote";
+import { rollup } from "rollup";
 import semver from "semver";
 
 class PackageVersionHelper {
@@ -132,6 +138,83 @@ async function publishExtensions(paths, githubToken, extensionRepository) {
   }
 }
 
+async function buildExtension(extensionDir, outputFolder) {
+  // Gather entry points from target extension's packages.json
+  const packageJson = JSON.parse(fs.readFileSync(path.join(extensionDir, "package.json"), "utf8"));
+
+  const commandNames = packageJson.commands.map((command) => command.name);
+
+  const supportedExts = [".js", ".ts", ".tsx", ".jsx"];
+  const rollupConfigs = commandNames.map((commandName) => {
+    const files = fs.readdirSync(path.join(extensionDir, "src"));
+    const entry = files.find((file) => {
+      return supportedExts.some((ext) => file === `${commandName}${ext}`);
+    });
+
+    if (!entry) {
+      throw new Error(`No entry point found for ${commandName}`);
+    }
+
+    const entryPath = path.join(extensionDir, "src", entry);
+
+    console.debug(`entry point for ${commandName} is ${entryPath}`);
+
+    return {
+      input: {
+        input: entryPath,
+        plugins: [
+          nodeResolve({
+            rootDir: path.resolve(extensionDir),
+            extensions: supportedExts,
+          }),
+          commonjs(),
+          babel({
+            babelHelpers: "bundled",
+            presets: ["@babel/preset-typescript"],
+            plugins: [
+              [
+                "@babel/plugin-transform-react-jsx",
+                {
+                  runtime: "classic",
+                },
+              ],
+            ],
+            extensions: supportedExts,
+          }),
+          replace({
+            "React.createElement": "_jsx",
+            "React.Fragment": "_jsxFragment",
+            preventAssignment: true,
+          }),
+          terser(),
+        ],
+        external: ["@raycast/api", "react", "my-lib/jsx-runtime"],
+      },
+      output: {
+        file: path.join(outputFolder, `${commandName}.js`),
+        format: "cjs",
+      },
+    };
+  });
+
+  console.info(`entry points [${rollupConfigs.map((config) => config.input.input).join(", ")}]`);
+
+  // Build each entry point
+  for (const config of rollupConfigs) {
+    const bundle = await rollup(config.input);
+    await bundle.write(config.output);
+  }
+
+  // copy the package.json to the output folder
+  fs.copyFileSync(path.join(extensionDir, "package.json"), path.join(outputFolder, "package.json"));
+
+  // copy assets directory to the output folder
+  const assetsDir = path.join(extensionDir, "assets");
+  if (fs.existsSync(assetsDir)) {
+    fs.copySync(assetsDir, path.join(outputFolder, "assets"));
+  }
+}
+
 /**
  * @param {string} targetDir
  * @param {string} version
@@ -173,6 +256,15 @@ program
   .argument("<extension_repository>", "GitHub repository to publish to, e.g. BlastLauncher/extensions")
   .action((paths, github_token, extension_repository) => {
     return publishExtensions(paths, github_token, extension_repository);
+  });
+
+program
+  .command("build")
+  .description("Build extensions")
+  .argument("<path>", "Paths to extension")
+  .option("-o, --output <output>", "Output directory")
+  .action((path, options) => {
+    return buildExtension(path, options.output);
   });
 
 program.parse();
