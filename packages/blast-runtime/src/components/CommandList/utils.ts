@@ -17,7 +17,10 @@ export function evalCommandModule(pkg: string) {
     true
   );
 
-  // Since we bundle the extension module with rollup, so the default namespace export is not available.
-  // return mod.default;
-  return mod;
+  // If we use rollup for bundling, we can use the following:
+  // return mod;
+  // https://github.com/rollup/rollup/issues/3284
+  //
+  // Stay mod.default for compatibility with official raycast build, might be changed in the future
+  return mod.default;
 }
