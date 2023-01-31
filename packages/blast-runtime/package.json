@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "scripts": {
+    "build": "rimraf dist/ && tsc",
     "build:watch": "rimraf dist/ && tsc -w",
     "start:dev": "nodemon --watch dist --exec node dist/index.js",
     "start": "node dist/index.js"
@@ -17,6 +18,7 @@
     "websocket": "^1.0.34"
   },
   "devDependencies": {
+    "@types/react": "18.0.9",
     "@types/websocket": "^1.0.5",
     "raycast-original": "npm:@raycast/api@*",
     "rimraf": "^4.1.1",

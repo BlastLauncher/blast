@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 import { execSync } from "child_process";
-import fs from "fs";
 import path from "path";
 
 import { Octokit } from "@octokit/core";
 import { Command } from "commander";
-import { publish } from "libnpmpublish";
-import pacote from "pacote";
+import esbuild from "esbuild";
+import fs from "fs-extra";
 import semver from "semver";
+import { temporaryFile } from "tempy";
 
 class PackageVersionHelper {
   constructor(token, org, repo) {
@@ -48,86 +48,135 @@ class PackageVersionHelper {
     if (res.data.length === 0) {
       return null;
     } else {
-      return res.data[0].version;
+      return res.data[0].name;
     }
+  }
+
+  getPackageName(extensionFolder) {
+    const packageJson = JSON.parse(fs.readFileSync(path.resolve(extensionFolder, "package.json"), "utf8"));
+    let packageName = packageJson.name;
+    if (packageName.startsWith("@")) {
+      packageName = packageName.split("/")[1];
+    }
+    packageName = packageName.toLowerCase();
+
+    console.debug(`package name is ${packageName}`);
+
+    return packageName;
   }
 }
 
 /**
- * @param {string} paths
+ * @param {string} extensionFolder
  * @param {string} githubToken
  * @param {string} extensionRepository
  */
-async function publishExtensions(paths, githubToken, extensionRepository) {
+async function publishExtensions(extensionFolder, githubToken, extensionRepository) {
   const [org, repo] = extensionRepository.split("/");
 
   const versionHelper = new PackageVersionHelper(githubToken, org, repo);
   await versionHelper.initialize();
 
-  for (const dir of paths.split("\n")) {
-    const extensionFolder = path.basename(dir);
-    console.log(`\nEntering ${dir}\n`);
-    execSync(`cd "${dir}"`);
+  console.log(`\nEntering ${extensionFolder}\n`);
+  execSync(`cd "${extensionFolder}"`);
 
-    try {
-      if (!fs.existsSync("./package-lock.json")) {
-        throw new Error(`Missing package-lock.json for ${extensionFolder}`);
-      }
-    } catch (err) {
-      console.log(`::error::${err.message}`);
-      process.exit(1);
+  const distDir = path.resolve(extensionFolder, "dist");
+
+  if (!fs.existsSync(distDir)) {
+    console.error(`dist directory does not exist at ${distDir}`);
+    process.exit(1);
+  }
+
+  const packageName = versionHelper.getPackageName(extensionFolder);
+  let version = await versionHelper.getPackageVersion(packageName);
+  if (version) {
+    console.info(`current version is ${version}`);
+    version = semver.inc(version, "major");
+  } else {
+    console.info(`no version found, using 1.0.0`);
+    version = "1.0.0";
+  }
+
+  updatePackageInfo(distDir, version);
+
+  console.info(`publishing version ${version}`);
+
+  // publish to npm
+  execSync(`npm publish --access public`, {
+    cwd: distDir,
+  });
+}
+
+function getTSConfigPath(extensionDir) {
+  const originalTSconfigPath = path.resolve(extensionDir, "tsconfig.json");
+  const tsconfigJson = JSON.parse(fs.readFileSync(originalTSconfigPath, "utf8"));
+
+  tsconfigJson.compilerOptions.jsx = "react";
+  tsconfigJson.compilerOptions.strict = false;
+
+  const tempTSconfigPath = temporaryFile({ extension: "json" });
+
+  fs.writeFileSync(tempTSconfigPath, JSON.stringify(tsconfigJson, null, 2));
+
+  return tempTSconfigPath;
+}
+
+async function buildExtension(extensionDir, outputFolder) {
+  // Gather entry points from target extension's packages.json
+  const packageJson = JSON.parse(fs.readFileSync(path.resolve(extensionDir, "package.json"), "utf8"));
+
+  const commandNames = packageJson.commands.map((command) => command.name);
+
+  const supportedExts = [".js", ".ts", ".tsx", ".jsx"];
+
+  const tsconfigPath = getTSConfigPath(extensionDir);
+
+  const esbuildConfigs = commandNames.map((commandName) => {
+    const files = fs.readdirSync(path.join(extensionDir, "src"));
+    const entry = files.find((file) => {
+      return supportedExts.some((ext) => file === `${commandName}${ext}`);
+    });
+
+    if (!entry) {
+      throw new Error(`No entry point found for ${commandName}`);
     }
 
-    try {
-      if (fs.existsSync("./yarn.lock")) {
-        throw new Error(`Remove yarn.lock for ${extensionFolder}`);
-      }
-    } catch (err) {
-      console.log(`::error::${err.message}`);
-      process.exit(1);
-    }
+    const entryPath = path.join(extensionDir, "src", entry);
+    const outputPath = path.join(outputFolder, `${commandName}.js`);
 
-    let npmCiError;
-    try {
-      execSync(`npm ci --silent`);
-    } catch (err) {
-      npmCiError = err;
-    }
+    console.debug(`entry point for ${commandName} is ${entryPath}`);
 
-    if (npmCiError) {
-      console.log(`::error::Npm ci failed for ${extensionFolder}`);
-      continue;
-    }
+    return {
+      input: entryPath,
+      output: outputPath,
+    };
+  });
 
-    let rayBuildError;
-    try {
-      execSync(`ray build -e dist`);
-    } catch (err) {
-      rayBuildError = err;
-    }
+  console.info(`entry points [${esbuildConfigs.map((config) => config.input).join(", ")}]`);
 
-    if (rayBuildError) {
-      console.log(`::error::Ray build failed for ${extensionFolder}`);
-      continue;
-    }
+  // Build each entry point
+  for (const config of esbuildConfigs) {
+    await esbuild.build({
+      entryPoints: [config.input],
+      bundle: true,
+      platform: "node",
+      outfile: config.output,
+      external: ["@raycast/api", "react"],
+      jsx: "transform",
+      jsxFactory: "_jsx",
+      jsxFragment: "_jsxFragment",
+      tsconfig: tsconfigPath,
+      minify: true,
+    });
+  }
 
-    const pwd = process.cwd();
-    const distDir = path.join(pwd, "dist");
+  // copy the package.json to the output folder
+  fs.copyFileSync(path.join(extensionDir, "package.json"), path.join(outputFolder, "package.json"));
 
-    let version = await versionHelper.getPackageVersion(extensionFolder);
-    if (version) {
-      version = semver.inc(version, "major");
-    } else {
-      version = "1.0.0";
-    }
-
-    updatePackageInfo(distDir, version);
-
-    // publish to npm
-    const manifest = await pacote.manifest(distDir);
-    const tarData = await pacote.tarball(path);
-
-    await publish(manifest, tarData);
+  // copy assets directory to the output folder
+  const assetsDir = path.join(extensionDir, "assets");
+  if (fs.existsSync(assetsDir)) {
+    fs.copySync(assetsDir, path.join(outputFolder, "assets"));
   }
 }
 
@@ -167,11 +216,20 @@ program.name("blast-cli").description("CLI for Blast Launcher");
 program
   .command("publish")
   .description("Publish extensions")
-  .argument("<paths>", "Paths to extensions, separated by new line")
+  .argument("<path>", "Path to extensions folder")
   .argument("<github_token>", "GitHub token to publish to GitHub packages")
   .argument("<extension_repository>", "GitHub repository to publish to, e.g. BlastLauncher/extensions")
-  .action((paths, github_token, extension_repository) => {
-    return publishExtensions(paths, github_token, extension_repository);
+  .action((dir, github_token, extension_repository) => {
+    return publishExtensions(dir, github_token, extension_repository);
+  });
+
+program
+  .command("build")
+  .description("Build extensions")
+  .argument("<path>", "Path to extension")
+  .option("-o, --output <output>", "Output directory")
+  .action((path, options) => {
+    return buildExtension(path, options.output);
   });
 
 program.parse();
