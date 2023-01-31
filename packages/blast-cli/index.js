@@ -149,15 +149,12 @@ async function buildExtension(extensionDir, outputFolder) {
                 "@babel/plugin-transform-react-jsx",
                 {
                   runtime: "classic",
+                  pragma: "_jsx",
+                  pragmaFrag: "_jsxFragment",
                 },
               ],
             ],
             extensions: supportedExts,
-          }),
-          replace({
-            "React.createElement": "_jsx",
-            "React.Fragment": "_jsxFragment",
-            preventAssignment: true,
           }),
           terser(),
         ],
@@ -166,6 +163,7 @@ async function buildExtension(extensionDir, outputFolder) {
       output: {
         file: path.join(outputFolder, `${commandName}.js`),
         format: "cjs",
+        strict: false,
       },
     };
   });
