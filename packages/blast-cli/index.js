@@ -3,15 +3,11 @@ import { execSync } from "child_process";
 import path from "path";
 
 import { Octokit } from "@octokit/core";
-import { babel } from "@rollup/plugin-babel";
-import commonjs from "@rollup/plugin-commonjs";
-import { nodeResolve } from "@rollup/plugin-node-resolve";
-import replace from "@rollup/plugin-replace";
-import terser from "@rollup/plugin-terser";
 import { Command } from "commander";
+import esbuild from "esbuild";
 import fs from "fs-extra";
-import { rollup } from "rollup";
 import semver from "semver";
+import { temporaryFile } from "tempy";
 
 class PackageVersionHelper {
   constructor(token, org, repo) {
@@ -111,6 +107,20 @@ async function publishExtensions(extensionFolder, githubToken, extensionReposito
   });
 }
 
+function getTSConfigPath(extensionDir) {
+  const originalTSconfigPath = path.resolve(extensionDir, "tsconfig.json");
+  const tsconfigJson = JSON.parse(fs.readFileSync(originalTSconfigPath, "utf8"));
+
+  tsconfigJson.compilerOptions.jsx = "react";
+  tsconfigJson.compilerOptions.strict = false;
+
+  const tempTSconfigPath = temporaryFile({ extension: "json" });
+
+  fs.writeFileSync(tempTSconfigPath, JSON.stringify(tsconfigJson, null, 2));
+
+  return tempTSconfigPath;
+}
+
 async function buildExtension(extensionDir, outputFolder) {
   // Gather entry points from target extension's packages.json
   const packageJson = JSON.parse(fs.readFileSync(path.resolve(extensionDir, "package.json"), "utf8"));
@@ -118,7 +128,10 @@ async function buildExtension(extensionDir, outputFolder) {
   const commandNames = packageJson.commands.map((command) => command.name);
 
   const supportedExts = [".js", ".ts", ".tsx", ".jsx"];
-  const rollupConfigs = commandNames.map((commandName) => {
+
+  const tsconfigPath = getTSConfigPath(extensionDir);
+
+  const esbuildConfigs = commandNames.map((commandName) => {
     const files = fs.readdirSync(path.join(extensionDir, "src"));
     const entry = files.find((file) => {
       return supportedExts.some((ext) => file === `${commandName}${ext}`);
@@ -129,51 +142,32 @@ async function buildExtension(extensionDir, outputFolder) {
     }
 
     const entryPath = path.join(extensionDir, "src", entry);
+    const outputPath = path.join(outputFolder, `${commandName}.js`);
 
     console.debug(`entry point for ${commandName} is ${entryPath}`);
 
     return {
-      input: {
-        input: entryPath,
-        plugins: [
-          nodeResolve({
-            rootDir: path.resolve(extensionDir),
-            extensions: supportedExts,
-          }),
-          commonjs(),
-          babel({
-            babelHelpers: "bundled",
-            presets: ["@babel/preset-typescript"],
-            plugins: [
-              [
-                "@babel/plugin-transform-react-jsx",
-                {
-                  runtime: "classic",
-                  pragma: "_jsx",
-                  pragmaFrag: "_jsxFragment",
-                },
-              ],
-            ],
-            extensions: supportedExts,
-          }),
-          terser(),
-        ],
-        external: ["@raycast/api", "react", "my-lib/jsx-runtime"],
-      },
-      output: {
-        file: path.join(outputFolder, `${commandName}.js`),
-        format: "cjs",
-        strict: false,
-      },
+      input: entryPath,
+      output: outputPath,
     };
   });
 
-  console.info(`entry points [${rollupConfigs.map((config) => config.input.input).join(", ")}]`);
+  console.info(`entry points [${esbuildConfigs.map((config) => config.input).join(", ")}]`);
 
   // Build each entry point
-  for (const config of rollupConfigs) {
-    const bundle = await rollup(config.input);
-    await bundle.write(config.output);
+  for (const config of esbuildConfigs) {
+    await esbuild.build({
+      entryPoints: [config.input],
+      bundle: true,
+      platform: "node",
+      outfile: config.output,
+      external: ["@raycast/api", "react"],
+      jsx: "transform",
+      jsxFactory: "_jsx",
+      jsxFragment: "_jsxFragment",
+      tsconfig: tsconfigPath,
+      minify: true,
+    });
   }
 
   // copy the package.json to the output folder
