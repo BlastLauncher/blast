@@ -27,16 +27,14 @@ You read more about the blast architecture in the following documents:
 ## Development
 
 ```bash
-npm install
+# Ensure you have pnpm installed
+pnpm install
 
-npx react-devtools # Start react devtools
-npm run dev # Start webpack incremental build
-npm run start:dev # nodemon start bundle
+# Start backend in dev mode
+pnpm run start-runtimer:dev
 
-# in a new terminal
-cd client
-npm install
-npm run start
+# Start front end in dev mode
+pnpm run start-client
 ```
 
 ## Inspiration and related projects
