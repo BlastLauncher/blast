@@ -13,6 +13,7 @@
   "scripts": {
     "changeset": "changeset",
     "version-packages": "changeset version",
+    "release": "changeset publish",
     "build-api": "pnpm --filter api run build",
     "build-renderer": "pnpm --filter renderer run build",
     "build-utils": "pnpm --filter utils run build",
