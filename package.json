@@ -11,9 +11,12 @@
     "apps/*"
   ],
   "scripts": {
+    "changeset": "changeset",
+    "version-packages": "changeset version",
     "build-api": "pnpm --filter api run build",
     "build-renderer": "pnpm --filter renderer run build",
     "build-utils": "pnpm --filter utils run build",
+    "build": "pnpm --filter @blastlauncher/* run build",
     "dev": "pnpm run dev",
     "fmt": "prettier --write .",
     "lint": "eslint .",
@@ -31,6 +34,7 @@
     "verbose": true
   },
   "devDependencies": {
+    "@changesets/cli": "^2.26.1",
     "@types/debug": "^4.1.7",
     "@types/jest": "^29.2.4",
     "@types/node": "^18.8.3",
