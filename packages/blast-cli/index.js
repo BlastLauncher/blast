@@ -1,55 +1,71 @@
 #!/usr/bin/env node
 import { execSync } from "child_process";
+import https from "https";
 import path from "path";
 
-import { Octokit } from "@octokit/core";
 import { Command } from "commander";
 import esbuild from "esbuild";
 import fs from "fs-extra";
 import semver from "semver";
 import { temporaryFile } from "tempy";
 
+function getJSON(url) {
+  return new Promise((resolve, reject) => {
+    https
+      .get(url, (res) => {
+        let body = "";
+        res.on("data", (chunk) => {
+          body += chunk;
+        });
+        res.on("end", () => {
+          try {
+            resolve(JSON.parse(body));
+          } catch (e) {
+            reject(e);
+          }
+        });
+      })
+      .on("error", (e) => {
+        reject(e);
+      });
+  });
+}
+
 class PackageVersionHelper {
-  constructor(token, org, repo) {
-    this.octokit = new Octokit({
-      auth: token,
-    });
-    this.org = org;
-    this.repo = repo;
+  constructor(npmOrg, registryUrl = "https://registry.npmjs.org") {
+    this.npmOrg = npmOrg;
+    this.registryUrl = registryUrl;
   }
 
-  async initialize() {
-    this.packageList = await this.fetchPackageList(this.org, this.repo);
+  async fetchPackageVersions(packageName) {
+    let res;
+    try {
+      console.log(`fetching ${this.registryUrl}/@${this.npmOrg}/${packageName}`);
+      res = await getJSON(`${this.registryUrl}/@${this.npmOrg}/${packageName}`);
+
+      if (res.error) {
+        return null;
+      }
+
+      return Object.keys(res.versions);
+    } catch (e) {
+      // pacakge not found
+      return null;
+    }
   }
 
-  async fetchPackageList(org, repo) {
-    const res = await this.octokit.request("GET /orgs/{org}/packages?package_type=npm", {
-      org,
-    });
-
-    return res.data.filter((pkg) => pkg.repository.full_name === `${org}/${repo}`);
+  async getLatestVersion(versions) {
+    const sortedVersions = versions.sort((a, b) => semver.compare(a, b));
+    return sortedVersions[sortedVersions.length - 1];
   }
 
   async getPackageVersion(packageName) {
-    // /orgs/BlastLauncher/packages/npm/todo-list/versions
-    const pkg = this.packageList.find((pkg) => pkg.name === packageName);
-
-    if (!pkg) {
+    const versions = await this.fetchPackageVersions(packageName);
+    if (!versions) {
       return null;
     }
 
-    const res = await this.octokit.request("GET /orgs/{org}/packages/npm/{package_name}/versions", {
-      org: this.org,
-      package_name: packageName,
-    });
-
-    console.log("version count", res.data.length);
-
-    if (res.data.length === 0) {
-      return null;
-    } else {
-      return res.data[0].name;
-    }
+    return this.getLatestVersion(versions);
   }
 
   getPackageName(extensionFolder) {
@@ -68,14 +84,11 @@ class PackageVersionHelper {
 
 /**
  * @param {string} extensionFolder
- * @param {string} githubToken
- * @param {string} extensionRepository
+ * @param {string} npmOrganization
+ * @param {string} npmRegistry
  */
-async function publishExtensions(extensionFolder, githubToken, extensionRepository) {
-  const [org, repo] = extensionRepository.split("/");
-
-  const versionHelper = new PackageVersionHelper(githubToken, org, repo);
-  await versionHelper.initialize();
+async function publishExtensions(extensionFolder, npmOrganization, npmRegistry) {
+  const versionHelper = new PackageVersionHelper(npmOrganization, npmRegistry);
 
   console.log(`\nEntering ${extensionFolder}\n`);
   execSync(`cd "${extensionFolder}"`);
@@ -97,7 +110,7 @@ async function publishExtensions(extensionFolder, githubToken, extensionReposito
     version = "1.0.0";
   }
 
-  updatePackageInfo(distDir, version);
+  updatePackageInfo(distDir, version, npmOrganization);
 
   console.info(`publishing version ${version}`);
 
@@ -183,24 +196,21 @@ async function buildExtension(extensionDir, outputFolder) {
 /**
  * @param {string} targetDir
  * @param {string} version
+ * @param {string} npmOrganization
  * @returns {void}
  * add extra information to package.json
  **/
-function updatePackageInfo(targetDir, version) {
+function updatePackageInfo(targetDir, version, npmOrganization) {
   const packagePath = path.join(targetDir, "package.json");
   const packageJson = JSON.parse(fs.readFileSync(packagePath, "utf8"));
 
   // prepend @BlastLauncher to name if it's not already there
-  if (!packageJson.name.startsWith("@BlastLauncher")) {
-    packageJson.name = `@BlastLauncher/${packageJson.name}`;
+  if (!packageJson.name.startsWith(`@${npmOrganization}`)) {
+    packageJson.name = `@${npmOrganization}/${packageJson.name}`;
   }
 
   // add repository field
   packageJson.repository = "https://github.com/BlastLauncher/extensions.git";
-
-  packageJson.publishConfig = {
-    registry: "https://npm.pkg.github.com",
-  };
 
   // add version
   packageJson.version = version;
@@ -217,10 +227,10 @@ program
   .command("publish")
   .description("Publish extensions")
   .argument("<path>", "Path to extensions folder")
-  .argument("<github_token>", "GitHub token to publish to GitHub packages")
-  .argument("<extension_repository>", "GitHub repository to publish to, e.g. BlastLauncher/extensions")
-  .action((dir, github_token, extension_repository) => {
-    return publishExtensions(dir, github_token, extension_repository);
+  .argument("<organization>", "NPM organization to publish to, e.g. blast-extensions")
+  .option("-r, --registry <registry>", "NPM registry to publish to", "https://registry.npmjs.org")
+  .action((dir, organization, options) => {
+    return publishExtensions(dir, organization, options.registry);
   });
 
 program
