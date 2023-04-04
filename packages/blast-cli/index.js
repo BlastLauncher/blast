@@ -221,7 +221,11 @@ function updatePackageInfo(targetDir, version, npmOrganization) {
 
 const program = new Command();
 
-program.name("blast-cli").description("CLI for Blast Launcher");
+program.name("blast-cli").description(`CLI for Blast Launcher
+
+Example Usage:
+  blast build ./extensions/todo-list -o ./extensions/todo-list/dist
+  blast publish ./extensions/todo-list blast-extensions`);
 
 program
   .command("publish")
