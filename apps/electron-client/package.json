@@ -4,6 +4,7 @@
   "description": "My Electron application description",
   "keywords": [],
   "license": "MIT",
+  "private": true,
   "author": {
     "name": "Yukai Huang",
     "email": "yukaihuangtw@gmail.com"
