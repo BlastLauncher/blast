@@ -23,6 +23,7 @@
   "devDependencies": {
     "@types/fs-extra": "^9.0.13",
     "@types/node": "^18.8.3",
+    "@types/react": "18.0.9",
     "raycast-original": "npm:@raycast/api@1.45.0",
     "rpc-websockets": "^7.5.0"
   },

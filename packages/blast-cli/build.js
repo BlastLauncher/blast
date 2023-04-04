@@ -7,5 +7,9 @@ esbuild.build({
   bundle: true,
   platform: "node",
   outfile: "dist/index.cjs",
-  plugins: [nodeExternalsPlugin()],
+  plugins: [
+    nodeExternalsPlugin({
+      allowList: ["tempy"],
+    }),
+  ],
 });
