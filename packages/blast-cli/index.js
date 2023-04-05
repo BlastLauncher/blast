@@ -137,6 +137,9 @@ function getTSConfigPath(extensionDir) {
 async function buildExtension(extensionDir, outputFolder) {
   // Gather entry points from target extension's packages.json
   const packageJson = JSON.parse(fs.readFileSync(path.resolve(extensionDir, "package.json"), "utf8"));
+  if (!outputFolder) {
+    outputFolder = path.resolve(extensionDir, "dist");
+  }
 
   const commandNames = packageJson.commands.map((command) => command.name);
 
@@ -241,7 +244,7 @@ program
   .command("build")
   .description("Build extensions")
   .argument("<path>", "Path to extension")
-  .option("-o, --output <output>", "Output directory")
+  .option("-o, --output <output>", "Output directory, default to ./dist folder relative to extension path")
   .action((path, options) => {
     return buildExtension(path, options.output);
   });
