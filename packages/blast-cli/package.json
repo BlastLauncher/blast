@@ -1,10 +1,11 @@
 {
   "name": "@blastlauncher/cli",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Blast CLI Tools",
   "main": "dist/index.cjs",
   "scripts": {
     "build": "node build.js",
+    "prepublishOnly": "npm run build",
     "package": "pkg ."
   },
   "bin": {

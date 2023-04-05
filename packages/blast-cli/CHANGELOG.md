@@ -1,5 +1,11 @@
 # @blastlauncher/cli
 
+## 1.0.3
+
+### Patch Changes
+
+- Fix package should run build before publish
+
 ## 1.0.2
 
 ### Patch Changes
