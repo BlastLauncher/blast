@@ -222,6 +222,14 @@ function updatePackageInfo(targetDir, version, npmOrganization) {
   // add version
   packageJson.version = version;
 
+  // exclude original publish script
+  packageJson.scripts = Object.keys(packageJson.scripts)
+    .filter((key) => key !== "publish")
+    .reduce((obj, key) => {
+      obj[key] = packageJson.scripts[key];
+      return obj;
+    }, {});
+
   // write package.json
   fs.writeFileSync(packagePath, JSON.stringify(packageJson, null, 2), "utf8");
 }

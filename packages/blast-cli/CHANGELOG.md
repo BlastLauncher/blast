@@ -1,5 +1,11 @@
 # @blastlauncher/cli
 
+## 1.0.4
+
+### Patch Changes
+
+- Replace raycast extension publish command
+
 ## 1.0.3
 
 ### Patch Changes
