@@ -1,6 +1,20 @@
-# Blast (aka C8763)
+# Blast Launcher (aka C8763)
 
-Blast is an open-source educational and experimental project that aims to utilize the extension ecosystem of Raycast Launcher, a closed-source platform built on top of React. In Raycast, extensions are implemented using custom React components, and each command within an extension can be thought of as a separate React application. Blast provides an open-source React renderer to render these Raycast extensions.
+Blast is an open-source educational and experimental project that aims to
+utilize the extension ecosystem of [Raycast Launcher](https://raycast.com)
+
+Raycast is a SaaS software, while providing paid subscription services for teams,
+for personal is copmletely free. You can also extend your workflow by building
+extensions on your own. The extensions are implemented using custom React
+components(`@raycast/api`), and each command within an extension can be thought
+of as a separate React application. I think that's the magic of Raycast, where
+everyone can easily build and integrate their own tools without much effors on
+top of the huge Node.js and React.js ecosystem.
+
+While Raycast is great, it is a closed-source software and the extension ecosystem
+can only be used in Raycast. So here's where this project comes in.
+
+Blast provides an open-source React renderer to render these Raycast extensions.
 
 ## Demo
 
@@ -20,9 +34,9 @@ For higher performance, a custom renderer such as React-native may send operatio
 
 You read more about the blast architecture in the following documents:
 
-- [The backend of Blast](./src/README.md)
-- [The front end of Blast](./client/README.md)
-- [About Raycast extensions](./examples/README.md)
+- [`@blastlauncher/renderer`](./packages/blast-renderer/README.md): The custom React renderer
+- [`@blastlauncher/runtime`](./packages/blast-runtime/README.md): The backend and runtime application, which is also a React.js app
+- [`@blastlauncher/api`](./packages/blast-api/README.md): Polyfill for the Raycast API
 
 ## Development
 
@@ -46,7 +60,9 @@ pnpm run start-client
 
 ### Why naming blast?
 
-Because I asked ChatGPT to find words similar to "raycast" 🤣
+Our Chief Marketing Officer(nickname ChatGPT) gave me this idea.
+
+I was asking him to come up with words similar to "raycast".
 
 ### Why C8763?
 
