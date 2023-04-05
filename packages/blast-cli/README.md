@@ -1,4 +1,10 @@
-# `blast-cli`
+# `@blastlauncher/cli`
+
+`@blastlauncher/cli` is a command line tool that used to build and publish Blast Launcher extensions.
+
+I somehow discover that Raycast's extension build output are similar to esbuild's output, so I also use esbuild to bundle the extension and pkg to package the cli executable. Ray's CLI is way smaller, I guess their CLI is written in Go. 🤣
+
+The publish command will upload the extension to npm registry(which is released under `@blast-extensions` for now).
 
 ## Development
 
@@ -14,6 +20,29 @@ pnpm package
 
 # Run the cli executable
 ./dist/cli-macos --help
-
-
 ```
+
+## Installation
+
+### npm
+
+```bash
+npm install -g @blastlauncher/cli
+```
+
+## Help
+
+```bash
+Usage: blast [options] [command]
+
+CLI for Blast Launcher
+
+Options:
+  -h, --help                               display help for command
+
+Commands:
+  publish [options] <path> <organization>  Publish extensions
+  build [options] <path>                   Build extensions
+  help [command]                           display help for command
+```
+
