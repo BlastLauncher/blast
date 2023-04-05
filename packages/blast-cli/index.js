@@ -86,19 +86,23 @@ class PackageVersionHelper {
  * @param {string} extensionFolder
  * @param {string} npmOrganization
  * @param {string} npmRegistry
+ * @param {string} distDir
  */
-async function publishExtensions(extensionFolder, npmOrganization, npmRegistry) {
+async function publishExtensions(extensionFolder, npmOrganization, npmRegistry, distDir) {
   const versionHelper = new PackageVersionHelper(npmOrganization, npmRegistry);
 
   console.log(`\nEntering ${extensionFolder}\n`);
   execSync(`cd "${extensionFolder}"`);
 
-  const distDir = path.resolve(extensionFolder, "dist");
+  if (!distDir) {
+    distDir = path.resolve(extensionFolder, "dist");
+  }
 
   if (!fs.existsSync(distDir)) {
-    console.error(`dist directory does not exist at ${distDir}`);
-    process.exit(1);
+    fs.mkdirSync(distDir);
   }
+
+  await buildExtension(extensionFolder, distDir);
 
   const packageName = versionHelper.getPackageName(extensionFolder);
   let version = await versionHelper.getPackageVersion(packageName);
@@ -137,6 +141,9 @@ function getTSConfigPath(extensionDir) {
 async function buildExtension(extensionDir, outputFolder) {
   // Gather entry points from target extension's packages.json
   const packageJson = JSON.parse(fs.readFileSync(path.resolve(extensionDir, "package.json"), "utf8"));
+  if (!outputFolder) {
+    outputFolder = path.resolve(extensionDir, "dist");
+  }
 
   const commandNames = packageJson.commands.map((command) => command.name);
 
@@ -165,7 +172,7 @@ async function buildExtension(extensionDir, outputFolder) {
     };
   });
 
-  console.info(`entry points [${esbuildConfigs.map((config) => config.input).join(", ")}]`);
+  console.info(`entry points [${esbuildConfigs.map((config) => config.input).join(" ")}]`);
 
   // Build each entry point
   for (const config of esbuildConfigs) {
@@ -233,15 +240,16 @@ program
   .argument("<path>", "Path to extensions folder")
   .argument("<organization>", "NPM organization to publish to, e.g. blast-extensions")
   .option("-r, --registry <registry>", "NPM registry to publish to", "https://registry.npmjs.org")
+  .option("-o, --output <output>", "Output directory, default to ./dist folder relative to extension path")
   .action((dir, organization, options) => {
-    return publishExtensions(dir, organization, options.registry);
+    return publishExtensions(dir, organization, options.registry, options.output);
   });
 
 program
   .command("build")
   .description("Build extensions")
   .argument("<path>", "Path to extension")
-  .option("-o, --output <output>", "Output directory")
+  .option("-o, --output <output>", "Output directory, default to ./dist folder relative to extension path")
   .action((path, options) => {
     return buildExtension(path, options.output);
   });
