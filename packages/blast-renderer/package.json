@@ -1,6 +1,6 @@
 {
   "name": "@blastlauncher/renderer",
-  "version": "1.0.1",
+  "version": "1.0.5",
   "description": "",
   "keywords": [],
   "license": "ISC",
@@ -11,7 +11,8 @@
     "build:watch": "tsc --watch",
     "fmt": "prettier --write .",
     "lint": "eslint .",
-    "test": "jest"
+    "test": "jest",
+    "prepublishOnly": "npm run build"
   },
   "jest": {
     "testEnvironment": "node",

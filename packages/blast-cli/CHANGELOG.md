@@ -1,5 +1,11 @@
 # @blastlauncher/cli
 
+## 1.0.5
+
+### Patch Changes
+
+- Update README and fixing `prepublishOnly` script
+
 ## 1.0.4
 
 ### Patch Changes
