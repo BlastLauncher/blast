@@ -1,6 +1,6 @@
 {
   "name": "@blastlauncher/cli",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Blast CLI Tools",
   "main": "dist/index.cjs",
   "scripts": {
