@@ -64,4 +64,3 @@ Blast（爆破）應該滿星爆的吧！但星爆氣流斬原文是 starburst s
 
 MIT
 
-The repository of `raycast/extension` is released under MIT, but I borrowed some of their icon resources in `client/src/renderer/components/Icon`, if it's not okay, I will remove them.
