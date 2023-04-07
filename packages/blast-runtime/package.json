@@ -13,6 +13,7 @@
     "@blastlauncher/api": "workspace:*",
     "@blastlauncher/renderer": "workspace:*",
     "@raycast/api": "workspace:@blastlauncher/api@*",
+    "@raycast/utils": "^1.5.2",
     "eval": "^0.1.8",
     "react": "^18.2.0",
     "react-devtools-core": "^4.27.1",

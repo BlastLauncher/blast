@@ -1,27 +1,39 @@
-import { ActionPanel, List, Action } from "@raycast/api";
-import os from "os";
-import path from "path";
+import { ActionPanel, List, Action, useNavigation } from "@raycast/api";
 
+import { usePromise } from "@raycast/utils";
+
+import { loadCommands } from "./loadCommands";
 import { evalCommandModule } from "./utils";
 
-// TODO: gather all available commands from modules
-// Install with the following command
-// npm install --prefix ~/.blast/extensions @BlastLauncher/todo-list@0.0.2
-const pkg = path.join(os.homedir(), ".blast/extensions/node_modules/@BlastLauncher/todo-list/index.js");
-
-const TODOCommand = evalCommandModule(pkg);
+// TODO: a Store component can install package with the following command
+// npm install --prefix ~/.blast/extensions @blast-extensions/todo-list@0.0.2
 
 export const CommandList = () => {
+  const { isLoading, data: commands = [] } = usePromise(loadCommands);
+  const { push } = useNavigation();
+
   return (
-    <List isLoading={false} searchBarPlaceholder="Search for apps and commands...">
-      <List.Item
-        title="Test item"
-        actions={
-          <ActionPanel>
-            <Action.Push title="Open Command" target={<TODOCommand />} />
-          </ActionPanel>
-        }
-      />
+    <List isLoading={isLoading} searchBarPlaceholder="Search for apps and commands...">
+      {commands.map((command) => {
+        return (
+          <List.Item
+            key={command.name}
+            title={command.title}
+            subtitle={command.subtitle}
+            actions={
+              <ActionPanel>
+                <Action
+                  title="Open Command"
+                  onAction={() => {
+                    const Comp = evalCommandModule(command.requirePath);
+                    push(<Comp />);
+                  }}
+                />
+              </ActionPanel>
+            }
+          />
+        );
+      })}
     </List>
   );
 };
