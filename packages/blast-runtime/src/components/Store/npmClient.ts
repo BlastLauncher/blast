@@ -1,5 +1,7 @@
 // Love you GPT4 chan
 // https://shareg.pt/dW8GsZO
+// Read the documentation:
+// https://github.com/npm/registry/blob/master/docs/REGISTRY-API.md
 import fetch from "node-fetch";
 
 type Registry = {
