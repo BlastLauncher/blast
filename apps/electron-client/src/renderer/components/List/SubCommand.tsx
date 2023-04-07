@@ -24,6 +24,11 @@ export function SubCommand({
         e.preventDefault();
         setOpen((o) => !o);
       }
+
+      if (e.key === "Escape") {
+        e.stopPropagation();
+        setOpen(false);
+      }
     }
 
     document.addEventListener("keydown", listener);
