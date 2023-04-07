@@ -73,7 +73,7 @@ export function SubCommand({
         >
           <Command>
             <Command.List>
-              <ActionContainer actions={actionData.children} ws={ws} />
+              <ActionContainer actions={actionData.children} ws={ws} close={() => setOpen(false)} />
             </Command.List>
 
             <Command.Input placeholder="Search for actions..." />
