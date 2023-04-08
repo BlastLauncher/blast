@@ -2,6 +2,8 @@ import { ActionPanel, List, Action, useNavigation } from "@raycast/api";
 
 import { usePromise } from "@raycast/utils";
 
+import { StoreCommand } from "../Store";
+
 import { loadCommands } from "./loadCommands";
 import { evalCommandModule } from "./utils";
 
@@ -34,6 +36,16 @@ export const CommandList = () => {
           />
         );
       })}
+
+      <List.Item
+        key="store"
+        title="Store"
+        actions={
+          <ActionPanel>
+            <Action.Push title="Open Store" target={<StoreCommand />} />
+          </ActionPanel>
+        }
+      />
     </List>
   );
 };
