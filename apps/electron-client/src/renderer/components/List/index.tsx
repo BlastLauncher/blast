@@ -63,7 +63,7 @@ const renderShortcutToString = (shortcut: Keyboard.Shortcut) => {
   return `${modifiers} ${shortcut.key.toUpperCase()}`;
 };
 
-const Action = ({ action, ws }: { action: BlastComponent; ws: Client }) => {
+const Action = ({ action, ws, close }: { action: BlastComponent; ws: Client, close: () => void }) => {
   const {
     props: { shortcut, actionEventName, title, icon },
   } = action;
@@ -76,6 +76,7 @@ const Action = ({ action, ws }: { action: BlastComponent; ws: Client }) => {
       key={actionEventName}
       onSelect={() => {
         ws.call(actionEventName);
+        close()
       }}
       icon={Icon && <Icon />}
     >
@@ -84,7 +85,7 @@ const Action = ({ action, ws }: { action: BlastComponent; ws: Client }) => {
   );
 };
 
-export const ActionContainer = ({ actions, ws }: { actions: BlastComponent[]; ws: Client }) => {
+export const ActionContainer = ({ actions, ws, close }: { actions: BlastComponent[]; ws: Client, close: () => void }) => {
   return (
     <>
       {actions
@@ -97,7 +98,7 @@ export const ActionContainer = ({ actions, ws }: { actions: BlastComponent[]; ws
                 {children
                   .map((child) => {
                     if (child.elementType === "Action") {
-                      return <Action action={child} ws={ws} key={child.props.actionEventName} />;
+                      return <Action action={child} ws={ws} key={child.props.actionEventName} close={close} />;
                     } else {
                       return null;
                     }
@@ -106,7 +107,7 @@ export const ActionContainer = ({ actions, ws }: { actions: BlastComponent[]; ws
               </Command.Group>
             );
           } else if (elementType === "Action") {
-            return <Action action={elem} ws={ws} key={elem.props.actionEventName} />;
+            return <Action action={elem} ws={ws} key={elem.props.actionEventName} close={close} />;
           } else {
             console.warn("Unknown action type", elementType);
             return null;
@@ -167,6 +168,7 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
 
         <div cmdk-raycast-top-shine="" />
         <Command.Input
+          autoFocus
           ref={inputRef}
           style={{ paddingTop: 16 }}
           placeholder={props.searchBarPlaceholder || "Search..."}

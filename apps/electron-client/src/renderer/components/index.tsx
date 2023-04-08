@@ -1,3 +1,5 @@
+import { useCallback, useEffect } from "react";
+
 import { useRemoteBlastTree } from "../store";
 import { BlastComponent } from "../types";
 
@@ -30,14 +32,30 @@ export const TreeComponent = ({ blastProps }: { blastProps: BlastComponent }) =>
 
   const canPop = stacksLength > 0;
 
+  const pop = useCallback(() => {
+    if (canPop) {
+      ws.call("blast-global:pop");
+    }
+  }, [canPop, ws]);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        pop();
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [pop]);
+
   return (
     <NavigationContext.Provider
       value={{
-        pop: () => {
-          if (canPop) {
-            ws.call("blast-global:pop");
-          }
-        },
+        pop,
         canPop,
       }}
     >
