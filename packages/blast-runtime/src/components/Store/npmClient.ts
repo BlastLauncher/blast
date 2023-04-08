@@ -4,7 +4,7 @@
 // https://github.com/npm/registry/blob/master/docs/REGISTRY-API.md
 import fetch from "node-fetch";
 
-type Registry = {
+export type Registry = {
   db_name: string;
   doc_count: number;
   doc_del_count: number;
@@ -18,7 +18,7 @@ type Registry = {
   committed_update_seq: number;
 };
 
-type Package = {
+export type Package = {
   _id: string;
   _rev: string;
   name: string;
@@ -32,7 +32,7 @@ type Package = {
   readme: string;
 };
 
-type Version = {
+export type Version = {
   name: string;
   version: string;
   homepage?: string;
@@ -53,7 +53,7 @@ type Version = {
   directories?: any;
 };
 
-type SearchResult = {
+export type SearchResult = {
   objects: {
     package: {
       name: string;

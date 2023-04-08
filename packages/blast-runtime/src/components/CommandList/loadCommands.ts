@@ -11,9 +11,9 @@
 //   }
 // ]
 
-import fs from 'fs/promises';
-import os from 'os';
-import path from 'path';
+import fs from "fs/promises";
+import os from "os";
+import path from "path";
 
 interface Command {
   name: string;
@@ -24,35 +24,42 @@ interface Command {
   requirePath: string;
 }
 
+export async function loadInstalledExtensions(): Promise<string[]> {
+  // 1. Load package.json dependencies
+  const homeDir = os.homedir();
+  const packageJsonPath = path.join(homeDir, ".blast", "extensions", "package.json");
+  const packageJson = JSON.parse(await fs.readFile(packageJsonPath, "utf-8"));
+  const dependencies = packageJson.dependencies;
+
+  // 2. For each dependency starts with @blast-extensions, read its package.json inside node_modules
+  const extensionPackages = Object.keys(dependencies).filter((dep) => dep.startsWith("@blast-extensions"));
+
+  return extensionPackages;
+}
+
 export async function loadCommands(): Promise<Command[]> {
   try {
-    // 1. Load package.json dependencies
     const homeDir = os.homedir();
-    const packageJsonPath = path.join(homeDir, '.blast', 'extensions', 'package.json');
-    const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf-8'));
-    const dependencies = packageJson.dependencies;
-
-    // 2. For each dependency starts with @blast-extensions, read its package.json inside node_modules
-    const extensionPackages = Object.keys(dependencies).filter(dep => dep.startsWith('@blast-extensions'));
+    const extensionPackages = await loadInstalledExtensions();
     const commands: Command[] = [];
 
     for (const extPackage of extensionPackages) {
-      const extPackageJsonPath = path.join(homeDir, '.blast', 'extensions', 'node_modules', extPackage, 'package.json');
-      const extPackageJson = JSON.parse(await fs.readFile(extPackageJsonPath, 'utf-8'));
+      const extPackageJsonPath = path.join(homeDir, ".blast", "extensions", "node_modules", extPackage, "package.json");
+      const extPackageJson = JSON.parse(await fs.readFile(extPackageJsonPath, "utf-8"));
 
       // 3. For each command in package.json, return its commands field
       if (extPackageJson.commands) {
         for (const command of extPackageJson.commands) {
           commands.push({
             ...command,
-            requirePath: path.join(homeDir, '.blast', 'extensions', 'node_modules', extPackage, command.name + '.js'),
+            requirePath: path.join(homeDir, ".blast", "extensions", "node_modules", extPackage, command.name + ".js"),
           });
         }
       }
     }
     return commands;
   } catch (error) {
-    console.error('Error loading commands:', error);
+    console.error("Error loading commands:", error);
     return [];
   }
 }

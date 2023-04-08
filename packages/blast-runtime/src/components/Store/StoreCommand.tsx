@@ -1,13 +1,24 @@
 import { List } from "@raycast/api";
 
 import { usePromise } from "@raycast/utils";
-import { useState } from "react";
+import { useCallback, useState } from "react";
+
+import { loadInstalledExtensions } from "../CommandList/loadCommands";
 
 import { searchExtensions } from "./api";
+import type { SearchResult } from './npmClient'
 
 export function StoreCommand() {
   const [search, setSearch] = useState("");
-  const { isLoading, data: extensions = [] } = usePromise(() => searchExtensions(search));
+  const { isLoading: isInstalledLoading, data: installedExtensions } = usePromise(loadInstalledExtensions);
+  const { isLoading, data: extensions = [] } = usePromise((s) => searchExtensions(s), [search], {
+    execute: !isInstalledLoading && typeof installedExtensions !== "undefined",
+  });
+
+  const isInstalled = useCallback(
+    (extension: SearchResult['objects'][number]['package']) => installedExtensions?.find((ext) => ext === extension.name),
+    [installedExtensions]
+  );
 
   return (
     <List
@@ -17,7 +28,9 @@ export function StoreCommand() {
       onSearchTextChange={(value) => setSearch(value)}
     >
       {extensions.map((extension) => {
-        return <List.Item key={extension.name} title={extension.name} />;
+        const isInstalledExtension = isInstalled(extension);
+        const isInstalledText = isInstalledExtension ? "Installed" : "Not Installed";
+        return <List.Item key={extension.name} title={`${extension.name} ${isInstalledText}`} />;
       })}
     </List>
   );
