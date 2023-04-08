@@ -1,6 +1,6 @@
 import { Environment, LaunchType } from '../LaunchType'
 
-export const environment: Environment = {
+export let environment: Environment = {
   assetsPath: '',
   commandMode: 'view',
   commandName: '',
@@ -13,3 +13,7 @@ export const environment: Environment = {
   theme: 'light',
 }
 
+// TODO: prepare environment when command loads
+export function prepareEnvironment(env: Environment) {
+  environment = env
+}
