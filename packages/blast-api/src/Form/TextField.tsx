@@ -31,7 +31,7 @@ const serializedKeys: TextFieldPropKeys = [
 
 const _TextField = (props: Form.TextField.Props, ref: React.ForwardedRef<FormItemExposedMethods>) => {
   const textfieldId = useId();
-  const { onChange, value, id } = props;
+  const { onChange, id } = props;
 
   const [internalValue, setInternalValue] = useState<string | undefined>(props.value);
 

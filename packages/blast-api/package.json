@@ -8,6 +8,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
+    "watch": "tsc -w",
     "test": "jest",
     "prepublishOnly": "npm run build"
   },
