@@ -7,9 +7,6 @@ import { StoreCommand } from "../Store";
 import { loadCommands } from "./loadCommands";
 import { evalCommandModule } from "./utils";
 
-// TODO: a Store component can install package with the following command
-// npm install --prefix ~/.blast/extensions @blast-extensions/todo-list@0.0.2
-
 export const CommandList = () => {
   const { isLoading, data: commands = [] } = usePromise(loadCommands);
   const { push } = useNavigation();
