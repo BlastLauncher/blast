@@ -13,10 +13,10 @@ export const CommandList = () => {
 
   return (
     <List isLoading={isLoading} searchBarPlaceholder="Search for apps and commands...">
-      {commands.map((command) => {
+      {commands.map((command, index) => {
         return (
           <List.Item
-            key={command.name}
+            key={`${command.title}-${index}`}
             title={command.title}
             subtitle={command.subtitle}
             actions={
