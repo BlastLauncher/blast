@@ -1,9 +1,10 @@
-import { Form } from "raycast-original";
 
 import { ElementTypes } from "@blastlauncher/renderer";
 import { createDebug } from "@blastlauncher/utils";
-import { FunctionComponent, forwardRef, useEffect, useId, useImperativeHandle, useMemo, useState } from "react";
+import { Form } from "raycast-original";
+import { FunctionComponent, forwardRef, useEffect, useId, useImperativeHandle, useMemo, useState, useCallback } from "react";
 
+import { useServerEvent } from '../internal/hooks'
 import { useWsServer } from "../internal/WsServerProvider";
 
 import { useFormContext } from ".";
@@ -53,32 +54,14 @@ const _TextField = (props: Form.TextField.Props, ref: React.ForwardedRef<FormIte
     }
   }, [internalValue, onChange, id, updateValue]);
 
-  const server = useWsServer();
+  const onChangeHandler = useCallback(({ value }: { value: string }) => {
+    debug("triggering on change event listener", value);
+    setInternalValue(value);
 
-  useEffect(() => {
-    const runRegister = !!server;
+    return null;
+  }, [setInternalValue]);
 
-    if (!runRegister) {
-      return;
-    }
-
-    debug("registering on change event listener", onChangeEventName);
-
-    const fn: any = ({ value }: { value: string }) => {
-      debug("triggering on change event listener", value);
-      setInternalValue(value);
-
-      return null;
-    };
-
-    server.register(onChangeEventName, fn);
-
-    return () => {
-      debug("unregistering on change event listener", onChangeEventName);
-      delete (server as any).namespaces["/"].rpc_methods[onChangeEventName];
-      // server.removeListener(onChangeEventName, fn);
-    };
-  }, [onChangeEventName, value, server]);
+  useServerEvent(onChangeEventName, onChangeHandler);
 
   useImperativeHandle(
     ref,
