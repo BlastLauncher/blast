@@ -45,7 +45,7 @@ You read more about the blast architecture in the following documents:
 pnpm install
 
 # Start backend in dev mode
-pnpm run start-runtimer:dev
+pnpm run start-runtime:dev
 
 # Start front end in dev mode
 pnpm run start-client
