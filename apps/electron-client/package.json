@@ -38,6 +38,7 @@
     "@vercel/webpack-asset-relocator-loader": "^1.7.3",
     "classnames": "^2.3.2",
     "cmdk": "^0.1.21",
+    "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.7.3",
     "electron": "22.0.0",
     "electron-devtools-installer": "^3.2.0",
