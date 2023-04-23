@@ -4,10 +4,14 @@ import { runServer } from "@blastlauncher/renderer";
 
 import { App } from "./App";
 import { connect } from "./utils/connectDevtools";
-import { run } from "./utils/run";
+import { run as runApp } from "./utils/run";
 
-connect();
+export function run () {
+  connect();
 
-run(App, {
-  server: runServer(),
-});
+  runApp(App, {
+    server: runServer(),
+  });
+}
+
+export default run
