@@ -9,13 +9,15 @@ declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 let mainWindow: BrowserWindow | null = null;
 
 export const toggleMainWindowVisibility = (): void => {
-  if (mainWindow) {
-    if (mainWindow.isVisible()) {
-      mainWindow.hide();
-    } else {
-      mainWindow.show();
-      mainWindow.focus();
-    }
+  if (!mainWindow) {
+    return;
+  }
+
+  if (mainWindow.isFocused()) {
+    mainWindow.hide();
+  } else {
+    mainWindow.show();
+    mainWindow.focus();
   }
 };
 
