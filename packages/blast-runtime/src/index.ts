@@ -6,10 +6,7 @@ import { App } from "./App";
 import { connect } from "./utils/connectDevtools";
 import { run as runApp } from "./utils/run";
 
-export function run ({
-  host = "localhost",
-  port = 8763,
-}) {
+export function run({ host = "localhost", port = 8763 }) {
   connect();
 
   runApp(App, {
@@ -20,4 +17,4 @@ export function run ({
   });
 }
 
-export default run
+export default run;
