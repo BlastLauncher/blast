@@ -14,6 +14,7 @@ export const toggleMainWindowVisibility = (): void => {
       mainWindow.hide();
     } else {
       mainWindow.show();
+      mainWindow.focus();
     }
   }
 };
@@ -43,6 +44,8 @@ export const createWindow = (): void => {
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
 
+  mainWindow.setVisibleOnAllWorkspaces(true);
+
   // register global shortcut to toggle window
   // Default to command + ; (semi-colon)
   globalShortcut.register("CommandOrControl+;", toggleMainWindowVisibility);
@@ -53,6 +56,7 @@ export const createWindow = (): void => {
 export const showMainWindow = (): void => {
   if (mainWindow) {
     mainWindow.show();
+    mainWindow.focus();
   }
 }
 
