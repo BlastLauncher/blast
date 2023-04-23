@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: 'runtime',
-      script: "pnpm run start-runtime:dev",
+      script: "pnpm run watch-runtime",
     },
     {
       name: 'client',

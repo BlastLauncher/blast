@@ -48,6 +48,7 @@ importers:
 
   apps/electron-client:
     specifiers:
+      '@blastlauncher/runtime': workspace:^1.0.5
       '@electron-forge/cli': ^6.0.4
       '@electron-forge/maker-deb': ^6.0.4
       '@electron-forge/maker-rpm': ^6.0.4
@@ -88,6 +89,7 @@ importers:
       webpack: '5'
       zustand: ^4.1.5
     dependencies:
+      '@blastlauncher/runtime': link:../../packages/blast-runtime
       electron-squirrel-startup: 1.0.0
     devDependencies:
       '@electron-forge/cli': 6.0.4

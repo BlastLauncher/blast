@@ -18,6 +18,7 @@
     "start": "electron-forge start"
   },
   "dependencies": {
+    "@blastlauncher/runtime": "workspace:*",
     "electron-squirrel-startup": "^1.0.0"
   },
   "devDependencies": {
