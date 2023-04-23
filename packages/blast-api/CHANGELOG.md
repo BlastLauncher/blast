@@ -1,5 +1,12 @@
 # @blastlauncher/api
 
+## 1.1.0
+
+### Patch Changes
+
+- Updated dependencies
+  - @blastlauncher/renderer@1.1.0
+
 ## 1.0.5
 
 ### Patch Changes
