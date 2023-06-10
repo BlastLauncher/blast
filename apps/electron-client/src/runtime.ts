@@ -1,10 +1,11 @@
 import { utilityProcess } from 'electron'
 
+declare const UTILITY_PROCESS_MODULE_PATH: string;
+
 let runtimeProcess: any;
 
 export const startRuntime = (): void => {
-  const modulePath = require.resolve('@blastlauncher/runtime/dist/run.js')
-  runtimeProcess = utilityProcess.fork(modulePath)
+  runtimeProcess = utilityProcess.fork(UTILITY_PROCESS_MODULE_PATH)
 }
 
 export const stopRuntime = (): void => {
