@@ -28,6 +28,14 @@ export async function loadInstalledExtensions(): Promise<string[]> {
   // 1. Load package.json dependencies
   const homeDir = os.homedir();
   const packageJsonPath = path.join(homeDir, ".blast", "extensions", "package.json");
+
+  // check if package.json exists
+  try {
+    await fs.access(packageJsonPath);
+  } catch {
+    return [];
+  }
+
   const packageJson = JSON.parse(await fs.readFile(packageJsonPath, "utf-8"));
   const dependencies = packageJson.dependencies;
 
