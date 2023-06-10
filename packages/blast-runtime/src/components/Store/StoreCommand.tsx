@@ -11,6 +11,7 @@ import { searchExtensions } from "./api";
 import type { SearchResult } from "./npmClient";
 
 // npm install --prefix ~/.blast/extensions @blast-extensions/todo-list@0.0.2
+// TODO: switch to @raycast/utils useExec hook
 const installExtension = async (packageName: string) => {
   return new Promise((resolve, reject) => {
     const prefix = os.homedir() + "/.blast/extensions";
@@ -26,6 +27,7 @@ const installExtension = async (packageName: string) => {
   });
 };
 
+// TODO: switch to @raycast/utils useExec hook
 const uninstallExtension = async (packageName: string) => {
   return new Promise((resolve, reject) => {
     const prefix = os.homedir() + "/.blast/extensions";
