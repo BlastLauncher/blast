@@ -5,10 +5,8 @@ import { MakerZIP } from "@electron-forge/maker-zip";
 import { WebpackPlugin } from "@electron-forge/plugin-webpack";
 import type { ForgeConfig } from "@electron-forge/shared-types";
 
-import UtilityProcessPlugin from "./utility.plugin";
 import { mainConfig } from "./webpack.main.config";
 import { rendererConfig } from "./webpack.renderer.config";
-import { utilityConfig } from "./webpack.utility.config";
 
 const config: ForgeConfig = {
   packagerConfig: {},
@@ -32,7 +30,6 @@ const config: ForgeConfig = {
         ],
       },
     }),
-    new UtilityProcessPlugin(utilityConfig),
   ],
 };
 

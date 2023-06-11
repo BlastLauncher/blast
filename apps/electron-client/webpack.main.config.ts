@@ -1,11 +1,7 @@
-import path from 'path'
-
 import CopyWebpackPlugin from 'copy-webpack-plugin';
 import type { Configuration } from 'webpack';
-import { DefinePlugin } from 'webpack';
 
 import { rules } from './webpack.rules';
-const modulePath = path.resolve(__dirname, "blast_runtime/utility_process");
 
 export const mainConfig: Configuration = {
   /**
@@ -28,9 +24,6 @@ export const mainConfig: Configuration = {
           to: 'assets',
         },
       ],
-    }),
-    new DefinePlugin({
-      UTILITY_PROCESS_MODULE_PATH: JSON.stringify(modulePath),
     }),
   ],
 };
