@@ -1,13 +1,13 @@
-import { utilityProcess } from 'electron'
+// import { utilityProcess } from 'electron'
 
 let runtimeProcess: any;
 
 export const startRuntime = (): void => {
-  const modulePath = require.resolve('@blastlauncher/runtime/dist/run.js')
-  runtimeProcess = utilityProcess.fork(modulePath)
+  // const modulePath = require.resolve('@blastlauncher/runtime/dist/run.js')
+  // runtimeProcess = utilityProcess.fork(modulePath)
 }
 
 export const stopRuntime = (): void => {
-  runtimeProcess.kill()
+  runtimeProcess?.kill()
 }
 
