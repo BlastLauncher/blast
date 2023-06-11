@@ -3,9 +3,10 @@
   "version": "1.1.0",
   "main": "dist/index.js",
   "scripts": {
-    "build": "pnpm run clean && tsc",
+    "build": "pnpm run clean && pnpm run build:tsc && pnpm run build:esbuild",
+    "build:tsc": "tsc",
     "clean": "rimraf dist/",
-    "build:esbuild": "pnpm run clean && node build.js",
+    "build:esbuild": "node build.js",
     "build:watch": "pnpm run clean && tsc -w",
     "start:dev": "nodemon --exec node dist/index.js",
     "start": "node dist/index.js",
