@@ -4,6 +4,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "rimraf dist/ && tsc",
+    "build:run-script": "node build.js",
     "build:watch": "rimraf dist/ && tsc -w",
     "start:dev": "nodemon --exec node dist/index.js",
     "start": "node dist/index.js",
@@ -24,6 +25,7 @@
     "@types/node-fetch": "2",
     "@types/react": "18.0.9",
     "@types/websocket": "^1.0.5",
+    "esbuild": "^0.17.5",
     "raycast-original": "npm:@raycast/api@*",
     "rimraf": "^4.1.1",
     "rpc-websockets": "^7.5.0"
