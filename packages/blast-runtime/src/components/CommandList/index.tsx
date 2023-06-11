@@ -24,8 +24,12 @@ export const CommandList = () => {
                 <Action
                   title="Open Command"
                   onAction={() => {
-                    const Comp = evalCommandModule(command.requirePath);
-                    push(<Comp />);
+                    try {
+                      const Comp = evalCommandModule(command.requirePath);
+                      push(<Comp />);
+                    } catch (error) {
+                      console.error(error);
+                    }
                   }}
                 />
               </ActionPanel>
