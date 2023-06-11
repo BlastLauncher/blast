@@ -32,11 +32,12 @@ In the architecture of Blast, the backend uses Node.js and the `react-reconciler
 
 For higher performance, a custom renderer such as React-native may send operations to the host app to build a shadow element tree alongside the renderer. However, Blast was designed for educational and experimental purposes and therefore emits the entire element tree as JSON during the resetAfterCommit phase, which is called every time the component is updated. This is less performant but sufficient for the needs of this project as the component tree is not complex and high performance is not required.
 
-You read more about the blast architecture in the following documents:
+You can learn more about the blast architecture in the following documents:
 
 - [`@blastlauncher/renderer`](./packages/blast-renderer/README.md): The custom React renderer
 - [`@blastlauncher/runtime`](./packages/blast-runtime/README.md): The backend and runtime application, which is also a React.js app
 - [`@blastlauncher/api`](./packages/blast-api/README.md): Polyfill for the Raycast API
+- [`@blastlauncher/cli`](/packages/blast-cli/README.md): A CLI tool that manage to build/publish raycast extension to blast compatible module. Really much alike the ray-cli tool.
 
 ## Development
 

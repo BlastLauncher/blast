@@ -6,6 +6,8 @@ I somehow discover that Raycast's extension build output are similar to esbuild'
 
 The publish command will upload the extension to npm registry(which is released under `@blast-extensions` for now).
 
+You can learn more about the extension publishing in the [raycast-extensions-mirror](https://github.com/BlastLauncher/raycast-extensions-mirror/blob/main/.github/workflows/extensions_build_publish.yaml) repo.
+
 ## Development
 
 ```bash
