@@ -19,6 +19,7 @@ async function start() {
 
   setupWS(async (ws) => {
     const initialTree = (await ws.call("getTree")) as BlastComponent;
+    console.log("initialTree", initialTree);
 
     const state = remoteBlastTree.getState();
     state.setTree(initialTree);
