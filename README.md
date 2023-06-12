@@ -65,6 +65,14 @@ pnpm run start-runtime:dev
 pnpm run start-client
 ```
 
+**Updated: new development script for the WIP process model([#30](https://github.com/BlastLauncher/blast/issues/30))**
+
+```bash
+cd packages/blast-runtime
+pnpm run build:esbuild
+node dist/run.cjs
+```
+
 ## Inspiration and related projects
 
 - [SunbeamLauncher](https://github.com/SunbeamLauncher/sunbeam): A frontend agnostic Launcher app, written in Go, and you can write extensions in any language.
