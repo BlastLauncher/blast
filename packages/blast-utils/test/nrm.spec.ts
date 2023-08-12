@@ -5,7 +5,7 @@ import { temporaryDirectory } from "../src/nrm/utils";
 
 const version = "v18.17.1";
 
-describe("Test nrm", function () {
+describe("Test nrm#download", function () {
   it("download and install node binary", async function () {
     const directory = temporaryDirectory();
     const nrm = new NRM({ installPath: directory });
@@ -25,3 +25,19 @@ describe("Test nrm", function () {
     expect(fs.existsSync(npmPath)).toBe(true);
   });
 });
+
+describe("Test nrm#uninstall", function () {
+  it("uninstall node binary", async function () {
+    const directory = temporaryDirectory();
+    const nrm = new NRM({ installPath: directory });
+
+    await nrm.download(version);
+    const nodePath = nrm.nodePath;
+    const npmPath = nrm.npmPath;
+
+    await nrm.uninstall(version);
+
+    expect(fs.existsSync(nodePath)).toBe(false);
+    expect(fs.existsSync(npmPath)).toBe(false);
+  });
+})

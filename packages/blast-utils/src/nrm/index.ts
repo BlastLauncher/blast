@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs, { promises as fsPromises } from "fs";
 import https from "https";
 import os from "os";
 import path from "path";
@@ -41,11 +41,12 @@ export class NRM {
 
         const downloadTempPath = path.join(tempDir, "node.tar.gz");
         const writeStream = fs.createWriteStream(downloadTempPath);
-        pipelineAsync(response, createGunzip(), writeStream)
-          .then(() => tar.x({
-            file: downloadTempPath,
-            cwd: extractDir,
-          })
+        pipelineAsync(response, createGunzip(), writeStream).then(() =>
+          tar
+            .x({
+              file: downloadTempPath,
+              cwd: extractDir,
+            })
             .then(() => {
               // Move the extracted folder to the destination
               // find the only folder in the extractDir
@@ -58,11 +59,31 @@ export class NRM {
               fs.renameSync(path.join(extractDir, extractedFolder), targetDir);
               resolve();
             })
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .catch((err: any) => {
               reject(err);
-            }));
+            })
+        );
       });
     });
+  }
+
+  /**
+   * Uninstalls (removes) a specific version of Node.js.
+   *
+   * @param version - The version of Node.js to uninstall.
+   * @returns Promise indicating completion.
+   */
+  async uninstall(version: string): Promise<void> {
+    const versionDir = path.join(this.installPath, version);
+
+    // Check if the version exists
+    if (!fs.existsSync(versionDir)) {
+      throw new Error(`Version ${version} is not installed.`);
+    }
+
+    // Remove the version directory
+    await fsPromises.rmdir(versionDir, { recursive: true });
   }
 
   get nodePath(): string {
