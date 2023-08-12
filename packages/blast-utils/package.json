@@ -4,10 +4,15 @@
   "description": "Utilities for working with Blast",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "test": "jest"
   },
   "dependencies": {
-    "debug": "^4.3.4"
+    "debug": "^4.3.4",
+    "tar": "^6.1.15"
   },
-  "repository": "https://github.com/BlastLauncher/blast.git"
+  "repository": "https://github.com/BlastLauncher/blast.git",
+  "devDependencies": {
+    "@types/tar": "^6.1.5"
+  }
 }
