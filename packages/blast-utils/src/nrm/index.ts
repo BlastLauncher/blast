@@ -1,3 +1,5 @@
+// Co-author with GPT-4
+// https://chat.openai.com/share/963489f9-35f5-4253-bcbc-a67a8562a19e
 import fs, { promises as fsPromises } from "fs";
 import https from "https";
 import os from "os";
