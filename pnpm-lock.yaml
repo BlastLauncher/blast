@@ -52,12 +52,12 @@ importers:
     specifiers:
       '@blastlauncher/runtime': workspace:*
       '@blastlauncher/utils': workspace:*
-      '@electron-forge/cli': ^6.0.4
-      '@electron-forge/maker-deb': ^6.0.4
-      '@electron-forge/maker-rpm': ^6.0.4
-      '@electron-forge/maker-squirrel': ^6.0.4
-      '@electron-forge/maker-zip': ^6.0.4
-      '@electron-forge/plugin-webpack': ^6.0.4
+      '@electron-forge/cli': ^6.3.0
+      '@electron-forge/maker-deb': ^6.3.0
+      '@electron-forge/maker-rpm': ^6.3.0
+      '@electron-forge/maker-squirrel': ^6.3.0
+      '@electron-forge/maker-zip': ^6.3.0
+      '@electron-forge/plugin-webpack': ^6.3.0
       '@electron-forge/publisher-github': ^6.3.0
       '@radix-ui/react-popover': ^1.0.2
       '@raycast/api': ^1.45.2
@@ -100,12 +100,12 @@ importers:
       electron-squirrel-startup: 1.0.0
       update-electron-app: 2.0.1_electron@22.0.0
     devDependencies:
-      '@electron-forge/cli': 6.0.4
-      '@electron-forge/maker-deb': 6.0.4
-      '@electron-forge/maker-rpm': 6.0.4
-      '@electron-forge/maker-squirrel': 6.0.4
-      '@electron-forge/maker-zip': 6.0.4
-      '@electron-forge/plugin-webpack': 6.0.4
+      '@electron-forge/cli': 6.3.0
+      '@electron-forge/maker-deb': 6.3.0
+      '@electron-forge/maker-rpm': 6.3.0
+      '@electron-forge/maker-squirrel': 6.3.0
+      '@electron-forge/maker-zip': 6.3.0
+      '@electron-forge/plugin-webpack': 6.3.0
       '@electron-forge/publisher-github': 6.3.0
       '@radix-ui/react-popover': 1.0.3_jbvntnid6ohjelon6ccj5dhg2u
       '@raycast/api': 1.46.0_@types+react@18.0.9
@@ -1929,20 +1929,20 @@ packages:
       postcss-selector-parser: 6.0.11
     dev: true
 
-  /@electron-forge/cli/6.0.4:
-    resolution: {integrity: sha512-iyQyh0g/cSWVQs30wsAqmTmqgV8E/i9Cy/CsHwHxQlsHHcq8N61k1JlB2dpEV1Hy9Lxafql5TE3/6uI7939IEg==}
+  /@electron-forge/cli/6.3.0:
+    resolution: {integrity: sha512-lBLWxAj9qR4GAngo3SYYidf/Iw6qvvvo3luah87DtgDil4fzXoLneAtvEbvLaXz9AkQsLsqYejbF8Mil8Ih3Eg==}
     engines: {node: '>= 14.17.5'}
     hasBin: true
     dependencies:
-      '@electron-forge/core': 6.0.4
-      '@electron-forge/shared-types': 6.0.4
+      '@electron-forge/core': 6.3.0
+      '@electron-forge/shared-types': 6.3.0
       '@electron/get': 2.0.2
       chalk: 4.1.2
       commander: 4.1.1
       debug: 4.3.4
       fs-extra: 10.1.0
       listr2: 5.0.7
-      semver: 7.3.8
+      semver: 7.5.4
     transitivePeerDependencies:
       - bluebird
       - encoding
@@ -1950,11 +1950,11 @@ packages:
       - supports-color
     dev: true
 
-  /@electron-forge/core-utils/6.0.4:
-    resolution: {integrity: sha512-nOCjmm8Qr/bYkVNfEiXSk/LKjtv6iBrKcyhKIanNM3n7MJRuTH0ksvuajFBqg+V+EHplMb7y6acDvI+TTRDUxg==}
+  /@electron-forge/core-utils/6.3.0:
+    resolution: {integrity: sha512-cvPpqqbbDWu8irmMSk21bXbBXmnGE/swiTtEuNk/TtBvLkUlztjbDyJ+06jNRAZuRqPLkswdGCPbO4nJQhfazQ==}
     engines: {node: '>= 14.17.5'}
     dependencies:
-      '@electron-forge/shared-types': 6.0.4
+      '@electron-forge/shared-types': 6.3.0
       '@electron/rebuild': 3.2.10
       '@malept/cross-spawn-promise': 2.0.0
       chalk: 4.1.2
@@ -1962,7 +1962,7 @@ packages:
       find-up: 5.0.0
       fs-extra: 10.1.0
       log-symbols: 4.1.0
-      semver: 7.3.8
+      semver: 7.5.4
       yarn-or-npm: 3.0.1
     transitivePeerDependencies:
       - bluebird
@@ -1970,18 +1970,19 @@ packages:
       - supports-color
     dev: true
 
-  /@electron-forge/core/6.0.4:
-    resolution: {integrity: sha512-l3OiXB/9ebtZZtcQAbofaTmivQUqUVv8TKoxQ8GJbH48Eyk//mphbo7hDC5kb5Tyd0UedMOM9MxJrYjnd6jRnA==}
+  /@electron-forge/core/6.3.0:
+    resolution: {integrity: sha512-TMsNCOX6XKdBgXB+3WuteiMdDcYx1q64jWOCgBtUiuBr91CQKpmEdnbH2amSK89tyGY3rZ0iKouGqDZJwF8vCw==}
     engines: {node: '>= 14.17.5'}
     dependencies:
-      '@electron-forge/core-utils': 6.0.4
-      '@electron-forge/maker-base': 6.0.4
-      '@electron-forge/plugin-base': 6.0.4
-      '@electron-forge/publisher-base': 6.0.4
-      '@electron-forge/shared-types': 6.0.4
-      '@electron-forge/template-base': 6.0.4
-      '@electron-forge/template-webpack': 6.0.4
-      '@electron-forge/template-webpack-typescript': 6.0.4
+      '@electron-forge/core-utils': 6.3.0
+      '@electron-forge/maker-base': 6.3.0
+      '@electron-forge/plugin-base': 6.3.0
+      '@electron-forge/publisher-base': 6.3.0
+      '@electron-forge/shared-types': 6.3.0
+      '@electron-forge/template-base': 6.3.0
+      '@electron-forge/template-vite': 6.3.0
+      '@electron-forge/template-webpack': 6.3.0
+      '@electron-forge/template-webpack-typescript': 6.3.0
       '@electron/get': 2.0.2
       '@electron/rebuild': 3.2.10
       '@malept/cross-spawn-promise': 2.0.0
@@ -2001,7 +2002,7 @@ packages:
       progress: 2.0.3
       rechoir: 0.8.0
       resolve-package: 1.0.1
-      semver: 7.3.8
+      semver: 7.5.4
       source-map-support: 0.5.21
       sudo-prompt: 9.2.1
       username: 5.1.0
@@ -2013,11 +2014,11 @@ packages:
       - supports-color
     dev: true
 
-  /@electron-forge/maker-base/6.0.4:
-    resolution: {integrity: sha512-qJJ2oPFlyt6u/H67WLfZL0JclSpFj4VwxPfwxqNL/HcwXULJcOeat7oqJLY9UKBE4U2j+++xbA3LSoPAErroIg==}
+  /@electron-forge/maker-base/6.3.0:
+    resolution: {integrity: sha512-zAU2G7yh9gLyFbw08RfU4j8z/QAt5Sm4uaub3dE+GdRuXOc0NeqIfUiwP2xIl6Ja6mt5dU4gvdxQT/+hnqXqoQ==}
     engines: {node: '>= 14.17.5'}
     dependencies:
-      '@electron-forge/shared-types': 6.0.4
+      '@electron-forge/shared-types': 6.3.0
       fs-extra: 10.1.0
       which: 2.0.2
     transitivePeerDependencies:
@@ -2026,12 +2027,12 @@ packages:
       - supports-color
     dev: true
 
-  /@electron-forge/maker-deb/6.0.4:
-    resolution: {integrity: sha512-kBqRiPqAInPqBEZD1iRYiF2yb7Mhcdlrn80kCtTwTF8oAA6d081g6mcrMt12sf5GBGF8IXKzm6JqbqelpYbKww==}
+  /@electron-forge/maker-deb/6.3.0:
+    resolution: {integrity: sha512-ttNhPTMAI55tJh5Jcs0/4kW+dPrjfTdKIuxtyCKZI/MZXLy39Lq6fneUUg1G7ZqTEE1DHL947uxlYw5NumahEw==}
     engines: {node: '>= 14.17.5'}
     dependencies:
-      '@electron-forge/maker-base': 6.0.4
-      '@electron-forge/shared-types': 6.0.4
+      '@electron-forge/maker-base': 6.3.0
+      '@electron-forge/shared-types': 6.3.0
     optionalDependencies:
       electron-installer-debian: 3.1.0
     transitivePeerDependencies:
@@ -2040,12 +2041,12 @@ packages:
       - supports-color
     dev: true
 
-  /@electron-forge/maker-rpm/6.0.4:
-    resolution: {integrity: sha512-uNLm6zpK8OgXl2Eq9/uaQyUBKEJhlzJf4zu0DtpPqp5qeu1EObDor0/5OH6MTEmjpGSZ616tdvVN+kwqjNeNHg==}
+  /@electron-forge/maker-rpm/6.3.0:
+    resolution: {integrity: sha512-JZkkmGcMR9Ay87emmXZ4GFhrq9YswkA7zftoM+McK3RZoB8hNgCFKVlVI0tJq2UXqDZ5J8Fy3qg3TRNaSiPRIw==}
     engines: {node: '>= 14.17.5'}
     dependencies:
-      '@electron-forge/maker-base': 6.0.4
-      '@electron-forge/shared-types': 6.0.4
+      '@electron-forge/maker-base': 6.3.0
+      '@electron-forge/shared-types': 6.3.0
     optionalDependencies:
       electron-installer-redhat: 3.3.0
     transitivePeerDependencies:
@@ -2054,12 +2055,12 @@ packages:
       - supports-color
     dev: true
 
-  /@electron-forge/maker-squirrel/6.0.4:
-    resolution: {integrity: sha512-1bZ5RgSex5Y45HSuOqjki2oHIq/CquVPP5sLYhObd2p2ABj4ZzyqErNFK1eerDIjoesici3KKCASqBpKf2N90Q==}
+  /@electron-forge/maker-squirrel/6.3.0:
+    resolution: {integrity: sha512-SkVgkwBr+QYT6Cvfp785ni27EINC4tV2SBpy52gFTu+QTtH2cg/4aZJ8jmoXSkJ9rRSMKsHg9z7jInslM5A85w==}
     engines: {node: '>= 14.17.5'}
     dependencies:
-      '@electron-forge/maker-base': 6.0.4
-      '@electron-forge/shared-types': 6.0.4
+      '@electron-forge/maker-base': 6.3.0
+      '@electron-forge/shared-types': 6.3.0
       fs-extra: 10.1.0
     optionalDependencies:
       electron-winstaller: 5.1.0
@@ -2069,39 +2070,40 @@ packages:
       - supports-color
     dev: true
 
-  /@electron-forge/maker-zip/6.0.4:
-    resolution: {integrity: sha512-tjBi46qU4vKpYUNUIv5ar6hBDjr9G7+QIUiaOj4UIN3Rwa20EvsYMBoMJBxV/CUUwkQc1NBihUPLco7PAVNb+g==}
+  /@electron-forge/maker-zip/6.3.0:
+    resolution: {integrity: sha512-LYtT3KbFaT0z2sGK8y+QvbAZuc/Kdnnr3BFqYBd+OWGxvNfWCO762C0j63X01FFFrKoBFnA+wxUYHZplzYxvDA==}
     engines: {node: '>= 14.17.5'}
     dependencies:
-      '@electron-forge/maker-base': 6.0.4
-      '@electron-forge/shared-types': 6.0.4
+      '@electron-forge/maker-base': 6.3.0
+      '@electron-forge/shared-types': 6.3.0
       cross-zip: 4.0.0
       fs-extra: 10.1.0
+      got: 11.8.6
     transitivePeerDependencies:
       - bluebird
       - enquirer
       - supports-color
     dev: true
 
-  /@electron-forge/plugin-base/6.0.4:
-    resolution: {integrity: sha512-iILzbFzmUIGggsTNL9PO1ma6e4OuuhKunNnOkpkoyg6jIaz8Oh1WSHhOALMztlBn2FhreabZnBRy7JsvHVDXlg==}
+  /@electron-forge/plugin-base/6.3.0:
+    resolution: {integrity: sha512-E5jLphxuDHOp0JqzdMKSaip+zw6+ncLQG8KNjNySmyYD3d4rz7tMYfsmMSxkYje+zU0swz762P6hNf5jUOUMzA==}
     engines: {node: '>= 14.17.5'}
     dependencies:
-      '@electron-forge/shared-types': 6.0.4
+      '@electron-forge/shared-types': 6.3.0
     transitivePeerDependencies:
       - bluebird
       - enquirer
       - supports-color
     dev: true
 
-  /@electron-forge/plugin-webpack/6.0.4:
-    resolution: {integrity: sha512-Zt1plDDKSjCQNO4ywUDCmlbVLaLgJuFlr6Snxihc0wahW4QVtqWUocialan7WHMeh4ernY1xL+Cn+8Rrc1PuAw==}
+  /@electron-forge/plugin-webpack/6.3.0:
+    resolution: {integrity: sha512-5i/rjL0pHpgB5lCc75ygsT5KCYtpgy+pOLuPIKt2Wnv1XhsbF2F/a+80klyWbZbWMCwYsrf2zQdaHLhlBqJFlw==}
     engines: {node: '>= 14.17.5'}
     dependencies:
-      '@electron-forge/core-utils': 6.0.4
-      '@electron-forge/plugin-base': 6.0.4
-      '@electron-forge/shared-types': 6.0.4
-      '@electron-forge/web-multi-logger': 6.0.4
+      '@electron-forge/core-utils': 6.3.0
+      '@electron-forge/plugin-base': 6.3.0
+      '@electron-forge/shared-types': 6.3.0
+      '@electron-forge/web-multi-logger': 6.3.0
       chalk: 4.1.2
       debug: 4.3.4
       fs-extra: 10.1.0
@@ -2119,17 +2121,6 @@ packages:
       - uglify-js
       - utf-8-validate
       - webpack-cli
-    dev: true
-
-  /@electron-forge/publisher-base/6.0.4:
-    resolution: {integrity: sha512-0C86jnOSTo0z/W58zRx6BijuR4lscB0F6yXaBCFA5xaJ8+fVIsgz29kmVlLrp+YFRgatDCljvk+1+qVRM/Mfpg==}
-    engines: {node: '>= 14.17.5'}
-    dependencies:
-      '@electron-forge/shared-types': 6.0.4
-    transitivePeerDependencies:
-      - bluebird
-      - enquirer
-      - supports-color
     dev: true
 
   /@electron-forge/publisher-base/6.3.0:
@@ -2163,19 +2154,6 @@ packages:
       - supports-color
     dev: true
 
-  /@electron-forge/shared-types/6.0.4:
-    resolution: {integrity: sha512-lILLKcGZqfJYVI1x6RssVh37E934rCOaSdBQ9I7LypdfI2NWL+5PLLoUqvXbok1V28m3/O5JrXdigwEIZdhjzQ==}
-    engines: {node: '>= 14.17.5'}
-    dependencies:
-      '@electron/rebuild': 3.2.10
-      electron-packager: 17.1.1
-      listr2: 5.0.7
-    transitivePeerDependencies:
-      - bluebird
-      - enquirer
-      - supports-color
-    dev: true
-
   /@electron-forge/shared-types/6.3.0:
     resolution: {integrity: sha512-6L4XIC4ErueM3mbWjVJLNtRZPxjdw3aa64e58m8gBwXnrreKVuKL+DFDKMvI2FO7IZXeLsIn/CEka+wQRwW87w==}
     engines: {node: '>= 14.17.5'}
@@ -2189,11 +2167,11 @@ packages:
       - supports-color
     dev: true
 
-  /@electron-forge/template-base/6.0.4:
-    resolution: {integrity: sha512-23/b0n+ls0+c2+OG1XrHROk6i3PseONLJY3tcR42uFaP/yGZL8nJfgXE2qTKBwUyFQ0tCgUAD3a4vYkMPLKrwg==}
+  /@electron-forge/template-base/6.3.0:
+    resolution: {integrity: sha512-lbug/MypOtbNANQjtV3tW3jrks+dzfH7fxz2IANTzDW4U29Qx900HLi1jWj66FcJl+lCWZ5Wy76qq8UcC4nBqw==}
     engines: {node: '>= 14.17.5'}
     dependencies:
-      '@electron-forge/shared-types': 6.0.4
+      '@electron-forge/shared-types': 6.3.0
       '@malept/cross-spawn-promise': 2.0.0
       debug: 4.3.4
       fs-extra: 10.1.0
@@ -2204,12 +2182,12 @@ packages:
       - supports-color
     dev: true
 
-  /@electron-forge/template-webpack-typescript/6.0.4:
-    resolution: {integrity: sha512-Z9fJ0JfZw9w5OVZgy0qVGapGMQqfaLyQSHzEfm2HQdGGJrHkeXJkMn8Yd1E8h5EPMb3jF5tHRw3VopelzcPQxQ==}
-    engines: {node: '>= 14.17.5'}
+  /@electron-forge/template-vite/6.3.0:
+    resolution: {integrity: sha512-Wysn7T3xaaNhydLCz6LnTGhMj1Re786iWXCJlleScN1WzPF0n6E7M0vRIzEBCLZysp4FWGWXMrGqXOyMvDaMTw==}
+    engines: {node: ^14.18.0 || >=16.0.0}
     dependencies:
-      '@electron-forge/shared-types': 6.0.4
-      '@electron-forge/template-base': 6.0.4
+      '@electron-forge/shared-types': 6.3.0
+      '@electron-forge/template-base': 6.3.0
       fs-extra: 10.1.0
     transitivePeerDependencies:
       - bluebird
@@ -2217,12 +2195,12 @@ packages:
       - supports-color
     dev: true
 
-  /@electron-forge/template-webpack/6.0.4:
-    resolution: {integrity: sha512-mrzNzkhsLfD20y/vfTYVBFSkptmgSEwqn4zh4vnzP9tzAJ4eMbvhfVtkK/XQfm8ZspPjs+RZSzRrRNo+e0iEaw==}
+  /@electron-forge/template-webpack-typescript/6.3.0:
+    resolution: {integrity: sha512-PoEdeEsdVlXRpANcSOadECeUe/CqLCqGgjDQdG49GxrKSltqdZZ7elBXxJDpmgWDrP2aQI4YhmygBWAJO1o1zw==}
     engines: {node: '>= 14.17.5'}
     dependencies:
-      '@electron-forge/shared-types': 6.0.4
-      '@electron-forge/template-base': 6.0.4
+      '@electron-forge/shared-types': 6.3.0
+      '@electron-forge/template-base': 6.3.0
       fs-extra: 10.1.0
     transitivePeerDependencies:
       - bluebird
@@ -2230,8 +2208,21 @@ packages:
       - supports-color
     dev: true
 
-  /@electron-forge/web-multi-logger/6.0.4:
-    resolution: {integrity: sha512-TvJpHfJFnamjv7Ec5Oe+5ir7zK1wvG42jzRoErv946xr9d2pGIYSLX2+LFMV0bLR35GZCAIom6teK4d3wU6MVA==}
+  /@electron-forge/template-webpack/6.3.0:
+    resolution: {integrity: sha512-63G/LShpxYMqYPB2XWDVhli1nCgLlt/tDLV14QHSZeT/SblUp4Gz8+5ZNOofnAK5pfts8Q0aPB2Au5luC4lrFw==}
+    engines: {node: '>= 14.17.5'}
+    dependencies:
+      '@electron-forge/shared-types': 6.3.0
+      '@electron-forge/template-base': 6.3.0
+      fs-extra: 10.1.0
+    transitivePeerDependencies:
+      - bluebird
+      - enquirer
+      - supports-color
+    dev: true
+
+  /@electron-forge/web-multi-logger/6.3.0:
+    resolution: {integrity: sha512-RZPSEmDNiVfIPyTClkkVlwuxAYnuSCwMPHQYcvP3mtfHNumwRLUeD/Cz2ZRk7pecv5G82Aeo72+FYtcgHQulRg==}
     engines: {node: '>= 14.17.5'}
     dependencies:
       express: 4.18.2
@@ -2333,9 +2324,9 @@ packages:
       node-api-version: 0.1.4
       node-gyp: 9.3.1
       ora: 5.4.1
-      semver: 7.3.8
-      tar: 6.1.13
-      yargs: 17.6.2
+      semver: 7.5.4
+      tar: 6.1.15
+      yargs: 17.7.1
     transitivePeerDependencies:
       - bluebird
       - supports-color
@@ -2939,7 +2930,7 @@ packages:
     engines: {node: ^12.13.0 || ^14.15.0 || >=16.0.0}
     dependencies:
       '@gar/promisify': 1.1.3
-      semver: 7.3.8
+      semver: 7.5.4
     dev: true
 
   /@npmcli/move-file/2.0.1:
@@ -4818,7 +4809,7 @@ packages:
     engines: {node: '>= 0.8', npm: 1.2.8000 || >= 1.4.16}
     dependencies:
       bytes: 3.1.2
-      content-type: 1.0.4
+      content-type: 1.0.5
       debug: 2.6.9
       depd: 2.0.0
       destroy: 1.2.0
@@ -4972,7 +4963,7 @@ packages:
       promise-inflight: 1.0.1
       rimraf: 3.0.2
       ssri: 9.0.1
-      tar: 6.1.13
+      tar: 6.1.15
       unique-filename: 2.0.1
     transitivePeerDependencies:
       - bluebird
@@ -5395,15 +5386,9 @@ packages:
       safe-buffer: 5.2.1
     dev: true
 
-  /content-type/1.0.4:
-    resolution: {integrity: sha512-hIP3EEPs8tB9AT1L+NUqtwOAps4mk2Zob89MWXMHjHWg9milF/j4osnnQLXBCBFBk/tvIG/tUc9mOUJiPBhPXA==}
-    engines: {node: '>= 0.6'}
-    dev: true
-
   /content-type/1.0.5:
     resolution: {integrity: sha512-nTjqfcBFEipKdXCv4YDQWCfmcLZKm81ldF0pAopTvyrFGVbcR6P/VAAd5G7N+0tTr8QqiU0tFadD6FK4NtJwOA==}
     engines: {node: '>= 0.6'}
-    dev: false
 
   /convert-source-map/1.9.0:
     resolution: {integrity: sha512-ASFBup0Mz1uyiIjANan1jzLQami9z1PoYSZCiiYW2FczPbenXc45FZdBZLzOT+r6+iciuEModtmCti+hjaAk0A==}
@@ -6000,7 +5985,7 @@ packages:
       glob: 7.2.3
       lodash: 4.17.21
       parse-author: 2.0.0
-      semver: 7.3.8
+      semver: 7.5.4
       tmp-promise: 3.0.3
     optionalDependencies:
       '@types/fs-extra': 9.0.13
@@ -6074,7 +6059,7 @@ packages:
       plist: 3.0.6
       rcedit: 3.0.1
       resolve: 1.22.1
-      semver: 7.3.8
+      semver: 7.5.4
       yargs-parser: 21.1.1
     transitivePeerDependencies:
       - supports-color
@@ -6744,7 +6729,7 @@ packages:
       array-flatten: 1.1.1
       body-parser: 1.20.1
       content-disposition: 0.5.4
-      content-type: 1.0.4
+      content-type: 1.0.5
       cookie: 0.5.0
       cookie-signature: 1.0.6
       debug: 2.6.9
@@ -9274,7 +9259,6 @@ packages:
   /minipass/5.0.0:
     resolution: {integrity: sha512-3FnjYuehv9k6ovOEbyOswadCDPX1piCfhV8ncmYtHOjuPwylVWsghTLo7rabjC3Rx5xD4HDx8Wm1xnMF7S5qFQ==}
     engines: {node: '>=8'}
-    dev: false
 
   /minizlib/2.1.2:
     resolution: {integrity: sha512-bAxsR8BVfj60DWXHE3u30oHzfl4G7khkSuPW+qvpd7jFRHm7dLxOjUk1EHACJ/hxLY8phGJ0YhYHZo7jil7Qdg==}
@@ -9380,7 +9364,7 @@ packages:
     resolution: {integrity: sha512-eSKV6s+APenqVh8ubJyiu/YhZgxQpGP66ntzUb3lY1xB9ukSRaGnx0AIxI+IM+1+IVYC1oWobgG5L3Lt9ARykQ==}
     engines: {node: '>=10'}
     dependencies:
-      semver: 7.3.8
+      semver: 7.5.4
     dev: true
 
   /node-abort-controller/3.0.1:
@@ -9394,7 +9378,7 @@ packages:
   /node-api-version/0.1.4:
     resolution: {integrity: sha512-KGXihXdUChwJAOHO53bv9/vXcLmdUsZ6jIptbvYvkpKfth+r7jw44JkVxQFA3kX5nQjzjmGu1uAu/xNNLNlI5g==}
     dependencies:
-      semver: 7.3.8
+      semver: 7.5.4
     dev: true
 
   /node-fetch/2.6.7:
@@ -9441,8 +9425,8 @@ packages:
       nopt: 6.0.0
       npmlog: 6.0.2
       rimraf: 3.0.2
-      semver: 7.3.8
-      tar: 6.1.13
+      semver: 7.5.4
+      tar: 6.1.15
       which: 2.0.2
     transitivePeerDependencies:
       - bluebird
@@ -11940,18 +11924,6 @@ packages:
       readable-stream: 3.6.0
     dev: true
 
-  /tar/6.1.13:
-    resolution: {integrity: sha512-jdIBIN6LTIe2jqzay/2vtYLlBHa3JF42ot3h1dW8Q0PaAG4v8rm0cvpVePtau5C6OKXGGcgO9q2AMNSWxiLqKw==}
-    engines: {node: '>=10'}
-    dependencies:
-      chownr: 2.0.0
-      fs-minipass: 2.1.0
-      minipass: 4.0.0
-      minizlib: 2.1.2
-      mkdirp: 1.0.4
-      yallist: 4.0.0
-    dev: true
-
   /tar/6.1.15:
     resolution: {integrity: sha512-/zKt9UyngnxIT/EAGYuxaMYgOIJiP81ab9ZfkILq4oNLPFX50qyYmu7jRj9qeXoxmJHjGlbH0+cm2uy1WCs10A==}
     engines: {node: '>=10'}
@@ -11962,7 +11934,6 @@ packages:
       minizlib: 2.1.2
       mkdirp: 1.0.4
       yallist: 4.0.0
-    dev: false
 
   /temp-dir/2.0.0:
     resolution: {integrity: sha512-aoBAniQmmwtcKp/7BzsH8Cxzv8OL736p7v1ihGb5e9DJ9kTwGWHrQrVB5+lfVDzfGrdRzXch+ig7LHaY1JTOrg==}
