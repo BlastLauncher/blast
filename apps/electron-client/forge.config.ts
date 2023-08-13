@@ -13,12 +13,15 @@ import { rendererConfig } from "./webpack.renderer.config";
 const config: ForgeConfig = {
   packagerConfig: {
     executableName: "blast",
-    extraResource: [
-      path.join(__dirname, "node_modules/@blastlauncher/runtime/dist/run.cjs"),
-    ]
+    extraResource: [path.join(__dirname, "node_modules/@blastlauncher/runtime/dist/run.cjs")],
   },
   rebuildConfig: {},
-  makers: [new MakerSquirrel({}), new MakerZIP({}, ["darwin"]), new MakerRpm({}), new MakerDeb({})],
+  makers: [
+    new MakerSquirrel({}, ["win32"]),
+    new MakerZIP({}, ["darwin", "linux"]),
+    new MakerRpm({}, ["linux"]),
+    new MakerDeb({}, ["linux"]),
+  ],
   plugins: [
     new WebpackPlugin({
       devContentSecurityPolicy: `default-src * self blob: data: gap:; style-src * self 'unsafe-inline' blob: data: gap:; script-src * 'self' 'unsafe-eval' 'unsafe-inline' blob: data: gap:; object-src * 'self' blob: data: gap:; img-src * self 'unsafe-inline' blob: data: gap:; connect-src self * 'unsafe-inline' blob: data: gap: localhost; frame-src * self blob: data: gap:;`,
@@ -41,24 +44,24 @@ const config: ForgeConfig = {
             preload: {
               js: "./src/nodeInstaller/preload.ts",
             },
-          }
+          },
         ],
       },
     }),
   ],
   publishers: [
     {
-      name: '@electron-forge/publisher-github',
+      name: "@electron-forge/publisher-github",
       config: {
         repository: {
-          owner: 'blastlauncher',
-          name: 'blast'
+          owner: "blastlauncher",
+          name: "blast",
         },
         draft: true,
         prerelease: false,
-      }
-    }
-  ]
+      },
+    },
+  ],
 };
 
 export default config;
