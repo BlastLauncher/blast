@@ -9,6 +9,9 @@ import { startRuntime } from "./runtime";
 import { createTray } from "./tray";
 import { createApplicationWindow, createNodeInstallerWindow } from "./window";
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+require('update-electron-app')()
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
   app.quit();

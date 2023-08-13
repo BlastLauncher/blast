@@ -45,6 +45,18 @@ const config: ForgeConfig = {
       },
     }),
   ],
+  publishers: [
+    {
+      name: '@electron-forge/publisher-github',
+      config: {
+        repository: {
+          owner: 'blastlauncher',
+          name: 'blast'
+        },
+        prerelease: true
+      }
+    }
+  ]
 };
 
 export default config;
