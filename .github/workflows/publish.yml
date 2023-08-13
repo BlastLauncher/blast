@@ -17,9 +17,6 @@ jobs:
         # 32-bit Linux unsupported as of 2019: https://www.electronjs.org/blog/linux-32bit-support
         os: [ macOS-latest, ubuntu-latest ]
         arch: [ x64, arm64 ]
-        include:
-        - os: ubuntu-latest
-          arch: armv7l
 
     steps:
       - uses: actions/checkout@v3
