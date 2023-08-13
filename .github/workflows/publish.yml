@@ -18,3 +18,5 @@ jobs:
   
       - run: pnpm run publish
         working-directory: ./apps/electron-client
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
