@@ -6,7 +6,11 @@ import { app, BrowserWindow, globalShortcut } from "electron";
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
+declare const NODE_INSTALLER_WEBPACK_ENTRY: string;
+declare const NODE_INSTALLER_PRELOAD_WEBPACK_ENTRY: string;
+
 let mainWindow: BrowserWindow | null = null;
+let nodeInstallerWindow: BrowserWindow | null = null;
 
 export const toggleMainWindowVisibility = (): void => {
   if (!mainWindow) {
@@ -21,7 +25,7 @@ export const toggleMainWindowVisibility = (): void => {
   }
 };
 
-export const createWindow = (): void => {
+export const createApplicationWindow = (): void => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     height: 475,
@@ -61,6 +65,37 @@ export const showMainWindow = (): void => {
   if (mainWindow) {
     mainWindow.show();
     mainWindow.focus();
+  }
+}
+
+export const createNodeInstallerWindow = (): void => {
+  nodeInstallerWindow = new BrowserWindow({
+    height: 475,
+    width: 750,
+    darkTheme: true,
+    frame: false,
+    vibrancy: "ultra-dark",
+    transparent: true,
+    resizable: false,
+    backgroundColor: "#00000000",
+    visualEffectState: "followWindow",
+    thickFrame: false,
+    minimizable: false,
+    webPreferences: {
+      preload: NODE_INSTALLER_PRELOAD_WEBPACK_ENTRY,
+    },
+  });
+
+  nodeInstallerWindow.loadURL(NODE_INSTALLER_WEBPACK_ENTRY);
+
+  if (process.env.NODE_ENV === "development") {
+    nodeInstallerWindow.webContents.openDevTools();
+  }
+}
+
+export const closeNodeInstallerWindow = (): void => {
+  if (nodeInstallerWindow) {
+    nodeInstallerWindow.close();
   }
 }
 

@@ -27,6 +27,14 @@ const config: ForgeConfig = {
               js: "./src/preload.ts",
             },
           },
+          {
+            html: "./src/nodeInstaller.html",
+            js: "./src/nodeInstaller/renderer.ts",
+            name: "node_installer",
+            preload: {
+              js: "./src/nodeInstaller/preload.ts",
+            },
+          }
         ],
       },
     }),

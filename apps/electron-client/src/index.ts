@@ -3,9 +3,11 @@ import { app, BrowserWindow, globalShortcut } from "electron";
 import installExtension, { REACT_DEVELOPER_TOOLS } from "electron-devtools-installer";
 
 import { setMenu } from "./menu";
+import { registerIPCMainEvents } from "./nodeInstaller/events";
+import { hasVersionInstalled } from "./nrm";
 import { startRuntime } from "./runtime";
 import { createTray } from "./tray";
-import { createWindow } from "./window";
+import { createApplicationWindow, createNodeInstallerWindow } from "./window";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -13,9 +15,14 @@ if (require("electron-squirrel-startup")) {
 }
 
 const onReady = (): void => {
-  startRuntime();
-  setMenu();
-  createWindow();
+  if (!hasVersionInstalled()) {
+    createNodeInstallerWindow();
+    registerIPCMainEvents();
+  } else {
+    startRuntime();
+    setMenu();
+    createApplicationWindow();
+  }
 };
 
 // This method will be called when Electron has finished
@@ -41,7 +48,7 @@ app.on("activate", () => {
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
+    createApplicationWindow();
   }
 });
 

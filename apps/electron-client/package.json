@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@blastlauncher/runtime": "workspace:*",
+    "@blastlauncher/utils": "workspace:*",
     "electron-squirrel-startup": "^1.0.0"
   },
   "devDependencies": {
