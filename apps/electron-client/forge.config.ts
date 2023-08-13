@@ -1,3 +1,5 @@
+import path from "path";
+
 import { MakerDeb } from "@electron-forge/maker-deb";
 import { MakerRpm } from "@electron-forge/maker-rpm";
 import { MakerSquirrel } from "@electron-forge/maker-squirrel";
@@ -9,7 +11,11 @@ import { mainConfig } from "./webpack.main.config";
 import { rendererConfig } from "./webpack.renderer.config";
 
 const config: ForgeConfig = {
-  packagerConfig: {},
+  packagerConfig: {
+    extraResource: [
+      path.join(__dirname, "node_modules/@blastlauncher/runtime/dist/run.cjs"),
+    ]
+  },
   rebuildConfig: {},
   makers: [new MakerSquirrel({}), new MakerZIP({}, ["darwin"]), new MakerRpm({}), new MakerDeb({})],
   plugins: [

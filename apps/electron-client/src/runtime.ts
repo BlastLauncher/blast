@@ -1,13 +1,33 @@
-// import { utilityProcess } from 'electron'
+import { ChildProcess, spawn } from "child_process";
+import path from "path";
 
-let runtimeProcess: any;
+import { nrm } from "./nrm";
 
-export const startRuntime = async ()  => {
-  // const modulePath = require.resolve('@blastlauncher/runtime/dist/run.js')
-  // runtimeProcess = utilityProcess.fork(modulePath)
-}
+let runtimeProcess: ChildProcess | undefined;
+
+const getRuntimePath = (): string => {
+  if (process.env.NODE_ENV === "development") {
+    return require.resolve("@blastlauncher/runtime/dist/run.cjs");
+  } else {
+    return path.join(process.resourcesPath, "run.cjs");
+  }
+};
+
+export const startRuntime = async () => {
+  const modulePath = getRuntimePath();
+  const runtimePath = nrm.nodePath;
+
+  console.log("runtimePath", runtimePath);
+  console.log("modulePath", modulePath);
+
+  runtimeProcess = spawn(runtimePath, [modulePath], {
+    stdio: "ignore",
+    env: process.env,
+  });
+};
 
 export const stopRuntime = (): void => {
-  runtimeProcess?.kill()
-}
+  runtimeProcess?.kill();
+};
 
+// TODO: more process management
