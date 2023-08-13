@@ -1,13 +1,13 @@
 {
   "name": "@blastlauncher/electron-client",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "Blast Launcher Electron Client",
   "keywords": [],
   "license": "MIT",
   "private": true,
   "author": {
     "name": "Yukai Huang",
-    "email": "yukaihuangtw@gmail.com"
+    "email": "blast_support@yukai.dev"
   },
   "main": ".webpack/main",
   "scripts": {
