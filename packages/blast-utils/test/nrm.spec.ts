@@ -41,3 +41,21 @@ describe("Test nrm#uninstall", function () {
     expect(fs.existsSync(npmPath)).toBe(false);
   });
 })
+
+describe("Test nrm#listVersions", function () {
+  it("list versions sorted", async function () {
+    const directory = temporaryDirectory();
+    const nrm = new NRM({ installPath: directory });
+
+    // create fake node versions directories
+    const versionsToCreate = ["v14.15.0", "v16.0.0", "v18.17.1"];
+
+    for (const version of versionsToCreate) {
+      const versionDir = directory + "/" + version;
+      fs.mkdirSync(versionDir, { recursive: true });
+    }
+
+    const versions = nrm.listVersions();
+    expect(versions).toEqual(["v18.17.1", "v16.0.0", "v14.15.0"]);
+  });
+});

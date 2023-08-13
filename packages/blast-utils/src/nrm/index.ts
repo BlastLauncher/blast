@@ -21,6 +21,10 @@ export class NRM {
     this.installPath = options?.installPath || path.join(os.homedir(), ".blast/nodejs");
   }
 
+  hasVersion(version: string): boolean {
+    return fs.existsSync(path.join(this.installPath, version));
+  }
+
   async download(version: string): Promise<void> {
     const url = this.getDownloadURL(version);
     const dest = path.join(this.installPath, version);
@@ -87,9 +91,8 @@ export class NRM {
   }
 
   get nodePath(): string {
-    // The active version logic can be based on a symbolic link or a configuration file.
-    // For simplicity, let's say the last version downloaded is the active one.
-    const activeVersion = fs.readdirSync(this.installPath).pop();
+    const versions = this.listVersions();
+    const activeVersion = versions[0];
     if (!activeVersion) {
       throw new Error("No version of Node.js installed");
     }
@@ -97,11 +100,30 @@ export class NRM {
   }
 
   get npmPath(): string {
-    const activeVersion = fs.readdirSync(this.installPath).pop();
+    const versions = this.listVersions();
+    const activeVersion = versions[0];
     if (!activeVersion) {
       throw new Error("No version of Node.js installed");
     }
     return path.join(this.installPath, activeVersion, "bin", "npm");
+  }
+
+  listVersions(): string[] {
+    // sort the version by descending order
+    // version name is in the format of v14.15.0
+    return fs.readdirSync(this.installPath).sort((a, b) => {
+      const aVersion = a.replace("v", "").split(".").map((v) => parseInt(v, 10));
+      const bVersion = b.replace("v", "").split(".").map((v) => parseInt(v, 10));
+
+      for (let i = 0; i < aVersion.length; i++) {
+        if (aVersion[i] > bVersion[i]) {
+          return -1;
+        } else if (aVersion[i] < bVersion[i]) {
+          return 1;
+        }
+      }
+      return 0;
+    });
   }
 
   private getDownloadURL(version: string): string {
