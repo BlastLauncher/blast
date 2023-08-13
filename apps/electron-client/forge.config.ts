@@ -12,6 +12,7 @@ import { rendererConfig } from "./webpack.renderer.config";
 
 const config: ForgeConfig = {
   packagerConfig: {
+    executableName: "blast",
     extraResource: [
       path.join(__dirname, "node_modules/@blastlauncher/runtime/dist/run.cjs"),
     ]
