@@ -30,6 +30,7 @@
     "@electron-forge/maker-squirrel": "^6.0.4",
     "@electron-forge/maker-zip": "^6.0.4",
     "@electron-forge/plugin-webpack": "^6.0.4",
+    "@electron-forge/publisher-github": "^6.3.0",
     "@radix-ui/react-popover": "^1.0.2",
     "@raycast/api": "^1.45.2",
     "@svgr/webpack": "^6.5.1",
