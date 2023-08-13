@@ -12,6 +12,7 @@ import { OperatingSystem, NRMOptions } from "./types";
 import { detectOS, temporaryDirectory } from "./utils";
 
 const pipelineAsync = promisify(pipeline);
+// NRM stands for Node.js Runtime Manager
 export class NRM {
   private os: OperatingSystem;
   private installPath: string;
