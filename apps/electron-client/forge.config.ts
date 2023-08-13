@@ -53,7 +53,8 @@ const config: ForgeConfig = {
           owner: 'blastlauncher',
           name: 'blast'
         },
-        prerelease: true
+        draft: true,
+        prerelease: false,
       }
     }
   ]
