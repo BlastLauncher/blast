@@ -1,6 +1,6 @@
 {
   "name": "blast",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Blast Launcher Electron Client",
   "keywords": [],
   "license": "MIT",
@@ -16,6 +16,10 @@
     "package": "electron-forge package",
     "publish": "electron-forge publish",
     "start": "electron-forge start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BlastLauncher/blast.git"
   },
   "dependencies": {
     "@blastlauncher/runtime": "workspace:*",
