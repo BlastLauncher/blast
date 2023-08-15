@@ -1,3 +1,4 @@
+import { spawnSync } from "child_process";
 import path from "path";
 
 import { MakerDeb } from "@electron-forge/maker-deb";
@@ -14,9 +15,26 @@ const config: ForgeConfig = {
   packagerConfig: {
     executableName: "blast",
     extraResource: [path.join(__dirname, "node_modules/@blastlauncher/runtime/dist/run.cjs")],
-    osxSign: {
-      keychain: 'build'
-    },
+  },
+  hooks: {
+    postPackage: async (forgeConfig, packageResult) => {
+      if (packageResult.platform !== 'darwin') return;
+
+      const appPath = path.join(packageResult.outputPaths[0], `blast.app`);
+
+      const { status } = spawnSync("codesign", [
+        "-fs",
+        `'${process.env.CSC_NAME}'`,
+        "--deep",
+        appPath,
+      ], {
+        stdio: 'inherit',
+      });
+
+      if (status !== 0) {
+        throw new Error("codesign");
+      }
+    }
   },
   rebuildConfig: {},
   makers: [
