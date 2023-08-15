@@ -27,6 +27,13 @@ jobs:
 
       - name: Build
         run: pnpm run build
+
+      - name: Set MacOS signing certs
+        if: matrix.os == 'macOS-latest'
+        run: chmod +x tools/add-macos-cert.sh && ./tools/add-macos-cert.sh
+        env:
+          MACOS_CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
+          MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
   
       - run: pnpm run publish --arch=${{ matrix.arch }}
         working-directory: ./apps/electron-client
