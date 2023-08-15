@@ -24,7 +24,8 @@ const config: ForgeConfig = {
 
       const { status } = spawnSync("codesign", [
         "-fs",
-        `'${process.env.CSC_NAME}'`,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        process.env.CSC_NAME!,
         "--deep",
         appPath,
       ], {
