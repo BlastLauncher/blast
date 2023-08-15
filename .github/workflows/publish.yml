@@ -17,6 +17,9 @@ jobs:
         # 32-bit Linux unsupported as of 2019: https://www.electronjs.org/blog/linux-32bit-support
         os: [ macOS-latest, ubuntu-latest ]
         arch: [ x64 ]
+        :
+        - os: macOS-latest
+          arch: arm64
 
     steps:
       - uses: actions/checkout@v3
@@ -25,15 +28,15 @@ jobs:
       - name: Build
         run: pnpm run build
 
-      - name: Set MacOS signing certs
-        if: matrix.os == 'macOS-latest'
-        run: chmod +x tools/add-macos-cert.sh && ./tools/add-macos-cert.sh
-        env:
-          MACOS_CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
-          MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
+      # - name: Set MacOS signing certs
+      #   if: matrix.os == 'macOS-latest'
+      #   run: chmod +x tools/add-macos-cert.sh && ./tools/add-macos-cert.sh
+      #   env:
+      #     MACOS_CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
+      #     MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
   
       - run: pnpm run publish --arch=${{ matrix.arch }}
         working-directory: ./apps/electron-client
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CSC_NAME: ${{ secrets.CSC_NAME }}
+          # CSC_NAME: ${{ secrets.CSC_NAME }}

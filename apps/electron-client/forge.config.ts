@@ -23,9 +23,8 @@ const config: ForgeConfig = {
       const appPath = path.join(packageResult.outputPaths[0], `blast.app`);
 
       const { status } = spawnSync("codesign", [
-        "-fs",
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        process.env.CSC_NAME!,
+        "-s",
+        "-",
         "--deep",
         appPath,
       ], {
