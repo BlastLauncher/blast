@@ -17,7 +17,7 @@ jobs:
         # 32-bit Linux unsupported as of 2019: https://www.electronjs.org/blog/linux-32bit-support
         os: [ macOS-latest, ubuntu-latest ]
         arch: [ x64 ]
-        :
+        include:
         - os: macOS-latest
           arch: arm64
 
