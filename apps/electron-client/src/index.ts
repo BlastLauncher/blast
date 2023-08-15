@@ -5,7 +5,7 @@ import installExtension, { REACT_DEVELOPER_TOOLS } from "electron-devtools-insta
 import { setMenu } from "./menu";
 import { registerIPCMainEvents } from "./nodeInstaller/events";
 import { hasVersionInstalled } from "./nrm";
-import { startRuntime } from "./runtime";
+import { startRuntime, stopRuntime } from "./runtime";
 import { createTray } from "./tray";
 import { createApplicationWindow, createNodeInstallerWindow } from "./window";
 
@@ -45,6 +45,8 @@ app.on("window-all-closed", () => {
 app.on("will-quit", () => {
   // Unregister all shortcuts.
   globalShortcut.unregisterAll();
+
+  stopRuntime();
 });
 
 app.on("activate", () => {
