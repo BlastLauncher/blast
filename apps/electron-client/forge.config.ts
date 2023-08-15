@@ -14,7 +14,9 @@ const config: ForgeConfig = {
   packagerConfig: {
     executableName: "blast",
     extraResource: [path.join(__dirname, "node_modules/@blastlauncher/runtime/dist/run.cjs")],
-    osxSign: {},
+    osxSign: {
+      keychain: 'build'
+    },
   },
   rebuildConfig: {},
   makers: [
