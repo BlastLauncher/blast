@@ -47,12 +47,16 @@ export class NRM {
 
         const downloadTempPath = path.join(tempDir, "node.tar.gz");
         const writeStream = fs.createWriteStream(downloadTempPath);
+        const subfolderName = this.getFileName(version);
+
         pipelineAsync(response, createGunzip(), writeStream).then(() =>
           tar
             .x({
               file: downloadTempPath,
               cwd: targetDir,
-              path: this.getFileName(version),
+              filter: (path) => {
+                return path.startsWith(subfolderName);
+              },
             }).then(() => {
               resolve();
             })
