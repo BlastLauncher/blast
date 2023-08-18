@@ -1,24 +1,37 @@
 import { app, Menu, Tray } from "electron";
 import path from "path";
 
+import { restartRuntime } from "./runtime";
 import { showMainWindow } from "./window";
 
 export const createTray = (): void => {
   const tray = new Tray(path.join(__dirname, "../main/assets/Icon-Template.png"));
-  const contextMenu = Menu.buildFromTemplate([
+  const template = [
     {
       label: "Show App",
-      click: function() {
+      click: function () {
         showMainWindow();
       },
     },
     {
       label: "Quit",
-      click: function() {
+      click: function () {
         app.quit();
       },
     },
-  ]);
+  ]
+
+  if (process.env.NODE_ENV === "development") {
+    template.push({
+      label: "Restart Runtime",
+      click: function () {
+        restartRuntime();
+      },
+    });
+  }
+
+  const contextMenu = Menu.buildFromTemplate(template);
+
   tray.setContextMenu(contextMenu);
 
   tray.on("click", () => {
