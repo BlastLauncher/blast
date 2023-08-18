@@ -58,7 +58,7 @@ export const createApplicationWindow = (): void => {
   // Default to command + ; (semi-colon)
   globalShortcut.register("CommandOrControl+;", toggleMainWindowVisibility);
 
-  app.dock.hide();
+  app.dock?.hide();
 };
 
 export const showMainWindow = (): void => {
