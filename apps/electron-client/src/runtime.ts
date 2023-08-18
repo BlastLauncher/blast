@@ -1,9 +1,16 @@
 import { ChildProcess, spawn } from "child_process";
 import path from "path";
 
+import fs from "fs-extra";
+
+
 import { nrm } from "./nrm";
+import { logDir } from "./utils/commonPaths";
 
 let runtimeProcess: ChildProcess | undefined;
+
+const logPath = path.join(logDir, "runtime.log");
+const errPath = path.join(logDir, "runtime.err.log");
 
 const getRuntimePath = (): string => {
   if (process.env.NODE_ENV === "development") {
@@ -20,9 +27,18 @@ export const startRuntime = async () => {
   console.log("runtimePath", runtimePath);
   console.log("modulePath", modulePath);
 
+  const logStream = fs.createWriteStream(logPath, { flags: "a" });
+  const errStream = fs.createWriteStream(errPath, { flags: "a" });
+
   runtimeProcess = spawn(runtimePath, [modulePath], {
-    stdio: "ignore",
     env: process.env,
+  });
+
+  runtimeProcess.stdout?.pipe(logStream);
+  runtimeProcess.stderr?.pipe(errStream);
+
+  runtimeProcess.on("close", (code) => {
+    console.log(`Runtime process exited with code ${code}`);
   });
 };
 

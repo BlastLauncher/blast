@@ -44,7 +44,7 @@ const uninstallExtension = async (packageName: string) => {
   });
 };
 
-export function StoreCommand() {
+export function StoreCommand({ refresh }: { refresh: () => void }) {
   const [search, setSearch] = useState("");
   const [isInstalling, setIsInstalling] = useState(false);
   const [isUninstalling, setIsUninstalling] = useState(false);
@@ -72,7 +72,8 @@ export function StoreCommand() {
 
     try {
       await installExtension(extension.name);
-      mutateInstalledExtensions();
+      await mutateInstalledExtensions();
+      refresh();
     } catch (error) {
       console.error(error);
     } finally {
@@ -89,7 +90,8 @@ export function StoreCommand() {
 
     try {
       await uninstallExtension(extension.name);
-      mutateInstalledExtensions();
+      await mutateInstalledExtensions();
+      refresh();
     } catch (error) {
       console.error(error);
     } finally {

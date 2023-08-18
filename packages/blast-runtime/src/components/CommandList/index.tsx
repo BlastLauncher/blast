@@ -1,6 +1,7 @@
 import { ActionPanel, List, Action, useNavigation } from "@raycast/api";
 
 import { usePromise } from "@raycast/utils";
+import { useEffect } from "react";
 
 import { StoreCommand } from "../Store";
 
@@ -8,7 +9,7 @@ import { loadCommands } from "./loadCommands";
 import { evalCommandModule } from "./utils";
 
 export const CommandList = () => {
-  const { isLoading, data: commands = [] } = usePromise(loadCommands);
+  const { isLoading, data: commands = [], mutate } = usePromise(loadCommands);
   const { push } = useNavigation();
 
   return (
@@ -43,7 +44,7 @@ export const CommandList = () => {
         title="Store"
         actions={
           <ActionPanel>
-            <Action.Push title="Open Store" target={<StoreCommand />} />
+            <Action.Push title="Open Store" target={<StoreCommand refresh={mutate} />} />
           </ActionPanel>
         }
       />

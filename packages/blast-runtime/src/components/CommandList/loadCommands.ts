@@ -44,11 +44,11 @@ export async function loadInstalledExtensions(): Promise<string[]> {
   try {
     await fs.access(packageJsonPath);
   } catch (error: any) {
-    switch (error.code) {
+    switch (error?.code) {
       case "ENOENT":
         // file does not exist
         await fs.mkdir(path.dirname(packageJsonPath), { recursive: true });
-        await fs.writeFile(packageJsonPath, JSON.stringify({ dependencies: {} }, null, 2));
+        await fs.writeFile(packageJsonPath, "{}");
         break;
       default:
         console.error("Error loading commands:", error);
@@ -58,11 +58,11 @@ export async function loadInstalledExtensions(): Promise<string[]> {
     return [];
   }
 
-  const packageJson = safeParse(await fs.readFile(packageJsonPath, "utf-8"));
-  const dependencies = packageJson.dependencies;
+  const packageJson = safeParse(await fs.readFile(packageJsonPath, "utf-8")) || {};
+  const dependencies = packageJson?.dependencies || {};
 
   // 2. For each dependency starts with @blast-extensions, read its package.json inside node_modules
-  const extensionPackages = Object.keys(dependencies).filter((dep) => dep.startsWith("@blast-extensions"));
+  const extensionPackages = Object.keys(dependencies).filter((dep) => dep.startsWith("@blast-extensions")) || [];
 
   return extensionPackages;
 }
