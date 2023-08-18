@@ -9,6 +9,8 @@ declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 declare const NODE_INSTALLER_WEBPACK_ENTRY: string;
 declare const NODE_INSTALLER_PRELOAD_WEBPACK_ENTRY: string;
 
+const isMac = process.platform === "darwin";
+
 let mainWindow: BrowserWindow | null = null;
 let nodeInstallerWindow: BrowserWindow | null = null;
 
@@ -32,8 +34,8 @@ export const createApplicationWindow = (): void => {
     width: 750,
     darkTheme: true,
     frame: false,
-    vibrancy: "under-window",
-    transparent: true,
+    vibrancy: isMac ? "ultra-dark" : undefined,
+    transparent: isMac,
     resizable: false,
     backgroundColor: "#00000000",
     visualEffectState: "followWindow",
