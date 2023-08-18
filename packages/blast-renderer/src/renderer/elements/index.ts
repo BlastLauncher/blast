@@ -1,4 +1,4 @@
-import { createDebug } from "@blastlauncher/utils";
+import { createDebug } from "@blastlauncher/utils/src";
 
 export const debug = createDebug("blast:elements:index");
 

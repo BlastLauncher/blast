@@ -1,5 +1,5 @@
 // Big thanks to https://github.com/clayrisser/create-react-renderer
-import { createDebug } from "@blastlauncher/utils";
+import { createDebug } from "@blastlauncher/utils/src";
 import pick from "lodash/pick";
 import PropTypes, { checkPropTypes } from "prop-types";
 

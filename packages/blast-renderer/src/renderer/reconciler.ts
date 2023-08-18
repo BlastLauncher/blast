@@ -1,4 +1,4 @@
-import { createDebug } from "@blastlauncher/utils";
+import { createDebug } from "@blastlauncher/utils/src";
 import Reconciler from "react-reconciler";
 import { DefaultEventPriority } from "react-reconciler/constants.js";
 

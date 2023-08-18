@@ -1,6 +1,6 @@
 import "./utils/window";
 
-import { runServer } from "@blastlauncher/renderer";
+import { runServer } from "@blastlauncher/renderer/src";
 
 import { App } from "./App";
 import { connect } from "./utils/connectDevtools";

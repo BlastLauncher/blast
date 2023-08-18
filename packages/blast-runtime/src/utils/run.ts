@@ -1,4 +1,4 @@
-import { render } from "@blastlauncher/renderer";
+import { render } from "@blastlauncher/renderer/src";
 import React, { Attributes } from "react";
 import type { Server } from "rpc-websockets";
 

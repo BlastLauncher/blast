@@ -1,6 +1,6 @@
 
-import { ElementTypes } from "@blastlauncher/renderer";
-import { createDebug } from "@blastlauncher/utils";
+import { ElementTypes } from "@blastlauncher/renderer/src";
+import { createDebug } from "@blastlauncher/utils/src";
 import { Form } from "raycast-original";
 import { FunctionComponent, forwardRef, useEffect, useId, useImperativeHandle, useMemo, useState, useCallback } from "react";
 

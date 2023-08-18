@@ -1,4 +1,4 @@
-import { createDebug } from "@blastlauncher/utils";
+import { createDebug } from "@blastlauncher/utils/src";
 import { FiberRoot } from "react-reconciler";
 import type { Server } from "rpc-websockets";
 

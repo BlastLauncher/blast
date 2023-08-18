@@ -1,6 +1,5 @@
+import { ElementTypes } from "@blastlauncher/renderer/src";
 import type { ActionPanel as RActionPanel } from "raycast-original";
-
-import { ElementTypes } from "@blastlauncher/renderer";
 import { FunctionComponent } from "react";
 
 import { Section } from "./Section";

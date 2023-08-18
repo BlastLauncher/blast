@@ -1,5 +1,5 @@
 import { List } from "raycast-original";
-import { ElementTypes } from "@blastlauncher/renderer";
+import { ElementTypes } from "@blastlauncher/renderer/src";
 
 type ListItemPropKeys = (keyof List.Item.Props)[];
 const serializedKeys: ListItemPropKeys = [

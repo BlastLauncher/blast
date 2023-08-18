@@ -1,7 +1,6 @@
 import { ActionPanel, List, Action, useNavigation } from "@raycast/api";
 
 import { usePromise } from "@raycast/utils";
-import { useEffect } from "react";
 
 import { StoreCommand } from "../Store";
 
