@@ -36,7 +36,6 @@ export class NRM {
     }
 
     const tempDir = temporaryDirectory();
-    const extractDir = temporaryDirectory();
     const targetDir = path.join(this.installPath, version);
 
     return new Promise((resolve, reject) => {
@@ -52,22 +51,12 @@ export class NRM {
           tar
             .x({
               file: downloadTempPath,
-              cwd: extractDir,
-            })
-            .then(() => {
-              // Move the extracted folder to the destination
-              // find the only folder in the extractDir
-              const extractedFolder = fs.readdirSync(extractDir).pop();
-
-              if (!extractedFolder) {
-                throw new Error("Failed to extract Node.js");
-              }
-
-              fs.renameSync(path.join(extractDir, extractedFolder), targetDir);
+              cwd: targetDir,
+              path: this.getFileName(version),
+            }).then(() => {
               resolve();
             })
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            .catch((err: any) => {
+            .catch((err) => {
               reject(err);
             })
         );
@@ -129,8 +118,13 @@ export class NRM {
     });
   }
 
+  private getFileName(version: string): string {
+    const arch = process.arch;
+    return `node-${version}-${this.os}-${arch}`;
+  }
+
   private getDownloadURL(version: string): string {
     const arch = process.arch;
-    return `https://nodejs.org/dist/${version}/node-${version}-${this.os}-${arch}.tar.gz`;
+    return `https://nodejs.org/dist/${version}/${this.getFileName(version)}.tar.gz`;
   }
 }
