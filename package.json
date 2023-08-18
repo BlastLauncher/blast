@@ -14,6 +14,7 @@
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "changeset publish",
+    "watch": "pnpm run --filter @blastlauncher/runtime^... watch",
     "build-api": "pnpm --filter api run build",
     "build-api:dev": "pnpm --filter api run watch",
     "build-renderer": "pnpm --filter renderer run build",

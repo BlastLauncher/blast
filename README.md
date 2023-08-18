@@ -58,19 +58,11 @@ You can learn more about the blast architecture in the following documents:
 # Ensure you have pnpm installed
 pnpm install
 
-# Start backend in dev mode
-pnpm run start-runtime:dev
+# Start build
+pnpm run watch
 
 # Start front end in dev mode
 pnpm run start-client
-```
-
-**Updated: new development script for the WIP process model([#30](https://github.com/BlastLauncher/blast/issues/30))**
-
-```bash
-cd packages/blast-runtime
-pnpm run build:esbuild
-node dist/run.cjs
 ```
 
 ## Inspiration and related projects
