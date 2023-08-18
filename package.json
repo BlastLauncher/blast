@@ -22,7 +22,7 @@
     "dev": "pnpm run dev",
     "fmt": "prettier --write .",
     "lint": "eslint .",
-    "start-client": "pnpm --filter electron-client run start",
+    "start-client": "pnpm --filter blast run start",
     "start-renderer": "pnpm --filter renderer run start",
     "start-renderer:dev": "pnpm --filter renderer run start:dev",
     "start-runtime:dev": "pnpm --filter runtime run start:dev",
