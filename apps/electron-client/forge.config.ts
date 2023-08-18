@@ -79,6 +79,7 @@ const config: ForgeConfig = {
           name: "blast",
         },
         prerelease: true,
+        draft: false
       },
     },
   ],
