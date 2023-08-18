@@ -26,9 +26,9 @@
     "start-renderer": "pnpm --filter renderer run start",
     "start-renderer:dev": "pnpm --filter renderer run start:dev",
     "start-runtime:dev": "pnpm --filter runtime run start:dev",
+    "watch-runtime": "pnpm --filter runtime run build:esbuild:watch",
     "start-runtime": "pnpm --filter runtime run start",
     "test": "pnpm run test",
-    "watch-runtime": "pnpm --filter runtime run build:watch",
     "cli": "pnpm --filter cli run run"
   },
   "jest": {
@@ -67,6 +67,6 @@
   },
   "engines": {
     "node": ">=18.0.0",
-    "pnpm": ">=7"
+    "pnpm": "==7 <8"
   }
 }
