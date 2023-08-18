@@ -1,6 +1,7 @@
 import { List, ActionPanel, Action } from "@raycast/api";
 import cp from "child_process";
 import os from "os";
+import path from "path";
 
 import { usePromise } from "@raycast/utils";
 import { useCallback, useState } from "react";
@@ -10,12 +11,13 @@ import { loadInstalledExtensions } from "../CommandList/loadCommands";
 import { searchExtensions } from "./api";
 import type { SearchResult } from "./npmClient";
 
+const extensionsPrefix = path.join(os.homedir(), ".blast/extensions");
+
 // npm install --prefix ~/.blast/extensions @blast-extensions/todo-list@0.0.2
 // TODO: switch to @raycast/utils useExec hook
 const installExtension = async (packageName: string) => {
   return new Promise((resolve, reject) => {
-    const prefix = os.homedir() + "/.blast/extensions";
-    const command = `npm install --prefix ${prefix} ${packageName}`;
+    const command = `npm install --prefix ${extensionsPrefix} ${packageName}`;
 
     cp.exec(command, (error, stdout, stderr) => {
       if (error) {
@@ -30,8 +32,7 @@ const installExtension = async (packageName: string) => {
 // TODO: switch to @raycast/utils useExec hook
 const uninstallExtension = async (packageName: string) => {
   return new Promise((resolve, reject) => {
-    const prefix = os.homedir() + "/.blast/extensions";
-    const command = `npm uninstall --prefix ${prefix} ${packageName}`;
+    const command = `npm uninstall --prefix ${extensionsPrefix} ${packageName}`;
 
     cp.exec(command, (error, stdout, stderr) => {
       if (error) {

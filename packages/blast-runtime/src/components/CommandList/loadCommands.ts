@@ -24,19 +24,41 @@ interface Command {
   requirePath: string;
 }
 
-export async function loadInstalledExtensions(): Promise<string[]> {
-  // 1. Load package.json dependencies
+const getPackageJsonPath = (): string => {
   const homeDir = os.homedir();
-  const packageJsonPath = path.join(homeDir, ".blast", "extensions", "package.json");
+  return path.join(homeDir, ".blast", "extensions", "package.json");
+};
+
+const safeParse = (json: string): any => {
+  try {
+    return JSON.parse(json);
+  } catch (error) {
+    return {};
+  }
+};
+
+export async function loadInstalledExtensions(): Promise<string[]> {
+  const packageJsonPath = getPackageJsonPath();
 
   // check if package.json exists
   try {
     await fs.access(packageJsonPath);
-  } catch {
+  } catch (error: any) {
+    switch (error.code) {
+      case "ENOENT":
+        // file does not exist
+        await fs.mkdir(path.dirname(packageJsonPath), { recursive: true });
+        await fs.writeFile(packageJsonPath, JSON.stringify({ dependencies: {} }, null, 2));
+        break;
+      default:
+        console.error("Error loading commands:", error);
+        break;
+    }
+
     return [];
   }
 
-  const packageJson = JSON.parse(await fs.readFile(packageJsonPath, "utf-8"));
+  const packageJson = safeParse(await fs.readFile(packageJsonPath, "utf-8"));
   const dependencies = packageJson.dependencies;
 
   // 2. For each dependency starts with @blast-extensions, read its package.json inside node_modules
@@ -53,7 +75,7 @@ export async function loadCommands(): Promise<Command[]> {
 
     for (const extPackage of extensionPackages) {
       const extPackageJsonPath = path.join(homeDir, ".blast", "extensions", "node_modules", extPackage, "package.json");
-      const extPackageJson = JSON.parse(await fs.readFile(extPackageJsonPath, "utf-8"));
+      const extPackageJson = safeParse(await fs.readFile(extPackageJsonPath, "utf-8"));
 
       // 3. For each command in package.json, return its commands field
       if (extPackageJson.commands) {
