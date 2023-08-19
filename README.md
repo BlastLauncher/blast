@@ -55,7 +55,7 @@ You can learn more about the blast architecture in the following documents:
 ## Development
 
 ```bash
-# Ensure you have pnpm installed
+# Make sure you have pnpm v7 installed, then install dependencies with pnpm
 pnpm install
 
 # Start build
@@ -68,7 +68,8 @@ pnpm run start-client
 ## Inspiration and related projects
 
 - [SunbeamLauncher](https://github.com/SunbeamLauncher/sunbeam): A frontend agnostic Launcher app, written in Go, and you can write extensions in any language.
-- [⌘K, cmdk](https://github.com/pacocoursey/cmdk): A React.js Component to build Launcher app UI. The front end of Blast is based on this project. The author also provided several launcher themes, such as Linear, Raycast and Vercel, but they are only for demo purposes so you need to modify them to use.
+- [⌘K, cmdk](https://github.com/pacocoursey/cmdk): A React.js Component to build Launcher app UI. The front end of Blast is based on this project. The author also provided several launcher themes, such as Linear, Raycast and Vercel,but they are only for demo purposes so you need to modify them to use.
+- [Sittly Launcher](https://github.com/JulianKominovic/sittly-launcher): Another project inspired by raycast! I discovered it while regularly searching for projects with the "raycast" keyword on GitHub. 😂 Oops, sorry for the early spoiler.
 
 ## FAQs
 
