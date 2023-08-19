@@ -85,12 +85,14 @@ I was asking him to come up with words similar to "raycast".
 
 Blast（爆破）應該滿星爆的吧！但星爆氣流斬原文是 starburst stream。算了。
 
-## Learning Resources
+## Links
 
-- Jam Risser – [Building a Custom React Renderer](https://www.youtube.com/watch?v=SXx-CymMjDM)
-  - and the example code: <https://github.com/clayrisser/create-react-renderer>
-- [ReactDOM Reconciler Host config](https://github.com/facebook/react/blob/main/packages/react-dom-bindings/src/client/ReactDOMHostConfig.js)
-- Blast Launcher introduction post(Written in Chinese): [Blast：一個能執行 Raycast 擴充功能的 React.js 渲染器](https://yukai.dev/blog/2023/01/02/blast-the-raycast-extension-react-renderer)
+- Resources to learn how to build a custom React Renderer
+  - Jam Risser – [Building a Custom React Renderer](https://www.youtube.com/watch?v=SXx-CymMjDM)
+    - and the example code: <https://github.com/clayrisser/create-react-renderer>
+  - [ReactDOM Reconciler Host config](https://github.com/facebook/react/blob/main/packages/react-dom-bindings/src/client/ReactDOMHostConfig.js)
+- About Blast
+  - Blast Launcher introduction post(Written in Chinese): [Blast：一個能執行 Raycast 擴充功能的 React.js 渲染器](https://yukai.dev/blog/2023/01/02/blast-the-raycast-extension-react-renderer)
 
 ## License
 
