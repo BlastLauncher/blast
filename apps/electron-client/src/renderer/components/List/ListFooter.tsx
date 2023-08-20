@@ -14,10 +14,12 @@ export const ListFooter = ({
   inputRef,
   listItems,
   listRef,
+  actionPanel,
 }: {
   listRef: React.RefObject<HTMLElement>;
   inputRef: React.RefObject<HTMLInputElement>;
   listItems: BlastComponent[];
+  actionPanel?: BlastComponent;
 }) => {
   const value = useCommandState((state) => state.value);
   const { ws } = useRemoteBlastTree();
@@ -32,7 +34,7 @@ export const ListFooter = ({
     return listItems[index];
   }, [value, listItems]);
 
-  const actionData = useMemo(() => {
+  const activeActionData = useMemo(() => {
     if (!currentListItem) {
       return null;
     }
@@ -44,7 +46,7 @@ export const ListFooter = ({
     return actionPanel;
   }, [currentListItem]);
 
-  const action = useDefaultAction(actionData);
+  const action = useDefaultAction(activeActionData || actionPanel);
 
   return (
     <div cmdk-raycast-footer="">
@@ -64,7 +66,7 @@ export const ListFooter = ({
 
       <hr />
 
-      <SubCommand listRef={listRef} inputRef={inputRef} actionData={actionData} />
+      <SubCommand listRef={listRef} inputRef={inputRef} actionData={activeActionData} />
     </div>
   );
 };

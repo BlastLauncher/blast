@@ -7,6 +7,7 @@ import { ObjectFromList } from "../../lib/typeUtils";
 import { BlastComponent } from "../../types";
 import Icons from "../Icon";
 
+import EmptyView from "./EmptyView";
 import { ListFooter } from "./ListFooter";
 
 const getIconComponent = (icon: string) => {
@@ -63,7 +64,7 @@ const renderShortcutToString = (shortcut: Keyboard.Shortcut) => {
   return `${modifiers} ${shortcut.key.toUpperCase()}`;
 };
 
-const Action = ({ action, ws, close }: { action: BlastComponent; ws: Client, close: () => void }) => {
+const Action = ({ action, ws, close }: { action: BlastComponent; ws: Client; close: () => void }) => {
   const {
     props: { shortcut, actionEventName, title, icon },
   } = action;
@@ -76,7 +77,7 @@ const Action = ({ action, ws, close }: { action: BlastComponent; ws: Client, clo
       key={actionEventName}
       onSelect={() => {
         ws.call(actionEventName);
-        close()
+        close();
       }}
       icon={Icon && <Icon />}
     >
@@ -85,7 +86,15 @@ const Action = ({ action, ws, close }: { action: BlastComponent; ws: Client, clo
   );
 };
 
-export const ActionContainer = ({ actions, ws, close }: { actions: BlastComponent[]; ws: Client, close: () => void }) => {
+export const ActionContainer = ({
+  actions,
+  ws,
+  close,
+}: {
+  actions: BlastComponent[];
+  ws: Client;
+  close: () => void;
+}) => {
   return (
     <>
       {actions
@@ -131,7 +140,7 @@ function SubItem({
 }) {
   return (
     <Command.Item onSelect={onSelect}>
-      <div className="flex items-center gap-2">
+      <div className="flex gap-2 items-center">
         {icon}
         {children}
       </div>
@@ -156,6 +165,11 @@ export function getListIndexFromValue(value: string) {
 
 export const List = ({ children, props }: { children: BlastComponent[]; props: ListProps }): JSX.Element => {
   const listItems = children.filter((child) => child.elementType === "ListItem");
+  const emptyView = children.find((child) => child.elementType === "EmptyView");
+
+  const emptyViewActionPanel = emptyView
+    ? emptyView.children.find((child) => child.elementType === "ActionPanel")
+    : null;
 
   const listRef = React.useRef(null);
   const [value, setValue] = React.useState(getListItemValue(0));
@@ -176,7 +190,16 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
         <hr cmdk-raycast-loader="" />
 
         <Command.List ref={listRef}>
-          <Command.Empty>No results found.</Command.Empty>
+          <Command.Empty className='flex flex-col gap-2 items-center h-full' style={{height: 'auto'}}>
+            {' '}
+            {emptyView && (
+              <EmptyView
+                title={emptyView.props?.title}
+                icon={emptyView.props.icon}
+                description={emptyView.props.description}
+              />
+            )}
+          </Command.Empty>
 
           {listItems.map((listItem, index) => {
             const {
@@ -196,7 +219,7 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
           })}
         </Command.List>
 
-        <ListFooter listRef={listRef} inputRef={inputRef} listItems={listItems} />
+        <ListFooter listRef={listRef} inputRef={inputRef} listItems={listItems} actionPanel={emptyViewActionPanel} />
       </Command>
     </div>
   );
