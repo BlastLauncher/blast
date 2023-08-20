@@ -70,7 +70,7 @@ importers:
       '@typescript-eslint/parser': ^5.47.0
       '@vercel/webpack-asset-relocator-loader': ^1.7.3
       classnames: ^2.3.2
-      cmdk: ^0.1.21
+      cmdk: '0.2'
       copy-webpack-plugin: ^11.0.0
       css-loader: ^6.7.3
       electron: 22.0.0
@@ -118,7 +118,7 @@ importers:
       '@typescript-eslint/parser': 5.48.2_7uibuqfxkfaozanbtbziikiqje
       '@vercel/webpack-asset-relocator-loader': 1.7.3
       classnames: 2.3.2
-      cmdk: 0.1.21_jbvntnid6ohjelon6ccj5dhg2u
+      cmdk: 0.2.0_jbvntnid6ohjelon6ccj5dhg2u
       copy-webpack-plugin: 11.0.0_webpack@5.75.0
       css-loader: 6.7.3_webpack@5.75.0
       electron: 22.0.0
@@ -5215,8 +5215,8 @@ packages:
     engines: {node: '>=0.8'}
     dev: true
 
-  /cmdk/0.1.21_jbvntnid6ohjelon6ccj5dhg2u:
-    resolution: {integrity: sha512-O5oiYmoBdcoqmax4RMOsnJHrseaXlnkzfCSWgNdyBxneTaSCmUByBF5MliJbsveoHJsjkyL2uNUs2kTBBMmIaw==}
+  /cmdk/0.2.0_jbvntnid6ohjelon6ccj5dhg2u:
+    resolution: {integrity: sha512-JQpKvEOb86SnvMZbYaFKYhvzFntWBeSZdyii0rZPhKJj9uwJBxu4DaVYDrRN7r3mPop56oPhRw+JYWTKs66TYw==}
     peerDependencies:
       react: ^18.0.0
       react-dom: ^18.0.0
