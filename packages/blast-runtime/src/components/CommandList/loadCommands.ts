@@ -15,6 +15,8 @@ import fs from "fs/promises";
 import os from "os";
 import path from "path";
 
+import { EXTENSIONS_DIR } from '../../constants'
+
 interface Command {
   name: string;
   title: string;
@@ -25,8 +27,7 @@ interface Command {
 }
 
 const getPackageJsonPath = (): string => {
-  const homeDir = os.homedir();
-  return path.join(homeDir, ".blast", "extensions", "package.json");
+  return path.join(EXTENSIONS_DIR, "package.json");
 };
 
 const safeParse = (json: string): any => {
@@ -74,7 +75,7 @@ export async function loadCommands(): Promise<Command[]> {
     const commands: Command[] = [];
 
     for (const extPackage of extensionPackages) {
-      const extPackageJsonPath = path.join(homeDir, ".blast", "extensions", "node_modules", extPackage, "package.json");
+      const extPackageJsonPath = path.join(EXTENSIONS_DIR, "node_modules", extPackage, "package.json");
       const extPackageJson = safeParse(await fs.readFile(extPackageJsonPath, "utf-8"));
 
       // 3. For each command in package.json, return its commands field
@@ -82,7 +83,7 @@ export async function loadCommands(): Promise<Command[]> {
         for (const command of extPackageJson.commands) {
           commands.push({
             ...command,
-            requirePath: path.join(homeDir, ".blast", "extensions", "node_modules", extPackage, command.name + ".js"),
+            requirePath: path.join(EXTENSIONS_DIR, "node_modules", extPackage, command.name + ".js"),
           });
         }
       }
