@@ -18,13 +18,15 @@ if (require("electron-squirrel-startup")) {
 }
 
 const onReady = (): void => {
-  if (!hasVersionInstalled()) {
-    createNodeInstallerWindow();
-    registerIPCMainEvents();
-  } else {
+  console.debug("onReady");
+  if (hasVersionInstalled()) {
+    console.debug("hasVersionInstalled");
     startRuntime();
     setMenu();
     createApplicationWindow();
+  } else {
+    createNodeInstallerWindow();
+    registerIPCMainEvents();
   }
 };
 

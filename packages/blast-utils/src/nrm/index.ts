@@ -9,6 +9,7 @@ import { pipeline } from "stream";
 import { promisify } from "util";
 import { createGunzip } from "zlib";
 
+import fsExtra from "fs-extra";
 import tar from "tar";
 
 import { OperatingSystem, NRMOptions } from "./types";
@@ -26,7 +27,9 @@ export class NRM {
   }
 
   hasVersion(version: string): boolean {
-    return fs.existsSync(path.join(this.installPath, version));
+    const dir = path.join(this.installPath, version)
+    const binDir = path.join(dir, "bin")
+    return fs.existsSync(dir) && fs.existsSync(binDir)
   }
 
   async download(version: string): Promise<void> {
@@ -67,16 +70,10 @@ export class NRM {
       throw new Error("Expected a directory in the extracted content");
     }
 
-    // Identify the desired subfolder inside extractedDir
-    const [subfolder] = await fsPromises.readdir(extractedDirPath);
-    const subfolderPath = path.join(extractedDirPath, subfolder);
+    // cp extractedDirPath as targetDir
+    fsExtra.ensureDirSync(targetDir); 
 
-    const subfolderStats = await fsPromises.stat(subfolderPath);
-    if (subfolderStats.isDirectory()) {
-      await fsPromises.cp(subfolderPath, targetDir, { recursive: true });
-    } else {
-      throw new Error("Expected a directory in the subfolder content");
-    }
+    await fsPromises.cp(extractedDirPath, targetDir, { recursive: true });
   }
 
   /**

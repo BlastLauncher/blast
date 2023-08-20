@@ -9,7 +9,7 @@ import { logDir } from "./utils/commonPaths";
 
 let runtimeProcess: ChildProcess | undefined;
 
-// const logPath = path.join(logDir, "runtime.log");
+const logPath = path.join(logDir, "runtime.log");
 const errPath = path.join(logDir, "runtime.err.log");
 
 const getRuntimePath = (): string => {
@@ -28,12 +28,14 @@ export const startRuntime = async () => {
   console.log("modulePath", modulePath);
 
   const errStream = fs.createWriteStream(errPath, { flags: "a" });
+  const stdStream = fs.createWriteStream(logPath, { flags: "a" });
 
   runtimeProcess = spawn(runtimePath, [modulePath], {
     env: process.env,
-    stdio: 'inherit'
+    stdio: 'pipe'
   });
 
+  runtimeProcess.stdout?.pipe(stdStream);
   runtimeProcess.stderr?.pipe(errStream);
 
   runtimeProcess.on("close", (code) => {
