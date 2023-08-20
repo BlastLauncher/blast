@@ -69,6 +69,18 @@ tail -f ~/.blast/logs/runtime.log
 tail -f ~/.blast/logs/runtime.err.log
 ```
 
+### Debugging runtime with React DevTools
+
+Just run:
+
+```bash
+pnpm react-devtools
+```
+
+And start the application. It should automatically connect to the React DevTools.
+
+![react-devtools](./docs/media/react_dev_tools.png)
+
 ## Inspiration and related projects
 
 - [SunbeamLauncher](https://github.com/SunbeamLauncher/sunbeam): A frontend agnostic Launcher app, written in Go, and you can write extensions in any language.
