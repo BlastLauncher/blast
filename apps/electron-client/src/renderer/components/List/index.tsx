@@ -168,7 +168,7 @@ export function getListIndexFromValue(value: string) {
 export const List = ({ children, props }: { children: BlastComponent[]; props: ListProps }): JSX.Element => {
   const listItems = children.filter((child) => child.elementType === "ListItem");
   const emptyView = children.find((child) => child.elementType === "EmptyView");
-  const { pop } = useNavigationContext();
+  const { softPop, pop } = useNavigationContext();
 
   const emptyViewActionPanel = emptyView
     ? emptyView.children.find((child) => child.elementType === "ActionPanel")
@@ -196,7 +196,7 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
             }
           } else if (e.key === "Backspace" && !inputRef.current.value) {
             e.preventDefault();
-            pop();
+            softPop();
           }
         }}
       >

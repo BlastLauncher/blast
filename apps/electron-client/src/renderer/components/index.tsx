@@ -40,11 +40,18 @@ export const TreeComponent = ({ blastProps }: { blastProps: BlastComponent }) =>
     }
   }, [canPop, ws]);
 
+  const softPop = useCallback(() => {
+    if (canPop) {
+      ws.call("blast-global:pop");
+    }
+  }, [canPop, ws]);
+
   return (
     <NavigationContext.Provider
       value={{
         pop,
         canPop,
+        softPop
       }}
     >
       {elementType === "List" ? <List children={firstChild.children} props={props as ListProps} /> : null}
