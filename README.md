@@ -62,7 +62,7 @@ pnpm install
 pnpm run watch
 
 # Start front end in dev mode
-pnpm run start-client
+pnpm run start:client
 ```
 
 ## Inspiration and related projects
