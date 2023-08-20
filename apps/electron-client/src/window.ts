@@ -27,6 +27,12 @@ export const toggleMainWindowVisibility = (): void => {
   }
 };
 
+export const hideMainWindow = (): void => {
+  if (mainWindow) {
+    mainWindow.hide();
+  }
+}
+
 export const createApplicationWindow = (): void => {
   // Create the browser window.
   mainWindow = new BrowserWindow({

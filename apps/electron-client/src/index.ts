@@ -5,8 +5,9 @@ import { app, BrowserWindow, globalShortcut } from "electron";
 import { createDebug } from '@blastlauncher/utils/src'
 
 import { setMenu } from "./menu";
-import { registerIPCMainEvents } from "./nodeInstaller/events";
+import { registerIPCMainEvents as registerNodeInstallerIPCEvents } from "./nodeInstaller/events";
 import { hasVersionInstalled } from "./nrm";
+import { registerIPCMainEvents as registerRendererIPCEvents } from './renderer/events'
 import { startRuntime, stopRuntime } from "./runtime";
 import { createTray } from "./tray";
 import { createApplicationWindow, createNodeInstallerWindow } from "./window";
@@ -27,10 +28,11 @@ const onReady = (): void => {
     debug("hasVersionInstalled");
     startRuntime();
     setMenu();
+    registerRendererIPCEvents();
     createApplicationWindow();
   } else {
     createNodeInstallerWindow();
-    registerIPCMainEvents();
+    registerNodeInstallerIPCEvents();
   }
 };
 

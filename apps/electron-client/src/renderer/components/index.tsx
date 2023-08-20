@@ -35,6 +35,8 @@ export const TreeComponent = ({ blastProps }: { blastProps: BlastComponent }) =>
   const pop = useCallback(() => {
     if (canPop) {
       ws.call("blast-global:pop");
+    } else {
+      window.electron.closeWindow();
     }
   }, [canPop, ws]);
 

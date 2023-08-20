@@ -13,3 +13,7 @@ export type BlastStore = {
   ws: Client | null;
   setWs: (ws: Client) => void;
 };
+
+export const enum EventTypes {
+  CLOSE = "close",
+}
