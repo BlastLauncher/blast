@@ -16,6 +16,7 @@
   "dependencies": {
     "@blastlauncher/api": "workspace:*",
     "@blastlauncher/renderer": "workspace:*",
+    "@blastlauncher/utils": "workspace:*",
     "@raycast/api": "workspace:@blastlauncher/api@*",
     "@raycast/utils": "^1.5.2",
     "eval": "^0.1.8",

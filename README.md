@@ -63,6 +63,10 @@ pnpm run watch
 
 # Start front end in dev mode
 pnpm run start:client
+
+# See the blast-runtime log
+tail -f ~/.blast/logs/runtime.log
+tail -f ~/.blast/logs/runtime.err.log
 ```
 
 ## Inspiration and related projects

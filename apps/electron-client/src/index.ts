@@ -1,6 +1,8 @@
 import { app, BrowserWindow, globalShortcut } from "electron";
 
-import installExtension, { REACT_DEVELOPER_TOOLS } from "electron-devtools-installer";
+// import installExtension, { REACT_DEVELOPER_TOOLS } from "electron-devtools-installer";
+
+import { createDebug } from '@blastlauncher/utils/src'
 
 import { setMenu } from "./menu";
 import { registerIPCMainEvents } from "./nodeInstaller/events";
@@ -8,6 +10,8 @@ import { hasVersionInstalled } from "./nrm";
 import { startRuntime, stopRuntime } from "./runtime";
 import { createTray } from "./tray";
 import { createApplicationWindow, createNodeInstallerWindow } from "./window";
+
+const debug = createDebug("electron-client:index")
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('update-electron-app')()
@@ -18,9 +22,9 @@ if (require("electron-squirrel-startup")) {
 }
 
 const onReady = (): void => {
-  console.debug("onReady");
+  debug("onReady");
   if (hasVersionInstalled()) {
-    console.debug("hasVersionInstalled");
+    debug("hasVersionInstalled");
     startRuntime();
     setMenu();
     createApplicationWindow();

@@ -226,6 +226,7 @@ importers:
     specifiers:
       '@blastlauncher/api': workspace:*
       '@blastlauncher/renderer': workspace:*
+      '@blastlauncher/utils': workspace:*
       '@raycast/api': workspace:@blastlauncher/api@*
       '@raycast/utils': ^1.5.2
       '@types/node-fetch': '2'
@@ -243,6 +244,7 @@ importers:
     dependencies:
       '@blastlauncher/api': link:../blast-api
       '@blastlauncher/renderer': link:../blast-renderer
+      '@blastlauncher/utils': link:../blast-utils
       '@raycast/api': link:../blast-api
       '@raycast/utils': 1.5.2_mntivlik6ythwuh4tpa5ebsuaq
       eval: 0.1.8

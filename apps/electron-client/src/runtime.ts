@@ -31,8 +31,7 @@ export const startRuntime = async () => {
   const stdStream = fs.createWriteStream(logPath, { flags: "a" });
 
   runtimeProcess = spawn(runtimePath, [modulePath], {
-    env: process.env,
-    stdio: 'pipe'
+    env: process.env
   });
 
   runtimeProcess.stdout?.pipe(stdStream);
