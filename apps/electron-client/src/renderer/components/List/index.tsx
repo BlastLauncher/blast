@@ -4,10 +4,12 @@ import React from "react";
 import { Client } from "rpc-websockets";
 
 import { ObjectFromList } from "../../lib/typeUtils";
+import { useRemoteBlastTree } from "../../store";
 import { BlastComponent } from "../../types";
 import Icons from "../Icon";
+import { useNavigationContext } from "../Navigation/context";
 
-import EmptyView from "./EmptyView";
+import { EmptyView } from "./EmptyView";
 import { ListFooter } from "./ListFooter";
 
 const getIconComponent = (icon: string) => {
@@ -166,6 +168,7 @@ export function getListIndexFromValue(value: string) {
 export const List = ({ children, props }: { children: BlastComponent[]; props: ListProps }): JSX.Element => {
   const listItems = children.filter((child) => child.elementType === "ListItem");
   const emptyView = children.find((child) => child.elementType === "EmptyView");
+  const { pop } = useNavigationContext();
 
   const emptyViewActionPanel = emptyView
     ? emptyView.children.find((child) => child.elementType === "ActionPanel")
@@ -177,7 +180,26 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
 
   return (
     <div className="h-full raycast drag-area">
-      <Command value={value} onValueChange={(v) => setValue(v)}>
+      <Command
+        value={value}
+        onValueChange={(v) => setValue(v)}
+        onKeyDown={(e) => {
+          if (!inputRef.current) {
+            return;
+          }
+          if (e.key === "Escape") {
+            e.preventDefault();
+            if (inputRef.current.value) {
+              inputRef.current.value = "";
+            } else {
+              pop();
+            }
+          } else if (e.key === "Backspace" && !inputRef.current.value) {
+            e.preventDefault();
+            pop();
+          }
+        }}
+      >
         <div className="absolute top-0 left-0 w-full h-2 drag-area" />
 
         <div cmdk-raycast-top-shine="" />
@@ -190,8 +212,8 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
         <hr cmdk-raycast-loader="" />
 
         <Command.List ref={listRef}>
-          <Command.Empty className='flex flex-col gap-2 items-center h-full' style={{height: 'auto'}}>
-            {' '}
+          <Command.Empty className="flex flex-col gap-2 items-center h-full" style={{ height: "auto" }}>
+            {" "}
             {emptyView && (
               <EmptyView
                 title={emptyView.props?.title}
