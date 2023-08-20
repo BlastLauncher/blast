@@ -1,6 +1,7 @@
 // Co-author with GPT-4
 // https://chat.openai.com/share/963489f9-35f5-4253-bcbc-a67a8562a19e
 import fs, { promises as fsPromises } from "fs";
+import { IncomingMessage } from "http";
 import https from "https";
 import os from "os";
 import path from "path";
@@ -37,35 +38,45 @@ export class NRM {
 
     const tempDir = temporaryDirectory();
     const targetDir = path.join(this.installPath, version);
+    const downloadTempPath = path.join(tempDir, "node.tar.gz");
 
-    return new Promise((resolve, reject) => {
-      https.get(url, (response) => {
-        if (response.statusCode !== 200) {
+    const response: IncomingMessage = await new Promise((resolve, reject) => {
+      https.get(url, (res) => {
+        if (res.statusCode !== 200) {
           reject(new Error("Failed to download Node.js"));
-          return;
+        } else {
+          resolve(res);
         }
-
-        const downloadTempPath = path.join(tempDir, "node.tar.gz");
-        const writeStream = fs.createWriteStream(downloadTempPath);
-        const subfolderName = this.getFileName(version);
-
-        pipelineAsync(response, createGunzip(), writeStream).then(() =>
-          tar
-            .x({
-              file: downloadTempPath,
-              cwd: targetDir,
-              filter: (path) => {
-                return path.startsWith(subfolderName);
-              },
-            }).then(() => {
-              resolve();
-            })
-            .catch((err) => {
-              reject(err);
-            })
-        );
       });
     });
+
+    await pipelineAsync(response, createGunzip(), fs.createWriteStream(downloadTempPath));
+
+    await tar.x({
+      file: downloadTempPath,
+      cwd: tempDir,
+    });
+
+    // Get the directory created by tar extraction
+    const [extractedDir] = await fsPromises.readdir(tempDir);
+    const extractedDirPath = path.join(tempDir, extractedDir);
+
+    // Check if it's actually a directory
+    const stats = await fsPromises.stat(extractedDirPath);
+    if (!stats.isDirectory()) {
+      throw new Error("Expected a directory in the extracted content");
+    }
+
+    // Identify the desired subfolder inside extractedDir
+    const [subfolder] = await fsPromises.readdir(extractedDirPath);
+    const subfolderPath = path.join(extractedDirPath, subfolder);
+
+    const subfolderStats = await fsPromises.stat(subfolderPath);
+    if (subfolderStats.isDirectory()) {
+      await fsPromises.rename(subfolderPath, targetDir);
+    } else {
+      throw new Error("Expected a directory in the subfolder content");
+    }
   }
 
   /**
@@ -108,8 +119,14 @@ export class NRM {
     // sort the version by descending order
     // version name is in the format of v14.15.0
     return fs.readdirSync(this.installPath).sort((a, b) => {
-      const aVersion = a.replace("v", "").split(".").map((v) => parseInt(v, 10));
-      const bVersion = b.replace("v", "").split(".").map((v) => parseInt(v, 10));
+      const aVersion = a
+        .replace("v", "")
+        .split(".")
+        .map((v) => parseInt(v, 10));
+      const bVersion = b
+        .replace("v", "")
+        .split(".")
+        .map((v) => parseInt(v, 10));
 
       for (let i = 0; i < aVersion.length; i++) {
         if (aVersion[i] > bVersion[i]) {

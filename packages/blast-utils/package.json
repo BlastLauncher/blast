@@ -5,7 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "test": "jest"
+    "test": "jest",
+    "watch": "tsc -w"
   },
   "dependencies": {
     "debug": "^4.3.4",
