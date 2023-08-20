@@ -73,7 +73,7 @@ export class NRM {
 
     const subfolderStats = await fsPromises.stat(subfolderPath);
     if (subfolderStats.isDirectory()) {
-      await fsPromises.rename(subfolderPath, targetDir);
+      await fsPromises.cp(subfolderPath, targetDir, { recursive: true });
     } else {
       throw new Error("Expected a directory in the subfolder content");
     }
