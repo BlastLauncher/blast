@@ -21,6 +21,9 @@ export const toggleMainWindowVisibility = (): void => {
 
   if (mainWindow.isFocused()) {
     mainWindow.hide();
+    if (process.env.NODE_ENV === "development") {
+      app.hide()
+    }
   } else {
     mainWindow.show();
     mainWindow.focus();
@@ -30,6 +33,9 @@ export const toggleMainWindowVisibility = (): void => {
 export const hideMainWindow = (): void => {
   if (mainWindow) {
     mainWindow.hide();
+    if (process.env.NODE_ENV === "development") {
+      app.hide()
+    }
   }
 }
 
