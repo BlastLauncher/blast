@@ -24,14 +24,16 @@ export const startRuntime = async () => {
   const modulePath = getRuntimePath();
   const runtimePath = nrm.nodePath;
 
-  console.log("runtimePath", runtimePath);
-  console.log("modulePath", modulePath);
+  const binPath = nrm.binPath;
 
   const errStream = fs.createWriteStream(errPath, { flags: "a" });
   const stdStream = fs.createWriteStream(logPath, { flags: "a" });
 
   runtimeProcess = spawn(runtimePath, [modulePath], {
-    env: process.env
+    env: {
+      ...process.env,
+      PATH: `${binPath}:${process.env.PATH}`,
+    }
   });
 
   runtimeProcess.stdout?.pipe(stdStream);

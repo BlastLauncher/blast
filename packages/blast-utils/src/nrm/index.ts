@@ -112,6 +112,15 @@ export class NRM {
     return path.join(this.installPath, activeVersion, "bin", "npm");
   }
 
+  get binPath(): string {
+    const versions = this.listVersions();
+    const activeVersion = versions[0];
+    if (!activeVersion) {
+      throw new Error("No version of Node.js installed");
+    }
+    return path.join(this.installPath, activeVersion, "bin");
+  }
+
   listVersions(): string[] {
     // sort the version by descending order
     // version name is in the format of v14.15.0
@@ -142,7 +151,6 @@ export class NRM {
   }
 
   private getDownloadURL(version: string): string {
-    const arch = process.arch;
     return `https://nodejs.org/dist/${version}/${this.getFileName(version)}.tar.gz`;
   }
 }
