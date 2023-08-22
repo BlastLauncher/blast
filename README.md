@@ -61,6 +61,7 @@ You can learn more about the blast architecture in the following documents:
 - Unzip the downloaded file and move the Blast app to the Applications folder
 - **Note:** On macOS, you may need to allow the app to be opened in "System Preferences"
   - or right click on the Blast app and select "Open" to open the app
+  - If it doesn't show up in the context menu, do it again.
 
 After opening the Blast app, it will ask to install Node.js runtime. Just click "Install" and wait for the installation to complete. It downloads node.js and extract it to `~/.blast/node`.
 
