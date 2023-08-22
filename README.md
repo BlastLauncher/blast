@@ -114,7 +114,7 @@ And start the application. It should automatically connect to the React DevTools
 
 Our Chief Marketing Officer(nickname ChatGPT) gave me this idea.
 
-I was asking him to come up with words similar to "raycast".
+I was asking him/her/it to come up with words similar to "raycast".
 
 ### Why C8763?
 
