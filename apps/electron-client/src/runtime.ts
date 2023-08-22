@@ -11,6 +11,7 @@ let runtimeProcess: ChildProcess | undefined;
 
 const logPath = path.join(logDir, "runtime.log");
 const errPath = path.join(logDir, "runtime.err.log");
+const pidPath = path.join(logDir, "runtime.pid");
 
 const getRuntimePath = (): string => {
   if (process.env.NODE_ENV === "development") {
@@ -20,7 +21,21 @@ const getRuntimePath = (): string => {
   }
 };
 
+const checkAndCloseExistingRuntime = (): void => {
+  if (fs.existsSync(pidPath)) {
+    const pid = fs.readFileSync(pidPath, "utf-8");
+    try {
+      process.kill(parseInt(pid));
+    } catch (e) {
+      console.log("Failed to kill runtime process", e);
+    }
+    fs.unlinkSync(pidPath);
+  }
+};
+
 export const startRuntime = async () => {
+  checkAndCloseExistingRuntime();
+
   const modulePath = getRuntimePath();
   const runtimePath = nrm.nodePath;
 
@@ -36,6 +51,8 @@ export const startRuntime = async () => {
     }
   });
 
+  fs.writeFileSync(pidPath, runtimeProcess.pid.toString());
+
   runtimeProcess.stdout?.pipe(stdStream);
   runtimeProcess.stderr?.pipe(errStream);
 
@@ -45,7 +62,11 @@ export const startRuntime = async () => {
 };
 
 export const stopRuntime = (): void => {
-  runtimeProcess?.kill();
+  if (!runtimeProcess) {
+    return;
+  }
+
+  checkAndCloseExistingRuntime();
   runtimeProcess = undefined;
 };
 
