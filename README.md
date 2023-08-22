@@ -1,18 +1,5 @@
 # Blast Launcher (aka C8763)
 
-<!--toc:start-->
-- [Blast Launcher (aka C8763)](#blast-launcher-aka-c8763)
-  - [Demo](#demo)
-  - [Architecture](#architecture)
-  - [Development](#development)
-  - [Inspiration and related projects](#inspiration-and-related-projects)
-  - [FAQs](#faqs)
-    - [Why naming blast?](#why-naming-blast)
-    - [Why C8763?](#why-c8763)
-  - [Learning Resources](#learning-resources)
-  - [License](#license)
-<!--toc:end-->
-
 Blast is an open-source educational and experimental project that aims to
 utilize the extension ecosystem of [Raycast Launcher](https://raycast.com)
 
@@ -28,6 +15,25 @@ While Raycast is great, it is a closed-source software and the extension ecosyst
 can only be used in Raycast. So here's where this project comes in.
 
 Blast provides an open-source React renderer to render these Raycast extensions.
+
+<!--toc:start-->
+- [Blast Launcher (aka C8763)](#blast-launcher-aka-c8763)
+  - [Demo](#demo)
+  - [Architecture](#architecture)
+  - [Basic usage](#basic-usage)
+    - [Install](#install)
+    - [Usage](#usage)
+  - [Development](#development)
+  - [Debugging](#debugging)
+    - [See runtime logs](#see-runtime-logs)
+    - [Debugging runtime with React DevTools](#debugging-runtime-with-react-devtools)
+  - [Inspiration and related projects](#inspiration-and-related-projects)
+  - [FAQs](#faqs)
+    - [Why naming blast?](#why-naming-blast)
+    - [Why C8763?](#why-c8763)
+  - [Links](#links)
+  - [License](#license)
+<!--toc:end-->
 
 ## Demo
 
