@@ -52,6 +52,22 @@ You can learn more about the blast architecture in the following documents:
 - [`@blastlauncher/api`](./packages/blast-api/README.md): Polyfill for the Raycast API
 - [`@blastlauncher/cli`](/packages/blast-cli/README.md): A CLI tool that manage to build/publish raycast extension to blast compatible module. Really much alike the ray-cli tool.
 
+
+## Basic usage
+
+### Install
+
+- Download the latest version of Blast from the [release page](https://github.com/Blastlauncher/blast/releases)
+- Unzip the downloaded file and move the Blast app to the Applications folder
+- **Note:** On macOS, you may need to allow the app to be opened in "System Preferences"
+  - or right click on the Blast app and select "Open" to open the app
+
+After opening the Blast app, it will ask to install Node.js runtime. Just click "Install" and wait for the installation to complete. It downloads node.js and extract it to `~/.blast/node`.
+
+### Usage
+
+The shortcut key to open the Blast window is `⌘;`, <kbd>Command</kbd> + <kbd>;</kbd>. It will be configurable in the future.
+
 ## Development
 
 ```bash
@@ -63,8 +79,13 @@ pnpm run watch
 
 # Start front end in dev mode
 pnpm run start:client
+```
 
-# See the blast-runtime log
+## Debugging
+
+### See runtime logs
+
+```bash
 tail -f ~/.blast/logs/runtime.log
 tail -f ~/.blast/logs/runtime.err.log
 ```
