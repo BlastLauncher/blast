@@ -1,5 +1,7 @@
 # Blast Launcher (aka C8763)
 
+**Update**: I wrote [an introduction post](https://yukai.dev/blog/2023/08/22/launching-blast-from-poc-to-01) for Blast Launcher.
+
 Blast is an open-source educational and experimental project that aims to
 utilize the extension ecosystem of [Raycast Launcher](https://raycast.com)
 
