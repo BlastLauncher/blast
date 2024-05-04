@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const esbuild = require("esbuild");
-const { nodeExternalsPlugin } = require("esbuild-node-externals");
+import { build } from "esbuild";
+import { nodeExternalsPlugin } from "esbuild-node-externals";
 
-esbuild.build({
+build({
   entryPoints: ["index.js"],
   bundle: true,
   platform: "node",
-  outfile: "dist/index.cjs",
+  format: 'esm',
+  outfile: "dist/index.mjs",
   plugins: [
     nodeExternalsPlugin({
       allowList: ["tempy"],

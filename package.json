@@ -24,7 +24,7 @@
     "lint": "eslint .",
     "start:client": "pnpm --filter blast run start",
     "test": "pnpm run test",
-    "cli": "pnpm --filter cli run run"
+    "cli": "pnpm --filter cli run start"
   },
   "jest": {
     "testEnvironment": "node",
@@ -63,6 +63,6 @@
   },
   "engines": {
     "node": ">=18.0.0",
-    "pnpm": "==7 <8"
+    "pnpm": ">8"
   }
 }

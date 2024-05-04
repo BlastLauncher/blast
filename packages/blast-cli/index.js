@@ -49,7 +49,7 @@ class PackageVersionHelper {
 
       return Object.keys(res.versions);
     } catch (e) {
-      // pacakge not found
+      // package not found
       return null;
     }
   }

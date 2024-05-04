@@ -2,14 +2,16 @@
   "name": "@blastlauncher/cli",
   "version": "1.0.5",
   "description": "Blast CLI Tools",
-  "main": "dist/index.cjs",
+  "type": "module",
+  "main": "dist/index.mjs",
   "scripts": {
     "build": "node build.js",
     "prepublishOnly": "npm run build",
-    "package": "pkg ."
+    "package": "pkg .",
+    "start": "node dist/index.mjs"
   },
   "bin": {
-    "blast": "dist/index.cjs"
+    "blast": "dist/index.mjs"
   },
   "dependencies": {
     "commander": "^10.0.0",
