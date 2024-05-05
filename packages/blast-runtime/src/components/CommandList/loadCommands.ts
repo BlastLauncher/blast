@@ -12,7 +12,6 @@
 // ]
 
 import fs from "fs/promises";
-import os from "os";
 import path from "path";
 
 import { EXTENSIONS_DIR } from '../../constants'
@@ -70,7 +69,6 @@ export async function loadInstalledExtensions(): Promise<string[]> {
 
 export async function loadCommands(): Promise<Command[]> {
   try {
-    const homeDir = os.homedir();
     const extensionPackages = await loadInstalledExtensions();
     const commands: Command[] = [];
 
