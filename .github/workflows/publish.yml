@@ -38,7 +38,7 @@ jobs:
       #   env:
       #     MACOS_CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
       #     MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
-  
+
       - run: pnpm run publish --arch=${{ matrix.arch }}
         working-directory: ./apps/electron-client
         env:
