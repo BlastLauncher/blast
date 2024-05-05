@@ -9,3 +9,4 @@ export { Icon } from "./Icon";
 export { WsContext, WsServerProvider, useWsServer } from "./internal";
 export * from './environment'
 export { LaunchType } from './LaunchType'
+export * from './Color';

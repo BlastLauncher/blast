@@ -107,7 +107,7 @@ Just run:
 pnpm react-devtools
 ```
 
-And start the application. It should automatically connect to the React DevTools.
+Then start the application(The devtool must be run before the application started). It should automatically connect to the React DevTools.
 
 ![react-devtools](./docs/media/react_dev_tools.png)
 
