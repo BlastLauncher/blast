@@ -13,7 +13,7 @@
     "allowSyntheticDefaultImports": true,
     "jsx": "react-jsx",
     "moduleResolution": "node",
-    "allowJs": true,
+    "allowJs": true
   },
   "ts-node": {
     "esm": true
