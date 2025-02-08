@@ -1,11 +1,11 @@
 import type { Keyboard } from "@raycast/api";
 import { Command } from "cmdk";
 import React from "react";
-import { Client } from "rpc-websockets";
+import type { Client } from "rpc-websockets";
 
-import { ObjectFromList } from "../../lib/typeUtils";
-import { useRemoteBlastTree } from "../../store";
-import { BlastComponent } from "../../types";
+import type { ObjectFromList } from "../../lib/typeUtils";
+// import { useRemoteBlastTree } from "../../store";
+import type { BlastComponent } from "../../types";
 import Icons from "../Icon";
 import { useNavigationContext } from "../Navigation/context";
 
@@ -162,7 +162,7 @@ function getListItemValue(itemIndex: number) {
 }
 
 export function getListIndexFromValue(value: string) {
-  return parseInt(value.replace("listitem-", ""), 10);
+  return Number.parseInt(value.replace("listitem-", ""), 10);
 }
 
 export const List = ({ children, props }: { children: BlastComponent[]; props: ListProps }): JSX.Element => {

@@ -1,10 +1,10 @@
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 
 import { useRemoteBlastTree } from "../store";
-import { BlastComponent } from "../types";
+import type { BlastComponent } from "../types";
 
-import { Form, FormProps } from "./Form";
-import { List, ListProps } from "./List";
+import { Form, type FormProps } from "./Form";
+import { List, type ListProps } from "./List";
 import { NavigationContext } from "./Navigation/context";
 
 export const TreeComponent = ({ blastProps }: { blastProps: BlastComponent }) => {
@@ -55,7 +55,6 @@ export const TreeComponent = ({ blastProps }: { blastProps: BlastComponent }) =>
       }}
     >
       {elementType === "List" ? <List children={firstChild.children} props={props as ListProps} /> : null}
-
       {elementType === "Form" ? <Form children={firstChild.children} props={props as FormProps} /> : null}
     </NavigationContext.Provider>
   );
