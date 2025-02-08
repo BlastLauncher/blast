@@ -11,4 +11,3 @@ export async function searchExtensions (query: string) {
 
   return packages
 }
-

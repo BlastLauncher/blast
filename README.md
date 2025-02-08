@@ -84,6 +84,7 @@ The shortcut key to open the Blast window is `⌘;`, <kbd>Command</kbd> + <kbd>;
 pnpm install
 
 # Start build
+# You'll need to run pnpm run build for the first time
 pnpm run watch
 
 # Start front end in dev mode
@@ -143,4 +144,3 @@ Blast（爆破）應該滿星爆的吧！但星爆氣流斬原文是 starburst s
 ## License
 
 MIT
-

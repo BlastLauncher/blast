@@ -81,7 +81,7 @@ export async function loadCommands(): Promise<Command[]> {
         for (const command of extPackageJson.commands) {
           commands.push({
             ...command,
-            requirePath: path.join(EXTENSIONS_DIR, "node_modules", extPackage, command.name + ".js"),
+            requirePath: path.join(EXTENSIONS_DIR, "node_modules", extPackage, `${command.name}.js`),
           });
         }
       }
