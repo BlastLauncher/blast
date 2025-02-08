@@ -4,7 +4,6 @@ import React from "react";
 import type { Client } from "rpc-websockets";
 
 import type { ObjectFromList } from "../../lib/typeUtils";
-// import { useRemoteBlastTree } from "../../store";
 import type { BlastComponent } from "../../types";
 import Icons from "../Icon";
 import { useNavigationContext } from "../Navigation/context";
