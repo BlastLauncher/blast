@@ -24,6 +24,12 @@ interface Command {
   mode: string;
   subtitle?: string;
   requirePath: string;
+  env: {
+    assetsPath: string;
+    commandName: string;
+    extensionName: string;
+    isDevelopment: boolean;
+  };
 }
 
 const getPackageJsonPath = (): string => {
@@ -103,7 +109,7 @@ export async function loadCommands(): Promise<Command[]> {
       // Look in dev first and then fall back to production; dev commands overwrite in conflicts.
       const devPackageJsonPath = path.join(DEV_EXTENSIONS_DIR, "node_modules", extPackage, "package.json");
       const prodPackageJsonPath = path.join(EXTENSIONS_DIR, "node_modules", extPackage, "package.json");
-      const isDev = fs.existsSync(devPackageJsonPath)
+      const isDev = fs.existsSync(devPackageJsonPath);
 
       const extPackageJsonPath = isDev ? devPackageJsonPath : prodPackageJsonPath;
 
@@ -117,11 +123,11 @@ export async function loadCommands(): Promise<Command[]> {
             ...command,
             requirePath: path.join(baseDir, "node_modules", extPackage, `${command.name}.js`),
             env: {
-              assetsPath: path.join(baseDir, "node_modules", extPackage, 'assets'),
+              assetsPath: path.join(baseDir, "node_modules", extPackage, "assets"),
               commandName: command.name,
               extensionName: extPackageJson.name,
               isDevelopment: isDev,
-            }
+            },
           });
         }
       }
