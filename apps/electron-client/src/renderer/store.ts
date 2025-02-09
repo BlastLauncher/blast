@@ -1,14 +1,14 @@
 import type { Client } from "rpc-websockets";
-import createReact from "zustand";
-import create from "zustand/vanilla";
+import { useStore } from "zustand";
+import { createStore } from "zustand/vanilla";
 
-import { BlastStore, BlastComponent } from "./types";
+import type { BlastStore, BlastComponent } from "./types";
 
-export const remoteBlastTree = create<BlastStore>()((set) => ({
+export const remoteBlastTree = createStore<BlastStore>()((set) => ({
   tree: null,
   setTree: (tree: BlastComponent) => set({ tree }),
   ws: null,
   setWs: (ws: Client) => set({ ws }),
 }));
 
-export const useRemoteBlastTree = createReact(remoteBlastTree);
+export const useRemoteBlastTree = () => useStore(remoteBlastTree);
