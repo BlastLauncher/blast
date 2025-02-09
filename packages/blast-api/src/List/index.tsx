@@ -1,6 +1,5 @@
-import { List as RList } from "raycast-original";
-
 import { ElementTypes } from "@blastlauncher/renderer/src";
+import { List as RList } from "raycast-original";
 import { FunctionComponent } from "react";
 
 import { Dropdown } from "./Dropdown";
