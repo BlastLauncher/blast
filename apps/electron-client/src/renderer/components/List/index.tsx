@@ -199,8 +199,8 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
           } else if (e.key === "Backspace" && !inputRef.current.value) {
             e.preventDefault();
             softPop();
-          } else if (e.key === "Enter") {
-            e.preventDefault();
+          } else {
+            // Check for configured action shortcut key
             const selectedIndex = getListIndexFromValue(value);
             const selectedListItem = listItems[selectedIndex];
             let actionData = selectedListItem
@@ -209,12 +209,39 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
             if (!actionData && emptyViewActionPanel) {
               actionData = emptyViewActionPanel;
             }
-            const defaultAction =
-              actionData && Array.isArray(actionData.children) && actionData.children.length > 0
-                ? actionData.children[0]
-                : null;
-            if (defaultAction?.props?.actionEventName) {
-              ws.call(defaultAction.props.actionEventName);
+            let matchedAction = null;
+            if (actionData && Array.isArray(actionData.children)) {
+              matchedAction = actionData.children.find((action) => {
+                if (action.props?.shortcut) {
+                  const shortcut = action.props.shortcut;
+                  const keyMatches =
+                    e.key.toLowerCase() === shortcut.key.toLowerCase();
+                  const requiredModifiers = shortcut.modifiers || [];
+                  const modifiersMatch = requiredModifiers.every((mod) => {
+                    if (mod === "ctrl") return e.ctrlKey;
+                    if (mod === "cmd") return e.metaKey;
+                    if (mod === "shift") return e.shiftKey;
+                    if (mod === "option") return e.altKey;
+                    return false;
+                  });
+                  return keyMatches && modifiersMatch;
+                }
+                return false;
+              });
+            }
+
+            if (matchedAction?.props?.actionEventName) {
+              e.preventDefault();
+              ws.call(matchedAction.props.actionEventName);
+            } else if (e.key === "Enter") {
+              e.preventDefault();
+              const defaultAction =
+                actionData && Array.isArray(actionData.children) && actionData.children.length > 0
+                  ? actionData.children[0]
+                  : null;
+              if (defaultAction?.props?.actionEventName) {
+                ws.call(defaultAction.props.actionEventName);
+              }
             }
           }
         }}
