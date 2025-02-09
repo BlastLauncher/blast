@@ -1,3 +1,4 @@
+/* eslint-disable import/default */
 import CopyWebpackPlugin from 'copy-webpack-plugin';
 import type { Configuration } from 'webpack';
 

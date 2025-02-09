@@ -1,11 +1,18 @@
-
 import { ElementTypes } from "@blastlauncher/renderer/src";
 import { createDebug } from "@blastlauncher/utils/src";
-import { Form } from "raycast-original";
-import { FunctionComponent, forwardRef, useEffect, useId, useImperativeHandle, useMemo, useState, useCallback } from "react";
+import type { Form } from "raycast-original";
+import {
+  type FunctionComponent,
+  forwardRef,
+  useCallback,
+  useEffect,
+  useId,
+  useImperativeHandle,
+  useMemo,
+  useState,
+} from "react";
 
-import { useServerEvent } from '../internal/hooks'
-import { useWsServer } from "../internal/WsServerProvider";
+import { useServerEvent } from "../internal/hooks";
 
 import { useFormContext } from ".";
 
@@ -31,6 +38,7 @@ const serializedKeys: TextFieldPropKeys = [
 
 const _TextField = (props: Form.TextField.Props, ref: React.ForwardedRef<FormItemExposedMethods>) => {
   const textfieldId = useId();
+  // eslint-disable-next-line react/prop-types
   const { onChange, id } = props;
 
   const [internalValue, setInternalValue] = useState<string | undefined>(props.value);
@@ -54,12 +62,15 @@ const _TextField = (props: Form.TextField.Props, ref: React.ForwardedRef<FormIte
     }
   }, [internalValue, onChange, id, updateValue]);
 
-  const onChangeHandler = useCallback(({ value }: { value: string }) => {
-    debug("triggering on change event listener", value);
-    setInternalValue(value);
+  const onChangeHandler = useCallback(
+    ({ value }: { value: string }) => {
+      debug("triggering on change event listener", value);
+      setInternalValue(value);
 
-    return null;
-  }, [setInternalValue]);
+      return null;
+    },
+    []
+  );
 
   useServerEvent(onChangeEventName, onChangeHandler);
 

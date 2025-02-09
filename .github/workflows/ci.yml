@@ -1,0 +1,34 @@
+name: PR Test
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "packages/**"
+      - "apps/**"
+
+jobs:
+  lint-and-build:
+    name: Test Bundling for Electron Client (${{ matrix.os }} - ${{ matrix.arch }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ macOS-latest, ubuntu-latest ]
+        arch: [ x64 ]
+        include:
+        - os: macOS-latest
+          arch: arm64
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/setup-repo
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Run Lint
+        run: pnpm run lint
+
+      - name: Test Bundling
+        run: pnpm run make
+        working-directory: ./apps/electron-client
