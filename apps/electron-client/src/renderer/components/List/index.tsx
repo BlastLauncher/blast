@@ -4,7 +4,7 @@ import React from "react";
 import type { Client } from "rpc-websockets";
 
 import type { ObjectFromList } from "../../lib/typeUtils";
-import { useBlastUIStore } from "../../store";
+import { useBlastUIStore, useRemoteBlastTree } from "../../store";
 import type { BlastComponent } from "../../types";
 import Icons from "../Icon";
 import { useNavigationContext } from "../Navigation/context";
@@ -178,6 +178,7 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
   const [value, setValue] = React.useState(getListItemValue(0));
   const inputRef = React.useRef<HTMLInputElement | null>(null);
   const isSubCommandOpen = useBlastUIStore((state) => state.subcommandOpen);
+  const { ws } = useRemoteBlastTree();
 
   return (
     <div className="h-full raycast drag-area">
@@ -198,6 +199,23 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
           } else if (e.key === "Backspace" && !inputRef.current.value) {
             e.preventDefault();
             softPop();
+          } else if (e.key === "Enter") {
+            e.preventDefault();
+            const selectedIndex = getListIndexFromValue(value);
+            const selectedListItem = listItems[selectedIndex];
+            let actionData = selectedListItem
+              ? selectedListItem.children.find((child) => child.elementType === "ActionPanel")
+              : null;
+            if (!actionData && emptyViewActionPanel) {
+              actionData = emptyViewActionPanel;
+            }
+            const defaultAction =
+              actionData && Array.isArray(actionData.children) && actionData.children.length > 0
+                ? actionData.children[0]
+                : null;
+            if (defaultAction?.props?.actionEventName) {
+              ws.call(defaultAction.props.actionEventName);
+            }
           }
         }}
       >
