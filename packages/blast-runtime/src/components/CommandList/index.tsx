@@ -9,7 +9,10 @@ import { StoreCommand } from "../Store";
 import { loadCommands } from "./loadCommands";
 import { evalCommandModule } from "./utils";
 
-class MyErrorBoundary extends Component<{ children: React.ReactNode }, { hasError: boolean; error: Error | null }> {
+class CommandErrorBoundary extends Component<
+  { children: React.ReactNode },
+  { hasError: boolean; error: Error | null }
+> {
   state = { hasError: false, error: null };
 
   static getDerivedStateFromError(error: any) {
@@ -49,9 +52,9 @@ export const CommandList = () => {
                     try {
                       const Comp = evalCommandModule(command.requirePath);
                       push(
-                        <MyErrorBoundary>
+                        <CommandErrorBoundary>
                           <Comp />
-                        </MyErrorBoundary>
+                        </CommandErrorBoundary>
                       );
                     } catch (error) {
                       console.error(error);
