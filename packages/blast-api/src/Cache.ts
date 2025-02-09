@@ -1,9 +1,10 @@
 import { existsSync, mkdirSync } from "node:fs";
+import os from "node:os";
 import path from "node:path";
 
-import { USER_DIR } from "../../blast-runtime/src/constants";
-
 import { environment } from "./environment";
+
+const USER_DIR = path.join(os.homedir(), ".blast");
 
 export class Cache {
   static get DEFAULT_CAPACITY(): number {
@@ -18,7 +19,6 @@ export class Cache {
   private subscribers: CacheSubscriber[] = [];
 
   constructor(options?: CacheOptions) {
-    console.debug('cache options', options)
     if (options?.directory) {
       this.directory = options.directory;
     } else {
