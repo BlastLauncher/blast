@@ -1,5 +1,5 @@
-import { ChildProcess, spawn } from "child_process";
-import path from "path";
+import { type ChildProcess, spawn } from "node:child_process";
+import path from "node:path";
 
 import fs from "fs-extra";
 
@@ -24,19 +24,19 @@ function pidIsRunning(pid: number): boolean {
 const getRuntimePath = (): string => {
   if (process.env.NODE_ENV === "development") {
     return require.resolve("@blastlauncher/runtime/dist/run.cjs");
-  } else {
-    return path.join(process.resourcesPath, "run.cjs");
   }
+
+  return path.join(process.resourcesPath, "run.cjs");
 };
 
 const checkAndCloseExistingRuntime = (): void => {
   if (fs.existsSync(pidPath)) {
     const pid = fs.readFileSync(pidPath, "utf-8");
-    if (pidIsRunning(parseInt(pid))) {
+    if (pidIsRunning(Number.parseInt(pid))) {
       console.log("Killing existing runtime process", pid);
 
       try {
-        process.kill(parseInt(pid));
+        process.kill(Number.parseInt(pid));
       } catch (e) {
         console.log("Failed to kill runtime process", e);
       }
@@ -56,7 +56,7 @@ export const startRuntime = async () => {
   const errStream = fs.createWriteStream(errPath, { flags: "a" });
   const stdStream = fs.createWriteStream(logPath, { flags: "a" });
 
-  runtimeProcess = spawn(runtimePath, [modulePath], {
+  runtimeProcess = spawn(runtimePath, [modulePath, '--host', 'localhost', '--port', '8763'], {
     env: {
       ...process.env,
       PATH: `${binPath}:${process.env.PATH}`,
