@@ -1,5 +1,5 @@
-import { spawnSync } from "child_process";
-import path from "path";
+import { spawnSync } from "node:child_process";
+import path from "node:path";
 
 import { MakerDeb } from "@electron-forge/maker-deb";
 import { MakerRpm } from "@electron-forge/maker-rpm";
@@ -18,23 +18,18 @@ const config: ForgeConfig = {
   },
   hooks: {
     postPackage: async (forgeConfig, packageResult) => {
-      if (packageResult.platform !== 'darwin') return;
+      if (packageResult.platform !== "darwin") return;
 
-      const appPath = path.join(packageResult.outputPaths[0], `blast.app`);
+      const appPath = path.join(packageResult.outputPaths[0], "blast.app");
 
-      const { status } = spawnSync("codesign", [
-        "-s",
-        "-",
-        "--deep",
-        appPath,
-      ], {
-        stdio: 'inherit',
+      const { status } = spawnSync("codesign", ["-s", "-", "--deep", appPath], {
+        stdio: "inherit",
       });
 
       if (status !== 0) {
         throw new Error("codesign");
       }
-    }
+    },
   },
   rebuildConfig: {},
   makers: [
@@ -79,7 +74,7 @@ const config: ForgeConfig = {
           name: "blast",
         },
         prerelease: true,
-        draft: false
+        draft: false,
       },
     },
   ],
