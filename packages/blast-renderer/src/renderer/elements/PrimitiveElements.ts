@@ -7,18 +7,10 @@ const debug = createDebug("blast:elements:ExtendedElements");
 
 export class View extends BaseElement {
   static defaultProps = {};
-
-  constructor(props: any) {
-    super(props);
-  }
 }
 
 export class List extends BaseElement {
   static defaultProps = {};
-
-  constructor(props: any) {
-    super(props);
-  }
 
   serialize() {
     // TODO: when there's no ListItem nor EmptyView provided
@@ -41,18 +33,10 @@ export class List extends BaseElement {
 
 export class ActionPanel extends BaseElement {
   static defaultProps = {};
-
-  constructor(props: any) {
-    super(props);
-  }
 }
 
 export class ActionPanelSection extends BaseElement {
   static defaultProps = {};
-
-  constructor(props: any) {
-    super(props);
-  }
 }
 
 export class EmptyView extends BaseElement {
@@ -67,42 +51,22 @@ export class EmptyView extends BaseElement {
 
 export class Action extends BaseElement {
   static defaultProps = {};
-
-  constructor(props: any) {
-    super(props);
-  }
 }
 
 export class Detail extends BaseElement {
   static defaultProps = {};
-
-  constructor(props: any) {
-    super(props);
-  }
 }
 
 export class Form extends BaseElement {
   static defaultProps = {};
-
-  constructor(props: any) {
-    super(props);
-  }
 }
 
 export class TextField extends BaseElement {
   static defaultProps = {};
-
-  constructor(props: any) {
-    super(props);
-  }
 }
 
 export class NavigationRoot extends BaseElement {
   static defaultProps = {};
-
-  constructor(props: any) {
-    super(props);
-  }
 
   serialize() {
     return {
@@ -115,16 +79,12 @@ export class NavigationRoot extends BaseElement {
 
 export class ListItem extends BaseElement {
   static defaultProps = {};
-
-  constructor(props: any) {
-    super(props);
-  }
 }
 
 export class Icon extends BaseElement {
   static defaultProps = {};
+}
 
-  constructor(props: any) {
-    super(props);
-  }
+export class ErrorBoundary extends BaseElement {
+  static defaultProps = {}
 }

@@ -1,7 +1,7 @@
 import { createDebug } from "@blastlauncher/utils/src";
 import type { Server } from "rpc-websockets";
 
-import { Container } from "../types";
+import type { Container } from "../types";
 
 import BaseElement from "./BaseElement";
 

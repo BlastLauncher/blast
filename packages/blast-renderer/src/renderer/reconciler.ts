@@ -65,7 +65,7 @@ export const JSONTreeRenderer = Reconciler<
   // The `appendInitialChild` method is called when a new child is added to a parent element.
   // It should append the child to the parent in the JSON-RPC object.
   appendInitialChild(parentInstance: Instance, child: Instance) {
-    debug(`appendInitialChild`, parentInstance.elementType, child.elementType);
+    debug(`appendInitialChild`, parentInstance.elementType, child?.elementType);
 
     parentInstance.appendChild(child);
   },

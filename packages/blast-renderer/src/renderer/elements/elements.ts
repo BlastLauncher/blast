@@ -1,4 +1,4 @@
-import { IElement } from "./BaseElement";
+import type { IElement } from "./BaseElement";
 import Command from "./Command";
 import * as Primitives from "./PrimitiveElements";
 
