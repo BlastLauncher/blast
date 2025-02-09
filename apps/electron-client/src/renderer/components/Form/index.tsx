@@ -1,6 +1,6 @@
-import { ObjectFromList } from "../../lib/typeUtils";
+import type { ObjectFromList } from "../../lib/typeUtils";
 import { useRemoteBlastTree } from "../../store";
-import { BlastComponent } from "../../types";
+import type { BlastComponent } from "../../types";
 import { useDefaultAction } from "../List/hooks";
 import { RaycastDarkIcon } from "../List/RaycastDarkIcon";
 import { SubCommand } from "../List/SubCommand";
