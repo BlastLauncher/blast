@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-import { BlastComponent } from "../../types";
+import type { BlastComponent } from "../../types";
 
 export const useDefaultAction = (actionData: BlastComponent) => {
   return useMemo(() => {
