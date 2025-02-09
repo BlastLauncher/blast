@@ -13,7 +13,7 @@ export let environment: Environment = {
   theme: 'light',
 }
 
-export function prepareEnvironment(env: Environment) {
+export function prepareEnvironment(env: Partial<Environment>) {
   environment = {
     ...environment,
     ...env,

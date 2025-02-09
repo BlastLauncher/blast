@@ -1,8 +1,9 @@
 import { useCommandState } from "cmdk";
-import React, { useMemo } from "react";
+import type React from "react";
+import { useMemo } from "react";
 
 import { useRemoteBlastTree } from "../../store";
-import { BlastComponent } from "../../types";
+import type { BlastComponent } from "../../types";
 
 import { useDefaultAction } from "./hooks";
 import { SubCommand } from "./SubCommand";

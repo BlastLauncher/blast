@@ -1,6 +1,5 @@
 import { ElementTypes } from "@blastlauncher/renderer/src";
-import { Detail as RDetail } from "raycast-original";
-
+import type { Detail as RDetail } from "raycast-original";
 
 type DetailPropKeys = (keyof RDetail.Props)[];
 const serializedKeys: DetailPropKeys = ["isLoading", "markdown", "navigationTitle"];
