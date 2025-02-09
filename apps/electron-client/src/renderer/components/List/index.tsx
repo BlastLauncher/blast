@@ -180,71 +180,72 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
   const isSubCommandOpen = useBlastUIStore((state) => state.subcommandOpen);
   const { ws } = useRemoteBlastTree();
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!inputRef.current) {
+      return;
+    }
+    if (e.key === "Escape") {
+      e.preventDefault();
+      if (inputRef.current.value) {
+        inputRef.current.value = "";
+      } else if (!isSubCommandOpen) {
+        pop();
+      }
+    } else if (e.key === "Backspace" && !inputRef.current.value) {
+      e.preventDefault();
+      softPop();
+    } else {
+      // Check for configured action shortcut key
+      const selectedIndex = getListIndexFromValue(value);
+      const selectedListItem = listItems[selectedIndex];
+      let actionData = selectedListItem
+        ? selectedListItem.children.find((child) => child.elementType === "ActionPanel")
+        : null;
+      if (!actionData && emptyViewActionPanel) {
+        actionData = emptyViewActionPanel;
+      }
+      let matchedAction = null;
+      if (actionData && Array.isArray(actionData.children)) {
+        matchedAction = actionData.children.find((action) => {
+          if (action.props?.shortcut) {
+            const shortcut = action.props.shortcut;
+            const keyMatches =
+              e.key.toLowerCase() === shortcut.key.toLowerCase();
+            const requiredModifiers = shortcut.modifiers || [];
+            const modifiersMatch = requiredModifiers.every((mod) => {
+              if (mod === "ctrl") return e.ctrlKey;
+              if (mod === "cmd") return e.metaKey;
+              if (mod === "shift") return e.shiftKey;
+              if (mod === "option") return e.altKey;
+              return false;
+            });
+            return keyMatches && modifiersMatch;
+          }
+          return false;
+        });
+      }
+      if (matchedAction?.props?.actionEventName) {
+        e.preventDefault();
+        ws.call(matchedAction.props.actionEventName);
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        const defaultAction =
+          actionData && Array.isArray(actionData.children) && actionData.children.length > 0
+            ? actionData.children[0]
+            : null;
+        if (defaultAction?.props?.actionEventName) {
+          ws.call(defaultAction.props.actionEventName);
+        }
+      }
+    }
+  };
+
   return (
     <div className="h-full raycast drag-area">
       <Command
         value={value}
         onValueChange={(v) => setValue(v)}
-        onKeyDown={(e) => {
-          if (!inputRef.current) {
-            return;
-          }
-          if (e.key === "Escape") {
-            e.preventDefault();
-            if (inputRef.current.value) {
-              inputRef.current.value = "";
-            } else if (!isSubCommandOpen) {
-              pop();
-            }
-          } else if (e.key === "Backspace" && !inputRef.current.value) {
-            e.preventDefault();
-            softPop();
-          } else {
-            // Check for configured action shortcut key
-            const selectedIndex = getListIndexFromValue(value);
-            const selectedListItem = listItems[selectedIndex];
-            let actionData = selectedListItem
-              ? selectedListItem.children.find((child) => child.elementType === "ActionPanel")
-              : null;
-            if (!actionData && emptyViewActionPanel) {
-              actionData = emptyViewActionPanel;
-            }
-            let matchedAction = null;
-            if (actionData && Array.isArray(actionData.children)) {
-              matchedAction = actionData.children.find((action) => {
-                if (action.props?.shortcut) {
-                  const shortcut = action.props.shortcut;
-                  const keyMatches =
-                    e.key.toLowerCase() === shortcut.key.toLowerCase();
-                  const requiredModifiers = shortcut.modifiers || [];
-                  const modifiersMatch = requiredModifiers.every((mod) => {
-                    if (mod === "ctrl") return e.ctrlKey;
-                    if (mod === "cmd") return e.metaKey;
-                    if (mod === "shift") return e.shiftKey;
-                    if (mod === "option") return e.altKey;
-                    return false;
-                  });
-                  return keyMatches && modifiersMatch;
-                }
-                return false;
-              });
-            }
-
-            if (matchedAction?.props?.actionEventName) {
-              e.preventDefault();
-              ws.call(matchedAction.props.actionEventName);
-            } else if (e.key === "Enter") {
-              e.preventDefault();
-              const defaultAction =
-                actionData && Array.isArray(actionData.children) && actionData.children.length > 0
-                  ? actionData.children[0]
-                  : null;
-              if (defaultAction?.props?.actionEventName) {
-                ws.call(defaultAction.props.actionEventName);
-              }
-            }
-          }
-        }}
+        onKeyDown={handleKeyDown}
       >
         <div className="absolute top-0 left-0 w-full h-2 drag-area" />
 
