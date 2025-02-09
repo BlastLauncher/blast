@@ -1,4 +1,4 @@
-import { Environment, LaunchType } from '../LaunchType'
+import { type Environment, LaunchType } from '../LaunchType'
 
 export let environment: Environment = {
   assetsPath: '',
@@ -13,7 +13,9 @@ export let environment: Environment = {
   theme: 'light',
 }
 
-// TODO: prepare environment when command loads
 export function prepareEnvironment(env: Environment) {
-  environment = env
+  environment = {
+    ...environment,
+    ...env,
+  }
 }

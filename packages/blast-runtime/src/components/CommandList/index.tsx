@@ -1,6 +1,6 @@
 import { Action, ActionPanel, List, useNavigation } from "@raycast/api";
 
-import { ErrorBoundary } from "@blastlauncher/api";
+import { ErrorBoundary, prepareEnvironment } from "@blastlauncher/api";
 import { usePromise } from "@raycast/utils";
 import { Component } from "react";
 
@@ -51,6 +51,7 @@ export const CommandList = () => {
                   onAction={() => {
                     try {
                       const Comp = evalCommandModule(command.requirePath);
+                      prepareEnvironment(command.env)
                       push(
                         <CommandErrorBoundary>
                           <Comp />
