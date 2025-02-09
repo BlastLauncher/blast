@@ -56,7 +56,7 @@ export const startRuntime = async () => {
   const errStream = fs.createWriteStream(errPath, { flags: "a" });
   const stdStream = fs.createWriteStream(logPath, { flags: "a" });
 
-  runtimeProcess = spawn(runtimePath, [modulePath], {
+  runtimeProcess = spawn(runtimePath, [modulePath, '--host', 'localhost', '--port', '8763'], {
     env: {
       ...process.env,
       PATH: `${binPath}:${process.env.PATH}`,
