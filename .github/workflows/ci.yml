@@ -16,8 +16,6 @@ jobs:
       - uses: ./.github/actions/setup-repo
       - name: Run Lint
         run: pnpm run lint
-      - name: Build
-        run: pnpm run build
 
   test:
     name: Test Bundling for Electron Client (${{ matrix.os }} - ${{ matrix.arch }})
@@ -33,6 +31,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/setup-repo
+
+      - name: Build
+        run: pnpm run build
 
       - name: Test Bundling
         run: pnpm run make
