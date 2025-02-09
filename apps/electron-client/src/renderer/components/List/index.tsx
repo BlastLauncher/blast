@@ -2,9 +2,9 @@ import type { Keyboard } from "@raycast/api";
 import { Command } from "cmdk";
 import React from "react";
 import type { Client } from "rpc-websockets";
-import { useBlastUIStore } from "../../store";
 
 import type { ObjectFromList } from "../../lib/typeUtils";
+import { useBlastUIStore } from "../../store";
 import type { BlastComponent } from "../../types";
 import Icons from "../Icon";
 import { useNavigationContext } from "../Navigation/context";
@@ -177,7 +177,7 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
   const listRef = React.useRef(null);
   const [value, setValue] = React.useState(getListItemValue(0));
   const inputRef = React.useRef<HTMLInputElement | null>(null);
-  const isSubCommandOpen = useBlastUIStore(state => state.subcommandOpen)
+  const isSubCommandOpen = useBlastUIStore((state) => state.subcommandOpen);
 
   return (
     <div className="h-full raycast drag-area">
