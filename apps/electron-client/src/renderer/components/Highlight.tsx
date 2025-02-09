@@ -14,7 +14,7 @@ export const Highlight = ({ children, className }: HighlightProps) => {
     if (ref.current) {
       hljs.highlightElement(ref.current);
     }
-  }, [children]);
+  }, []);
 
   return (
     <code ref={ref} className={className}>
