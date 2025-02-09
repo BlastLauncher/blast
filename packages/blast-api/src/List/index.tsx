@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ElementTypes } from "@blastlauncher/renderer/src";
-import { List as RList } from "raycast-original";
-import { FunctionComponent } from "react";
+import type { List as RList } from "raycast-original";
+import type { FunctionComponent } from "react";
 
 import { Dropdown } from "./Dropdown";
 import { EmptyView } from "./EmptyView";

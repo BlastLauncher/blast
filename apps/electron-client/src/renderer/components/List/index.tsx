@@ -212,7 +212,7 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
             const keyMatches =
               e.key.toLowerCase() === shortcut.key.toLowerCase();
             const requiredModifiers = shortcut.modifiers || [];
-            const modifiersMatch = requiredModifiers.every((mod) => {
+            const modifiersMatch = requiredModifiers.every((mod: string) => {
               if (mod === "ctrl") return e.ctrlKey;
               if (mod === "cmd") return e.metaKey;
               if (mod === "shift") return e.shiftKey;
