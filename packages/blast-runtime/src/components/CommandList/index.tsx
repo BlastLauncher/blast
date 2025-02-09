@@ -9,7 +9,7 @@ import { StoreCommand } from "../Store";
 import { loadCommands } from "./loadCommands";
 import { evalCommandModule } from "./utils";
 
-class MyErrorBoundary extends Component<{ children: React.ReactNode }, { hasError: boolean, error: any }> {
+class MyErrorBoundary extends Component<{ children: React.ReactNode }, { hasError: boolean; error: Error | null }> {
   state = { hasError: false, error: null };
 
   static getDerivedStateFromError(error: any) {
@@ -22,7 +22,7 @@ class MyErrorBoundary extends Component<{ children: React.ReactNode }, { hasErro
 
   render() {
     if (this.state.hasError) {
-      return <ErrorBoundary error={this.state.error} />
+      return <ErrorBoundary error={this.state.error} />;
     }
 
     return this.props.children;
