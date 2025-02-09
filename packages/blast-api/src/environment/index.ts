@@ -14,7 +14,7 @@ const defaultEnvironment: Environment = {
   raycastVersion: "",
   supportPath: "",
   textSize: "medium",
-  theme: "light",
+  theme: "dark",
 };
 
 export const environment: Environment = new Proxy(defaultEnvironment, {

@@ -1,12 +1,11 @@
 import { existsSync, mkdirSync } from "node:fs";
-import os from "node:os";
 import path from "node:path";
 
-export class Cache {
-  static get STORAGE_DIRECTORY_NAME(): string {
-    return ".blast-cache";
-  }
+import { USER_DIR } from "../../blast-runtime/src/constants";
 
+import { environment } from "./environment";
+
+export class Cache {
   static get DEFAULT_CAPACITY(): number {
     return 10 * 1024 * 1024; // 10 MB
   }
@@ -19,10 +18,17 @@ export class Cache {
   private subscribers: CacheSubscriber[] = [];
 
   constructor(options?: CacheOptions) {
+    console.debug('cache options', options)
     if (options?.directory) {
       this.directory = options.directory;
     } else {
-      this.directory = path.join(os.homedir(), Cache.STORAGE_DIRECTORY_NAME);
+      const ns = options?.namespace || "default";
+      let extName = environment.extensionName || "defaultExtension";
+      if (environment.isDevelopment) {
+        extName = `dev_${extName}`;
+      }
+      // Store under $USER_DIR/.cache/<extension_name>/<namespace>
+      this.directory = path.join(USER_DIR, ".cache", extName, ns);
     }
     if (options?.namespace) {
       this.namespace = options.namespace;
@@ -40,9 +46,6 @@ export class Cache {
    * @returns the full path to the directory where the data is stored on disk.
    */
   get storageDirectory(): string {
-    if (this.namespace) {
-      return path.join(this.directory, this.namespace);
-    }
     return this.directory;
   }
 
