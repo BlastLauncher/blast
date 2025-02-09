@@ -1,5 +1,5 @@
 declare module "react-devtools-core" {
-  import { w3cwebsocket as W3CWebSocket } from "websocket";
+  import type { w3cwebsocket as W3CWebSocket } from "websocket";
   type ResolveNativeStyle = any;
   type DevToolsSettingsManager = any;
 
