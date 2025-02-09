@@ -9,6 +9,8 @@ import fs from "fs-extra";
 import semver from "semver";
 import { temporaryFile } from "tempy";
 
+import { DEV_EXTENSIONS_DIR } from "../blast-runtime/src/constants";
+
 function getJSON(url) {
   return new Promise((resolve, reject) => {
     https
@@ -29,6 +31,97 @@ function getJSON(url) {
         reject(e);
       });
   });
+}
+
+async function buildExtensionDev(extensionDir, outputFolder) {
+  // Read package.json to get the command names
+  const packageJson = JSON.parse(fs.readFileSync(path.resolve(extensionDir, "package.json"), "utf8"));
+  const commandNames = packageJson.commands.map((command) => command.name);
+
+  const supportedExts = [".js", ".ts", ".tsx", ".jsx"];
+  const tsconfigPath = getTSConfigPath(extensionDir);
+
+  // Ensure the output folder exists
+  fs.ensureDirSync(outputFolder);
+
+  for (const commandName of commandNames) {
+    const srcDir = path.join(extensionDir, "src");
+    const files = fs.readdirSync(srcDir);
+    const entry = files.find((file) => supportedExts.some((ext) => file === `${commandName}${ext}`));
+    if (!entry) {
+      throw new Error(`No entry point found for ${commandName}`);
+    }
+    const entryPath = path.join(srcDir, entry);
+    const outputPath = path.join(outputFolder, `${commandName}.js`);
+
+    console.debug(`Dev build entry point for ${commandName} is ${entryPath}`);
+
+    const ctx = await esbuild.context({
+      entryPoints: [entryPath],
+      bundle: true,
+      platform: "node",
+      outfile: outputPath,
+      external: ["@raycast/api", "react"],
+      jsx: "transform",
+      jsxFactory: "_jsx",
+      jsxFragment: "_jsxFragment",
+      tsconfig: tsconfigPath,
+      minify: false, // no minification in dev mode
+      sourcemap: true, // include sourcemaps for debugging
+    });
+
+    await ctx.watch();
+  }
+
+  // Copy the package.json and assets to the output folder if needed
+  fs.copyFileSync(path.join(extensionDir, "package.json"), path.join(outputFolder, "package.json"));
+
+  const assetsDir = path.join(extensionDir, "assets");
+
+  // Create a symlink for node_modules in the dev output directory.
+  const sourceNodeModules = path.join(extensionDir, "node_modules");
+  const destNodeModules = path.join(outputFolder, "node_modules");
+  if (fs.existsSync(sourceNodeModules)) {
+    // Remove existing symlink or folder if needed.
+    try {
+      fs.unlinkSync(destNodeModules);
+    } catch (e) {
+      // ignore errors if dest doesn't exist
+    }
+    // Create the symlink (use "junction" on Windows).
+    fs.symlinkSync(sourceNodeModules, destNodeModules, "junction");
+    console.debug(`Created symlink from ${destNodeModules} to ${sourceNodeModules}`);
+  }
+  if (fs.existsSync(assetsDir)) {
+    fs.copySync(assetsDir, path.join(outputFolder, "assets"));
+  }
+
+  // Ensure that the copied package.json contains a valid name and version
+  const pkgPath = path.join(outputFolder, "package.json");
+  const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
+  if (!pkg.name) {
+    // If name is missing, use the extension folder basename
+    pkg.name = path.basename(extensionDir);
+  }
+  // Mark this as a development version.
+  pkg.version = "dev";
+  fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2), "utf8");
+
+  // Update the root DEV_EXTENSIONS_DIR package.json so that this dev extension is included
+  const devRootPkgPath = path.join(DEV_EXTENSIONS_DIR, "package.json");
+  let devRootPkg = {};
+  if (fs.existsSync(devRootPkgPath)) {
+    devRootPkg = JSON.parse(fs.readFileSync(devRootPkgPath, "utf8"));
+  }
+  // Ensure there is a dependencies field.
+  if (!devRootPkg.dependencies) {
+    devRootPkg.dependencies = {};
+  }
+  // Use the same name from the extension package.
+  const extPackageName = pkg.name;
+  // Add or update the dependency (e.g., you can also use a file reference if needed)
+  devRootPkg.dependencies[extPackageName] = "dev";
+  fs.writeFileSync(devRootPkgPath, JSON.stringify(devRootPkg, null, 2), "utf8");
 }
 
 class PackageVersionHelper {
@@ -91,7 +184,9 @@ class PackageVersionHelper {
 async function publishExtensions(extensionFolder, npmOrganization, npmRegistry, distDir) {
   const versionHelper = new PackageVersionHelper(npmOrganization, npmRegistry);
 
-  console.log(`\nEntering ${extensionFolder}\n`);
+  console.log(`
+Entering ${extensionFolder}
+`);
   execSync(`cd "${extensionFolder}"`);
 
   if (!distDir) {
@@ -260,6 +355,20 @@ program
   .option("-o, --output <output>", "Output directory, default to ./dist folder relative to extension path")
   .action((path, options) => {
     return buildExtension(path, options.output);
+  });
+
+program
+  .command("dev")
+  .description("Build extension in dev mode and load it as a developing command")
+  .argument("<path>", "Path to extension source")
+  .option(
+    "-o, --output <output>",
+    "Output directory for dev build (defaults to DEV_EXTENSIONS_DIR/node_modules/<extension-folder-name>)"
+  )
+  .action(async (extensionPath, options) => {
+    const defaultOutput = path.join(DEV_EXTENSIONS_DIR, "node_modules", path.basename(extensionPath));
+    const outputFolder = options.output || defaultOutput;
+    await buildExtensionDev(extensionPath, outputFolder);
   });
 
 program.parse();
