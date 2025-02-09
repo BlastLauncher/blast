@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "node:fs";
 
 import * as blastAPI from "@blastlauncher/api";
 import _eval from "eval";
@@ -10,11 +10,13 @@ export function evalCommandModule(pkg: string) {
   const customRequire = (id: string) => {
     if (id === "react") {
       return React;
-    } else if (id === "@raycast/api") {
-      return blastAPI;
-    } else {
-      return require(id);
     }
+
+    if (id === "@raycast/api") {
+      return blastAPI;
+    }
+
+    return require(id);
   };
 
   const mod: any = _eval(

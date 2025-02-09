@@ -11,10 +11,11 @@
 //   }
 // ]
 
-import fs from "fs/promises";
-import path from "path";
+import fs from "node:fs";
+import fsPromise from "node:fs/promises";
+import path from "node:path";
 
-import { EXTENSIONS_DIR } from '../../constants'
+import { EXTENSIONS_DIR, DEV_EXTENSIONS_DIR } from "../../constants";
 
 interface Command {
   name: string;
@@ -42,13 +43,13 @@ export async function loadInstalledExtensions(): Promise<string[]> {
 
   // check if package.json exists
   try {
-    await fs.access(packageJsonPath);
+    await fsPromise.access(packageJsonPath);
   } catch (error: any) {
     switch (error?.code) {
       case "ENOENT":
         // file does not exist
-        await fs.mkdir(path.dirname(packageJsonPath), { recursive: true });
-        await fs.writeFile(packageJsonPath, "{}");
+        await fsPromise.mkdir(path.dirname(packageJsonPath), { recursive: true });
+        await fsPromise.writeFile(packageJsonPath, "{}");
         break;
       default:
         console.error("Error loading commands:", error);
@@ -58,13 +59,36 @@ export async function loadInstalledExtensions(): Promise<string[]> {
     return [];
   }
 
-  const packageJson = safeParse(await fs.readFile(packageJsonPath, "utf-8")) || {};
-  const dependencies = packageJson?.dependencies || {};
+  // Load production extensions from EXTENSIONS_DIR
+  const prodPackageJsonPath = path.join(EXTENSIONS_DIR, "package.json");
+  let prodDeps = {};
+  try {
+    await fsPromise.access(prodPackageJsonPath);
+    const prodPackageJson = safeParse(await fsPromise.readFile(prodPackageJsonPath, "utf-8")) || {};
+    prodDeps = prodPackageJson.dependencies || {};
+  } catch (error) {
+    // File might not exist; leave prodDeps empty
+  }
 
-  // 2. For each dependency starts with @blast-extensions, read its package.json inside node_modules
-  const extensionPackages = Object.keys(dependencies).filter((dep) => dep.startsWith("@blast-extensions")) || [];
+  // Load dev extensions from DEV_EXTENSIONS_DIR
+  const devPackageJsonPath = path.join(DEV_EXTENSIONS_DIR, "package.json");
+  let devDeps = {};
+  try {
+    await fsPromise.access(devPackageJsonPath);
+    const devPackageJson = safeParse(await fsPromise.readFile(devPackageJsonPath, "utf-8")) || {};
+    devDeps = devPackageJson.dependencies || {};
+  } catch (error) {
+    // No dev extensions configured; leave devDeps empty
+  }
 
-  return extensionPackages;
+  // Create a map of extensions where dev takes precedence over prod
+  const extMap: Record<string, boolean> = {};
+  Object.keys(prodDeps)
+    .filter((dep) => dep.startsWith("@blast-extensions"))
+    .forEach((dep) => (extMap[dep] = true));
+  Object.keys(devDeps).forEach((dep) => (extMap[dep] = true));
+
+  return Object.keys(extMap);
 }
 
 export async function loadCommands(): Promise<Command[]> {
@@ -73,15 +97,21 @@ export async function loadCommands(): Promise<Command[]> {
     const commands: Command[] = [];
 
     for (const extPackage of extensionPackages) {
-      const extPackageJsonPath = path.join(EXTENSIONS_DIR, "node_modules", extPackage, "package.json");
-      const extPackageJson = safeParse(await fs.readFile(extPackageJsonPath, "utf-8"));
+      // Look in dev first and then fall back to production; dev commands overwrite in conflicts.
+      const devPackageJsonPath = path.join(DEV_EXTENSIONS_DIR, "node_modules", extPackage, "package.json");
+      const prodPackageJsonPath = path.join(EXTENSIONS_DIR, "node_modules", extPackage, "package.json");
+
+      const extPackageJsonPath = fs.existsSync(devPackageJsonPath) ? devPackageJsonPath : prodPackageJsonPath;
+
+      const extPackageJson = safeParse(await fsPromise.readFile(extPackageJsonPath, "utf-8"));
 
       // 3. For each command in package.json, return its commands field
       if (extPackageJson.commands) {
+        const baseDir = fs.existsSync(devPackageJsonPath) ? DEV_EXTENSIONS_DIR : EXTENSIONS_DIR;
         for (const command of extPackageJson.commands) {
           commands.push({
             ...command,
-            requirePath: path.join(EXTENSIONS_DIR, "node_modules", extPackage, `${command.name}.js`),
+            requirePath: path.join(baseDir, "node_modules", extPackage, `${command.name}.js`),
           });
         }
       }
