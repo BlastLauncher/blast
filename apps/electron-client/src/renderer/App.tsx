@@ -7,7 +7,7 @@ export const App = () => {
 
   return (
     <>
-      <div className="h-full dark">{tree && <TreeComponent blastProps={tree} />}</div>
+      <div className="h-full dark text-white">{tree && <TreeComponent blastProps={tree} />}</div>
 
       <Devtool />
     </>

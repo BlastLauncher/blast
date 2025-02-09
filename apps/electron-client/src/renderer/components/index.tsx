@@ -3,6 +3,7 @@ import { useCallback } from "react";
 import { useRemoteBlastTree } from "../store";
 import type { BlastComponent } from "../types";
 
+import { Detail, type DetailProps } from "./Detail";
 import { ErrorBoundary, type BoundaryProps } from "./ErrorBoundary";
 import { Form, type FormProps } from "./Form";
 import { List, type ListProps } from "./List";
@@ -58,6 +59,7 @@ export const TreeComponent = ({ blastProps }: { blastProps: BlastComponent }) =>
       {elementType === "List" ? <List children={firstChild.children} props={props as ListProps} /> : null}
       {elementType === "Form" ? <Form children={firstChild.children} props={props as FormProps} /> : null}
       {elementType === "ErrorBoundary" ? <ErrorBoundary {...(props as BoundaryProps)} /> : null}
+      {elementType === "Detail" ? <Detail {...(props as DetailProps)} /> : null}
     </NavigationContext.Provider>
   );
 };

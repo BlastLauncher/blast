@@ -24,6 +24,12 @@ interface Command {
   mode: string;
   subtitle?: string;
   requirePath: string;
+  env: {
+    assetsPath: string;
+    commandName: string;
+    extensionName: string;
+    isDevelopment: boolean;
+  };
 }
 
 const getPackageJsonPath = (): string => {
@@ -83,10 +89,13 @@ export async function loadInstalledExtensions(): Promise<string[]> {
 
   // Create a map of extensions where dev takes precedence over prod
   const extMap: Record<string, boolean> = {};
-  Object.keys(prodDeps)
-    .filter((dep) => dep.startsWith("@blast-extensions"))
-    .forEach((dep) => (extMap[dep] = true));
-  Object.keys(devDeps).forEach((dep) => (extMap[dep] = true));
+  for (const dep of Object.keys(prodDeps).filter((dep) => dep.startsWith("@blast-extensions"))) {
+    extMap[dep] = true;
+  }
+
+  for (const dep of Object.keys(devDeps)) {
+    extMap[dep] = true;
+  }
 
   return Object.keys(extMap);
 }
@@ -100,8 +109,9 @@ export async function loadCommands(): Promise<Command[]> {
       // Look in dev first and then fall back to production; dev commands overwrite in conflicts.
       const devPackageJsonPath = path.join(DEV_EXTENSIONS_DIR, "node_modules", extPackage, "package.json");
       const prodPackageJsonPath = path.join(EXTENSIONS_DIR, "node_modules", extPackage, "package.json");
+      const isDev = fs.existsSync(devPackageJsonPath);
 
-      const extPackageJsonPath = fs.existsSync(devPackageJsonPath) ? devPackageJsonPath : prodPackageJsonPath;
+      const extPackageJsonPath = isDev ? devPackageJsonPath : prodPackageJsonPath;
 
       const extPackageJson = safeParse(await fsPromise.readFile(extPackageJsonPath, "utf-8"));
 
@@ -112,6 +122,12 @@ export async function loadCommands(): Promise<Command[]> {
           commands.push({
             ...command,
             requirePath: path.join(baseDir, "node_modules", extPackage, `${command.name}.js`),
+            env: {
+              assetsPath: path.join(baseDir, "node_modules", extPackage, "assets"),
+              commandName: command.name,
+              extensionName: extPackageJson.name,
+              isDevelopment: isDev,
+            },
           });
         }
       }
