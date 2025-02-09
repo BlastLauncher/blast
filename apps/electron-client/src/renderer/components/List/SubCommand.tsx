@@ -3,7 +3,7 @@ import { Command } from "cmdk";
 import React from "react";
 
 import { useRemoteBlastTree } from "../../store";
-import { BlastComponent } from "../../types";
+import type { BlastComponent } from "../../types";
 
 import { ActionContainer } from ".";
 
