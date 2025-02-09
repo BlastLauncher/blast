@@ -1,5 +1,6 @@
 import { ElementTypes } from "@blastlauncher/renderer/src";
-import React, { Fragment, createContext, useCallback, useContext, useEffect, useState } from "react";
+import type React from "react";
+import { Fragment, createContext, useCallback, useContext, useEffect, useState } from "react";
 
 import { useWsServer } from "../internal/WsServerProvider";
 
@@ -23,12 +24,12 @@ export const NavigationProvider = ({ children }: { children?: React.ReactNode })
     (component: React.ReactNode) => {
       setStack((previous) => [...previous, component]);
     },
-    [setStack]
+    []
   );
 
   const pop = useCallback(() => {
     setStack((previous) => previous.slice(0, -1));
-  }, [setStack]);
+  }, []);
 
   useEffect(() => {
     if (!server) {

@@ -1,11 +1,11 @@
 import type { Keyboard } from "@raycast/api";
 import { Command } from "cmdk";
 import React from "react";
-import { Client } from "rpc-websockets";
+import type { Client } from "rpc-websockets";
 
-import { ObjectFromList } from "../../lib/typeUtils";
-import { useRemoteBlastTree } from "../../store";
-import { BlastComponent } from "../../types";
+import type { ObjectFromList } from "../../lib/typeUtils";
+import { useBlastUIStore, useRemoteBlastTree } from "../../store";
+import type { BlastComponent } from "../../types";
 import Icons from "../Icon";
 import { useNavigationContext } from "../Navigation/context";
 
@@ -162,7 +162,7 @@ function getListItemValue(itemIndex: number) {
 }
 
 export function getListIndexFromValue(value: string) {
-  return parseInt(value.replace("listitem-", ""), 10);
+  return Number.parseInt(value.replace("listitem-", ""), 10);
 }
 
 export const List = ({ children, props }: { children: BlastComponent[]; props: ListProps }): JSX.Element => {
@@ -177,28 +177,75 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
   const listRef = React.useRef(null);
   const [value, setValue] = React.useState(getListItemValue(0));
   const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const isSubCommandOpen = useBlastUIStore((state) => state.subcommandOpen);
+  const { ws } = useRemoteBlastTree();
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!inputRef.current) {
+      return;
+    }
+    if (e.key === "Escape") {
+      e.preventDefault();
+      if (inputRef.current.value) {
+        inputRef.current.value = "";
+      } else if (!isSubCommandOpen) {
+        pop();
+      }
+    } else if (e.key === "Backspace" && !inputRef.current.value) {
+      e.preventDefault();
+      softPop();
+    } else {
+      // Check for configured action shortcut key
+      const selectedIndex = getListIndexFromValue(value);
+      const selectedListItem = listItems[selectedIndex];
+      let actionData = selectedListItem
+        ? selectedListItem.children.find((child) => child.elementType === "ActionPanel")
+        : null;
+      if (!actionData && emptyViewActionPanel) {
+        actionData = emptyViewActionPanel;
+      }
+      let matchedAction = null;
+      if (actionData && Array.isArray(actionData.children)) {
+        matchedAction = actionData.children.find((action) => {
+          if (action.props?.shortcut) {
+            const shortcut = action.props.shortcut;
+            const keyMatches =
+              e.key.toLowerCase() === shortcut.key.toLowerCase();
+            const requiredModifiers = shortcut.modifiers || [];
+            const modifiersMatch = requiredModifiers.every((mod) => {
+              if (mod === "ctrl") return e.ctrlKey;
+              if (mod === "cmd") return e.metaKey;
+              if (mod === "shift") return e.shiftKey;
+              if (mod === "option") return e.altKey;
+              return false;
+            });
+            return keyMatches && modifiersMatch;
+          }
+          return false;
+        });
+      }
+      if (matchedAction?.props?.actionEventName) {
+        e.preventDefault();
+        ws.call(matchedAction.props.actionEventName);
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        const defaultAction =
+          actionData && Array.isArray(actionData.children) && actionData.children.length > 0
+            ? actionData.children[0]
+            : null;
+        if (defaultAction?.props?.actionEventName) {
+          ws.call(defaultAction.props.actionEventName);
+        }
+      }
+    }
+  };
 
   return (
     <div className="h-full raycast drag-area">
       <Command
         value={value}
         onValueChange={(v) => setValue(v)}
-        onKeyDown={(e) => {
-          if (!inputRef.current) {
-            return;
-          }
-          if (e.key === "Escape") {
-            e.preventDefault();
-            if (inputRef.current.value) {
-              inputRef.current.value = "";
-            } else {
-              pop();
-            }
-          } else if (e.key === "Backspace" && !inputRef.current.value) {
-            e.preventDefault();
-            softPop();
-          }
-        }}
+        onKeyDown={handleKeyDown}
       >
         <div className="absolute top-0 left-0 w-full h-2 drag-area" />
 
