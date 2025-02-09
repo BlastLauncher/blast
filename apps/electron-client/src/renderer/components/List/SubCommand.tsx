@@ -59,7 +59,7 @@ export function SubCommand({
   return (
     actionData && (
       <Popover.Root open={uiStore.open} onOpenChange={uiStore.setOpen} modal>
-        <Popover.Trigger onClick={() => uiStore.setOpen(true)}>
+        <Popover.Trigger cmdk-raycast-subcommand-trigger="" onClick={() => uiStore.setOpen(true)} aria-expanded={uiStore.open}>
           Actions
           <kbd>⌘</kbd>
           <kbd>K</kbd>
