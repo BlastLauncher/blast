@@ -1,5 +1,5 @@
 import type { Client } from "rpc-websockets";
-import { useStore } from "zustand";
+import { useStore, create } from "zustand";
 import { createStore } from "zustand/vanilla";
 
 import type { BlastStore, BlastComponent } from "./types";
@@ -12,3 +12,13 @@ export const remoteBlastTree = createStore<BlastStore>()((set) => ({
 }));
 
 export const useRemoteBlastTree = () => useStore(remoteBlastTree);
+
+type BlastUIState = {
+  subcommandOpen: boolean,
+  setSubcommandOpen: (open: boolean) => void
+}
+
+export const useBlastUIStore = create<BlastUIState>((set) => ({
+  subcommandOpen: false,
+  setSubcommandOpen: (open: boolean) => set({ subcommandOpen: open })
+}))

@@ -1,8 +1,9 @@
 import * as Popover from "@radix-ui/react-popover";
 import { Command } from "cmdk";
 import React from "react";
+import { useShallow } from 'zustand/react/shallow'
 
-import { useRemoteBlastTree } from "../../store";
+import { useBlastUIStore, useRemoteBlastTree } from "../../store";
 import type { BlastComponent } from "../../types";
 
 import { ActionContainer } from ".";
@@ -16,18 +17,21 @@ export function SubCommand({
   listRef?: React.RefObject<HTMLElement>;
   actionData: BlastComponent;
 }) {
-  const [open, setOpen] = React.useState(false);
+  const uiStore = useBlastUIStore(useShallow((state) => ({
+    open: state.subcommandOpen,
+    setOpen: state.setSubcommandOpen,
+  })));
 
   React.useEffect(() => {
     function listener(e: KeyboardEvent) {
       if (e.key === "k" && e.metaKey) {
         e.preventDefault();
-        setOpen((o) => !o);
+        uiStore.setOpen(true);
       }
 
       if (e.key === "Escape") {
         e.stopPropagation();
-        setOpen(false);
+        uiStore.setOpen(false);
       }
     }
 
@@ -36,7 +40,7 @@ export function SubCommand({
     return () => {
       document.removeEventListener("keydown", listener);
     };
-  }, []);
+  }, [uiStore]);
 
   React.useEffect(() => {
     const el = listRef?.current;
@@ -54,8 +58,8 @@ export function SubCommand({
 
   return (
     actionData && (
-      <Popover.Root open={open} onOpenChange={setOpen} modal>
-        <Popover.Trigger cmdk-raycast-subcommand-trigger="" onClick={() => setOpen(true)} aria-expanded={open}>
+      <Popover.Root open={uiStore.open} onOpenChange={uiStore.setOpen} modal>
+        <Popover.Trigger cmdk-raycast-subcommand-trigger="" onClick={() => uiStore.setOpen(true)} aria-expanded={open}>
           Actions
           <kbd>⌘</kbd>
           <kbd>K</kbd>
@@ -73,7 +77,7 @@ export function SubCommand({
         >
           <Command>
             <Command.List>
-              <ActionContainer actions={actionData.children} ws={ws} close={() => setOpen(false)} />
+              <ActionContainer actions={actionData.children} ws={ws} close={() => uiStore.setOpen(false)} />
             </Command.List>
 
             <Command.Input placeholder="Search for actions..." />
