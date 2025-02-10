@@ -88,3 +88,7 @@ export class Icon extends BaseElement {
 export class ErrorBoundary extends BaseElement {
   static defaultProps = {}
 }
+
+export class Dropdown extends BaseElement {
+  static defaultProps = {}
+}
