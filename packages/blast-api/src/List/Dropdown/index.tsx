@@ -1,7 +1,7 @@
 import { ElementTypes } from "@blastlauncher/renderer";
 import { createDebug } from "@blastlauncher/utils/src";
 import type { List as RList } from "raycast-original";
-import { useCallback, useId, useMemo, useState } from "react";
+import { Children, useCallback, useEffect, useId, useMemo, useState } from "react";
 
 import { useServerEvent } from "../../internal/hooks";
 
@@ -48,6 +48,22 @@ export const Dropdown = (props: RList.Dropdown.Props) => {
 
   useServerEvent(onChangeEventName, onChangeHandler);
   useServerEvent(onSearchTextChangeEventName, onSearchTextChangeHandler);
+
+  // TODO: handle section
+  const values = useMemo(() => {
+    return Children.toArray(children).filter(child => (child as React.ReactElement).type === Item).map(child => {
+      const elem = child as React.ReactElement
+      return elem.props.value
+    })
+  }, [children])
+
+  useEffect(() => {
+    if (props.defaultValue && values.find(v => v === props.defaultValue)) {
+      props.onChange?.(props.defaultValue)
+    } else if (values.length > 0) {
+      props.onChange?.(values[0])
+    }
+  }, [values, props.defaultValue, props.onChange])
 
   return (
     <ElementTypes.Dropdown
