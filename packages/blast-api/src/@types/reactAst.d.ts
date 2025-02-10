@@ -34,5 +34,7 @@ declare namespace JSX {
     } & BlastNodeProps;
 
     Dropdown: List.Dropdown.Props & Grid.Dropdown.Props & Form.Dropdown.Props & BlastNodeProps;
+    DropdownSection: List.Dropdown.Section.Props & Grid.Dropdown.Section.Props & Form.Dropdown.Section.Props & BlastNodeProps;
+    DropdownItem: List.Dropdown.Item.Props & Grid.Dropdown.Item.Props & Form.Dropdown.Item.Props & BlastNodeProps;
   }
 }

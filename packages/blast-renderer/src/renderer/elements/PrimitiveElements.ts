@@ -92,3 +92,11 @@ export class ErrorBoundary extends BaseElement {
 export class Dropdown extends BaseElement {
   static defaultProps = {}
 }
+
+export class DropdownSection extends BaseElement {
+  static defaultProps = {}
+}
+
+export class DropdownItem extends BaseElement {
+  static defaultProps = {}
+}

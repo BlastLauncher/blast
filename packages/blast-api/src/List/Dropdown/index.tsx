@@ -60,4 +60,5 @@ export const Dropdown = (props: RList.Dropdown.Props) => {
     </ElementTypes.Dropdown>
   );
 };
-Dropdown.Item = Item;
+
+(Dropdown as any).Item = Item;
