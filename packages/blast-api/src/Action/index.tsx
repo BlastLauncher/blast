@@ -2,10 +2,10 @@
 import { ElementTypes } from "@blastlauncher/renderer/src";
 import { createDebug } from "@blastlauncher/utils/src";
 import type { Action as RaycastAction } from "raycast-original";
-import { useCallback, useEffect, useId, useMemo } from "react";
+import { useCallback, useId, useMemo } from "react";
 
 import { useFormContext } from "../Form";
-import { useWsServer } from "../internal/WsServerProvider";
+import { useServerEvent } from "../internal/hooks";
 import { useNavigation } from "../Navigation";
 
 const debug = createDebug("blast:action");
@@ -15,35 +15,15 @@ const serializedKeys: ActionPropKeys = ["autoFocus", "icon", "id", "shortcut", "
 
 export const Action = (props: RaycastAction.Props) => {
   const { onAction } = props;
-  const server = useWsServer();
   const actionId = useId();
   const actionEventName = useMemo(() => `action${actionId}`, [actionId]);
 
-  useEffect(() => {
-    const runRegister = !!onAction && !!server;
+  const fn = () => {
+    onAction?.();
 
-    if (!runRegister) {
-      return;
-    }
-
-    debug("registering action event listener", actionEventName);
-
-    const fn = () => {
-      onAction();
-
-      return null;
-    };
-
-    server.register(actionEventName, fn);
-
-    return () => {
-      debug("unregistering action event listener", actionEventName);
-
-      delete (server as any).namespaces["/"].rpc_methods[actionEventName];
-
-      // server.removeListener(actionEventName, fn);
-    };
-  }, [actionEventName, onAction, server]);
+    return null;
+  };
+  useServerEvent(actionEventName, fn)
 
   return (
     <ElementTypes.Action
