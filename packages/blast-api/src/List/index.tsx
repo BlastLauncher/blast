@@ -39,6 +39,6 @@ export const List: FunctionComponent<RList.Props> = (props: RList.Props) => {
   );
 };
 
-(List as any).Dropdown = Dropdown;
+(List as typeof RList).Dropdown = Dropdown;
 (List as any).EmptyView = EmptyView;
 (List as any).Item = Item;

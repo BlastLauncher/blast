@@ -12,15 +12,19 @@ import { useNavigationContext } from "../Navigation/context";
 import { EmptyView } from "./EmptyView";
 import { ListFooter } from "./ListFooter";
 
-const getIconComponent = (icon: string) => {
-  const Icon = Icons[icon as keyof typeof Icons] as () => JSX.Element;
+const IconComp = ({ icon }: { icon: string | { source: string, size: number } }) => {
+  if (typeof icon === 'string') {
+    const Icon = Icons[icon as keyof typeof Icons] as () => JSX.Element;
 
-  if (!Icon) {
-    console.warn(`Icon ${icon} not found`);
-    return null;
+    if (!Icon) {
+      console.warn(`Icon ${JSON.stringify(icon)} not found`);
+      return null;
+    }
+
+    return <Icon />;
   }
 
-  return Icon;
+  return null
 };
 
 const serializedKeys = [
@@ -71,8 +75,6 @@ const Action = ({ action, ws, close }: { action: BlastComponent; ws: Client; clo
     props: { shortcut, actionEventName, title, icon },
   } = action;
 
-  const Icon = getIconComponent(icon);
-
   return (
     <SubItem
       shortcut={shortcut ? renderShortcutToString(shortcut) : keyToSymbol.enter}
@@ -81,7 +83,7 @@ const Action = ({ action, ws, close }: { action: BlastComponent; ws: Client; clo
         ws.call(actionEventName);
         close();
       }}
-      icon={Icon && <Icon />}
+      icon={<IconComp icon={icon} />}
     >
       {title}
     </SubItem>
@@ -276,11 +278,10 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
             } = listItem;
 
             const value = getListItemValue(index);
-            const Icon = getIconComponent(icon);
 
             return (
               <Command.Item key={value} value={value}>
-                {icon && <Icon />}
+                <IconComp icon={icon} />
 
                 {title}
               </Command.Item>

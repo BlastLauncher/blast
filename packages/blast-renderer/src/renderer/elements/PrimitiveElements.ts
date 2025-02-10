@@ -81,6 +81,10 @@ export class ListItem extends BaseElement {
   static defaultProps = {};
 }
 
+export class ListItemAccessory extends BaseElement {
+  static defaultProps = {};
+}
+
 export class Icon extends BaseElement {
   static defaultProps = {};
 }
