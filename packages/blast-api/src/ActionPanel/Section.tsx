@@ -1,5 +1,5 @@
 import { ElementTypes } from "@blastlauncher/renderer/src";
-import { ActionPanel } from "raycast-original";
+import type { ActionPanel } from "raycast-original";
 
 
 type ActionPanelSectionPropKeys = (keyof ActionPanel.Section.Props)[];

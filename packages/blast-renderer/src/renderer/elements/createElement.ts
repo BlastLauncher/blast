@@ -1,6 +1,6 @@
-import { HostContext, Props } from "../types";
+import type { HostContext, Props } from "../types";
 
-import { IElement } from "./BaseElement";
+import type { IElement } from "./BaseElement";
 import { elements } from "./elements";
 
 import { debug } from ".";

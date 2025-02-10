@@ -361,8 +361,8 @@ importers:
         specifier: ^18.2.0
         version: 18.3.1
       react-devtools-core:
-        specifier: 5.1.0
-        version: 5.1.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+        specifier: 5.3.2
+        version: 5.3.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       websocket:
         specifier: ^1.0.34
         version: 1.0.34
@@ -6184,8 +6184,8 @@ packages:
   react-devtools-core@4.28.5:
     resolution: {integrity: sha512-cq/o30z9W2Wb4rzBefjv5fBalHU0rJGZCHAkf/RHSBWSSYwh8PlQTqqOJmgIIbBtpj27T6FIPXeomIjZtCNVqA==}
 
-  react-devtools-core@5.1.0:
-    resolution: {integrity: sha512-NRtLBqYVLrIY+lOa2oTpFiAhI7Hru0AUXI0tP9neCyaPPAzlZyeH0i+VZ0shIyRTJbpvyqbD/uCsewA2hpfZHw==}
+  react-devtools-core@5.3.2:
+    resolution: {integrity: sha512-crr9HkVrDiJ0A4zot89oS0Cgv0Oa4OG1Em4jit3P3ZxZSKPMYyMjfwMqgcJna9o625g8oN87rBm8SWWrSTBZxg==}
 
   react-devtools@4.28.5:
     resolution: {integrity: sha512-iVYraMxjfqpb+e1z3MrYIqdQABDgAZAR5wuSJwGMpxEYLC+XI/YJUbB3NlN1Wlq4s1ZvibfOtSckjnl2b3BL8Q==}
@@ -14744,7 +14744,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  react-devtools-core@5.1.0(bufferutil@4.0.8)(utf-8-validate@5.0.10):
+  react-devtools-core@5.3.2(bufferutil@4.0.8)(utf-8-validate@5.0.10):
     dependencies:
       shell-quote: 1.8.1
       ws: 7.5.9(bufferutil@4.0.8)(utf-8-validate@5.0.10)

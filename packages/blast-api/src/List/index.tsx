@@ -28,10 +28,11 @@ const serializedKeys: ListPropKeys = [
 ];
 
 export const List: FunctionComponent<RList.Props> = (props: RList.Props) => {
-  const { children, actions, ...rest } = props;
+  const { children, actions, searchBarAccessory, ...rest } = props;
 
   return (
     <ElementTypes.List serializedKeys={serializedKeys} {...rest}>
+      {searchBarAccessory}
       {children}
       {actions}
     </ElementTypes.List>

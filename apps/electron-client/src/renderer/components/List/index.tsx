@@ -1,4 +1,5 @@
-import type { Keyboard } from "@raycast/api";
+import type { Image, Keyboard } from "@raycast/api";
+import type * as api from "@raycast/api";
 import { Command } from "cmdk";
 import React from "react";
 import type { Client } from "rpc-websockets";
@@ -12,15 +13,37 @@ import { useNavigationContext } from "../Navigation/context";
 import { EmptyView } from "./EmptyView";
 import { ListFooter } from "./ListFooter";
 
-const getIconComponent = (icon: string) => {
-  const Icon = Icons[icon as keyof typeof Icons] as () => JSX.Element;
+const IconComp = ({ icon }: { icon: api.List.Item.Props["icon"] }) => {
+  if (typeof icon === "string") {
+    const Icon = Icons[icon as keyof typeof Icons] as () => JSX.Element;
 
-  if (!Icon) {
-    console.warn(`Icon ${icon} not found`);
-    return null;
+    if (!Icon) {
+      console.warn(`Icon ${JSON.stringify(icon)} not found`);
+      return null;
+    }
+
+    return <Icon />;
   }
 
-  return Icon;
+  if ((icon as Image)?.source) {
+    const source = (icon as Image)?.source;
+    if (typeof source === "string" && source.startsWith("data:image/svg+xml,")) {
+      // Split the source into prefix and SVG markup.
+      const [prefix, svg] = source.split(/,(.+)/); // split into two parts; the regex keeps the rest intact
+      // Encode the SVG markup.
+      const encodedSvg = encodeURIComponent(svg);
+      // Reassemble the data URL.
+      const encodedSource = `${prefix},${encodedSvg}`;
+
+      return (
+        <div className="w-5 h-5 text-center align-middle">
+          <img src={encodedSource} alt="" />
+        </div>
+      );
+    }
+  }
+
+  return null;
 };
 
 const serializedKeys = [
@@ -71,8 +94,6 @@ const Action = ({ action, ws, close }: { action: BlastComponent; ws: Client; clo
     props: { shortcut, actionEventName, title, icon },
   } = action;
 
-  const Icon = getIconComponent(icon);
-
   return (
     <SubItem
       shortcut={shortcut ? renderShortcutToString(shortcut) : keyToSymbol.enter}
@@ -81,7 +102,7 @@ const Action = ({ action, ws, close }: { action: BlastComponent; ws: Client; clo
         ws.call(actionEventName);
         close();
       }}
-      icon={Icon && <Icon />}
+      icon={<IconComp icon={icon} />}
     >
       {title}
     </SubItem>
@@ -209,8 +230,7 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
         matchedAction = actionData.children.find((action) => {
           if (action.props?.shortcut) {
             const shortcut = action.props.shortcut;
-            const keyMatches =
-              e.key.toLowerCase() === shortcut.key.toLowerCase();
+            const keyMatches = e.key.toLowerCase() === shortcut.key.toLowerCase();
             const requiredModifiers = shortcut.modifiers || [];
             const modifiersMatch = requiredModifiers.every((mod: string) => {
               if (mod === "ctrl") return e.ctrlKey;
@@ -242,11 +262,7 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
 
   return (
     <div className="h-full raycast drag-area">
-      <Command
-        value={value}
-        onValueChange={(v) => setValue(v)}
-        onKeyDown={handleKeyDown}
-      >
+      <Command value={value} onValueChange={(v) => setValue(v)} onKeyDown={handleKeyDown}>
         <div className="absolute top-0 left-0 w-full h-2 drag-area" />
 
         <div cmdk-raycast-top-shine="" />
@@ -276,11 +292,10 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
             } = listItem;
 
             const value = getListItemValue(index);
-            const Icon = getIconComponent(icon);
 
             return (
               <Command.Item key={value} value={value}>
-                {icon && <Icon />}
+                <IconComp icon={icon} />
 
                 {title}
               </Command.Item>

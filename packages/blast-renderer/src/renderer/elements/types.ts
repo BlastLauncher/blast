@@ -1,7 +1,10 @@
 export const Action = "Action";
 export const List = "List";
 export const ListItem = "ListItem";
+export const ListItemAccessory = "ListItemAccessory";
 export const Dropdown = "Dropdown";
+export const DropdownSection = "DropdownSection";
+export const DropdownItem = "DropdownItem";
 export const Form = "Form";
 export const ActionPanel = "ActionPanel";
 export const ActionPanelSection = "ActionPanelSection";
