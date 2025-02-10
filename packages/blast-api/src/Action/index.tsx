@@ -1,7 +1,6 @@
-
 import { ElementTypes } from "@blastlauncher/renderer/src";
 import { createDebug } from "@blastlauncher/utils/src";
-import type { Action as RaycastAction } from "raycast-original";
+import type { Action as RAction } from "raycast-original";
 import { useCallback, useId, useMemo } from "react";
 
 import { useFormContext } from "../Form";
@@ -10,10 +9,10 @@ import { useNavigation } from "../Navigation";
 
 const debug = createDebug("blast:action");
 
-type ActionPropKeys = (keyof RaycastAction.Props)[];
+type ActionPropKeys = (keyof RAction.Props)[];
 const serializedKeys: ActionPropKeys = ["autoFocus", "icon", "id", "shortcut", "style", "title"];
 
-export const Action = (props: RaycastAction.Props) => {
+export const Action = (props: RAction.Props) => {
   const { onAction } = props;
   const actionId = useId();
   const actionEventName = useMemo(() => `action${actionId}`, [actionId]);
@@ -23,7 +22,7 @@ export const Action = (props: RaycastAction.Props) => {
 
     return null;
   };
-  useServerEvent(actionEventName, fn)
+  useServerEvent(actionEventName, fn);
 
   return (
     <ElementTypes.Action
@@ -34,7 +33,7 @@ export const Action = (props: RaycastAction.Props) => {
   );
 };
 
-const Push = (props: RaycastAction.Push.Props) => {
+const Push = (props: RAction.Push.Props) => {
   const { target, onPush, ...rest } = props;
   const { push } = useNavigation();
 
@@ -51,7 +50,7 @@ const Push = (props: RaycastAction.Push.Props) => {
 
 Action.Push = Push;
 
-const SubmitForm = (props: RaycastAction.SubmitForm.Props<any>) => {
+const SubmitForm = (props: RAction.SubmitForm.Props<any>) => {
   const { onSubmit, title = "Submit Form", ...rest } = props;
   const { formValues } = useFormContext();
 
@@ -66,3 +65,29 @@ const SubmitForm = (props: RaycastAction.SubmitForm.Props<any>) => {
 };
 
 Action.SubmitForm = SubmitForm;
+
+const CopyToClipboard = (props: RAction.CopyToClipboard.Props) => {
+  const { title = "Copy to Clipboard", content, onCopy, ...rest } = props;
+
+  const onAction = useCallback(() => {
+    console.log(content, "TODO: copied to system clipboard");
+    onCopy?.(content);
+  }, [onCopy, content]);
+
+  return <Action title={title} onAction={onAction} {...rest} />;
+};
+
+Action.CopyToClipboard = CopyToClipboard;
+
+const OpenInBrowser = (props: RAction.OpenInBrowser.Props) => {
+  const { title = "Open in Browser", url, onOpen, ...rest } = props;
+
+  const onAction = useCallback(() => {
+    console.log(url, "TODO: open url in browser");
+    onOpen?.(url)
+  }, [onOpen, url]);
+
+  return <Action title={title} onAction={onAction} {...rest} />;
+};
+
+Action.OpenInBrowser = OpenInBrowser;
