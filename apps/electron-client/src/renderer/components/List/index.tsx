@@ -1,7 +1,9 @@
-import type { Keyboard } from "@raycast/api";
+import * as Popover from "@radix-ui/react-popover";
+import type { Image, Keyboard, List as List_1 } from "@raycast/api";
 import { Command } from "cmdk";
-import React from "react";
+import React, { useMemo, type ComponentProps } from "react";
 import type { Client } from "rpc-websockets";
+import { useShallow } from "zustand/react/shallow";
 
 import type { ObjectFromList } from "../../lib/typeUtils";
 import { useBlastUIStore, useRemoteBlastTree } from "../../store";
@@ -12,21 +14,42 @@ import { useNavigationContext } from "../Navigation/context";
 import { EmptyView } from "./EmptyView";
 import { ListFooter } from "./ListFooter";
 
-const getIconComponent = (icon: string) => {
-  const Icon = Icons[icon as keyof typeof Icons] as () => JSX.Element;
+const IconComp = ({ icon }: { icon: List_1.Item.Props["icon"] }) => {
+  if (typeof icon === "string") {
+    const Icon = Icons[icon as keyof typeof Icons] as () => JSX.Element;
 
-  if (!Icon) {
-    console.warn(`Icon ${icon} not found`);
-    return null;
+    if (!Icon) {
+      console.warn(`Icon ${JSON.stringify(icon)} not found`);
+      return null;
+    }
+
+    return <Icon />;
   }
 
-  return Icon;
+  if ((icon as Image)?.source) {
+    const source = (icon as Image)?.source;
+    if (typeof source === "string" && source.startsWith("data:image/svg+xml,")) {
+      // Split the source into prefix and SVG markup.
+      const [prefix, svg] = source.split(/,(.+)/); // split into two parts; the regex keeps the rest intact
+      // Encode the SVG markup.
+      const encodedSvg = encodeURIComponent(svg);
+      // Reassemble the data URL.
+      const encodedSource = `${prefix},${encodedSvg}`;
+
+      return (
+        <div className="w-5 h-5 text-center align-middle">
+          <img src={encodedSource} alt="" />
+        </div>
+      );
+    }
+  }
+
+  return null;
 };
 
 const serializedKeys = [
   // navigation props
   "navigationTitle",
-  "isLoading",
 
   // search bar props
   "filtering",
@@ -71,8 +94,6 @@ const Action = ({ action, ws, close }: { action: BlastComponent; ws: Client; clo
     props: { shortcut, actionEventName, title, icon },
   } = action;
 
-  const Icon = getIconComponent(icon);
-
   return (
     <SubItem
       shortcut={shortcut ? renderShortcutToString(shortcut) : keyToSymbol.enter}
@@ -81,7 +102,7 @@ const Action = ({ action, ws, close }: { action: BlastComponent; ws: Client; clo
         ws.call(actionEventName);
         close();
       }}
-      icon={Icon && <Icon />}
+      icon={<IconComp icon={icon} />}
     >
       {title}
     </SubItem>
@@ -165,6 +186,66 @@ export function getListIndexFromValue(value: string) {
   return Number.parseInt(value.replace("listitem-", ""), 10);
 }
 
+function ListDropdown(props: {
+  tooltip: string;
+  isLoading: boolean;
+  throttle: boolean;
+  value: string;
+  placeholder: string;
+  searchTextValue: string;
+  onChangeEventName: string;
+  onSearchTextChangeEventName: string;
+  children: BlastComponent[];
+}) {
+  const { ws } = useRemoteBlastTree();
+
+  const uiStore = useBlastUIStore(
+    useShallow((state) => ({
+      open: state.dropdownOpen,
+      setOpen: state.setDropdownOpen,
+    }))
+  );
+  const items = props?.children?.filter((child) => child.elementType === "DropdownItem");
+  const onSelect = (v: string) => {
+    ws.call(props.onChangeEventName, {
+      value: v,
+    });
+    uiStore.setOpen(false);
+  };
+
+  const selectedTitle = useMemo(() => {
+    return items.find(item => item.props.value === props.value)?.props.title
+  }, [items, props.value])
+
+  return (
+    <Popover.Root open={uiStore.open} onOpenChange={uiStore.setOpen} modal>
+      <Popover.Trigger
+        cmdk-raycast-subcommand-trigger=""
+        onClick={() => uiStore.setOpen(true)}
+        aria-expanded={uiStore.open}
+        className="border rounded border-gray-500 w-[250px] h-full mt-4"
+      >
+        <span className="text-white">
+          {selectedTitle}
+        </span>
+      </Popover.Trigger>
+      <Popover.Content side="bottom" align="end" className="raycast-submenu z-10" sideOffset={16} alignOffset={0}>
+        <Command>
+          <Command.Input placeholder={props.placeholder} />
+
+          <Command.List className="max-h-[270px]">
+            {items.map((item) => (
+              <Command.Item key={item.props.value} onSelect={onSelect} value={item.props.value}>
+                {item.props.title}
+              </Command.Item>
+            ))}
+          </Command.List>
+        </Command>
+      </Popover.Content>
+    </Popover.Root>
+  );
+}
+
 export const List = ({ children, props }: { children: BlastComponent[]; props: ListProps }): JSX.Element => {
   const listItems = children.filter((child) => child.elementType === "ListItem");
   const emptyView = children.find((child) => child.elementType === "EmptyView");
@@ -174,10 +255,12 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
     ? emptyView.children.find((child) => child.elementType === "ActionPanel")
     : null;
 
+  const dropdownElement = children.find((child) => child.elementType === "Dropdown");
+
   const listRef = React.useRef(null);
   const [value, setValue] = React.useState(getListItemValue(0));
   const inputRef = React.useRef<HTMLInputElement | null>(null);
-  const isSubCommandOpen = useBlastUIStore((state) => state.subcommandOpen);
+  const isSomethingOpen = useBlastUIStore((state) => state.subcommandOpen || state.dropdownOpen);
   const { ws } = useRemoteBlastTree();
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -188,7 +271,7 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
       e.preventDefault();
       if (inputRef.current.value) {
         inputRef.current.value = "";
-      } else if (!isSubCommandOpen) {
+      } else if (!isSomethingOpen) {
         pop();
       }
     } else if (e.key === "Backspace" && !inputRef.current.value) {
@@ -209,8 +292,7 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
         matchedAction = actionData.children.find((action) => {
           if (action.props?.shortcut) {
             const shortcut = action.props.shortcut;
-            const keyMatches =
-              e.key.toLowerCase() === shortcut.key.toLowerCase();
+            const keyMatches = e.key.toLowerCase() === shortcut.key.toLowerCase();
             const requiredModifiers = shortcut.modifiers || [];
             const modifiersMatch = requiredModifiers.every((mod: string) => {
               if (mod === "ctrl") return e.ctrlKey;
@@ -242,20 +324,26 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
 
   return (
     <div className="h-full raycast drag-area">
-      <Command
-        value={value}
-        onValueChange={(v) => setValue(v)}
-        onKeyDown={handleKeyDown}
-      >
+      <Command value={value} onValueChange={(v) => setValue(v)} onKeyDown={handleKeyDown}>
         <div className="absolute top-0 left-0 w-full h-2 drag-area" />
 
         <div cmdk-raycast-top-shine="" />
-        <Command.Input
-          autoFocus
-          ref={inputRef}
-          style={{ paddingTop: 16 }}
-          placeholder={props.searchBarPlaceholder || "Search..."}
-        />
+
+        <div className="flex pr-4">
+          <Command.Input
+            autoFocus
+            ref={inputRef}
+            style={{ paddingTop: 16 }}
+            placeholder={props.searchBarPlaceholder || "Search..."}
+          />
+
+          {dropdownElement && (
+            <ListDropdown {...(dropdownElement.props as ComponentProps<typeof ListDropdown>)}>
+              {dropdownElement.children}
+            </ListDropdown>
+          )}
+        </div>
+
         <hr cmdk-raycast-loader="" />
 
         <Command.List ref={listRef}>
@@ -276,11 +364,10 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
             } = listItem;
 
             const value = getListItemValue(index);
-            const Icon = getIconComponent(icon);
 
             return (
               <Command.Item key={value} value={value}>
-                {icon && <Icon />}
+                <IconComp icon={icon} />
 
                 {title}
               </Command.Item>

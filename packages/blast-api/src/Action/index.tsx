@@ -1,49 +1,30 @@
-
 import { ElementTypes } from "@blastlauncher/renderer/src";
 import { createDebug } from "@blastlauncher/utils/src";
-import type { Action as RaycastAction } from "raycast-original";
-import { useCallback, useEffect, useId, useMemo } from "react";
+import clipboardy from "clipboardy";
+import open from "open";
+import type { Action as RAction } from "raycast-original";
+import { useCallback, useId, useMemo } from "react";
 
 import { useFormContext } from "../Form";
-import { useWsServer } from "../internal/WsServerProvider";
+import { useServerEvent } from "../internal/hooks";
 import { useNavigation } from "../Navigation";
 
 const debug = createDebug("blast:action");
 
-type ActionPropKeys = (keyof RaycastAction.Props)[];
+type ActionPropKeys = (keyof RAction.Props)[];
 const serializedKeys: ActionPropKeys = ["autoFocus", "icon", "id", "shortcut", "style", "title"];
 
-export const Action = (props: RaycastAction.Props) => {
+export const Action = (props: RAction.Props) => {
   const { onAction } = props;
-  const server = useWsServer();
   const actionId = useId();
   const actionEventName = useMemo(() => `action${actionId}`, [actionId]);
 
-  useEffect(() => {
-    const runRegister = !!onAction && !!server;
+  const fn = () => {
+    onAction?.();
 
-    if (!runRegister) {
-      return;
-    }
-
-    debug("registering action event listener", actionEventName);
-
-    const fn = () => {
-      onAction();
-
-      return null;
-    };
-
-    server.register(actionEventName, fn);
-
-    return () => {
-      debug("unregistering action event listener", actionEventName);
-
-      delete (server as any).namespaces["/"].rpc_methods[actionEventName];
-
-      // server.removeListener(actionEventName, fn);
-    };
-  }, [actionEventName, onAction, server]);
+    return null;
+  };
+  useServerEvent(actionEventName, fn);
 
   return (
     <ElementTypes.Action
@@ -54,7 +35,7 @@ export const Action = (props: RaycastAction.Props) => {
   );
 };
 
-const Push = (props: RaycastAction.Push.Props) => {
+const Push = (props: RAction.Push.Props) => {
   const { target, onPush, ...rest } = props;
   const { push } = useNavigation();
 
@@ -71,7 +52,7 @@ const Push = (props: RaycastAction.Push.Props) => {
 
 Action.Push = Push;
 
-const SubmitForm = (props: RaycastAction.SubmitForm.Props<any>) => {
+const SubmitForm = (props: RAction.SubmitForm.Props<any>) => {
   const { onSubmit, title = "Submit Form", ...rest } = props;
   const { formValues } = useFormContext();
 
@@ -86,3 +67,36 @@ const SubmitForm = (props: RaycastAction.SubmitForm.Props<any>) => {
 };
 
 Action.SubmitForm = SubmitForm;
+
+const CopyToClipboard = (props: RAction.CopyToClipboard.Props) => {
+  const { title = "Copy to Clipboard", content, onCopy, ...rest } = props;
+
+  const onAction = useCallback(() => {
+    if (typeof content === "number" || typeof content === "string") {
+      clipboardy.writeSync(String(content));
+    } else {
+      const c = content as any;
+      if (c) {
+        clipboardy.writeSync(c.text);
+      }
+    }
+    onCopy?.(content);
+  }, [onCopy, content]);
+
+  return <Action title={title} onAction={onAction} {...rest} />;
+};
+
+Action.CopyToClipboard = CopyToClipboard;
+
+const OpenInBrowser = (props: RAction.OpenInBrowser.Props) => {
+  const { title = "Open in Browser", url, onOpen, ...rest } = props;
+
+  const onAction = useCallback(() => {
+    open(url);
+    onOpen?.(url);
+  }, [onOpen, url]);
+
+  return <Action title={title} onAction={onAction} {...rest} />;
+};
+
+Action.OpenInBrowser = OpenInBrowser;

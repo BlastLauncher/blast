@@ -51,12 +51,13 @@ export const CommandList = () => {
                   onAction={() => {
                     try {
                       const Comp = evalCommandModule(command.requirePath);
-                      prepareEnvironment(command.env)
-                      push(
-                        <CommandErrorBoundary>
-                          <Comp />
-                        </CommandErrorBoundary>
-                      );
+                      prepareEnvironment(command.env, () => {
+                        push(
+                          <CommandErrorBoundary>
+                            <Comp />
+                          </CommandErrorBoundary>
+                        );
+                      });
                     } catch (error) {
                       console.error(error);
                     }

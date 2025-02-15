@@ -9,6 +9,10 @@ const esbuildConfig = {
   platform: "node",
   outfile: "dist/run.cjs",
   keepNames: true,
+  define: { 'import.meta.url': '_importMetaUrl' },
+  banner: {
+    js: "const _importMetaUrl=require('url').pathToFileURL(__filename)",
+  },
 };
 
 if (watch) {

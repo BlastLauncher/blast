@@ -19,7 +19,9 @@
   "dependencies": {
     "@blastlauncher/renderer": "workspace:*",
     "@blastlauncher/utils": "workspace:*",
+    "clipboardy": "^4.0.0",
     "fs-extra": "^11.1.0",
+    "open": "^10.1.0",
     "react": "^18.2.0"
   },
   "devDependencies": {
