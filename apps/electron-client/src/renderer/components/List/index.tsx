@@ -1,8 +1,8 @@
-import type { Image, Keyboard } from "@raycast/api";
-import type * as api from "@raycast/api";
+import type { Image, Keyboard, List as List_1 } from "@raycast/api";
 import { Command } from "cmdk";
-import React from "react";
+import React, { type ComponentProps } from "react";
 import type { Client } from "rpc-websockets";
+import * as Popover from "@radix-ui/react-popover";
 
 import type { ObjectFromList } from "../../lib/typeUtils";
 import { useBlastUIStore, useRemoteBlastTree } from "../../store";
@@ -12,8 +12,9 @@ import { useNavigationContext } from "../Navigation/context";
 
 import { EmptyView } from "./EmptyView";
 import { ListFooter } from "./ListFooter";
+import { useShallow } from "zustand/react/shallow";
 
-const IconComp = ({ icon }: { icon: api.List.Item.Props["icon"] }) => {
+const IconComp = ({ icon }: { icon: List_1.Item.Props["icon"] }) => {
   if (typeof icon === "string") {
     const Icon = Icons[icon as keyof typeof Icons] as () => JSX.Element;
 
@@ -186,6 +187,55 @@ export function getListIndexFromValue(value: string) {
   return Number.parseInt(value.replace("listitem-", ""), 10);
 }
 
+function ListDropdown(props: {
+  tooltip: string;
+  isLoading: boolean;
+  throttle: boolean;
+  value: string;
+  placeholder: string;
+  searchTextValue: string;
+  onChangeEventName: string;
+  onSearchTextChangeEventName: string;
+  children: BlastComponent[];
+}) {
+  const uiStore = useBlastUIStore(
+    useShallow((state) => ({
+      open: state.dropdownOpen,
+      setOpen: state.setDropdownOpen,
+    }))
+  );
+  const items = props?.children?.filter((child) => child.elementType === "DropdownItem");
+  const onSelect = (v: string) => {
+    console.log(v)
+    uiStore.setOpen(false)
+  };
+
+  return (
+    <Popover.Root open={uiStore.open} onOpenChange={uiStore.setOpen} modal>
+      <Popover.Trigger
+        cmdk-raycast-subcommand-trigger=""
+        onClick={() => uiStore.setOpen(true)}
+        aria-expanded={uiStore.open}
+      >
+        {props.value}
+      </Popover.Trigger>
+      <Popover.Content side="bottom" align="end" className="raycast-submenu z-10" sideOffset={16} alignOffset={0}>
+        <Command>
+          <Command.Input placeholder={props.placeholder} />
+
+          <Command.List className="max-h-[270px]">
+            {items.map((item) => (
+              <Command.Item key={item.props.value} onSelect={onSelect} value={item.props.value}>
+                {item.props.title}
+              </Command.Item>
+            ))}
+          </Command.List>
+        </Command>
+      </Popover.Content>
+    </Popover.Root>
+  );
+}
+
 export const List = ({ children, props }: { children: BlastComponent[]; props: ListProps }): JSX.Element => {
   const listItems = children.filter((child) => child.elementType === "ListItem");
   const emptyView = children.find((child) => child.elementType === "EmptyView");
@@ -194,6 +244,8 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
   const emptyViewActionPanel = emptyView
     ? emptyView.children.find((child) => child.elementType === "ActionPanel")
     : null;
+
+  const dropdownElement = children.find((child) => child.elementType === "Dropdown");
 
   const listRef = React.useRef(null);
   const [value, setValue] = React.useState(getListItemValue(0));
@@ -266,12 +318,22 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
         <div className="absolute top-0 left-0 w-full h-2 drag-area" />
 
         <div cmdk-raycast-top-shine="" />
-        <Command.Input
-          autoFocus
-          ref={inputRef}
-          style={{ paddingTop: 16 }}
-          placeholder={props.searchBarPlaceholder || "Search..."}
-        />
+
+        <div className="flex">
+          <Command.Input
+            autoFocus
+            ref={inputRef}
+            style={{ paddingTop: 16 }}
+            placeholder={props.searchBarPlaceholder || "Search..."}
+          />
+
+          {dropdownElement && (
+            <ListDropdown {...(dropdownElement.props as ComponentProps<typeof ListDropdown>)}>
+              {dropdownElement.children}
+            </ListDropdown>
+          )}
+        </div>
+
         <hr cmdk-raycast-loader="" />
 
         <Command.List ref={listRef}>

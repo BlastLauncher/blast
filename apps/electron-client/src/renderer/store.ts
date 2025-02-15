@@ -15,10 +15,14 @@ export const useRemoteBlastTree = () => useStore(remoteBlastTree);
 
 type BlastUIState = {
   subcommandOpen: boolean,
-  setSubcommandOpen: (open: boolean) => void
+  setSubcommandOpen: (open: boolean) => void,
+  dropdownOpen: boolean,
+  setDropdownOpen: (open: boolean) => void,
 }
 
 export const useBlastUIStore = create<BlastUIState>((set) => ({
   subcommandOpen: false,
-  setSubcommandOpen: (open: boolean) => set({ subcommandOpen: open })
+  setSubcommandOpen: (open: boolean) => set({ subcommandOpen: open }),
+  dropdownOpen: false,
+  setDropdownOpen: (open: boolean) => set({ dropdownOpen: open }),
 }))
