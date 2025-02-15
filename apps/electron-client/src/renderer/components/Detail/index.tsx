@@ -2,6 +2,8 @@ import rehypeStringify from 'rehype-stringify';
 import { remark } from 'remark';
 import remarkRehype from 'remark-rehype';
 
+import './markdown.scss'
+
 export type DetailProps = { isLoading?: boolean, markdown?: string, navigationTitle?: string }
 export const Detail = ({ markdown }: DetailProps) => {
   const processedContent = markdown
@@ -12,8 +14,6 @@ export const Detail = ({ markdown }: DetailProps) => {
         .toString()
     : '';
   return (
-    <div className="flex">
-      <div dangerouslySetInnerHTML={{ __html: processedContent }} />
-    </div>
+    <div className="flex markdown-body" dangerouslySetInnerHTML={{ __html: processedContent }} />
   );
 };
