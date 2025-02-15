@@ -76,7 +76,7 @@ export function SubCommand({
           }}
         >
           <Command>
-            <Command.List>
+            <Command.List className="max-h-[min(calc(var(--cmdk-list-height)+30px),260px)]">
               <ActionContainer actions={actionData.children} ws={ws} close={() => uiStore.setOpen(false)} />
             </Command.List>
 
