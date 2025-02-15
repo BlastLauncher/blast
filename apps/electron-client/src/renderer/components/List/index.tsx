@@ -1,8 +1,9 @@
+import * as Popover from "@radix-ui/react-popover";
 import type { Image, Keyboard, List as List_1 } from "@raycast/api";
 import { Command } from "cmdk";
 import React, { type ComponentProps } from "react";
 import type { Client } from "rpc-websockets";
-import * as Popover from "@radix-ui/react-popover";
+import { useShallow } from "zustand/react/shallow";
 
 import type { ObjectFromList } from "../../lib/typeUtils";
 import { useBlastUIStore, useRemoteBlastTree } from "../../store";
@@ -12,7 +13,6 @@ import { useNavigationContext } from "../Navigation/context";
 
 import { EmptyView } from "./EmptyView";
 import { ListFooter } from "./ListFooter";
-import { useShallow } from "zustand/react/shallow";
 
 const IconComp = ({ icon }: { icon: List_1.Item.Props["icon"] }) => {
   if (typeof icon === "string") {
