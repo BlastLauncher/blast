@@ -24,9 +24,6 @@ const serializedKeys: DropdownPropKeys = ["defaultValue", "isLoading", "placehol
 export const Dropdown: React.FC<DropdownProps> = (props) => {
   const { children, placeholder, value, filtering: _filtering, onSearchTextChange, onChange, defaultValue, ...rest } = props;
 
-  console.log(value, 'value')
-  console.log(props, 'props')
-
   const dropdownId = useId();
   const onChangeEventName = useMemo(() => `action${dropdownId}onChange`, [dropdownId]);
   const onSearchTextChangeEventName = useMemo(() => `action${dropdownId}onSearchTextChange`, [dropdownId]);
@@ -37,12 +34,19 @@ export const Dropdown: React.FC<DropdownProps> = (props) => {
   const onChangeHandler = useCallback(({ value }: { value: string }) => {
     debug("triggering on change event listener", value);
     setInternalValue(value);
+    return null
+  }, []);
 
-    onChange?.(value)
-  }, [onChange]);
+  useEffect(() => {
+    if (internalValue) {
+      onChange?.(internalValue)
+    }
+  }, [internalValue, onChange])
 
   const onSearchTextChangeHandler = useCallback((text: string) => {
     setInternalSearchTextValue(text);
+
+    return null
   }, []);
 
   useServerEvent(onChangeEventName, onChangeHandler);
@@ -59,12 +63,16 @@ export const Dropdown: React.FC<DropdownProps> = (props) => {
   }, [children]);
 
   useEffect(() => {
+    if (internalValue) {
+      return
+    }
+
     if (defaultValue && values.find((v) => v === defaultValue)) {
       onChangeHandler({ value: defaultValue });
     } else if (values.length > 0) {
       onChangeHandler({ value: values[0] });
     }
-  }, [values, defaultValue, onChangeHandler]);
+  }, [internalValue, values, defaultValue, onChangeHandler]);
 
   // raycast doc: false when onSearchTextChange is specified, true otherwise.
   const filtering = _filtering || !onSearchTextChange;

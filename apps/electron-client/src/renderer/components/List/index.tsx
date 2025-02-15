@@ -198,6 +198,8 @@ function ListDropdown(props: {
   onSearchTextChangeEventName: string;
   children: BlastComponent[];
 }) {
+  const { ws } = useRemoteBlastTree();
+
   const uiStore = useBlastUIStore(
     useShallow((state) => ({
       open: state.dropdownOpen,
@@ -206,8 +208,10 @@ function ListDropdown(props: {
   );
   const items = props?.children?.filter((child) => child.elementType === "DropdownItem");
   const onSelect = (v: string) => {
-    console.log(v)
-    uiStore.setOpen(false)
+    ws.call(props.onChangeEventName, {
+      value: v,
+    });
+    uiStore.setOpen(false);
   };
 
   return (
@@ -250,7 +254,7 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
   const listRef = React.useRef(null);
   const [value, setValue] = React.useState(getListItemValue(0));
   const inputRef = React.useRef<HTMLInputElement | null>(null);
-  const isSubCommandOpen = useBlastUIStore((state) => state.subcommandOpen);
+  const isSomethingOpen = useBlastUIStore((state) => state.subcommandOpen || state.dropdownOpen);
   const { ws } = useRemoteBlastTree();
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -261,7 +265,7 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
       e.preventDefault();
       if (inputRef.current.value) {
         inputRef.current.value = "";
-      } else if (!isSubCommandOpen) {
+      } else if (!isSomethingOpen) {
         pop();
       }
     } else if (e.key === "Backspace" && !inputRef.current.value) {
