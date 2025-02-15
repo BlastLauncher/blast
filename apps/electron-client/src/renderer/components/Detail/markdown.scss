@@ -1,0 +1,9 @@
+@import "../../../../../../node_modules/github-markdown-css/github-markdown-dark.css";
+
+.markdown-body {
+  @apply w-full p-4 bg-transparent;
+
+  pre {
+    @apply text-xs w-full rounded-md;
+  }
+}
