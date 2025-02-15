@@ -15,6 +15,9 @@ const defaultEnvironment: Environment = {
   supportPath: "",
   textSize: "medium",
   theme: "dark",
+  appearance: "dark",
+  canAccess: () => true,
+  ownerOrAuthorName: 'Yukai'
 };
 
 export const environment: Environment = new Proxy(defaultEnvironment, {
