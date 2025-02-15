@@ -1,7 +1,7 @@
 import { ElementTypes } from "@blastlauncher/renderer/src";
 import { createDebug } from "@blastlauncher/utils/src";
-import clipboardy from 'clipboardy'
-import open from 'open'
+import clipboardy from "clipboardy";
+import open from "open";
 import type { Action as RAction } from "raycast-original";
 import { useCallback, useId, useMemo } from "react";
 
@@ -10,7 +10,6 @@ import { useServerEvent } from "../internal/hooks";
 import { useNavigation } from "../Navigation";
 
 const debug = createDebug("blast:action");
-
 
 type ActionPropKeys = (keyof RAction.Props)[];
 const serializedKeys: ActionPropKeys = ["autoFocus", "icon", "id", "shortcut", "style", "title"];
@@ -73,12 +72,12 @@ const CopyToClipboard = (props: RAction.CopyToClipboard.Props) => {
   const { title = "Copy to Clipboard", content, onCopy, ...rest } = props;
 
   const onAction = useCallback(() => {
-    if (typeof content === 'number' || typeof content === 'string') {
-      clipboardy.writeSync(String(content))
+    if (typeof content === "number" || typeof content === "string") {
+      clipboardy.writeSync(String(content));
     } else {
-      const c = content as any
+      const c = content as any;
       if (c) {
-        clipboardy.writeSync(c.text)
+        clipboardy.writeSync(c.text);
       }
     }
     onCopy?.(content);
@@ -93,8 +92,8 @@ const OpenInBrowser = (props: RAction.OpenInBrowser.Props) => {
   const { title = "Open in Browser", url, onOpen, ...rest } = props;
 
   const onAction = useCallback(() => {
-    open(url)
-    onOpen?.(url)
+    open(url);
+    onOpen?.(url);
   }, [onOpen, url]);
 
   return <Action title={title} onAction={onAction} {...rest} />;
