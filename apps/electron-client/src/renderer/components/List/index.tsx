@@ -1,7 +1,7 @@
 import * as Popover from "@radix-ui/react-popover";
 import type { Image, Keyboard, List as List_1 } from "@raycast/api";
 import { Command } from "cmdk";
-import React, { type ComponentProps } from "react";
+import React, { useMemo, type ComponentProps } from "react";
 import type { Client } from "rpc-websockets";
 import { useShallow } from "zustand/react/shallow";
 
@@ -50,7 +50,6 @@ const IconComp = ({ icon }: { icon: List_1.Item.Props["icon"] }) => {
 const serializedKeys = [
   // navigation props
   "navigationTitle",
-  "isLoading",
 
   // search bar props
   "filtering",
@@ -214,14 +213,21 @@ function ListDropdown(props: {
     uiStore.setOpen(false);
   };
 
+  const selectedTitle = useMemo(() => {
+    return items.find(item => item.props.value === props.value)?.props.title
+  }, [items, props.value])
+
   return (
     <Popover.Root open={uiStore.open} onOpenChange={uiStore.setOpen} modal>
       <Popover.Trigger
         cmdk-raycast-subcommand-trigger=""
         onClick={() => uiStore.setOpen(true)}
         aria-expanded={uiStore.open}
+        className="border rounded border-gray-500 w-[250px] h-full mt-4"
       >
-        {props.value}
+        <span className="text-white">
+          {selectedTitle}
+        </span>
       </Popover.Trigger>
       <Popover.Content side="bottom" align="end" className="raycast-submenu z-10" sideOffset={16} alignOffset={0}>
         <Command>
@@ -323,7 +329,7 @@ export const List = ({ children, props }: { children: BlastComponent[]; props: L
 
         <div cmdk-raycast-top-shine="" />
 
-        <div className="flex">
+        <div className="flex pr-4">
           <Command.Input
             autoFocus
             ref={inputRef}
