@@ -80,7 +80,7 @@ The shortcut key to open the Blast window is `⌘;`, <kbd>Command</kbd> + <kbd>;
 ## Development
 
 ```bash
-# Make sure you have pnpm v7 installed, then install dependencies with pnpm
+# Make sure you have pnpm installed, then install dependencies with pnpm
 pnpm install
 
 # Start build
