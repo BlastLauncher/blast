@@ -2,54 +2,55 @@
 
 ## 1. App Overview
 
-Blast is an open-source alternative to the Raycast launcher extension system, providing a platform-agnostic solution through Node.js and a custom React renderer.
+Blast is an open-source launcher application that implements and supports Raycast's extension system. It uniquely demonstrates the flexibility of Raycast's API by using the same components and patterns to build both the launcher interface and run extensions.
 
 **Project Goals:**
-- Create a compatible alternative to Raycast extensions
-- Provide cross-platform support
-- Maintain API compatibility with Raycast's extension system
-- Enable seamless developer transition from Raycast to Blast
-- Support multiple frontend frameworks beyond Electron
+- Create a launcher that supports Raycast extensions
+- Build the launcher itself using Raycast API patterns
+- Provide cross-platform support through Node.js
+- Enable seamless developer transition from Raycast
+- Support multiple frontend implementations beyond Electron
 
 ## 2. User Flow
 
-1. **Extension Development:**
-   - Developers write extensions using Node.js
-   - Extensions utilize Raycast-style APIs
-   - Components are created using a custom React renderer
+1. **Launcher Operation:**
+   - Main interface built with Raycast components
+   - Extension loading and management
+   - Command discovery and execution
 
-2. **Runtime Flow:**
-   - Node.js backend processes extension logic
-   - Custom React renderer creates component trees
-   - Component trees are serialized to JSON
-   - WebSocket RPC connection transfers data to frontend
-   - Client renders components using React.js DOM
+2. **Extension Development:**
+   - Developers write extensions using Raycast API
+   - Components use custom React renderer
+   - Same patterns as launcher development
 
-3. **Event Handling Flow:**
+3. **Runtime Flow:**
 ```mermaid
 graph LR
-    A[UI Event] --> B[Frontend Delegate]
-    B --> C[WebSocket RPC]
-    C --> D[Node.js Handler]
-    D --> E[State Update]
-    E --> F[New Component Tree]
-    F --> G[UI Update]
+    A[Launcher/Extension] --> B[React Renderer]
+    B --> C[Component Tree]
+    C --> D[WebSocket Server]
+    D --> E[Client UI]
+    E --> F[User Interaction]
 ```
 
 ## 3. Tech Stack & APIs
 
-**Backend Layer:**
+**Launcher Core:**
 - Node.js runtime environment
+- Raycast API implementation
 - Custom React renderer
-- Polyfilled Raycast APIs
-- WebSocket server for RPC
-- Native operation handlers
+- WebSocket RPC system
+
+**Extension Support:**
+- Raycast API compatibility layer
+- Extension loading system
+- Environment management
+- Command integration
 
 **Frontend Layer:**
 - Framework-agnostic design
-- Reference implementation in Electron
+- Reference Electron implementation
 - React.js DOM renderer
-- WebSocket client
 - Event delegation system
 
 **Communication:**
@@ -60,32 +61,34 @@ graph LR
 
 ## 4. Core Features
 
-1. **Extension System:**
-   - Raycast-compatible extension API
-   - Hot-reloading support
-   - Extension marketplace capabilities
+1. **Launcher Interface:**
+   - Built with Raycast components
+   - Command list management
+   - Extension integration
+   - Native operation support
 
-2. **Component System:**
-   - Custom React renderer
-   - Component tree serialization
+2. **Extension System:**
+   - Raycast API compatibility
+   - Hot-reloading support
+   - Extension marketplace
+   - Command discovery
+
+3. **Component System:**
+   - Shared component library
+   - Tree serialization
    - Real-time updates
 
-3. **Event Handling:**
-   - Unique event ID generation
-   - RPC-based event delegation
-   - Native operation processing
-   - State management
-
-4. **Framework Adaptability:**
-   - Framework-agnostic frontend
-   - Pluggable client implementations
-   - Consistent API interface
+4. **Event Handling:**
+   - Unified event delegation
+   - RPC-based communication
+   - Shared state management
+   - Consistent event patterns
 
 ## 5. In-scope and Out-of-scope
 
 **In-scope:**
-- Raycast API compatibility layer
-- Extension runtime environment
+- Launcher UI using Raycast components
+- Raycast extension support
 - Component rendering system
 - WebSocket communication
 - Basic extension marketplace
@@ -95,32 +98,32 @@ graph LR
 - Framework adaptation support
 
 **Out-of-scope:**
-- Native OS integration features
-- Complex system permissions
-- Third-party service integrations
-- Custom extension store backend
+- Complex OS integration
+- System-level permissions
+- Third-party integrations
+- Advanced extension store
 - Extension monetization
-- Frontend framework implementations
-- Platform-specific optimizations
+- Platform-specific features
+- Custom UI frameworks
 
 ## 6. Non-functional Requirements
 
 1. **Performance:**
+   - Launcher startup < 100ms
    - Extension load time < 200ms
    - UI response time < 50ms
    - Memory usage < 200MB idle
-   - Efficient event handling
    - Minimal serialization overhead
 
 2. **Scalability:**
-   - Support for 50+ concurrent extensions
-   - Efficient component tree updates
+   - Support for 50+ extensions
+   - Efficient tree updates
    - Minimal memory footprint
    - Sustainable event queue
 
 3. **Security:**
-   - Sandboxed extension execution
-   - Secure WebSocket communication
+   - Extension sandboxing
+   - Secure communication
    - Limited system access
    - Event validation
    - Input sanitization
@@ -134,20 +137,21 @@ graph LR
 ## 7. Constraints & Assumptions
 
 **Technical Constraints:**
-- Must maintain Raycast API compatibility
-- All native operations handled in Node.js
-- Frontend limited to UI rendering
-- WebSocket communication overhead
-- Component tree serialization limits
+- Raycast API compatibility
+- Node.js runtime requirement
+- WebSocket communication
+- Component serialization
 - Event handling latency
+- Frontend rendering limitations
 
 **Business Constraints:**
-- Open-source development model
-- Cross-platform compatibility
+- Open-source model
+- Cross-platform support
 - Framework independence
+- Extension compatibility
 
 **Assumptions:**
-- Developers familiar with Raycast
+- Raycast API familiarity
 - Modern hardware availability
 - Internet connectivity
 - Node.js environment
@@ -157,30 +161,31 @@ graph LR
 ## 8. Known Issues & Potential Pitfalls
 
 1. **Technical Challenges:**
-   - Event handler lookup performance
-   - Component tree serialization size
-   - WebSocket connection stability
+   - Component tree serialization
+   - WebSocket stability
    - Memory management
-   - State synchronization races
-   - Framework adaptation complexity
+   - State synchronization
+   - Event system reliability
+   - Extension isolation
 
 2. **API Compatibility:**
-   - Raycast API evolution
-   - Native feature limitations
-   - Platform-specific functions
+   - Raycast API changes
+   - Feature parity challenges
+   - Platform limitations
    - Extension compatibility
 
 3. **Development Complexity:**
-   - Custom React renderer maintenance
+   - React renderer maintenance
    - Cross-platform testing
    - Extension sandboxing
    - Event system edge cases
-   - Framework migration support
-   - Native operation handling
+   - Framework adaptation
 
 4. **Performance Concerns:**
    - Serialization overhead
-   - Event queue bottlenecks
+   - Event queue management
    - State update frequency
-   - Memory leaks in long-running extensions
-   - Frontend framework limitations
+   - Memory usage in extensions
+   - UI rendering performance
+
+The design creates a launcher that not only supports Raycast extensions but demonstrates the versatility of Raycast's component patterns by using them to build its own interface. This unified approach ensures consistency in behavior and development experience across both the launcher and its extensions.
