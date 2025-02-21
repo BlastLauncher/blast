@@ -2,15 +2,23 @@
 
 ## 1. Core Architecture Overview
 
-A React-based architecture that separates UI rendering from business logic through WebSocket communication.
+Blast is a launcher application that implements Raycast-style UI and extension system. It's built using the same Raycast API patterns it supports, demonstrating the flexibility of the architecture. Through a custom React renderer, it creates a serializable component tree that can be consumed by any client implementation.
 
 ```mermaid
 graph TD
-    A[Blast Runtime] --> B[Custom React Renderer]
+    A[Blast Runtime<br/>Launcher App] --> B[Custom React Renderer]
     B --> C[WebSocket Server]
     C --> D[Component Tree JSON]
     D --> E[Client Implementation]
     E --> F[UI Rendering]
+
+    G[Raycast Extensions] --> A
+    H[Raycast API<br/>Components] --> A
+
+    subgraph "Built with Raycast API"
+    A
+    G
+    end
 ```
 
 File Structure:
@@ -28,78 +36,89 @@ apps/
     └── public/              # Static assets
 packages/
 ├── blast-renderer/          # Custom React renderer
-├── blast-api/               # Raycast API compatibility
-└── blast-runtime/           # Extension runtime
+├── blast-api/               # Raycast API compatibility + Blast internals
+└── blast-runtime/          # Launcher application
+    ├── src/
+    │   ├── App.tsx         # Root launcher component
+    │   ├── components/     # Core app components
+    │   │   └── CommandList # Main command interface
+    │   └── utils/         # Runtime utilities
 ```
 
 ## 2. Package Structure
 
-Each package serves a specific role in the architecture:
+Each package serves a specific role in creating a launcher that both uses and supports Raycast API:
 
-1. **blast-renderer**: Core rendering engine that creates and serializes React component trees
-   ```typescript
-   // packages/blast-renderer/src/renderer/reconciler.ts
-   // Handles component tree serialization and WebSocket communication
-   resetAfterCommit: function (containerInfo: Container): void {
-     const jsonTree = containerInfo.serialize();
-     server.emit("updateTree", jsonTree);
-   }
-   ```
-
-2. **blast-api**: Raycast API compatibility layer with additional Blast-specific utilities
-   ```typescript
-   // packages/blast-api/src/index.ts
-   // Exports Raycast-compatible components and utilities
-   export {
-     List,
-     LocalStorage,
-     useNavigation,
-     // ...other exports
-   }
-   ```
-
-3. **blast-runtime**: Main application runtime that manages extensions and UI state
+1. **blast-runtime**: Main launcher application using Raycast components
    ```typescript
    // packages/blast-runtime/src/index.ts
-   // Runtime initialization and server setup
+   // Launcher initialization with WebSocket server
    export function run({ host = "localhost", port = 8763 } = {}) {
+     console.info("Starting Blast Launcher");
      runApp(App, {
        server: runServer({ host, port }),
      });
    }
    ```
 
-## 3. Component Tree Flow
-
-The system uses a custom React reconciler to build and maintain component trees:
-
-1. **Tree Generation**: Creates serializable component trees using custom React reconciler
+2. **blast-renderer**: Custom React renderer for serializable component trees
    ```typescript
-   // packages/blast-renderer/src/renderer/render.ts
-   // Root component initialization and reconciler setup
-   export function render(component: React.ReactNode, server?: Server) {
-     const rootElement = new Command({ server });
-     const root = JSONTreeRenderer.createContainer(/* ... */);
+   // packages/blast-renderer/src/renderer/reconciler.ts
+   // Handles component tree serialization for both launcher and extensions
+   resetAfterCommit: function (containerInfo: Container): void {
+     const jsonTree = containerInfo.serialize();
+     server.emit("updateTree", jsonTree);
    }
    ```
 
-2. **Element Types**: Defines all available component types for the system
+3. **blast-api**: Raycast API implementation used by both launcher and extensions
+   ```typescript
+   // packages/blast-api/src/index.ts
+   // Exports components used by launcher and extensions
+   export {
+     List,
+     Action,
+     ActionPanel,
+     // Core components
+     WsContext,
+     WsServerProvider,
+     // Internal utilities
+   }
+   ```
+
+## 3. Component System
+
+A unified component system serving both launcher and extensions:
+
+1. **Core Components**: Raycast-style components for UI construction
    ```typescript
    // packages/blast-renderer/src/renderer/elements/types.ts
-   // Component type definitions for serialization
+   // Shared component types
    export const Action = "Action";
    export const List = "List";
-   // ...
+   export const ListItem = "ListItem";
+   export const ActionPanel = "ActionPanel";
+   ```
+
+2. **Launcher Interface**: Main UI built with Raycast components
+   ```typescript
+   // packages/blast-runtime/src/App.tsx
+   export const App = ({ server }: AppProps) => {
+     return (
+       <WsServerProvider server={server}>
+         <CommandList />  // Main interface using List component
+       </WsServerProvider>
+     );
+   };
    ```
 
 ## 4. Event System
 
-Implements a WebSocket RPC-based event system:
+Unified event handling system for launcher and extensions:
 
-1. **Event Registration**: Creates unique event IDs and registers handlers
+1. **Event Registration**: Common event handling mechanism
    ```typescript
    // packages/blast-api/src/Action/index.tsx
-   // Action component with event handling
    export const Action = (props: RAction.Props) => {
      const actionId = useId();
      const actionEventName = useMemo(() => `action${actionId}`, [actionId]);
@@ -107,62 +126,51 @@ Implements a WebSocket RPC-based event system:
    };
    ```
 
-2. **Client Event Handling**: Manages UI events and WebSocket communication
+2. **Client Event Handling**: Framework-agnostic event delegation
    ```typescript
    // apps/electron-client/src/renderer/components/List/index.tsx
-   // Client-side event delegation
+   // Handles events from both launcher and extensions
    if (matchedAction?.props?.actionEventName) {
      ws.call(matchedAction.props.actionEventName);
    }
    ```
 
-## 5. Runtime Behavior
+## 5. Extension Integration
 
-Manages extension loading and execution:
+Extensions are loaded as commands within the launcher:
 
-1. **Command List**: Main interface for displaying and executing commands
+1. **Extension Loading**
    ```typescript
-   // packages/blast-runtime/src/components/CommandList/index.tsx
-   // Command list implementation with navigation
-   export const CommandList = () => {
-     const { data: commands } = usePromise(loadCommands);
-     return (
-       <List>
-         {commands.map(command => (
-           <List.Item actions={/* ... */} />
-         ))}
-       </List>
-     );
+   // packages/blast-runtime/src/components/CommandList/utils.ts
+   export const evalCommandModule = (requirePath: string) => {
+     const module = require(requirePath);
+     return module.default || module;
    };
    ```
 
-## 6. Client Implementation
-
-Framework-agnostic client with Electron reference implementation:
-
-1. **Main Client**: Renders component trees and manages UI state
+2. **Extension Environment**
    ```typescript
-   // apps/electron-client/src/renderer/App.tsx
-   // Client-side tree rendering
-   export const App = () => {
-     const { tree } = useRemoteBlastTree();
-     return <TreeComponent blastProps={tree} />;
+   // packages/blast-api/src/environment.ts
+   export const prepareEnvironment = (env, callback) => {
+     const previousEnv = { ...process.env };
+     Object.assign(process.env, env);
+     callback();
    };
    ```
 
-## 7. Data Flow
+## 6. Data Flow
 
-Defines how data and events flow through the system:
-
+Component Tree Flow:
 ```mermaid
 graph TD
-    A[Component Change] --> B[Reconciler Update]
+    A[Launcher/Extension<br/>Component Change] --> B[Reconciler Update]
     B --> C[Tree Serialization]
     C --> D[WebSocket Emission]
     D --> E[Client Reception]
     E --> F[UI Update]
 ```
 
+Event Flow:
 ```mermaid
 graph TD
     A[UI Interaction] --> B[Event ID Lookup]
@@ -172,34 +180,10 @@ graph TD
     E --> F[Tree Update]
 ```
 
-## 8. Extension Integration
-
-Handles extension loading and execution:
-
-1. **Extension Loading**: Loads and evaluates extension modules
-   ```typescript
-   // packages/blast-runtime/src/components/CommandList/utils.ts
-   // Extension module evaluation
-   export const evalCommandModule = (requirePath: string) => {
-     const module = require(requirePath);
-     return module.default || module;
-   };
-   ```
-
-2. **Environment Setup**: Manages extension environment
-   ```typescript
-   // packages/blast-api/src/environment.ts
-   // Extension environment preparation
-   export const prepareEnvironment = (env, callback) => {
-     const previousEnv = { ...process.env };
-     Object.assign(process.env, env);
-     callback();
-   };
-   ```
-
 This architecture enables:
-- Clear separation of concerns
+- Launcher app built with the same API it supports
+- Consistent component model across launcher and extensions
 - Framework-agnostic client implementations
-- Extensible component system
+- Seamless extension integration
 
-The modular design allows different client implementations while maintaining a consistent extension API and component model.
+The design demonstrates the versatility of Raycast's component patterns, using them both to build the launcher itself and to support external extensions. This approach ensures consistency in behavior and development experience across the entire system.
