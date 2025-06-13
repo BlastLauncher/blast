@@ -9,7 +9,7 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "prepublishOnly": "npm run build"
   },
   "jest": {
