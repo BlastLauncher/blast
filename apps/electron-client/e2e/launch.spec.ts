@@ -8,7 +8,7 @@ test('launches main window', async () => {
   const electronBinary = path.join(appDir, 'node_modules', '.bin', 'electron');
   const electronApp: ElectronApplication = await electron.launch({
     executablePath: electronBinary,
-    args: [appDir, '--no-sandbox'],
+    args: ['--no-sandbox', appDir],
   });
   const window: Page = await electronApp.firstWindow();
   await expect(window).toHaveTitle(/Blast/);

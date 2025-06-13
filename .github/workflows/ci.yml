@@ -29,8 +29,8 @@ jobs:
       - name: Run Lint
         run: pnpm run lint
 
-      - name: Test Bundling
-        run: pnpm run make
+      - name: Build Electron Package
+        run: pnpm run package
         working-directory: ./apps/electron-client
 
       - name: Run Unit Tests
