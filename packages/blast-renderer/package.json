@@ -16,7 +16,8 @@
   },
   "jest": {
     "testEnvironment": "node",
-    "verbose": true
+    "verbose": true,
+    "testPathIgnorePatterns": ["<rootDir>/dist"]
   },
   "dependencies": {
     "@blastlauncher/utils": "workspace:*",
