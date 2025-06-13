@@ -1,6 +1,7 @@
 import path from 'path';
-import { _electron as electron, ElectronApplication, Page } from 'playwright';
+
 import { test, expect } from '@playwright/test';
+import { _electron as electron, ElectronApplication, Page } from 'playwright';
 
 test('launches main window', async () => {
   const appDir = path.join(__dirname, '..');
