@@ -32,3 +32,9 @@ jobs:
       - name: Test Bundling
         run: pnpm run make
         working-directory: ./apps/electron-client
+
+      - name: Run Unit Tests
+        run: pnpm -r test
+
+      - name: Run Electron e2e Tests
+        run: pnpm --filter ./apps/electron-client run test:e2e
