@@ -22,7 +22,7 @@ export const toggleMainWindowVisibility = (): void => {
   if (mainWindow.isFocused()) {
     mainWindow.hide();
     if (process.env.NODE_ENV === "development") {
-      app.hide()
+      app.hide();
     }
   } else {
     mainWindow.show();
@@ -34,10 +34,10 @@ export const hideMainWindow = (): void => {
   if (mainWindow) {
     mainWindow.hide();
     if (process.env.NODE_ENV === "development") {
-      app.hide()
+      app.hide();
     }
   }
-}
+};
 
 export const createApplicationWindow = (): void => {
   // Create the browser window.
@@ -46,7 +46,7 @@ export const createApplicationWindow = (): void => {
     width: 750,
     darkTheme: true,
     frame: false,
-    vibrancy: isMac ? "ultra-dark" : undefined,
+    vibrancy: isMac ? "under-window" : undefined,
     transparent: isMac,
     resizable: false,
     backgroundColor: "#00000000",
@@ -80,7 +80,7 @@ export const showMainWindow = (): void => {
     mainWindow.show();
     mainWindow.focus();
   }
-}
+};
 
 export const createNodeInstallerWindow = (): void => {
   nodeInstallerWindow = new BrowserWindow({
@@ -88,8 +88,8 @@ export const createNodeInstallerWindow = (): void => {
     width: 750,
     darkTheme: true,
     frame: false,
-    vibrancy: "ultra-dark",
-    transparent: true,
+    vibrancy: isMac ? "under-window" : undefined,
+    transparent: isMac,
     resizable: false,
     backgroundColor: "#00000000",
     visualEffectState: "followWindow",
@@ -105,11 +105,10 @@ export const createNodeInstallerWindow = (): void => {
   if (process.env.NODE_ENV === "development") {
     nodeInstallerWindow.webContents.openDevTools();
   }
-}
+};
 
 export const closeNodeInstallerWindow = (): void => {
   if (nodeInstallerWindow) {
     nodeInstallerWindow.close();
   }
-}
-
+};

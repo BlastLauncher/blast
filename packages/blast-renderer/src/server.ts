@@ -1,12 +1,9 @@
 import { Server } from "rpc-websockets";
 
-export function runServer({
-  port = 8763,
-  host = "localhost",
-}) {
+export function runServer({ port = 8763, host = "localhost" }) {
   const server = new Server({
     port,
-    host
+    host,
   });
 
   return server;

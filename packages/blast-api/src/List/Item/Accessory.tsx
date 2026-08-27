@@ -1,3 +1,3 @@
 export const Accessory = () => {
-  return null
-}
+  return null;
+};

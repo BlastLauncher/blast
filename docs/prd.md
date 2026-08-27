@@ -5,6 +5,7 @@
 Blast is an open-source launcher application that implements and supports Raycast's extension system. It uniquely demonstrates the flexibility of Raycast's API by using the same components and patterns to build both the launcher interface and run extensions.
 
 **Project Goals:**
+
 - Create a launcher that supports Raycast extensions
 - Build the launcher itself using Raycast API patterns
 - Provide cross-platform support through Node.js
@@ -24,6 +25,7 @@ Blast is an open-source launcher application that implements and supports Raycas
    - Same patterns as launcher development
 
 3. **Runtime Flow:**
+
 ```mermaid
 graph LR
     A[Launcher/Extension] --> B[React Renderer]
@@ -36,24 +38,28 @@ graph LR
 ## 3. Tech Stack & APIs
 
 **Launcher Core:**
+
 - Node.js runtime environment
 - Raycast API implementation
 - Custom React renderer
 - WebSocket RPC system
 
 **Extension Support:**
+
 - Raycast API compatibility layer
 - Extension loading system
 - Environment management
 - Command integration
 
 **Frontend Layer:**
+
 - Framework-agnostic design
 - Reference Electron implementation
 - React.js DOM renderer
 - Event delegation system
 
 **Communication:**
+
 - WebSocket RPC protocol
 - Event system with unique IDs
 - Component tree serialization
@@ -87,6 +93,7 @@ graph LR
 ## 5. In-scope and Out-of-scope
 
 **In-scope:**
+
 - Launcher UI using Raycast components
 - Raycast extension support
 - Component rendering system
@@ -98,6 +105,7 @@ graph LR
 - Framework adaptation support
 
 **Out-of-scope:**
+
 - Complex OS integration
 - System-level permissions
 - Third-party integrations
@@ -137,6 +145,7 @@ graph LR
 ## 7. Constraints & Assumptions
 
 **Technical Constraints:**
+
 - Raycast API compatibility
 - Node.js runtime requirement
 - WebSocket communication
@@ -145,12 +154,14 @@ graph LR
 - Frontend rendering limitations
 
 **Business Constraints:**
+
 - Open-source model
 - Cross-platform support
 - Framework independence
 - Extension compatibility
 
 **Assumptions:**
+
 - Raycast API familiarity
 - Modern hardware availability
 - Internet connectivity

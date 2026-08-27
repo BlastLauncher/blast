@@ -55,7 +55,7 @@ export const CommandList = () => {
                         push(
                           <CommandErrorBoundary>
                             <Comp />
-                          </CommandErrorBoundary>
+                          </CommandErrorBoundary>,
                         );
                       });
                     } catch (error) {

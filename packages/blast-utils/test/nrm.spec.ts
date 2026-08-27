@@ -14,9 +14,7 @@ const version = "v18.17.1";
 const archiveDirectory = `node-${version}-${process.platform}-${process.arch}`;
 
 async function createNodeArchive(): Promise<Buffer> {
-  const fixtureDirectory = await fsPromises.mkdtemp(
-    path.join(os.tmpdir(), "blast-nrm-fixture-")
-  );
+  const fixtureDirectory = await fsPromises.mkdtemp(path.join(os.tmpdir(), "blast-nrm-fixture-"));
   const nodeDirectory = path.join(fixtureDirectory, archiveDirectory);
   const binDirectory = path.join(nodeDirectory, "bin");
   const archivePath = path.join(fixtureDirectory, "node.tar.gz");

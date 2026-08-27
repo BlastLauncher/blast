@@ -1,3 +1,24 @@
 packages:
-  - 'apps/*'
-  - 'packages/*'
+  - "apps/*"
+  - "packages/*"
+
+nodeLinker: hoisted
+
+allowBuilds:
+  "@parcel/watcher": true
+  bufferutil: true
+  electron: true
+  electron-winstaller: true
+  es5-ext: true
+  esbuild: true
+  unrs-resolver: true
+  utf-8-validate: true
+
+# pnpm 11 blocks git-hosted transitive dependencies by default. Electron Forge
+# currently consumes @electron/node-gyp this way, so keep the dependency graph
+# compatible while the upstream package migrates to a registry release.
+blockExoticSubdeps: false
+
+minimumReleaseAgeExclude:
+  - "@raycast/api@2.1.0"
+  - webpack@5.110.0

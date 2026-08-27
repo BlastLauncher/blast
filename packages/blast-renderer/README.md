@@ -1,6 +1,6 @@
 # `@blastlauncher/renderer`
 
- `@blastlauncher/renderer` is the core of Blast Launcher.
+`@blastlauncher/renderer` is the core of Blast Launcher.
 
 It is a custom React renderer that implements the `react-reconciler` package. It is used to render the React element tree as JSON. Also it provides a websocket server.
 
@@ -39,4 +39,3 @@ There's currently no component checks, so developers might misuse the components
 ## Adding new elements
 
 When implementing the `@blastlauncher/api` and you found there's no supported base element, you can add it in `PrimitiveElements.ts`. Remember also update the typing in `renderer/elements/types.ts`.
-

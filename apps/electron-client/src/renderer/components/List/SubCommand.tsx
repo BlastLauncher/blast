@@ -1,7 +1,7 @@
 import * as Popover from "@radix-ui/react-popover";
 import { Command } from "cmdk";
 import React from "react";
-import { useShallow } from 'zustand/react/shallow'
+import { useShallow } from "zustand/react/shallow";
 
 import { useBlastUIStore, useRemoteBlastTree } from "../../store";
 import type { BlastComponent } from "../../types";
@@ -17,10 +17,12 @@ export function SubCommand({
   listRef?: React.RefObject<HTMLElement>;
   actionData: BlastComponent;
 }) {
-  const uiStore = useBlastUIStore(useShallow((state) => ({
-    open: state.subcommandOpen,
-    setOpen: state.setSubcommandOpen,
-  })));
+  const uiStore = useBlastUIStore(
+    useShallow((state) => ({
+      open: state.subcommandOpen,
+      setOpen: state.setSubcommandOpen,
+    })),
+  );
 
   React.useEffect(() => {
     function listener(e: KeyboardEvent) {
@@ -59,7 +61,11 @@ export function SubCommand({
   return (
     actionData && (
       <Popover.Root open={uiStore.open} onOpenChange={uiStore.setOpen} modal>
-        <Popover.Trigger cmdk-raycast-subcommand-trigger="" onClick={() => uiStore.setOpen(true)} aria-expanded={uiStore.open}>
+        <Popover.Trigger
+          cmdk-raycast-subcommand-trigger=""
+          onClick={() => uiStore.setOpen(true)}
+          aria-expanded={uiStore.open}
+        >
           Actions
           <kbd>⌘</kbd>
           <kbd>K</kbd>

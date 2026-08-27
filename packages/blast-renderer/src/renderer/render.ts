@@ -20,10 +20,17 @@ export function render(component: React.ReactNode, server?: Server) {
     null,
     "",
     (error) => {
-      // noop
+      debug(`onUncaughtError`, error);
+    },
+    (error) => {
+      debug(`onCaughtError`, error);
+    },
+    (error) => {
       debug(`onRecoverableError`, error);
     },
-    null
+    () => {
+      // No default transition indicator is needed for the JSON renderer.
+    },
   );
 
   JSONTreeRenderer.injectIntoDevTools({

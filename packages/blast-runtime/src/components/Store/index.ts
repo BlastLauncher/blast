@@ -1,1 +1,1 @@
-export * from './StoreCommand'
+export * from "./StoreCommand";

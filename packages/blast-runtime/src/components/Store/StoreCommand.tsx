@@ -4,8 +4,8 @@ import cp from "child_process";
 import { usePromise } from "@raycast/utils";
 import { useCallback, useState } from "react";
 
-import { EXTENSIONS_DIR } from '../../constants'
-import { nrm } from '../../utils/nrm'
+import { EXTENSIONS_DIR } from "../../constants";
+import { nrm } from "../../utils/nrm";
 import { loadInstalledExtensions } from "../CommandList/loadCommands";
 
 import { searchExtensions } from "./api";
@@ -15,7 +15,7 @@ import type { SearchResult } from "./npmClient";
 // TODO: switch to @raycast/utils useExec hook
 const installExtension = async (packageName: string) => {
   return new Promise((resolve, reject) => {
-    const npm = nrm.npmPath
+    const npm = nrm.npmPath;
     const command = `${npm} install --prefix ${EXTENSIONS_DIR} ${packageName}`;
 
     cp.exec(command, (error, stdout, stderr) => {
@@ -31,7 +31,7 @@ const installExtension = async (packageName: string) => {
 // TODO: switch to @raycast/utils useExec hook
 const uninstallExtension = async (packageName: string) => {
   return new Promise((resolve, reject) => {
-    const npm = nrm.npmPath
+    const npm = nrm.npmPath;
     const command = `${npm} uninstall --prefix ${EXTENSIONS_DIR} ${packageName}`;
 
     cp.exec(command, (error, stdout, stderr) => {
@@ -60,7 +60,7 @@ export function StoreCommand({ refresh }: { refresh: () => void }) {
   const isInstalled = useCallback(
     (extension: SearchResult["objects"][number]["package"]) =>
       installedExtensions?.find((ext) => ext === extension.name),
-    [installedExtensions]
+    [installedExtensions],
   );
 
   const handleInstall = async (extension: SearchResult["objects"][number]["package"]) => {

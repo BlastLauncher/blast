@@ -4,7 +4,7 @@ import { useWsServer } from "../WsServerProvider";
 
 type NonUndefined<T> = T extends undefined ? never : T;
 
-export function useServerEvent (eventName: string, handler: (data: any) => NonUndefined<any>) {
+export function useServerEvent(eventName: string, handler: (data: any) => NonUndefined<any>) {
   const server = useWsServer();
 
   useEffect(() => {

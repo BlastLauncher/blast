@@ -13,4 +13,4 @@ export const EmptyView = "EmptyView";
 export const Detail = "Detail";
 export const TextField = "TextField";
 export const NavigationRoot = "NavigationRoot";
-export const ErrorBoundary = "ErrorBoundary"
+export const ErrorBoundary = "ErrorBoundary";

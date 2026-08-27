@@ -26,17 +26,26 @@ The main data flow is:
 
 ## Toolchain
 
-- Use Node.js 18 or newer. `.nvmrc` pins the baseline CI/runtime to Node 18.20.8.
-- Use pnpm 9.x for compatibility with the existing CI and lockfile. The local
-  setup has pnpm 9.15.9 activated through Corepack.
+- Use Node.js 24.20.0 or newer. `.nvmrc` pins the baseline CI/runtime to
+  Node 24.20.0.
+- Use pnpm 11.24.0 through Corepack. The package manager version is pinned in
+  `package.json` and the lockfile is generated with that version.
 - Install with the lockfile enforced:
 
   ```bash
   pnpm install --frozen-lockfile
   ```
 
-When modernizing dependencies, update the supported Node and pnpm versions as an
-intentional change. Do not regenerate the lockfile with an unrelated pnpm major.
+The workspace uses pnpm 11's explicit `allowBuilds` policy for native Electron,
+esbuild, and WebSocket dependencies. `blockExoticSubdeps` is disabled because
+the current Electron Forge graph still consumes `@electron/node-gyp` from git.
+Keep both settings intentional when changing the Electron toolchain.
+
+Some major-version upgrades remain deliberate follow-ups: the runtime still
+emits CommonJS, so `node-fetch` and `tar` stay on their compatible lines;
+Tailwind remains on v3 until its CSS/PostCSS migration is planned; and
+TypeScript remains on 5.9 while the current `ts-jest` and package boundaries
+are modernized further.
 
 ## Common commands
 
@@ -52,8 +61,12 @@ pnpm run watch
 # In a second terminal, start the Electron client
 pnpm run start:client
 
-# Lint the workspace
+# Lint the workspace with Oxlint
 pnpm run lint
+
+# Check or rewrite formatting with Oxfmt
+pnpm run fmt:check
+pnpm run fmt
 
 # Run all available workspace tests serially
 pnpm run test
@@ -86,7 +99,13 @@ pnpm --filter @blastlauncher/utils run test
 The renderer test configuration ignores generated `dist` files. The utils NRM
 tests use a local compressed archive and mocked HTTPS response, so they do not
 depend on Node.js downloads or network timing. The API package currently has no
-test files but is configured to pass cleanly with no tests.
+test files but is configured to pass cleanly with no tests. Jest 30 and
+TypeScript 5.9 are shared by the workspace test runners.
+
+Oxlint is the linting entry point and Oxfmt is the formatting entry point. Their
+root configuration files are `.oxlintrc.json` and `.oxfmtrc.json`; generated
+artifacts are ignored there rather than through the removed ESLint/Prettier
+ignore files.
 
 ## Change guidelines
 

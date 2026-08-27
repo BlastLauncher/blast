@@ -1,40 +1,51 @@
-declare namespace JSX {
-  import type { ActionPanel, Action, List, Detail, Form, Grid } from "raycast-original";
+import type { ReactNode } from "react";
+import type { ActionPanel, Action, List, Detail, Form } from "raycast-original";
 
-  type BlastNodeProps = {
-    serializedKeys?: string[];
-  };
+type BlastNodeProps = {
+  serializedKeys?: string[];
+};
 
-  interface IntrinsicElements {
-    ActionPanel: ActionPanel.Props & BlastNodeProps;
-    ActionPanelSection: ActionPanel.Section.Props & BlastNodeProps;
-    Action: Action.Props &
-      BlastNodeProps & {
-        actionEventName: string;
-      };
-    List: List.Props & BlastNodeProps;
-    ListItem: List.Item.Props &
-      BlastNodeProps & {
-        children?: React.ReactNode;
-      };
-    EmptyView: List.EmptyView.Props &
-      BlastNodeProps & {
-        children?: React.ReactNode;
-      };
-    Detail: Detail.Props & BlastNodeProps;
-    Form: Form.Props & BlastNodeProps;
-    TextField: Form.TextField.Props &
-      BlastNodeProps & {
-        onChangeEventName: string;
-      };
+type DropdownNodeProps = BlastNodeProps & {
+  onChangeEventName?: string;
+  onSearchTextChangeEventName?: string;
+  searchTextValue?: string;
+};
 
-    NavigationRoot: {
-      children?: React.ReactNode;
-      stacksLength?: number;
-    } & BlastNodeProps;
+declare module "react" {
+  namespace JSX {
+    interface IntrinsicElements {
+      ActionPanel: ActionPanel.Props & BlastNodeProps;
+      ActionPanelSection: ActionPanel.Section.Props & BlastNodeProps;
+      Action: Action.Props &
+        BlastNodeProps & {
+          actionEventName: string;
+        };
+      List: List.Props & BlastNodeProps;
+      ListItem: List.Item.Props &
+        BlastNodeProps & {
+          children?: ReactNode;
+        };
+      EmptyView: List.EmptyView.Props &
+        BlastNodeProps & {
+          children?: ReactNode;
+        };
+      Detail: Detail.Props & BlastNodeProps;
+      Form: Form.Props & BlastNodeProps;
+      TextField: Form.TextField.Props &
+        BlastNodeProps & {
+          onChangeEventName: string;
+        };
 
-    Dropdown: List.Dropdown.Props & Grid.Dropdown.Props & Form.Dropdown.Props & BlastNodeProps;
-    DropdownSection: List.Dropdown.Section.Props & Grid.Dropdown.Section.Props & Form.Dropdown.Section.Props & BlastNodeProps;
-    DropdownItem: List.Dropdown.Item.Props & Grid.Dropdown.Item.Props & Form.Dropdown.Item.Props & BlastNodeProps;
+      NavigationRoot: {
+        children?: ReactNode;
+        stacksLength?: number;
+      } & BlastNodeProps;
+
+      Dropdown: List.Dropdown.Props & DropdownNodeProps;
+      DropdownSection: List.Dropdown.Section.Props & BlastNodeProps;
+      DropdownItem: List.Dropdown.Item.Props & BlastNodeProps;
+    }
   }
 }
+
+export {};

@@ -11,17 +11,17 @@ const downloadSVG = (filename, svg) => {
   document.body.appendChild(element);
   element.click();
   document.body.removeChild(element);
-}
+};
 
 const cells = document.querySelectorAll("td.r-1oszu61");
 const images = [];
 
-cells.forEach(cell => {
+cells.forEach((cell) => {
   const img = cell.querySelector("img");
   if (!img) return;
 
   const src = img.src;
-  const match = src.match(/icon-(.+).svg/)
+  const match = src.match(/icon-(.+).svg/);
 
   if (!match) throw src;
 
@@ -39,16 +39,16 @@ const downloadChunk = () => {
     const xhr = new XMLHttpRequest();
     xhr.open("GET", src);
     xhr.responseType = "text";
-    xhr.onload = function() {
+    xhr.onload = function () {
       downloadSVG(`${filename}.svg`, this.response);
-    }
+    };
     xhr.send();
   });
   index += chunkSize;
   if (index < images.length) {
     setTimeout(downloadChunk, 1000);
   }
-}
+};
 
 downloadChunk();
 ```

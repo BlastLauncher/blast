@@ -38,7 +38,6 @@ const serializedKeys: TextFieldPropKeys = [
 
 const _TextField = (props: Form.TextField.Props, ref: React.ForwardedRef<FormItemExposedMethods>) => {
   const textfieldId = useId();
-  // eslint-disable-next-line react/prop-types
   const { onChange, id } = props;
 
   const [internalValue, setInternalValue] = useState<string | undefined>(props.value);
@@ -62,15 +61,12 @@ const _TextField = (props: Form.TextField.Props, ref: React.ForwardedRef<FormIte
     }
   }, [internalValue, onChange, id, updateValue]);
 
-  const onChangeHandler = useCallback(
-    ({ value }: { value: string }) => {
-      debug("triggering on change event listener", value);
-      setInternalValue(value);
+  const onChangeHandler = useCallback(({ value }: { value: string }) => {
+    debug("triggering on change event listener", value);
+    setInternalValue(value);
 
-      return null;
-    },
-    []
-  );
+    return null;
+  }, []);
 
   useServerEvent(onChangeEventName, onChangeHandler);
 
@@ -86,7 +82,7 @@ const _TextField = (props: Form.TextField.Props, ref: React.ForwardedRef<FormIte
         debug("reset");
       },
     }),
-    []
+    [],
   );
 
   return (

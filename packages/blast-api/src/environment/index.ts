@@ -5,12 +5,18 @@ import { type Environment, LaunchType } from "../LaunchType";
 const asyncLocalStorage = new AsyncLocalStorage<Environment>();
 
 const defaultEnvironment: Environment = {
+  appearance: "dark",
   assetsPath: "",
+  canAccess: () => false,
   commandMode: "view",
   commandName: "",
+  entryPointMode: "view",
+  entryPointName: "",
+  entryPointType: "command",
   extensionName: "",
   isDevelopment: false,
   launchType: LaunchType.UserInitiated,
+  ownerOrAuthorName: "",
   raycastVersion: "",
   supportPath: "",
   textSize: "medium",

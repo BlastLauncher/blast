@@ -11,7 +11,7 @@ runs:
       name: Install pnpm
       id: pnpm-install
       with:
-        version: 9.15.9
+        version: 11.24.0
         run_install: false
 
     - name: Use the pinned Node.js version
@@ -24,8 +24,8 @@ runs:
     - name: Verify the toolchain
       shell: bash
       run: |
-        test "$(node --version)" = "v18.20.8"
-        test "$(pnpm --version)" = "9.15.9"
+        test "$(node --version)" = "v24.20.0"
+        test "$(pnpm --version)" = "11.24.0"
 
     - name: Install dependencies
       shell: bash
