@@ -1,5 +1,6 @@
 {
   "name": "@blastlauncher/monorepo",
+  "packageManager": "pnpm@9.15.9",
   "version": "1.0.0",
   "description": "",
   "keywords": [],
@@ -23,7 +24,7 @@
     "fmt": "prettier --write .",
     "lint": "eslint .",
     "start:client": "pnpm --filter blast run start",
-    "test": "pnpm run test",
+    "test": "pnpm --recursive --workspace-concurrency=1 --if-present run test",
     "cli": "pnpm --filter cli run start"
   },
   "jest": {
@@ -34,6 +35,11 @@
       "^.+\\.ts?$": "ts-jest"
     },
     "transformIgnorePatterns": [
+      "<rootDir>/node_modules/"
+    ],
+    "testPathIgnorePatterns": [
+      "<rootDir>/dist/",
+      "<rootDir>/out/",
       "<rootDir>/node_modules/"
     ]
   },

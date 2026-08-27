@@ -7,5 +7,10 @@ module.exports = {
   },
   "transformIgnorePatterns": [
     "<rootDir>/node_modules/"
+  ],
+  "testPathIgnorePatterns": [
+    "<rootDir>/dist/",
+    "<rootDir>/out/",
+    "<rootDir>/node_modules/"
   ]
 }
