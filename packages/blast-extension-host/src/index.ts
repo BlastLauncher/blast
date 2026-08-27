@@ -1,4 +1,4 @@
-import type { ProtocolEnvelope } from "@blastlauncher/protocol";
+import type { ProtocolTransport } from "@blastlauncher/transport";
 
 export interface ExtensionDescriptor {
   readonly extensionId: string;
@@ -7,14 +7,8 @@ export interface ExtensionDescriptor {
   readonly rootDirectory: string;
 }
 
-export interface ProtocolConnection {
-  readonly messages: AsyncIterable<ProtocolEnvelope>;
-  send(message: ProtocolEnvelope): Promise<void>;
-  close(reason?: string): Promise<void>;
-}
-
 export interface ExtensionProcess {
-  readonly connection: ProtocolConnection;
+  readonly connection: ProtocolTransport;
   readonly processId?: number;
   stop(reason?: string): Promise<void>;
 }

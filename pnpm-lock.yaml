@@ -266,9 +266,9 @@ importers:
 
   packages/blast-extension-host:
     dependencies:
-      '@blastlauncher/protocol':
+      '@blastlauncher/transport':
         specifier: workspace:*
-        version: link:../blast-protocol
+        version: link:../blast-transport
 
   packages/blast-protocol: {}
 
@@ -381,6 +381,12 @@ importers:
       rpc-websockets:
         specifier: ^10.0.1
         version: 10.0.1
+
+  packages/blast-transport:
+    dependencies:
+      '@blastlauncher/protocol':
+        specifier: workspace:*
+        version: link:../blast-protocol
 
   packages/blast-utils:
     dependencies:
