@@ -27,6 +27,7 @@ The main data flow is:
 V2 is being developed alongside the prototype:
 
 - `packages/blast-protocol/` — transport-independent V2 messages and schemas.
+- `packages/blast-transport/` — V2 connection contract and in-memory test transport.
 - `packages/blast-extension-host/` — V2 extension lifecycle boundary.
 - `docs/v2/` — accepted product direction, architecture, decisions, and migration plan.
 

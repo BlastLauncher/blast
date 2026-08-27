@@ -38,6 +38,10 @@ The protocol will cover:
 WebSocket, local sockets, named pipes, standard I/O, and in-memory test channels
 are transports for this protocol. None is the canonical architecture.
 
+`@blastlauncher/transport` defines the shared connection interface and provides
+the deterministic in-memory implementation used by protocol and lifecycle
+tests. Concrete operating-system and network transports remain separate.
+
 ### Extension host
 
 `@blastlauncher/extension-host` supervises extension sessions. It owns start,
@@ -77,9 +81,10 @@ core can enforce policy and record an audit event.
 
 ```text
 compat-raycast ----\
-blast-api ----------> extension-host ---> protocol <--- desktop client
-                                         ^
-capability providers --------------------+
+blast-api ----------> extension-host ---> transport ---> protocol
+                                           ^              ^
+desktop client ---------------------------+--------------+
+capability providers ---------------------+--------------+
 ```
 
 1. `protocol` has no workspace dependencies and no platform dependencies.
@@ -118,6 +123,7 @@ authentication and encryption before they may carry privileged requests.
 
 ```text
 packages/blast-protocol/        V2 wire contract
+packages/blast-transport/       V2 transport boundary and in-memory pair
 packages/blast-extension-host/  V2 lifecycle boundary
 packages/blast-api/             V1 compatibility implementation
 packages/blast-runtime/         V1 runtime

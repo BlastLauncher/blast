@@ -19,6 +19,8 @@ existing checks.
 - Add the extension-host lifecycle boundary.
 - Implement handshake negotiation and an in-memory test connection.
 - Define structured error and shutdown behavior.
+- Record the React reconciler as a scene adapter without implementing scene
+  messages ahead of the first vertical slice.
 
 Exit condition: a test process can negotiate, exchange a message, cancel, and
 shut down without Electron or WebSocket.

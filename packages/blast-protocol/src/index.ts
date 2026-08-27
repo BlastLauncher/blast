@@ -1,4 +1,5 @@
 export const BLAST_PROTOCOL_VERSION = 1 as const;
+export const SUPPORTED_PROTOCOL_VERSIONS: readonly number[] = [BLAST_PROTOCOL_VERSION];
 
 export type ProtocolVersion = typeof BLAST_PROTOCOL_VERSION;
 
@@ -50,4 +51,15 @@ export function createMessage<TType extends string, TPayload>(
     type,
     payload,
   };
+}
+
+export function negotiateProtocolVersion(
+  localVersions: readonly number[],
+  remoteVersions: readonly number[],
+): number | undefined {
+  const remoteVersionSet = new Set(remoteVersions);
+
+  return [...new Set(localVersions)]
+    .filter((version) => Number.isSafeInteger(version) && version > 0 && remoteVersionSet.has(version))
+    .toSorted((left, right) => right - left)[0];
 }

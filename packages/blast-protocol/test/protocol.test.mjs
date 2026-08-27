@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { BLAST_PROTOCOL_VERSION, createMessage } from "../dist/index.js";
+import { BLAST_PROTOCOL_VERSION, createMessage, negotiateProtocolVersion } from "../dist/index.js";
 
 test("createMessage adds the current protocol version", () => {
   const message = createMessage("message-1", "hello", {
@@ -20,4 +20,9 @@ test("createMessage adds the current protocol version", () => {
       implementation: { name: "test-client", version: "0.0.0" },
     },
   });
+});
+
+test("negotiates the highest shared protocol version", () => {
+  assert.equal(negotiateProtocolVersion([1, 3, 2], [2, 1]), 2);
+  assert.equal(negotiateProtocolVersion([1], [2]), undefined);
 });

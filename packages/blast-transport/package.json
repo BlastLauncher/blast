@@ -1,8 +1,8 @@
 {
-  "name": "@blastlauncher/extension-host",
+  "name": "@blastlauncher/transport",
   "version": "0.0.0",
   "private": true,
-  "description": "Extension lifecycle boundary for Blast V2",
+  "description": "Transport abstractions and in-memory transport for Blast V2",
   "license": "MIT",
   "files": [
     "dist"
@@ -19,6 +19,6 @@
     "test": "pnpm run build && node --test test/*.test.mjs"
   },
   "dependencies": {
-    "@blastlauncher/transport": "workspace:*"
+    "@blastlauncher/protocol": "workspace:*"
   }
 }
