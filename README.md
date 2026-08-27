@@ -1,4 +1,24 @@
-# Blast Launcher (aka C8763)
+# Blast Launcher
+
+## V2 direction
+
+> **Project status:** Blast is being redesigned as a small, open runtime for
+> Raycast-compatible extensions. The current application remains an experimental
+> prototype while the V2 foundation is developed alongside it.
+
+The goal is to keep useful open-source launcher extensions running beyond the
+lifetime of any single client or maintainer. Compatibility will be measured
+against real extensions rather than claimed as complete feature parity.
+
+- [V2 product direction](./docs/v2/README.md)
+- [V2 architecture](./docs/v2/architecture.md)
+- [Migration plan](./docs/v2/migration.md)
+- [Architecture decisions](./docs/v2/decisions/)
+
+## V1 prototype
+
+The remainder of this README documents the original prototype while V2 is
+developed alongside it.
 
 **Update**: I wrote [an introduction post](https://yukai.dev/blog/2023/08/22/launching-blast-from-poc-to-01) for Blast Launcher.
 
@@ -18,32 +38,11 @@ can only be used in Raycast. So here's where this project comes in.
 
 Blast provides an open-source React renderer to render these Raycast extensions.
 
-<!--toc:start-->
-
-- [Blast Launcher (aka C8763)](#blast-launcher-aka-c8763)
-  - [Demo](#demo)
-  - [Architecture](#architecture)
-  - [Basic usage](#basic-usage)
-    - [Install](#install)
-    - [Usage](#usage)
-  - [Development](#development)
-  - [Debugging](#debugging)
-    - [See runtime logs](#see-runtime-logs)
-    - [Debugging runtime with React DevTools](#debugging-runtime-with-react-devtools)
-  - [Inspiration and related projects](#inspiration-and-related-projects)
-  - [FAQs](#faqs)
-    - [Why naming blast?](#why-naming-blast)
-    - [Why C8763?](#why-c8763)
-  - [Links](#links)
-  - [License](#license)
-
-<!--toc:end-->
-
 ## Demo
 
 ![demo_todo](./docs/media/demo_todo.gif)
 
-## Architecture
+## Prototype architecture
 
 Blast uses the following components:
 

@@ -24,6 +24,16 @@ The main data flow is:
 - `packages/blast-utils/` — shared utilities, including Node runtime helpers.
 - `docs/` — product and application-flow documentation.
 
+V2 is being developed alongside the prototype:
+
+- `packages/blast-protocol/` — transport-independent V2 messages and schemas.
+- `packages/blast-extension-host/` — V2 extension lifecycle boundary.
+- `docs/v2/` — accepted product direction, architecture, decisions, and migration plan.
+
+V2 packages must not import from the prototype packages' `src/` directories.
+Keep `@blastlauncher/protocol` independent of React, Electron, Node.js runtime
+APIs, and concrete transports.
+
 ## Toolchain
 
 - Use Node.js 24.20.0 or newer. `.nvmrc` pins the baseline CI/runtime to
@@ -126,20 +136,20 @@ ignore files.
 - Read the package README and relevant files in `docs/` before changing a
   package's public behavior.
 
-## Modernization direction
+## V2 direction
 
-Before upgrading the dependency graph, agree on the revived product goal and
-compatibility policy. A likely direction is a modern, cross-platform,
-extensible desktop launcher with a maintained plugin SDK, secure extension
-runtime, and current Node/React/Electron dependencies.
+Blast V2 is a clean-slate implementation within the existing repository. Its
+goal is a small, open runtime for a measured subset of Raycast-compatible
+extensions. The launcher is the first client, not part of the extension runtime
+contract. Read `docs/v2/` before changing V2 public behavior.
 
-Recommended modernization order:
+Recommended implementation order:
 
-1. Record the current behavior and package contracts.
-2. Repair CI, test discovery, and reproducible toolchain selection.
-3. Upgrade TypeScript, React, Electron, and build tooling in isolated groups.
-4. Harden extension execution, permissions, IPC, and runtime installation.
-5. Improve the launcher UX and extension authoring/publishing workflow.
+1. Establish the versioned, transport-neutral protocol and lifecycle boundary.
+2. Measure API usage in the public extension corpus.
+3. Complete one isolated extension-to-client vertical slice.
+4. Expand compatibility in measured order with deterministic fixtures.
+5. Cut the desktop client over only after the V2 path is proven.
 
-Do not begin with a broad package upgrade that silently changes the extension
-contract.
+Do not couple V2 to V1 internals for short-term reuse, and do not remove V1 until
+the migration criteria in `docs/v2/migration.md` are satisfied.
