@@ -43,37 +43,37 @@ export class NRM {
     const targetDir = path.join(this.installPath, version);
     const downloadTempPath = path.join(tempDir, "node.tar.gz");
 
-    const response: IncomingMessage = await new Promise((resolve, reject) => {
-      https.get(url, (res) => {
-        if (res.statusCode !== 200) {
-          reject(new Error("Failed to download Node.js"));
-        } else {
-          resolve(res);
-        }
+    try {
+      const response: IncomingMessage = await new Promise((resolve, reject) => {
+        https.get(url, (res) => {
+          if (res.statusCode !== 200) {
+            reject(new Error("Failed to download Node.js"));
+          } else {
+            resolve(res);
+          }
+        });
       });
-    });
 
-    await pipelineAsync(response, createGunzip(), fs.createWriteStream(downloadTempPath));
+      await pipelineAsync(response, createGunzip(), fs.createWriteStream(downloadTempPath));
 
-    await tar.x({
-      file: downloadTempPath,
-      cwd: tempDir,
-    });
+      await tar.x({
+        file: downloadTempPath,
+        cwd: tempDir,
+      });
 
-    // Get the directory created by tar extraction
-    const [extractedDir] = await fsPromises.readdir(tempDir);
-    const extractedDirPath = path.join(tempDir, extractedDir);
+      const entries = await fsPromises.readdir(tempDir, { withFileTypes: true });
+      const extractedDir = entries.find((entry) => entry.isDirectory());
+      if (!extractedDir) {
+        throw new Error("Expected a directory in the extracted content");
+      }
 
-    // Check if it's actually a directory
-    const stats = await fsPromises.stat(extractedDirPath);
-    if (!stats.isDirectory()) {
-      throw new Error("Expected a directory in the extracted content");
+      const extractedDirPath = path.join(tempDir, extractedDir.name);
+      fsExtra.ensureDirSync(targetDir);
+
+      await fsPromises.cp(extractedDirPath, targetDir, { recursive: true });
+    } finally {
+      await fsPromises.rm(tempDir, { recursive: true, force: true });
     }
-
-    // cp extractedDirPath as targetDir
-    fsExtra.ensureDirSync(targetDir); 
-
-    await fsPromises.cp(extractedDirPath, targetDir, { recursive: true });
   }
 
   /**
@@ -91,7 +91,7 @@ export class NRM {
     }
 
     // Remove the version directory
-    await fsPromises.rmdir(versionDir, { recursive: true });
+    await fsPromises.rm(versionDir, { recursive: true, force: true });
   }
 
   get nodePath(): string {

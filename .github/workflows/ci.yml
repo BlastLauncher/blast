@@ -1,34 +1,53 @@
-name: PR Test
+name: Pull Request CI
 
 on:
   pull_request:
     branches: ["main"]
     paths:
+      - ".github/**"
+      - ".nvmrc"
+      - ".npmrc"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
       - "packages/**"
       - "apps/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pull-request-ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   lint-and-build:
     name: Test Bundling for Electron Client (${{ matrix.os }} - ${{ matrix.arch }})
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     strategy:
       matrix:
-        os: [ macOS-latest, ubuntu-latest ]
-        arch: [ x64 ]
         include:
-        - os: macOS-latest
+        - os: ubuntu-22.04
+          arch: x64
+        - os: macos-15-intel
+          arch: x64
+        - os: macos-15
           arch: arm64
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - uses: ./.github/actions/setup-repo
 
       - name: Build
         run: pnpm run build
 
+      - name: Run Tests
+        run: pnpm run test
+
       - name: Run Lint
         run: pnpm run lint
 
       - name: Test Bundling
-        run: pnpm run make
+        run: pnpm run make --arch=${{ matrix.arch }}
         working-directory: ./apps/electron-client

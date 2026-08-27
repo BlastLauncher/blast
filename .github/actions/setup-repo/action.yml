@@ -7,33 +7,33 @@ runs:
   using: composite
 
   steps:
-    - name: Use Node.js 18
-      uses: actions/setup-node@v3
-      with:
-        node-version: 18
-
-    - uses: pnpm/action-setup@v2
+    - uses: pnpm/action-setup@a15d269cd4658e1107c09f1fabf4cbd7bd1f308a # v4.4.0
       name: Install pnpm
       id: pnpm-install
       with:
-        version: 9
+        version: 9.15.9
         run_install: false
 
-    - name: Get pnpm store directory
-      id: pnpm-cache
+    - name: Use the pinned Node.js version
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      with:
+        node-version-file: .nvmrc
+        cache: pnpm
+        cache-dependency-path: pnpm-lock.yaml
+
+    - name: Verify the toolchain
       shell: bash
       run: |
-        echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-    - uses: actions/cache@v3
-      name: Setup pnpm cache
-      with:
-        path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-        restore-keys: |
-          ${{ runner.os }}-pnpm-store-
+        test "$(node --version)" = "v18.20.8"
+        test "$(pnpm --version)" = "9.15.9"
 
     - name: Install dependencies
       shell: bash
-      run: pnpm install
+      run: pnpm install --frozen-lockfile
 
+    - name: Install Linux packaging prerequisites
+      if: runner.os == 'Linux'
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install --no-install-recommends -y fakeroot rpm
