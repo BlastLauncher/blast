@@ -8,8 +8,12 @@ const esbuildConfig = {
   bundle: true,
   platform: "node",
   outfile: "dist/run.cjs",
+  // @raycast/utils publishes an ESM entrypoint that imports Raycast-only
+  // exports. Blast extensions run against our compatible API implementation,
+  // so use its CJS entrypoint and resolve @raycast/api to the workspace API.
   alias: {
-    "@raycast/api": path.resolve(__dirname, "node_modules/raycast-original/dist/index.js"),
+    "@raycast/api": path.resolve(__dirname, "../blast-api/src/index.ts"),
+    "@raycast/utils": require.resolve("@raycast/utils", { paths: [__dirname] }),
   },
   keepNames: true,
   define: { "import.meta.url": "_importMetaUrl" },
