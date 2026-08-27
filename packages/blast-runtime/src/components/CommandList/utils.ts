@@ -27,7 +27,7 @@ export function evalCommandModule(pkg: string) {
       _jsx: React.createElement,
       _jsxFragment: React.Fragment,
     },
-    true
+    true,
   );
 
   // TODO: do additional checks to make sure the module is valid

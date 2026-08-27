@@ -1,3 +1,5 @@
+import type React from "react";
+
 import type { ObjectFromList } from "../../lib/typeUtils";
 import { useRemoteBlastTree } from "../../store";
 import type { BlastComponent } from "../../types";
@@ -85,7 +87,7 @@ const FormFooter = ({ actionData }: { actionData: BlastComponent }) => {
   );
 };
 
-export const Form = ({ children, props }: { children: BlastComponent[]; props: FormProps }): JSX.Element => {
+export const Form = ({ children, props }: { children: BlastComponent[]; props: FormProps }): React.JSX.Element => {
   const { pop, canPop } = useNavigationContext();
 
   const nonActionChildren = children.filter((child) => child.elementType !== "ActionPanel");

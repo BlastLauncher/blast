@@ -22,6 +22,7 @@ graph TD
 ```
 
 File Structure:
+
 ```
 apps/
 └── electron-client/          # Reference client implementation
@@ -50,6 +51,7 @@ packages/
 Each package serves a specific role in creating a launcher that both uses and supports Raycast API:
 
 1. **blast-runtime**: Main launcher application using Raycast components
+
    ```typescript
    // packages/blast-runtime/src/index.ts
    // Launcher initialization with WebSocket server
@@ -62,6 +64,7 @@ Each package serves a specific role in creating a launcher that both uses and su
    ```
 
 2. **blast-renderer**: Custom React renderer for serializable component trees
+
    ```typescript
    // packages/blast-renderer/src/renderer/reconciler.ts
    // Handles component tree serialization for both launcher and extensions
@@ -83,7 +86,7 @@ Each package serves a specific role in creating a launcher that both uses and su
      WsContext,
      WsServerProvider,
      // Internal utilities
-   }
+   };
    ```
 
 ## 3. Component System
@@ -91,6 +94,7 @@ Each package serves a specific role in creating a launcher that both uses and su
 A unified component system serving both launcher and extensions:
 
 1. **Core Components**: Raycast-style components for UI construction
+
    ```typescript
    // packages/blast-renderer/src/renderer/elements/types.ts
    // Shared component types
@@ -117,6 +121,7 @@ A unified component system serving both launcher and extensions:
 Unified event handling system for launcher and extensions:
 
 1. **Event Registration**: Common event handling mechanism
+
    ```typescript
    // packages/blast-api/src/Action/index.tsx
    export const Action = (props: RAction.Props) => {
@@ -140,6 +145,7 @@ Unified event handling system for launcher and extensions:
 Extensions are loaded as commands within the launcher:
 
 1. **Extension Loading**
+
    ```typescript
    // packages/blast-runtime/src/components/CommandList/utils.ts
    export const evalCommandModule = (requirePath: string) => {
@@ -161,6 +167,7 @@ Extensions are loaded as commands within the launcher:
 ## 6. Data Flow
 
 Component Tree Flow:
+
 ```mermaid
 graph TD
     A[Launcher/Extension<br/>Component Change] --> B[Reconciler Update]
@@ -171,6 +178,7 @@ graph TD
 ```
 
 Event Flow:
+
 ```mermaid
 graph TD
     A[UI Interaction] --> B[Event ID Lookup]
@@ -181,6 +189,7 @@ graph TD
 ```
 
 This architecture enables:
+
 - Launcher app built with the same API it supports
 - Consistent component model across launcher and extensions
 - Framework-agnostic client implementations

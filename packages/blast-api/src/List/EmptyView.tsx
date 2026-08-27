@@ -1,7 +1,6 @@
 import { ElementTypes } from "@blastlauncher/renderer/src";
 import { List } from "raycast-original";
 
-
 type EmptyViewPropKeys = (keyof List.EmptyView.Props)[];
 const serializedKeys: EmptyViewPropKeys = ["title", "description", "icon"];
 

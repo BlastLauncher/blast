@@ -11,12 +11,13 @@ import {
   TextInstance,
   SuspenseInstance,
   HydratableInstance,
+  FormInstance,
   PublicInstance,
   HostContext,
-  UpdatePayload,
   ChildSet,
   TimeoutHandle,
   NoTimeout,
+  TransitionStatus,
   InternalInstanceHandle,
 } from "./types";
 
@@ -30,12 +31,13 @@ export const JSONTreeRenderer = Reconciler<
   TextInstance,
   SuspenseInstance,
   HydratableInstance,
+  FormInstance,
   PublicInstance,
   HostContext,
-  UpdatePayload,
   ChildSet,
   TimeoutHandle,
-  NoTimeout
+  NoTimeout,
+  TransitionStatus
 >({
   // The `createInstance` method is called when a new React element is created.
   // It should return a JSON-RPC object representing the element.
@@ -44,7 +46,7 @@ export const JSONTreeRenderer = Reconciler<
     props: Props,
     rootContainerInstance: Container,
     hostContext: HostContext,
-    internalInstanceHandle: InternalInstanceHandle
+    internalInstanceHandle: InternalInstanceHandle,
   ) {
     debug(`createInstance(${type}, ${props})`);
 
@@ -55,7 +57,7 @@ export const JSONTreeRenderer = Reconciler<
     text: string,
     rootContainerInstance: Container,
     hostContext: object,
-    internalInstanceHandle: object
+    internalInstanceHandle: object,
   ) {
     debug(`createTextInstance(${text})`);
 
@@ -81,24 +83,10 @@ export const JSONTreeRenderer = Reconciler<
     type: Type,
     props: Props,
     rootContainer: Container,
-    hostContext: HostContext
+    hostContext: HostContext,
   ) {
     debug(`finalizeInitialChildren`, instance.elementType, type);
 
-    return true;
-  },
-
-  // The `prepareUpdate` method is called when the props of an element are updated.
-  // It should return an object containing the new props for the element.
-  prepareUpdate(
-    domElement: object,
-    type: string,
-    oldProps: object,
-    newProps: object,
-    rootContainerInstance: Container,
-    hostContext: object
-  ) {
-    debug(`prepareUpdate`);
     return true;
   },
 
@@ -106,11 +94,10 @@ export const JSONTreeRenderer = Reconciler<
   // It should update the props of the element in the JSON-RPC object.
   commitUpdate(
     instance: Instance,
-    updatePayload: UpdatePayload,
     type: Type,
     prevProps: Props,
     nextProps: Props,
-    internalHandle: InternalInstanceHandle
+    internalHandle: InternalInstanceHandle,
   ) {
     debug(`commitUpdate`);
 
@@ -217,12 +204,10 @@ export const JSONTreeRenderer = Reconciler<
   // The `supportsHydration` property should be set to true if this renderer supports hydration.
   supportsHydration: false,
 
-  getChildHostContext: function (parentHostContext: any, type: any, rootContainer: Container) {
+  getChildHostContext: function (parentHostContext: HostContext, type: Type) {
     debug("getChildHostContext", type);
 
-    return {
-      server: rootContainer.server,
-    };
+    return parentHostContext;
   },
   getPublicInstance: function (instance: any) {
     debug("getPublicInstance");
@@ -254,8 +239,51 @@ export const JSONTreeRenderer = Reconciler<
     clearTimeout(id);
   },
   noTimeout: -1,
-  getCurrentEventPriority: function (): number {
+  supportsMicrotasks: true,
+  scheduleMicrotask: queueMicrotask,
+  setCurrentUpdatePriority: function (): void {
+    // No host-level event priority state is needed for the JSON renderer.
+  },
+  getCurrentUpdatePriority: function (): number {
     return DefaultEventPriority;
+  },
+  resolveUpdatePriority: function (): number {
+    return DefaultEventPriority;
+  },
+  shouldAttemptEagerTransition: function (): boolean {
+    return false;
+  },
+  NotPendingTransition: null as TransitionStatus | null,
+  HostTransitionContext: null as any,
+  resetFormInstance: function (_form: FormInstance): void {
+    // Forms are represented as serialized nodes and do not need host cleanup.
+  },
+  requestPostPaintCallback: function (_callback: (time: number) => void): void {
+    // Post-paint callbacks are not observable in this non-DOM renderer.
+  },
+  trackSchedulerEvent: function (): void {
+    // No scheduler integration is required by the host.
+  },
+  resolveEventType: function (): string | null {
+    return null;
+  },
+  resolveEventTimeStamp: function (): number {
+    return 0;
+  },
+  maySuspendCommit: function (): boolean {
+    return false;
+  },
+  preloadInstance: function (): boolean {
+    return true;
+  },
+  startSuspendingCommit: function (): void {
+    // Commits are synchronous for this renderer.
+  },
+  suspendInstance: function (): void {
+    // Commits are synchronous for this renderer.
+  },
+  waitForCommitToBeReady: function (): null {
+    return null;
   },
   getInstanceFromNode: function (node: any): Reconciler.Fiber | null | undefined {
     throw new Error("getInstanceFromNode not implemented.");

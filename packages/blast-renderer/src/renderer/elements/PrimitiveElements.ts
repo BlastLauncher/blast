@@ -90,17 +90,17 @@ export class Icon extends BaseElement {
 }
 
 export class ErrorBoundary extends BaseElement {
-  static defaultProps = {}
+  static defaultProps = {};
 }
 
 export class Dropdown extends BaseElement {
-  static defaultProps = {}
+  static defaultProps = {};
 }
 
 export class DropdownSection extends BaseElement {
-  static defaultProps = {}
+  static defaultProps = {};
 }
 
 export class DropdownItem extends BaseElement {
-  static defaultProps = {}
+  static defaultProps = {};
 }

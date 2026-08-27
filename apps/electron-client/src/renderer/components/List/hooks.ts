@@ -13,7 +13,7 @@ export const useDefaultAction = (actionData: BlastComponent) => {
     const firstAction = children.find((child) => child.elementType === "Action");
 
     const firstActionPanelSection = children.find(
-      (child) => child.elementType === "ActionPanelSection" && child.children.length > 0
+      (child) => child.elementType === "ActionPanelSection" && child.children.length > 0,
     );
 
     if (firstActionPanelSection) {

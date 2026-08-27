@@ -5,6 +5,7 @@
   "keywords": [],
   "license": "ISC",
   "author": "",
+  "repository": "https://github.com/BlastLauncher/blast.git",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
@@ -12,29 +13,35 @@
     "test": "jest --passWithNoTests",
     "prepublishOnly": "npm run build"
   },
-  "jest": {
-    "testEnvironment": "node",
-    "verbose": true,
-    "testPathIgnorePatterns": [
-      "<rootDir>/dist/",
-      "<rootDir>/out/",
-      "<rootDir>/node_modules/"
-    ]
-  },
   "dependencies": {
     "@blastlauncher/renderer": "workspace:*",
     "@blastlauncher/utils": "workspace:*",
     "clipboardy": "^4.0.0",
-    "fs-extra": "^11.1.0",
+    "fs-extra": "^11.4.0",
     "open": "^10.1.0",
-    "react": "^18.2.0"
+    "react": "^19.2.8"
   },
   "devDependencies": {
-    "@types/fs-extra": "^9.0.13",
-    "@types/node": "^18.8.3",
-    "@types/react": "18.0.9",
-    "raycast-original": "npm:@raycast/api@1.45.0",
-    "rpc-websockets": "^7.5.0"
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.2.18",
+    "raycast-original": "npm:@raycast/api@2.1.0",
+    "rpc-websockets": "^10.0.1"
   },
-  "repository": "https://github.com/BlastLauncher/blast.git"
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "testPathIgnorePatterns": [
+      "<rootDir>/dist/",
+      "<rootDir>/out/",
+      "<rootDir>/node_modules/"
+    ],
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "transformIgnorePatterns": [
+      "<rootDir>/node_modules/"
+    ],
+    "verbose": true
+  }
 }

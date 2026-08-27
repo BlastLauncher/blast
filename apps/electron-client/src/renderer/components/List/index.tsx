@@ -16,7 +16,7 @@ import { ListFooter } from "./ListFooter";
 
 const IconComp = ({ icon }: { icon: List_1.Item.Props["icon"] }) => {
   if (typeof icon === "string") {
-    const Icon = Icons[icon as keyof typeof Icons] as () => JSX.Element;
+    const Icon = Icons[icon as keyof typeof Icons] as () => React.JSX.Element;
 
     if (!Icon) {
       console.warn(`Icon ${JSON.stringify(icon)} not found`);
@@ -66,27 +66,47 @@ const serializedKeys = [
 
 export type ListProps = ObjectFromList<typeof serializedKeys>;
 
-const keyToSymbol = {
+const keyToSymbol: Record<string, string> = {
   ctrl: "⌃",
   cmd: "⌘",
   shift: "⇧",
+  opt: "⌥",
   option: "⌥",
+  alt: "⌥",
+  windows: "⊞",
   enter: "↵",
+  return: "↵",
   esc: "⎋",
+  escape: "⎋",
   tab: "⇥",
   up: "↑",
+  arrowUp: "↑",
   down: "↓",
+  arrowDown: "↓",
   left: "←",
+  arrowLeft: "←",
   right: "→",
+  arrowRight: "→",
   space: "␣",
   backspace: "⌫",
   delete: "⌦",
+  deleteForward: "⌦",
+};
+
+const getShortcutKeys = (shortcut: Keyboard.Shortcut) => {
+  if ("modifiers" in shortcut) {
+    return shortcut;
+  }
+
+  return navigator.userAgent.includes("Windows") ? shortcut.Windows : shortcut.macOS;
 };
 
 const renderShortcutToString = (shortcut: Keyboard.Shortcut) => {
-  const modifiers = shortcut.modifiers.map((modifier) => keyToSymbol[modifier as keyof typeof keyToSymbol]).join(" ");
+  const { modifiers, key } = getShortcutKeys(shortcut);
+  const modifierText = modifiers.map((modifier) => keyToSymbol[modifier] ?? modifier).join(" ");
+  const keyText = keyToSymbol[key] ?? key.toUpperCase();
 
-  return `${modifiers} ${shortcut.key.toUpperCase()}`;
+  return [modifierText, keyText].filter(Boolean).join(" ");
 };
 
 const Action = ({ action, ws, close }: { action: BlastComponent; ws: Client; close: () => void }) => {
@@ -203,7 +223,7 @@ function ListDropdown(props: {
     useShallow((state) => ({
       open: state.dropdownOpen,
       setOpen: state.setDropdownOpen,
-    }))
+    })),
   );
   const items = props?.children?.filter((child) => child.elementType === "DropdownItem");
   const onSelect = (v: string) => {
@@ -214,8 +234,8 @@ function ListDropdown(props: {
   };
 
   const selectedTitle = useMemo(() => {
-    return items.find(item => item.props.value === props.value)?.props.title
-  }, [items, props.value])
+    return items.find((item) => item.props.value === props.value)?.props.title;
+  }, [items, props.value]);
 
   return (
     <Popover.Root open={uiStore.open} onOpenChange={uiStore.setOpen} modal>
@@ -225,9 +245,7 @@ function ListDropdown(props: {
         aria-expanded={uiStore.open}
         className="border rounded border-gray-500 w-[250px] h-full mt-4"
       >
-        <span className="text-white">
-          {selectedTitle}
-        </span>
+        <span className="text-white">{selectedTitle}</span>
       </Popover.Trigger>
       <Popover.Content side="bottom" align="end" className="raycast-submenu z-10" sideOffset={16} alignOffset={0}>
         <Command>
@@ -246,7 +264,7 @@ function ListDropdown(props: {
   );
 }
 
-export const List = ({ children, props }: { children: BlastComponent[]; props: ListProps }): JSX.Element => {
+export const List = ({ children, props }: { children: BlastComponent[]; props: ListProps }): React.JSX.Element => {
   const listItems = children.filter((child) => child.elementType === "ListItem");
   const emptyView = children.find((child) => child.elementType === "EmptyView");
   const { softPop, pop } = useNavigationContext();

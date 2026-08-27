@@ -118,7 +118,7 @@ export class NpmRegistryClient {
     from?: number,
     quality?: number,
     popularity?: number,
-    maintenance?: number
+    maintenance?: number,
   ): Promise<SearchResult> {
     const searchParams = new URLSearchParams({ text: query });
 

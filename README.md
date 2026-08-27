@@ -19,6 +19,7 @@ can only be used in Raycast. So here's where this project comes in.
 Blast provides an open-source React renderer to render these Raycast extensions.
 
 <!--toc:start-->
+
 - [Blast Launcher (aka C8763)](#blast-launcher-aka-c8763)
   - [Demo](#demo)
   - [Architecture](#architecture)
@@ -35,6 +36,7 @@ Blast provides an open-source React renderer to render these Raycast extensions.
     - [Why C8763?](#why-c8763)
   - [Links](#links)
   - [License](#license)
+
 <!--toc:end-->
 
 ## Demo
@@ -60,7 +62,6 @@ You can learn more about the blast architecture in the following documents:
 - [`@blastlauncher/api`](./packages/blast-api/README.md): Polyfill for the Raycast API
 - [`@blastlauncher/cli`](/packages/blast-cli/README.md): A CLI tool that manage to build/publish raycast extension to blast compatible module. Really much alike the ray-cli tool.
 
-
 ## Basic usage
 
 ### Install
@@ -80,8 +81,9 @@ The shortcut key to open the Blast window is `⌘;`, <kbd>Command</kbd> + <kbd>;
 ## Development
 
 ```bash
-# Make sure you have pnpm installed, then install dependencies with pnpm
-pnpm install
+# Use the versions in .nvmrc and package.json, then install through Corepack.
+corepack enable
+pnpm install --frozen-lockfile
 
 # Start build
 # You'll need to run pnpm run build for the first time

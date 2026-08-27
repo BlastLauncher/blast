@@ -10,4 +10,3 @@ export enum LaunchType {
    */
   Background = "background",
 }
-

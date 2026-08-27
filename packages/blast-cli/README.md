@@ -47,4 +47,3 @@ Commands:
   build [options] <path>                   Build extensions
   help [command]                           display help for command
 ```
-

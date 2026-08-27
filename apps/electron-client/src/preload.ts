@@ -1,8 +1,7 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import { contextBridge, ipcRenderer } from "electron";
 
-import { EventTypes } from './renderer/types'
+import { EventTypes } from "./renderer/types";
 
-contextBridge.exposeInMainWorld('electron', {
-  closeWindow: () =>  ipcRenderer.invoke(EventTypes.CLOSE),
-})
-
+contextBridge.exposeInMainWorld("electron", {
+  closeWindow: () => ipcRenderer.invoke(EventTypes.CLOSE),
+});

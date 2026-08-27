@@ -20,12 +20,9 @@ export const NavigationProvider = ({ children }: { children?: React.ReactNode })
   const [stack, setStack] = useState<React.ReactNode[]>([]);
   const server = useWsServer();
 
-  const push = useCallback(
-    (component: React.ReactNode) => {
-      setStack((previous) => [...previous, component]);
-    },
-    []
-  );
+  const push = useCallback((component: React.ReactNode) => {
+    setStack((previous) => [...previous, component]);
+  }, []);
 
   const pop = useCallback(() => {
     setStack((previous) => previous.slice(0, -1));

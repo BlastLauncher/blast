@@ -2,6 +2,7 @@
   "name": "@blastlauncher/utils",
   "version": "1.0.1",
   "description": "Utilities for working with Blast",
+  "repository": "https://github.com/BlastLauncher/blast.git",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
@@ -9,11 +10,12 @@
     "watch": "tsc -w"
   },
   "dependencies": {
-    "debug": "^4.3.4",
-    "tar": "^6.1.15"
+    "debug": "^4.4.3",
+    "fs-extra": "^11.4.0",
+    "tar": "^6.2.1"
   },
-  "repository": "https://github.com/BlastLauncher/blast.git",
   "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
     "@types/tar": "^6.1.5"
   }
 }

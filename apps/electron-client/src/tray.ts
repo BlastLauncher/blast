@@ -19,7 +19,7 @@ export const createTray = (): void => {
         app.quit();
       },
     },
-  ]
+  ];
 
   if (process.env.NODE_ENV === "development") {
     template.push({

@@ -51,7 +51,7 @@ export const Devtool = () => {
           "fixed top-0 left-0 w-screen h-screen z-10 flex flex-col transition-transform p-1 gap-1 bg-white",
           {
             "translate-y-full": !devtoolOpen,
-          }
+          },
         )}
       >
         <Highlight className="max-h-[300px] overflow-auto language-json whitespace-pre text-sm">

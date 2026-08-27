@@ -1,7 +1,7 @@
 import { ElementTypes } from "@blastlauncher/renderer/src";
 import type { List } from "raycast-original";
 
-import { Accessory } from './Accessory'
+import { Accessory } from "./Accessory";
 
 type ListItemPropKeys = (keyof List.Item.Props)[];
 const serializedKeys: ListItemPropKeys = [
@@ -25,4 +25,4 @@ export const Item = (props: List.Item.Props) => {
   );
 };
 
-(Item as any).Accessory = Accessory
+(Item as any).Accessory = Accessory;

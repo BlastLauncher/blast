@@ -8,24 +8,14 @@
       "type": "node",
       "request": "launch",
       "name": "Launch Program",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
+      "skipFiles": ["<node_internals>/**"],
       "runtimeExecutable": "npm",
-      "runtimeArgs": [
-        "run-script",
-        "start:dev"
-      ],
+      "runtimeArgs": ["run-script", "start:dev"],
       "env": {
         "DEBUG": "*"
       },
-      "resolveSourceMapLocations": [
-        "${workspaceFolder}/dist/**",
-        "!**/node_modules/**"
-      ],
-      "outFiles": [
-        "${workspaceFolder}/dist/**/*.js"
-      ]
+      "resolveSourceMapLocations": ["${workspaceFolder}/dist/**", "!**/node_modules/**"],
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"]
     }
   ]
 }

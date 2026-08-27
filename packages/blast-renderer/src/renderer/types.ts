@@ -55,6 +55,10 @@ export type TimeoutHandle = any;
 
 export type NoTimeout = any;
 
+export type FormInstance = any;
+
+export type TransitionStatus = any;
+
 export type InternalInstanceHandle = {
   hostContext: HostContext;
 };

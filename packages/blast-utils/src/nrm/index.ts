@@ -27,9 +27,9 @@ export class NRM {
   }
 
   hasVersion(version: string): boolean {
-    const dir = path.join(this.installPath, version)
-    const binDir = path.join(dir, "bin")
-    return fs.existsSync(dir) && fs.existsSync(binDir)
+    const dir = path.join(this.installPath, version);
+    const binDir = path.join(dir, "bin");
+    return fs.existsSync(dir) && fs.existsSync(binDir);
   }
 
   async download(version: string): Promise<void> {

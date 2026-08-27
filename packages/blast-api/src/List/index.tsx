@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ElementTypes } from "@blastlauncher/renderer/src";
 import type { List as RList } from "raycast-original";
 import type { FunctionComponent } from "react";

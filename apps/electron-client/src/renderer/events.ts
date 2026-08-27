@@ -1,6 +1,6 @@
 import { ipcMain } from "electron";
 
-import { hideMainWindow } from '../window'
+import { hideMainWindow } from "../window";
 
 import { EventTypes } from "./types";
 

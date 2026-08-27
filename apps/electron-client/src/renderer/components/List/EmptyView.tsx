@@ -1,10 +1,12 @@
+import type React from "react";
+
 type Props = {
   title: string;
   description: string;
   icon: string;
 };
 
-export const EmptyView = (props: Props): JSX.Element => {
+export const EmptyView = (props: Props): React.JSX.Element => {
   return (
     <>
       {props.icon && <span className="text-5xl">{props.icon}</span>}

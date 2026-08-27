@@ -363,7 +363,7 @@ program
   .argument("<path>", "Path to extension source")
   .option(
     "-o, --output <output>",
-    "Output directory for dev build (defaults to DEV_EXTENSIONS_DIR/node_modules/<extension-folder-name>)"
+    "Output directory for dev build (defaults to DEV_EXTENSIONS_DIR/node_modules/<extension-folder-name>)",
   )
   .action(async (extensionPath, options) => {
     const defaultOutput = path.join(DEV_EXTENSIONS_DIR, "node_modules", path.basename(extensionPath));
