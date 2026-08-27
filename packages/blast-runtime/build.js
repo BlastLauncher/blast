@@ -1,4 +1,5 @@
 const esbuild = require("esbuild");
+const path = require("node:path");
 
 const watch = process.argv.includes("--watch");
 
@@ -7,6 +8,9 @@ const esbuildConfig = {
   bundle: true,
   platform: "node",
   outfile: "dist/run.cjs",
+  alias: {
+    "@raycast/api": path.resolve(__dirname, "../../apps/electron-client/node_modules/@raycast/api/dist/index.js"),
+  },
   keepNames: true,
   define: { "import.meta.url": "_importMetaUrl" },
   banner: {
