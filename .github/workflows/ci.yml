@@ -49,5 +49,5 @@ jobs:
         run: pnpm run lint
 
       - name: Test Bundling
-        run: pnpm run make -- --arch=${{ matrix.arch }}
+        run: pnpm run make --arch=${{ matrix.arch }}
         working-directory: ./apps/electron-client
