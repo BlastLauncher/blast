@@ -9,7 +9,7 @@ const esbuildConfig = {
   platform: "node",
   outfile: "dist/run.cjs",
   alias: {
-    "@raycast/api": path.resolve(__dirname, "../../apps/electron-client/node_modules/@raycast/api/dist/index.js"),
+    "@raycast/api": path.resolve(__dirname, "node_modules/raycast-original/dist/index.js"),
   },
   keepNames: true,
   define: { "import.meta.url": "_importMetaUrl" },
