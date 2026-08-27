@@ -382,11 +382,26 @@ importers:
         specifier: ^10.0.1
         version: 10.0.1
 
+  packages/blast-session:
+    dependencies:
+      '@blastlauncher/protocol':
+        specifier: workspace:*
+        version: link:../blast-protocol
+      '@blastlauncher/transport':
+        specifier: workspace:*
+        version: link:../blast-transport
+
   packages/blast-transport:
     dependencies:
       '@blastlauncher/protocol':
         specifier: workspace:*
         version: link:../blast-protocol
+    devDependencies:
+      '@blastlauncher/transport-test-suite':
+        specifier: workspace:*
+        version: link:../blast-transport-test-suite
+
+  packages/blast-transport-test-suite: {}
 
   packages/blast-utils:
     dependencies:

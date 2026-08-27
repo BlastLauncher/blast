@@ -25,6 +25,11 @@ existing checks.
 Exit condition: a test process can negotiate, exchange a message, cancel, and
 shut down without Electron or WebSocket.
 
+Implementation note: protocol validation, the session state machine, and the
+reusable transport conformance suite complete the in-memory portion of this
+phase. A real child-process transport and process fixture are the remaining
+Phase 1 work.
+
 ## Phase 2: compatibility census
 
 - Build a static scanner for extension manifests and `@raycast/api` imports.

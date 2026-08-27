@@ -9,6 +9,22 @@ The launcher is the first client of the runtime, not the runtime itself. A
 future desktop, terminal, web, remote, or mobile client should be able to speak
 the same protocol without becoming part of the extension process.
 
+## Continuation map
+
+The durable project context is split by purpose:
+
+- `architecture.md` describes component ownership and dependency direction;
+- `migration.md` gives ordered phases and exit conditions;
+- `testing.md` defines the test layers and required reusable contracts;
+- `decisions/` records choices that future work should not silently reverse;
+- each V2 package README documents its public boundary and invariants;
+- tests are executable examples of protocol and lifecycle behavior.
+
+When a change introduces a new long-lived boundary, wire contract, trust
+decision, or compatibility policy, update these documents in the same change.
+Branch names and temporary implementation details should stay in pull requests,
+not in the durable architecture documentation.
+
 ## Product promise
 
 Blast will:

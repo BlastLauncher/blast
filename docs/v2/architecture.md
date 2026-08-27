@@ -42,6 +42,11 @@ are transports for this protocol. None is the canonical architecture.
 the deterministic in-memory implementation used by protocol and lifecycle
 tests. Concrete operating-system and network transports remain separate.
 
+`@blastlauncher/session` owns the validated handshake and negotiated connection
+state. The connector sends `hello`; the acceptor selects a mutually supported
+version, creates the authoritative session ID, and sends `ready`. The acceptor
+identity is included in `ready`, so both sides know their peer.
+
 ### Extension host
 
 `@blastlauncher/extension-host` supervises extension sessions. It owns start,
@@ -98,10 +103,18 @@ capability providers ---------------------+--------------+
 
 ## Session model
 
-Every connection begins with a `hello` message listing the peer role and
-supported protocol versions. The receiver selects a version in `ready` or ends
-the session with a structured error. All later messages carry that version, a
-message identifier, a type, and a payload.
+Every connection begins with a `hello` message listing the connector role,
+implementation, and supported protocol versions. The acceptor selects a version
+in `ready` or ends the session with a structured error. `ready` contains the
+selected version, one authoritative session ID, and the acceptor identity. All
+later messages carry the selected version, a message identifier, a type, and a
+payload.
+
+Session states are `negotiating`, `ready`, `closing`, `closed`, and `failed`.
+Only ready sessions exchange application messages. Cancellation closes a
+pending negotiation, and graceful closure sends `shutdown` before closing the
+transport. Transport values are untrusted until runtime protocol validation
+succeeds.
 
 The initial protocol scaffold intentionally defines only the common envelope
 and handshake. Scene and capability messages will be added with their vertical
@@ -124,6 +137,8 @@ authentication and encryption before they may carry privileged requests.
 ```text
 packages/blast-protocol/        V2 wire contract
 packages/blast-transport/       V2 transport boundary and in-memory pair
+packages/blast-session/         V2 validated session state machine
+packages/blast-transport-test-suite/  Reusable transport contract tests
 packages/blast-extension-host/  V2 lifecycle boundary
 packages/blast-api/             V1 compatibility implementation
 packages/blast-runtime/         V1 runtime

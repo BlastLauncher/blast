@@ -25,6 +25,7 @@
     "lint": "oxlint .",
     "start:client": "pnpm --filter blast run start",
     "test": "pnpm --recursive --workspace-concurrency=1 --if-present run test",
+    "test:v2": "pnpm --workspace-concurrency=1 --filter @blastlauncher/protocol --filter @blastlauncher/transport --filter @blastlauncher/session --filter @blastlauncher/extension-host --if-present run test",
     "cli": "pnpm --filter cli run start"
   },
   "devDependencies": {

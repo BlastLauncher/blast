@@ -16,9 +16,12 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "pnpm run build && node --test test/*.test.mjs"
+    "test": "pnpm --filter '@blastlauncher/transport...' run build && node --test test/*.test.mjs"
   },
   "dependencies": {
     "@blastlauncher/protocol": "workspace:*"
+  },
+  "devDependencies": {
+    "@blastlauncher/transport-test-suite": "workspace:*"
   }
 }
