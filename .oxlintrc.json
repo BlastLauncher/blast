@@ -4,14 +4,7 @@
     "correctness": "warn",
     "suspicious": "warn"
   },
-  "plugins": [
-    "import",
-    "jest",
-    "oxc",
-    "react",
-    "typescript",
-    "unicorn"
-  ],
+  "plugins": ["import", "jest", "oxc", "react", "typescript", "unicorn"],
   "env": {
     "browser": true,
     "es2021": true,
@@ -33,9 +26,7 @@
     "no-underscore-dangle": [
       "warn",
       {
-        "allow": [
-          "__blastRaycastCompat"
-        ]
+        "allow": ["__blastRaycastCompat"]
       }
     ]
   }
