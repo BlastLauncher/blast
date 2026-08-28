@@ -11,3 +11,6 @@ The package intentionally does not load JavaScript modules yet. Module formats,
 Raycast compatibility shims, permissions, and renderer setup belong to the
 first extension vertical slice. Keeping module loading behind the injected hook
 lets tests and future runtimes reuse the same lifecycle contract.
+
+The fixed Node.js bootstrap and ECMAScript entrypoint loading live in
+`@blastlauncher/extension-runtime-node`.

@@ -64,6 +64,10 @@ descriptor, and `extension.ready` acknowledges that exact extension command.
 `@blastlauncher/extension-runtime` implements the runtime side of this startup
 contract. Module loading is an injected hook so Node.js compatibility loading,
 a future alternative runtime, and deterministic tests reuse the same lifecycle.
+`@blastlauncher/extension-runtime-node` ships the fixed Node bootstrap: it
+negotiates the session, loads the descriptor's entrypoint through the ECMAScript
+module loader, acknowledges readiness, and drains application messages until
+the host shuts the session down.
 
 ### Extension host
 
@@ -132,6 +136,9 @@ extension-host-node ---> extension-host
           +-----------> transport-node ---> transport
 
 core-node ---> core
+
+extension-runtime-node ---> extension-runtime
+          +---------------> transport-node ---> transport
 ```
 
 1. `protocol` has no workspace dependencies and no platform dependencies.
@@ -214,6 +221,7 @@ packages/blast-transport-node/  Bounded JSON-lines Node.js streams
 packages/blast-session/         V2 validated session state machine
 packages/blast-transport-test-suite/  Reusable transport contract tests
 packages/blast-extension-runtime/  Runtime-side initialization framework
+packages/blast-extension-runtime-node/  Node runtime bootstrap and entrypoint loading
 packages/blast-extension-host/  Transport-neutral lifecycle supervisor
 packages/blast-extension-host-node/  Node child-process launcher
 packages/blast-core/            Trusted catalog and lifecycle orchestration

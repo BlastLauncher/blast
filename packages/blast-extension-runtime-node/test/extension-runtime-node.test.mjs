@@ -1,0 +1,135 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import { fileURLToPath } from "node:url";
+
+import { acceptProtocolSession } from "@blastlauncher/session";
+import { createInMemoryTransportPair } from "@blastlauncher/transport";
+
+import { ExtensionEntrypointError, loadExtensionEntrypoint, runNodeExtensionBootstrap } from "../dist/index.js";
+
+const esmEntrypoint = fileURLToPath(new URL("./fixtures/entrypoints/example-command.mjs", import.meta.url));
+const cjsEntrypoint = fileURLToPath(new URL("./fixtures/entrypoints/example-command.cjs", import.meta.url));
+const brokenEntrypoint = fileURLToPath(new URL("./fixtures/entrypoints/broken-command.mjs", import.meta.url));
+
+const descriptor = {
+  extensionId: "fixture.extension",
+  commandName: "index",
+  entrypoint: esmEntrypoint,
+  rootDirectory: fileURLToPath(new URL("./fixtures", import.meta.url)),
+};
+
+function idFactory(prefix) {
+  let value = 0;
+  return () => `${prefix}-${++value}`;
+}
+
+function runtimeImplementation() {
+  return { name: "runtime-node-test", version: "0.0.0" };
+}
+
+test("loads ESM and CommonJS fixture entrypoints", async (context) => {
+  await context.test("ESM namespace", async () => {
+    const entrypointModule = await loadExtensionEntrypoint(esmEntrypoint);
+    assert.equal(entrypointModule.marker, "fixture-esm-loaded");
+    assert.equal(typeof entrypointModule.run, "function");
+  });
+
+  await context.test("CommonJS default export", async () => {
+    const entrypointModule = await loadExtensionEntrypoint(cjsEntrypoint);
+    assert.equal(entrypointModule.default.marker, "fixture-cjs-loaded");
+  });
+});
+
+test("rejects invalid entrypoints", async (context) => {
+  await context.test("empty value", async () => {
+    await assert.rejects(
+      () => loadExtensionEntrypoint(""),
+      (error) => error.code === "entrypoint_invalid",
+    );
+  });
+
+  await context.test("relative path", async () => {
+    await assert.rejects(
+      () => loadExtensionEntrypoint("./fixtures/entrypoints/example-command.mjs"),
+      (error) => error.code === "entrypoint_not_absolute",
+    );
+  });
+
+  await context.test("evaluation failure", async () => {
+    await assert.rejects(
+      () => loadExtensionEntrypoint(brokenEntrypoint),
+      (error) => error.code === "entrypoint_load_failed",
+    );
+  });
+
+  await context.test("missing file", async () => {
+    await assert.rejects(
+      () => loadExtensionEntrypoint(`${descriptor.rootDirectory}/does-not-exist.mjs`),
+      (error) => error.code === "entrypoint_load_failed",
+    );
+  });
+});
+
+test("honors an aborted signal", async () => {
+  const controller = new AbortController();
+  controller.abort("test cancellation");
+  await assert.rejects(() => loadExtensionEntrypoint(esmEntrypoint, controller.signal));
+});
+
+test("runs the bootstrap lifecycle over an in-memory transport", async () => {
+  const [runtimeTransport, hostTransport] = createInMemoryTransportPair();
+  const loaded = [];
+  const bootstrap = runNodeExtensionBootstrap({
+    implementation: runtimeImplementation(),
+    createMessageId: idFactory("runtime"),
+    transport: runtimeTransport,
+    onLoaded: (entrypointModule, loadedDescriptor) => loaded.push([entrypointModule.marker, loadedDescriptor]),
+  });
+
+  const host = await acceptProtocolSession(hostTransport, {
+    role: "extension-host",
+    implementation: { name: "host-test", version: "0.0.0" },
+    createMessageId: idFactory("host"),
+    createSessionId: idFactory("session"),
+  });
+
+  await host.send("extension.initialize", { descriptor });
+  const ready = await host.receive();
+  assert.equal(ready.type, "extension.ready");
+  assert.equal(ready.payload.extensionId, descriptor.extensionId);
+  assert.equal(ready.payload.commandName, descriptor.commandName);
+  assert.deepEqual(loaded, [["fixture-esm-loaded", descriptor]]);
+
+  await host.close("test complete");
+  const result = await bootstrap;
+  assert.equal(result.descriptor, descriptor);
+  assert.equal(result.entrypointModule.marker, "fixture-esm-loaded");
+  assert.equal(host.state, "closed");
+});
+
+test("reports entrypoint loading failures during initialization", async () => {
+  const [runtimeTransport, hostTransport] = createInMemoryTransportPair();
+  const bootstrap = runNodeExtensionBootstrap({
+    implementation: runtimeImplementation(),
+    createMessageId: idFactory("runtime"),
+    transport: runtimeTransport,
+    loadEntrypoint: async () => {
+      throw new ExtensionEntrypointError("entrypoint_load_failed", "injected failure");
+    },
+  });
+
+  const host = await acceptProtocolSession(hostTransport, {
+    role: "extension-host",
+    implementation: { name: "host-test", version: "0.0.0" },
+    createMessageId: idFactory("host"),
+    createSessionId: idFactory("session"),
+  });
+
+  await host.send("extension.initialize", { descriptor });
+  await assert.rejects(
+    () => bootstrap,
+    (error) => error.code === "entrypoint_load_failed",
+  );
+  assert.equal((await host.receive()).type, "shutdown");
+  assert.equal(host.state, "closed");
+});

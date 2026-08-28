@@ -45,6 +45,11 @@ initialization, stderr diagnostics, process identity, graceful shutdown, and
 exit status without Electron. Separate fixtures verify a crash before
 negotiation and escalation to `SIGKILL` when a child ignores `SIGTERM`.
 
+The Node runtime bootstrap mirrors this with in-memory host peers covering
+initialization, entrypoint loading for ESM and CommonJS fixtures, loading
+failures, and shutdown. A child-process fixture then proves the launched
+bootstrap loads exactly the descriptor's entrypoint and exits cleanly.
+
 ### Core orchestration
 
 Core tests prove that untrusted callers supply only stable command identities,

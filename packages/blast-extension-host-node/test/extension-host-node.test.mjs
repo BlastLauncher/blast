@@ -9,6 +9,8 @@ import { NodeExtensionProcessLauncher } from "../dist/index.js";
 const bootstrapPath = fileURLToPath(new URL("./fixtures/runtime.mjs", import.meta.url));
 const crashBootstrapPath = fileURLToPath(new URL("./fixtures/crash-runtime.mjs", import.meta.url));
 const stubbornBootstrapPath = fileURLToPath(new URL("./fixtures/stubborn-runtime.mjs", import.meta.url));
+const entrypointBootstrapPath = fileURLToPath(new URL("./fixtures/bootstrap.mjs", import.meta.url));
+const entrypointPath = fileURLToPath(new URL("./fixtures/entrypoints/example-command.mjs", import.meta.url));
 const descriptor = {
   extensionId: "example.extension",
   commandName: "index",
@@ -41,6 +43,31 @@ test("runs the complete host/runtime lifecycle across a child process", async ()
   assert.match(stderr.join(""), /initialized:example\.extension:index/);
 
   await host.stop(descriptor.extensionId, descriptor.commandName, "test complete");
+  const exit = await session.process.completion;
+  assert.equal(exit.code, 0);
+  assert.equal(host.activeSessions.length, 0);
+});
+
+test("loads the descriptor entrypoint through the fixed bootstrap", async () => {
+  const stderr = [];
+  const launcher = new NodeExtensionProcessLauncher({
+    bootstrapPath: entrypointBootstrapPath,
+    environment: process.env,
+    onStderr: (_descriptor, chunk) => stderr.push(chunk),
+  });
+  const host = new ExtensionHost({
+    launcher,
+    implementation: { name: "node-test-host", version: "0.0.0" },
+    createMessageId: idFactory("host"),
+    createSessionId: idFactory("session"),
+  });
+  const entrypointDescriptor = { ...descriptor, entrypoint: entrypointPath };
+
+  const session = await host.start(entrypointDescriptor);
+  assert.equal(session.descriptor, entrypointDescriptor);
+  assert.match(stderr.join(""), /loaded:example\.extension:index:entrypoint-loaded/);
+
+  await host.stop(entrypointDescriptor.extensionId, entrypointDescriptor.commandName, "test complete");
   const exit = await session.process.completion;
   assert.equal(exit.code, 0);
   assert.equal(host.activeSessions.length, 0);

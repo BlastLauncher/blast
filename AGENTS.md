@@ -33,6 +33,7 @@ V2 is being developed alongside the prototype:
 - `packages/blast-session/` — validated V2 handshake and session state machine.
 - `packages/blast-transport-test-suite/` — reusable tests for every V2 transport.
 - `packages/blast-extension-runtime/` — runtime-side command initialization.
+- `packages/blast-extension-runtime-node/` — Node runtime bootstrap and entrypoint loading.
 - `packages/blast-extension-host/` — V2 transport-neutral lifecycle supervisor.
 - `packages/blast-extension-host-node/` — concrete Node child-process launcher.
 - `packages/blast-core/` — trusted catalog and lifecycle orchestration façade.

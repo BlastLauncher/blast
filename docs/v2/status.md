@@ -18,6 +18,9 @@ slice changes what is executable, what is trusted, or what should happen next.
 - The runtime-side framework negotiates with an extension host, validates its
   initialization descriptor, invokes an injected initialization hook, and
   acknowledges the exact command identity.
+- The Node runtime bootstrap loads the descriptor's immutable entrypoint
+  through the ECMAScript module loader, publishes it to an observer, and
+  drains messages until shutdown, in child processes and in-memory tests.
 - The extension host reserves identities, supervises startup and stopping,
   publishes only initialized sessions, removes exited processes, and exposes an
   async lifecycle event stream.
@@ -49,7 +52,8 @@ slice changes what is executable, what is trusted, or what should happen next.
 ## Intentionally missing
 
 - a persistent, watched catalog index and extension installation flows;
-- loading a real CommonJS or ESM extension entrypoint;
+- loading real extension entrypoints that require bundling or dependency
+  resolution beyond immutable fixtures;
 - the Raycast compatibility adapter on the V2 runtime;
 - semantic scene transactions and the reconciler sink;
 - a client-facing core protocol and daemon listener;
@@ -64,13 +68,12 @@ slice changes what is executable, what is trusted, or what should happen next.
 Build the first vertical slice rather than adding more infrastructure in
 isolation:
 
-1. make the Node bootstrap load one immutable fixture entrypoint;
-2. define the smallest semantic scene contract for `List`, `List.Item`, and one
+1. define the smallest semantic scene contract for `List`, `List.Item`, and one
    action;
-3. implement an operation sink and deterministic test client before adapting the
+2. implement an operation sink and deterministic test client before adapting the
    React reconciler;
-4. route one clipboard request through a deny-by-default capability broker;
-5. test a normal action and a deliberate runtime crash end to end.
+3. route one clipboard request through a deny-by-default capability broker;
+4. test a normal action and a deliberate runtime crash end to end.
 
 Keep WebSocket and remote execution as transport/provider additions. They do not
 require changing the session, extension contract, runtime, host, or core
