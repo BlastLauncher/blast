@@ -26,9 +26,13 @@ slice changes what is executable, what is trusted, or what should happen next.
   to a materialized client state, and exposes the transport-independent
   mutation sink the React renderer will publish to.
 - The runtime publishes validated scene transactions over its session through
-  a scene channel and receives `scene.event` messages back; the Node
+  the extension channel and receives `scene.event` messages back; the Node
   bootstrap invokes the entrypoint's command export with a context of
-  descriptor, publish, and event handler.
+  descriptor, publish, event handler, and capability requester.
+- The capability broker denies every request by default; granted requests flow
+  from the command context through the host to a provider and back as
+  structured responses, with the host verifying request identity against the
+  session descriptor.
 - The extension host reserves identities, supervises startup and stopping,
   publishes only initialized sessions, removes exited processes, and exposes an
   async lifecycle event stream.
@@ -64,7 +68,8 @@ slice changes what is executable, what is trusted, or what should happen next.
   resolution beyond immutable fixtures;
 - the Raycast compatibility adapter on the V2 runtime;
 - a client-facing core protocol and daemon listener;
-- capability declarations, policy, providers, audit records, and consent UI;
+- capability manifest declarations, audit records, consent UI, and real
+  operating-system providers;
 - structured logs beyond captured child stderr;
 - startup deadlines chosen by the core, restart policy, quotas, and OS sandbox;
 - authenticated local sockets, WebSocket transport, and remote pairing;

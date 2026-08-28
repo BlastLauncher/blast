@@ -1,17 +1,20 @@
 import { isAbsolute } from "node:path";
 import { pathToFileURL } from "node:url";
 
+import type { CapabilityResponsePayload } from "@blastlauncher/capability";
 import type { ExtensionDescriptor } from "@blastlauncher/extension-contract";
 import {
-  createSceneChannel,
+  createExtensionChannel,
   initializeExtensionRuntime,
+  type ExtensionChannel,
+  type ExtensionChannelRequest,
   type ExtensionRuntimeOptions,
   type InitializedExtensionRuntime,
-  type SceneChannel,
   type SceneEventHandler,
 } from "@blastlauncher/extension-runtime";
 import type { PeerImplementation } from "@blastlauncher/protocol";
 import type { SceneTransaction } from "@blastlauncher/scene";
+import { ProtocolSessionError } from "@blastlauncher/session";
 import type { ProtocolTransport } from "@blastlauncher/transport";
 import { createProcessStdioTransport } from "@blastlauncher/transport-node";
 
@@ -91,6 +94,7 @@ export interface ExtensionCommandContext {
   readonly descriptor: ExtensionDescriptor;
   publish(transaction: SceneTransaction): Promise<void>;
   onEvent(handler: SceneEventHandler): void;
+  requestCapability(request: ExtensionChannelRequest): Promise<CapabilityResponsePayload>;
 }
 
 type ExtensionCommand = (context: ExtensionCommandContext) => unknown;
@@ -107,7 +111,7 @@ export async function runNodeExtensionBootstrap(
   options: NodeExtensionBootstrapOptions,
 ): Promise<NodeExtensionBootstrapResult> {
   const runtime = await initializeRuntime(resolveTransport(options), options);
-  const channel = createSceneChannel(runtime.session);
+  const channel = createExtensionChannel(runtime.session, { descriptor: runtime.descriptor });
   const command = findCommandExport(runtime.entrypointModule);
 
   let commandFailed = false;
@@ -116,12 +120,18 @@ export async function runNodeExtensionBootstrap(
     command === undefined
       ? undefined
       : invokeCommand(command, runtime.descriptor, channel).catch(async (error) => {
+          if (isSessionClosedError(error)) {
+            // The session ended while the command awaited traffic; the
+            // bootstrap ends normally with the session.
+            return;
+          }
           commandFailed = true;
           commandError = error;
           await closeSessionBestEffort(runtime.session, "Extension command failed");
         });
 
   await drain(runtime.session, channel, options.signal);
+  channel.close();
   if (commandPromise !== undefined) {
     await commandPromise;
   }
@@ -131,15 +141,20 @@ export async function runNodeExtensionBootstrap(
   return { descriptor: runtime.descriptor, entrypointModule: runtime.entrypointModule };
 }
 
+function isSessionClosedError(error: unknown): boolean {
+  return error instanceof ProtocolSessionError && error.code === "session_closed";
+}
+
 async function invokeCommand(
   command: ExtensionCommand,
   descriptor: ExtensionDescriptor,
-  channel: SceneChannel,
+  channel: ExtensionChannel,
 ): Promise<void> {
   const context: ExtensionCommandContext = {
     descriptor,
     publish: (transaction: SceneTransaction) => channel.publish(transaction),
     onEvent: (handler: SceneEventHandler) => channel.onEvent(handler),
+    requestCapability: (request: ExtensionChannelRequest) => channel.requestCapability(request),
   };
   await command(context);
 }
@@ -192,7 +207,7 @@ async function initializeRuntime(
 
 async function drain(
   session: InitializedExtensionRuntime["session"],
-  channel: SceneChannel,
+  channel: ExtensionChannel,
   signal?: AbortSignal,
 ): Promise<void> {
   while (session.state === "ready") {

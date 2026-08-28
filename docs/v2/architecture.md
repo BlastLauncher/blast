@@ -122,6 +122,12 @@ secure storage, notifications, OAuth, and selected filesystem access. Requests
 include the extension identity, capability name, operation, and arguments so the
 core can enforce policy and record an audit event.
 
+`@blastlauncher/capability` defines the request/response wire contract and the
+deny-by-default broker (ADR 0009). The host verifies the request identity
+against the session descriptor, and a request works only when a provider is
+registered and policy grants that extension the capability and operation;
+denials and provider failures are structured responses, never crashes.
+
 ## Dependency rules
 
 ```text
@@ -142,6 +148,8 @@ core-node ---> core
 
 extension-runtime-node ---> extension-runtime
           +---------------> transport-node ---> transport
+
+extension-runtime ---> capability ---> protocol
 ```
 
 1. `protocol` has no workspace dependencies and no platform dependencies.
@@ -221,6 +229,7 @@ authentication and encryption before they may carry privileged requests.
 ```text
 packages/blast-protocol/        V2 wire contract
 packages/blast-scene/           Semantic scene contract and mutation sink
+packages/blast-capability/      Deny-by-default capability request broker
 packages/blast-extension-contract/  V2 extension lifecycle messages
 packages/blast-transport/       V2 transport boundary and in-memory pair
 packages/blast-transport-node/  Bounded JSON-lines Node.js streams

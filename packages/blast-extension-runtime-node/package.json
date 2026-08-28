@@ -19,10 +19,12 @@
     "test": "pnpm --filter '@blastlauncher/extension-runtime-node...' run build && node --test test/*.test.mjs"
   },
   "dependencies": {
+    "@blastlauncher/capability": "workspace:*",
     "@blastlauncher/extension-contract": "workspace:*",
     "@blastlauncher/extension-runtime": "workspace:*",
     "@blastlauncher/protocol": "workspace:*",
     "@blastlauncher/scene": "workspace:*",
+    "@blastlauncher/session": "workspace:*",
     "@blastlauncher/transport": "workspace:*",
     "@blastlauncher/transport-node": "workspace:*"
   },

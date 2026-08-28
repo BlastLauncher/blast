@@ -217,3 +217,50 @@ test("reports command failures and closes the session", async () => {
   assert.equal((await host.receive()).type, "shutdown");
   assert.equal(host.state, "closed");
 });
+
+test("exposes capability requests through the command context", async () => {
+  const [runtimeTransport, hostTransport] = createInMemoryTransportPair();
+  const bootstrap = runNodeExtensionBootstrap({
+    implementation: runtimeImplementation(),
+    createMessageId: idFactory("runtime"),
+    transport: runtimeTransport,
+    loadEntrypoint: async () => ({
+      async command(context) {
+        const response = await context.requestCapability({
+          capability: "clipboard",
+          operation: "write",
+          arguments: { text: "hello" },
+        });
+        await context.publish({
+          transactionId: "after-capability",
+          operations: [{ type: "update", nodeId: "item-1", props: { title: `clipboard:${response.outcome}` } }],
+        });
+      },
+    }),
+  });
+
+  const host = await acceptProtocolSession(hostTransport, {
+    role: "extension-host",
+    implementation: { name: "host-test", version: "0.0.0" },
+    createMessageId: idFactory("host"),
+    createSessionId: idFactory("session"),
+  });
+
+  await host.send("extension.initialize", { descriptor });
+  assert.equal((await host.receive()).type, "extension.ready");
+
+  const request = await host.receive();
+  assert.equal(request.type, "capability.request");
+  assert.equal(request.payload.extensionId, "fixture.extension");
+  assert.equal(request.payload.capability, "clipboard");
+  assert.deepEqual(request.payload.arguments, { text: "hello" });
+  await host.send("capability.response", { requestId: request.payload.requestId, outcome: "succeeded" });
+
+  const update = validateSceneTransactionMessage(await host.receive());
+  assert.equal(update.ok, true);
+  assert.equal(update.value.payload.operations[0].props.title, "clipboard:succeeded");
+
+  await host.close("capability loop complete");
+  const result = await bootstrap;
+  assert.equal(result.descriptor, descriptor);
+});

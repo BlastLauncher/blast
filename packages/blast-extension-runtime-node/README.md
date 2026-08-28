@@ -18,10 +18,13 @@ load failures surface here as structured `entrypoint_*` error codes.
 
 After `extension.ready`, the bootstrap invokes the entrypoint's `command`
 (or default) export with a context of `descriptor`, `publish(transaction)`,
-and `onEvent(handler)` (ADR 0008). The single message pump dispatches valid
-`scene.event` payloads to the registered handler; an invalid scene event
-closes the session, and a rejecting command fails the bootstrap. Entry points
-without a command export load without being invoked.
+`onEvent(handler)`, and `requestCapability(request)` (ADR 0008). The single
+message pump dispatches valid `scene.event` payloads to the registered
+handler and resolves capability requests with `capability.response`
+messages; an invalid scene event closes the session, and a rejecting command
+fails the bootstrap. Pending capability requests are rejected when the
+session ends. Entry points without a command export load without being
+invoked.
 
 ## Boundaries
 
