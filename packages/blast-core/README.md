@@ -9,8 +9,12 @@ not choose entrypoint or root paths.
 
 The first scaffold exposes extension lifecycle events and active sessions,
 rejects catalog identity mismatches, prevents starts during shutdown, waits for
-in-flight catalog resolutions, and closes the supervisor once. It does not yet
-host a client-facing protocol server.
+in-flight catalog resolutions, and closes the supervisor once.
+`relaySessionTraffic` is the single receive pump for one extension session:
+it forwards validated scene transactions to a `SceneTransactionSink`, verifies
+and executes capability requests through the `CapabilityBroker`, sends scene
+events toward the extension, and fails closed on invalid traffic (ADR 0010).
+It does not yet host a client-facing protocol server.
 
 ## Next responsibilities
 

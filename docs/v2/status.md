@@ -33,6 +33,9 @@ slice changes what is executable, what is trusted, or what should happen next.
   from the command context through the host to a provider and back as
   structured responses, with the host verifying request identity against the
   session descriptor.
+- The core relays extension session traffic to a client-side scene sink and
+  capability broker over a single validated receive pump, sends `scene.event`
+  messages back toward the extension, and fails closed on invalid traffic.
 - The extension host reserves identities, supervises startup and stopping,
   publishes only initialized sessions, removes exited processes, and exposes an
   async lifecycle event stream.

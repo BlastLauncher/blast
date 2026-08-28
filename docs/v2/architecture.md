@@ -145,6 +145,8 @@ extension-host-node ---> extension-host
           +-----------> transport-node ---> transport
 
 core-node ---> core
+  +-----> scene
+  +-----> capability ---> protocol
 
 extension-runtime-node ---> extension-runtime
           +---------------> transport-node ---> transport

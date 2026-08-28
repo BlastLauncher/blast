@@ -62,6 +62,12 @@ deny-by-default outcomes (ungranted identities, unknown capabilities, provider
 failures), grant-list evaluation, channel request stamping and correlation,
 pending-request rejection on session end, and command-context round-trips.
 
+Relay tests prove the core's single pump: scene transactions reach the sink,
+capability requests execute through the broker with identity verification and
+deny responses without a broker, scene events reach the runtime, invalid
+known-type payloads and sink failures close the session and reject
+`relay.done`, and runtime shutdown ends the relay cleanly.
+
 ### Core orchestration
 
 Core tests prove that untrusted callers supply only stable command identities,

@@ -19,7 +19,13 @@
     "test": "pnpm --filter '@blastlauncher/core...' run build && node --test test/*.test.mjs"
   },
   "dependencies": {
+    "@blastlauncher/capability": "workspace:*",
     "@blastlauncher/extension-contract": "workspace:*",
-    "@blastlauncher/extension-host": "workspace:*"
+    "@blastlauncher/extension-host": "workspace:*",
+    "@blastlauncher/scene": "workspace:*"
+  },
+  "devDependencies": {
+    "@blastlauncher/session": "workspace:*",
+    "@blastlauncher/transport": "workspace:*"
   }
 }

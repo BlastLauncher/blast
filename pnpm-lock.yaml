@@ -272,12 +272,25 @@ importers:
 
   packages/blast-core:
     dependencies:
+      '@blastlauncher/capability':
+        specifier: workspace:*
+        version: link:../blast-capability
       '@blastlauncher/extension-contract':
         specifier: workspace:*
         version: link:../blast-extension-contract
       '@blastlauncher/extension-host':
         specifier: workspace:*
         version: link:../blast-extension-host
+      '@blastlauncher/scene':
+        specifier: workspace:*
+        version: link:../blast-scene
+    devDependencies:
+      '@blastlauncher/session':
+        specifier: workspace:*
+        version: link:../blast-session
+      '@blastlauncher/transport':
+        specifier: workspace:*
+        version: link:../blast-transport
 
   packages/blast-core-node:
     dependencies:

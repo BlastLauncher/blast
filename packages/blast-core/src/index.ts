@@ -1,5 +1,22 @@
 import type { ExtensionDescriptor } from "@blastlauncher/extension-contract";
 import type { ExtensionHostEvent, ExtensionSession } from "@blastlauncher/extension-host";
+import {
+  CAPABILITY_REQUEST_MESSAGE,
+  CAPABILITY_RESPONSE_MESSAGE,
+  validateCapabilityRequestMessage,
+  validateCapabilityResponsePayload,
+  type CapabilityBroker,
+  type CapabilityRequest,
+  type CapabilityRequestPayload,
+  type CapabilityResponsePayload,
+} from "@blastlauncher/capability";
+import {
+  SCENE_EVENT_MESSAGE,
+  SCENE_TRANSACTION_MESSAGE,
+  validateSceneEventPayload,
+  validateSceneTransactionMessage,
+  type SceneTransactionSink,
+} from "@blastlauncher/scene";
 
 export interface CommandIdentity {
   readonly extensionId: string;
@@ -128,5 +145,156 @@ function validateIdentity(identity: CommandIdentity): void {
     identity.commandName.length === 0
   ) {
     throw new BlastCoreError("invalid_command_identity", "Extension and command identifiers must not be empty");
+  }
+}
+
+export class SessionRelayError extends Error {
+  readonly code: string;
+  readonly details?: unknown;
+
+  constructor(code: string, message: string, details?: unknown) {
+    super(message);
+    this.name = "SessionRelayError";
+    this.code = code;
+    if (details !== undefined) {
+      this.details = details;
+    }
+  }
+}
+
+export interface SessionRelayOptions {
+  /** Receives every validated `scene.transaction` payload from the extension. */
+  readonly sceneSink?: SceneTransactionSink;
+  /** Executes brokered capability requests; without a broker, requests are denied. */
+  readonly capabilityBroker?: CapabilityBroker;
+}
+
+export interface SessionRelay {
+  /**
+   * Resolves when the relayed session ends cleanly. Rejects and closes the
+   * session when the extension sends invalid traffic or the sink fails.
+   */
+  readonly done: Promise<void>;
+  /** Sends one validated `scene.event` payload toward the extension. */
+  sendSceneEvent(eventId: string): Promise<void>;
+}
+
+/**
+ * Relays application traffic between one extension session and the client
+ * side (ADR 0010): `scene.transaction` payloads reach the scene sink,
+ * `capability.request` payloads are verified against the session descriptor,
+ * executed by the capability broker, and answered with `capability.response`.
+ * Unknown message types are ignored for forward compatibility. The relay owns
+ * the single receive pump of the session.
+ */
+export function relaySessionTraffic(session: ExtensionSession, options: SessionRelayOptions = {}): SessionRelay {
+  const done = pump();
+  return { done, sendSceneEvent };
+
+  async function pump(): Promise<void> {
+    try {
+      while (session.protocol.state === "ready") {
+        const message = await session.protocol.receive();
+        if (message === undefined || message.type === "shutdown") {
+          return;
+        }
+        await dispatch(message);
+      }
+    } catch (error) {
+      await closeBestEffort("Extension traffic relay failed");
+      throw error;
+    }
+  }
+
+  async function dispatch(message: unknown): Promise<void> {
+    if (typeof message !== "object" || message === null) {
+      return;
+    }
+    const envelope = message as Record<string, unknown>;
+    if (envelope.type === SCENE_TRANSACTION_MESSAGE) {
+      const validation = validateSceneTransactionMessage(message);
+      if (!validation.ok) {
+        throw new SessionRelayError(
+          "invalid_scene_transaction",
+          "Extension sent an invalid scene transaction",
+          validation.issues,
+        );
+      }
+      await options.sceneSink?.publish(validation.value.payload);
+      return;
+    }
+    if (envelope.type === CAPABILITY_REQUEST_MESSAGE) {
+      const validation = validateCapabilityRequestMessage(message);
+      if (!validation.ok) {
+        throw new SessionRelayError(
+          "invalid_capability_request",
+          "Extension sent an invalid capability request",
+          validation.issues,
+        );
+      }
+      await handleCapabilityRequest(validation.value.payload);
+    }
+  }
+
+  async function handleCapabilityRequest(payload: CapabilityRequestPayload): Promise<void> {
+    if (
+      payload.extensionId !== session.descriptor.extensionId ||
+      payload.commandName !== session.descriptor.commandName
+    ) {
+      await respond({
+        requestId: payload.requestId,
+        outcome: "denied",
+        code: "identity_mismatch",
+        message: "Capability request identity does not match the extension session",
+      });
+      return;
+    }
+
+    const request: CapabilityRequest = {
+      requestId: payload.requestId,
+      extensionId: payload.extensionId,
+      commandName: payload.commandName,
+      capability: payload.capability,
+      operation: payload.operation,
+      arguments: payload.arguments ?? {},
+    };
+    const response =
+      options.capabilityBroker === undefined
+        ? {
+            requestId: payload.requestId,
+            outcome: "denied" as const,
+            code: "capability_denied",
+            message: "No capability broker is configured",
+          }
+        : await options.capabilityBroker.execute(request);
+    await respond(response);
+  }
+
+  async function respond(response: CapabilityResponsePayload): Promise<void> {
+    const validation = validateCapabilityResponsePayload(response);
+    if (!validation.ok) {
+      throw new SessionRelayError(
+        "invalid_capability_response",
+        "Refusing to send an invalid capability response",
+        validation.issues,
+      );
+    }
+    await session.protocol.send(CAPABILITY_RESPONSE_MESSAGE, response);
+  }
+
+  async function sendSceneEvent(eventId: string): Promise<void> {
+    const validation = validateSceneEventPayload({ eventId });
+    if (!validation.ok) {
+      throw new SessionRelayError("invalid_scene_event", "Refusing to send an invalid scene event", validation.issues);
+    }
+    await session.protocol.send(SCENE_EVENT_MESSAGE, { eventId });
+  }
+
+  async function closeBestEffort(reason: string): Promise<void> {
+    try {
+      await session.protocol.close(reason);
+    } catch {
+      // The pump error remains the primary failure.
+    }
   }
 }
