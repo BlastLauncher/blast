@@ -8,5 +8,19 @@
       "entrypoint": "./lib/main.cjs"
     }
   ],
-  "title": "Beta Extension"
+  "title": "Beta Extension",
+  "preferences": [
+    {
+      "name": "token",
+      "title": "Token",
+      "type": "password",
+      "default": "secret"
+    },
+    {
+      "name": "enabled",
+      "title": "Enabled",
+      "type": "checkbox",
+      "default": true
+    }
+  ]
 }

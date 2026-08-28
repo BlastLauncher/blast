@@ -35,6 +35,7 @@ test("resolves explicit manifest entrypoints", async () => {
     commandName: "main",
     entrypoint: path.join(catalogRoot, "beta-extension", "lib", "main.cjs"),
     rootDirectory: path.join(catalogRoot, "beta-extension"),
+    preferences: { token: "secret", enabled: true },
   });
 });
 
@@ -132,6 +133,7 @@ test("parses manifests strictly", () => {
   assert.deepEqual(parseManifest({ name: "sample", commands: [{ name: "index", mode: "view" }] }), {
     name: "sample",
     commands: [{ name: "index", entrypoint: undefined }],
+    preferences: {},
   });
 
   assert.equal(parseManifest({ commands: [] }), undefined);
@@ -139,4 +141,36 @@ test("parses manifests strictly", () => {
   assert.equal(parseManifest({ name: "sample", commands: [{ name: "" }] }), undefined);
   assert.equal(parseManifest({ name: "sample", commands: [{ name: "index", entrypoint: 7 }] }), undefined);
   assert.equal(parseManifest("sample"), undefined);
+});
+
+test("resolves manifest preference defaults", (context) => {
+  context.test("defaults and checkbox fallback", () => {
+    const manifest = parseManifest({
+      name: "sample",
+      commands: [{ name: "index" }],
+      preferences: [
+        { name: "city", type: "textfield", default: "Berlin" },
+        { name: "enabled", type: "checkbox" },
+        { name: "limit", type: "number", default: 5 },
+      ],
+    });
+    assert.deepEqual(manifest.preferences, { city: "Berlin", enabled: false, limit: 5 });
+  });
+
+  context.test("invalid checkbox default invalidates the manifest", () => {
+    assert.equal(
+      parseManifest({
+        name: "sample",
+        commands: [],
+        preferences: [{ name: "enabled", type: "checkbox", default: "yes" }],
+      }),
+      undefined,
+    );
+  });
+
+  context.test("descriptor carries preferences", async () => {
+    const catalog = createCatalog();
+    const descriptor = await catalog.resolve({ extensionId: "beta", commandName: "main" });
+    assert.deepEqual(descriptor.preferences, { token: "secret", enabled: true });
+  });
 });

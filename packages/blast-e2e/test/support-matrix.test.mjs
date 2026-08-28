@@ -1,0 +1,103 @@
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
+import test from "node:test";
+import { fileURLToPath } from "node:url";
+
+import { CapabilityBroker, createGrantListPolicy } from "@blastlauncher/capability";
+import { BlastCore, relaySessionTraffic } from "@blastlauncher/core";
+import { FilesystemExtensionCatalog } from "@blastlauncher/core-node";
+import { ExtensionHost } from "@blastlauncher/extension-host";
+import { NodeExtensionProcessLauncher } from "@blastlauncher/extension-host-node";
+import { SceneStateBuffer } from "@blastlauncher/scene";
+
+const realRoot = fileURLToPath(new URL("./fixtures/real", import.meta.url));
+const bootstrapPath = fileURLToPath(new URL("./fixtures/bootstrap.mjs", import.meta.url));
+const expectations = JSON.parse(fs.readFileSync(path.join(realRoot, "expectations.json"), "utf8"));
+
+function createCore() {
+  const catalog = new FilesystemExtensionCatalog({ root: realRoot });
+  const launcher = new NodeExtensionProcessLauncher({ bootstrapPath, environment: process.env });
+  let hostMessageId = 0;
+  let sessionId = 0;
+  const host = new ExtensionHost({
+    launcher,
+    implementation: { name: "matrix-host", version: "0.0.0" },
+    createMessageId: () => `host-${++hostMessageId}`,
+    createSessionId: () => `session-${++sessionId}`,
+  });
+  const broker = new CapabilityBroker({
+    policy: createGrantListPolicy(
+      expectations
+        .filter((expectation) => expectation.apis?.includes("Clipboard"))
+        .map((expectation) => ({ extensionId: expectation.extensionId, capability: "clipboard", operation: "write" })),
+    ),
+    providers: {
+      clipboard: {
+        async perform() {
+          return null;
+        },
+      },
+    },
+  });
+  const core = new BlastCore({ catalog, extensionHost: host });
+  return { core, broker };
+}
+
+async function waitFor(predicate, description, timeoutMs = 20000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (predicate()) {
+      return;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  }
+  throw new Error(`Timed out waiting for ${description}`);
+}
+
+for (const expectation of expectations) {
+  test(`matrix: ${expectation.id} (${expectation.outcome})`, async () => {
+    const { core, broker } = createCore();
+    const buffer = new SceneStateBuffer();
+    const transactions = [];
+
+    const session = await core.runCommand({
+      extensionId: expectation.extensionId,
+      commandName: expectation.commandName,
+    });
+    const relay = relaySessionTraffic(session, {
+      sceneSink: {
+        publish(payload) {
+          transactions.push(payload);
+          buffer.apply(payload);
+        },
+      },
+      capabilityBroker: broker,
+    });
+
+    if (expectation.outcome === "renders") {
+      await waitFor(() => buffer.rootId !== undefined, `${expectation.id} scene`);
+      assert.equal(buffer.get(buffer.rootId).type, expectation.rootType);
+      if (expectation.minItems > 0) {
+        assert.equal(buffer.childrenOf(buffer.rootId).length >= expectation.minItems, true);
+      }
+      await core.stopCommand(
+        { extensionId: expectation.extensionId, commandName: expectation.commandName },
+        "matrix complete",
+      );
+      await relay.done;
+    } else {
+      let exit;
+      try {
+        exit = await session.process.completion;
+      } catch (error) {
+        exit = { code: "rejected", error };
+      }
+      assert.notEqual(exit.code, 0);
+      assert.equal(transactions.length, 0);
+      await relay.done.catch(() => {});
+    }
+
+    await core.close();
+  });
+}

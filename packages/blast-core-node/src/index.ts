@@ -17,6 +17,8 @@ export interface ManifestCommand {
 export interface ExtensionManifest {
   readonly name: string;
   readonly commands: readonly ManifestCommand[];
+  /** Manifest preference defaults keyed by preference name. */
+  readonly preferences: Readonly<Record<string, string | number | boolean>>;
 }
 
 export interface FilesystemExtensionCatalogOptions {
@@ -73,6 +75,7 @@ export class FilesystemExtensionCatalog implements ExtensionCatalog {
         commandName: command.name,
         entrypoint: await this.#resolveEntrypoint(directory, command),
         rootDirectory: directory,
+        ...(Object.keys(manifest.preferences).length === 0 ? {} : { preferences: manifest.preferences }),
       };
     }
     return undefined;
@@ -178,7 +181,40 @@ export function parseManifest(value: unknown): ExtensionManifest | undefined {
     }
     commands.push({ name: commandName, entrypoint });
   }
-  return { name, commands };
+
+  const preferences: Record<string, string | number | boolean> = {};
+  const rawPreferences = value["preferences"];
+  if (rawPreferences !== undefined) {
+    if (!Array.isArray(rawPreferences)) {
+      return undefined;
+    }
+    for (const rawPreference of rawPreferences) {
+      if (!isRecord(rawPreference)) {
+        return undefined;
+      }
+      const preferenceName = rawPreference["name"];
+      if (typeof preferenceName !== "string" || preferenceName.length === 0) {
+        return undefined;
+      }
+      const type = rawPreference["type"];
+      const defaultValue = rawPreference["default"];
+      if (type === "checkbox") {
+        if (defaultValue === undefined) {
+          preferences[preferenceName] = false;
+        } else if (typeof defaultValue === "boolean") {
+          preferences[preferenceName] = defaultValue;
+        } else {
+          return undefined;
+        }
+      } else if (
+        defaultValue !== undefined &&
+        (typeof defaultValue === "string" || typeof defaultValue === "number" || typeof defaultValue === "boolean")
+      ) {
+        preferences[preferenceName] = defaultValue;
+      }
+    }
+  }
+  return { name, commands, preferences };
 }
 
 function validateIdentity(identity: CommandIdentity): void {

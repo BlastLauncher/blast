@@ -1,0 +1,169 @@
+[
+  {
+    "id": "papersize",
+    "extensionId": "papersize",
+    "commandName": "papersize",
+    "outcome": "renders",
+    "rootType": "list",
+    "minItems": 3,
+    "apis": [
+      "Action",
+      "ActionPanel",
+      "Icon",
+      "List"
+    ],
+    "source": "raycast/extensions@d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91"
+  },
+  {
+    "id": "golden-ratio",
+    "extensionId": "golden-ratio",
+    "commandName": "golden-ratio",
+    "outcome": "renders",
+    "rootType": "list",
+    "minItems": 1,
+    "apis": [
+      "Action",
+      "ActionPanel",
+      "Clipboard",
+      "Icon",
+      "List",
+      "showToast",
+      "Toast"
+    ],
+    "source": "raycast/extensions@d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91"
+  },
+  {
+    "id": "pokemon-tcg-pocket-binder",
+    "extensionId": "pokemon-tcg-pocket-binder",
+    "commandName": "pokemon-tcg-pocket-binder",
+    "outcome": "renders",
+    "rootType": "list",
+    "minItems": 3,
+    "apis": [
+      "Action",
+      "ActionPanel",
+      "List",
+      "showToast",
+      "Toast"
+    ],
+    "source": "raycast/extensions@d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91"
+  },
+  {
+    "id": "ruby-evaluate",
+    "extensionId": "ruby-evaluate",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "list",
+    "minItems": 0,
+    "apis": [
+      "Action",
+      "ActionPanel",
+      "List",
+      "Detail",
+      "getPreferenceValues"
+    ],
+    "source": "raycast/extensions@d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91"
+  },
+  {
+    "id": "wifi-password-reveal",
+    "extensionId": "wifi-password-reveal",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "list",
+    "minItems": 0,
+    "apis": [
+      "Action",
+      "ActionPanel",
+      "Detail",
+      "Icon",
+      "List",
+      "showToast",
+      "Toast"
+    ],
+    "source": "raycast/extensions@d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91"
+  },
+  {
+    "id": "go-links",
+    "extensionId": "go-links",
+    "commandName": "go",
+    "outcome": "renders",
+    "rootType": "list",
+    "minItems": 0,
+    "apis": [
+      "Action",
+      "ActionPanel",
+      "Icon",
+      "List",
+      "showToast",
+      "Toast"
+    ],
+    "source": "raycast/extensions@d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91"
+  },
+  {
+    "id": "time",
+    "extensionId": "time",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "detail",
+    "minItems": 0,
+    "apis": [
+      "Detail"
+    ],
+    "source": "raycast/extensions@d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91"
+  },
+  {
+    "id": "deutscherwetterdienst",
+    "extensionId": "deutscherwetterdienst",
+    "commandName": "rainradar",
+    "outcome": "renders",
+    "rootType": "detail",
+    "minItems": 0,
+    "apis": [
+      "Detail"
+    ],
+    "source": "raycast/extensions@d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91"
+  },
+  {
+    "id": "donut",
+    "extensionId": "donut",
+    "commandName": "show-donut",
+    "outcome": "renders",
+    "rootType": "detail",
+    "minItems": 0,
+    "apis": [
+      "Detail"
+    ],
+    "source": "raycast/extensions@d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91"
+  },
+  {
+    "id": "utm-virtual-machines",
+    "extensionId": "utm-virtual-machines",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "list",
+    "minItems": 0,
+    "apis": [
+      "Action",
+      "ActionPanel",
+      "Icon",
+      "List",
+      "showToast",
+      "Toast"
+    ],
+    "source": "raycast/extensions@d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91"
+  },
+  {
+    "id": "big-o",
+    "outcome": "unsupported-api",
+    "source": "raycast/extensions@d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91",
+    "extensionId": "big-o",
+    "commandName": "big-o"
+  },
+  {
+    "id": "choose-a-license",
+    "outcome": "unsupported-api",
+    "source": "raycast/extensions@d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91",
+    "extensionId": "choose-a-license",
+    "commandName": "index"
+  }
+]

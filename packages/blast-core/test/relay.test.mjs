@@ -41,7 +41,7 @@ function idFactory(prefix) {
   return () => `${prefix}-${++value}`;
 }
 
-async function createRelayHarness({ broker, sceneSink } = {}) {
+async function createRelayHarness({ broker, sceneSink, toastSink } = {}) {
   const [runtimeTransport, hostTransport] = createInMemoryTransportPair();
   const runtimeSessionPromise = connectProtocolSession(runtimeTransport, {
     role: "extension-runtime",
@@ -60,7 +60,7 @@ async function createRelayHarness({ broker, sceneSink } = {}) {
     process: { connection: runtimeTransport, completion: new Promise(() => {}), stop: async () => {} },
     protocol: hostSession,
   };
-  const relay = relaySessionTraffic(session, { sceneSink, capabilityBroker: broker });
+  const relay = relaySessionTraffic(session, { sceneSink, toastSink, capabilityBroker: broker });
   return { runtimeSession, hostSession, relay };
 }
 
@@ -213,4 +213,28 @@ test("ends the relay cleanly when the runtime shuts down", async () => {
 
   await runtimeSession.close("graceful shutdown");
   await relay.done;
+});
+
+test("forwards toasts to the toast sink", async () => {
+  const toasts = [];
+  const { runtimeSession, relay } = await createRelayHarness({ toastSink: (toast) => toasts.push(toast) });
+
+  await runtimeSession.send("ui.toast", { title: "Saved", message: "Done", style: "success" });
+  await new Promise((resolve) => setTimeout(resolve, 5));
+
+  assert.deepEqual(toasts, [{ title: "Saved", message: "Done", style: "success" }]);
+  await runtimeSession.close("test complete");
+  await relay.done;
+});
+
+test("rejects invalid toast payloads and closes the session", async () => {
+  const { runtimeSession, relay } = await createRelayHarness({ toastSink: () => {} });
+
+  await runtimeSession.send("ui.toast", { message: "no title" });
+
+  await assert.rejects(
+    () => relay.done,
+    (error) => error.code === "invalid_toast",
+  );
+  assert.equal((await runtimeSession.receive()).type, "shutdown");
 });

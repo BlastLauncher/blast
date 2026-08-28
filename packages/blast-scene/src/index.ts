@@ -7,6 +7,7 @@ import {
 
 export const SCENE_TRANSACTION_MESSAGE = "scene.transaction" as const;
 export const SCENE_EVENT_MESSAGE = "scene.event" as const;
+export const UI_TOAST_MESSAGE = "ui.toast" as const;
 
 export const SCENE_NODE_TYPES = ["list", "list-item", "action", "detail"] as const;
 
@@ -183,6 +184,57 @@ export function validateSceneEventMessage(value: unknown): ValidationResult<Scen
   const issues: ValidationIssue[] = [];
   validateEventPayload(envelope.value.payload, "$.payload", issues);
   return issues.length === 0 ? { ok: true, value: envelope.value as SceneEventMessage } : { ok: false, issues };
+}
+
+export const TOAST_STYLES = ["success", "failure", "neutral"] as const;
+
+export type ToastStyle = (typeof TOAST_STYLES)[number];
+
+export interface ToastPayload {
+  readonly title: string;
+  readonly message?: string;
+  readonly style?: ToastStyle;
+}
+
+export type ToastMessage = ProtocolEnvelope<typeof UI_TOAST_MESSAGE, ToastPayload>;
+
+export function validateToastMessage(value: unknown): ValidationResult<ToastMessage> {
+  const envelope = validateProtocolEnvelope(value);
+  if (!envelope.ok) {
+    return envelope;
+  }
+  if (envelope.value.type !== UI_TOAST_MESSAGE) {
+    return invalid("$.type", `Expected ${JSON.stringify(UI_TOAST_MESSAGE)}`);
+  }
+
+  const issues: ValidationIssue[] = [];
+  validateToastPayloadShape(envelope.value.payload, "$.payload", issues);
+  return issues.length === 0 ? { ok: true, value: envelope.value as ToastMessage } : { ok: false, issues };
+}
+
+export function validateToastPayload(value: unknown): ValidationResult<ToastPayload> {
+  const issues: ValidationIssue[] = [];
+  validateToastPayloadShape(value, "$", issues);
+  return issues.length === 0 ? { ok: true, value: value as ToastPayload } : { ok: false, issues };
+}
+
+function validateToastPayloadShape(value: unknown, basePath: string, issues: ValidationIssue[]): void {
+  if (!isRecord(value)) {
+    issues.push({ path: basePath, message: "Expected an object" });
+    return;
+  }
+  validateNonEmptyString(value.title, `${basePath}.title`, issues);
+  if (value.message !== undefined && (typeof value.message !== "string" || value.message.length === 0)) {
+    issues.push({ path: `${basePath}.message`, message: "Expected a non-empty string" });
+  }
+  if (
+    value.style !== undefined &&
+    value.style !== "success" &&
+    value.style !== "failure" &&
+    value.style !== "neutral"
+  ) {
+    issues.push({ path: `${basePath}.style`, message: "Unknown toast style" });
+  }
 }
 
 export function validateSceneEventPayload(value: unknown): ValidationResult<SceneEventPayload> {

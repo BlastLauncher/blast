@@ -13,9 +13,12 @@ import {
 import {
   SCENE_EVENT_MESSAGE,
   SCENE_TRANSACTION_MESSAGE,
+  UI_TOAST_MESSAGE,
   validateSceneEventPayload,
   validateSceneTransactionMessage,
+  validateToastMessage,
   type SceneTransactionSink,
+  type ToastPayload,
 } from "@blastlauncher/scene";
 
 export interface CommandIdentity {
@@ -165,6 +168,8 @@ export class SessionRelayError extends Error {
 export interface SessionRelayOptions {
   /** Receives every validated `scene.transaction` payload from the extension. */
   readonly sceneSink?: SceneTransactionSink;
+  /** Receives every validated `ui.toast` payload from the extension. */
+  readonly toastSink?: (toast: ToastPayload) => void | Promise<void>;
   /** Executes brokered capability requests; without a broker, requests are denied. */
   readonly capabilityBroker?: CapabilityBroker;
 }
@@ -221,6 +226,14 @@ export function relaySessionTraffic(session: ExtensionSession, options: SessionR
         );
       }
       await options.sceneSink?.publish(validation.value.payload);
+      return;
+    }
+    if (envelope.type === UI_TOAST_MESSAGE) {
+      const validation = validateToastMessage(message);
+      if (!validation.ok) {
+        throw new SessionRelayError("invalid_toast", "Extension sent an invalid toast payload", validation.issues);
+      }
+      await options.toastSink?.(validation.value.payload);
       return;
     }
     if (envelope.type === CAPABILITY_REQUEST_MESSAGE) {

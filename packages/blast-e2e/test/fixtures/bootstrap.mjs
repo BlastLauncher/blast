@@ -5,6 +5,7 @@ import { configureRaycastCompat, runCommand } from "@blastlauncher/raycast-compa
 import { createBundlingEntrypointLoader, runNodeExtensionBootstrap } from "@blastlauncher/extension-runtime-node";
 
 const raycastCompatPath = fileURLToPath(import.meta.resolve("@blastlauncher/raycast-compat"));
+const reactModulePath = fileURLToPath(import.meta.resolve("react")).replace(/\/index\.js$/, "");
 
 let messageId = 0;
 await runNodeExtensionBootstrap({
@@ -12,6 +13,7 @@ await runNodeExtensionBootstrap({
   createMessageId: () => `runtime-${++messageId}`,
   loadEntrypoint: createBundlingEntrypointLoader({
     alias: { "@raycast/api": raycastCompatPath },
+    reactModulePath,
   }),
   configureApi: (context) => {
     configureRaycastCompat(context);

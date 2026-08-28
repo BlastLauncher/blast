@@ -13,7 +13,7 @@ import {
   type SceneEventHandler,
 } from "@blastlauncher/extension-runtime";
 import type { PeerImplementation } from "@blastlauncher/protocol";
-import type { SceneTransaction } from "@blastlauncher/scene";
+import type { SceneTransaction, ToastPayload } from "@blastlauncher/scene";
 import { ProtocolSessionError } from "@blastlauncher/session";
 import type { ProtocolTransport } from "@blastlauncher/transport";
 import { createProcessStdioTransport } from "@blastlauncher/transport-node";
@@ -103,9 +103,12 @@ export interface NodeExtensionBootstrapResult {
  */
 export interface ExtensionCommandContext {
   readonly descriptor: ExtensionDescriptor;
+  /** Manifest preference defaults resolved by the trusted catalog. */
+  readonly preferences: Readonly<Record<string, string | number | boolean>>;
   publish(transaction: SceneTransaction): Promise<void>;
   onEvent(handler: SceneEventHandler): void;
   requestCapability(request: ExtensionChannelRequest): Promise<CapabilityResponsePayload>;
+  showToast(payload: ToastPayload): Promise<void>;
 }
 
 type ExtensionCommand = (context: ExtensionCommandContext) => unknown;
@@ -131,7 +134,7 @@ export async function runNodeExtensionBootstrap(
   options: NodeExtensionBootstrapOptions,
 ): Promise<NodeExtensionBootstrapResult> {
   const runtime = await initializeRuntime(resolveTransport(options), options);
-  const channel = createExtensionChannel(runtime.session, { descriptor: runtime.descriptor });
+  const channel = runtime.channel;
   const command = findCommandExport(runtime.entrypointModule);
   const componentExport = command === undefined ? findComponentExport(runtime.entrypointModule) : undefined;
 
@@ -140,9 +143,9 @@ export async function runNodeExtensionBootstrap(
   const renderComponent = options.renderComponent;
   const activate =
     command !== undefined
-      ? () => invokeCommand(command, runtime.descriptor, channel, options.configureApi)
+      ? () => invokeCommand(command, runtime.context)
       : componentExport !== undefined && renderComponent !== undefined
-        ? () => invokeComponent(renderComponent, runtime.descriptor, channel, componentExport)
+        ? () => invokeComponent(renderComponent, runtime.context, componentExport)
         : undefined;
   const commandPromise =
     activate === undefined
@@ -174,34 +177,15 @@ function isSessionClosedError(error: unknown): boolean {
   return error instanceof ProtocolSessionError && error.code === "session_closed";
 }
 
-async function invokeCommand(
-  command: ExtensionCommand,
-  descriptor: ExtensionDescriptor,
-  channel: ExtensionChannel,
-  configureApi: ((context: ExtensionCommandContext) => void | Promise<void>) | undefined,
-): Promise<void> {
-  const context: ExtensionCommandContext = {
-    descriptor,
-    publish: (transaction: SceneTransaction) => channel.publish(transaction),
-    onEvent: (handler: SceneEventHandler) => channel.onEvent(handler),
-    requestCapability: (request: ExtensionChannelRequest) => channel.requestCapability(request),
-  };
-  await configureApi?.(context);
+async function invokeCommand(command: ExtensionCommand, context: ExtensionCommandContext): Promise<void> {
   await command(context);
 }
 
 async function invokeComponent(
   renderComponent: ExtensionComponentRenderer,
-  descriptor: ExtensionDescriptor,
-  channel: ExtensionChannel,
+  context: ExtensionCommandContext,
   component: () => unknown,
 ): Promise<void> {
-  const context: ExtensionCommandContext = {
-    descriptor,
-    publish: (transaction: SceneTransaction) => channel.publish(transaction),
-    onEvent: (handler: SceneEventHandler) => channel.onEvent(handler),
-    requestCapability: (request: ExtensionChannelRequest) => channel.requestCapability(request),
-  };
   await renderComponent(context, component);
 }
 
@@ -231,6 +215,8 @@ async function closeSessionBestEffort(session: BootstrapRuntime["session"], reas
 
 interface BootstrapRuntime extends InitializedExtensionRuntime {
   readonly entrypointModule: unknown;
+  readonly channel: ExtensionChannel;
+  readonly context: ExtensionCommandContext;
 }
 
 async function initializeRuntime(
@@ -238,10 +224,26 @@ async function initializeRuntime(
   options: NodeExtensionBootstrapOptions,
 ): Promise<BootstrapRuntime> {
   let entrypointModule: unknown;
+  let channel: ExtensionChannel | undefined;
+  let commandContext: ExtensionCommandContext | undefined;
+
   const runtimeOptions: ExtensionRuntimeOptions = {
     implementation: options.implementation,
     createMessageId: options.createMessageId,
-    initialize: async (descriptor, signal) => {
+    initialize: async (descriptor, signal, session) => {
+      // The context is built and the API surface configured before the
+      // entrypoint loads, so module-scope API calls work.
+      const bootstrapChannel = createExtensionChannel(session, { descriptor });
+      channel = bootstrapChannel;
+      commandContext = {
+        descriptor,
+        preferences: descriptor.preferences ?? {},
+        publish: (transaction: SceneTransaction) => bootstrapChannel.publish(transaction),
+        onEvent: (handler: SceneEventHandler) => bootstrapChannel.onEvent(handler),
+        requestCapability: (request: ExtensionChannelRequest) => bootstrapChannel.requestCapability(request),
+        showToast: (payload: ToastPayload) => bootstrapChannel.showToast(payload),
+      };
+      await options.configureApi?.(commandContext);
       const load = options.loadEntrypoint ?? loadExtensionEntrypoint;
       entrypointModule = await load(descriptor.entrypoint, signal);
       await options.onLoaded?.(entrypointModule, descriptor);
@@ -251,7 +253,12 @@ async function initializeRuntime(
   };
 
   const runtime = await initializeExtensionRuntime(transport, runtimeOptions);
-  return { ...runtime, entrypointModule };
+  return {
+    ...runtime,
+    entrypointModule,
+    channel: channel as ExtensionChannel,
+    context: commandContext as ExtensionCommandContext,
+  };
 }
 
 async function drain(

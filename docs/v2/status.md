@@ -71,6 +71,11 @@ slice changes what is executable, what is trusted, or what should happen next.
   literal `@raycast/api` imports resolved by launcher-provided aliases) and
   renders default-exported command components through the adapter, so
   unmodified Raycast-style TSX fixtures run end to end.
+- The support matrix runs a committed set of real corpus extensions through
+  the full pipeline in CI: ten render (list and detail roots, toasts,
+  preferences, brokered clipboard) and two fail with structured
+  `unsupported_api` errors, while the corpus probe records exactly which
+  unmeasured APIs block the rest.
 
 ## Trust boundaries already enforced
 
@@ -89,9 +94,8 @@ slice changes what is executable, what is trusted, or what should happen next.
 - a persistent, watched catalog index and extension installation flows;
 - production bundle cache invalidation and externalization policy for
   extensions with large or native npm dependency graphs;
-- the remaining measured Raycast surface: toast and HUD feedback, `Form`,
-  `getPreferenceValues` and manifest preferences, navigation, and `Color`
-  tinting;
+- the remaining measured Raycast surface: navigation, `LocalStorage`/`Cache`,
+  `environment`, toast display semantics, `Form`, and `Color` tinting;
 - a client-facing core protocol, daemon listener, and desktop rendering of
   scenes (the deterministic test client stands in today);
 - capability manifest declarations, real operating-system providers, audit
@@ -105,13 +109,15 @@ slice changes what is executable, what is trusted, or what should happen next.
 
 The first extension-to-client vertical slice is complete, the corpus census
 (`compatibility/README.md`) justifies the adapter order, the first measured
-adapter surface runs end to end, and bundled TSX extensions with literal
-`@raycast/api` imports load. Continue with the compatibility phase:
+adapter surface runs end to end, bundled TSX extensions with literal
+`@raycast/api` imports load, and the support matrix (`compatibility/support-matrix.md`)
+runs real corpus fixtures in CI. Continue with the compatibility phase:
 
-1. select a varied fixture set of real extensions and publish the support
-   matrix over the adapter;
-2. extend the measured surface in census order: toast and HUD feedback,
-   `getPreferenceValues` and manifest preferences, navigation;
+1. extend the measured surface in matrix order: navigation (`useNavigation`,
+   `Action.Push`), `LocalStorage`/`Cache`, `environment`, toast display
+   semantics, `ActionPanel` titles and submenus, then `Form` and `Color`;
+2. add third-party dependency policy (vendoring or installation) so
+   dependency-using corpus extensions can bundle;
 3. add a client-facing core protocol and daemon listener so the Electron
    client can replace the test client.
 

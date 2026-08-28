@@ -13,6 +13,8 @@ export interface ExtensionDescriptor {
   readonly commandName: string;
   readonly entrypoint: string;
   readonly rootDirectory: string;
+  /** Manifest preference defaults resolved by the trusted catalog. */
+  readonly preferences?: Readonly<Record<string, string | number | boolean>>;
 }
 
 export interface ExtensionInitializePayload {
@@ -80,6 +82,19 @@ function validateDescriptor(value: Record<string, unknown>, path: string, issues
   validateNonEmptyString(value.commandName, `${path}.commandName`, issues);
   validateNonEmptyString(value.entrypoint, `${path}.entrypoint`, issues);
   validateNonEmptyString(value.rootDirectory, `${path}.rootDirectory`, issues);
+  if (value.preferences === undefined) {
+    return;
+  }
+  if (!isRecord(value.preferences)) {
+    issues.push({ path: `${path}.preferences`, message: "Expected an object" });
+    return;
+  }
+  for (const key of Object.keys(value.preferences)) {
+    const preference = value.preferences[key];
+    if (typeof preference !== "string" && typeof preference !== "number" && typeof preference !== "boolean") {
+      issues.push({ path: `${path}.preferences.${key}`, message: "Expected a primitive preference value" });
+    }
+  }
 }
 
 function validateNonEmptyString(value: unknown, path: string, issues: ValidationIssue[]): void {

@@ -1,7 +1,16 @@
-import { Children, Fragment, createElement, isValidElement, type ReactElement, type ReactNode } from "react";
+import {
+  Children,
+  Fragment,
+  createElement,
+  isValidElement,
+  useEffect,
+  useState,
+  type ReactElement,
+  type ReactNode,
+} from "react";
 
-import type { SceneEventPayload, SceneTransaction } from "@blastlauncher/scene";
-import { createSceneRenderer, type SceneRenderer } from "@blastlauncher/react-renderer";
+import type { SceneEventPayload, SceneTransaction, ToastPayload, ToastStyle } from "@blastlauncher/scene";
+import { SceneRendererError, createSceneRenderer, type SceneRenderer } from "@blastlauncher/react-renderer";
 
 export { Icon } from "./icon.js";
 export type { IconName } from "./icon.js";
@@ -25,6 +34,9 @@ export class CompatibilityError extends Error {
 }
 
 export interface RaycastCompatContext {
+  readonly descriptor: {
+    readonly preferences: Readonly<Record<string, string | number | boolean>>;
+  };
   readonly publish: (transaction: SceneTransaction) => Promise<void>;
   readonly onEvent: (handler: (payload: SceneEventPayload) => void | Promise<void>) => void;
   readonly requestCapability: (request: {
@@ -32,6 +44,7 @@ export interface RaycastCompatContext {
     readonly operation: string;
     readonly arguments?: Readonly<Record<string, string | number | boolean>>;
   }) => Promise<{ readonly outcome: string; readonly value?: string | number | boolean | null }>;
+  readonly showToast: (payload: ToastPayload) => Promise<void>;
 }
 
 /**
@@ -78,7 +91,47 @@ export function runCommand(context: RaycastCompatContext, component: () => React
   }
   const { renderer, takeError } = createCompatRenderer(context);
   compatGlobals.renderer = renderer;
-  renderLoudly(renderer, takeError, component);
+  renderLoudly(renderer, takeError, () => adaptRootElement(component()));
+}
+
+/**
+ * Raycast command components may be async functions; React client rendering
+ * rejects them. The adapter awaits the async root once and renders the
+ * resolved element.
+ */
+function AsyncRootAdapter({
+  Component,
+  props,
+}: {
+  readonly Component: (props: Record<string, unknown>) => unknown;
+  readonly props: Record<string, unknown>;
+}): ReactNode {
+  const [resolved, setResolved] = useState<ReactNode>(null);
+  useEffect(() => {
+    let alive = true;
+    void Promise.resolve(Component(props)).then((element) => {
+      if (alive) {
+        setResolved(isValidElement(element) ? element : null);
+      }
+    });
+    return () => {
+      alive = false;
+    };
+  }, [Component, props]);
+  return resolved;
+}
+
+function adaptRootElement(element: ReactElement): ReactElement {
+  if (
+    typeof element.type === "function" &&
+    (element.type as unknown as { constructor?: { name?: string } }).constructor?.name === "AsyncFunction"
+  ) {
+    return createElement(AsyncRootAdapter, {
+      Component: element.type as (props: Record<string, unknown>) => unknown,
+      props: element.props as Record<string, unknown>,
+    });
+  }
+  return element;
 }
 
 /**
@@ -87,7 +140,7 @@ export function runCommand(context: RaycastCompatContext, component: () => React
  */
 export function renderCommand(context: RaycastCompatContext, component: () => ReactElement): SceneRenderer {
   const { renderer, takeError } = createCompatRenderer(context);
-  renderLoudly(renderer, takeError, component);
+  renderLoudly(renderer, takeError, () => adaptRootElement(component()));
   return renderer;
 }
 
@@ -119,6 +172,11 @@ function createCompatRenderer(context: RaycastCompatContext): {
       publish: (transaction) => context.publish(transaction),
     },
     onError: (error) => {
+      if (error instanceof SceneRendererError && error.code === "empty_scene_root") {
+        // The async root adapter commits an empty placeholder before the
+        // resolved element arrives.
+        return;
+      }
       capturedError ??= error;
       if (error instanceof CompatibilityError) {
         capturedCompatibilityError ??= error;
@@ -311,3 +369,70 @@ export const Clipboard = {
 
 Object.assign(Action, { CopyToClipboard });
 Object.assign(List, { Item: ListItem });
+
+function normalizeToastStyle(style: unknown): ToastStyle {
+  return style === "success" || style === "failure" ? style : "neutral";
+}
+
+export class Toast {
+  static readonly Style = {
+    Success: "success",
+    Failure: "failure",
+  } as const;
+
+  readonly title: string;
+  readonly message: string | undefined;
+  readonly style: ToastStyle;
+
+  constructor(options: { readonly title: string; readonly message?: string; readonly style?: unknown }) {
+    this.title = options.title;
+    this.message = options.message;
+    this.style = normalizeToastStyle(options.style);
+  }
+
+  async show(): Promise<void> {
+    await requireContext().showToast(this.toPayload());
+  }
+
+  async hide(): Promise<void> {
+    unsupported("Toast.hide");
+  }
+
+  toPayload(): ToastPayload {
+    return {
+      title: this.title,
+      ...(this.message === undefined ? {} : { message: this.message }),
+      style: this.style,
+    };
+  }
+}
+
+export interface ToastOptions {
+  readonly title: string;
+  readonly message?: string;
+  readonly style?: unknown;
+}
+
+/**
+ * Shows a toast in the client and returns the instance.
+ */
+export async function showToast(options: ToastOptions | string): Promise<Toast> {
+  const toast =
+    typeof options === "string"
+      ? new Toast({ title: options })
+      : new Toast({
+          title: options.title,
+          ...(options.message === undefined ? {} : { message: options.message }),
+          style: options.style,
+        });
+  await toast.show();
+  return toast;
+}
+
+/**
+ * Returns the command's preference values: manifest defaults resolved by the
+ * trusted catalog today, user overrides once preference storage exists.
+ */
+export function getPreferenceValues<T = Record<string, string | number | boolean>>(): T {
+  return requireContext().descriptor.preferences as T;
+}

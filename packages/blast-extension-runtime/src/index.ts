@@ -16,11 +16,14 @@ import type { PeerImplementation } from "@blastlauncher/protocol";
 import {
   SCENE_EVENT_MESSAGE,
   SCENE_TRANSACTION_MESSAGE,
+  UI_TOAST_MESSAGE,
   SceneError,
   validateSceneEventMessage,
   validateSceneTransactionPayload,
+  validateToastPayload,
   type SceneEventPayload,
   type SceneTransaction,
+  type ToastPayload,
 } from "@blastlauncher/scene";
 import { connectProtocolSession, ProtocolSession, ProtocolSessionError } from "@blastlauncher/session";
 import type { ProtocolTransport } from "@blastlauncher/transport";
@@ -30,7 +33,11 @@ export interface ExtensionRuntimeOptions {
   readonly createMessageId: () => string;
   readonly protocolVersions?: readonly number[];
   readonly signal?: AbortSignal;
-  readonly initialize?: (descriptor: ExtensionDescriptor, signal?: AbortSignal) => void | Promise<void>;
+  readonly initialize?: (
+    descriptor: ExtensionDescriptor,
+    signal: AbortSignal | undefined,
+    session: ProtocolSession,
+  ) => void | Promise<void>;
 }
 
 export interface InitializedExtensionRuntime {
@@ -76,7 +83,7 @@ export async function initializeExtensionRuntime(
     }
 
     const descriptor = initialization.value.payload.descriptor;
-    await options.initialize?.(descriptor, options.signal);
+    await options.initialize?.(descriptor, options.signal, session);
     await session.send(EXTENSION_READY_MESSAGE, {
       extensionId: descriptor.extensionId,
       commandName: descriptor.commandName,
@@ -127,6 +134,10 @@ export interface ExtensionChannel {
    * the host verifies the identity against the session descriptor.
    */
   requestCapability(request: ExtensionChannelRequest): Promise<CapabilityResponsePayload>;
+  /**
+   * Sends one validated toast payload toward the host for client display.
+   */
+  showToast(payload: ToastPayload): Promise<void>;
   /**
    * Routes one received protocol message. Unrelated message types are
    * ignored; a `scene.event` with an invalid payload fails the session
@@ -195,6 +206,13 @@ export function createExtensionChannel(session: ProtocolSession, options: Extens
         throw error;
       }
       return deferred.promise;
+    },
+    async showToast(payload: ToastPayload): Promise<void> {
+      const validation = validateToastPayload(payload);
+      if (!validation.ok) {
+        throw new SceneError("invalid_toast", "Refusing to send an invalid toast payload", validation.issues);
+      }
+      await session.send(UI_TOAST_MESSAGE, payload);
     },
     async handleMessage(message: unknown): Promise<void> {
       if (!isRecord(message)) {

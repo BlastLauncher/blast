@@ -169,3 +169,13 @@ and core feedback loop; the full root command remains required before
 publication. Each V2 package test
 builds its transitive workspace closure first, so filtered tests are valid from
 a clean checkout and do not rely on stale `dist` output.
+
+### Support matrix
+
+Real corpus extensions are committed as trimmed fixtures with named
+expectations (`packages/blast-e2e/test/fixtures/real/expectations.json`). The
+matrix test runs each fixture through the full pipeline over child processes:
+render fixtures assert root type and item counts; gap fixtures assert
+structured `unsupported_api` errors with non-zero exit. The generated report
+lives in `docs/v2/compatibility/support-matrix.md` and records the corpus
+revision.

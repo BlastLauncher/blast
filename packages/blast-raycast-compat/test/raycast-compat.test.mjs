@@ -9,8 +9,11 @@ import {
   Detail,
   Icon,
   List,
+  Toast,
   configureRaycastCompat,
+  getPreferenceValues,
   renderCommand,
+  showToast,
 } from "../dist/index.js";
 import { createElement } from "react";
 
@@ -20,17 +23,23 @@ function createContext({ grantClipboard = true } = {}) {
   const transactions = [];
   const capabilityRequests = [];
   const eventHandlers = [];
+  const toasts = [];
   return {
     transactions,
     capabilityRequests,
+    toasts,
     grantClipboard,
     context: {
+      descriptor: { preferences: { token: "secret", enabled: true } },
       publish: (transaction) => {
         transactions.push(transaction);
         return Promise.resolve();
       },
       onEvent: (handler) => {
         eventHandlers.push(handler);
+      },
+      showToast: async (payload) => {
+        toasts.push(payload);
       },
       requestCapability: (request) => {
         capabilityRequests.push(request);
@@ -268,4 +277,46 @@ test("rejects unmeasured API surface with structured errors", (context) => {
       (error) => error instanceof CompatibilityError,
     );
   });
+});
+
+test("shows toasts through the configured context", async () => {
+  const environment = createContext();
+  configureRaycastCompat(environment.context);
+
+  const toast = await showToast({ title: "Saved", message: "All done", style: Toast.Style.Success });
+  await toast.show();
+  await assert.rejects(
+    () => toast.hide(),
+    (error) => error instanceof CompatibilityError,
+  );
+
+  assert.deepEqual(environment.toasts, [
+    { title: "Saved", message: "All done", style: "success" },
+    { title: "Saved", message: "All done", style: "success" },
+  ]);
+  assert.equal(toast.title, "Saved");
+  assert.equal(toast.message, "All done");
+  assert.equal(toast.style, "success");
+});
+
+test("shows string toasts with neutral style", async () => {
+  const environment = createContext();
+  configureRaycastCompat(environment.context);
+
+  await showToast("Working...");
+  const constructed = new Toast({ title: "From constructor", style: "weird" });
+  await constructed.show();
+
+  assert.deepEqual(environment.toasts, [
+    { title: "Working...", style: "neutral" },
+    { title: "From constructor", style: "neutral" },
+  ]);
+});
+
+test("returns manifest preference defaults", () => {
+  const environment = createContext();
+  configureRaycastCompat(environment.context);
+
+  const preferences = getPreferenceValues();
+  assert.deepEqual(preferences, { token: "secret", enabled: true });
 });
