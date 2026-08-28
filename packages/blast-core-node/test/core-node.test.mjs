@@ -33,7 +33,7 @@ test("resolves explicit manifest entrypoints", async () => {
   assert.deepEqual(descriptor, {
     extensionId: "beta",
     commandName: "main",
-    entrypoint: path.join(catalogRoot, "beta-extension", "out", "main.cjs"),
+    entrypoint: path.join(catalogRoot, "beta-extension", "lib", "main.cjs"),
     rootDirectory: path.join(catalogRoot, "beta-extension"),
   });
 });
