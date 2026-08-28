@@ -92,8 +92,8 @@ localStorage function forms.
   action vocabulary;
 - feedback (`showToast`, `showHUD`, `confirmAlert`) and `Clipboard` are the
   most-used imperative APIs and map onto capability-brokered host services;
-- `getPreferenceValues` and manifest preferences are the largest configuration
-  surface and precede `Form` support;
+- `getPreferenceValues`, manifest preferences, and the measured `Form` subset
+  are the largest configuration surfaces;
 - navigation (`useNavigation`, `push`, `popToRoot`) and `LocalStorage`/`Cache`
   are the next runtime services after the first view stack;
 - `menu-bar` commands and `MenuBarExtra` are a distinct UI surface that should

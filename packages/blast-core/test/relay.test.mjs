@@ -169,11 +169,11 @@ test("denies capability requests without a broker", async () => {
 test("sends scene events toward the extension", async () => {
   const { runtimeSession, relay } = await createRelayHarness();
 
-  await relay.sendSceneEvent("event-9");
+  await relay.sendSceneEvent("event-9", { name: "Ada", enabled: true });
   const event = await runtimeSession.receive();
 
   assert.equal(event.type, "scene.event");
-  assert.deepEqual(event.payload, { eventId: "event-9" });
+  assert.deepEqual(event.payload, { eventId: "event-9", values: { name: "Ada", enabled: true } });
 
   await runtimeSession.close("test complete");
   await relay.done;

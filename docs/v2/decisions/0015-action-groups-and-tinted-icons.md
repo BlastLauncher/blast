@@ -30,5 +30,6 @@ with tint colors, and `Color` appeared in 40.1% of corpus extensions.
   expected failure to rendering, and corpus renders rose from 15 to 16;
 - clients receive grouping information for action pickers, which the
   deterministic test client asserts and the desktop client will render;
-- `Form`, toast display semantics, `ActionPanel.Section`, and shortcut
-  objects remain the next measured additions.
+- this leaves toast display semantics, richer Form controls, and shortcut
+  objects as the next UI increments; the measured Form subset reuses the same
+  action-group representation for its submit actions.

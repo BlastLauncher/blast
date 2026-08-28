@@ -11,13 +11,23 @@ import type {
   SceneTransaction,
   SceneTransactionSink,
 } from "@blastlauncher/scene";
-import { SCENE_PROP_WHITELIST } from "@blastlauncher/scene";
+import { SCENE_NODE_TYPES, SCENE_PROP_WHITELIST } from "@blastlauncher/scene";
 
 export const SCENE_LIST_TYPE = "list";
 export const SCENE_LIST_ITEM_TYPE = "list-item";
 export const SCENE_ACTION_TYPE = "action";
 export const SCENE_DETAIL_TYPE = "detail";
 export const SCENE_ACTION_GROUP_TYPE = "action-group";
+export const SCENE_FORM_TYPE = "form";
+export const SCENE_FORM_TEXT_FIELD_TYPE = "form-text-field";
+export const SCENE_FORM_TEXT_AREA_TYPE = "form-text-area";
+export const SCENE_FORM_PASSWORD_FIELD_TYPE = "form-password-field";
+export const SCENE_FORM_CHECKBOX_TYPE = "form-checkbox";
+export const SCENE_FORM_DROPDOWN_TYPE = "form-dropdown";
+export const SCENE_FORM_DROPDOWN_ITEM_TYPE = "form-dropdown-item";
+export const SCENE_FORM_DROPDOWN_SECTION_TYPE = "form-dropdown-section";
+export const SCENE_FORM_DESCRIPTION_TYPE = "form-description";
+export const SCENE_FORM_SEPARATOR_TYPE = "form-separator";
 
 export interface SceneListProps {
   readonly navigationTitle?: string;
@@ -95,13 +105,13 @@ interface HostNode {
   readonly id: string;
   readonly type: SceneNodeType;
   props: Readonly<Record<string, ScenePropValue>>;
-  callbacks: Map<string, { eventId: string; callback: () => void }>;
+  callbacks: Map<string, { eventId: string; callback: (payload: SceneEventPayload) => void }>;
   children: HostNode[];
   parent: HostNode | null;
 }
 
 export function createSceneRenderer(options: SceneRendererOptions): SceneRenderer {
-  const eventRegistry = new Map<string, () => void>();
+  const eventRegistry = new Map<string, (payload: SceneEventPayload) => void>();
   let nodeCounter = 0;
   let eventCounter = 0;
   let transactionCounter = 0;
@@ -335,18 +345,12 @@ export function createSceneRenderer(options: SceneRendererOptions): SceneRendere
   let root: object | null = null;
 
   function createHostNode(type: string, props: Record<string, unknown>): HostNode {
-    if (
-      type !== SCENE_LIST_TYPE &&
-      type !== SCENE_LIST_ITEM_TYPE &&
-      type !== SCENE_ACTION_TYPE &&
-      type !== SCENE_DETAIL_TYPE &&
-      type !== SCENE_ACTION_GROUP_TYPE
-    ) {
+    if (!SCENE_NODE_TYPES.includes(type as SceneNodeType)) {
       throw contractViolationError(new SceneRendererError("unknown_node_type", "Unknown scene node type", { type }));
     }
     const node: HostNode = {
       id: nextNodeId(),
-      type,
+      type: type as SceneNodeType,
       props: {},
       callbacks: new Map(),
       children: [],
@@ -358,7 +362,7 @@ export function createSceneRenderer(options: SceneRendererOptions): SceneRendere
 
   function applyProps(node: HostNode, props: Record<string, unknown>): Record<string, ScenePropValue | null> | null {
     const nextSceneProps: Record<string, ScenePropValue> = {};
-    const nextCallbacks = new Map<string, { eventId: string; callback: () => void }>();
+    const nextCallbacks = new Map<string, { eventId: string; callback: (payload: SceneEventPayload) => void }>();
     const diff: Record<string, ScenePropValue | null> = {};
 
     for (const key of Object.keys(props)) {
@@ -366,7 +370,7 @@ export function createSceneRenderer(options: SceneRendererOptions): SceneRendere
         continue;
       }
       const value = props[key];
-      if (node.type === SCENE_ACTION_TYPE && key === "onAction") {
+      if (isCallbackProp(node.type, key)) {
         if (value === undefined) {
           continue;
         }
@@ -385,7 +389,7 @@ export function createSceneRenderer(options: SceneRendererOptions): SceneRendere
           continue;
         }
         const eventId = nextEventId();
-        const callback = value as () => void;
+        const callback = value as (payload: SceneEventPayload) => void;
         nextCallbacks.set(key, { eventId, callback });
         eventRegistry.set(eventId, callback);
         nextSceneProps[key] = eventId;
@@ -453,8 +457,12 @@ export function createSceneRenderer(options: SceneRendererOptions): SceneRendere
       });
     }
     const rootChild = sceneContainer.children[0] as HostNode;
-    if (rootChild.type !== SCENE_LIST_TYPE && rootChild.type !== SCENE_DETAIL_TYPE) {
-      throw new SceneRendererError("invalid_scene_root", "The scene root must be a list or a detail", {
+    if (
+      rootChild.type !== SCENE_LIST_TYPE &&
+      rootChild.type !== SCENE_DETAIL_TYPE &&
+      rootChild.type !== SCENE_FORM_TYPE
+    ) {
+      throw new SceneRendererError("invalid_scene_root", "The scene root must be a list, detail, or form", {
         type: rootChild.type,
       });
     }
@@ -565,7 +573,7 @@ export function createSceneRenderer(options: SceneRendererOptions): SceneRendere
           eventId: payload.eventId,
         });
       }
-      callback();
+      callback(payload);
     },
 
     flush(): Promise<void> {
@@ -600,4 +608,16 @@ function materialize(node: HostNode): SceneNode {
     props: { ...node.props },
     children: node.children.map(materialize),
   };
+}
+
+function isCallbackProp(nodeType: SceneNodeType, property: string): boolean {
+  return (
+    (nodeType === SCENE_ACTION_TYPE && property === "onAction") ||
+    ((nodeType === SCENE_FORM_TEXT_FIELD_TYPE ||
+      nodeType === SCENE_FORM_TEXT_AREA_TYPE ||
+      nodeType === SCENE_FORM_PASSWORD_FIELD_TYPE ||
+      nodeType === SCENE_FORM_CHECKBOX_TYPE ||
+      nodeType === SCENE_FORM_DROPDOWN_TYPE) &&
+      property === "onChange")
+  );
 }

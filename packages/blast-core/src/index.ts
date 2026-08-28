@@ -17,6 +17,7 @@ import {
   validateSceneEventPayload,
   validateSceneTransactionMessage,
   validateToastMessage,
+  type SceneFormValues,
   type SceneTransactionSink,
   type ToastPayload,
 } from "@blastlauncher/scene";
@@ -181,7 +182,7 @@ export interface SessionRelay {
    */
   readonly done: Promise<void>;
   /** Sends one validated `scene.event` payload toward the extension. */
-  sendSceneEvent(eventId: string): Promise<void>;
+  sendSceneEvent(eventId: string, values?: SceneFormValues): Promise<void>;
 }
 
 /**
@@ -295,12 +296,13 @@ export function relaySessionTraffic(session: ExtensionSession, options: SessionR
     await session.protocol.send(CAPABILITY_RESPONSE_MESSAGE, response);
   }
 
-  async function sendSceneEvent(eventId: string): Promise<void> {
-    const validation = validateSceneEventPayload({ eventId });
+  async function sendSceneEvent(eventId: string, values?: SceneFormValues): Promise<void> {
+    const payload = values === undefined ? { eventId } : { eventId, values };
+    const validation = validateSceneEventPayload(payload);
     if (!validation.ok) {
       throw new SessionRelayError("invalid_scene_event", "Refusing to send an invalid scene event", validation.issues);
     }
-    await session.protocol.send(SCENE_EVENT_MESSAGE, { eventId });
+    await session.protocol.send(SCENE_EVENT_MESSAGE, validation.value);
   }
 
   async function closeBestEffort(reason: string): Promise<void> {

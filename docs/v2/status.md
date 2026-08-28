@@ -61,9 +61,9 @@ slice changes what is executable, what is trusted, or what should happen next.
   publishes one ordered scene transaction per synchronous commit: a full
   snapshot for the first commit and recovery, then insert/update/remove
   operations with stable node identifiers, whitelisted props, and stable
-  event identifiers for action callbacks.
+  event identifiers for action and form-control callbacks.
 - The Raycast compatibility adapter implements the census-measured view
-  stack (List, List.Item, ActionPanel, Action, Detail, Icon) over the
+  stack (List, List.Item, ActionPanel, Action, Detail, Form, Icon) over the
   renderer, routes Clipboard through the capability broker, and raises
   structured errors for unmeasured surface; a Raycast-style fixture
   extension runs end to end over child processes.
@@ -72,10 +72,11 @@ slice changes what is executable, what is trusted, or what should happen next.
   renders default-exported command components through the adapter, so
   unmodified Raycast-style TSX fixtures run end to end.
 - The support matrix runs a committed set of real corpus extensions through
-  the full pipeline in CI: thirteen render (list and detail roots,
-  navigation, toasts, preferences, brokered clipboard) and two fail with
-  structured `unsupported_api` errors, while the corpus probe records
-  exactly which unmeasured APIs block the rest.
+  the full pipeline in CI: fifteen render fixtures (list, detail, navigation,
+  action groups, tinted icons, form controls, toasts, preferences, and
+  brokered clipboard) and one fails with a structured `unsupported_api`
+  error, while the corpus probe records exactly which unmeasured APIs block
+  the rest.
 - Navigation (useNavigation, Action.Push), LocalStorage through the
   capability broker with a reference in-memory provider, and environment()
   are measured adapter surface; pushed views stay mounted so state survives
@@ -83,11 +84,17 @@ slice changes what is executable, what is trusted, or what should happen next.
 - ActionPanel renders as a scene action-group (titles, submenus, List-level
   panels), and object icons with Color tints serialize into iconTintColor
   properties.
+- Form renders the measured text, textarea, password, checkbox, dropdown,
+  description, separator, and submit-action subset. Form field changes and
+  submissions carry validated string, boolean, or null values through
+  `scene.event`, and `ActionPanel.Section` publishes nested action groups.
 
 ## Trust boundaries already enforced
 
 - Received transport values remain `unknown` until validators accept them.
 - Protocol and extension domain messages have separate validators.
+- Optional form values on `scene.event` are validated as a field-ID map before
+  the relay dispatches them to runtime callbacks.
 - A runtime must identify as `extension-runtime`; a host must identify as
   `extension-host`.
 - The runtime cannot choose which descriptor it runs, and a client cannot choose
@@ -101,8 +108,9 @@ slice changes what is executable, what is trusted, or what should happen next.
 - a persistent, watched catalog index and extension installation flows;
 - production bundle cache invalidation and externalization policy for
   extensions with large or native npm dependency graphs;
-- the remaining measured Raycast surface: `Form`, toast display semantics,
-  `ActionPanel.Section`, shortcut objects, and `Cache`;
+- the remaining measured Raycast surface: richer Form controls
+  (`DatePicker`, `TagPicker`, `FilePicker`, focus/blur callbacks), toast
+  display semantics, shortcut objects, and `Cache`;
 - a client-facing core protocol, daemon listener, and desktop rendering of
   scenes (the deterministic test client stands in today);
 - capability manifest declarations, real operating-system providers, audit
@@ -120,8 +128,8 @@ adapter surface runs end to end, bundled TSX extensions with literal
 `@raycast/api` imports load, and the support matrix (`compatibility/support-matrix.md`)
 runs real corpus fixtures in CI. Continue with the compatibility phase:
 
-1. extend the measured surface in matrix order: `Form`, toast display
-   semantics, and `ActionPanel.Section`;
+1. extend the measured surface in matrix order: toast display semantics,
+   richer Form controls, and shortcut objects;
 2. add third-party dependency policy (vendoring or installation) so
    dependency-using corpus extensions can bundle;
 3. add a client-facing core protocol and daemon listener so the Electron

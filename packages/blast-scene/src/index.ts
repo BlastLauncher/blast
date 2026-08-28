@@ -9,7 +9,23 @@ export const SCENE_TRANSACTION_MESSAGE = "scene.transaction" as const;
 export const SCENE_EVENT_MESSAGE = "scene.event" as const;
 export const UI_TOAST_MESSAGE = "ui.toast" as const;
 
-export const SCENE_NODE_TYPES = ["list", "list-item", "action", "detail", "action-group"] as const;
+export const SCENE_NODE_TYPES = [
+  "list",
+  "list-item",
+  "action",
+  "detail",
+  "action-group",
+  "form",
+  "form-text-field",
+  "form-text-area",
+  "form-password-field",
+  "form-checkbox",
+  "form-dropdown",
+  "form-dropdown-item",
+  "form-dropdown-section",
+  "form-description",
+  "form-separator",
+] as const;
 
 export type SceneNodeType = (typeof SCENE_NODE_TYPES)[number];
 
@@ -59,7 +75,16 @@ export interface SceneTransaction {
 
 export interface SceneEventPayload {
   readonly eventId: string;
+  /**
+   * Values supplied by a client when an interactive form control changes or
+   * when a form action is submitted. The wire representation deliberately
+   * stays JSON-compatible; richer Raycast values are measured separately.
+   */
+  readonly values?: SceneFormValues;
 }
+
+export type SceneFormValue = string | boolean | null;
+export type SceneFormValues = Readonly<Record<string, SceneFormValue>>;
 
 export type SceneTransactionMessage = ProtocolEnvelope<typeof SCENE_TRANSACTION_MESSAGE, SceneTransaction>;
 
@@ -95,6 +120,72 @@ const PROP_WHITELIST: Record<SceneNodeType, readonly string[]> = {
   action: ["title", "onAction", "icon", "iconTintColor"],
   detail: ["markdown", "navigationTitle"],
   "action-group": ["title"],
+  form: ["navigationTitle", "isLoading", "enableDrafts"],
+  "form-text-field": [
+    "id",
+    "title",
+    "placeholder",
+    "info",
+    "error",
+    "storeValue",
+    "autoFocus",
+    "value",
+    "defaultValue",
+    "onChange",
+  ],
+  "form-text-area": [
+    "id",
+    "title",
+    "placeholder",
+    "info",
+    "error",
+    "storeValue",
+    "autoFocus",
+    "value",
+    "defaultValue",
+    "enableMarkdown",
+    "onChange",
+  ],
+  "form-password-field": [
+    "id",
+    "title",
+    "placeholder",
+    "info",
+    "error",
+    "storeValue",
+    "autoFocus",
+    "value",
+    "defaultValue",
+    "onChange",
+  ],
+  "form-checkbox": [
+    "id",
+    "title",
+    "label",
+    "info",
+    "error",
+    "storeValue",
+    "autoFocus",
+    "value",
+    "defaultValue",
+    "onChange",
+  ],
+  "form-dropdown": [
+    "id",
+    "title",
+    "placeholder",
+    "info",
+    "error",
+    "storeValue",
+    "autoFocus",
+    "value",
+    "defaultValue",
+    "onChange",
+  ],
+  "form-dropdown-item": ["value", "title", "icon", "iconTintColor"],
+  "form-dropdown-section": ["title"],
+  "form-description": ["title", "text"],
+  "form-separator": [],
 };
 
 /**
@@ -110,6 +201,16 @@ const REQUIRED_PROPS: Record<SceneNodeType, readonly string[]> = {
   action: ["title", "onAction"],
   detail: [],
   "action-group": [],
+  form: [],
+  "form-text-field": ["id", "onChange"],
+  "form-text-area": ["id", "onChange"],
+  "form-password-field": ["id", "onChange"],
+  "form-checkbox": ["id", "label", "onChange"],
+  "form-dropdown": ["id", "onChange"],
+  "form-dropdown-item": ["value", "title"],
+  "form-dropdown-section": [],
+  "form-description": ["text"],
+  "form-separator": [],
 };
 
 const PROP_TYPES: Record<SceneNodeType, Readonly<Record<string, "string" | "boolean" | "number">>> = {
@@ -118,6 +219,72 @@ const PROP_TYPES: Record<SceneNodeType, Readonly<Record<string, "string" | "bool
   action: { title: "string", onAction: "string", icon: "string", iconTintColor: "string" },
   detail: { markdown: "string", navigationTitle: "string" },
   "action-group": { title: "string" },
+  form: { navigationTitle: "string", isLoading: "boolean", enableDrafts: "boolean" },
+  "form-text-field": {
+    id: "string",
+    title: "string",
+    placeholder: "string",
+    info: "string",
+    error: "string",
+    storeValue: "boolean",
+    autoFocus: "boolean",
+    value: "string",
+    defaultValue: "string",
+    onChange: "string",
+  },
+  "form-text-area": {
+    id: "string",
+    title: "string",
+    placeholder: "string",
+    info: "string",
+    error: "string",
+    storeValue: "boolean",
+    autoFocus: "boolean",
+    value: "string",
+    defaultValue: "string",
+    enableMarkdown: "boolean",
+    onChange: "string",
+  },
+  "form-password-field": {
+    id: "string",
+    title: "string",
+    placeholder: "string",
+    info: "string",
+    error: "string",
+    storeValue: "boolean",
+    autoFocus: "boolean",
+    value: "string",
+    defaultValue: "string",
+    onChange: "string",
+  },
+  "form-checkbox": {
+    id: "string",
+    title: "string",
+    label: "string",
+    info: "string",
+    error: "string",
+    storeValue: "boolean",
+    autoFocus: "boolean",
+    value: "boolean",
+    defaultValue: "boolean",
+    onChange: "string",
+  },
+  "form-dropdown": {
+    id: "string",
+    title: "string",
+    placeholder: "string",
+    info: "string",
+    error: "string",
+    storeValue: "boolean",
+    autoFocus: "boolean",
+    value: "string",
+    defaultValue: "string",
+    onChange: "string",
+  },
+  "form-dropdown-item": { value: "string", title: "string", icon: "string", iconTintColor: "string" },
+  "form-dropdown-section": { title: "string" },
+  "form-description": { title: "string", text: "string" },
+  "form-separator": {},
 };
 
 const CHILD_TYPES: Record<SceneNodeType, readonly SceneNodeType[]> = {
@@ -126,6 +293,25 @@ const CHILD_TYPES: Record<SceneNodeType, readonly SceneNodeType[]> = {
   action: [],
   detail: [],
   "action-group": ["action", "action-group"],
+  form: [
+    "form-text-field",
+    "form-text-area",
+    "form-password-field",
+    "form-checkbox",
+    "form-dropdown",
+    "form-description",
+    "form-separator",
+    "action-group",
+  ],
+  "form-text-field": [],
+  "form-text-area": [],
+  "form-password-field": [],
+  "form-checkbox": [],
+  "form-dropdown": ["form-dropdown-item", "form-dropdown-section"],
+  "form-dropdown-item": [],
+  "form-dropdown-section": ["form-dropdown-item"],
+  "form-description": [],
+  "form-separator": [],
 };
 
 export class SceneError extends Error {
@@ -253,6 +439,21 @@ function validateEventPayload(value: unknown, basePath: string, issues: Validati
     return;
   }
   validateNonEmptyString(value.eventId, `${basePath}.eventId`, issues);
+  if (value.values !== undefined) {
+    if (!isRecord(value.values)) {
+      issues.push({ path: `${basePath}.values`, message: "Expected an object" });
+    } else {
+      for (const [key, formValue] of Object.entries(value.values)) {
+        validateNonEmptyString(key, `${basePath}.values.${key}`, issues);
+        if (!isSceneFormValue(formValue)) {
+          issues.push({
+            path: `${basePath}.values.${key}`,
+            message: "Expected a string, boolean, or null form value",
+          });
+        }
+      }
+    }
+  }
 }
 function validateOperation(value: unknown, path: string, issues: ValidationIssue[]): void {
   if (!isRecord(value) || typeof value.type !== "string") {
@@ -464,8 +665,10 @@ export class SceneStateBuffer {
   }
 
   #applySnapshot(root: SceneNode): void {
-    if (root.type === "action-group" || root.type === "list-item" || root.type === "action") {
-      throw new SceneError("invalid_root", "The scene root must be a list or a detail", { nodeType: root.type });
+    if (root.type !== "list" && root.type !== "detail" && root.type !== "form") {
+      throw new SceneError("invalid_root", "The scene root must be a list, detail, or form", {
+        nodeType: root.type,
+      });
     }
 
     this.#nodes.clear();
@@ -642,6 +845,10 @@ function validateNonEmptyString(value: unknown, path: string, issues: Validation
   if (typeof value !== "string" || value.length === 0) {
     issues.push({ path, message: "Expected a non-empty string" });
   }
+}
+
+function isSceneFormValue(value: unknown): value is SceneFormValue {
+  return value === null || typeof value === "string" || typeof value === "boolean";
 }
 
 function isInteger(value: unknown): value is number {

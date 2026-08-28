@@ -101,3 +101,36 @@ for (const expectation of expectations) {
     await core.close();
   });
 }
+
+test("matrix form fixture round-trips field values through a submit action", async () => {
+  const { core } = createCore();
+  const buffer = new SceneStateBuffer();
+  const session = await core.runCommand({ extensionId: "form-submission", commandName: "index" });
+  const relay = relaySessionTraffic(session, {
+    sceneSink: {
+      publish(payload) {
+        buffer.apply(payload);
+      },
+    },
+  });
+
+  await waitFor(() => buffer.rootId !== undefined, "the form fixture scene");
+  const root = buffer.get(buffer.rootId);
+  const name = root.children.find((child) => child.type === "form-text-field");
+  const actions = root.children.find((child) => child.type === "action-group");
+  const submit = actions.children[0].children[0];
+
+  await relay.sendSceneEvent(name.props.onChange, { name: "Grace" });
+  await relay.sendSceneEvent(submit.props.onAction, { name: "Grace", enabled: false, role: "user" });
+  await waitFor(
+    () => buffer.get(buffer.rootId).children.some((child) => child.type === "form-description"),
+    "the submitted form description",
+  );
+
+  const description = buffer.get(buffer.rootId).children.find((child) => child.type === "form-description");
+  assert.deepEqual(description.props, { title: "Submitted", text: "Grace|false|user" });
+
+  await core.stopCommand({ extensionId: "form-submission", commandName: "index" }, "form matrix complete");
+  await relay.done;
+  await core.close();
+});

@@ -2,10 +2,11 @@
 
 Semantic scene contract for Blast V2 (ADR 0007).
 
-The package defines the smallest scene vocabulary of the first vertical slice:
-`list`, `list-item`, and `action` nodes with Raycast-named property
-whitelists, ordered `scene.transaction` messages, and `scene.event` messages
-carrying opaque event identifiers owned by the extension runtime.
+The package defines the semantic scene vocabulary for the current vertical
+slice: list/detail/action nodes, action groups, and measured form controls
+with Raycast-named property whitelists, ordered `scene.transaction` messages,
+and `scene.event` messages carrying opaque event identifiers and optional
+validated form values.
 
 ## Contents
 

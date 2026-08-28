@@ -1,6 +1,7 @@
 import {
   Children,
   Fragment,
+  cloneElement,
   createContext,
   createElement,
   isValidElement,
@@ -13,7 +14,13 @@ import {
   type ReactNode,
 } from "react";
 
-import type { SceneEventPayload, SceneTransaction, ToastPayload, ToastStyle } from "@blastlauncher/scene";
+import type {
+  SceneEventPayload,
+  SceneFormValue,
+  SceneTransaction,
+  ToastPayload,
+  ToastStyle,
+} from "@blastlauncher/scene";
 import { SceneRendererError, createSceneRenderer, type SceneRenderer } from "@blastlauncher/react-renderer";
 
 export { Color, Icon } from "./icon.js";
@@ -237,7 +244,7 @@ export interface SubmenuProps {
 
 export interface ActionProps {
   readonly title: string;
-  readonly onAction?: () => void;
+  readonly onAction?: (event?: SceneEventPayload) => void;
   readonly icon?: IconLike;
   readonly shortcut?: unknown;
   readonly style?: unknown;
@@ -250,7 +257,86 @@ export interface CopyToClipboardProps {
   readonly icon?: IconLike;
 }
 
-export type IconLike = string;
+export interface IconObject {
+  readonly source: string;
+  readonly tintColor?: string;
+}
+
+export type IconLike = string | IconObject;
+
+export type FormValue = SceneFormValue;
+export type FormValues = Readonly<Record<string, FormValue>>;
+
+export interface FormProps {
+  readonly navigationTitle?: string;
+  readonly isLoading?: boolean;
+  readonly enableDrafts?: boolean;
+  readonly children?: ReactNode;
+  readonly actions?: ReactNode;
+  readonly searchBarAccessory?: ReactNode;
+}
+
+export interface FormItemProps<T extends FormValue> {
+  readonly id: string;
+  readonly title?: string;
+  readonly info?: string;
+  readonly error?: string;
+  readonly storeValue?: boolean;
+  readonly autoFocus?: boolean;
+  readonly value?: T;
+  readonly defaultValue?: T;
+  readonly onChange?: (value: T) => void;
+  readonly onFocus?: unknown;
+  readonly onBlur?: unknown;
+}
+
+export interface TextFieldProps extends FormItemProps<string> {
+  readonly placeholder?: string;
+}
+
+export interface TextAreaProps extends FormItemProps<string> {
+  readonly placeholder?: string;
+  readonly enableMarkdown?: boolean;
+}
+
+export interface PasswordFieldProps extends FormItemProps<string> {
+  readonly placeholder?: string;
+}
+
+export interface CheckboxProps extends FormItemProps<boolean> {
+  readonly label: string;
+}
+
+export interface DropdownItemProps {
+  readonly value: string;
+  readonly title: string;
+  readonly icon?: IconLike;
+}
+
+export interface DropdownSectionProps {
+  readonly title?: string;
+  readonly children?: ReactNode;
+}
+
+export interface DropdownProps extends FormItemProps<string> {
+  readonly placeholder?: string;
+  readonly children?: ReactNode;
+}
+
+export interface DescriptionProps {
+  readonly title?: string;
+  readonly text: string;
+}
+
+export interface SeparatorProps {}
+
+export interface SubmitFormProps<T extends FormValues = FormValues> {
+  readonly title?: string;
+  readonly icon?: IconLike;
+  readonly shortcut?: unknown;
+  readonly style?: unknown;
+  readonly onSubmit?: (values: T) => void | boolean | Promise<void | boolean>;
+}
 
 function unsupported(what: string, details?: unknown): never {
   throw new CompatibilityError(`${what} is not supported by the Blast compatibility surface yet`, details);
@@ -266,7 +352,11 @@ function serializeIcon(
   if (typeof icon === "string") {
     return { icon };
   }
-  if (typeof icon === "object" && icon !== null && typeof (icon as Record<string, unknown>)["source"] === "string") {
+  if (
+    typeof icon === "object" &&
+    icon !== null &&
+    typeof (icon as unknown as Record<string, unknown>)["source"] === "string"
+  ) {
     const record = icon as { source: string; tintColor?: unknown };
     const tintColor = record.tintColor === undefined ? undefined : serializeTintColor(record.tintColor, where);
     return {
@@ -321,29 +411,380 @@ export function Detail(props: DetailProps): ReactElement {
   });
 }
 
-export function ActionPanel(props: ActionPanelProps): ReactElement {
-  return createElement(
-    "action-group",
-    {
-      ...(props.title === undefined ? {} : { title: props.title }),
+interface FormRuntime {
+  readonly resetFields: () => void;
+  readonly register: (
+    id: string,
+    initialValue: FormValue | undefined,
+    controlled: boolean,
+    accepts: (value: SceneFormValue) => boolean,
+  ) => void;
+  readonly update: (id: string, value: FormValue) => void;
+  readonly submit: (values: Readonly<Record<string, SceneFormValue>> | undefined) => FormValues;
+}
+
+const FormContext: Context<FormRuntime | undefined> = createContext<FormRuntime | undefined>(undefined);
+
+function requireFormContext(where: string): FormRuntime {
+  const context = useContext(FormContext);
+  if (context === undefined) {
+    throw new CompatibilityError(`${where} must be rendered inside a Form`);
+  }
+  return context;
+}
+
+function createFormRuntime(): FormRuntime {
+  const values = new Map<string, FormValue>();
+  const fieldIds = new Set<string>();
+  const fieldValidators = new Map<string, (value: SceneFormValue) => boolean>();
+
+  return {
+    resetFields() {
+      fieldIds.clear();
+      fieldValidators.clear();
     },
-    mapItemChildren(props.children, "ActionPanel"),
+    register(id, initialValue, controlled, accepts) {
+      if (fieldIds.has(id)) {
+        throw new CompatibilityError(`The Form contains duplicate field id ${JSON.stringify(id)}`, { id });
+      }
+      fieldIds.add(id);
+      fieldValidators.set(id, accepts);
+      if (controlled || !values.has(id)) {
+        if (initialValue !== undefined) {
+          values.set(id, initialValue);
+        } else if (controlled) {
+          values.delete(id);
+        }
+      }
+    },
+    update(id, value) {
+      if (fieldIds.has(id)) {
+        values.set(id, value);
+      }
+    },
+    submit(submittedValues) {
+      const result: Record<string, FormValue> = {};
+      for (const id of fieldIds) {
+        if (submittedValues !== undefined && Object.prototype.hasOwnProperty.call(submittedValues, id)) {
+          const value = submittedValues[id] as FormValue;
+          const accepts = fieldValidators.get(id);
+          if (accepts !== undefined && !accepts(value)) {
+            throw new CompatibilityError(`Form field ${JSON.stringify(id)} received a value with the wrong type`, {
+              id,
+              value,
+            });
+          }
+          Object.defineProperty(result, id, {
+            configurable: true,
+            enumerable: true,
+            value,
+            writable: true,
+          });
+        } else if (values.has(id)) {
+          const value = values.get(id) as FormValue;
+          Object.defineProperty(result, id, {
+            configurable: true,
+            enumerable: true,
+            value,
+            writable: true,
+          });
+        }
+      }
+      return result;
+    },
+  };
+}
+
+function assertFormId(id: string, where: string): void {
+  if (typeof id !== "string" || id.length === 0) {
+    throw new CompatibilityError(`${where} requires a non-empty id`, { id });
+  }
+}
+
+function assertFormCallbacks(props: FormItemProps<FormValue>, where: string): void {
+  if (props.onChange !== undefined && typeof props.onChange !== "function") {
+    throw new CompatibilityError(`${where} onChange must be a function`, { onChange: props.onChange });
+  }
+  if (props.onFocus !== undefined) {
+    unsupported(`${where} onFocus`);
+  }
+  if (props.onBlur !== undefined) {
+    unsupported(`${where} onBlur`);
+  }
+}
+
+function useFormChange<T extends FormValue>(
+  props: FormItemProps<T>,
+  where: string,
+  accepts: (value: SceneFormValue) => value is T,
+): (payload: SceneEventPayload) => void {
+  const form = requireFormContext(where);
+  assertFormId(props.id, where);
+  assertFormCallbacks(props as unknown as FormItemProps<FormValue>, where);
+  const { id, onChange } = props;
+  const initialValue = props.value !== undefined ? props.value : props.defaultValue;
+  if (initialValue !== undefined && !accepts(initialValue as SceneFormValue)) {
+    throw new CompatibilityError(`${where} received an initial value with the wrong type`, {
+      id: props.id,
+      value: initialValue,
+    });
+  }
+  form.register(id, initialValue, props.value !== undefined, accepts);
+  return useMemo(
+    () => (payload: SceneEventPayload) => {
+      const value = payload.values?.[id];
+      if (value === undefined) {
+        return;
+      }
+      if (!accepts(value)) {
+        throw new CompatibilityError(`${where} received a value with the wrong type`, {
+          id,
+          value,
+        });
+      }
+      form.update(id, value);
+      onChange?.(value);
+    },
+    [accepts, form, id, onChange, where],
   );
+}
+
+function isStringFormValue(value: SceneFormValue): value is string {
+  return typeof value === "string";
+}
+
+function isBooleanFormValue(value: SceneFormValue): value is boolean {
+  return typeof value === "boolean";
+}
+
+function commonFormProps<T extends FormValue>(props: FormItemProps<T>, onChange: (payload: SceneEventPayload) => void) {
+  return {
+    id: props.id,
+    ...(props.title === undefined ? {} : { title: props.title }),
+    ...(props.info === undefined ? {} : { info: props.info }),
+    ...(props.error === undefined ? {} : { error: props.error }),
+    ...(props.storeValue === undefined ? {} : { storeValue: props.storeValue }),
+    ...(props.autoFocus === undefined ? {} : { autoFocus: props.autoFocus }),
+    ...(props.value === undefined ? {} : { value: props.value }),
+    ...(props.defaultValue === undefined ? {} : { defaultValue: props.defaultValue }),
+    onChange,
+  };
+}
+
+function FormTextField(props: TextFieldProps): ReactElement {
+  const onChange = useFormChange(props, "Form.TextField", isStringFormValue);
+  return createElement("form-text-field", {
+    ...commonFormProps(props, onChange),
+    ...(props.placeholder === undefined ? {} : { placeholder: props.placeholder }),
+  });
+}
+
+function FormTextArea(props: TextAreaProps): ReactElement {
+  const onChange = useFormChange(props, "Form.TextArea", isStringFormValue);
+  return createElement("form-text-area", {
+    ...commonFormProps(props, onChange),
+    ...(props.placeholder === undefined ? {} : { placeholder: props.placeholder }),
+    ...(props.enableMarkdown === undefined ? {} : { enableMarkdown: props.enableMarkdown }),
+  });
+}
+
+function FormPasswordField(props: PasswordFieldProps): ReactElement {
+  const onChange = useFormChange(props, "Form.PasswordField", isStringFormValue);
+  return createElement("form-password-field", {
+    ...commonFormProps(props, onChange),
+    ...(props.placeholder === undefined ? {} : { placeholder: props.placeholder }),
+  });
+}
+
+function FormCheckbox(props: CheckboxProps): ReactElement {
+  assertFormString(props.label, "Form.Checkbox label");
+  const normalized = props.defaultValue === undefined ? { ...props, defaultValue: false } : props;
+  const onChange = useFormChange(normalized, "Form.Checkbox", isBooleanFormValue);
+  return createElement("form-checkbox", {
+    ...commonFormProps(normalized, onChange),
+    label: props.label,
+  });
+}
+
+function FormDropdown(props: DropdownProps): ReactElement {
+  const onChange = useFormChange(props, "Form.Dropdown", isStringFormValue);
+  return createElement(
+    "form-dropdown",
+    {
+      ...commonFormProps(props, onChange),
+      ...(props.placeholder === undefined ? {} : { placeholder: props.placeholder }),
+    },
+    mapDropdownChildren(props.children),
+  );
+}
+
+function FormDropdownItem(props: DropdownItemProps): ReactElement {
+  assertFormString(props.value, "Form.Dropdown.Item value");
+  assertFormString(props.title, "Form.Dropdown.Item title");
+  const icon = serializeIcon(props.icon, "Form.Dropdown.Item");
+  return createElement("form-dropdown-item", {
+    value: props.value,
+    title: props.title,
+    ...(icon === undefined ? {} : { icon: icon.icon, iconTintColor: icon.iconTintColor }),
+  });
+}
+
+function FormDropdownSection(props: DropdownSectionProps): ReactElement {
+  return createElement("form-dropdown-section", { title: props.title }, mapDropdownChildren(props.children));
+}
+
+function FormDescription(props: DescriptionProps): ReactElement {
+  assertFormString(props.text, "Form.Description text");
+  return createElement("form-description", {
+    title: props.title,
+    text: props.text,
+  });
+}
+
+function FormSeparator(_props: SeparatorProps): ReactElement {
+  return createElement("form-separator");
+}
+
+function assertFormString(value: unknown, where: string): asserts value is string {
+  if (typeof value !== "string" || value.length === 0) {
+    throw new CompatibilityError(`${where} must be a non-empty string`, { value });
+  }
+}
+
+function unsupportedFormComponent(what: string): ReactElement {
+  unsupported(what);
+}
+
+function FormDatePicker(_props: Record<string, unknown>): ReactElement {
+  return unsupportedFormComponent("Form.DatePicker");
+}
+
+function FormTagPicker(_props: Record<string, unknown>): ReactElement {
+  return unsupportedFormComponent("Form.TagPicker");
+}
+
+function FormFilePicker(_props: Record<string, unknown>): ReactElement {
+  return unsupportedFormComponent("Form.FilePicker");
+}
+
+function mapFormChildren(children: ReactNode): ReactNode {
+  return Children.toArray(children).map((child, index) => {
+    if (child === null || child === undefined || typeof child === "boolean") {
+      return null;
+    }
+    if (!isValidElement(child)) {
+      return unsupported("A Form text child", { child });
+    }
+    if (
+      child.type === FormTextField ||
+      child.type === FormTextArea ||
+      child.type === FormPasswordField ||
+      child.type === FormCheckbox ||
+      child.type === FormDropdown ||
+      child.type === FormDescription ||
+      child.type === FormSeparator ||
+      child.type === FormDatePicker ||
+      child.type === FormTagPicker ||
+      child.type === FormFilePicker ||
+      child.type === ActionPanel
+    ) {
+      return keyedElement(child, `form-${index}`);
+    }
+    return unsupported("A Form child that is not a measured form item or ActionPanel", {
+      childType: String(child.type),
+    });
+  });
+}
+
+function mapDropdownChildren(children: ReactNode): ReactNode {
+  return Children.toArray(children).map((child, index) => {
+    if (child === null || child === undefined || typeof child === "boolean") {
+      return null;
+    }
+    if (!isValidElement(child)) {
+      return unsupported("A Form.Dropdown text child", { child });
+    }
+    if (child.type === FormDropdownItem || child.type === FormDropdownSection) {
+      return keyedElement(child, `dropdown-${index}`);
+    }
+    return unsupported("A Form.Dropdown child that is not an item or section", {
+      childType: String(child.type),
+    });
+  });
+}
+
+interface FormComponent {
+  (props: FormProps): ReactElement;
+  TextField: typeof FormTextField;
+  TextArea: typeof FormTextArea;
+  PasswordField: typeof FormPasswordField;
+  Checkbox: typeof FormCheckbox;
+  Dropdown: typeof FormDropdown & {
+    Item: typeof FormDropdownItem;
+    Section: typeof FormDropdownSection;
+  };
+  Description: typeof FormDescription;
+  Separator: typeof FormSeparator;
+  DatePicker: typeof FormDatePicker;
+  TagPicker: typeof FormTagPicker;
+  FilePicker: typeof FormFilePicker;
+}
+
+function FormComponent(props: FormProps): ReactElement {
+  if (props.searchBarAccessory !== undefined && props.searchBarAccessory !== null) {
+    unsupported("Form searchBarAccessory");
+  }
+  const runtime = useMemo(() => createFormRuntime(), []);
+  runtime.resetFields();
+  return createElement(
+    FormContext.Provider,
+    { value: runtime },
+    createElement(
+      "form",
+      {
+        ...(props.navigationTitle === undefined ? {} : { navigationTitle: props.navigationTitle }),
+        ...(props.isLoading === undefined ? {} : { isLoading: props.isLoading }),
+        ...(props.enableDrafts === undefined ? {} : { enableDrafts: props.enableDrafts }),
+      },
+      mapFormChildren(Children.toArray([props.actions, props.children])),
+    ),
+  );
+}
+
+export const Form: FormComponent = Object.assign(FormComponent, {
+  TextField: FormTextField,
+  TextArea: FormTextArea,
+  PasswordField: FormPasswordField,
+  Checkbox: FormCheckbox,
+  Dropdown: Object.assign(FormDropdown, { Item: FormDropdownItem, Section: FormDropdownSection }),
+  Description: FormDescription,
+  Separator: FormSeparator,
+  DatePicker: FormDatePicker,
+  TagPicker: FormTagPicker,
+  FilePicker: FormFilePicker,
+});
+
+function ActionPanelComponent(props: ActionPanelProps): ReactElement {
+  return createElement("action-group", { title: props.title }, mapItemChildren(props.children, "ActionPanel"));
 }
 
 function Submenu(props: ActionPanelProps): ReactElement {
-  return createElement(
-    "action-group",
-    {
-      ...(props.title === undefined ? {} : { title: props.title }),
-    },
-    mapItemChildren(props.children, "ActionPanel.Submenu"),
-  );
+  return createElement("action-group", { title: props.title }, mapItemChildren(props.children, "ActionPanel.Submenu"));
 }
 
-Object.assign(ActionPanel, { Submenu });
+function Section(props: ActionPanelProps): ReactElement {
+  return createElement("action-group", { title: props.title }, mapItemChildren(props.children, "ActionPanel.Section"));
+}
 
-export function Action(props: ActionProps): ReactElement {
+interface ActionPanelComponent {
+  (props: ActionPanelProps): ReactElement;
+  Section: typeof Section;
+  Submenu: typeof Submenu;
+}
+
+export const ActionPanel: ActionPanelComponent = Object.assign(ActionPanelComponent, { Section, Submenu });
+
+function ActionComponent(props: ActionProps): ReactElement {
   if (props.shortcut !== undefined) {
     unsupported("The Action shortcut prop");
   }
@@ -354,8 +795,25 @@ export function Action(props: ActionProps): ReactElement {
   return createElement("action", {
     title: props.title,
     ...(icon === undefined ? {} : { icon: icon.icon, iconTintColor: icon.iconTintColor }),
-    onAction: () => {
-      props.onAction?.();
+    onAction: (event: SceneEventPayload) => {
+      props.onAction?.(event);
+    },
+  });
+}
+
+function SubmitForm<T extends FormValues = FormValues>(props: SubmitFormProps<T>): ReactElement {
+  if (props.onSubmit !== undefined && typeof props.onSubmit !== "function") {
+    throw new CompatibilityError("Action.SubmitForm onSubmit must be a function", { onSubmit: props.onSubmit });
+  }
+  const form = requireFormContext("Action.SubmitForm");
+  return createElement(Action, {
+    title: props.title ?? "Submit Form",
+    ...(props.icon === undefined ? {} : { icon: props.icon }),
+    ...(props.shortcut === undefined ? {} : { shortcut: props.shortcut }),
+    ...(props.style === undefined ? {} : { style: props.style }),
+    onAction: (event) => {
+      const values = form.submit(event?.values);
+      void props.onSubmit?.(values as T);
     },
   });
 }
@@ -391,6 +849,15 @@ function CopyToClipboard(props: CopyToClipboardProps): ReactElement {
   });
 }
 
+interface ActionComponent {
+  (props: ActionProps): ReactElement;
+  CopyToClipboard: typeof CopyToClipboard;
+  Push: typeof Push;
+  SubmitForm: typeof SubmitForm;
+}
+
+export const Action: ActionComponent = Object.assign(ActionComponent, { CopyToClipboard, Push, SubmitForm });
+
 async function copyToClipboard(text: string): Promise<void> {
   const response = await requireContext().requestCapability({
     capability: "clipboard",
@@ -403,7 +870,7 @@ async function copyToClipboard(text: string): Promise<void> {
 }
 
 function mapItemChildren(children: ReactNode, where: string): ReactNode {
-  return Children.map(children, (child) => {
+  return Children.toArray(children).map((child, index) => {
     if (child === null || child === undefined || typeof child === "boolean") {
       return null;
     }
@@ -413,14 +880,20 @@ function mapItemChildren(children: ReactNode, where: string): ReactNode {
     if (
       child.type === ActionPanel ||
       child.type === Submenu ||
+      child.type === Section ||
       child.type === Action ||
+      child.type === SubmitForm ||
       child.type === CopyToClipboard ||
       child.type === Push
     ) {
-      return child;
+      return keyedElement(child, `${where}-${index}`);
     }
     return unsupported(`A ${where} child that is not an action`, { childType: String(child.type) });
   });
+}
+
+function keyedElement(child: ReactNode, key: string): ReactNode {
+  return isValidElement(child) ? cloneElement(child, { key }) : child;
 }
 
 export const Clipboard = {
@@ -436,7 +909,6 @@ export const Clipboard = {
   },
 };
 
-Object.assign(Action, { CopyToClipboard });
 Object.assign(List, { Item: ListItem });
 
 function normalizeToastStyle(style: unknown): ToastStyle {
@@ -555,8 +1027,6 @@ function NavigationHost({ base }: { readonly base: ReactElement }): ReactElement
     ),
   );
 }
-
-Object.assign(Action, { Push });
 
 export const LaunchType = {
   InitialLaunch: "initial-launch",

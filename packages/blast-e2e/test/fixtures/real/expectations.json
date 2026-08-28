@@ -226,5 +226,19 @@
       "getPreferenceValues"
     ],
     "source": "raycast/extensions@d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91"
+  },
+  {
+    "id": "form-submission",
+    "extensionId": "form-submission",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "form",
+    "minItems": 4,
+    "apis": [
+      "Action",
+      "ActionPanel",
+      "Form"
+    ],
+    "source": "blast/compatibility-fixture"
   }
 ]

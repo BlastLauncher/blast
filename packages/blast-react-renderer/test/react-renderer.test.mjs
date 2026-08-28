@@ -4,6 +4,8 @@ import { Children, createElement, useEffect } from "react";
 
 import {
   SCENE_DETAIL_TYPE,
+  SCENE_FORM_TEXT_FIELD_TYPE,
+  SCENE_FORM_TYPE,
   SceneAction,
   SceneList,
   SceneListItem,
@@ -230,7 +232,10 @@ test("rejects invalid scene trees", (context) => {
     const sink = createCollectingSink();
     const renderer = createSceneRenderer({ sink });
     assert.throws(
-      () => renderer.render(Children.toArray([createElement(SceneList, null), createElement(SceneList, null)])),
+      () =>
+        renderer.render(
+          Children.toArray([createElement(SceneList, { key: "first" }), createElement(SceneList, { key: "second" })]),
+        ),
       (error) => error.code === "invalid_scene_root",
     );
   });
@@ -326,4 +331,37 @@ test("renders a detail root with markdown", async () => {
   assert.equal(root.type, "detail");
   assert.deepEqual(root.props, { markdown: "# Hello", navigationTitle: "Docs" });
   assert.deepEqual(root.children, []);
+});
+
+test("renders form controls and routes form values through scene events", async () => {
+  const sink = createCollectingSink();
+  const renderer = createSceneRenderer({ sink });
+  const changes = [];
+
+  renderer.render(
+    createElement(
+      SCENE_FORM_TYPE,
+      { navigationTitle: "Profile" },
+      createElement(SCENE_FORM_TEXT_FIELD_TYPE, {
+        id: "name",
+        title: "Name",
+        defaultValue: "Ada",
+        onChange: (payload) => changes.push(payload),
+      }),
+    ),
+  );
+  await renderer.flush();
+
+  const root = snapshotRoot(sink);
+  assert.equal(root.type, "form");
+  assert.deepEqual(root.props, { navigationTitle: "Profile" });
+  assert.deepEqual(root.children[0].props, {
+    id: "name",
+    title: "Name",
+    defaultValue: "Ada",
+    onChange: "event-1",
+  });
+
+  renderer.dispatchSceneEvent({ eventId: "event-1", values: { name: "Grace" } });
+  assert.deepEqual(changes, [{ eventId: "event-1", values: { name: "Grace" } }]);
 });

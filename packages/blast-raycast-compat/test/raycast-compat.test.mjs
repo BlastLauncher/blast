@@ -9,6 +9,7 @@ import {
   Color,
   CompatibilityError,
   Detail,
+  Form,
   Icon,
   List,
   LocalStorage,
@@ -75,9 +76,9 @@ function createContext({ grantClipboard = true, storageProvider = null } = {}) {
         );
       },
     },
-    dispatch(eventId) {
+    dispatch(eventId, values) {
       for (const handler of eventHandlers) {
-        handler({ eventId });
+        handler(values === undefined ? { eventId } : { eventId, values });
       }
     },
   };
@@ -235,6 +236,114 @@ test("renders a Detail root", async () => {
   assert.deepEqual(root.props, { markdown: "# Notes", navigationTitle: "Notes" });
 });
 
+test("renders measured form controls and submits client-provided values", async () => {
+  const probe = createContext();
+  const submitted = [];
+  const changed = [];
+
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      Form,
+      {
+        navigationTitle: "Profile",
+        enableDrafts: true,
+        actions: createElement(
+          ActionPanel,
+          { title: "Form actions" },
+          createElement(
+            ActionPanel.Section,
+            { title: "Save" },
+            createElement(Action.SubmitForm, {
+              title: "Save profile",
+              onSubmit: (values) => submitted.push(values),
+            }),
+          ),
+        ),
+      },
+      createElement(Form.TextField, {
+        id: "name",
+        title: "Name",
+        defaultValue: "Ada",
+        onChange: (value) => changed.push(["name", value]),
+      }),
+      createElement(Form.TextArea, { id: "bio", title: "Bio", placeholder: "About you" }),
+      createElement(Form.PasswordField, { id: "password", title: "Password" }),
+      createElement(Form.Checkbox, { id: "enabled", label: "Enabled", defaultValue: true }),
+      createElement(
+        Form.Dropdown,
+        { id: "role", title: "Role", defaultValue: "admin" },
+        createElement(
+          Form.Dropdown.Section,
+          { title: "Roles" },
+          createElement(Form.Dropdown.Item, { value: "admin", title: "Administrator" }),
+        ),
+      ),
+      createElement(Form.Description, { title: "Info", text: "Profile details" }),
+      createElement(Form.Separator),
+    ),
+  );
+  await renderer.flush();
+
+  const root = probe.transactions[0].operations[0].root;
+  assert.equal(root.type, "form");
+  assert.deepEqual(root.props, { navigationTitle: "Profile", enableDrafts: true });
+  const actionGroup = root.children[0];
+  assert.equal(actionGroup.type, "action-group");
+  assert.deepEqual(actionGroup.props, { title: "Form actions" });
+  assert.equal(actionGroup.children[0].type, "action-group");
+  assert.deepEqual(actionGroup.children[0].props, { title: "Save" });
+
+  const fields = new Map(root.children.slice(1).map((child) => [child.props.id, child]));
+  assert.deepEqual(fields.get("name").props, {
+    id: "name",
+    title: "Name",
+    defaultValue: "Ada",
+    onChange: fields.get("name").props.onChange,
+  });
+  assert.deepEqual(fields.get("enabled").props, {
+    id: "enabled",
+    label: "Enabled",
+    defaultValue: true,
+    onChange: fields.get("enabled").props.onChange,
+  });
+  assert.equal(fields.get("role").children[0].type, "form-dropdown-section");
+  assert.equal(fields.get("role").children[0].children[0].props.value, "admin");
+
+  probe.dispatch(fields.get("name").props.onChange, { name: "Grace" });
+  assert.deepEqual(changed, [["name", "Grace"]]);
+
+  const submitEventId = actionGroup.children[0].children[0].props.onAction;
+  probe.dispatch(submitEventId, {
+    name: "Grace",
+    bio: "Builder",
+    enabled: false,
+    role: "user",
+    ignored: "not a form field",
+  });
+  assert.deepEqual(submitted, [{ name: "Grace", bio: "Builder", enabled: false, role: "user" }]);
+});
+
+test("rejects form submit values with a mismatched field type", async () => {
+  const probe = createContext();
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      Form,
+      {
+        actions: createElement(ActionPanel, null, createElement(Action.SubmitForm, { title: "Save" })),
+      },
+      createElement(Form.TextField, { id: "name", defaultValue: "Ada" }),
+    ),
+  );
+  await renderer.flush();
+
+  const root = probe.transactions[0].operations[0].root;
+  const submitEventId = root.children[0].children[0].props.onAction;
+  assert.throws(
+    () => probe.dispatch(submitEventId, { name: false }),
+    (error) => error instanceof CompatibilityError && /wrong type/.test(error.message),
+  );
+});
+
 test("rejects unmeasured API surface with structured errors", (context) => {
   const probe = createContext();
 
@@ -267,6 +376,16 @@ test("rejects unmeasured API surface with structured errors", (context) => {
           createElement(List, null, createElement(List.Item, { title: "First" }, createElement("div", null, "nope"))),
         ),
       (error) => error instanceof CompatibilityError && /not an action/.test(error.message),
+    );
+  });
+
+  context.test("unsupported Form controls", () => {
+    assert.throws(
+      () =>
+        renderCommand(probe.context, () =>
+          createElement(Form, null, createElement(Form.DatePicker, { id: "when", title: "When" })),
+        ),
+      (error) => error instanceof CompatibilityError && /Form.DatePicker/.test(error.message),
     );
   });
 

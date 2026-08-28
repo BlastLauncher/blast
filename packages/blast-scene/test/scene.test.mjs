@@ -30,6 +30,10 @@ function list(id, children = [], props = {}) {
   return { id, type: "list", props, children };
 }
 
+function form(id, children = [], props = {}) {
+  return { id, type: "form", props, children };
+}
+
 function transaction(operations, transactionId = "transaction-1") {
   return { transactionId, operations };
 }
@@ -114,11 +118,46 @@ test("validates scene transaction messages", (context) => {
       ["$.payload.operations[0].root.props.isLoading"],
     );
   });
+
+  context.test("accepts measured form nodes", () => {
+    const result = validateSceneTransactionMessage(
+      envelope(
+        SCENE_TRANSACTION_MESSAGE,
+        transaction([
+          {
+            type: "snapshot",
+            root: form("form-root", [
+              {
+                id: "name",
+                type: "form-text-field",
+                props: { id: "name", title: "Name", defaultValue: "Ada", onChange: "event-name" },
+                children: [],
+              },
+              {
+                id: "actions",
+                type: "action-group",
+                props: {},
+                children: [action("submit", "Save", "event-submit")],
+              },
+            ]),
+          },
+        ]),
+      ),
+    );
+    assert.equal(result.ok, true);
+  });
 });
 
 test("validates scene event messages", (context) => {
   context.test("accepts an event identifier", () => {
     const result = validateSceneEventMessage(envelope(SCENE_EVENT_MESSAGE, { eventId: "event-1" }));
+    assert.equal(result.ok, true);
+  });
+
+  context.test("accepts form values", () => {
+    const result = validateSceneEventMessage(
+      envelope(SCENE_EVENT_MESSAGE, { eventId: "event-submit", values: { name: "Ada", enabled: true } }),
+    );
     assert.equal(result.ok, true);
   });
 
@@ -146,6 +185,14 @@ test("validates scene event payloads", (context) => {
 
   context.test("rejects non-object payloads", () => {
     assert.equal(validateSceneEventPayload("event-1").ok, false);
+  });
+
+  context.test("rejects non-JSON form values", () => {
+    const result = validateSceneEventPayload({ eventId: "event-submit", values: { name: ["Ada"] } });
+    assert.deepEqual(
+      result.issues?.map((issue) => issue.path),
+      ["$.values.name"],
+    );
   });
 });
 
@@ -217,6 +264,29 @@ test("the state buffer materializes snapshots and updates", () => {
     buffer.childrenOf("root").map((node) => node.id),
     ["item-1", "item-2"],
   );
+});
+
+test("the state buffer accepts a form root", () => {
+  const buffer = new SceneStateBuffer();
+  buffer.apply(
+    transaction([
+      {
+        type: "snapshot",
+        root: form("form-root", [
+          {
+            id: "name",
+            type: "form-text-field",
+            props: { id: "name", onChange: "event-name" },
+            children: [],
+          },
+        ]),
+      },
+    ]),
+  );
+
+  assert.equal(buffer.rootId, "form-root");
+  assert.equal(buffer.get(buffer.rootId).type, "form");
+  assert.equal(buffer.childrenOf("form-root")[0].props.id, "name");
 });
 
 test("the state buffer rejects invalid operations", (context) => {

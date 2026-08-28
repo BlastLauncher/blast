@@ -11,13 +11,15 @@ the wire protocol.
 ## Components and props
 
 - `SceneList`, `SceneListItem`, and `SceneAction` render the scene node types
-  `list`, `list-item`, and `action`;
+  `list`, `list-item`, and `action`; form and action-group nodes can also be
+  authored with the corresponding intrinsic scene type names;
 - props are serialized through the documented per-type
   `SCENE_PROP_WHITELIST`; unknown properties, text nodes, portals, and
-  non-list roots are contract violations that fail loudly;
-- callbacks (`onAction`) are translated into opaque event identifiers owned by
-  the renderer: identifiers stay stable while the callback identity is stable
-  and are released when the node unmounts.
+  invalid roots are contract violations that fail loudly;
+- callbacks (`onAction` and form-control `onChange`) are translated into
+  opaque event identifiers owned by the renderer: identifiers stay stable
+  while the callback identity is stable and are released when the node
+  unmounts.
 
 ## Behavior
 

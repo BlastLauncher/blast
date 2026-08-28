@@ -1,0 +1,19 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "form-submission",
+  "title": "Form Submission",
+  "description": "A dependency-free form fixture for the Blast compatibility matrix",
+  "icon": "command-icon.png",
+  "author": "blast-fixture",
+  "commands": [
+    {
+      "name": "index",
+      "title": "Form Submission",
+      "description": "Submit a profile form",
+      "mode": "view"
+    }
+  ],
+  "dependencies": {
+    "@raycast/api": "^1.104.1"
+  }
+}
