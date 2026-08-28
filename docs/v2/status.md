@@ -57,6 +57,11 @@ slice changes what is executable, what is trusted, or what should happen next.
   back and the extension updates the list, a granted clipboard write reaches
   a broker provider while an ungranted read is denied, and a deliberate
   crash removes the session while the core keeps serving.
+- The React renderer adapter runs a React tree on react-reconciler and
+  publishes one ordered scene transaction per synchronous commit: a full
+  snapshot for the first commit and recovery, then insert/update/remove
+  operations with stable node identifiers, whitelisted props, and stable
+  event identifiers for action callbacks.
 
 ## Trust boundaries already enforced
 
@@ -76,7 +81,6 @@ slice changes what is executable, what is trusted, or what should happen next.
 - loading real extension entrypoints that require bundling or dependency
   resolution beyond immutable fixtures;
 - the Raycast compatibility adapter on the V2 runtime;
-- the React renderer adapter from ADR 0004;
 - a client-facing core protocol, daemon listener, and desktop rendering of
   scenes (the deterministic test client stands in today);
 - capability manifest declarations, real operating-system providers, audit
@@ -92,15 +96,13 @@ The first extension-to-client vertical slice is complete, and the corpus
 census (`compatibility/README.md`) justifies the adapter order. Continue with
 the compatibility phase:
 
-1. build the React renderer adapter from ADR 0004 and run renderer
-   conformance fixtures against the scene sink;
-2. implement the measured `@raycast/api` surface in usage order: the
+1. implement the measured `@raycast/api` surface in usage order: the
    `List`/`Detail` view stack with `Action`/`ActionPanel` and `Icon`/`Color`,
    then `showToast`/`showHUD` feedback and `Clipboard` through the broker,
    then `getPreferenceValues` and manifest preferences;
-3. select a varied fixture set of real extensions and publish the support
+2. select a varied fixture set of real extensions and publish the support
    matrix;
-4. add a client-facing core protocol and daemon listener so the Electron
+3. add a client-facing core protocol and daemon listener so the Electron
    client can replace the test client.
 
 Keep WebSocket and remote execution as transport/provider additions. They do not

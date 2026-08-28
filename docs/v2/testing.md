@@ -83,10 +83,15 @@ missing entrypoints and unreadable catalog roots.
 
 ### Renderer conformance
 
-The V2 React renderer will receive fixture trees and record scene transactions
-through an in-memory sink. Tests will cover stable node IDs, insert/update/remove
-ordering, property removal, event identifiers, snapshots, effects, errors, and
-React upgrade compatibility.
+`@blastlauncher/react-renderer` runs React trees on `react-reconciler` and
+records scene transactions through an in-memory sink. The conformance fixtures
+cover stable node IDs across updates, insert/update/remove ordering with
+positions, property removal as explicit `null`, stable event identifiers for
+memoized callbacks and their release on unmount, snapshots for the first
+commit, effects flushed deterministically, no-op commits publishing nothing,
+loud contract violations (unknown props, text nodes, invalid roots), component
+errors reported through `onError` without publishing, and unmount cleanup.
+React and `react-reconciler` are pinned; these fixtures are the upgrade gate.
 
 `@blastlauncher/scene` already tests the model-level invariants the renderer
 relies on: wire validation of transactions and events, the property whitelist

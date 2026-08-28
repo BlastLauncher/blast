@@ -428,6 +428,25 @@ importers:
 
   packages/blast-protocol: {}
 
+  packages/blast-react-renderer:
+    dependencies:
+      '@blastlauncher/scene':
+        specifier: workspace:*
+        version: link:../blast-scene
+      react:
+        specifier: ^19.2.8
+        version: 19.2.8
+      react-reconciler:
+        specifier: ^0.33.0
+        version: 0.33.0(react@19.2.8)
+    devDependencies:
+      '@types/react':
+        specifier: ^19.2.18
+        version: 19.2.18
+      '@types/react-reconciler':
+        specifier: ^0.33.0
+        version: 0.33.0(@types/react@19.2.18)
+
   packages/blast-renderer:
     dependencies:
       '@blastlauncher/utils':

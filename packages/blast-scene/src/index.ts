@@ -94,6 +94,13 @@ const PROP_WHITELIST: Record<SceneNodeType, readonly string[]> = {
   action: ["title", "onAction"],
 };
 
+/**
+ * The documented per-type property whitelist. Producers such as the React
+ * renderer serialize exactly these properties; anything else is a contract
+ * violation.
+ */
+export const SCENE_PROP_WHITELIST: Record<SceneNodeType, readonly string[]> = PROP_WHITELIST;
+
 const REQUIRED_PROPS: Record<SceneNodeType, readonly string[]> = {
   list: [],
   "list-item": ["title"],

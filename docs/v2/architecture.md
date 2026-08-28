@@ -152,6 +152,8 @@ extension-runtime-node ---> extension-runtime
           +---------------> transport-node ---> transport
 
 extension-runtime ---> capability ---> protocol
+
+react-renderer ---> scene ---> protocol
 ```
 
 1. `protocol` has no workspace dependencies and no platform dependencies.
@@ -245,6 +247,7 @@ packages/blast-core/            Trusted catalog and lifecycle orchestration
 packages/blast-core-node/       Node filesystem manifest catalog
 packages/blast-e2e/             End-to-end vertical slice fixtures
 packages/blast-compatibility/   Static compatibility scanning and census
+packages/blast-react-renderer/  React renderer adapter for scene transactions
 packages/blast-api/             V1 compatibility implementation
 packages/blast-runtime/         V1 runtime
 packages/blast-renderer/        V1 renderer
