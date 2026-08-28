@@ -135,14 +135,24 @@ The first extension-to-client vertical slice is complete, the corpus census
 (`compatibility/README.md`) justifies the adapter order, the first measured
 adapter surface runs end to end, bundled TSX extensions with literal
 `@raycast/api` imports load, and the support matrix (`compatibility/support-matrix.md`)
-runs real corpus fixtures in CI. Continue with the compatibility phase:
+runs real corpus fixtures in CI. The priority is now a measured coverage
+milestone: coverage means the share of corpus extensions that bundle and render
+through the current path, not the number of exported API names. The old corpus
+probe predates the latest adapter slices, so establish a current baseline
+before choosing an 80% target.
 
-1. extend the measured surface in matrix order: Form focus/blur callbacks and
-   shortcut objects; keep client toast timing/stacking in the client protocol;
-2. add third-party dependency policy (vendoring or installation) so
-   dependency-using corpus extensions can bundle;
-3. add a client-facing core protocol and daemon listener so the Electron
-   client can replace the test client.
+1. Re-probe the full corpus against the current adapter and record the actual
+   extension-level baseline and dominant blockers.
+2. Extend the compatibility surface in measured impact order, starting with
+   shortcut objects, `showHUD`, `open`, `confirmAlert`, and `Cache`; keep
+   client toast timing/stacking in the client protocol.
+3. Add third-party dependency policy (vendoring or installation) so
+   dependency-using corpus extensions can bundle.
+4. Re-probe after each compatibility group and update the support matrix; use
+   the resulting extension pass rate to decide whether the 80% milestone is
+   met.
+5. Add a client-facing core protocol and daemon listener so the Electron
+   client can replace the test client after the coverage boundary is stable.
 
 Keep WebSocket and remote execution as transport/provider additions. They do not
 require changing the session, extension contract, runtime, host, or core
