@@ -93,6 +93,15 @@ slice changes what is executable, what is trusted, or what should happen next.
 - Toasts support legacy show calls plus identified show/update/hide lifecycle
   messages, animated/success/failure styles, mutable fields, and primary or
   secondary actions addressed by validated `scene.event` IDs.
+- Action and action-group shortcut objects normalize into structured scene
+  values, including platform-specific Raycast shortcut unions; measured action
+  styles, `autoFocus`, and common keyboard shortcut constants are available.
+- `showHUD`, `open`, and `confirmAlert` cross explicit `hud.show`, `open.open`,
+  and `alert.confirm` capability requests; alert callbacks run only after a
+  validated boolean response.
+- `Cache` provides synchronous namespaced UTF-8 LRU behavior as a session-local
+  fallback. Its persistence-shaped `storageDirectory` remains a compatibility
+  value until a host cache capability exists.
 
 ## Trust boundaries already enforced
 
@@ -115,11 +124,11 @@ slice changes what is executable, what is trusted, or what should happen next.
 ## Intentionally missing
 
 - a persistent, watched catalog index and extension installation flows;
-- production bundle cache invalidation and externalization policy for
-  extensions with large or native npm dependency graphs;
+- full dependency provisioning, lockfile/audit policy, and native package
+  externalization for large npm graphs (the runtime now supports explicit
+  local or vendored dependency roots but never installs packages);
 - the remaining measured Raycast surface: Form focus/blur callbacks, client
-  toast timing/stacking, toast-action shortcut objects, general shortcut
-  objects, and `Cache`;
+  toast timing/stacking, and broader desktop APIs;
 - a client-facing core protocol, daemon listener, and desktop rendering of
   scenes (the deterministic test client stands in today);
 - capability manifest declarations, real operating-system providers, audit
@@ -132,26 +141,23 @@ slice changes what is executable, what is trusted, or what should happen next.
 ## Recommended continuation
 
 The first extension-to-client vertical slice is complete, the corpus census
-(`compatibility/README.md`) justifies the adapter order, the first measured
-adapter surface runs end to end, bundled TSX extensions with literal
-`@raycast/api` imports load, and the support matrix (`compatibility/support-matrix.md`)
-runs real corpus fixtures in CI. The priority is now a measured coverage
-milestone: coverage means the share of corpus extensions that bundle and render
-through the current path, not the number of exported API names. The old corpus
-probe predates the latest adapter slices, so establish a current baseline
-before choosing an 80% target.
+(`compatibility/README.md`) justified the adapter order, and the current
+support matrix (`compatibility/support-matrix.md`) now records a full baseline
+and a post-slice probe. The priority remains measured extension coverage:
+coverage means the share of corpus extensions that bundle and render through
+the current path, not the number of exported API names. The shortcut,
+imperative, cache, and dependency-policy slices are complete, but the measured
+80% target is not yet met; the next work should address the dominant remaining
+API and dependency blockers using the same probe.
 
-1. Re-probe the full corpus against the current adapter and record the actual
-   extension-level baseline and dominant blockers.
-2. Extend the compatibility surface in measured impact order, starting with
-   shortcut objects, `showHUD`, `open`, `confirmAlert`, and `Cache`; keep
-   client toast timing/stacking in the client protocol.
-3. Add third-party dependency policy (vendoring or installation) so
-   dependency-using corpus extensions can bundle.
-4. Re-probe after each compatibility group and update the support matrix; use
-   the resulting extension pass rate to decide whether the 80% milestone is
-   met.
-5. Add a client-facing core protocol and daemon listener so the Electron
+1. Expand the next measured blocker group (`LaunchProps`, window/navigation
+   functions, `Image`, `Grid`, and `MenuBarExtra`) with deterministic fixtures.
+2. Provision an audited, pinned vendor set or an explicit installation phase
+   for the remaining third-party dependency graph; keep installation outside
+   extension execution.
+3. Re-probe after each group and update the support matrix against the 80%
+   extension-pass milestone.
+4. Add a client-facing core protocol and daemon listener so the Electron
    client can replace the test client after the coverage boundary is stable.
 
 Keep WebSocket and remote execution as transport/provider additions. They do not

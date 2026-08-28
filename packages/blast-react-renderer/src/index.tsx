@@ -8,6 +8,7 @@ import type {
   SceneNodeType,
   SceneOperation,
   ScenePropValue,
+  SceneShortcut,
   SceneTransaction,
   SceneTransactionSink,
 } from "@blastlauncher/scene";
@@ -412,13 +413,13 @@ export function createSceneRenderer(options: SceneRendererOptions): SceneRendere
       }
       if (!isScenePropValue(value)) {
         throw contractViolationError(
-          new SceneRendererError("invalid_prop", "Expected a string, number, boolean, or string array property value", {
+          new SceneRendererError("invalid_prop", "Expected a JSON-compatible scene property value", {
             nodeId: node.id,
             property: key,
           }),
         );
       }
-      nextSceneProps[key] = Array.isArray(value) ? [...value] : value;
+      nextSceneProps[key] = cloneSceneProp(value);
     }
 
     for (const [key, before] of Object.entries(node.props)) {
@@ -638,5 +639,28 @@ function sameSceneProp(before: ScenePropValue, after: ScenePropValue): boolean {
       before.every((value, index) => value === after[index])
     );
   }
+  if (isSceneShortcut(before) || isSceneShortcut(after)) {
+    return (
+      isSceneShortcut(before) &&
+      isSceneShortcut(after) &&
+      before.key === after.key &&
+      before.modifiers.length === after.modifiers.length &&
+      before.modifiers.every((modifier, index) => modifier === after.modifiers[index])
+    );
+  }
   return before === after;
+}
+
+function cloneSceneProp(value: ScenePropValue): ScenePropValue {
+  if (Array.isArray(value)) {
+    return [...value];
+  }
+  if (isSceneShortcut(value)) {
+    return { key: value.key, modifiers: [...value.modifiers] } satisfies SceneShortcut;
+  }
+  return value;
+}
+
+function isSceneShortcut(value: ScenePropValue): value is SceneShortcut {
+  return typeof value === "object" && !Array.isArray(value) && value !== null && "key" in value && "modifiers" in value;
 }

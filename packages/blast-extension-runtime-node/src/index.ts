@@ -282,4 +282,8 @@ function resolveTransport(options: NodeExtensionBootstrapOptions): ProtocolTrans
   return options.transport ?? createProcessStdioTransport();
 }
 
-export { createBundlingEntrypointLoader, type BundlingEntrypointLoaderOptions } from "./bundler.js";
+export {
+  createBundlingEntrypointLoader,
+  type BundlingEntrypointLoaderOptions,
+  type ExtensionDependencyPolicy,
+} from "./bundler.js";

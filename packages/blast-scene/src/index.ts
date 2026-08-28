@@ -33,7 +33,16 @@ export const SCENE_NODE_TYPES = [
 
 export type SceneNodeType = (typeof SCENE_NODE_TYPES)[number];
 
-export type ScenePropValue = string | number | boolean | readonly string[];
+/**
+ * A normalized keyboard shortcut. Keeping this structured lets clients
+ * render platform-specific shortcut labels without parsing display text.
+ */
+export interface SceneShortcut {
+  readonly modifiers: readonly string[];
+  readonly key: string;
+}
+
+export type ScenePropValue = string | number | boolean | readonly string[] | SceneShortcut;
 
 export interface SceneNode {
   readonly id: string;
@@ -122,9 +131,9 @@ export function createCollectingSceneSink(): SceneTransactionSink & {
 const PROP_WHITELIST: Record<SceneNodeType, readonly string[]> = {
   list: ["navigationTitle", "searchBarPlaceholder", "isLoading"],
   "list-item": ["title", "subtitle", "icon", "iconTintColor"],
-  action: ["title", "onAction", "icon", "iconTintColor"],
+  action: ["title", "onAction", "icon", "iconTintColor", "shortcut", "style", "autoFocus"],
   detail: ["markdown", "navigationTitle"],
-  "action-group": ["title"],
+  "action-group": ["title", "icon", "iconTintColor", "shortcut", "autoFocus"],
   form: ["navigationTitle", "isLoading", "enableDrafts"],
   "form-text-field": [
     "id",
@@ -264,14 +273,28 @@ const REQUIRED_PROPS: Record<SceneNodeType, readonly string[]> = {
   "form-separator": [],
 };
 
-type ScenePropType = "string" | "boolean" | "number" | "string[]";
+type ScenePropType = "string" | "boolean" | "number" | "string[]" | "shortcut";
 
 const PROP_TYPES: Record<SceneNodeType, Readonly<Record<string, ScenePropType>>> = {
   list: { navigationTitle: "string", searchBarPlaceholder: "string", isLoading: "boolean" },
   "list-item": { title: "string", subtitle: "string", icon: "string", iconTintColor: "string" },
-  action: { title: "string", onAction: "string", icon: "string", iconTintColor: "string" },
+  action: {
+    title: "string",
+    onAction: "string",
+    icon: "string",
+    iconTintColor: "string",
+    shortcut: "shortcut",
+    style: "string",
+    autoFocus: "boolean",
+  },
   detail: { markdown: "string", navigationTitle: "string" },
-  "action-group": { title: "string" },
+  "action-group": {
+    title: "string",
+    icon: "string",
+    iconTintColor: "string",
+    shortcut: "shortcut",
+    autoFocus: "boolean",
+  },
   form: { navigationTitle: "string", isLoading: "boolean", enableDrafts: "boolean" },
   "form-text-field": {
     id: "string",
@@ -489,6 +512,7 @@ export type ToastOperation = (typeof TOAST_OPERATIONS)[number];
 export interface ToastActionPayload {
   readonly title: string;
   readonly eventId: string;
+  readonly shortcut?: SceneShortcut;
 }
 
 export interface ToastPayload {
@@ -571,6 +595,9 @@ function validateToastActionPayload(value: unknown, path: string, issues: Valida
   }
   validateNonEmptyString(value.title, `${path}.title`, issues);
   validateNonEmptyString(value.eventId, `${path}.eventId`, issues);
+  if (value.shortcut !== undefined && !isSceneShortcut(value.shortcut)) {
+    issues.push({ path: `${path}.shortcut`, message: "Expected a normalized shortcut object" });
+  }
 }
 
 export function validateSceneEventPayload(value: unknown): ValidationResult<SceneEventPayload> {
@@ -699,7 +726,7 @@ function validateUpdateProps(value: unknown, issues: ValidationIssue[]): void {
 
 function validatePropValue(value: unknown, path: string, issues: ValidationIssue[]): void {
   if (!isScenePropValue(value)) {
-    issues.push({ path, message: "Expected a string, number, boolean, or string array property value" });
+    issues.push({ path, message: "Expected a JSON-compatible scene property value" });
   }
 }
 
@@ -998,18 +1025,37 @@ function isSceneFormValue(value: unknown): value is SceneFormValue {
 }
 
 export function isScenePropValue(value: unknown): value is ScenePropValue {
-  return typeof value === "string" || typeof value === "number" || typeof value === "boolean" || isStringArray(value);
+  return (
+    typeof value === "string" ||
+    typeof value === "number" ||
+    typeof value === "boolean" ||
+    isStringArray(value) ||
+    isSceneShortcut(value)
+  );
 }
 
 function isPropType(value: unknown, expected: ScenePropType): boolean {
   if (expected === "string[]") {
     return isStringArray(value);
   }
+  if (expected === "shortcut") {
+    return isSceneShortcut(value);
+  }
   return typeof value === expected;
 }
 
 function isStringArray(value: unknown): value is readonly string[] {
   return Array.isArray(value) && value.every((item) => typeof item === "string");
+}
+
+export function isSceneShortcut(value: unknown): value is SceneShortcut {
+  return (
+    isRecord(value) &&
+    Array.isArray(value.modifiers) &&
+    value.modifiers.every((modifier) => typeof modifier === "string" && modifier.length > 0) &&
+    typeof value.key === "string" &&
+    value.key.length > 0
+  );
 }
 
 function isInteger(value: unknown): value is number {

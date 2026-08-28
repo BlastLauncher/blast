@@ -12,31 +12,39 @@ sources, so matrix runs are hermetic and deterministic.
 - reproducible corpus probe: `packages/blast-e2e/scripts/probe-corpus.mjs`
 - fixture set: `packages/blast-e2e/test/fixtures/real/`
 
-## Current baseline probe
+## Corpus probe results
 
-The current probe uses the pinned corpus revision and the source-only
-checkout used for runtime execution. It selects the first command declared
-with `mode: "view"`, falling back to the first command whose mode is unset;
-extensions with only `no-view` or `menu-bar` commands are counted but are not
-renderable by the scene contract. The complete deterministic result, including
-one result per extension, is [`runtime-probe-baseline.json`](./runtime-probe-baseline.json).
+The probe uses the pinned corpus revision and the source-only checkout used
+for runtime execution. It selects the first command declared with `mode:
+"view"`, falling back to the first command whose mode is unset; extensions
+with only `no-view` or `menu-bar` commands are counted but are not renderable
+by the scene contract. The pre-slice result is preserved in
+[`runtime-probe-baseline.json`](./runtime-probe-baseline.json). The current
+post-slice result, including one result per extension, is
+[`runtime-probe-post-slice.json`](./runtime-probe-post-slice.json).
 
-| Outcome                        | Extensions | Share |
-| ------------------------------ | ---------: | ----: |
-| third-party dependency failure |      2,361 | 73.1% |
-| not renderable command mode    |        358 | 11.1% |
-| other process/startup failure  |        432 | 13.4% |
-| structured compatibility error |         23 |  0.7% |
-| renders a scene end to end     |         54 |  1.7% |
-| no entrypoint found            |          3 |  0.1% |
+The post-slice run supplies the workspace's installed packages through the
+explicit `vendored` dependency policy. It does not install the corpus or run
+package-manager scripts; unavailable packages remain dependency failures.
 
-Reading: the extension pass rate is 54/3,231 (1.67%); among the 2,873
-extensions with a selected renderable command it is 54/2,873 (1.88%). Static
-API blockers on non-rendering extensions are led by `showHUD` (829), `open`
-(820), `confirmAlert` (747), `Alert` (621), `Keyboard` (587), and `Cache`
-(291). The largest operational blocker is missing third-party packages, so
-the next implementation group addresses both the high-impact adapter APIs and
-the dependency policy that makes those probes meaningful.
+| Outcome                        | Pre-slice | Post-slice | Change |
+| ------------------------------ | --------: | ---------: | -----: |
+| third-party dependency failure |     2,361 |      1,266 | -1,095 |
+| not renderable command mode    |       358 |        358 |      0 |
+| other process/startup failure  |       432 |      1,279 |   +847 |
+| structured compatibility error |        23 |         82 |    +59 |
+| renders a scene end to end     |        54 |        243 |   +189 |
+| no entrypoint found            |         3 |          3 |      0 |
+
+Reading: the post-slice extension pass rate is 243/3,231 (7.52%); among the
+2,873 extensions with a selected renderable command it is 243/2,873 (8.46%).
+The high-impact shortcut, HUD, open, alert, and cache blockers are no longer
+in the static list. Remaining static blockers on non-rendering extensions are
+led by `LaunchProps` (552), `closeMainWindow` (533), `popToRoot` (507),
+`openExtensionPreferences` (444), `Image` (422), `launchCommand` (299), and
+`Grid` (292). The vendor root removes 1,095 dependency failures, but 1,266
+remain; the next coverage group should combine audited dependency provisioning
+with the dominant API blockers.
 
 ## Committed fixtures
 
@@ -67,15 +75,19 @@ structured `unsupported_api` error and a non-zero exit.
 
 ## Known gaps surfaced by the matrix
 
-- action groups, `ActionPanel.Section`, submenus, and tinted icons are
-  measured; `Action.OpenInBrowser` and shortcut objects remain unsupported;
-- toast lifecycle, mutable fields, and action callbacks are measured; client
-  toast timing/stacking and toast-action shortcut objects remain unsupported;
+- action groups, `ActionPanel.Section`, submenus, tinted icons, shortcut
+  objects, action styles, and `autoFocus` are measured; `Action.OpenInBrowser`
+  and broader action helpers remain unsupported;
+- toast lifecycle, mutable fields, action callbacks, and toast-action shortcut
+  objects are measured; client toast timing/stacking remains unsupported;
 - Form focus/blur callbacks;
 - `useNavigation` and `Action.Push` (28.8% of extensions),
   `LocalStorage`/`Cache` (26.5%), and `environment` (19.7%) are measured in
   the adapter but still have limited fixture coverage;
-- third-party npm dependency resolution (the baseline records these as
-  `third-party-dependency`; the policy slice is next).
+- `showHUD`, `open`, and `confirmAlert` are measured through capability
+  requests, but production host providers and consent policy are still absent;
+- third-party npm dependency availability (the post-slice report records these
+  as `third-party-dependency`; vendored roots are explicit but not yet a full
+  audited corpus dependency set).
 
 These are ordered for the next surface increments in `status.md`.

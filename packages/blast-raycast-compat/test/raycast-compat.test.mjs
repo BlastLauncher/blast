@@ -5,19 +5,27 @@ import { createInMemoryLocalStorageProvider } from "@blastlauncher/capability";
 import {
   Action,
   ActionPanel,
+  ActionStyle,
+  Alert,
+  Cache,
   Clipboard,
   Color,
   CompatibilityError,
   Detail,
   Form,
   Icon,
+  Keyboard,
   List,
   LocalStorage,
+  PopToRootType,
   Toast,
   configureRaycastCompat,
+  confirmAlert,
   environment,
   getPreferenceValues,
+  open,
   renderCommand,
+  showHUD,
   showToast,
 } from "../dist/index.js";
 import { createElement } from "react";
@@ -30,7 +38,7 @@ function stripToastId(payload) {
   return withoutId;
 }
 
-function createContext({ grantClipboard = true, storageProvider = null } = {}) {
+function createContext({ grantClipboard = true, storageProvider = null, capabilityValues = {} } = {}) {
   const transactions = [];
   const capabilityRequests = [];
   const eventHandlers = [];
@@ -74,6 +82,10 @@ function createContext({ grantClipboard = true, storageProvider = null } = {}) {
               arguments: request.arguments ?? {},
             })
             .then((value) => (value === undefined ? { outcome: "succeeded" } : { outcome: "succeeded", value }));
+        }
+        const capabilityKey = `${request.capability}.${request.operation}`;
+        if (Object.hasOwn(capabilityValues, capabilityKey)) {
+          return Promise.resolve({ outcome: "succeeded", value: capabilityValues[capabilityKey] });
         }
         return Promise.resolve(
           request.capability === "clipboard"
@@ -474,28 +486,6 @@ test("rejects form submit values with a mismatched field type", async () => {
 test("rejects unmeasured API surface with structured errors", (context) => {
   const probe = createContext();
 
-  context.test("Action shortcut prop", () => {
-    assert.throws(
-      () =>
-        renderCommand(probe.context, () =>
-          createElement(
-            List,
-            null,
-            createElement(
-              List.Item,
-              { title: "First" },
-              createElement(
-                ActionPanel,
-                null,
-                createElement(Action, { title: "Run", shortcut: { modifiers: ["cmd"] } }),
-              ),
-            ),
-          ),
-        ),
-      (error) => error instanceof CompatibilityError && /Action shortcut/.test(error.message),
-    );
-  });
-
   context.test("non-action List.Item children", () => {
     assert.throws(
       () =>
@@ -523,6 +513,158 @@ test("rejects unmeasured API surface with structured errors", (context) => {
       (error) => error instanceof CompatibilityError,
     );
   });
+});
+
+test("renders structured shortcuts and action styles", async () => {
+  const probe = createContext();
+
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      List,
+      null,
+      createElement(
+        List.Item,
+        { title: "First" },
+        createElement(
+          ActionPanel,
+          null,
+          createElement(Action, {
+            title: "Run",
+            shortcut: Keyboard.Shortcut.Common.Copy,
+            style: ActionStyle.Destructive,
+            autoFocus: true,
+          }),
+        ),
+      ),
+    ),
+  );
+  await renderer.flush();
+
+  const action = probe.transactions[0].operations[0].root.children[0].children[0].children[0];
+  assert.deepEqual(action.props.shortcut, { modifiers: ["cmd"], key: "c" });
+  assert.equal(action.props.style, "destructive");
+  assert.equal(action.props.autoFocus, true);
+});
+
+test("serializes platform-specific shortcuts for the active platform", async () => {
+  const probe = createContext();
+  probe.context.platform = "darwin";
+
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      List,
+      null,
+      createElement(
+        List.Item,
+        { title: "First" },
+        createElement(
+          ActionPanel,
+          null,
+          createElement(Action, {
+            title: "Run",
+            shortcut: {
+              macOS: { modifiers: ["cmd"], key: "m" },
+              Windows: { modifiers: ["ctrl"], key: "m" },
+            },
+          }),
+        ),
+      ),
+    ),
+  );
+  await renderer.flush();
+
+  const action = probe.transactions[0].operations[0].root.children[0].children[0].children[0];
+  assert.deepEqual(action.props.shortcut, { modifiers: ["cmd"], key: "m" });
+});
+
+test("routes HUD, open, and alert APIs through capabilities", async () => {
+  const probe = createContext({ capabilityValues: { "alert.confirm": true } });
+  configureRaycastCompat(probe.context);
+  const calls = [];
+
+  await showHUD("Saved", { clearRootSearch: true, popToRootType: PopToRootType.Immediate });
+  await open("https://example.com", { bundleId: "com.example.Browser" });
+  const confirmed = await confirmAlert({
+    title: "Delete item?",
+    message: "This cannot be undone.",
+    icon: Icon.Trash,
+    rememberUserChoice: true,
+    primaryAction: {
+      title: "Delete",
+      style: Alert.ActionStyle.Destructive,
+      onAction: () => calls.push("primary"),
+    },
+    dismissAction: {
+      title: "Cancel",
+      style: Alert.ActionStyle.Cancel,
+      onAction: () => calls.push("dismiss"),
+    },
+  });
+
+  assert.equal(confirmed, true);
+  assert.deepEqual(calls, ["primary"]);
+  assert.deepEqual(probe.capabilityRequests, [
+    {
+      capability: "hud",
+      operation: "show",
+      arguments: { title: "Saved", clearRootSearch: true, popToRootType: "immediate" },
+    },
+    {
+      capability: "open",
+      operation: "open",
+      arguments: { target: "https://example.com", application: "com.example.Browser" },
+    },
+    {
+      capability: "alert",
+      operation: "confirm",
+      arguments: {
+        title: "Delete item?",
+        message: "This cannot be undone.",
+        icon: "trash",
+        rememberUserChoice: true,
+        primaryTitle: "Delete",
+        primaryStyle: "destructive",
+        dismissTitle: "Cancel",
+        dismissStyle: "cancel",
+      },
+    },
+  ]);
+});
+
+test("provides a session-local namespaced LRU Cache", () => {
+  const probe = createContext();
+  configureRaycastCompat(probe.context);
+  const cache = new Cache({ namespace: "cache-test", capacity: 5 });
+  cache.clear({ notifySubscribers: false });
+  const events = [];
+  const unsubscribe = cache.subscribe((key, data) => events.push([key, data]));
+
+  cache.set("a", "123");
+  cache.set("b", "12");
+  assert.equal(cache.get("a"), "123");
+  cache.set("c", "1");
+
+  assert.equal(cache.has("a"), true);
+  assert.equal(cache.has("b"), false);
+  assert.equal(cache.get("c"), "1");
+  assert.equal(cache.isEmpty, false);
+  assert.deepEqual(events, [
+    ["a", "123"],
+    ["b", "12"],
+    ["b", undefined],
+    ["c", "1"],
+  ]);
+
+  const sameNamespace = new Cache({ namespace: "cache-test" });
+  assert.equal(sameNamespace.get("a"), "123");
+  assert.equal(sameNamespace.storageDirectory, "memory://blast-cache/fixture.extension/cache-test");
+  assert.equal(cache.remove("a"), true);
+  assert.equal(cache.remove("missing"), false);
+  unsubscribe();
+  cache.clear();
+  assert.equal(cache.isEmpty, true);
+  assert.equal(Cache.STORAGE_DIRECTORY_NAME, "cache");
+  assert.equal(Cache.DEFAULT_CAPACITY, 10 * 1024 * 1024);
 });
 
 test("shows toasts through the configured context", async () => {
@@ -583,22 +725,20 @@ test("routes toast actions and releases them on hide", async () => {
   );
 });
 
-test("rejects toast action shortcuts as unmeasured surface", () => {
+test("serializes toast action shortcuts", async () => {
   const probe = createContext();
   configureRaycastCompat(probe.context);
 
-  assert.throws(
-    () =>
-      showToast({
-        title: "Ready",
-        primaryAction: {
-          title: "Retry",
-          shortcut: { modifiers: ["cmd"], key: "r" },
-          onAction,
-        },
-      }),
-    (error) => error instanceof CompatibilityError && /Toast.primaryAction shortcut/.test(error.message),
-  );
+  await showToast({
+    title: "Ready",
+    primaryAction: {
+      title: "Retry",
+      shortcut: { modifiers: ["cmd"], key: "r" },
+      onAction,
+    },
+  });
+
+  assert.deepEqual(probe.toasts[0].primaryAction.shortcut, { modifiers: ["cmd"], key: "r" });
 });
 
 test("updates mutable toast fields while shown", async () => {

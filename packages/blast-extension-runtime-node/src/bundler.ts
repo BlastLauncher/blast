@@ -26,6 +26,17 @@ export interface BundlingEntrypointLoaderOptions {
    * JSX runtime entries to the launcher's copy.
    */
   readonly reactModulePath?: string;
+  /**
+   * Controls where third-party packages may come from. The runtime never
+   * invokes a package manager: `local` uses the extension's installed graph,
+   * while `vendored` adds explicit, launcher-provisioned package roots.
+   */
+  readonly dependencyPolicy?: ExtensionDependencyPolicy;
+}
+
+export interface ExtensionDependencyPolicy {
+  readonly strategy?: "local" | "vendored";
+  readonly vendorRoots?: readonly string[];
 }
 
 /**
@@ -44,11 +55,22 @@ export function createBundlingEntrypointLoader(
   const alias: Record<string, string> = { ...options.alias };
   const reactModulePath = options.reactModulePath;
   const reactPlugin = reactModulePath === undefined ? undefined : createReactExternalPlugin(reactModulePath);
+  const dependencyPolicy = normalizeDependencyPolicy(options.dependencyPolicy);
 
   return async (entrypoint, signal) => {
     signal?.throwIfAborted();
     const cacheDirectory = await readyCacheDirectory;
-    const hash = createHash("sha256").update(entrypoint).digest("hex").slice(0, 16);
+    const hash = createHash("sha256")
+      .update(
+        JSON.stringify({
+          alias,
+          dependencyPolicy,
+          entrypoint,
+          reactModulePath,
+        }),
+      )
+      .digest("hex")
+      .slice(0, 16);
     const bundlePath = path.join(cacheDirectory, `${hash}.cjs`);
 
     try {
@@ -61,6 +83,7 @@ export function createBundlingEntrypointLoader(
         jsx: "automatic",
         outfile: bundlePath,
         alias: { ...alias },
+        ...(dependencyPolicy.vendorRoots.length === 0 ? {} : { nodePaths: [...dependencyPolicy.vendorRoots] }),
         plugins: reactPlugin === undefined ? [] : [reactPlugin],
         logLevel: "silent",
         sourcemap: false,
@@ -96,6 +119,39 @@ export function createBundlingEntrypointLoader(
     }
     return namespace;
   };
+}
+
+function normalizeDependencyPolicy(policy: ExtensionDependencyPolicy | undefined): {
+  readonly strategy: "local" | "vendored";
+  readonly vendorRoots: readonly string[];
+} {
+  if (policy === undefined) {
+    return { strategy: "local", vendorRoots: [] };
+  }
+  const strategy = policy.strategy ?? "local";
+  const vendorRoots = policy.vendorRoots ?? [];
+  if (strategy !== "local" && strategy !== "vendored") {
+    throw new ExtensionEntrypointError(
+      "dependency_policy_invalid",
+      `Unknown extension dependency policy strategy: ${String(strategy)}`,
+    );
+  }
+  if (strategy === "local" && vendorRoots.length > 0) {
+    throw new ExtensionEntrypointError(
+      "dependency_policy_invalid",
+      "Local extension dependency policy cannot declare vendor roots",
+    );
+  }
+  for (const root of vendorRoots) {
+    if (typeof root !== "string" || !path.isAbsolute(root)) {
+      throw new ExtensionEntrypointError(
+        "dependency_policy_invalid",
+        "Vendored dependency roots must be absolute paths",
+        { root },
+      );
+    }
+  }
+  return { strategy, vendorRoots: vendorRoots.map((root) => path.resolve(root)) };
 }
 
 async function prepareCacheDirectory(directory: string): Promise<string> {

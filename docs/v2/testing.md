@@ -125,8 +125,10 @@ field values (including ISO date and string-array wire conversions), event
 routing, and toast show/update/hide payloads. Toast action event IDs are
 dispatched through the existing scene-event path and are released on hide.
 Capability tests cover brokered clipboard writes and reads, denied-write
-errors, and unconfigured context errors. Unmeasured surface (shortcuts, Form
-focus/blur callbacks, and unsupported action children) raises structured
+errors, imperative HUD/open/alert requests and responses, cache eviction, and
+unconfigured context errors. Shortcut normalization and structured scene
+values are tested at the scene and renderer boundaries. Unmeasured surface
+(Form focus/blur callbacks and unsupported action children) raises structured
 compatibility errors.
 
 ### End-to-end fixtures

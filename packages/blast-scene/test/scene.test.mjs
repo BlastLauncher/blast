@@ -120,6 +120,34 @@ test("validates scene transaction messages", (context) => {
     );
   });
 
+  context.test("accepts structured action shortcuts", () => {
+    const result = validateSceneTransactionMessage(
+      envelope(
+        SCENE_TRANSACTION_MESSAGE,
+        transaction([
+          {
+            type: "snapshot",
+            root: list("root", [
+              listItem("item-1", "Item", [
+                {
+                  id: "action-1",
+                  type: "action",
+                  props: {
+                    title: "Run",
+                    onAction: "event-action",
+                    shortcut: { modifiers: ["cmd", "shift"], key: "r" },
+                  },
+                  children: [],
+                },
+              ]),
+            ]),
+          },
+        ]),
+      ),
+    );
+    assert.equal(result.ok, true);
+  });
+
   context.test("accepts measured form nodes", () => {
     const result = validateSceneTransactionMessage(
       envelope(
@@ -249,7 +277,11 @@ test("validates toast lifecycle payloads", (context) => {
         operation: "update",
         title: "Uploading",
         style: "animated",
-        primaryAction: { title: "Cancel", eventId: "toast-event-1" },
+        primaryAction: {
+          title: "Cancel",
+          eventId: "toast-event-1",
+          shortcut: { modifiers: ["cmd"], key: "w" },
+        },
       }).ok,
       true,
     );

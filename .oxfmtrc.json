@@ -8,6 +8,7 @@
     "**/node_modules/**",
     "**/out/**",
     "**/.webpack/**",
-    "**/test/fixtures/**"
+    "**/test/fixtures/**",
+    "docs/v2/compatibility/runtime-probe*.json"
   ]
 }

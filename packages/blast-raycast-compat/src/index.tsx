@@ -17,6 +17,7 @@ import {
 import type {
   SceneEventPayload,
   SceneFormValue,
+  SceneShortcut,
   SceneTransaction,
   ToastActionPayload,
   ToastOperation,
@@ -72,6 +73,7 @@ interface RaycastCompatGlobals {
   context?: RaycastCompatContext;
   renderer?: SceneRenderer;
   toastEvents?: Map<string, () => void>;
+  cacheStores?: Map<string, CacheState>;
 }
 
 const compatGlobals: RaycastCompatGlobals = (() => {
@@ -256,6 +258,9 @@ export interface ActionPanelProps {
 
 export interface SubmenuProps {
   readonly title: string;
+  readonly icon?: IconLike;
+  readonly shortcut?: ShortcutLike;
+  readonly autoFocus?: boolean;
   readonly children?: ReactNode;
 }
 
@@ -263,8 +268,9 @@ export interface ActionProps {
   readonly title: string;
   readonly onAction?: (event?: SceneEventPayload) => void;
   readonly icon?: IconLike;
-  readonly shortcut?: unknown;
-  readonly style?: unknown;
+  readonly shortcut?: ShortcutLike;
+  readonly style?: ActionStyleLike;
+  readonly autoFocus?: boolean;
 }
 
 export interface CopyToClipboardProps {
@@ -272,6 +278,9 @@ export interface CopyToClipboardProps {
   readonly content: string;
   readonly onCopy?: () => void;
   readonly icon?: IconLike;
+  readonly shortcut?: ShortcutLike;
+  readonly style?: ActionStyleLike;
+  readonly autoFocus?: boolean;
 }
 
 export interface IconObject {
@@ -280,6 +289,150 @@ export interface IconObject {
 }
 
 export type IconLike = string | IconObject;
+
+export type KeyModifier = "cmd" | "ctrl" | "opt" | "shift" | "alt" | "windows";
+export type KeyEquivalent = string;
+export type ShortcutLike =
+  | {
+      readonly modifiers: readonly KeyModifier[];
+      readonly key: KeyEquivalent;
+    }
+  | {
+      readonly macOS: {
+        readonly modifiers: readonly KeyModifier[];
+        readonly key: KeyEquivalent;
+      };
+      readonly Windows: {
+        readonly modifiers: readonly KeyModifier[];
+        readonly key: KeyEquivalent;
+      };
+      readonly windows?: {
+        readonly modifiers: readonly KeyModifier[];
+        readonly key: KeyEquivalent;
+      };
+    };
+export type KeyboardShortcut = ShortcutLike;
+export type ActionStyleLike = "regular" | "destructive";
+export type AlertActionStyleLike = "default" | "cancel" | "destructive";
+
+export interface AlertActionOptions {
+  readonly title: string;
+  readonly style?: AlertActionStyleLike;
+  readonly onAction?: () => void;
+}
+
+export interface AlertOptions {
+  readonly title: string;
+  readonly icon?: IconLike;
+  readonly message?: string;
+  readonly primaryAction?: AlertActionOptions;
+  readonly dismissAction?: AlertActionOptions;
+  readonly rememberUserChoice?: boolean;
+}
+
+export interface ApplicationLike {
+  readonly name?: string;
+  readonly localizedName?: string;
+  readonly path?: string;
+  readonly bundleId?: string;
+  readonly windowsAppId?: string;
+}
+
+export interface CacheOptions {
+  /** Separates cache entries while keeping the default shared per extension. */
+  readonly namespace?: string;
+  /** Retained for source compatibility; V2 currently exposes session-local storage. */
+  readonly directory?: string;
+  /** Maximum UTF-8 byte size before least-recently-used entries are evicted. */
+  readonly capacity?: number;
+}
+
+export type CacheSubscriber = (key: string | undefined, data: string | undefined) => void;
+export type CacheSubscription = () => void;
+
+interface CacheState {
+  readonly storage: Map<string, string>;
+  readonly subscribers: Set<CacheSubscriber>;
+}
+
+export const Keyboard = {
+  Shortcut: {
+    Common: {
+      Copy: { modifiers: ["cmd"], key: "c" },
+      CopyDeeplink: { modifiers: ["cmd", "shift"], key: "c" },
+      CopyName: { modifiers: ["cmd", "shift"], key: "n" },
+      CopyPath: { modifiers: ["cmd", "shift"], key: "p" },
+      Save: { modifiers: ["cmd"], key: "s" },
+      Duplicate: { modifiers: ["cmd"], key: "d" },
+      Edit: { modifiers: ["cmd"], key: "e" },
+      MoveDown: { modifiers: ["cmd"], key: "arrowDown" },
+      MoveUp: { modifiers: ["cmd"], key: "arrowUp" },
+      New: { modifiers: ["cmd"], key: "n" },
+      Open: { modifiers: ["cmd"], key: "o" },
+      OpenWith: { modifiers: ["cmd", "shift"], key: "o" },
+      Pin: { modifiers: ["cmd"], key: "p" },
+      Refresh: { modifiers: ["cmd"], key: "r" },
+      Remove: { modifiers: ["cmd"], key: "backspace" },
+      RemoveAll: { modifiers: ["cmd", "shift"], key: "backspace" },
+      ToggleQuickLook: { modifiers: [], key: "space" },
+    },
+  },
+} as const;
+
+export const PopToRootType = {
+  Default: "default",
+  Immediate: "immediate",
+  Suspended: "suspended",
+} as const;
+
+export type PopToRootType = (typeof PopToRootType)[keyof typeof PopToRootType];
+
+export const Alert = {
+  ActionStyle: {
+    Default: "default",
+    Cancel: "cancel",
+    Destructive: "destructive",
+  },
+} as const;
+
+export const ActionStyle = {
+  Regular: "regular",
+  Destructive: "destructive",
+} as const;
+
+/**
+ * These placeholders keep widely used utility packages loadable when they
+ * import the broader Raycast namespace. Calling an unmeasured API still fails
+ * loudly at the point of use; the placeholders are not compatibility support.
+ */
+function UnsupportedComponent(): ReactElement {
+  return unsupported("An unmeasured component API");
+}
+
+export const MenuBarExtra = Object.assign(UnsupportedComponent, {
+  Item: UnsupportedComponent,
+  Separator: UnsupportedComponent,
+});
+
+export const AI = {
+  async ask(): Promise<never> {
+    return unsupported("AI.ask");
+  },
+};
+
+class UnsupportedOAuthClient {
+  constructor() {
+    unsupported("OAuth.PKCEClient");
+  }
+}
+
+export const OAuth = {
+  PKCEClient: UnsupportedOAuthClient,
+  RedirectMethod: {
+    Web: "web",
+    AppURI: "app-uri",
+  },
+} as const;
 
 export type FormValue = string | boolean | null | string[] | Date;
 export type FormValues = Readonly<Record<string, FormValue>>;
@@ -376,8 +529,8 @@ export interface SeparatorProps {}
 export interface SubmitFormProps<T extends FormValues = FormValues> {
   readonly title?: string;
   readonly icon?: IconLike;
-  readonly shortcut?: unknown;
-  readonly style?: unknown;
+  readonly shortcut?: ShortcutLike;
+  readonly style?: ActionStyleLike;
   readonly onSubmit?: (values: T) => void | boolean | Promise<void | boolean>;
 }
 
@@ -388,7 +541,7 @@ function unsupported(what: string, details?: unknown): never {
 function serializeIcon(
   icon: IconLike | undefined,
   where: string,
-): { icon?: string; iconTintColor?: string } | undefined {
+): { icon: string; iconTintColor?: string } | undefined {
   if (icon === undefined) {
     return undefined;
   }
@@ -415,6 +568,69 @@ function serializeTintColor(tintColor: unknown, where: string): string {
     return tintColor;
   }
   unsupported(`A tint color in ${where}`, { tintColor });
+}
+
+const SHORTCUT_MODIFIERS = new Set<KeyModifier>(["cmd", "ctrl", "opt", "shift", "alt", "windows"]);
+
+/**
+ * Normalizes Raycast's keyboard shortcut union into the structured scene
+ * representation. The platform-specific form is selected at render time so
+ * the client never has to understand Raycast's deprecated `windows` alias.
+ */
+function serializeShortcut(shortcut: unknown, where: string): SceneShortcut | undefined {
+  if (shortcut === undefined || shortcut === null) {
+    return undefined;
+  }
+  if (!isRecord(shortcut)) {
+    unsupported(`A shortcut in ${where}`, { shortcut });
+  }
+
+  const context = requireContext();
+  const selected =
+    "modifiers" in shortcut
+      ? shortcut
+      : context.platform === "darwin"
+        ? (shortcut["macOS"] ?? shortcut["Windows"] ?? shortcut["windows"])
+        : (shortcut["Windows"] ?? shortcut["windows"] ?? shortcut["macOS"]);
+  if (!isRecord(selected) || !Array.isArray(selected.modifiers) || typeof selected.key !== "string") {
+    unsupported(`A shortcut in ${where}`, { shortcut });
+  }
+  const rawModifiers = selected.modifiers;
+  const key = selected.key;
+  if (!Array.isArray(rawModifiers) || typeof key !== "string") {
+    unsupported(`A shortcut in ${where}`, { shortcut });
+  }
+  if (
+    rawModifiers.some((modifier) => typeof modifier !== "string" || !SHORTCUT_MODIFIERS.has(modifier as KeyModifier))
+  ) {
+    unsupported(`A shortcut modifier in ${where}`, { shortcut });
+  }
+  const modifiers = rawModifiers as string[];
+  if (new Set(modifiers).size !== modifiers.length || key.length === 0) {
+    unsupported(`A shortcut in ${where}`, { shortcut });
+  }
+  return { modifiers: [...modifiers], key };
+}
+
+function normalizeActionStyle(style: unknown, where: string): ActionStyleLike | undefined {
+  if (style === undefined || style === null) {
+    return undefined;
+  }
+  if (style === "regular" || style === "destructive") {
+    return style;
+  }
+  unsupported(`An action style in ${where}`, { style });
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function requireNonEmptyString(value: unknown, where: string): string {
+  if (typeof value !== "string" || value.length === 0) {
+    unsupported(`${where} must be a non-empty string`, { value });
+  }
+  return value;
 }
 
 export function List(props: ListProps): ReactElement {
@@ -955,8 +1171,19 @@ function ActionPanelComponent(props: ActionPanelProps): ReactElement {
   return createElement("action-group", { title: props.title }, mapItemChildren(props.children, "ActionPanel"));
 }
 
-function Submenu(props: ActionPanelProps): ReactElement {
-  return createElement("action-group", { title: props.title }, mapItemChildren(props.children, "ActionPanel.Submenu"));
+function Submenu(props: SubmenuProps): ReactElement {
+  const icon = serializeIcon(props.icon, "ActionPanel.Submenu");
+  const shortcut = serializeShortcut(props.shortcut, "ActionPanel.Submenu");
+  return createElement(
+    "action-group",
+    {
+      title: props.title,
+      ...(icon === undefined ? {} : { icon: icon.icon, iconTintColor: icon.iconTintColor }),
+      ...(shortcut === undefined ? {} : { shortcut }),
+      ...(props.autoFocus === undefined ? {} : { autoFocus: props.autoFocus }),
+    },
+    mapItemChildren(props.children, "ActionPanel.Submenu"),
+  );
 }
 
 function Section(props: ActionPanelProps): ReactElement {
@@ -972,16 +1199,15 @@ interface ActionPanelComponent {
 export const ActionPanel: ActionPanelComponent = Object.assign(ActionPanelComponent, { Section, Submenu });
 
 function ActionComponent(props: ActionProps): ReactElement {
-  if (props.shortcut !== undefined) {
-    unsupported("The Action shortcut prop");
-  }
-  if (props.style !== undefined) {
-    unsupported("The Action style prop");
-  }
   const icon = serializeIcon(props.icon, "Action");
+  const shortcut = serializeShortcut(props.shortcut, "Action");
+  const style = normalizeActionStyle(props.style, "Action");
   return createElement("action", {
     title: props.title,
     ...(icon === undefined ? {} : { icon: icon.icon, iconTintColor: icon.iconTintColor }),
+    ...(shortcut === undefined ? {} : { shortcut }),
+    ...(style === undefined ? {} : { style }),
+    ...(props.autoFocus === undefined ? {} : { autoFocus: props.autoFocus }),
     onAction: (event: SceneEventPayload) => {
       props.onAction?.(event);
     },
@@ -1009,16 +1235,20 @@ function Push(props: {
   readonly title: string;
   readonly target: ReactElement;
   readonly icon?: IconLike;
-  readonly shortcut?: unknown;
+  readonly shortcut?: ShortcutLike;
+  readonly style?: ActionStyleLike;
+  readonly autoFocus?: boolean;
 }): ReactElement {
-  if (props.shortcut !== undefined) {
-    unsupported("The Action.Push shortcut prop");
-  }
   const icon = serializeIcon(props.icon, "Action.Push");
+  const shortcut = serializeShortcut(props.shortcut, "Action.Push");
+  const style = normalizeActionStyle(props.style, "Action.Push");
   const navigation = useContext(NavigationContext);
   return createElement("action", {
     title: props.title,
     ...(icon === undefined ? {} : { icon: icon.icon, iconTintColor: icon.iconTintColor }),
+    ...(shortcut === undefined ? {} : { shortcut }),
+    ...(style === undefined ? {} : { style }),
+    ...(props.autoFocus === undefined ? {} : { autoFocus: props.autoFocus }),
     onAction: () => {
       navigation.push(props.target);
     },
@@ -1027,9 +1257,14 @@ function Push(props: {
 
 function CopyToClipboard(props: CopyToClipboardProps): ReactElement {
   const icon = serializeIcon(props.icon, "Action.CopyToClipboard");
+  const shortcut = serializeShortcut(props.shortcut, "Action.CopyToClipboard");
+  const style = normalizeActionStyle(props.style, "Action.CopyToClipboard");
   return createElement("action", {
     title: props.title,
     ...(icon === undefined ? {} : { icon: icon.icon, iconTintColor: icon.iconTintColor }),
+    ...(shortcut === undefined ? {} : { shortcut }),
+    ...(style === undefined ? {} : { style }),
+    ...(props.autoFocus === undefined ? {} : { autoFocus: props.autoFocus }),
     onAction: () => {
       void copyToClipboard(props.content).then(() => props.onCopy?.());
     },
@@ -1041,9 +1276,15 @@ interface ActionComponent {
   CopyToClipboard: typeof CopyToClipboard;
   Push: typeof Push;
   SubmitForm: typeof SubmitForm;
+  Style: typeof ActionStyle;
 }
 
-export const Action: ActionComponent = Object.assign(ActionComponent, { CopyToClipboard, Push, SubmitForm });
+export const Action: ActionComponent = Object.assign(ActionComponent, {
+  CopyToClipboard,
+  Push,
+  SubmitForm,
+  Style: ActionStyle,
+});
 
 async function copyToClipboard(text: string): Promise<void> {
   const response = await requireContext().requestCapability({
@@ -1113,7 +1354,7 @@ function normalizeToastStyle(style: unknown): ToastStyle {
 
 export interface ToastActionOptions {
   readonly title: string;
-  readonly shortcut?: unknown;
+  readonly shortcut?: ShortcutLike;
   readonly onAction: (toast: Toast) => void;
 }
 
@@ -1147,9 +1388,6 @@ function normalizeToastAction(action: ToastActionOptions | undefined, where: str
   }
   if (typeof action.onAction !== "function") {
     throw new CompatibilityError(`${where} onAction must be a function`, { action });
-  }
-  if (action.shortcut !== undefined) {
-    unsupported(`${where} shortcut`);
   }
   return action;
 }
@@ -1269,15 +1507,20 @@ export class Toast {
       return undefined;
     }
     const normalized = normalizeToastAction(action, `Toast.${slot}`) as ToastActionOptions;
+    const shortcut = serializeShortcut(normalized.shortcut, `Toast.${slot}`);
     const existing = this.#registeredActions.get(slot);
     if (existing !== undefined && existing.callback === normalized.onAction) {
-      return { title: normalized.title, eventId: existing.eventId };
+      return {
+        title: normalized.title,
+        eventId: existing.eventId,
+        ...(shortcut === undefined ? {} : { shortcut }),
+      };
     }
     this.unregisterAction(slot);
     const eventId = `toast-event-${++toastEventCounter}`;
     compatGlobals.toastEvents?.set(eventId, () => normalized.onAction(this));
     this.#registeredActions.set(slot, { eventId, callback: normalized.onAction });
-    return { title: normalized.title, eventId };
+    return { title: normalized.title, eventId, ...(shortcut === undefined ? {} : { shortcut }) };
   }
 
   private unregisterAction(slot: ToastActionSlot): void {
@@ -1331,6 +1574,167 @@ export function showToast(
           })
       : new Toast(optionsOrStyle);
   return toast.show().then(() => toast);
+}
+
+export interface ShowHUDOptions {
+  readonly clearRootSearch?: boolean;
+  readonly popToRootType?: PopToRootType;
+}
+
+type CapabilityArguments = Readonly<Record<string, string | number | boolean>>;
+
+async function callCapability(
+  capability: string,
+  operation: string,
+  argumentsValue: CapabilityArguments | undefined,
+  description: string,
+): Promise<Awaited<ReturnType<RaycastCompatContext["requestCapability"]>>> {
+  const response = await requireContext().requestCapability({
+    capability,
+    operation,
+    ...(argumentsValue === undefined ? {} : { arguments: argumentsValue }),
+  });
+  if (response.outcome !== "succeeded") {
+    throw new CompatibilityError(`${description} capability was not granted`, response);
+  }
+  return response;
+}
+
+/** Requests the client to display a transient heads-up message. */
+export async function showHUD(title: string, options?: ShowHUDOptions): Promise<void> {
+  const args: Record<string, string | number | boolean> = {
+    title: requireNonEmptyString(title, "showHUD title"),
+  };
+  if (options !== undefined && options !== null) {
+    if (!isRecord(options)) {
+      unsupported("showHUD options", { options });
+    }
+    if (options.clearRootSearch !== undefined) {
+      if (typeof options.clearRootSearch !== "boolean") {
+        unsupported("showHUD clearRootSearch", { value: options.clearRootSearch });
+      }
+      args.clearRootSearch = options.clearRootSearch;
+    }
+    if (options.popToRootType !== undefined) {
+      if (
+        options.popToRootType !== PopToRootType.Default &&
+        options.popToRootType !== PopToRootType.Immediate &&
+        options.popToRootType !== PopToRootType.Suspended
+      ) {
+        unsupported("showHUD popToRootType", { value: options.popToRootType });
+      }
+      args.popToRootType = options.popToRootType;
+    }
+  }
+  await callCapability("hud", "show", args, "The HUD show");
+}
+
+function serializeApplication(application: string | ApplicationLike, where: string): string {
+  if (typeof application === "string") {
+    return requireNonEmptyString(application, where);
+  }
+  if (!isRecord(application)) {
+    unsupported(`${where} application`, { application });
+  }
+  for (const field of ["bundleId", "path", "windowsAppId", "name", "localizedName"]) {
+    const value = application[field];
+    if (typeof value === "string" && value.length > 0) {
+      return value;
+    }
+  }
+  unsupported(`${where} application`, { application });
+}
+
+/** Opens a URL, file, or application through the host capability boundary. */
+export async function open(target: string, application?: string | ApplicationLike): Promise<void> {
+  const args: Record<string, string | number | boolean> = {
+    target: requireNonEmptyString(target, "open target"),
+  };
+  if (application !== undefined) {
+    args.application = serializeApplication(application, "open");
+  }
+  await callCapability("open", "open", args, "The open");
+}
+
+function normalizeAlertAction(action: AlertActionOptions | undefined, where: string): AlertActionOptions | undefined {
+  if (action === undefined || action === null) {
+    return undefined;
+  }
+  if (!isRecord(action)) {
+    unsupported(`${where} action`, { action });
+  }
+  const title = requireNonEmptyString(action.title, `${where} title`);
+  let style: AlertActionStyleLike | undefined;
+  if (action.style !== undefined) {
+    if (action.style !== "default" && action.style !== "cancel" && action.style !== "destructive") {
+      unsupported(`${where} style`, { value: action.style });
+    }
+    style = action.style;
+  }
+  let onAction: (() => void) | undefined;
+  if (action.onAction !== undefined) {
+    if (typeof action.onAction !== "function") {
+      unsupported(`${where} onAction`, { value: action.onAction });
+    }
+    onAction = action.onAction as () => void;
+  }
+  return {
+    title,
+    ...(style === undefined ? {} : { style }),
+    ...(onAction === undefined ? {} : { onAction }),
+  };
+}
+
+/** Shows a confirmation dialog and invokes the selected action callback. */
+export async function confirmAlert(options: AlertOptions): Promise<boolean> {
+  if (!isRecord(options)) {
+    unsupported("confirmAlert options", { options });
+  }
+  const title = requireNonEmptyString(options.title, "confirmAlert title");
+  const icon = serializeIcon(options.icon, "confirmAlert");
+  const primaryAction = normalizeAlertAction(options.primaryAction, "confirmAlert.primaryAction");
+  const dismissAction = normalizeAlertAction(options.dismissAction, "confirmAlert.dismissAction");
+  const args: Record<string, string | number | boolean> = { title };
+
+  if (options.message !== undefined) {
+    if (typeof options.message !== "string") {
+      unsupported("confirmAlert message", { value: options.message });
+    }
+    args.message = options.message;
+  }
+  if (icon !== undefined) {
+    args.icon = icon.icon;
+    if (icon.iconTintColor !== undefined) {
+      args.iconTintColor = icon.iconTintColor;
+    }
+  }
+  if (options.rememberUserChoice !== undefined) {
+    if (typeof options.rememberUserChoice !== "boolean") {
+      unsupported("confirmAlert rememberUserChoice", { value: options.rememberUserChoice });
+    }
+    args.rememberUserChoice = options.rememberUserChoice;
+  }
+  if (primaryAction !== undefined) {
+    args.primaryTitle = primaryAction.title;
+    if (primaryAction.style !== undefined) {
+      args.primaryStyle = primaryAction.style;
+    }
+  }
+  if (dismissAction !== undefined) {
+    args.dismissTitle = dismissAction.title;
+    if (dismissAction.style !== undefined) {
+      args.dismissStyle = dismissAction.style;
+    }
+  }
+
+  const response = await callCapability("alert", "confirm", args, "The alert confirm");
+  if (typeof response.value !== "boolean") {
+    throw new CompatibilityError("The alert confirm capability returned a non-boolean result", response);
+  }
+  const confirmed = response.value;
+  const selectedAction = confirmed ? primaryAction : dismissAction;
+  selectedAction?.onAction?.();
+  return confirmed;
 }
 
 /**
@@ -1472,3 +1876,144 @@ export const LocalStorage = {
     }
   },
 };
+
+/**
+ * Synchronous LRU cache compatible with Raycast's command-facing API.
+ *
+ * V2 deliberately keeps this fallback in the extension process for now. The
+ * namespace is shared by commands in the same extension/runtime realm, while
+ * `storageDirectory` remains a stable compatibility value until a persistent
+ * cache capability is added to the host contract.
+ */
+export class Cache {
+  static get DEFAULT_CAPACITY(): number {
+    return 10 * 1024 * 1024;
+  }
+
+  static get STORAGE_DIRECTORY_NAME(): string {
+    return "cache";
+  }
+
+  readonly #state: CacheState;
+  readonly #capacity: number;
+  readonly #directory: string;
+
+  constructor(options?: CacheOptions) {
+    const context = requireContext();
+    const namespace = options?.namespace === undefined || options.namespace === "" ? "default" : options.namespace;
+    if (typeof namespace !== "string") {
+      unsupported("Cache namespace", { namespace });
+    }
+    const capacity = options?.capacity ?? Cache.DEFAULT_CAPACITY;
+    if (typeof capacity !== "number" || !Number.isSafeInteger(capacity) || capacity < 0) {
+      unsupported("Cache capacity", { capacity });
+    }
+    let directory: string;
+    if (options?.directory !== undefined) {
+      directory = requireNonEmptyString(options.directory, "Cache directory");
+    } else {
+      directory = `memory://blast-${Cache.STORAGE_DIRECTORY_NAME}/${encodeURIComponent(context.descriptor.extensionId)}/${encodeURIComponent(namespace)}`;
+    }
+
+    compatGlobals.cacheStores ??= new Map();
+    const storeKey = `${context.descriptor.extensionId}\u0000${namespace}`;
+    let state = compatGlobals.cacheStores.get(storeKey);
+    if (state === undefined) {
+      state = { storage: new Map(), subscribers: new Set() };
+      compatGlobals.cacheStores.set(storeKey, state);
+    }
+    this.#state = state;
+    this.#capacity = capacity;
+    this.#directory = directory;
+  }
+
+  get storageDirectory(): string {
+    return this.#directory;
+  }
+
+  get(key: string): string | undefined {
+    this.assertKey(key);
+    if (!this.#state.storage.has(key)) {
+      return undefined;
+    }
+    const value = this.#state.storage.get(key);
+    this.#state.storage.delete(key);
+    this.#state.storage.set(key, value as string);
+    return value;
+  }
+
+  has(key: string): boolean {
+    this.assertKey(key);
+    return this.#state.storage.has(key);
+  }
+
+  get isEmpty(): boolean {
+    return this.#state.storage.size === 0;
+  }
+
+  set(key: string, data: string): void {
+    this.assertKey(key);
+    if (typeof data !== "string") {
+      unsupported("Cache data", { data });
+    }
+    this.#state.storage.delete(key);
+    this.#state.storage.set(key, data);
+    this.maintainCapacity();
+    this.notifySubscribers(key, data);
+  }
+
+  remove(key: string): boolean {
+    this.assertKey(key);
+    if (!this.#state.storage.delete(key)) {
+      return false;
+    }
+    this.notifySubscribers(key, undefined);
+    return true;
+  }
+
+  clear(options?: { readonly notifySubscribers?: boolean }): void {
+    this.#state.storage.clear();
+    if (options?.notifySubscribers !== false) {
+      this.notifySubscribers(undefined, undefined);
+    }
+  }
+
+  subscribe(subscriber: CacheSubscriber): CacheSubscription {
+    if (typeof subscriber !== "function") {
+      unsupported("Cache subscriber", { subscriber });
+    }
+    this.#state.subscribers.add(subscriber);
+    return () => {
+      this.#state.subscribers.delete(subscriber);
+    };
+  }
+
+  private assertKey(key: string): void {
+    if (typeof key !== "string") {
+      unsupported("Cache key", { key });
+    }
+  }
+
+  private maintainCapacity(): void {
+    let totalSize = 0;
+    for (const data of this.#state.storage.values()) {
+      totalSize += cacheByteLength(data);
+    }
+    while (totalSize > this.#capacity && this.#state.storage.size > 0) {
+      const oldest = this.#state.storage.entries().next().value as [string, string];
+      this.#state.storage.delete(oldest[0]);
+      totalSize -= cacheByteLength(oldest[1]);
+      this.notifySubscribers(oldest[0], undefined);
+    }
+  }
+
+  private notifySubscribers(key: string | undefined, data: string | undefined): void {
+    for (const subscriber of [...this.#state.subscribers]) {
+      subscriber(key, data);
+    }
+  }
+}
+
+function cacheByteLength(value: string): number {
+  return new TextEncoder().encode(value).byteLength;
+}

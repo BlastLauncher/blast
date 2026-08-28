@@ -6,6 +6,7 @@ import { createBundlingEntrypointLoader, runNodeExtensionBootstrap } from "@blas
 
 const raycastCompatPath = fileURLToPath(import.meta.resolve("@blastlauncher/raycast-compat"));
 const reactModulePath = fileURLToPath(import.meta.resolve("react")).replace(/\/index\.js$/, "");
+const workspaceVendorRoot = fileURLToPath(new URL("../../../../node_modules", import.meta.url));
 
 let messageId = 0;
 await runNodeExtensionBootstrap({
@@ -13,6 +14,7 @@ await runNodeExtensionBootstrap({
   createMessageId: () => `runtime-${++messageId}`,
   loadEntrypoint: createBundlingEntrypointLoader({
     alias: { "@raycast/api": raycastCompatPath },
+    dependencyPolicy: { strategy: "vendored", vendorRoots: [workspaceVendorRoot] },
     reactModulePath,
   }),
   configureApi: (context) => {

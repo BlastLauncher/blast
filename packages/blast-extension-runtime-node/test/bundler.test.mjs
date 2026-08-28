@@ -7,9 +7,11 @@ import { fileURLToPath } from "node:url";
 import { createBundlingEntrypointLoader } from "../dist/index.js";
 
 const bundlesRoot = path.join(fileURLToPath(new URL("./fixtures", import.meta.url)), "bundles");
+const vendorRoot = path.join(bundlesRoot, "vendor-node-modules");
+const defaultAlias = { "@raycast/api": path.join(bundlesRoot, "raycast-api-stub.mjs") };
 
-function createLoader(alias = { "@raycast/api": path.join(bundlesRoot, "raycast-api-stub.mjs") }) {
-  return createBundlingEntrypointLoader({ cacheDirectory: os.tmpdir(), alias });
+function createLoader(options = {}) {
+  return createBundlingEntrypointLoader({ cacheDirectory: os.tmpdir(), alias: defaultAlias, ...options });
 }
 
 test("bundles a TSX entrypoint with alias resolution", async () => {
@@ -26,5 +28,21 @@ test("reports bundling failures as structured entrypoint errors", async () => {
   await assert.rejects(
     () => loader(path.join(bundlesRoot, "broken-syntax.tsx")),
     (error) => error.code === "entrypoint_load_failed",
+  );
+});
+
+test("resolves dependencies only from explicitly configured vendor roots", async () => {
+  const loader = createLoader({
+    dependencyPolicy: { strategy: "vendored", vendorRoots: [vendorRoot] },
+  });
+  const entrypointModule = await loader(path.join(bundlesRoot, "vendor-command.tsx"));
+
+  assert.equal(entrypointModule.command(), "vendored-value");
+});
+
+test("rejects invalid dependency policy roots", () => {
+  assert.throws(
+    () => createLoader({ dependencyPolicy: { strategy: "vendored", vendorRoots: ["relative-root"] } }),
+    (error) => error.code === "dependency_policy_invalid",
   );
 });

@@ -35,7 +35,10 @@ without being invoked.
 importing them (ADR 0012): TypeScript and JSX sources work, launcher-provided
 aliases resolve literal `@raycast/api` imports, and only Node.js builtins
 stay external. Bundling failures surface as structured
-`entrypoint_load_failed` errors.
+`entrypoint_load_failed` errors. Third-party resolution is explicit (ADR 0020):
+the default `local` policy uses the extension's installed graph, while the
+`vendored` policy accepts absolute launcher-provisioned `vendorRoots`. The
+loader never invokes a package manager or downloads dependencies.
 
 ## Boundaries
 

@@ -408,3 +408,34 @@ test("publishes string-array form props and compares array values by contents", 
     { type: "update", nodeId: snapshotRoot(sink).children[0].id, props: { defaultValue: ["docs", "v2"] } },
   ]);
 });
+
+test("publishes structured shortcuts and compares them by contents", async () => {
+  const sink = createCollectingSink();
+  const renderer = createSceneRenderer({ sink });
+  const onAction = () => {};
+  const renderAction = (shortcut) =>
+    createElement(
+      SceneList,
+      null,
+      createElement(SceneListItem, { title: "Item" }, createElement(SceneAction, { title: "Run", shortcut, onAction })),
+    );
+
+  renderer.render(renderAction({ modifiers: ["cmd"], key: "r" }));
+  await renderer.flush();
+  const actionId = snapshotRoot(sink).children[0].children[0].id;
+  assert.deepEqual(snapshotRoot(sink).children[0].children[0].props.shortcut, { modifiers: ["cmd"], key: "r" });
+
+  renderer.render(renderAction({ modifiers: ["cmd"], key: "r" }));
+  await renderer.flush();
+  assert.equal(sink.transactions.length, 1);
+
+  renderer.render(renderAction({ modifiers: ["cmd", "shift"], key: "r" }));
+  await renderer.flush();
+  assert.deepEqual(sink.transactions[1].operations, [
+    {
+      type: "update",
+      nodeId: actionId,
+      props: { shortcut: { modifiers: ["cmd", "shift"], key: "r" } },
+    },
+  ]);
+});

@@ -30,8 +30,9 @@ scene tree.
   `Toast.hide()` sends an idempotent hide operation, and the legacy
   `showToast(style, title, message?)` overload is supported.
 - Timing, stacking, animation rendering, and other client presentation
-  policy remain outside this wire contract. Shortcut objects on toast actions
-  remain an explicit structured compatibility error.
+  policy remain outside this wire contract. At the time of this decision,
+  shortcut objects on toast actions were an explicit structured compatibility
+  error; ADR 0019 subsequently measures and normalizes them.
 
 ## Consequences
 

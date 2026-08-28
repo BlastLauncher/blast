@@ -21,17 +21,25 @@ const DEFAULT_CONCURRENCY = 8;
 const SUPPORTED_API_IMPORTS = new Set([
   "Action",
   "ActionPanel",
+  "ActionStyle",
+  "Alert",
+  "Cache",
   "Clipboard",
   "Color",
   "Detail",
   "Form",
   "Icon",
+  "Keyboard",
   "LaunchType",
   "List",
   "LocalStorage",
+  "PopToRootType",
   "Toast",
+  "confirmAlert",
   "environment",
   "getPreferenceValues",
+  "open",
+  "showHUD",
   "showToast",
   "useNavigation",
 ]);
@@ -198,13 +206,32 @@ function createCore(stderr) {
   // The probe host is a deliberately permissive in-memory client for the
   // already measured capabilities. Production clients still use explicit
   // extension grants and deny-by-default providers.
+  const allowedCapabilities = new Set([
+    "alert.confirm",
+    "clipboard.read",
+    "clipboard.write",
+    "hud.show",
+    "local-storage.clear",
+    "local-storage.get",
+    "local-storage.remove",
+    "local-storage.set",
+    "open.open",
+  ]);
   const broker = new CapabilityBroker({
     policy: {
       decide(request) {
-        return request.capability === "clipboard" || request.capability === "local-storage" ? "allow" : "deny";
+        return allowedCapabilities.has(`${request.capability}.${request.operation}`) ? "allow" : "deny";
       },
     },
     providers: {
+      alert: {
+        async perform(request) {
+          if (request.operation === "confirm") {
+            return true;
+          }
+          throw new Error(`Unknown alert operation ${JSON.stringify(request.operation)}`);
+        },
+      },
       clipboard: {
         async perform(request) {
           if (request.operation === "read") {
@@ -216,7 +243,23 @@ function createCore(stderr) {
           throw new Error(`Unknown clipboard operation ${JSON.stringify(request.operation)}`);
         },
       },
+      hud: {
+        async perform(request) {
+          if (request.operation === "show") {
+            return undefined;
+          }
+          throw new Error(`Unknown HUD operation ${JSON.stringify(request.operation)}`);
+        },
+      },
       "local-storage": createInMemoryLocalStorageProvider(),
+      open: {
+        async perform(request) {
+          if (request.operation === "open") {
+            return undefined;
+          }
+          throw new Error(`Unknown open operation ${JSON.stringify(request.operation)}`);
+        },
+      },
     },
   });
   return { core: new BlastCore({ catalog, extensionHost: host }), broker };
