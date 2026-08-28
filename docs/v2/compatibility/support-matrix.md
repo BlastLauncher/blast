@@ -7,27 +7,36 @@ renderer, and traffic relay. Committed fixtures are trimmed to manifest and
 sources, so matrix runs are hermetic and deterministic.
 
 - corpus: `raycast/extensions@d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91`
-- probed: all 3,231 extensions (bundle + render probe per extension)
+- probed: all 3,231 extensions (one deterministic view-command probe per extension)
 - executable test: `packages/blast-e2e/test/support-matrix.test.mjs`
+- reproducible corpus probe: `packages/blast-e2e/scripts/probe-corpus.mjs`
 - fixture set: `packages/blast-e2e/test/fixtures/real/`
 
-## Probe results over the corpus
+## Current baseline probe
 
-| Outcome                                                            | Extensions | Share |
-| ------------------------------------------------------------------ | ---------: | ----: |
-| imports unmeasured APIs                                            |      2,960 | 91.6% |
-| bundle or render failed (mostly unresolvable third-party packages) |        236 |  7.3% |
-| structured compatibility error at render                           |         14 |  0.4% |
-| renders a scene end to end                                         |         12 |  0.4% |
-| no entrypoint found                                                |          1 |  0.0% |
+The current probe uses the pinned corpus revision and the source-only
+checkout used for runtime execution. It selects the first command declared
+with `mode: "view"`, falling back to the first command whose mode is unset;
+extensions with only `no-view` or `menu-bar` commands are counted but are not
+renderable by the scene contract. The complete deterministic result, including
+one result per extension, is [`runtime-probe-baseline.json`](./runtime-probe-baseline.json).
 
-Reading: this baseline probe predates the later measured-surface increments
-below. At that snapshot, 12 extensions rendered after import filtering; the
-dominant blockers were the unmeasured long tail (`useNavigation`,
-`LocalStorage`, `environment`, `Color`, `open`, `confirmAlert`) and
-third-party npm packages, which require vendoring or installation policy
-before they can bundle. The later increments are covered by the executable
-matrix, but the full corpus has not been re-probed yet.
+| Outcome                        | Extensions | Share |
+| ------------------------------ | ---------: | ----: |
+| third-party dependency failure |      2,361 | 73.1% |
+| not renderable command mode    |        358 | 11.1% |
+| other process/startup failure  |        432 | 13.4% |
+| structured compatibility error |         23 |  0.7% |
+| renders a scene end to end     |         54 |  1.7% |
+| no entrypoint found            |          3 |  0.1% |
+
+Reading: the extension pass rate is 54/3,231 (1.67%); among the 2,873
+extensions with a selected renderable command it is 54/2,873 (1.88%). Static
+API blockers on non-rendering extensions are led by `showHUD` (829), `open`
+(820), `confirmAlert` (747), `Alert` (621), `Keyboard` (587), and `Cache`
+(291). The largest operational blocker is missing third-party packages, so
+the next implementation group addresses both the high-impact adapter APIs and
+the dependency policy that makes those probes meaningful.
 
 ## Committed fixtures
 
@@ -66,6 +75,7 @@ structured `unsupported_api` error and a non-zero exit.
 - `useNavigation` and `Action.Push` (28.8% of extensions),
   `LocalStorage`/`Cache` (26.5%), and `environment` (19.7%) are measured in
   the adapter but still have limited fixture coverage;
-- third-party npm dependency resolution (vendoring or installation policy).
+- third-party npm dependency resolution (the baseline records these as
+  `third-party-dependency`; the policy slice is next).
 
 These are ordered for the next surface increments in `status.md`.

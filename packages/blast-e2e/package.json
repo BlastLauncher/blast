@@ -6,10 +6,12 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "test": "pnpm --filter '@blastlauncher/e2e...' run build && node --test test/*.test.mjs"
+    "test": "pnpm --filter '@blastlauncher/e2e...' run build && node --test test/*.test.mjs",
+    "probe:corpus": "node scripts/probe-corpus.mjs"
   },
   "dependencies": {
     "@blastlauncher/capability": "workspace:*",
+    "@blastlauncher/compatibility": "workspace:*",
     "@blastlauncher/core": "workspace:*",
     "@blastlauncher/core-node": "workspace:*",
     "@blastlauncher/extension-host": "workspace:*",

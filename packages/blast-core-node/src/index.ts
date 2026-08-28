@@ -43,6 +43,7 @@ export interface FilesystemExtensionCatalogOptions {
 export class FilesystemExtensionCatalog implements ExtensionCatalog {
   readonly #root: string;
   readonly #manifestFileName: string;
+  #extensionIndex?: Promise<ReadonlyMap<string, { readonly directory: string; readonly manifest: ExtensionManifest }>>;
 
   constructor(options: FilesystemExtensionCatalogOptions) {
     validateNonEmptyString(options.root, "root");
@@ -61,24 +62,45 @@ export class FilesystemExtensionCatalog implements ExtensionCatalog {
     validateIdentity(identity);
     signal?.throwIfAborted();
 
+    const indexed = await this.#getExtensionIndex();
+    signal?.throwIfAborted();
+    const entry = indexed.get(identity.extensionId);
+    if (entry === undefined) {
+      return undefined;
+    }
+    const command = entry.manifest.commands.find((candidate) => candidate.name === identity.commandName);
+    if (command === undefined) {
+      return undefined;
+    }
+    return {
+      extensionId: entry.manifest.name,
+      commandName: command.name,
+      entrypoint: await this.#resolveEntrypoint(entry.directory, command),
+      rootDirectory: entry.directory,
+      ...(Object.keys(entry.manifest.preferences).length === 0 ? {} : { preferences: entry.manifest.preferences }),
+    };
+  }
+
+  async #getExtensionIndex(): Promise<
+    ReadonlyMap<string, { readonly directory: string; readonly manifest: ExtensionManifest }>
+  > {
+    this.#extensionIndex ??= this.#buildExtensionIndex();
+    return this.#extensionIndex;
+  }
+
+  async #buildExtensionIndex(): Promise<
+    ReadonlyMap<string, { readonly directory: string; readonly manifest: ExtensionManifest }>
+  > {
+    const index = new Map<string, { readonly directory: string; readonly manifest: ExtensionManifest }>();
     for (const directory of await this.#listExtensionDirectories()) {
       const manifest = await this.#readManifest(path.join(directory, this.#manifestFileName));
-      if (manifest === undefined || manifest.name !== identity.extensionId) {
-        continue;
+      if (manifest !== undefined && !index.has(manifest.name)) {
+        // Directories are sorted, so retaining the first entry preserves the
+        // existing deterministic duplicate-name behavior.
+        index.set(manifest.name, { directory, manifest });
       }
-      const command = manifest.commands.find((candidate) => candidate.name === identity.commandName);
-      if (command === undefined) {
-        return undefined;
-      }
-      return {
-        extensionId: manifest.name,
-        commandName: command.name,
-        entrypoint: await this.#resolveEntrypoint(directory, command),
-        rootDirectory: directory,
-        ...(Object.keys(manifest.preferences).length === 0 ? {} : { preferences: manifest.preferences }),
-      };
     }
-    return undefined;
+    return index;
   }
 
   async #listExtensionDirectories(): Promise<string[]> {

@@ -315,6 +315,9 @@ importers:
       '@blastlauncher/capability':
         specifier: workspace:*
         version: link:../blast-capability
+      '@blastlauncher/compatibility':
+        specifier: workspace:*
+        version: link:../blast-compatibility
       '@blastlauncher/core':
         specifier: workspace:*
         version: link:../blast-core
