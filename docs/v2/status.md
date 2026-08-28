@@ -21,6 +21,10 @@ slice changes what is executable, what is trusted, or what should happen next.
 - The Node runtime bootstrap loads the descriptor's immutable entrypoint
   through the ECMAScript module loader, publishes it to an observer, and
   drains messages until shutdown, in child processes and in-memory tests.
+- The semantic scene contract validates `scene.transaction` and `scene.event`
+  messages, applies ordered snapshot/insert/update/remove/reorder operations
+  to a materialized client state, and exposes the transport-independent
+  mutation sink the React renderer will publish to.
 - The extension host reserves identities, supervises startup and stopping,
   publishes only initialized sessions, removes exited processes, and exposes an
   async lifecycle event stream.
@@ -55,7 +59,6 @@ slice changes what is executable, what is trusted, or what should happen next.
 - loading real extension entrypoints that require bundling or dependency
   resolution beyond immutable fixtures;
 - the Raycast compatibility adapter on the V2 runtime;
-- semantic scene transactions and the reconciler sink;
 - a client-facing core protocol and daemon listener;
 - capability declarations, policy, providers, audit records, and consent UI;
 - structured logs beyond captured child stderr;
@@ -68,12 +71,10 @@ slice changes what is executable, what is trusted, or what should happen next.
 Build the first vertical slice rather than adding more infrastructure in
 isolation:
 
-1. define the smallest semantic scene contract for `List`, `List.Item`, and one
-   action;
-2. implement an operation sink and deterministic test client before adapting the
-   React reconciler;
-3. route one clipboard request through a deny-by-default capability broker;
-4. test a normal action and a deliberate runtime crash end to end.
+1. wire the runtime bootstrap to publish scene transactions for a fixed
+   `List` fixture and route `scene.event` actions back to the extension;
+2. route one clipboard request through a deny-by-default capability broker;
+3. test a normal action and a deliberate runtime crash end to end.
 
 Keep WebSocket and remote execution as transport/provider additions. They do not
 require changing the session, extension contract, runtime, host, or core

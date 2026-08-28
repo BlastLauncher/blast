@@ -475,6 +475,12 @@ importers:
         specifier: ^10.0.1
         version: 10.0.1
 
+  packages/blast-scene:
+    dependencies:
+      '@blastlauncher/protocol':
+        specifier: workspace:*
+        version: link:../blast-protocol
+
   packages/blast-session:
     dependencies:
       '@blastlauncher/protocol':

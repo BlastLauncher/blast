@@ -172,7 +172,9 @@ succeeds.
 The initial protocol scaffold intentionally defines only the common envelope
 and handshake. Scene and capability messages will be added with their vertical
 slices, preventing speculative wire contracts from becoming compatibility
-obligations.
+obligations. The scene slice added `@blastlauncher/scene` (ADR 0007), which
+validates `scene.transaction` and `scene.event` messages and materializes
+transactions into client state through a transport-independent sink.
 
 ## Extension startup sequence
 
@@ -215,6 +217,7 @@ authentication and encryption before they may carry privileged requests.
 
 ```text
 packages/blast-protocol/        V2 wire contract
+packages/blast-scene/           Semantic scene contract and mutation sink
 packages/blast-extension-contract/  V2 extension lifecycle messages
 packages/blast-transport/       V2 transport boundary and in-memory pair
 packages/blast-transport-node/  Bounded JSON-lines Node.js streams

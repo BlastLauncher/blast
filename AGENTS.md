@@ -27,6 +27,7 @@ The main data flow is:
 V2 is being developed alongside the prototype:
 
 - `packages/blast-protocol/` — transport-independent V2 messages and schemas.
+- `packages/blast-scene/` — semantic scene contract and mutation sink boundary.
 - `packages/blast-extension-contract/` — validated host/runtime lifecycle messages.
 - `packages/blast-transport/` — V2 connection contract and in-memory test transport.
 - `packages/blast-transport-node/` — bounded JSON-lines Node stream transport.

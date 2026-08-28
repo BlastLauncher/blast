@@ -70,6 +70,13 @@ through an in-memory sink. Tests will cover stable node IDs, insert/update/remov
 ordering, property removal, event identifiers, snapshots, effects, errors, and
 React upgrade compatibility.
 
+`@blastlauncher/scene` already tests the model-level invariants the renderer
+relies on: wire validation of transactions and events, the property whitelist
+with fixed value types and required properties, parent-child placement rules,
+ordered insert/update/remove/reorder application, explicit `null` property
+removal, snapshot attachment, descendant removal, and structured referential
+integrity errors.
+
 ### End-to-end fixtures
 
 Representative extensions become immutable fixtures with named compatibility
