@@ -172,7 +172,8 @@ test("runs a Raycast-style compat extension with brokered clipboard end to end",
   await waitFor(() => buffer.rootId !== undefined, "the compat list snapshot");
   const rootId = buffer.rootId;
   const itemId = buffer.childrenOf(rootId)[0].id;
-  const [actionId, pushId] = buffer.childrenOf(itemId).map((child) => child.id);
+  const groupId = buffer.childrenOf(itemId)[0].id;
+  const [actionId, pushId] = buffer.childrenOf(groupId).map((child) => child.id);
   assert.deepEqual(buffer.toJSON(), {
     id: rootId,
     type: "list",
@@ -184,23 +185,30 @@ test("runs a Raycast-style compat extension with brokered clipboard end to end",
         props: { title: "Hello", subtitle: "World", icon: "circle" },
         children: [
           {
-            id: actionId,
-            type: "action",
-            props: { title: "Copy", onAction: "event-1" },
-            children: [],
-          },
-          {
-            id: pushId,
-            type: "action",
-            props: { title: "Push", onAction: "event-2" },
-            children: [],
+            id: groupId,
+            type: "action-group",
+            props: {},
+            children: [
+              {
+                id: actionId,
+                type: "action",
+                props: { title: "Copy", onAction: "event-1" },
+                children: [],
+              },
+              {
+                id: pushId,
+                type: "action",
+                props: { title: "Push", onAction: "event-2" },
+                children: [],
+              },
+            ],
           },
         ],
       },
     ],
   });
 
-  const actions = buffer.childrenOf(itemId);
+  const actions = buffer.childrenOf(groupId);
   await relay.sendSceneEvent(actions[0].props.onAction);
   await waitFor(() => clipboardWrites.length === 1, "the brokered clipboard write");
 
@@ -237,7 +245,9 @@ test("runs a bundled TSX extension with literal @raycast/api imports end to end"
   const itemId = buffer.childrenOf(rootId)[0].id;
   assert.equal(buffer.get(rootId).props.navigationTitle, "Compat TSX");
   assert.deepEqual(buffer.get(itemId).props, { title: "Hello", subtitle: "World", icon: "circle" });
-  const action = buffer.childrenOf(itemId)[0];
+  const group = buffer.childrenOf(itemId)[0];
+  assert.equal(group.type, "action-group");
+  const action = buffer.childrenOf(group.id)[0];
   assert.deepEqual(action.props, { title: "Copy", onAction: "event-1" });
 
   await relay.sendSceneEvent(action.props.onAction);

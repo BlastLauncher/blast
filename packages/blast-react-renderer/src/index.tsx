@@ -17,6 +17,7 @@ export const SCENE_LIST_TYPE = "list";
 export const SCENE_LIST_ITEM_TYPE = "list-item";
 export const SCENE_ACTION_TYPE = "action";
 export const SCENE_DETAIL_TYPE = "detail";
+export const SCENE_ACTION_GROUP_TYPE = "action-group";
 
 export interface SceneListProps {
   readonly navigationTitle?: string;
@@ -338,7 +339,8 @@ export function createSceneRenderer(options: SceneRendererOptions): SceneRendere
       type !== SCENE_LIST_TYPE &&
       type !== SCENE_LIST_ITEM_TYPE &&
       type !== SCENE_ACTION_TYPE &&
-      type !== SCENE_DETAIL_TYPE
+      type !== SCENE_DETAIL_TYPE &&
+      type !== SCENE_ACTION_GROUP_TYPE
     ) {
       throw contractViolationError(new SceneRendererError("unknown_node_type", "Unknown scene node type", { type }));
     }

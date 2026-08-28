@@ -16,8 +16,8 @@ import {
 import type { SceneEventPayload, SceneTransaction, ToastPayload, ToastStyle } from "@blastlauncher/scene";
 import { SceneRendererError, createSceneRenderer, type SceneRenderer } from "@blastlauncher/react-renderer";
 
-export { Icon } from "./icon.js";
-export type { IconName } from "./icon.js";
+export { Color, Icon } from "./icon.js";
+export type { ColorName, IconName } from "./icon.js";
 
 /**
  * Structured error for API surface that Blast has deliberately not measured
@@ -230,6 +230,11 @@ export interface ActionPanelProps {
   readonly title?: string;
 }
 
+export interface SubmenuProps {
+  readonly title: string;
+  readonly children?: ReactNode;
+}
+
 export interface ActionProps {
   readonly title: string;
   readonly onAction?: () => void;
@@ -251,20 +256,35 @@ function unsupported(what: string, details?: unknown): never {
   throw new CompatibilityError(`${what} is not supported by the Blast compatibility surface yet`, details);
 }
 
-function serializeIcon(icon: IconLike | undefined, where: string): string | undefined {
+function serializeIcon(
+  icon: IconLike | undefined,
+  where: string,
+): { icon?: string; iconTintColor?: string } | undefined {
   if (icon === undefined) {
     return undefined;
   }
-  if (typeof icon !== "string") {
-    unsupported(`An object icon in ${where}`, { icon });
+  if (typeof icon === "string") {
+    return { icon };
   }
-  return icon;
+  if (typeof icon === "object" && icon !== null && typeof (icon as Record<string, unknown>)["source"] === "string") {
+    const record = icon as { source: string; tintColor?: unknown };
+    const tintColor = record.tintColor === undefined ? undefined : serializeTintColor(record.tintColor, where);
+    return {
+      icon: record.source,
+      ...(tintColor === undefined ? {} : { iconTintColor: tintColor }),
+    };
+  }
+  unsupported(`An icon in ${where}`, { icon });
+}
+
+function serializeTintColor(tintColor: unknown, where: string): string {
+  if (typeof tintColor === "string") {
+    return tintColor;
+  }
+  unsupported(`A tint color in ${where}`, { tintColor });
 }
 
 export function List(props: ListProps): ReactElement {
-  if (props.actions !== undefined) {
-    unsupported("The List actions prop");
-  }
   return createElement(
     "list",
     {
@@ -273,6 +293,7 @@ export function List(props: ListProps): ReactElement {
       ...(props.isLoading === undefined ? {} : { isLoading: props.isLoading }),
     },
     props.children,
+    props.actions,
   );
 }
 
@@ -287,7 +308,7 @@ function ListItem(props: ListItemProps): ReactElement {
     {
       title: props.title,
       ...(props.subtitle === undefined ? {} : { subtitle: props.subtitle }),
-      ...(icon === undefined ? {} : { icon }),
+      ...(icon === undefined ? {} : { icon: icon.icon, iconTintColor: icon.iconTintColor }),
     },
     mapItemChildren(children, "List.Item"),
   );
@@ -301,11 +322,26 @@ export function Detail(props: DetailProps): ReactElement {
 }
 
 export function ActionPanel(props: ActionPanelProps): ReactElement {
-  if (props.title !== undefined) {
-    unsupported("The ActionPanel title prop");
-  }
-  return createElement(Fragment, null, mapItemChildren(props.children, "ActionPanel"));
+  return createElement(
+    "action-group",
+    {
+      ...(props.title === undefined ? {} : { title: props.title }),
+    },
+    mapItemChildren(props.children, "ActionPanel"),
+  );
 }
+
+function Submenu(props: ActionPanelProps): ReactElement {
+  return createElement(
+    "action-group",
+    {
+      ...(props.title === undefined ? {} : { title: props.title }),
+    },
+    mapItemChildren(props.children, "ActionPanel.Submenu"),
+  );
+}
+
+Object.assign(ActionPanel, { Submenu });
 
 export function Action(props: ActionProps): ReactElement {
   if (props.shortcut !== undefined) {
@@ -317,7 +353,7 @@ export function Action(props: ActionProps): ReactElement {
   const icon = serializeIcon(props.icon, "Action");
   return createElement("action", {
     title: props.title,
-    ...(icon === undefined ? {} : { icon }),
+    ...(icon === undefined ? {} : { icon: icon.icon, iconTintColor: icon.iconTintColor }),
     onAction: () => {
       props.onAction?.();
     },
@@ -337,7 +373,7 @@ function Push(props: {
   const navigation = useContext(NavigationContext);
   return createElement("action", {
     title: props.title,
-    ...(icon === undefined ? {} : { icon }),
+    ...(icon === undefined ? {} : { icon: icon.icon, iconTintColor: icon.iconTintColor }),
     onAction: () => {
       navigation.push(props.target);
     },
@@ -348,7 +384,7 @@ function CopyToClipboard(props: CopyToClipboardProps): ReactElement {
   const icon = serializeIcon(props.icon, "Action.CopyToClipboard");
   return createElement("action", {
     title: props.title,
-    ...(icon === undefined ? {} : { icon }),
+    ...(icon === undefined ? {} : { icon: icon.icon, iconTintColor: icon.iconTintColor }),
     onAction: () => {
       void copyToClipboard(props.content).then(() => props.onCopy?.());
     },
@@ -374,7 +410,13 @@ function mapItemChildren(children: ReactNode, where: string): ReactNode {
     if (!isValidElement(child)) {
       return unsupported(`A ${where} text child`, { child });
     }
-    if (child.type === ActionPanel || child.type === Action || child.type === CopyToClipboard || child.type === Push) {
+    if (
+      child.type === ActionPanel ||
+      child.type === Submenu ||
+      child.type === Action ||
+      child.type === CopyToClipboard ||
+      child.type === Push
+    ) {
       return child;
     }
     return unsupported(`A ${where} child that is not an action`, { childType: String(child.type) });

@@ -80,6 +80,9 @@ slice changes what is executable, what is trusted, or what should happen next.
   capability broker with a reference in-memory provider, and environment()
   are measured adapter surface; pushed views stay mounted so state survives
   popping, and only the top view contributes scene nodes.
+- ActionPanel renders as a scene action-group (titles, submenus, List-level
+  panels), and object icons with Color tints serialize into iconTintColor
+  properties.
 
 ## Trust boundaries already enforced
 
@@ -98,8 +101,8 @@ slice changes what is executable, what is trusted, or what should happen next.
 - a persistent, watched catalog index and extension installation flows;
 - production bundle cache invalidation and externalization policy for
   extensions with large or native npm dependency graphs;
-- the remaining measured Raycast surface: navigation, `LocalStorage`/`Cache`,
-  `environment`, toast display semantics, `Form`, and `Color` tinting;
+- the remaining measured Raycast surface: `Form`, toast display semantics,
+  `ActionPanel.Section`, shortcut objects, and `Cache`;
 - a client-facing core protocol, daemon listener, and desktop rendering of
   scenes (the deterministic test client stands in today);
 - capability manifest declarations, real operating-system providers, audit
@@ -117,8 +120,8 @@ adapter surface runs end to end, bundled TSX extensions with literal
 `@raycast/api` imports load, and the support matrix (`compatibility/support-matrix.md`)
 runs real corpus fixtures in CI. Continue with the compatibility phase:
 
-1. extend the measured surface in matrix order: `ActionPanel` titles and
-   submenus, toast display semantics, then `Form` and `Color`;
+1. extend the measured surface in matrix order: `Form`, toast display
+   semantics, and `ActionPanel.Section`;
 2. add third-party dependency policy (vendoring or installation) so
    dependency-using corpus extensions can bundle;
 3. add a client-facing core protocol and daemon listener so the Electron

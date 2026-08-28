@@ -50,8 +50,9 @@ structured `unsupported_api` errors and a non-zero exit.
 
 ## Known gaps surfaced by the matrix
 
-- `ActionPanel.title` and non-action ActionPanel children (submenus, `List.Item`
-  inside panels) are the dominant structured blockers in the matrix;
+- `ActionPanel.title` and submenus are measured; non-action ActionPanel
+  children (such as `ActionPanel.Section`) remain the dominant structured
+  blockers in the matrix;
 - toast display semantics, `Toast.hide`, and toast actions;
 - `useNavigation` and `Action.Push` (28.8% of extensions);
 - `LocalStorage`/`Cache` (26.5%), `environment` (19.7%), `Form` (38.5%),

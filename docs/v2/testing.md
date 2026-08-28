@@ -175,8 +175,9 @@ a clean checkout and do not rely on stale `dist` output.
 Real corpus extensions are committed as trimmed fixtures with named
 expectations (`packages/blast-e2e/test/fixtures/real/expectations.json`). The
 matrix test runs each fixture through the full pipeline over child processes:
-render fixtures assert root type and item counts (including navigation pushes
-and brokered capabilities); gap fixtures assert structured `unsupported_api`
-errors with non-zero exit. The generated report lives in
+render fixtures assert root type and item counts (including navigation
+pushes, action groups with titles and submenus, tinted icons, and brokered
+capabilities); gap fixtures assert structured `unsupported_api` errors with
+non-zero exit. The generated report lives in
 `docs/v2/compatibility/support-matrix.md` and records the corpus revision; it
 is re-probed whenever the measured surface grows.

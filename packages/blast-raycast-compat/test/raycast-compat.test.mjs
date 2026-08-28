@@ -6,6 +6,7 @@ import {
   Action,
   ActionPanel,
   Clipboard,
+  Color,
   CompatibilityError,
   Detail,
   Icon,
@@ -113,9 +114,19 @@ test("renders a Raycast-style list through the compatibility surface", async () 
         children: [
           {
             id: root.children[0].children[0].id,
-            type: "action",
-            props: { title: "Run", onAction: root.children[0].children[0].props.onAction },
-            children: [],
+            type: "action-group",
+            props: {},
+            children: [
+              {
+                id: root.children[0].children[0].children[0].id,
+                type: "action",
+                props: {
+                  title: "Run",
+                  onAction: root.children[0].children[0].children[0].props.onAction,
+                },
+                children: [],
+              },
+            ],
           },
         ],
       },
@@ -146,7 +157,7 @@ test("routes Action callbacks through scene events", async () => {
   );
   await renderer.flush();
 
-  const eventId = probe.transactions[0].operations[0].root.children[0].children[0].props.onAction;
+  const eventId = probe.transactions[0].operations[0].root.children[0].children[0].children[0].props.onAction;
   probe.dispatch(eventId);
   assert.deepEqual(calls, ["run"]);
 });
@@ -176,7 +187,7 @@ test("copies text through the clipboard capability broker", async () => {
   );
   await renderer.flush();
 
-  const eventId = probe.transactions[0].operations[0].root.children[0].children[0].props.onAction;
+  const eventId = probe.transactions[0].operations[0].root.children[0].children[0].children[0].props.onAction;
   probe.dispatch(eventId);
   await new Promise((resolve) => setTimeout(resolve, 5));
 
@@ -227,27 +238,6 @@ test("renders a Detail root", async () => {
 test("rejects unmeasured API surface with structured errors", (context) => {
   const probe = createContext();
 
-  context.test("List actions prop", () => {
-    assert.throws(
-      () => renderCommand(probe.context, () => createElement(List, { actions: null })),
-      (error) => error instanceof CompatibilityError && /List actions/.test(error.message),
-    );
-  });
-
-  context.test("ActionPanel title prop", () => {
-    assert.throws(
-      () =>
-        renderCommand(probe.context, () =>
-          createElement(
-            List,
-            null,
-            createElement(List.Item, { title: "First" }, createElement(ActionPanel, { title: "Panel" })),
-          ),
-        ),
-      (error) => error instanceof CompatibilityError && /ActionPanel title/.test(error.message),
-    );
-  });
-
   context.test("Action shortcut prop", () => {
     assert.throws(
       () =>
@@ -277,16 +267,6 @@ test("rejects unmeasured API surface with structured errors", (context) => {
           createElement(List, null, createElement(List.Item, { title: "First" }, createElement("div", null, "nope"))),
         ),
       (error) => error instanceof CompatibilityError && /not an action/.test(error.message),
-    );
-  });
-
-  context.test("object icons", () => {
-    assert.throws(
-      () =>
-        renderCommand(probe.context, () =>
-          createElement(List, null, createElement(List.Item, { title: "First", icon: { source: "file.png" } })),
-        ),
-      (error) => error instanceof CompatibilityError && /object icon/.test(error.message),
     );
   });
 
@@ -362,7 +342,7 @@ test("Action.Push activation pushes the target scene root", async () => {
   await renderer.flush();
   assert.equal(probe.transactions[0].operations[0].root.type, "list");
 
-  const eventId = probe.transactions[0].operations[0].root.children[0].children[0].props.onAction;
+  const eventId = probe.transactions[0].operations[0].root.children[0].children[0].children[0].props.onAction;
   probe.dispatch(eventId);
   await renderer.flush();
 
@@ -402,4 +382,58 @@ test("environment reports the runtime platform and command identity", () => {
   assert.equal(info.commandName, "index");
   assert.equal(info.extensionName, "fixture.extension");
   assert.equal(typeof info.raycastVersion, "string");
+});
+
+test("renders titled action panels, submenus, List actions, and tinted icons", async () => {
+  const environment = createContext();
+
+  const renderer = renderCommand(environment.context, () =>
+    createElement(
+      List,
+      {
+        navigationTitle: "Tasks",
+        actions: createElement(
+          ActionPanel,
+          { title: "Global" },
+          createElement(Action, { title: "Root Action", onAction: () => {} }),
+        ),
+      },
+      createElement(
+        List.Item,
+        {
+          title: "First",
+          icon: { source: Icon.Circle, tintColor: Color.Red },
+        },
+        createElement(
+          ActionPanel,
+          { title: "Item Actions" },
+          createElement(Action, { title: "Run", onAction: () => {} }),
+          createElement(
+            ActionPanel.Submenu,
+            { title: "More" },
+            createElement(Action, { title: "Extra", onAction: () => {} }),
+          ),
+        ),
+      ),
+    ),
+  );
+  await renderer.flush();
+
+  const root = environment.transactions[0].operations[0].root;
+  const item = root.children[0];
+  assert.deepEqual(item.props, { title: "First", icon: "circle", iconTintColor: "red" });
+
+  const itemGroup = item.children[0];
+  assert.equal(itemGroup.type, "action-group");
+  assert.deepEqual(itemGroup.props, { title: "Item Actions" });
+  assert.equal(itemGroup.children[0].type, "action");
+  const submenu = itemGroup.children[1];
+  assert.equal(submenu.type, "action-group");
+  assert.deepEqual(submenu.props, { title: "More" });
+  assert.equal(submenu.children[0].type, "action");
+
+  const listGroup = root.children[1];
+  assert.equal(listGroup.type, "action-group");
+  assert.deepEqual(listGroup.props, { title: "Global" });
+  assert.equal(listGroup.children[0].type, "action");
 });

@@ -153,3 +153,22 @@ export const Icon = {
 } as const;
 
 export type IconName = (typeof Icon)[keyof typeof Icon];
+
+/**
+ * A measured subset of the Raycast `Color` enum, serialized into scene
+ * `iconTintColor` properties.
+ */
+export const Color = {
+  Red: "red",
+  Blue: "blue",
+  Green: "green",
+  Yellow: "yellow",
+  Orange: "orange",
+  Purple: "purple",
+  Magenta: "magenta",
+  Pink: "pink",
+  PrimaryText: "primary-text",
+  SecondaryText: "secondary-text",
+} as const;
+
+export type ColorName = (typeof Color)[keyof typeof Color];

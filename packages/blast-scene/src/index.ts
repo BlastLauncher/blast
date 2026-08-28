@@ -9,7 +9,7 @@ export const SCENE_TRANSACTION_MESSAGE = "scene.transaction" as const;
 export const SCENE_EVENT_MESSAGE = "scene.event" as const;
 export const UI_TOAST_MESSAGE = "ui.toast" as const;
 
-export const SCENE_NODE_TYPES = ["list", "list-item", "action", "detail"] as const;
+export const SCENE_NODE_TYPES = ["list", "list-item", "action", "detail", "action-group"] as const;
 
 export type SceneNodeType = (typeof SCENE_NODE_TYPES)[number];
 
@@ -91,9 +91,10 @@ export function createCollectingSceneSink(): SceneTransactionSink & {
 
 const PROP_WHITELIST: Record<SceneNodeType, readonly string[]> = {
   list: ["navigationTitle", "searchBarPlaceholder", "isLoading"],
-  "list-item": ["title", "subtitle", "icon"],
-  action: ["title", "onAction", "icon"],
+  "list-item": ["title", "subtitle", "icon", "iconTintColor"],
+  action: ["title", "onAction", "icon", "iconTintColor"],
   detail: ["markdown", "navigationTitle"],
+  "action-group": ["title"],
 };
 
 /**
@@ -108,20 +109,23 @@ const REQUIRED_PROPS: Record<SceneNodeType, readonly string[]> = {
   "list-item": ["title"],
   action: ["title", "onAction"],
   detail: [],
+  "action-group": [],
 };
 
 const PROP_TYPES: Record<SceneNodeType, Readonly<Record<string, "string" | "boolean" | "number">>> = {
   list: { navigationTitle: "string", searchBarPlaceholder: "string", isLoading: "boolean" },
-  "list-item": { title: "string", subtitle: "string", icon: "string" },
-  action: { title: "string", onAction: "string", icon: "string" },
+  "list-item": { title: "string", subtitle: "string", icon: "string", iconTintColor: "string" },
+  action: { title: "string", onAction: "string", icon: "string", iconTintColor: "string" },
   detail: { markdown: "string", navigationTitle: "string" },
+  "action-group": { title: "string" },
 };
 
 const CHILD_TYPES: Record<SceneNodeType, readonly SceneNodeType[]> = {
-  list: ["list-item"],
-  "list-item": ["action"],
+  list: ["list-item", "action-group"],
+  "list-item": ["action", "action-group"],
   action: [],
   detail: [],
+  "action-group": ["action", "action-group"],
 };
 
 export class SceneError extends Error {
@@ -460,7 +464,7 @@ export class SceneStateBuffer {
   }
 
   #applySnapshot(root: SceneNode): void {
-    if (root.type !== "list" && root.type !== "detail") {
+    if (root.type === "action-group" || root.type === "list-item" || root.type === "action") {
       throw new SceneError("invalid_root", "The scene root must be a list or a detail", { nodeType: root.type });
     }
 
