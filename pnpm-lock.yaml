@@ -334,6 +334,9 @@ importers:
       '@blastlauncher/protocol':
         specifier: workspace:*
         version: link:../blast-protocol
+      '@blastlauncher/scene':
+        specifier: workspace:*
+        version: link:../blast-scene
       '@blastlauncher/session':
         specifier: workspace:*
         version: link:../blast-session
@@ -352,6 +355,9 @@ importers:
       '@blastlauncher/protocol':
         specifier: workspace:*
         version: link:../blast-protocol
+      '@blastlauncher/scene':
+        specifier: workspace:*
+        version: link:../blast-scene
       '@blastlauncher/transport':
         specifier: workspace:*
         version: link:../blast-transport

@@ -50,6 +50,13 @@ initialization, entrypoint loading for ESM and CommonJS fixtures, loading
 failures, and shutdown. A child-process fixture then proves the launched
 bootstrap loads exactly the descriptor's entrypoint and exits cleanly.
 
+Scene traffic adds a deterministic loop: the scene channel validates and
+forwards transactions, dispatches valid `scene.event` payloads, fails the
+session on invalid events, and replaces handlers on re-registration. An
+in-memory host peer runs the full loop — snapshot, action event, and update
+transaction — through a `SceneStateBuffer`, and a failing command closes the
+session and fails the bootstrap.
+
 ### Core orchestration
 
 Core tests prove that untrusted callers supply only stable command identities,

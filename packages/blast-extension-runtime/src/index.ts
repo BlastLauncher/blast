@@ -4,6 +4,15 @@ import {
   type ExtensionDescriptor,
 } from "@blastlauncher/extension-contract";
 import type { PeerImplementation } from "@blastlauncher/protocol";
+import {
+  SCENE_EVENT_MESSAGE,
+  SCENE_TRANSACTION_MESSAGE,
+  SceneError,
+  validateSceneEventMessage,
+  validateSceneTransactionPayload,
+  type SceneEventPayload,
+  type SceneTransaction,
+} from "@blastlauncher/scene";
 import { connectProtocolSession, ProtocolSession, ProtocolSessionError } from "@blastlauncher/session";
 import type { ProtocolTransport } from "@blastlauncher/transport";
 
@@ -77,4 +86,61 @@ async function closeBestEffort(session: ProtocolSession, error: unknown): Promis
   } catch {
     // Preserve the initialization failure.
   }
+}
+
+export type SceneEventHandler = (payload: SceneEventPayload) => void | Promise<void>;
+
+export interface SceneChannel {
+  /**
+   * Sends one validated scene transaction to the host over the runtime
+   * session. The transaction is validated before it leaves the runtime.
+   */
+  publish(transaction: SceneTransaction): Promise<void>;
+  /**
+   * Registers the handler invoked for valid `scene.event` messages. The last
+   * registration wins.
+   */
+  onEvent(handler: SceneEventHandler): void;
+  /**
+   * Routes one received protocol message. Non-scene messages are ignored;
+   * a `scene.event` with an invalid payload fails the session because
+   * application messages are untrusted until validated.
+   */
+  handleMessage(message: unknown): Promise<void>;
+}
+
+export function createSceneChannel(session: ProtocolSession): SceneChannel {
+  let eventHandler: SceneEventHandler | undefined;
+
+  return {
+    async publish(transaction: SceneTransaction): Promise<void> {
+      const validation = validateSceneTransactionPayload(transaction);
+      if (!validation.ok) {
+        throw new SceneError("invalid_transaction", "Refusing to send an invalid scene transaction", validation.issues);
+      }
+      await session.send(SCENE_TRANSACTION_MESSAGE, transaction);
+    },
+    onEvent(handler: SceneEventHandler): void {
+      eventHandler = handler;
+    },
+    async handleMessage(message: unknown): Promise<void> {
+      if (!isRecord(message) || message.type !== SCENE_EVENT_MESSAGE) {
+        return;
+      }
+      const validation = validateSceneEventMessage(message);
+      if (!validation.ok) {
+        await closeBestEffort(session, "Invalid scene event received");
+        throw new SceneError(
+          "invalid_scene_event",
+          "Received an invalid scene event and closed the session",
+          validation.issues,
+        );
+      }
+      await eventHandler?.(validation.value.payload);
+    },
+  };
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }

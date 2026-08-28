@@ -22,6 +22,7 @@
     "@blastlauncher/extension-contract": "workspace:*",
     "@blastlauncher/extension-runtime": "workspace:*",
     "@blastlauncher/protocol": "workspace:*",
+    "@blastlauncher/scene": "workspace:*",
     "@blastlauncher/transport": "workspace:*",
     "@blastlauncher/transport-node": "workspace:*"
   },

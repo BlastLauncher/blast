@@ -125,7 +125,6 @@ export class SceneError extends Error {
     }
   }
 }
-
 export function validateSceneTransactionMessage(value: unknown): ValidationResult<SceneTransactionMessage> {
   const envelope = validateProtocolEnvelope(value);
   if (!envelope.ok) {
@@ -134,20 +133,31 @@ export function validateSceneTransactionMessage(value: unknown): ValidationResul
   if (envelope.value.type !== SCENE_TRANSACTION_MESSAGE) {
     return invalid("$.type", `Expected ${JSON.stringify(SCENE_TRANSACTION_MESSAGE)}`);
   }
-  if (!isRecord(envelope.value.payload)) {
-    return invalid("$.payload", "Expected an object");
-  }
 
   const issues: ValidationIssue[] = [];
-  validateNonEmptyString(envelope.value.payload.transactionId, "$.payload.transactionId", issues);
-  if (!Array.isArray(envelope.value.payload.operations)) {
-    issues.push({ path: "$.payload.operations", message: "Expected an array" });
-  } else {
-    envelope.value.payload.operations.forEach((operation, index) => {
-      validateOperation(operation, `$.payload.operations[${index}]`, issues);
-    });
-  }
+  validateTransactionPayload(envelope.value.payload, "$.payload", issues);
   return issues.length === 0 ? { ok: true, value: envelope.value as SceneTransactionMessage } : { ok: false, issues };
+}
+
+export function validateSceneTransactionPayload(value: unknown): ValidationResult<SceneTransaction> {
+  const issues: ValidationIssue[] = [];
+  validateTransactionPayload(value, "$", issues);
+  return issues.length === 0 ? { ok: true, value: value as SceneTransaction } : { ok: false, issues };
+}
+
+function validateTransactionPayload(value: unknown, basePath: string, issues: ValidationIssue[]): void {
+  if (!isRecord(value)) {
+    issues.push({ path: basePath, message: "Expected an object" });
+    return;
+  }
+  validateNonEmptyString(value.transactionId, `${basePath}.transactionId`, issues);
+  if (!Array.isArray(value.operations)) {
+    issues.push({ path: `${basePath}.operations`, message: "Expected an array" });
+    return;
+  }
+  value.operations.forEach((operation, index) => {
+    validateOperation(operation, `${basePath}.operations[${index}]`, issues);
+  });
 }
 
 export function validateSceneEventMessage(value: unknown): ValidationResult<SceneEventMessage> {
@@ -158,15 +168,25 @@ export function validateSceneEventMessage(value: unknown): ValidationResult<Scen
   if (envelope.value.type !== SCENE_EVENT_MESSAGE) {
     return invalid("$.type", `Expected ${JSON.stringify(SCENE_EVENT_MESSAGE)}`);
   }
-  if (!isRecord(envelope.value.payload)) {
-    return invalid("$.payload", "Expected an object");
-  }
 
   const issues: ValidationIssue[] = [];
-  validateNonEmptyString(envelope.value.payload.eventId, "$.payload.eventId", issues);
+  validateEventPayload(envelope.value.payload, "$.payload", issues);
   return issues.length === 0 ? { ok: true, value: envelope.value as SceneEventMessage } : { ok: false, issues };
 }
 
+export function validateSceneEventPayload(value: unknown): ValidationResult<SceneEventPayload> {
+  const issues: ValidationIssue[] = [];
+  validateEventPayload(value, "$", issues);
+  return issues.length === 0 ? { ok: true, value: value as SceneEventPayload } : { ok: false, issues };
+}
+
+function validateEventPayload(value: unknown, basePath: string, issues: ValidationIssue[]): void {
+  if (!isRecord(value)) {
+    issues.push({ path: basePath, message: "Expected an object" });
+    return;
+  }
+  validateNonEmptyString(value.eventId, `${basePath}.eventId`, issues);
+}
 function validateOperation(value: unknown, path: string, issues: ValidationIssue[]): void {
   if (!isRecord(value) || typeof value.type !== "string") {
     issues.push({ path, message: "Expected an operation object with a type" });

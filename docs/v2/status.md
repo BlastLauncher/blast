@@ -25,6 +25,10 @@ slice changes what is executable, what is trusted, or what should happen next.
   messages, applies ordered snapshot/insert/update/remove/reorder operations
   to a materialized client state, and exposes the transport-independent
   mutation sink the React renderer will publish to.
+- The runtime publishes validated scene transactions over its session through
+  a scene channel and receives `scene.event` messages back; the Node
+  bootstrap invokes the entrypoint's command export with a context of
+  descriptor, publish, and event handler.
 - The extension host reserves identities, supervises startup and stopping,
   publishes only initialized sessions, removes exited processes, and exposes an
   async lifecycle event stream.
@@ -71,8 +75,8 @@ slice changes what is executable, what is trusted, or what should happen next.
 Build the first vertical slice rather than adding more infrastructure in
 isolation:
 
-1. wire the runtime bootstrap to publish scene transactions for a fixed
-   `List` fixture and route `scene.event` actions back to the extension;
+1. relay scene traffic through the extension host to a deterministic test
+   client that renders the fixture `List` through the state buffer;
 2. route one clipboard request through a deny-by-default capability broker;
 3. test a normal action and a deliberate runtime crash end to end.
 

@@ -67,7 +67,10 @@ a future alternative runtime, and deterministic tests reuse the same lifecycle.
 `@blastlauncher/extension-runtime-node` ships the fixed Node bootstrap: it
 negotiates the session, loads the descriptor's entrypoint through the ECMAScript
 module loader, acknowledges readiness, and drains application messages until
-the host shuts the session down.
+the host shuts the session down. The bootstrap invokes the entrypoint's command
+export with a context of descriptor, scene publisher, and event handler
+(ADR 0008), so scene traffic flows over the same validated session before any
+renderer or client exists.
 
 ### Extension host
 

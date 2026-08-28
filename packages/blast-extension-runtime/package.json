@@ -21,6 +21,7 @@
   "dependencies": {
     "@blastlauncher/extension-contract": "workspace:*",
     "@blastlauncher/protocol": "workspace:*",
+    "@blastlauncher/scene": "workspace:*",
     "@blastlauncher/session": "workspace:*",
     "@blastlauncher/transport": "workspace:*"
   }

@@ -3,6 +3,7 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 
 import { acceptProtocolSession } from "@blastlauncher/session";
+import { SceneStateBuffer, validateSceneTransactionMessage } from "@blastlauncher/scene";
 import { createInMemoryTransportPair } from "@blastlauncher/transport";
 
 import { ExtensionEntrypointError, loadExtensionEntrypoint, runNodeExtensionBootstrap } from "../dist/index.js";
@@ -10,6 +11,7 @@ import { ExtensionEntrypointError, loadExtensionEntrypoint, runNodeExtensionBoot
 const esmEntrypoint = fileURLToPath(new URL("./fixtures/entrypoints/example-command.mjs", import.meta.url));
 const cjsEntrypoint = fileURLToPath(new URL("./fixtures/entrypoints/example-command.cjs", import.meta.url));
 const brokenEntrypoint = fileURLToPath(new URL("./fixtures/entrypoints/broken-command.mjs", import.meta.url));
+const sceneEntrypoint = fileURLToPath(new URL("./fixtures/entrypoints/scene-command.mjs", import.meta.url));
 
 const descriptor = {
   extensionId: "fixture.extension",
@@ -130,6 +132,88 @@ test("reports entrypoint loading failures during initialization", async () => {
     () => bootstrap,
     (error) => error.code === "entrypoint_load_failed",
   );
+  assert.equal((await host.receive()).type, "shutdown");
+  assert.equal(host.state, "closed");
+});
+
+test("runs the scene loop over an in-memory transport", async () => {
+  const [runtimeTransport, hostTransport] = createInMemoryTransportPair();
+  const sceneDescriptor = { ...descriptor, entrypoint: sceneEntrypoint };
+  const bootstrap = runNodeExtensionBootstrap({
+    implementation: runtimeImplementation(),
+    createMessageId: idFactory("runtime"),
+    transport: runtimeTransport,
+  });
+
+  const host = await acceptProtocolSession(hostTransport, {
+    role: "extension-host",
+    implementation: { name: "host-test", version: "0.0.0" },
+    createMessageId: idFactory("host"),
+    createSessionId: idFactory("session"),
+  });
+  await host.send("extension.initialize", { descriptor: sceneDescriptor });
+  assert.equal((await host.receive()).type, "extension.ready");
+
+  const buffer = new SceneStateBuffer();
+  const snapshot = validateSceneTransactionMessage(await host.receive());
+  assert.equal(snapshot.ok, true);
+  buffer.apply(snapshot.value.payload);
+  assert.deepEqual(buffer.toJSON(), {
+    id: "root",
+    type: "list",
+    props: { navigationTitle: "Fixture" },
+    children: [
+      {
+        id: "item-1",
+        type: "list-item",
+        props: { title: "Hello" },
+        children: [
+          { id: "action-1", type: "action", props: { title: "Run", onAction: "event-action-1" }, children: [] },
+        ],
+      },
+    ],
+  });
+
+  const action = buffer.childrenOf("root")[0].children.find((child) => child.type === "action");
+  await host.send("scene.event", { eventId: action.props.onAction });
+
+  const update = validateSceneTransactionMessage(await host.receive());
+  assert.equal(update.ok, true);
+  assert.equal(update.value.payload.transactionId, "fixture-update");
+  buffer.apply(update.value.payload);
+  assert.equal(buffer.get("item-1").props.title, "Ran:event-action-1");
+
+  await host.close("scene loop complete");
+  const result = await bootstrap;
+  assert.equal(result.descriptor, sceneDescriptor);
+  assert.equal(typeof result.entrypointModule.command, "function");
+  assert.equal(host.state, "closed");
+});
+
+test("reports command failures and closes the session", async () => {
+  const [runtimeTransport, hostTransport] = createInMemoryTransportPair();
+  const bootstrap = runNodeExtensionBootstrap({
+    implementation: runtimeImplementation(),
+    createMessageId: idFactory("runtime"),
+    transport: runtimeTransport,
+    loadEntrypoint: async () => ({
+      command() {
+        throw new Error("command exploded");
+      },
+    }),
+  });
+
+  const host = await acceptProtocolSession(hostTransport, {
+    role: "extension-host",
+    implementation: { name: "host-test", version: "0.0.0" },
+    createMessageId: idFactory("host"),
+    createSessionId: idFactory("session"),
+  });
+
+  await host.send("extension.initialize", { descriptor });
+  assert.equal((await host.receive()).type, "extension.ready");
+
+  await assert.rejects(() => bootstrap, /command exploded/);
   assert.equal((await host.receive()).type, "shutdown");
   assert.equal(host.state, "closed");
 });

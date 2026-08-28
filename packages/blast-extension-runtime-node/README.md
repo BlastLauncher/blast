@@ -14,6 +14,15 @@ ECMAScript module loader. CommonJS entrypoints appear as the `default` export
 of the returned namespace. Existence checks belong to the trusted catalog;
 load failures surface here as structured `entrypoint_*` error codes.
 
+## Command context
+
+After `extension.ready`, the bootstrap invokes the entrypoint's `command`
+(or default) export with a context of `descriptor`, `publish(transaction)`,
+and `onEvent(handler)` (ADR 0008). The single message pump dispatches valid
+`scene.event` payloads to the registered handler; an invalid scene event
+closes the session, and a rejecting command fails the bootstrap. Entry points
+without a command export load without being invoked.
+
 ## Boundaries
 
 - module loading stays behind an injected hook so alternative runtimes and

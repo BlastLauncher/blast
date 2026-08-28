@@ -7,7 +7,9 @@ import {
   SceneStateBuffer,
   createCollectingSceneSink,
   validateSceneEventMessage,
+  validateSceneEventPayload,
   validateSceneTransactionMessage,
+  validateSceneTransactionPayload,
 } from "../dist/index.js";
 
 const PROTOCOL_VERSION = 1;
@@ -125,6 +127,47 @@ test("validates scene event messages", (context) => {
     assert.deepEqual(
       result.issues?.map((issue) => issue.path),
       ["$.payload.eventId"],
+    );
+  });
+});
+
+test("validates scene event payloads", (context) => {
+  context.test("accepts an event identifier", () => {
+    assert.equal(validateSceneEventPayload({ eventId: "event-1" }).ok, true);
+  });
+
+  context.test("rejects missing event identifiers", () => {
+    const result = validateSceneEventPayload({});
+    assert.deepEqual(
+      result.issues?.map((issue) => issue.path),
+      ["$.eventId"],
+    );
+  });
+
+  context.test("rejects non-object payloads", () => {
+    assert.equal(validateSceneEventPayload("event-1").ok, false);
+  });
+});
+
+test("validates scene transaction payloads", (context) => {
+  context.test("accepts a well-formed transaction", () => {
+    const result = validateSceneTransactionPayload(transaction([{ type: "snapshot", root: list("root") }]));
+    assert.equal(result.ok, true);
+  });
+
+  context.test("rejects missing transaction identifiers", () => {
+    const result = validateSceneTransactionPayload({ operations: [] });
+    assert.deepEqual(
+      result.issues?.map((issue) => issue.path),
+      ["$.transactionId"],
+    );
+  });
+
+  context.test("rejects invalid operations", () => {
+    const result = validateSceneTransactionPayload(transaction([{ type: "teleport" }]));
+    assert.deepEqual(
+      result.issues?.map((issue) => issue.path),
+      ["$.operations[0].type"],
     );
   });
 });
