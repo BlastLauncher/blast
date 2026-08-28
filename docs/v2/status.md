@@ -62,6 +62,11 @@ slice changes what is executable, what is trusted, or what should happen next.
   snapshot for the first commit and recovery, then insert/update/remove
   operations with stable node identifiers, whitelisted props, and stable
   event identifiers for action callbacks.
+- The Raycast compatibility adapter implements the census-measured view
+  stack (List, List.Item, ActionPanel, Action, Detail, Icon) over the
+  renderer, routes Clipboard through the capability broker, and raises
+  structured errors for unmeasured surface; a Raycast-style fixture
+  extension runs end to end over child processes.
 
 ## Trust boundaries already enforced
 
@@ -79,8 +84,11 @@ slice changes what is executable, what is trusted, or what should happen next.
 
 - a persistent, watched catalog index and extension installation flows;
 - loading real extension entrypoints that require bundling or dependency
-  resolution beyond immutable fixtures;
-- the Raycast compatibility adapter on the V2 runtime;
+  resolution beyond immutable fixtures (including `@raycast/api` import
+  resolution to the adapter);
+- the remaining measured Raycast surface: toast and HUD feedback, `Form`,
+  `getPreferenceValues` and manifest preferences, navigation, and `Color`
+  tinting;
 - a client-facing core protocol, daemon listener, and desktop rendering of
   scenes (the deterministic test client stands in today);
 - capability manifest declarations, real operating-system providers, audit
@@ -92,17 +100,18 @@ slice changes what is executable, what is trusted, or what should happen next.
 
 ## Recommended continuation
 
-The first extension-to-client vertical slice is complete, and the corpus
-census (`compatibility/README.md`) justifies the adapter order. Continue with
-the compatibility phase:
+The first extension-to-client vertical slice is complete, the corpus census
+(`compatibility/README.md`) justifies the adapter order, and the first
+measured adapter surface runs end to end. Continue with the compatibility
+phase:
 
-1. implement the measured `@raycast/api` surface in usage order: the
-   `List`/`Detail` view stack with `Action`/`ActionPanel` and `Icon`/`Color`,
-   then `showToast`/`showHUD` feedback and `Clipboard` through the broker,
-   then `getPreferenceValues` and manifest preferences;
-2. select a varied fixture set of real extensions and publish the support
-   matrix;
-3. add a client-facing core protocol and daemon listener so the Electron
+1. select a varied fixture set of real extensions and publish the support
+   matrix over the adapter;
+2. extend the measured surface in census order: toast and HUD feedback,
+   `getPreferenceValues` and manifest preferences, navigation;
+3. add extension bundling with `@raycast/api` import resolution so unmodified
+   real extensions load;
+4. add a client-facing core protocol and daemon listener so the Electron
    client can replace the test client.
 
 Keep WebSocket and remote execution as transport/provider additions. They do not

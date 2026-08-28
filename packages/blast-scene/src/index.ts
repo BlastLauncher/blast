@@ -8,7 +8,7 @@ import {
 export const SCENE_TRANSACTION_MESSAGE = "scene.transaction" as const;
 export const SCENE_EVENT_MESSAGE = "scene.event" as const;
 
-export const SCENE_NODE_TYPES = ["list", "list-item", "action"] as const;
+export const SCENE_NODE_TYPES = ["list", "list-item", "action", "detail"] as const;
 
 export type SceneNodeType = (typeof SCENE_NODE_TYPES)[number];
 
@@ -90,8 +90,9 @@ export function createCollectingSceneSink(): SceneTransactionSink & {
 
 const PROP_WHITELIST: Record<SceneNodeType, readonly string[]> = {
   list: ["navigationTitle", "searchBarPlaceholder", "isLoading"],
-  "list-item": ["title", "subtitle"],
-  action: ["title", "onAction"],
+  "list-item": ["title", "subtitle", "icon"],
+  action: ["title", "onAction", "icon"],
+  detail: ["markdown", "navigationTitle"],
 };
 
 /**
@@ -105,18 +106,21 @@ const REQUIRED_PROPS: Record<SceneNodeType, readonly string[]> = {
   list: [],
   "list-item": ["title"],
   action: ["title", "onAction"],
+  detail: [],
 };
 
 const PROP_TYPES: Record<SceneNodeType, Readonly<Record<string, "string" | "boolean" | "number">>> = {
   list: { navigationTitle: "string", searchBarPlaceholder: "string", isLoading: "boolean" },
-  "list-item": { title: "string", subtitle: "string" },
-  action: { title: "string", onAction: "string" },
+  "list-item": { title: "string", subtitle: "string", icon: "string" },
+  action: { title: "string", onAction: "string", icon: "string" },
+  detail: { markdown: "string", navigationTitle: "string" },
 };
 
 const CHILD_TYPES: Record<SceneNodeType, readonly SceneNodeType[]> = {
   list: ["list-item"],
   "list-item": ["action"],
   action: [],
+  detail: [],
 };
 
 export class SceneError extends Error {
@@ -404,8 +408,8 @@ export class SceneStateBuffer {
   }
 
   #applySnapshot(root: SceneNode): void {
-    if (root.type !== "list") {
-      throw new SceneError("invalid_root", "The scene root must be a list", { nodeType: root.type });
+    if (root.type !== "list" && root.type !== "detail") {
+      throw new SceneError("invalid_root", "The scene root must be a list or a detail", { nodeType: root.type });
     }
 
     this.#nodes.clear();

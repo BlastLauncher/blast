@@ -74,9 +74,14 @@ export interface NodeExtensionBootstrapOptions {
   readonly signal?: AbortSignal;
   /** Defaults to the process stdio transport used by spawned runtimes. */
   readonly transport?: ProtocolTransport;
-  /** Defaults to {@link loadExtensionEntrypoint}. */
+  /** Defaults to the ECMAScript entrypoint loader. */
   readonly loadEntrypoint?: ExtensionEntrypointLoader;
   readonly onLoaded?: (entrypointModule: unknown, descriptor: ExtensionDescriptor) => void | Promise<void>;
+  /**
+   * Configures command API surfaces (such as the Raycast compatibility
+   * adapter) with the command context before the command export runs.
+   */
+  readonly configureApi?: (context: ExtensionCommandContext) => void | Promise<void>;
 }
 
 export interface NodeExtensionBootstrapResult {
@@ -120,7 +125,7 @@ export async function runNodeExtensionBootstrap(
   const commandPromise =
     command === undefined
       ? undefined
-      : invokeCommand(command, runtime.descriptor, channel).catch(async (error) => {
+      : invokeCommand(command, runtime.descriptor, channel, options.configureApi).catch(async (error) => {
           if (isSessionClosedError(error)) {
             // The session ended while the command awaited traffic; the
             // bootstrap ends normally with the session.
@@ -151,6 +156,7 @@ async function invokeCommand(
   command: ExtensionCommand,
   descriptor: ExtensionDescriptor,
   channel: ExtensionChannel,
+  configureApi: ((context: ExtensionCommandContext) => void | Promise<void>) | undefined,
 ): Promise<void> {
   const context: ExtensionCommandContext = {
     descriptor,
@@ -158,6 +164,7 @@ async function invokeCommand(
     onEvent: (handler: SceneEventHandler) => channel.onEvent(handler),
     requestCapability: (request: ExtensionChannelRequest) => channel.requestCapability(request),
   };
+  await configureApi?.(context);
   await command(context);
 }
 

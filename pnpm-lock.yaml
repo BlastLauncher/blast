@@ -330,9 +330,15 @@ importers:
       '@blastlauncher/extension-runtime-node':
         specifier: workspace:*
         version: link:../blast-extension-runtime-node
+      '@blastlauncher/raycast-compat':
+        specifier: workspace:*
+        version: link:../blast-raycast-compat
       '@blastlauncher/scene':
         specifier: workspace:*
         version: link:../blast-scene
+      react:
+        specifier: ^19.2.8
+        version: 19.2.8
 
   packages/blast-extension-contract:
     dependencies:
@@ -427,6 +433,22 @@ importers:
         version: link:../blast-transport-node
 
   packages/blast-protocol: {}
+
+  packages/blast-raycast-compat:
+    dependencies:
+      '@blastlauncher/react-renderer':
+        specifier: workspace:*
+        version: link:../blast-react-renderer
+      '@blastlauncher/scene':
+        specifier: workspace:*
+        version: link:../blast-scene
+      react:
+        specifier: ^19.2.8
+        version: 19.2.8
+    devDependencies:
+      '@types/react':
+        specifier: ^19.2.18
+        version: 19.2.18
 
   packages/blast-react-renderer:
     dependencies:

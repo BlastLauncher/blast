@@ -14,6 +14,7 @@ const bootstrapPath = fileURLToPath(new URL("./fixtures/bootstrap.mjs", import.m
 
 const sceneIdentity = { extensionId: "e2e.scene", commandName: "index" };
 const crashIdentity = { extensionId: "e2e.crash", commandName: "index" };
+const compatIdentity = { extensionId: "e2e.compat", commandName: "index" };
 
 function createCore() {
   const catalog = new FilesystemExtensionCatalog({ root: catalogRoot });
@@ -28,7 +29,10 @@ function createCore() {
   });
   const clipboardWrites = [];
   const broker = new CapabilityBroker({
-    policy: createGrantListPolicy([{ extensionId: "e2e.scene", capability: "clipboard", operation: "write" }]),
+    policy: createGrantListPolicy([
+      { extensionId: "e2e.scene", capability: "clipboard", operation: "write" },
+      { extensionId: "e2e.compat", capability: "clipboard", operation: "write" },
+    ]),
     providers: {
       clipboard: {
         async perform(request) {
@@ -149,4 +153,54 @@ test("survives a deliberate runtime crash while the core keeps serving", async (
   await core.close();
   assert.equal(core.state, "closed");
   await collector;
+});
+
+test("runs a Raycast-style compat extension with brokered clipboard end to end", async () => {
+  const { core, broker, clipboardWrites } = createCore();
+  const buffer = new SceneStateBuffer();
+  const transactions = [];
+
+  const session = await core.runCommand(compatIdentity);
+  assert.equal(session.protocol.remotePeer.implementation.name, "e2e-runtime");
+  const relay = relaySessionTraffic(session, {
+    sceneSink: createSceneSink(buffer, transactions),
+    capabilityBroker: broker,
+  });
+
+  await waitFor(() => buffer.rootId !== undefined, "the compat list snapshot");
+  const rootId = buffer.rootId;
+  const itemId = buffer.childrenOf(rootId)[0].id;
+  const actionId = buffer.childrenOf(itemId)[0].id;
+  assert.deepEqual(buffer.toJSON(), {
+    id: rootId,
+    type: "list",
+    props: { navigationTitle: "Compat" },
+    children: [
+      {
+        id: itemId,
+        type: "list-item",
+        props: { title: "Hello", subtitle: "World", icon: "circle" },
+        children: [
+          {
+            id: actionId,
+            type: "action",
+            props: { title: "Copy", onAction: "event-1" },
+            children: [],
+          },
+        ],
+      },
+    ],
+  });
+
+  const action = buffer.childrenOf(itemId)[0];
+  await relay.sendSceneEvent(action.props.onAction);
+  await waitFor(() => clipboardWrites.length === 1, "the brokered clipboard write");
+
+  assert.deepEqual(clipboardWrites[0].arguments, { text: "from-compat" });
+  assert.equal(clipboardWrites[0].extensionId, "e2e.compat");
+
+  await core.stopCommand(compatIdentity, "compat slice complete");
+  await relay.done;
+  await core.close();
+  assert.equal(core.state, "closed");
 });

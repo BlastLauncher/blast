@@ -16,6 +16,7 @@ import { SCENE_PROP_WHITELIST } from "@blastlauncher/scene";
 export const SCENE_LIST_TYPE = "list";
 export const SCENE_LIST_ITEM_TYPE = "list-item";
 export const SCENE_ACTION_TYPE = "action";
+export const SCENE_DETAIL_TYPE = "detail";
 
 export interface SceneListProps {
   readonly navigationTitle?: string;
@@ -333,7 +334,12 @@ export function createSceneRenderer(options: SceneRendererOptions): SceneRendere
   let root: object | null = null;
 
   function createHostNode(type: string, props: Record<string, unknown>): HostNode {
-    if (type !== SCENE_LIST_TYPE && type !== SCENE_LIST_ITEM_TYPE && type !== SCENE_ACTION_TYPE) {
+    if (
+      type !== SCENE_LIST_TYPE &&
+      type !== SCENE_LIST_ITEM_TYPE &&
+      type !== SCENE_ACTION_TYPE &&
+      type !== SCENE_DETAIL_TYPE
+    ) {
       throw contractViolationError(new SceneRendererError("unknown_node_type", "Unknown scene node type", { type }));
     }
     const node: HostNode = {
@@ -440,13 +446,15 @@ export function createSceneRenderer(options: SceneRendererOptions): SceneRendere
 
   function rootList(sceneContainer: SceneContainer): HostNode {
     if (sceneContainer.children.length > 1) {
-      throw new SceneRendererError("invalid_scene_root", "The scene must render exactly one root list", {
+      throw new SceneRendererError("invalid_scene_root", "The scene must render exactly one root node", {
         children: sceneContainer.children.length,
       });
     }
     const rootChild = sceneContainer.children[0] as HostNode;
-    if (rootChild.type !== SCENE_LIST_TYPE) {
-      throw new SceneRendererError("invalid_scene_root", "The scene root must be a list", { type: rootChild.type });
+    if (rootChild.type !== SCENE_LIST_TYPE && rootChild.type !== SCENE_DETAIL_TYPE) {
+      throw new SceneRendererError("invalid_scene_root", "The scene root must be a list or a detail", {
+        type: rootChild.type,
+      });
     }
     return rootChild;
   }

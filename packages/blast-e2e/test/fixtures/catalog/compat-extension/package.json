@@ -1,0 +1,6 @@
+{
+  "name": "e2e.compat",
+  "title": "E2E Compat Extension",
+  "description": "Fixture extension written against the Raycast compatibility surface.",
+  "commands": [{ "name": "index", "title": "Compat", "mode": "view" }]
+}

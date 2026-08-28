@@ -2,7 +2,14 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { Children, createElement, useEffect } from "react";
 
-import { SceneAction, SceneList, SceneListItem, SceneRendererError, createSceneRenderer } from "../dist/index.js";
+import {
+  SCENE_DETAIL_TYPE,
+  SceneAction,
+  SceneList,
+  SceneListItem,
+  SceneRendererError,
+  createSceneRenderer,
+} from "../dist/index.js";
 
 const stableCalls = [];
 function stableCallback() {
@@ -232,7 +239,7 @@ test("rejects invalid scene trees", (context) => {
     const sink = createCollectingSink();
     const renderer = createSceneRenderer({ sink });
     assert.throws(
-      () => renderer.render(createElement(SceneListItem, { title: "Task", icon: "circle" })),
+      () => renderer.render(createElement(SceneListItem, { title: "Task", keywords: "task" })),
       (error) => error.code === "unknown_prop",
     );
     assert.equal(sink.transactions.length, 0);
@@ -305,4 +312,18 @@ test("unmount clears callbacks and stops publishing", async () => {
     (error) => error instanceof SceneRendererError && error.code === "renderer_unmounted",
   );
   assert.equal(sink.transactions.length, 1);
+});
+
+test("renders a detail root with markdown", async () => {
+  const sink = createCollectingSink();
+  const renderer = createSceneRenderer({ sink });
+
+  renderer.render(createElement(SCENE_DETAIL_TYPE, { markdown: "# Hello", navigationTitle: "Docs" }));
+  await renderer.flush();
+
+  assert.equal(sink.transactions.length, 1);
+  const root = snapshotRoot(sink);
+  assert.equal(root.type, "detail");
+  assert.deepEqual(root.props, { markdown: "# Hello", navigationTitle: "Docs" });
+  assert.deepEqual(root.children, []);
 });

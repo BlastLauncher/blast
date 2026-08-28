@@ -154,6 +154,8 @@ extension-runtime-node ---> extension-runtime
 extension-runtime ---> capability ---> protocol
 
 react-renderer ---> scene ---> protocol
+
+raycast-compat ---> react-renderer
 ```
 
 1. `protocol` has no workspace dependencies and no platform dependencies.
@@ -248,6 +250,7 @@ packages/blast-core-node/       Node filesystem manifest catalog
 packages/blast-e2e/             End-to-end vertical slice fixtures
 packages/blast-compatibility/   Static compatibility scanning and census
 packages/blast-react-renderer/  React renderer adapter for scene transactions
+packages/blast-raycast-compat/  Measured Raycast API compatibility adapter
 packages/blast-api/             V1 compatibility implementation
 packages/blast-runtime/         V1 runtime
 packages/blast-renderer/        V1 renderer
