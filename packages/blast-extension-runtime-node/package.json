@@ -26,7 +26,8 @@
     "@blastlauncher/scene": "workspace:*",
     "@blastlauncher/session": "workspace:*",
     "@blastlauncher/transport": "workspace:*",
-    "@blastlauncher/transport-node": "workspace:*"
+    "@blastlauncher/transport-node": "workspace:*",
+    "esbuild": "^0.28.2"
   },
   "devDependencies": {
     "@blastlauncher/session": "workspace:*"

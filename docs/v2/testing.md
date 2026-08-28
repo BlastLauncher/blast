@@ -50,6 +50,12 @@ initialization, entrypoint loading for ESM and CommonJS fixtures, loading
 failures, and shutdown. A child-process fixture then proves the launched
 bootstrap loads exactly the descriptor's entrypoint and exits cleanly.
 
+Bundling tests cover the esbuild loader: TSX entrypoints with aliased
+`@raycast/api` imports, structured failures for broken syntax, and the
+default-export component convention through the bootstrap's `renderComponent`
+hook. The end-to-end TSX fixture guards the bundling path over real child
+processes.
+
 Scene traffic adds a deterministic loop: the extension channel validates and
 forwards transactions, dispatches valid `scene.event` payloads, fails the
 session on invalid events, and replaces handlers on re-registration. An

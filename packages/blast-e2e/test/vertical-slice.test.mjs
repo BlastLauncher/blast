@@ -15,6 +15,7 @@ const bootstrapPath = fileURLToPath(new URL("./fixtures/bootstrap.mjs", import.m
 const sceneIdentity = { extensionId: "e2e.scene", commandName: "index" };
 const crashIdentity = { extensionId: "e2e.crash", commandName: "index" };
 const compatIdentity = { extensionId: "e2e.compat", commandName: "index" };
+const tsxIdentity = { extensionId: "e2e.tsx", commandName: "index" };
 
 function createCore() {
   const catalog = new FilesystemExtensionCatalog({ root: catalogRoot });
@@ -32,6 +33,7 @@ function createCore() {
     policy: createGrantListPolicy([
       { extensionId: "e2e.scene", capability: "clipboard", operation: "write" },
       { extensionId: "e2e.compat", capability: "clipboard", operation: "write" },
+      { extensionId: "e2e.tsx", capability: "clipboard", operation: "write" },
     ]),
     providers: {
       clipboard: {
@@ -200,6 +202,37 @@ test("runs a Raycast-style compat extension with brokered clipboard end to end",
   assert.equal(clipboardWrites[0].extensionId, "e2e.compat");
 
   await core.stopCommand(compatIdentity, "compat slice complete");
+  await relay.done;
+  await core.close();
+  assert.equal(core.state, "closed");
+});
+
+test("runs a bundled TSX extension with literal @raycast/api imports end to end", async () => {
+  const { core, broker, clipboardWrites } = createCore();
+  const buffer = new SceneStateBuffer();
+  const transactions = [];
+
+  const session = await core.runCommand(tsxIdentity);
+  assert.equal(session.protocol.remotePeer.implementation.name, "e2e-runtime");
+  const relay = relaySessionTraffic(session, {
+    sceneSink: createSceneSink(buffer, transactions),
+    capabilityBroker: broker,
+  });
+
+  await waitFor(() => buffer.rootId !== undefined, "the bundled TSX list snapshot");
+  const rootId = buffer.rootId;
+  const itemId = buffer.childrenOf(rootId)[0].id;
+  assert.equal(buffer.get(rootId).props.navigationTitle, "Compat TSX");
+  assert.deepEqual(buffer.get(itemId).props, { title: "Hello", subtitle: "World", icon: "circle" });
+  const action = buffer.childrenOf(itemId)[0];
+  assert.deepEqual(action.props, { title: "Copy", onAction: "event-1" });
+
+  await relay.sendSceneEvent(action.props.onAction);
+  await waitFor(() => clipboardWrites.length === 1, "the brokered clipboard write");
+  assert.deepEqual(clipboardWrites[0].arguments, { text: "from-tsx" });
+  assert.equal(clipboardWrites[0].extensionId, "e2e.tsx");
+
+  await core.stopCommand(tsxIdentity, "tsx slice complete");
   await relay.done;
   await core.close();
   assert.equal(core.state, "closed");

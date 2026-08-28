@@ -82,6 +82,12 @@ export interface NodeExtensionBootstrapOptions {
    * adapter) with the command context before the command export runs.
    */
   readonly configureApi?: (context: ExtensionCommandContext) => void | Promise<void>;
+  /**
+   * Renders a Raycast-style default-exported command component. When the
+   * entrypoint has no `command` export but a function default export and this
+   * hook is configured, the bootstrap uses it instead.
+   */
+  readonly renderComponent?: ExtensionComponentRenderer;
 }
 
 export interface NodeExtensionBootstrapResult {
@@ -105,6 +111,14 @@ export interface ExtensionCommandContext {
 type ExtensionCommand = (context: ExtensionCommandContext) => unknown;
 
 /**
+ * Configures the API surface for a Raycast-style command: the launcher's
+ * adapter renders the component and binds it to the command context. The
+ * component factory is passed through opaquely so the bootstrap does not
+ * depend on React.
+ */
+type ExtensionComponentRenderer = (context: ExtensionCommandContext, component: () => unknown) => void | Promise<void>;
+
+/**
  * Runs the fixed Node extension bootstrap: negotiate a versioned session as
  * `extension-runtime`, load the descriptor's entrypoint once the host sends
  * `extension.initialize`, acknowledge readiness, run the command export with a
@@ -119,13 +133,21 @@ export async function runNodeExtensionBootstrap(
   const runtime = await initializeRuntime(resolveTransport(options), options);
   const channel = createExtensionChannel(runtime.session, { descriptor: runtime.descriptor });
   const command = findCommandExport(runtime.entrypointModule);
+  const componentExport = command === undefined ? findComponentExport(runtime.entrypointModule) : undefined;
 
   let commandFailed = false;
   let commandError: unknown;
+  const renderComponent = options.renderComponent;
+  const activate =
+    command !== undefined
+      ? () => invokeCommand(command, runtime.descriptor, channel, options.configureApi)
+      : componentExport !== undefined && renderComponent !== undefined
+        ? () => invokeComponent(renderComponent, runtime.descriptor, channel, componentExport)
+        : undefined;
   const commandPromise =
-    command === undefined
+    activate === undefined
       ? undefined
-      : invokeCommand(command, runtime.descriptor, channel, options.configureApi).catch(async (error) => {
+      : activate().catch(async (error) => {
           if (isSessionClosedError(error)) {
             // The session ended while the command awaited traffic; the
             // bootstrap ends normally with the session.
@@ -168,17 +190,35 @@ async function invokeCommand(
   await command(context);
 }
 
+async function invokeComponent(
+  renderComponent: ExtensionComponentRenderer,
+  descriptor: ExtensionDescriptor,
+  channel: ExtensionChannel,
+  component: () => unknown,
+): Promise<void> {
+  const context: ExtensionCommandContext = {
+    descriptor,
+    publish: (transaction: SceneTransaction) => channel.publish(transaction),
+    onEvent: (handler: SceneEventHandler) => channel.onEvent(handler),
+    requestCapability: (request: ExtensionChannelRequest) => channel.requestCapability(request),
+  };
+  await renderComponent(context, component);
+}
+
 function findCommandExport(entrypointModule: unknown): ExtensionCommand | undefined {
   if (typeof entrypointModule !== "object" || entrypointModule === null) {
     return undefined;
   }
-  const moduleRecord = entrypointModule as Record<string, unknown>;
-  for (const candidate of [moduleRecord["command"], moduleRecord["default"]]) {
-    if (typeof candidate === "function") {
-      return candidate as ExtensionCommand;
-    }
+  const command = (entrypointModule as Record<string, unknown>)["command"];
+  return typeof command === "function" ? (command as ExtensionCommand) : undefined;
+}
+
+function findComponentExport(entrypointModule: unknown): (() => unknown) | undefined {
+  if (typeof entrypointModule !== "object" || entrypointModule === null) {
+    return undefined;
   }
-  return undefined;
+  const defaultExport = (entrypointModule as Record<string, unknown>)["default"];
+  return typeof defaultExport === "function" ? (defaultExport as () => unknown) : undefined;
 }
 
 async function closeSessionBestEffort(session: BootstrapRuntime["session"], reason: string): Promise<void> {
@@ -231,3 +271,5 @@ async function drain(
 function resolveTransport(options: NodeExtensionBootstrapOptions): ProtocolTransport {
   return options.transport ?? createProcessStdioTransport();
 }
+
+export { createBundlingEntrypointLoader, type BundlingEntrypointLoaderOptions } from "./bundler.js";

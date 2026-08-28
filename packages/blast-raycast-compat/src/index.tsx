@@ -34,8 +34,21 @@ export interface RaycastCompatContext {
   }) => Promise<{ readonly outcome: string; readonly value?: string | number | boolean | null }>;
 }
 
-let configuredContext: RaycastCompatContext | undefined;
-let activeRenderer: SceneRenderer | undefined;
+/**
+ * Command state lives on `globalThis` because a bundled extension carries its
+ * own copy of this module while the bootstrap configures another; both copies
+ * must share one command binding per JavaScript realm.
+ */
+interface RaycastCompatGlobals {
+  context?: RaycastCompatContext;
+  renderer?: SceneRenderer;
+}
+
+const compatGlobals: RaycastCompatGlobals = (() => {
+  const holder = globalThis as typeof globalThis & { __blastRaycastCompat?: RaycastCompatGlobals };
+  holder.__blastRaycastCompat ??= {};
+  return holder.__blastRaycastCompat;
+})();
 
 /**
  * Binds the adapter to the running command context. The runtime bootstrap
@@ -43,14 +56,14 @@ let activeRenderer: SceneRenderer | undefined;
  * singletons such as `Clipboard` work.
  */
 export function configureRaycastCompat(context: RaycastCompatContext): void {
-  configuredContext = context;
+  compatGlobals.context = context;
 }
 
 function requireContext(): RaycastCompatContext {
-  if (configuredContext === undefined) {
+  if (compatGlobals.context === undefined) {
     throw new CompatibilityError("The Raycast compatibility API is not configured for this command");
   }
-  return configuredContext;
+  return compatGlobals.context;
 }
 
 /**
@@ -60,11 +73,11 @@ function requireContext(): RaycastCompatContext {
  * compatibility errors thrown from components, fail the command loudly.
  */
 export function runCommand(context: RaycastCompatContext, component: () => ReactElement): void {
-  if (activeRenderer !== undefined) {
+  if (compatGlobals.renderer !== undefined) {
     throw new CompatibilityError("A Raycast command is already running in this runtime");
   }
   const { renderer, takeError } = createCompatRenderer(context);
-  activeRenderer = renderer;
+  compatGlobals.renderer = renderer;
   renderLoudly(renderer, takeError, component);
 }
 
@@ -139,6 +152,7 @@ export interface ListItemProps {
   readonly subtitle?: string;
   readonly icon?: IconLike;
   readonly children?: ReactNode;
+  readonly actions?: ReactNode;
 }
 
 export interface DetailProps {
@@ -199,6 +213,10 @@ export function List(props: ListProps): ReactElement {
 
 function ListItem(props: ListItemProps): ReactElement {
   const icon = serializeIcon(props.icon, "List.Item");
+  const children =
+    props.actions === undefined
+      ? props.children
+      : Children.toArray([...Children.toArray(props.actions), ...Children.toArray(props.children)]);
   return createElement(
     "list-item",
     {
@@ -206,7 +224,7 @@ function ListItem(props: ListItemProps): ReactElement {
       ...(props.subtitle === undefined ? {} : { subtitle: props.subtitle }),
       ...(icon === undefined ? {} : { icon }),
     },
-    mapItemChildren(props.children, "List.Item"),
+    mapItemChildren(children, "List.Item"),
   );
 }
 

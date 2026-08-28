@@ -11,7 +11,14 @@
     "jest": true,
     "node": true
   },
-  "ignorePatterns": ["**/coverage/**", "**/dist/**", "**/node_modules/**", "**/out/**", "**/.webpack/**"],
+  "ignorePatterns": [
+    "**/coverage/**",
+    "**/dist/**",
+    "**/node_modules/**",
+    "**/out/**",
+    "**/.webpack/**",
+    "**/test/fixtures/**"
+  ],
   "rules": {
     "react/react-in-jsx-scope": "off",
     "import/no-named-as-default": "off",

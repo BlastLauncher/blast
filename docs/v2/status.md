@@ -67,6 +67,10 @@ slice changes what is executable, what is trusted, or what should happen next.
   renderer, routes Clipboard through the capability broker, and raises
   structured errors for unmeasured surface; a Raycast-style fixture
   extension runs end to end over child processes.
+- The Node bootstrap bundles entrypoints with esbuild (TypeScript/JSX and
+  literal `@raycast/api` imports resolved by launcher-provided aliases) and
+  renders default-exported command components through the adapter, so
+  unmodified Raycast-style TSX fixtures run end to end.
 
 ## Trust boundaries already enforced
 
@@ -83,9 +87,8 @@ slice changes what is executable, what is trusted, or what should happen next.
 ## Intentionally missing
 
 - a persistent, watched catalog index and extension installation flows;
-- loading real extension entrypoints that require bundling or dependency
-  resolution beyond immutable fixtures (including `@raycast/api` import
-  resolution to the adapter);
+- production bundle cache invalidation and externalization policy for
+  extensions with large or native npm dependency graphs;
 - the remaining measured Raycast surface: toast and HUD feedback, `Form`,
   `getPreferenceValues` and manifest preferences, navigation, and `Color`
   tinting;
@@ -101,17 +104,15 @@ slice changes what is executable, what is trusted, or what should happen next.
 ## Recommended continuation
 
 The first extension-to-client vertical slice is complete, the corpus census
-(`compatibility/README.md`) justifies the adapter order, and the first
-measured adapter surface runs end to end. Continue with the compatibility
-phase:
+(`compatibility/README.md`) justifies the adapter order, the first measured
+adapter surface runs end to end, and bundled TSX extensions with literal
+`@raycast/api` imports load. Continue with the compatibility phase:
 
 1. select a varied fixture set of real extensions and publish the support
    matrix over the adapter;
 2. extend the measured surface in census order: toast and HUD feedback,
    `getPreferenceValues` and manifest preferences, navigation;
-3. add extension bundling with `@raycast/api` import resolution so unmodified
-   real extensions load;
-4. add a client-facing core protocol and daemon listener so the Electron
+3. add a client-facing core protocol and daemon listener so the Electron
    client can replace the test client.
 
 Keep WebSocket and remote execution as transport/provider additions. They do not

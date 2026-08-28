@@ -17,14 +17,25 @@ load failures surface here as structured `entrypoint_*` error codes.
 ## Command context
 
 After `extension.ready`, the bootstrap invokes the entrypoint's `command`
-(or default) export with a context of `descriptor`, `publish(transaction)`,
-`onEvent(handler)`, and `requestCapability(request)` (ADR 0008). The single
-message pump dispatches valid `scene.event` payloads to the registered
-handler and resolves capability requests with `capability.response`
-messages; an invalid scene event closes the session, and a rejecting command
-fails the bootstrap. Pending capability requests are rejected when the
-session ends. Entry points without a command export load without being
-invoked.
+export with a context of `descriptor`, `publish(transaction)`,
+`onEvent(handler)`, and `requestCapability(request)` (ADR 0008). When the
+entrypoint instead default-exports a command component and the launcher
+configured `renderComponent`, the component goes to that hook so launchers
+can render Raycast-style components through their API adapter (ADR 0012).
+The single message pump dispatches valid `scene.event` payloads to the
+registered handler and resolves capability requests with
+`capability.response` messages; an invalid scene event closes the session,
+and a rejecting command fails the bootstrap. Pending capability requests are
+rejected when the session ends. Entry points with neither export load
+without being invoked.
+
+## Bundling
+
+`createBundlingEntrypointLoader` bundles entrypoints with esbuild before
+importing them (ADR 0012): TypeScript and JSX sources work, launcher-provided
+aliases resolve literal `@raycast/api` imports, and only Node.js builtins
+stay external. Bundling failures surface as structured
+`entrypoint_load_failed` errors.
 
 ## Boundaries
 
