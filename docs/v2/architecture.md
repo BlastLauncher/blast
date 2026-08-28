@@ -6,10 +6,12 @@
 flowchart LR
     E[Raycast extension] --> C[Raycast compatibility adapter]
     N[Blast-native extension] --> S[Blast SDK]
-    C --> H[Extension host]
-    S --> H
-    H <--> P[Blast protocol]
-    P <--> D[Core daemon]
+    C --> X[Extension runtime]
+    S --> X
+    X <--> H[Extension host]
+    H --> D[Core daemon]
+    X -. validated messages .-> P[Blast protocol and extension contract]
+    H -. validated messages .-> P
     D <--> U[Desktop client]
     D <--> T[CLI or test client]
     D <--> R[Future remote client]
@@ -47,11 +49,32 @@ state. The connector sends `hello`; the acceptor selects a mutually supported
 version, creates the authoritative session ID, and sends `ready`. The acceptor
 identity is included in `ready`, so both sides know their peer.
 
+`@blastlauncher/transport-node` frames protocol envelopes as bounded JSON lines
+over Node.js streams. It makes stdio a proven local process transport without
+making stdio the architectural protocol. Standard output is protocol-only;
+runtime diagnostics use standard error until structured log messages exist.
+
+### Extension contract and runtime
+
+`@blastlauncher/extension-contract` owns messages shared specifically by the
+extension host and runtime. Protocol negotiation and extension readiness are
+separate milestones: `extension.initialize` transfers the authoritative
+descriptor, and `extension.ready` acknowledges that exact extension command.
+
+`@blastlauncher/extension-runtime` implements the runtime side of this startup
+contract. Module loading is an injected hook so Node.js compatibility loading,
+a future alternative runtime, and deterministic tests reuse the same lifecycle.
+
 ### Extension host
 
 `@blastlauncher/extension-host` supervises extension sessions. It owns start,
 stop, cancellation, crash reporting, and resource limits. Each untrusted
 extension runs outside the core process.
+
+`@blastlauncher/extension-host-node` is the first concrete launcher. It spawns a
+fixed bootstrap without a shell, requires an explicit environment policy,
+reserves stdin/stdout for protocol traffic, drains stderr for diagnostics, and
+escalates graceful shutdown to `SIGTERM` and then `SIGKILL`.
 
 Node.js is the default compatibility runtime because existing extensions depend
 on Node.js behavior and packages. Other runtimes may be added for Blast-native
@@ -69,6 +92,13 @@ The core maintains the extension registry, active sessions, capability policy,
 and connected clients. It does not render React components and does not perform
 desktop operations on behalf of an extension without a capability provider.
 
+`@blastlauncher/core` is the first daemon-independent orchestration façade.
+Clients request a stable extension and command identity; an injected trusted
+catalog resolves the actual filesystem descriptor before the extension host is
+called. The core already coordinates in-flight startup and shutdown, but client
+sessions, discovery, persistence, capability routing, and daemon ownership are
+deliberate later slices.
+
 ### Clients
 
 Clients discover commands, render semantic scenes, collect user input, and send
@@ -85,11 +115,18 @@ core can enforce policy and record an audit event.
 ## Dependency rules
 
 ```text
-compat-raycast ----\
-blast-api ----------> extension-host ---> transport ---> protocol
-                                           ^              ^
-desktop client ---------------------------+--------------+
-capability providers ---------------------+--------------+
+core ---> extension-host ---> session ---> transport ---> protocol
+  |             |               ^             ^
+  |             +--> extension-contract       |
+  |                             ^              |
+  +--> future client sessions   |              |
+                                |              |
+extension-runtime --------------+              |
+       |                                        |
+       +----------------> session --------------+
+
+extension-host-node ---> extension-host
+          +-----------> transport-node ---> transport
 ```
 
 1. `protocol` has no workspace dependencies and no platform dependencies.
@@ -100,6 +137,10 @@ capability providers ---------------------+--------------+
    meaning.
 6. Package consumers import public exports, never another package's `src/`
    directory.
+7. Client requests contain stable command identities; only a trusted catalog
+   resolves entrypoint and root paths.
+8. Domain packages validate their own application payloads after the common
+   protocol envelope has been validated.
 
 ## Session model
 
@@ -121,6 +162,32 @@ and handshake. Scene and capability messages will be added with their vertical
 slices, preventing speculative wire contracts from becoming compatibility
 obligations.
 
+## Extension startup sequence
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Core
+    participant Catalog
+    participant Host as Extension host
+    participant Runtime as Child runtime
+
+    Client->>Core: run(extensionId, commandName)
+    Core->>Catalog: resolve stable identity
+    Catalog-->>Core: trusted descriptor
+    Core->>Host: start(descriptor)
+    Host->>Runtime: spawn fixed bootstrap
+    Runtime->>Host: hello(extension-runtime)
+    Host-->>Runtime: ready(sessionId, version)
+    Host->>Runtime: extension.initialize(descriptor)
+    Runtime-->>Host: extension.ready(identity)
+    Host-->>Core: active session
+```
+
+Only after the last acknowledgement does the command appear in
+`activeSessions`. Process exit, startup failure, stopping, and stopped states
+are observable through the host event stream.
+
 ## Security model
 
 Blast distinguishes two trust modes:
@@ -136,10 +203,15 @@ authentication and encryption before they may carry privileged requests.
 
 ```text
 packages/blast-protocol/        V2 wire contract
+packages/blast-extension-contract/  V2 extension lifecycle messages
 packages/blast-transport/       V2 transport boundary and in-memory pair
+packages/blast-transport-node/  Bounded JSON-lines Node.js streams
 packages/blast-session/         V2 validated session state machine
 packages/blast-transport-test-suite/  Reusable transport contract tests
-packages/blast-extension-host/  V2 lifecycle boundary
+packages/blast-extension-runtime/  Runtime-side initialization framework
+packages/blast-extension-host/  Transport-neutral lifecycle supervisor
+packages/blast-extension-host-node/  Node child-process launcher
+packages/blast-core/            Trusted catalog and lifecycle orchestration
 packages/blast-api/             V1 compatibility implementation
 packages/blast-runtime/         V1 runtime
 packages/blast-renderer/        V1 renderer

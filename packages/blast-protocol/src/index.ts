@@ -3,7 +3,9 @@ export const SUPPORTED_PROTOCOL_VERSIONS: readonly number[] = [BLAST_PROTOCOL_VE
 
 export type ProtocolVersion = typeof BLAST_PROTOCOL_VERSION;
 
-export type PeerRole = "client" | "core" | "extension-host" | "capability-provider";
+export const PEER_ROLES = ["client", "core", "extension-host", "extension-runtime", "capability-provider"] as const;
+
+export type PeerRole = (typeof PEER_ROLES)[number];
 
 export interface PeerImplementation {
   readonly name: string;
@@ -177,8 +179,7 @@ function validateReadyMessage(envelope: ProtocolEnvelope): ValidationResult<Read
 }
 
 function validatePeerIdentity(value: Record<string, unknown>, path: string, issues: ValidationIssue[]): void {
-  const roles: readonly PeerRole[] = ["client", "core", "extension-host", "capability-provider"];
-  if (!roles.includes(value.role as PeerRole)) {
+  if (!PEER_ROLES.includes(value.role as PeerRole)) {
     issues.push({ path: `${path}.role`, message: "Expected a known peer role" });
   }
 

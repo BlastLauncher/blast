@@ -66,7 +66,18 @@ export class ProtocolSession {
   async receive(signal?: AbortSignal): Promise<ProtocolEnvelope | undefined> {
     this.#assertReady();
 
-    const result = await nextWithSignal(this.#messages, signal);
+    let result: IteratorResult<unknown>;
+    try {
+      result = await nextWithSignal(this.#messages, signal);
+    } catch (error) {
+      if (error instanceof ProtocolSessionError && error.code === "cancelled") {
+        throw error;
+      }
+
+      this.#state = "failed";
+      await closeBestEffort(this.#transport, "Transport receive failed");
+      throw new ProtocolSessionError("transport_receive_failed", "Failed to receive a protocol message", error);
+    }
     if (result.done) {
       this.#state = "closed";
       return undefined;

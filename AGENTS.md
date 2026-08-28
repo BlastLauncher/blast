@@ -27,10 +27,15 @@ The main data flow is:
 V2 is being developed alongside the prototype:
 
 - `packages/blast-protocol/` — transport-independent V2 messages and schemas.
+- `packages/blast-extension-contract/` — validated host/runtime lifecycle messages.
 - `packages/blast-transport/` — V2 connection contract and in-memory test transport.
+- `packages/blast-transport-node/` — bounded JSON-lines Node stream transport.
 - `packages/blast-session/` — validated V2 handshake and session state machine.
 - `packages/blast-transport-test-suite/` — reusable tests for every V2 transport.
-- `packages/blast-extension-host/` — V2 extension lifecycle boundary.
+- `packages/blast-extension-runtime/` — runtime-side command initialization.
+- `packages/blast-extension-host/` — V2 transport-neutral lifecycle supervisor.
+- `packages/blast-extension-host-node/` — concrete Node child-process launcher.
+- `packages/blast-core/` — trusted catalog and lifecycle orchestration façade.
 - `docs/v2/` — accepted product direction, architecture, decisions, and migration plan.
 
 V2 packages must not import from the prototype packages' `src/` directories.
@@ -65,7 +70,7 @@ are modernized further.
 Run from the repository root unless noted otherwise:
 
 ```bash
-# Build all five workspace packages
+# Build all workspace packages
 pnpm run build
 
 # Run backend/runtime watchers
@@ -116,6 +121,10 @@ V2 packages use the Node.js test runner against their ESM build output. Every
 new transport must use `@blastlauncher/transport-test-suite` and may add
 transport-specific failure tests. See `docs/v2/testing.md` for the required test
 layers and invariants.
+
+Read `docs/v2/status.md` before continuing V2 implementation. Keep its
+executable, missing, and recommended-next sections accurate when completing a
+vertical slice.
 
 The renderer test configuration ignores generated `dist` files. The utils NRM
 tests use a local compressed archive and mocked HTTPS response, so they do not

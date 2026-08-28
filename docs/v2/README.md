@@ -16,6 +16,8 @@ The durable project context is split by purpose:
 - `architecture.md` describes component ownership and dependency direction;
 - `migration.md` gives ordered phases and exit conditions;
 - `testing.md` defines the test layers and required reusable contracts;
+- `status.md` is the current implementation ledger and recommended continuation
+  point;
 - `decisions/` records choices that future work should not silently reverse;
 - each V2 package README documents its public boundary and invariants;
 - tests are executable examples of protocol and lifecycle behavior.

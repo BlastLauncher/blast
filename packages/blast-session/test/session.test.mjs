@@ -182,3 +182,34 @@ test("fails and closes a session when application delivery fails", async () => {
   assert.equal(await acceptor.receive(), undefined);
   assert.equal(acceptor.state, "closed");
 });
+
+test("fails a session when the transport message iterator throws", async () => {
+  const [connectorTransport, acceptorTransport] = createInMemoryTransportPair();
+  const incoming = connectorTransport.messages[Symbol.asyncIterator]();
+  let reads = 0;
+  const failingTransport = {
+    ...connectorTransport,
+    messages: {
+      [Symbol.asyncIterator]() {
+        return {
+          next() {
+            reads += 1;
+            return reads === 1 ? incoming.next() : Promise.reject(new Error("simulated framing failure"));
+          },
+        };
+      },
+    },
+    send: (message) => connectorTransport.send(message),
+    close: (reason) => connectorTransport.close(reason),
+  };
+  const [connector] = await Promise.all([
+    connectProtocolSession(failingTransport, connectorOptions()),
+    acceptProtocolSession(acceptorTransport, acceptorOptions()),
+  ]);
+
+  await assert.rejects(
+    () => connector.receive(),
+    (error) => error.code === "transport_receive_failed" && error.details.message === "simulated framing failure",
+  );
+  assert.equal(connector.state, "failed");
+});

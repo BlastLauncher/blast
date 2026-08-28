@@ -14,6 +14,7 @@ against real extensions rather than claimed as complete feature parity.
 - [V2 architecture](./docs/v2/architecture.md)
 - [Migration plan](./docs/v2/migration.md)
 - [Testing strategy](./docs/v2/testing.md)
+- [Current implementation status](./docs/v2/status.md)
 - [Architecture decisions](./docs/v2/decisions/)
 
 ## V1 prototype

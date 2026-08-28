@@ -264,8 +264,67 @@ importers:
         specifier: ^5.8.0
         version: 5.8.1(encoding@0.1.13)(supports-color@8.1.1)
 
+  packages/blast-core:
+    dependencies:
+      '@blastlauncher/extension-contract':
+        specifier: workspace:*
+        version: link:../blast-extension-contract
+      '@blastlauncher/extension-host':
+        specifier: workspace:*
+        version: link:../blast-extension-host
+
+  packages/blast-extension-contract:
+    dependencies:
+      '@blastlauncher/protocol':
+        specifier: workspace:*
+        version: link:../blast-protocol
+
   packages/blast-extension-host:
     dependencies:
+      '@blastlauncher/extension-contract':
+        specifier: workspace:*
+        version: link:../blast-extension-contract
+      '@blastlauncher/protocol':
+        specifier: workspace:*
+        version: link:../blast-protocol
+      '@blastlauncher/session':
+        specifier: workspace:*
+        version: link:../blast-session
+      '@blastlauncher/transport':
+        specifier: workspace:*
+        version: link:../blast-transport
+    devDependencies:
+      '@blastlauncher/extension-runtime':
+        specifier: workspace:*
+        version: link:../blast-extension-runtime
+
+  packages/blast-extension-host-node:
+    dependencies:
+      '@blastlauncher/extension-contract':
+        specifier: workspace:*
+        version: link:../blast-extension-contract
+      '@blastlauncher/extension-host':
+        specifier: workspace:*
+        version: link:../blast-extension-host
+      '@blastlauncher/transport-node':
+        specifier: workspace:*
+        version: link:../blast-transport-node
+    devDependencies:
+      '@blastlauncher/extension-runtime':
+        specifier: workspace:*
+        version: link:../blast-extension-runtime
+
+  packages/blast-extension-runtime:
+    dependencies:
+      '@blastlauncher/extension-contract':
+        specifier: workspace:*
+        version: link:../blast-extension-contract
+      '@blastlauncher/protocol':
+        specifier: workspace:*
+        version: link:../blast-protocol
+      '@blastlauncher/session':
+        specifier: workspace:*
+        version: link:../blast-session
       '@blastlauncher/transport':
         specifier: workspace:*
         version: link:../blast-transport
@@ -396,6 +455,19 @@ importers:
       '@blastlauncher/protocol':
         specifier: workspace:*
         version: link:../blast-protocol
+    devDependencies:
+      '@blastlauncher/transport-test-suite':
+        specifier: workspace:*
+        version: link:../blast-transport-test-suite
+
+  packages/blast-transport-node:
+    dependencies:
+      '@blastlauncher/protocol':
+        specifier: workspace:*
+        version: link:../blast-protocol
+      '@blastlauncher/transport':
+        specifier: workspace:*
+        version: link:../blast-transport
     devDependencies:
       '@blastlauncher/transport-test-suite':
         specifier: workspace:*

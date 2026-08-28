@@ -1,8 +1,8 @@
 {
-  "name": "@blastlauncher/extension-host",
+  "name": "@blastlauncher/transport-node",
   "version": "0.0.0",
   "private": true,
-  "description": "Extension lifecycle boundary for Blast V2",
+  "description": "Node.js stream transports for Blast V2",
   "license": "MIT",
   "files": [
     "dist"
@@ -16,15 +16,13 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "pnpm --filter '@blastlauncher/extension-host...' run build && node --test test/*.test.mjs"
+    "test": "pnpm --filter '@blastlauncher/transport-node...' run build && node --test test/*.test.mjs"
   },
   "dependencies": {
-    "@blastlauncher/extension-contract": "workspace:*",
     "@blastlauncher/protocol": "workspace:*",
-    "@blastlauncher/session": "workspace:*",
     "@blastlauncher/transport": "workspace:*"
   },
   "devDependencies": {
-    "@blastlauncher/extension-runtime": "workspace:*"
+    "@blastlauncher/transport-test-suite": "workspace:*"
   }
 }

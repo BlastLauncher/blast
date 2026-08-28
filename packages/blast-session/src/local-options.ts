@@ -1,9 +1,7 @@
-import { SUPPORTED_PROTOCOL_VERSIONS, type PeerRole } from "@blastlauncher/protocol";
+import { PEER_ROLES, SUPPORTED_PROTOCOL_VERSIONS } from "@blastlauncher/protocol";
 
 import { ProtocolSessionError } from "./errors.js";
 import type { ProtocolPeerOptions } from "./types.js";
-
-const PEER_ROLES: readonly PeerRole[] = ["client", "core", "extension-host", "capability-provider"];
 
 export function validateLocalOptions(options: ProtocolPeerOptions): readonly number[] {
   const versions = [...new Set(options.protocolVersions ?? SUPPORTED_PROTOCOL_VERSIONS)].toSorted(

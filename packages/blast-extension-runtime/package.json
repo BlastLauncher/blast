@@ -1,8 +1,8 @@
 {
-  "name": "@blastlauncher/extension-host",
+  "name": "@blastlauncher/extension-runtime",
   "version": "0.0.0",
   "private": true,
-  "description": "Extension lifecycle boundary for Blast V2",
+  "description": "Runtime-side lifecycle framework for Blast V2 extensions",
   "license": "MIT",
   "files": [
     "dist"
@@ -16,15 +16,12 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "pnpm --filter '@blastlauncher/extension-host...' run build && node --test test/*.test.mjs"
+    "test": "pnpm --filter '@blastlauncher/extension-runtime...' run build && node --test test/*.test.mjs"
   },
   "dependencies": {
     "@blastlauncher/extension-contract": "workspace:*",
     "@blastlauncher/protocol": "workspace:*",
     "@blastlauncher/session": "workspace:*",
     "@blastlauncher/transport": "workspace:*"
-  },
-  "devDependencies": {
-    "@blastlauncher/extension-runtime": "workspace:*"
   }
 }

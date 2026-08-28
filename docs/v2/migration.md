@@ -25,10 +25,10 @@ existing checks.
 Exit condition: a test process can negotiate, exchange a message, cancel, and
 shut down without Electron or WebSocket.
 
-Implementation note: protocol validation, the session state machine, and the
-reusable transport conformance suite complete the in-memory portion of this
-phase. A real child-process transport and process fixture are the remaining
-Phase 1 work.
+Implementation note: this phase is complete. Protocol validation, asymmetric
+sessions, reusable transport conformance, bounded JSON-lines stdio, a real
+child-process fixture, host/runtime initialization, graceful shutdown, and
+process-exit observation are executable. See `status.md` for exact coverage.
 
 ## Phase 2: compatibility census
 
@@ -50,6 +50,11 @@ named fixtures.
 
 Exit condition: the scenario in the V2 product document passes as an automated
 integration test.
+
+Framework note: process isolation, the host/runtime handshake, lifecycle event
+stream, and trusted catalog boundary now exist. Manifest discovery, actual
+module loading, semantic scene messages, a test client, and the first capability
+provider remain before this phase's exit condition is met.
 
 ## Phase 4: useful compatibility subset
 

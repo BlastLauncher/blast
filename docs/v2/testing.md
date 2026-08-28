@@ -26,6 +26,10 @@ An in-memory, stdio, local-socket, MessagePort, or WebSocket transport is not
 complete until it runs this same suite. Transport-specific tests may add framing,
 authentication, backpressure, or operating-system failure cases.
 
+`@blastlauncher/transport-node` runs the shared suite against cross-wired Node
+streams and adds fragmented frame, multi-frame chunk, malformed JSON, and frame
+size tests.
+
 ### Session lifecycle
 
 `@blastlauncher/session` tests connector/acceptor negotiation, peer identities,
@@ -35,9 +39,18 @@ the in-memory transport so failures remain deterministic.
 
 ### Extension host integration
 
-Host tests use fake process launchers for lifecycle invariants. The next layer
-will launch a real fixture process over stdio and verify startup, cancellation,
-logs, exit codes, crashes, and forced termination without Electron.
+Host tests use in-memory runtime peers for lifecycle invariants. The Node host
+launcher also runs a real fixture process over stdio and verifies negotiation,
+initialization, stderr diagnostics, process identity, graceful shutdown, and
+exit status without Electron. Separate fixtures verify a crash before
+negotiation and escalation to `SIGKILL` when a child ignores `SIGTERM`.
+
+### Core orchestration
+
+Core tests prove that untrusted callers supply only stable command identities,
+the catalog supplies filesystem descriptors, mismatched catalog results fail,
+shutdown gates new work, and in-flight catalog resolution settles before the
+extension supervisor closes.
 
 ### Renderer conformance
 
@@ -79,7 +92,8 @@ pnpm run fmt:check
 
 V2 package tests build their package and use the Node.js test runner. The legacy
 packages retain Jest while the prototype remains in the workspace. `test:v2`
-is the faster protocol, transport, session, and extension-host feedback loop;
-the full root command remains required before publication. Each V2 package test
+is the faster protocol, transport, session, extension-runtime, extension-host,
+and core feedback loop; the full root command remains required before
+publication. Each V2 package test
 builds its transitive workspace closure first, so filtered tests are valid from
 a clean checkout and do not rely on stale `dist` output.
