@@ -47,14 +47,14 @@ matrix, but the full corpus has not been re-probed yet.
 | `balatro-compendium`        | list   |     3 | Action, ActionPanel, Detail, Icon, List, showToast, Toast                     |
 | `cache-control-builder`     | list   |     3 | Action, ActionPanel, Detail, Icon, List, environment, useNavigation           |
 | `single-disk-eject`         | list   |     0 | Action, ActionPanel, List, environment, getPreferenceValues, showToast, Toast |
-| `form-submission`           | form   |     4 | Action, ActionPanel, Form                                                     |
+| `form-submission`           | form   |     4 | Action, ActionPanel, Form (DatePicker, TagPicker, FilePicker)                 |
 | `choose-a-license`          | —      |     — | expected `unsupported_api`: Action.OpenInBrowser                              |
 
 The fifteen render fixtures assert root type and minimum item counts through
-real child processes; the form fixture additionally dispatches a field change
-and submit event with client-provided values. The gap fixture asserts that
-unmeasured surface fails with a structured `unsupported_api` error and a
-non-zero exit.
+real child processes; the form fixture additionally dispatches text, date,
+tag-array, and file-path changes plus a submit event with client-provided
+values. The gap fixture asserts that unmeasured surface fails with a
+structured `unsupported_api` error and a non-zero exit.
 
 ## Known gaps surfaced by the matrix
 
@@ -62,8 +62,7 @@ non-zero exit.
   measured; `Action.OpenInBrowser` and shortcut objects remain unsupported;
 - toast lifecycle, mutable fields, and action callbacks are measured; client
   toast timing/stacking and toast-action shortcut objects remain unsupported;
-- richer Form controls (`DatePicker`, `TagPicker`, `FilePicker`, and
-  focus/blur callbacks);
+- Form focus/blur callbacks;
 - `useNavigation` and `Action.Push` (28.8% of extensions),
   `LocalStorage`/`Cache` (26.5%), and `environment` (19.7%) are measured in
   the adapter but still have limited fixture coverage;

@@ -85,9 +85,11 @@ slice changes what is executable, what is trusted, or what should happen next.
   panels), and object icons with Color tints serialize into iconTintColor
   properties.
 - Form renders the measured text, textarea, password, checkbox, dropdown,
-  description, separator, and submit-action subset. Form field changes and
-  submissions carry validated string, boolean, or null values through
-  `scene.event`, and `ActionPanel.Section` publishes nested action groups.
+  `DatePicker`, `TagPicker`, `FilePicker`, description, separator, and
+  submit-action subset. Form field changes and submissions carry validated
+  string, boolean, null, or string-array wire values through `scene.event`;
+  `DatePicker` ISO strings are restored to native `Date | null` values by the
+  adapter, and `ActionPanel.Section` publishes nested action groups.
 - Toasts support legacy show calls plus identified show/update/hide lifecycle
   messages, animated/success/failure styles, mutable fields, and primary or
   secondary actions addressed by validated `scene.event` IDs.
@@ -97,7 +99,9 @@ slice changes what is executable, what is trusted, or what should happen next.
 - Received transport values remain `unknown` until validators accept them.
 - Protocol and extension domain messages have separate validators.
 - Optional form values on `scene.event` are validated as a field-ID map before
-  the relay dispatches them to runtime callbacks.
+  the relay dispatches them to runtime callbacks; string arrays are checked
+  element-by-element, while the compatibility adapter validates and restores
+  date values.
 - Toast lifecycle operations, toast IDs, styles, and action event IDs are
   validated before the relay forwards them to the client-side toast sink.
 - A runtime must identify as `extension-runtime`; a host must identify as
@@ -113,10 +117,9 @@ slice changes what is executable, what is trusted, or what should happen next.
 - a persistent, watched catalog index and extension installation flows;
 - production bundle cache invalidation and externalization policy for
   extensions with large or native npm dependency graphs;
-- the remaining measured Raycast surface: richer Form controls
-  (`DatePicker`, `TagPicker`, `FilePicker`, focus/blur callbacks), client toast
-  timing/stacking, toast-action shortcut objects, general shortcut objects,
-  and `Cache`;
+- the remaining measured Raycast surface: Form focus/blur callbacks, client
+  toast timing/stacking, toast-action shortcut objects, general shortcut
+  objects, and `Cache`;
 - a client-facing core protocol, daemon listener, and desktop rendering of
   scenes (the deterministic test client stands in today);
 - capability manifest declarations, real operating-system providers, audit
@@ -134,7 +137,7 @@ adapter surface runs end to end, bundled TSX extensions with literal
 `@raycast/api` imports load, and the support matrix (`compatibility/support-matrix.md`)
 runs real corpus fixtures in CI. Continue with the compatibility phase:
 
-1. extend the measured surface in matrix order: richer Form controls and
+1. extend the measured surface in matrix order: Form focus/blur callbacks and
    shortcut objects; keep client toast timing/stacking in the client protocol;
 2. add third-party dependency policy (vendoring or installation) so
    dependency-using corpus extensions can bundle;

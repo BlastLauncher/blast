@@ -23,13 +23,17 @@ export const SCENE_NODE_TYPES = [
   "form-dropdown",
   "form-dropdown-item",
   "form-dropdown-section",
+  "form-date-picker",
+  "form-tag-picker",
+  "form-tag-picker-item",
+  "form-file-picker",
   "form-description",
   "form-separator",
 ] as const;
 
 export type SceneNodeType = (typeof SCENE_NODE_TYPES)[number];
 
-export type ScenePropValue = string | number | boolean;
+export type ScenePropValue = string | number | boolean | readonly string[];
 
 export interface SceneNode {
   readonly id: string;
@@ -78,12 +82,13 @@ export interface SceneEventPayload {
   /**
    * Values supplied by a client when an interactive form control changes or
    * when a form action is submitted. The wire representation deliberately
-   * stays JSON-compatible; richer Raycast values are measured separately.
+   * stays JSON-compatible; dates are ISO strings and multi-value controls use
+   * arrays of strings.
    */
   readonly values?: SceneFormValues;
 }
 
-export type SceneFormValue = string | boolean | null;
+export type SceneFormValue = string | boolean | null | readonly string[];
 export type SceneFormValues = Readonly<Record<string, SceneFormValue>>;
 
 export type SceneTransactionMessage = ProtocolEnvelope<typeof SCENE_TRANSACTION_MESSAGE, SceneTransaction>;
@@ -184,6 +189,48 @@ const PROP_WHITELIST: Record<SceneNodeType, readonly string[]> = {
   ],
   "form-dropdown-item": ["value", "title", "icon", "iconTintColor"],
   "form-dropdown-section": ["title"],
+  "form-date-picker": [
+    "id",
+    "title",
+    "type",
+    "min",
+    "max",
+    "info",
+    "error",
+    "storeValue",
+    "autoFocus",
+    "value",
+    "defaultValue",
+    "onChange",
+  ],
+  "form-tag-picker": [
+    "id",
+    "title",
+    "placeholder",
+    "info",
+    "error",
+    "storeValue",
+    "autoFocus",
+    "value",
+    "defaultValue",
+    "onChange",
+  ],
+  "form-tag-picker-item": ["value", "title", "icon", "iconTintColor"],
+  "form-file-picker": [
+    "id",
+    "title",
+    "info",
+    "error",
+    "storeValue",
+    "autoFocus",
+    "value",
+    "defaultValue",
+    "onChange",
+    "canChooseFiles",
+    "canChooseDirectories",
+    "showHiddenFiles",
+    "allowMultipleSelection",
+  ],
   "form-description": ["title", "text"],
   "form-separator": [],
 };
@@ -209,11 +256,17 @@ const REQUIRED_PROPS: Record<SceneNodeType, readonly string[]> = {
   "form-dropdown": ["id", "onChange"],
   "form-dropdown-item": ["value", "title"],
   "form-dropdown-section": [],
+  "form-date-picker": ["id", "onChange"],
+  "form-tag-picker": ["id", "onChange"],
+  "form-tag-picker-item": ["value", "title"],
+  "form-file-picker": ["id", "onChange"],
   "form-description": ["text"],
   "form-separator": [],
 };
 
-const PROP_TYPES: Record<SceneNodeType, Readonly<Record<string, "string" | "boolean" | "number">>> = {
+type ScenePropType = "string" | "boolean" | "number" | "string[]";
+
+const PROP_TYPES: Record<SceneNodeType, Readonly<Record<string, ScenePropType>>> = {
   list: { navigationTitle: "string", searchBarPlaceholder: "string", isLoading: "boolean" },
   "list-item": { title: "string", subtitle: "string", icon: "string", iconTintColor: "string" },
   action: { title: "string", onAction: "string", icon: "string", iconTintColor: "string" },
@@ -283,6 +336,48 @@ const PROP_TYPES: Record<SceneNodeType, Readonly<Record<string, "string" | "bool
   },
   "form-dropdown-item": { value: "string", title: "string", icon: "string", iconTintColor: "string" },
   "form-dropdown-section": { title: "string" },
+  "form-date-picker": {
+    id: "string",
+    title: "string",
+    type: "string",
+    min: "string",
+    max: "string",
+    info: "string",
+    error: "string",
+    storeValue: "boolean",
+    autoFocus: "boolean",
+    value: "string",
+    defaultValue: "string",
+    onChange: "string",
+  },
+  "form-tag-picker": {
+    id: "string",
+    title: "string",
+    placeholder: "string",
+    info: "string",
+    error: "string",
+    storeValue: "boolean",
+    autoFocus: "boolean",
+    value: "string[]",
+    defaultValue: "string[]",
+    onChange: "string",
+  },
+  "form-tag-picker-item": { value: "string", title: "string", icon: "string", iconTintColor: "string" },
+  "form-file-picker": {
+    id: "string",
+    title: "string",
+    info: "string",
+    error: "string",
+    storeValue: "boolean",
+    autoFocus: "boolean",
+    value: "string[]",
+    defaultValue: "string[]",
+    onChange: "string",
+    canChooseFiles: "boolean",
+    canChooseDirectories: "boolean",
+    showHiddenFiles: "boolean",
+    allowMultipleSelection: "boolean",
+  },
   "form-description": { title: "string", text: "string" },
   "form-separator": {},
 };
@@ -299,6 +394,9 @@ const CHILD_TYPES: Record<SceneNodeType, readonly SceneNodeType[]> = {
     "form-password-field",
     "form-checkbox",
     "form-dropdown",
+    "form-date-picker",
+    "form-tag-picker",
+    "form-file-picker",
     "form-description",
     "form-separator",
     "action-group",
@@ -310,6 +408,10 @@ const CHILD_TYPES: Record<SceneNodeType, readonly SceneNodeType[]> = {
   "form-dropdown": ["form-dropdown-item", "form-dropdown-section"],
   "form-dropdown-item": [],
   "form-dropdown-section": ["form-dropdown-item"],
+  "form-date-picker": [],
+  "form-tag-picker": ["form-tag-picker-item"],
+  "form-tag-picker-item": [],
+  "form-file-picker": [],
   "form-description": [],
   "form-separator": [],
 };
@@ -492,7 +594,7 @@ function validateEventPayload(value: unknown, basePath: string, issues: Validati
         if (!isSceneFormValue(formValue)) {
           issues.push({
             path: `${basePath}.values.${key}`,
-            message: "Expected a string, boolean, or null form value",
+            message: "Expected a string, boolean, null, or string array form value",
           });
         }
       }
@@ -560,7 +662,7 @@ function validateNode(value: unknown, path: string, issues: ValidationIssue[]): 
       continue;
     }
     const expected = PROP_TYPES[nodeType][key];
-    if (typeof value.props[key] !== expected) {
+    if (expected !== undefined && !isPropType(value.props[key], expected)) {
       issues.push({ path: `${path}.props.${key}`, message: `Expected a ${expected} value` });
     }
   }
@@ -596,8 +698,8 @@ function validateUpdateProps(value: unknown, issues: ValidationIssue[]): void {
 }
 
 function validatePropValue(value: unknown, path: string, issues: ValidationIssue[]): void {
-  if (typeof value !== "string" && typeof value !== "number" && typeof value !== "boolean") {
-    issues.push({ path, message: "Expected a string, number, or boolean property value" });
+  if (!isScenePropValue(value)) {
+    issues.push({ path, message: "Expected a string, number, boolean, or string array property value" });
   }
 }
 
@@ -778,7 +880,7 @@ export class SceneStateBuffer {
         continue;
       }
       const expected = PROP_TYPES[node.type][key];
-      if (expected !== undefined && typeof value !== expected) {
+      if (expected !== undefined && !isPropType(value, expected)) {
         throw new SceneError("invalid_prop", `Expected a ${expected} value`, {
           nodeId: operation.nodeId,
           property: key,
@@ -851,7 +953,7 @@ function toInternalNode(node: SceneNode): InternalNode {
 function assertPropTypes(nodeType: SceneNodeType, props: Readonly<Record<string, unknown>>, nodeId: string): void {
   for (const [key, value] of Object.entries(props)) {
     const expected = PROP_TYPES[nodeType][key];
-    if (expected !== undefined && typeof value !== expected) {
+    if (expected !== undefined && !isPropType(value, expected)) {
       throw new SceneError("invalid_prop", `Expected a ${expected} value`, { nodeId, property: key });
     }
   }
@@ -892,7 +994,22 @@ function validateNonEmptyString(value: unknown, path: string, issues: Validation
 }
 
 function isSceneFormValue(value: unknown): value is SceneFormValue {
-  return value === null || typeof value === "string" || typeof value === "boolean";
+  return value === null || typeof value === "string" || typeof value === "boolean" || isStringArray(value);
+}
+
+export function isScenePropValue(value: unknown): value is ScenePropValue {
+  return typeof value === "string" || typeof value === "number" || typeof value === "boolean" || isStringArray(value);
+}
+
+function isPropType(value: unknown, expected: ScenePropType): boolean {
+  if (expected === "string[]") {
+    return isStringArray(value);
+  }
+  return typeof value === expected;
+}
+
+function isStringArray(value: unknown): value is readonly string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === "string");
 }
 
 function isInteger(value: unknown): value is number {

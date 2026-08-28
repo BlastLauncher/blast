@@ -329,6 +329,127 @@ test("renders measured form controls and submits client-provided values", async 
   assert.deepEqual(submitted, [{ name: "Grace", bio: "Builder", enabled: false, role: "user" }]);
 });
 
+test("renders richer form controls and restores native values on events and submit", async () => {
+  const probe = createContext();
+  const changed = [];
+  const submitted = [];
+  const dueDefault = new Date("2026-08-28T00:00:00.000Z");
+  const dueMin = new Date("2026-08-01T00:00:00.000Z");
+  const dueMax = new Date("2026-09-30T00:00:00.000Z");
+
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      Form,
+      {
+        actions: createElement(
+          ActionPanel,
+          null,
+          createElement(Action.SubmitForm, { title: "Save", onSubmit: (values) => submitted.push(values) }),
+        ),
+      },
+      createElement(Form.DatePicker, {
+        id: "due",
+        title: "Due",
+        type: Form.DatePicker.Type.Date,
+        min: dueMin,
+        max: dueMax,
+        defaultValue: dueDefault,
+        onChange: (value) => changed.push(["due", value]),
+      }),
+      createElement(
+        Form.TagPicker,
+        {
+          id: "tags",
+          title: "Tags",
+          placeholder: "Choose tags",
+          defaultValue: ["v2"],
+          onChange: (value) => changed.push(["tags", value]),
+        },
+        createElement(Form.TagPicker.Item, { value: "v2", title: "V2", icon: Icon.Circle }),
+        createElement(Form.TagPicker.Item, { value: "docs", title: "Docs" }),
+      ),
+      createElement(Form.FilePicker, {
+        id: "files",
+        title: "Files",
+        canChooseFiles: true,
+        canChooseDirectories: false,
+        showHiddenFiles: true,
+        allowMultipleSelection: true,
+        onChange: (value) => changed.push(["files", value]),
+      }),
+    ),
+  );
+  await renderer.flush();
+
+  assert.equal(Form.DatePicker.isFullDay(dueDefault), true);
+  assert.equal(Form.DatePicker.isFullDay(new Date("2026-08-28T12:30:00.000Z")), false);
+
+  const root = probe.transactions[0].operations[0].root;
+  const fields = new Map(root.children.slice(1).map((child) => [child.props.id, child]));
+  assert.deepEqual(fields.get("due").props, {
+    id: "due",
+    title: "Due",
+    type: "date",
+    min: "2026-08-01T00:00:00.000Z",
+    max: "2026-09-30T00:00:00.000Z",
+    defaultValue: "2026-08-28T00:00:00.000Z",
+    onChange: fields.get("due").props.onChange,
+  });
+  assert.deepEqual(fields.get("tags").props, {
+    id: "tags",
+    title: "Tags",
+    placeholder: "Choose tags",
+    defaultValue: ["v2"],
+    onChange: fields.get("tags").props.onChange,
+  });
+  assert.deepEqual(
+    fields.get("tags").children.map((child) => child.props),
+    [
+      { value: "v2", title: "V2", icon: "circle" },
+      { value: "docs", title: "Docs" },
+    ],
+  );
+  assert.deepEqual(fields.get("files").props, {
+    id: "files",
+    title: "Files",
+    defaultValue: [],
+    onChange: fields.get("files").props.onChange,
+    canChooseFiles: true,
+    canChooseDirectories: false,
+    showHiddenFiles: true,
+    allowMultipleSelection: true,
+  });
+
+  probe.dispatch(fields.get("due").props.onChange, { due: "2026-09-01T12:30:00.000Z" });
+  probe.dispatch(fields.get("tags").props.onChange, { tags: ["docs", "v2"] });
+  probe.dispatch(fields.get("files").props.onChange, { files: ["/tmp/example.txt"] });
+  probe.dispatch(fields.get("due").props.onChange, { due: null });
+  assert.equal(changed[0][0], "due");
+  assert.equal(changed[0][1] instanceof Date, true);
+  assert.equal(changed[0][1].toISOString(), "2026-09-01T12:30:00.000Z");
+  assert.deepEqual(changed.slice(1, 3), [
+    ["tags", ["docs", "v2"]],
+    ["files", ["/tmp/example.txt"]],
+  ]);
+  assert.deepEqual(changed[3], ["due", null]);
+  assert.throws(
+    () => probe.dispatch(fields.get("due").props.onChange, { due: "not-a-date" }),
+    (error) => error instanceof CompatibilityError && /Form.DatePicker/.test(error.message),
+  );
+
+  const submitEventId = root.children[0].children[0].props.onAction;
+  probe.dispatch(submitEventId, {
+    due: "2026-09-01T12:30:00.000Z",
+    tags: ["docs", "v2"],
+    files: ["/tmp/example.txt"],
+  });
+  assert.equal(submitted.length, 1);
+  assert.equal(submitted[0].due instanceof Date, true);
+  assert.equal(submitted[0].due.toISOString(), "2026-09-01T12:30:00.000Z");
+  assert.deepEqual(submitted[0].tags, ["docs", "v2"]);
+  assert.deepEqual(submitted[0].files, ["/tmp/example.txt"]);
+});
+
 test("rejects form submit values with a mismatched field type", async () => {
   const probe = createContext();
   const renderer = renderCommand(probe.context, () =>
@@ -389,9 +510,9 @@ test("rejects unmeasured API surface with structured errors", (context) => {
     assert.throws(
       () =>
         renderCommand(probe.context, () =>
-          createElement(Form, null, createElement(Form.DatePicker, { id: "when", title: "When" })),
+          createElement(Form, null, createElement(Form.TextField, { id: "when", title: "When", onFocus: () => {} })),
         ),
-      (error) => error instanceof CompatibilityError && /Form.DatePicker/.test(error.message),
+      (error) => error instanceof CompatibilityError && /Form.TextField onFocus/.test(error.message),
     );
   });
 

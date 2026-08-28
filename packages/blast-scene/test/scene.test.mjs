@@ -135,6 +135,46 @@ test("validates scene transaction messages", (context) => {
                 children: [],
               },
               {
+                id: "due",
+                type: "form-date-picker",
+                props: {
+                  id: "due",
+                  title: "Due",
+                  type: "date",
+                  min: "2026-08-01T00:00:00.000Z",
+                  max: "2026-09-30T00:00:00.000Z",
+                  defaultValue: "2026-08-28T00:00:00.000Z",
+                  onChange: "event-due",
+                },
+                children: [],
+              },
+              {
+                id: "tags",
+                type: "form-tag-picker",
+                props: { id: "tags", title: "Tags", defaultValue: ["v2"], onChange: "event-tags" },
+                children: [
+                  {
+                    id: "tag-v2",
+                    type: "form-tag-picker-item",
+                    props: { value: "v2", title: "V2" },
+                    children: [],
+                  },
+                ],
+              },
+              {
+                id: "files",
+                type: "form-file-picker",
+                props: {
+                  id: "files",
+                  title: "Files",
+                  defaultValue: [],
+                  canChooseFiles: true,
+                  canChooseDirectories: false,
+                  onChange: "event-files",
+                },
+                children: [],
+              },
+              {
                 id: "actions",
                 type: "action-group",
                 props: {},
@@ -157,7 +197,10 @@ test("validates scene event messages", (context) => {
 
   context.test("accepts form values", () => {
     const result = validateSceneEventMessage(
-      envelope(SCENE_EVENT_MESSAGE, { eventId: "event-submit", values: { name: "Ada", enabled: true } }),
+      envelope(SCENE_EVENT_MESSAGE, {
+        eventId: "event-submit",
+        values: { name: "Ada", enabled: true, due: "2026-08-28T00:00:00.000Z", tags: ["v2"], files: [] },
+      }),
     );
     assert.equal(result.ok, true);
   });
@@ -189,7 +232,7 @@ test("validates scene event payloads", (context) => {
   });
 
   context.test("rejects non-JSON form values", () => {
-    const result = validateSceneEventPayload({ eventId: "event-submit", values: { name: ["Ada"] } });
+    const result = validateSceneEventPayload({ eventId: "event-submit", values: { name: [42] } });
     assert.deepEqual(
       result.issues?.map((issue) => issue.path),
       ["$.values.name"],

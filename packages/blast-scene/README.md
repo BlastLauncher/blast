@@ -6,9 +6,10 @@ The package defines the semantic scene vocabulary for the current vertical
 slice: list/detail/action nodes, action groups, and measured form controls
 with Raycast-named property whitelists, ordered `scene.transaction` messages,
 and `scene.event` messages carrying opaque event identifiers and optional
-validated form values. Ephemeral toast feedback travels separately through
-validated `ui.toast` messages with legacy show payloads and identified
-show/update/hide operations.
+validated form values. Form values remain JSON-compatible on the wire: dates
+are ISO strings and multi-value controls use string arrays. Ephemeral toast
+feedback travels separately through validated `ui.toast` messages with legacy
+show payloads and identified show/update/hide operations.
 
 ## Contents
 

@@ -30,7 +30,8 @@ with tint colors, and `Color` appeared in 40.1% of corpus extensions.
   expected failure to rendering, and corpus renders rose from 15 to 16;
 - clients receive grouping information for action pickers, which the
   deterministic test client asserts and the desktop client will render;
-- this leaves client toast timing/stacking, richer Form controls, and shortcut
-  objects as the next UI increments; the measured Form subset reuses the same
-  action-group representation for its submit actions, while toast lifecycle
-  semantics are defined separately in ADR 0017.
+- at acceptance this left client toast timing/stacking, richer Form controls,
+  and shortcut objects as the next UI increments; the measured Form subset
+  reuses the same action-group representation for its submit actions, while
+  toast lifecycle semantics are defined separately in ADR 0017. The richer
+  Form boundary is subsequently defined in ADR 0018.

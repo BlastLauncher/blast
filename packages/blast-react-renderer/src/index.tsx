@@ -11,7 +11,7 @@ import type {
   SceneTransaction,
   SceneTransactionSink,
 } from "@blastlauncher/scene";
-import { SCENE_NODE_TYPES, SCENE_PROP_WHITELIST } from "@blastlauncher/scene";
+import { SCENE_NODE_TYPES, SCENE_PROP_WHITELIST, isScenePropValue } from "@blastlauncher/scene";
 
 export const SCENE_LIST_TYPE = "list";
 export const SCENE_LIST_ITEM_TYPE = "list-item";
@@ -26,6 +26,10 @@ export const SCENE_FORM_CHECKBOX_TYPE = "form-checkbox";
 export const SCENE_FORM_DROPDOWN_TYPE = "form-dropdown";
 export const SCENE_FORM_DROPDOWN_ITEM_TYPE = "form-dropdown-item";
 export const SCENE_FORM_DROPDOWN_SECTION_TYPE = "form-dropdown-section";
+export const SCENE_FORM_DATE_PICKER_TYPE = "form-date-picker";
+export const SCENE_FORM_TAG_PICKER_TYPE = "form-tag-picker";
+export const SCENE_FORM_TAG_PICKER_ITEM_TYPE = "form-tag-picker-item";
+export const SCENE_FORM_FILE_PICKER_TYPE = "form-file-picker";
 export const SCENE_FORM_DESCRIPTION_TYPE = "form-description";
 export const SCENE_FORM_SEPARATOR_TYPE = "form-separator";
 
@@ -406,20 +410,20 @@ export function createSceneRenderer(options: SceneRendererOptions): SceneRendere
       if (value === undefined) {
         continue;
       }
-      if (typeof value !== "string" && typeof value !== "number" && typeof value !== "boolean") {
+      if (!isScenePropValue(value)) {
         throw contractViolationError(
-          new SceneRendererError("invalid_prop", "Expected a string, number, or boolean property value", {
+          new SceneRendererError("invalid_prop", "Expected a string, number, boolean, or string array property value", {
             nodeId: node.id,
             property: key,
           }),
         );
       }
-      nextSceneProps[key] = value;
+      nextSceneProps[key] = Array.isArray(value) ? [...value] : value;
     }
 
     for (const [key, before] of Object.entries(node.props)) {
       const after = nextSceneProps[key];
-      if (before !== after) {
+      if (after === undefined ? before !== undefined : !sameSceneProp(before, after)) {
         diff[key] = after === undefined ? null : after;
       }
     }
@@ -617,7 +621,22 @@ function isCallbackProp(nodeType: SceneNodeType, property: string): boolean {
       nodeType === SCENE_FORM_TEXT_AREA_TYPE ||
       nodeType === SCENE_FORM_PASSWORD_FIELD_TYPE ||
       nodeType === SCENE_FORM_CHECKBOX_TYPE ||
-      nodeType === SCENE_FORM_DROPDOWN_TYPE) &&
+      nodeType === SCENE_FORM_DROPDOWN_TYPE ||
+      nodeType === SCENE_FORM_DATE_PICKER_TYPE ||
+      nodeType === SCENE_FORM_TAG_PICKER_TYPE ||
+      nodeType === SCENE_FORM_FILE_PICKER_TYPE) &&
       property === "onChange")
   );
+}
+
+function sameSceneProp(before: ScenePropValue, after: ScenePropValue): boolean {
+  if (Array.isArray(before) || Array.isArray(after)) {
+    return (
+      Array.isArray(before) &&
+      Array.isArray(after) &&
+      before.length === after.length &&
+      before.every((value, index) => value === after[index])
+    );
+  }
+  return before === after;
 }

@@ -281,7 +281,7 @@ export interface IconObject {
 
 export type IconLike = string | IconObject;
 
-export type FormValue = SceneFormValue;
+export type FormValue = string | boolean | null | string[] | Date;
 export type FormValues = Readonly<Record<string, FormValue>>;
 
 export interface FormProps {
@@ -305,6 +305,14 @@ export interface FormItemProps<T extends FormValue> {
   readonly onChange?: (value: T) => void;
   readonly onFocus?: unknown;
   readonly onBlur?: unknown;
+}
+
+export type DatePickerType = "date" | "date_time";
+
+export interface DatePickerProps extends FormItemProps<Date | null> {
+  readonly type?: DatePickerType;
+  readonly min?: Date;
+  readonly max?: Date;
 }
 
 export interface TextFieldProps extends FormItemProps<string> {
@@ -338,6 +346,24 @@ export interface DropdownSectionProps {
 export interface DropdownProps extends FormItemProps<string> {
   readonly placeholder?: string;
   readonly children?: ReactNode;
+}
+
+export interface TagPickerItemProps {
+  readonly value: string;
+  readonly title: string;
+  readonly icon?: IconLike;
+}
+
+export interface TagPickerProps extends FormItemProps<string[]> {
+  readonly placeholder?: string;
+  readonly children?: ReactNode;
+}
+
+export interface FilePickerProps extends FormItemProps<string[]> {
+  readonly canChooseFiles?: boolean;
+  readonly canChooseDirectories?: boolean;
+  readonly showHiddenFiles?: boolean;
+  readonly allowMultipleSelection?: boolean;
 }
 
 export interface DescriptionProps {
@@ -428,15 +454,17 @@ export function Detail(props: DetailProps): ReactElement {
   });
 }
 
+interface FormCodec {
+  readonly accepts: (value: unknown) => boolean;
+  readonly acceptsWire: (value: SceneFormValue) => boolean;
+  readonly serialize: (value: unknown) => SceneFormValue;
+  readonly deserialize: (value: SceneFormValue) => FormValue;
+}
+
 interface FormRuntime {
   readonly resetFields: () => void;
-  readonly register: (
-    id: string,
-    initialValue: FormValue | undefined,
-    controlled: boolean,
-    accepts: (value: SceneFormValue) => boolean,
-  ) => void;
-  readonly update: (id: string, value: FormValue) => void;
+  readonly register: (id: string, initialValue: FormValue | undefined, controlled: boolean, codec: FormCodec) => void;
+  readonly update: (id: string, value: SceneFormValue) => void;
   readonly submit: (values: Readonly<Record<string, SceneFormValue>> | undefined) => FormValues;
 }
 
@@ -451,24 +479,24 @@ function requireFormContext(where: string): FormRuntime {
 }
 
 function createFormRuntime(): FormRuntime {
-  const values = new Map<string, FormValue>();
+  const values = new Map<string, SceneFormValue>();
   const fieldIds = new Set<string>();
-  const fieldValidators = new Map<string, (value: SceneFormValue) => boolean>();
+  const fieldCodecs = new Map<string, FormCodec>();
 
   return {
     resetFields() {
       fieldIds.clear();
-      fieldValidators.clear();
+      fieldCodecs.clear();
     },
-    register(id, initialValue, controlled, accepts) {
+    register(id, initialValue, controlled, codec) {
       if (fieldIds.has(id)) {
         throw new CompatibilityError(`The Form contains duplicate field id ${JSON.stringify(id)}`, { id });
       }
       fieldIds.add(id);
-      fieldValidators.set(id, accepts);
+      fieldCodecs.set(id, codec);
       if (controlled || !values.has(id)) {
         if (initialValue !== undefined) {
-          values.set(id, initialValue);
+          values.set(id, codec.serialize(initialValue));
         } else if (controlled) {
           values.delete(id);
         }
@@ -483,26 +511,29 @@ function createFormRuntime(): FormRuntime {
       const result: Record<string, FormValue> = {};
       for (const id of fieldIds) {
         if (submittedValues !== undefined && Object.prototype.hasOwnProperty.call(submittedValues, id)) {
-          const value = submittedValues[id] as FormValue;
-          const accepts = fieldValidators.get(id);
-          if (accepts !== undefined && !accepts(value)) {
+          const value = submittedValues[id] as SceneFormValue;
+          const codec = fieldCodecs.get(id);
+          if (codec !== undefined && !codec.acceptsWire(value)) {
             throw new CompatibilityError(`Form field ${JSON.stringify(id)} received a value with the wrong type`, {
               id,
               value,
             });
           }
+          const formValue = codec === undefined ? value : codec.deserialize(value);
           Object.defineProperty(result, id, {
             configurable: true,
             enumerable: true,
-            value,
+            value: formValue,
             writable: true,
           });
         } else if (values.has(id)) {
-          const value = values.get(id) as FormValue;
+          const value = values.get(id) as SceneFormValue;
+          const codec = fieldCodecs.get(id);
+          const formValue = codec === undefined ? value : codec.deserialize(value);
           Object.defineProperty(result, id, {
             configurable: true,
             enumerable: true,
-            value,
+            value: formValue,
             writable: true,
           });
         }
@@ -533,48 +564,94 @@ function assertFormCallbacks(props: FormItemProps<FormValue>, where: string): vo
 function useFormChange<T extends FormValue>(
   props: FormItemProps<T>,
   where: string,
-  accepts: (value: SceneFormValue) => value is T,
+  codec: FormCodec,
 ): (payload: SceneEventPayload) => void {
   const form = requireFormContext(where);
   assertFormId(props.id, where);
   assertFormCallbacks(props as unknown as FormItemProps<FormValue>, where);
   const { id, onChange } = props;
   const initialValue = props.value !== undefined ? props.value : props.defaultValue;
-  if (initialValue !== undefined && !accepts(initialValue as SceneFormValue)) {
+  if (initialValue !== undefined && !codec.accepts(initialValue)) {
     throw new CompatibilityError(`${where} received an initial value with the wrong type`, {
       id: props.id,
       value: initialValue,
     });
   }
-  form.register(id, initialValue, props.value !== undefined, accepts);
+  form.register(id, initialValue, props.value !== undefined, codec);
   return useMemo(
     () => (payload: SceneEventPayload) => {
       const value = payload.values?.[id];
       if (value === undefined) {
         return;
       }
-      if (!accepts(value)) {
+      if (!codec.acceptsWire(value)) {
         throw new CompatibilityError(`${where} received a value with the wrong type`, {
           id,
           value,
         });
       }
       form.update(id, value);
-      onChange?.(value);
+      onChange?.(codec.deserialize(value) as T);
     },
-    [accepts, form, id, onChange, where],
+    [codec, form, id, onChange, where],
   );
 }
 
-function isStringFormValue(value: SceneFormValue): value is string {
+function isStringFormValue(value: unknown): value is string {
   return typeof value === "string";
 }
 
-function isBooleanFormValue(value: SceneFormValue): value is boolean {
+function isBooleanFormValue(value: unknown): value is boolean {
   return typeof value === "boolean";
 }
 
-function commonFormProps<T extends FormValue>(props: FormItemProps<T>, onChange: (payload: SceneEventPayload) => void) {
+function isStringArrayFormValue(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === "string");
+}
+
+function isDateFormValue(value: unknown): value is Date | null {
+  return value === null || (value instanceof Date && Number.isFinite(value.getTime()));
+}
+
+function isDateWireValue(value: SceneFormValue): boolean {
+  return value === null || (typeof value === "string" && Number.isFinite(Date.parse(value)));
+}
+
+const stringFormCodec: FormCodec = {
+  accepts: isStringFormValue,
+  acceptsWire: isStringFormValue,
+  serialize: (value) => value as string,
+  deserialize: (value) => value as string,
+};
+
+const booleanFormCodec: FormCodec = {
+  accepts: isBooleanFormValue,
+  acceptsWire: isBooleanFormValue,
+  serialize: (value) => value as boolean,
+  deserialize: (value) => value as boolean,
+};
+
+const stringArrayFormCodec: FormCodec = {
+  accepts: isStringArrayFormValue,
+  acceptsWire: isStringArrayFormValue,
+  serialize: (value) => [...(value as string[])],
+  deserialize: (value) => [...(value as readonly string[])],
+};
+
+const dateFormCodec: FormCodec = {
+  accepts: isDateFormValue,
+  acceptsWire: isDateWireValue,
+  serialize: (value) => (value === null ? null : (value as Date).toISOString()),
+  deserialize: (value) => (value === null ? null : new Date(value as string)),
+};
+
+function commonFormProps<T extends FormValue>(
+  props: FormItemProps<T>,
+  onChange: (payload: SceneEventPayload) => void,
+  codec: FormCodec,
+) {
+  const value = props.value === undefined ? undefined : codec.serialize(props.value);
+  const defaultValue = props.defaultValue === undefined ? undefined : codec.serialize(props.defaultValue);
   return {
     id: props.id,
     ...(props.title === undefined ? {} : { title: props.title }),
@@ -582,33 +659,33 @@ function commonFormProps<T extends FormValue>(props: FormItemProps<T>, onChange:
     ...(props.error === undefined ? {} : { error: props.error }),
     ...(props.storeValue === undefined ? {} : { storeValue: props.storeValue }),
     ...(props.autoFocus === undefined ? {} : { autoFocus: props.autoFocus }),
-    ...(props.value === undefined ? {} : { value: props.value }),
-    ...(props.defaultValue === undefined ? {} : { defaultValue: props.defaultValue }),
+    ...(value === undefined || value === null ? {} : { value }),
+    ...(defaultValue === undefined || defaultValue === null ? {} : { defaultValue }),
     onChange,
   };
 }
 
 function FormTextField(props: TextFieldProps): ReactElement {
-  const onChange = useFormChange(props, "Form.TextField", isStringFormValue);
+  const onChange = useFormChange(props, "Form.TextField", stringFormCodec);
   return createElement("form-text-field", {
-    ...commonFormProps(props, onChange),
+    ...commonFormProps(props, onChange, stringFormCodec),
     ...(props.placeholder === undefined ? {} : { placeholder: props.placeholder }),
   });
 }
 
 function FormTextArea(props: TextAreaProps): ReactElement {
-  const onChange = useFormChange(props, "Form.TextArea", isStringFormValue);
+  const onChange = useFormChange(props, "Form.TextArea", stringFormCodec);
   return createElement("form-text-area", {
-    ...commonFormProps(props, onChange),
+    ...commonFormProps(props, onChange, stringFormCodec),
     ...(props.placeholder === undefined ? {} : { placeholder: props.placeholder }),
     ...(props.enableMarkdown === undefined ? {} : { enableMarkdown: props.enableMarkdown }),
   });
 }
 
 function FormPasswordField(props: PasswordFieldProps): ReactElement {
-  const onChange = useFormChange(props, "Form.PasswordField", isStringFormValue);
+  const onChange = useFormChange(props, "Form.PasswordField", stringFormCodec);
   return createElement("form-password-field", {
-    ...commonFormProps(props, onChange),
+    ...commonFormProps(props, onChange, stringFormCodec),
     ...(props.placeholder === undefined ? {} : { placeholder: props.placeholder }),
   });
 }
@@ -616,19 +693,19 @@ function FormPasswordField(props: PasswordFieldProps): ReactElement {
 function FormCheckbox(props: CheckboxProps): ReactElement {
   assertFormString(props.label, "Form.Checkbox label");
   const normalized = props.defaultValue === undefined ? { ...props, defaultValue: false } : props;
-  const onChange = useFormChange(normalized, "Form.Checkbox", isBooleanFormValue);
+  const onChange = useFormChange(normalized, "Form.Checkbox", booleanFormCodec);
   return createElement("form-checkbox", {
-    ...commonFormProps(normalized, onChange),
+    ...commonFormProps(normalized, onChange, booleanFormCodec),
     label: props.label,
   });
 }
 
 function FormDropdown(props: DropdownProps): ReactElement {
-  const onChange = useFormChange(props, "Form.Dropdown", isStringFormValue);
+  const onChange = useFormChange(props, "Form.Dropdown", stringFormCodec);
   return createElement(
     "form-dropdown",
     {
-      ...commonFormProps(props, onChange),
+      ...commonFormProps(props, onChange, stringFormCodec),
       ...(props.placeholder === undefined ? {} : { placeholder: props.placeholder }),
     },
     mapDropdownChildren(props.children),
@@ -668,20 +745,96 @@ function assertFormString(value: unknown, where: string): asserts value is strin
   }
 }
 
-function unsupportedFormComponent(what: string): ReactElement {
-  unsupported(what);
+const DATE_PICKER_TYPES = {
+  Date: "date",
+  DateTime: "date_time",
+} as const;
+
+function normalizeDatePickerType(type: unknown): DatePickerType {
+  if (type === undefined) {
+    return DATE_PICKER_TYPES.DateTime;
+  }
+  if (type === DATE_PICKER_TYPES.Date || type === DATE_PICKER_TYPES.DateTime) {
+    return type;
+  }
+  throw new CompatibilityError("Form.DatePicker type must be Form.DatePicker.Type.Date or DateTime", { type });
 }
 
-function FormDatePicker(_props: Record<string, unknown>): ReactElement {
-  return unsupportedFormComponent("Form.DatePicker");
+function serializeDatePickerValue(value: unknown, where: string): string {
+  if (!(value instanceof Date) || !Number.isFinite(value.getTime())) {
+    throw new CompatibilityError(`${where} must be a valid Date`, { value });
+  }
+  return value.toISOString();
 }
 
-function FormTagPicker(_props: Record<string, unknown>): ReactElement {
-  return unsupportedFormComponent("Form.TagPicker");
+function isFullDayDate(date?: Date | null): boolean {
+  return (
+    date === undefined ||
+    date === null ||
+    (date instanceof Date &&
+      Number.isFinite(date.getTime()) &&
+      date.getHours() === 0 &&
+      date.getMinutes() === 0 &&
+      date.getSeconds() === 0 &&
+      date.getMilliseconds() === 0)
+  );
 }
 
-function FormFilePicker(_props: Record<string, unknown>): ReactElement {
-  return unsupportedFormComponent("Form.FilePicker");
+function FormDatePicker(props: DatePickerProps): ReactElement {
+  const normalized = props.defaultValue === undefined ? { ...props, defaultValue: null } : props;
+  const onChange = useFormChange(normalized, "Form.DatePicker", dateFormCodec);
+  const type = normalizeDatePickerType(props.type);
+  const min = props.min === undefined ? undefined : serializeDatePickerValue(props.min, "Form.DatePicker min");
+  const max = props.max === undefined ? undefined : serializeDatePickerValue(props.max, "Form.DatePicker max");
+  return createElement("form-date-picker", {
+    ...commonFormProps(normalized, onChange, dateFormCodec),
+    type,
+    ...(min === undefined ? {} : { min }),
+    ...(max === undefined ? {} : { max }),
+  });
+}
+
+const DatePicker = Object.assign(FormDatePicker, {
+  Type: DATE_PICKER_TYPES,
+  isFullDay: isFullDayDate,
+});
+
+function FormTagPickerItem(props: TagPickerItemProps): ReactElement {
+  assertFormString(props.value, "Form.TagPicker.Item value");
+  assertFormString(props.title, "Form.TagPicker.Item title");
+  const icon = serializeIcon(props.icon, "Form.TagPicker.Item");
+  return createElement("form-tag-picker-item", {
+    value: props.value,
+    title: props.title,
+    ...(icon === undefined ? {} : { icon: icon.icon, iconTintColor: icon.iconTintColor }),
+  });
+}
+
+function FormTagPicker(props: TagPickerProps): ReactElement {
+  const normalized = props.defaultValue === undefined ? { ...props, defaultValue: [] } : props;
+  const onChange = useFormChange(normalized, "Form.TagPicker", stringArrayFormCodec);
+  return createElement(
+    "form-tag-picker",
+    {
+      ...commonFormProps(normalized, onChange, stringArrayFormCodec),
+      ...(props.placeholder === undefined ? {} : { placeholder: props.placeholder }),
+    },
+    mapTagPickerChildren(props.children),
+  );
+}
+
+const TagPicker = Object.assign(FormTagPicker, { Item: FormTagPickerItem });
+
+function FormFilePicker(props: FilePickerProps): ReactElement {
+  const normalized = props.defaultValue === undefined ? { ...props, defaultValue: [] } : props;
+  const onChange = useFormChange(normalized, "Form.FilePicker", stringArrayFormCodec);
+  return createElement("form-file-picker", {
+    ...commonFormProps(normalized, onChange, stringArrayFormCodec),
+    ...(props.canChooseFiles === undefined ? {} : { canChooseFiles: props.canChooseFiles }),
+    ...(props.canChooseDirectories === undefined ? {} : { canChooseDirectories: props.canChooseDirectories }),
+    ...(props.showHiddenFiles === undefined ? {} : { showHiddenFiles: props.showHiddenFiles }),
+    ...(props.allowMultipleSelection === undefined ? {} : { allowMultipleSelection: props.allowMultipleSelection }),
+  });
 }
 
 function mapFormChildren(children: ReactNode): ReactNode {
@@ -698,16 +851,33 @@ function mapFormChildren(children: ReactNode): ReactNode {
       child.type === FormPasswordField ||
       child.type === FormCheckbox ||
       child.type === FormDropdown ||
+      child.type === DatePicker ||
+      child.type === TagPicker ||
+      child.type === FormFilePicker ||
       child.type === FormDescription ||
       child.type === FormSeparator ||
-      child.type === FormDatePicker ||
-      child.type === FormTagPicker ||
-      child.type === FormFilePicker ||
       child.type === ActionPanel
     ) {
       return keyedElement(child, `form-${index}`);
     }
     return unsupported("A Form child that is not a measured form item or ActionPanel", {
+      childType: String(child.type),
+    });
+  });
+}
+
+function mapTagPickerChildren(children: ReactNode): ReactNode {
+  return Children.toArray(children).map((child, index) => {
+    if (child === null || child === undefined || typeof child === "boolean") {
+      return null;
+    }
+    if (!isValidElement(child)) {
+      return unsupported("A Form.TagPicker text child", { child });
+    }
+    if (child.type === FormTagPickerItem) {
+      return keyedElement(child, `tag-picker-${index}`);
+    }
+    return unsupported("A Form.TagPicker child that is not an item", {
       childType: String(child.type),
     });
   });
@@ -742,8 +912,8 @@ interface FormComponent {
   };
   Description: typeof FormDescription;
   Separator: typeof FormSeparator;
-  DatePicker: typeof FormDatePicker;
-  TagPicker: typeof FormTagPicker;
+  DatePicker: typeof DatePicker;
+  TagPicker: typeof TagPicker;
   FilePicker: typeof FormFilePicker;
 }
 
@@ -776,8 +946,8 @@ export const Form: FormComponent = Object.assign(FormComponent, {
   Dropdown: Object.assign(FormDropdown, { Item: FormDropdownItem, Section: FormDropdownSection }),
   Description: FormDescription,
   Separator: FormSeparator,
-  DatePicker: FormDatePicker,
-  TagPicker: FormTagPicker,
+  DatePicker,
+  TagPicker,
   FilePicker: FormFilePicker,
 });
 

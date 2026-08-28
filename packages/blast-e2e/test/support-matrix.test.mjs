@@ -117,18 +117,34 @@ test("matrix form fixture round-trips field values through a submit action", asy
   await waitFor(() => buffer.rootId !== undefined, "the form fixture scene");
   const root = buffer.get(buffer.rootId);
   const name = root.children.find((child) => child.type === "form-text-field");
+  const due = root.children.find((child) => child.type === "form-date-picker");
+  const tags = root.children.find((child) => child.type === "form-tag-picker");
+  const files = root.children.find((child) => child.type === "form-file-picker");
   const actions = root.children.find((child) => child.type === "action-group");
   const submit = actions.children[0].children[0];
 
   await relay.sendSceneEvent(name.props.onChange, { name: "Grace" });
-  await relay.sendSceneEvent(submit.props.onAction, { name: "Grace", enabled: false, role: "user" });
+  await relay.sendSceneEvent(due.props.onChange, { due: "2026-09-01T12:30:00.000Z" });
+  await relay.sendSceneEvent(tags.props.onChange, { tags: ["docs", "v2"] });
+  await relay.sendSceneEvent(files.props.onChange, { files: ["/tmp/example.txt"] });
+  await relay.sendSceneEvent(submit.props.onAction, {
+    name: "Grace",
+    enabled: false,
+    role: "user",
+    due: "2026-09-01T12:30:00.000Z",
+    tags: ["docs", "v2"],
+    files: ["/tmp/example.txt"],
+  });
   await waitFor(
     () => buffer.get(buffer.rootId).children.some((child) => child.type === "form-description"),
     "the submitted form description",
   );
 
   const description = buffer.get(buffer.rootId).children.find((child) => child.type === "form-description");
-  assert.deepEqual(description.props, { title: "Submitted", text: "Grace|false|user" });
+  assert.deepEqual(description.props, {
+    title: "Submitted",
+    text: "Grace|false|user|2026-09-01|docs,v2|/tmp/example.txt",
+  });
 
   await core.stopCommand({ extensionId: "form-submission", commandName: "index" }, "form matrix complete");
   await relay.done;

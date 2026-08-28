@@ -4,6 +4,9 @@ import { Children, createElement, useEffect } from "react";
 
 import {
   SCENE_DETAIL_TYPE,
+  SCENE_FORM_FILE_PICKER_TYPE,
+  SCENE_FORM_TAG_PICKER_ITEM_TYPE,
+  SCENE_FORM_TAG_PICKER_TYPE,
   SCENE_FORM_TEXT_FIELD_TYPE,
   SCENE_FORM_TYPE,
   SceneAction,
@@ -17,6 +20,9 @@ const stableCalls = [];
 function stableCallback() {
   stableCalls.push("clicked");
 }
+
+function noopTagsChange() {}
+function noopFilesChange() {}
 
 function EffectsComponent() {
   useEffect(() => {
@@ -364,4 +370,41 @@ test("renders form controls and routes form values through scene events", async 
 
   renderer.dispatchSceneEvent({ eventId: "event-1", values: { name: "Grace" } });
   assert.deepEqual(changes, [{ eventId: "event-1", values: { name: "Grace" } }]);
+});
+
+test("publishes string-array form props and compares array values by contents", async () => {
+  const sink = createCollectingSink();
+  const renderer = createSceneRenderer({ sink });
+
+  const renderForm = (tags) =>
+    createElement(
+      SCENE_FORM_TYPE,
+      null,
+      createElement(
+        SCENE_FORM_TAG_PICKER_TYPE,
+        { id: "tags", defaultValue: tags, onChange: noopTagsChange },
+        createElement(SCENE_FORM_TAG_PICKER_ITEM_TYPE, { value: "v2", title: "V2" }),
+      ),
+      createElement(SCENE_FORM_FILE_PICKER_TYPE, {
+        id: "files",
+        defaultValue: [],
+        onChange: noopFilesChange,
+      }),
+    );
+
+  renderer.render(renderForm(["v2"]));
+  await renderer.flush();
+  assert.deepEqual(snapshotRoot(sink).children[0].props.defaultValue, ["v2"]);
+  assert.deepEqual(snapshotRoot(sink).children[1].props.defaultValue, []);
+
+  renderer.render(renderForm(["v2"]));
+  await renderer.flush();
+  assert.equal(sink.transactions.length, 1);
+
+  renderer.render(renderForm(["docs", "v2"]));
+  await renderer.flush();
+  assert.equal(sink.transactions.length, 2);
+  assert.deepEqual(sink.transactions[1].operations, [
+    { type: "update", nodeId: snapshotRoot(sink).children[0].id, props: { defaultValue: ["docs", "v2"] } },
+  ]);
 });
