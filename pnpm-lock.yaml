@@ -270,6 +270,15 @@ importers:
         specifier: ^5.8.0
         version: 5.8.1(encoding@0.1.13)(supports-color@8.1.1)
 
+  packages/blast-compatibility:
+    dependencies:
+      '@blastlauncher/protocol':
+        specifier: workspace:*
+        version: link:../blast-protocol
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
   packages/blast-core:
     dependencies:
       '@blastlauncher/capability':

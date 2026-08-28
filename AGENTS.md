@@ -41,6 +41,7 @@ V2 is being developed alongside the prototype:
 - `packages/blast-core/` — trusted catalog and lifecycle orchestration façade.
 - `packages/blast-core-node/` — Node filesystem manifest catalog.
 - `packages/blast-e2e/` — end-to-end vertical slice fixtures.
+- `packages/blast-compatibility/` — static compatibility scanning and census tooling.
 - `docs/v2/` — accepted product direction, architecture, decisions, and migration plan.
 
 V2 packages must not import from the prototype packages' `src/` directories.

@@ -37,6 +37,11 @@ process-exit observation are executable. See `status.md` for exact coverage.
 - Publish a generated support matrix by API, command, platform, and failure
   reason.
 
+Implementation note: the scanner and the first corpus run are complete. The
+census of 3,231 public extensions and the resulting adapter plan live in
+`compatibility/README.md`; the support matrix over named fixtures follows with
+the renderer and adapter work.
+
 Exit condition: the first supported API subset is justified by corpus usage and
 named fixtures.
 

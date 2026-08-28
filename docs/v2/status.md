@@ -88,15 +88,18 @@ slice changes what is executable, what is trusted, or what should happen next.
 
 ## Recommended continuation
 
-The first extension-to-client vertical slice is complete. Continue with the
-compatibility phase in measured order:
+The first extension-to-client vertical slice is complete, and the corpus
+census (`compatibility/README.md`) justifies the adapter order. Continue with
+the compatibility phase:
 
-1. measure API usage in the public extension corpus with a static scanner for
-   extension manifests and `@raycast/api` imports;
-2. build the React renderer adapter from ADR 0004 and run renderer
+1. build the React renderer adapter from ADR 0004 and run renderer
    conformance fixtures against the scene sink;
-3. implement the smallest measured `@raycast/api` surface (`List`,
-   `List.Item`, one action) on top of the command context;
+2. implement the measured `@raycast/api` surface in usage order: the
+   `List`/`Detail` view stack with `Action`/`ActionPanel` and `Icon`/`Color`,
+   then `showToast`/`showHUD` feedback and `Clipboard` through the broker,
+   then `getPreferenceValues` and manifest preferences;
+3. select a varied fixture set of real extensions and publish the support
+   matrix;
 4. add a client-facing core protocol and daemon listener so the Electron
    client can replace the test client.
 
