@@ -205,3 +205,43 @@ test("grant policies evaluate the full request identity", async () => {
   assert.equal(deniedOperation, "deny");
   assert.equal(perExtension, "allow");
 });
+
+test("the in-memory local-storage provider namespaces per extension", async () => {
+  const { createInMemoryLocalStorageProvider } = await import("../dist/index.js");
+  const provider = createInMemoryLocalStorageProvider();
+  const base = { commandName: "index", capability: "local-storage", requestId: "r" };
+
+  assert.equal(
+    await provider.perform({ ...base, extensionId: "a", operation: "get", arguments: { key: "k" } }),
+    undefined,
+  );
+  await provider.perform({ ...base, extensionId: "a", operation: "set", arguments: { key: "k", value: "va" } });
+  await provider.perform({ ...base, extensionId: "b", operation: "set", arguments: { key: "k", value: "vb" } });
+
+  assert.equal(await provider.perform({ ...base, extensionId: "a", operation: "get", arguments: { key: "k" } }), "va");
+  assert.equal(await provider.perform({ ...base, extensionId: "b", operation: "get", arguments: { key: "k" } }), "vb");
+
+  await provider.perform({ ...base, extensionId: "a", operation: "remove", arguments: { key: "k" } });
+  assert.equal(
+    await provider.perform({ ...base, extensionId: "a", operation: "get", arguments: { key: "k" } }),
+    undefined,
+  );
+  assert.equal(await provider.perform({ ...base, extensionId: "b", operation: "get", arguments: { key: "k" } }), "vb");
+
+  await provider.perform({ ...base, extensionId: "b", operation: "clear" });
+  assert.equal(
+    await provider.perform({ ...base, extensionId: "b", operation: "get", arguments: { key: "k" } }),
+    undefined,
+  );
+
+  await assert.rejects(
+    () =>
+      provider.perform({
+        ...base,
+        extensionId: "a",
+        operation: "set",
+        arguments: { key: "k", value: { nested: true } },
+      }),
+    /primitive value/,
+  );
+});

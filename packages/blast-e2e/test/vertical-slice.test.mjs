@@ -172,7 +172,7 @@ test("runs a Raycast-style compat extension with brokered clipboard end to end",
   await waitFor(() => buffer.rootId !== undefined, "the compat list snapshot");
   const rootId = buffer.rootId;
   const itemId = buffer.childrenOf(rootId)[0].id;
-  const actionId = buffer.childrenOf(itemId)[0].id;
+  const [actionId, pushId] = buffer.childrenOf(itemId).map((child) => child.id);
   assert.deepEqual(buffer.toJSON(), {
     id: rootId,
     type: "list",
@@ -189,17 +189,30 @@ test("runs a Raycast-style compat extension with brokered clipboard end to end",
             props: { title: "Copy", onAction: "event-1" },
             children: [],
           },
+          {
+            id: pushId,
+            type: "action",
+            props: { title: "Push", onAction: "event-2" },
+            children: [],
+          },
         ],
       },
     ],
   });
 
-  const action = buffer.childrenOf(itemId)[0];
-  await relay.sendSceneEvent(action.props.onAction);
+  const actions = buffer.childrenOf(itemId);
+  await relay.sendSceneEvent(actions[0].props.onAction);
   await waitFor(() => clipboardWrites.length === 1, "the brokered clipboard write");
 
   assert.deepEqual(clipboardWrites[0].arguments, { text: "from-compat" });
   assert.equal(clipboardWrites[0].extensionId, "e2e.compat");
+
+  await relay.sendSceneEvent(actions[1].props.onAction);
+  await waitFor(
+    () => buffer.rootId !== undefined && buffer.get(buffer.rootId).type === "detail",
+    "the pushed detail view",
+  );
+  assert.deepEqual(buffer.get(buffer.rootId).props, { markdown: "pushed-view" });
 
   await core.stopCommand(compatIdentity, "compat slice complete");
   await relay.done;

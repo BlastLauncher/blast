@@ -72,10 +72,14 @@ slice changes what is executable, what is trusted, or what should happen next.
   renders default-exported command components through the adapter, so
   unmodified Raycast-style TSX fixtures run end to end.
 - The support matrix runs a committed set of real corpus extensions through
-  the full pipeline in CI: ten render (list and detail roots, toasts,
-  preferences, brokered clipboard) and two fail with structured
-  `unsupported_api` errors, while the corpus probe records exactly which
-  unmeasured APIs block the rest.
+  the full pipeline in CI: thirteen render (list and detail roots,
+  navigation, toasts, preferences, brokered clipboard) and two fail with
+  structured `unsupported_api` errors, while the corpus probe records
+  exactly which unmeasured APIs block the rest.
+- Navigation (useNavigation, Action.Push), LocalStorage through the
+  capability broker with a reference in-memory provider, and environment()
+  are measured adapter surface; pushed views stay mounted so state survives
+  popping, and only the top view contributes scene nodes.
 
 ## Trust boundaries already enforced
 
@@ -113,9 +117,8 @@ adapter surface runs end to end, bundled TSX extensions with literal
 `@raycast/api` imports load, and the support matrix (`compatibility/support-matrix.md`)
 runs real corpus fixtures in CI. Continue with the compatibility phase:
 
-1. extend the measured surface in matrix order: navigation (`useNavigation`,
-   `Action.Push`), `LocalStorage`/`Cache`, `environment`, toast display
-   semantics, `ActionPanel` titles and submenus, then `Form` and `Color`;
+1. extend the measured surface in matrix order: `ActionPanel` titles and
+   submenus, toast display semantics, then `Form` and `Color`;
 2. add third-party dependency policy (vendoring or installation) so
    dependency-using corpus extensions can bundle;
 3. add a client-facing core protocol and daemon listener so the Electron

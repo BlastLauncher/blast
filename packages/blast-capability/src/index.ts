@@ -51,7 +51,8 @@ export interface CapabilityPolicy {
 }
 
 export interface CapabilityProvider {
-  perform(request: CapabilityRequest, signal?: AbortSignal): Promise<CapabilityValue>;
+  /** Returning undefined yields a succeeded response without a value. */
+  perform(request: CapabilityRequest, signal?: AbortSignal): Promise<CapabilityValue | undefined>;
 }
 
 export interface CapabilityBrokerOptions {
@@ -248,4 +249,54 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function invalid<T>(path: string, message: string): ValidationResult<T> {
   return { ok: false, issues: [{ path, message }] };
+}
+
+/**
+ * Reference in-memory provider for the `local-storage` capability: values are
+ * namespaced by extension identity and kept per broker instance. Launchers
+ * replace this with a persistent provider; the wire contract stays identical.
+ */
+export function createInMemoryLocalStorageProvider(): CapabilityProvider {
+  const namespaces = new Map<string, Map<string, string | number | boolean>>();
+  const namespaceFor = (extensionId: string): Map<string, string | number | boolean> => {
+    const existing = namespaces.get(extensionId);
+    if (existing !== undefined) {
+      return existing;
+    }
+    const created = new Map<string, string | number | boolean>();
+    namespaces.set(extensionId, created);
+    return created;
+  };
+
+  return {
+    async perform(request) {
+      const namespace = namespaceFor(request.extensionId);
+      const rawKey = request.arguments === undefined ? undefined : request.arguments["key"];
+      const key = typeof rawKey === "string" ? rawKey : undefined;
+      if (request.operation !== "clear" && (key === undefined || key.length === 0)) {
+        throw new Error("local-storage operations require a key");
+      }
+      const storageKey = key ?? "";
+      switch (request.operation) {
+        case "get":
+          return namespace.has(storageKey) ? (namespace.get(storageKey) as string | number | boolean) : undefined;
+        case "set": {
+          const value = request.arguments["value"];
+          if (typeof value !== "string" && typeof value !== "number" && typeof value !== "boolean") {
+            throw new Error("local-storage set requires a primitive value");
+          }
+          namespace.set(storageKey, value);
+          return undefined;
+        }
+        case "remove":
+          namespace.delete(storageKey);
+          return undefined;
+        case "clear":
+          namespace.clear();
+          return undefined;
+        default:
+          throw new Error(`Unknown local-storage operation "${request.operation}"`);
+      }
+    },
+  };
 }

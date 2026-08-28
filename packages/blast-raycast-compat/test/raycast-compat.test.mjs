@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { createInMemoryLocalStorageProvider } from "@blastlauncher/capability";
 import {
   Action,
   ActionPanel,
@@ -9,8 +10,10 @@ import {
   Detail,
   Icon,
   List,
+  LocalStorage,
   Toast,
   configureRaycastCompat,
+  environment,
   getPreferenceValues,
   renderCommand,
   showToast,
@@ -19,7 +22,7 @@ import { createElement } from "react";
 
 function onAction() {}
 
-function createContext({ grantClipboard = true } = {}) {
+function createContext({ grantClipboard = true, storageProvider = null } = {}) {
   const transactions = [];
   const capabilityRequests = [];
   const eventHandlers = [];
@@ -30,7 +33,12 @@ function createContext({ grantClipboard = true } = {}) {
     toasts,
     grantClipboard,
     context: {
-      descriptor: { preferences: { token: "secret", enabled: true } },
+      descriptor: {
+        extensionId: "fixture.extension",
+        commandName: "index",
+        preferences: { token: "secret", enabled: true },
+      },
+      platform: "linux",
       publish: (transaction) => {
         transactions.push(transaction);
         return Promise.resolve();
@@ -44,13 +52,25 @@ function createContext({ grantClipboard = true } = {}) {
       requestCapability: (request) => {
         capabilityRequests.push(request);
         const granted = grantClipboard || request.capability !== "clipboard";
+        if (!granted) {
+          return Promise.resolve({ outcome: "denied", code: "capability_denied" });
+        }
+        if (storageProvider !== null && request.capability === "local-storage") {
+          return storageProvider
+            .perform({
+              requestId: "test",
+              extensionId: "fixture.extension",
+              commandName: "index",
+              capability: request.capability,
+              operation: request.operation,
+              arguments: request.arguments ?? {},
+            })
+            .then((value) => (value === undefined ? { outcome: "succeeded" } : { outcome: "succeeded", value }));
+        }
         return Promise.resolve(
-          granted
+          request.capability === "clipboard"
             ? { outcome: "succeeded", value: "clipboard-text" }
-            : {
-                outcome: "denied",
-                code: "capability_denied",
-              },
+            : { outcome: "succeeded" },
         );
       },
     },
@@ -63,9 +83,9 @@ function createContext({ grantClipboard = true } = {}) {
 }
 
 test("renders a Raycast-style list through the compatibility surface", async () => {
-  const environment = createContext();
+  const probe = createContext();
 
-  const renderer = renderCommand(environment.context, () =>
+  const renderer = renderCommand(probe.context, () =>
     createElement(
       List,
       { navigationTitle: "Tasks" },
@@ -79,8 +99,8 @@ test("renders a Raycast-style list through the compatibility surface", async () 
   );
   await renderer.flush();
 
-  assert.equal(environment.transactions.length, 1);
-  const root = environment.transactions[0].operations[0].root;
+  assert.equal(probe.transactions.length, 1);
+  const root = probe.transactions[0].operations[0].root;
   assert.deepEqual(root, {
     id: root.id,
     type: "list",
@@ -110,10 +130,10 @@ test("renders a Raycast-style list through the compatibility surface", async () 
 });
 
 test("routes Action callbacks through scene events", async () => {
-  const environment = createContext();
+  const probe = createContext();
   const calls = [];
 
-  const renderer = renderCommand(environment.context, () =>
+  const renderer = renderCommand(probe.context, () =>
     createElement(
       List,
       null,
@@ -126,16 +146,16 @@ test("routes Action callbacks through scene events", async () => {
   );
   await renderer.flush();
 
-  const eventId = environment.transactions[0].operations[0].root.children[0].children[0].props.onAction;
-  environment.dispatch(eventId);
+  const eventId = probe.transactions[0].operations[0].root.children[0].children[0].props.onAction;
+  probe.dispatch(eventId);
   assert.deepEqual(calls, ["run"]);
 });
 
 test("copies text through the clipboard capability broker", async () => {
-  const environment = createContext();
+  const probe = createContext();
   const copies = [];
 
-  const renderer = renderCommand(environment.context, () =>
+  const renderer = renderCommand(probe.context, () =>
     createElement(
       List,
       null,
@@ -156,24 +176,24 @@ test("copies text through the clipboard capability broker", async () => {
   );
   await renderer.flush();
 
-  const eventId = environment.transactions[0].operations[0].root.children[0].children[0].props.onAction;
-  environment.dispatch(eventId);
+  const eventId = probe.transactions[0].operations[0].root.children[0].children[0].props.onAction;
+  probe.dispatch(eventId);
   await new Promise((resolve) => setTimeout(resolve, 5));
 
-  assert.deepEqual(environment.capabilityRequests, [
+  assert.deepEqual(probe.capabilityRequests, [
     { capability: "clipboard", operation: "write", arguments: { text: "from-compat" } },
   ]);
   assert.deepEqual(copies, ["copied"]);
 });
 
 test("Clipboard singletons use the configured context", async () => {
-  const environment = createContext();
-  configureRaycastCompat(environment.context);
+  const probe = createContext();
+  configureRaycastCompat(probe.context);
 
   await Clipboard.copy("hello");
   const text = await Clipboard.read();
 
-  assert.deepEqual(environment.capabilityRequests, [
+  assert.deepEqual(probe.capabilityRequests, [
     { capability: "clipboard", operation: "write", arguments: { text: "hello" } },
     { capability: "clipboard", operation: "read" },
   ]);
@@ -181,35 +201,35 @@ test("Clipboard singletons use the configured context", async () => {
 });
 
 test("denied clipboard writes raise structured compatibility errors", async () => {
-  const environment = createContext({ grantClipboard: false });
-  configureRaycastCompat(environment.context);
+  const probe = createContext({ grantClipboard: false });
+  configureRaycastCompat(probe.context);
 
   await assert.rejects(
     () => Clipboard.copy("hello"),
     (error) => error instanceof CompatibilityError,
   );
-  assert.equal(environment.capabilityRequests.length, 1);
+  assert.equal(probe.capabilityRequests.length, 1);
 });
 
 test("renders a Detail root", async () => {
-  const environment = createContext();
+  const probe = createContext();
 
-  const renderer = renderCommand(environment.context, () =>
+  const renderer = renderCommand(probe.context, () =>
     createElement(Detail, { markdown: "# Notes", navigationTitle: "Notes" }),
   );
   await renderer.flush();
 
-  const root = environment.transactions[0].operations[0].root;
+  const root = probe.transactions[0].operations[0].root;
   assert.equal(root.type, "detail");
   assert.deepEqual(root.props, { markdown: "# Notes", navigationTitle: "Notes" });
 });
 
 test("rejects unmeasured API surface with structured errors", (context) => {
-  const environment = createContext();
+  const probe = createContext();
 
   context.test("List actions prop", () => {
     assert.throws(
-      () => renderCommand(environment.context, () => createElement(List, { actions: null })),
+      () => renderCommand(probe.context, () => createElement(List, { actions: null })),
       (error) => error instanceof CompatibilityError && /List actions/.test(error.message),
     );
   });
@@ -217,7 +237,7 @@ test("rejects unmeasured API surface with structured errors", (context) => {
   context.test("ActionPanel title prop", () => {
     assert.throws(
       () =>
-        renderCommand(environment.context, () =>
+        renderCommand(probe.context, () =>
           createElement(
             List,
             null,
@@ -231,7 +251,7 @@ test("rejects unmeasured API surface with structured errors", (context) => {
   context.test("Action shortcut prop", () => {
     assert.throws(
       () =>
-        renderCommand(environment.context, () =>
+        renderCommand(probe.context, () =>
           createElement(
             List,
             null,
@@ -253,7 +273,7 @@ test("rejects unmeasured API surface with structured errors", (context) => {
   context.test("non-action List.Item children", () => {
     assert.throws(
       () =>
-        renderCommand(environment.context, () =>
+        renderCommand(probe.context, () =>
           createElement(List, null, createElement(List.Item, { title: "First" }, createElement("div", null, "nope"))),
         ),
       (error) => error instanceof CompatibilityError && /not an action/.test(error.message),
@@ -263,7 +283,7 @@ test("rejects unmeasured API surface with structured errors", (context) => {
   context.test("object icons", () => {
     assert.throws(
       () =>
-        renderCommand(environment.context, () =>
+        renderCommand(probe.context, () =>
           createElement(List, null, createElement(List.Item, { title: "First", icon: { source: "file.png" } })),
         ),
       (error) => error instanceof CompatibilityError && /object icon/.test(error.message),
@@ -280,8 +300,8 @@ test("rejects unmeasured API surface with structured errors", (context) => {
 });
 
 test("shows toasts through the configured context", async () => {
-  const environment = createContext();
-  configureRaycastCompat(environment.context);
+  const probe = createContext();
+  configureRaycastCompat(probe.context);
 
   const toast = await showToast({ title: "Saved", message: "All done", style: Toast.Style.Success });
   await toast.show();
@@ -290,7 +310,7 @@ test("shows toasts through the configured context", async () => {
     (error) => error instanceof CompatibilityError,
   );
 
-  assert.deepEqual(environment.toasts, [
+  assert.deepEqual(probe.toasts, [
     { title: "Saved", message: "All done", style: "success" },
     { title: "Saved", message: "All done", style: "success" },
   ]);
@@ -300,23 +320,86 @@ test("shows toasts through the configured context", async () => {
 });
 
 test("shows string toasts with neutral style", async () => {
-  const environment = createContext();
-  configureRaycastCompat(environment.context);
+  const probe = createContext();
+  configureRaycastCompat(probe.context);
 
   await showToast("Working...");
   const constructed = new Toast({ title: "From constructor", style: "weird" });
   await constructed.show();
 
-  assert.deepEqual(environment.toasts, [
+  assert.deepEqual(probe.toasts, [
     { title: "Working...", style: "neutral" },
     { title: "From constructor", style: "neutral" },
   ]);
 });
 
 test("returns manifest preference defaults", () => {
-  const environment = createContext();
-  configureRaycastCompat(environment.context);
+  const probe = createContext();
+  configureRaycastCompat(probe.context);
 
   const preferences = getPreferenceValues();
   assert.deepEqual(preferences, { token: "secret", enabled: true });
+});
+
+test("Action.Push activation pushes the target scene root", async () => {
+  const probe = createContext();
+
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      List,
+      { navigationTitle: "Home" },
+      createElement(
+        List.Item,
+        { title: "Open" },
+        createElement(
+          ActionPanel,
+          null,
+          createElement(Action.Push, { title: "Push", target: createElement(Detail, { markdown: "pushed" }) }),
+        ),
+      ),
+    ),
+  );
+  await renderer.flush();
+  assert.equal(probe.transactions[0].operations[0].root.type, "list");
+
+  const eventId = probe.transactions[0].operations[0].root.children[0].children[0].props.onAction;
+  probe.dispatch(eventId);
+  await renderer.flush();
+
+  const lastSnapshot = probe.transactions.filter((t) => t.operations[0].type === "snapshot").at(-1);
+  assert.equal(lastSnapshot.operations[0].root.type, "detail");
+  assert.deepEqual(lastSnapshot.operations[0].root.props, { markdown: "pushed" });
+});
+
+test("LocalStorage routes through the capability broker", async () => {
+  const probe = createContext({ storageProvider: createInMemoryLocalStorageProvider() });
+  configureRaycastCompat(probe.context);
+
+  assert.equal(await LocalStorage.getItem("missing"), undefined);
+  await LocalStorage.setItem("token", "secret");
+  assert.equal(await LocalStorage.getItem("token"), "secret");
+  await LocalStorage.setItem("flag", true);
+  assert.equal(await LocalStorage.getItem("flag"), true);
+  await LocalStorage.removeItem("token");
+  assert.equal(await LocalStorage.getItem("token"), undefined);
+  await LocalStorage.clear();
+  assert.equal(await LocalStorage.getItem("flag"), undefined);
+
+  assert.deepEqual(
+    probe.capabilityRequests.map((request) => request.operation),
+    ["get", "set", "get", "set", "get", "remove", "get", "clear", "get"],
+  );
+});
+
+test("environment reports the runtime platform and command identity", () => {
+  const probe = createContext();
+  probe.context.platform = "darwin";
+  configureRaycastCompat(probe.context);
+
+  const info = environment();
+  assert.deepEqual(info.os, ["macOS"]);
+  assert.equal(info.launchType, "initial-launch");
+  assert.equal(info.commandName, "index");
+  assert.equal(info.extensionName, "fixture.extension");
+  assert.equal(typeof info.raycastVersion, "string");
 });

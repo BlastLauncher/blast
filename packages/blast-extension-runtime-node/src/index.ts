@@ -105,6 +105,8 @@ export interface ExtensionCommandContext {
   readonly descriptor: ExtensionDescriptor;
   /** Manifest preference defaults resolved by the trusted catalog. */
   readonly preferences: Readonly<Record<string, string | number | boolean>>;
+  /** The platform the runtime process runs on. */
+  readonly platform: string;
   publish(transaction: SceneTransaction): Promise<void>;
   onEvent(handler: SceneEventHandler): void;
   requestCapability(request: ExtensionChannelRequest): Promise<CapabilityResponsePayload>;
@@ -238,6 +240,7 @@ async function initializeRuntime(
       commandContext = {
         descriptor,
         preferences: descriptor.preferences ?? {},
+        platform: process.platform,
         publish: (transaction: SceneTransaction) => bootstrapChannel.publish(transaction),
         onEvent: (handler: SceneEventHandler) => bootstrapChannel.onEvent(handler),
         requestCapability: (request: ExtensionChannelRequest) => bootstrapChannel.requestCapability(request),

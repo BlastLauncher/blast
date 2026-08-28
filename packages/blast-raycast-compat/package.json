@@ -24,6 +24,7 @@
     "react": "^19.2.8"
   },
   "devDependencies": {
+    "@blastlauncher/capability": "workspace:*",
     "@types/react": "^19.2.18"
   }
 }

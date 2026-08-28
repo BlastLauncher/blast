@@ -1,7 +1,7 @@
 // Immutable fixture command written against the Raycast compatibility surface.
 import { createElement } from "react";
 
-import { Action, ActionPanel, Icon, List, runCommand } from "@blastlauncher/raycast-compat";
+import { Action, ActionPanel, Detail, Icon, List, runCommand } from "@blastlauncher/raycast-compat";
 
 export function command(context) {
   runCommand(context, () =>
@@ -15,6 +15,7 @@ export function command(context) {
           ActionPanel,
           null,
           createElement(Action.CopyToClipboard, { title: "Copy", content: "from-compat" }),
+          createElement(Action.Push, { title: "Push", target: createElement(Detail, { markdown: "pushed-view" }) }),
         ),
       ),
     ),

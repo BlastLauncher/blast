@@ -1,10 +1,14 @@
 import {
   Children,
   Fragment,
+  createContext,
   createElement,
   isValidElement,
+  useContext,
   useEffect,
+  useMemo,
   useState,
+  type Context,
   type ReactElement,
   type ReactNode,
 } from "react";
@@ -35,8 +39,11 @@ export class CompatibilityError extends Error {
 
 export interface RaycastCompatContext {
   readonly descriptor: {
+    readonly extensionId: string;
+    readonly commandName: string;
     readonly preferences: Readonly<Record<string, string | number | boolean>>;
   };
+  readonly platform: string;
   readonly publish: (transaction: SceneTransaction) => Promise<void>;
   readonly onEvent: (handler: (payload: SceneEventPayload) => void | Promise<void>) => void;
   readonly requestCapability: (request: {
@@ -91,7 +98,7 @@ export function runCommand(context: RaycastCompatContext, component: () => React
   }
   const { renderer, takeError } = createCompatRenderer(context);
   compatGlobals.renderer = renderer;
-  renderLoudly(renderer, takeError, () => adaptRootElement(component()));
+  renderLoudly(renderer, takeError, () => adaptRootElement(createElement(NavigationHost, { base: component() })));
 }
 
 /**
@@ -140,7 +147,7 @@ function adaptRootElement(element: ReactElement): ReactElement {
  */
 export function renderCommand(context: RaycastCompatContext, component: () => ReactElement): SceneRenderer {
   const { renderer, takeError } = createCompatRenderer(context);
-  renderLoudly(renderer, takeError, () => adaptRootElement(component()));
+  renderLoudly(renderer, takeError, () => adaptRootElement(createElement(NavigationHost, { base: component() })));
   return renderer;
 }
 
@@ -317,6 +324,26 @@ export function Action(props: ActionProps): ReactElement {
   });
 }
 
+function Push(props: {
+  readonly title: string;
+  readonly target: ReactElement;
+  readonly icon?: IconLike;
+  readonly shortcut?: unknown;
+}): ReactElement {
+  if (props.shortcut !== undefined) {
+    unsupported("The Action.Push shortcut prop");
+  }
+  const icon = serializeIcon(props.icon, "Action.Push");
+  const navigation = useContext(NavigationContext);
+  return createElement("action", {
+    title: props.title,
+    ...(icon === undefined ? {} : { icon }),
+    onAction: () => {
+      navigation.push(props.target);
+    },
+  });
+}
+
 function CopyToClipboard(props: CopyToClipboardProps): ReactElement {
   const icon = serializeIcon(props.icon, "Action.CopyToClipboard");
   return createElement("action", {
@@ -347,7 +374,7 @@ function mapItemChildren(children: ReactNode, where: string): ReactNode {
     if (!isValidElement(child)) {
       return unsupported(`A ${where} text child`, { child });
     }
-    if (child.type === ActionPanel || child.type === Action || child.type === CopyToClipboard) {
+    if (child.type === ActionPanel || child.type === Action || child.type === CopyToClipboard || child.type === Push) {
       return child;
     }
     return unsupported(`A ${where} child that is not an action`, { childType: String(child.type) });
@@ -436,3 +463,137 @@ export async function showToast(options: ToastOptions | string): Promise<Toast> 
 export function getPreferenceValues<T = Record<string, string | number | boolean>>(): T {
   return requireContext().descriptor.preferences as T;
 }
+
+export interface NavigationApi {
+  push(element: ReactElement): void;
+  pop(): void;
+  popToRoot(): void;
+}
+
+const NavigationContext: Context<NavigationApi> = createContext<NavigationApi>({
+  push() {},
+  pop() {},
+  popToRoot() {},
+});
+
+/**
+ * Navigation within a running command. Pushed views stay mounted, so their
+ * state survives popping; only the top view contributes scene nodes.
+ */
+export function useNavigation(): NavigationApi {
+  return useContext(NavigationContext);
+}
+
+let navigationEntryCounter = 0;
+
+function NavigationHost({ base }: { readonly base: ReactElement }): ReactElement {
+  const [entries, setEntries] = useState<{ readonly id: number; readonly element: ReactElement }[]>([
+    { id: ++navigationEntryCounter, element: base },
+  ]);
+  const navigation = useMemo<NavigationApi>(
+    () => ({
+      push(element: ReactElement) {
+        setEntries((current) => [...current, { id: ++navigationEntryCounter, element }]);
+      },
+      pop() {
+        setEntries((current) => (current.length > 1 ? current.slice(0, -1) : current));
+      },
+      popToRoot() {
+        setEntries((current) => (current.length > 1 ? current.slice(0, 1) : current));
+      },
+    }),
+    [],
+  );
+
+  return createElement(
+    NavigationContext.Provider,
+    { value: navigation },
+    entries.map((entry, index) =>
+      createElement(Fragment, { key: entry.id }, index === entries.length - 1 ? entry.element : null),
+    ),
+  );
+}
+
+Object.assign(Action, { Push });
+
+export const LaunchType = {
+  InitialLaunch: "initial-launch",
+  HotReload: "hot-reload",
+  BackgroundCheck: "background-check",
+} as const;
+
+export type LaunchTypeName = (typeof LaunchType)[keyof typeof LaunchType];
+
+export interface Environment {
+  os: readonly [string];
+  launchType: LaunchTypeName;
+  commandName: string;
+  extensionName: string;
+  raycastVersion: string;
+}
+
+/**
+ * Runtime environment for the running command. `raycastVersion` reports the
+ * compatibility target the adapter implements.
+ */
+export function environment(): Environment {
+  const context = requireContext();
+  const osName = context.platform === "darwin" ? "macOS" : context.platform === "win32" ? "Windows" : "Linux";
+  return {
+    os: [osName],
+    launchType: LaunchType.InitialLaunch,
+    commandName: context.descriptor.commandName,
+    extensionName: context.descriptor.extensionId,
+    raycastVersion: "1.79.0",
+  };
+}
+
+/**
+ * Per-extension key-value storage, brokered through the capability boundary
+ * with the extension identity attached by the host.
+ */
+export const LocalStorage = {
+  async getItem<T extends string | number | boolean>(key: string): Promise<T | undefined> {
+    const response = await requireContext().requestCapability({
+      capability: "local-storage",
+      operation: "get",
+      arguments: { key },
+    });
+    if (response.outcome !== "succeeded") {
+      throw new CompatibilityError("The local-storage get capability was not granted", response);
+    }
+    return response.value === undefined || response.value === null ? undefined : (response.value as T);
+  },
+
+  async setItem(key: string, value: string | number | boolean): Promise<void> {
+    const response = await requireContext().requestCapability({
+      capability: "local-storage",
+      operation: "set",
+      arguments: { key, value },
+    });
+    if (response.outcome !== "succeeded") {
+      throw new CompatibilityError("The local-storage set capability was not granted", response);
+    }
+  },
+
+  async removeItem(key: string): Promise<void> {
+    const response = await requireContext().requestCapability({
+      capability: "local-storage",
+      operation: "remove",
+      arguments: { key },
+    });
+    if (response.outcome !== "succeeded") {
+      throw new CompatibilityError("The local-storage remove capability was not granted", response);
+    }
+  },
+
+  async clear(): Promise<void> {
+    const response = await requireContext().requestCapability({
+      capability: "local-storage",
+      operation: "clear",
+    });
+    if (response.outcome !== "succeeded") {
+      throw new CompatibilityError("The local-storage clear capability was not granted", response);
+    }
+  },
+};
