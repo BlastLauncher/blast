@@ -10,6 +10,7 @@ import {
   validateSceneEventPayload,
   validateSceneTransactionMessage,
   validateSceneTransactionPayload,
+  validateToastPayload,
 } from "../dist/index.js";
 
 const PROTOCOL_VERSION = 1;
@@ -193,6 +194,32 @@ test("validates scene event payloads", (context) => {
       result.issues?.map((issue) => issue.path),
       ["$.values.name"],
     );
+  });
+});
+
+test("validates toast lifecycle payloads", (context) => {
+  context.test("accepts legacy and identified display payloads", () => {
+    assert.equal(validateToastPayload({ title: "Saved", style: "success" }).ok, true);
+    assert.equal(
+      validateToastPayload({
+        toastId: "toast-1",
+        operation: "update",
+        title: "Uploading",
+        style: "animated",
+        primaryAction: { title: "Cancel", eventId: "toast-event-1" },
+      }).ok,
+      true,
+    );
+  });
+
+  context.test("accepts hide payloads", () => {
+    assert.equal(validateToastPayload({ toastId: "toast-1", operation: "hide" }).ok, true);
+  });
+
+  context.test("requires identity for update and hide", () => {
+    assert.equal(validateToastPayload({ operation: "update", title: "Uploading" }).ok, false);
+    assert.equal(validateToastPayload({ operation: "hide" }).ok, false);
+    assert.equal(validateToastPayload({ operation: null, title: "Saved" }).ok, false);
   });
 });
 

@@ -18,6 +18,8 @@ import type {
   SceneEventPayload,
   SceneFormValue,
   SceneTransaction,
+  ToastActionPayload,
+  ToastOperation,
   ToastPayload,
   ToastStyle,
 } from "@blastlauncher/scene";
@@ -69,6 +71,7 @@ export interface RaycastCompatContext {
 interface RaycastCompatGlobals {
   context?: RaycastCompatContext;
   renderer?: SceneRenderer;
+  toastEvents?: Map<string, () => void>;
 }
 
 const compatGlobals: RaycastCompatGlobals = (() => {
@@ -84,6 +87,7 @@ const compatGlobals: RaycastCompatGlobals = (() => {
  */
 export function configureRaycastCompat(context: RaycastCompatContext): void {
   compatGlobals.context = context;
+  compatGlobals.toastEvents ??= new Map();
 }
 
 function requireContext(): RaycastCompatContext {
@@ -179,6 +183,8 @@ function createCompatRenderer(context: RaycastCompatContext): {
   takeError: () => unknown;
 } {
   configureRaycastCompat(context);
+  const toastEvents = new Map<string, () => void>();
+  compatGlobals.toastEvents = toastEvents;
   let capturedError: unknown;
   let capturedCompatibilityError: unknown;
   const renderer = createSceneRenderer({
@@ -198,7 +204,18 @@ function createCompatRenderer(context: RaycastCompatContext): {
     },
   });
   context.onEvent((payload) => {
-    renderer.dispatchSceneEvent(payload);
+    try {
+      renderer.dispatchSceneEvent(payload);
+    } catch (error) {
+      if (!(error instanceof SceneRendererError) || error.code !== "unknown_event") {
+        throw error;
+      }
+      const toastHandler = toastEvents.get(payload.eventId);
+      if (toastHandler === undefined) {
+        throw error;
+      }
+      toastHandler();
+    }
   });
   return {
     renderer,
@@ -912,62 +929,238 @@ export const Clipboard = {
 Object.assign(List, { Item: ListItem });
 
 function normalizeToastStyle(style: unknown): ToastStyle {
-  return style === "success" || style === "failure" ? style : "neutral";
+  if (style === "success" || style === "SUCCESS") {
+    return "success";
+  }
+  if (style === "failure" || style === "FAILURE") {
+    return "failure";
+  }
+  if (style === "animated" || style === "ANIMATED") {
+    return "animated";
+  }
+  return "neutral";
 }
 
-export class Toast {
-  static readonly Style = {
-    Success: "success",
-    Failure: "failure",
-  } as const;
-
+export interface ToastActionOptions {
   readonly title: string;
-  readonly message: string | undefined;
-  readonly style: ToastStyle;
-
-  constructor(options: { readonly title: string; readonly message?: string; readonly style?: unknown }) {
-    this.title = options.title;
-    this.message = options.message;
-    this.style = normalizeToastStyle(options.style);
-  }
-
-  async show(): Promise<void> {
-    await requireContext().showToast(this.toPayload());
-  }
-
-  async hide(): Promise<void> {
-    unsupported("Toast.hide");
-  }
-
-  toPayload(): ToastPayload {
-    return {
-      title: this.title,
-      ...(this.message === undefined ? {} : { message: this.message }),
-      style: this.style,
-    };
-  }
+  readonly shortcut?: unknown;
+  readonly onAction: (toast: Toast) => void;
 }
 
 export interface ToastOptions {
   readonly title: string;
   readonly message?: string;
   readonly style?: unknown;
+  readonly primaryAction?: ToastActionOptions;
+  readonly secondaryAction?: ToastActionOptions;
+}
+
+type ToastActionSlot = "primaryAction" | "secondaryAction";
+
+interface RegisteredToastAction {
+  readonly eventId: string;
+  readonly callback: (toast: Toast) => void;
+}
+
+let toastCounter = 0;
+let toastEventCounter = 0;
+
+function normalizeToastAction(action: ToastActionOptions | undefined, where: string): ToastActionOptions | undefined {
+  if (action === undefined) {
+    return undefined;
+  }
+  if (typeof action !== "object" || action === null) {
+    throw new CompatibilityError(`${where} must be an object`, { action });
+  }
+  if (typeof action.title !== "string" || action.title.length === 0) {
+    throw new CompatibilityError(`${where} requires a non-empty title`, { action });
+  }
+  if (typeof action.onAction !== "function") {
+    throw new CompatibilityError(`${where} onAction must be a function`, { action });
+  }
+  if (action.shortcut !== undefined) {
+    unsupported(`${where} shortcut`);
+  }
+  return action;
+}
+
+export class Toast {
+  static readonly Style = {
+    Success: "success",
+    Failure: "failure",
+    Animated: "animated",
+  } as const;
+
+  readonly #toastId = `toast-${++toastCounter}`;
+  #title: string;
+  #message: string | undefined;
+  #style: ToastStyle;
+  #primaryAction: ToastActionOptions | undefined;
+  #secondaryAction: ToastActionOptions | undefined;
+  #registeredActions = new Map<ToastActionSlot, RegisteredToastAction>();
+  #shown = false;
+  #sendQueue: Promise<void> = Promise.resolve();
+
+  constructor(options: ToastOptions) {
+    this.#title = options.title;
+    this.#message = options.message;
+    this.#style = normalizeToastStyle(options.style);
+    this.#primaryAction = normalizeToastAction(options.primaryAction, "Toast.primaryAction");
+    this.#secondaryAction = normalizeToastAction(options.secondaryAction, "Toast.secondaryAction");
+  }
+
+  get style(): ToastStyle {
+    return this.#style;
+  }
+
+  set style(style: unknown) {
+    this.#style = normalizeToastStyle(style);
+    this.queueUpdate();
+  }
+
+  get title(): string {
+    return this.#title;
+  }
+
+  set title(title: string) {
+    this.#title = title;
+    this.queueUpdate();
+  }
+
+  get message(): string | undefined {
+    return this.#message;
+  }
+
+  set message(message: string | undefined) {
+    this.#message = message;
+    this.queueUpdate();
+  }
+
+  get primaryAction(): ToastActionOptions | undefined {
+    return this.#primaryAction;
+  }
+
+  set primaryAction(action: ToastActionOptions | undefined) {
+    this.#primaryAction = normalizeToastAction(action, "Toast.primaryAction");
+    this.queueUpdate();
+  }
+
+  get secondaryAction(): ToastActionOptions | undefined {
+    return this.#secondaryAction;
+  }
+
+  set secondaryAction(action: ToastActionOptions | undefined) {
+    this.#secondaryAction = normalizeToastAction(action, "Toast.secondaryAction");
+    this.queueUpdate();
+  }
+
+  async show(): Promise<void> {
+    const operation: ToastOperation = this.#shown ? "update" : "show";
+    await this.enqueue(operation);
+    this.#shown = true;
+  }
+
+  async hide(): Promise<void> {
+    if (!this.#shown) {
+      return;
+    }
+    await this.enqueue("hide");
+    this.#shown = false;
+    this.clearActionEvents();
+  }
+
+  toPayload(): ToastPayload {
+    return this.payloadFor(this.#shown ? "update" : "show");
+  }
+
+  private payloadFor(operation: ToastOperation): ToastPayload {
+    if (operation === "hide") {
+      return { toastId: this.#toastId, operation };
+    }
+    const primaryAction = this.serializeAction("primaryAction", this.#primaryAction);
+    const secondaryAction = this.serializeAction("secondaryAction", this.#secondaryAction);
+    return {
+      toastId: this.#toastId,
+      operation,
+      title: this.#title,
+      ...(this.#message === undefined ? {} : { message: this.#message }),
+      style: this.#style,
+      ...(primaryAction === undefined ? {} : { primaryAction }),
+      ...(secondaryAction === undefined ? {} : { secondaryAction }),
+    };
+  }
+
+  private serializeAction(
+    slot: ToastActionSlot,
+    action: ToastActionOptions | undefined,
+  ): ToastActionPayload | undefined {
+    if (action === undefined) {
+      this.unregisterAction(slot);
+      return undefined;
+    }
+    const normalized = normalizeToastAction(action, `Toast.${slot}`) as ToastActionOptions;
+    const existing = this.#registeredActions.get(slot);
+    if (existing !== undefined && existing.callback === normalized.onAction) {
+      return { title: normalized.title, eventId: existing.eventId };
+    }
+    this.unregisterAction(slot);
+    const eventId = `toast-event-${++toastEventCounter}`;
+    compatGlobals.toastEvents?.set(eventId, () => normalized.onAction(this));
+    this.#registeredActions.set(slot, { eventId, callback: normalized.onAction });
+    return { title: normalized.title, eventId };
+  }
+
+  private unregisterAction(slot: ToastActionSlot): void {
+    const existing = this.#registeredActions.get(slot);
+    if (existing === undefined) {
+      return;
+    }
+    compatGlobals.toastEvents?.delete(existing.eventId);
+    this.#registeredActions.delete(slot);
+  }
+
+  private clearActionEvents(): void {
+    this.unregisterAction("primaryAction");
+    this.unregisterAction("secondaryAction");
+  }
+
+  private enqueue(operation: ToastOperation): Promise<void> {
+    const payload = this.payloadFor(operation);
+    const request = this.#sendQueue.then(() => requireContext().showToast(payload));
+    this.#sendQueue = request.catch(() => undefined);
+    return request;
+  }
+
+  private queueUpdate(): void {
+    if (!this.#shown) {
+      return;
+    }
+    void this.enqueue("update").catch(() => {});
+  }
 }
 
 /**
  * Shows a toast in the client and returns the instance.
  */
-export async function showToast(options: ToastOptions | string): Promise<Toast> {
+export function showToast(options: ToastOptions): Promise<Toast>;
+export function showToast(style: ToastStyle, title: string, message?: string): Promise<Toast>;
+export function showToast(title: string): Promise<Toast>;
+export function showToast(
+  optionsOrStyle: ToastOptions | ToastStyle | string,
+  title?: string,
+  message?: string,
+): Promise<Toast> {
   const toast =
-    typeof options === "string"
-      ? new Toast({ title: options })
-      : new Toast({
-          title: options.title,
-          ...(options.message === undefined ? {} : { message: options.message }),
-          style: options.style,
-        });
-  await toast.show();
-  return toast;
+    typeof optionsOrStyle === "string"
+      ? title === undefined
+        ? new Toast({ title: optionsOrStyle })
+        : new Toast({
+            title,
+            style: optionsOrStyle,
+            ...(message === undefined ? {} : { message }),
+          })
+      : new Toast(optionsOrStyle);
+  return toast.show().then(() => toast);
 }
 
 /**

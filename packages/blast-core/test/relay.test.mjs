@@ -227,6 +227,34 @@ test("forwards toasts to the toast sink", async () => {
   await relay.done;
 });
 
+test("forwards identified toast updates, hides, and actions", async () => {
+  const toasts = [];
+  const { runtimeSession, relay } = await createRelayHarness({ toastSink: (toast) => toasts.push(toast) });
+
+  await runtimeSession.send("ui.toast", {
+    toastId: "toast-1",
+    operation: "update",
+    title: "Uploading",
+    style: "animated",
+    primaryAction: { title: "Cancel", eventId: "toast-event-1" },
+  });
+  await runtimeSession.send("ui.toast", { toastId: "toast-1", operation: "hide" });
+  await new Promise((resolve) => setTimeout(resolve, 5));
+
+  assert.deepEqual(toasts, [
+    {
+      toastId: "toast-1",
+      operation: "update",
+      title: "Uploading",
+      style: "animated",
+      primaryAction: { title: "Cancel", eventId: "toast-event-1" },
+    },
+    { toastId: "toast-1", operation: "hide" },
+  ]);
+  await runtimeSession.close("test complete");
+  await relay.done;
+});
+
 test("rejects invalid toast payloads and closes the session", async () => {
   const { runtimeSession, relay } = await createRelayHarness({ toastSink: () => {} });
 

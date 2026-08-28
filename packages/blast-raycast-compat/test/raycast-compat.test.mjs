@@ -24,6 +24,12 @@ import { createElement } from "react";
 
 function onAction() {}
 
+function stripToastId(payload) {
+  const withoutId = { ...payload };
+  delete withoutId.toastId;
+  return withoutId;
+}
+
 function createContext({ grantClipboard = true, storageProvider = null } = {}) {
   const transactions = [];
   const capabilityRequests = [];
@@ -404,18 +410,91 @@ test("shows toasts through the configured context", async () => {
 
   const toast = await showToast({ title: "Saved", message: "All done", style: Toast.Style.Success });
   await toast.show();
-  await assert.rejects(
-    () => toast.hide(),
-    (error) => error instanceof CompatibilityError,
-  );
+  toast.style = Toast.Style.Animated;
+  await new Promise((resolve) => setTimeout(resolve, 5));
+  await toast.hide();
+  await toast.hide();
 
-  assert.deepEqual(probe.toasts, [
-    { title: "Saved", message: "All done", style: "success" },
-    { title: "Saved", message: "All done", style: "success" },
+  assert.deepEqual(probe.toasts.map(stripToastId), [
+    { operation: "show", title: "Saved", message: "All done", style: "success" },
+    { operation: "update", title: "Saved", message: "All done", style: "success" },
+    { operation: "update", title: "Saved", message: "All done", style: "animated" },
+    { operation: "hide" },
   ]);
+  assert.equal(typeof probe.toasts[0].toastId, "string");
+  assert.equal(new Set(probe.toasts.map(({ toastId }) => toastId)).size, 1);
   assert.equal(toast.title, "Saved");
   assert.equal(toast.message, "All done");
-  assert.equal(toast.style, "success");
+  assert.equal(toast.style, "animated");
+});
+
+test("supports the legacy toast overload and animated style", async () => {
+  const probe = createContext();
+  configureRaycastCompat(probe.context);
+
+  await showToast(Toast.Style.Failure, "Failed", "Try again");
+
+  assert.deepEqual(probe.toasts.map(stripToastId), [
+    { operation: "show", title: "Failed", message: "Try again", style: "failure" },
+  ]);
+});
+
+test("routes toast actions and releases them on hide", async () => {
+  const probe = createContext();
+  const calls = [];
+  renderCommand(probe.context, () => createElement(List, null));
+
+  const toast = await showToast({
+    title: "Ready",
+    primaryAction: {
+      title: "Retry",
+      onAction: (receivedToast) => calls.push(receivedToast),
+    },
+  });
+  const eventId = probe.toasts[0].primaryAction.eventId;
+  probe.dispatch(eventId);
+  assert.deepEqual(calls, [toast]);
+
+  await toast.hide();
+  assert.throws(
+    () => probe.dispatch(eventId),
+    (error) => error instanceof Error && /No scene callback/.test(error.message),
+  );
+});
+
+test("rejects toast action shortcuts as unmeasured surface", () => {
+  const probe = createContext();
+  configureRaycastCompat(probe.context);
+
+  assert.throws(
+    () =>
+      showToast({
+        title: "Ready",
+        primaryAction: {
+          title: "Retry",
+          shortcut: { modifiers: ["cmd"], key: "r" },
+          onAction,
+        },
+      }),
+    (error) => error instanceof CompatibilityError && /Toast.primaryAction shortcut/.test(error.message),
+  );
+});
+
+test("updates mutable toast fields while shown", async () => {
+  const probe = createContext();
+  configureRaycastCompat(probe.context);
+
+  const toast = await showToast({ title: "Working" });
+  toast.title = "Done";
+  toast.message = "Finished";
+  await new Promise((resolve) => setTimeout(resolve, 5));
+
+  assert.deepEqual(probe.toasts.map(stripToastId), [
+    { operation: "show", title: "Working", style: "neutral" },
+    { operation: "update", title: "Done", style: "neutral" },
+    { operation: "update", title: "Done", message: "Finished", style: "neutral" },
+  ]);
+  await toast.hide();
 });
 
 test("shows string toasts with neutral style", async () => {
@@ -426,9 +505,9 @@ test("shows string toasts with neutral style", async () => {
   const constructed = new Toast({ title: "From constructor", style: "weird" });
   await constructed.show();
 
-  assert.deepEqual(probe.toasts, [
-    { title: "Working...", style: "neutral" },
-    { title: "From constructor", style: "neutral" },
+  assert.deepEqual(probe.toasts.map(stripToastId), [
+    { operation: "show", title: "Working...", style: "neutral" },
+    { operation: "show", title: "From constructor", style: "neutral" },
   ]);
 });
 

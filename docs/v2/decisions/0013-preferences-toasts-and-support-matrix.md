@@ -3,6 +3,11 @@
 - Status: accepted
 - Date: 2026-08-28
 
+The initial toast boundary recorded here was extended by
+[ADR 0017](./0017-toast-lifecycle-semantics.md). References below to
+`Toast.hide` and toast actions being unmeasured describe the state when this
+ADR was accepted.
+
 ## Context
 
 The corpus census put toast feedback (`showToast` 71%, `Toast` 69%) and

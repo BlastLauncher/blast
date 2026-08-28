@@ -376,14 +376,27 @@ export function validateSceneEventMessage(value: unknown): ValidationResult<Scen
   return issues.length === 0 ? { ok: true, value: envelope.value as SceneEventMessage } : { ok: false, issues };
 }
 
-export const TOAST_STYLES = ["success", "failure", "neutral"] as const;
+export const TOAST_STYLES = ["success", "failure", "animated", "neutral"] as const;
 
 export type ToastStyle = (typeof TOAST_STYLES)[number];
 
-export interface ToastPayload {
+export const TOAST_OPERATIONS = ["show", "update", "hide"] as const;
+
+export type ToastOperation = (typeof TOAST_OPERATIONS)[number];
+
+export interface ToastActionPayload {
   readonly title: string;
+  readonly eventId: string;
+}
+
+export interface ToastPayload {
+  readonly toastId?: string;
+  readonly operation?: ToastOperation;
+  readonly title?: string;
   readonly message?: string;
   readonly style?: ToastStyle;
+  readonly primaryAction?: ToastActionPayload;
+  readonly secondaryAction?: ToastActionPayload;
 }
 
 export type ToastMessage = ProtocolEnvelope<typeof UI_TOAST_MESSAGE, ToastPayload>;
@@ -413,6 +426,22 @@ function validateToastPayloadShape(value: unknown, basePath: string, issues: Val
     issues.push({ path: basePath, message: "Expected an object" });
     return;
   }
+
+  const operation = value.operation === undefined ? "show" : value.operation;
+  if (typeof operation !== "string" || !TOAST_OPERATIONS.includes(operation as ToastOperation)) {
+    issues.push({ path: `${basePath}.operation`, message: "Unknown toast operation" });
+    return;
+  }
+  if (value.toastId !== undefined) {
+    validateNonEmptyString(value.toastId, `${basePath}.toastId`, issues);
+  }
+  if ((operation === "update" || operation === "hide") && value.toastId === undefined) {
+    issues.push({ path: `${basePath}.toastId`, message: "Toast operation requires a toastId" });
+  }
+  if (operation === "hide") {
+    return;
+  }
+
   validateNonEmptyString(value.title, `${basePath}.title`, issues);
   if (value.message !== undefined && (typeof value.message !== "string" || value.message.length === 0)) {
     issues.push({ path: `${basePath}.message`, message: "Expected a non-empty string" });
@@ -421,10 +450,25 @@ function validateToastPayloadShape(value: unknown, basePath: string, issues: Val
     value.style !== undefined &&
     value.style !== "success" &&
     value.style !== "failure" &&
+    value.style !== "animated" &&
     value.style !== "neutral"
   ) {
     issues.push({ path: `${basePath}.style`, message: "Unknown toast style" });
   }
+  validateToastActionPayload(value.primaryAction, `${basePath}.primaryAction`, issues);
+  validateToastActionPayload(value.secondaryAction, `${basePath}.secondaryAction`, issues);
+}
+
+function validateToastActionPayload(value: unknown, path: string, issues: ValidationIssue[]): void {
+  if (value === undefined) {
+    return;
+  }
+  if (!isRecord(value)) {
+    issues.push({ path, message: "Expected an object" });
+    return;
+  }
+  validateNonEmptyString(value.title, `${path}.title`, issues);
+  validateNonEmptyString(value.eventId, `${path}.eventId`, issues);
 }
 
 export function validateSceneEventPayload(value: unknown): ValidationResult<SceneEventPayload> {

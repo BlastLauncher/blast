@@ -14,6 +14,9 @@ onto the V2 scene contract, renderer, and capability broker:
   properties, including object-icon tint colors;
 - `Clipboard.copy`/`Clipboard.read` route through the capability broker with
   the command identity attached by the host;
+- `showToast` and `Toast` support legacy show overloads, animated/success/
+  failure styles, identified show/update/hide lifecycle messages, mutable
+  toast fields, and primary/secondary actions routed through scene events;
 - `runCommand(context, component)` binds the API to the running command and
   routes scene events back to component callbacks; the Node bootstrap's
   `configureApi` hook calls `configureRaycastCompat` before the command runs.
@@ -24,9 +27,9 @@ submitted values to the current form field IDs.
 
 ## Compatibility boundary
 
-Unmeasured surface (shortcuts, toast display semantics, `Toast.hide`,
-`Form.DatePicker`, `Form.TagPicker`, `Form.FilePicker`, and focus/blur form
-callbacks) raises a structured `CompatibilityError` with code
+Unmeasured surface (action and toast-action shortcut objects, client toast
+timing/stacking, `Form.DatePicker`, `Form.TagPicker`, `Form.FilePicker`, and
+focus/blur form callbacks) raises a structured `CompatibilityError` with code
 `unsupported_api`; it never fails silently. Resolution of literal
 `@raycast/api` imports to this adapter happens at the runtime layer when
 extension bundling lands.

@@ -60,7 +60,8 @@ non-zero exit.
 
 - action groups, `ActionPanel.Section`, submenus, and tinted icons are
   measured; `Action.OpenInBrowser` and shortcut objects remain unsupported;
-- toast display semantics, `Toast.hide`, and toast actions;
+- toast lifecycle, mutable fields, and action callbacks are measured; client
+  toast timing/stacking and toast-action shortcut objects remain unsupported;
 - richer Form controls (`DatePicker`, `TagPicker`, `FilePicker`, and
   focus/blur callbacks);
 - `useNavigation` and `Action.Push` (28.8% of extensions),

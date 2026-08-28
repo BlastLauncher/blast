@@ -88,6 +88,9 @@ slice changes what is executable, what is trusted, or what should happen next.
   description, separator, and submit-action subset. Form field changes and
   submissions carry validated string, boolean, or null values through
   `scene.event`, and `ActionPanel.Section` publishes nested action groups.
+- Toasts support legacy show calls plus identified show/update/hide lifecycle
+  messages, animated/success/failure styles, mutable fields, and primary or
+  secondary actions addressed by validated `scene.event` IDs.
 
 ## Trust boundaries already enforced
 
@@ -95,6 +98,8 @@ slice changes what is executable, what is trusted, or what should happen next.
 - Protocol and extension domain messages have separate validators.
 - Optional form values on `scene.event` are validated as a field-ID map before
   the relay dispatches them to runtime callbacks.
+- Toast lifecycle operations, toast IDs, styles, and action event IDs are
+  validated before the relay forwards them to the client-side toast sink.
 - A runtime must identify as `extension-runtime`; a host must identify as
   `extension-host`.
 - The runtime cannot choose which descriptor it runs, and a client cannot choose
@@ -109,8 +114,9 @@ slice changes what is executable, what is trusted, or what should happen next.
 - production bundle cache invalidation and externalization policy for
   extensions with large or native npm dependency graphs;
 - the remaining measured Raycast surface: richer Form controls
-  (`DatePicker`, `TagPicker`, `FilePicker`, focus/blur callbacks), toast
-  display semantics, shortcut objects, and `Cache`;
+  (`DatePicker`, `TagPicker`, `FilePicker`, focus/blur callbacks), client toast
+  timing/stacking, toast-action shortcut objects, general shortcut objects,
+  and `Cache`;
 - a client-facing core protocol, daemon listener, and desktop rendering of
   scenes (the deterministic test client stands in today);
 - capability manifest declarations, real operating-system providers, audit
@@ -128,8 +134,8 @@ adapter surface runs end to end, bundled TSX extensions with literal
 `@raycast/api` imports load, and the support matrix (`compatibility/support-matrix.md`)
 runs real corpus fixtures in CI. Continue with the compatibility phase:
 
-1. extend the measured surface in matrix order: toast display semantics,
-   richer Form controls, and shortcut objects;
+1. extend the measured surface in matrix order: richer Form controls and
+   shortcut objects; keep client toast timing/stacking in the client protocol;
 2. add third-party dependency policy (vendoring or installation) so
    dependency-using corpus extensions can bundle;
 3. add a client-facing core protocol and daemon listener so the Electron
