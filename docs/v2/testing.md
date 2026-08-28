@@ -98,9 +98,15 @@ integrity errors.
 ### End-to-end fixtures
 
 Representative extensions become immutable fixtures with named compatibility
-expectations. The first walking slice must negotiate, render a list, update one
-item, invoke an action, and report a simulated extension crash while the host
-remains alive.
+expectations. The first walking slice exists in `@blastlauncher/e2e`: over
+real child processes it discovers the fixture from its manifest, launches the
+fixed bootstrap, negotiates, renders a list into the scene state buffer,
+updates one item after an action event, performs a brokered clipboard write
+(granted) and read (denied) and reports both outcomes, and reports a
+deliberate extension crash with exit code 43 while the core keeps serving
+another command. Cross-process waiting uses bounded polling; assertions
+target observable outcomes such as exit codes, broker records, and scene
+state.
 
 ## Test rules
 

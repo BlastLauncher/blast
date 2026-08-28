@@ -301,6 +301,30 @@ importers:
         specifier: workspace:*
         version: link:../blast-extension-contract
 
+  packages/blast-e2e:
+    dependencies:
+      '@blastlauncher/capability':
+        specifier: workspace:*
+        version: link:../blast-capability
+      '@blastlauncher/core':
+        specifier: workspace:*
+        version: link:../blast-core
+      '@blastlauncher/core-node':
+        specifier: workspace:*
+        version: link:../blast-core-node
+      '@blastlauncher/extension-host':
+        specifier: workspace:*
+        version: link:../blast-extension-host
+      '@blastlauncher/extension-host-node':
+        specifier: workspace:*
+        version: link:../blast-extension-host-node
+      '@blastlauncher/extension-runtime-node':
+        specifier: workspace:*
+        version: link:../blast-extension-runtime-node
+      '@blastlauncher/scene':
+        specifier: workspace:*
+        version: link:../blast-scene
+
   packages/blast-extension-contract:
     dependencies:
       '@blastlauncher/protocol':

@@ -1,0 +1,152 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import { fileURLToPath } from "node:url";
+
+import { CapabilityBroker, createGrantListPolicy } from "@blastlauncher/capability";
+import { BlastCore, relaySessionTraffic } from "@blastlauncher/core";
+import { FilesystemExtensionCatalog } from "@blastlauncher/core-node";
+import { ExtensionHost } from "@blastlauncher/extension-host";
+import { NodeExtensionProcessLauncher } from "@blastlauncher/extension-host-node";
+import { SceneStateBuffer } from "@blastlauncher/scene";
+
+const catalogRoot = fileURLToPath(new URL("./fixtures/catalog", import.meta.url));
+const bootstrapPath = fileURLToPath(new URL("./fixtures/bootstrap.mjs", import.meta.url));
+
+const sceneIdentity = { extensionId: "e2e.scene", commandName: "index" };
+const crashIdentity = { extensionId: "e2e.crash", commandName: "index" };
+
+function createCore() {
+  const catalog = new FilesystemExtensionCatalog({ root: catalogRoot });
+  const launcher = new NodeExtensionProcessLauncher({ bootstrapPath, environment: process.env });
+  let hostMessageId = 0;
+  let sessionId = 0;
+  const host = new ExtensionHost({
+    launcher,
+    implementation: { name: "e2e-host", version: "0.0.0" },
+    createMessageId: () => `host-${++hostMessageId}`,
+    createSessionId: () => `session-${++sessionId}`,
+  });
+  const clipboardWrites = [];
+  const broker = new CapabilityBroker({
+    policy: createGrantListPolicy([{ extensionId: "e2e.scene", capability: "clipboard", operation: "write" }]),
+    providers: {
+      clipboard: {
+        async perform(request) {
+          clipboardWrites.push(request);
+          return null;
+        },
+      },
+    },
+  });
+  const core = new BlastCore({ catalog, extensionHost: host });
+  return { core, broker, clipboardWrites };
+}
+
+function createSceneSink(buffer, transactions) {
+  return {
+    publish(payload) {
+      transactions.push(payload);
+      buffer.apply(payload);
+    },
+  };
+}
+
+async function waitFor(predicate, description, timeoutMs = 5000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (predicate()) {
+      return;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+  throw new Error(`Timed out waiting for ${description}`);
+}
+
+test("runs the vertical slice: manifest, launch, scene, action, and brokered clipboard", async () => {
+  const { core, broker, clipboardWrites } = createCore();
+  const buffer = new SceneStateBuffer();
+  const transactions = [];
+
+  const session = await core.runCommand(sceneIdentity);
+  assert.equal(session.descriptor.extensionId, "e2e.scene");
+  assert.match(session.descriptor.entrypoint, /scene-extension\/src\/index\.mjs$/);
+  assert.equal(session.protocol.remotePeer.implementation.name, "e2e-runtime");
+
+  const relay = relaySessionTraffic(session, {
+    sceneSink: createSceneSink(buffer, transactions),
+    capabilityBroker: broker,
+  });
+
+  await waitFor(() => buffer.has("action-1"), "the fixture list snapshot");
+  assert.deepEqual(buffer.toJSON(), {
+    id: "root",
+    type: "list",
+    props: { navigationTitle: "E2E" },
+    children: [
+      {
+        id: "item-1",
+        type: "list-item",
+        props: { title: "Hello" },
+        children: [
+          { id: "action-1", type: "action", props: { title: "Run", onAction: "event-action-1" }, children: [] },
+        ],
+      },
+    ],
+  });
+
+  const action = buffer.childrenOf("root")[0].children.find((child) => child.type === "action");
+  await relay.sendSceneEvent(action.props.onAction);
+
+  await waitFor(() => buffer.get("item-1")?.props.subtitle === "succeeded:denied", "the action update");
+  assert.equal(buffer.get("item-1").props.title, "Ran:event-action-1");
+  assert.deepEqual(
+    transactions.map((payload) => payload.transactionId),
+    ["e2e-snapshot", "e2e-update"],
+  );
+
+  assert.equal(clipboardWrites.length, 1);
+  assert.equal(clipboardWrites[0].extensionId, "e2e.scene");
+  assert.equal(clipboardWrites[0].commandName, "index");
+  assert.equal(clipboardWrites[0].capability, "clipboard");
+  assert.equal(clipboardWrites[0].operation, "write");
+  assert.deepEqual(clipboardWrites[0].arguments, { text: "from-e2e" });
+
+  await core.stopCommand(sceneIdentity, "slice complete");
+  await relay.done;
+  await core.close();
+  assert.equal(core.state, "closed");
+  assert.equal(core.activeExtensions.length, 0);
+});
+
+test("survives a deliberate runtime crash while the core keeps serving", async () => {
+  const { core, broker } = createCore();
+  const events = [];
+  const collector = (async () => {
+    for await (const event of core.extensionEvents) {
+      events.push(event);
+    }
+  })();
+
+  const session = await core.runCommand(crashIdentity);
+  const relay = relaySessionTraffic(session, { sceneSink: createSceneSink(new SceneStateBuffer(), []) });
+
+  await waitFor(
+    () => events.some((event) => event.type === "extension.process-exited" && event.exit.code === 43),
+    "the deliberate crash exit code",
+  );
+  await waitFor(() => core.activeExtensions.length === 0, "the crashed session to be removed");
+  await relay.done;
+
+  const started = events.filter((event) => event.type === "extension.started");
+  assert.equal(started.length, 1);
+
+  const nextSession = await core.runCommand(sceneIdentity);
+  assert.equal(nextSession.descriptor.extensionId, "e2e.scene");
+  const nextRelay = relaySessionTraffic(nextSession, { capabilityBroker: broker });
+  await core.stopCommand(sceneIdentity, "cleanup after crash");
+  await nextRelay.done;
+
+  await core.close();
+  assert.equal(core.state, "closed");
+  await collector;
+});

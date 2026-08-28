@@ -105,7 +105,8 @@ type ExtensionCommand = (context: ExtensionCommandContext) => unknown;
  * `extension.initialize`, acknowledge readiness, run the command export with a
  * scene-capable context, and drain application messages until the session
  * closes or the host shuts down. `scene.event` messages are dispatched to the
- * handler registered by the command.
+ * handler registered by the command; handlers run concurrently with the pump
+ * so they can perform capability requests without deadlocking it.
  */
 export async function runNodeExtensionBootstrap(
   options: NodeExtensionBootstrapOptions,
@@ -135,6 +136,7 @@ export async function runNodeExtensionBootstrap(
   if (commandPromise !== undefined) {
     await commandPromise;
   }
+  await channel.completed();
   if (commandFailed) {
     throw commandError;
   }

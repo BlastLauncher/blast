@@ -51,6 +51,12 @@ slice changes what is executable, what is trusted, or what should happen next.
 - The Node filesystem catalog discovers Raycast-style `package.json` manifests,
   probes `src/<command-name>` entrypoints, honors explicit entrypoint
   overrides, and never resolves a path outside the extension root.
+- An end-to-end vertical slice runs over real child processes without
+  Electron: the catalog resolves a manifest fixture, the launcher starts the
+  fixed bootstrap, the runtime publishes a list scene, an action event flows
+  back and the extension updates the list, a granted clipboard write reaches
+  a broker provider while an ungranted read is denied, and a deliberate
+  crash removes the session while the core keeps serving.
 
 ## Trust boundaries already enforced
 
@@ -70,9 +76,11 @@ slice changes what is executable, what is trusted, or what should happen next.
 - loading real extension entrypoints that require bundling or dependency
   resolution beyond immutable fixtures;
 - the Raycast compatibility adapter on the V2 runtime;
-- a client-facing core protocol and daemon listener;
-- capability manifest declarations, audit records, consent UI, and real
-  operating-system providers;
+- the React renderer adapter from ADR 0004;
+- a client-facing core protocol, daemon listener, and desktop rendering of
+  scenes (the deterministic test client stands in today);
+- capability manifest declarations, real operating-system providers, audit
+  records, and consent UI;
 - structured logs beyond captured child stderr;
 - startup deadlines chosen by the core, restart policy, quotas, and OS sandbox;
 - authenticated local sockets, WebSocket transport, and remote pairing;
@@ -80,13 +88,17 @@ slice changes what is executable, what is trusted, or what should happen next.
 
 ## Recommended continuation
 
-Build the first vertical slice rather than adding more infrastructure in
-isolation:
+The first extension-to-client vertical slice is complete. Continue with the
+compatibility phase in measured order:
 
-1. relay scene traffic through the extension host to a deterministic test
-   client that renders the fixture `List` through the state buffer;
-2. route one clipboard request through a deny-by-default capability broker;
-3. test a normal action and a deliberate runtime crash end to end.
+1. measure API usage in the public extension corpus with a static scanner for
+   extension manifests and `@raycast/api` imports;
+2. build the React renderer adapter from ADR 0004 and run renderer
+   conformance fixtures against the scene sink;
+3. implement the smallest measured `@raycast/api` surface (`List`,
+   `List.Item`, one action) on top of the command context;
+4. add a client-facing core protocol and daemon listener so the Electron
+   client can replace the test client.
 
 Keep WebSocket and remote execution as transport/provider additions. They do not
 require changing the session, extension contract, runtime, host, or core

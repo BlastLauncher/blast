@@ -1,0 +1,6 @@
+{
+  "name": "e2e.crash",
+  "title": "E2E Crash Extension",
+  "description": "Fixture extension that publishes a scene and then exits deliberately.",
+  "commands": [{ "name": "index", "title": "Crash", "mode": "view" }]
+}

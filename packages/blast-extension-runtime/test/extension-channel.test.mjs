@@ -84,6 +84,7 @@ test("routes valid scene events to the registered handler", async () => {
   await channel.handleMessage(await runtimeSession.receive());
   await hostSession.send("other.message", { anything: true });
   await channel.handleMessage(await runtimeSession.receive());
+  await channel.completed();
 
   assert.deepEqual(received, [{ eventId: "event-1" }]);
   await runtimeSession.close("test complete");
@@ -100,6 +101,7 @@ test("replaces the event handler on repeated registration", async () => {
 
   await hostSession.send("scene.event", { eventId: "event-2" });
   await channel.handleMessage(await runtimeSession.receive());
+  await channel.completed();
 
   assert.deepEqual(first, []);
   assert.deepEqual(second, [{ eventId: "event-2" }]);
@@ -124,7 +126,7 @@ test("fails the session on an invalid scene event", async () => {
   assert.equal((await hostSession.receive()).type, "shutdown");
 });
 
-test("awaits handlers that return promises", async () => {
+test("runs handlers concurrently with dispatch and completes them", async () => {
   const { runtimeSession, hostSession } = await createPeerPair();
   const channel = createExtensionChannel(runtimeSession, { descriptor });
   const order = [];
@@ -136,10 +138,25 @@ test("awaits handlers that return promises", async () => {
   await hostSession.send("scene.event", { eventId: "event-3" });
   await channel.handleMessage(await runtimeSession.receive());
   order.push("after-dispatch");
+  await channel.completed();
+  order.push("after-completed");
 
-  assert.deepEqual(order, ["handled:event-3", "after-dispatch"]);
+  assert.deepEqual(order, ["after-dispatch", "handled:event-3", "after-completed"]);
   await runtimeSession.close("test complete");
   await hostSession.receive();
+});
+
+test("surfaces handler failures and closes the session", async () => {
+  const { runtimeSession, hostSession } = await createPeerPair();
+  const channel = createExtensionChannel(runtimeSession, { descriptor });
+  channel.onEvent(async () => {
+    throw new Error("handler exploded");
+  });
+
+  await hostSession.send("scene.event", { eventId: "event-4" });
+  await channel.handleMessage(await runtimeSession.receive());
+  await assert.rejects(() => channel.completed(), /handler exploded/);
+  assert.equal((await hostSession.receive()).type, "shutdown");
 });
 
 test("round-trips capability requests through the session", async () => {

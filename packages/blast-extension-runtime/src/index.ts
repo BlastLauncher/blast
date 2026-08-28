@@ -138,12 +138,21 @@ export interface ExtensionChannel {
    * ended, so awaiting commands do not hang.
    */
   close(): void;
+  /**
+   * Resolves when every dispatched event handler has settled and rejects with
+   * the first handler failure that was not caused by the session ending.
+   * Handlers run concurrently with the receive pump, so a handler that
+   * performs a capability request cannot deadlock it.
+   */
+  completed(): Promise<void>;
 }
 
 export function createExtensionChannel(session: ProtocolSession, options: ExtensionChannelOptions): ExtensionChannel {
   let eventHandler: SceneEventHandler | undefined;
   const pendingRequests = new Map<string, Deferred<CapabilityResponsePayload>>();
+  const inflightHandlers = new Set<Promise<void>>();
   let requestIdCounter = 0;
+  let handlerFailure: { error: unknown } | undefined;
   const nextRequestId = options.createRequestId ?? (() => `capability-${++requestIdCounter}`);
 
   return {
@@ -207,6 +216,13 @@ export function createExtensionChannel(session: ProtocolSession, options: Extens
       }
       pendingRequests.clear();
     },
+    completed(): Promise<void> {
+      return Promise.allSettled(inflightHandlers).then(() => {
+        if (handlerFailure !== undefined) {
+          throw handlerFailure.error;
+        }
+      });
+    },
   };
 
   async function handleSceneEvent(message: Record<string, unknown>): Promise<void> {
@@ -219,7 +235,27 @@ export function createExtensionChannel(session: ProtocolSession, options: Extens
         validation.issues,
       );
     }
-    await eventHandler?.(validation.value.payload);
+    dispatchHandler(validation.value.payload);
+  }
+
+  function dispatchHandler(payload: SceneEventPayload): void {
+    const handlerPromise = Promise.resolve()
+      .then(() => eventHandler?.(payload))
+      .then(
+        () => {
+          inflightHandlers.delete(handlerPromise);
+        },
+        (error: unknown) => {
+          inflightHandlers.delete(handlerPromise);
+          if (error instanceof ProtocolSessionError && error.code === "session_closed") {
+            // The session ended while the handler awaited traffic.
+            return;
+          }
+          handlerFailure ??= { error };
+          void closeBestEffort(session, "Scene event handler failed");
+        },
+      );
+    inflightHandlers.add(handlerPromise);
   }
 
   function handleCapabilityResponse(message: Record<string, unknown>): void {
