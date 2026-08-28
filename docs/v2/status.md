@@ -30,6 +30,9 @@ slice changes what is executable, what is trusted, or what should happen next.
 - The core accepts only stable command identities, resolves paths through a
   trusted catalog, delegates lifecycle, and coordinates shutdown with in-flight
   starts.
+- The Node filesystem catalog discovers Raycast-style `package.json` manifests,
+  probes `src/<command-name>` entrypoints, honors explicit entrypoint
+  overrides, and never resolves a path outside the extension root.
 
 ## Trust boundaries already enforced
 
@@ -45,7 +48,7 @@ slice changes what is executable, what is trusted, or what should happen next.
 
 ## Intentionally missing
 
-- manifest discovery and a persistent catalog implementation;
+- a persistent, watched catalog index and extension installation flows;
 - loading a real CommonJS or ESM extension entrypoint;
 - the Raycast compatibility adapter on the V2 runtime;
 - semantic scene transactions and the reconciler sink;
@@ -61,14 +64,13 @@ slice changes what is executable, what is trusted, or what should happen next.
 Build the first vertical slice rather than adding more infrastructure in
 isolation:
 
-1. implement a filesystem manifest catalog behind `ExtensionCatalog`;
-2. make the Node bootstrap load one immutable fixture entrypoint;
-3. define the smallest semantic scene contract for `List`, `List.Item`, and one
+1. make the Node bootstrap load one immutable fixture entrypoint;
+2. define the smallest semantic scene contract for `List`, `List.Item`, and one
    action;
-4. implement an operation sink and deterministic test client before adapting the
+3. implement an operation sink and deterministic test client before adapting the
    React reconciler;
-5. route one clipboard request through a deny-by-default capability broker;
-6. test a normal action and a deliberate runtime crash end to end.
+4. route one clipboard request through a deny-by-default capability broker;
+5. test a normal action and a deliberate runtime crash end to end.
 
 Keep WebSocket and remote execution as transport/provider additions. They do not
 require changing the session, extension contract, runtime, host, or core

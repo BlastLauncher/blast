@@ -52,6 +52,12 @@ the catalog supplies filesystem descriptors, mismatched catalog results fail,
 shutdown gates new work, and in-flight catalog resolution settles before the
 extension supervisor closes.
 
+The Node filesystem catalog adds fixture-based tests for manifest discovery,
+the `src/<command-name>` entrypoint convention, explicit entrypoint overrides,
+rejection of paths that escape the extension root, skipping unreadable or
+invalid manifests, deterministic duplicate resolution, and error codes for
+missing entrypoints and unreadable catalog roots.
+
 ### Renderer conformance
 
 The V2 React renderer will receive fixture trees and record scene transactions

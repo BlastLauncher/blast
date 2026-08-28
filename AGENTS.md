@@ -36,6 +36,7 @@ V2 is being developed alongside the prototype:
 - `packages/blast-extension-host/` — V2 transport-neutral lifecycle supervisor.
 - `packages/blast-extension-host-node/` — concrete Node child-process launcher.
 - `packages/blast-core/` — trusted catalog and lifecycle orchestration façade.
+- `packages/blast-core-node/` — Node filesystem manifest catalog.
 - `docs/v2/` — accepted product direction, architecture, decisions, and migration plan.
 
 V2 packages must not import from the prototype packages' `src/` directories.

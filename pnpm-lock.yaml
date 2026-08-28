@@ -273,6 +273,15 @@ importers:
         specifier: workspace:*
         version: link:../blast-extension-host
 
+  packages/blast-core-node:
+    dependencies:
+      '@blastlauncher/core':
+        specifier: workspace:*
+        version: link:../blast-core
+      '@blastlauncher/extension-contract':
+        specifier: workspace:*
+        version: link:../blast-extension-contract
+
   packages/blast-extension-contract:
     dependencies:
       '@blastlauncher/protocol':

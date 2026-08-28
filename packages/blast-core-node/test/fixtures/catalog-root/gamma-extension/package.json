@@ -1,0 +1,11 @@
+{
+  "name": "gamma",
+  "commands": [
+    {
+      "name": "index",
+      "title": "Gamma Index",
+      "mode": "view"
+    }
+  ],
+  "title": "Gamma Extension"
+}

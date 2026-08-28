@@ -14,7 +14,8 @@ host a client-facing protocol server.
 
 ## Next responsibilities
 
-- manifest discovery and a persistent extension catalog;
+- a persistent, watched extension catalog index
+  (`@blastlauncher/core-node` already provides filesystem discovery);
 - connected client sessions and command discovery messages;
 - capability policy and provider routing;
 - structured diagnostics and audit events;

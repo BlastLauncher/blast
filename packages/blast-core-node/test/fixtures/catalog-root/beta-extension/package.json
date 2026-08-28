@@ -1,0 +1,12 @@
+{
+  "name": "beta",
+  "commands": [
+    {
+      "name": "main",
+      "title": "Beta Main",
+      "mode": "view",
+      "entrypoint": "./out/main.cjs"
+    }
+  ],
+  "title": "Beta Extension"
+}

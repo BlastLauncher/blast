@@ -2,5 +2,12 @@
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
   "printWidth": 120,
   "singleQuote": false,
-  "ignorePatterns": ["**/coverage/**", "**/dist/**", "**/node_modules/**", "**/out/**", "**/.webpack/**"]
+  "ignorePatterns": [
+    "**/coverage/**",
+    "**/dist/**",
+    "**/node_modules/**",
+    "**/out/**",
+    "**/.webpack/**",
+    "**/test/fixtures/**"
+  ]
 }

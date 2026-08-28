@@ -97,7 +97,10 @@ Clients request a stable extension and command identity; an injected trusted
 catalog resolves the actual filesystem descriptor before the extension host is
 called. The core already coordinates in-flight startup and shutdown, but client
 sessions, discovery, persistence, capability routing, and daemon ownership are
-deliberate later slices.
+deliberate later slices. `@blastlauncher/core-node` ships the first catalog
+implementation: it discovers Raycast-style `package.json` manifests from a
+filesystem root and resolves entrypoints without ever returning a path outside
+the extension root. A persistent, watched catalog index remains a later slice.
 
 ### Clients
 
@@ -127,6 +130,8 @@ extension-runtime --------------+              |
 
 extension-host-node ---> extension-host
           +-----------> transport-node ---> transport
+
+core-node ---> core
 ```
 
 1. `protocol` has no workspace dependencies and no platform dependencies.
@@ -212,6 +217,7 @@ packages/blast-extension-runtime/  Runtime-side initialization framework
 packages/blast-extension-host/  Transport-neutral lifecycle supervisor
 packages/blast-extension-host-node/  Node child-process launcher
 packages/blast-core/            Trusted catalog and lifecycle orchestration
+packages/blast-core-node/       Node filesystem manifest catalog
 packages/blast-api/             V1 compatibility implementation
 packages/blast-runtime/         V1 runtime
 packages/blast-renderer/        V1 renderer
