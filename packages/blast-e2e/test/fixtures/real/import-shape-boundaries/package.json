@@ -1,0 +1,8 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "import-shape-boundaries",
+  "title": "Import shape boundaries",
+  "description": "Fixture for measured namespace, dynamic, and side-effect API imports.",
+  "commands": [{ "name": "index", "title": "Import shapes", "mode": "view" }],
+  "dependencies": { "@raycast/api": "^1.104.1" }
+}

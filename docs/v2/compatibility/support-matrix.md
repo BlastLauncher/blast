@@ -29,23 +29,21 @@ run package-manager scripts; unavailable packages remain dependency failures.
 
 | Outcome                        | Baseline | Previous post-slice | Current post-slice | Current vs previous |
 | ------------------------------ | -------: | ------------------: | -----------------: | ------------------: |
-| third-party dependency failure |    2,361 |               1,278 |              1,279 |                  +1 |
+| third-party dependency failure |    2,361 |               1,278 |              1,277 |                  -1 |
 | not renderable command mode    |      358 |                 316 |                316 |                   0 |
-| other process/startup failure  |      432 |                 824 |                598 |                -226 |
-| structured compatibility error |       23 |                 106 |                124 |                 +18 |
-| renders a scene end to end     |       54 |                 704 |                911 |                +207 |
+| other process/startup failure  |      432 |                 824 |                600 |                -224 |
+| structured compatibility error |       23 |                 106 |                132 |                 +26 |
+| renders a scene end to end     |       54 |                 704 |                903 |                +199 |
 | no entrypoint found            |        3 |                   3 |                  3 |                   0 |
 
-Reading: the current post-slice extension pass rate is 911/3,231 (28.20%);
-among the 2,915 extensions with a selected renderable command it is 911/2,915
-(31.25%). The measured preference, navigation, environment, form-value,
-keyboard, image-type, `randomId`, WindowManagement, and small legacy alias
-names are no longer in the non-rendering static blocker list. Remaining
-blocking static gaps are dynamic imports (12), namespace imports (4), one
-side-effect import, and one `fetch` import; dynamic and namespace imports
-remain separate unknown-shape work. The vendor root leaves 1,279 dependency
-failures, so the next coverage group should address the remaining static tails
-alongside the audited dependency provisioning decision.
+Reading: the current post-slice extension pass rate is 903/3,231 (27.95%);
+among the 2,915 extensions with a selected renderable command it is 903/2,915
+(30.98%). The measured preference, navigation, environment, form-value,
+keyboard, image-type, `randomId`, WindowManagement, small legacy aliases, and
+safe import shapes are no longer in the non-rendering static blocker list. The
+only remaining static import gap is one `fetch` import. The vendor root leaves
+1,277 dependency failures, so the next coverage group should address audited
+dependency provisioning rather than add an unbrokered network helper.
 
 ## Committed fixtures
 
@@ -71,6 +69,7 @@ alongside the audited dependency provisioning decision.
 | `finder-boundaries`            | list           |     2 | FileSystemItem, getFrontmostApplication, getSelectedFinderItems, showInFinder                                                                                                                              |
 | `window-management-boundaries` | list           |     1 | WindowManagement, environment                                                                                                                                                                              |
 | `legacy-alias-boundaries`      | list           |     1 | ActionPanel, ActionPanelItem, AlertActionStyle, Icon, List, ListSection, OpenWithAction                                                                                                                    |
+| `import-shape-boundaries`      | list           |     1 | namespace, dynamic, and side-effect `@raycast/api` imports                                                                                                                                                 |
 | `host-boundaries`              | list           |     1 | BrowserExtension, ToastStyle, Tool.Confirmation, clearSearchBar, trash                                                                                                                                     |
 | `coverage-next`                | list           |     1 | CopyToClipboardAction, OpenInBrowserAction, getPreferenceValues, environment, preferences, randomId, and legacy type aliases                                                                               |
 | `coverage-followup`            | form           |     2 | ImageMask, List, OpenAction, PasteAction, PushAction, SubmitFormAction, clearLocalStorage, copyTextToClipboard, getLocalStorageItem, pasteText, removeLocalStorageItem, setLocalStorageItem, useNavigation |
@@ -79,7 +78,7 @@ alongside the audited dependency provisioning decision.
 | `menu-bar-boundaries`          | menu-bar-extra |     2 | MenuBarExtra, Item, Section, Submenu, Separator, Icon                                                                                                                                                      |
 | `choose-a-license`             | list           |     8 | Action.OpenInBrowser, Action.CopyToClipboard, Action.Push                                                                                                                                                  |
 
-The twenty-six matrix render fixtures assert root type and minimum item counts
+The twenty-seven matrix render fixtures assert root type and minimum item counts
 through real child processes; the desktop-discovery fixture additionally waits
 for three brokered capability responses, the Finder fixture waits for three
 additional capability responses, and the form fixture dispatches text, date,
@@ -138,6 +137,10 @@ dispatches a bounds mutation through the explicit host capability.
   cross as semantic `list-section` nodes, and Open With intent crosses the
   existing `open.open` capability as a primitive `openWith` flag; client list
   section rendering and the application chooser remain host/client work;
+- namespace imports, literal dynamic imports, and literal side-effect imports
+  resolve through the same launcher alias as named imports when they access
+  measured adapter members. The remaining `fetch` import is intentionally not
+  supported because network access needs an explicit host capability and policy;
 - `BrowserExtension.getTabs`, `BrowserExtension.getContent`, `clearSearchBar`,
   `trash`, `ToastStyle`, and the type-only `Tool.Confirmation` contract are
   measured. Browser integration, navigation state, destructive filesystem

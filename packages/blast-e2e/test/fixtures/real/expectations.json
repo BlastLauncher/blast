@@ -438,5 +438,16 @@
       "OpenWithAction"
     ],
     "source": "blast/compatibility-fixture"
+  },
+  {
+    "id": "import-shape-boundaries",
+    "extensionId": "import-shape-boundaries",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "list",
+    "minItems": 1,
+    "readyNavigationTitle": "Import shapes:ready",
+    "apis": ["List", "Icon"],
+    "source": "blast/compatibility-fixture"
   }
 ]

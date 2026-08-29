@@ -113,6 +113,12 @@ The public `FormValue` union also includes numeric and numeric-array values from
 the pinned Raycast declaration; the currently measured scene controls remain
 the string, boolean, date, and string-array subset.
 
+Literal dynamic imports, namespace imports, and side-effect imports of
+`@raycast/api` resolve through the same launcher alias as named imports. The
+adapter only promises the measured exported members; network-style `fetch`
+access remains outside the compatibility surface until a host capability and
+policy are defined.
+
 ## Compatibility boundary
 
 Unmeasured surface (client toast timing/stacking, focus/blur form callbacks,

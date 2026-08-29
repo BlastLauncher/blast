@@ -19,6 +19,9 @@ const DEFAULT_CONCURRENCY = 8;
 // Keep this list in the probe so the report distinguishes static API gaps from
 // failures caused by bundling, command execution, or the scene boundary.
 const SUPPORTED_API_IMPORTS = new Set([
+  "<dynamic>",
+  "<namespace>",
+  "<side-effect>",
   "Action",
   "ActionPanelItem",
   "ActionPanel",

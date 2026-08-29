@@ -1,0 +1,32 @@
+# ADR 0033: Measured import shapes
+
+- Status: accepted
+- Date: 2026-08-29
+
+## Context
+
+The corpus probe found twelve literal dynamic imports, four namespace imports,
+one side-effect import, and one `fetch` import from `@raycast/api`. The first
+three forms resolve through the existing esbuild alias and use API members that
+are already measured by the compatibility adapter. The `fetch` import is not a
+Raycast API export in the pinned declaration and would imply unbrokered network
+access if added as a convenience.
+
+## Decision
+
+- Treat literal `import()` calls, namespace imports, and side-effect imports of
+  `@raycast/api` as supported import shapes when the accessed members are part
+  of the measured adapter surface.
+- Keep the import alias launcher-owned so all three forms share the same
+  compatibility module and capability context as named imports.
+- Keep `fetch` outside the compatibility surface until a separately designed
+  host network capability defines URL policy, consent, and response limits.
+- Cover the three safe forms with a real child-process fixture and keep the
+  corpus probe's static allowlist explicit.
+
+## Consequences
+
+Import syntax no longer creates a false static blocker for measured API
+members, while unsupported named members still fail through the adapter's
+structured compatibility boundary. The probe will continue to report the
+unsupported `fetch` import until network policy is accepted and implemented.

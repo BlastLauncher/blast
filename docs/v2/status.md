@@ -74,14 +74,14 @@ slice changes what is executable, what is trusted, or what should happen next.
   bundle directories are removed after each successful or failed load; an
   explicitly supplied cache directory remains caller-owned.
 - The support matrix runs a committed set of real corpus extensions through
-  the full pipeline in CI: twenty-six render fixtures (list, list sections,
+  the full pipeline in CI: twenty-seven render fixtures (list, list sections,
   and detail,
   navigation, action groups, tinted icons, form controls, toasts, preferences,
   brokered clipboard, desktop and window-management boundaries, legacy
   action/storage/list/render aliases, and cross-bundle navigation),
   while the corpus probe records exactly which unmeasured APIs block the rest.
-- The latest pinned corpus probe passes 911 of 3,231 extensions (28.20%), or
-  911 of 2,915 extensions with a selected renderable command (31.25%).
+- The latest pinned corpus probe passes 903 of 3,231 extensions (27.95%), or
+  903 of 2,915 extensions with a selected renderable command (30.98%).
 - Navigation (useNavigation, Action.Push), LocalStorage through the
   capability broker with a reference in-memory provider, the callable plus
   property-based environment surface, and measured WindowManagement discovery
@@ -233,9 +233,10 @@ window-management, and dependency-policy slices are complete, but the
 measured 80% target is not yet met; the next work should address the dominant
 remaining static and dependency blockers using the same probe.
 
-1. Address the remaining dynamic (12), namespace (4), side-effect (1), and
-   `fetch` (1) imports surfaced by the reprobe, preserving structured errors
-   for unknown shapes and adding a fixture for each newly measured boundary.
+1. Keep the safe dynamic, namespace, and side-effect import forms covered by
+   the import-shape fixture and keep the remaining `fetch` import outside the
+   adapter until a host network capability defines URL policy, consent, and
+   response limits.
 2. Provision an audited, pinned vendor set or an explicit installation phase
    for the remaining third-party dependency graph; keep installation outside
    extension execution.
