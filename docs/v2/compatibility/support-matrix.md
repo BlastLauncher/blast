@@ -29,22 +29,22 @@ package-manager scripts; unavailable packages remain dependency failures.
 
 | Outcome                        | Pre-slice | Post-slice | Change |
 | ------------------------------ | --------: | ---------: | -----: |
-| third-party dependency failure |     2,361 |      1,277 | -1,084 |
+| third-party dependency failure |     2,361 |      1,278 | -1,083 |
 | not renderable command mode    |       358 |        316 |    -42 |
-| other process/startup failure  |       432 |      1,008 |   +576 |
-| structured compatibility error |        23 |        143 |   +120 |
-| renders a scene end to end     |        54 |        484 |   +430 |
+| other process/startup failure  |       432 |        965 |   +533 |
+| structured compatibility error |        23 |        149 |   +126 |
+| renders a scene end to end     |        54 |        520 |   +466 |
 | no entrypoint found            |         3 |          3 |      0 |
 
-Reading: the post-slice extension pass rate is 484/3,231 (14.98%); among the
-2,915 extensions with a selected renderable command it is 484/2,915 (16.60%).
+Reading: the post-slice extension pass rate is 520/3,231 (16.09%); among the
+2,915 extensions with a selected renderable command it is 520/2,915 (17.84%).
 The high-impact `Grid`, `launchCommand`, `MenuBarExtra`, LaunchProps,
-window/navigation, `Image`, selected-text, application-discovery, and command-
-preference blockers are no longer in the static list. Remaining static
-blockers on non-rendering extensions are led by `getSelectedFinderItems` (135),
-`OAuth` (119), `showInFinder` (116), `AI` (89), and
-`getFrontmostApplication` (87). The vendor root removes 1,084 dependency
-failures, but 1,277 remain; the next coverage group should combine the top
+window/navigation, `Image`, selected-text, application-discovery, command-
+preference, Finder, and frontmost-application blockers are no longer in the
+static list. Remaining static blockers on non-rendering extensions are led by
+`OAuth` (119), `AI` (88), `updateCommandMetadata` (82), `Tool` (66), and
+`BrowserExtension` (51). The vendor root removes 1,083 dependency failures,
+but 1,278 remain; the next coverage group should combine the top
 remaining API blockers with the audited dependency provisioning decision.
 
 ## Committed fixtures
@@ -68,14 +68,16 @@ remaining API blockers with the audited dependency provisioning decision.
 | `form-submission`              | form           |     4 | Action, ActionPanel, Form (DatePicker, TagPicker, FilePicker)                              |
 | `launch-boundaries`            | list           |     1 | Image masks, LaunchProps, LaunchType, closeMainWindow, popToRoot, openExtensionPreferences |
 | `desktop-discovery-boundaries` | list           |     2 | Application, getApplications, getSelectedText, openCommandPreferences                      |
+| `finder-boundaries`            | list           |     2 | FileSystemItem, getFrontmostApplication, getSelectedFinderItems, showInFinder              |
 | `grid-boundaries`              | grid           |     2 | Grid, Grid.Item, Grid.Section, Grid.Dropdown, Grid.EmptyView, Icon                         |
 | `menu-bar-boundaries`          | menu-bar-extra |     2 | MenuBarExtra, Item, Section, Submenu, Separator, Icon                                      |
 | `choose-a-license`             | —              |     — | expected `unsupported_api`: Action.OpenInBrowser                                           |
 
-The eighteen matrix render fixtures assert root type and minimum item counts
+The nineteen matrix render fixtures assert root type and minimum item counts
 through real child processes; the desktop-discovery fixture additionally waits
-for three brokered capability responses, and the form fixture dispatches text,
-date, tag-array, and file-path changes plus a submit event with client-provided
+for three brokered capability responses, the Finder fixture waits for three
+additional capability responses, and the form fixture dispatches text, date,
+tag-array, and file-path changes plus a submit event with client-provided
 values. The launch-boundaries fixture is also exercised by the vertical suite.
 The gap fixture asserts that unmeasured surface fails with a structured
 `unsupported_api` error and a non-zero exit.
@@ -104,6 +106,11 @@ The gap fixture asserts that unmeasured surface fails with a structured
   `application.list`, and `preferences.openCommand`; deterministic providers
   make corpus and fixture runs reproducible, while production OS providers and
   consent policy remain absent;
+- `getSelectedFinderItems`, `showInFinder`, `FileSystemItem`, and
+  `getFrontmostApplication` are measured through `finder.selectedItems`,
+  `finder.show`, and `application.frontmost`; deterministic providers make
+  corpus and fixture runs reproducible, while production Finder/frontmost
+  application providers and consent policy remain absent;
 - third-party npm dependency availability (the post-slice report records these
   as `third-party-dependency`; vendored roots are explicit but not yet a full
   audited corpus dependency set).

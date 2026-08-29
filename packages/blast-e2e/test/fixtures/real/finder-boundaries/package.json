@@ -1,0 +1,18 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "finder-boundaries",
+  "title": "Finder Boundaries",
+  "description": "A dependency-free Finder compatibility fixture for Blast",
+  "author": "blast-fixture",
+  "commands": [
+    {
+      "name": "index",
+      "title": "Finder Boundaries",
+      "description": "Render a scene using Finder APIs",
+      "mode": "view"
+    }
+  ],
+  "dependencies": {
+    "@raycast/api": "^1.104.1"
+  }
+}

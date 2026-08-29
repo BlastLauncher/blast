@@ -72,11 +72,11 @@ slice changes what is executable, what is trusted, or what should happen next.
   renders default-exported command components through the adapter, so
   unmodified Raycast-style TSX fixtures run end to end.
 - The support matrix runs a committed set of real corpus extensions through
-  the full pipeline in CI: eighteen render fixtures (list, detail, navigation,
-  action groups, tinted icons, form controls, toasts, preferences, and
-  brokered clipboard) and one fails with a structured `unsupported_api`
-  error, while the corpus probe records exactly which unmeasured APIs block
-  the rest.
+  the full pipeline in CI: nineteen render fixtures (list, detail, navigation,
+  action groups, tinted icons, form controls, toasts, preferences, brokered
+  clipboard, and desktop boundaries) and one fails with a structured
+  `unsupported_api` error, while the corpus probe records exactly which
+  unmeasured APIs block the rest.
 - Navigation (useNavigation, Action.Push), LocalStorage through the
   capability broker with a reference in-memory provider, and environment()
   are measured adapter surface; pushed views stay mounted so state survives
@@ -122,6 +122,12 @@ slice changes what is executable, what is trusted, or what should happen next.
   `Application` shape, with an optional path encoded as a primitive argument.
 - `openCommandPreferences` crosses the explicit
   `preferences.openCommand` capability.
+- `getSelectedFinderItems` and `showInFinder` cross explicit
+  `finder.selectedItems` and `finder.show` capabilities. Selected items are
+  JSON-decoded into validated `FileSystemItem` paths, and reveal paths use the
+  structural `PathLike` type.
+- `getFrontmostApplication` crosses `application.frontmost` and reuses the
+  validated `Application` response shape.
 
 ## Trust boundaries already enforced
 
@@ -148,8 +154,8 @@ slice changes what is executable, what is trusted, or what should happen next.
   externalization for large npm graphs (the runtime now supports explicit
   local or vendored dependency roots but never installs packages);
 - the remaining measured Raycast surface: Form focus/blur callbacks, client
-  toast timing/stacking, and broader desktop APIs such as Finder and frontmost
-  application discovery;
+  toast timing/stacking, and broader desktop APIs such as default-application
+  discovery;
 - a client-facing core protocol, daemon listener, and desktop rendering of
   scenes (the deterministic test client stands in today);
 - capability manifest declarations, real operating-system providers, audit
@@ -167,13 +173,14 @@ support matrix (`compatibility/support-matrix.md`) records the baseline and
 post-slice probes. The priority remains measured extension coverage: coverage
 means the share of corpus extensions that bundle and render through the current
 path, not the number of exported API names. The shortcut, imperative, cache,
-launch-boundary, desktop-discovery, and dependency-policy slices are complete,
-but the measured 80% target is not yet met; the next work should address the
-dominant remaining API and dependency blockers using the same probe.
+launch-boundary, desktop-discovery, finder-boundary, and dependency-policy
+slices are complete, but the measured 80% target is not yet met; the next work
+should address the dominant remaining API and dependency blockers using the
+same probe.
 
-1. Expand the next measured blocker group (`getSelectedFinderItems`,
-   `showInFinder`, and `getFrontmostApplication`) with deterministic
-   capability fixtures and host-provider semantics.
+1. Expand the next measured blocker group (`OAuth`, `AI`, and
+   `updateCommandMetadata`) with measured call/return shapes and explicit
+   compatibility or capability boundaries.
 2. Provision an audited, pinned vendor set or an explicit installation phase
    for the remaining third-party dependency graph; keep installation outside
    extension execution.

@@ -39,6 +39,15 @@ function createCore() {
     ...(expectation.apis?.includes("openCommandPreferences")
       ? [{ extensionId: expectation.extensionId, capability: "preferences", operation: "openCommand" }]
       : []),
+    ...(expectation.apis?.includes("getSelectedFinderItems")
+      ? [{ extensionId: expectation.extensionId, capability: "finder", operation: "selectedItems" }]
+      : []),
+    ...(expectation.apis?.includes("showInFinder")
+      ? [{ extensionId: expectation.extensionId, capability: "finder", operation: "show" }]
+      : []),
+    ...(expectation.apis?.includes("getFrontmostApplication")
+      ? [{ extensionId: expectation.extensionId, capability: "application", operation: "frontmost" }]
+      : []),
   ]);
   const broker = new CapabilityBroker({
     policy: createGrantListPolicy(grants),
@@ -66,7 +75,26 @@ function createCore() {
               },
             ]);
           }
+          if (request.operation === "frontmost") {
+            return JSON.stringify({
+              name: "Finder",
+              localizedName: "Finder",
+              path: "/System/Library/CoreServices/Finder.app",
+              bundleId: "com.apple.finder",
+            });
+          }
           throw new Error(`Unknown application operation ${JSON.stringify(request.operation)}`);
+        },
+      },
+      finder: {
+        async perform(request) {
+          if (request.operation === "selectedItems") {
+            return JSON.stringify([{ path: "/tmp/example.txt" }, { path: "/tmp/second-example.txt" }]);
+          }
+          if (request.operation === "show") {
+            return undefined;
+          }
+          throw new Error(`Unknown Finder operation ${JSON.stringify(request.operation)}`);
         },
       },
       preferences: {

@@ -30,6 +30,7 @@ const SUPPORTED_API_IMPORTS = new Set([
   "Detail",
   "Form",
   "FileIcon",
+  "FileSystemItem",
   "Grid",
   "Icon",
   "Image",
@@ -46,6 +47,8 @@ const SUPPORTED_API_IMPORTS = new Set([
   "environment",
   "getPreferenceValues",
   "getApplications",
+  "getFrontmostApplication",
+  "getSelectedFinderItems",
   "getSelectedText",
   "open",
   "openCommandPreferences",
@@ -53,6 +56,7 @@ const SUPPORTED_API_IMPORTS = new Set([
   "popToRoot",
   "launchCommand",
   "showHUD",
+  "showInFinder",
   "showToast",
   "useNavigation",
 ]);
@@ -221,6 +225,7 @@ function createCore(stderr) {
   // extension grants and deny-by-default providers.
   const allowedCapabilities = new Set([
     "alert.confirm",
+    "application.frontmost",
     "application.list",
     "clipboard.read",
     "clipboard.write",
@@ -235,6 +240,8 @@ function createCore(stderr) {
     "preferences.openExtension",
     "preferences.openCommand",
     "selection.read",
+    "finder.selectedItems",
+    "finder.show",
     "window.close",
   ]);
   const broker = new CapabilityBroker({
@@ -270,6 +277,14 @@ function createCore(stderr) {
               },
             ]);
           }
+          if (request.operation === "frontmost") {
+            return JSON.stringify({
+              name: "Terminal",
+              localizedName: "Terminal",
+              path: "/System/Applications/Utilities/Terminal.app",
+              bundleId: "com.apple.Terminal",
+            });
+          }
           throw new Error(`Unknown application operation ${JSON.stringify(request.operation)}`);
         },
       },
@@ -301,6 +316,17 @@ function createCore(stderr) {
         },
       },
       "local-storage": createInMemoryLocalStorageProvider(),
+      finder: {
+        async perform(request) {
+          if (request.operation === "selectedItems") {
+            return JSON.stringify([{ path: "/tmp/example.txt" }, { path: "/tmp/second-example.txt" }]);
+          }
+          if (request.operation === "show") {
+            return undefined;
+          }
+          throw new Error(`Unknown Finder operation ${JSON.stringify(request.operation)}`);
+        },
+      },
       navigation: {
         async perform(request) {
           if (request.operation === "popToRoot") {

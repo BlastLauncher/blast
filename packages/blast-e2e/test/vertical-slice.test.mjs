@@ -18,6 +18,7 @@ const compatIdentity = { extensionId: "e2e.compat", commandName: "index" };
 const tsxIdentity = { extensionId: "e2e.tsx", commandName: "index" };
 const launchBoundariesIdentity = { extensionId: "e2e.launch-boundaries", commandName: "index" };
 const desktopDiscoveryIdentity = { extensionId: "e2e.desktop-discovery", commandName: "index" };
+const finderBoundariesIdentity = { extensionId: "e2e.finder-boundaries", commandName: "index" };
 
 function createCore() {
   const catalog = new FilesystemExtensionCatalog({ root: catalogRoot });
@@ -44,6 +45,9 @@ function createCore() {
       { extensionId: "e2e.desktop-discovery", capability: "selection", operation: "read" },
       { extensionId: "e2e.desktop-discovery", capability: "application", operation: "list" },
       { extensionId: "e2e.desktop-discovery", capability: "preferences", operation: "openCommand" },
+      { extensionId: "e2e.finder-boundaries", capability: "finder", operation: "selectedItems" },
+      { extensionId: "e2e.finder-boundaries", capability: "application", operation: "frontmost" },
+      { extensionId: "e2e.finder-boundaries", capability: "finder", operation: "show" },
     ]),
     providers: {
       clipboard: {
@@ -101,7 +105,27 @@ function createCore() {
               },
             ]);
           }
+          if (request.operation === "frontmost") {
+            return JSON.stringify({
+              name: "Finder",
+              localizedName: "Finder",
+              path: "/System/Library/CoreServices/Finder.app",
+              bundleId: "com.apple.finder",
+            });
+          }
           throw new Error(`Unknown application operation ${JSON.stringify(request.operation)}`);
+        },
+      },
+      finder: {
+        async perform(request) {
+          boundaryRequests.push(request);
+          if (request.operation === "selectedItems") {
+            return JSON.stringify([{ path: "/tmp/example.txt" }, { path: "/tmp/second-example.txt" }]);
+          }
+          if (request.operation === "show") {
+            return undefined;
+          }
+          throw new Error(`Unknown Finder operation ${JSON.stringify(request.operation)}`);
         },
       },
       command: {
@@ -400,6 +424,37 @@ test("routes selected text, application discovery, and command preferences end t
   );
 
   await core.stopCommand(desktopDiscoveryIdentity, "desktop discovery slice complete");
+  await relay.done;
+  await core.close();
+});
+
+test("routes Finder selection, reveal, and frontmost application end to end", async () => {
+  const { core, broker, boundaryRequests } = createCore();
+  const buffer = new SceneStateBuffer();
+  const session = await core.runCommand(finderBoundariesIdentity);
+  const relay = relaySessionTraffic(session, {
+    sceneSink: createSceneSink(buffer, []),
+    capabilityBroker: broker,
+  });
+
+  await waitFor(
+    () => buffer.rootId !== undefined && buffer.get(buffer.rootId).props.navigationTitle === "Finder:Finder",
+    "the Finder-boundaries snapshot",
+  );
+  assert.deepEqual(
+    buffer.childrenOf(buffer.rootId).map(({ props }) => props.title),
+    ["/tmp/example.txt", "/tmp/second-example.txt"],
+  );
+  assert.deepEqual(
+    boundaryRequests.map(({ capability, operation, arguments: args }) => ({ capability, operation, arguments: args })),
+    [
+      { capability: "finder", operation: "selectedItems", arguments: {} },
+      { capability: "application", operation: "frontmost", arguments: {} },
+      { capability: "finder", operation: "show", arguments: { path: "/tmp/example.txt" } },
+    ],
+  );
+
+  await core.stopCommand(finderBoundariesIdentity, "Finder boundary slice complete");
   await relay.done;
   await core.close();
 });

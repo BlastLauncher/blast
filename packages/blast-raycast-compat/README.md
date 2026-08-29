@@ -33,6 +33,11 @@ onto the V2 scene contract, renderer, and capability broker:
 - `getSelectedText` and `getApplications` route through `selection.read` and
   `application.list`; the latter validates a JSON-encoded `Application[]`
   response and accepts an optional path argument;
+- `getSelectedFinderItems` and `showInFinder` route through the `finder`
+  capability; selected items are validated as JSON-encoded `FileSystemItem[]`
+  values and reveal paths accept the structural `PathLike` type;
+- `getFrontmostApplication` routes through `application.frontmost` and
+  validates the shared JSON-encoded `Application` shape;
 - `openCommandPreferences` routes through `preferences.openCommand`;
 - `launchCommand` routes through `command.launch`. Object arguments and context
   are validated as JSON and encoded as `argumentsJSON`/`contextJSON` strings on
@@ -60,8 +65,9 @@ Unmeasured surface (client toast timing/stacking, focus/blur form callbacks,
 and broader desktop APIs) raises a structured `CompatibilityError` with code
 `unsupported_api`; it never fails silently. Menu-bar alternate items and
 right-click event identity remain outside the current scene boundary. The
-selected-text, application-list, and command-preference capabilities still
-need production host providers and consent policy. Resolution of literal
+selected-text, application-list, command-preference, Finder, and
+frontmost-application capabilities still need production host providers and
+consent policy. Resolution of literal
 `@raycast/api` imports to this adapter happens at the runtime layer when
 extension bundling lands.
 

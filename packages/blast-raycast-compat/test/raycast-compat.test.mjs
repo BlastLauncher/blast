@@ -14,6 +14,8 @@ import {
   Detail,
   Form,
   getApplications,
+  getFrontmostApplication,
+  getSelectedFinderItems,
   getSelectedText,
   Grid,
   Icon,
@@ -37,6 +39,7 @@ import {
   launchCommand,
   renderCommand,
   showHUD,
+  showInFinder,
   showToast,
 } from "../dist/index.js";
 import { createElement } from "react";
@@ -823,6 +826,34 @@ test("routes selected text, application discovery, and command preferences throu
   ]);
 });
 
+test("routes Finder selection, reveal, and frontmost application through capabilities", async () => {
+  const application = {
+    name: "Terminal",
+    localizedName: "Terminal",
+    path: "/System/Applications/Utilities/Terminal.app",
+    bundleId: "com.apple.Terminal",
+  };
+  const items = [{ path: "/tmp/example.txt" }, { path: "/tmp/second-example.txt" }];
+  const probe = createContext({
+    capabilityValues: {
+      "finder.selectedItems": JSON.stringify(items),
+      "finder.show": undefined,
+      "application.frontmost": JSON.stringify(application),
+    },
+  });
+  configureRaycastCompat(probe.context);
+
+  assert.deepEqual(await getSelectedFinderItems(), items);
+  assert.deepEqual(await getFrontmostApplication(), application);
+  await showInFinder("/tmp/example.txt");
+
+  assert.deepEqual(probe.capabilityRequests, [
+    { capability: "finder", operation: "selectedItems" },
+    { capability: "application", operation: "frontmost" },
+    { capability: "finder", operation: "show", arguments: { path: "/tmp/example.txt" } },
+  ]);
+});
+
 test("rejects malformed application and selected-text capability responses", async () => {
   const probe = createContext({
     capabilityValues: {
@@ -838,6 +869,25 @@ test("rejects malformed application and selected-text capability responses", asy
   );
   await assert.rejects(
     () => getApplications(),
+    (error) => error instanceof CompatibilityError,
+  );
+});
+
+test("rejects malformed Finder and frontmost application capability responses", async () => {
+  const probe = createContext({
+    capabilityValues: {
+      "finder.selectedItems": JSON.stringify([{ path: "" }]),
+      "application.frontmost": JSON.stringify({ name: "Terminal" }),
+    },
+  });
+  configureRaycastCompat(probe.context);
+
+  await assert.rejects(
+    () => getSelectedFinderItems(),
+    (error) => error instanceof CompatibilityError,
+  );
+  await assert.rejects(
+    () => getFrontmostApplication(),
     (error) => error instanceof CompatibilityError,
   );
 });

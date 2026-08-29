@@ -549,6 +549,10 @@ export interface Application {
 /** Structural equivalent of Node's PathLike without a Node-only dependency. */
 export type PathLike = string | URL | Uint8Array;
 
+export interface FileSystemItem {
+  readonly path: string;
+}
+
 export interface CacheOptions {
   /** Separates cache entries while keeping the default shared per extension. */
   readonly namespace?: string;
@@ -2367,6 +2371,11 @@ export async function open(target: string, application?: string | ApplicationLik
   await callCapability("open", "open", args, "The open");
 }
 
+/** Reveals a file or directory in Finder through the host. */
+export async function showInFinder(path: PathLike): Promise<void> {
+  await callCapability("finder", "show", { path: serializePathLike(path, "showInFinder path") }, "The showInFinder");
+}
+
 /** Returns the selected text from the frontmost application through the host. */
 export async function getSelectedText(): Promise<string> {
   const response = await callCapability("selection", "read", undefined, "The getSelectedText");
@@ -2383,6 +2392,21 @@ export async function getApplications(path?: PathLike): Promise<Application[]> {
   return deserializeApplications(response.value);
 }
 
+/** Returns the selected Finder items through the host. */
+export async function getSelectedFinderItems(): Promise<FileSystemItem[]> {
+  const response = await callCapability("finder", "selectedItems", undefined, "The getSelectedFinderItems");
+  return deserializeFileSystemItems(response.value);
+}
+
+/** Returns the frontmost application through the host. */
+export async function getFrontmostApplication(): Promise<Application> {
+  const response = await callCapability("application", "frontmost", undefined, "The getFrontmostApplication");
+  return deserializeApplication(
+    parseJSONCapabilityValue(response.value, "getFrontmostApplication"),
+    "getFrontmostApplication",
+  );
+}
+
 function serializePathLike(value: PathLike, where: string): string {
   if (typeof value === "string") {
     return requireNonEmptyString(value, where);
@@ -2396,46 +2420,64 @@ function serializePathLike(value: PathLike, where: string): string {
   unsupported(`${where} must be a path-like value`, { value });
 }
 
-function deserializeApplications(value: unknown): Application[] {
+function parseJSONCapabilityValue(value: unknown, where: string): unknown {
   if (typeof value !== "string") {
-    throw new CompatibilityError("The getApplications capability returned no application list", { value });
+    throw new CompatibilityError(`The ${where} capability returned no JSON value`, { value });
   }
-  let decoded: unknown;
   try {
-    decoded = JSON.parse(value);
+    return JSON.parse(value);
   } catch (error) {
-    throw new CompatibilityError("The getApplications capability returned invalid JSON", {
+    throw new CompatibilityError(`The ${where} capability returned invalid JSON`, {
       value,
       cause: error instanceof Error ? error.message : String(error),
     });
   }
+}
+
+function deserializeApplications(value: unknown): Application[] {
+  const decoded = parseJSONCapabilityValue(value, "getApplications");
   if (!Array.isArray(decoded)) {
     throw new CompatibilityError("The getApplications capability returned a non-array", { value: decoded });
   }
+  return decoded.map((entry, index) => deserializeApplication(entry, `getApplications result ${index}`));
+}
+
+function deserializeApplication(value: unknown, where: string): Application {
+  if (!isRecord(value)) {
+    throw new CompatibilityError(`The ${where} capability returned an invalid application`, { value });
+  }
+  const application: {
+    name: string;
+    path: string;
+    localizedName?: string;
+    bundleId?: string;
+    windowsAppId?: string;
+  } = {
+    name: requireNonEmptyString(value.name, `${where} name`),
+    path: requireNonEmptyString(value.path, `${where} path`),
+  };
+  for (const field of ["localizedName", "bundleId", "windowsAppId"] as const) {
+    const fieldValue = value[field];
+    if (fieldValue !== undefined) {
+      application[field] = requireNonEmptyString(fieldValue, `${where} ${field}`);
+    }
+  }
+  return application;
+}
+
+function deserializeFileSystemItems(value: unknown): FileSystemItem[] {
+  const decoded = parseJSONCapabilityValue(value, "getSelectedFinderItems");
+  if (!Array.isArray(decoded)) {
+    throw new CompatibilityError("The getSelectedFinderItems capability returned a non-array", { value: decoded });
+  }
   return decoded.map((entry, index) => {
     if (!isRecord(entry)) {
-      throw new CompatibilityError("The getApplications capability returned an invalid application", {
+      throw new CompatibilityError("The getSelectedFinderItems capability returned an invalid item", {
         index,
         value: entry,
       });
     }
-    const application: {
-      name: string;
-      path: string;
-      localizedName?: string;
-      bundleId?: string;
-      windowsAppId?: string;
-    } = {
-      name: requireNonEmptyString(entry.name, `getApplications result ${index} name`),
-      path: requireNonEmptyString(entry.path, `getApplications result ${index} path`),
-    };
-    for (const field of ["localizedName", "bundleId", "windowsAppId"] as const) {
-      const fieldValue = entry[field];
-      if (fieldValue !== undefined) {
-        application[field] = requireNonEmptyString(fieldValue, `getApplications result ${index} ${field}`);
-      }
-    }
-    return application;
+    return { path: requireNonEmptyString(entry.path, `getSelectedFinderItems result ${index} path`) };
   });
 }
 
