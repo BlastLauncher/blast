@@ -21,8 +21,10 @@ onto the V2 scene contract, renderer, and capability broker:
   dropdown sections/items, and tag items. Field `onFocus` and `onBlur`
   callbacks receive the measured `Form.Event` target shape, and custom React
   components/fragments may compose measured field and action children;
-- `Icon` ships a measured kebab-case subset serialized into scene `icon`
-  properties, including object-icon tint colors;
+- `Icon` ships an explicit measured kebab-case subset serialized into scene
+  `icon` properties, including object-icon tint colors; observed list, form,
+  grid, menu-bar, numbered, progress, disabled, and formatting members are
+  added as corpus probes justify them, while unknown members remain unsupported;
 - `Clipboard.copy`/`Clipboard.paste`/`Clipboard.read` route through the
   capability broker with the command identity attached by the host; text,
   numeric, and structured clipboard content are normalized across the

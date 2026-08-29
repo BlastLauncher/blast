@@ -88,9 +88,9 @@ slice changes what is executable, what is trusted, or what should happen next.
 - A second bounded seed adds `file-url`, `filesize`, `gray-matter`,
   `javascript-time-ago`, `luxon`, `node-html-parser`, `qrcode`, `tildify`,
   `ts-pattern`, and `turndown`, also as exact-version e2e development
-  dependencies. The latest pinned corpus probe passes 1,264 of 3,231
-  extensions (39.12%), or 1,264 of 2,915 extensions with a selected renderable
-  command (43.36%).
+  dependencies. The latest pinned corpus probe passes 1,281 of 3,231
+  extensions (39.65%), or 1,281 of 2,915 extensions with a selected renderable
+  command (43.95%).
 - Navigation (useNavigation, Action.Push), LocalStorage through the
   capability broker with a reference in-memory provider, the callable plus
   property-based environment surface, and measured WindowManagement discovery
@@ -116,6 +116,14 @@ slice changes what is executable, what is trusted, or what should happen next.
 - String-valued Form and Grid dropdown labels and values accept empty strings
   because the pinned Raycast declarations require string types without a
   non-empty constraint; non-string values remain rejected at the adapter edge.
+- The explicit `Icon` member subset now includes the named members observed in
+  the focused 18-command diagnostic, including numbered, progress, disabled,
+  and formatting variants; unknown members remain rejected rather than
+  resolving through a fallback.
+- The next measured boundary is command-scoped manifest preference defaults:
+  focused diagnostics identify four remaining Grid-column failures caused by
+  `getPreferenceValues()` omitting preferences declared on the selected
+  command, while extension-level defaults already cross the catalog boundary.
 - Measured collection components accept custom function components and React
   fragments in action, list, grid, menu-bar, and form child positions; the
   resolved children remain subject to semantic parent/child validation, while
@@ -270,13 +278,13 @@ measured 80% target is not yet met; the next work should address the dominant
 remaining API boundary gaps using the same probe. Additional dependency seeds
 remain deferred until the next API slice is measured.
 
-1. Re-probe the nullable Form initial-value and empty-string boundaries with the
-   existing `LocalStorage.allItems`/`allLocalStorageItems`, Form event, literal
-   `require`, and composite-child boundaries when the next adapter slice lands.
-2. Use the current report to map and implement the next high-frequency API gap;
-   keep
-   client-only toast timing/stacking separate from the extension event
-   contract.
+1. Implement and re-probe command-scoped manifest preference defaults, keeping
+   the nullable Form, empty-string, `LocalStorage.allItems`/`allLocalStorageItems`,
+   Form event, literal `require`, composite-child, and measured Icon boundaries
+   covered by each reprobe.
+2. Use the current report to map the next high-frequency API gap after the
+   preference boundary; keep client-only toast timing/stacking separate from the
+   extension event contract.
 3. Keep safe dynamic, namespace, side-effect, and literal `require` import
    forms covered while the remaining `fetch` import stays outside the adapter
    until a host network capability defines URL policy, consent, and response

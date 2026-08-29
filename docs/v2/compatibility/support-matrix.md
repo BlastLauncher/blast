@@ -32,26 +32,30 @@ unavailable packages remain dependency failures.
 
 | Outcome                        | Baseline | Previous post-slice | Current post-slice | Current vs previous |
 | ------------------------------ | -------: | ------------------: | -----------------: | ------------------: |
-| third-party dependency failure |    2,361 |               1,278 |                914 |                -364 |
+| third-party dependency failure |    2,361 |               1,278 |                916 |                -362 |
 | not renderable command mode    |      358 |                 316 |                316 |                   0 |
-| other process/startup failure  |      432 |                 824 |                688 |                -136 |
-| structured compatibility error |       23 |                 106 |                 46 |                 -60 |
-| renders a scene end to end     |       54 |                 704 |              1,264 |                +560 |
+| other process/startup failure  |      432 |                 824 |                687 |                -137 |
+| structured compatibility error |       23 |                 106 |                 28 |                 -78 |
+| renders a scene end to end     |       54 |                 704 |              1,281 |                +577 |
 | no entrypoint found            |        3 |                   3 |                  3 |                   0 |
 
-Reading: the current post-slice extension pass rate is 1,264/3,231 (39.12%);
-among the 2,915 extensions with a selected renderable command it is 1,264/2,915
-(43.36%). The measured preference, navigation, environment, form-value,
+Reading: the current post-slice extension pass rate is 1,281/3,231 (39.65%);
+among the 2,915 extensions with a selected renderable command it is 1,281/2,915
+(43.95%). The measured preference, navigation, environment, form-value,
 keyboard, image-type, `randomId`, WindowManagement, small legacy aliases,
 safe import shapes, Form focus/blur callbacks, nullable Form initial values,
-empty string-valued controls, and composite React children are no longer in the
-non-rendering static blocker list. The only remaining static import gap is one
-`fetch` import. The vendor root leaves dependency failures tracked separately.
+empty string-valued controls, composite React children, and the observed icon
+members are no longer in the non-rendering static blocker list. The only
+remaining static import gap is one `fetch` import. The vendor root leaves
+dependency failures tracked separately.
 The current priority is the measured API boundary rather than another
-dependency seed; this probe refresh measures the newly implemented empty-string
-boundary alongside the prior nullable Form initial-value,
+dependency seed; this probe refresh measures the newly implemented explicit
+icon-member boundary alongside the empty-string, nullable Form initial-value,
 `LocalStorage.allItems`/`allLocalStorageItems`, Form event, literal `require`,
-and composite-child surfaces before dependency provisioning resumes.
+and composite-child surfaces before dependency provisioning resumes. The next
+measured target is command-scoped manifest preference defaults, which are
+currently absent from the descriptor even when a selected command declares
+them.
 
 The first audited vendor seed is `axios@1.8.4`, `cheerio@1.0.0`,
 `cross-fetch@4.0.0`, `date-fns@4.1.0`, `fast-xml-parser@5.3.2`, `fuse.js@7.1.0`,
@@ -175,6 +179,14 @@ dispatches a bounds mutation through the explicit host capability.
 - string-valued Form and Grid dropdown labels and values, Form checkbox labels,
   and Form descriptions preserve empty strings; non-string values remain
   invalid;
+- the `Icon` export now includes the observed named members used by the focused
+  18-command diagnostic, including numbered, progress, disabled, and formatting
+  variants; it remains an explicit measured subset, and unknown members remain
+  structured compatibility failures;
+- command-scoped manifest preference defaults are not yet merged into the
+  command descriptor; focused diagnostics identify four remaining Grid-column
+  failures caused by `getPreferenceValues()` omitting preferences declared on
+  the selected command;
 - `BrowserExtension.getTabs`, `BrowserExtension.getContent`, `clearSearchBar`,
   `trash`, `ToastStyle`, and the type-only `Tool.Confirmation` contract are
   measured. Browser integration, navigation state, destructive filesystem

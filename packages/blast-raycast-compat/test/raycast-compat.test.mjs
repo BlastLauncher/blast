@@ -218,6 +218,17 @@ test("renders a Raycast-style list through the compatibility surface", async () 
   });
 });
 
+test("exposes the measured icon members without an implicit fallback", () => {
+  assert.equal(Icon.CheckCircle, "check-circle");
+  assert.equal(Icon.CircleFilled, "circle-filled");
+  assert.equal(Icon.Livestream, "livestream");
+  assert.equal(Icon.Number07, "number-07");
+  assert.equal(Icon.RotateClockwise, "rotate-clockwise");
+  assert.equal(Icon.Wand, "wand");
+  assert.equal(Icon.XMarkCircle, "x-mark-circle");
+  assert.equal(Icon.NotMeasured, undefined);
+});
+
 test("accepts composite children in action groups and form collections", async () => {
   const probe = createContext();
   function Actions() {
