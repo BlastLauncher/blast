@@ -144,6 +144,11 @@ slice changes what is executable, what is trusted, or what should happen next.
   `Date | null`. Deprecated direct `Form.DropdownItem`,
   `Form.DropdownSection`, and `Form.TagPickerItem` members preserve the same
   component identities as their nested counterparts.
+- `Action.ShowInFinder` and `Action.Trash` now render through the shared action
+  node and route normalized `PathLike` values through the existing
+  `finder.show` and `filesystem.trash` capabilities. Deprecated direct action
+  aliases preserve those component identities; activation callbacks run only
+  after a successful host response.
 - Measured collection components accept custom function components and React
   fragments in action, list, grid, menu-bar, and form child positions; the
   resolved children remain subject to semantic parent/child validation, while
@@ -246,6 +251,9 @@ slice changes what is executable, what is trusted, or what should happen next.
 - Top-level `null` initial values are normalized at the Raycast adapter edge for
   non-date controls; null members inside array-valued controls remain rejected
   before they reach the scene contract.
+- Finder and trash action paths are normalized to primitive strings before they
+  reach the host; the host still owns filesystem policy, authorization, and
+  destructive-operation consent.
 - String-valued dropdown labels, values, checkbox labels, and descriptions are
   type-checked without imposing an extra non-empty constraint; scene-required
   properties remain present even when their string value is empty.
@@ -299,14 +307,16 @@ remaining API boundary gaps using the same probe. Additional dependency seeds
 remain deferred until the next API slice is measured.
 
 1. Diagnose and implement the remaining structured compatibility failures,
-   starting with the measured `ActionPanel` child, `Grid` content, and
-   `Action.OpenInBrowser` shapes; preserve structured errors for values that
-   would require a broader scene or host policy.
+   starting with the measured `ActionPanel` conditional child, Grid layout and
+   content shapes, and nullable Form picker state; preserve structured errors
+   for invalid URLs and values that would require a broader scene or host
+   policy.
 2. Keep the command-scoped preference, nullable Form, empty-string,
    `LocalStorage.allItems`/`allLocalStorageItems`, Form event, literal `require`,
    composite-child, measured Icon, `ActionPanel.Item`, whitespace-only
    collection boundaries, `Form.LinkAccessory`, the measured action creators,
-   and deprecated Form member aliases covered by each reprobe.
+   Finder/trash actions, and deprecated Form/action member aliases covered by
+   each reprobe.
 3. Keep safe dynamic, namespace, side-effect, and literal `require` import
    forms covered while the remaining `fetch` import stays outside the adapter
    until a host network capability defines URL policy, consent, and response

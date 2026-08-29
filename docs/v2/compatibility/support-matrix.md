@@ -32,10 +32,10 @@ unavailable packages remain dependency failures.
 
 | Outcome                        | Baseline | Previous post-slice | Current post-slice | Current vs previous |
 | ------------------------------ | -------: | ------------------: | -----------------: | ------------------: |
-| third-party dependency failure |    2,361 |               1,278 |                916 |                -362 |
+| third-party dependency failure |    2,361 |               1,278 |                915 |                -363 |
 | not renderable command mode    |      358 |                 316 |                316 |                   0 |
-| other process/startup failure  |      432 |                 824 |                674 |                -150 |
-| structured compatibility error |       23 |                 106 |                  9 |                 -97 |
+| other process/startup failure  |      432 |                 824 |                677 |                -147 |
+| structured compatibility error |       23 |                 106 |                  7 |                 -99 |
 | renders a scene end to end     |       54 |                 704 |              1,313 |                +609 |
 | no entrypoint found            |        3 |                   3 |                  3 |                   0 |
 
@@ -60,10 +60,11 @@ serialize as a measured semantic node and route their open event through the
 existing `open.open` capability. `Action.CreateQuicklink` and `Action.PickDate`
 now share the generic action node and route their creation/picker intent
 through explicit host capabilities; deprecated direct Form dropdown members
-are identity-preserving aliases. Focused diagnostics moved `5devs`, `ai-humanizer`,
-`comma-separator`, `fastmail-masked-email`, `m3o`, and `xkeen-manager` to
-rendered scenes; the next target is the remaining structured action, grid, and
-form-value boundary failures.
+are identity-preserving aliases. `Action.ShowInFinder` and `Action.Trash` now
+share the generic action node and route normalized paths through the existing
+Finder/filesystem capabilities; the measured `twitter-video-downloader`
+command now reaches a rendered scene. The next target is the remaining
+structured Grid, conditional-child, and nullable Form-value boundaries.
 
 The first audited vendor seed is `axios@1.8.4`, `cheerio@1.0.0`,
 `cross-fetch@4.0.0`, `date-fns@4.1.0`, `fast-xml-parser@5.3.2`, `fuse.js@7.1.0`,
@@ -132,7 +133,8 @@ dispatches a bounds mutation through the explicit host capability.
 
 - action groups, `ActionPanel.Item`, `ActionPanel.Section`, submenus, tinted icons, shortcut
   objects, action styles, `autoFocus`, `Action.OpenInBrowser`, `Action.Open`,
-  `Action.Paste`, and the deprecated browser/clipboard/action aliases are
+  `Action.Paste`, `Action.ShowInFinder`, `Action.Trash`, and the deprecated
+  browser/clipboard/action aliases are
   measured; custom React components/fragments can compose action children;
   broader action helpers remain unsupported;
 - toast lifecycle, mutable fields, action callbacks, and toast-action shortcut
@@ -180,6 +182,11 @@ dispatches a bounds mutation through the explicit host capability.
   dropdown/tag-picker members are measured. Quicklink creation and date picking
   use explicit `quicklink.create` and `date-picker.pick` capabilities; provider
   consent and native UI remain host work.
+- `Action.ShowInFinder`/`ShowInFinderAction` and `Action.Trash`/`TrashAction` are
+  measured. Both use the shared action scene shape, normalize `PathLike`
+  values, and route activation through `finder.show` or `filesystem.trash`;
+  host-side Finder integration, filesystem authorization, destructive-operation
+  consent, and platform-specific native titles remain host work.
 - namespace imports, literal dynamic imports, literal side-effect imports, and
   literal CommonJS `require("@raycast/api")` calls resolve through the same
   launcher alias as named imports when they access measured adapter members.

@@ -1832,10 +1832,10 @@
   "outcomes": {
     "no-entrypoint": 3,
     "not-renderable": 316,
-    "process-failure": 674,
+    "process-failure": 677,
     "renders": 1313,
-    "structured-compatibility-error": 9,
-    "third-party-dependency": 916
+    "structured-compatibility-error": 7,
+    "third-party-dependency": 915
   },
   "coverage": {
     "extensionPasses": 1313,
@@ -1853,9 +1853,9 @@
   ],
   "failureClasses": {
     "no-entrypoint": 3,
-    "process-failure": 674,
-    "structured-compatibility-error": 9,
-    "third-party-dependency": 916
+    "process-failure": 677,
+    "structured-compatibility-error": 7,
+    "third-party-dependency": 915
   },
   "failureSamples": {
     "no-entrypoint": [
@@ -1871,11 +1871,11 @@
       "CodeBlocks"
     ],
     "structured-compatibility-error": [
+      "apple-maps-search",
       "arabic-keyboard",
       "archiver",
       "create-t3-app",
-      "google-meet",
-      "lucide-icons"
+      "get-cat-images"
     ],
     "third-party-dependency": [
       "1bookmark",
@@ -2078,8 +2078,7 @@
       "commandName": "toggle-protection",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "renders"
     },
     {
       "directory": "adhan-time",
@@ -2885,8 +2884,8 @@
       "commandName": "directionsTo",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "apple-notes",
@@ -3654,7 +3653,8 @@
       "commandName": "search-subscribers",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "beeminder",
@@ -4709,7 +4709,8 @@
       "commandName": "search",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "ccusage",
@@ -5513,7 +5514,8 @@
       "commandName": "switch-virtual-network",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "cloudinary",
@@ -5521,8 +5523,8 @@
       "commandName": "search",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "process-failure",
+      "failureCode": "runtime_closed_during_initialization"
     },
     {
       "directory": "cloudstash",
@@ -7164,7 +7166,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_send_failed"
     },
     {
       "directory": "defuddle",
@@ -10208,8 +10211,8 @@
       "commandName": "get-cat-images",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "get-direct-link",
@@ -10769,8 +10772,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "renders"
     },
     {
       "directory": "go-to-rewind-timestamp",
@@ -15680,8 +15682,7 @@
       "commandName": "controlMeeting",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "outcome": "renders"
     },
     {
       "directory": "microsoft-tenant-id",
@@ -20816,8 +20817,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "raycast-deskly",
@@ -25344,8 +25345,8 @@
       "commandName": "decorate-text-with-font",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "text-differ",
@@ -26520,8 +26521,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "renders"
     },
     {
       "directory": "two-factor-authentication-code-generator",
@@ -27426,8 +27426,8 @@
       "commandName": "create-task",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "vim-bro",

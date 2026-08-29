@@ -54,6 +54,7 @@ import {
   open,
   OpenInBrowserAction,
   OpenWithAction,
+  ShowInFinderAction,
   openCommandPreferences,
   openExtensionPreferences,
   popToRoot,
@@ -69,6 +70,7 @@ import {
   showToast,
   setLocalStorageItem,
   ToastStyle,
+  TrashAction,
   trash,
   updateCommandMetadata,
   useNavigation,
@@ -404,6 +406,68 @@ test("renders measured action creators and routes their host operations", async 
     ],
   );
   assert.deepEqual(picked, [new Date("2026-08-29T12:00:00.000Z")]);
+});
+
+test("renders Finder and trash actions and routes their host operations", async () => {
+  const probe = createContext();
+  const shown = [];
+  const trashed = [];
+  const paths = ["/tmp/one", "/tmp/two"];
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      List,
+      null,
+      createElement(List.Item, {
+        title: "Files",
+        actions: createElement(
+          ActionPanel,
+          null,
+          createElement(Action.ShowInFinder, {
+            path: "/tmp/file",
+            onShow: (path) => shown.push(path),
+          }),
+          createElement(Action.Trash, {
+            paths,
+            onTrash: (received) => trashed.push(received),
+          }),
+        ),
+      }),
+    ),
+  );
+  await renderer.flush();
+
+  const actions = probe.transactions[0].operations[0].root.children[0].children[0].children;
+  assert.deepEqual(
+    actions.map(({ props }) => ({ title: props.title, icon: props.icon })),
+    [
+      { title: "Show in Finder", icon: "finder" },
+      { title: "Move to Trash", icon: "trash" },
+    ],
+  );
+
+  probe.dispatch(actions[0].props.onAction);
+  probe.dispatch(actions[1].props.onAction);
+  await new Promise((resolve) => setTimeout(resolve, 5));
+
+  assert.deepEqual(
+    probe.capabilityRequests.map(({ capability, operation, arguments: args }) => ({
+      capability,
+      operation,
+      arguments: args,
+    })),
+    [
+      { capability: "finder", operation: "show", arguments: { path: "/tmp/file" } },
+      {
+        capability: "filesystem",
+        operation: "trash",
+        arguments: { pathsJSON: '["/tmp/one","/tmp/two"]' },
+      },
+    ],
+  );
+  assert.deepEqual(shown, ["/tmp/file"]);
+  assert.deepEqual(trashed, [paths]);
+  assert.equal(ShowInFinderAction, Action.ShowInFinder);
+  assert.equal(TrashAction, Action.Trash);
 });
 
 test("supports deprecated Form dropdown member aliases", async () => {

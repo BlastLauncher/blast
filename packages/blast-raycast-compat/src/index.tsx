@@ -545,6 +545,28 @@ export interface OpenActionProps extends OpenProps {}
 /** @deprecated Use `OpenWithProps` or `Action.OpenWith` instead. */
 export interface OpenWithActionProps extends OpenWithProps {}
 
+export interface ShowInFinderProps {
+  readonly path: PathLike;
+  readonly title?: string;
+  readonly icon?: IconLike;
+  readonly shortcut?: ShortcutLike;
+  readonly onShow?: (path: PathLike) => void;
+}
+
+/** @deprecated Use `ShowInFinderProps` or `Action.ShowInFinder` instead. */
+export interface ShowInFinderActionProps extends ShowInFinderProps {}
+
+export interface TrashProps {
+  readonly paths: PathLike | PathLike[];
+  readonly title?: string;
+  readonly icon?: IconLike;
+  readonly shortcut?: ShortcutLike;
+  readonly onTrash?: (paths: PathLike | PathLike[]) => void;
+}
+
+/** @deprecated Use `TrashProps` or `Action.Trash` instead. */
+export interface TrashActionProps extends TrashProps {}
+
 export interface PasteProps {
   readonly content: string | number | Clipboard.Content;
   readonly title?: string;
@@ -3190,6 +3212,48 @@ const PickDateAction = Object.assign(PickDate, {
   isFullDay: isFullDayDate,
 });
 
+function ShowInFinder(props: ShowInFinderProps): ReactElement {
+  const path = serializePathLike(props.path, "Action.ShowInFinder path");
+  if (props.onShow !== undefined && typeof props.onShow !== "function") {
+    throw new CompatibilityError("Action.ShowInFinder onShow must be a function", { onShow: props.onShow });
+  }
+  return createElement(Action, {
+    title: props.title ?? "Show in Finder",
+    icon: props.icon ?? "finder",
+    ...(props.shortcut === undefined ? {} : { shortcut: props.shortcut }),
+    onAction: () => {
+      void callCapability("finder", "show", { path }, "The Action.ShowInFinder").then(() => {
+        props.onShow?.(props.path);
+      });
+    },
+  });
+}
+
+function Trash(props: TrashProps): ReactElement {
+  if (props.onTrash !== undefined && typeof props.onTrash !== "function") {
+    throw new CompatibilityError("Action.Trash onTrash must be a function", { onTrash: props.onTrash });
+  }
+  const paths = (Array.isArray(props.paths) ? props.paths : [props.paths]).map((path) =>
+    serializePathLike(path, "Action.Trash path"),
+  );
+  return createElement(Action, {
+    title: props.title ?? "Move to Trash",
+    icon: props.icon ?? "trash",
+    ...(props.shortcut === undefined ? {} : { shortcut: props.shortcut }),
+    onAction: () => {
+      void callCapability("filesystem", "trash", { pathsJSON: JSON.stringify(paths) }, "The Action.Trash").then(() => {
+        props.onTrash?.(props.paths);
+      });
+    },
+  });
+}
+
+/** @deprecated Use `Action.ShowInFinder` instead. */
+export const ShowInFinderAction = ShowInFinder;
+
+/** @deprecated Use `Action.Trash` instead. */
+export const TrashAction = Trash;
+
 function CopyToClipboard(props: CopyToClipboardProps): ReactElement {
   const icon = serializeIcon(props.icon, "Action.CopyToClipboard");
   const shortcut = serializeShortcut(props.shortcut, "Action.CopyToClipboard");
@@ -3394,6 +3458,8 @@ interface ActionComponent {
   Push: typeof Push;
   CreateQuicklink: typeof CreateQuicklink;
   PickDate: typeof PickDateAction;
+  ShowInFinder: typeof ShowInFinder;
+  Trash: typeof Trash;
   SubmitForm: typeof SubmitForm;
   Style: typeof ActionStyle;
 }
@@ -3407,6 +3473,8 @@ export const Action: ActionComponent = Object.assign(ActionComponent, {
   Push,
   CreateQuicklink,
   PickDate: PickDateAction,
+  ShowInFinder,
+  Trash,
   SubmitForm,
   Style: ActionStyle,
 });
@@ -3516,7 +3584,9 @@ function mapItemChildren(children: ReactNode, where: string): ReactNode {
       child.type === Paste ||
       child.type === Push ||
       child.type === CreateQuicklink ||
-      child.type === PickDateAction
+      child.type === PickDateAction ||
+      child.type === ShowInFinder ||
+      child.type === Trash
     ) {
       return keyedElement(child, `${where}-${index}`);
     }

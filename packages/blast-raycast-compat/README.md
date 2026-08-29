@@ -9,10 +9,12 @@ onto the V2 scene contract, renderer, and capability broker:
   `ActionPanel.Item`, `Action`,
   `Action.CopyToClipboard`, `Action.Open`, `Action.OpenInBrowser`,
   `Action.OpenWith`, `Action.Paste`, `Action.Push`, `Action.CreateQuicklink`,
-  `Action.PickDate`, and `Action.SubmitForm`,
+  `Action.PickDate`, `Action.ShowInFinder`, `Action.Trash`, and
+  `Action.SubmitForm`,
   plus the deprecated `ActionPanelItem`, `CopyToClipboardAction`,
   `OpenAction`, `OpenInBrowserAction`, `OpenWithAction`, `PasteAction`,
-  `PushAction`, and `SubmitFormAction` aliases, render through
+  `PushAction`, `ShowInFinderAction`, `TrashAction`, and `SubmitFormAction`
+  aliases, render through
   `@blastlauncher/react-renderer`;
 - `Grid` covers content tiles, sections, empty views, search-bar dropdowns,
   item actions, layout constants, and selection/search callbacks; `MenuBarExtra`
@@ -62,6 +64,10 @@ onto the V2 scene contract, renderer, and capability broker:
 - `getSelectedFinderItems` and `showInFinder` route through the `finder`
   capability; selected items are validated as JSON-encoded `FileSystemItem[]`
   values and reveal paths accept the structural `PathLike` type;
+- `Action.ShowInFinder`/`ShowInFinderAction` and
+  `Action.Trash`/`TrashAction` route normalized `PathLike` values through the
+  existing `finder.show` and `filesystem.trash` capabilities; completion
+  callbacks run after a successful host response;
 - `getFrontmostApplication` routes through `application.frontmost` and
   validates the shared JSON-encoded `Application` shape;
 - `getDefaultApplication` routes through `application.default`, validates the
