@@ -328,6 +328,7 @@
     "apis": [
       "Action",
       "ActionPanel",
+      "Color",
       "CopyToClipboardAction",
       "Environment",
       "FormValue",
@@ -342,6 +343,7 @@
       "environment",
       "getDefaultApplication",
       "getPreferenceValues",
+      "Icon",
       "preferences",
       "randomId"
     ],

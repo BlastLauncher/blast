@@ -221,7 +221,9 @@ test("renders a Raycast-style list through the compatibility surface", async () 
 });
 
 test("exposes the measured icon members without an implicit fallback", () => {
+  assert.equal(Icon.AppWindowList, "app-window-list");
   assert.equal(Icon.CheckCircle, "check-circle");
+  assert.equal(Icon.CircleProgress, "circle-progress");
   assert.equal(Icon.CircleFilled, "circle-filled");
   assert.equal(Icon.Livestream, "livestream");
   assert.equal(Icon.Number07, "number-07");
@@ -932,13 +934,138 @@ test("renders a Detail root", async () => {
   const probe = createContext();
 
   const renderer = renderCommand(probe.context, () =>
-    createElement(Detail, { markdown: "# Notes", navigationTitle: "Notes" }),
+    createElement(Detail, {
+      markdown: "# Notes",
+      navigationTitle: "Notes",
+      isLoading: true,
+      metadata: createElement(
+        Detail.Metadata,
+        null,
+        createElement(Detail.Metadata.Label, {
+          title: "Owner",
+          icon: Icon.Person,
+          text: { value: "Ada", color: Color.Green },
+        }),
+        createElement(Detail.Metadata.Separator),
+        createElement(Detail.Metadata.Link, {
+          title: "Docs",
+          target: "https://example.com/docs",
+          text: "Open docs",
+        }),
+        createElement(
+          Detail.Metadata.TagList,
+          { title: "Tags" },
+          createElement(Detail.Metadata.TagList.Item, {
+            text: "stable",
+            color: Color.Blue,
+          }),
+        ),
+      ),
+    }),
   );
   await renderer.flush();
 
   const root = probe.transactions[0].operations[0].root;
   assert.equal(root.type, "detail");
-  assert.deepEqual(root.props, { markdown: "# Notes", navigationTitle: "Notes" });
+  assert.deepEqual(root.props, { markdown: "# Notes", navigationTitle: "Notes", isLoading: true });
+  assert.deepEqual(
+    root.children.map((child) => child.type),
+    ["detail-metadata"],
+  );
+  assert.deepEqual(
+    root.children[0].children.map((child) => child.type),
+    ["detail-metadata-label", "detail-metadata-separator", "detail-metadata-link", "detail-metadata-tag-list"],
+  );
+  assert.deepEqual(root.children[0].children[0].props, {
+    title: "Owner",
+    icon: "person",
+    text: "Ada",
+    textColor: "green",
+  });
+  assert.deepEqual(root.children[0].children[2].props, {
+    title: "Docs",
+    target: "https://example.com/docs",
+    text: "Open docs",
+  });
+  assert.deepEqual(root.children[0].children[3].children[0].props, {
+    text: "stable",
+    color: "blue",
+  });
+});
+
+test("allows SubmitForm as a generic action outside Form", async () => {
+  const probe = createContext();
+  const submitted = [];
+
+  const renderer = renderCommand(probe.context, () =>
+    createElement(Detail, {
+      markdown: "# Simon",
+      actions: createElement(
+        ActionPanel,
+        null,
+        createElement(Action.SubmitForm, {
+          title: "Start game",
+          onSubmit: (values) => submitted.push(values),
+        }),
+      ),
+    }),
+  );
+  await renderer.flush();
+
+  const action = probe.transactions[0].operations[0].root.children[0].children[0];
+  assert.equal(action.type, "action");
+  probe.dispatch(action.props.onAction);
+  assert.deepEqual(submitted, [{}]);
+});
+
+test("renders List.Item.Detail with title and subtitle descriptors", async () => {
+  const probe = createContext();
+  const tagActions = [];
+
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      List,
+      { isShowingDetail: true },
+      createElement(List.Item, {
+        title: { value: "Pikachu", tooltip: "Electric type" },
+        subtitle: { value: null, tooltip: "No subtitle" },
+        detail: createElement(List.Item.Detail, {
+          markdown: "# Pikachu",
+          metadata: createElement(
+            List.Item.Detail.Metadata,
+            null,
+            createElement(
+              List.Item.Detail.Metadata.TagList,
+              { title: "Types" },
+              createElement(List.Item.Detail.Metadata.TagList.Item, {
+                text: "Electric",
+                onAction: () => tagActions.push("Electric"),
+              }),
+            ),
+          ),
+        }),
+      }),
+    ),
+  );
+  await renderer.flush();
+
+  const root = probe.transactions[0].operations[0].root;
+  assert.deepEqual(root.props, { isShowingDetail: true });
+  const item = root.children[0];
+  assert.deepEqual(item.props, {
+    title: "Pikachu",
+    titleTooltip: "Electric type",
+    subtitleTooltip: "No subtitle",
+  });
+  const detail = item.children[0];
+  assert.equal(detail.type, "detail");
+  assert.deepEqual(detail.props, { markdown: "# Pikachu" });
+  const tagItem = detail.children[0].children[0].children[0];
+  assert.equal(tagItem.props.text, "Electric");
+  assert.equal(typeof tagItem.props.onAction, "string");
+
+  probe.dispatch(tagItem.props.onAction);
+  assert.deepEqual(tagActions, ["Electric"]);
 });
 
 test("renders a Grid with sections, dropdowns, content, and empty state", async () => {

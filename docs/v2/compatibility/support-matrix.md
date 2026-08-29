@@ -32,16 +32,16 @@ unavailable packages remain dependency failures.
 
 | Outcome                        | Baseline | Previous post-slice | Current post-slice | Current vs previous |
 | ------------------------------ | -------: | ------------------: | -----------------: | ------------------: |
-| third-party dependency failure |    2,361 |                 916 |                916 |                   0 |
+| third-party dependency failure |    2,361 |                 916 |                913 |                  -3 |
 | not renderable command mode    |      358 |                 316 |                316 |                   0 |
 | other process/startup failure  |      432 |                 669 |                669 |                   0 |
 | structured compatibility error |       23 |                   3 |                  3 |                   0 |
-| renders a scene end to end     |       54 |               1,324 |              1,324 |                   0 |
+| renders a scene end to end     |       54 |               1,324 |              1,327 |                  +3 |
 | no entrypoint found            |        3 |                   3 |                  3 |                   0 |
 
-Reading: the current post-slice extension pass rate is 1,324/3,231 (40.98%);
-among the 2,915 extensions with a selected renderable command it is 1,324/2,915
-(45.42%). The measured preference, navigation, environment, form-value,
+Reading: the current post-slice extension pass rate is 1,327/3,231 (41.07%);
+among the 2,915 extensions with a selected renderable command it is 1,327/2,915
+(45.52%). The measured preference, navigation, environment, form-value,
 keyboard, image-type, `randomId`, WindowManagement, small legacy aliases,
 safe import shapes, Form focus/blur callbacks, nullable Form initial values,
 empty string-valued controls, composite React children, the observed icon
@@ -52,24 +52,21 @@ are no longer in the non-rendering static blocker list. The only remaining
 static import gap is one `fetch` import. The vendor root leaves dependency
 failures tracked separately.
 The current priority is the measured API boundary rather than another
-dependency seed; this probe refresh records whitespace-only collection child
-handling alongside the `ActionPanel.Item` alias, command-scoped preference,
-explicit icon-member, empty-string,
-nullable Form initial-value, `LocalStorage.allItems`/`allLocalStorageItems`,
-Form event, literal `require`, and composite-child surfaces before dependency
-provisioning resumes. `Form.searchBarAccessory` and `Form.LinkAccessory` now
-serialize as a measured semantic node and route their open event through the
-existing `open.open` capability. `Action.CreateQuicklink` and `Action.PickDate`
-now share the generic action node and route their creation/picker intent
-through explicit host capabilities; deprecated direct Form dropdown members
-are identity-preserving aliases. `Action.ShowInFinder` and `Action.Trash` now
-share the generic action node and route normalized paths through the existing
-Finder/filesystem capabilities; the measured `twitter-video-downloader`
-command now reaches a rendered scene. The latest collection-value slice also
-moved `arabic-keyboard`, `archiver`, `create-t3-app`, `google-meet`, and
-`lucide-icons` through to rendered scenes. Three structured failures remain for
-diagnosis: `apple-maps-search/directionsTo`, `get-cat-images/get-cat-images`,
-and `vikunja/create-task`.
+dependency seed. This refresh adds the explicit Detail metadata scene
+boundary, `List.Item.Detail` and list tooltip descriptors, generic
+`Action.SubmitForm` handling outside Form, and the measured
+`Icon.CircleProgress`/`Icon.AppWindowList` members. `Form.searchBarAccessory`
+and `Form.LinkAccessory` now serialize as a measured semantic node and route
+their open event through the existing `open.open` capability.
+`Action.CreateQuicklink` and `Action.PickDate` now share the generic action
+node and route their creation/picker intent through explicit host capabilities;
+deprecated direct Form dropdown members are identity-preserving aliases.
+`Action.ShowInFinder` and `Action.Trash` now share the generic action node and
+route normalized paths through the existing Finder/filesystem capabilities.
+The remaining structured failures in this report are
+`get-cat-images/get-cat-images`, `vikunja/create-task`, and
+`webpage-to-markdown/webpage-to-markdown`; targeted diagnostics show empty or
+missing `Action.OpenInBrowser` URLs under the probe's default empty arguments.
 
 The first audited vendor seed is `axios@1.8.4`, `cheerio@1.0.0`,
 `cross-fetch@4.0.0`, `date-fns@4.1.0`, `fast-xml-parser@5.3.2`, `fuse.js@7.1.0`,
@@ -110,7 +107,7 @@ separately below.
 | `legacy-alias-boundaries`      | list           |     1 | ActionPanel, ActionPanelItem, AlertActionStyle, Icon, List, ListSection, OpenWithAction                                                                                                                    |
 | `import-shape-boundaries`      | list           |     1 | namespace, dynamic, side-effect, and literal require `@raycast/api` imports                                                                                                                                |
 | `host-boundaries`              | list           |     1 | BrowserExtension, ToastStyle, Tool.Confirmation, clearSearchBar, trash                                                                                                                                     |
-| `coverage-next`                | list           |     1 | CopyToClipboardAction, OpenInBrowserAction, getPreferenceValues, environment, preferences, randomId, and legacy type aliases                                                                               |
+| `coverage-next`                | list           |     1 | Color, CopyToClipboardAction, Detail.Metadata, Icon, List.Item.Detail, OpenInBrowserAction, getPreferenceValues, environment, preferences, randomId, and legacy type aliases                               |
 | `coverage-followup`            | form           |     2 | ImageMask, List, OpenAction, PasteAction, PushAction, SubmitFormAction, clearLocalStorage, copyTextToClipboard, getLocalStorageItem, pasteText, removeLocalStorageItem, setLocalStorageItem, useNavigation |
 | `runtime-boundaries`           | list           |     1 | AI, OAuth, updateCommandMetadata                                                                                                                                                                           |
 | `grid-boundaries`              | grid           |     2 | Grid, Grid.Item, Grid.Section, Grid.Dropdown, Grid.EmptyView, Icon                                                                                                                                         |
@@ -126,7 +123,8 @@ values. The launch-boundaries fixture is also exercised by the vertical suite.
 The runtime-boundaries fixture waits for an AI response, command subtitle
 update, and OAuth token lookup; the host-boundaries fixture waits for browser
 tab/content, search, and trash capability responses; the `coverage-next`
-fixture additionally exercises default-application and telemetry responses
+fixture additionally exercises Detail metadata, List.Item.Detail, measured
+icons, default-application, and telemetry responses
 plus deprecated and modern browser/clipboard action events. The
 `coverage-followup` fixture additionally exercises legacy form, open, paste,
 storage, image-mask, and push/pop aliases, including navigation calls from a
@@ -150,6 +148,12 @@ dispatches a bounds mutation through the explicit host capability.
   tooltips, while `List.Item` accepts measured `{ value, tooltip }` icon
   descriptors. The adapter exposes the observed `Icon.AddPerson` member;
   layout clamping and icon rendering remain client work;
+- `Detail.Metadata` and `List.Item.Detail` serialize labels, separators, links,
+  tag lists, loading state, navigation titles, and list detail selection as
+  explicit scene data. Title/subtitle tooltip descriptors are preserved;
+  `Action.SubmitForm` also supports the measured generic Detail-action usage
+  outside Form with an empty callback value bag. The measured icon surface now
+  includes `Icon.CircleProgress` and `Icon.AppWindowList`.
 - toast lifecycle, mutable fields, action callbacks, and toast-action shortcut
   objects are measured; client toast timing/stacking remains unsupported;
 - `useNavigation` and `Action.Push` (28.8% of extensions),
@@ -215,11 +219,12 @@ dispatches a bounds mutation through the explicit host capability.
   its native `Date | null` behavior. Optional string-array initial values omit
   `undefined` entries only when all other entries are strings; null members and
   other invalid entries remain rejected;
-- the remaining structured probe failures are `apple-maps-search/directionsTo`
-  and `get-cat-images/get-cat-images`, which construct empty Open in Browser
-  URLs while data is absent, plus `vikunja/create-task`, whose required API URL
-  preference is absent in the probe. Empty or missing open targets remain
-  structured errors rather than being sent to the host;
+- the remaining structured probe failures are
+  `get-cat-images/get-cat-images`, `vikunja/create-task`, and
+  `webpage-to-markdown/webpage-to-markdown`, which construct empty or missing
+  Open in Browser URLs under the probe's default empty arguments. Empty or
+  missing open targets remain structured errors rather than being sent to the
+  host;
 - string-valued Form and Grid dropdown labels and values, Form checkbox labels,
   and Form descriptions preserve empty strings; non-string values remain
   invalid;

@@ -23,6 +23,12 @@ onto the V2 scene contract, renderer, and capability broker:
   `MenuBarExtra`
   covers menu-bar roots, items, sections, submenus, separators, shortcuts, and
   left-click callbacks;
+- `Detail` and `List.Item.Detail` serialize measured labels, separators, links,
+  tag lists, loading state, navigation titles, and list detail selection as
+  explicit scene data. List title/subtitle tooltip descriptors are preserved;
+  the measured corpus usage of `Action.SubmitForm` outside `Form` is
+  supported as a generic action whose callback receives an empty value bag.
+- The deprecated top-level `ListItem` alias preserves `List.Item` identity.
 - `Form` covers text fields, text areas, password fields, checkboxes,
   dropdowns, date pickers, tag pickers, file pickers, descriptions, separators,
   dropdown sections/items, tag items, deprecated direct dropdown/tag-item
@@ -39,6 +45,9 @@ onto the V2 scene contract, renderer, and capability broker:
   grid, menu-bar, numbered, progress, disabled, and formatting members are
   added as corpus probes justify them, including `Icon.AddPerson`, while
   unknown members remain unsupported;
+- The measured icon subset includes `Icon.CircleProgress` and
+  `Icon.AppWindowList`; unknown icon members remain unsupported rather than
+  resolving through an implicit fallback.
 - `Clipboard.copy`/`Clipboard.paste`/`Clipboard.read` route through the
   capability broker with the command identity attached by the host; text,
   numeric, and structured clipboard content are normalized across the

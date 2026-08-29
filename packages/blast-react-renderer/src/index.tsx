@@ -31,6 +31,12 @@ export const SCENE_MENU_BAR_SUBMENU_TYPE = "menu-bar-submenu";
 export const SCENE_MENU_BAR_SEPARATOR_TYPE = "menu-bar-separator";
 export const SCENE_ACTION_TYPE = "action";
 export const SCENE_DETAIL_TYPE = "detail";
+export const SCENE_DETAIL_METADATA_TYPE = "detail-metadata";
+export const SCENE_DETAIL_METADATA_LABEL_TYPE = "detail-metadata-label";
+export const SCENE_DETAIL_METADATA_SEPARATOR_TYPE = "detail-metadata-separator";
+export const SCENE_DETAIL_METADATA_LINK_TYPE = "detail-metadata-link";
+export const SCENE_DETAIL_METADATA_TAG_LIST_TYPE = "detail-metadata-tag-list";
+export const SCENE_DETAIL_METADATA_TAG_LIST_ITEM_TYPE = "detail-metadata-tag-list-item";
 export const SCENE_ACTION_GROUP_TYPE = "action-group";
 export const SCENE_FORM_TYPE = "form";
 export const SCENE_FORM_LINK_ACCESSORY_TYPE = "form-link-accessory";
@@ -52,6 +58,7 @@ export interface SceneListProps {
   readonly navigationTitle?: string;
   readonly searchBarPlaceholder?: string;
   readonly isLoading?: boolean;
+  readonly isShowingDetail?: boolean;
   readonly children?: ReactNode;
 }
 
@@ -647,6 +654,7 @@ function materialize(node: HostNode): SceneNode {
 function isCallbackProp(nodeType: SceneNodeType, property: string): boolean {
   return (
     (nodeType === SCENE_ACTION_TYPE && property === "onAction") ||
+    (nodeType === SCENE_DETAIL_METADATA_TAG_LIST_ITEM_TYPE && property === "onAction") ||
     (nodeType === SCENE_GRID_TYPE && (property === "onSelectionChange" || property === "onSearchTextChange")) ||
     (nodeType === SCENE_GRID_DROPDOWN_TYPE && property === "onChange") ||
     (nodeType === SCENE_MENU_BAR_ITEM_TYPE && property === "onAction") ||

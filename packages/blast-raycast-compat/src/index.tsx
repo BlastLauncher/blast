@@ -28,7 +28,7 @@ import type {
 import { SceneRendererError, createSceneRenderer, type SceneRenderer } from "@blastlauncher/react-renderer";
 
 export { Color, Icon } from "./icon.js";
-export type { ColorName, IconName } from "./icon.js";
+export type { ColorLike, ColorName, IconName } from "./icon.js";
 
 /**
  * Structured error for API surface that Blast has deliberately not measured
@@ -296,8 +296,19 @@ export interface ListProps {
   readonly navigationTitle?: string;
   readonly searchBarPlaceholder?: string;
   readonly isLoading?: boolean;
+  readonly isShowingDetail?: boolean;
   readonly children?: ReactNode;
   readonly actions?: ReactNode;
+}
+
+export interface ListItemTitleDescriptor {
+  readonly value: string;
+  readonly tooltip?: string | null;
+}
+
+export interface ListItemSubtitleDescriptor {
+  readonly value?: string | null;
+  readonly tooltip?: string | null;
 }
 
 export interface ListItemIconWithTooltip {
@@ -311,10 +322,11 @@ export interface QuickLookProps {
 }
 
 export interface ListItemProps {
-  readonly title: string;
-  readonly subtitle?: string;
+  readonly title: string | ListItemTitleDescriptor;
+  readonly subtitle?: string | ListItemSubtitleDescriptor;
   readonly icon?: IconLike | ListItemIconWithTooltip;
   readonly quickLook?: QuickLookProps;
+  readonly detail?: ReactNode;
   readonly children?: ReactNode;
   readonly actions?: ReactNode;
 }
@@ -458,8 +470,44 @@ export interface MenuBarExtraSubmenuProps {
 export interface MenuBarExtraSeparatorProps {}
 
 export interface DetailProps {
-  readonly markdown?: string;
+  readonly markdown?: string | null;
   readonly navigationTitle?: string;
+  readonly isLoading?: boolean;
+  readonly metadata?: ReactNode;
+  readonly actions?: ReactNode;
+}
+
+export interface DetailMetadataProps {
+  readonly children?: ReactNode;
+}
+
+export interface DetailMetadataLabelTextDescriptor {
+  readonly value: string;
+  readonly color?: GridColorLike | null;
+}
+
+export interface DetailMetadataLabelProps {
+  readonly title: string;
+  readonly icon?: IconLike | null;
+  readonly text?: string | DetailMetadataLabelTextDescriptor;
+}
+
+export interface DetailMetadataLinkProps {
+  readonly title: string;
+  readonly target: string;
+  readonly text: string;
+}
+
+export interface DetailMetadataTagListProps {
+  readonly title: string;
+  readonly children?: ReactNode;
+}
+
+export interface DetailMetadataTagListItemProps {
+  readonly icon?: IconLike | null;
+  readonly text?: string;
+  readonly color?: GridColorLike | null;
+  readonly onAction?: () => void;
 }
 
 export interface ActionPanelProps {
@@ -1843,6 +1891,40 @@ function serializeListItemIcon(
   return serializeIcon(icon as IconLike | null | undefined, where);
 }
 
+function serializeListItemText(
+  value: string | ListItemTitleDescriptor | ListItemSubtitleDescriptor | undefined,
+  where: string,
+  required: boolean,
+): { value?: string; tooltip?: string } {
+  if (value === undefined) {
+    if (required) {
+      unsupported(`${where} is required`, { value });
+    }
+    return {};
+  }
+  if (typeof value === "string") {
+    return { value };
+  }
+  if (!isRecord(value)) {
+    unsupported(`${where} must be a string or descriptor`, { value });
+  }
+  const descriptorValue = value.value;
+  const textValue =
+    descriptorValue === undefined || descriptorValue === null
+      ? required
+        ? unsupported(`${where} value is required`, { value })
+        : undefined
+      : requireString(descriptorValue, `${where} value`);
+  const tooltip =
+    value.tooltip === undefined || value.tooltip === null
+      ? undefined
+      : requireString(value.tooltip, `${where} tooltip`);
+  return {
+    ...(textValue === undefined ? {} : { value: textValue }),
+    ...(tooltip === undefined ? {} : { tooltip }),
+  };
+}
+
 function serializeQuickLook(
   quickLook: QuickLookProps | null | undefined,
   where: string,
@@ -2256,7 +2338,7 @@ function deserializeOAuthDate(value: unknown): Date {
 
 interface ListComponent {
   (props: ListProps): ReactElement;
-  Item: typeof ListItem;
+  Item: typeof ListItemComponent & { Detail: typeof ListItemDetail };
   Section: typeof ListSection;
 }
 
@@ -2267,24 +2349,26 @@ function ListComponent(props: ListProps): ReactElement {
       ...(props.navigationTitle === undefined ? {} : { navigationTitle: props.navigationTitle }),
       ...(props.searchBarPlaceholder === undefined ? {} : { searchBarPlaceholder: props.searchBarPlaceholder }),
       ...(props.isLoading === undefined ? {} : { isLoading: props.isLoading }),
+      ...(props.isShowingDetail === undefined ? {} : { isShowingDetail: props.isShowingDetail }),
     },
     props.children,
     props.actions,
   );
 }
 
-function ListItem(props: ListItemProps): ReactElement {
+function ListItemComponent(props: ListItemProps): ReactElement {
+  const title = serializeListItemText(props.title, "List.Item title", true);
+  const subtitle = serializeListItemText(props.subtitle, "List.Item subtitle", false);
   const icon = serializeListItemIcon(props.icon, "List.Item");
   const quickLook = serializeQuickLook(props.quickLook, "List.Item");
-  const children =
-    props.actions === undefined
-      ? props.children
-      : Children.toArray([...Children.toArray(props.actions), ...Children.toArray(props.children)]);
+  const children = Children.toArray([props.actions, props.children, props.detail]);
   return createElement(
     "list-item",
     {
-      title: props.title,
-      ...(props.subtitle === undefined ? {} : { subtitle: props.subtitle }),
+      title: title.value,
+      ...(title.tooltip === undefined ? {} : { titleTooltip: title.tooltip }),
+      ...(subtitle.value === undefined ? {} : { subtitle: subtitle.value }),
+      ...(subtitle.tooltip === undefined ? {} : { subtitleTooltip: subtitle.tooltip }),
       ...(icon?.icon === undefined ? {} : { icon: icon.icon }),
       ...(icon?.iconTintColor === undefined ? {} : { iconTintColor: icon.iconTintColor }),
       ...(icon?.iconTooltip === undefined ? {} : { iconTooltip: icon.iconTooltip }),
@@ -2306,7 +2390,13 @@ export function ListSection(props: ListSectionProps): ReactElement {
   );
 }
 
-export const List: ListComponent = Object.assign(ListComponent, { Item: ListItem, Section: ListSection });
+export const List: ListComponent = Object.assign(ListComponent, {
+  Item: ListItemComponent as typeof ListItemComponent & { Detail: typeof ListItemDetail },
+  Section: ListSection,
+});
+
+/** @deprecated Use `List.Item` instead. */
+export const ListItem = List.Item;
 
 const GRID_INSET_VALUES = {
   Zero: "zero",
@@ -2504,12 +2594,204 @@ export const Grid: GridComponent = Object.assign(GridComponent, {
   Dropdown: Object.assign(GridDropdown, { Item: GridDropdownItem, Section: GridDropdownSection }),
 });
 
-export function Detail(props: DetailProps): ReactElement {
-  return createElement("detail", {
-    ...(props.markdown === undefined ? {} : { markdown: props.markdown }),
-    ...(props.navigationTitle === undefined ? {} : { navigationTitle: props.navigationTitle }),
+function serializeDetailMetadataLabelText(
+  text: string | DetailMetadataLabelTextDescriptor | undefined,
+  where: string,
+): { text?: string; textColor?: string } {
+  if (text === undefined) {
+    return {};
+  }
+  if (typeof text === "string") {
+    return { text };
+  }
+  if (!isRecord(text)) {
+    unsupported(`${where} text must be a string or descriptor`, { text });
+  }
+  const value = requireString(text.value, `${where} text value`);
+  const color =
+    text.color === undefined || text.color === null ? undefined : serializeTintColor(text.color, `${where} text`);
+  return {
+    text: value,
+    ...(color === undefined ? {} : { textColor: color }),
+  };
+}
+
+function DetailMetadataLabel(props: DetailMetadataLabelProps): ReactElement {
+  const icon = serializeIcon(props.icon, "Detail.Metadata.Label");
+  const text = serializeDetailMetadataLabelText(props.text, "Detail.Metadata.Label");
+  return createElement("detail-metadata-label", {
+    title: requireString(props.title, "Detail.Metadata.Label title"),
+    ...(icon === undefined
+      ? {}
+      : { icon: icon.icon, ...(icon.iconTintColor === undefined ? {} : { iconTintColor: icon.iconTintColor }) }),
+    ...(text.text === undefined ? {} : { text: text.text }),
+    ...(text.textColor === undefined ? {} : { textColor: text.textColor }),
   });
 }
+
+function DetailMetadataSeparator(_props: Record<string, never>): ReactElement {
+  return createElement("detail-metadata-separator");
+}
+
+function DetailMetadataLink(props: DetailMetadataLinkProps): ReactElement {
+  return createElement("detail-metadata-link", {
+    title: requireString(props.title, "Detail.Metadata.Link title"),
+    target: requireNonEmptyString(props.target, "Detail.Metadata.Link target"),
+    text: requireString(props.text, "Detail.Metadata.Link text"),
+  });
+}
+
+function DetailMetadataTagListItem(props: DetailMetadataTagListItemProps): ReactElement {
+  const icon = serializeIcon(props.icon, "Detail.Metadata.TagList.Item");
+  const text = props.text === undefined ? undefined : requireString(props.text, "Detail.Metadata.TagList.Item text");
+  if (icon === undefined && text === undefined) {
+    unsupported("Detail.Metadata.TagList.Item requires an icon or text");
+  }
+  if (props.onAction !== undefined && typeof props.onAction !== "function") {
+    unsupported("Detail.Metadata.TagList.Item onAction", { onAction: props.onAction });
+  }
+  const color =
+    props.color === undefined || props.color === null
+      ? undefined
+      : serializeTintColor(props.color, "Detail.Metadata.TagList.Item");
+  return createElement("detail-metadata-tag-list-item", {
+    ...(icon === undefined
+      ? {}
+      : { icon: icon.icon, ...(icon.iconTintColor === undefined ? {} : { iconTintColor: icon.iconTintColor }) }),
+    ...(text === undefined ? {} : { text }),
+    ...(color === undefined ? {} : { color }),
+    ...(props.onAction === undefined ? {} : { onAction: props.onAction }),
+  });
+}
+
+function mapDetailMetadataChildren(children: ReactNode, where: string): ReactNode {
+  return Children.toArray(children).map((child, index) => {
+    if (isIgnorableChild(child)) {
+      return null;
+    }
+    if (!isValidElement(child)) {
+      return unsupported(`A ${where} text child`, { child });
+    }
+    if (
+      child.type === DetailMetadataLabel ||
+      child.type === DetailMetadataSeparator ||
+      child.type === DetailMetadataLink ||
+      child.type === DetailMetadataTagList
+    ) {
+      return keyedElement(child, `${where}-${index}`);
+    }
+    if (isCompositeElement(child)) {
+      return keyedElement(child, `${where}-${index}`);
+    }
+    return unsupported(`A ${where} child that is not a measured metadata item`, { childType: String(child.type) });
+  });
+}
+
+function DetailMetadataTagList(props: DetailMetadataTagListProps): ReactElement {
+  return createElement(
+    "detail-metadata-tag-list",
+    { title: requireString(props.title, "Detail.Metadata.TagList title") },
+    Children.toArray(props.children).map((child, index) => {
+      if (isIgnorableChild(child)) {
+        return null;
+      }
+      if (!isValidElement(child)) {
+        return unsupported("A Detail.Metadata.TagList text child", { child });
+      }
+      if (child.type === DetailMetadataTagListItem || isCompositeElement(child)) {
+        return keyedElement(child, `detail-metadata-tag-list-${index}`);
+      }
+      return unsupported("A Detail.Metadata.TagList child that is not an item", {
+        childType: String(child.type),
+      });
+    }),
+  );
+}
+
+interface DetailMetadataComponent {
+  (props: DetailMetadataProps): ReactElement;
+  Label: typeof DetailMetadataLabel;
+  Separator: typeof DetailMetadataSeparator;
+  Link: typeof DetailMetadataLink;
+  TagList: typeof DetailMetadataTagList & { Item: typeof DetailMetadataTagListItem };
+}
+
+const Metadata: DetailMetadataComponent = Object.assign(
+  function MetadataComponent(props: DetailMetadataProps): ReactElement {
+    return createElement("detail-metadata", null, mapDetailMetadataChildren(props.children, "Detail.Metadata"));
+  },
+  {
+    Label: DetailMetadataLabel,
+    Separator: DetailMetadataSeparator,
+    Link: DetailMetadataLink,
+    TagList: Object.assign(DetailMetadataTagList, { Item: DetailMetadataTagListItem }),
+  },
+);
+
+function mapDetailChildren(children: ReactNode): ReactNode {
+  return Children.toArray(children).map((child, index) => {
+    if (isIgnorableChild(child)) {
+      return null;
+    }
+    if (!isValidElement(child)) {
+      return unsupported("A Detail text child", { child });
+    }
+    if (child.type === Metadata || child.type === ActionPanel) {
+      return keyedElement(child, `detail-${index}`);
+    }
+    if (isCompositeElement(child)) {
+      return keyedElement(child, `detail-${index}`);
+    }
+    return unsupported("A Detail child that is not metadata or an ActionPanel", { childType: String(child.type) });
+  });
+}
+
+interface DetailComponent {
+  (props: DetailProps): ReactElement;
+  Metadata: typeof Metadata;
+}
+
+export const Detail: DetailComponent = Object.assign(
+  function DetailComponent(props: DetailProps): ReactElement {
+    return createElement(
+      "detail",
+      {
+        ...(props.markdown === undefined || props.markdown === null
+          ? {}
+          : { markdown: requireString(props.markdown, "Detail markdown") }),
+        ...(props.navigationTitle === undefined ? {} : { navigationTitle: props.navigationTitle }),
+        ...(props.isLoading === undefined ? {} : { isLoading: props.isLoading }),
+      },
+      mapDetailChildren([props.metadata, props.actions]),
+    );
+  },
+  { Metadata },
+);
+
+export namespace Detail {
+  export type Props = DetailProps;
+  export namespace Metadata {
+    export type Props = DetailMetadataProps;
+    export namespace Label {
+      export type Props = DetailMetadataLabelProps;
+    }
+    export namespace Separator {
+      export type Props = Record<string, never>;
+    }
+    export namespace Link {
+      export type Props = DetailMetadataLinkProps;
+    }
+    export namespace TagList {
+      export type Props = DetailMetadataTagListProps;
+      export namespace Item {
+        export type Props = DetailMetadataTagListItemProps;
+      }
+    }
+  }
+}
+
+const ListItemDetail = Detail;
+Object.assign(List.Item, { Detail: ListItemDetail });
 
 interface FormCodec {
   readonly accepts: (value: unknown) => boolean;
@@ -3197,14 +3479,17 @@ function SubmitForm<T extends FormValues = FormValues>(props: SubmitFormProps<T>
   if (props.onSubmit !== undefined && typeof props.onSubmit !== "function") {
     throw new CompatibilityError("Action.SubmitForm onSubmit must be a function", { onSubmit: props.onSubmit });
   }
-  const form = requireFormContext("Action.SubmitForm");
+  const form = useContext(FormContext);
   return createElement(Action, {
     title: props.title ?? "Submit Form",
     ...(props.icon === undefined ? {} : { icon: props.icon }),
     ...(props.shortcut === undefined ? {} : { shortcut: props.shortcut }),
     ...(props.style === undefined ? {} : { style: props.style }),
     onAction: (event) => {
-      const values = form.submit(event?.values);
+      // The measured corpus also uses SubmitForm as a generic action from
+      // Detail. There is no form state in that position, so preserve the
+      // callback contract with an empty value bag.
+      const values = form === undefined ? {} : form.submit(event?.values);
       void props.onSubmit?.(values as T);
     },
   });
@@ -3715,7 +4000,8 @@ function mapItemChildren(children: ReactNode, where: string): ReactNode {
       child.type === ToggleQuickLook ||
       child.type === PickDateAction ||
       child.type === ShowInFinder ||
-      child.type === Trash
+      child.type === Trash ||
+      child.type === Detail
     ) {
       return keyedElement(child, `${where}-${index}`);
     }

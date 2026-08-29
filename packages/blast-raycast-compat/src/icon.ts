@@ -6,6 +6,7 @@
 export const Icon = {
   AddPerson: "add-person-16",
   Asterisk: "asterisk",
+  AppWindowList: "app-window-list",
   AppWindowSidebarLeft: "app-window-sidebar-left",
   AtTheRate: "at-the-rate",
   ArrowClockwise: "arrow-clockwise",
@@ -40,6 +41,7 @@ export const Icon = {
   Circle: "circle",
   CircleDisabled: "circle-disabled",
   CircleFilled: "circle-filled",
+  CircleProgress: "circle-progress",
   CircleProgress100: "circle-progress-100",
   Checkmark: "checkmark",
   Clipboard: "clipboard",
@@ -238,3 +240,16 @@ export const Color = {
 } as const;
 
 export type ColorName = (typeof Color)[keyof typeof Color];
+
+export namespace Color {
+  export type Raw = string;
+  export interface Dynamic {
+    readonly light: Raw;
+    readonly dark: Raw;
+    readonly adjustContrast?: boolean | null;
+  }
+  export type ColorLike = ColorName | Dynamic | Raw;
+}
+
+/** @deprecated Use `Color.ColorLike` instead. */
+export type ColorLike = Color.ColorLike;

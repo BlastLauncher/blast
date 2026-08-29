@@ -88,9 +88,9 @@ slice changes what is executable, what is trusted, or what should happen next.
 - A second bounded seed adds `file-url`, `filesize`, `gray-matter`,
   `javascript-time-ago`, `luxon`, `node-html-parser`, `qrcode`, `tildify`,
   `ts-pattern`, and `turndown`, also as exact-version e2e development
-  dependencies. The latest pinned corpus probe passes 1,324 of 3,231
-  extensions (40.98%), or 1,324 of 2,915 extensions with a selected renderable
-  command (45.42%).
+  dependencies. The latest pinned corpus probe passes 1,327 of 3,231
+  extensions (41.07%), or 1,327 of 2,915 extensions with a selected renderable
+  command (45.52%).
 - Navigation (useNavigation, Action.Push), LocalStorage through the
   capability broker with a reference in-memory provider, the callable plus
   property-based environment surface, and measured WindowManagement discovery
@@ -118,8 +118,8 @@ slice changes what is executable, what is trusted, or what should happen next.
   non-empty constraint; non-string values remain rejected at the adapter edge.
 - The explicit `Icon` member subset now includes the named members observed in
   the focused 18-command diagnostic, including numbered, progress, disabled,
-  and formatting variants; unknown members remain rejected rather than
-  resolving through a fallback.
+  and formatting variants, plus `CircleProgress` and `AppWindowList`;
+  unknown members remain rejected rather than resolving through a fallback.
 - Command-scoped manifest preference defaults now cross the catalog boundary:
   focused diagnostics identified four Grid-column failures caused by
   `getPreferenceValues()` omitting preferences declared on the selected
@@ -154,6 +154,14 @@ slice changes what is executable, what is trusted, or what should happen next.
   routes through `quick-look.toggle`. List and Grid item Quick Look metadata
   serializes validated paths and optional names into the scene, and the
   explicit icon subset includes `Icon.Snippets`.
+- `Detail.Metadata` and `List.Item.Detail` now serialize measured labels,
+  separators, links, tag lists, loading state, and navigation titles as
+  explicit scene nodes. `List.isShowingDetail` plus title/subtitle tooltip
+  descriptors are preserved, and `List.Item.Detail.Metadata` is the same
+  measured metadata surface. The corpus also uses `Action.SubmitForm` as a
+  generic Detail action; outside a Form its callback receives an empty value
+  bag. `Icon.CircleProgress` and `Icon.AppWindowList` are now measured
+  members.
 - The measured collection-value boundary now preserves empty Grid content
   tooltips, accepts positive safe-integer Grid column counts, and serializes
   `List.Item` icon descriptors with optional values and tooltips. The explicit
@@ -319,20 +327,24 @@ measured 80% target is not yet met; the next work should address the dominant
 remaining API boundary gaps using the same probe. Additional dependency seeds
 remain deferred until the next API slice is measured.
 
-1. Diagnose the three remaining structured compatibility failures
-   (`apple-maps-search/directionsTo`, `get-cat-images/get-cat-images`, and
-   `vikunja/create-task`) and only broaden the adapter when their runtime
-   values are a measured, safe contract; preserve structured errors for empty
-   URLs and values that would require a broader scene or host policy. Then
-   measure the next high-usage action components after the now-covered
-   `Action.ToggleQuickLook` and `Action.CreateSnippet` boundaries.
+1. Continue expanding the measured Raycast API boundary before adding more
+   dependency seeds. Measure the next uncovered high-usage or semantically
+   isolated API, implement it only when its runtime values and host capability
+   can be validated safely, and preserve structured errors for values that
+   would require a broader scene or host policy. Keep the current structured
+   probe failures (`get-cat-images/get-cat-images`, `vikunja/create-task`,
+   and `webpage-to-markdown/webpage-to-markdown`) as explicit diagnostics
+   rather than broadening around unmeasured empty or missing targets. All
+   currently fail while constructing an empty or missing
+   `Action.OpenInBrowser` URL under the default empty-argument launch.
 2. Keep the command-scoped preference, nullable Form, empty-string,
    `LocalStorage.allItems`/`allLocalStorageItems`, Form event, literal `require`,
    composite-child, measured Icon, `ActionPanel.Item`, whitespace-only
    collection boundaries, `Form.LinkAccessory`, the measured action creators,
    Finder/trash actions, collection-value normalization, CreateSnippet and
-   Quick Look actions, and deprecated Form/action member aliases covered by
-   each reprobe.
+   Quick Look actions, Detail metadata, `List.Item.Detail`, measured icon
+   additions, and deprecated Form/action member aliases covered by each
+   reprobe.
 3. Keep safe dynamic, namespace, side-effect, and literal `require` import
    forms covered while the remaining `fetch` import stays outside the adapter
    until a host network capability defines URL policy, consent, and response

@@ -66,6 +66,7 @@ const SUPPORTED_API_IMPORTS = new Set([
   "LaunchType",
   "LaunchProps",
   "List",
+  "ListItem",
   "ListSection",
   "LocalStorage",
   "MenuBarExtra",
@@ -125,8 +126,18 @@ const timeoutMilliseconds = parsePositiveInteger(process.env.BLAST_CORPUS_PROBE_
 const concurrency = parsePositiveInteger(process.env.BLAST_CORPUS_PROBE_CONCURRENCY, DEFAULT_CONCURRENCY);
 const bootstrapPath = fileURLToPath(new URL("../test/fixtures/bootstrap.mjs", import.meta.url));
 const catalog = new FilesystemExtensionCatalog({ root: corpusRoot });
+const extensionFilter =
+  process.env.BLAST_CORPUS_PROBE_EXTENSIONS === undefined
+    ? undefined
+    : new Set(
+        process.env.BLAST_CORPUS_PROBE_EXTENSIONS.split(",")
+          .map((value) => value.trim())
+          .filter(Boolean),
+      );
 
-const scans = await scanCorpus(corpusRoot);
+const scans = (await scanCorpus(corpusRoot)).filter(
+  (scan) => extensionFilter === undefined || extensionFilter.has(path.basename(scan.directory)),
+);
 const census = buildCensusReport(scans, { corpusRevision, corpusUrl: CORPUS_URL });
 const selections = scans.map(selectCommand);
 const results = new Array(scans.length);
@@ -604,19 +615,25 @@ function classifyFailure(resultBase, error, stderr, session) {
   );
   const code = error && typeof error === "object" && typeof error.code === "string" ? error.code : undefined;
   const lower = diagnostic.toLowerCase();
+  const diagnosticFields = process.env.BLAST_CORPUS_PROBE_INCLUDE_DIAGNOSTICS === "1" ? { diagnostic } : {};
 
   if (code === "catalog_entrypoint_missing") {
-    return { ...resultBase, outcome: "no-entrypoint", failureCode: code };
+    return { ...resultBase, ...diagnosticFields, outcome: "no-entrypoint", failureCode: code };
   }
   if (lower.includes("probe timeout") || lower.includes("aborted")) {
-    return { ...resultBase, outcome: "timeout", failureCode: "probe_timeout" };
+    return { ...resultBase, ...diagnosticFields, outcome: "timeout", failureCode: "probe_timeout" };
   }
   if (
     lower.includes("compatibilityerror") ||
     lower.includes("unsupported_api") ||
     lower.includes("not supported by the blast compatibility surface")
   ) {
-    return { ...resultBase, outcome: "structured-compatibility-error", failureCode: "unsupported_api" };
+    return {
+      ...resultBase,
+      ...diagnosticFields,
+      outcome: "structured-compatibility-error",
+      failureCode: "unsupported_api",
+    };
   }
   if (
     lower.includes("could not resolve") ||
@@ -625,12 +642,17 @@ function classifyFailure(resultBase, error, stderr, session) {
     lower.includes("module not found") ||
     lower.includes("failed to resolve")
   ) {
-    return { ...resultBase, outcome: "third-party-dependency", failureCode: "dependency_unavailable" };
+    return {
+      ...resultBase,
+      ...diagnosticFields,
+      outcome: "third-party-dependency",
+      failureCode: "dependency_unavailable",
+    };
   }
   if (session !== undefined) {
-    return { ...resultBase, outcome: "process-failure", failureCode: code ?? "process_failed" };
+    return { ...resultBase, ...diagnosticFields, outcome: "process-failure", failureCode: code ?? "process_failed" };
   }
-  return { ...resultBase, outcome: "process-failure", failureCode: code ?? "startup_failed" };
+  return { ...resultBase, ...diagnosticFields, outcome: "process-failure", failureCode: code ?? "startup_failed" };
 }
 
 function selectCommand(scan) {

@@ -130,6 +130,62 @@ test("validates scene transaction messages", (context) => {
     assert.equal(result.ok, true);
   });
 
+  context.test("accepts List.Item.Detail metadata nodes", () => {
+    const result = validateSceneTransactionMessage(
+      envelope(
+        SCENE_TRANSACTION_MESSAGE,
+        transaction([
+          {
+            type: "snapshot",
+            root: list("root", [
+              {
+                id: "item-1",
+                type: "list-item",
+                props: { title: "Pikachu", titleTooltip: "Electric type" },
+                children: [
+                  {
+                    id: "detail-1",
+                    type: "detail",
+                    props: { markdown: "# Pikachu", isLoading: false },
+                    children: [
+                      {
+                        id: "metadata-1",
+                        type: "detail-metadata",
+                        props: {},
+                        children: [
+                          {
+                            id: "label-1",
+                            type: "detail-metadata-label",
+                            props: { title: "Type", text: "Electric", textColor: "yellow" },
+                            children: [],
+                          },
+                          {
+                            id: "tags-1",
+                            type: "detail-metadata-tag-list",
+                            props: { title: "Tags" },
+                            children: [
+                              {
+                                id: "tag-1",
+                                type: "detail-metadata-tag-list-item",
+                                props: { text: "stable", color: "green", onAction: "event-tag" },
+                                children: [],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ]),
+          },
+        ]),
+      ),
+    );
+    assert.equal(result.ok, true);
+  });
+
   context.test("rejects non-envelope and wrong-type values", () => {
     assert.equal(validateSceneTransactionMessage({}).ok, false);
     assert.equal(validateSceneTransactionMessage(envelope("shutdown", {})).ok, false);

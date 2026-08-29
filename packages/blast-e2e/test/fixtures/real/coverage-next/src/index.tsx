@@ -1,7 +1,9 @@
 import {
   Action,
   ActionPanel,
+  Color,
   CopyToClipboardAction,
+  Icon,
   List,
   OpenInBrowserAction,
   captureException,
@@ -52,10 +54,32 @@ export default function Command() {
   }, []);
 
   return (
-    <List navigationTitle={`Next:${status}`}>
+    <List isShowingDetail navigationTitle={`Next:${status}`}>
       <List.Item
-        title="Coverage next"
-        subtitle={`${legacyPreferenceValue}:${environment.appearance}:${fixtureId}`}
+        title={{ value: "Coverage next", tooltip: "Measured detail fixture" }}
+        subtitle={{ value: `${legacyPreferenceValue}:${environment.appearance}:${fixtureId}`, tooltip: "State" }}
+        detail={
+          <List.Item.Detail
+            markdown="# Coverage next"
+            metadata={
+              <List.Item.Detail.Metadata>
+                <List.Item.Detail.Metadata.Label
+                  title="Status"
+                  icon={Icon.CheckCircle}
+                  text={{ value: status, color: Color.Green }}
+                />
+                <List.Item.Detail.Metadata.Label title="Progress" icon={Icon.CircleProgress} text="Measured" />
+                <List.Item.Detail.Metadata.Label title="Collection" icon={Icon.AppWindowList} text="Detail" />
+                <List.Item.Detail.Metadata.Separator />
+                <List.Item.Detail.Metadata.Link
+                  title="Documentation"
+                  target="https://example.com/docs"
+                  text="Open docs"
+                />
+              </List.Item.Detail.Metadata>
+            }
+          />
+        }
         actions={
           <ActionPanel>
             <OpenInBrowserAction url="https://example.com/legacy" />
