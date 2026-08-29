@@ -74,7 +74,7 @@ slice changes what is executable, what is trusted, or what should happen next.
   bundle directories are removed after each successful or failed load; an
   explicitly supplied cache directory remains caller-owned.
 - The support matrix runs a committed set of real corpus extensions through
-  the full pipeline in CI: twenty-seven render fixtures (list, list sections,
+  the full pipeline in CI: twenty-eight render fixtures (list, list sections,
   and detail,
   navigation, action groups, tinted icons, form controls, toasts, preferences,
   brokered clipboard, desktop and window-management boundaries, legacy
@@ -88,9 +88,9 @@ slice changes what is executable, what is trusted, or what should happen next.
 - A second bounded seed adds `file-url`, `filesize`, `gray-matter`,
   `javascript-time-ago`, `luxon`, `node-html-parser`, `qrcode`, `tildify`,
   `ts-pattern`, and `turndown`, also as exact-version e2e development
-  dependencies. The latest pinned corpus probe passes 1,112 of 3,231
-  extensions (34.42%), or 1,112 of 2,915 extensions with a selected renderable
-  command (38.15%).
+  dependencies. The latest pinned corpus probe passes 1,196 of 3,231
+  extensions (37.02%), or 1,196 of 2,915 extensions with a selected renderable
+  command (41.03%).
 - Navigation (useNavigation, Action.Push), LocalStorage through the
   capability broker with a reference in-memory provider, the callable plus
   property-based environment surface, and measured WindowManagement discovery
@@ -109,6 +109,10 @@ slice changes what is executable, what is trusted, or what should happen next.
   client-provided or runtime-retained field value. Literal CommonJS
   `require("@raycast/api")` imports are also covered alongside the measured
   dynamic, namespace, and side-effect import shapes.
+- Measured collection components accept custom function components and React
+  fragments in action, list, grid, menu-bar, and form child positions; the
+  resolved children remain subject to semantic parent/child validation, while
+  raw text and intrinsic DOM elements remain unsupported.
 - ActionPanel renders as a scene action-group (titles, submenus, List-level
   panels), and object icons with Color tints serialize into iconTintColor
   properties.
@@ -253,9 +257,9 @@ measured 80% target is not yet met; the next work should address the dominant
 remaining API boundary gaps using the same probe. Additional dependency seeds
 remain deferred until the next API slice is measured.
 
-1. Re-probe the `LocalStorage.allItems`/`allLocalStorageItems`, Form event, and
-   literal `require` boundaries and update the support matrix with the measured
-   result.
+1. Re-probe the `LocalStorage.allItems`/`allLocalStorageItems`, Form event,
+   literal `require`, and composite-child boundaries and update the support
+   matrix with the measured result.
 2. Use that report to map and implement the next high-frequency API gap; keep
    client-only toast timing/stacking separate from the extension event
    contract.

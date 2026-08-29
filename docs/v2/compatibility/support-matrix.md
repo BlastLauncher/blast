@@ -32,24 +32,25 @@ unavailable packages remain dependency failures.
 
 | Outcome                        | Baseline | Previous post-slice | Current post-slice | Current vs previous |
 | ------------------------------ | -------: | ------------------: | -----------------: | ------------------: |
-| third-party dependency failure |    2,361 |               1,278 |                915 |                -363 |
+| third-party dependency failure |    2,361 |               1,278 |                916 |                -362 |
 | not renderable command mode    |      358 |                 316 |                316 |                   0 |
-| other process/startup failure  |      432 |                 824 |                739 |                 -85 |
-| structured compatibility error |       23 |                 106 |                116 |                 +10 |
-| renders a scene end to end     |       54 |                 704 |              1,142 |                +438 |
+| other process/startup failure  |      432 |                 824 |                713 |                -111 |
+| structured compatibility error |       23 |                 106 |                 87 |                 -19 |
+| renders a scene end to end     |       54 |                 704 |              1,196 |                +492 |
 | no entrypoint found            |        3 |                   3 |                  3 |                   0 |
 
-Reading: the current post-slice extension pass rate is 1,142/3,231 (35.35%);
-among the 2,915 extensions with a selected renderable command it is 1,142/2,915
-(39.18%). The measured preference, navigation, environment, form-value,
+Reading: the current post-slice extension pass rate is 1,196/3,231 (37.02%);
+among the 2,915 extensions with a selected renderable command it is 1,196/2,915
+(41.03%). The measured preference, navigation, environment, form-value,
 keyboard, image-type, `randomId`, WindowManagement, small legacy aliases,
-safe import shapes, and Form focus/blur callbacks are no longer in the
+safe import shapes, Form focus/blur callbacks, and composite React children
+are no longer in the
 non-rendering static blocker list. The only remaining static import gap is one
 `fetch` import. The vendor root leaves dependency failures tracked separately.
 The current priority is the measured API boundary rather than another
 dependency seed; this probe refresh measures the newly implemented
-`LocalStorage.allItems`/`allLocalStorageItems`, Form event, and literal
-`require` surfaces before dependency provisioning resumes.
+`LocalStorage.allItems`/`allLocalStorageItems`, Form event, literal `require`,
+and composite-child surfaces before dependency provisioning resumes.
 
 The first audited vendor seed is `axios@1.8.4`, `cheerio@1.0.0`,
 `cross-fetch@4.0.0`, `date-fns@4.1.0`, `fast-xml-parser@5.3.2`, `fuse.js@7.1.0`,
@@ -82,12 +83,13 @@ separately below.
 | `cache-control-builder`        | list           |     3 | Action, ActionPanel, Detail, Icon, List, environment, useNavigation                                                                                                                                        |
 | `single-disk-eject`            | list           |     0 | Action, ActionPanel, List, environment, getPreferenceValues, showToast, Toast                                                                                                                              |
 | `form-submission`              | form           |     4 | Action, ActionPanel, Form (DatePicker, TagPicker, FilePicker)                                                                                                                                              |
+| `composite-children`           | form           |     3 | Action, ActionPanel, Form, custom component and fragment composition                                                                                                                                       |
 | `launch-boundaries`            | list           |     1 | Image masks, LaunchProps, LaunchType, closeMainWindow, popToRoot, openExtensionPreferences                                                                                                                 |
 | `desktop-discovery-boundaries` | list           |     2 | Application, getApplications, getSelectedText, openCommandPreferences                                                                                                                                      |
 | `finder-boundaries`            | list           |     2 | FileSystemItem, getFrontmostApplication, getSelectedFinderItems, showInFinder                                                                                                                              |
 | `window-management-boundaries` | list           |     1 | WindowManagement, environment                                                                                                                                                                              |
 | `legacy-alias-boundaries`      | list           |     1 | ActionPanel, ActionPanelItem, AlertActionStyle, Icon, List, ListSection, OpenWithAction                                                                                                                    |
-| `import-shape-boundaries`      | list           |     1 | namespace, dynamic, and side-effect `@raycast/api` imports                                                                                                                                                 |
+| `import-shape-boundaries`      | list           |     1 | namespace, dynamic, side-effect, and literal require `@raycast/api` imports                                                                                                                                |
 | `host-boundaries`              | list           |     1 | BrowserExtension, ToastStyle, Tool.Confirmation, clearSearchBar, trash                                                                                                                                     |
 | `coverage-next`                | list           |     1 | CopyToClipboardAction, OpenInBrowserAction, getPreferenceValues, environment, preferences, randomId, and legacy type aliases                                                                               |
 | `coverage-followup`            | form           |     2 | ImageMask, List, OpenAction, PasteAction, PushAction, SubmitFormAction, clearLocalStorage, copyTextToClipboard, getLocalStorageItem, pasteText, removeLocalStorageItem, setLocalStorageItem, useNavigation |
@@ -96,7 +98,7 @@ separately below.
 | `menu-bar-boundaries`          | menu-bar-extra |     2 | MenuBarExtra, Item, Section, Submenu, Separator, Icon                                                                                                                                                      |
 | `choose-a-license`             | list           |     8 | Action.OpenInBrowser, Action.CopyToClipboard, Action.Push                                                                                                                                                  |
 
-The twenty-seven matrix render fixtures assert root type and minimum item counts
+The twenty-eight matrix render fixtures assert root type and minimum item counts
 through real child processes; the desktop-discovery fixture additionally waits
 for three brokered capability responses, the Finder fixture waits for three
 additional capability responses, and the form fixture dispatches text, date,
@@ -118,7 +120,8 @@ dispatches a bounds mutation through the explicit host capability.
 - action groups, `ActionPanel.Section`, submenus, tinted icons, shortcut
   objects, action styles, `autoFocus`, `Action.OpenInBrowser`, `Action.Open`,
   `Action.Paste`, and the deprecated browser/clipboard/action aliases are
-  measured; broader action helpers remain unsupported;
+  measured; custom React components/fragments can compose action children;
+  broader action helpers remain unsupported;
 - toast lifecycle, mutable fields, action callbacks, and toast-action shortcut
   objects are measured; client toast timing/stacking remains unsupported;
 - `useNavigation` and `Action.Push` (28.8% of extensions),
@@ -161,6 +164,9 @@ dispatches a bounds mutation through the explicit host capability.
   launcher alias as named imports when they access measured adapter members.
   The remaining `fetch` import is intentionally not supported because network
   access needs an explicit host capability and policy;
+- custom function components and React fragments can compose measured action,
+  list, grid, menu-bar, and form children; raw text, intrinsic DOM elements,
+  and invalid resolved children remain outside the semantic scene contract;
 - `BrowserExtension.getTabs`, `BrowserExtension.getContent`, `clearSearchBar`,
   `trash`, `ToastStyle`, and the type-only `Tool.Confirmation` contract are
   measured. Browser integration, navigation state, destructive filesystem

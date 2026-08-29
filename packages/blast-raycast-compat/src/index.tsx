@@ -2822,6 +2822,9 @@ function mapFormChildren(children: ReactNode): ReactNode {
     ) {
       return keyedElement(child, `form-${index}`);
     }
+    if (isCompositeElement(child)) {
+      return keyedElement(child, `form-${index}`);
+    }
     return unsupported("A Form child that is not a measured form item or ActionPanel", {
       childType: String(child.type),
     });
@@ -2839,6 +2842,9 @@ function mapTagPickerChildren(children: ReactNode): ReactNode {
     if (child.type === FormTagPickerItem) {
       return keyedElement(child, `tag-picker-${index}`);
     }
+    if (isCompositeElement(child)) {
+      return keyedElement(child, `tag-picker-${index}`);
+    }
     return unsupported("A Form.TagPicker child that is not an item", {
       childType: String(child.type),
     });
@@ -2854,6 +2860,9 @@ function mapDropdownChildren(children: ReactNode): ReactNode {
       return unsupported("A Form.Dropdown text child", { child });
     }
     if (child.type === FormDropdownItem || child.type === FormDropdownSection) {
+      return keyedElement(child, `dropdown-${index}`);
+    }
+    if (isCompositeElement(child)) {
       return keyedElement(child, `dropdown-${index}`);
     }
     return unsupported("A Form.Dropdown child that is not an item or section", {
@@ -3340,6 +3349,9 @@ function mapItemChildren(children: ReactNode, where: string): ReactNode {
       child.type === Paste ||
       child.type === Push
     ) {
+      return keyedElement(child, `${where}-${index}`);
+    }
+    if (isCompositeElement(child)) {
       return keyedElement(child, `${where}-${index}`);
     }
     return unsupported(`A ${where} child that is not an action`, { childType: String(child.type) });

@@ -74,7 +74,7 @@ import {
   useNavigation,
   WindowManagement,
 } from "../dist/index.js";
-import { createElement } from "react";
+import { Fragment, createElement } from "react";
 
 function onAction() {}
 
@@ -216,6 +216,38 @@ test("renders a Raycast-style list through the compatibility surface", async () 
       },
     ],
   });
+});
+
+test("accepts composite children in action groups and form collections", async () => {
+  const probe = createContext();
+  function Actions() {
+    return createElement(Fragment, null, createElement(Action, { title: "Wrapped action" }));
+  }
+  function Fields() {
+    return createElement(
+      Fragment,
+      null,
+      createElement(Form.TextField, { id: "name", title: "Name" }),
+      createElement(
+        Form.Dropdown,
+        { id: "role", title: "Role" },
+        createElement(Form.Dropdown.Item, { value: "admin", title: "Administrator" }),
+      ),
+    );
+  }
+
+  const renderer = renderCommand(probe.context, () =>
+    createElement(Form, { actions: createElement(ActionPanel, null, createElement(Actions)) }, createElement(Fields)),
+  );
+  await renderer.flush();
+
+  const root = probe.transactions[0].operations[0].root;
+  assert.deepEqual(
+    root.children.map((child) => child.type),
+    ["action-group", "form-text-field", "form-dropdown"],
+  );
+  assert.equal(root.children[0].children[0].props.title, "Wrapped action");
+  assert.equal(root.children[2].children[0].props.value, "admin");
 });
 
 test("renders legacy list and action aliases, including OpenWithAction", async () => {

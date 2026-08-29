@@ -19,7 +19,8 @@ onto the V2 scene contract, renderer, and capability broker:
 - `Form` covers text fields, text areas, password fields, checkboxes,
   dropdowns, date pickers, tag pickers, file pickers, descriptions, separators,
   dropdown sections/items, and tag items. Field `onFocus` and `onBlur`
-  callbacks receive the measured `Form.Event` target shape;
+  callbacks receive the measured `Form.Event` target shape, and custom React
+  components/fragments may compose measured field and action children;
 - `Icon` ships a measured kebab-case subset serialized into scene `icon`
   properties, including object-icon tint colors;
 - `Clipboard.copy`/`Clipboard.paste`/`Clipboard.read` route through the
@@ -106,6 +107,11 @@ onto the V2 scene contract, renderer, and capability broker:
   command, injects launch props, and routes scene events back to component
   callbacks; the Node bootstrap's
   `configureApi` hook calls `configureRaycastCompat` before the command runs.
+
+Measured collection components accept custom function components and React
+fragments in action, list, grid, menu-bar, and form child positions. Their
+resolved scene children are still checked against the semantic parent/child
+contract; raw text and intrinsic DOM elements remain unsupported.
 
 Form changes and submissions use validated `scene.event` values. The adapter
 keeps uncontrolled defaults and client-provided values together and filters

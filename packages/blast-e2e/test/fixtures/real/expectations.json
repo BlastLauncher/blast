@@ -450,5 +450,15 @@
     "readyNavigationTitle": "Import shapes:ready",
     "apis": ["<require>", "List", "Icon"],
     "source": "blast/compatibility-fixture"
+  },
+  {
+    "id": "composite-children",
+    "extensionId": "composite-children",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "form",
+    "minItems": 3,
+    "apis": ["Action", "ActionPanel", "Form"],
+    "source": "blast/compatibility-fixture"
   }
 ]
