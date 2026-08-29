@@ -144,7 +144,7 @@ export function createCollectingSceneSink(): SceneTransactionSink & {
 
 const PROP_WHITELIST: Record<SceneNodeType, readonly string[]> = {
   list: ["navigationTitle", "searchBarPlaceholder", "isLoading"],
-  "list-item": ["title", "subtitle", "icon", "iconTintColor", "iconTooltip"],
+  "list-item": ["title", "subtitle", "icon", "iconTintColor", "iconTooltip", "quickLookPath", "quickLookName"],
   "list-section": ["id", "title", "subtitle"],
   grid: [
     "navigationTitle",
@@ -173,6 +173,8 @@ const PROP_WHITELIST: Record<SceneNodeType, readonly string[]> = {
     "keywords",
     "accessoryIcon",
     "accessoryTooltip",
+    "quickLookPath",
+    "quickLookName",
   ],
   "grid-section": ["title", "subtitle", "columns", "aspectRatio", "fit", "inset"],
   "grid-empty-view": ["icon", "iconTintColor", "title", "description"],
@@ -367,6 +369,8 @@ const PROP_TYPES: Record<SceneNodeType, Readonly<Record<string, ScenePropType>>>
     icon: "string",
     iconTintColor: "string",
     iconTooltip: "string",
+    quickLookPath: "string",
+    quickLookName: "string",
   },
   "list-section": { id: "string", title: "string", subtitle: "string" },
   grid: {
@@ -396,6 +400,8 @@ const PROP_TYPES: Record<SceneNodeType, Readonly<Record<string, ScenePropType>>>
     keywords: "string[]",
     accessoryIcon: "string",
     accessoryTooltip: "string",
+    quickLookPath: "string",
+    quickLookName: "string",
   },
   "grid-section": {
     title: "string",

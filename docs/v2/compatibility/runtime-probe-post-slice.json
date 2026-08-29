@@ -5039,8 +5039,7 @@
       "commandName": "search-colors",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "renders"
     },
     {
       "directory": "chmod-lookup",
@@ -5511,7 +5510,8 @@
       "commandName": "switch-virtual-network",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "cloudinary",
@@ -5560,7 +5560,8 @@
       "commandName": "transactions",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_send_failed"
     },
     {
       "directory": "cocart-docs",
@@ -13184,7 +13185,8 @@
       "commandName": "search-consumer-groups",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_send_failed"
     },
     {
       "directory": "kagi-fastgpt",
@@ -13477,7 +13479,8 @@
       "commandName": "searchMovie",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "kiro",
@@ -13985,7 +13988,7 @@
       "mode": "view",
       "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "failureCode": "transport_send_failed"
     },
     {
       "directory": "leave-time-calculator",
@@ -15284,8 +15287,7 @@
       "commandName": "channels",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "outcome": "renders"
     },
     {
       "directory": "maven-central-repository",
@@ -19081,8 +19083,7 @@
       "commandName": "addBookmark",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "outcome": "renders"
     },
     {
       "directory": "pinch-svg",
@@ -19786,8 +19787,7 @@
       "commandName": "generate-project-code",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "outcome": "renders"
     },
     {
       "directory": "project-companion",

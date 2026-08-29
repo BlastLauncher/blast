@@ -86,6 +86,50 @@ test("validates scene transaction messages", (context) => {
     assert.equal(result.ok, true);
   });
 
+  context.test("accepts list item Quick Look metadata", () => {
+    const result = validateSceneTransactionMessage(
+      envelope(
+        SCENE_TRANSACTION_MESSAGE,
+        transaction([
+          {
+            type: "snapshot",
+            root: list("root", [
+              {
+                id: "item-1",
+                type: "list-item",
+                props: { title: "Preview", quickLookPath: "/tmp/example.txt", quickLookName: "Example" },
+                children: [],
+              },
+            ]),
+          },
+        ]),
+      ),
+    );
+    assert.equal(result.ok, true);
+  });
+
+  context.test("accepts grid item Quick Look metadata", () => {
+    const result = validateSceneTransactionMessage(
+      envelope(
+        SCENE_TRANSACTION_MESSAGE,
+        transaction([
+          {
+            type: "snapshot",
+            root: grid("root", [
+              {
+                id: "item-1",
+                type: "grid-item",
+                props: { content: "document", quickLookPath: "/tmp/example.txt", quickLookName: "Example" },
+                children: [],
+              },
+            ]),
+          },
+        ]),
+      ),
+    );
+    assert.equal(result.ok, true);
+  });
+
   context.test("rejects non-envelope and wrong-type values", () => {
     assert.equal(validateSceneTransactionMessage({}).ok, false);
     assert.equal(validateSceneTransactionMessage(envelope("shutdown", {})).ok, false);

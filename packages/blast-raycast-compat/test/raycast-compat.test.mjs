@@ -389,6 +389,10 @@ test("renders measured action creators and routes their host operations", async 
           createElement(Action.CreateQuicklink, {
             quicklink: { link: "raycast://extensions/example", name: "Example" },
           }),
+          createElement(Action.CreateSnippet, {
+            snippet: { text: 'console.log("example")', name: "Example", keyword: "ex" },
+          }),
+          createElement(Action.ToggleQuickLook),
           createElement(Action.PickDate, {
             title: "Pick date",
             type: Action.PickDate.Type.Date,
@@ -405,12 +409,16 @@ test("renders measured action creators and routes their host operations", async 
     actions.map(({ props }) => ({ title: props.title, icon: props.icon })),
     [
       { title: "Create Quicklink", icon: "link" },
+      { title: "Create Snippet", icon: "snippets-16" },
+      { title: "Quick Look", icon: "eye" },
       { title: "Pick date", icon: "calendar" },
     ],
   );
 
   probe.dispatch(actions[0].props.onAction);
   probe.dispatch(actions[1].props.onAction);
+  probe.dispatch(actions[2].props.onAction);
+  probe.dispatch(actions[3].props.onAction);
   await new Promise((resolve) => setTimeout(resolve, 5));
 
   assert.deepEqual(
@@ -426,6 +434,16 @@ test("renders measured action creators and routes their host operations", async 
         arguments: { quicklinkJSON: '{"link":"raycast://extensions/example","name":"Example"}' },
       },
       {
+        capability: "snippet",
+        operation: "create",
+        arguments: { snippetJSON: '{"text":"console.log(\\"example\\")","name":"Example","keyword":"ex"}' },
+      },
+      {
+        capability: "quick-look",
+        operation: "toggle",
+        arguments: undefined,
+      },
+      {
         capability: "date-picker",
         operation: "pick",
         arguments: { title: "Pick date", type: "date", icon: "calendar" },
@@ -433,6 +451,45 @@ test("renders measured action creators and routes their host operations", async 
     ],
   );
   assert.deepEqual(picked, [new Date("2026-08-29T12:00:00.000Z")]);
+});
+
+test("serializes Quick Look metadata for list and grid items", async () => {
+  const listProbe = createContext();
+  const listRenderer = renderCommand(listProbe.context, () =>
+    createElement(
+      List,
+      null,
+      createElement(List.Item, {
+        title: "List file",
+        quickLook: { path: new URL("file:///tmp/list.txt"), name: null },
+      }),
+    ),
+  );
+  await listRenderer.flush();
+
+  const gridProbe = createContext();
+  const gridRenderer = renderCommand(gridProbe.context, () =>
+    createElement(
+      Grid,
+      null,
+      createElement(Grid.Item, {
+        content: Icon.Document,
+        title: "Grid file",
+        quickLook: { path: new Uint8Array(Buffer.from("/tmp/grid.txt")), name: "Grid file" },
+      }),
+    ),
+  );
+  await gridRenderer.flush();
+
+  const listRoot = listProbe.transactions[0].operations[0].root;
+  assert.deepEqual(listRoot.children[0].props, { title: "List file", quickLookPath: "file:///tmp/list.txt" });
+  const gridRoot = gridProbe.transactions[0].operations[0].root;
+  assert.deepEqual(gridRoot.children[0].props, {
+    content: "document",
+    title: "Grid file",
+    quickLookPath: "/tmp/grid.txt",
+    quickLookName: "Grid file",
+  });
 });
 
 test("renders Finder and trash actions and routes their host operations", async () => {

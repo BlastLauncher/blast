@@ -9,7 +9,8 @@ onto the V2 scene contract, renderer, and capability broker:
   `ActionPanel.Item`, `Action`,
   `Action.CopyToClipboard`, `Action.Open`, `Action.OpenInBrowser`,
   `Action.OpenWith`, `Action.Paste`, `Action.Push`, `Action.CreateQuicklink`,
-  `Action.PickDate`, `Action.ShowInFinder`, `Action.Trash`, and
+  `Action.CreateSnippet`, `Action.ToggleQuickLook`, `Action.PickDate`,
+  `Action.ShowInFinder`, `Action.Trash`, and
   `Action.SubmitForm`,
   plus the deprecated `ActionPanelItem`, `CopyToClipboardAction`,
   `OpenAction`, `OpenInBrowserAction`, `OpenWithAction`, `PasteAction`,
@@ -18,7 +19,8 @@ onto the V2 scene contract, renderer, and capability broker:
   `@blastlauncher/react-renderer`;
 - `Grid` covers content tiles, sections, empty views, search-bar dropdowns,
   item actions, positive safe-integer column counts, empty content tooltips,
-  layout constants, and selection/search callbacks; `MenuBarExtra`
+  layout constants, Quick Look metadata, and selection/search callbacks;
+  `MenuBarExtra`
   covers menu-bar roots, items, sections, submenus, separators, shortcuts, and
   left-click callbacks;
 - `Form` covers text fields, text areas, password fields, checkboxes,
@@ -71,6 +73,9 @@ onto the V2 scene contract, renderer, and capability broker:
   `Action.Trash`/`TrashAction` route normalized `PathLike` values through the
   existing `finder.show` and `filesystem.trash` capabilities; completion
   callbacks run after a successful host response;
+- `Action.CreateSnippet` routes a strictly serialized `{ text, name?, keyword? }`
+  payload through `snippet.create`, and `Action.ToggleQuickLook` routes the
+  selected item's preview toggle through `quick-look.toggle`;
 - `getFrontmostApplication` routes through `application.frontmost` and
   validates the shared JSON-encoded `Application` shape;
 - `getDefaultApplication` routes through `application.default`, validates the
@@ -136,6 +141,11 @@ resolved scene children are still checked against the semantic parent/child
 contract; raw text and intrinsic DOM elements remain unsupported. React
 memo/forward-ref/lazy wrappers are treated as composites, and exact numeric
 `0` conditional children are ignored.
+
+List and Grid `quickLook` item metadata is validated at the adapter edge:
+paths cross as normalized primitive strings and an optional preview name is
+preserved in the scene. Native Quick Look presentation and selection remain
+client responsibilities.
 
 Form changes and submissions use validated `scene.event` values. The adapter
 keeps uncontrolled defaults and client-provided values together and filters

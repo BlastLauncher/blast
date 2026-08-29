@@ -183,6 +183,7 @@ export const Icon = {
   Speaker: "speaker",
   Speedometer: "speedometer",
   Star: "star",
+  Snippets: "snippets-16",
   Sun: "sun",
   Swatch: "swatch",
   StrikeThrough: "strike-through",

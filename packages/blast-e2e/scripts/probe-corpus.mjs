@@ -295,9 +295,11 @@ function createCore(stderr) {
     "navigation.clearSearchBar",
     "navigation.popToRoot",
     "open.open",
+    "quick-look.toggle",
     "preferences.openExtension",
     "preferences.openCommand",
     "selection.read",
+    "snippet.create",
     "finder.selectedItems",
     "finder.show",
     "filesystem.trash",
@@ -474,6 +476,14 @@ function createCore(stderr) {
           throw new Error(`Unknown open operation ${JSON.stringify(request.operation)}`);
         },
       },
+      "quick-look": {
+        async perform(request) {
+          if (request.operation === "toggle") {
+            return undefined;
+          }
+          throw new Error(`Unknown Quick Look operation ${JSON.stringify(request.operation)}`);
+        },
+      },
       preferences: {
         async perform(request) {
           if (request.operation === "openExtension" || request.operation === "openCommand") {
@@ -488,6 +498,14 @@ function createCore(stderr) {
             return undefined;
           }
           throw new Error(`Unknown telemetry operation ${JSON.stringify(request.operation)}`);
+        },
+      },
+      snippet: {
+        async perform(request) {
+          if (request.operation === "create") {
+            return undefined;
+          }
+          throw new Error(`Unknown snippet operation ${JSON.stringify(request.operation)}`);
         },
       },
       selection: {

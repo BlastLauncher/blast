@@ -305,10 +305,16 @@ export interface ListItemIconWithTooltip {
   readonly tooltip: string;
 }
 
+export interface QuickLookProps {
+  readonly name?: string | null;
+  readonly path: PathLike;
+}
+
 export interface ListItemProps {
   readonly title: string;
   readonly subtitle?: string;
   readonly icon?: IconLike | ListItemIconWithTooltip;
+  readonly quickLook?: QuickLookProps;
   readonly children?: ReactNode;
   readonly actions?: ReactNode;
 }
@@ -373,6 +379,7 @@ export interface GridItemProps {
   readonly subtitle?: string;
   readonly keywords?: string[];
   readonly accessory?: GridItemAccessoryProps;
+  readonly quickLook?: QuickLookProps;
   readonly children?: ReactNode;
   readonly actions?: ReactNode;
 }
@@ -486,6 +493,19 @@ export interface Quicklink {
 
 export interface CreateQuicklinkProps {
   readonly quicklink: Quicklink;
+  readonly title?: string;
+  readonly icon?: IconLike;
+  readonly shortcut?: ShortcutLike;
+}
+
+export interface Snippet {
+  readonly text: string;
+  readonly name?: string;
+  readonly keyword?: string;
+}
+
+export interface CreateSnippetProps {
+  readonly snippet: Snippet;
   readonly title?: string;
   readonly icon?: IconLike;
   readonly shortcut?: ShortcutLike;
@@ -1823,6 +1843,27 @@ function serializeListItemIcon(
   return serializeIcon(icon as IconLike | null | undefined, where);
 }
 
+function serializeQuickLook(
+  quickLook: QuickLookProps | null | undefined,
+  where: string,
+): { quickLookPath: string; quickLookName?: string } | undefined {
+  if (quickLook === undefined) {
+    return undefined;
+  }
+  if (!isRecord(quickLook)) {
+    unsupported(`${where} quickLook`, { quickLook });
+  }
+  const path = serializePathLike(quickLook.path as PathLike, `${where} quickLook path`);
+  const name =
+    quickLook.name === undefined || quickLook.name === null
+      ? undefined
+      : requireString(quickLook.name, `${where} quickLook name`);
+  return {
+    quickLookPath: path,
+    ...(name === undefined ? {} : { quickLookName: name }),
+  };
+}
+
 function serializeQuicklink(quicklink: unknown, where: string): string {
   if (!isRecord(quicklink)) {
     unsupported(`${where} must be an object`, { quicklink });
@@ -1847,6 +1888,22 @@ function serializeQuicklink(quicklink: unknown, where: string): string {
         serialized.iconTintColor = icon.iconTintColor;
       }
     }
+  }
+  return JSON.stringify(serialized);
+}
+
+function serializeSnippet(snippet: unknown, where: string): string {
+  if (!isRecord(snippet)) {
+    unsupported(`${where} must be an object`, { snippet });
+  }
+  const serialized: Record<string, string> = {
+    text: requireString(snippet.text, `${where} text`),
+  };
+  if (snippet.name !== undefined) {
+    serialized.name = requireString(snippet.name, `${where} name`);
+  }
+  if (snippet.keyword !== undefined) {
+    serialized.keyword = requireString(snippet.keyword, `${where} keyword`);
   }
   return JSON.stringify(serialized);
 }
@@ -2218,6 +2275,7 @@ function ListComponent(props: ListProps): ReactElement {
 
 function ListItem(props: ListItemProps): ReactElement {
   const icon = serializeListItemIcon(props.icon, "List.Item");
+  const quickLook = serializeQuickLook(props.quickLook, "List.Item");
   const children =
     props.actions === undefined
       ? props.children
@@ -2230,6 +2288,7 @@ function ListItem(props: ListItemProps): ReactElement {
       ...(icon?.icon === undefined ? {} : { icon: icon.icon }),
       ...(icon?.iconTintColor === undefined ? {} : { iconTintColor: icon.iconTintColor }),
       ...(icon?.iconTooltip === undefined ? {} : { iconTooltip: icon.iconTooltip }),
+      ...(quickLook === undefined ? {} : quickLook),
     },
     mapItemChildren(children, "List.Item"),
   );
@@ -2311,6 +2370,7 @@ function GridComponent(props: GridProps): ReactElement {
 
 function GridItem(props: GridItemProps): ReactElement {
   const content = serializeGridContent(props.content, "Grid.Item");
+  const quickLook = serializeQuickLook(props.quickLook, "Grid.Item");
   const icon =
     props.accessory === undefined || props.accessory === null
       ? undefined
@@ -2331,6 +2391,7 @@ function GridItem(props: GridItemProps): ReactElement {
       ...(props.keywords === undefined ? {} : { keywords: normalizeStringArray(props.keywords, "Grid.Item keywords") }),
       ...(icon === undefined ? {} : { accessoryIcon: icon.icon }),
       ...(props.accessory?.tooltip === undefined ? {} : { accessoryTooltip: props.accessory.tooltip }),
+      ...(quickLook === undefined ? {} : quickLook),
     },
     mapItemChildren(children, "Grid.Item"),
   );
@@ -3192,6 +3253,35 @@ function CreateQuicklink(props: CreateQuicklinkProps): ReactElement {
   });
 }
 
+function CreateSnippet(props: CreateSnippetProps): ReactElement {
+  const snippetJSON = serializeSnippet(props.snippet, "Action.CreateSnippet snippet");
+  return createElement(Action, {
+    title: props.title ?? "Create Snippet",
+    icon: props.icon ?? "snippets-16",
+    ...(props.shortcut === undefined ? {} : { shortcut: props.shortcut }),
+    onAction: () => {
+      void callCapability("snippet", "create", { snippetJSON }, "The Action.CreateSnippet");
+    },
+  });
+}
+
+export interface ToggleQuickLookProps {
+  readonly title?: string;
+  readonly icon?: IconLike;
+  readonly shortcut?: ShortcutLike;
+}
+
+function ToggleQuickLook(props: ToggleQuickLookProps): ReactElement {
+  return createElement(Action, {
+    title: props.title ?? "Quick Look",
+    icon: props.icon ?? "eye",
+    ...(props.shortcut === undefined ? {} : { shortcut: props.shortcut }),
+    onAction: () => {
+      void callCapability("quick-look", "toggle", undefined, "The Action.ToggleQuickLook");
+    },
+  });
+}
+
 function deserializePickedDate(value: unknown): Date | null {
   if (value === undefined || value === null) {
     return null;
@@ -3490,6 +3580,8 @@ interface ActionComponent {
   Paste: typeof Paste;
   Push: typeof Push;
   CreateQuicklink: typeof CreateQuicklink;
+  CreateSnippet: typeof CreateSnippet;
+  ToggleQuickLook: typeof ToggleQuickLook;
   PickDate: typeof PickDateAction;
   ShowInFinder: typeof ShowInFinder;
   Trash: typeof Trash;
@@ -3505,6 +3597,8 @@ export const Action: ActionComponent = Object.assign(ActionComponent, {
   Paste,
   Push,
   CreateQuicklink,
+  CreateSnippet,
+  ToggleQuickLook,
   PickDate: PickDateAction,
   ShowInFinder,
   Trash,
@@ -3617,6 +3711,8 @@ function mapItemChildren(children: ReactNode, where: string): ReactNode {
       child.type === Paste ||
       child.type === Push ||
       child.type === CreateQuicklink ||
+      child.type === CreateSnippet ||
+      child.type === ToggleQuickLook ||
       child.type === PickDateAction ||
       child.type === ShowInFinder ||
       child.type === Trash

@@ -149,6 +149,11 @@ slice changes what is executable, what is trusted, or what should happen next.
   `finder.show` and `filesystem.trash` capabilities. Deprecated direct action
   aliases preserve those component identities; activation callbacks run only
   after a successful host response.
+- `Action.CreateSnippet` validates the measured `{ text, name?, keyword? }`
+  payload and routes it through `snippet.create`; `Action.ToggleQuickLook`
+  routes through `quick-look.toggle`. List and Grid item Quick Look metadata
+  serializes validated paths and optional names into the scene, and the
+  explicit icon subset includes `Icon.Snippets`.
 - The measured collection-value boundary now preserves empty Grid content
   tooltips, accepts positive safe-integer Grid column counts, and serializes
   `List.Item` icon descriptors with optional values and tooltips. The explicit
@@ -319,15 +324,15 @@ remain deferred until the next API slice is measured.
    `vikunja/create-task`) and only broaden the adapter when their runtime
    values are a measured, safe contract; preserve structured errors for empty
    URLs and values that would require a broader scene or host policy. Then
-   measure the next high-usage action components, beginning with
-   `Action.ToggleQuickLook` and `Action.CreateSnippet` if their host operations
-   can be bounded explicitly.
+   measure the next high-usage action components after the now-covered
+   `Action.ToggleQuickLook` and `Action.CreateSnippet` boundaries.
 2. Keep the command-scoped preference, nullable Form, empty-string,
    `LocalStorage.allItems`/`allLocalStorageItems`, Form event, literal `require`,
    composite-child, measured Icon, `ActionPanel.Item`, whitespace-only
    collection boundaries, `Form.LinkAccessory`, the measured action creators,
-   Finder/trash actions, collection-value normalization, and deprecated
-   Form/action member aliases covered by each reprobe.
+   Finder/trash actions, collection-value normalization, CreateSnippet and
+   Quick Look actions, and deprecated Form/action member aliases covered by
+   each reprobe.
 3. Keep safe dynamic, namespace, side-effect, and literal `require` import
    forms covered while the remaining `fetch` import stays outside the adapter
    until a host network capability defines URL policy, consent, and response

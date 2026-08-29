@@ -32,11 +32,11 @@ unavailable packages remain dependency failures.
 
 | Outcome                        | Baseline | Previous post-slice | Current post-slice | Current vs previous |
 | ------------------------------ | -------: | ------------------: | -----------------: | ------------------: |
-| third-party dependency failure |    2,361 |                 915 |                916 |                  +1 |
+| third-party dependency failure |    2,361 |                 916 |                916 |                   0 |
 | not renderable command mode    |      358 |                 316 |                316 |                   0 |
-| other process/startup failure  |      432 |                 677 |                669 |                  -8 |
-| structured compatibility error |       23 |                   7 |                  3 |                  -4 |
-| renders a scene end to end     |       54 |               1,313 |              1,324 |                 +11 |
+| other process/startup failure  |      432 |                 669 |                669 |                   0 |
+| structured compatibility error |       23 |                   3 |                  3 |                   0 |
+| renders a scene end to end     |       54 |               1,324 |              1,324 |                   0 |
 | no entrypoint found            |        3 |                   3 |                  3 |                   0 |
 
 Reading: the current post-slice extension pass rate is 1,324/3,231 (40.98%);
@@ -46,10 +46,11 @@ keyboard, image-type, `randomId`, WindowManagement, small legacy aliases,
 safe import shapes, Form focus/blur callbacks, nullable Form initial values,
 empty string-valued controls, composite React children, the observed icon
 members, the `ActionPanel.Item` alias, whitespace-only collection children,
-Grid collection values, List icon descriptors, and optional string-array Form
-initial values are no longer in the non-rendering static blocker list. The
-only remaining static import gap is one `fetch` import. The vendor root leaves
-dependency failures tracked separately.
+Grid collection values, List icon descriptors, optional string-array Form
+initial values, CreateSnippet, ToggleQuickLook, and item Quick Look metadata
+are no longer in the non-rendering static blocker list. The only remaining
+static import gap is one `fetch` import. The vendor root leaves dependency
+failures tracked separately.
 The current priority is the measured API boundary rather than another
 dependency seed; this probe refresh records whitespace-only collection child
 handling alongside the `ActionPanel.Item` alias, command-scoped preference,
@@ -141,6 +142,10 @@ dispatches a bounds mutation through the explicit host capability.
   browser/clipboard/action aliases are
   measured; custom React components/fragments can compose action children;
   broader action helpers remain unsupported;
+- `Action.CreateSnippet` and `Action.ToggleQuickLook` are measured. Snippet
+  payloads cross `snippet.create`; Quick Look toggles cross `quick-look.toggle`,
+  while List/Grid item preview paths are carried as validated scene metadata.
+  Native snippet and Quick Look UI remain host/client work;
 - Grid accepts positive safe-integer column counts and preserves empty content
   tooltips, while `List.Item` accepts measured `{ value, tooltip }` icon
   descriptors. The adapter exposes the observed `Icon.AddPerson` member;
@@ -210,6 +215,11 @@ dispatches a bounds mutation through the explicit host capability.
   its native `Date | null` behavior. Optional string-array initial values omit
   `undefined` entries only when all other entries are strings; null members and
   other invalid entries remain rejected;
+- the remaining structured probe failures are `apple-maps-search/directionsTo`
+  and `get-cat-images/get-cat-images`, which construct empty Open in Browser
+  URLs while data is absent, plus `vikunja/create-task`, whose required API URL
+  preference is absent in the probe. Empty or missing open targets remain
+  structured errors rather than being sent to the host;
 - string-valued Form and Grid dropdown labels and values, Form checkbox labels,
   and Form descriptions preserve empty strings; non-string values remain
   invalid;
