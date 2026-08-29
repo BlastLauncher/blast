@@ -937,6 +937,72 @@ test("renders richer form controls and restores native values on events and subm
   assert.deepEqual(submitted[0].files, ["/tmp/example.txt"]);
 });
 
+test("treats nullable non-date form initial values as empty", async () => {
+  const probe = createContext();
+  const submitted = [];
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      Form,
+      {
+        actions: createElement(
+          ActionPanel,
+          null,
+          createElement(Action.SubmitForm, { title: "Save", onSubmit: (values) => submitted.push(values) }),
+        ),
+      },
+      createElement(Form.TextField, { id: "name", value: null }),
+      createElement(Form.TextArea, { id: "notes", defaultValue: null }),
+      createElement(
+        Form.Dropdown,
+        { id: "role", value: null },
+        createElement(Form.Dropdown.Item, {
+          value: "admin",
+          title: "Administrator",
+        }),
+      ),
+      createElement(
+        Form.TagPicker,
+        { id: "tags", defaultValue: null },
+        createElement(Form.TagPicker.Item, {
+          value: "v2",
+          title: "V2",
+        }),
+      ),
+      createElement(Form.FilePicker, { id: "files", value: null }),
+    ),
+  );
+  await renderer.flush();
+
+  const root = probe.transactions[0].operations[0].root;
+  const fields = root.children.slice(1);
+  assert.deepEqual(
+    fields.map((field) => field.props),
+    [
+      { id: "name", onChange: fields[0].props.onChange },
+      { id: "notes", onChange: fields[1].props.onChange },
+      { id: "role", onChange: fields[2].props.onChange },
+      { id: "tags", onChange: fields[3].props.onChange },
+      {
+        id: "files",
+        defaultValue: [],
+        onChange: fields[4].props.onChange,
+      },
+    ],
+  );
+
+  const submitEventId = root.children[0].children[0].props.onAction;
+  probe.dispatch(submitEventId);
+  assert.deepEqual(submitted, [{}]);
+
+  assert.throws(
+    () =>
+      renderCommand(probe.context, () =>
+        createElement(Form, null, createElement(Form.FilePicker, { id: "invalid", defaultValue: [null] })),
+      ),
+    (error) => error instanceof CompatibilityError && /wrong type/.test(error.message),
+  );
+});
+
 test("rejects form submit values with a mismatched field type", async () => {
   const probe = createContext();
   const renderer = renderCommand(probe.context, () =>

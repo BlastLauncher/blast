@@ -2470,7 +2470,7 @@ function useFormChange<T extends FormValue>(
   assertFormId(props.id, where);
   assertFormCallbacks(props as unknown as FormItemProps<FormValue>, where);
   const { id, onChange } = props;
-  const initialValue = props.value !== undefined ? props.value : props.defaultValue;
+  const initialValue = normalizeFormInitialValue(props.value !== undefined ? props.value : props.defaultValue, codec);
   if (initialValue !== undefined && !codec.accepts(initialValue)) {
     throw new CompatibilityError(`${where} received an initial value with the wrong type`, {
       id: props.id,
@@ -2559,6 +2559,17 @@ function isDateWireValue(value: SceneFormValue): boolean {
   return value === null || (typeof value === "string" && Number.isFinite(Date.parse(value)));
 }
 
+/**
+ * Raycast extensions commonly use nullable state while an async form value is
+ * loading. The public item types only admit null for DatePicker, but the
+ * native controls treat null as an empty/omitted initial value at runtime.
+ * Preserve strict validation for every other wrong type, including null array
+ * members and invalid objects.
+ */
+function normalizeFormInitialValue(value: unknown, codec: FormCodec): FormValue | undefined {
+  return value === null && !codec.accepts(value) ? undefined : (value as FormValue | undefined);
+}
+
 const stringFormCodec: FormCodec = {
   accepts: isStringFormValue,
   acceptsWire: isStringFormValue,
@@ -2594,8 +2605,10 @@ function commonFormProps<T extends FormValue>(
   onFocus?: (payload: SceneEventPayload) => void,
   onBlur?: (payload: SceneEventPayload) => void,
 ) {
-  const value = props.value === undefined ? undefined : codec.serialize(props.value);
-  const defaultValue = props.defaultValue === undefined ? undefined : codec.serialize(props.defaultValue);
+  const value = normalizeFormInitialValue(props.value, codec);
+  const defaultValue = normalizeFormInitialValue(props.defaultValue, codec);
+  const serializedValue = value === undefined ? undefined : codec.serialize(value);
+  const serializedDefaultValue = defaultValue === undefined ? undefined : codec.serialize(defaultValue);
   return {
     id: props.id,
     ...(props.title === undefined ? {} : { title: props.title }),
@@ -2603,8 +2616,10 @@ function commonFormProps<T extends FormValue>(
     ...(props.error === undefined ? {} : { error: props.error }),
     ...(props.storeValue === undefined ? {} : { storeValue: props.storeValue }),
     ...(props.autoFocus === undefined ? {} : { autoFocus: props.autoFocus }),
-    ...(value === undefined || value === null ? {} : { value }),
-    ...(defaultValue === undefined || defaultValue === null ? {} : { defaultValue }),
+    ...(serializedValue === undefined || serializedValue === null ? {} : { value: serializedValue }),
+    ...(serializedDefaultValue === undefined || serializedDefaultValue === null
+      ? {}
+      : { defaultValue: serializedDefaultValue }),
     onChange,
     ...(onFocus === undefined ? {} : { onFocus }),
     ...(onBlur === undefined ? {} : { onBlur }),

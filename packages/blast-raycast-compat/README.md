@@ -118,6 +118,9 @@ keeps uncontrolled defaults and client-provided values together and filters
 submitted values to the current form field IDs. `DatePicker` values are native
 `Date | null` values in the adapter and ISO strings on the scene wire;
 `TagPicker` and `FilePicker` values are string arrays (file values are paths).
+At runtime, a top-level `null` initial value on a non-date control is treated as
+an empty/omitted initial value for nullable async state; invalid array members
+and other wrong types remain structured compatibility errors.
 The public `FormValue` union also includes numeric and numeric-array values from
 the pinned Raycast declaration; the currently measured scene controls remain
 the string, boolean, date, and string-array subset.

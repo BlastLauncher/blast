@@ -88,9 +88,9 @@ slice changes what is executable, what is trusted, or what should happen next.
 - A second bounded seed adds `file-url`, `filesize`, `gray-matter`,
   `javascript-time-ago`, `luxon`, `node-html-parser`, `qrcode`, `tildify`,
   `ts-pattern`, and `turndown`, also as exact-version e2e development
-  dependencies. The latest pinned corpus probe passes 1,196 of 3,231
-  extensions (37.02%), or 1,196 of 2,915 extensions with a selected renderable
-  command (41.03%).
+  dependencies. The latest pinned corpus probe passes 1,232 of 3,231
+  extensions (38.13%), or 1,232 of 2,915 extensions with a selected renderable
+  command (42.26%).
 - Navigation (useNavigation, Action.Push), LocalStorage through the
   capability broker with a reference in-memory provider, the callable plus
   property-based environment surface, and measured WindowManagement discovery
@@ -109,6 +109,10 @@ slice changes what is executable, what is trusted, or what should happen next.
   client-provided or runtime-retained field value. Literal CommonJS
   `require("@raycast/api")` imports are also covered alongside the measured
   dynamic, namespace, and side-effect import shapes.
+- Non-date Form controls tolerate the common runtime shape of a top-level
+  `null` initial value by omitting it from the scene and form runtime; strict
+  validation still rejects wrong array members and other invalid types, while
+  `DatePicker` preserves its native `Date | null` value semantics.
 - Measured collection components accept custom function components and React
   fragments in action, list, grid, menu-bar, and form child positions; the
   resolved children remain subject to semantic parent/child validation, while
@@ -208,6 +212,9 @@ slice changes what is executable, what is trusted, or what should happen next.
   the relay dispatches them to runtime callbacks; string arrays are checked
   element-by-element, while the compatibility adapter validates and restores
   date values.
+- Top-level `null` initial values are normalized at the Raycast adapter edge for
+  non-date controls; null members inside array-valued controls remain rejected
+  before they reach the scene contract.
 - Toast lifecycle operations, toast IDs, styles, and action event IDs are
   validated before the relay forwards them to the client-side toast sink.
 - Browser tab responses are JSON-decoded and validated before they reach an
@@ -257,10 +264,11 @@ measured 80% target is not yet met; the next work should address the dominant
 remaining API boundary gaps using the same probe. Additional dependency seeds
 remain deferred until the next API slice is measured.
 
-1. Re-probe the `LocalStorage.allItems`/`allLocalStorageItems`, Form event,
-   literal `require`, and composite-child boundaries and update the support
-   matrix with the measured result.
-2. Use that report to map and implement the next high-frequency API gap; keep
+1. Re-probe the nullable Form initial-value boundary with the existing
+   `LocalStorage.allItems`/`allLocalStorageItems`, Form event, literal `require`,
+   and composite-child boundaries when the next adapter slice lands.
+2. Use the current report to map and implement the next high-frequency API gap;
+   keep
    client-only toast timing/stacking separate from the extension event
    contract.
 3. Keep safe dynamic, namespace, side-effect, and literal `require` import
