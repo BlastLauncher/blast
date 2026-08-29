@@ -4,7 +4,7 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { CapabilityBroker, createGrantListPolicy } from "@blastlauncher/capability";
+import { CapabilityBroker, createGrantListPolicy, createInMemoryLocalStorageProvider } from "@blastlauncher/capability";
 import { BlastCore, relaySessionTraffic } from "@blastlauncher/core";
 import { FilesystemExtensionCatalog } from "@blastlauncher/core-node";
 import { ExtensionHost } from "@blastlauncher/extension-host";
@@ -50,6 +50,12 @@ function createCore() {
       : []),
     ...(expectation.apis?.includes("getDefaultApplication")
       ? [{ extensionId: expectation.extensionId, capability: "application", operation: "default" }]
+      : []),
+    ...(expectation.apis?.includes("getLocalStorageItem")
+      ? [{ extensionId: expectation.extensionId, capability: "local-storage", operation: "get" }]
+      : []),
+    ...(expectation.apis?.includes("setLocalStorageItem")
+      ? [{ extensionId: expectation.extensionId, capability: "local-storage", operation: "set" }]
       : []),
     ...(expectation.apis?.includes("AI")
       ? [{ extensionId: expectation.extensionId, capability: "ai", operation: "ask" }]
@@ -192,6 +198,7 @@ function createCore() {
           throw new Error(`Unknown navigation operation ${JSON.stringify(request.operation)}`);
         },
       },
+      "local-storage": createInMemoryLocalStorageProvider(),
       oauth: {
         async perform(request) {
           if (request.operation === "authorizationRequest") {

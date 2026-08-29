@@ -74,16 +74,19 @@ slice changes what is executable, what is trusted, or what should happen next.
   bundle directories are removed after each successful or failed load; an
   explicitly supplied cache directory remains caller-owned.
 - The support matrix runs a committed set of real corpus extensions through
-  the full pipeline in CI: twenty-three render fixtures (list, detail,
+  the full pipeline in CI: twenty-four render fixtures (list, detail,
   navigation, action groups, tinted icons, form controls, toasts, preferences,
-  brokered clipboard, desktop boundaries, and deprecated action aliases),
+  brokered clipboard, desktop boundaries, legacy action/storage aliases, and
+  cross-bundle navigation),
   while the corpus probe records exactly which unmeasured APIs block the rest.
-- The latest pinned corpus probe passes 690 of 3,231 extensions (21.36%), or
-  690 of 2,915 extensions with a selected renderable command (23.67%).
+- The latest pinned corpus probe passes 695 of 3,231 extensions (21.51%), or
+  695 of 2,915 extensions with a selected renderable command (23.84%).
 - Navigation (useNavigation, Action.Push), LocalStorage through the
   capability broker with a reference in-memory provider, and environment()
-  are measured adapter surface; pushed views stay mounted so state survives
-  popping, and only the top view contributes scene nodes.
+  are measured adapter surface; the navigation stack retains entries and pop
+  lifecycle callbacks, and only the top view contributes scene nodes. A
+  realm-shared navigation proxy keeps bundled extension calls connected to the
+  host-owned stack.
 - ActionPanel renders as a scene action-group (titles, submenus, List-level
   panels), and object icons with Color tints serialize into iconTintColor
   properties.
@@ -99,6 +102,11 @@ slice changes what is executable, what is trusted, or what should happen next.
 - Action and action-group shortcut objects normalize into structured scene
   values, including platform-specific Raycast shortcut unions; measured action
   styles, `autoFocus`, and common keyboard shortcut constants are available.
+- `SubmitFormAction` and `PushAction` preserve the measured form-submit and
+  push/pop lifecycle shapes. `ImageMask` aliases `Image.Mask`, while
+  `getLocalStorageItem` and `setLocalStorageItem` route to the same brokered
+  LocalStorage operations; all five legacy names are covered by an end-to-end
+  fixture.
 - `showHUD`, `open`, and `confirmAlert` cross explicit `hud.show`, `open.open`,
   and `alert.confirm` capability requests; alert callbacks run only after a
   validated boolean response.
@@ -214,10 +222,11 @@ dependency-policy slices are complete, but the measured 80% target is not yet
 met; the next work should address the dominant remaining API and dependency
 blockers using the same probe.
 
-1. Expand the next named static blocker group (`SubmitFormAction`,
-   `getLocalStorageItem`, `setLocalStorageItem`, `ImageMask`, and
-   `PushAction`) with measured aliases and type/value shapes before taking on
-   the longer desktop and preference tails.
+1. Expand the next named static blocker group (`OpenAction`,
+   `copyTextToClipboard`, `pasteText`, `PasteAction`,
+   `removeLocalStorageItem`, and `clearLocalStorage`) with measured aliases and
+   type/value shapes before taking on the longer navigation and preference
+   tails.
 2. Provision an audited, pinned vendor set or an explicit installation phase
    for the remaining third-party dependency graph; keep installation outside
    extension execution.

@@ -322,6 +322,28 @@
     "source": "blast/compatibility-fixture"
   },
   {
+    "id": "coverage-followup",
+    "extensionId": "coverage-followup",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "form",
+    "minItems": 2,
+    "readyNavigationTitle": "Follow-up:none:ready",
+    "apis": [
+      "Action",
+      "ActionPanel",
+      "Form",
+      "ImageMask",
+      "List",
+      "PushAction",
+      "SubmitFormAction",
+      "getLocalStorageItem",
+      "setLocalStorageItem",
+      "useNavigation"
+    ],
+    "source": "blast/compatibility-fixture"
+  },
+  {
     "id": "runtime-boundaries",
     "extensionId": "runtime-boundaries",
     "commandName": "index",

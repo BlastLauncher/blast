@@ -6,9 +6,9 @@ The package maps the census-justified subset of the `@raycast/api` surface
 onto the V2 scene contract, renderer, and capability broker:
 
 - `List`, `List.Item`, `ActionPanel`, `Action`, `Action.CopyToClipboard`,
-  `Action.OpenInBrowser`, and `Action.SubmitForm`, plus the deprecated
-  `CopyToClipboardAction` and `OpenInBrowserAction` aliases, render through
-  `@blastlauncher/react-renderer`;
+  `Action.OpenInBrowser`, `Action.Push`, and `Action.SubmitForm`, plus the
+  deprecated `CopyToClipboardAction`, `OpenInBrowserAction`, `PushAction`, and
+  `SubmitFormAction` aliases, render through `@blastlauncher/react-renderer`;
 - `Grid` covers content tiles, sections, empty views, search-bar dropdowns,
   item actions, layout constants, and selection/search callbacks; `MenuBarExtra`
   covers menu-bar roots, items, sections, submenus, separators, shortcuts, and
@@ -27,8 +27,8 @@ onto the V2 scene contract, renderer, and capability broker:
 - `showHUD`, `open`, and `confirmAlert` route through `hud.show`, `open.open`,
   and `alert.confirm` capability requests;
 - default-exported command components receive `LaunchProps` with a
-  user-initiated launch and empty arguments by default; `LaunchType` and
-  `Image.Mask` constants are available;
+  user-initiated launch and empty arguments by default; `LaunchType`,
+  `Image.Mask`, and the deprecated `ImageMask` value/type are available;
 - `closeMainWindow`, `popToRoot`, and `openExtensionPreferences` route through
   `window.close`, `navigation.popToRoot`, and `preferences.openExtension`
   capability requests;
@@ -43,6 +43,9 @@ onto the V2 scene contract, renderer, and capability broker:
 - `getDefaultApplication` routes through `application.default`, validates the
   shared JSON-encoded `Application` shape, and accepts structural `PathLike`
   values; `PreferenceValues` is available as a type-only preference bag;
+- `LocalStorage.getItem` and `LocalStorage.setItem` retain their deprecated
+  `getLocalStorageItem` and `setLocalStorageItem` top-level aliases, with the
+  same identity-scoped capability requests;
 - `BrowserExtension.getTabs` and `BrowserExtension.getContent` route through
   host-owned browser-extension capabilities; tab responses are validated and
   content options are normalized before crossing the primitive boundary;
@@ -52,6 +55,10 @@ onto the V2 scene contract, renderer, and capability broker:
 - `captureException` reports a normalized exception payload through
   `telemetry.captureException` without making telemetry availability affect
   command execution;
+- `Action.Push` and `PushAction` accept measured React-element targets, route
+  navigation through the runtime stack, and invoke `onPush`/`onPop` callbacks;
+  the navigation proxy is shared through the command realm so bundled
+  `@raycast/api` copies can reach the bootstrap-owned stack;
 - the legacy top-level `ToastStyle` constants retain Raycast's uppercase
   values, while `Tool.Confirmation<T>` is exposed as a type-only contract;
 - `AI.ask` routes through `ai.ask`, validates creativity/model options, and

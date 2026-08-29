@@ -29,59 +29,58 @@ run package-manager scripts; unavailable packages remain dependency failures.
 
 | Outcome                        | Baseline | Previous post-slice | Current post-slice | Current vs previous |
 | ------------------------------ | -------: | ------------------: | -----------------: | ------------------: |
-| third-party dependency failure |    2,361 |               1,276 |              1,278 |                  +2 |
+| third-party dependency failure |    2,361 |               1,278 |              1,277 |                  -1 |
 | not renderable command mode    |      358 |                 316 |                316 |                   0 |
-| other process/startup failure  |      432 |                 982 |                850 |                -132 |
-| structured compatibility error |       23 |                  91 |                 94 |                  +3 |
-| renders a scene end to end     |       54 |                 552 |                690 |                +138 |
+| other process/startup failure  |      432 |                 850 |                836 |                 -14 |
+| structured compatibility error |       23 |                  94 |                104 |                 +10 |
+| renders a scene end to end     |       54 |                 690 |                695 |                  +5 |
 | no entrypoint found            |        3 |                   3 |                  3 |                   0 |
 
-Reading: the current post-slice extension pass rate is 690/3,231 (21.36%);
-among the 2,915 extensions with a selected renderable command it is 690/2,915
-(23.67%). The high-impact `Grid`, `launchCommand`, `MenuBarExtra`, LaunchProps,
-window/navigation, `Image`, selected-text, application-discovery, command-
-preference, Finder, frontmost-application, AI, OAuth, command-metadata,
-`BrowserExtension`, `ToastStyle`, `clearSearchBar`, `trash`,
-`captureException`, `OpenInBrowserAction`, `CopyToClipboardAction`,
-`getDefaultApplication`, and `PreferenceValues` blockers are no longer in the
-static list. Remaining named static blockers on non-rendering extensions are
-led by `SubmitFormAction` (11), `getLocalStorageItem` (10),
-`setLocalStorageItem` (9), `ImageMask` (8), and `PushAction` (8); dynamic and
-namespace imports remain separate unknown-shape work. The vendor root still
-leaves 1,278 dependency failures, so the next coverage group should combine
-the named alias/type blockers with the audited dependency provisioning
+Reading: the current post-slice extension pass rate is 695/3,231 (21.51%);
+among the 2,915 extensions with a selected renderable command it is 695/2,915
+(23.84%). The five blockers targeted by this slice—`SubmitFormAction`,
+`getLocalStorageItem`, `setLocalStorageItem`, `ImageMask`, and `PushAction`—are
+no longer in the static list. Remaining named static blockers on non-rendering
+extensions are led by dynamic imports (14), `preferences` (6), `Navigation`
+(5), namespace imports (4), `Preferences` (4), and the next legacy/helper group:
+`copyTextToClipboard` (3), `OpenAction` (3), `pasteText` (3),
+`removeLocalStorageItem` (3), `clearLocalStorage` (2), and `PasteAction` (2).
+Dynamic and namespace imports remain separate unknown-shape work. The vendor
+root still leaves 1,277 dependency failures, so the next coverage group should
+combine the named alias/type blockers with the audited dependency provisioning
 decision.
 
 ## Committed fixtures
 
-| Fixture                        | Root           | Items | Measured APIs                                                                                         |
-| ------------------------------ | -------------- | ----: | ----------------------------------------------------------------------------------------------------- |
-| `papersize`                    | list           |    42 | Action, ActionPanel, Icon, List                                                                       |
-| `golden-ratio`                 | list           |     1 | Action, ActionPanel, Clipboard, Icon, List, showToast, Toast                                          |
-| `pokemon-tcg-pocket-binder`    | list           |     6 | Action, ActionPanel, List, showToast, Toast                                                           |
-| `ruby-evaluate`                | list           |     0 | Action, ActionPanel, List, Detail, getPreferenceValues                                                |
-| `wifi-password-reveal`         | list           |     0 | Action, ActionPanel, Detail, Icon, List, showToast, Toast                                             |
-| `go-links`                     | list           |     0 | Action, ActionPanel, Icon, List, showToast, Toast                                                     |
-| `utm-virtual-machines`         | list           |     0 | Action, ActionPanel, Icon, List, showToast, Toast                                                     |
-| `time`                         | detail         |     0 | Detail                                                                                                |
-| `deutscherwetterdienst`        | detail         |     0 | Detail                                                                                                |
-| `donut`                        | detail         |     0 | Detail                                                                                                |
-| `big-o`                        | list           |     3 | Action, ActionPanel, List                                                                             |
-| `balatro-compendium`           | list           |     3 | Action, ActionPanel, Detail, Icon, List, showToast, Toast                                             |
-| `cache-control-builder`        | list           |     3 | Action, ActionPanel, Detail, Icon, List, environment, useNavigation                                   |
-| `single-disk-eject`            | list           |     0 | Action, ActionPanel, List, environment, getPreferenceValues, showToast, Toast                         |
-| `form-submission`              | form           |     4 | Action, ActionPanel, Form (DatePicker, TagPicker, FilePicker)                                         |
-| `launch-boundaries`            | list           |     1 | Image masks, LaunchProps, LaunchType, closeMainWindow, popToRoot, openExtensionPreferences            |
-| `desktop-discovery-boundaries` | list           |     2 | Application, getApplications, getSelectedText, openCommandPreferences                                 |
-| `finder-boundaries`            | list           |     2 | FileSystemItem, getFrontmostApplication, getSelectedFinderItems, showInFinder                         |
-| `host-boundaries`              | list           |     1 | BrowserExtension, ToastStyle, Tool.Confirmation, clearSearchBar, trash                                |
-| `coverage-next`                | list           |     1 | CopyToClipboardAction, OpenInBrowserAction, PreferenceValues, captureException, getDefaultApplication |
-| `runtime-boundaries`           | list           |     1 | AI, OAuth, updateCommandMetadata                                                                      |
-| `grid-boundaries`              | grid           |     2 | Grid, Grid.Item, Grid.Section, Grid.Dropdown, Grid.EmptyView, Icon                                    |
-| `menu-bar-boundaries`          | menu-bar-extra |     2 | MenuBarExtra, Item, Section, Submenu, Separator, Icon                                                 |
-| `choose-a-license`             | list           |     8 | Action.OpenInBrowser, Action.CopyToClipboard, Action.Push                                             |
+| Fixture                        | Root           | Items | Measured APIs                                                                                          |
+| ------------------------------ | -------------- | ----: | ------------------------------------------------------------------------------------------------------ |
+| `papersize`                    | list           |    42 | Action, ActionPanel, Icon, List                                                                        |
+| `golden-ratio`                 | list           |     1 | Action, ActionPanel, Clipboard, Icon, List, showToast, Toast                                           |
+| `pokemon-tcg-pocket-binder`    | list           |     6 | Action, ActionPanel, List, showToast, Toast                                                            |
+| `ruby-evaluate`                | list           |     0 | Action, ActionPanel, List, Detail, getPreferenceValues                                                 |
+| `wifi-password-reveal`         | list           |     0 | Action, ActionPanel, Detail, Icon, List, showToast, Toast                                              |
+| `go-links`                     | list           |     0 | Action, ActionPanel, Icon, List, showToast, Toast                                                      |
+| `utm-virtual-machines`         | list           |     0 | Action, ActionPanel, Icon, List, showToast, Toast                                                      |
+| `time`                         | detail         |     0 | Detail                                                                                                 |
+| `deutscherwetterdienst`        | detail         |     0 | Detail                                                                                                 |
+| `donut`                        | detail         |     0 | Detail                                                                                                 |
+| `big-o`                        | list           |     3 | Action, ActionPanel, List                                                                              |
+| `balatro-compendium`           | list           |     3 | Action, ActionPanel, Detail, Icon, List, showToast, Toast                                              |
+| `cache-control-builder`        | list           |     3 | Action, ActionPanel, Detail, Icon, List, environment, useNavigation                                    |
+| `single-disk-eject`            | list           |     0 | Action, ActionPanel, List, environment, getPreferenceValues, showToast, Toast                          |
+| `form-submission`              | form           |     4 | Action, ActionPanel, Form (DatePicker, TagPicker, FilePicker)                                          |
+| `launch-boundaries`            | list           |     1 | Image masks, LaunchProps, LaunchType, closeMainWindow, popToRoot, openExtensionPreferences             |
+| `desktop-discovery-boundaries` | list           |     2 | Application, getApplications, getSelectedText, openCommandPreferences                                  |
+| `finder-boundaries`            | list           |     2 | FileSystemItem, getFrontmostApplication, getSelectedFinderItems, showInFinder                          |
+| `host-boundaries`              | list           |     1 | BrowserExtension, ToastStyle, Tool.Confirmation, clearSearchBar, trash                                 |
+| `coverage-next`                | list           |     1 | CopyToClipboardAction, OpenInBrowserAction, PreferenceValues, captureException, getDefaultApplication  |
+| `coverage-followup`            | form           |     2 | ImageMask, List, PushAction, SubmitFormAction, getLocalStorageItem, setLocalStorageItem, useNavigation |
+| `runtime-boundaries`           | list           |     1 | AI, OAuth, updateCommandMetadata                                                                       |
+| `grid-boundaries`              | grid           |     2 | Grid, Grid.Item, Grid.Section, Grid.Dropdown, Grid.EmptyView, Icon                                     |
+| `menu-bar-boundaries`          | menu-bar-extra |     2 | MenuBarExtra, Item, Section, Submenu, Separator, Icon                                                  |
+| `choose-a-license`             | list           |     8 | Action.OpenInBrowser, Action.CopyToClipboard, Action.Push                                              |
 
-The twenty-three matrix render fixtures assert root type and minimum item counts
+The twenty-four matrix render fixtures assert root type and minimum item counts
 through real child processes; the desktop-discovery fixture additionally waits
 for three brokered capability responses, the Finder fixture waits for three
 additional capability responses, and the form fixture dispatches text, date,
@@ -91,20 +90,24 @@ The runtime-boundaries fixture waits for an AI response, command subtitle
 update, and OAuth token lookup; the host-boundaries fixture waits for browser
 tab/content, search, and trash capability responses; the `coverage-next`
 fixture additionally exercises default-application and telemetry responses
-plus deprecated and modern browser/clipboard action events.
+plus deprecated and modern browser/clipboard action events. The
+`coverage-followup` fixture additionally exercises legacy form, storage,
+image-mask, and push/pop aliases, including navigation calls from a separately
+bundled child view.
 
 ## Known gaps surfaced by the matrix
 
 - action groups, `ActionPanel.Section`, submenus, tinted icons, shortcut
   objects, action styles, `autoFocus`, `Action.OpenInBrowser`, and the
-  deprecated browser/clipboard action aliases are measured; broader action
-  helpers remain unsupported;
+  deprecated browser/clipboard action aliases, `SubmitFormAction`, and
+  `PushAction` are measured; broader action helpers remain unsupported;
 - toast lifecycle, mutable fields, action callbacks, and toast-action shortcut
   objects are measured; client toast timing/stacking remains unsupported;
 - Form focus/blur callbacks;
 - `useNavigation` and `Action.Push` (28.8% of extensions),
   `LocalStorage`/`Cache` (26.5%), and `environment` (19.7%) are measured in
-  the adapter but still have limited fixture coverage;
+  the adapter but still have limited fixture coverage; the legacy push,
+  storage, and `ImageMask` aliases are covered by `coverage-followup`;
 - `showHUD`, `open`, and `confirmAlert` are measured through capability
   requests, but production host providers and consent policy are still absent;
 - `LaunchProps`, `LaunchType`, `Image.Mask`, `closeMainWindow`, `popToRoot`,

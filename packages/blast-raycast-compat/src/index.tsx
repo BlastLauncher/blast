@@ -8,6 +8,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type Context,
   type ReactElement,
@@ -72,6 +73,7 @@ export interface RaycastCompatContext {
 interface RaycastCompatGlobals {
   context?: RaycastCompatContext;
   launchProps?: LaunchProps;
+  navigation?: NavigationApi;
   renderer?: SceneRenderer;
   toastEvents?: Map<string, () => void>;
   cacheStores?: Map<string, CacheState>;
@@ -91,6 +93,7 @@ const compatGlobals: RaycastCompatGlobals = (() => {
 export function configureRaycastCompat(context: RaycastCompatContext): void {
   compatGlobals.context = context;
   delete compatGlobals.launchProps;
+  delete compatGlobals.navigation;
   compatGlobals.toastEvents ??= new Map();
 }
 
@@ -468,6 +471,12 @@ export namespace Image {
     RoundedRectangle = "roundedRectangle",
   }
 }
+
+/** @deprecated Use `Image.Mask` instead. */
+export type ImageMask = Image.Mask;
+
+/** @deprecated Use `Image.Mask` instead. */
+export const ImageMask = Image.Mask;
 
 export type LaunchContext = Readonly<Record<string, unknown>>;
 export type LaunchArguments = Readonly<Record<string, unknown>>;
@@ -1237,6 +1246,23 @@ export interface SubmitFormProps<T extends FormValues = FormValues> {
   readonly style?: ActionStyleLike;
   readonly onSubmit?: (values: T) => void | boolean | Promise<void | boolean>;
 }
+
+/** @deprecated Use `Action.SubmitForm` instead. */
+export interface SubmitFormActionProps<T extends FormValues = FormValues> extends SubmitFormProps<T> {}
+
+export interface PushProps {
+  readonly title: string;
+  readonly target: ReactNode;
+  readonly icon?: IconLike;
+  readonly shortcut?: ShortcutLike;
+  readonly style?: ActionStyleLike;
+  readonly autoFocus?: boolean;
+  readonly onPush?: () => void;
+  readonly onPop?: () => void;
+}
+
+/** @deprecated Use `Action.Push` instead. */
+export interface PushActionProps extends PushProps {}
 
 function unsupported(what: string, details?: unknown): never {
   throw new CompatibilityError(`${what} is not supported by the Blast compatibility surface yet`, details);
@@ -2537,17 +2563,20 @@ function SubmitForm<T extends FormValues = FormValues>(props: SubmitFormProps<T>
   });
 }
 
-function Push(props: {
-  readonly title: string;
-  readonly target: ReactElement;
-  readonly icon?: IconLike;
-  readonly shortcut?: ShortcutLike;
-  readonly style?: ActionStyleLike;
-  readonly autoFocus?: boolean;
-}): ReactElement {
+/** @deprecated Use `Action.SubmitForm` instead. */
+export const SubmitFormAction = SubmitForm;
+
+function Push(props: PushProps): ReactElement {
   const icon = serializeIcon(props.icon, "Action.Push");
   const shortcut = serializeShortcut(props.shortcut, "Action.Push");
   const style = normalizeActionStyle(props.style, "Action.Push");
+  if (props.onPush !== undefined && typeof props.onPush !== "function") {
+    throw new CompatibilityError("Action.Push onPush must be a function", { onPush: props.onPush });
+  }
+  if (props.onPop !== undefined && typeof props.onPop !== "function") {
+    throw new CompatibilityError("Action.Push onPop must be a function", { onPop: props.onPop });
+  }
+  const target = requireNavigationElement(props.target, "Action.Push");
   const navigation = useContext(NavigationContext);
   return createElement("action", {
     title: props.title,
@@ -2556,10 +2585,14 @@ function Push(props: {
     ...(style === undefined ? {} : { style }),
     ...(props.autoFocus === undefined ? {} : { autoFocus: props.autoFocus }),
     onAction: () => {
-      navigation.push(props.target);
+      navigation.push(target, props.onPop);
+      void props.onPush?.();
     },
   });
 }
+
+/** @deprecated Use `Action.Push` instead. */
+export const PushAction = Push;
 
 function CopyToClipboard(props: CopyToClipboardProps): ReactElement {
   const icon = serializeIcon(props.icon, "Action.CopyToClipboard");
@@ -3605,20 +3638,39 @@ export function getPreferenceValues<T = PreferenceValues>(): T {
 }
 
 export interface NavigationApi {
-  push(element: ReactElement): void;
+  push(element: ReactNode, onPop?: () => void): void;
   pop(): void;
   popToRoot(): void;
 }
 
 const NavigationContext: Context<NavigationApi> = createContext<NavigationApi>({
-  push() {},
-  pop() {},
-  popToRoot() {},
+  push(element, onPop) {
+    compatGlobals.navigation?.push(element, onPop);
+  },
+  pop() {
+    compatGlobals.navigation?.pop();
+  },
+  popToRoot() {
+    compatGlobals.navigation?.popToRoot();
+  },
 });
 
+interface NavigationEntry {
+  readonly id: number;
+  readonly element: ReactElement;
+  readonly onPop?: () => void;
+}
+
+function requireNavigationElement(element: ReactNode, where: string): ReactElement {
+  if (!isValidElement(element)) {
+    unsupported(`${where} target must be a React element`, { target: element });
+  }
+  return element;
+}
+
 /**
- * Navigation within a running command. Pushed views stay mounted, so their
- * state survives popping; only the top view contributes scene nodes.
+ * Navigation within a running command. Pushed entries retain their lifecycle
+ * callbacks, and only the top view contributes scene nodes.
  */
 export function useNavigation(): NavigationApi {
   return useContext(NavigationContext);
@@ -3627,23 +3679,52 @@ export function useNavigation(): NavigationApi {
 let navigationEntryCounter = 0;
 
 function NavigationHost({ base }: { readonly base: ReactElement }): ReactElement {
-  const [entries, setEntries] = useState<{ readonly id: number; readonly element: ReactElement }[]>([
-    { id: ++navigationEntryCounter, element: base },
-  ]);
+  const [entries, setEntries] = useState<NavigationEntry[]>(() => [{ id: ++navigationEntryCounter, element: base }]);
+  const entriesRef = useRef(entries);
   const navigation = useMemo<NavigationApi>(
     () => ({
-      push(element: ReactElement) {
-        setEntries((current) => [...current, { id: ++navigationEntryCounter, element }]);
+      push(element: ReactNode, onPop?: () => void) {
+        if (onPop !== undefined && typeof onPop !== "function") {
+          throw new CompatibilityError("Navigation.push onPop must be a function", { onPop });
+        }
+        const next = [
+          ...entriesRef.current,
+          {
+            id: ++navigationEntryCounter,
+            element: requireNavigationElement(element, "Navigation.push"),
+            ...(onPop === undefined ? {} : { onPop }),
+          },
+        ];
+        entriesRef.current = next;
+        setEntries(next);
       },
       pop() {
-        setEntries((current) => (current.length > 1 ? current.slice(0, -1) : current));
+        const current = entriesRef.current;
+        if (current.length <= 1) {
+          return;
+        }
+        const popped = current[current.length - 1];
+        const next = current.slice(0, -1);
+        entriesRef.current = next;
+        setEntries(next);
+        popped?.onPop?.();
       },
       popToRoot() {
-        setEntries((current) => (current.length > 1 ? current.slice(0, 1) : current));
+        const current = entriesRef.current;
+        if (current.length <= 1) {
+          return;
+        }
+        const next = current.slice(0, 1);
+        entriesRef.current = next;
+        setEntries(next);
+        for (const entry of current.slice(1).toReversed()) {
+          entry.onPop?.();
+        }
       },
     }),
     [],
   );
+  compatGlobals.navigation = navigation;
 
   return createElement(
     NavigationContext.Provider,
@@ -3741,6 +3822,12 @@ export const LocalStorage = {
     }
   },
 };
+
+/** @deprecated Use `LocalStorage.getItem` instead. */
+export const getLocalStorageItem: typeof LocalStorage.getItem = LocalStorage.getItem;
+
+/** @deprecated Use `LocalStorage.setItem` instead. */
+export const setLocalStorageItem: typeof LocalStorage.setItem = LocalStorage.setItem;
 
 /**
  * Synchronous LRU cache compatible with Raycast's command-facing API.

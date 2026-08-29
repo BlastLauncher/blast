@@ -24,6 +24,7 @@ import {
   Grid,
   Icon,
   Image,
+  ImageMask,
   Keyboard,
   LaunchType,
   List,
@@ -31,6 +32,8 @@ import {
   MenuBarExtra,
   OAuth,
   PopToRootType,
+  PushAction,
+  SubmitFormAction,
   Toast,
   configureRaycastCompat,
   captureException,
@@ -38,6 +41,7 @@ import {
   closeMainWindow,
   clearSearchBar,
   environment,
+  getLocalStorageItem,
   getPreferenceValues,
   open,
   OpenInBrowserAction,
@@ -49,13 +53,28 @@ import {
   showHUD,
   showInFinder,
   showToast,
+  setLocalStorageItem,
   ToastStyle,
   trash,
   updateCommandMetadata,
+  useNavigation,
 } from "../dist/index.js";
 import { createElement } from "react";
 
 function onAction() {}
+
+function PushTarget() {
+  const navigation = useNavigation();
+  return createElement(
+    List,
+    { navigationTitle: "Pushed" },
+    createElement(
+      List.Item,
+      { title: "Pushed" },
+      createElement(ActionPanel, null, createElement(Action, { title: "Pop", onAction: navigation.pop })),
+    ),
+  );
+}
 
 function stripToastId(payload) {
   const withoutId = { ...payload };
@@ -1211,6 +1230,54 @@ test("Action.Push activation pushes the target scene root", async () => {
   const lastSnapshot = probe.transactions.filter((t) => t.operations[0].type === "snapshot").at(-1);
   assert.equal(lastSnapshot.operations[0].root.type, "detail");
   assert.deepEqual(lastSnapshot.operations[0].root.props, { markdown: "pushed" });
+});
+
+test("legacy aliases preserve form submission, storage, image masks, and push lifecycle", async () => {
+  const probe = createContext({ storageProvider: createInMemoryLocalStorageProvider() });
+  const submitted = [];
+  const lifecycle = [];
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      Form,
+      {
+        actions: createElement(
+          ActionPanel,
+          null,
+          createElement(SubmitFormAction, { onSubmit: (values) => submitted.push(values) }),
+          createElement(PushAction, {
+            title: "Push",
+            target: createElement(PushTarget),
+            onPush: () => lifecycle.push("push"),
+            onPop: () => lifecycle.push("pop"),
+          }),
+        ),
+      },
+      createElement(Form.TextField, { id: "name", defaultValue: "Ada" }),
+    ),
+  );
+  await renderer.flush();
+
+  assert.equal(ImageMask.Circle, Image.Mask.Circle);
+  await setLocalStorageItem("legacy", "value");
+  assert.equal(await getLocalStorageItem("legacy"), "value");
+
+  const root = probe.transactions[0].operations[0].root;
+  const actionGroup = root.children[0];
+  assert.equal(actionGroup.children[0].props.title, "Submit Form");
+  assert.equal(actionGroup.children[1].props.title, "Push");
+
+  probe.dispatch(actionGroup.children[0].props.onAction, { name: "Grace" });
+  assert.deepEqual(submitted, [{ name: "Grace" }]);
+
+  probe.dispatch(actionGroup.children[1].props.onAction);
+  await renderer.flush();
+  assert.equal(probe.transactions.at(-1).operations[0].root.props.navigationTitle, "Pushed");
+  assert.deepEqual(lifecycle, ["push"]);
+
+  const pushedRoot = probe.transactions.at(-1).operations[0].root;
+  probe.dispatch(pushedRoot.children[0].children[0].children[0].props.onAction);
+  await renderer.flush();
+  assert.deepEqual(lifecycle, ["push", "pop"]);
 });
 
 test("LocalStorage routes through the capability broker", async () => {

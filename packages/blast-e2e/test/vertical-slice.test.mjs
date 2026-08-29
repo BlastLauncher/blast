@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { CapabilityBroker, createGrantListPolicy } from "@blastlauncher/capability";
+import { CapabilityBroker, createGrantListPolicy, createInMemoryLocalStorageProvider } from "@blastlauncher/capability";
 import { BlastCore, relaySessionTraffic } from "@blastlauncher/core";
 import { FilesystemExtensionCatalog } from "@blastlauncher/core-node";
 import { ExtensionHost } from "@blastlauncher/extension-host";
@@ -22,6 +22,7 @@ const finderBoundariesIdentity = { extensionId: "e2e.finder-boundaries", command
 const runtimeBoundariesIdentity = { extensionId: "e2e.runtime-boundaries", commandName: "index" };
 const hostBoundariesIdentity = { extensionId: "e2e.host-boundaries", commandName: "index" };
 const coverageNextIdentity = { extensionId: "e2e.coverage-next", commandName: "index" };
+const coverageFollowupIdentity = { extensionId: "e2e.coverage-followup", commandName: "index" };
 
 function createCore() {
   const catalog = new FilesystemExtensionCatalog({ root: catalogRoot });
@@ -36,6 +37,7 @@ function createCore() {
   });
   const clipboardWrites = [];
   const boundaryRequests = [];
+  const localStorageProvider = createInMemoryLocalStorageProvider();
   const broker = new CapabilityBroker({
     policy: createGrantListPolicy([
       { extensionId: "e2e.scene", capability: "clipboard", operation: "write" },
@@ -66,6 +68,8 @@ function createCore() {
       { extensionId: "e2e.coverage-next", capability: "telemetry", operation: "captureException" },
       { extensionId: "e2e.coverage-next", capability: "open", operation: "open" },
       { extensionId: "e2e.coverage-next", capability: "clipboard", operation: "write" },
+      { extensionId: "e2e.coverage-followup", capability: "local-storage", operation: "get" },
+      { extensionId: "e2e.coverage-followup", capability: "local-storage", operation: "set" },
     ]),
     providers: {
       clipboard: {
@@ -84,6 +88,12 @@ function createCore() {
         async perform(request) {
           boundaryRequests.push(request);
           return undefined;
+        },
+      },
+      "local-storage": {
+        async perform(request) {
+          boundaryRequests.push(request);
+          return localStorageProvider.perform(request);
         },
       },
       preferences: {
@@ -601,6 +611,83 @@ test("runs the next measured action, telemetry, application, and preference boun
   );
 
   await core.stopCommand(coverageNextIdentity, "next coverage slice complete");
+  await relay.done;
+  await core.close();
+});
+
+test("runs legacy form, storage, image, and push aliases end to end", async () => {
+  const { core, broker, boundaryRequests } = createCore();
+  const buffer = new SceneStateBuffer();
+  const session = await core.runCommand(coverageFollowupIdentity);
+  const relay = relaySessionTraffic(session, {
+    sceneSink: createSceneSink(buffer, []),
+    capabilityBroker: broker,
+  });
+
+  await waitFor(
+    () => buffer.rootId !== undefined && buffer.get(buffer.rootId).props.navigationTitle === "Follow-up:none:ready",
+    "the legacy-alias follow-up snapshot",
+  );
+  const root = buffer.get(buffer.rootId);
+  assert.equal(root.type, "form");
+  const actions = root.children.find((child) => child.type === "action-group");
+  const dropdown = root.children.find((child) => child.type === "form-dropdown");
+  assert.deepEqual(
+    actions.children.map(({ props }) => props.title),
+    ["Submit legacy", "Push legacy"],
+  );
+  assert.deepEqual(dropdown.children[0].props, { value: "one", title: "One", icon: "option.png" });
+
+  await relay.sendSceneEvent(actions.children[0].props.onAction, { choice: "one" });
+  await waitFor(
+    () =>
+      boundaryRequests.some(
+        ({ capability, operation, arguments: args }) =>
+          capability === "local-storage" && operation === "set" && args.key === "submitted",
+      ),
+    "the legacy submit storage write",
+  );
+
+  await relay.sendSceneEvent(actions.children[1].props.onAction);
+  await waitFor(() => buffer.get(buffer.rootId).type === "list", "the legacy push target");
+  assert.equal(buffer.get(buffer.rootId).props.navigationTitle, "Follow-up:Pushed");
+  await waitFor(
+    () =>
+      boundaryRequests.some(
+        ({ capability, operation, arguments: args }) =>
+          capability === "local-storage" && operation === "set" && args.key === "pushed",
+      ),
+    "the legacy push callback storage write",
+  );
+
+  const pushed = buffer.get(buffer.rootId);
+  await relay.sendSceneEvent(pushed.children[0].children[0].children[0].props.onAction);
+  await waitFor(() => buffer.get(buffer.rootId).type === "form", "the popped form target");
+  await waitFor(
+    () =>
+      boundaryRequests.some(
+        ({ capability, operation, arguments: args }) =>
+          capability === "local-storage" && operation === "set" && args.key === "popped",
+      ),
+    "the legacy pop callback storage write",
+  );
+
+  assert.deepEqual(
+    boundaryRequests
+      .filter(({ capability }) => capability === "local-storage")
+      .map(({ operation, arguments: args }) => ({ operation, arguments: args })),
+    [
+      { operation: "get", arguments: { key: "alias" } },
+      { operation: "set", arguments: { key: "alias", value: "ready" } },
+      { operation: "set", arguments: { key: "submitted", value: "yes" } },
+      { operation: "set", arguments: { key: "pushed", value: "yes" } },
+      { operation: "set", arguments: { key: "popped", value: "yes" } },
+      { operation: "get", arguments: { key: "alias" } },
+      { operation: "set", arguments: { key: "alias", value: "ready" } },
+    ],
+  );
+
+  await core.stopCommand(coverageFollowupIdentity, "legacy alias slice complete");
   await relay.done;
   await core.close();
 });
