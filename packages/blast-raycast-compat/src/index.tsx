@@ -671,6 +671,130 @@ export interface Application {
   readonly windowsAppId?: string;
 }
 
+/**
+ * Measured Raycast window-management data returned by the host.
+ *
+ * Results cross the capability boundary as JSON because the V2 capability
+ * protocol intentionally carries primitive values only.
+ */
+export namespace WindowManagement {
+  export enum DesktopType {
+    User = "User",
+    FullScreen = "FullScreen",
+  }
+
+  export type Window = {
+    readonly id: string;
+    readonly application?: Application;
+    readonly bounds:
+      | {
+          readonly position: {
+            readonly x: number;
+            readonly y: number;
+          };
+          readonly size: {
+            readonly width: number;
+            readonly height: number;
+          };
+        }
+      | "fullscreen";
+    readonly desktopId: string;
+    readonly fullScreenSettable: boolean;
+    readonly resizable: boolean;
+    readonly positionable: boolean;
+    readonly active: boolean;
+  };
+
+  export type Desktop = {
+    readonly size: {
+      readonly width: number;
+      readonly height: number;
+    };
+    readonly id: string;
+    readonly screenId: string;
+    readonly active: boolean;
+    readonly type: DesktopType;
+  };
+
+  /** Returns the desktops available across all screens. */
+  export async function getDesktops(): Promise<Desktop[]> {
+    const response = await callCapability(
+      "window-management",
+      "getDesktops",
+      undefined,
+      "WindowManagement.getDesktops",
+    );
+    const value = parseJSONCapabilityValue(response.value, "WindowManagement.getDesktops");
+    if (!Array.isArray(value)) {
+      throw new CompatibilityError("The WindowManagement.getDesktops capability returned a non-array", { value });
+    }
+    return value.map((entry, index) => deserializeWindowDesktop(entry, `WindowManagement.getDesktops result ${index}`));
+  }
+
+  /** Returns the active window, or rejects when no active window exists. */
+  export async function getActiveWindow(): Promise<Window> {
+    const response = await callCapability(
+      "window-management",
+      "getActiveWindow",
+      undefined,
+      "WindowManagement.getActiveWindow",
+    );
+    return deserializeWindow(
+      parseJSONCapabilityValue(response.value, "WindowManagement.getActiveWindow"),
+      "WindowManagement.getActiveWindow result",
+    );
+  }
+
+  /** Returns windows on the active desktop. */
+  export async function getWindowsOnActiveDesktop(): Promise<Window[]> {
+    const response = await callCapability(
+      "window-management",
+      "getWindowsOnActiveDesktop",
+      undefined,
+      "WindowManagement.getWindowsOnActiveDesktop",
+    );
+    const value = parseJSONCapabilityValue(response.value, "WindowManagement.getWindowsOnActiveDesktop");
+    if (!Array.isArray(value)) {
+      throw new CompatibilityError("The WindowManagement.getWindowsOnActiveDesktop capability returned a non-array", {
+        value,
+      });
+    }
+    return value.map((entry, index) =>
+      deserializeWindow(entry, `WindowManagement.getWindowsOnActiveDesktop result ${index}`),
+    );
+  }
+
+  /** Moves a window or requests fullscreen through the host window manager. */
+  export async function setWindowBounds(
+    options: {
+      readonly id: string;
+    } & (
+      | {
+          readonly bounds: {
+            readonly position?: {
+              readonly x?: number;
+              readonly y?: number;
+            };
+            readonly size?: {
+              readonly width?: number;
+              readonly height?: number;
+            };
+          };
+          readonly desktopId?: string;
+        }
+      | { readonly bounds: "fullscreen" }
+    ),
+  ): Promise<void> {
+    const normalized = serializeWindowBounds(options);
+    await callCapability(
+      "window-management",
+      "setWindowBounds",
+      { optionsJSON: normalized },
+      "WindowManagement.setWindowBounds",
+    );
+  }
+}
+
 /** Type-only preference bag used by generic Raycast command code. */
 export interface PreferenceValues {
   [name: string]: any;
@@ -3581,6 +3705,138 @@ function deserializeFileSystemItems(value: unknown): FileSystemItem[] {
     }
     return { path: requireNonEmptyString(entry.path, `getSelectedFinderItems result ${index} path`) };
   });
+}
+
+function deserializeWindow(value: unknown, where: string): WindowManagement.Window {
+  if (!isRecord(value)) {
+    throw new CompatibilityError(`The ${where} is invalid`, { value });
+  }
+  const bounds = value.bounds;
+  const normalizedBounds = bounds === "fullscreen" ? bounds : deserializeWindowBounds(bounds, `${where} bounds`);
+  return {
+    id: requireNonEmptyString(value.id, `${where} id`),
+    ...(value.application === undefined
+      ? {}
+      : { application: deserializeApplication(value.application, `${where} application`) }),
+    bounds: normalizedBounds,
+    desktopId: requireNonEmptyString(value.desktopId, `${where} desktopId`),
+    fullScreenSettable: requireBoolean(value.fullScreenSettable, `${where} fullScreenSettable`),
+    resizable: requireBoolean(value.resizable, `${where} resizable`),
+    positionable: requireBoolean(value.positionable, `${where} positionable`),
+    active: requireBoolean(value.active, `${where} active`),
+  };
+}
+
+function deserializeWindowBounds(value: unknown, where: string): WindowManagement.Window["bounds"] {
+  if (!isRecord(value) || !isRecord(value.position) || !isRecord(value.size)) {
+    throw new CompatibilityError(`The ${where} is invalid`, { value });
+  }
+  return {
+    position: {
+      x: requireFiniteNumber(value.position.x, `${where} position.x`),
+      y: requireFiniteNumber(value.position.y, `${where} position.y`),
+    },
+    size: {
+      width: requireFiniteNumber(value.size.width, `${where} size.width`),
+      height: requireFiniteNumber(value.size.height, `${where} size.height`),
+    },
+  };
+}
+
+function deserializeWindowDesktop(value: unknown, where: string): WindowManagement.Desktop {
+  if (!isRecord(value) || !isRecord(value.size)) {
+    throw new CompatibilityError(`The ${where} is invalid`, { value });
+  }
+  if (value.type !== WindowManagement.DesktopType.User && value.type !== WindowManagement.DesktopType.FullScreen) {
+    throw new CompatibilityError(`The ${where} has an invalid type`, { value: value.type });
+  }
+  return {
+    size: {
+      width: requireFiniteNumber(value.size.width, `${where} size.width`),
+      height: requireFiniteNumber(value.size.height, `${where} size.height`),
+    },
+    id: requireNonEmptyString(value.id, `${where} id`),
+    screenId: requireNonEmptyString(value.screenId, `${where} screenId`),
+    active: requireBoolean(value.active, `${where} active`),
+    type: value.type,
+  };
+}
+
+function serializeWindowBounds(options: unknown): string {
+  if (!isRecord(options)) {
+    unsupported("WindowManagement.setWindowBounds options", { options });
+  }
+  const id = requireNonEmptyString(options.id, "WindowManagement.setWindowBounds id");
+  const bounds = options.bounds;
+  if (bounds === "fullscreen") {
+    if (options.desktopId !== undefined) {
+      unsupported("WindowManagement.setWindowBounds desktopId with fullscreen bounds", { options });
+    }
+    return JSON.stringify({ id, bounds });
+  }
+  if (!isRecord(bounds)) {
+    unsupported("WindowManagement.setWindowBounds bounds", { bounds });
+  }
+  for (const key of Object.keys(options)) {
+    if (key !== "id" && key !== "bounds" && key !== "desktopId") {
+      unsupported(`WindowManagement.setWindowBounds ${key}`, { options });
+    }
+  }
+  for (const key of Object.keys(bounds)) {
+    if (key !== "position" && key !== "size") {
+      unsupported(`WindowManagement.setWindowBounds bounds.${key}`, { bounds });
+    }
+  }
+  const normalized: {
+    id: string;
+    bounds: {
+      position?: { x?: number; y?: number };
+      size?: { width?: number; height?: number };
+    };
+    desktopId?: string;
+  } = { id, bounds: {} };
+  if (options.desktopId !== undefined) {
+    normalized.desktopId = requireNonEmptyString(options.desktopId, "WindowManagement.setWindowBounds desktopId");
+  }
+  for (const [section, fields] of [
+    ["position", ["x", "y"]],
+    ["size", ["width", "height"]],
+  ] as const) {
+    const sectionValue = bounds[section];
+    if (sectionValue === undefined) {
+      continue;
+    }
+    if (!isRecord(sectionValue)) {
+      unsupported(`WindowManagement.setWindowBounds bounds.${section}`, { value: sectionValue });
+    }
+    const normalizedSection: Record<string, number> = {};
+    const allowedFields: readonly string[] = fields;
+    for (const key of Object.keys(sectionValue)) {
+      if (!allowedFields.includes(key)) {
+        unsupported(`WindowManagement.setWindowBounds bounds.${section}.${key}`, { value: sectionValue });
+      }
+      normalizedSection[key] = requireFiniteNumber(
+        sectionValue[key],
+        `WindowManagement.setWindowBounds bounds.${section}.${key}`,
+      );
+    }
+    normalized["bounds"][section] = normalizedSection;
+  }
+  return JSON.stringify(normalized);
+}
+
+function requireBoolean(value: unknown, where: string): boolean {
+  if (typeof value !== "boolean") {
+    throw new CompatibilityError(`The ${where} must be a boolean`, { value });
+  }
+  return value;
+}
+
+function requireFiniteNumber(value: unknown, where: string): number {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    throw new CompatibilityError(`The ${where} must be a finite number`, { value });
+  }
+  return value;
 }
 
 function serializeLaunchJSON(value: unknown, where: string): string | undefined {

@@ -66,6 +66,7 @@ import {
   trash,
   updateCommandMetadata,
   useNavigation,
+  WindowManagement,
 } from "../dist/index.js";
 import { createElement } from "react";
 
@@ -1438,6 +1439,70 @@ test("environment reports the runtime platform and command identity", () => {
   assert.equal(environment.assetsPath, "assets");
   assert.equal(environment.supportPath, "support");
   assert.equal(environment.canAccess("fixture-api"), false);
+});
+
+test("routes WindowManagement discovery and bounds through capabilities", async () => {
+  const activeWindow = {
+    id: "window-1",
+    application: {
+      name: "Terminal",
+      localizedName: "Terminal",
+      path: "/System/Applications/Utilities/Terminal.app",
+      bundleId: "com.apple.Terminal",
+    },
+    bounds: {
+      position: { x: 0, y: 0 },
+      size: { width: 960, height: 1080 },
+    },
+    desktopId: "desktop-1",
+    fullScreenSettable: true,
+    resizable: true,
+    positionable: true,
+    active: true,
+  };
+  const desktop = {
+    size: { width: 1920, height: 1080 },
+    id: "desktop-1",
+    screenId: "screen-1",
+    active: true,
+    type: "User",
+  };
+  const probe = createContext({
+    capabilityValues: {
+      "window-management.getActiveWindow": JSON.stringify(activeWindow),
+      "window-management.getWindowsOnActiveDesktop": JSON.stringify([activeWindow]),
+      "window-management.getDesktops": JSON.stringify([desktop]),
+      "window-management.setWindowBounds": undefined,
+    },
+  });
+  configureRaycastCompat(probe.context);
+
+  assert.deepEqual(await WindowManagement.getActiveWindow(), activeWindow);
+  assert.deepEqual(await WindowManagement.getWindowsOnActiveDesktop(), [activeWindow]);
+  assert.deepEqual(await WindowManagement.getDesktops(), [desktop]);
+  await WindowManagement.setWindowBounds({
+    id: "window-1",
+    desktopId: "desktop-1",
+    bounds: { position: { x: 100 }, size: { width: 800, height: 600 } },
+  });
+
+  assert.deepEqual(probe.capabilityRequests, [
+    { capability: "window-management", operation: "getActiveWindow" },
+    { capability: "window-management", operation: "getWindowsOnActiveDesktop" },
+    { capability: "window-management", operation: "getDesktops" },
+    {
+      capability: "window-management",
+      operation: "setWindowBounds",
+      arguments: {
+        optionsJSON: JSON.stringify({
+          id: "window-1",
+          bounds: { position: { x: 100 }, size: { width: 800, height: 600 } },
+          desktopId: "desktop-1",
+        }),
+      },
+    },
+  ]);
+  assert.equal(WindowManagement.DesktopType.User, "User");
 });
 
 test("renders titled action panels, submenus, List actions, and tinted icons", async () => {

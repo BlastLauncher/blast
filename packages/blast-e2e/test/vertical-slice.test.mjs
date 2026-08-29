@@ -23,6 +23,7 @@ const runtimeBoundariesIdentity = { extensionId: "e2e.runtime-boundaries", comma
 const hostBoundariesIdentity = { extensionId: "e2e.host-boundaries", commandName: "index" };
 const coverageNextIdentity = { extensionId: "e2e.coverage-next", commandName: "index" };
 const coverageFollowupIdentity = { extensionId: "e2e.coverage-followup", commandName: "index" };
+const windowManagementIdentity = { extensionId: "e2e.window-management", commandName: "index" };
 
 function createCore() {
   const catalog = new FilesystemExtensionCatalog({ root: catalogRoot });
@@ -76,6 +77,14 @@ function createCore() {
       { extensionId: "e2e.coverage-followup", capability: "clipboard", operation: "write" },
       { extensionId: "e2e.coverage-followup", capability: "clipboard", operation: "paste" },
       { extensionId: "e2e.coverage-followup", capability: "open", operation: "open" },
+      { extensionId: "e2e.window-management", capability: "window-management", operation: "getActiveWindow" },
+      {
+        extensionId: "e2e.window-management",
+        capability: "window-management",
+        operation: "getWindowsOnActiveDesktop",
+      },
+      { extensionId: "e2e.window-management", capability: "window-management", operation: "getDesktops" },
+      { extensionId: "e2e.window-management", capability: "window-management", operation: "setWindowBounds" },
     ]),
     providers: {
       clipboard: {
@@ -254,10 +263,57 @@ function createCore() {
           throw new Error(`Unknown telemetry operation ${JSON.stringify(request.operation)}`);
         },
       },
+      "window-management": {
+        async perform(request) {
+          boundaryRequests.push(request);
+          if (request.operation === "getActiveWindow") {
+            return JSON.stringify(createFixtureWindow(true));
+          }
+          if (request.operation === "getWindowsOnActiveDesktop") {
+            return JSON.stringify([createFixtureWindow(true), createFixtureWindow(false)]);
+          }
+          if (request.operation === "getDesktops") {
+            return JSON.stringify([
+              {
+                size: { width: 1920, height: 1080 },
+                id: "desktop-1",
+                screenId: "screen-1",
+                active: true,
+                type: "User",
+              },
+            ]);
+          }
+          if (request.operation === "setWindowBounds") {
+            return undefined;
+          }
+          throw new Error(`Unknown window-management operation ${JSON.stringify(request.operation)}`);
+        },
+      },
     },
   });
   const core = new BlastCore({ catalog, extensionHost: host });
   return { core, broker, clipboardWrites, clipboardPastes, boundaryRequests };
+}
+
+function createFixtureWindow(active) {
+  return {
+    id: active ? "window-1" : "window-2",
+    application: {
+      name: active ? "Terminal" : "Raycast",
+      localizedName: active ? "Terminal" : "Raycast",
+      path: active ? "/System/Applications/Utilities/Terminal.app" : "/Applications/Raycast.app",
+      bundleId: active ? "com.apple.Terminal" : "com.raycast.macos",
+    },
+    bounds: {
+      position: { x: active ? 0 : 960, y: 0 },
+      size: { width: 960, height: 1080 },
+    },
+    desktopId: "desktop-1",
+    fullScreenSettable: true,
+    resizable: true,
+    positionable: true,
+    active,
+  };
 }
 
 function createSceneSink(buffer, transactions) {
@@ -623,6 +679,54 @@ test("runs the next measured action, telemetry, application, and preference boun
   );
 
   await core.stopCommand(coverageNextIdentity, "next coverage slice complete");
+  await relay.done;
+  await core.close();
+});
+
+test("runs the measured window-management boundary end to end", async () => {
+  const { core, broker, boundaryRequests } = createCore();
+  const buffer = new SceneStateBuffer();
+  const session = await core.runCommand(windowManagementIdentity);
+  const relay = relaySessionTraffic(session, {
+    sceneSink: createSceneSink(buffer, []),
+    capabilityBroker: broker,
+  });
+
+  await waitFor(
+    () =>
+      buffer.rootId !== undefined && buffer.get(buffer.rootId).props.navigationTitle === "Window:window-1:2:1:denied",
+    "the window-management snapshot",
+  );
+  assert.deepEqual(
+    boundaryRequests
+      .filter(({ capability }) => capability === "window-management")
+      .map(({ operation }) => operation)
+      .toSorted(),
+    ["getActiveWindow", "getDesktops", "getWindowsOnActiveDesktop"].toSorted(),
+  );
+
+  const action = buffer.childrenOf(buffer.rootId)[0].children[0].children[0];
+  await relay.sendSceneEvent(action.props.onAction);
+  await waitFor(
+    () =>
+      boundaryRequests.some(
+        ({ capability, operation }) => capability === "window-management" && operation === "setWindowBounds",
+      ),
+    "the window-management bounds request",
+  );
+  const boundsRequest = boundaryRequests.find(
+    ({ capability, operation }) => capability === "window-management" && operation === "setWindowBounds",
+  );
+  assert.deepEqual(JSON.parse(boundsRequest.arguments.optionsJSON), {
+    id: "window-1",
+    desktopId: "desktop-1",
+    bounds: {
+      position: { x: 100, y: 20 },
+      size: { width: 800, height: 600 },
+    },
+  });
+
+  await core.stopCommand(windowManagementIdentity, "window-management slice complete");
   await relay.done;
   await core.close();
 });

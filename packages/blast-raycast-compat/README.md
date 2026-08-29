@@ -53,6 +53,10 @@ onto the V2 scene contract, renderer, and capability broker:
 - `getDefaultApplication` routes through `application.default`, validates the
   shared JSON-encoded `Application` shape, and accepts structural `PathLike`
   values; `PreferenceValues` is available as a type-only preference bag;
+- `WindowManagement.getActiveWindow`, `getWindowsOnActiveDesktop`, and
+  `getDesktops` route through the explicit `window-management` capability and
+  validate JSON-encoded desktop/window results; `setWindowBounds` validates
+  JSON-encodable bounds options before brokered host mutation;
 - `LocalStorage` retains the deprecated `getLocalStorageItem`,
   `setLocalStorageItem`, `removeLocalStorageItem`, and `clearLocalStorage`
   top-level aliases, with the same identity-scoped capability requests;

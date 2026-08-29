@@ -94,6 +94,7 @@ const SUPPORTED_API_IMPORTS = new Set([
   "trash",
   "updateCommandMetadata",
   "useNavigation",
+  "WindowManagement",
 ]);
 
 const args = process.argv.slice(2);
@@ -291,6 +292,10 @@ function createCore(stderr) {
     "oauth.setTokens",
     "telemetry.captureException",
     "window.close",
+    "window-management.getActiveWindow",
+    "window-management.getDesktops",
+    "window-management.getWindowsOnActiveDesktop",
+    "window-management.setWindowBounds",
   ]);
   const broker = new CapabilityBroker({
     policy: {
@@ -485,9 +490,55 @@ function createCore(stderr) {
           throw new Error(`Unknown window operation ${JSON.stringify(request.operation)}`);
         },
       },
+      "window-management": {
+        async perform(request) {
+          if (request.operation === "getActiveWindow") {
+            return JSON.stringify(createProbeWindow(true));
+          }
+          if (request.operation === "getWindowsOnActiveDesktop") {
+            return JSON.stringify([createProbeWindow(true), createProbeWindow(false)]);
+          }
+          if (request.operation === "getDesktops") {
+            return JSON.stringify([
+              {
+                size: { width: 1920, height: 1080 },
+                id: "desktop-1",
+                screenId: "screen-1",
+                active: true,
+                type: "User",
+              },
+            ]);
+          }
+          if (request.operation === "setWindowBounds") {
+            return undefined;
+          }
+          throw new Error(`Unknown window-management operation ${JSON.stringify(request.operation)}`);
+        },
+      },
     },
   });
   return { core: new BlastCore({ catalog, extensionHost: host }), broker };
+}
+
+function createProbeWindow(active) {
+  return {
+    id: active ? "window-1" : "window-2",
+    application: {
+      name: active ? "Terminal" : "Raycast",
+      localizedName: active ? "Terminal" : "Raycast",
+      path: active ? "/System/Applications/Utilities/Terminal.app" : "/Applications/Raycast.app",
+      bundleId: active ? "com.apple.Terminal" : "com.raycast.macos",
+    },
+    bounds: {
+      position: { x: active ? 0 : 960, y: 0 },
+      size: { width: 960, height: 1080 },
+    },
+    desktopId: "desktop-1",
+    fullScreenSettable: true,
+    resizable: true,
+    positionable: true,
+    active,
+  };
 }
 
 async function waitForScene(buffer, completion, getRelayFailure, isRelayFinished) {

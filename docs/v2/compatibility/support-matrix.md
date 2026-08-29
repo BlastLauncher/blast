@@ -29,25 +29,24 @@ run package-manager scripts; unavailable packages remain dependency failures.
 
 | Outcome                        | Baseline | Previous post-slice | Current post-slice | Current vs previous |
 | ------------------------------ | -------: | ------------------: | -----------------: | ------------------: |
-| third-party dependency failure |    2,361 |               1,278 |              1,278 |                   0 |
+| third-party dependency failure |    2,361 |               1,278 |              1,279 |                  +1 |
 | not renderable command mode    |      358 |                 316 |                316 |                   0 |
-| other process/startup failure  |      432 |                 824 |                793 |                 -31 |
-| structured compatibility error |       23 |                 106 |                101 |                  -5 |
-| renders a scene end to end     |       54 |                 704 |                740 |                 +36 |
+| other process/startup failure  |      432 |                 824 |                792 |                 -32 |
+| structured compatibility error |       23 |                 106 |                107 |                  +1 |
+| renders a scene end to end     |       54 |                 704 |                734 |                 +30 |
 | no entrypoint found            |        3 |                   3 |                  3 |                   0 |
 
-Reading: the current post-slice extension pass rate is 740/3,231 (22.90%);
-among the 2,915 extensions with a selected renderable command it is 740/2,915
-(25.39%). The measured preference, navigation, environment, form-value,
-keyboard, image-type, and `randomId` names are no longer in the static list.
-The next concrete named boundary is `WindowManagement` (3); remaining static
-gaps are led by dynamic imports (13), namespace imports (4), and small legacy
-aliases (`ActionPanelItem`, `AlertActionStyle`, `ArgumentsLaunchProps`,
-`FormItemRef`, `ItemProps`, `ListSection`, `OpenWithAction`, and `render`).
-Dynamic and namespace imports remain separate unknown-shape work. The vendor
-root leaves 1,278 dependency failures, so the next coverage group should pair
-the window-management capability with the audited dependency provisioning
-decision.
+Reading: the current post-slice extension pass rate is 734/3,231 (22.72%);
+among the 2,915 extensions with a selected renderable command it is 734/2,915
+(25.18%). The measured preference, navigation, environment, form-value,
+keyboard, image-type, `randomId`, and WindowManagement names are no longer in
+the static list. Remaining static gaps are led by dynamic imports (14),
+namespace imports (4), and small legacy aliases (`ActionPanelItem`,
+`AlertActionStyle`, `ArgumentsLaunchProps`, `FormItemRef`, `ItemProps`,
+`ListSection`, `OpenWithAction`, and `render`). Dynamic and namespace imports
+remain separate unknown-shape work. The vendor root leaves 1,279 dependency
+failures, so the next coverage group should address the remaining static tails
+alongside the audited dependency provisioning decision.
 
 ## Committed fixtures
 
@@ -71,6 +70,7 @@ decision.
 | `launch-boundaries`            | list           |     1 | Image masks, LaunchProps, LaunchType, closeMainWindow, popToRoot, openExtensionPreferences                                                                                                                 |
 | `desktop-discovery-boundaries` | list           |     2 | Application, getApplications, getSelectedText, openCommandPreferences                                                                                                                                      |
 | `finder-boundaries`            | list           |     2 | FileSystemItem, getFrontmostApplication, getSelectedFinderItems, showInFinder                                                                                                                              |
+| `window-management-boundaries` | list           |     1 | WindowManagement, environment                                                                                                                                                                              |
 | `host-boundaries`              | list           |     1 | BrowserExtension, ToastStyle, Tool.Confirmation, clearSearchBar, trash                                                                                                                                     |
 | `coverage-next`                | list           |     1 | CopyToClipboardAction, OpenInBrowserAction, getPreferenceValues, environment, preferences, randomId, and legacy type aliases                                                                               |
 | `coverage-followup`            | form           |     2 | ImageMask, List, OpenAction, PasteAction, PushAction, SubmitFormAction, clearLocalStorage, copyTextToClipboard, getLocalStorageItem, pasteText, removeLocalStorageItem, setLocalStorageItem, useNavigation |
@@ -79,7 +79,7 @@ decision.
 | `menu-bar-boundaries`          | menu-bar-extra |     2 | MenuBarExtra, Item, Section, Submenu, Separator, Icon                                                                                                                                                      |
 | `choose-a-license`             | list           |     8 | Action.OpenInBrowser, Action.CopyToClipboard, Action.Push                                                                                                                                                  |
 
-The twenty-four matrix render fixtures assert root type and minimum item counts
+The twenty-five matrix render fixtures assert root type and minimum item counts
 through real child processes; the desktop-discovery fixture additionally waits
 for three brokered capability responses, the Finder fixture waits for three
 additional capability responses, and the form fixture dispatches text, date,
@@ -92,7 +92,9 @@ fixture additionally exercises default-application and telemetry responses
 plus deprecated and modern browser/clipboard action events. The
 `coverage-followup` fixture additionally exercises legacy form, open, paste,
 storage, image-mask, and push/pop aliases, including navigation calls from a
-separately bundled child view.
+separately bundled child view. The `window-management-boundaries` fixture
+waits for active-window, desktop-window, and desktop-list responses, then
+dispatches a bounds mutation through the explicit host capability.
 
 ## Known gaps surfaced by the matrix
 
@@ -126,6 +128,11 @@ separately bundled child view.
   `finder.show`, and `application.frontmost`; deterministic providers make
   corpus and fixture runs reproducible, while production Finder/frontmost
   application providers and consent policy remain absent;
+- `WindowManagement` discovery and bounds mutation are measured through the
+  explicit `window-management` capability, including validated desktop/window
+  result shapes and JSON-encoded bounds options. Deterministic providers make
+  corpus and fixture runs reproducible; production window enumeration,
+  permission/consent state, and OS bounds mutation remain host work;
 - `BrowserExtension.getTabs`, `BrowserExtension.getContent`, `clearSearchBar`,
   `trash`, `ToastStyle`, and the type-only `Tool.Confirmation` contract are
   measured. Browser integration, navigation state, destructive filesystem

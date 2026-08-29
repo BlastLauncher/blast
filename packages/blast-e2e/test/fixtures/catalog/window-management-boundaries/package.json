@@ -1,0 +1,6 @@
+{
+  "name": "e2e.window-management",
+  "title": "E2E Window Management",
+  "description": "Fixture for measured window-management discovery and bounds operations.",
+  "commands": [{ "name": "index", "title": "Window management", "mode": "view" }]
+}

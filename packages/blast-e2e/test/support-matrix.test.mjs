@@ -101,6 +101,18 @@ function createCore() {
     ...(expectation.apis?.includes("updateCommandMetadata")
       ? [{ extensionId: expectation.extensionId, capability: "command", operation: "updateMetadata" }]
       : []),
+    ...(expectation.apis?.includes("WindowManagement")
+      ? [
+          { extensionId: expectation.extensionId, capability: "window-management", operation: "getActiveWindow" },
+          {
+            extensionId: expectation.extensionId,
+            capability: "window-management",
+            operation: "getWindowsOnActiveDesktop",
+          },
+          { extensionId: expectation.extensionId, capability: "window-management", operation: "getDesktops" },
+          { extensionId: expectation.extensionId, capability: "window-management", operation: "setWindowBounds" },
+        ]
+      : []),
   ]);
   const broker = new CapabilityBroker({
     policy: createGrantListPolicy(grants),
@@ -258,10 +270,56 @@ function createCore() {
           throw new Error(`Unknown selection operation ${JSON.stringify(request.operation)}`);
         },
       },
+      "window-management": {
+        async perform(request) {
+          if (request.operation === "getActiveWindow") {
+            return JSON.stringify(createMatrixWindow(true));
+          }
+          if (request.operation === "getWindowsOnActiveDesktop") {
+            return JSON.stringify([createMatrixWindow(true), createMatrixWindow(false)]);
+          }
+          if (request.operation === "getDesktops") {
+            return JSON.stringify([
+              {
+                size: { width: 1920, height: 1080 },
+                id: "desktop-1",
+                screenId: "screen-1",
+                active: true,
+                type: "User",
+              },
+            ]);
+          }
+          if (request.operation === "setWindowBounds") {
+            return undefined;
+          }
+          throw new Error(`Unknown window-management operation ${JSON.stringify(request.operation)}`);
+        },
+      },
     },
   });
   const core = new BlastCore({ catalog, extensionHost: host });
   return { core, broker };
+}
+
+function createMatrixWindow(active) {
+  return {
+    id: active ? "window-1" : "window-2",
+    application: {
+      name: active ? "Terminal" : "Raycast",
+      localizedName: active ? "Terminal" : "Raycast",
+      path: active ? "/System/Applications/Utilities/Terminal.app" : "/Applications/Raycast.app",
+      bundleId: active ? "com.apple.Terminal" : "com.raycast.macos",
+    },
+    bounds: {
+      position: { x: active ? 0 : 960, y: 0 },
+      size: { width: 960, height: 1080 },
+    },
+    desktopId: "desktop-1",
+    fullScreenSettable: true,
+    resizable: true,
+    positionable: true,
+    active,
+  };
 }
 
 async function waitFor(predicate, description, timeoutMs = 20000) {

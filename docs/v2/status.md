@@ -74,19 +74,22 @@ slice changes what is executable, what is trusted, or what should happen next.
   bundle directories are removed after each successful or failed load; an
   explicitly supplied cache directory remains caller-owned.
 - The support matrix runs a committed set of real corpus extensions through
-  the full pipeline in CI: twenty-four render fixtures (list, detail,
+  the full pipeline in CI: twenty-five render fixtures (list, detail,
   navigation, action groups, tinted icons, form controls, toasts, preferences,
-  brokered clipboard, desktop boundaries, legacy action/storage aliases, and
-  cross-bundle navigation),
+  brokered clipboard, desktop and window-management boundaries, legacy
+  action/storage aliases, and cross-bundle navigation),
   while the corpus probe records exactly which unmeasured APIs block the rest.
-- The latest pinned corpus probe passes 740 of 3,231 extensions (22.90%), or
-  740 of 2,915 extensions with a selected renderable command (25.39%).
+- The latest pinned corpus probe passes 734 of 3,231 extensions (22.72%), or
+  734 of 2,915 extensions with a selected renderable command (25.18%).
 - Navigation (useNavigation, Action.Push), LocalStorage through the
-  capability broker with a reference in-memory provider, and the callable plus
-  property-based environment surface are measured adapter APIs; the navigation
-  stack retains entries and pop lifecycle callbacks, and only the top view
-  contributes scene nodes. A realm-shared navigation proxy keeps bundled
-  extension calls connected to the host-owned stack.
+  capability broker with a reference in-memory provider, the callable plus
+  property-based environment surface, and measured WindowManagement discovery
+  and bounds operations are measured adapter APIs; the navigation stack retains
+  entries and pop lifecycle callbacks, and only the top view contributes scene
+  nodes. A realm-shared navigation proxy keeps bundled extension calls
+  connected to the host-owned stack. Window-management data is JSON-encoded
+  across explicit capability operations, and bounds mutation remains
+  host-authorized.
 - ActionPanel renders as a scene action-group (titles, submenus, List-level
   panels), and object icons with Color tints serialize into iconTintColor
   properties.
@@ -223,15 +226,14 @@ support matrix (`compatibility/support-matrix.md`) records the baseline and
 post-slice probes. The priority remains measured extension coverage: coverage
 means the share of corpus extensions that bundle and render through the current
 path, not the number of exported API names. The shortcut, imperative, cache,
-launch-boundary, desktop-discovery, finder-boundary, host-boundary, and
-dependency-policy slices are complete, but the measured 80% target is not yet
-met; the next work should address the dominant remaining API and dependency
-blockers using the same probe.
+launch-boundary, desktop-discovery, finder-boundary, host-boundary,
+window-management, and dependency-policy slices are complete, but the
+measured 80% target is not yet met; the next work should address the dominant
+remaining static and dependency blockers using the same probe.
 
-1. Implement the measured `WindowManagement` shape for its three corpus
-   consumers, keeping desktop discovery and bounds mutation behind explicit
-   capability operations; then address the remaining dynamic and namespace
-   tails plus the small legacy aliases.
+1. Address the remaining dynamic (14), namespace (4), and small legacy alias
+   imports surfaced by the reprobe, preserving structured errors for unknown
+   shapes and adding a fixture for each newly measured boundary.
 2. Provision an audited, pinned vendor set or an explicit installation phase
    for the remaining third-party dependency graph; keep installation outside
    extension execution.
