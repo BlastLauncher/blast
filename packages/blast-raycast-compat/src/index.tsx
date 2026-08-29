@@ -2972,11 +2972,16 @@ function Section(props: ActionPanelProps): ReactElement {
 
 interface ActionPanelComponent {
   (props: ActionPanelProps): ReactElement;
+  Item: typeof ActionComponent;
   Section: typeof Section;
   Submenu: typeof Submenu;
 }
 
-export const ActionPanel: ActionPanelComponent = Object.assign(ActionPanelComponent, { Section, Submenu });
+export const ActionPanel: ActionPanelComponent = Object.assign(ActionPanelComponent, {
+  Item: ActionComponent,
+  Section,
+  Submenu,
+});
 
 function ActionComponent(props: ActionProps): ReactElement {
   const icon = serializeIcon(props.icon, "Action");

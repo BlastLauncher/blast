@@ -5,7 +5,8 @@ Measured Raycast API compatibility adapter for Blast V2 (ADR 0011).
 The package maps the census-justified subset of the `@raycast/api` surface
 onto the V2 scene contract, renderer, and capability broker:
 
-- `List`, `List.Item`, `List.Section`, `ListSection`, `ActionPanel`, `Action`,
+- `List`, `List.Item`, `List.Section`, `ListSection`, `ActionPanel`,
+  `ActionPanel.Item`, `Action`,
   `Action.CopyToClipboard`, `Action.Open`, `Action.OpenInBrowser`,
   `Action.OpenWith`, `Action.Paste`, `Action.Push`, and `Action.SubmitForm`,
   plus the deprecated `ActionPanelItem`, `CopyToClipboardAction`,

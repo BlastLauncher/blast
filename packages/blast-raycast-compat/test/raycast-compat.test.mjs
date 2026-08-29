@@ -278,6 +278,7 @@ test("renders legacy list and action aliases, including OpenWithAction", async (
             ActionPanel,
             null,
             createElement(ActionPanelItem, { title: "Legacy item", onAction: onAction }),
+            createElement(ActionPanel.Item, { title: "Panel item", onAction: onAction }),
             createElement(OpenWithAction, { path: "/tmp/example.txt", onOpen: (path) => opened.push(path) }),
           ),
         ),
@@ -293,11 +294,12 @@ test("renders legacy list and action aliases, including OpenWithAction", async (
     actions.map(({ props }) => ({ title: props.title, icon: props.icon })),
     [
       { title: "Legacy item", icon: undefined },
+      { title: "Panel item", icon: undefined },
       { title: "Open With", icon: "upload" },
     ],
   );
 
-  probe.dispatch(actions[1].props.onAction);
+  probe.dispatch(actions[2].props.onAction);
   await new Promise((resolve) => setTimeout(resolve, 5));
   assert.deepEqual(probe.capabilityRequests, [
     { capability: "open", operation: "open", arguments: { target: "/tmp/example.txt", openWith: true } },
