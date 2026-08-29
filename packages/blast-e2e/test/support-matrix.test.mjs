@@ -26,16 +26,63 @@ function createCore() {
     createMessageId: () => `host-${++hostMessageId}`,
     createSessionId: () => `session-${++sessionId}`,
   });
+  const grants = expectations.flatMap((expectation) => [
+    ...(expectation.apis?.includes("Clipboard")
+      ? [{ extensionId: expectation.extensionId, capability: "clipboard", operation: "write" }]
+      : []),
+    ...(expectation.apis?.includes("getApplications")
+      ? [{ extensionId: expectation.extensionId, capability: "application", operation: "list" }]
+      : []),
+    ...(expectation.apis?.includes("getSelectedText")
+      ? [{ extensionId: expectation.extensionId, capability: "selection", operation: "read" }]
+      : []),
+    ...(expectation.apis?.includes("openCommandPreferences")
+      ? [{ extensionId: expectation.extensionId, capability: "preferences", operation: "openCommand" }]
+      : []),
+  ]);
   const broker = new CapabilityBroker({
-    policy: createGrantListPolicy(
-      expectations
-        .filter((expectation) => expectation.apis?.includes("Clipboard"))
-        .map((expectation) => ({ extensionId: expectation.extensionId, capability: "clipboard", operation: "write" })),
-    ),
+    policy: createGrantListPolicy(grants),
     providers: {
       clipboard: {
         async perform() {
           return null;
+        },
+      },
+      application: {
+        async perform(request) {
+          if (request.operation === "list") {
+            return JSON.stringify([
+              {
+                name: "Raycast",
+                localizedName: "Raycast",
+                path: "/Applications/Raycast.app",
+                bundleId: "com.raycast.macos",
+              },
+              {
+                name: "Terminal",
+                localizedName: "Terminal",
+                path: "/System/Applications/Utilities/Terminal.app",
+                bundleId: "com.apple.Terminal",
+              },
+            ]);
+          }
+          throw new Error(`Unknown application operation ${JSON.stringify(request.operation)}`);
+        },
+      },
+      preferences: {
+        async perform(request) {
+          if (request.operation === "openCommand") {
+            return undefined;
+          }
+          throw new Error(`Unknown preferences operation ${JSON.stringify(request.operation)}`);
+        },
+      },
+      selection: {
+        async perform(request) {
+          if (request.operation === "read") {
+            return "selected from matrix";
+          }
+          throw new Error(`Unknown selection operation ${JSON.stringify(request.operation)}`);
         },
       },
     },
@@ -76,7 +123,13 @@ for (const expectation of expectations) {
     });
 
     if (expectation.outcome === "renders") {
-      await waitFor(() => buffer.rootId !== undefined, `${expectation.id} scene`);
+      await waitFor(
+        () =>
+          buffer.rootId !== undefined &&
+          (expectation.readyNavigationTitle === undefined ||
+            buffer.get(buffer.rootId).props.navigationTitle === expectation.readyNavigationTitle),
+        `${expectation.id} scene`,
+      );
       assert.equal(buffer.get(buffer.rootId).type, expectation.rootType);
       if (expectation.minItems > 0) {
         assert.equal(buffer.childrenOf(buffer.rootId).length >= expectation.minItems, true);

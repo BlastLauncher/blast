@@ -538,6 +538,17 @@ export interface ApplicationLike {
   readonly windowsAppId?: string;
 }
 
+export interface Application {
+  readonly name: string;
+  readonly localizedName?: string;
+  readonly path: string;
+  readonly bundleId?: string;
+  readonly windowsAppId?: string;
+}
+
+/** Structural equivalent of Node's PathLike without a Node-only dependency. */
+export type PathLike = string | URL | Uint8Array;
+
 export interface CacheOptions {
   /** Separates cache entries while keeping the default shared per extension. */
   readonly namespace?: string;
@@ -2356,6 +2367,78 @@ export async function open(target: string, application?: string | ApplicationLik
   await callCapability("open", "open", args, "The open");
 }
 
+/** Returns the selected text from the frontmost application through the host. */
+export async function getSelectedText(): Promise<string> {
+  const response = await callCapability("selection", "read", undefined, "The getSelectedText");
+  if (typeof response.value !== "string") {
+    throw new CompatibilityError("The selected-text capability returned no text", response);
+  }
+  return response.value;
+}
+
+/** Returns applications that can open the optional path through the host. */
+export async function getApplications(path?: PathLike): Promise<Application[]> {
+  const argumentsValue = path === undefined ? undefined : { path: serializePathLike(path, "getApplications path") };
+  const response = await callCapability("application", "list", argumentsValue, "The getApplications");
+  return deserializeApplications(response.value);
+}
+
+function serializePathLike(value: PathLike, where: string): string {
+  if (typeof value === "string") {
+    return requireNonEmptyString(value, where);
+  }
+  if (value instanceof URL) {
+    return requireNonEmptyString(value.toString(), where);
+  }
+  if (value instanceof Uint8Array) {
+    return requireNonEmptyString(new TextDecoder().decode(value), where);
+  }
+  unsupported(`${where} must be a path-like value`, { value });
+}
+
+function deserializeApplications(value: unknown): Application[] {
+  if (typeof value !== "string") {
+    throw new CompatibilityError("The getApplications capability returned no application list", { value });
+  }
+  let decoded: unknown;
+  try {
+    decoded = JSON.parse(value);
+  } catch (error) {
+    throw new CompatibilityError("The getApplications capability returned invalid JSON", {
+      value,
+      cause: error instanceof Error ? error.message : String(error),
+    });
+  }
+  if (!Array.isArray(decoded)) {
+    throw new CompatibilityError("The getApplications capability returned a non-array", { value: decoded });
+  }
+  return decoded.map((entry, index) => {
+    if (!isRecord(entry)) {
+      throw new CompatibilityError("The getApplications capability returned an invalid application", {
+        index,
+        value: entry,
+      });
+    }
+    const application: {
+      name: string;
+      path: string;
+      localizedName?: string;
+      bundleId?: string;
+      windowsAppId?: string;
+    } = {
+      name: requireNonEmptyString(entry.name, `getApplications result ${index} name`),
+      path: requireNonEmptyString(entry.path, `getApplications result ${index} path`),
+    };
+    for (const field of ["localizedName", "bundleId", "windowsAppId"] as const) {
+      const fieldValue = entry[field];
+      if (fieldValue !== undefined) {
+        application[field] = requireNonEmptyString(fieldValue, `getApplications result ${index} ${field}`);
+      }
+    }
+    return application;
+  });
+}
+
 function serializeLaunchJSON(value: unknown, where: string): string | undefined {
   if (value === undefined || value === null) {
     return undefined;
@@ -2461,6 +2544,11 @@ export async function popToRoot(options?: PopToRootOptions): Promise<void> {
 /** Opens the current extension's preferences through the host capability. */
 export async function openExtensionPreferences(): Promise<void> {
   await callCapability("preferences", "openExtension", undefined, "The openExtensionPreferences");
+}
+
+/** Opens the current command's preferences through the host capability. */
+export async function openCommandPreferences(): Promise<void> {
+  await callCapability("preferences", "openCommand", undefined, "The openCommandPreferences");
 }
 
 function normalizeAlertAction(action: AlertActionOptions | undefined, where: string): AlertActionOptions | undefined {

@@ -72,7 +72,7 @@ slice changes what is executable, what is trusted, or what should happen next.
   renders default-exported command components through the adapter, so
   unmodified Raycast-style TSX fixtures run end to end.
 - The support matrix runs a committed set of real corpus extensions through
-  the full pipeline in CI: seventeen render fixtures (list, detail, navigation,
+  the full pipeline in CI: eighteen render fixtures (list, detail, navigation,
   action groups, tinted icons, form controls, toasts, preferences, and
   brokered clipboard) and one fails with a structured `unsupported_api`
   error, while the corpus probe records exactly which unmeasured APIs block
@@ -116,6 +116,12 @@ slice changes what is executable, what is trusted, or what should happen next.
 - `launchCommand` crosses an explicit `command.launch` capability. Command
   names, launch types, external targets, fallback text, and JSON-serializable
   arguments/context are validated before primitive-only wire encoding.
+- `getSelectedText` and `getApplications` cross explicit `selection.read` and
+  `application.list` capabilities. Selected text requires a string response;
+  application results are JSON-decoded and validated into the measured
+  `Application` shape, with an optional path encoded as a primitive argument.
+- `openCommandPreferences` crosses the explicit
+  `preferences.openCommand` capability.
 
 ## Trust boundaries already enforced
 
@@ -142,7 +148,7 @@ slice changes what is executable, what is trusted, or what should happen next.
   externalization for large npm graphs (the runtime now supports explicit
   local or vendored dependency roots but never installs packages);
 - the remaining measured Raycast surface: Form focus/blur callbacks, client
-  toast timing/stacking, and broader desktop APIs such as selected-text and
+  toast timing/stacking, and broader desktop APIs such as Finder and frontmost
   application discovery;
 - a client-facing core protocol, daemon listener, and desktop rendering of
   scenes (the deterministic test client stands in today);
@@ -161,12 +167,12 @@ support matrix (`compatibility/support-matrix.md`) records the baseline and
 post-slice probes. The priority remains measured extension coverage: coverage
 means the share of corpus extensions that bundle and render through the current
 path, not the number of exported API names. The shortcut, imperative, cache,
-launch-boundary, and dependency-policy slices are complete, but the measured
-80% target is not yet met; the next work should address the dominant remaining
-API and dependency blockers using the same probe.
+launch-boundary, desktop-discovery, and dependency-policy slices are complete,
+but the measured 80% target is not yet met; the next work should address the
+dominant remaining API and dependency blockers using the same probe.
 
-1. Expand the next measured blocker group (`getSelectedText`,
-   `getApplications`, and `openCommandPreferences`) with deterministic
+1. Expand the next measured blocker group (`getSelectedFinderItems`,
+   `showInFinder`, and `getFrontmostApplication`) with deterministic
    capability fixtures and host-provider semantics.
 2. Provision an audited, pinned vendor set or an explicit installation phase
    for the remaining third-party dependency graph; keep installation outside

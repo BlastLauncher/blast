@@ -23,11 +23,13 @@ const SUPPORTED_API_IMPORTS = new Set([
   "ActionPanel",
   "ActionStyle",
   "Alert",
+  "Application",
   "Cache",
   "Clipboard",
   "Color",
   "Detail",
   "Form",
+  "FileIcon",
   "Grid",
   "Icon",
   "Image",
@@ -43,7 +45,10 @@ const SUPPORTED_API_IMPORTS = new Set([
   "confirmAlert",
   "environment",
   "getPreferenceValues",
+  "getApplications",
+  "getSelectedText",
   "open",
+  "openCommandPreferences",
   "openExtensionPreferences",
   "popToRoot",
   "launchCommand",
@@ -216,6 +221,7 @@ function createCore(stderr) {
   // extension grants and deny-by-default providers.
   const allowedCapabilities = new Set([
     "alert.confirm",
+    "application.list",
     "clipboard.read",
     "clipboard.write",
     "command.launch",
@@ -227,6 +233,8 @@ function createCore(stderr) {
     "navigation.popToRoot",
     "open.open",
     "preferences.openExtension",
+    "preferences.openCommand",
+    "selection.read",
     "window.close",
   ]);
   const broker = new CapabilityBroker({
@@ -242,6 +250,27 @@ function createCore(stderr) {
             return true;
           }
           throw new Error(`Unknown alert operation ${JSON.stringify(request.operation)}`);
+        },
+      },
+      application: {
+        async perform(request) {
+          if (request.operation === "list") {
+            return JSON.stringify([
+              {
+                name: "Raycast",
+                localizedName: "Raycast",
+                path: "/Applications/Raycast.app",
+                bundleId: "com.raycast.macos",
+              },
+              {
+                name: "Terminal",
+                localizedName: "Terminal",
+                path: "/System/Applications/Utilities/Terminal.app",
+                bundleId: "com.apple.Terminal",
+              },
+            ]);
+          }
+          throw new Error(`Unknown application operation ${JSON.stringify(request.operation)}`);
         },
       },
       clipboard: {
@@ -290,10 +319,18 @@ function createCore(stderr) {
       },
       preferences: {
         async perform(request) {
-          if (request.operation === "openExtension") {
+          if (request.operation === "openExtension" || request.operation === "openCommand") {
             return undefined;
           }
           throw new Error(`Unknown preferences operation ${JSON.stringify(request.operation)}`);
+        },
+      },
+      selection: {
+        async perform(request) {
+          if (request.operation === "read") {
+            return "selected text";
+          }
+          throw new Error(`Unknown selection operation ${JSON.stringify(request.operation)}`);
         },
       },
       window: {

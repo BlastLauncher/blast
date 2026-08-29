@@ -7,7 +7,7 @@ renderer, and traffic relay. Committed fixtures are trimmed to manifest and
 sources, so matrix runs are hermetic and deterministic.
 
 - corpus: `raycast/extensions@d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91`
-- probed: all 3,231 extensions (one deterministic view-command probe per extension)
+- probed: all 3,231 extensions (one deterministic command probe per extension)
 - executable test: `packages/blast-e2e/test/support-matrix.test.mjs`
 - reproducible corpus probe: `packages/blast-e2e/scripts/probe-corpus.mjs`
 - fixture set: `packages/blast-e2e/test/fixtures/real/`
@@ -29,53 +29,56 @@ package-manager scripts; unavailable packages remain dependency failures.
 
 | Outcome                        | Pre-slice | Post-slice | Change |
 | ------------------------------ | --------: | ---------: | -----: |
-| third-party dependency failure |     2,361 |      1,278 | -1,083 |
+| third-party dependency failure |     2,361 |      1,277 | -1,084 |
 | not renderable command mode    |       358 |        316 |    -42 |
-| other process/startup failure  |       432 |      1,054 |   +622 |
+| other process/startup failure  |       432 |      1,008 |   +576 |
 | structured compatibility error |        23 |        143 |   +120 |
-| renders a scene end to end     |        54 |        437 |   +383 |
+| renders a scene end to end     |        54 |        484 |   +430 |
 | no entrypoint found            |         3 |          3 |      0 |
 
-Reading: the post-slice extension pass rate is 437/3,231 (13.53%); among the
-2,915 extensions with a selected renderable command it is 437/2,915 (14.99%).
+Reading: the post-slice extension pass rate is 484/3,231 (14.98%); among the
+2,915 extensions with a selected renderable command it is 484/2,915 (16.60%).
 The high-impact `Grid`, `launchCommand`, `MenuBarExtra`, LaunchProps,
-window/navigation, and `Image` blockers are no longer in the static list.
-Remaining static blockers on non-rendering extensions are led by
-`getSelectedText` (216), `getApplications` (186),
-`openCommandPreferences` (164), `getSelectedFinderItems` (135), and `OAuth`
-(119). The vendor root removes 1,083 dependency failures, but 1,278 remain;
-the next coverage group should combine the top remaining API blockers with the
-audited dependency provisioning decision.
+window/navigation, `Image`, selected-text, application-discovery, and command-
+preference blockers are no longer in the static list. Remaining static
+blockers on non-rendering extensions are led by `getSelectedFinderItems` (135),
+`OAuth` (119), `showInFinder` (116), `AI` (89), and
+`getFrontmostApplication` (87). The vendor root removes 1,084 dependency
+failures, but 1,277 remain; the next coverage group should combine the top
+remaining API blockers with the audited dependency provisioning decision.
 
 ## Committed fixtures
 
-| Fixture                     | Root           | Items | Measured APIs                                                                              |
-| --------------------------- | -------------- | ----: | ------------------------------------------------------------------------------------------ |
-| `papersize`                 | list           |    42 | Action, ActionPanel, Icon, List                                                            |
-| `golden-ratio`              | list           |     1 | Action, ActionPanel, Clipboard, Icon, List, showToast, Toast                               |
-| `pokemon-tcg-pocket-binder` | list           |     6 | Action, ActionPanel, List, showToast, Toast                                                |
-| `ruby-evaluate`             | list           |     0 | Action, ActionPanel, List, Detail, getPreferenceValues                                     |
-| `wifi-password-reveal`      | list           |     0 | Action, ActionPanel, Detail, Icon, List, showToast, Toast                                  |
-| `go-links`                  | list           |     0 | Action, ActionPanel, Icon, List, showToast, Toast                                          |
-| `utm-virtual-machines`      | list           |     0 | Action, ActionPanel, Icon, List, showToast, Toast                                          |
-| `time`                      | detail         |     0 | Detail                                                                                     |
-| `deutscherwetterdienst`     | detail         |     0 | Detail                                                                                     |
-| `donut`                     | detail         |     0 | Detail                                                                                     |
-| `big-o`                     | list           |     3 | Action, ActionPanel, List                                                                  |
-| `balatro-compendium`        | list           |     3 | Action, ActionPanel, Detail, Icon, List, showToast, Toast                                  |
-| `cache-control-builder`     | list           |     3 | Action, ActionPanel, Detail, Icon, List, environment, useNavigation                        |
-| `single-disk-eject`         | list           |     0 | Action, ActionPanel, List, environment, getPreferenceValues, showToast, Toast              |
-| `form-submission`           | form           |     4 | Action, ActionPanel, Form (DatePicker, TagPicker, FilePicker)                              |
-| `launch-boundaries`         | list           |     1 | Image masks, LaunchProps, LaunchType, closeMainWindow, popToRoot, openExtensionPreferences |
-| `grid-boundaries`           | grid           |     2 | Grid, Grid.Item, Grid.Section, Grid.Dropdown, Grid.EmptyView, Icon                         |
-| `menu-bar-boundaries`       | menu-bar-extra |     2 | MenuBarExtra, Item, Section, Submenu, Separator, Icon                                      |
-| `choose-a-license`          | —              |     — | expected `unsupported_api`: Action.OpenInBrowser                                           |
+| Fixture                        | Root           | Items | Measured APIs                                                                              |
+| ------------------------------ | -------------- | ----: | ------------------------------------------------------------------------------------------ |
+| `papersize`                    | list           |    42 | Action, ActionPanel, Icon, List                                                            |
+| `golden-ratio`                 | list           |     1 | Action, ActionPanel, Clipboard, Icon, List, showToast, Toast                               |
+| `pokemon-tcg-pocket-binder`    | list           |     6 | Action, ActionPanel, List, showToast, Toast                                                |
+| `ruby-evaluate`                | list           |     0 | Action, ActionPanel, List, Detail, getPreferenceValues                                     |
+| `wifi-password-reveal`         | list           |     0 | Action, ActionPanel, Detail, Icon, List, showToast, Toast                                  |
+| `go-links`                     | list           |     0 | Action, ActionPanel, Icon, List, showToast, Toast                                          |
+| `utm-virtual-machines`         | list           |     0 | Action, ActionPanel, Icon, List, showToast, Toast                                          |
+| `time`                         | detail         |     0 | Detail                                                                                     |
+| `deutscherwetterdienst`        | detail         |     0 | Detail                                                                                     |
+| `donut`                        | detail         |     0 | Detail                                                                                     |
+| `big-o`                        | list           |     3 | Action, ActionPanel, List                                                                  |
+| `balatro-compendium`           | list           |     3 | Action, ActionPanel, Detail, Icon, List, showToast, Toast                                  |
+| `cache-control-builder`        | list           |     3 | Action, ActionPanel, Detail, Icon, List, environment, useNavigation                        |
+| `single-disk-eject`            | list           |     0 | Action, ActionPanel, List, environment, getPreferenceValues, showToast, Toast              |
+| `form-submission`              | form           |     4 | Action, ActionPanel, Form (DatePicker, TagPicker, FilePicker)                              |
+| `launch-boundaries`            | list           |     1 | Image masks, LaunchProps, LaunchType, closeMainWindow, popToRoot, openExtensionPreferences |
+| `desktop-discovery-boundaries` | list           |     2 | Application, getApplications, getSelectedText, openCommandPreferences                      |
+| `grid-boundaries`              | grid           |     2 | Grid, Grid.Item, Grid.Section, Grid.Dropdown, Grid.EmptyView, Icon                         |
+| `menu-bar-boundaries`          | menu-bar-extra |     2 | MenuBarExtra, Item, Section, Submenu, Separator, Icon                                      |
+| `choose-a-license`             | —              |     — | expected `unsupported_api`: Action.OpenInBrowser                                           |
 
-The seventeen render fixtures assert root type and minimum item counts through
-real child processes; the form fixture additionally dispatches text, date,
-tag-array, and file-path changes plus a submit event with client-provided
-values. The gap fixture asserts that unmeasured surface fails with a
-structured `unsupported_api` error and a non-zero exit.
+The eighteen matrix render fixtures assert root type and minimum item counts
+through real child processes; the desktop-discovery fixture additionally waits
+for three brokered capability responses, and the form fixture dispatches text,
+date, tag-array, and file-path changes plus a submit event with client-provided
+values. The launch-boundaries fixture is also exercised by the vertical suite.
+The gap fixture asserts that unmeasured surface fails with a structured
+`unsupported_api` error and a non-zero exit.
 
 ## Known gaps surfaced by the matrix
 
@@ -96,6 +99,11 @@ structured `unsupported_api` error and a non-zero exit.
   user-initiated launch with an empty argument map in the current launcher;
   explicit command launching is brokered, while host-side target resolution
   and process orchestration remain future client plumbing;
+- `getSelectedText`, `getApplications`, `Application`, `FileIcon`, and
+  `openCommandPreferences` are measured through `selection.read`,
+  `application.list`, and `preferences.openCommand`; deterministic providers
+  make corpus and fixture runs reproducible, while production OS providers and
+  consent policy remain absent;
 - third-party npm dependency availability (the post-slice report records these
   as `third-party-dependency`; vendored roots are explicit but not yet a full
   audited corpus dependency set).

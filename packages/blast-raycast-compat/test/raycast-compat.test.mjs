@@ -13,6 +13,8 @@ import {
   CompatibilityError,
   Detail,
   Form,
+  getApplications,
+  getSelectedText,
   Grid,
   Icon,
   Image,
@@ -29,6 +31,7 @@ import {
   environment,
   getPreferenceValues,
   open,
+  openCommandPreferences,
   openExtensionPreferences,
   popToRoot,
   launchCommand,
@@ -790,6 +793,53 @@ test("routes window, navigation, and extension-preference helpers through capabi
     },
     { capability: "preferences", operation: "openExtension" },
   ]);
+});
+
+test("routes selected text, application discovery, and command preferences through capabilities", async () => {
+  const applications = [
+    {
+      name: "Raycast",
+      localizedName: "Raycast",
+      path: "/Applications/Raycast.app",
+      bundleId: "com.raycast.macos",
+    },
+  ];
+  const probe = createContext({
+    capabilityValues: {
+      "selection.read": "selected from test",
+      "application.list": JSON.stringify(applications),
+    },
+  });
+  configureRaycastCompat(probe.context);
+
+  assert.equal(await getSelectedText(), "selected from test");
+  assert.deepEqual(await getApplications("/tmp/example.txt"), applications);
+  await openCommandPreferences();
+
+  assert.deepEqual(probe.capabilityRequests, [
+    { capability: "selection", operation: "read" },
+    { capability: "application", operation: "list", arguments: { path: "/tmp/example.txt" } },
+    { capability: "preferences", operation: "openCommand" },
+  ]);
+});
+
+test("rejects malformed application and selected-text capability responses", async () => {
+  const probe = createContext({
+    capabilityValues: {
+      "selection.read": null,
+      "application.list": JSON.stringify([{ name: "Missing path" }]),
+    },
+  });
+  configureRaycastCompat(probe.context);
+
+  await assert.rejects(
+    () => getSelectedText(),
+    (error) => error instanceof CompatibilityError,
+  );
+  await assert.rejects(
+    () => getApplications(),
+    (error) => error instanceof CompatibilityError,
+  );
 });
 
 test("routes launchCommand options through the command capability", async () => {

@@ -17,6 +17,7 @@ const crashIdentity = { extensionId: "e2e.crash", commandName: "index" };
 const compatIdentity = { extensionId: "e2e.compat", commandName: "index" };
 const tsxIdentity = { extensionId: "e2e.tsx", commandName: "index" };
 const launchBoundariesIdentity = { extensionId: "e2e.launch-boundaries", commandName: "index" };
+const desktopDiscoveryIdentity = { extensionId: "e2e.desktop-discovery", commandName: "index" };
 
 function createCore() {
   const catalog = new FilesystemExtensionCatalog({ root: catalogRoot });
@@ -40,6 +41,9 @@ function createCore() {
       { extensionId: "e2e.launch-boundaries", capability: "navigation", operation: "popToRoot" },
       { extensionId: "e2e.launch-boundaries", capability: "preferences", operation: "openExtension" },
       { extensionId: "e2e.launch-boundaries", capability: "command", operation: "launch" },
+      { extensionId: "e2e.desktop-discovery", capability: "selection", operation: "read" },
+      { extensionId: "e2e.desktop-discovery", capability: "application", operation: "list" },
+      { extensionId: "e2e.desktop-discovery", capability: "preferences", operation: "openCommand" },
     ]),
     providers: {
       clipboard: {
@@ -63,7 +67,41 @@ function createCore() {
       preferences: {
         async perform(request) {
           boundaryRequests.push(request);
-          return undefined;
+          if (request.operation === "openExtension" || request.operation === "openCommand") {
+            return undefined;
+          }
+          throw new Error(`Unknown preferences operation ${JSON.stringify(request.operation)}`);
+        },
+      },
+      selection: {
+        async perform(request) {
+          boundaryRequests.push(request);
+          if (request.operation === "read") {
+            return "selected from fixture";
+          }
+          throw new Error(`Unknown selection operation ${JSON.stringify(request.operation)}`);
+        },
+      },
+      application: {
+        async perform(request) {
+          boundaryRequests.push(request);
+          if (request.operation === "list") {
+            return JSON.stringify([
+              {
+                name: "Raycast",
+                localizedName: "Raycast",
+                path: "/Applications/Raycast.app",
+                bundleId: "com.raycast.macos",
+              },
+              {
+                name: "Terminal",
+                localizedName: "Terminal",
+                path: "/System/Applications/Utilities/Terminal.app",
+                bundleId: "com.apple.Terminal",
+              },
+            ]);
+          }
+          throw new Error(`Unknown application operation ${JSON.stringify(request.operation)}`);
         },
       },
       command: {
@@ -326,6 +364,42 @@ test("injects launch props and relays desktop boundary helpers", async () => {
   );
 
   await core.stopCommand(launchBoundariesIdentity, "launch boundary slice complete");
+  await relay.done;
+  await core.close();
+});
+
+test("routes selected text, application discovery, and command preferences end to end", async () => {
+  const { core, broker, boundaryRequests } = createCore();
+  const buffer = new SceneStateBuffer();
+  const session = await core.runCommand(desktopDiscoveryIdentity);
+  const relay = relaySessionTraffic(session, {
+    sceneSink: createSceneSink(buffer, []),
+    capabilityBroker: broker,
+  });
+
+  await waitFor(
+    () =>
+      buffer.rootId !== undefined &&
+      buffer.get(buffer.rootId).props.navigationTitle === "Discovery:selected from fixture",
+    "the desktop-discovery snapshot",
+  );
+  assert.deepEqual(
+    buffer.childrenOf(buffer.rootId).map(({ props }) => ({ title: props.title, subtitle: props.subtitle })),
+    [
+      { title: "Raycast", subtitle: "Raycast" },
+      { title: "Terminal", subtitle: "Terminal" },
+    ],
+  );
+  assert.deepEqual(
+    boundaryRequests.map(({ capability, operation, arguments: args }) => ({ capability, operation, arguments: args })),
+    [
+      { capability: "selection", operation: "read", arguments: {} },
+      { capability: "application", operation: "list", arguments: { path: "/tmp/example.txt" } },
+      { capability: "preferences", operation: "openCommand", arguments: {} },
+    ],
+  );
+
+  await core.stopCommand(desktopDiscoveryIdentity, "desktop discovery slice complete");
   await relay.done;
   await core.close();
 });

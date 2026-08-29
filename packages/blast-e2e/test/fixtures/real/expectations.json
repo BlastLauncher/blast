@@ -242,6 +242,21 @@
     "source": "blast/compatibility-fixture"
   },
   {
+    "id": "desktop-discovery-boundaries",
+    "extensionId": "desktop-discovery-boundaries",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "list",
+    "minItems": 2,
+    "readyNavigationTitle": "Discovery:selected from matrix",
+    "apis": [
+      "getApplications",
+      "getSelectedText",
+      "openCommandPreferences"
+    ],
+    "source": "raycast/extensions@d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91"
+  },
+  {
     "id": "grid-boundaries",
     "extensionId": "grid-boundaries",
     "commandName": "index",

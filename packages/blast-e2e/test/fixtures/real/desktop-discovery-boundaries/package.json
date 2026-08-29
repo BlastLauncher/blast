@@ -1,0 +1,18 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "desktop-discovery-boundaries",
+  "title": "Desktop Discovery Boundaries",
+  "description": "A dependency-free desktop discovery compatibility fixture for Blast",
+  "author": "blast-fixture",
+  "commands": [
+    {
+      "name": "index",
+      "title": "Desktop Discovery Boundaries",
+      "description": "Render a scene using desktop discovery APIs",
+      "mode": "view"
+    }
+  ],
+  "dependencies": {
+    "@raycast/api": "^1.104.1"
+  }
+}
