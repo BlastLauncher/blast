@@ -69,10 +69,12 @@
       "PreferenceValues",
       "Preferences",
       "PushAction",
+      "ShowInFinderAction",
       "SubmitFormAction",
       "Toast",
       "ToastStyle",
       "Tool",
+      "TrashAction",
       "WindowManagement",
       "allLocalStorageItems",
       "captureException",
@@ -1832,18 +1834,18 @@
   "outcomes": {
     "no-entrypoint": 3,
     "not-renderable": 316,
-    "process-failure": 677,
-    "renders": 1313,
-    "structured-compatibility-error": 7,
-    "third-party-dependency": 915
+    "process-failure": 669,
+    "renders": 1324,
+    "structured-compatibility-error": 3,
+    "third-party-dependency": 916
   },
   "coverage": {
-    "extensionPasses": 1313,
+    "extensionPasses": 1324,
     "extensionTotal": 3231,
-    "extensionPassRate": 0.4064,
-    "renderableCommandPasses": 1313,
+    "extensionPassRate": 0.4098,
+    "renderableCommandPasses": 1324,
     "renderableCommandTotal": 2915,
-    "renderableCommandPassRate": 0.4504
+    "renderableCommandPassRate": 0.4542
   },
   "staticBlockers": [
     {
@@ -1853,9 +1855,9 @@
   ],
   "failureClasses": {
     "no-entrypoint": 3,
-    "process-failure": 677,
-    "structured-compatibility-error": 7,
-    "third-party-dependency": 915
+    "process-failure": 669,
+    "structured-compatibility-error": 3,
+    "third-party-dependency": 916
   },
   "failureSamples": {
     "no-entrypoint": [
@@ -1872,10 +1874,8 @@
     ],
     "structured-compatibility-error": [
       "apple-maps-search",
-      "arabic-keyboard",
-      "archiver",
-      "create-t3-app",
-      "get-cat-images"
+      "get-cat-images",
+      "vikunja"
     ],
     "third-party-dependency": [
       "1bookmark",
@@ -2964,8 +2964,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "renders"
     },
     {
       "directory": "aranet-co2-monitor",
@@ -3024,8 +3023,7 @@
       "commandName": "compress",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "renders"
     },
     {
       "directory": "are-na",
@@ -3653,8 +3651,7 @@
       "commandName": "search-subscribers",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "outcome": "renders"
     },
     {
       "directory": "beeminder",
@@ -4709,8 +4706,7 @@
       "commandName": "search",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "outcome": "renders"
     },
     {
       "directory": "ccusage",
@@ -5043,7 +5039,8 @@
       "commandName": "search-colors",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "chmod-lookup",
@@ -5514,8 +5511,7 @@
       "commandName": "switch-virtual-network",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "renders"
     },
     {
       "directory": "cloudinary",
@@ -5523,8 +5519,8 @@
       "commandName": "search",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "outcome": "third-party-dependency",
+      "failureCode": "dependency_unavailable"
     },
     {
       "directory": "cloudstash",
@@ -6428,8 +6424,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "renders"
     },
     {
       "directory": "creem",
@@ -7166,8 +7161,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_send_failed"
+      "outcome": "renders"
     },
     {
       "directory": "defuddle",
@@ -10967,8 +10961,7 @@
       "commandName": "manual-profile",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "renders"
     },
     {
       "directory": "google-scholar",
@@ -13992,7 +13985,7 @@
       "mode": "view",
       "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "transport_send_failed"
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "leave-time-calculator",
@@ -14646,8 +14639,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "renders"
     },
     {
       "directory": "lucky-surf",
@@ -16034,8 +16026,7 @@
       "commandName": "payments-list",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "outcome": "renders"
     },
     {
       "directory": "momentum",
@@ -20817,8 +20808,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "renders"
     },
     {
       "directory": "raycast-deskly",
@@ -25345,8 +25335,7 @@
       "commandName": "decorate-text-with-font",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "renders"
     },
     {
       "directory": "text-differ",
@@ -27426,8 +27415,8 @@
       "commandName": "create-task",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "vim-bro",

@@ -144,7 +144,7 @@ export function createCollectingSceneSink(): SceneTransactionSink & {
 
 const PROP_WHITELIST: Record<SceneNodeType, readonly string[]> = {
   list: ["navigationTitle", "searchBarPlaceholder", "isLoading"],
-  "list-item": ["title", "subtitle", "icon", "iconTintColor"],
+  "list-item": ["title", "subtitle", "icon", "iconTintColor", "iconTooltip"],
   "list-section": ["id", "title", "subtitle"],
   grid: [
     "navigationTitle",
@@ -361,7 +361,13 @@ type ScenePropType = "string" | "boolean" | "number" | "string[]" | "shortcut";
 
 const PROP_TYPES: Record<SceneNodeType, Readonly<Record<string, ScenePropType>>> = {
   list: { navigationTitle: "string", searchBarPlaceholder: "string", isLoading: "boolean" },
-  "list-item": { title: "string", subtitle: "string", icon: "string", iconTintColor: "string" },
+  "list-item": {
+    title: "string",
+    subtitle: "string",
+    icon: "string",
+    iconTintColor: "string",
+    iconTooltip: "string",
+  },
   "list-section": { id: "string", title: "string", subtitle: "string" },
   grid: {
     navigationTitle: "string",

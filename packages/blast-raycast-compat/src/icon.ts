@@ -4,6 +4,7 @@
  * deliberately as compatibility is measured.
  */
 export const Icon = {
+  AddPerson: "add-person-16",
   Asterisk: "asterisk",
   AppWindowSidebarLeft: "app-window-sidebar-left",
   AtTheRate: "at-the-rate",

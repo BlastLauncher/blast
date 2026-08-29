@@ -300,10 +300,15 @@ export interface ListProps {
   readonly actions?: ReactNode;
 }
 
+export interface ListItemIconWithTooltip {
+  readonly value: IconLike | null | undefined;
+  readonly tooltip: string;
+}
+
 export interface ListItemProps {
   readonly title: string;
   readonly subtitle?: string;
-  readonly icon?: IconLike;
+  readonly icon?: IconLike | ListItemIconWithTooltip;
   readonly children?: ReactNode;
   readonly actions?: ReactNode;
 }
@@ -1655,8 +1660,8 @@ function normalizeStringArray(value: unknown, where: string): string[] {
 }
 
 function normalizeGridColumns(value: unknown, where: string): number {
-  if (typeof value !== "number" || !Number.isInteger(value) || value < 1 || value > 8) {
-    unsupported(`${where} must be an integer between 1 and 8`, { value });
+  if (typeof value !== "number" || !Number.isSafeInteger(value) || value < 1) {
+    unsupported(`${where} must be a positive safe integer`, { value });
   }
   return value;
 }
@@ -1727,7 +1732,7 @@ function serializeGridContent(
   if ("value" in content) {
     return {
       ...serializeGridContent(content.value, where),
-      contentTooltip: requireNonEmptyString(content.tooltip, `${where} content tooltip`),
+      contentTooltip: requireString(content.tooltip, `${where} content tooltip`),
     };
   }
   if ("color" in content) {
@@ -1802,6 +1807,20 @@ function serializeIcon(
     return { icon: `fileIcon:${requireNonEmptyString(fileIcon, `${where} fileIcon`)}` };
   }
   unsupported(`An icon in ${where}`, { icon });
+}
+
+function serializeListItemIcon(
+  icon: ListItemProps["icon"] | null | undefined,
+  where: string,
+): { icon?: string; iconTintColor?: string; iconTooltip?: string } | undefined {
+  if (isRecord(icon) && "value" in icon) {
+    const serialized = serializeIcon(icon.value as IconLike | null | undefined, where);
+    return {
+      ...(serialized === undefined ? {} : serialized),
+      iconTooltip: requireString(icon.tooltip, `${where} tooltip`),
+    };
+  }
+  return serializeIcon(icon as IconLike | null | undefined, where);
 }
 
 function serializeQuicklink(quicklink: unknown, where: string): string {
@@ -2198,7 +2217,7 @@ function ListComponent(props: ListProps): ReactElement {
 }
 
 function ListItem(props: ListItemProps): ReactElement {
-  const icon = serializeIcon(props.icon, "List.Item");
+  const icon = serializeListItemIcon(props.icon, "List.Item");
   const children =
     props.actions === undefined
       ? props.children
@@ -2208,7 +2227,9 @@ function ListItem(props: ListItemProps): ReactElement {
     {
       title: props.title,
       ...(props.subtitle === undefined ? {} : { subtitle: props.subtitle }),
-      ...(icon === undefined ? {} : { icon: icon.icon, iconTintColor: icon.iconTintColor }),
+      ...(icon?.icon === undefined ? {} : { icon: icon.icon }),
+      ...(icon?.iconTintColor === undefined ? {} : { iconTintColor: icon.iconTintColor }),
+      ...(icon?.iconTooltip === undefined ? {} : { iconTooltip: icon.iconTooltip }),
     },
     mapItemChildren(children, "List.Item"),
   );
@@ -2434,6 +2455,7 @@ interface FormCodec {
   readonly acceptsWire: (value: SceneFormValue) => boolean;
   readonly serialize: (value: unknown) => SceneFormValue;
   readonly deserialize: (value: SceneFormValue) => FormValue;
+  readonly normalizeInitial?: (value: unknown) => unknown;
 }
 
 interface FormRuntime {
@@ -2646,7 +2668,8 @@ function isDateWireValue(value: SceneFormValue): boolean {
  * members and invalid objects.
  */
 function normalizeFormInitialValue(value: unknown, codec: FormCodec): FormValue | undefined {
-  return value === null && !codec.accepts(value) ? undefined : (value as FormValue | undefined);
+  const normalized = codec.normalizeInitial === undefined ? value : codec.normalizeInitial(value);
+  return normalized === null && !codec.accepts(normalized) ? undefined : (normalized as FormValue | undefined);
 }
 
 const stringFormCodec: FormCodec = {
@@ -2668,6 +2691,16 @@ const stringArrayFormCodec: FormCodec = {
   acceptsWire: isStringArrayFormValue,
   serialize: (value) => [...(value as string[])],
   deserialize: (value) => [...(value as readonly string[])],
+  normalizeInitial: (value) => {
+    if (
+      !Array.isArray(value) ||
+      !value.some((entry) => entry === undefined) ||
+      !value.every((entry) => entry === undefined || typeof entry === "string")
+    ) {
+      return value;
+    }
+    return value.filter((entry): entry is string => entry !== undefined);
+  },
 };
 
 const dateFormCodec: FormCodec = {
@@ -3602,12 +3635,27 @@ function isIgnorableChild(child: ReactNode): boolean {
     child === null ||
     child === undefined ||
     typeof child === "boolean" ||
+    (typeof child === "number" && child === 0) ||
     (typeof child === "string" && child.trim().length === 0)
   );
 }
 
+const REACT_EXOTIC_COMPONENT_TYPES = new Set([
+  Symbol.for("react.memo"),
+  Symbol.for("react.forward_ref"),
+  Symbol.for("react.lazy"),
+]);
+
 function isCompositeElement(element: ReactElement): boolean {
-  return typeof element.type === "function" || (element.type as unknown) === Fragment;
+  const type = element.type as unknown;
+  if (typeof type === "function" || type === Fragment) {
+    return true;
+  }
+  if (typeof type !== "object" || type === null) {
+    return false;
+  }
+  const tag = (type as { readonly $$typeof?: unknown }).$$typeof;
+  return typeof tag === "symbol" && REACT_EXOTIC_COMPONENT_TYPES.has(tag);
 }
 
 function keyedElement(child: ReactNode, key: string): ReactNode {

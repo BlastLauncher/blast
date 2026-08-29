@@ -32,22 +32,23 @@ unavailable packages remain dependency failures.
 
 | Outcome                        | Baseline | Previous post-slice | Current post-slice | Current vs previous |
 | ------------------------------ | -------: | ------------------: | -----------------: | ------------------: |
-| third-party dependency failure |    2,361 |               1,278 |                915 |                -363 |
+| third-party dependency failure |    2,361 |                 915 |                916 |                  +1 |
 | not renderable command mode    |      358 |                 316 |                316 |                   0 |
-| other process/startup failure  |      432 |                 824 |                677 |                -147 |
-| structured compatibility error |       23 |                 106 |                  7 |                 -99 |
-| renders a scene end to end     |       54 |                 704 |              1,313 |                +609 |
+| other process/startup failure  |      432 |                 677 |                669 |                  -8 |
+| structured compatibility error |       23 |                   7 |                  3 |                  -4 |
+| renders a scene end to end     |       54 |               1,313 |              1,324 |                 +11 |
 | no entrypoint found            |        3 |                   3 |                  3 |                   0 |
 
-Reading: the current post-slice extension pass rate is 1,313/3,231 (40.64%);
-among the 2,915 extensions with a selected renderable command it is 1,313/2,915
-(45.04%). The measured preference, navigation, environment, form-value,
+Reading: the current post-slice extension pass rate is 1,324/3,231 (40.98%);
+among the 2,915 extensions with a selected renderable command it is 1,324/2,915
+(45.42%). The measured preference, navigation, environment, form-value,
 keyboard, image-type, `randomId`, WindowManagement, small legacy aliases,
 safe import shapes, Form focus/blur callbacks, nullable Form initial values,
 empty string-valued controls, composite React children, the observed icon
-members, the `ActionPanel.Item` alias, and whitespace-only collection children
-are no longer in the non-rendering static blocker list. The only
-remaining static import gap is one `fetch` import. The vendor root leaves
+members, the `ActionPanel.Item` alias, whitespace-only collection children,
+Grid collection values, List icon descriptors, and optional string-array Form
+initial values are no longer in the non-rendering static blocker list. The
+only remaining static import gap is one `fetch` import. The vendor root leaves
 dependency failures tracked separately.
 The current priority is the measured API boundary rather than another
 dependency seed; this probe refresh records whitespace-only collection child
@@ -63,8 +64,11 @@ through explicit host capabilities; deprecated direct Form dropdown members
 are identity-preserving aliases. `Action.ShowInFinder` and `Action.Trash` now
 share the generic action node and route normalized paths through the existing
 Finder/filesystem capabilities; the measured `twitter-video-downloader`
-command now reaches a rendered scene. The next target is the remaining
-structured Grid, conditional-child, and nullable Form-value boundaries.
+command now reaches a rendered scene. The latest collection-value slice also
+moved `arabic-keyboard`, `archiver`, `create-t3-app`, `google-meet`, and
+`lucide-icons` through to rendered scenes. Three structured failures remain for
+diagnosis: `apple-maps-search/directionsTo`, `get-cat-images/get-cat-images`,
+and `vikunja/create-task`.
 
 The first audited vendor seed is `axios@1.8.4`, `cheerio@1.0.0`,
 `cross-fetch@4.0.0`, `date-fns@4.1.0`, `fast-xml-parser@5.3.2`, `fuse.js@7.1.0`,
@@ -137,6 +141,10 @@ dispatches a bounds mutation through the explicit host capability.
   browser/clipboard/action aliases are
   measured; custom React components/fragments can compose action children;
   broader action helpers remain unsupported;
+- Grid accepts positive safe-integer column counts and preserves empty content
+  tooltips, while `List.Item` accepts measured `{ value, tooltip }` icon
+  descriptors. The adapter exposes the observed `Icon.AddPerson` member;
+  layout clamping and icon rendering remain client work;
 - toast lifecycle, mutable fields, action callbacks, and toast-action shortcut
   objects are measured; client toast timing/stacking remains unsupported;
 - `useNavigation` and `Action.Push` (28.8% of extensions),
@@ -194,11 +202,14 @@ dispatches a bounds mutation through the explicit host capability.
   access needs an explicit host capability and policy;
 - custom function components and React fragments can compose measured action,
   list, grid, menu-bar, and form children; raw text, intrinsic DOM elements,
-  and invalid resolved children remain outside the semantic scene contract;
+  and invalid resolved children remain outside the semantic scene contract.
+  React memo/forward-ref/lazy wrappers are treated as composites, and an exact
+  numeric `0` is ignored as the standard JSX conditional-child sentinel;
 - nullable async state is accepted as a top-level `null` initial value for
   non-date Form controls and omitted from the scene props; DatePicker retains
-  its native `Date | null` behavior, while null members inside string arrays
-  remain invalid;
+  its native `Date | null` behavior. Optional string-array initial values omit
+  `undefined` entries only when all other entries are strings; null members and
+  other invalid entries remain rejected;
 - string-valued Form and Grid dropdown labels and values, Form checkbox labels,
   and Form descriptions preserve empty strings; non-string values remain
   invalid;

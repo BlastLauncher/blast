@@ -88,9 +88,9 @@ slice changes what is executable, what is trusted, or what should happen next.
 - A second bounded seed adds `file-url`, `filesize`, `gray-matter`,
   `javascript-time-ago`, `luxon`, `node-html-parser`, `qrcode`, `tildify`,
   `ts-pattern`, and `turndown`, also as exact-version e2e development
-  dependencies. The latest pinned corpus probe passes 1,313 of 3,231
-  extensions (40.64%), or 1,313 of 2,915 extensions with a selected renderable
-  command (45.04%).
+  dependencies. The latest pinned corpus probe passes 1,324 of 3,231
+  extensions (40.98%), or 1,324 of 2,915 extensions with a selected renderable
+  command (45.42%).
 - Navigation (useNavigation, Action.Push), LocalStorage through the
   capability broker with a reference in-memory provider, the callable plus
   property-based environment surface, and measured WindowManagement discovery
@@ -149,6 +149,14 @@ slice changes what is executable, what is trusted, or what should happen next.
   `finder.show` and `filesystem.trash` capabilities. Deprecated direct action
   aliases preserve those component identities; activation callbacks run only
   after a successful host response.
+- The measured collection-value boundary now preserves empty Grid content
+  tooltips, accepts positive safe-integer Grid column counts, and serializes
+  `List.Item` icon descriptors with optional values and tooltips. The explicit
+  icon subset includes the observed `Icon.AddPerson` member. JSX conditional
+  numeric `0` sentinels and React memo/forward-ref/lazy composites are accepted
+  in measured collection slots. Optional string-array Form initial values omit
+  only `undefined` entries when all remaining entries are strings; null and
+  other invalid members remain rejected.
 - Measured collection components accept custom function components and React
   fragments in action, list, grid, menu-bar, and form child positions; the
   resolved children remain subject to semantic parent/child validation, while
@@ -306,17 +314,20 @@ measured 80% target is not yet met; the next work should address the dominant
 remaining API boundary gaps using the same probe. Additional dependency seeds
 remain deferred until the next API slice is measured.
 
-1. Diagnose and implement the remaining structured compatibility failures,
-   starting with the measured `ActionPanel` conditional child, Grid layout and
-   content shapes, and nullable Form picker state; preserve structured errors
-   for invalid URLs and values that would require a broader scene or host
-   policy.
+1. Diagnose the three remaining structured compatibility failures
+   (`apple-maps-search/directionsTo`, `get-cat-images/get-cat-images`, and
+   `vikunja/create-task`) and only broaden the adapter when their runtime
+   values are a measured, safe contract; preserve structured errors for empty
+   URLs and values that would require a broader scene or host policy. Then
+   measure the next high-usage action components, beginning with
+   `Action.ToggleQuickLook` and `Action.CreateSnippet` if their host operations
+   can be bounded explicitly.
 2. Keep the command-scoped preference, nullable Form, empty-string,
    `LocalStorage.allItems`/`allLocalStorageItems`, Form event, literal `require`,
    composite-child, measured Icon, `ActionPanel.Item`, whitespace-only
    collection boundaries, `Form.LinkAccessory`, the measured action creators,
-   Finder/trash actions, and deprecated Form/action member aliases covered by
-   each reprobe.
+   Finder/trash actions, collection-value normalization, and deprecated
+   Form/action member aliases covered by each reprobe.
 3. Keep safe dynamic, namespace, side-effect, and literal `require` import
    forms covered while the remaining `fetch` import stays outside the adapter
    until a host network capability defines URL policy, consent, and response

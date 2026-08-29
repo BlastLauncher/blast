@@ -17,7 +17,8 @@ onto the V2 scene contract, renderer, and capability broker:
   aliases, render through
   `@blastlauncher/react-renderer`;
 - `Grid` covers content tiles, sections, empty views, search-bar dropdowns,
-  item actions, layout constants, and selection/search callbacks; `MenuBarExtra`
+  item actions, positive safe-integer column counts, empty content tooltips,
+  layout constants, and selection/search callbacks; `MenuBarExtra`
   covers menu-bar roots, items, sections, submenus, separators, shortcuts, and
   left-click callbacks;
 - `Form` covers text fields, text areas, password fields, checkboxes,
@@ -31,9 +32,11 @@ onto the V2 scene contract, renderer, and capability broker:
   Whitespace-only formatting text is ignored in measured collection slots, while
   meaningful text remains unsupported;
 - `Icon` ships an explicit measured kebab-case subset serialized into scene
-  `icon` properties, including object-icon tint colors; observed list, form,
+  `icon` properties, including object-icon tint colors and measured
+  `List.Item` `{ value, tooltip }` descriptors; observed list, form,
   grid, menu-bar, numbered, progress, disabled, and formatting members are
-  added as corpus probes justify them, while unknown members remain unsupported;
+  added as corpus probes justify them, including `Icon.AddPerson`, while
+  unknown members remain unsupported;
 - `Clipboard.copy`/`Clipboard.paste`/`Clipboard.read` route through the
   capability broker with the command identity attached by the host; text,
   numeric, and structured clipboard content are normalized across the
@@ -130,7 +133,9 @@ onto the V2 scene contract, renderer, and capability broker:
 Measured collection components accept custom function components and React
 fragments in action, list, grid, menu-bar, and form child positions. Their
 resolved scene children are still checked against the semantic parent/child
-contract; raw text and intrinsic DOM elements remain unsupported.
+contract; raw text and intrinsic DOM elements remain unsupported. React
+memo/forward-ref/lazy wrappers are treated as composites, and exact numeric
+`0` conditional children are ignored.
 
 Form changes and submissions use validated `scene.event` values. The adapter
 keeps uncontrolled defaults and client-provided values together and filters
@@ -140,6 +145,9 @@ submitted values to the current form field IDs. `DatePicker` values are native
 At runtime, a top-level `null` initial value on a non-date control is treated as
 an empty/omitted initial value for nullable async state; invalid array members
 and other wrong types remain structured compatibility errors.
+Optional string-array initial values omit `undefined` entries only when all
+remaining entries are strings; null members and other invalid entries remain
+rejected.
 String-valued Form and Grid dropdown labels and values preserve empty strings;
 non-string values remain structured compatibility errors.
 The public `FormValue` union also includes numeric and numeric-array values from

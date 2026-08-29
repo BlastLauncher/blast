@@ -76,7 +76,7 @@ import {
   useNavigation,
   WindowManagement,
 } from "../dist/index.js";
-import { Fragment, createElement } from "react";
+import { Fragment, createElement, memo } from "react";
 
 function onAction() {}
 
@@ -231,6 +231,27 @@ test("exposes the measured icon members without an implicit fallback", () => {
   assert.equal(Icon.NotMeasured, undefined);
 });
 
+test("renders List item icon descriptors with tooltips", async () => {
+  const probe = createContext();
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      List,
+      null,
+      createElement(List.Item, {
+        title: "Profile",
+        icon: { value: Icon.AddPerson, tooltip: "Add a profile" },
+      }),
+    ),
+  );
+  await renderer.flush();
+
+  assert.deepEqual(probe.transactions[0].operations[0].root.children[0].props, {
+    title: "Profile",
+    icon: "add-person-16",
+    iconTooltip: "Add a profile",
+  });
+});
+
 test("accepts composite children in action groups and form collections", async () => {
   const probe = createContext();
   function Actions() {
@@ -248,9 +269,14 @@ test("accepts composite children in action groups and form collections", async (
       ),
     );
   }
+  const MemoizedActions = memo(Actions);
 
   const renderer = renderCommand(probe.context, () =>
-    createElement(Form, { actions: createElement(ActionPanel, null, createElement(Actions)) }, createElement(Fields)),
+    createElement(
+      Form,
+      { actions: createElement(ActionPanel, null, createElement(MemoizedActions)) },
+      createElement(Fields),
+    ),
   );
   await renderer.flush();
 
@@ -273,6 +299,7 @@ test("ignores whitespace-only children in measured collections", async () => {
         List.Section,
         { title: "Items" },
         "\n    ",
+        0,
         createElement(
           List.Item,
           { title: "First" },
@@ -919,6 +946,33 @@ test("renders a Grid with sections, dropdowns, content, and empty state", async 
   });
 });
 
+test("accepts measured Grid columns and empty content tooltips", async () => {
+  const probe = createContext();
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      Grid,
+      { columns: 11 },
+      createElement(
+        Grid.Section,
+        null,
+        createElement(Grid.Item, {
+          content: { value: Icon.Circle, tooltip: "" },
+          title: "Circle",
+        }),
+      ),
+    ),
+  );
+  await renderer.flush();
+
+  const root = probe.transactions[0].operations[0].root;
+  assert.equal(root.props.columns, 11);
+  assert.deepEqual(root.children[0].children[0].props, {
+    content: "circle",
+    contentTooltip: "",
+    title: "Circle",
+  });
+});
+
 test("renders MenuBarExtra roots and routes item action events", async () => {
   const probe = createContext();
   const calls = [];
@@ -1255,6 +1309,27 @@ test("treats nullable non-date form initial values as empty", async () => {
       ),
     (error) => error instanceof CompatibilityError && /wrong type/.test(error.message),
   );
+});
+
+test("omits undefined entries from optional string-array form values", async () => {
+  const probe = createContext();
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      Form,
+      null,
+      createElement(Form.FilePicker, {
+        id: "files",
+        defaultValue: [undefined, "/tmp/example.txt"],
+      }),
+    ),
+  );
+  await renderer.flush();
+
+  assert.deepEqual(probe.transactions[0].operations[0].root.children[0].props, {
+    id: "files",
+    defaultValue: ["/tmp/example.txt"],
+    onChange: probe.transactions[0].operations[0].root.children[0].props.onChange,
+  });
 });
 
 test("accepts empty strings for string-valued form and grid options", async () => {
