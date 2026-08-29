@@ -34,14 +34,14 @@ unavailable packages remain dependency failures.
 | ------------------------------ | -------: | ------------------: | -----------------: | ------------------: |
 | third-party dependency failure |    2,361 |               1,278 |                916 |                -362 |
 | not renderable command mode    |      358 |                 316 |                316 |                   0 |
-| other process/startup failure  |      432 |                 824 |                677 |                -147 |
-| structured compatibility error |       23 |                 106 |                 14 |                 -92 |
-| renders a scene end to end     |       54 |                 704 |              1,305 |                +601 |
+| other process/startup failure  |      432 |                 824 |                674 |                -150 |
+| structured compatibility error |       23 |                 106 |                  9 |                 -97 |
+| renders a scene end to end     |       54 |                 704 |              1,313 |                +609 |
 | no entrypoint found            |        3 |                   3 |                  3 |                   0 |
 
-Reading: the current post-slice extension pass rate is 1,305/3,231 (40.39%);
-among the 2,915 extensions with a selected renderable command it is 1,305/2,915
-(44.77%). The measured preference, navigation, environment, form-value,
+Reading: the current post-slice extension pass rate is 1,313/3,231 (40.64%);
+among the 2,915 extensions with a selected renderable command it is 1,313/2,915
+(45.04%). The measured preference, navigation, environment, form-value,
 keyboard, image-type, `randomId`, WindowManagement, small legacy aliases,
 safe import shapes, Form focus/blur callbacks, nullable Form initial values,
 empty string-valued controls, composite React children, the observed icon
@@ -57,11 +57,13 @@ nullable Form initial-value, `LocalStorage.allItems`/`allLocalStorageItems`,
 Form event, literal `require`, and composite-child surfaces before dependency
 provisioning resumes. `Form.searchBarAccessory` and `Form.LinkAccessory` now
 serialize as a measured semantic node and route their open event through the
-existing `open.open` capability. Focused diagnostics moved `5devs`, `ai-humanizer`,
+existing `open.open` capability. `Action.CreateQuicklink` and `Action.PickDate`
+now share the generic action node and route their creation/picker intent
+through explicit host capabilities; deprecated direct Form dropdown members
+are identity-preserving aliases. Focused diagnostics moved `5devs`, `ai-humanizer`,
 `comma-separator`, `fastmail-masked-email`, `m3o`, and `xkeen-manager` to
-rendered scenes; the next target is the measured action/form alias boundary
-(`Action.CreateQuicklink`, `Action.PickDate`, and deprecated Form dropdown
-members).
+rendered scenes; the next target is the remaining structured action, grid, and
+form-value boundary failures.
 
 The first audited vendor seed is `axios@1.8.4`, `cheerio@1.0.0`,
 `cross-fetch@4.0.0`, `date-fns@4.1.0`, `fast-xml-parser@5.3.2`, `fuse.js@7.1.0`,
@@ -174,6 +176,10 @@ dispatches a bounds mutation through the explicit host capability.
   accessory is a semantic child with validated target/text props and a stable
   open event that invokes the existing `open.open` capability; client-side Form
   chrome placement remains host/client work;
+- `Action.CreateQuicklink`, `Action.PickDate`, and the deprecated direct Form
+  dropdown/tag-picker members are measured. Quicklink creation and date picking
+  use explicit `quicklink.create` and `date-picker.pick` capabilities; provider
+  consent and native UI remain host work.
 - namespace imports, literal dynamic imports, literal side-effect imports, and
   literal CommonJS `require("@raycast/api")` calls resolve through the same
   launcher alias as named imports when they access measured adapter members.

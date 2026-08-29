@@ -8,7 +8,8 @@ onto the V2 scene contract, renderer, and capability broker:
 - `List`, `List.Item`, `List.Section`, `ListSection`, `ActionPanel`,
   `ActionPanel.Item`, `Action`,
   `Action.CopyToClipboard`, `Action.Open`, `Action.OpenInBrowser`,
-  `Action.OpenWith`, `Action.Paste`, `Action.Push`, and `Action.SubmitForm`,
+  `Action.OpenWith`, `Action.Paste`, `Action.Push`, `Action.CreateQuicklink`,
+  `Action.PickDate`, and `Action.SubmitForm`,
   plus the deprecated `ActionPanelItem`, `CopyToClipboardAction`,
   `OpenAction`, `OpenInBrowserAction`, `OpenWithAction`, `PasteAction`,
   `PushAction`, and `SubmitFormAction` aliases, render through
@@ -19,7 +20,8 @@ onto the V2 scene contract, renderer, and capability broker:
   left-click callbacks;
 - `Form` covers text fields, text areas, password fields, checkboxes,
   dropdowns, date pickers, tag pickers, file pickers, descriptions, separators,
-  dropdown sections/items, tag items, and `searchBarAccessory` via
+  dropdown sections/items, tag items, deprecated direct dropdown/tag-item
+  aliases, and `searchBarAccessory` via
   `Form.LinkAccessory`. Link accessories serialize as semantic nodes and route
   their open event through the existing `open` capability. Field `onFocus` and `onBlur`
   callbacks receive the measured `Form.Event` target shape, and custom React
@@ -87,6 +89,10 @@ onto the V2 scene contract, renderer, and capability broker:
   `Action.Paste`/`PasteAction` route open and paste actions through host
   capabilities and invoke their completion callbacks. `render` bridges
   legacy `render(<Command />)` entrypoints into the active scene renderer;
+- `Action.CreateQuicklink` validates a Quicklink and routes it through
+  `quicklink.create`; `Action.PickDate` routes validated picker options through
+  `date-picker.pick` and restores the host's ISO result to `Date | null`.
+  Native providers and consent policy remain host responsibilities;
 - `Action.Push` and `PushAction` accept measured React-element targets, route
   navigation through the runtime stack, and invoke `onPush`/`onPop` callbacks;
   the navigation proxy is shared through the command realm so bundled

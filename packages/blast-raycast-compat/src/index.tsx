@@ -472,6 +472,30 @@ export interface ActionProps {
   readonly autoFocus?: boolean;
 }
 
+export interface Quicklink {
+  readonly icon?: IconLike;
+  readonly link: string;
+  readonly name?: string;
+  readonly application?: string | ApplicationLike;
+}
+
+export interface CreateQuicklinkProps {
+  readonly quicklink: Quicklink;
+  readonly title?: string;
+  readonly icon?: IconLike;
+  readonly shortcut?: ShortcutLike;
+}
+
+export interface PickDateProps {
+  readonly title: string;
+  readonly icon?: IconLike;
+  readonly shortcut?: ShortcutLike;
+  readonly onChange: (date: Date | null) => void;
+  readonly type?: DatePickerType;
+  readonly min?: Date;
+  readonly max?: Date;
+}
+
 export interface CopyToClipboardProps {
   readonly title?: string;
   readonly content: string | number | Clipboard.Content;
@@ -1758,6 +1782,34 @@ function serializeIcon(
   unsupported(`An icon in ${where}`, { icon });
 }
 
+function serializeQuicklink(quicklink: unknown, where: string): string {
+  if (!isRecord(quicklink)) {
+    unsupported(`${where} must be an object`, { quicklink });
+  }
+  const serialized: Record<string, string> = {
+    link: requireNonEmptyString(quicklink.link, `${where} link`),
+  };
+  if (quicklink.name !== undefined) {
+    serialized.name = requireString(quicklink.name, `${where} name`);
+  }
+  if (quicklink.application !== undefined) {
+    serialized.application = serializeApplication(
+      quicklink.application as string | ApplicationLike,
+      `${where} application`,
+    );
+  }
+  if (quicklink.icon !== undefined) {
+    const icon = serializeIcon(quicklink.icon as IconLike, `${where} icon`);
+    if (icon !== undefined) {
+      serialized.icon = icon.icon;
+      if (icon.iconTintColor !== undefined) {
+        serialized.iconTintColor = icon.iconTintColor;
+      }
+    }
+  }
+  return JSON.stringify(serialized);
+}
+
 function serializeTintColor(tintColor: unknown, where: string): string {
   if (typeof tintColor === "string") {
     return tintColor;
@@ -2738,14 +2790,14 @@ const DATE_PICKER_TYPES = {
   DateTime: "date_time",
 } as const;
 
-function normalizeDatePickerType(type: unknown): DatePickerType {
+function normalizeDatePickerType(type: unknown, where = "Form.DatePicker"): DatePickerType {
   if (type === undefined) {
     return DATE_PICKER_TYPES.DateTime;
   }
   if (type === DATE_PICKER_TYPES.Date || type === DATE_PICKER_TYPES.DateTime) {
     return type;
   }
-  throw new CompatibilityError("Form.DatePicker type must be Form.DatePicker.Type.Date or DateTime", { type });
+  throw new CompatibilityError(`${where} type must be Type.Date or DateTime`, { type });
 }
 
 function serializeDatePickerValue(value: unknown, where: string): string {
@@ -2914,6 +2966,9 @@ interface FormComponent {
     Item: typeof FormDropdownItem;
     Section: typeof FormDropdownSection;
   };
+  DropdownItem: typeof FormDropdownItem;
+  DropdownSection: typeof FormDropdownSection;
+  TagPickerItem: typeof FormTagPickerItem;
   Description: typeof FormDescription;
   Separator: typeof FormSeparator;
   DatePicker: typeof DatePicker;
@@ -2946,6 +3001,9 @@ export const Form: FormComponent = Object.assign(FormComponent, {
   PasswordField: FormPasswordField,
   Checkbox: FormCheckbox,
   Dropdown: Object.assign(FormDropdown, { Item: FormDropdownItem, Section: FormDropdownSection }),
+  DropdownItem: FormDropdownItem,
+  DropdownSection: FormDropdownSection,
+  TagPickerItem: FormTagPickerItem,
   Description: FormDescription,
   Separator: FormSeparator,
   DatePicker,
@@ -3066,6 +3124,71 @@ function Push(props: PushProps): ReactElement {
 
 /** @deprecated Use `Action.Push` instead. */
 export const PushAction = Push;
+
+function CreateQuicklink(props: CreateQuicklinkProps): ReactElement {
+  const quicklinkJSON = serializeQuicklink(props.quicklink, "Action.CreateQuicklink quicklink");
+  return createElement(Action, {
+    title: props.title ?? "Create Quicklink",
+    icon: props.icon ?? "link",
+    ...(props.shortcut === undefined ? {} : { shortcut: props.shortcut }),
+    onAction: () => {
+      void callCapability("quicklink", "create", { quicklinkJSON }, "The Action.CreateQuicklink");
+    },
+  });
+}
+
+function deserializePickedDate(value: unknown): Date | null {
+  if (value === undefined || value === null) {
+    return null;
+  }
+  if (typeof value !== "string" || !Number.isFinite(Date.parse(value))) {
+    throw new CompatibilityError("The Action.PickDate capability returned an invalid date", { value });
+  }
+  return new Date(value);
+}
+
+function PickDate(props: PickDateProps): ReactElement {
+  const title = requireNonEmptyString(props.title, "Action.PickDate title");
+  if (typeof props.onChange !== "function") {
+    throw new CompatibilityError("Action.PickDate onChange must be a function", { onChange: props.onChange });
+  }
+  const type = normalizeDatePickerType(props.type, "Action.PickDate");
+  const min = props.min === undefined ? undefined : serializeDatePickerValue(props.min, "Action.PickDate min");
+  const max = props.max === undefined ? undefined : serializeDatePickerValue(props.max, "Action.PickDate max");
+  const icon = props.icon ?? "calendar";
+  const argumentsValue: Record<string, string | number | boolean> = { title, type };
+  const serializedIcon = serializeIcon(icon, "Action.PickDate");
+  if (serializedIcon !== undefined) {
+    argumentsValue.icon = serializedIcon.icon;
+    if (serializedIcon.iconTintColor !== undefined) {
+      argumentsValue.iconTintColor = serializedIcon.iconTintColor;
+    }
+  }
+  if (props.shortcut !== undefined) {
+    argumentsValue.shortcutJSON = JSON.stringify(serializeShortcut(props.shortcut, "Action.PickDate"));
+  }
+  if (min !== undefined) {
+    argumentsValue.min = min;
+  }
+  if (max !== undefined) {
+    argumentsValue.max = max;
+  }
+  return createElement(Action, {
+    title,
+    icon,
+    ...(props.shortcut === undefined ? {} : { shortcut: props.shortcut }),
+    onAction: () => {
+      void callCapability("date-picker", "pick", argumentsValue, "The Action.PickDate").then((response) => {
+        props.onChange(deserializePickedDate(response.value));
+      });
+    },
+  });
+}
+
+const PickDateAction = Object.assign(PickDate, {
+  Type: DATE_PICKER_TYPES,
+  isFullDay: isFullDayDate,
+});
 
 function CopyToClipboard(props: CopyToClipboardProps): ReactElement {
   const icon = serializeIcon(props.icon, "Action.CopyToClipboard");
@@ -3269,6 +3392,8 @@ interface ActionComponent {
   OpenWith: typeof OpenWith;
   Paste: typeof Paste;
   Push: typeof Push;
+  CreateQuicklink: typeof CreateQuicklink;
+  PickDate: typeof PickDateAction;
   SubmitForm: typeof SubmitForm;
   Style: typeof ActionStyle;
 }
@@ -3280,6 +3405,8 @@ export const Action: ActionComponent = Object.assign(ActionComponent, {
   OpenWith,
   Paste,
   Push,
+  CreateQuicklink,
+  PickDate: PickDateAction,
   SubmitForm,
   Style: ActionStyle,
 });
@@ -3387,7 +3514,9 @@ function mapItemChildren(children: ReactNode, where: string): ReactNode {
       child.type === Open ||
       child.type === OpenWith ||
       child.type === Paste ||
-      child.type === Push
+      child.type === Push ||
+      child.type === CreateQuicklink ||
+      child.type === PickDateAction
     ) {
       return keyedElement(child, `${where}-${index}`);
     }

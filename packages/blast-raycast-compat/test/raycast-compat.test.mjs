@@ -345,6 +345,99 @@ test("renders Form.LinkAccessory and routes its open capability", async () => {
   ]);
 });
 
+test("renders measured action creators and routes their host operations", async () => {
+  const probe = createContext({ capabilityValues: { "date-picker.pick": "2026-08-29T12:00:00.000Z" } });
+  const picked = [];
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      List,
+      null,
+      createElement(List.Item, {
+        title: "Actions",
+        actions: createElement(
+          ActionPanel,
+          null,
+          createElement(Action.CreateQuicklink, {
+            quicklink: { link: "raycast://extensions/example", name: "Example" },
+          }),
+          createElement(Action.PickDate, {
+            title: "Pick date",
+            type: Action.PickDate.Type.Date,
+            onChange: (date) => picked.push(date),
+          }),
+        ),
+      }),
+    ),
+  );
+  await renderer.flush();
+
+  const actions = probe.transactions[0].operations[0].root.children[0].children[0].children;
+  assert.deepEqual(
+    actions.map(({ props }) => ({ title: props.title, icon: props.icon })),
+    [
+      { title: "Create Quicklink", icon: "link" },
+      { title: "Pick date", icon: "calendar" },
+    ],
+  );
+
+  probe.dispatch(actions[0].props.onAction);
+  probe.dispatch(actions[1].props.onAction);
+  await new Promise((resolve) => setTimeout(resolve, 5));
+
+  assert.deepEqual(
+    probe.capabilityRequests.map(({ capability, operation, arguments: args }) => ({
+      capability,
+      operation,
+      arguments: args,
+    })),
+    [
+      {
+        capability: "quicklink",
+        operation: "create",
+        arguments: { quicklinkJSON: '{"link":"raycast://extensions/example","name":"Example"}' },
+      },
+      {
+        capability: "date-picker",
+        operation: "pick",
+        arguments: { title: "Pick date", type: "date", icon: "calendar" },
+      },
+    ],
+  );
+  assert.deepEqual(picked, [new Date("2026-08-29T12:00:00.000Z")]);
+});
+
+test("supports deprecated Form dropdown member aliases", async () => {
+  const probe = createContext();
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      Form,
+      null,
+      createElement(
+        Form.Dropdown,
+        { id: "choice", title: "Choice" },
+        createElement(Form.DropdownItem, { value: "one", title: "One" }),
+        createElement(
+          Form.DropdownSection,
+          { title: "More" },
+          createElement(Form.DropdownItem, { value: "two", title: "Two" }),
+        ),
+      ),
+    ),
+  );
+  await renderer.flush();
+
+  const dropdown = probe.transactions[0].operations[0].root.children[0];
+  assert.equal(dropdown.type, "form-dropdown");
+  assert.deepEqual(
+    dropdown.children.map(({ type, props }) => ({ type, props })),
+    [
+      { type: "form-dropdown-item", props: { value: "one", title: "One" } },
+      { type: "form-dropdown-section", props: { title: "More" } },
+    ],
+  );
+  assert.deepEqual(dropdown.children[1].children[0].props, { value: "two", title: "Two" });
+});
+
 test("renders legacy list and action aliases, including OpenWithAction", async () => {
   const probe = createContext();
   const opened = [];
