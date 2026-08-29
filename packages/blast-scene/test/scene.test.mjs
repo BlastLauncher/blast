@@ -430,6 +430,26 @@ test("validates scene transaction messages", (context) => {
     );
     assert.equal(result.ok, true);
   });
+
+  context.test("accepts shared List and Grid dropdown accessories", () => {
+    const result = validateSceneTransactionPayload(
+      transaction([
+        {
+          type: "snapshot",
+          root: list("list-root", [
+            { id: "grid-dropdown", type: "grid-dropdown", props: { tooltip: "Filter" }, children: [] },
+          ]),
+        },
+        {
+          type: "snapshot",
+          root: grid("grid-root", [
+            { id: "list-dropdown", type: "list-dropdown", props: { tooltip: "Filter" }, children: [] },
+          ]),
+        },
+      ]),
+    );
+    assert.equal(result.ok, true);
+  });
 });
 
 test("validates scene event messages", (context) => {

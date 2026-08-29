@@ -32,41 +32,33 @@ unavailable packages remain dependency failures.
 
 | Outcome                        | Baseline | Previous post-slice | Current post-slice | Current vs previous |
 | ------------------------------ | -------: | ------------------: | -----------------: | ------------------: |
-| third-party dependency failure |    2,361 |                 916 |                913 |                  -3 |
+| third-party dependency failure |    2,361 |                 913 |                915 |                  +2 |
 | not renderable command mode    |      358 |                 316 |                316 |                   0 |
-| other process/startup failure  |      432 |                 669 |                669 |                   0 |
-| structured compatibility error |       23 |                   3 |                  3 |                   0 |
-| renders a scene end to end     |       54 |               1,324 |              1,327 |                  +3 |
+| other process/startup failure  |      432 |                 669 |                178 |                -491 |
+| structured compatibility error |       23 |                   3 |                  5 |                  +2 |
+| renders a scene end to end     |       54 |               1,327 |              1,814 |                +487 |
 | no entrypoint found            |        3 |                   3 |                  3 |                   0 |
 
-Reading: the current post-slice extension pass rate is 1,327/3,231 (41.07%);
-among the 2,915 extensions with a selected renderable command it is 1,327/2,915
-(45.52%). The measured preference, navigation, environment, form-value,
-keyboard, image-type, `randomId`, WindowManagement, small legacy aliases,
-safe import shapes, Form focus/blur callbacks, nullable Form initial values,
-empty string-valued controls, composite React children, the observed icon
-members, the `ActionPanel.Item` alias, whitespace-only collection children,
-Grid collection values, List icon descriptors, optional string-array Form
-initial values, CreateSnippet, ToggleQuickLook, and item Quick Look metadata
-are no longer in the non-rendering static blocker list. The only remaining
-static import gap is one `fetch` import. The vendor root leaves dependency
-failures tracked separately.
-The current priority is the measured API boundary rather than another
-dependency seed. This refresh adds the explicit Detail metadata scene
-boundary, `List.Item.Detail` and list tooltip descriptors, generic
-`Action.SubmitForm` handling outside Form, and the measured
-`Icon.CircleProgress`/`Icon.AppWindowList` members. `Form.searchBarAccessory`
-and `Form.LinkAccessory` now serialize as a measured semantic node and route
-their open event through the existing `open.open` capability.
-`Action.CreateQuicklink` and `Action.PickDate` now share the generic action
-node and route their creation/picker intent through explicit host capabilities;
-deprecated direct Form dropdown members are identity-preserving aliases.
-`Action.ShowInFinder` and `Action.Trash` now share the generic action node and
-route normalized paths through the existing Finder/filesystem capabilities.
-The remaining structured failures in this report are
-`get-cat-images/get-cat-images`, `vikunja/create-task`, and
-`webpage-to-markdown/webpage-to-markdown`; targeted diagnostics show empty or
-missing `Action.OpenInBrowser` URLs under the probe's default empty arguments.
+Reading: the current post-slice extension pass rate is 1,814/3,231 (56.14%);
+among the 2,915 extensions with a selected renderable command it is 1,814/2,915
+(62.23%). The declaration-backed Icon enum, Raycast color values, collection
+metadata, List/Grid/Form search and pagination events, shared dropdown
+accessories, Clipboard read/clear behavior, Submenu lifecycle, nested public
+Props namespaces, Cache callback binding, and official aliases are now covered
+by the adapter tests and probe. The only remaining static import gap is one
+`fetch` import. Dependency, process, and non-renderable outcomes remain
+tracked separately from API coverage.
+The current priority remains the measured API boundary rather than another
+dependency seed. This refresh completes the full 478-member Icon surface and
+preserves legacy names, adds declaration-backed collection/search/pagination
+fields, and closes the shared List/Grid dropdown boundary. It also corrects
+Raycast theme color identifiers, decodes structured Clipboard reads, supports
+Clipboard clear, adds Submenu search/open/id behavior, and publishes nested
+Props aliases for the measured components. The remaining structured failures
+are `crawldoc/index`, `dictionary/fromCmd`, `get-cat-images/get-cat-images`,
+`manifest-viewer/view-manifest`, and `webpage-to-markdown/webpage-to-markdown`;
+they are malformed children or empty/missing open targets under the probe's
+default launch arguments and remain strict diagnostics.
 
 The first audited vendor seed is `axios@1.8.4`, `cheerio@1.0.0`,
 `cross-fetch@4.0.0`, `date-fns@4.1.0`, `fast-xml-parser@5.3.2`, `fuse.js@7.1.0`,
@@ -136,9 +128,10 @@ dispatches a bounds mutation through the explicit host capability.
 
 - action groups, `ActionPanel.Item`, `ActionPanel.Section`, submenus, tinted icons, shortcut
   objects, action styles, `autoFocus`, `Action.OpenInBrowser`, `Action.Open`,
-  `Action.Paste`, `Action.ShowInFinder`, `Action.Trash`, and the deprecated
-  browser/clipboard/action aliases are
-  measured; custom React components/fragments can compose action children;
+  `Action.Paste`, `Action.ShowInFinder`, `Action.Trash`, `Action.InstallMCPServer`,
+  and the deprecated browser/clipboard/action aliases are measured. Submenus
+  include search, lazy-open, loading, filtering, throttling, and deprecated
+  `id` behavior; custom React components/fragments can compose action children;
   broader action helpers remain unsupported;
 - `Action.CreateSnippet` and `Action.ToggleQuickLook` are measured. Snippet
   payloads cross `snippet.create`; Quick Look toggles cross `quick-look.toggle`,
@@ -146,8 +139,10 @@ dispatches a bounds mutation through the explicit host capability.
   Native snippet and Quick Look UI remain host/client work;
 - Grid accepts positive safe-integer column counts and preserves empty content
   tooltips, while `List.Item` accepts measured `{ value, tooltip }` icon
-  descriptors. The adapter exposes the observed `Icon.AddPerson` member;
-  layout clamping and icon rendering remain client work;
+  descriptors. The adapter mirrors all 478 declaration-backed `Icon` members,
+  preserves legacy names, and accepts `List.Dropdown` and `Grid.Dropdown`
+  interchangeably as search accessories; layout clamping and icon rendering
+  remain client work;
 - `Detail.Metadata` and `List.Item.Detail` serialize labels, separators, links,
   tag lists, loading state, navigation titles, and list detail selection as
   explicit scene data. Title/subtitle tooltip descriptors are preserved;
@@ -199,6 +194,11 @@ dispatches a bounds mutation through the explicit host capability.
   dropdown/tag-picker members are measured. Quicklink creation and date picking
   use explicit `quicklink.create` and `date-picker.pick` capabilities; provider
   consent and native UI remain host work.
+- `List`, `Grid`, and `Form.Dropdown` carry search text, filtering, loading,
+  throttling, selection, and pagination fields as semantic scene properties
+  and events. `Clipboard.read`/`readText` decode the official `{ text }` shape
+  as well as plain and empty responses, and `Clipboard.clear` crosses the
+  explicit `clipboard.clear` capability.
 - `Action.ShowInFinder`/`ShowInFinderAction` and `Action.Trash`/`TrashAction` are
   measured. Both use the shared action scene shape, normalize `PathLike`
   values, and route activation through `finder.show` or `filesystem.trash`;
@@ -219,19 +219,20 @@ dispatches a bounds mutation through the explicit host capability.
   its native `Date | null` behavior. Optional string-array initial values omit
   `undefined` entries only when all other entries are strings; null members and
   other invalid entries remain rejected;
-- the remaining structured probe failures are
-  `get-cat-images/get-cat-images`, `vikunja/create-task`, and
-  `webpage-to-markdown/webpage-to-markdown`, which construct empty or missing
-  Open in Browser URLs under the probe's default empty arguments. Empty or
-  missing open targets remain structured errors rather than being sent to the
-  host;
+- the remaining structured probe failures are `crawldoc/index`,
+  `dictionary/fromCmd`, `get-cat-images/get-cat-images`,
+  `manifest-viewer/view-manifest`, and `webpage-to-markdown/webpage-to-markdown`.
+  They contain malformed children or empty/missing Open in Browser targets
+  under the probe's default arguments; those remain structured errors rather
+  than being silently widened or sent to the host;
 - string-valued Form and Grid dropdown labels and values, Form checkbox labels,
   and Form descriptions preserve empty strings; non-string values remain
   invalid;
-- the `Icon` export now includes the observed named members used by the focused
-  18-command diagnostic, including numbered, progress, disabled, and formatting
-  variants; it remains an explicit measured subset, and unknown members remain
-  structured compatibility failures;
+- `Color` now emits Raycast's `raycast-*` theme identifiers while retaining the
+  legacy raw `Pink`/`Brown` values. The public nested `Props` namespaces for
+  `Action`, `ActionPanel`, `List`, `Grid`, `Form`, and `MenuBarExtra` mirror the
+  pinned declaration, and `Cache.subscribe` remains bound for external-store
+  hooks;
 - command-scoped manifest preference defaults are merged into the selected
   command descriptor, with command values taking precedence over extension-level
   values; the focused Grid-column failures now proceed past `getPreferenceValues()`

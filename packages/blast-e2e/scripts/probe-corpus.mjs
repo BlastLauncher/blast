@@ -25,6 +25,8 @@ const SUPPORTED_API_IMPORTS = new Set([
   "<side-effect>",
   "Action",
   "ActionPanelItem",
+  "ActionPanelSection",
+  "ActionPanelSubmenu",
   "ActionPanel",
   "ActionStyle",
   "Alert",
@@ -37,6 +39,7 @@ const SUPPORTED_API_IMPORTS = new Set([
   "Cache",
   "Clipboard",
   "Color",
+  "DynamicColor",
   "CopyToClipboardAction",
   "OpenAction",
   "PasteAction",
@@ -44,13 +47,25 @@ const SUPPORTED_API_IMPORTS = new Set([
   "PushAction",
   "SubmitFormAction",
   "captureException",
+  "captureMemorySnapshot",
   "clearSearchBar",
   "clearLocalStorage",
   "copyTextToClipboard",
   "Detail",
   "Environment",
   "Form",
+  "FormCheckbox",
+  "FormDatePicker",
+  "FormDropdown",
+  "FormDropdownItem",
+  "FormDropdownSection",
   "FormItemRef",
+  "FormLaunchProps",
+  "FormSeparator",
+  "FormTagPicker",
+  "FormTagPickerItem",
+  "FormTextArea",
+  "FormTextField",
   "FormValue",
   "FormValues",
   "FileIcon",
@@ -59,6 +74,7 @@ const SUPPORTED_API_IMPORTS = new Set([
   "Icon",
   "Image",
   "ImageLike",
+  "ImageSource",
   "ItemProps",
   "Keyboard",
   "KeyEquivalent",
@@ -82,6 +98,7 @@ const SUPPORTED_API_IMPORTS = new Set([
   "Tool",
   "TrashAction",
   "closeMainWindow",
+  "clearClipboard",
   "confirmAlert",
   "environment",
   "getDefaultApplication",
@@ -109,7 +126,12 @@ const SUPPORTED_API_IMPORTS = new Set([
   "setLocalStorageItem",
   "trash",
   "updateCommandMetadata",
+  "specialKeys",
+  "unstable_AI",
+  "useActionPanel",
+  "useId",
   "useNavigation",
+  "useUnstableAI",
   "WindowManagement",
 ]);
 
@@ -294,6 +316,7 @@ function createCore(stderr) {
     "browser-extension.getContent",
     "browser-extension.getTabs",
     "clipboard.read",
+    "clipboard.clear",
     "clipboard.write",
     "command.launch",
     "command.updateMetadata",
@@ -303,6 +326,7 @@ function createCore(stderr) {
     "local-storage.getAll",
     "local-storage.remove",
     "local-storage.set",
+    "mcp-server.install",
     "navigation.clearSearchBar",
     "navigation.popToRoot",
     "open.open",
@@ -320,6 +344,7 @@ function createCore(stderr) {
     "oauth.removeTokens",
     "oauth.setTokens",
     "telemetry.captureException",
+    "telemetry.captureMemorySnapshot",
     "window.close",
     "window-management.getActiveWindow",
     "window-management.getDesktops",
@@ -400,6 +425,9 @@ function createCore(stderr) {
           if (request.operation === "paste") {
             return undefined;
           }
+          if (request.operation === "clear") {
+            return undefined;
+          }
           throw new Error(`Unknown clipboard operation ${JSON.stringify(request.operation)}`);
         },
       },
@@ -428,6 +456,14 @@ function createCore(stderr) {
         },
       },
       "local-storage": createInMemoryLocalStorageProvider(),
+      "mcp-server": {
+        async perform(request) {
+          if (request.operation === "install") {
+            return undefined;
+          }
+          throw new Error(`Unknown MCP server operation ${JSON.stringify(request.operation)}`);
+        },
+      },
       finder: {
         async perform(request) {
           if (request.operation === "selectedItems") {
@@ -505,7 +541,7 @@ function createCore(stderr) {
       },
       telemetry: {
         async perform(request) {
-          if (request.operation === "captureException") {
+          if (request.operation === "captureException" || request.operation === "captureMemorySnapshot") {
             return undefined;
           }
           throw new Error(`Unknown telemetry operation ${JSON.stringify(request.operation)}`);

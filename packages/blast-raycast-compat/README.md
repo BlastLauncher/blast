@@ -5,7 +5,8 @@ Measured Raycast API compatibility adapter for Blast V2 (ADR 0011).
 The package maps the census-justified subset of the `@raycast/api` surface
 onto the V2 scene contract, renderer, and capability broker:
 
-- `List`, `List.Item`, `List.Section`, `ListSection`, `ActionPanel`,
+- `List`, `List.Item`, `List.Section`, `List.EmptyView`, `List.Dropdown`,
+  `ListSection`, `ActionPanel`,
   `ActionPanel.Item`, `Action`,
   `Action.CopyToClipboard`, `Action.Open`, `Action.OpenInBrowser`,
   `Action.OpenWith`, `Action.Paste`, `Action.Push`, `Action.CreateQuicklink`,
@@ -16,10 +17,14 @@ onto the V2 scene contract, renderer, and capability broker:
   `OpenAction`, `OpenInBrowserAction`, `OpenWithAction`, `PasteAction`,
   `PushAction`, `ShowInFinderAction`, `TrashAction`, and `SubmitFormAction`
   aliases, render through
-  `@blastlauncher/react-renderer`;
+  `@blastlauncher/react-renderer`. List item IDs, keywords, accessories,
+  icon/text tooltips, Quick Look metadata, filtering, selection/search events,
+  and pagination are serialized into the scene contract;
 - `Grid` covers content tiles, sections, empty views, search-bar dropdowns,
   item actions, positive safe-integer column counts, empty content tooltips,
-  layout constants, Quick Look metadata, and selection/search callbacks;
+  layout constants, Quick Look metadata, filtering, pagination, and
+  selection/search callbacks. `List.Dropdown` and `Grid.Dropdown` are accepted
+  interchangeably as search-bar accessories;
   `MenuBarExtra`
   covers menu-bar roots, items, sections, submenus, separators, shortcuts, and
   left-click callbacks;
@@ -39,23 +44,25 @@ onto the V2 scene contract, renderer, and capability broker:
   components/fragments may compose measured field and action children.
   Whitespace-only formatting text is ignored in measured collection slots, while
   meaningful text remains unsupported;
-- `Icon` ships an explicit measured kebab-case subset serialized into scene
-  `icon` properties, including object-icon tint colors and measured
-  `List.Item` `{ value, tooltip }` descriptors; observed list, form,
-  grid, menu-bar, numbered, progress, disabled, and formatting members are
-  added as corpus probes justify them, including `Icon.AddPerson`, while
-  unknown members remain unsupported;
-- The measured icon subset includes `Icon.CircleProgress` and
-  `Icon.AppWindowList`; unknown icon members remain unsupported rather than
-  resolving through an implicit fallback.
-- `Clipboard.copy`/`Clipboard.paste`/`Clipboard.read` route through the
-  capability broker with the command identity attached by the host; text,
-  numeric, and structured clipboard content are normalized across the
-  primitive-only boundary, with deprecated `copyTextToClipboard` and `pasteText`
-  aliases;
+- `Icon` mirrors all 478 members of the pinned Raycast declaration in one
+  explicit enum-like object, including numbered, progress, disabled, and
+  formatting variants. Legacy corpus names remain available; unknown members
+  stay unsupported rather than resolving through an implicit fallback.
+  `Color` exposes theme-aware `raycast-*` values while retaining legacy
+  `Pink`/`Brown` aliases, and object/file/theme-aware icon descriptors,
+  tinting, masks, and List item icon tooltips are validated at the adapter edge;
+- `Clipboard.copy`/`Clipboard.paste`/`Clipboard.read`/`Clipboard.readText`/
+  `Clipboard.clear` route through the capability broker with the command
+  identity attached by the host; text, numeric, and structured clipboard
+  content are normalized across the primitive-only boundary, with deprecated
+  `copyTextToClipboard`, `pasteText`, and `clearClipboard` aliases;
 - action and toast-action shortcut unions normalize into structured scene
   values; action styles, `autoFocus`, `Keyboard.Shortcut.Common`, and the
   measured `Alert`/`Action` constants are available;
+- `ActionPanel.Submenu` supports the declaration-backed `id`, filtering,
+  loading, throttled search, and lazy `onOpen` lifecycle; `Action` preserves
+  its deprecated `id`, and `Action.InstallMCPServer` routes validated server
+  definitions through `mcp-server.install`;
 - `showHUD`, `open`, and `confirmAlert` route through `hud.show`, `open.open`,
   and `alert.confirm` capability requests;
 - default-exported command components receive `LaunchProps` with a
@@ -107,7 +114,8 @@ onto the V2 scene contract, renderer, and capability broker:
   values and sends normalized paths as JSON;
 - `captureException` reports a normalized exception payload through
   `telemetry.captureException` without making telemetry availability affect
-  command execution;
+  command execution; `captureMemorySnapshot` follows the same best-effort
+  telemetry boundary;
 - `Action.Open`/`OpenAction`, `Action.OpenWith`/`OpenWithAction`, and
   `Action.Paste`/`PasteAction` route open and paste actions through host
   capabilities and invoke their completion callbacks. `render` bridges
@@ -135,7 +143,11 @@ onto the V2 scene contract, renderer, and capability broker:
   the primitive-only capability boundary; resolving and starting the target
   command remains host/client work;
 - `Cache` provides synchronous namespaced LRU semantics in a session-local
-  fallback; persistence is intentionally a future host capability;
+  fallback, including a bound `subscribe` method for React external-store
+  hooks; persistence is intentionally a future host capability;
+- Declaration-shaped nested `Props` namespaces are available for the measured
+  `Action`, `ActionPanel`, `List`, `Grid`, `Form`, and `MenuBarExtra` members so
+  existing Raycast TypeScript code retains its public typing surface;
 - `showToast` and `Toast` support legacy show overloads, animated/success/
   failure styles, identified show/update/hide lifecycle messages, mutable
   toast fields, and primary/secondary actions routed through scene events;

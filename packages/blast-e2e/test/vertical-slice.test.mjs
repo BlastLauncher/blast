@@ -451,7 +451,7 @@ test("runs a Raycast-style compat extension with brokered clipboard end to end",
       {
         id: itemId,
         type: "list-item",
-        props: { title: "Hello", subtitle: "World", icon: "circle" },
+        props: { title: "Hello", subtitle: "World", icon: "circle-16" },
         children: [
           {
             id: groupId,
@@ -513,7 +513,7 @@ test("runs a bundled TSX extension with literal @raycast/api imports end to end"
   const rootId = buffer.rootId;
   const itemId = buffer.childrenOf(rootId)[0].id;
   assert.equal(buffer.get(rootId).props.navigationTitle, "Compat TSX");
-  assert.deepEqual(buffer.get(itemId).props, { title: "Hello", subtitle: "World", icon: "circle" });
+  assert.deepEqual(buffer.get(itemId).props, { title: "Hello", subtitle: "World", icon: "circle-16" });
   const group = buffer.childrenOf(itemId)[0];
   assert.equal(group.type, "action-group");
   const action = buffer.childrenOf(group.id)[0];

@@ -6,6 +6,8 @@ import {
   Action,
   ActionPanelItem,
   ActionPanel,
+  ActionPanelSection,
+  ActionPanelSubmenu,
   ActionStyle,
   AI,
   Alert,
@@ -21,6 +23,16 @@ import {
   PasteAction,
   Detail,
   Form,
+  FormCheckbox,
+  FormDatePicker,
+  FormDropdown,
+  FormDropdownItem,
+  FormDropdownSection,
+  FormSeparator,
+  FormTagPicker,
+  FormTagPickerItem,
+  FormTextArea,
+  FormTextField,
   getApplications,
   getDefaultApplication,
   getFrontmostApplication,
@@ -43,6 +55,7 @@ import {
   Toast,
   configureRaycastCompat,
   captureException,
+  captureMemorySnapshot,
   clearLocalStorage,
   confirmAlert,
   closeMainWindow,
@@ -69,11 +82,16 @@ import {
   showInFinder,
   showToast,
   setLocalStorageItem,
+  specialKeys,
   ToastStyle,
   TrashAction,
   trash,
+  unstable_AI,
   updateCommandMetadata,
+  useActionPanel,
+  useId,
   useNavigation,
+  useUnstableAI,
   WindowManagement,
 } from "../dist/index.js";
 import { Fragment, createElement, memo } from "react";
@@ -163,6 +181,55 @@ function createContext({ grantClipboard = true, storageProvider = null, capabili
   };
 }
 
+test("publishes the official deprecated component aliases", () => {
+  assert.equal(ActionPanelSection, ActionPanel.Section);
+  assert.equal(ActionPanelSubmenu, ActionPanel.Submenu);
+  assert.equal(FormCheckbox, Form.Checkbox);
+  assert.equal(FormDatePicker, Form.DatePicker);
+  assert.equal(FormDropdown, Form.Dropdown);
+  assert.equal(FormDropdownItem, Form.Dropdown.Item);
+  assert.equal(FormDropdownSection, Form.Dropdown.Section);
+  assert.equal(FormSeparator, Form.Separator);
+  assert.equal(FormTagPicker, Form.TagPicker);
+  assert.equal(FormTagPickerItem, Form.TagPicker.Item);
+  assert.equal(FormTextArea, Form.TextArea);
+  assert.equal(FormTextField, Form.TextField);
+});
+
+test("publishes the remaining declaration-backed compatibility aliases", () => {
+  assert.equal(unstable_AI, AI);
+  assert.equal(typeof useId, "function");
+  assert.equal(useUnstableAI(), undefined);
+  assert.deepEqual(specialKeys, {
+    return: "return",
+    delete: "delete",
+    deleteForward: "deleteForward",
+    tab: "tab",
+    arrowUp: "arrowUp",
+    arrowDown: "arrowDown",
+    arrowLeft: "arrowLeft",
+    arrowRight: "arrowRight",
+    pageUp: "pageUp",
+    pageDown: "pageDown",
+    home: "home",
+    end: "end",
+    space: "space",
+    escape: "escape",
+    enter: "enter",
+    backspace: "backspace",
+  });
+  const actionPanel = useActionPanel();
+  assert.equal(typeof actionPanel.update, "function");
+  assert.throws(
+    () => actionPanel.update(null),
+    (error) => {
+      assert.equal(error instanceof CompatibilityError, true);
+      assert.equal(error.code, "unsupported_api");
+      return true;
+    },
+  );
+});
+
 test("renders a Raycast-style list through the compatibility surface", async () => {
   const probe = createContext();
 
@@ -190,7 +257,7 @@ test("renders a Raycast-style list through the compatibility surface", async () 
       {
         id: root.children[0].id,
         type: "list-item",
-        props: { title: "First", subtitle: "Sub", icon: "circle" },
+        props: { title: "First", subtitle: "Sub", icon: "circle-16" },
         children: [
           {
             id: root.children[0].children[0].id,
@@ -220,17 +287,150 @@ test("renders a Raycast-style list through the compatibility surface", async () 
   });
 });
 
-test("exposes the measured icon members without an implicit fallback", () => {
-  assert.equal(Icon.AppWindowList, "app-window-list");
-  assert.equal(Icon.CheckCircle, "check-circle");
-  assert.equal(Icon.CircleProgress, "circle-progress");
-  assert.equal(Icon.CircleFilled, "circle-filled");
-  assert.equal(Icon.Livestream, "livestream");
-  assert.equal(Icon.Number07, "number-07");
-  assert.equal(Icon.RotateClockwise, "rotate-clockwise");
-  assert.equal(Icon.Wand, "wand");
-  assert.equal(Icon.XMarkCircle, "x-mark-circle");
+test("renders List empty views, search dropdowns, item metadata, and pagination", async () => {
+  const probe = createContext();
+  const selections = [];
+  const searches = [];
+  const dropdownValues = [];
+  const dropdownSearches = [];
+  let loadMore = 0;
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      List,
+      {
+        searchText: "initial",
+        filtering: { keepSectionOrder: true },
+        throttle: true,
+        selectedItemId: "one",
+        onSelectionChange: (id) => selections.push(id),
+        onSearchTextChange: (text) => searches.push(text),
+        pagination: { pageSize: 25, hasMore: true, onLoadMore: () => loadMore++ },
+        searchBarAccessory: createElement(
+          List.Dropdown,
+          {
+            id: "kind",
+            tooltip: "Filter by kind",
+            isLoading: true,
+            filtering: false,
+            onChange: (value) => dropdownValues.push(value),
+            onSearchTextChange: (text) => dropdownSearches.push(text),
+          },
+          createElement(
+            List.Dropdown.Section,
+            { title: "Kinds" },
+            createElement(List.Dropdown.Item, { value: "all", title: "All", icon: Icon.Folder, keywords: ["any"] }),
+          ),
+        ),
+      },
+      createElement(List.Item, {
+        id: "one",
+        title: "One",
+        keywords: ["primary"],
+        accessoryIcon: Icon.Star,
+        accessoryTitle: "Favorite",
+        accessories: [{ text: "Ready", icon: Icon.Checkmark, tooltip: "Status" }],
+      }),
+      createElement(List.EmptyView, { icon: Icon.MagnifyingGlass, title: "No results", description: "Try again" }),
+    ),
+  );
+  await renderer.flush();
+
+  const root = probe.transactions[0].operations[0].root;
+  assert.deepEqual(root.props, {
+    searchText: "initial",
+    filtering: true,
+    filteringKeepSectionOrder: true,
+    throttle: true,
+    selectedItemId: "one",
+    onSelectionChange: root.props.onSelectionChange,
+    onSearchTextChange: root.props.onSearchTextChange,
+    paginationPageSize: 25,
+    paginationHasMore: true,
+    onLoadMore: root.props.onLoadMore,
+  });
+  assert.deepEqual(
+    root.children.map((child) => child.type),
+    ["list-dropdown", "list-item", "list-empty-view"],
+  );
+  assert.deepEqual(root.children[0].props, {
+    id: "kind",
+    tooltip: "Filter by kind",
+    isLoading: true,
+    filtering: false,
+    onChange: root.children[0].props.onChange,
+    onSearchTextChange: root.children[0].props.onSearchTextChange,
+  });
+  assert.deepEqual(root.children[0].children[0].children[0].props, {
+    value: "all",
+    title: "All",
+    icon: "folder-16",
+    keywords: ["any"],
+  });
+  assert.deepEqual(root.children[1].props, {
+    id: "one",
+    title: "One",
+    keywords: ["primary"],
+    accessories: '[{"text":"Ready","icon":"checkmark-16","tooltip":"Status"}]',
+    accessoryIcon: "star-16",
+    accessoryTitle: "Favorite",
+  });
+  assert.deepEqual(root.children[2].props, {
+    icon: "magnifying-glass-16",
+    title: "No results",
+    description: "Try again",
+  });
+
+  probe.dispatch(root.props.onSelectionChange, { selectedItemId: null });
+  probe.dispatch(root.props.onSearchTextChange, { searchText: "next" });
+  probe.dispatch(root.children[0].props.onChange, { kind: "all" });
+  probe.dispatch(root.children[0].props.onSearchTextChange, { searchText: "ki" });
+  probe.dispatch(root.props.onLoadMore);
+  assert.deepEqual(selections, [null]);
+  assert.deepEqual(searches, ["next"]);
+  assert.deepEqual(dropdownValues, ["all"]);
+  assert.deepEqual(dropdownSearches, ["ki"]);
+  assert.equal(loadMore, 1);
+});
+
+test("exposes the complete declaration-backed icon enum without an implicit fallback", () => {
+  assert.ok(Object.keys(Icon).length >= 478);
+  assert.equal(Icon.AppWindowList, "app-window-list-16");
+  assert.equal(Icon.CheckCircle, "check-circle-16");
+  assert.equal(Icon.CircleProgress, "circle-progress-16");
+  assert.equal(Icon.CircleFilled, "circle-filled-16");
+  assert.equal(Icon.Livestream, "livestream-01-16");
+  assert.equal(Icon.Number07, "number-07-16");
+  assert.equal(Icon.RotateClockwise, "rotate-clockwise-16");
+  assert.equal(Icon.Wand, "wand-16");
+  assert.equal(Icon.XMarkCircle, "x-mark-circle-16");
+  assert.equal(Icon.AirplaneFilled, "airplane-filled-16");
+  assert.equal(Icon.CircleProgress75, "circle-progress-75-16");
+  assert.equal(Icon.XMarkTopRightSquare, "x-mark-top-right-square-16");
   assert.equal(Icon.NotMeasured, undefined);
+});
+
+test("accepts the shared List and Grid dropdown search accessory implementations", async () => {
+  const listProbe = createContext();
+  const listRenderer = renderCommand(listProbe.context, () =>
+    createElement(
+      List,
+      { searchBarAccessory: createElement(Grid.Dropdown, { tooltip: "Filter" }) },
+      createElement(List.Item, { title: "List item" }),
+    ),
+  );
+  await listRenderer.flush();
+  assert.equal(listProbe.transactions[0].operations[0].root.children[0].type, "grid-dropdown");
+
+  const gridProbe = createContext();
+  const gridRenderer = renderCommand(gridProbe.context, () =>
+    createElement(
+      Grid,
+      { searchBarAccessory: createElement(List.Dropdown, { tooltip: "Filter" }) },
+      createElement(Grid.Item, { content: "item", title: "Grid item" }),
+    ),
+  );
+  await gridRenderer.flush();
+  assert.equal(gridProbe.transactions[0].operations[0].root.children[0].type, "list-dropdown");
 });
 
 test("renders List item icon descriptors with tooltips", async () => {
@@ -455,6 +655,51 @@ test("renders measured action creators and routes their host operations", async 
   assert.deepEqual(picked, [new Date("2026-08-29T12:00:00.000Z")]);
 });
 
+test("renders and routes Action.InstallMCPServer", async () => {
+  const probe = createContext();
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      List,
+      null,
+      createElement(
+        List.Item,
+        { title: "MCP" },
+        createElement(
+          ActionPanel,
+          null,
+          createElement(Action.InstallMCPServer, {
+            title: "Install Thinking",
+            server: {
+              name: "Sequential Thinking",
+              description: "A test server",
+              transport: "stdio",
+              command: "npx",
+              args: ["-y", "server"],
+              env: { MODE: "test" },
+            },
+          }),
+        ),
+      ),
+    ),
+  );
+  await renderer.flush();
+
+  const action = probe.transactions[0].operations[0].root.children[0].children[0].children[0];
+  assert.equal(action.props.title, "Install Thinking");
+  probe.dispatch(action.props.onAction);
+  await new Promise((resolve) => setTimeout(resolve, 5));
+  assert.deepEqual(probe.capabilityRequests, [
+    {
+      capability: "mcp-server",
+      operation: "install",
+      arguments: {
+        serverJSON:
+          '{"name":"Sequential Thinking","transport":"stdio","description":"A test server","command":"npx","args":["-y","server"],"env":{"MODE":"test"}}',
+      },
+    },
+  ]);
+});
+
 test("serializes Quick Look metadata for list and grid items", async () => {
   const listProbe = createContext();
   const listRenderer = renderCommand(listProbe.context, () =>
@@ -487,7 +732,7 @@ test("serializes Quick Look metadata for list and grid items", async () => {
   assert.deepEqual(listRoot.children[0].props, { title: "List file", quickLookPath: "file:///tmp/list.txt" });
   const gridRoot = gridProbe.transactions[0].operations[0].root;
   assert.deepEqual(gridRoot.children[0].props, {
-    content: "document",
+    content: "blank-document-16",
     title: "Grid file",
     quickLookPath: "/tmp/grid.txt",
     quickLookName: "Grid file",
@@ -881,6 +1126,7 @@ test("routes structured clipboard content and default application discovery", as
   assert.deepEqual(await getDefaultApplication(new URL("file:///tmp/example.txt")), application);
   await Clipboard.copy({ html: "<strong>Hello</strong>", text: "Hello" }, { concealed: true });
   captureException(new Error("fixture failure"));
+  captureMemorySnapshot("fixture heap");
   await new Promise((resolve) => setTimeout(resolve, 5));
 
   const requests = probe.capabilityRequests.map(({ capability, operation, arguments: args }) => ({
@@ -903,6 +1149,11 @@ test("routes structured clipboard content and default application discovery", as
     message: "fixture failure",
     stack: JSON.parse(requests[2].arguments.exceptionJSON).stack,
   });
+  assert.deepEqual(requests[3], {
+    capability: "telemetry",
+    operation: "captureMemorySnapshot",
+    arguments: { label: "fixture heap" },
+  });
 });
 
 test("Clipboard singletons use the configured context", async () => {
@@ -910,13 +1161,33 @@ test("Clipboard singletons use the configured context", async () => {
   configureRaycastCompat(probe.context);
 
   await Clipboard.copy("hello");
-  const text = await Clipboard.read();
+  const content = await Clipboard.read();
+  const text = await Clipboard.readText({ offset: 2 });
+  await Clipboard.clear();
 
   assert.deepEqual(probe.capabilityRequests, [
     { capability: "clipboard", operation: "write", arguments: { text: "hello" } },
     { capability: "clipboard", operation: "read" },
+    { capability: "clipboard", operation: "read", arguments: { offset: 2 } },
+    { capability: "clipboard", operation: "clear" },
   ]);
+  assert.deepEqual(content, { text: "clipboard-text" });
   assert.equal(text, "clipboard-text");
+});
+
+test("decodes structured Clipboard.read content", async () => {
+  const probe = createContext({
+    capabilityValues: {
+      "clipboard.read": JSON.stringify({ text: "hello", file: "/tmp/hello.txt", html: "<p>hello</p>" }),
+    },
+  });
+  configureRaycastCompat(probe.context);
+
+  assert.deepEqual(await Clipboard.read(), {
+    text: "hello",
+    file: "/tmp/hello.txt",
+    html: "<p>hello</p>",
+  });
 });
 
 test("denied clipboard writes raise structured compatibility errors", async () => {
@@ -978,9 +1249,9 @@ test("renders a Detail root", async () => {
   );
   assert.deepEqual(root.children[0].children[0].props, {
     title: "Owner",
-    icon: "person",
+    icon: "person-16",
     text: "Ada",
-    textColor: "green",
+    textColor: "raycast-green",
   });
   assert.deepEqual(root.children[0].children[2].props, {
     title: "Docs",
@@ -989,7 +1260,7 @@ test("renders a Detail root", async () => {
   });
   assert.deepEqual(root.children[0].children[3].children[0].props, {
     text: "stable",
-    color: "blue",
+    color: "raycast-blue",
   });
 });
 
@@ -1125,7 +1396,7 @@ test("renders a Grid with sections, dropdowns, content, and empty state", async 
     title: "One",
     subtitle: "First",
     keywords: ["primary"],
-    accessoryIcon: "star",
+    accessoryIcon: "star-16",
     accessoryTooltip: "Favorite",
   });
 });
@@ -1151,10 +1422,78 @@ test("accepts measured Grid columns and empty content tooltips", async () => {
   const root = probe.transactions[0].operations[0].root;
   assert.equal(root.props.columns, 11);
   assert.deepEqual(root.children[0].children[0].props, {
-    content: "circle",
+    content: "circle-16",
     contentTooltip: "",
     title: "Circle",
   });
+});
+
+test("routes Grid and dropdown search and pagination events", async () => {
+  const probe = createContext();
+  const selections = [];
+  const searches = [];
+  const dropdownValues = [];
+  const dropdownSearches = [];
+  let loadMore = 0;
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      Grid,
+      {
+        enableFiltering: true,
+        selectedItemId: "one",
+        onSelectionChange: (id) => selections.push(id),
+        onSearchTextChange: (text) => searches.push(text),
+        pagination: { pageSize: 25, hasMore: true, onLoadMore: () => loadMore++ },
+        searchBarAccessory: createElement(
+          Grid.Dropdown,
+          {
+            tooltip: "Filter",
+            isLoading: true,
+            filtering: { keepSectionOrder: true },
+            throttle: true,
+            onChange: (value) => dropdownValues.push(value),
+            onSearchTextChange: (text) => dropdownSearches.push(text),
+          },
+          createElement(Grid.Dropdown.Item, { value: "all", title: "All" }),
+        ),
+      },
+      createElement(Grid.Item, { id: "one", content: "one", title: "One" }),
+    ),
+  );
+  await renderer.flush();
+
+  const root = probe.transactions[0].operations[0].root;
+  assert.deepEqual(root.props, {
+    filtering: true,
+    selectedItemId: "one",
+    onSelectionChange: root.props.onSelectionChange,
+    onSearchTextChange: root.props.onSearchTextChange,
+    paginationPageSize: 25,
+    paginationHasMore: true,
+    onLoadMore: root.props.onLoadMore,
+  });
+  const dropdown = root.children[0];
+  assert.deepEqual(dropdown.props, {
+    tooltip: "Filter",
+    isLoading: true,
+    filtering: true,
+    filteringKeepSectionOrder: true,
+    throttle: true,
+    onChange: dropdown.props.onChange,
+    onSearchTextChange: dropdown.props.onSearchTextChange,
+  });
+
+  probe.dispatch(root.props.onSelectionChange, { selectedItemId: null });
+  probe.dispatch(root.props.onSearchTextChange, { searchText: "query" });
+  probe.dispatch(root.props.onLoadMore);
+  probe.dispatch(dropdown.props.onChange, { value: "all" });
+  probe.dispatch(dropdown.props.onSearchTextChange, { searchText: "filter" });
+
+  assert.deepEqual(selections, [null]);
+  assert.deepEqual(searches, ["query"]);
+  assert.equal(loadMore, 1);
+  assert.deepEqual(dropdownValues, ["all"]);
+  assert.deepEqual(dropdownSearches, ["filter"]);
 });
 
 test("renders MenuBarExtra roots and routes item action events", async () => {
@@ -1181,7 +1520,7 @@ test("renders MenuBarExtra roots and routes item action events", async () => {
 
   const root = probe.transactions[0].operations[0].root;
   assert.equal(root.type, "menu-bar-extra");
-  assert.deepEqual(root.props, { title: "Blast", tooltip: "Blast menu", icon: "circle", isLoading: true });
+  assert.deepEqual(root.props, { title: "Blast", tooltip: "Blast menu", icon: "circle-16", isLoading: true });
   assert.deepEqual(
     root.children.map((child) => child.type),
     ["menu-bar-section", "menu-bar-separator"],
@@ -1222,7 +1561,12 @@ test("renders measured form controls and submits client-provided values", async 
         defaultValue: "Ada",
         onChange: (value) => changed.push(["name", value]),
       }),
-      createElement(Form.TextArea, { id: "bio", title: "Bio", placeholder: "About you" }),
+      createElement(Form.TextArea, {
+        id: "bio",
+        title: "Bio",
+        placeholder: "About you",
+        enableMarkdown: true,
+      }),
       createElement(Form.PasswordField, { id: "password", title: "Password" }),
       createElement(Form.Checkbox, { id: "enabled", label: "Enabled", defaultValue: true }),
       createElement(
@@ -1262,6 +1606,7 @@ test("renders measured form controls and submits client-provided values", async 
     defaultValue: true,
     onChange: fields.get("enabled").props.onChange,
   });
+  assert.equal(fields.get("bio").props.enableMarkdown, true);
   assert.equal(fields.get("role").children[0].type, "form-dropdown-section");
   assert.equal(fields.get("role").children[0].children[0].props.value, "admin");
 
@@ -1384,7 +1729,7 @@ test("renders richer form controls and restores native values on events and subm
   assert.deepEqual(
     fields.get("tags").children.map((child) => child.props),
     [
-      { value: "v2", title: "V2", icon: "circle" },
+      { value: "v2", title: "V2", icon: "circle-16" },
       { value: "docs", title: "Docs" },
     ],
   );
@@ -1556,6 +1901,42 @@ test("accepts empty strings for string-valued form and grid options", async () =
 
   const gridRoot = gridProbe.transactions[0].operations[0].root;
   assert.deepEqual(gridRoot.children[0].children[0].props, { value: "", title: "" });
+});
+
+test("supports the Form.Dropdown search-bar contract", async () => {
+  const probe = createContext();
+  const searches = [];
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      Form,
+      null,
+      createElement(
+        Form.Dropdown,
+        {
+          id: "role",
+          isLoading: true,
+          filtering: { keepSectionOrder: true },
+          throttle: true,
+          onSearchTextChange: (text) => searches.push(text),
+        },
+        createElement(Form.Dropdown.Item, { value: "admin", title: "Administrator" }),
+      ),
+    ),
+  );
+  await renderer.flush();
+
+  const field = probe.transactions[0].operations[0].root.children[0];
+  assert.deepEqual(field.props, {
+    id: "role",
+    isLoading: true,
+    filtering: true,
+    filteringKeepSectionOrder: true,
+    throttle: true,
+    onChange: field.props.onChange,
+    onSearchTextChange: field.props.onSearchTextChange,
+  });
+  probe.dispatch(field.props.onSearchTextChange, { searchText: "adm" });
+  assert.deepEqual(searches, ["adm"]);
 });
 
 test("rejects form submit values with a mismatched field type", async () => {
@@ -1753,7 +2134,7 @@ test("routes HUD, open, and alert APIs through capabilities", async () => {
       arguments: {
         title: "Delete item?",
         message: "This cannot be undone.",
-        icon: "trash",
+        icon: "trash-16",
         rememberUserChoice: true,
         primaryTitle: "Delete",
         primaryStyle: "destructive",
@@ -1946,6 +2327,19 @@ test("provides a session-local namespaced LRU Cache", () => {
   assert.equal(cache.isEmpty, true);
   assert.equal(Cache.STORAGE_DIRECTORY_NAME, "cache");
   assert.equal(Cache.DEFAULT_CAPACITY, 10 * 1024 * 1024);
+});
+
+test("keeps Cache.subscribe bound when passed as a callback", () => {
+  const probe = createContext();
+  configureRaycastCompat(probe.context);
+  const cache = new Cache({ namespace: "cache-subscribe-bound" });
+  cache.clear({ notifySubscribers: false });
+  const events = [];
+  const subscribe = cache.subscribe;
+  const unsubscribe = subscribe((key, data) => events.push([key, data]));
+  cache.set("key", "value");
+  unsubscribe();
+  assert.deepEqual(events, [["key", "value"]]);
 });
 
 test("shows toasts through the configured context", async () => {
@@ -2169,10 +2563,11 @@ test("LocalStorage routes through the capability broker", async () => {
   assert.equal(await LocalStorage.getItem("token"), undefined);
   await LocalStorage.clear();
   assert.equal(await LocalStorage.getItem("flag"), undefined);
+  await LocalStorage.removeAllItems();
 
   assert.deepEqual(
     probe.capabilityRequests.map((request) => request.operation),
-    ["get", "set", "get", "set", "get", "getAll", "getAll", "remove", "get", "clear", "get"],
+    ["get", "set", "get", "set", "get", "getAll", "getAll", "remove", "get", "clear", "get", "clear"],
   );
 });
 
@@ -2307,7 +2702,7 @@ test("renders titled action panels, submenus, List actions, and tinted icons", a
 
   const root = environment.transactions[0].operations[0].root;
   const item = root.children[0];
-  assert.deepEqual(item.props, { title: "First", icon: "circle", iconTintColor: "red" });
+  assert.deepEqual(item.props, { title: "First", icon: "circle-16", iconTintColor: "raycast-red" });
 
   const itemGroup = item.children[0];
   assert.equal(itemGroup.type, "action-group");
@@ -2322,6 +2717,62 @@ test("renders titled action panels, submenus, List actions, and tinted icons", a
   assert.equal(listGroup.type, "action-group");
   assert.deepEqual(listGroup.props, { title: "Global" });
   assert.equal(listGroup.children[0].type, "action");
+});
+
+test("routes ActionPanel.Submenu search and open callbacks", async () => {
+  const probe = createContext();
+  const searches = [];
+  let opened = 0;
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      List,
+      null,
+      createElement(
+        List.Item,
+        { title: "Host" },
+        createElement(
+          ActionPanel,
+          null,
+          createElement(
+            ActionPanel.Submenu,
+            {
+              id: "more",
+              title: "More",
+              filtering: { keepSectionOrder: true },
+              isLoading: true,
+              throttle: true,
+              onSearchTextChange: (text) => searches.push(text),
+              onOpen: () => opened++,
+            },
+            createElement(Action, { id: "child", title: "Child", onAction: () => {} }),
+          ),
+        ),
+      ),
+    ),
+  );
+  await renderer.flush();
+
+  const submenu = probe.transactions[0].operations[0].root.children[0].children[0].children[0];
+  assert.deepEqual(submenu.props, {
+    id: "more",
+    title: "More",
+    filtering: true,
+    filteringKeepSectionOrder: true,
+    isLoading: true,
+    throttle: true,
+    onSearchTextChange: submenu.props.onSearchTextChange,
+    onOpen: submenu.props.onOpen,
+  });
+  assert.deepEqual(submenu.children[0].props, {
+    id: "child",
+    title: "Child",
+    onAction: submenu.children[0].props.onAction,
+  });
+
+  probe.dispatch(submenu.props.onSearchTextChange, { searchText: "needle" });
+  probe.dispatch(submenu.props.onOpen);
+  assert.deepEqual(searches, ["needle"]);
+  assert.equal(opened, 1);
 });
 
 test("routes measured AI, command metadata, and OAuth boundaries", async () => {

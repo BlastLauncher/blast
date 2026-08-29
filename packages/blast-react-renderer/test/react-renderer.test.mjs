@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { Children, createElement, useEffect } from "react";
+import { SceneStateBuffer } from "@blastlauncher/scene";
 
 import {
+  SCENE_ACTION_GROUP_TYPE,
   SCENE_DETAIL_TYPE,
   SCENE_FORM_FILE_PICKER_TYPE,
   SCENE_FORM_LINK_ACCESSORY_TYPE,
@@ -186,6 +188,48 @@ test("emits remove operations and releases their event identifiers", async () =>
   renderer.dispatchSceneEvent({ eventId: survivingEventId });
 });
 
+test("coalesces nested removals into one subtree operation", async () => {
+  const transactions = [];
+  const state = new SceneStateBuffer();
+  const renderer = createSceneRenderer({
+    sink: {
+      transactions,
+      publish(transaction) {
+        transactions.push(transaction);
+        state.apply(transaction);
+      },
+    },
+  });
+
+  const renderScene = (withActions) =>
+    createElement(
+      SceneList,
+      null,
+      createElement(
+        SceneListItem,
+        { key: "task", title: "Task" },
+        withActions
+          ? createElement(
+              SCENE_ACTION_GROUP_TYPE,
+              null,
+              createElement(SceneAction, { title: "Run", onAction: () => {} }),
+            )
+          : null,
+      ),
+    );
+
+  renderer.render(renderScene(true));
+  await renderer.flush();
+  renderer.render(renderScene(false));
+  await renderer.flush();
+
+  assert.deepEqual(
+    transactions[1].operations.filter((operation) => operation.type === "remove"),
+    [{ type: "remove", nodeId: transactions[0].operations[0].root.children[0].children[0].id }],
+  );
+  assert.equal(state.nodeCount, 2);
+});
+
 test("serializes removed properties as explicit null", async () => {
   const sink = createCollectingSink();
   const renderer = createSceneRenderer({ sink });
@@ -275,7 +319,7 @@ test("rejects invalid scene trees", (context) => {
     const sink = createCollectingSink();
     const renderer = createSceneRenderer({ sink });
     assert.throws(
-      () => renderer.render(createElement(SceneListItem, { title: "Task", keywords: "task" })),
+      () => renderer.render(createElement(SceneListItem, { title: "Task", notAProp: "task" })),
       (error) => error.code === "unknown_prop",
     );
     assert.equal(sink.transactions.length, 0);

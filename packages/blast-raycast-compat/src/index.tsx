@@ -7,6 +7,7 @@ import {
   isValidElement,
   useContext,
   useEffect,
+  useId as useReactId,
   useMemo,
   useRef,
   useState,
@@ -26,9 +27,11 @@ import type {
   ToastStyle as SceneToastStyle,
 } from "@blastlauncher/scene";
 import { SceneRendererError, createSceneRenderer, type SceneRenderer } from "@blastlauncher/react-renderer";
+import type { ColorLike, IconName } from "./icon.js";
 
 export { Color, Icon } from "./icon.js";
 export type { ColorLike, ColorName, IconName } from "./icon.js";
+export type { DynamicColor } from "./icon.js";
 
 /**
  * Structured error for API surface that Blast has deliberately not measured
@@ -297,6 +300,20 @@ export interface ListProps {
   readonly searchBarPlaceholder?: string;
   readonly isLoading?: boolean;
   readonly isShowingDetail?: boolean;
+  readonly searchText?: string;
+  readonly filtering?: boolean | { readonly keepSectionOrder: boolean };
+  /** @deprecated Use `filtering` instead. */
+  readonly enableFiltering?: boolean;
+  readonly throttle?: boolean;
+  readonly selectedItemId?: string;
+  readonly onSelectionChange?: (id: string | null) => void;
+  readonly onSearchTextChange?: (text: string) => void;
+  readonly searchBarAccessory?: ReactNode;
+  readonly pagination?: {
+    readonly pageSize: number;
+    readonly hasMore: boolean;
+    readonly onLoadMore: () => void;
+  };
   readonly children?: ReactNode;
   readonly actions?: ReactNode;
 }
@@ -322,19 +339,75 @@ export interface QuickLookProps {
 }
 
 export interface ListItemProps {
+  readonly id?: string;
   readonly title: string | ListItemTitleDescriptor;
   readonly subtitle?: string | ListItemSubtitleDescriptor;
+  readonly keywords?: string[];
   readonly icon?: IconLike | ListItemIconWithTooltip;
+  readonly accessoryIcon?: IconLike;
+  readonly accessoryTitle?: string;
+  readonly accessories?: readonly ListItemAccessoryProps[] | null;
   readonly quickLook?: QuickLookProps;
   readonly detail?: ReactNode;
   readonly children?: ReactNode;
   readonly actions?: ReactNode;
 }
 
+export type ListItemAccessoryValue =
+  | string
+  | Date
+  | null
+  | {
+      readonly value: string | Date | null;
+      readonly color?: ColorLike | null;
+    };
+
+export interface ListItemAccessoryProps {
+  readonly text?: ListItemAccessoryValue;
+  readonly date?: ListItemAccessoryValue;
+  readonly tag?: ListItemAccessoryValue;
+  readonly icon?: IconLike | null;
+  readonly tooltip?: string | null;
+}
+
 export interface ListSectionProps {
   readonly id?: string;
   readonly title?: string;
   readonly subtitle?: string;
+  readonly children?: ReactNode;
+}
+
+export interface ListEmptyViewProps {
+  readonly icon?: IconLike | null;
+  readonly title?: string;
+  readonly description?: string;
+  readonly actions?: ReactNode;
+}
+
+export interface ListDropdownItemProps {
+  readonly value: string;
+  readonly title: string;
+  readonly icon?: IconLike | null;
+  readonly keywords?: string[];
+}
+
+export interface ListDropdownSectionProps {
+  readonly title?: string;
+  readonly children?: ReactNode;
+}
+
+export interface ListDropdownProps {
+  readonly id?: string;
+  readonly tooltip: string;
+  readonly placeholder?: string;
+  readonly isLoading?: boolean;
+  readonly filtering?: boolean | { readonly keepSectionOrder: boolean };
+  readonly throttle?: boolean;
+  readonly storeValue?: boolean;
+  readonly value?: string;
+  readonly defaultValue?: string;
+  readonly onChange?: (value: string) => void;
+  readonly onSearchTextChange?: (text: string) => void;
   readonly children?: ReactNode;
 }
 
@@ -370,10 +443,17 @@ export interface GridProps {
   readonly inset?: GridInset;
   readonly searchText?: string;
   readonly filtering?: boolean | { readonly keepSectionOrder: boolean };
+  /** @deprecated Use `filtering` instead. */
+  readonly enableFiltering?: boolean;
   readonly throttle?: boolean;
   readonly selectedItemId?: string;
   readonly onSelectionChange?: (id: string | null) => void;
   readonly onSearchTextChange?: (text: string) => void;
+  readonly pagination?: {
+    readonly pageSize: number;
+    readonly hasMore: boolean;
+    readonly onLoadMore: () => void;
+  };
   readonly searchBarAccessory?: ReactNode;
   readonly children?: ReactNode;
   readonly actions?: ReactNode;
@@ -429,10 +509,14 @@ export interface GridDropdownProps {
   readonly id?: string;
   readonly tooltip: string;
   readonly placeholder?: string;
+  readonly isLoading?: boolean;
+  readonly filtering?: boolean | { readonly keepSectionOrder: boolean };
+  readonly throttle?: boolean;
   readonly storeValue?: boolean;
   readonly value?: string;
   readonly defaultValue?: string;
   readonly onChange?: (value: string) => void;
+  readonly onSearchTextChange?: (text: string) => void;
   readonly children?: ReactNode;
 }
 
@@ -515,21 +599,76 @@ export interface ActionPanelProps {
   readonly title?: string;
 }
 
+/** @deprecated Use `ActionPanel` children directly. */
+export type ActionPanelChildren = ReactNode;
+
+/** @deprecated Use `ActionPanel.Item` instead. */
+export interface ActionPanelItemProps extends ActionProps {}
+
+/** @deprecated Use `ActionPanel.Section` children directly. */
+export type ActionPanelSectionChildren = ReactNode;
+
+/** @deprecated Use `ActionPanel.Section` instead. */
+export interface ActionPanelSectionProps extends ActionPanelProps {}
+
+/** @deprecated There is no direct replacement in the modern API. */
+export interface ActionPanelState {
+  readonly update: (actionPanel: ReactNode) => void;
+}
+
 export interface SubmenuProps {
+  /** @deprecated This is an internal prop which should not have been exposed. */
+  readonly id?: string;
   readonly title: string;
   readonly icon?: IconLike;
   readonly shortcut?: ShortcutLike;
+  readonly filtering?: boolean | { readonly keepSectionOrder: boolean };
+  readonly isLoading?: boolean;
+  readonly throttle?: boolean;
+  readonly onSearchTextChange?: (text: string) => void;
+  readonly onOpen?: () => void;
   readonly autoFocus?: boolean;
   readonly children?: ReactNode;
 }
 
+/** @deprecated Use `ActionPanel.Submenu` instead. */
+export interface ActionPanelSubmenuProps extends SubmenuProps {}
+
 export interface ActionProps {
+  /** @deprecated This is an internal prop which should not have been exposed. */
+  readonly id?: string;
   readonly title: string;
   readonly onAction?: (event?: SceneEventPayload) => void;
   readonly icon?: IconLike;
   readonly shortcut?: ShortcutLike;
   readonly style?: ActionStyleLike;
   readonly autoFocus?: boolean;
+}
+
+export interface MCPServer {
+  readonly name: string;
+  readonly description?: string;
+  readonly icon?: IconLike;
+}
+
+export interface StdioMCPServer extends MCPServer {
+  readonly transport: "stdio";
+  readonly command: string;
+  readonly args?: string[];
+  readonly env?: Record<string, string>;
+}
+
+export interface SSEMCPServer extends MCPServer {
+  readonly transport: "sse";
+  readonly url: string;
+  readonly headers?: Record<string, string>;
+}
+
+export interface InstallMCPServerProps {
+  readonly server: StdioMCPServer | SSEMCPServer;
+  readonly title?: string;
+  readonly icon?: IconLike;
+  readonly shortcut?: ShortcutLike;
 }
 
 export interface Quicklink {
@@ -651,12 +790,14 @@ export interface PasteProps {
 /** @deprecated Use `PasteProps` or `Action.Paste` instead. */
 export interface PasteActionProps extends PasteProps {}
 
-export interface IconObject {
-  readonly source: string | { readonly light: string; readonly dark: string };
-  readonly tintColor?: string;
-  readonly fallback?: string | { readonly light: string; readonly dark: string };
-  readonly mask?: Image.Mask;
+export interface Image {
+  readonly source: Image.Source;
+  readonly fallback?: Image.Fallback | null;
+  readonly mask?: Image.Mask | null;
+  readonly tintColor?: ColorLike | null;
 }
+
+export interface IconObject extends Image {}
 
 export interface FileIcon {
   readonly fileIcon: string;
@@ -668,9 +809,9 @@ export type IconLike = string | IconObject | FileIcon;
 export namespace Image {
   export type URL = string;
   export type Asset = string;
-  export type Source = URL | Asset | { readonly light: URL | Asset; readonly dark: URL | Asset };
-  export type Fallback = Asset | { readonly light: Asset; readonly dark: Asset };
-  export type ImageLike = URL | Asset | IconObject;
+  export type Source = URL | Asset | IconName | { readonly light: URL | Asset; readonly dark: URL | Asset };
+  export type Fallback = Asset | IconName | { readonly light: Asset; readonly dark: Asset };
+  export type ImageLike = URL | Asset | IconName | FileIcon | Image;
 
   export enum Mask {
     Circle = "circle",
@@ -682,6 +823,8 @@ export namespace Image {
 export type ImageMask = Image.Mask;
 /** @deprecated Use `Image.ImageLike` instead. */
 export type ImageLike = Image.ImageLike;
+/** @deprecated Use `Image.Source` instead. */
+export type ImageSource = Image.Source;
 
 /** @deprecated Use `Image.Mask` instead. */
 export const ImageMask = Image.Mask;
@@ -711,6 +854,11 @@ export type LaunchProps<
 /** @deprecated Use `LaunchProps` directly. */
 export interface ArgumentsLaunchProps {
   readonly arguments?: LaunchArguments;
+}
+
+/** @deprecated Use `LaunchProps` directly. */
+export interface FormLaunchProps {
+  readonly draftValues?: FormValues;
 }
 
 export interface IntraExtensionLaunchOptions {
@@ -1224,6 +1372,9 @@ export namespace AI {
   }
 }
 
+/** @deprecated Use `AI` directly. */
+export const unstable_AI = AI;
+
 /** Host-owned OAuth PKCE boundary matching the measured Raycast client shape. */
 export namespace OAuth {
   export const clientIdMetadataDocument = "https://www.raycast.com/.well-known/oauth-client-metadata/raycast.json";
@@ -1472,6 +1623,26 @@ export const Keyboard = {
   },
 } as const;
 
+/** @deprecated Use `Keyboard.KeyEquivalent` values directly. */
+export const specialKeys = {
+  return: "return",
+  delete: "delete",
+  deleteForward: "deleteForward",
+  tab: "tab",
+  arrowUp: "arrowUp",
+  arrowDown: "arrowDown",
+  arrowLeft: "arrowLeft",
+  arrowRight: "arrowRight",
+  pageUp: "pageUp",
+  pageDown: "pageDown",
+  home: "home",
+  end: "end",
+  space: "space",
+  escape: "escape",
+  enter: "enter",
+  backspace: "backspace",
+} as const;
+
 export const PopToRootType = {
   Default: "default",
   Immediate: "immediate",
@@ -1580,6 +1751,20 @@ export const MenuBarExtra: MenuBarExtraComponent = Object.assign(MenuBarExtraCom
   Separator: MenuBarExtraSeparator,
 });
 
+export namespace MenuBarExtra {
+  export type Props = MenuBarExtraProps;
+  export type ActionEvent = MenuBarExtraActionEvent;
+  export namespace Item {
+    export type Props = MenuBarExtraItemProps;
+  }
+  export namespace Section {
+    export type Props = MenuBarExtraSectionProps;
+  }
+  export namespace Submenu {
+    export type Props = MenuBarExtraSubmenuProps;
+  }
+}
+
 export type FormValue = string | number | boolean | string[] | number[] | Date | null;
 export type FormValues = Readonly<Record<string, FormValue>>;
 
@@ -1625,6 +1810,18 @@ export interface FormItemProps<T extends FormValue> {
   readonly onBlur?: (event: FormEvent<T>) => void;
 }
 
+/** Deprecated top-level Form prop aliases retained for declaration parity. */
+export interface FormTextFieldProps extends TextFieldProps {}
+export interface FormTextAreaProps extends TextAreaProps {}
+export interface FormCheckboxProps extends CheckboxProps {}
+export interface FormDropdownProps extends DropdownProps {}
+export interface FormDropdownItemProps extends DropdownItemProps {}
+export interface FormDropdownSectionProps extends DropdownSectionProps {}
+export interface FormDatePickerProps extends DatePickerProps {}
+export interface FormTagPickerProps extends TagPickerProps {}
+export interface FormTagPickerItemProps extends TagPickerItemProps {}
+export interface FormSeparatorProps extends SeparatorProps {}
+
 export type DatePickerType = "date" | "date_time";
 
 export interface DatePickerProps extends FormItemProps<Date | null> {
@@ -1663,6 +1860,10 @@ export interface DropdownSectionProps {
 
 export interface DropdownProps extends FormItemProps<string> {
   readonly placeholder?: string;
+  readonly isLoading?: boolean;
+  readonly filtering?: boolean | { readonly keepSectionOrder: boolean };
+  readonly throttle?: boolean;
+  readonly onSearchTextChange?: (text: string) => void;
   readonly children?: ReactNode;
 }
 
@@ -1772,7 +1973,7 @@ function normalizeGridAspectRatio(value: unknown, where: string): GridAspectRati
 }
 
 function normalizeGridFiltering(
-  value: GridProps["filtering"],
+  value: GridProps["filtering"] | ListProps["filtering"],
   where: string,
 ): { filtering: boolean; filteringKeepSectionOrder?: boolean } | undefined {
   if (value === undefined || value === null) {
@@ -1925,6 +2126,99 @@ function serializeListItemText(
   };
 }
 
+function serializeListItemAccessories(accessories: ListItemProps["accessories"], where: string): string | undefined {
+  if (accessories === undefined || accessories === null) {
+    return undefined;
+  }
+  if (!Array.isArray(accessories)) {
+    unsupported(`${where} must be an array`, { accessories });
+  }
+  const serialized = accessories.map((accessory, index) => {
+    if (!isRecord(accessory)) {
+      unsupported(`${where}[${index}] must be an object`, { accessory });
+    }
+    const result: Record<string, string> = {};
+    for (const field of ["text", "date", "tag"] as const) {
+      if (!(field in accessory) || accessory[field] === undefined || accessory[field] === null) {
+        continue;
+      }
+      const value = serializeListItemAccessoryValue(accessory[field], `${where}[${index}].${field}`);
+      if (value.value !== undefined) {
+        result[field] = value.value;
+      }
+      if (value.color !== undefined) {
+        result[`${field}Color`] = value.color;
+      }
+    }
+    if (accessory.icon !== undefined && accessory.icon !== null) {
+      const icon = serializeIcon(accessory.icon as IconLike, `${where}[${index}] icon`);
+      if (icon !== undefined) {
+        result.icon = icon.icon;
+        if (icon.iconTintColor !== undefined) {
+          result.iconTintColor = icon.iconTintColor;
+        }
+      }
+    }
+    if (accessory.tooltip !== undefined && accessory.tooltip !== null) {
+      result.tooltip = requireString(accessory.tooltip, `${where}[${index}] tooltip`);
+    }
+    return result;
+  });
+  return JSON.stringify(serialized);
+}
+
+function serializeListItemAccessoryValue(value: unknown, where: string): { value?: string; color?: string } {
+  if (typeof value === "string") {
+    return { value };
+  }
+  if (value instanceof Date) {
+    if (Number.isNaN(value.getTime())) {
+      unsupported(`${where} must be a valid Date`, { value });
+    }
+    return { value: value.toISOString() };
+  }
+  if (!isRecord(value)) {
+    unsupported(`${where} must be a string, Date, or descriptor`, { value });
+  }
+  const rawValue = value.value;
+  const serializedValue =
+    rawValue === undefined || rawValue === null
+      ? undefined
+      : rawValue instanceof Date
+        ? rawValue.toISOString()
+        : requireString(rawValue, `${where} value`);
+  const color =
+    value.color === undefined || value.color === null ? undefined : serializeTintColor(value.color, `${where} color`);
+  return {
+    ...(serializedValue === undefined ? {} : { value: serializedValue }),
+    ...(color === undefined ? {} : { color }),
+  };
+}
+
+function serializeListPagination(
+  pagination: ListProps["pagination"],
+  where: string,
+): { paginationPageSize: number; paginationHasMore: boolean; onLoadMore: () => void } | undefined {
+  if (pagination === undefined || pagination === null) {
+    return undefined;
+  }
+  if (!isRecord(pagination)) {
+    unsupported(`${where} must be an object`, { pagination });
+  }
+  const pageSize = normalizeGridColumns(pagination.pageSize, `${where} pageSize`);
+  if (typeof pagination.hasMore !== "boolean") {
+    unsupported(`${where} hasMore must be a boolean`, { hasMore: pagination.hasMore });
+  }
+  if (typeof pagination.onLoadMore !== "function") {
+    unsupported(`${where} onLoadMore must be a function`, { onLoadMore: pagination.onLoadMore });
+  }
+  return {
+    paginationPageSize: pageSize,
+    paginationHasMore: pagination.hasMore,
+    onLoadMore: () => pagination.onLoadMore(),
+  };
+}
+
 function serializeQuickLook(
   quickLook: QuickLookProps | null | undefined,
   where: string,
@@ -1988,6 +2282,58 @@ function serializeSnippet(snippet: unknown, where: string): string {
     serialized.keyword = requireString(snippet.keyword, `${where} keyword`);
   }
   return JSON.stringify(serialized);
+}
+
+function serializeMCPServer(server: unknown, where: string): string {
+  if (!isRecord(server)) {
+    unsupported(`${where} must be an object`, { server });
+  }
+  const serialized: Record<string, unknown> = {
+    name: requireNonEmptyString(server.name, `${where} name`),
+    transport: server.transport,
+  };
+  if (server.description !== undefined) {
+    serialized.description = requireString(server.description, `${where} description`);
+  }
+  if (server.icon !== undefined) {
+    const icon = serializeIcon(server.icon as IconLike, `${where} icon`);
+    if (icon !== undefined) {
+      serialized.icon = icon.icon;
+      if (icon.iconTintColor !== undefined) {
+        serialized.iconTintColor = icon.iconTintColor;
+      }
+    }
+  }
+  if (server.transport === "stdio") {
+    serialized.transport = "stdio";
+    serialized.command = requireNonEmptyString(server.command, `${where} command`);
+    if (server.args !== undefined) {
+      serialized.args = normalizeStringArray(server.args, `${where} args`);
+    }
+    if (server.env !== undefined) {
+      serialized.env = serializeStringRecord(server.env, `${where} env`);
+    }
+  } else if (server.transport === "sse") {
+    serialized.transport = "sse";
+    serialized.url = requireNonEmptyString(server.url, `${where} url`);
+    if (server.headers !== undefined) {
+      serialized.headers = serializeStringRecord(server.headers, `${where} headers`);
+    }
+  } else {
+    unsupported(`${where} transport`, { transport: server.transport });
+  }
+  return JSON.stringify(serialized);
+}
+
+function serializeStringRecord(value: unknown, where: string): Record<string, string> {
+  if (!isRecord(value)) {
+    unsupported(`${where} must be an object`, { value });
+  }
+  const result: Record<string, string> = {};
+  for (const [key, entry] of Object.entries(value)) {
+    result[key] = requireString(entry, `${where}.${key}`);
+  }
+  return result;
 }
 
 function serializeTintColor(tintColor: unknown, where: string): string {
@@ -2340,9 +2686,21 @@ interface ListComponent {
   (props: ListProps): ReactElement;
   Item: typeof ListItemComponent & { Detail: typeof ListItemDetail };
   Section: typeof ListSection;
+  EmptyView: typeof ListEmptyView;
+  Dropdown: typeof ListDropdown & {
+    Item: typeof ListDropdownItem;
+    Section: typeof ListDropdownSection;
+  };
 }
 
 function ListComponent(props: ListProps): ReactElement {
+  const filtering =
+    props.filtering !== undefined
+      ? normalizeGridFiltering(props.filtering, "List filtering")
+      : props.enableFiltering === undefined
+        ? undefined
+        : normalizeGridFiltering(props.enableFiltering, "List enableFiltering");
+  const pagination = serializeListPagination(props.pagination, "List pagination");
   return createElement(
     "list",
     {
@@ -2350,9 +2708,29 @@ function ListComponent(props: ListProps): ReactElement {
       ...(props.searchBarPlaceholder === undefined ? {} : { searchBarPlaceholder: props.searchBarPlaceholder }),
       ...(props.isLoading === undefined ? {} : { isLoading: props.isLoading }),
       ...(props.isShowingDetail === undefined ? {} : { isShowingDetail: props.isShowingDetail }),
+      ...(props.searchText === undefined ? {} : { searchText: props.searchText }),
+      ...(filtering === undefined ? {} : filtering),
+      ...(props.throttle === undefined ? {} : { throttle: props.throttle }),
+      ...(props.selectedItemId === undefined ? {} : { selectedItemId: props.selectedItemId }),
+      ...(props.onSelectionChange === undefined
+        ? {}
+        : {
+            onSelectionChange: (event: SceneEventPayload) => {
+              const value = event.values?.selectedItemId;
+              props.onSelectionChange?.(value === undefined || value === null ? null : String(value));
+            },
+          }),
+      ...(props.onSearchTextChange === undefined
+        ? {}
+        : {
+            onSearchTextChange: (event: SceneEventPayload) => {
+              const value = event.values?.searchText;
+              props.onSearchTextChange?.(typeof value === "string" ? value : "");
+            },
+          }),
+      ...(pagination === undefined ? {} : pagination),
     },
-    props.children,
-    props.actions,
+    mapListChildren(Children.toArray([props.searchBarAccessory, props.children, props.actions])),
   );
 }
 
@@ -2360,11 +2738,14 @@ function ListItemComponent(props: ListItemProps): ReactElement {
   const title = serializeListItemText(props.title, "List.Item title", true);
   const subtitle = serializeListItemText(props.subtitle, "List.Item subtitle", false);
   const icon = serializeListItemIcon(props.icon, "List.Item");
+  const accessoryIcon = serializeIcon(props.accessoryIcon, "List.Item accessoryIcon");
+  const accessories = serializeListItemAccessories(props.accessories, "List.Item accessories");
   const quickLook = serializeQuickLook(props.quickLook, "List.Item");
   const children = Children.toArray([props.actions, props.children, props.detail]);
   return createElement(
     "list-item",
     {
+      ...(props.id === undefined ? {} : { id: requireNonEmptyString(props.id, "List.Item id") }),
       title: title.value,
       ...(title.tooltip === undefined ? {} : { titleTooltip: title.tooltip }),
       ...(subtitle.value === undefined ? {} : { subtitle: subtitle.value }),
@@ -2372,6 +2753,13 @@ function ListItemComponent(props: ListItemProps): ReactElement {
       ...(icon?.icon === undefined ? {} : { icon: icon.icon }),
       ...(icon?.iconTintColor === undefined ? {} : { iconTintColor: icon.iconTintColor }),
       ...(icon?.iconTooltip === undefined ? {} : { iconTooltip: icon.iconTooltip }),
+      ...(props.keywords === undefined ? {} : { keywords: normalizeStringArray(props.keywords, "List.Item keywords") }),
+      ...(accessories === undefined ? {} : { accessories }),
+      ...(accessoryIcon === undefined ? {} : { accessoryIcon: accessoryIcon.icon }),
+      ...(accessoryIcon?.iconTintColor === undefined ? {} : { accessoryIconTintColor: accessoryIcon.iconTintColor }),
+      ...(props.accessoryTitle === undefined
+        ? {}
+        : { accessoryTitle: requireString(props.accessoryTitle, "List.Item accessoryTitle") }),
       ...(quickLook === undefined ? {} : quickLook),
     },
     mapItemChildren(children, "List.Item"),
@@ -2390,10 +2778,137 @@ export function ListSection(props: ListSectionProps): ReactElement {
   );
 }
 
+function ListEmptyView(props: ListEmptyViewProps): ReactElement {
+  const icon = serializeIcon(props.icon, "List.EmptyView");
+  return createElement(
+    "list-empty-view",
+    {
+      ...(icon === undefined
+        ? {}
+        : { icon: icon.icon, ...(icon.iconTintColor === undefined ? {} : { iconTintColor: icon.iconTintColor }) }),
+      ...(props.title === undefined ? {} : { title: props.title }),
+      ...(props.description === undefined ? {} : { description: props.description }),
+    },
+    mapItemChildren(props.actions, "List.EmptyView actions"),
+  );
+}
+
+function ListDropdown(props: ListDropdownProps): ReactElement {
+  if (props.onChange !== undefined && typeof props.onChange !== "function") {
+    unsupported("List.Dropdown onChange", { onChange: props.onChange });
+  }
+  if (props.onSearchTextChange !== undefined && typeof props.onSearchTextChange !== "function") {
+    unsupported("List.Dropdown onSearchTextChange", { onSearchTextChange: props.onSearchTextChange });
+  }
+  const filtering = normalizeGridFiltering(props.filtering, "List.Dropdown filtering");
+  const eventKey = props.id ?? "value";
+  return createElement(
+    "list-dropdown",
+    {
+      ...(props.id === undefined ? {} : { id: requireNonEmptyString(props.id, "List.Dropdown id") }),
+      tooltip: requireNonEmptyString(props.tooltip, "List.Dropdown tooltip"),
+      ...(props.placeholder === undefined ? {} : { placeholder: props.placeholder }),
+      ...(props.isLoading === undefined ? {} : { isLoading: props.isLoading }),
+      ...(filtering === undefined ? {} : filtering),
+      ...(props.throttle === undefined ? {} : { throttle: props.throttle }),
+      ...(props.storeValue === undefined ? {} : { storeValue: props.storeValue }),
+      ...(props.value === undefined ? {} : { value: props.value }),
+      ...(props.defaultValue === undefined ? {} : { defaultValue: props.defaultValue }),
+      ...(props.onChange === undefined
+        ? {}
+        : {
+            onChange: (event: SceneEventPayload) => {
+              const value = event.values?.[eventKey] ?? event.values?.value;
+              if (typeof value === "string") {
+                props.onChange?.(value);
+              }
+            },
+          }),
+      ...(props.onSearchTextChange === undefined
+        ? {}
+        : {
+            onSearchTextChange: (event: SceneEventPayload) => {
+              const value = event.values?.searchText;
+              props.onSearchTextChange?.(typeof value === "string" ? value : "");
+            },
+          }),
+    },
+    mapListDropdownChildren(props.children),
+  );
+}
+
+function ListDropdownItem(props: ListDropdownItemProps): ReactElement {
+  const icon = serializeIcon(props.icon, "List.Dropdown.Item");
+  return createElement("list-dropdown-item", {
+    value: requireString(props.value, "List.Dropdown.Item value"),
+    title: requireString(props.title, "List.Dropdown.Item title"),
+    ...(icon === undefined
+      ? {}
+      : { icon: icon.icon, ...(icon.iconTintColor === undefined ? {} : { iconTintColor: icon.iconTintColor }) }),
+    ...(props.keywords === undefined
+      ? {}
+      : { keywords: normalizeStringArray(props.keywords, "List.Dropdown.Item keywords") }),
+  });
+}
+
+function ListDropdownSection(props: ListDropdownSectionProps): ReactElement {
+  return createElement(
+    "list-dropdown-section",
+    { ...(props.title === undefined ? {} : { title: props.title }) },
+    mapListDropdownChildren(props.children),
+  );
+}
+
 export const List: ListComponent = Object.assign(ListComponent, {
   Item: ListItemComponent as typeof ListItemComponent & { Detail: typeof ListItemDetail },
   Section: ListSection,
+  EmptyView: ListEmptyView,
+  Dropdown: Object.assign(ListDropdown, { Item: ListDropdownItem, Section: ListDropdownSection }),
 });
+
+export namespace List {
+  export type Props = ListProps;
+  export namespace EmptyView {
+    export type Props = ListEmptyViewProps;
+  }
+  export namespace Dropdown {
+    export type Props = ListDropdownProps;
+    export namespace Item {
+      export type Props = ListDropdownItemProps;
+    }
+    export namespace Section {
+      export type Props = ListDropdownSectionProps;
+    }
+  }
+  export namespace Item {
+    export type Accessory = ListItemAccessoryProps;
+    export type Props = ListItemProps;
+    export namespace Detail {
+      export type Props = DetailProps;
+      export namespace Metadata {
+        export type Props = DetailMetadataProps;
+        export namespace Label {
+          export type Props = DetailMetadataLabelProps;
+        }
+        export namespace Separator {
+          export type Props = Record<string, never>;
+        }
+        export namespace Link {
+          export type Props = DetailMetadataLinkProps;
+        }
+        export namespace TagList {
+          export type Props = DetailMetadataTagListProps;
+          export namespace Item {
+            export type Props = DetailMetadataTagListItemProps;
+          }
+        }
+      }
+    }
+  }
+  export namespace Section {
+    export type Props = ListSectionProps;
+  }
+}
 
 /** @deprecated Use `List.Item` instead. */
 export const ListItem = List.Item;
@@ -2419,7 +2934,13 @@ const GRID_FIT_VALUES = {
 const GRID_ASPECT_RATIOS = new Set<GridAspectRatio>(["1", "3/2", "2/3", "4/3", "3/4", "16/9", "9/16"]);
 
 function GridComponent(props: GridProps): ReactElement {
-  const filtering = normalizeGridFiltering(props.filtering, "Grid filtering");
+  const filtering =
+    props.filtering !== undefined
+      ? normalizeGridFiltering(props.filtering, "Grid filtering")
+      : props.enableFiltering === undefined
+        ? undefined
+        : normalizeGridFiltering(props.enableFiltering, "Grid enableFiltering");
+  const pagination = serializeListPagination(props.pagination, "Grid pagination");
   return createElement(
     "grid",
     {
@@ -2453,6 +2974,7 @@ function GridComponent(props: GridProps): ReactElement {
               props.onSearchTextChange?.(typeof value === "string" ? value : "");
             },
           }),
+      ...(pagination === undefined ? {} : pagination),
     },
     mapGridChildren(Children.toArray([props.searchBarAccessory, props.children, props.actions])),
   );
@@ -2523,6 +3045,10 @@ function GridDropdown(props: GridDropdownProps): ReactElement {
   if (props.onChange !== undefined && typeof props.onChange !== "function") {
     unsupported("Grid.Dropdown onChange", { onChange: props.onChange });
   }
+  if (props.onSearchTextChange !== undefined && typeof props.onSearchTextChange !== "function") {
+    unsupported("Grid.Dropdown onSearchTextChange", { onSearchTextChange: props.onSearchTextChange });
+  }
+  const filtering = normalizeGridFiltering(props.filtering, "Grid.Dropdown filtering");
   const eventKey = props.id ?? "value";
   return createElement(
     "grid-dropdown",
@@ -2530,6 +3056,9 @@ function GridDropdown(props: GridDropdownProps): ReactElement {
       ...(props.id === undefined ? {} : { id: requireNonEmptyString(props.id, "Grid.Dropdown id") }),
       tooltip: requireNonEmptyString(props.tooltip, "Grid.Dropdown tooltip"),
       ...(props.placeholder === undefined ? {} : { placeholder: props.placeholder }),
+      ...(props.isLoading === undefined ? {} : { isLoading: props.isLoading }),
+      ...(filtering === undefined ? {} : filtering),
+      ...(props.throttle === undefined ? {} : { throttle: props.throttle }),
       ...(props.storeValue === undefined ? {} : { storeValue: props.storeValue }),
       ...(props.value === undefined ? {} : { value: props.value }),
       ...(props.defaultValue === undefined ? {} : { defaultValue: props.defaultValue }),
@@ -2541,6 +3070,14 @@ function GridDropdown(props: GridDropdownProps): ReactElement {
               if (typeof value === "string") {
                 props.onChange?.(value);
               }
+            },
+          }),
+      ...(props.onSearchTextChange === undefined
+        ? {}
+        : {
+            onSearchTextChange: (event: SceneEventPayload) => {
+              const value = event.values?.searchText;
+              props.onSearchTextChange?.(typeof value === "string" ? value : "");
             },
           }),
     },
@@ -2593,6 +3130,33 @@ export const Grid: GridComponent = Object.assign(GridComponent, {
   EmptyView: GridEmptyView,
   Dropdown: Object.assign(GridDropdown, { Item: GridDropdownItem, Section: GridDropdownSection }),
 });
+
+export namespace Grid {
+  export type Props = GridProps;
+  export type AspectRatio = GridAspectRatio;
+  export type Inset = GridInset;
+  export type Fit = GridFit;
+  export type ItemSize = GridItemSize;
+  export namespace EmptyView {
+    export type Props = GridEmptyViewProps;
+  }
+  export namespace Dropdown {
+    export type Props = GridDropdownProps;
+    export namespace Item {
+      export type Props = GridDropdownItemProps;
+    }
+    export namespace Section {
+      export type Props = GridDropdownSectionProps;
+    }
+  }
+  export namespace Item {
+    export type Accessory = GridItemAccessoryProps;
+    export type Props = GridItemProps;
+  }
+  export namespace Section {
+    export type Props = GridSectionProps;
+  }
+}
 
 function serializeDetailMetadataLabelText(
   text: string | DetailMetadataLabelTextDescriptor | undefined,
@@ -3095,10 +3659,11 @@ function FormTextArea(props: TextAreaProps): ReactElement {
   const onChange = useFormChange(props, "Form.TextArea", stringFormCodec);
   const onFocus = useFormEvent(props, "Form.TextArea", stringFormCodec, "focus");
   const onBlur = useFormEvent(props, "Form.TextArea", stringFormCodec, "blur");
+  const enableMarkdown = props.enableMarkdown === null ? undefined : props.enableMarkdown;
   return createElement("form-text-area", {
     ...commonFormProps(props, onChange, stringFormCodec, onFocus, onBlur),
     ...(props.placeholder === undefined ? {} : { placeholder: props.placeholder }),
-    ...(props.enableMarkdown === undefined ? {} : { enableMarkdown: props.enableMarkdown }),
+    ...(enableMarkdown === undefined ? {} : { enableMarkdown }),
   });
 }
 
@@ -3128,11 +3693,26 @@ function FormDropdown(props: DropdownProps): ReactElement {
   const onChange = useFormChange(props, "Form.Dropdown", stringFormCodec);
   const onFocus = useFormEvent(props, "Form.Dropdown", stringFormCodec, "focus");
   const onBlur = useFormEvent(props, "Form.Dropdown", stringFormCodec, "blur");
+  if (props.onSearchTextChange !== undefined && typeof props.onSearchTextChange !== "function") {
+    unsupported("Form.Dropdown onSearchTextChange", { onSearchTextChange: props.onSearchTextChange });
+  }
+  const filtering = normalizeGridFiltering(props.filtering, "Form.Dropdown filtering");
   return createElement(
     "form-dropdown",
     {
       ...commonFormProps(props, onChange, stringFormCodec, onFocus, onBlur),
       ...(props.placeholder === undefined ? {} : { placeholder: props.placeholder }),
+      ...(props.isLoading === undefined ? {} : { isLoading: props.isLoading }),
+      ...(filtering === undefined ? {} : filtering),
+      ...(props.throttle === undefined ? {} : { throttle: props.throttle }),
+      ...(props.onSearchTextChange === undefined
+        ? {}
+        : {
+            onSearchTextChange: (event: SceneEventPayload) => {
+              const value = event.values?.searchText;
+              props.onSearchTextChange?.(typeof value === "string" ? value : "");
+            },
+          }),
     },
     mapDropdownChildren(props.children),
   );
@@ -3410,11 +3990,72 @@ export const Form: FormComponent = Object.assign(FormComponent, {
   LinkAccessory: FormLinkAccessory,
 });
 
+/** @deprecated Use `Form.Checkbox` instead. */
+export { FormCheckbox };
+/** @deprecated Use `Form.DatePicker` instead. */
+export { FormDatePicker };
+/** @deprecated Use `Form.Dropdown` instead. */
+export { FormDropdown };
+/** @deprecated Use `Form.Dropdown.Item` instead. */
+export { FormDropdownItem };
+/** @deprecated Use `Form.Dropdown.Section` instead. */
+export { FormDropdownSection };
+/** @deprecated Use `Form.Separator` instead. */
+export { FormSeparator };
+/** @deprecated Use `Form.TagPicker` instead. */
+export { FormTagPicker };
+/** @deprecated Use `Form.TagPicker.Item` instead. */
+export { FormTagPickerItem };
+/** @deprecated Use `Form.TextArea` instead. */
+export { FormTextArea };
+/** @deprecated Use `Form.TextField` instead. */
+export { FormTextField };
+
 export namespace Form {
+  export type Props = FormProps;
   export type ItemProps<T extends FormValue> = FormItemProps<T>;
   export type Value = FormValue;
   export type Values = FormValues;
   export type Event<T extends FormValue = FormValue> = FormEvent<T>;
+  export namespace TextField {
+    export type Props = TextFieldProps;
+  }
+  export namespace TextArea {
+    export type Props = TextAreaProps;
+  }
+  export namespace PasswordField {
+    export type Props = PasswordFieldProps;
+  }
+  export namespace Checkbox {
+    export type Props = CheckboxProps;
+  }
+  export namespace DatePicker {
+    export type Props = DatePickerProps;
+  }
+  export namespace Dropdown {
+    export type Props = DropdownProps;
+    export namespace Item {
+      export type Props = DropdownItemProps;
+    }
+    export namespace Section {
+      export type Props = DropdownSectionProps;
+    }
+  }
+  export namespace TagPicker {
+    export type Props = TagPickerProps;
+    export namespace Item {
+      export type Props = TagPickerItemProps;
+    }
+  }
+  export namespace FilePicker {
+    export type Props = FilePickerProps;
+  }
+  export namespace Description {
+    export type Props = DescriptionProps;
+  }
+  export namespace Separator {
+    export type Props = SeparatorProps;
+  }
   export namespace LinkAccessory {
     export type Props = LinkAccessoryProps;
   }
@@ -3428,14 +4069,34 @@ function ActionPanelComponent(props: ActionPanelProps): ReactElement {
 }
 
 function Submenu(props: SubmenuProps): ReactElement {
+  if (props.onOpen !== undefined && typeof props.onOpen !== "function") {
+    unsupported("ActionPanel.Submenu onOpen", { onOpen: props.onOpen });
+  }
+  if (props.onSearchTextChange !== undefined && typeof props.onSearchTextChange !== "function") {
+    unsupported("ActionPanel.Submenu onSearchTextChange", { onSearchTextChange: props.onSearchTextChange });
+  }
   const icon = serializeIcon(props.icon, "ActionPanel.Submenu");
   const shortcut = serializeShortcut(props.shortcut, "ActionPanel.Submenu");
+  const filtering = normalizeGridFiltering(props.filtering, "ActionPanel.Submenu filtering");
   return createElement(
     "action-group",
     {
+      ...(props.id === undefined ? {} : { id: requireNonEmptyString(props.id, "ActionPanel.Submenu id") }),
       title: props.title,
       ...(icon === undefined ? {} : { icon: icon.icon, iconTintColor: icon.iconTintColor }),
       ...(shortcut === undefined ? {} : { shortcut }),
+      ...(filtering === undefined ? {} : filtering),
+      ...(props.isLoading === undefined ? {} : { isLoading: props.isLoading }),
+      ...(props.throttle === undefined ? {} : { throttle: props.throttle }),
+      ...(props.onSearchTextChange === undefined
+        ? {}
+        : {
+            onSearchTextChange: (event: SceneEventPayload) => {
+              const value = event.values?.searchText;
+              props.onSearchTextChange?.(typeof value === "string" ? value : "");
+            },
+          }),
+      ...(props.onOpen === undefined ? {} : { onOpen: () => props.onOpen?.() }),
       ...(props.autoFocus === undefined ? {} : { autoFocus: props.autoFocus }),
     },
     mapItemChildren(props.children, "ActionPanel.Submenu"),
@@ -3459,11 +4120,30 @@ export const ActionPanel: ActionPanelComponent = Object.assign(ActionPanelCompon
   Submenu,
 });
 
+export namespace ActionPanel {
+  export type Props = ActionPanelProps;
+  export type Children = ReactNode;
+  export namespace Section {
+    export type Props = ActionPanelSectionProps;
+    export type Children = ReactNode;
+  }
+  export namespace Submenu {
+    export type Props = SubmenuProps;
+    export type Children = ReactNode;
+  }
+}
+
+/** @deprecated Use `ActionPanel.Section` instead. */
+export const ActionPanelSection = Section;
+/** @deprecated Use `ActionPanel.Submenu` instead. */
+export const ActionPanelSubmenu = Submenu;
+
 function ActionComponent(props: ActionProps): ReactElement {
   const icon = serializeIcon(props.icon, "Action");
   const shortcut = serializeShortcut(props.shortcut, "Action");
   const style = normalizeActionStyle(props.style, "Action");
   return createElement("action", {
+    ...(props.id === undefined ? {} : { id: requireNonEmptyString(props.id, "Action id") }),
     title: props.title,
     ...(icon === undefined ? {} : { icon: icon.icon, iconTintColor: icon.iconTintColor }),
     ...(shortcut === undefined ? {} : { shortcut }),
@@ -3546,6 +4226,18 @@ function CreateSnippet(props: CreateSnippetProps): ReactElement {
     ...(props.shortcut === undefined ? {} : { shortcut: props.shortcut }),
     onAction: () => {
       void callCapability("snippet", "create", { snippetJSON }, "The Action.CreateSnippet");
+    },
+  });
+}
+
+function InstallMCPServer(props: InstallMCPServerProps): ReactElement {
+  const serverJSON = serializeMCPServer(props.server, "Action.InstallMCPServer server");
+  return createElement(Action, {
+    title: props.title ?? "Install MCP Server",
+    ...(props.icon === undefined ? {} : { icon: props.icon }),
+    ...(props.shortcut === undefined ? {} : { shortcut: props.shortcut }),
+    onAction: () => {
+      void callCapability("mcp-server", "install", { serverJSON }, "The Action.InstallMCPServer");
     },
   });
 }
@@ -3753,6 +4445,33 @@ export const OpenWithAction = OpenWith;
 /** @deprecated Use `Action.Paste` instead. */
 export const PasteAction = Paste;
 
+function mapListChildren(children: ReactNode): ReactNode {
+  return Children.toArray(children).map((child, index) => {
+    if (isIgnorableChild(child)) {
+      return null;
+    }
+    if (!isValidElement(child)) {
+      return unsupported("A List text child", { child });
+    }
+    if (
+      child.type === ListItem ||
+      child.type === ListSection ||
+      child.type === ListEmptyView ||
+      child.type === ListDropdown ||
+      child.type === GridDropdown ||
+      child.type === ActionPanel
+    ) {
+      return keyedElement(child, `list-${index}`);
+    }
+    if (isCompositeElement(child)) {
+      return keyedElement(child, `list-${index}`);
+    }
+    return unsupported("A List child that is not a measured item, section, empty view, dropdown, or ActionPanel", {
+      childType: String(child.type),
+    });
+  });
+}
+
 function mapListSectionChildren(children: ReactNode): ReactNode {
   return Children.toArray(children).map((child, index) => {
     if (isIgnorableChild(child)) {
@@ -3765,6 +4484,26 @@ function mapListSectionChildren(children: ReactNode): ReactNode {
       return keyedElement(child, `list-section-${index}`);
     }
     return unsupported("A List.Section child that is not a List.Item", { childType: String(child.type) });
+  });
+}
+
+function mapListDropdownChildren(children: ReactNode): ReactNode {
+  return Children.toArray(children).map((child, index) => {
+    if (isIgnorableChild(child)) {
+      return null;
+    }
+    if (!isValidElement(child)) {
+      return unsupported("A List.Dropdown text child", { child });
+    }
+    if (child.type === ListDropdownItem || child.type === ListDropdownSection) {
+      return keyedElement(child, `list-dropdown-${index}`);
+    }
+    if (isCompositeElement(child)) {
+      return keyedElement(child, `list-dropdown-${index}`);
+    }
+    return unsupported("A List.Dropdown child that is not an item or section", {
+      childType: String(child.type),
+    });
   });
 }
 
@@ -3781,6 +4520,7 @@ function mapGridChildren(children: ReactNode): ReactNode {
       child.type === GridSection ||
       child.type === GridEmptyView ||
       child.type === GridDropdown ||
+      child.type === ListDropdown ||
       child.type === ActionPanel
     ) {
       return keyedElement(child, `grid-${index}`);
@@ -3866,6 +4606,7 @@ interface ActionComponent {
   Push: typeof Push;
   CreateQuicklink: typeof CreateQuicklink;
   CreateSnippet: typeof CreateSnippet;
+  InstallMCPServer: typeof InstallMCPServer;
   ToggleQuickLook: typeof ToggleQuickLook;
   PickDate: typeof PickDateAction;
   ShowInFinder: typeof ShowInFinder;
@@ -3883,6 +4624,7 @@ export const Action: ActionComponent = Object.assign(ActionComponent, {
   Push,
   CreateQuicklink,
   CreateSnippet,
+  InstallMCPServer,
   ToggleQuickLook,
   PickDate: PickDateAction,
   ShowInFinder,
@@ -3890,6 +4632,54 @@ export const Action: ActionComponent = Object.assign(ActionComponent, {
   SubmitForm,
   Style: ActionStyle,
 });
+
+export namespace Action {
+  export type Props = ActionProps;
+  export type Style = ActionStyleLike;
+  export namespace CopyToClipboard {
+    export type Props = CopyToClipboardProps;
+  }
+  export namespace CreateQuicklink {
+    export type Props = CreateQuicklinkProps;
+  }
+  export namespace CreateSnippet {
+    export type Props = CreateSnippetProps;
+  }
+  export namespace InstallMCPServer {
+    export type Props = InstallMCPServerProps;
+  }
+  export namespace Open {
+    export type Props = OpenProps;
+  }
+  export namespace OpenInBrowser {
+    export type Props = OpenInBrowserProps;
+  }
+  export namespace OpenWith {
+    export type Props = OpenWithProps;
+  }
+  export namespace Paste {
+    export type Props = PasteProps;
+  }
+  export namespace Push {
+    export type Props = PushProps;
+  }
+  export namespace ShowInFinder {
+    export type Props = ShowInFinderProps;
+  }
+  export namespace SubmitForm {
+    export type Props<T extends FormValues = FormValues> = SubmitFormProps<T>;
+  }
+  export namespace Trash {
+    export type Props = TrashProps;
+  }
+  export namespace ToggleQuickLook {
+    export type Props = ToggleQuickLookProps;
+  }
+  export namespace PickDate {
+    export type Props = PickDateProps;
+    export type Type = DatePickerType;
+  }
+}
 
 /** @deprecated Use `Action` instead. */
 export const ActionPanelItem = Action;
@@ -3997,6 +4787,7 @@ function mapItemChildren(children: ReactNode, where: string): ReactNode {
       child.type === Push ||
       child.type === CreateQuicklink ||
       child.type === CreateSnippet ||
+      child.type === InstallMCPServer ||
       child.type === ToggleQuickLook ||
       child.type === PickDateAction ||
       child.type === ShowInFinder ||
@@ -4044,6 +4835,67 @@ function keyedElement(child: ReactNode, key: string): ReactNode {
   return isValidElement(child) ? cloneElement(child, { key }) : child;
 }
 
+function serializeClipboardReadOptions(options: Clipboard.ReadOptions | undefined): CapabilityArguments | undefined {
+  if (options === undefined) {
+    return undefined;
+  }
+  if (!isRecord(options)) {
+    unsupported("Clipboard.read options", { options });
+  }
+  if (options.offset === undefined) {
+    return undefined;
+  }
+  if (!Number.isSafeInteger(options.offset) || options.offset < 0 || options.offset > 5) {
+    unsupported("Clipboard.read offset", { offset: options.offset });
+  }
+  return { offset: options.offset };
+}
+
+function deserializeClipboardReadContent(value: unknown): Clipboard.ReadContent {
+  if (typeof value === "string") {
+    try {
+      const parsed = JSON.parse(value) as unknown;
+      if (isRecord(parsed)) {
+        const content: Clipboard.ReadContent = {
+          text: requireString(parsed.text ?? "", "Clipboard.read result text"),
+          ...(parsed.file === undefined ? {} : { file: requireString(parsed.file, "Clipboard.read result file") }),
+          ...(parsed.html === undefined ? {} : { html: requireString(parsed.html, "Clipboard.read result html") }),
+        };
+        const allowedKeys = new Set(["text", "file", "html"]);
+        if (Object.keys(parsed).every((key) => allowedKeys.has(key))) {
+          return content;
+        }
+      }
+    } catch {
+      // Providers may return the plain text directly for compatibility with
+      // older fixtures. Treat a non-JSON string as the text representation.
+    }
+    return { text: value };
+  }
+  if (value === undefined || value === null) {
+    return { text: "" };
+  }
+  throw new CompatibilityError("The clipboard read capability returned an invalid content value", { value });
+}
+
+async function readClipboardContent(options?: Clipboard.ReadOptions): Promise<Clipboard.ReadContent> {
+  const argumentsValue = serializeClipboardReadOptions(options);
+  const response = await requireContext().requestCapability({
+    capability: "clipboard",
+    operation: "read",
+    ...(argumentsValue === undefined ? {} : { arguments: argumentsValue }),
+  });
+  if (response.outcome !== "succeeded") {
+    throw new CompatibilityError("The clipboard read capability was not granted", response);
+  }
+  return deserializeClipboardReadContent(response.value);
+}
+
+async function readClipboardText(options?: Clipboard.ReadOptions): Promise<string | undefined> {
+  const content = await readClipboardContent(options);
+  return content.text;
+}
+
 export const Clipboard = {
   async copy(content: string | number | Clipboard.Content, options?: Clipboard.CopyOptions): Promise<void> {
     await copyToClipboard(content, options);
@@ -4051,13 +4903,14 @@ export const Clipboard = {
   async paste(content: string | number | Clipboard.Content): Promise<void> {
     await pasteToClipboard(content);
   },
-  async read(): Promise<string> {
-    const response = await requireContext().requestCapability({ capability: "clipboard", operation: "read" });
+  async clear(): Promise<void> {
+    const response = await requireContext().requestCapability({ capability: "clipboard", operation: "clear" });
     if (response.outcome !== "succeeded") {
-      throw new CompatibilityError("The clipboard read capability was not granted", response);
+      throw new CompatibilityError("The clipboard clear capability was not granted", response);
     }
-    return typeof response.value === "string" ? response.value : "";
   },
+  read: readClipboardContent,
+  readText: readClipboardText,
 };
 
 export namespace Clipboard {
@@ -4069,6 +4922,16 @@ export namespace Clipboard {
   export type CopyOptions = {
     readonly transient?: boolean;
     readonly concealed?: boolean;
+  };
+
+  export type ReadOptions = {
+    readonly offset?: number;
+  };
+
+  export type ReadContent = {
+    readonly text: string;
+    readonly file?: string;
+    readonly html?: string;
   };
 }
 
@@ -4350,6 +5213,17 @@ async function callCapability(
 export function captureException(exception: unknown): void {
   const exceptionJSON = serializeCapturedException(exception);
   void callCapability("telemetry", "captureException", { exceptionJSON }, "The captureException").catch(() => {});
+}
+
+/** Reports a memory snapshot without allowing telemetry availability to affect a command. */
+export function captureMemorySnapshot(label: string): void {
+  const normalizedLabel = requireNonEmptyString(label, "captureMemorySnapshot label");
+  void callCapability(
+    "telemetry",
+    "captureMemorySnapshot",
+    { label: normalizedLabel },
+    "The captureMemorySnapshot",
+  ).catch(() => {});
 }
 
 function serializeCapturedException(exception: unknown): string {
@@ -5116,6 +5990,21 @@ export function useNavigation(): NavigationApi {
   return useContext(NavigationContext);
 }
 
+/** @deprecated There is no direct replacement in the modern API. */
+export function useActionPanel(): ActionPanelState {
+  return {
+    update() {
+      unsupported("useActionPanel.update");
+    },
+  };
+}
+
+/** @deprecated Use `useId` from React or `nanoid` instead. */
+export const useId = useReactId;
+
+/** @deprecated Use `useAI` from `@raycast/utils` instead. */
+export const useUnstableAI = (): undefined => undefined;
+
 let navigationEntryCounter = 0;
 let legacyRenderCounter = 0;
 
@@ -5341,6 +6230,11 @@ export const LocalStorage = {
       throw new CompatibilityError("The local-storage clear capability was not granted", response);
     }
   },
+
+  /** @deprecated Use `LocalStorage.clear` instead. */
+  async removeAllItems(): Promise<void> {
+    await LocalStorage.clear();
+  },
 };
 
 /** @deprecated Use `LocalStorage.allItems` instead. */
@@ -5357,6 +6251,9 @@ export const removeLocalStorageItem: typeof LocalStorage.removeItem = LocalStora
 
 /** @deprecated Use `LocalStorage.clear` instead. */
 export const clearLocalStorage: typeof LocalStorage.clear = LocalStorage.clear;
+
+/** @deprecated Use `Clipboard.clear` instead. */
+export const clearClipboard: typeof Clipboard.clear = Clipboard.clear;
 
 /** @deprecated Use `LocalStorage.getItem` instead. */
 export const getLocalStorageItem: typeof LocalStorage.getItem = LocalStorage.getItem;
@@ -5412,6 +6309,10 @@ export class Cache {
     this.#state = state;
     this.#capacity = capacity;
     this.#directory = directory;
+    // Raycast utilities pass this method directly to React's external-store
+    // hooks. Bind it so the private cache state remains available when the
+    // callback is invoked without its instance.
+    this.subscribe = this.subscribe.bind(this);
   }
 
   get storageDirectory(): string {

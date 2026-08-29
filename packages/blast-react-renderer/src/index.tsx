@@ -17,6 +17,10 @@ import { SCENE_NODE_TYPES, SCENE_PROP_WHITELIST, isScenePropValue } from "@blast
 export const SCENE_LIST_TYPE = "list";
 export const SCENE_LIST_ITEM_TYPE = "list-item";
 export const SCENE_LIST_SECTION_TYPE = "list-section";
+export const SCENE_LIST_EMPTY_VIEW_TYPE = "list-empty-view";
+export const SCENE_LIST_DROPDOWN_TYPE = "list-dropdown";
+export const SCENE_LIST_DROPDOWN_ITEM_TYPE = "list-dropdown-item";
+export const SCENE_LIST_DROPDOWN_SECTION_TYPE = "list-dropdown-section";
 export const SCENE_GRID_TYPE = "grid";
 export const SCENE_GRID_ITEM_TYPE = "grid-item";
 export const SCENE_GRID_SECTION_TYPE = "grid-section";
@@ -59,12 +63,31 @@ export interface SceneListProps {
   readonly searchBarPlaceholder?: string;
   readonly isLoading?: boolean;
   readonly isShowingDetail?: boolean;
+  readonly searchText?: string;
+  readonly filtering?: boolean;
+  readonly filteringKeepSectionOrder?: boolean;
+  readonly throttle?: boolean;
+  readonly selectedItemId?: string;
+  readonly onSelectionChange?: (event: SceneEventPayload) => void;
+  readonly onSearchTextChange?: (event: SceneEventPayload) => void;
   readonly children?: ReactNode;
 }
 
 export interface SceneListItemProps {
+  readonly id?: string;
   readonly title: string;
+  readonly titleTooltip?: string;
   readonly subtitle?: string;
+  readonly subtitleTooltip?: string;
+  readonly icon?: string;
+  readonly iconTintColor?: string;
+  readonly iconTooltip?: string;
+  readonly keywords?: readonly string[];
+  readonly accessories?: string;
+  readonly accessoryIcon?: string;
+  readonly accessoryTitle?: string;
+  readonly quickLookPath?: string;
+  readonly quickLookName?: string;
   readonly children?: ReactNode;
 }
 
@@ -72,6 +95,43 @@ export interface SceneListSectionProps {
   readonly id?: string;
   readonly title?: string;
   readonly subtitle?: string;
+  readonly children?: ReactNode;
+}
+
+export interface SceneListEmptyViewProps {
+  readonly icon?: string;
+  readonly iconTintColor?: string;
+  readonly title?: string;
+  readonly description?: string;
+  readonly children?: ReactNode;
+}
+
+export interface SceneListDropdownProps {
+  readonly id?: string;
+  readonly tooltip: string;
+  readonly placeholder?: string;
+  readonly isLoading?: boolean;
+  readonly filtering?: boolean;
+  readonly filteringKeepSectionOrder?: boolean;
+  readonly throttle?: boolean;
+  readonly storeValue?: boolean;
+  readonly value?: string;
+  readonly defaultValue?: string;
+  readonly onChange?: (event: SceneEventPayload) => void;
+  readonly onSearchTextChange?: (event: SceneEventPayload) => void;
+  readonly children?: ReactNode;
+}
+
+export interface SceneListDropdownItemProps {
+  readonly value: string;
+  readonly title: string;
+  readonly icon?: string;
+  readonly iconTintColor?: string;
+  readonly keywords?: readonly string[];
+}
+
+export interface SceneListDropdownSectionProps {
+  readonly title?: string;
   readonly children?: ReactNode;
 }
 
@@ -90,6 +150,22 @@ export function SceneListItem(props: SceneListItemProps): ReactElement {
 
 export function SceneListSection(props: SceneListSectionProps): ReactElement {
   return createElement(SCENE_LIST_SECTION_TYPE, props);
+}
+
+export function SceneListEmptyView(props: SceneListEmptyViewProps): ReactElement {
+  return createElement(SCENE_LIST_EMPTY_VIEW_TYPE, props);
+}
+
+export function SceneListDropdown(props: SceneListDropdownProps): ReactElement {
+  return createElement(SCENE_LIST_DROPDOWN_TYPE, props);
+}
+
+export function SceneListDropdownItem(props: SceneListDropdownItemProps): ReactElement {
+  return createElement(SCENE_LIST_DROPDOWN_ITEM_TYPE, props);
+}
+
+export function SceneListDropdownSection(props: SceneListDropdownSectionProps): ReactElement {
+  return createElement(SCENE_LIST_DROPDOWN_SECTION_TYPE, props);
 }
 
 export function SceneAction(props: SceneActionProps): ReactElement {
@@ -147,6 +223,12 @@ interface HostNode {
   parent: HostNode | null;
 }
 
+interface PendingRemoval {
+  readonly nodeId: string;
+  readonly ancestorIds: readonly string[];
+  readonly subtreeIds: readonly string[];
+}
+
 export function createSceneRenderer(options: SceneRendererOptions): SceneRenderer {
   const eventRegistry = new Map<string, (payload: SceneEventPayload) => void>();
   let nodeCounter = 0;
@@ -155,6 +237,7 @@ export function createSceneRenderer(options: SceneRendererOptions): SceneRendere
   let unmounted = false;
   let hasPublished = false;
   let pendingOperations: SceneOperation[] = [];
+  let pendingRemovals: PendingRemoval[] = [];
   let rootMutated = false;
   let publishQueue: Promise<void> = Promise.resolve();
   let contractViolation: SceneRendererError | undefined;
@@ -262,6 +345,7 @@ export function createSceneRenderer(options: SceneRendererOptions): SceneRendere
     removeChild(parentInstance: HostNode, child: HostNode): void {
       const index = parentInstance.children.indexOf(child);
       parentInstance.children.splice(index, 1);
+      pendingRemovals.push(createPendingRemoval(child));
       child.parent = null;
       releaseCallbacks(child);
       if (hasPublished) {
@@ -276,6 +360,7 @@ export function createSceneRenderer(options: SceneRendererOptions): SceneRendere
       releaseCallbacks(child);
       if (hasPublished) {
         rootMutated = true;
+        pendingRemovals = [];
       }
     },
 
@@ -286,6 +371,7 @@ export function createSceneRenderer(options: SceneRendererOptions): SceneRendere
       container.children.length = 0;
       if (hasPublished) {
         rootMutated = true;
+        pendingRemovals = [];
       }
     },
 
@@ -519,6 +605,7 @@ export function createSceneRenderer(options: SceneRendererOptions): SceneRendere
       // good scene instead of publishing a broken tree.
       renderErrored = false;
       pendingOperations = [];
+      pendingRemovals = [];
       rootMutated = false;
       return;
     }
@@ -526,6 +613,7 @@ export function createSceneRenderer(options: SceneRendererOptions): SceneRendere
       // An errored commit leaves an empty root; report it and keep the
       // client's last good scene.
       pendingOperations = [];
+      pendingRemovals = [];
       rootMutated = false;
       options.onError?.(new SceneRendererError("empty_scene_root", "The commit produced an empty scene"));
       return;
@@ -539,13 +627,18 @@ export function createSceneRenderer(options: SceneRendererOptions): SceneRendere
       hasPublished = true;
       rootMutated = false;
       pendingOperations = [];
+      pendingRemovals = [];
       return;
     }
-    if (pendingOperations.length === 0) {
+    const operations = normalizePendingOperations(pendingOperations, pendingRemovals);
+    if (operations.length === 0) {
+      pendingOperations = [];
+      pendingRemovals = [];
       return;
     }
-    queuePublish({ transactionId: nextTransactionId(), operations: pendingOperations });
+    queuePublish({ transactionId: nextTransactionId(), operations });
     pendingOperations = [];
+    pendingRemovals = [];
   }
 
   function queuePublish(transaction: SceneTransaction): void {
@@ -642,6 +735,64 @@ function attachChild(parent: HostNode, child: HostNode): void {
   child.parent = parent;
 }
 
+function createPendingRemoval(node: HostNode): PendingRemoval {
+  const ancestorIds: string[] = [];
+  let ancestor = node.parent;
+  while (ancestor !== null) {
+    ancestorIds.push(ancestor.id);
+    ancestor = ancestor.parent;
+  }
+  const subtreeIds: string[] = [];
+  collectHostNodeIds(node, subtreeIds);
+  return { nodeId: node.id, ancestorIds, subtreeIds };
+}
+
+function collectHostNodeIds(node: HostNode, nodeIds: string[]): void {
+  nodeIds.push(node.id);
+  for (const child of node.children) {
+    collectHostNodeIds(child, nodeIds);
+  }
+}
+
+function normalizePendingOperations(
+  operations: readonly SceneOperation[],
+  removals: readonly PendingRemoval[],
+): SceneOperation[] {
+  if (removals.length === 0) {
+    return [...operations];
+  }
+  const removedNodeIds = new Set(removals.flatMap((removal) => removal.subtreeIds));
+  const removedRootIds = new Set(
+    removals
+      .filter(
+        (removal) =>
+          !removals.some(
+            (candidate) => candidate.nodeId !== removal.nodeId && removal.ancestorIds.includes(candidate.nodeId),
+          ),
+      )
+      .map((removal) => removal.nodeId),
+  );
+  const emittedRemovalIds = new Set<string>();
+  return operations.filter((operation) => {
+    switch (operation.type) {
+      case "remove":
+        if (!removedRootIds.has(operation.nodeId) || emittedRemovalIds.has(operation.nodeId)) {
+          return false;
+        }
+        emittedRemovalIds.add(operation.nodeId);
+        return true;
+      case "update":
+        return !removedNodeIds.has(operation.nodeId);
+      case "insert":
+        return !removedNodeIds.has(operation.parentId) && !removedNodeIds.has(operation.node.id);
+      case "reorder":
+        return !removedNodeIds.has(operation.parentId);
+      default:
+        return true;
+    }
+  });
+}
+
 function materialize(node: HostNode): SceneNode {
   return {
     id: node.id,
@@ -654,9 +805,15 @@ function materialize(node: HostNode): SceneNode {
 function isCallbackProp(nodeType: SceneNodeType, property: string): boolean {
   return (
     (nodeType === SCENE_ACTION_TYPE && property === "onAction") ||
+    (nodeType === SCENE_ACTION_GROUP_TYPE && (property === "onSearchTextChange" || property === "onOpen")) ||
     (nodeType === SCENE_DETAIL_METADATA_TAG_LIST_ITEM_TYPE && property === "onAction") ||
-    (nodeType === SCENE_GRID_TYPE && (property === "onSelectionChange" || property === "onSearchTextChange")) ||
-    (nodeType === SCENE_GRID_DROPDOWN_TYPE && property === "onChange") ||
+    (nodeType === SCENE_LIST_TYPE &&
+      (property === "onSelectionChange" || property === "onSearchTextChange" || property === "onLoadMore")) ||
+    (nodeType === SCENE_LIST_DROPDOWN_TYPE && (property === "onChange" || property === "onSearchTextChange")) ||
+    (nodeType === SCENE_GRID_TYPE &&
+      (property === "onSelectionChange" || property === "onSearchTextChange" || property === "onLoadMore")) ||
+    (nodeType === SCENE_GRID_DROPDOWN_TYPE && (property === "onChange" || property === "onSearchTextChange")) ||
+    (nodeType === SCENE_FORM_DROPDOWN_TYPE && property === "onSearchTextChange") ||
     (nodeType === SCENE_MENU_BAR_ITEM_TYPE && property === "onAction") ||
     (nodeType === SCENE_FORM_LINK_ACCESSORY_TYPE && property === "onOpen") ||
     ((nodeType === SCENE_FORM_TEXT_FIELD_TYPE ||

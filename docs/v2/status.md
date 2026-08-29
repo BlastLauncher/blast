@@ -61,7 +61,9 @@ slice changes what is executable, what is trusted, or what should happen next.
   publishes one ordered scene transaction per synchronous commit: a full
   snapshot for the first commit and recovery, then insert/update/remove
   operations with stable node identifiers, whitelisted props, and stable
-  event identifiers for action and form-control callbacks.
+  event identifiers for action and form-control callbacks. Nested removals are
+  coalesced so a deleted subtree cannot leave stale child updates or inserts in
+  the mutation stream.
 - The Raycast compatibility adapter implements the census-measured view
   stack (List, List.Item, ActionPanel, Action, Detail, Form, Icon) over the
   renderer, routes Clipboard through the capability broker, and raises
@@ -88,9 +90,12 @@ slice changes what is executable, what is trusted, or what should happen next.
 - A second bounded seed adds `file-url`, `filesize`, `gray-matter`,
   `javascript-time-ago`, `luxon`, `node-html-parser`, `qrcode`, `tildify`,
   `ts-pattern`, and `turndown`, also as exact-version e2e development
-  dependencies. The latest pinned corpus probe passes 1,327 of 3,231
-  extensions (41.07%), or 1,327 of 2,915 extensions with a selected renderable
-  command (45.52%).
+  dependencies. The latest pinned corpus probe passes 1,814 of 3,231
+  extensions (56.14%), or 1,814 of 2,915 extensions with a selected renderable
+  command (62.23%). The remaining losses are tracked separately: 915
+  third-party dependency failures, 178 process/startup failures, 316
+  non-renderable commands, 5 structured compatibility errors, and 3 missing
+  entrypoints.
 - Navigation (useNavigation, Action.Push), LocalStorage through the
   capability broker with a reference in-memory provider, the callable plus
   property-based environment surface, and measured WindowManagement discovery
@@ -116,10 +121,11 @@ slice changes what is executable, what is trusted, or what should happen next.
 - String-valued Form and Grid dropdown labels and values accept empty strings
   because the pinned Raycast declarations require string types without a
   non-empty constraint; non-string values remain rejected at the adapter edge.
-- The explicit `Icon` member subset now includes the named members observed in
-  the focused 18-command diagnostic, including numbered, progress, disabled,
-  and formatting variants, plus `CircleProgress` and `AppWindowList`;
+- The `Icon` export now mirrors all 478 members of the pinned Raycast
+  declaration, while retaining legacy corpus names as explicit aliases;
   unknown members remain rejected rather than resolving through a fallback.
+  `Color` emits Raycast's `raycast-*` theme identifiers while retaining the
+  legacy raw `Pink` and `Brown` values.
 - Command-scoped manifest preference defaults now cross the catalog boundary:
   focused diagnostics identified four Grid-column failures caused by
   `getPreferenceValues()` omitting preferences declared on the selected
@@ -162,6 +168,21 @@ slice changes what is executable, what is trusted, or what should happen next.
   generic Detail action; outside a Form its callback receives an empty value
   bag. `Icon.CircleProgress` and `Icon.AppWindowList` are now measured
   members.
+- `List`, `Grid`, and `Form.Dropdown` now carry the declaration-backed search
+  lifecycle, filtering, loading, and pagination fields that map to semantic
+  scene events. `List.Dropdown` and `Grid.Dropdown` are accepted
+  interchangeably as search-bar accessories, matching Raycast's shared
+  dropdown contract.
+- Clipboard `read`/`readText` decode the official structured `{ text }` shape,
+  plain string responses, and empty responses; `clear` and `clearClipboard`
+  use the explicit clipboard capability. `ActionPanel.Submenu` carries its
+  search/open lifecycle and deprecated `id`, while `Action` preserves its
+  deprecated `id` and `Action.InstallMCPServer` is brokered.
+- The adapter now exposes the declaration-shaped nested `Props` namespaces
+  for the measured `Action`, `ActionPanel`, `List`, `Grid`, `Form`, and
+  `MenuBarExtra` APIs. `Cache.subscribe` stays bound when passed to React
+  external-store hooks, and nullable `Form.TextArea.enableMarkdown` is omitted
+  instead of crossing the scene boundary as `null`.
 - The measured collection-value boundary now preserves empty Grid content
   tooltips, accepts positive safe-integer Grid column counts, and serializes
   `List.Item` icon descriptors with optional values and tooltips. The explicit
@@ -265,6 +286,9 @@ slice changes what is executable, what is trusted, or what should happen next.
 
 - Received transport values remain `unknown` until validators accept them.
 - Protocol and extension domain messages have separate validators.
+- Shared List/Grid dropdown accessories remain within the semantic collection
+  child whitelist in either direction; the adapter does not silently widen
+  arbitrary collection composition.
 - Optional form values on `scene.event` are validated as a field-ID map before
   the relay dispatches them to runtime callbacks; string arrays are checked
   element-by-element, while the compatibility adapter validates and restores
@@ -323,28 +347,31 @@ means the share of corpus extensions that bundle and render through the current
 path, not the number of exported API names. The shortcut, imperative, cache,
 launch-boundary, desktop-discovery, finder-boundary, host-boundary,
 window-management, and dependency-policy slices are complete, but the
-measured 80% target is not yet met; the next work should address the dominant
-remaining API boundary gaps using the same probe. Additional dependency seeds
-remain deferred until the next API slice is measured.
+measured 80% target is not yet met: the current run is 56.14% overall and
+62.23% among commands with a renderable selection. The declaration-backed Icon,
+collection, clipboard, submenu, and public typing slice is complete; the next
+work should use the same probe to identify any remaining API-shaped failures
+before adding dependencies. Additional dependency seeds remain deferred.
 
 1. Continue expanding the measured Raycast API boundary before adding more
    dependency seeds. Measure the next uncovered high-usage or semantically
    isolated API, implement it only when its runtime values and host capability
    can be validated safely, and preserve structured errors for values that
    would require a broader scene or host policy. Keep the current structured
-   probe failures (`get-cat-images/get-cat-images`, `vikunja/create-task`,
-   and `webpage-to-markdown/webpage-to-markdown`) as explicit diagnostics
-   rather than broadening around unmeasured empty or missing targets. All
-   currently fail while constructing an empty or missing
-   `Action.OpenInBrowser` URL under the default empty-argument launch.
+   probe failures (`crawldoc/index`, `dictionary/fromCmd`,
+   `get-cat-images/get-cat-images`, `manifest-viewer/view-manifest`, and
+   `webpage-to-markdown/webpage-to-markdown`) as explicit diagnostics rather
+   than weakening the scene or action validators around malformed children and
+   empty or missing targets.
 2. Keep the command-scoped preference, nullable Form, empty-string,
    `LocalStorage.allItems`/`allLocalStorageItems`, Form event, literal `require`,
-   composite-child, measured Icon, `ActionPanel.Item`, whitespace-only
+   composite-child, declaration-backed Icon, cross-compatible dropdowns,
+   `ActionPanel.Item`, whitespace-only
    collection boundaries, `Form.LinkAccessory`, the measured action creators,
    Finder/trash actions, collection-value normalization, CreateSnippet and
-   Quick Look actions, Detail metadata, `List.Item.Detail`, measured icon
-   additions, and deprecated Form/action member aliases covered by each
-   reprobe.
+   Quick Look actions, Detail metadata, `List.Item.Detail`, search/pagination
+   events, Clipboard read/clear, Submenu lifecycle, nested `Props` namespaces,
+   and deprecated Form/action member aliases covered by each reprobe.
 3. Keep safe dynamic, namespace, side-effect, and literal `require` import
    forms covered while the remaining `fetch` import stays outside the adapter
    until a host network capability defines URL policy, consent, and response
