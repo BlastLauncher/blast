@@ -16,6 +16,18 @@ import { SCENE_NODE_TYPES, SCENE_PROP_WHITELIST, isScenePropValue } from "@blast
 
 export const SCENE_LIST_TYPE = "list";
 export const SCENE_LIST_ITEM_TYPE = "list-item";
+export const SCENE_GRID_TYPE = "grid";
+export const SCENE_GRID_ITEM_TYPE = "grid-item";
+export const SCENE_GRID_SECTION_TYPE = "grid-section";
+export const SCENE_GRID_EMPTY_VIEW_TYPE = "grid-empty-view";
+export const SCENE_GRID_DROPDOWN_TYPE = "grid-dropdown";
+export const SCENE_GRID_DROPDOWN_ITEM_TYPE = "grid-dropdown-item";
+export const SCENE_GRID_DROPDOWN_SECTION_TYPE = "grid-dropdown-section";
+export const SCENE_MENU_BAR_EXTRA_TYPE = "menu-bar-extra";
+export const SCENE_MENU_BAR_ITEM_TYPE = "menu-bar-item";
+export const SCENE_MENU_BAR_SECTION_TYPE = "menu-bar-section";
+export const SCENE_MENU_BAR_SUBMENU_TYPE = "menu-bar-submenu";
+export const SCENE_MENU_BAR_SEPARATOR_TYPE = "menu-bar-separator";
 export const SCENE_ACTION_TYPE = "action";
 export const SCENE_DETAIL_TYPE = "detail";
 export const SCENE_ACTION_GROUP_TYPE = "action-group";
@@ -465,11 +477,15 @@ export function createSceneRenderer(options: SceneRendererOptions): SceneRendere
     if (
       rootChild.type !== SCENE_LIST_TYPE &&
       rootChild.type !== SCENE_DETAIL_TYPE &&
-      rootChild.type !== SCENE_FORM_TYPE
+      rootChild.type !== SCENE_FORM_TYPE &&
+      rootChild.type !== SCENE_GRID_TYPE &&
+      rootChild.type !== SCENE_MENU_BAR_EXTRA_TYPE
     ) {
-      throw new SceneRendererError("invalid_scene_root", "The scene root must be a list, detail, or form", {
-        type: rootChild.type,
-      });
+      throw new SceneRendererError(
+        "invalid_scene_root",
+        "The scene root must be a list, detail, form, grid, or menu-bar-extra",
+        { type: rootChild.type },
+      );
     }
     return rootChild;
   }
@@ -618,6 +634,9 @@ function materialize(node: HostNode): SceneNode {
 function isCallbackProp(nodeType: SceneNodeType, property: string): boolean {
   return (
     (nodeType === SCENE_ACTION_TYPE && property === "onAction") ||
+    (nodeType === SCENE_GRID_TYPE && (property === "onSelectionChange" || property === "onSearchTextChange")) ||
+    (nodeType === SCENE_GRID_DROPDOWN_TYPE && property === "onChange") ||
+    (nodeType === SCENE_MENU_BAR_ITEM_TYPE && property === "onAction") ||
     ((nodeType === SCENE_FORM_TEXT_FIELD_TYPE ||
       nodeType === SCENE_FORM_TEXT_AREA_TYPE ||
       nodeType === SCENE_FORM_PASSWORD_FIELD_TYPE ||

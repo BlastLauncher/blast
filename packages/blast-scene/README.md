@@ -3,8 +3,8 @@
 Semantic scene contract for Blast V2 (ADR 0007).
 
 The package defines the semantic scene vocabulary for the current vertical
-slice: list/detail/action nodes, action groups, and measured form controls
-with Raycast-named property whitelists, ordered `scene.transaction` messages,
+slice: list/detail/grid/menu-bar/action nodes, action groups, and measured form
+controls with Raycast-named property whitelists, ordered `scene.transaction` messages,
 and `scene.event` messages carrying opaque event identifiers and optional
 validated form values. Form values remain JSON-compatible on the wire: dates
 are ISO strings and multi-value controls use string arrays. Ephemeral toast
@@ -20,7 +20,9 @@ show payloads and identified show/update/hide operations.
 - `SceneStateBuffer` applies ordered transactions to a materialized scene and
   enforces referential integrity (`unknown_node`, `unknown_parent`,
   `duplicate_node`, `invalid_child`, `invalid_index`, `invalid_prop`,
-  `missing_required_prop`, `remove_root`, `orphan_node`, `reorder_mismatch`);
+  `missing_required_prop`, `remove_root`, `orphan_node`, `reorder_mismatch`).
+  Grid roots carry content tiles, sections, empty views, and search dropdowns;
+  menu-bar roots carry items, sections, submenus, and separators;
 - `SceneTransactionSink` is the transport-independent boundary the React
   renderer publishes to (ADR 0004); `createCollectingSceneSink` is the
   deterministic in-memory implementation for tests;

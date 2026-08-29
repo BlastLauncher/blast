@@ -35,6 +35,10 @@ function form(id, children = [], props = {}) {
   return { id, type: "form", props, children };
 }
 
+function grid(id, children = [], props = {}) {
+  return { id, type: "grid", props, children };
+}
+
 function transaction(operations, transactionId = "transaction-1") {
   return { transactionId, operations };
 }
@@ -209,6 +213,73 @@ test("validates scene transaction messages", (context) => {
                 children: [action("submit", "Save", "event-submit")],
               },
             ]),
+          },
+        ]),
+      ),
+    );
+    assert.equal(result.ok, true);
+  });
+
+  context.test("accepts Grid and MenuBarExtra scene nodes", () => {
+    const result = validateSceneTransactionMessage(
+      envelope(
+        SCENE_TRANSACTION_MESSAGE,
+        transaction([
+          {
+            type: "snapshot",
+            root: grid("grid-root", [
+              {
+                id: "dropdown",
+                type: "grid-dropdown",
+                props: { tooltip: "Filter", defaultValue: "all", onChange: "event-filter" },
+                children: [
+                  {
+                    id: "dropdown-section",
+                    type: "grid-dropdown-section",
+                    props: { title: "Kinds" },
+                    children: [
+                      { id: "all", type: "grid-dropdown-item", props: { value: "all", title: "All" }, children: [] },
+                    ],
+                  },
+                ],
+              },
+              {
+                id: "section",
+                type: "grid-section",
+                props: { title: "Items", columns: 4 },
+                children: [
+                  {
+                    id: "item",
+                    type: "grid-item",
+                    props: { content: "item.png", title: "Item" },
+                    children: [],
+                  },
+                ],
+              },
+            ]),
+          },
+          {
+            type: "snapshot",
+            root: {
+              id: "menu-root",
+              type: "menu-bar-extra",
+              props: { title: "Blast" },
+              children: [
+                {
+                  id: "menu-section",
+                  type: "menu-bar-section",
+                  props: { title: "Actions" },
+                  children: [
+                    {
+                      id: "menu-item",
+                      type: "menu-bar-item",
+                      props: { title: "Refresh", onAction: "event-refresh" },
+                      children: [],
+                    },
+                  ],
+                },
+              ],
+            },
           },
         ]),
       ),

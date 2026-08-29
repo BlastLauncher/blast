@@ -8,6 +8,10 @@ onto the V2 scene contract, renderer, and capability broker:
 - `List`, `List.Item`, `ActionPanel`, `Action`, `Action.CopyToClipboard`, and
   `Action.SubmitForm`, `ActionPanel.Section`, and `Detail` render through
   `@blastlauncher/react-renderer`;
+- `Grid` covers content tiles, sections, empty views, search-bar dropdowns,
+  item actions, layout constants, and selection/search callbacks; `MenuBarExtra`
+  covers menu-bar roots, items, sections, submenus, separators, shortcuts, and
+  left-click callbacks;
 - `Form` covers text fields, text areas, password fields, checkboxes,
   dropdowns, date pickers, tag pickers, file pickers, descriptions, separators,
   dropdown sections/items, and tag items;
@@ -26,6 +30,10 @@ onto the V2 scene contract, renderer, and capability broker:
 - `closeMainWindow`, `popToRoot`, and `openExtensionPreferences` route through
   `window.close`, `navigation.popToRoot`, and `preferences.openExtension`
   capability requests;
+- `launchCommand` routes through `command.launch`. Object arguments and context
+  are validated as JSON and encoded as `argumentsJSON`/`contextJSON` strings on
+  the primitive-only capability boundary; resolving and starting the target
+  command remains host/client work;
 - `Cache` provides synchronous namespaced LRU semantics in a session-local
   fallback; persistence is intentionally a future host capability;
 - `showToast` and `Toast` support legacy show overloads, animated/success/
@@ -46,7 +54,8 @@ submitted values to the current form field IDs. `DatePicker` values are native
 
 Unmeasured surface (client toast timing/stacking, focus/blur form callbacks,
 and broader desktop APIs) raises a structured `CompatibilityError` with code
-`unsupported_api`; it never fails silently. Resolution of literal
+`unsupported_api`; it never fails silently. Menu-bar alternate items and
+right-click event identity remain outside the current scene boundary. Resolution of literal
 `@raycast/api` imports to this adapter happens at the runtime layer when
 extension bundling lands.
 

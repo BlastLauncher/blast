@@ -5,6 +5,7 @@ import {
   List,
   LaunchType,
   closeMainWindow,
+  launchCommand,
   openExtensionPreferences,
   popToRoot,
   type LaunchProps,
@@ -16,6 +17,13 @@ export default function Command(props: LaunchProps) {
     void closeMainWindow({ clearRootSearch: true });
     void popToRoot({ clearSearchBar: true });
     void openExtensionPreferences();
+    void launchCommand({
+      name: "details",
+      type: LaunchType.Background,
+      arguments: { query: "raycast" },
+      context: { source: "fixture" },
+      fallbackText: "open details",
+    });
   }, []);
 
   return (

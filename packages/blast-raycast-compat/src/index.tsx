@@ -262,6 +262,133 @@ export interface ListItemProps {
   readonly actions?: ReactNode;
 }
 
+export type GridAspectRatio = "1" | "3/2" | "2/3" | "4/3" | "3/4" | "16/9" | "9/16";
+export type GridFit = "contain" | "fill";
+export type GridInset = "zero" | "sm" | "md" | "lg";
+export type GridItemSize = "small" | "medium" | "large";
+
+export type GridColorLike =
+  | string
+  | {
+      readonly light: string;
+      readonly dark: string;
+      readonly adjustContrast?: boolean;
+    };
+
+export type GridContentLike =
+  | IconLike
+  | { readonly color: GridColorLike }
+  | { readonly value: IconLike | { readonly color: GridColorLike }; readonly tooltip: string };
+
+export interface GridProps {
+  readonly navigationTitle?: string;
+  readonly searchBarPlaceholder?: string;
+  readonly isLoading?: boolean;
+  readonly columns?: number;
+  readonly itemSize?: GridItemSize;
+  readonly aspectRatio?: GridAspectRatio;
+  readonly fit?: GridFit;
+  readonly inset?: GridInset;
+  readonly searchText?: string;
+  readonly filtering?: boolean | { readonly keepSectionOrder: boolean };
+  readonly throttle?: boolean;
+  readonly selectedItemId?: string;
+  readonly onSelectionChange?: (id: string | null) => void;
+  readonly onSearchTextChange?: (text: string) => void;
+  readonly searchBarAccessory?: ReactNode;
+  readonly children?: ReactNode;
+  readonly actions?: ReactNode;
+}
+
+export interface GridItemAccessoryProps {
+  readonly icon?: IconLike;
+  readonly tooltip?: string;
+}
+
+export interface GridItemProps {
+  readonly id?: string;
+  readonly content: GridContentLike;
+  readonly title?: string;
+  readonly subtitle?: string;
+  readonly keywords?: string[];
+  readonly accessory?: GridItemAccessoryProps;
+  readonly children?: ReactNode;
+  readonly actions?: ReactNode;
+}
+
+export interface GridSectionProps {
+  readonly title?: string;
+  readonly subtitle?: string;
+  readonly columns?: number;
+  readonly aspectRatio?: GridAspectRatio;
+  readonly fit?: GridFit;
+  readonly inset?: GridInset;
+  readonly children?: ReactNode;
+}
+
+export interface GridEmptyViewProps {
+  readonly icon?: IconLike;
+  readonly title?: string;
+  readonly description?: string;
+  readonly actions?: ReactNode;
+}
+
+export interface GridDropdownItemProps {
+  readonly value: string;
+  readonly title: string;
+  readonly icon?: IconLike;
+  readonly keywords?: string[];
+}
+
+export interface GridDropdownSectionProps {
+  readonly title?: string;
+  readonly children?: ReactNode;
+}
+
+export interface GridDropdownProps {
+  readonly id?: string;
+  readonly tooltip: string;
+  readonly placeholder?: string;
+  readonly storeValue?: boolean;
+  readonly value?: string;
+  readonly defaultValue?: string;
+  readonly onChange?: (value: string) => void;
+  readonly children?: ReactNode;
+}
+
+export type MenuBarExtraActionEvent = { readonly type: "left-click" | "right-click" };
+
+export interface MenuBarExtraProps {
+  readonly isLoading?: boolean;
+  readonly title?: string;
+  readonly tooltip?: string;
+  readonly icon?: IconLike;
+  readonly children?: ReactNode;
+}
+
+export interface MenuBarExtraItemProps {
+  readonly title: string;
+  readonly subtitle?: string;
+  readonly tooltip?: string;
+  readonly icon?: IconLike;
+  readonly onAction?: (event: MenuBarExtraActionEvent) => void | Promise<void>;
+  readonly shortcut?: ShortcutLike;
+  readonly alternate?: ReactElement<MenuBarExtraItemProps>;
+}
+
+export interface MenuBarExtraSectionProps {
+  readonly title?: string;
+  readonly children?: ReactNode;
+}
+
+export interface MenuBarExtraSubmenuProps {
+  readonly title: string;
+  readonly icon?: IconLike;
+  readonly children?: ReactNode;
+}
+
+export interface MenuBarExtraSeparatorProps {}
+
 export interface DetailProps {
   readonly markdown?: string;
   readonly navigationTitle?: string;
@@ -306,7 +433,11 @@ export interface IconObject {
   readonly mask?: Image.Mask;
 }
 
-export type IconLike = string | IconObject;
+export interface FileIcon {
+  readonly fileIcon: string;
+}
+
+export type IconLike = string | IconObject | FileIcon;
 
 /** Runtime constants and type namespace for Raycast image descriptors. */
 export namespace Image {
@@ -323,6 +454,7 @@ export namespace Image {
 }
 
 export type LaunchContext = Readonly<Record<string, unknown>>;
+export type LaunchArguments = Readonly<Record<string, unknown>>;
 
 /** The top-level props supplied to a Raycast command on launch. */
 export type LaunchProps<
@@ -342,6 +474,21 @@ export type LaunchProps<
   readonly launchContext?: T["launchContext"];
   readonly fallbackText?: string;
 };
+
+export interface IntraExtensionLaunchOptions {
+  readonly name: string;
+  readonly type: LaunchTypeName;
+  readonly arguments?: LaunchArguments | null;
+  readonly context?: LaunchContext | null;
+  readonly fallbackText?: string | null;
+}
+
+export interface InterExtensionLaunchOptions extends IntraExtensionLaunchOptions {
+  readonly ownerOrAuthorName: string;
+  readonly extensionName: string;
+}
+
+export type LaunchOptions = IntraExtensionLaunchOptions | InterExtensionLaunchOptions;
 
 export type KeyModifier = "cmd" | "ctrl" | "opt" | "shift" | "alt" | "windows";
 export type KeyEquivalent = string;
@@ -453,18 +600,88 @@ export const ActionStyle = {
   Destructive: "destructive",
 } as const;
 
-/**
- * These placeholders keep widely used utility packages loadable when they
- * import the broader Raycast namespace. Calling an unmeasured API still fails
- * loudly at the point of use; the placeholders are not compatibility support.
- */
-function UnsupportedComponent(): ReactElement {
-  return unsupported("An unmeasured component API");
+function MenuBarExtraComponent(props: MenuBarExtraProps): ReactElement {
+  const icon = serializeIcon(props.icon, "MenuBarExtra");
+  return createElement(
+    "menu-bar-extra",
+    {
+      ...(props.title === undefined ? {} : { title: props.title }),
+      ...(props.tooltip === undefined ? {} : { tooltip: props.tooltip }),
+      ...(icon === undefined
+        ? {}
+        : { icon: icon.icon, ...(icon.iconTintColor === undefined ? {} : { iconTintColor: icon.iconTintColor }) }),
+      ...(props.isLoading === undefined ? {} : { isLoading: props.isLoading }),
+    },
+    mapMenuBarChildren(props.children, "MenuBarExtra"),
+  );
 }
 
-export const MenuBarExtra = Object.assign(UnsupportedComponent, {
-  Item: UnsupportedComponent,
-  Separator: UnsupportedComponent,
+function MenuBarExtraItem(props: MenuBarExtraItemProps): ReactElement {
+  const icon = serializeIcon(props.icon, "MenuBarExtra.Item");
+  const shortcut = serializeShortcut(props.shortcut, "MenuBarExtra.Item");
+  if (props.alternate !== undefined) {
+    unsupported("MenuBarExtra.Item alternate");
+  }
+  if (props.onAction !== undefined && typeof props.onAction !== "function") {
+    unsupported("MenuBarExtra.Item onAction", { onAction: props.onAction });
+  }
+  return createElement("menu-bar-item", {
+    title: requireNonEmptyString(props.title, "MenuBarExtra.Item title"),
+    ...(props.subtitle === undefined ? {} : { subtitle: props.subtitle }),
+    ...(props.tooltip === undefined ? {} : { tooltip: props.tooltip }),
+    ...(icon === undefined
+      ? {}
+      : { icon: icon.icon, ...(icon.iconTintColor === undefined ? {} : { iconTintColor: icon.iconTintColor }) }),
+    ...(shortcut === undefined ? {} : { shortcut }),
+    ...(props.onAction === undefined
+      ? {}
+      : {
+          onAction: () => {
+            void props.onAction?.({ type: "left-click" });
+          },
+        }),
+  });
+}
+
+function MenuBarExtraSection(props: MenuBarExtraSectionProps): ReactElement {
+  return createElement(
+    "menu-bar-section",
+    { ...(props.title === undefined ? {} : { title: props.title }) },
+    mapMenuBarChildren(props.children, "MenuBarExtra.Section"),
+  );
+}
+
+function MenuBarExtraSubmenu(props: MenuBarExtraSubmenuProps): ReactElement {
+  const icon = serializeIcon(props.icon, "MenuBarExtra.Submenu");
+  return createElement(
+    "menu-bar-submenu",
+    {
+      title: requireNonEmptyString(props.title, "MenuBarExtra.Submenu title"),
+      ...(icon === undefined
+        ? {}
+        : { icon: icon.icon, ...(icon.iconTintColor === undefined ? {} : { iconTintColor: icon.iconTintColor }) }),
+    },
+    mapMenuBarChildren(props.children, "MenuBarExtra.Submenu"),
+  );
+}
+
+function MenuBarExtraSeparator(_props: MenuBarExtraSeparatorProps): ReactElement {
+  return createElement("menu-bar-separator");
+}
+
+interface MenuBarExtraComponent {
+  (props: MenuBarExtraProps): ReactElement;
+  Item: typeof MenuBarExtraItem;
+  Section: typeof MenuBarExtraSection;
+  Submenu: typeof MenuBarExtraSubmenu;
+  Separator: typeof MenuBarExtraSeparator;
+}
+
+export const MenuBarExtra: MenuBarExtraComponent = Object.assign(MenuBarExtraComponent, {
+  Item: MenuBarExtraItem,
+  Section: MenuBarExtraSection,
+  Submenu: MenuBarExtraSubmenu,
+  Separator: MenuBarExtraSeparator,
 });
 
 export const AI = {
@@ -591,11 +808,120 @@ function unsupported(what: string, details?: unknown): never {
   throw new CompatibilityError(`${what} is not supported by the Blast compatibility surface yet`, details);
 }
 
+function normalizeStringArray(value: unknown, where: string): string[] {
+  if (!Array.isArray(value) || value.some((entry) => typeof entry !== "string")) {
+    unsupported(`${where} must be an array of strings`, { value });
+  }
+  return [...(value as string[])];
+}
+
+function normalizeGridColumns(value: unknown, where: string): number {
+  if (typeof value !== "number" || !Number.isInteger(value) || value < 1 || value > 8) {
+    unsupported(`${where} must be an integer between 1 and 8`, { value });
+  }
+  return value;
+}
+
+function normalizeGridItemSize(value: unknown, where: string): GridItemSize {
+  if (
+    value !== GRID_ITEM_SIZE_VALUES.Small &&
+    value !== GRID_ITEM_SIZE_VALUES.Medium &&
+    value !== GRID_ITEM_SIZE_VALUES.Large
+  ) {
+    unsupported(`${where} is invalid`, { value });
+  }
+  return value as GridItemSize;
+}
+
+function normalizeGridFit(value: unknown, where: string): GridFit {
+  if (value !== GRID_FIT_VALUES.Contain && value !== GRID_FIT_VALUES.Fill) {
+    unsupported(`${where} is invalid`, { value });
+  }
+  return value as GridFit;
+}
+
+function normalizeGridInset(value: unknown, where: string): GridInset {
+  if (
+    value !== GRID_INSET_VALUES.Zero &&
+    value !== GRID_INSET_VALUES.Small &&
+    value !== GRID_INSET_VALUES.Medium &&
+    value !== GRID_INSET_VALUES.Large
+  ) {
+    unsupported(`${where} is invalid`, { value });
+  }
+  return value as GridInset;
+}
+
+function normalizeGridAspectRatio(value: unknown, where: string): GridAspectRatio {
+  if (typeof value !== "string" || !GRID_ASPECT_RATIOS.has(value as GridAspectRatio)) {
+    unsupported(`${where} is invalid`, { value });
+  }
+  return value as GridAspectRatio;
+}
+
+function normalizeGridFiltering(
+  value: GridProps["filtering"],
+  where: string,
+): { filtering: boolean; filteringKeepSectionOrder?: boolean } | undefined {
+  if (value === undefined || value === null) {
+    return undefined;
+  }
+  if (typeof value === "boolean") {
+    return { filtering: value };
+  }
+  if (!isRecord(value) || typeof value.keepSectionOrder !== "boolean") {
+    unsupported(`${where} must be a boolean or { keepSectionOrder: boolean }`, { value });
+  }
+  return { filtering: true, filteringKeepSectionOrder: value.keepSectionOrder };
+}
+
+function serializeGridContent(
+  content: unknown,
+  where: string,
+): { content: string; contentTintColor?: string; contentTooltip?: string } {
+  if (typeof content === "string") {
+    return { content };
+  }
+  if (!isRecord(content)) {
+    unsupported(`${where} content`, { content });
+  }
+  if ("value" in content) {
+    return {
+      ...serializeGridContent(content.value, where),
+      contentTooltip: requireNonEmptyString(content.tooltip, `${where} content tooltip`),
+    };
+  }
+  if ("color" in content) {
+    return { content: `color:${serializeGridColor(content.color, where)}` };
+  }
+  if ("source" in content || "fileIcon" in content) {
+    const icon = serializeIcon(content as unknown as IconLike, where);
+    if (icon === undefined) {
+      unsupported(`${where} content`, { content });
+    }
+    return {
+      content: icon.icon,
+      ...(icon.iconTintColor === undefined ? {} : { contentTintColor: icon.iconTintColor }),
+    };
+  }
+  unsupported(`${where} content`, { content });
+}
+
+function serializeGridColor(color: unknown, where: string): string {
+  if (typeof color === "string") {
+    return color;
+  }
+  if (isRecord(color) && typeof color.light === "string" && typeof color.dark === "string") {
+    return color.light;
+  }
+  unsupported(`${where} color`, { color });
+}
+
 function serializeIcon(
-  icon: IconLike | undefined,
+  icon: IconLike | null | undefined,
   where: string,
 ): { icon: string; iconTintColor?: string } | undefined {
-  if (icon === undefined) {
+  if (icon === undefined || icon === null) {
     return undefined;
   }
   if (typeof icon === "string") {
@@ -623,11 +949,18 @@ function serializeIcon(
     if (record.mask !== undefined && record.mask !== Image.Mask.Circle && record.mask !== Image.Mask.RoundedRectangle) {
       unsupported(`An image mask in ${where}`, { mask: record.mask });
     }
-    const tintColor = record.tintColor === undefined ? undefined : serializeTintColor(record.tintColor, where);
+    const tintColor =
+      record.tintColor === undefined || record.tintColor === null
+        ? undefined
+        : serializeTintColor(record.tintColor, where);
     return {
       icon: serializedSource,
       ...(tintColor === undefined ? {} : { iconTintColor: tintColor }),
     };
+  }
+  if (typeof icon === "object" && icon !== null && "fileIcon" in icon) {
+    const fileIcon = (icon as unknown as Record<string, unknown>).fileIcon;
+    return { icon: `fileIcon:${requireNonEmptyString(fileIcon, `${where} fileIcon`)}` };
   }
   unsupported(`An icon in ${where}`, { icon });
 }
@@ -635,6 +968,9 @@ function serializeIcon(
 function serializeTintColor(tintColor: unknown, where: string): string {
   if (typeof tintColor === "string") {
     return tintColor;
+  }
+  if (isRecord(tintColor) && typeof tintColor.light === "string" && typeof tintColor.dark === "string") {
+    return tintColor.light;
   }
   unsupported(`A tint color in ${where}`, { tintColor });
 }
@@ -731,6 +1067,200 @@ function ListItem(props: ListItemProps): ReactElement {
     mapItemChildren(children, "List.Item"),
   );
 }
+
+const GRID_INSET_VALUES = {
+  Zero: "zero",
+  Small: "sm",
+  Medium: "md",
+  Large: "lg",
+} as const satisfies Record<string, GridInset>;
+
+const GRID_ITEM_SIZE_VALUES = {
+  Small: "small",
+  Medium: "medium",
+  Large: "large",
+} as const satisfies Record<string, GridItemSize>;
+
+const GRID_FIT_VALUES = {
+  Contain: "contain",
+  Fill: "fill",
+} as const satisfies Record<string, GridFit>;
+
+const GRID_ASPECT_RATIOS = new Set<GridAspectRatio>(["1", "3/2", "2/3", "4/3", "3/4", "16/9", "9/16"]);
+
+function GridComponent(props: GridProps): ReactElement {
+  const filtering = normalizeGridFiltering(props.filtering, "Grid filtering");
+  return createElement(
+    "grid",
+    {
+      ...(props.navigationTitle === undefined ? {} : { navigationTitle: props.navigationTitle }),
+      ...(props.searchBarPlaceholder === undefined ? {} : { searchBarPlaceholder: props.searchBarPlaceholder }),
+      ...(props.isLoading === undefined ? {} : { isLoading: props.isLoading }),
+      ...(props.columns === undefined ? {} : { columns: normalizeGridColumns(props.columns, "Grid columns") }),
+      ...(props.itemSize === undefined ? {} : { itemSize: normalizeGridItemSize(props.itemSize, "Grid itemSize") }),
+      ...(props.aspectRatio === undefined
+        ? {}
+        : { aspectRatio: normalizeGridAspectRatio(props.aspectRatio, "Grid aspectRatio") }),
+      ...(props.fit === undefined ? {} : { fit: normalizeGridFit(props.fit, "Grid fit") }),
+      ...(props.inset === undefined ? {} : { inset: normalizeGridInset(props.inset, "Grid inset") }),
+      ...(props.searchText === undefined ? {} : { searchText: props.searchText }),
+      ...(filtering === undefined ? {} : filtering),
+      ...(props.throttle === undefined ? {} : { throttle: props.throttle }),
+      ...(props.selectedItemId === undefined ? {} : { selectedItemId: props.selectedItemId }),
+      ...(props.onSelectionChange === undefined
+        ? {}
+        : {
+            onSelectionChange: (event: SceneEventPayload) => {
+              const value = event.values?.selectedItemId;
+              props.onSelectionChange?.(value === undefined || value === null ? null : String(value));
+            },
+          }),
+      ...(props.onSearchTextChange === undefined
+        ? {}
+        : {
+            onSearchTextChange: (event: SceneEventPayload) => {
+              const value = event.values?.searchText;
+              props.onSearchTextChange?.(typeof value === "string" ? value : "");
+            },
+          }),
+    },
+    mapGridChildren(Children.toArray([props.searchBarAccessory, props.children, props.actions])),
+  );
+}
+
+function GridItem(props: GridItemProps): ReactElement {
+  const content = serializeGridContent(props.content, "Grid.Item");
+  const icon =
+    props.accessory === undefined || props.accessory === null
+      ? undefined
+      : serializeIcon(props.accessory.icon, "Grid.Item accessory");
+  const children =
+    props.actions === undefined
+      ? props.children
+      : Children.toArray([...Children.toArray(props.actions), ...Children.toArray(props.children)]);
+  return createElement(
+    "grid-item",
+    {
+      ...(props.id === undefined ? {} : { id: requireNonEmptyString(props.id, "Grid.Item id") }),
+      content: content.content,
+      ...(content.contentTintColor === undefined ? {} : { contentTintColor: content.contentTintColor }),
+      ...(content.contentTooltip === undefined ? {} : { contentTooltip: content.contentTooltip }),
+      ...(props.title === undefined ? {} : { title: props.title }),
+      ...(props.subtitle === undefined ? {} : { subtitle: props.subtitle }),
+      ...(props.keywords === undefined ? {} : { keywords: normalizeStringArray(props.keywords, "Grid.Item keywords") }),
+      ...(icon === undefined ? {} : { accessoryIcon: icon.icon }),
+      ...(props.accessory?.tooltip === undefined ? {} : { accessoryTooltip: props.accessory.tooltip }),
+    },
+    mapItemChildren(children, "Grid.Item"),
+  );
+}
+
+function GridSection(props: GridSectionProps): ReactElement {
+  return createElement(
+    "grid-section",
+    {
+      ...(props.title === undefined ? {} : { title: props.title }),
+      ...(props.subtitle === undefined ? {} : { subtitle: props.subtitle }),
+      ...(props.columns === undefined ? {} : { columns: normalizeGridColumns(props.columns, "Grid.Section columns") }),
+      ...(props.aspectRatio === undefined
+        ? {}
+        : { aspectRatio: normalizeGridAspectRatio(props.aspectRatio, "Grid.Section aspectRatio") }),
+      ...(props.fit === undefined ? {} : { fit: normalizeGridFit(props.fit, "Grid.Section fit") }),
+      ...(props.inset === undefined ? {} : { inset: normalizeGridInset(props.inset, "Grid.Section inset") }),
+    },
+    mapGridSectionChildren(props.children),
+  );
+}
+
+function GridEmptyView(props: GridEmptyViewProps): ReactElement {
+  const icon = serializeIcon(props.icon, "Grid.EmptyView");
+  return createElement(
+    "grid-empty-view",
+    {
+      ...(icon === undefined
+        ? {}
+        : { icon: icon.icon, ...(icon.iconTintColor === undefined ? {} : { iconTintColor: icon.iconTintColor }) }),
+      ...(props.title === undefined ? {} : { title: props.title }),
+      ...(props.description === undefined ? {} : { description: props.description }),
+    },
+    mapItemChildren(props.actions, "Grid.EmptyView actions"),
+  );
+}
+
+function GridDropdown(props: GridDropdownProps): ReactElement {
+  if (props.onChange !== undefined && typeof props.onChange !== "function") {
+    unsupported("Grid.Dropdown onChange", { onChange: props.onChange });
+  }
+  const eventKey = props.id ?? "value";
+  return createElement(
+    "grid-dropdown",
+    {
+      ...(props.id === undefined ? {} : { id: requireNonEmptyString(props.id, "Grid.Dropdown id") }),
+      tooltip: requireNonEmptyString(props.tooltip, "Grid.Dropdown tooltip"),
+      ...(props.placeholder === undefined ? {} : { placeholder: props.placeholder }),
+      ...(props.storeValue === undefined ? {} : { storeValue: props.storeValue }),
+      ...(props.value === undefined ? {} : { value: props.value }),
+      ...(props.defaultValue === undefined ? {} : { defaultValue: props.defaultValue }),
+      ...(props.onChange === undefined
+        ? {}
+        : {
+            onChange: (event: SceneEventPayload) => {
+              const value = event.values?.[eventKey] ?? event.values?.value;
+              if (typeof value === "string") {
+                props.onChange?.(value);
+              }
+            },
+          }),
+    },
+    mapGridDropdownChildren(props.children),
+  );
+}
+
+function GridDropdownItem(props: GridDropdownItemProps): ReactElement {
+  const icon = serializeIcon(props.icon, "Grid.Dropdown.Item");
+  return createElement("grid-dropdown-item", {
+    value: requireNonEmptyString(props.value, "Grid.Dropdown.Item value"),
+    title: requireNonEmptyString(props.title, "Grid.Dropdown.Item title"),
+    ...(icon === undefined
+      ? {}
+      : { icon: icon.icon, ...(icon.iconTintColor === undefined ? {} : { iconTintColor: icon.iconTintColor }) }),
+    ...(props.keywords === undefined
+      ? {}
+      : { keywords: normalizeStringArray(props.keywords, "Grid.Dropdown.Item keywords") }),
+  });
+}
+
+function GridDropdownSection(props: GridDropdownSectionProps): ReactElement {
+  return createElement(
+    "grid-dropdown-section",
+    { ...(props.title === undefined ? {} : { title: props.title }) },
+    mapGridDropdownChildren(props.children),
+  );
+}
+
+interface GridComponent {
+  (props: GridProps): ReactElement;
+  Inset: typeof GRID_INSET_VALUES;
+  ItemSize: typeof GRID_ITEM_SIZE_VALUES;
+  Fit: typeof GRID_FIT_VALUES;
+  Item: typeof GridItem;
+  Section: typeof GridSection;
+  EmptyView: typeof GridEmptyView;
+  Dropdown: typeof GridDropdown & {
+    Item: typeof GridDropdownItem;
+    Section: typeof GridDropdownSection;
+  };
+}
+
+export const Grid: GridComponent = Object.assign(GridComponent, {
+  Inset: GRID_INSET_VALUES,
+  ItemSize: GRID_ITEM_SIZE_VALUES,
+  Fit: GRID_FIT_VALUES,
+  Item: GridItem,
+  Section: GridSection,
+  EmptyView: GridEmptyView,
+  Dropdown: Object.assign(GridDropdown, { Item: GridDropdownItem, Section: GridDropdownSection }),
+});
 
 export function Detail(props: DetailProps): ReactElement {
   return createElement("detail", {
@@ -1340,6 +1870,94 @@ function CopyToClipboard(props: CopyToClipboardProps): ReactElement {
   });
 }
 
+function mapGridChildren(children: ReactNode): ReactNode {
+  return Children.toArray(children).map((child, index) => {
+    if (child === null || child === undefined || typeof child === "boolean") {
+      return null;
+    }
+    if (!isValidElement(child)) {
+      return unsupported("A Grid text child", { child });
+    }
+    if (
+      child.type === GridItem ||
+      child.type === GridSection ||
+      child.type === GridEmptyView ||
+      child.type === GridDropdown ||
+      child.type === ActionPanel
+    ) {
+      return keyedElement(child, `grid-${index}`);
+    }
+    if (isCompositeElement(child)) {
+      return keyedElement(child, `grid-${index}`);
+    }
+    return unsupported("A Grid child that is not a measured item, section, empty view, dropdown, or ActionPanel", {
+      childType: String(child.type),
+    });
+  });
+}
+
+function mapGridSectionChildren(children: ReactNode): ReactNode {
+  return Children.toArray(children).map((child, index) => {
+    if (child === null || child === undefined || typeof child === "boolean") {
+      return null;
+    }
+    if (!isValidElement(child)) {
+      return unsupported("A Grid.Section child that is not a Grid.Item", {
+        childType: typeof child,
+      });
+    }
+    if (child.type !== GridItem && !isCompositeElement(child)) {
+      return unsupported("A Grid.Section child that is not a Grid.Item", { childType: String(child.type) });
+    }
+    return keyedElement(child, `grid-section-${index}`);
+  });
+}
+
+function mapGridDropdownChildren(children: ReactNode): ReactNode {
+  return Children.toArray(children).map((child, index) => {
+    if (child === null || child === undefined || typeof child === "boolean") {
+      return null;
+    }
+    if (!isValidElement(child)) {
+      return unsupported("A Grid.Dropdown text child", { child });
+    }
+    if (child.type === GridDropdownItem || child.type === GridDropdownSection) {
+      return keyedElement(child, `grid-dropdown-${index}`);
+    }
+    if (isCompositeElement(child)) {
+      return keyedElement(child, `grid-dropdown-${index}`);
+    }
+    return unsupported("A Grid.Dropdown child that is not an item or section", {
+      childType: String(child.type),
+    });
+  });
+}
+
+function mapMenuBarChildren(children: ReactNode, where: string): ReactNode {
+  return Children.toArray(children).map((child, index) => {
+    if (child === null || child === undefined || typeof child === "boolean") {
+      return null;
+    }
+    if (!isValidElement(child)) {
+      return unsupported(`A ${where} text child`, { child });
+    }
+    if (
+      child.type === MenuBarExtraItem ||
+      child.type === MenuBarExtraSection ||
+      child.type === MenuBarExtraSubmenu ||
+      child.type === MenuBarExtraSeparator
+    ) {
+      return keyedElement(child, `${where}-${index}`);
+    }
+    if (isCompositeElement(child)) {
+      return keyedElement(child, `${where}-${index}`);
+    }
+    return unsupported(`A ${where} child that is not a measured menu-bar item, section, submenu, or separator`, {
+      childType: String(child.type),
+    });
+  });
+}
+
 interface ActionComponent {
   (props: ActionProps): ReactElement;
   CopyToClipboard: typeof CopyToClipboard;
@@ -1387,6 +2005,10 @@ function mapItemChildren(children: ReactNode, where: string): ReactNode {
     }
     return unsupported(`A ${where} child that is not an action`, { childType: String(child.type) });
   });
+}
+
+function isCompositeElement(element: ReactElement): boolean {
+  return typeof element.type === "function" || (element.type as unknown) === Fragment;
 }
 
 function keyedElement(child: ReactNode, key: string): ReactNode {
@@ -1732,6 +2354,64 @@ export async function open(target: string, application?: string | ApplicationLik
     args.application = serializeApplication(application, "open");
   }
   await callCapability("open", "open", args, "The open");
+}
+
+function serializeLaunchJSON(value: unknown, where: string): string | undefined {
+  if (value === undefined || value === null) {
+    return undefined;
+  }
+  if (!isRecord(value)) {
+    unsupported(`${where} must be a JSON-serializable object`, { value });
+  }
+  try {
+    const serialized = JSON.stringify(value);
+    if (serialized === undefined) {
+      unsupported(`${where} must be a JSON-serializable object`, { value });
+    }
+    return serialized;
+  } catch (error) {
+    throw new CompatibilityError(`${where} must be a JSON-serializable object`, {
+      value,
+      cause: error instanceof Error ? error.message : String(error),
+    });
+  }
+}
+
+/** Launches another command through the host command-launch capability. */
+export async function launchCommand(options: LaunchOptions): Promise<void> {
+  if (!isRecord(options)) {
+    unsupported("launchCommand options", { options });
+  }
+  const args: Record<string, string | number | boolean> = {
+    name: requireNonEmptyString(options.name, "launchCommand name"),
+  };
+  if (options.type !== LaunchType.UserInitiated && options.type !== LaunchType.Background) {
+    unsupported("launchCommand type", { type: options.type });
+  }
+  args.type = options.type;
+
+  const ownerOrAuthorName = options.ownerOrAuthorName;
+  const extensionName = options.extensionName;
+  if ((ownerOrAuthorName === undefined) !== (extensionName === undefined)) {
+    unsupported("launchCommand external target", { ownerOrAuthorName, extensionName });
+  }
+  if (ownerOrAuthorName !== undefined && extensionName !== undefined) {
+    args.ownerOrAuthorName = requireNonEmptyString(ownerOrAuthorName, "launchCommand ownerOrAuthorName");
+    args.extensionName = requireNonEmptyString(extensionName, "launchCommand extensionName");
+  }
+
+  if (options.fallbackText !== undefined && options.fallbackText !== null) {
+    args.fallbackText = requireNonEmptyString(options.fallbackText, "launchCommand fallbackText");
+  }
+  const argumentsJSON = serializeLaunchJSON(options.arguments, "launchCommand arguments");
+  if (argumentsJSON !== undefined) {
+    args.argumentsJSON = argumentsJSON;
+  }
+  const contextJSON = serializeLaunchJSON(options.context, "launchCommand context");
+  if (contextJSON !== undefined) {
+    args.contextJSON = contextJSON;
+  }
+  await callCapability("command", "launch", args, "The launchCommand");
 }
 
 /** Closes the host's main window through the explicit window capability. */

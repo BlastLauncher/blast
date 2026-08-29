@@ -39,6 +39,7 @@ function createCore() {
       { extensionId: "e2e.launch-boundaries", capability: "window", operation: "close" },
       { extensionId: "e2e.launch-boundaries", capability: "navigation", operation: "popToRoot" },
       { extensionId: "e2e.launch-boundaries", capability: "preferences", operation: "openExtension" },
+      { extensionId: "e2e.launch-boundaries", capability: "command", operation: "launch" },
     ]),
     providers: {
       clipboard: {
@@ -60,6 +61,12 @@ function createCore() {
         },
       },
       preferences: {
+        async perform(request) {
+          boundaryRequests.push(request);
+          return undefined;
+        },
+      },
+      command: {
         async perform(request) {
           boundaryRequests.push(request);
           return undefined;
@@ -294,7 +301,7 @@ test("injects launch props and relays desktop boundary helpers", async () => {
   });
 
   await waitFor(() => buffer.rootId !== undefined, "the launch-boundaries snapshot");
-  await waitFor(() => boundaryRequests.length === 3, "the desktop boundary requests");
+  await waitFor(() => boundaryRequests.length === 4, "the desktop boundary requests");
 
   assert.equal(buffer.get(buffer.rootId).props.navigationTitle, "userInitiated:userInitiated");
   assert.deepEqual(buffer.childrenOf(buffer.rootId)[0].props, { title: "empty", icon: "launch.png" });
@@ -304,6 +311,17 @@ test("injects launch props and relays desktop boundary helpers", async () => {
       { capability: "window", operation: "close", arguments: { clearRootSearch: true } },
       { capability: "navigation", operation: "popToRoot", arguments: { clearSearchBar: true } },
       { capability: "preferences", operation: "openExtension", arguments: {} },
+      {
+        capability: "command",
+        operation: "launch",
+        arguments: {
+          name: "details",
+          type: "background",
+          argumentsJSON: '{"query":"raycast"}',
+          contextJSON: '{"source":"fixture"}',
+          fallbackText: "open details",
+        },
+      },
     ],
   );
 

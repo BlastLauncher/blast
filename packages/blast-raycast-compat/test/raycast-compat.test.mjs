@@ -13,12 +13,14 @@ import {
   CompatibilityError,
   Detail,
   Form,
+  Grid,
   Icon,
   Image,
   Keyboard,
   LaunchType,
   List,
   LocalStorage,
+  MenuBarExtra,
   PopToRootType,
   Toast,
   configureRaycastCompat,
@@ -29,6 +31,7 @@ import {
   open,
   openExtensionPreferences,
   popToRoot,
+  launchCommand,
   renderCommand,
   showHUD,
   showToast,
@@ -257,6 +260,103 @@ test("renders a Detail root", async () => {
   const root = probe.transactions[0].operations[0].root;
   assert.equal(root.type, "detail");
   assert.deepEqual(root.props, { markdown: "# Notes", navigationTitle: "Notes" });
+});
+
+test("renders a Grid with sections, dropdowns, content, and empty state", async () => {
+  const probe = createContext();
+
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      Grid,
+      {
+        navigationTitle: "Gallery",
+        columns: 4,
+        fit: Grid.Fit.Fill,
+        inset: Grid.Inset.Small,
+        searchBarAccessory: createElement(
+          Grid.Dropdown,
+          { tooltip: "Filter", defaultValue: "all" },
+          createElement(
+            Grid.Dropdown.Section,
+            { title: "Kinds" },
+            createElement(Grid.Dropdown.Item, { value: "all", title: "All", icon: Icon.Star }),
+          ),
+        ),
+      },
+      createElement(
+        Grid.Section,
+        { title: "Items" },
+        createElement(
+          Grid.Item,
+          {
+            id: "one",
+            content: { source: "one.png", tintColor: "red" },
+            title: "One",
+            subtitle: "First",
+            keywords: ["primary"],
+            accessory: { icon: Icon.Star, tooltip: "Favorite" },
+          },
+          createElement(ActionPanel, null, createElement(Action, { title: "Open" })),
+        ),
+      ),
+      createElement(Grid.EmptyView, { title: "Empty", description: "Nothing here" }),
+    ),
+  );
+  await renderer.flush();
+
+  const root = probe.transactions[0].operations[0].root;
+  assert.equal(root.type, "grid");
+  assert.deepEqual(root.props, { navigationTitle: "Gallery", columns: 4, fit: "fill", inset: "sm" });
+  assert.deepEqual(
+    root.children.map((child) => child.type),
+    ["grid-dropdown", "grid-section", "grid-empty-view"],
+  );
+  assert.deepEqual(root.children[0].props, { tooltip: "Filter", defaultValue: "all" });
+  assert.deepEqual(root.children[1].children[0].props, {
+    id: "one",
+    content: "one.png",
+    contentTintColor: "red",
+    title: "One",
+    subtitle: "First",
+    keywords: ["primary"],
+    accessoryIcon: "star",
+    accessoryTooltip: "Favorite",
+  });
+});
+
+test("renders MenuBarExtra roots and routes item action events", async () => {
+  const probe = createContext();
+  const calls = [];
+
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      MenuBarExtra,
+      { title: "Blast", tooltip: "Blast menu", icon: Icon.Circle, isLoading: true },
+      createElement(
+        MenuBarExtra.Section,
+        { title: "Actions" },
+        createElement(MenuBarExtra.Item, {
+          title: "Refresh",
+          onAction: (event) => calls.push(event.type),
+        }),
+        createElement(MenuBarExtra.Submenu, { title: "More" }, createElement(MenuBarExtra.Item, { title: "Settings" })),
+      ),
+      createElement(MenuBarExtra.Separator),
+    ),
+  );
+  await renderer.flush();
+
+  const root = probe.transactions[0].operations[0].root;
+  assert.equal(root.type, "menu-bar-extra");
+  assert.deepEqual(root.props, { title: "Blast", tooltip: "Blast menu", icon: "circle", isLoading: true });
+  assert.deepEqual(
+    root.children.map((child) => child.type),
+    ["menu-bar-section", "menu-bar-separator"],
+  );
+  const refresh = root.children[0].children[0];
+  assert.equal(refresh.props.title, "Refresh");
+  probe.dispatch(refresh.props.onAction);
+  assert.deepEqual(calls, ["left-click"]);
 });
 
 test("renders measured form controls and submits client-provided values", async () => {
@@ -689,6 +789,37 @@ test("routes window, navigation, and extension-preference helpers through capabi
       arguments: { clearSearchBar: true },
     },
     { capability: "preferences", operation: "openExtension" },
+  ]);
+});
+
+test("routes launchCommand options through the command capability", async () => {
+  const probe = createContext();
+  configureRaycastCompat(probe.context);
+
+  await launchCommand({
+    ownerOrAuthorName: "blast",
+    extensionName: "target",
+    name: "details",
+    type: LaunchType.Background,
+    arguments: { query: "raycast" },
+    context: { source: "test" },
+    fallbackText: "open details",
+  });
+
+  assert.deepEqual(probe.capabilityRequests, [
+    {
+      capability: "command",
+      operation: "launch",
+      arguments: {
+        name: "details",
+        type: "background",
+        ownerOrAuthorName: "blast",
+        extensionName: "target",
+        fallbackText: "open details",
+        argumentsJSON: '{"query":"raycast"}',
+        contextJSON: '{"source":"test"}',
+      },
+    },
   ]);
 });
 

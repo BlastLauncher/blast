@@ -28,6 +28,7 @@ const SUPPORTED_API_IMPORTS = new Set([
   "Color",
   "Detail",
   "Form",
+  "Grid",
   "Icon",
   "Image",
   "Keyboard",
@@ -35,6 +36,7 @@ const SUPPORTED_API_IMPORTS = new Set([
   "LaunchProps",
   "List",
   "LocalStorage",
+  "MenuBarExtra",
   "PopToRootType",
   "Toast",
   "closeMainWindow",
@@ -44,6 +46,7 @@ const SUPPORTED_API_IMPORTS = new Set([
   "open",
   "openExtensionPreferences",
   "popToRoot",
+  "launchCommand",
   "showHUD",
   "showToast",
   "useNavigation",
@@ -96,7 +99,7 @@ const report = {
   },
   selection: {
     strategy:
-      "Use the first manifest command with mode=view; fall back to the first command with an unset mode. An extension with only no-view or menu-bar commands is not renderable by the scene probe.",
+      "Use the first manifest command with mode=view; fall back to an unset-mode command, then a menu-bar command. An extension with only no-view commands is not renderable by the scene probe.",
     renderableExtensions: selections.filter((selection) => selection.renderable).length,
     nonRenderableExtensions: selections.filter((selection) => !selection.renderable).length,
     timeoutMilliseconds,
@@ -215,6 +218,7 @@ function createCore(stderr) {
     "alert.confirm",
     "clipboard.read",
     "clipboard.write",
+    "command.launch",
     "hud.show",
     "local-storage.clear",
     "local-storage.get",
@@ -249,6 +253,14 @@ function createCore(stderr) {
             return undefined;
           }
           throw new Error(`Unknown clipboard operation ${JSON.stringify(request.operation)}`);
+        },
+      },
+      command: {
+        async perform(request) {
+          if (request.operation === "launch") {
+            return undefined;
+          }
+          throw new Error(`Unknown command operation ${JSON.stringify(request.operation)}`);
         },
       },
       hud: {
@@ -360,10 +372,12 @@ function selectCommand(scan) {
   const command =
     commands.find((candidate) => candidate.mode === "view") ??
     commands.find((candidate) => candidate.mode === undefined) ??
+    commands.find((candidate) => candidate.mode === "menu-bar") ??
     commands[0];
   return {
     command,
-    renderable: command !== undefined && (command.mode === "view" || command.mode === undefined),
+    renderable:
+      command !== undefined && (command.mode === "view" || command.mode === undefined || command.mode === "menu-bar"),
   };
 }
 

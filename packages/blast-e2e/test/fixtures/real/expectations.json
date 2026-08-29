@@ -240,5 +240,33 @@
       "Form"
     ],
     "source": "blast/compatibility-fixture"
+  },
+  {
+    "id": "grid-boundaries",
+    "extensionId": "grid-boundaries",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "grid",
+    "minItems": 2,
+    "apis": [
+      "Action",
+      "ActionPanel",
+      "Grid",
+      "Icon"
+    ],
+    "source": "blast/compatibility-fixture"
+  },
+  {
+    "id": "menu-bar-boundaries",
+    "extensionId": "menu-bar-boundaries",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "menu-bar-extra",
+    "minItems": 2,
+    "apis": [
+      "Icon",
+      "MenuBarExtra"
+    ],
+    "source": "blast/compatibility-fixture"
   }
 ]
