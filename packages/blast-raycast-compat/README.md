@@ -18,7 +18,8 @@ onto the V2 scene contract, renderer, and capability broker:
   left-click callbacks;
 - `Form` covers text fields, text areas, password fields, checkboxes,
   dropdowns, date pickers, tag pickers, file pickers, descriptions, separators,
-  dropdown sections/items, and tag items;
+  dropdown sections/items, and tag items. Field `onFocus` and `onBlur`
+  callbacks receive the measured `Form.Event` target shape;
 - `Icon` ships a measured kebab-case subset serialized into scene `icon`
   properties, including object-icon tint colors;
 - `Clipboard.copy`/`Clipboard.paste`/`Clipboard.read` route through the
@@ -115,16 +116,16 @@ The public `FormValue` union also includes numeric and numeric-array values from
 the pinned Raycast declaration; the currently measured scene controls remain
 the string, boolean, date, and string-array subset.
 
-Literal dynamic imports, namespace imports, and side-effect imports of
-`@raycast/api` resolve through the same launcher alias as named imports. The
-adapter only promises the measured exported members; network-style `fetch`
-access remains outside the compatibility surface until a host capability and
-policy are defined.
+Literal dynamic imports, namespace imports, side-effect imports, and literal
+CommonJS `require("@raycast/api")` calls resolve through the same launcher alias
+as named imports. The adapter only promises the measured exported members;
+network-style `fetch` access remains outside the compatibility surface until a
+host capability and policy are defined.
 
 ## Compatibility boundary
 
-Unmeasured surface (client toast timing/stacking, focus/blur form callbacks,
-broader desktop APIs, and broader action/browser/Tool helpers) raises a
+Unmeasured surface (client toast timing/stacking, broader desktop APIs, and
+broader action/browser/Tool helpers) raises a
 structured `CompatibilityError` with code `unsupported_api`; it never fails
 silently. Menu-bar alternate items and right-click event identity remain
 outside the current scene boundary. The AI, OAuth, selected-text,

@@ -32,23 +32,24 @@ unavailable packages remain dependency failures.
 
 | Outcome                        | Baseline | Previous post-slice | Current post-slice | Current vs previous |
 | ------------------------------ | -------: | ------------------: | -----------------: | ------------------: |
-| third-party dependency failure |    2,361 |               1,278 |                916 |                -362 |
+| third-party dependency failure |    2,361 |               1,278 |                915 |                -363 |
 | not renderable command mode    |      358 |                 316 |                316 |                   0 |
-| other process/startup failure  |      432 |                 824 |                737 |                 -87 |
-| structured compatibility error |       23 |                 106 |                147 |                 +41 |
-| renders a scene end to end     |       54 |                 704 |              1,112 |                +408 |
+| other process/startup failure  |      432 |                 824 |                739 |                 -85 |
+| structured compatibility error |       23 |                 106 |                116 |                 +10 |
+| renders a scene end to end     |       54 |                 704 |              1,142 |                +438 |
 | no entrypoint found            |        3 |                   3 |                  3 |                   0 |
 
-Reading: the current post-slice extension pass rate is 1,112/3,231 (34.42%);
-among the 2,915 extensions with a selected renderable command it is 1,112/2,915
-(38.15%). The measured preference, navigation, environment, form-value,
-keyboard, image-type, `randomId`, WindowManagement, small legacy aliases, and
-safe import shapes are no longer in the non-rendering static blocker list. The
-only remaining static import gap is one `fetch` import. The vendor root leaves
-916 dependency failures. The current priority is the measured API boundary
-rather than another dependency seed; the next probe will measure the newly
-implemented `LocalStorage.allItems`/`allLocalStorageItems` surface before
-dependency provisioning resumes.
+Reading: the current post-slice extension pass rate is 1,142/3,231 (35.35%);
+among the 2,915 extensions with a selected renderable command it is 1,142/2,915
+(39.18%). The measured preference, navigation, environment, form-value,
+keyboard, image-type, `randomId`, WindowManagement, small legacy aliases,
+safe import shapes, and Form focus/blur callbacks are no longer in the
+non-rendering static blocker list. The only remaining static import gap is one
+`fetch` import. The vendor root leaves dependency failures tracked separately.
+The current priority is the measured API boundary rather than another
+dependency seed; this probe refresh measures the newly implemented
+`LocalStorage.allItems`/`allLocalStorageItems`, Form event, and literal
+`require` surfaces before dependency provisioning resumes.
 
 The first audited vendor seed is `axios@1.8.4`, `cheerio@1.0.0`,
 `cross-fetch@4.0.0`, `date-fns@4.1.0`, `fast-xml-parser@5.3.2`, `fuse.js@7.1.0`,
@@ -120,7 +121,6 @@ dispatches a bounds mutation through the explicit host capability.
   measured; broader action helpers remain unsupported;
 - toast lifecycle, mutable fields, action callbacks, and toast-action shortcut
   objects are measured; client toast timing/stacking remains unsupported;
-- Form focus/blur callbacks;
 - `useNavigation` and `Action.Push` (28.8% of extensions),
   `LocalStorage`/`Cache` (26.5%), and `environment` (19.7%) are measured in
   the adapter but still have limited fixture coverage. `LocalStorage.allItems`
@@ -156,10 +156,11 @@ dispatches a bounds mutation through the explicit host capability.
   cross as semantic `list-section` nodes, and Open With intent crosses the
   existing `open.open` capability as a primitive `openWith` flag; client list
   section rendering and the application chooser remain host/client work;
-- namespace imports, literal dynamic imports, and literal side-effect imports
-  resolve through the same launcher alias as named imports when they access
-  measured adapter members. The remaining `fetch` import is intentionally not
-  supported because network access needs an explicit host capability and policy;
+- namespace imports, literal dynamic imports, literal side-effect imports, and
+  literal CommonJS `require("@raycast/api")` calls resolve through the same
+  launcher alias as named imports when they access measured adapter members.
+  The remaining `fetch` import is intentionally not supported because network
+  access needs an explicit host capability and policy;
 - `BrowserExtension.getTabs`, `BrowserExtension.getContent`, `clearSearchBar`,
   `trash`, `ToastStyle`, and the type-only `Tool.Confirmation` contract are
   measured. Browser integration, navigation state, destructive filesystem

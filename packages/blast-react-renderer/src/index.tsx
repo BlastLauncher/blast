@@ -657,7 +657,7 @@ function isCallbackProp(nodeType: SceneNodeType, property: string): boolean {
       nodeType === SCENE_FORM_DATE_PICKER_TYPE ||
       nodeType === SCENE_FORM_TAG_PICKER_TYPE ||
       nodeType === SCENE_FORM_FILE_PICKER_TYPE) &&
-      property === "onChange")
+      (property === "onChange" || property === "onFocus" || property === "onBlur"))
   );
 }
 

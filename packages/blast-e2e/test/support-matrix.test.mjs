@@ -406,17 +406,30 @@ test("matrix form fixture round-trips field values through a submit action", asy
   await waitFor(() => buffer.rootId !== undefined, "the form fixture scene");
   const root = buffer.get(buffer.rootId);
   const name = root.children.find((child) => child.type === "form-text-field");
-  const due = root.children.find((child) => child.type === "form-date-picker");
-  const tags = root.children.find((child) => child.type === "form-tag-picker");
-  const files = root.children.find((child) => child.type === "form-file-picker");
-  const actions = root.children.find((child) => child.type === "action-group");
-  const submit = actions.children[0].children[0];
 
-  await relay.sendSceneEvent(name.props.onChange, { name: "Grace" });
-  await relay.sendSceneEvent(due.props.onChange, { due: "2026-09-01T12:30:00.000Z" });
-  await relay.sendSceneEvent(tags.props.onChange, { tags: ["docs", "v2"] });
-  await relay.sendSceneEvent(files.props.onChange, { files: ["/tmp/example.txt"] });
-  await relay.sendSceneEvent(submit.props.onAction, {
+  await relay.sendSceneEvent(name.props.onFocus);
+  await waitFor(
+    () => buffer.get(buffer.rootId).props.navigationTitle === "Profile:focus:name:Ada",
+    "the form focus callback",
+  );
+  const focusedName = buffer.get(buffer.rootId).children.find((child) => child.type === "form-text-field");
+  await relay.sendSceneEvent(focusedName.props.onBlur);
+  await waitFor(
+    () => buffer.get(buffer.rootId).props.navigationTitle === "Profile:blur:name:Ada",
+    "the form blur callback",
+  );
+  const blurredRoot = buffer.get(buffer.rootId);
+  const changedName = blurredRoot.children.find((child) => child.type === "form-text-field");
+  const changedDue = blurredRoot.children.find((child) => child.type === "form-date-picker");
+  const changedTags = blurredRoot.children.find((child) => child.type === "form-tag-picker");
+  const changedFiles = blurredRoot.children.find((child) => child.type === "form-file-picker");
+  const currentActions = blurredRoot.children.find((child) => child.type === "action-group");
+  const currentSubmit = currentActions.children[0].children[0];
+  await relay.sendSceneEvent(changedName.props.onChange, { name: "Grace" });
+  await relay.sendSceneEvent(changedDue.props.onChange, { due: "2026-09-01T12:30:00.000Z" });
+  await relay.sendSceneEvent(changedTags.props.onChange, { tags: ["docs", "v2"] });
+  await relay.sendSceneEvent(changedFiles.props.onChange, { files: ["/tmp/example.txt"] });
+  await relay.sendSceneEvent(currentSubmit.props.onAction, {
     name: "Grace",
     enabled: false,
     role: "user",

@@ -367,6 +367,8 @@ test("renders form controls and routes form values through scene events", async 
   const sink = createCollectingSink();
   const renderer = createSceneRenderer({ sink });
   const changes = [];
+  const focuses = [];
+  const blurs = [];
 
   renderer.render(
     createElement(
@@ -377,6 +379,8 @@ test("renders form controls and routes form values through scene events", async 
         title: "Name",
         defaultValue: "Ada",
         onChange: (payload) => changes.push(payload),
+        onFocus: (payload) => focuses.push(payload),
+        onBlur: (payload) => blurs.push(payload),
       }),
     ),
   );
@@ -390,10 +394,16 @@ test("renders form controls and routes form values through scene events", async 
     title: "Name",
     defaultValue: "Ada",
     onChange: "event-1",
+    onFocus: "event-2",
+    onBlur: "event-3",
   });
 
   renderer.dispatchSceneEvent({ eventId: "event-1", values: { name: "Grace" } });
+  renderer.dispatchSceneEvent({ eventId: "event-2", values: { name: "Grace" } });
+  renderer.dispatchSceneEvent({ eventId: "event-3" });
   assert.deepEqual(changes, [{ eventId: "event-1", values: { name: "Grace" } }]);
+  assert.deepEqual(focuses, [{ eventId: "event-2", values: { name: "Grace" } }]);
+  assert.deepEqual(blurs, [{ eventId: "event-3" }]);
 });
 
 test("publishes string-array form props and compares array values by contents", async () => {

@@ -104,6 +104,11 @@ slice changes what is executable, what is trusted, or what should happen next.
   return the complete extension-local primitive-value map through a JSON
   encoded `local-storage.getAll` capability response; malformed responses are
   rejected before reaching extension code.
+- Form field `onFocus` and `onBlur` callbacks now publish separate scene event
+  IDs and receive validated `Form.Event` values reconstructed from the
+  client-provided or runtime-retained field value. Literal CommonJS
+  `require("@raycast/api")` imports are also covered alongside the measured
+  dynamic, namespace, and side-effect import shapes.
 - ActionPanel renders as a scene action-group (titles, submenus, List-level
   panels), and object icons with Color tints serialize into iconTintColor
   properties.
@@ -219,9 +224,8 @@ slice changes what is executable, what is trusted, or what should happen next.
   policy for large npm graphs, and native package externalization (the runtime
   supports explicit local or vendored dependency roots but never installs
   packages);
-- the remaining measured Raycast surface: Form focus/blur callbacks, client
-  toast timing/stacking, broader desktop APIs, broader action helpers, and
-  additional Tool/browser APIs;
+- the remaining measured Raycast surface: client toast timing/stacking, broader
+  desktop APIs, broader action helpers, and additional Tool/browser APIs;
 - a client-facing core protocol, daemon listener, and desktop rendering of
   scenes (the deterministic test client stands in today);
 - capability manifest declarations, real operating-system providers, audit
@@ -249,11 +253,12 @@ measured 80% target is not yet met; the next work should address the dominant
 remaining API boundary gaps using the same probe. Additional dependency seeds
 remain deferred until the next API slice is measured.
 
-1. Re-probe the new `LocalStorage.allItems`/`allLocalStorageItems` boundary and
-   update the support matrix with the measured result.
-2. Map and implement the next high-frequency API gap, starting with Form
-   focus/blur event callbacks if the scene event contract can carry their
-   validated target shape; keep client-only toast timing/stacking separate.
+1. Re-probe the `LocalStorage.allItems`/`allLocalStorageItems`, Form event, and
+   literal `require` boundaries and update the support matrix with the measured
+   result.
+2. Use that report to map and implement the next high-frequency API gap; keep
+   client-only toast timing/stacking separate from the extension event
+   contract.
 3. Keep safe dynamic, namespace, side-effect, and literal `require` import
    forms covered while the remaining `fetch` import stays outside the adapter
    until a host network capability defines URL policy, consent, and response

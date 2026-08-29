@@ -755,6 +755,35 @@ test("renders measured form controls and submits client-provided values", async 
   assert.deepEqual(submitted, [{ name: "Grace", bio: "Builder", enabled: false, role: "user" }]);
 });
 
+test("routes Form focus and blur callbacks with typed target values", async () => {
+  const probe = createContext();
+  const events = [];
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      Form,
+      null,
+      createElement(Form.TextField, {
+        id: "name",
+        defaultValue: "Ada",
+        onFocus: (event) => events.push(event),
+        onBlur: (event) => events.push(event),
+      }),
+    ),
+  );
+  await renderer.flush();
+
+  const field = probe.transactions[0].operations[0].root.children[0];
+  assert.equal(typeof field.props.onFocus, "string");
+  assert.equal(typeof field.props.onBlur, "string");
+  probe.dispatch(field.props.onFocus, { name: "Grace" });
+  probe.dispatch(field.props.onBlur);
+
+  assert.deepEqual(events, [
+    { type: "focus", target: { id: "name", value: "Grace" } },
+    { type: "blur", target: { id: "name", value: "Grace" } },
+  ]);
+});
+
 test("renders richer form controls and restores native values on events and submit", async () => {
   const probe = createContext();
   const changed = [];
@@ -910,13 +939,17 @@ test("rejects unmeasured API surface with structured errors", (context) => {
     );
   });
 
-  context.test("unsupported Form controls", () => {
+  context.test("rejects invalid Form callbacks", () => {
     assert.throws(
       () =>
         renderCommand(probe.context, () =>
-          createElement(Form, null, createElement(Form.TextField, { id: "when", title: "When", onFocus: () => {} })),
+          createElement(
+            Form,
+            null,
+            createElement(Form.TextField, { id: "when", title: "When", onFocus: "not-a-function" }),
+          ),
         ),
-      (error) => error instanceof CompatibilityError && /Form.TextField onFocus/.test(error.message),
+      (error) => error instanceof CompatibilityError && /Form.TextField onFocus must be a function/.test(error.message),
     );
   });
 

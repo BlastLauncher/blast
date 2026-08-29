@@ -198,6 +198,8 @@ const PROP_WHITELIST: Record<SceneNodeType, readonly string[]> = {
     "value",
     "defaultValue",
     "onChange",
+    "onFocus",
+    "onBlur",
   ],
   "form-text-area": [
     "id",
@@ -211,6 +213,8 @@ const PROP_WHITELIST: Record<SceneNodeType, readonly string[]> = {
     "defaultValue",
     "enableMarkdown",
     "onChange",
+    "onFocus",
+    "onBlur",
   ],
   "form-password-field": [
     "id",
@@ -223,6 +227,8 @@ const PROP_WHITELIST: Record<SceneNodeType, readonly string[]> = {
     "value",
     "defaultValue",
     "onChange",
+    "onFocus",
+    "onBlur",
   ],
   "form-checkbox": [
     "id",
@@ -235,6 +241,8 @@ const PROP_WHITELIST: Record<SceneNodeType, readonly string[]> = {
     "value",
     "defaultValue",
     "onChange",
+    "onFocus",
+    "onBlur",
   ],
   "form-dropdown": [
     "id",
@@ -247,6 +255,8 @@ const PROP_WHITELIST: Record<SceneNodeType, readonly string[]> = {
     "value",
     "defaultValue",
     "onChange",
+    "onFocus",
+    "onBlur",
   ],
   "form-dropdown-item": ["value", "title", "icon", "iconTintColor"],
   "form-dropdown-section": ["title"],
@@ -263,6 +273,8 @@ const PROP_WHITELIST: Record<SceneNodeType, readonly string[]> = {
     "value",
     "defaultValue",
     "onChange",
+    "onFocus",
+    "onBlur",
   ],
   "form-tag-picker": [
     "id",
@@ -275,6 +287,8 @@ const PROP_WHITELIST: Record<SceneNodeType, readonly string[]> = {
     "value",
     "defaultValue",
     "onChange",
+    "onFocus",
+    "onBlur",
   ],
   "form-tag-picker-item": ["value", "title", "icon", "iconTintColor"],
   "form-file-picker": [
@@ -287,6 +301,8 @@ const PROP_WHITELIST: Record<SceneNodeType, readonly string[]> = {
     "value",
     "defaultValue",
     "onChange",
+    "onFocus",
+    "onBlur",
     "canChooseFiles",
     "canChooseDirectories",
     "showHiddenFiles",
@@ -446,6 +462,8 @@ const PROP_TYPES: Record<SceneNodeType, Readonly<Record<string, ScenePropType>>>
     value: "string",
     defaultValue: "string",
     onChange: "string",
+    onFocus: "string",
+    onBlur: "string",
   },
   "form-text-area": {
     id: "string",
@@ -459,6 +477,8 @@ const PROP_TYPES: Record<SceneNodeType, Readonly<Record<string, ScenePropType>>>
     defaultValue: "string",
     enableMarkdown: "boolean",
     onChange: "string",
+    onFocus: "string",
+    onBlur: "string",
   },
   "form-password-field": {
     id: "string",
@@ -471,6 +491,8 @@ const PROP_TYPES: Record<SceneNodeType, Readonly<Record<string, ScenePropType>>>
     value: "string",
     defaultValue: "string",
     onChange: "string",
+    onFocus: "string",
+    onBlur: "string",
   },
   "form-checkbox": {
     id: "string",
@@ -483,6 +505,8 @@ const PROP_TYPES: Record<SceneNodeType, Readonly<Record<string, ScenePropType>>>
     value: "boolean",
     defaultValue: "boolean",
     onChange: "string",
+    onFocus: "string",
+    onBlur: "string",
   },
   "form-dropdown": {
     id: "string",
@@ -495,6 +519,8 @@ const PROP_TYPES: Record<SceneNodeType, Readonly<Record<string, ScenePropType>>>
     value: "string",
     defaultValue: "string",
     onChange: "string",
+    onFocus: "string",
+    onBlur: "string",
   },
   "form-dropdown-item": { value: "string", title: "string", icon: "string", iconTintColor: "string" },
   "form-dropdown-section": { title: "string" },
@@ -511,6 +537,8 @@ const PROP_TYPES: Record<SceneNodeType, Readonly<Record<string, ScenePropType>>>
     value: "string",
     defaultValue: "string",
     onChange: "string",
+    onFocus: "string",
+    onBlur: "string",
   },
   "form-tag-picker": {
     id: "string",
@@ -523,6 +551,8 @@ const PROP_TYPES: Record<SceneNodeType, Readonly<Record<string, ScenePropType>>>
     value: "string[]",
     defaultValue: "string[]",
     onChange: "string",
+    onFocus: "string",
+    onBlur: "string",
   },
   "form-tag-picker-item": { value: "string", title: "string", icon: "string", iconTintColor: "string" },
   "form-file-picker": {
@@ -535,6 +565,8 @@ const PROP_TYPES: Record<SceneNodeType, Readonly<Record<string, ScenePropType>>>
     value: "string[]",
     defaultValue: "string[]",
     onChange: "string",
+    onFocus: "string",
+    onBlur: "string",
     canChooseFiles: "boolean",
     canChooseDirectories: "boolean",
     showHiddenFiles: "boolean",

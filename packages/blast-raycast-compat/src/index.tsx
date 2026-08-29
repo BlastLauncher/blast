@@ -1464,6 +1464,15 @@ export const MenuBarExtra: MenuBarExtraComponent = Object.assign(MenuBarExtraCom
 export type FormValue = string | number | boolean | string[] | number[] | Date | null;
 export type FormValues = Readonly<Record<string, FormValue>>;
 
+export type FormEventType = "focus" | "blur";
+export interface FormEvent<T extends FormValue = FormValue> {
+  readonly target: {
+    readonly id: string;
+    readonly value?: T;
+  };
+  readonly type: FormEventType;
+}
+
 export type LocalStorageValue = string | number | boolean;
 export interface LocalStorageValues {
   readonly [key: string]: unknown;
@@ -1488,8 +1497,8 @@ export interface FormItemProps<T extends FormValue> {
   readonly value?: T;
   readonly defaultValue?: T;
   readonly onChange?: (value: T) => void;
-  readonly onFocus?: unknown;
-  readonly onBlur?: unknown;
+  readonly onFocus?: (event: FormEvent<T>) => void;
+  readonly onBlur?: (event: FormEvent<T>) => void;
 }
 
 export type DatePickerType = "date" | "date_time";
@@ -2352,6 +2361,7 @@ interface FormRuntime {
   readonly resetFields: () => void;
   readonly register: (id: string, initialValue: FormValue | undefined, controlled: boolean, codec: FormCodec) => void;
   readonly update: (id: string, value: SceneFormValue) => void;
+  readonly currentValue: (id: string) => SceneFormValue | undefined;
   readonly submit: (values: Readonly<Record<string, SceneFormValue>> | undefined) => FormValues;
 }
 
@@ -2393,6 +2403,9 @@ function createFormRuntime(): FormRuntime {
       if (fieldIds.has(id)) {
         values.set(id, value);
       }
+    },
+    currentValue(id) {
+      return values.get(id);
     },
     submit(submittedValues) {
       const result: Record<string, FormValue> = {};
@@ -2440,11 +2453,11 @@ function assertFormCallbacks(props: FormItemProps<FormValue>, where: string): vo
   if (props.onChange !== undefined && typeof props.onChange !== "function") {
     throw new CompatibilityError(`${where} onChange must be a function`, { onChange: props.onChange });
   }
-  if (props.onFocus !== undefined) {
-    unsupported(`${where} onFocus`);
+  if (props.onFocus !== undefined && typeof props.onFocus !== "function") {
+    throw new CompatibilityError(`${where} onFocus must be a function`, { onFocus: props.onFocus });
   }
-  if (props.onBlur !== undefined) {
-    unsupported(`${where} onBlur`);
+  if (props.onBlur !== undefined && typeof props.onBlur !== "function") {
+    throw new CompatibilityError(`${where} onBlur must be a function`, { onBlur: props.onBlur });
   }
 }
 
@@ -2482,6 +2495,48 @@ function useFormChange<T extends FormValue>(
     },
     [codec, form, id, onChange, where],
   );
+}
+
+function useFormEvent<T extends FormValue>(
+  props: FormItemProps<T>,
+  where: string,
+  codec: FormCodec,
+  type: FormEventType,
+): ((payload: SceneEventPayload) => void) | undefined {
+  const form = requireFormContext(where);
+  assertFormId(props.id, where);
+  assertFormCallbacks(props as unknown as FormItemProps<FormValue>, where);
+  const { id } = props;
+  const callback = type === "focus" ? props.onFocus : props.onBlur;
+  return useMemo(() => {
+    if (callback === undefined) {
+      return undefined;
+    }
+    return (payload: SceneEventPayload) => {
+      const suppliedValues = payload.values;
+      const wireValue =
+        suppliedValues !== undefined && Object.prototype.hasOwnProperty.call(suppliedValues, id)
+          ? suppliedValues[id]
+          : form.currentValue(id);
+      if (wireValue !== undefined && !codec.acceptsWire(wireValue)) {
+        throw new CompatibilityError(`${where} received a value with the wrong type`, {
+          id,
+          value: wireValue,
+        });
+      }
+      if (wireValue !== undefined) {
+        form.update(id, wireValue);
+      }
+      const event: FormEvent<T> = {
+        type,
+        target: {
+          id,
+          ...(wireValue === undefined ? {} : { value: codec.deserialize(wireValue) as T }),
+        },
+      };
+      callback(event);
+    };
+  }, [callback, codec, form, id, type, where]);
 }
 
 function isStringFormValue(value: unknown): value is string {
@@ -2536,6 +2591,8 @@ function commonFormProps<T extends FormValue>(
   props: FormItemProps<T>,
   onChange: (payload: SceneEventPayload) => void,
   codec: FormCodec,
+  onFocus?: (payload: SceneEventPayload) => void,
+  onBlur?: (payload: SceneEventPayload) => void,
 ) {
   const value = props.value === undefined ? undefined : codec.serialize(props.value);
   const defaultValue = props.defaultValue === undefined ? undefined : codec.serialize(props.defaultValue);
@@ -2549,21 +2606,27 @@ function commonFormProps<T extends FormValue>(
     ...(value === undefined || value === null ? {} : { value }),
     ...(defaultValue === undefined || defaultValue === null ? {} : { defaultValue }),
     onChange,
+    ...(onFocus === undefined ? {} : { onFocus }),
+    ...(onBlur === undefined ? {} : { onBlur }),
   };
 }
 
 function FormTextField(props: TextFieldProps): ReactElement {
   const onChange = useFormChange(props, "Form.TextField", stringFormCodec);
+  const onFocus = useFormEvent(props, "Form.TextField", stringFormCodec, "focus");
+  const onBlur = useFormEvent(props, "Form.TextField", stringFormCodec, "blur");
   return createElement("form-text-field", {
-    ...commonFormProps(props, onChange, stringFormCodec),
+    ...commonFormProps(props, onChange, stringFormCodec, onFocus, onBlur),
     ...(props.placeholder === undefined ? {} : { placeholder: props.placeholder }),
   });
 }
 
 function FormTextArea(props: TextAreaProps): ReactElement {
   const onChange = useFormChange(props, "Form.TextArea", stringFormCodec);
+  const onFocus = useFormEvent(props, "Form.TextArea", stringFormCodec, "focus");
+  const onBlur = useFormEvent(props, "Form.TextArea", stringFormCodec, "blur");
   return createElement("form-text-area", {
-    ...commonFormProps(props, onChange, stringFormCodec),
+    ...commonFormProps(props, onChange, stringFormCodec, onFocus, onBlur),
     ...(props.placeholder === undefined ? {} : { placeholder: props.placeholder }),
     ...(props.enableMarkdown === undefined ? {} : { enableMarkdown: props.enableMarkdown }),
   });
@@ -2571,8 +2634,10 @@ function FormTextArea(props: TextAreaProps): ReactElement {
 
 function FormPasswordField(props: PasswordFieldProps): ReactElement {
   const onChange = useFormChange(props, "Form.PasswordField", stringFormCodec);
+  const onFocus = useFormEvent(props, "Form.PasswordField", stringFormCodec, "focus");
+  const onBlur = useFormEvent(props, "Form.PasswordField", stringFormCodec, "blur");
   return createElement("form-password-field", {
-    ...commonFormProps(props, onChange, stringFormCodec),
+    ...commonFormProps(props, onChange, stringFormCodec, onFocus, onBlur),
     ...(props.placeholder === undefined ? {} : { placeholder: props.placeholder }),
   });
 }
@@ -2581,18 +2646,22 @@ function FormCheckbox(props: CheckboxProps): ReactElement {
   assertFormString(props.label, "Form.Checkbox label");
   const normalized = props.defaultValue === undefined ? { ...props, defaultValue: false } : props;
   const onChange = useFormChange(normalized, "Form.Checkbox", booleanFormCodec);
+  const onFocus = useFormEvent(normalized, "Form.Checkbox", booleanFormCodec, "focus");
+  const onBlur = useFormEvent(normalized, "Form.Checkbox", booleanFormCodec, "blur");
   return createElement("form-checkbox", {
-    ...commonFormProps(normalized, onChange, booleanFormCodec),
+    ...commonFormProps(normalized, onChange, booleanFormCodec, onFocus, onBlur),
     label: props.label,
   });
 }
 
 function FormDropdown(props: DropdownProps): ReactElement {
   const onChange = useFormChange(props, "Form.Dropdown", stringFormCodec);
+  const onFocus = useFormEvent(props, "Form.Dropdown", stringFormCodec, "focus");
+  const onBlur = useFormEvent(props, "Form.Dropdown", stringFormCodec, "blur");
   return createElement(
     "form-dropdown",
     {
-      ...commonFormProps(props, onChange, stringFormCodec),
+      ...commonFormProps(props, onChange, stringFormCodec, onFocus, onBlur),
       ...(props.placeholder === undefined ? {} : { placeholder: props.placeholder }),
     },
     mapDropdownChildren(props.children),
@@ -2670,11 +2739,13 @@ function isFullDayDate(date?: Date | null): boolean {
 function FormDatePicker(props: DatePickerProps): ReactElement {
   const normalized = props.defaultValue === undefined ? { ...props, defaultValue: null } : props;
   const onChange = useFormChange(normalized, "Form.DatePicker", dateFormCodec);
+  const onFocus = useFormEvent(normalized, "Form.DatePicker", dateFormCodec, "focus");
+  const onBlur = useFormEvent(normalized, "Form.DatePicker", dateFormCodec, "blur");
   const type = normalizeDatePickerType(props.type);
   const min = props.min === undefined ? undefined : serializeDatePickerValue(props.min, "Form.DatePicker min");
   const max = props.max === undefined ? undefined : serializeDatePickerValue(props.max, "Form.DatePicker max");
   return createElement("form-date-picker", {
-    ...commonFormProps(normalized, onChange, dateFormCodec),
+    ...commonFormProps(normalized, onChange, dateFormCodec, onFocus, onBlur),
     type,
     ...(min === undefined ? {} : { min }),
     ...(max === undefined ? {} : { max }),
@@ -2700,10 +2771,12 @@ function FormTagPickerItem(props: TagPickerItemProps): ReactElement {
 function FormTagPicker(props: TagPickerProps): ReactElement {
   const normalized = props.defaultValue === undefined ? { ...props, defaultValue: [] } : props;
   const onChange = useFormChange(normalized, "Form.TagPicker", stringArrayFormCodec);
+  const onFocus = useFormEvent(normalized, "Form.TagPicker", stringArrayFormCodec, "focus");
+  const onBlur = useFormEvent(normalized, "Form.TagPicker", stringArrayFormCodec, "blur");
   return createElement(
     "form-tag-picker",
     {
-      ...commonFormProps(normalized, onChange, stringArrayFormCodec),
+      ...commonFormProps(normalized, onChange, stringArrayFormCodec, onFocus, onBlur),
       ...(props.placeholder === undefined ? {} : { placeholder: props.placeholder }),
     },
     mapTagPickerChildren(props.children),
@@ -2715,8 +2788,10 @@ const TagPicker = Object.assign(FormTagPicker, { Item: FormTagPickerItem });
 function FormFilePicker(props: FilePickerProps): ReactElement {
   const normalized = props.defaultValue === undefined ? { ...props, defaultValue: [] } : props;
   const onChange = useFormChange(normalized, "Form.FilePicker", stringArrayFormCodec);
+  const onFocus = useFormEvent(normalized, "Form.FilePicker", stringArrayFormCodec, "focus");
+  const onBlur = useFormEvent(normalized, "Form.FilePicker", stringArrayFormCodec, "blur");
   return createElement("form-file-picker", {
-    ...commonFormProps(normalized, onChange, stringArrayFormCodec),
+    ...commonFormProps(normalized, onChange, stringArrayFormCodec, onFocus, onBlur),
     ...(props.canChooseFiles === undefined ? {} : { canChooseFiles: props.canChooseFiles }),
     ...(props.canChooseDirectories === undefined ? {} : { canChooseDirectories: props.canChooseDirectories }),
     ...(props.showHiddenFiles === undefined ? {} : { showHiddenFiles: props.showHiddenFiles }),
@@ -2837,6 +2912,16 @@ export const Form: FormComponent = Object.assign(FormComponent, {
   TagPicker,
   FilePicker: FormFilePicker,
 });
+
+export namespace Form {
+  export type ItemProps<T extends FormValue> = FormItemProps<T>;
+  export type Value = FormValue;
+  export type Values = FormValues;
+  export type Event<T extends FormValue = FormValue> = FormEvent<T>;
+  export namespace Event {
+    export type Type = FormEventType;
+  }
+}
 
 function ActionPanelComponent(props: ActionPanelProps): ReactElement {
   return createElement("action-group", { title: props.title }, mapItemChildren(props.children, "ActionPanel"));

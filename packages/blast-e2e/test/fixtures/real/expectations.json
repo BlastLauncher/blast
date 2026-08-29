@@ -448,7 +448,7 @@
     "rootType": "list",
     "minItems": 1,
     "readyNavigationTitle": "Import shapes:ready",
-    "apis": ["List", "Icon"],
+    "apis": ["<require>", "List", "Icon"],
     "source": "blast/compatibility-fixture"
   }
 ]

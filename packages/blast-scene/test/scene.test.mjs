@@ -172,7 +172,14 @@ test("validates scene transaction messages", (context) => {
               {
                 id: "name",
                 type: "form-text-field",
-                props: { id: "name", title: "Name", defaultValue: "Ada", onChange: "event-name" },
+                props: {
+                  id: "name",
+                  title: "Name",
+                  defaultValue: "Ada",
+                  onChange: "event-name",
+                  onFocus: "event-name-focus",
+                  onBlur: "event-name-blur",
+                },
                 children: [],
               },
               {

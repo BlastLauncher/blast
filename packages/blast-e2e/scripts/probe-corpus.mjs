@@ -21,6 +21,7 @@ const DEFAULT_CONCURRENCY = 8;
 const SUPPORTED_API_IMPORTS = new Set([
   "<dynamic>",
   "<namespace>",
+  "<require>",
   "<side-effect>",
   "Action",
   "ActionPanelItem",
