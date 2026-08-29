@@ -19,6 +19,7 @@ const tsxIdentity = { extensionId: "e2e.tsx", commandName: "index" };
 const launchBoundariesIdentity = { extensionId: "e2e.launch-boundaries", commandName: "index" };
 const desktopDiscoveryIdentity = { extensionId: "e2e.desktop-discovery", commandName: "index" };
 const finderBoundariesIdentity = { extensionId: "e2e.finder-boundaries", commandName: "index" };
+const runtimeBoundariesIdentity = { extensionId: "e2e.runtime-boundaries", commandName: "index" };
 
 function createCore() {
   const catalog = new FilesystemExtensionCatalog({ root: catalogRoot });
@@ -48,6 +49,13 @@ function createCore() {
       { extensionId: "e2e.finder-boundaries", capability: "finder", operation: "selectedItems" },
       { extensionId: "e2e.finder-boundaries", capability: "application", operation: "frontmost" },
       { extensionId: "e2e.finder-boundaries", capability: "finder", operation: "show" },
+      { extensionId: "e2e.runtime-boundaries", capability: "ai", operation: "ask" },
+      { extensionId: "e2e.runtime-boundaries", capability: "command", operation: "updateMetadata" },
+      { extensionId: "e2e.runtime-boundaries", capability: "oauth", operation: "getTokens" },
+      { extensionId: "e2e.runtime-boundaries", capability: "oauth", operation: "authorizationRequest" },
+      { extensionId: "e2e.runtime-boundaries", capability: "oauth", operation: "authorize" },
+      { extensionId: "e2e.runtime-boundaries", capability: "oauth", operation: "setTokens" },
+      { extensionId: "e2e.runtime-boundaries", capability: "oauth", operation: "removeTokens" },
     ]),
     providers: {
       clipboard: {
@@ -132,6 +140,40 @@ function createCore() {
         async perform(request) {
           boundaryRequests.push(request);
           return undefined;
+        },
+      },
+      ai: {
+        async perform(request) {
+          boundaryRequests.push(request);
+          if (request.operation === "ask") {
+            return "fixture answer";
+          }
+          throw new Error(`Unknown AI operation ${JSON.stringify(request.operation)}`);
+        },
+      },
+      oauth: {
+        async perform(request) {
+          boundaryRequests.push(request);
+          if (request.operation === "authorizationRequest") {
+            return JSON.stringify({
+              clientId: request.arguments.clientId,
+              codeChallenge: "fixture-code-challenge",
+              codeVerifier: "fixture-code-verifier",
+              state: "fixture-state",
+              redirectURI: "https://raycast.com/redirect?packageName=fixture",
+            });
+          }
+          if (request.operation === "authorize") {
+            return JSON.stringify({ authorizationCode: "fixture-authorization-code" });
+          }
+          if (
+            request.operation === "getTokens" ||
+            request.operation === "removeTokens" ||
+            request.operation === "setTokens"
+          ) {
+            return undefined;
+          }
+          throw new Error(`Unknown OAuth operation ${JSON.stringify(request.operation)}`);
         },
       },
     },
@@ -455,6 +497,43 @@ test("routes Finder selection, reveal, and frontmost application end to end", as
   );
 
   await core.stopCommand(finderBoundariesIdentity, "Finder boundary slice complete");
+  await relay.done;
+  await core.close();
+});
+
+test("routes AI, command metadata, and OAuth token lookup end to end", async () => {
+  const { core, broker, boundaryRequests } = createCore();
+  const buffer = new SceneStateBuffer();
+  const session = await core.runCommand(runtimeBoundariesIdentity);
+  const relay = relaySessionTraffic(session, {
+    sceneSink: createSceneSink(buffer, []),
+    capabilityBroker: broker,
+  });
+
+  await waitFor(
+    () =>
+      buffer.rootId !== undefined &&
+      buffer.get(buffer.rootId).props.navigationTitle === "Runtime:fixture answer:signed-out",
+    "the runtime-boundaries snapshot",
+  );
+  assert.deepEqual(
+    buffer.childrenOf(buffer.rootId).map(({ props }) => props.title),
+    ["AI and OAuth"],
+  );
+  assert.deepEqual(
+    boundaryRequests.map(({ capability, operation, arguments: args }) => ({ capability, operation, arguments: args })),
+    [
+      {
+        capability: "ai",
+        operation: "ask",
+        arguments: { prompt: "fixture prompt", creativity: "low", model: "openai-gpt-4o-mini" },
+      },
+      { capability: "command", operation: "updateMetadata", arguments: { subtitle: "AI ready" } },
+      { capability: "oauth", operation: "getTokens", arguments: { providerId: "fixture-oauth" } },
+    ],
+  );
+
+  await core.stopCommand(runtimeBoundariesIdentity, "runtime boundary slice complete");
   await relay.done;
   await core.close();
 });

@@ -23,6 +23,7 @@ const SUPPORTED_API_IMPORTS = new Set([
   "ActionPanel",
   "ActionStyle",
   "Alert",
+  "AI",
   "Application",
   "Cache",
   "Clipboard",
@@ -40,6 +41,7 @@ const SUPPORTED_API_IMPORTS = new Set([
   "List",
   "LocalStorage",
   "MenuBarExtra",
+  "OAuth",
   "PopToRootType",
   "Toast",
   "closeMainWindow",
@@ -58,6 +60,7 @@ const SUPPORTED_API_IMPORTS = new Set([
   "showHUD",
   "showInFinder",
   "showToast",
+  "updateCommandMetadata",
   "useNavigation",
 ]);
 
@@ -225,11 +228,13 @@ function createCore(stderr) {
   // extension grants and deny-by-default providers.
   const allowedCapabilities = new Set([
     "alert.confirm",
+    "ai.ask",
     "application.frontmost",
     "application.list",
     "clipboard.read",
     "clipboard.write",
     "command.launch",
+    "command.updateMetadata",
     "hud.show",
     "local-storage.clear",
     "local-storage.get",
@@ -242,6 +247,11 @@ function createCore(stderr) {
     "selection.read",
     "finder.selectedItems",
     "finder.show",
+    "oauth.authorizationRequest",
+    "oauth.authorize",
+    "oauth.getTokens",
+    "oauth.removeTokens",
+    "oauth.setTokens",
     "window.close",
   ]);
   const broker = new CapabilityBroker({
@@ -301,10 +311,18 @@ function createCore(stderr) {
       },
       command: {
         async perform(request) {
-          if (request.operation === "launch") {
+          if (request.operation === "launch" || request.operation === "updateMetadata") {
             return undefined;
           }
           throw new Error(`Unknown command operation ${JSON.stringify(request.operation)}`);
+        },
+      },
+      ai: {
+        async perform(request) {
+          if (request.operation === "ask") {
+            return "probe answer";
+          }
+          throw new Error(`Unknown AI operation ${JSON.stringify(request.operation)}`);
         },
       },
       hud: {
@@ -333,6 +351,30 @@ function createCore(stderr) {
             return undefined;
           }
           throw new Error(`Unknown navigation operation ${JSON.stringify(request.operation)}`);
+        },
+      },
+      oauth: {
+        async perform(request) {
+          if (request.operation === "authorizationRequest") {
+            return JSON.stringify({
+              clientId: request.arguments.clientId,
+              codeChallenge: "probe-code-challenge",
+              codeVerifier: "probe-code-verifier",
+              state: "probe-state",
+              redirectURI: "https://raycast.com/redirect?packageName=probe",
+            });
+          }
+          if (request.operation === "authorize") {
+            return JSON.stringify({ authorizationCode: "probe-authorization-code" });
+          }
+          if (
+            request.operation === "getTokens" ||
+            request.operation === "removeTokens" ||
+            request.operation === "setTokens"
+          ) {
+            return undefined;
+          }
+          throw new Error(`Unknown OAuth operation ${JSON.stringify(request.operation)}`);
         },
       },
       open: {

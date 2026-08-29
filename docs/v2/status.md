@@ -72,7 +72,7 @@ slice changes what is executable, what is trusted, or what should happen next.
   renders default-exported command components through the adapter, so
   unmodified Raycast-style TSX fixtures run end to end.
 - The support matrix runs a committed set of real corpus extensions through
-  the full pipeline in CI: nineteen render fixtures (list, detail, navigation,
+  the full pipeline in CI: twenty render fixtures (list, detail, navigation,
   action groups, tinted icons, form controls, toasts, preferences, brokered
   clipboard, and desktop boundaries) and one fails with a structured
   `unsupported_api` error, while the corpus probe records exactly which
@@ -128,6 +128,15 @@ slice changes what is executable, what is trusted, or what should happen next.
   structural `PathLike` type.
 - `getFrontmostApplication` crosses `application.frontmost` and reuses the
   validated `Application` response shape.
+- `AI.ask` crosses the explicit `ai.ask` capability. Prompt, creativity, and
+  model options are validated and normalized; the returned promise preserves
+  Raycast's `.on("data")` shape while the host owns the actual model provider.
+- `OAuth.PKCEClient` covers the measured authorization-request, browser,
+  token-set, and removal lifecycle through explicit `oauth.*` capabilities.
+  PKCE material, browser interaction, and secure token storage remain host
+  responsibilities.
+- `updateCommandMetadata` crosses `command.updateMetadata` for the measured
+  subtitle string and `null` clear semantics.
 
 ## Trust boundaries already enforced
 
@@ -154,12 +163,15 @@ slice changes what is executable, what is trusted, or what should happen next.
   externalization for large npm graphs (the runtime now supports explicit
   local or vendored dependency roots but never installs packages);
 - the remaining measured Raycast surface: Form focus/blur callbacks, client
-  toast timing/stacking, and broader desktop APIs such as default-application
-  discovery;
+  toast timing/stacking, broader desktop APIs such as default-application
+  discovery, and the next Tool/browser/action gaps;
 - a client-facing core protocol, daemon listener, and desktop rendering of
   scenes (the deterministic test client stands in today);
 - capability manifest declarations, real operating-system providers, audit
   records, and consent UI;
+- production AI providers, OAuth browser/token-store providers, and command
+  metadata client integration; deterministic providers currently exist only
+  for compatibility probes and fixtures;
 - structured logs beyond captured child stderr;
 - startup deadlines chosen by the core, restart policy, quotas, and OS sandbox;
 - authenticated local sockets, WebSocket transport, and remote pairing;
@@ -178,9 +190,9 @@ slices are complete, but the measured 80% target is not yet met; the next work
 should address the dominant remaining API and dependency blockers using the
 same probe.
 
-1. Expand the next measured blocker group (`OAuth`, `AI`, and
-   `updateCommandMetadata`) with measured call/return shapes and explicit
-   compatibility or capability boundaries.
+1. Expand the next measured blocker group (`Tool`, `BrowserExtension`,
+   `ToastStyle`, `clearSearchBar`, and `trash`) with measured call/return
+   shapes and explicit compatibility or capability boundaries.
 2. Provision an audited, pinned vendor set or an explicit installation phase
    for the remaining third-party dependency graph; keep installation outside
    extension execution.

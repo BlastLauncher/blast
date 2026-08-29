@@ -6,6 +6,7 @@ import {
   Action,
   ActionPanel,
   ActionStyle,
+  AI,
   Alert,
   Cache,
   Clipboard,
@@ -25,6 +26,7 @@ import {
   List,
   LocalStorage,
   MenuBarExtra,
+  OAuth,
   PopToRootType,
   Toast,
   configureRaycastCompat,
@@ -41,6 +43,7 @@ import {
   showHUD,
   showInFinder,
   showToast,
+  updateCommandMetadata,
 } from "../dist/index.js";
 import { createElement } from "react";
 
@@ -1187,4 +1190,104 @@ test("renders titled action panels, submenus, List actions, and tinted icons", a
   assert.equal(listGroup.type, "action-group");
   assert.deepEqual(listGroup.props, { title: "Global" });
   assert.equal(listGroup.children[0].type, "action");
+});
+
+test("routes measured AI, command metadata, and OAuth boundaries", async () => {
+  const tokenUpdatedAt = new Date().toISOString();
+  const probe = createContext({
+    capabilityValues: {
+      "ai.ask": "fixture answer",
+      "oauth.authorizationRequest": JSON.stringify({
+        clientId: "fixture-client",
+        codeChallenge: "fixture-challenge",
+        codeVerifier: "fixture-verifier",
+        state: "fixture-state",
+        redirectURI: "https://raycast.com/redirect?packageName=fixture.extension",
+      }),
+      "oauth.authorize": JSON.stringify({ authorizationCode: "fixture-code" }),
+      "oauth.getTokens": JSON.stringify({
+        accessToken: "fixture-access",
+        refreshToken: "fixture-refresh",
+        expiresIn: 3600,
+        scope: "read write",
+        updatedAt: tokenUpdatedAt,
+      }),
+    },
+  });
+  configureRaycastCompat(probe.context);
+
+  const chunks = [];
+  const aiResult = AI.ask("Summarize this", {
+    creativity: 4,
+    model: AI.Model["OpenAI_GPT4o-mini"],
+  });
+  aiResult.on("data", (chunk) => chunks.push(chunk));
+  assert.equal(await aiResult, "fixture answer");
+  assert.deepEqual(chunks, ["fixture answer"]);
+
+  await updateCommandMetadata({ subtitle: "Working" });
+  await updateCommandMetadata({ subtitle: null });
+
+  const client = new OAuth.PKCEClient({
+    redirectMethod: OAuth.RedirectMethod.Web,
+    providerName: "Fixture OAuth",
+    providerId: "fixture-oauth",
+  });
+  const request = await client.authorizationRequest({
+    endpoint: "https://example.com/oauth/authorize",
+    clientId: "fixture-client",
+    scope: "read write",
+    extraParameters: { audience: "fixture" },
+  });
+  const authorizationURL = new URL(request.toURL());
+  assert.equal(authorizationURL.searchParams.get("client_id"), "fixture-client");
+  assert.equal(authorizationURL.searchParams.get("code_challenge"), "fixture-challenge");
+  assert.equal(authorizationURL.searchParams.get("audience"), "fixture");
+  assert.deepEqual(await client.authorize(request), { authorizationCode: "fixture-code" });
+  await client.setTokens({ accessToken: "new-access", scope: ["read", "write"], expiresIn: 60 });
+  const tokens = await client.getTokens();
+  assert.equal(tokens.accessToken, "fixture-access");
+  assert.equal(tokens.isExpired(), false);
+  await client.removeTokens();
+
+  assert.deepEqual(probe.capabilityRequests, [
+    {
+      capability: "ai",
+      operation: "ask",
+      arguments: { prompt: "Summarize this", creativity: 2, model: "openai-gpt-4o-mini" },
+    },
+    { capability: "command", operation: "updateMetadata", arguments: { subtitle: "Working" } },
+    { capability: "command", operation: "updateMetadata", arguments: { clear: true } },
+    {
+      capability: "oauth",
+      operation: "authorizationRequest",
+      arguments: {
+        providerId: "fixture-oauth",
+        providerName: "Fixture OAuth",
+        redirectMethod: "web",
+        endpoint: "https://example.com/oauth/authorize",
+        clientId: "fixture-client",
+        scope: "read write",
+        extraParametersJSON: '{"audience":"fixture"}',
+      },
+    },
+    {
+      capability: "oauth",
+      operation: "authorize",
+      arguments: {
+        providerId: "fixture-oauth",
+        url: "https://example.com/oauth/authorize?client_id=fixture-client&response_type=code&redirect_uri=https%3A%2F%2Fraycast.com%2Fredirect%3FpackageName%3Dfixture.extension&scope=read+write&state=fixture-state&code_challenge=fixture-challenge&code_challenge_method=S256&audience=fixture",
+      },
+    },
+    {
+      capability: "oauth",
+      operation: "setTokens",
+      arguments: {
+        providerId: "fixture-oauth",
+        tokensJSON: '{"accessToken":"new-access","expiresIn":60,"scope":"read write"}',
+      },
+    },
+    { capability: "oauth", operation: "getTokens", arguments: { providerId: "fixture-oauth" } },
+    { capability: "oauth", operation: "removeTokens", arguments: { providerId: "fixture-oauth" } },
+  ]);
 });

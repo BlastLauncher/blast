@@ -38,6 +38,13 @@ onto the V2 scene contract, renderer, and capability broker:
   values and reveal paths accept the structural `PathLike` type;
 - `getFrontmostApplication` routes through `application.frontmost` and
   validates the shared JSON-encoded `Application` shape;
+- `AI.ask` routes through `ai.ask`, validates creativity/model options, and
+  preserves the promise's measured `.on("data")` completion shape;
+- `OAuth.PKCEClient` routes authorization requests, browser authorization, and
+  token-set lifecycle operations through explicit host-owned `oauth.*`
+  capabilities;
+- `updateCommandMetadata` routes measured subtitle updates and `null` clears
+  through `command.updateMetadata`;
 - `openCommandPreferences` routes through `preferences.openCommand`;
 - `launchCommand` routes through `command.launch`. Object arguments and context
   are validated as JSON and encoded as `argumentsJSON`/`contextJSON` strings on
@@ -65,9 +72,9 @@ Unmeasured surface (client toast timing/stacking, focus/blur form callbacks,
 and broader desktop APIs) raises a structured `CompatibilityError` with code
 `unsupported_api`; it never fails silently. Menu-bar alternate items and
 right-click event identity remain outside the current scene boundary. The
-selected-text, application-list, command-preference, Finder, and
-frontmost-application capabilities still need production host providers and
-consent policy. Resolution of literal
+AI, OAuth, selected-text, application-list, command-preference, Finder, and
+frontmost-application capabilities still need production host providers,
+secure storage/browser integration, and consent policy. Resolution of literal
 `@raycast/api` imports to this adapter happens at the runtime layer when
 extension bundling lands.
 

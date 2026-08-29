@@ -48,6 +48,21 @@ function createCore() {
     ...(expectation.apis?.includes("getFrontmostApplication")
       ? [{ extensionId: expectation.extensionId, capability: "application", operation: "frontmost" }]
       : []),
+    ...(expectation.apis?.includes("AI")
+      ? [{ extensionId: expectation.extensionId, capability: "ai", operation: "ask" }]
+      : []),
+    ...(expectation.apis?.includes("OAuth")
+      ? [
+          { extensionId: expectation.extensionId, capability: "oauth", operation: "getTokens" },
+          { extensionId: expectation.extensionId, capability: "oauth", operation: "authorizationRequest" },
+          { extensionId: expectation.extensionId, capability: "oauth", operation: "authorize" },
+          { extensionId: expectation.extensionId, capability: "oauth", operation: "setTokens" },
+          { extensionId: expectation.extensionId, capability: "oauth", operation: "removeTokens" },
+        ]
+      : []),
+    ...(expectation.apis?.includes("updateCommandMetadata")
+      ? [{ extensionId: expectation.extensionId, capability: "command", operation: "updateMetadata" }]
+      : []),
   ]);
   const broker = new CapabilityBroker({
     policy: createGrantListPolicy(grants),
@@ -55,6 +70,22 @@ function createCore() {
       clipboard: {
         async perform() {
           return null;
+        },
+      },
+      ai: {
+        async perform(request) {
+          if (request.operation === "ask") {
+            return "probe answer";
+          }
+          throw new Error(`Unknown AI operation ${JSON.stringify(request.operation)}`);
+        },
+      },
+      command: {
+        async perform(request) {
+          if (request.operation === "updateMetadata") {
+            return undefined;
+          }
+          throw new Error(`Unknown command operation ${JSON.stringify(request.operation)}`);
         },
       },
       application: {
@@ -95,6 +126,30 @@ function createCore() {
             return undefined;
           }
           throw new Error(`Unknown Finder operation ${JSON.stringify(request.operation)}`);
+        },
+      },
+      oauth: {
+        async perform(request) {
+          if (request.operation === "authorizationRequest") {
+            return JSON.stringify({
+              clientId: request.arguments.clientId,
+              codeChallenge: "probe-code-challenge",
+              codeVerifier: "probe-code-verifier",
+              state: "probe-state",
+              redirectURI: "https://raycast.com/redirect?packageName=probe",
+            });
+          }
+          if (request.operation === "authorize") {
+            return JSON.stringify({ authorizationCode: "probe-authorization-code" });
+          }
+          if (
+            request.operation === "getTokens" ||
+            request.operation === "removeTokens" ||
+            request.operation === "setTokens"
+          ) {
+            return undefined;
+          }
+          throw new Error(`Unknown OAuth operation ${JSON.stringify(request.operation)}`);
         },
       },
       preferences: {

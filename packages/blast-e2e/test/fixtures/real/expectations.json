@@ -273,6 +273,24 @@
     "source": "blast/compatibility-fixture"
   },
   {
+    "id": "runtime-boundaries",
+    "extensionId": "runtime-boundaries",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "list",
+    "minItems": 1,
+    "readyNavigationTitle": "Runtime:probe answer:signed-out",
+    "apis": [
+      "AI",
+      "Action",
+      "ActionPanel",
+      "List",
+      "OAuth",
+      "updateCommandMetadata"
+    ],
+    "source": "blast/compatibility-fixture"
+  },
+  {
     "id": "grid-boundaries",
     "extensionId": "grid-boundaries",
     "commandName": "index",

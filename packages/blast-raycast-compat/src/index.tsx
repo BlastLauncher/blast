@@ -553,6 +553,336 @@ export interface FileSystemItem {
   readonly path: string;
 }
 
+/** Measured prompt-completion surface backed by a host AI provider. */
+export namespace AI {
+  export type Creativity = "none" | "low" | "medium" | "high" | "maximum" | number;
+  /** Model identifiers remain extensible because Raycast adds providers over time. */
+  export type Model = string;
+  export interface AskOptions {
+    readonly creativity?: Creativity;
+    readonly model?: Model;
+    readonly signal?: AbortSignal;
+  }
+
+  const modelValues: Record<string, string> = {
+    OpenAI_GPT4: "openai-gpt-4",
+    OpenAI_GPT4o: "openai-gpt-4o",
+    "OpenAI_GPT4o-mini": "openai-gpt-4o-mini",
+    OpenAI_GPT5: "openai_o1-gpt-5",
+    "OpenAI_GPT5-mini": "openai-gpt-5-mini",
+    "OpenAI_GPT-4": "openai-gpt-4",
+    OpenAI_GPT4_Turbo: "openai-gpt-4-turbo",
+    "OpenAI_GPT-4o": "openai-gpt-4o",
+    "OpenAI_GPT-4o_mini": "openai-gpt-4o-mini",
+    "OpenAI_GPT-5": "openai_o1-gpt-5",
+    "OpenAI_GPT-5_mini": "openai-gpt-5-mini",
+    "OpenAI_GPT-5_nano": "openai-gpt-5-nano",
+    "OpenAI_GPT-5.1": "openai-gpt-5.1",
+    "OpenAI_GPT-5.2": "openai-gpt-5.2",
+    Anthropic_Claude_Sonnet: "anthropic-claude-sonnet",
+    Anthropic_Claude_Haiku: "anthropic-claude-haiku",
+    "Anthropic_Claude_4.5_Sonnet": "anthropic-claude-sonnet-4-5",
+    "Anthropic_Claude_4.6_Sonnet": "anthropic-claude-sonnet-4-6",
+    "Anthropic_Claude_4.5_Haiku": "anthropic-claude-4-5-haiku",
+    "Anthropic_Claude_4.6_Opus": "anthropic-claude-opus-4-6",
+    Perplexity_Sonar: "perplexity-sonar",
+    Perplexity_Sonar_Pro: "perplexity-sonar-pro",
+    "Google_Gemini_2.0_Flash": "google-gemini-2.0-flash",
+    "Google_Gemini_2.5_Pro": "google-gemini-2.5-pro",
+    "Google_Gemini_2.5_Flash": "google-gemini-2.5-flash",
+    Google_Gemini_3_Flash: "google-gemini-3-flash",
+    "xAI_Grok-4": "xai-grok-4",
+    "xAI_Grok-4.1_Fast": "xai-grok-4.1-fast",
+    Mistral_Large: "mistral-mistral-large-latest",
+    Mistral_Medium: "mistral-mistral-medium-latest",
+    Mistral_Small: "mistral-mistral-small-latest",
+    Mistral_Small_3: "mistral-mistral-small-latest",
+    Groq_Kimi_K2_Instruct: "groq-kimi-k2-instruct",
+    "Together_AI_DeepSeek-R1": "together-deepseek-r1",
+    "Together_AI_DeepSeek-V3": "together-deepseek-v3",
+  };
+
+  /**
+   * The official enum is intentionally open at runtime: older corpus
+   * extensions still reference model aliases that newer Raycast releases may
+   * remove from their generated type definitions.
+   */
+  export const Model: Readonly<Record<string, string>> = new Proxy(modelValues, {
+    get(target, property: string | symbol) {
+      if (typeof property === "string" && !Object.hasOwn(target, property)) {
+        return property;
+      }
+      return Reflect.get(target, property);
+    },
+  });
+
+  export function ask(
+    prompt: string,
+    options?: AskOptions,
+  ): Promise<string> & { on(event: "data", listener: (chunk: string) => void): void } {
+    let signal: AbortSignal | undefined;
+    const args: Record<string, string | number | boolean> = {
+      prompt: requireNonEmptyString(prompt, "AI.ask prompt"),
+    };
+    if (options !== undefined) {
+      if (!isRecord(options)) {
+        unsupported("AI.ask options", { options });
+      }
+      if (options.creativity !== undefined) {
+        args.creativity = normalizeAICreativity(options.creativity);
+      }
+      if (options.model !== undefined) {
+        args.model = requireNonEmptyString(options.model, "AI.ask model");
+      }
+      if (options.signal !== undefined) {
+        const candidateSignal: unknown = options.signal;
+        if (
+          typeof candidateSignal !== "object" ||
+          candidateSignal === null ||
+          typeof (candidateSignal as { readonly aborted?: unknown }).aborted !== "boolean"
+        ) {
+          unsupported("AI.ask signal", { signal: candidateSignal });
+        }
+        signal = candidateSignal as AbortSignal;
+        if (signal.aborted) {
+          return createRejectedAIStream(createAbortError("AI.ask was aborted"));
+        }
+      }
+    }
+
+    const result = withAbortSignal(
+      callCapability("ai", "ask", args, "The AI.ask").then((response) => {
+        if (typeof response.value !== "string") {
+          throw new CompatibilityError("The AI.ask capability returned no text", response);
+        }
+        return response.value;
+      }),
+      signal,
+    );
+    const stream = result as Promise<string> & {
+      on(event: "data", listener: (chunk: string) => void): void;
+    };
+    stream.on = (event, listener) => {
+      if (event !== "data") {
+        unsupported("AI.ask stream event", { event });
+      }
+      void result
+        .then((value) => listener(value))
+        .catch(() => {
+          // The promise returned by AI.ask remains the source of errors.
+        });
+    };
+    return stream;
+  }
+}
+
+/** Host-owned OAuth PKCE boundary matching the measured Raycast client shape. */
+export namespace OAuth {
+  export const clientIdMetadataDocument = "https://www.raycast.com/.well-known/oauth-client-metadata/raycast.json";
+
+  export namespace PKCEClient {
+    export interface Options<TRedirectMethod extends RedirectMethod = RedirectMethod> {
+      readonly redirectMethod: TRedirectMethod;
+      readonly providerName: string;
+      readonly providerIcon?: Image.ImageLike;
+      readonly providerId?: string;
+      readonly description?: string;
+    }
+  }
+
+  export class PKCEClient<TRedirectMethod extends RedirectMethod = RedirectMethod> {
+    redirectMethod: TRedirectMethod;
+    providerName: string;
+    providerIcon?: Image.ImageLike;
+    providerId: string;
+    description?: string;
+
+    constructor(options: PKCEClient.Options<TRedirectMethod>) {
+      if (!isRecord(options)) {
+        unsupported("OAuth.PKCEClient options", { options });
+      }
+      if (!isRedirectMethod(options.redirectMethod)) {
+        unsupported("OAuth.PKCEClient redirectMethod", { value: options.redirectMethod });
+      }
+      this.redirectMethod = options.redirectMethod as TRedirectMethod;
+      this.providerName = requireNonEmptyString(options.providerName, "OAuth.PKCEClient providerName");
+      if (options.providerIcon !== undefined) {
+        this.providerIcon = options.providerIcon;
+      }
+      this.providerId =
+        options.providerId === undefined
+          ? this.providerName
+          : requireNonEmptyString(options.providerId, "OAuth.PKCEClient providerId");
+      if (options.description !== undefined) {
+        if (typeof options.description !== "string") {
+          unsupported("OAuth.PKCEClient description", { value: options.description });
+        }
+        this.description = options.description;
+      }
+    }
+
+    authorizationRequest(
+      this: PKCEClient<RedirectMethod.ClientIdMetadataDocument>,
+      options: ClientIdMetadataDocumentAuthorizationRequestOptions,
+    ): Promise<AuthorizationRequest>;
+    authorizationRequest(options: AuthorizationRequestOptions): Promise<AuthorizationRequest>;
+    async authorizationRequest(
+      options: AuthorizationRequestOptions | ClientIdMetadataDocumentAuthorizationRequestOptions,
+    ): Promise<AuthorizationRequest> {
+      if (!isRecord(options)) {
+        unsupported("OAuth.authorizationRequest options", { options });
+      }
+      const endpoint = requireNonEmptyString(options.endpoint, "OAuth.authorizationRequest endpoint");
+      const scope = requireString(options.scope, "OAuth.authorizationRequest scope");
+      const clientId =
+        options.clientId === undefined
+          ? this.redirectMethod === RedirectMethod.ClientIdMetadataDocument
+            ? clientIdMetadataDocument
+            : unsupported("OAuth.authorizationRequest clientId", { options })
+          : requireNonEmptyString(options.clientId, "OAuth.authorizationRequest clientId");
+      const extraParameters = normalizeOAuthExtraParameters(options.extraParameters);
+      const argumentsValue: Record<string, string | number | boolean> = {
+        providerId: this.providerId,
+        providerName: this.providerName,
+        redirectMethod: this.redirectMethod,
+        endpoint,
+        clientId,
+        scope,
+      };
+      if (extraParameters !== undefined) {
+        argumentsValue.extraParametersJSON = JSON.stringify(extraParameters);
+      }
+      const response = await callCapability(
+        "oauth",
+        "authorizationRequest",
+        argumentsValue,
+        "The OAuth authorizationRequest",
+      );
+      return deserializeAuthorizationRequest(parseJSONCapabilityValue(response.value, "OAuth.authorizationRequest"), {
+        endpoint,
+        scope,
+        ...(extraParameters === undefined ? {} : { extraParameters }),
+      });
+    }
+
+    async authorize(options: AuthorizationRequest | AuthorizationOptions): Promise<AuthorizationResponse> {
+      if (!isRecord(options)) {
+        unsupported("OAuth.authorize options", { options });
+      }
+      const url =
+        typeof options.toURL === "function"
+          ? requireNonEmptyString(options.toURL(), "OAuth.authorize URL")
+          : requireNonEmptyString(options.url, "OAuth.authorize URL");
+      const response = await callCapability(
+        "oauth",
+        "authorize",
+        { providerId: this.providerId, url },
+        "The OAuth authorize",
+      );
+      return deserializeAuthorizationResponse(parseJSONCapabilityValue(response.value, "OAuth.authorize"));
+    }
+
+    async setTokens(options: TokenSetOptions | TokenResponse): Promise<void> {
+      const tokens = normalizeOAuthTokenInput(options);
+      await callCapability(
+        "oauth",
+        "setTokens",
+        { providerId: this.providerId, tokensJSON: JSON.stringify(tokens) },
+        "The OAuth setTokens",
+      );
+    }
+
+    async getTokens(): Promise<TokenSet | undefined> {
+      const response = await callCapability(
+        "oauth",
+        "getTokens",
+        { providerId: this.providerId },
+        "The OAuth getTokens",
+      );
+      if (response.value === undefined || response.value === null) {
+        return undefined;
+      }
+      return deserializeTokenSet(parseJSONCapabilityValue(response.value, "OAuth.getTokens"));
+    }
+
+    async removeTokens(): Promise<void> {
+      await callCapability("oauth", "removeTokens", { providerId: this.providerId }, "The OAuth removeTokens");
+    }
+  }
+
+  export enum RedirectMethod {
+    Web = "web",
+    App = "app",
+    AppURI = "appURI",
+    ClientIdMetadataDocument = "clientIdMetadataDocument",
+  }
+
+  export interface AuthorizationRequestOptions {
+    readonly endpoint: string;
+    readonly clientId: string;
+    readonly scope: string;
+    readonly extraParameters?: Readonly<Record<string, string>>;
+  }
+
+  export interface ClientIdMetadataDocumentAuthorizationRequestOptions extends Omit<
+    AuthorizationRequestOptions,
+    "clientId"
+  > {
+    readonly clientId?: string;
+  }
+
+  export interface AuthorizationRequestURLParams {
+    readonly clientId?: string;
+    readonly codeChallenge: string;
+    readonly codeVerifier: string;
+    readonly state: string;
+    readonly redirectURI: string;
+  }
+
+  export interface AuthorizationRequest extends AuthorizationRequestURLParams {
+    readonly clientId: string;
+    readonly toURL: () => string;
+  }
+
+  export interface AuthorizationOptions {
+    readonly url: string;
+  }
+
+  export interface AuthorizationResponse {
+    readonly authorizationCode: string;
+  }
+
+  export interface TokenSet {
+    readonly accessToken: string;
+    readonly refreshToken?: string;
+    readonly idToken?: string;
+    readonly expiresIn?: number;
+    readonly scope?: string;
+    readonly updatedAt: Date;
+    isExpired(): boolean;
+  }
+
+  export interface TokenSetOptions {
+    readonly accessToken: string;
+    readonly refreshToken?: string;
+    readonly idToken?: string;
+    readonly expiresIn?: number;
+    readonly scope?: string | string[];
+  }
+
+  export interface TokenResponse {
+    readonly access_token: string;
+    readonly refresh_token?: string;
+    readonly id_token?: string;
+    readonly expires_in?: number;
+    readonly scope?: string | string[];
+  }
+}
+
+export interface CommandMetadata {
+  readonly subtitle?: string | null;
+}
+
 export interface CacheOptions {
   /** Separates cache entries while keeping the default shared per extension. */
   readonly namespace?: string;
@@ -698,26 +1028,6 @@ export const MenuBarExtra: MenuBarExtraComponent = Object.assign(MenuBarExtraCom
   Submenu: MenuBarExtraSubmenu,
   Separator: MenuBarExtraSeparator,
 });
-
-export const AI = {
-  async ask(): Promise<never> {
-    return unsupported("AI.ask");
-  },
-};
-
-class UnsupportedOAuthClient {
-  constructor() {
-    unsupported("OAuth.PKCEClient");
-  }
-}
-
-export const OAuth = {
-  PKCEClient: UnsupportedOAuthClient,
-  RedirectMethod: {
-    Web: "web",
-    AppURI: "app-uri",
-  },
-} as const;
 
 export type FormValue = string | boolean | null | string[] | Date;
 export type FormValues = Readonly<Record<string, FormValue>>;
@@ -1051,6 +1361,279 @@ function requireNonEmptyString(value: unknown, where: string): string {
     unsupported(`${where} must be a non-empty string`, { value });
   }
   return value;
+}
+
+function requireString(value: unknown, where: string): string {
+  if (typeof value !== "string") {
+    unsupported(`${where} must be a string`, { value });
+  }
+  return value;
+}
+
+function normalizeAICreativity(value: unknown): string | number {
+  if (value === "none" || value === "low" || value === "medium" || value === "high" || value === "maximum") {
+    return value;
+  }
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return Math.min(2, Math.max(0, value));
+  }
+  unsupported("AI.ask creativity", { value });
+}
+
+function createAbortError(message: string): Error {
+  const error = new Error(message);
+  error.name = "AbortError";
+  return error;
+}
+
+function withAbortSignal<T>(promise: Promise<T>, signal: AbortSignal | undefined): Promise<T> {
+  if (signal === undefined) {
+    return promise;
+  }
+  if (signal.aborted) {
+    return Promise.reject(createAbortError("The operation was aborted"));
+  }
+  return new Promise<T>((resolve, reject) => {
+    const onAbort = () => {
+      cleanup();
+      reject(createAbortError("The operation was aborted"));
+    };
+    const cleanup = () => {
+      signal.removeEventListener("abort", onAbort);
+    };
+    signal.addEventListener("abort", onAbort, { once: true });
+    void promise.then(
+      (value) => {
+        cleanup();
+        resolve(value);
+      },
+      (error: unknown) => {
+        cleanup();
+        reject(error);
+      },
+    );
+  });
+}
+
+function createRejectedAIStream(error: Error): Promise<string> & {
+  on(event: "data", listener: (chunk: string) => void): void;
+} {
+  const result = Promise.reject<string>(error) as Promise<string> & {
+    on(event: "data", listener: (chunk: string) => void): void;
+  };
+  result.on = () => {};
+  return result;
+}
+
+function isRedirectMethod(value: unknown): value is OAuth.RedirectMethod {
+  return (
+    value === OAuth.RedirectMethod.Web ||
+    value === OAuth.RedirectMethod.App ||
+    value === OAuth.RedirectMethod.AppURI ||
+    value === OAuth.RedirectMethod.ClientIdMetadataDocument
+  );
+}
+
+function normalizeOAuthExtraParameters(value: unknown): Readonly<Record<string, string>> | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (!isRecord(value)) {
+    unsupported("OAuth.authorizationRequest extraParameters", { value });
+  }
+  const normalized = Object.create(null) as Record<string, string>;
+  for (const [key, entry] of Object.entries(value)) {
+    if (typeof entry !== "string") {
+      unsupported(`OAuth.authorizationRequest extraParameters.${key}`, { value: entry });
+    }
+    normalized[key] = entry;
+  }
+  return normalized;
+}
+
+interface OAuthAuthorizationRequestFallback {
+  readonly endpoint: string;
+  readonly scope: string;
+  readonly extraParameters?: Readonly<Record<string, string>>;
+}
+
+function deserializeAuthorizationRequest(
+  value: unknown,
+  fallback: OAuthAuthorizationRequestFallback,
+): OAuth.AuthorizationRequest {
+  if (!isRecord(value)) {
+    throw new CompatibilityError("The OAuth.authorizationRequest capability returned an invalid request", { value });
+  }
+  const clientId = requireNonEmptyString(value.clientId, "OAuth.authorizationRequest result clientId");
+  const codeChallenge = requireNonEmptyString(value.codeChallenge, "OAuth.authorizationRequest result codeChallenge");
+  const codeVerifier = requireNonEmptyString(value.codeVerifier, "OAuth.authorizationRequest result codeVerifier");
+  const state = requireNonEmptyString(value.state, "OAuth.authorizationRequest result state");
+  const redirectURI = requireNonEmptyString(value.redirectURI, "OAuth.authorizationRequest result redirectURI");
+  const authorizationURL =
+    value.authorizationURL === undefined
+      ? undefined
+      : requireNonEmptyString(value.authorizationURL, "OAuth.authorizationRequest result authorizationURL");
+  return {
+    clientId,
+    codeChallenge,
+    codeVerifier,
+    state,
+    redirectURI,
+    toURL: () =>
+      authorizationURL ??
+      buildOAuthAuthorizationURL(fallback.endpoint, {
+        clientId,
+        codeChallenge,
+        state,
+        redirectURI,
+        scope: fallback.scope,
+        ...(fallback.extraParameters === undefined ? {} : { extraParameters: fallback.extraParameters }),
+      }),
+  };
+}
+
+function buildOAuthAuthorizationURL(
+  endpoint: string,
+  request: {
+    readonly clientId: string;
+    readonly codeChallenge: string;
+    readonly state: string;
+    readonly redirectURI: string;
+    readonly scope: string;
+    readonly extraParameters?: Readonly<Record<string, string>>;
+  },
+): string {
+  let url: URL;
+  try {
+    url = new URL(endpoint);
+  } catch (error) {
+    throw new CompatibilityError("OAuth.authorizationRequest endpoint is not a valid URL", {
+      endpoint,
+      cause: error instanceof Error ? error.message : String(error),
+    });
+  }
+  const parameters = new URLSearchParams(url.search);
+  parameters.set("client_id", request.clientId);
+  parameters.set("response_type", "code");
+  parameters.set("redirect_uri", request.redirectURI);
+  parameters.set("scope", request.scope);
+  parameters.set("state", request.state);
+  parameters.set("code_challenge", request.codeChallenge);
+  parameters.set("code_challenge_method", "S256");
+  for (const [key, value] of Object.entries(request.extraParameters ?? {})) {
+    parameters.set(key, value);
+  }
+  url.search = parameters.toString();
+  return url.toString();
+}
+
+function deserializeAuthorizationResponse(value: unknown): OAuth.AuthorizationResponse {
+  if (!isRecord(value)) {
+    throw new CompatibilityError("The OAuth.authorize capability returned an invalid response", { value });
+  }
+  return {
+    authorizationCode: requireNonEmptyString(value.authorizationCode, "OAuth.authorize result authorizationCode"),
+  };
+}
+
+function normalizeOAuthTokenInput(value: unknown): Record<string, string | number> {
+  if (!isRecord(value)) {
+    unsupported("OAuth.setTokens options", { value });
+  }
+  const accessToken = value.accessToken === undefined ? value.access_token : value.accessToken;
+  const normalized: Record<string, string | number> = {
+    accessToken: requireNonEmptyString(accessToken, "OAuth.setTokens accessToken"),
+  };
+  for (const [target, source] of [
+    ["refreshToken", "refreshToken"],
+    ["idToken", "idToken"],
+  ] as const) {
+    const entry = value[source];
+    const legacyEntry = value[source.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`)];
+    const selected = entry === undefined ? legacyEntry : entry;
+    if (selected !== undefined) {
+      if (typeof selected !== "string") {
+        unsupported(`OAuth.setTokens ${target}`, { value: selected });
+      }
+      normalized[target] = selected;
+    }
+  }
+  const expiresIn = value.expiresIn === undefined ? value.expires_in : value.expiresIn;
+  if (expiresIn !== undefined) {
+    if (typeof expiresIn !== "number" || !Number.isFinite(expiresIn)) {
+      unsupported("OAuth.setTokens expiresIn", { value: expiresIn });
+    }
+    normalized.expiresIn = expiresIn;
+  }
+  if (value.scope !== undefined) {
+    if (typeof value.scope === "string") {
+      normalized.scope = value.scope;
+    } else if (Array.isArray(value.scope) && value.scope.every((entry) => typeof entry === "string")) {
+      normalized.scope = value.scope.join(" ");
+    } else {
+      unsupported("OAuth.setTokens scope", { value: value.scope });
+    }
+  }
+  return normalized;
+}
+
+function deserializeTokenSet(value: unknown): OAuth.TokenSet {
+  if (!isRecord(value)) {
+    throw new CompatibilityError("The OAuth.getTokens capability returned an invalid token set", { value });
+  }
+  const accessToken = requireNonEmptyString(value.accessToken, "OAuth.getTokens result accessToken");
+  const tokenSet: {
+    accessToken: string;
+    refreshToken?: string;
+    idToken?: string;
+    expiresIn?: number;
+    scope?: string;
+    updatedAt: Date;
+  } = { accessToken, updatedAt: deserializeOAuthDate(value.updatedAt) };
+  for (const field of ["refreshToken", "idToken"] as const) {
+    const entry = value[field];
+    if (entry !== undefined) {
+      tokenSet[field] = requireString(entry, `OAuth.getTokens result ${field}`);
+    }
+  }
+  if (value.expiresIn !== undefined) {
+    if (typeof value.expiresIn !== "number" || !Number.isFinite(value.expiresIn)) {
+      throw new CompatibilityError("The OAuth.getTokens capability returned an invalid expiresIn", {
+        value: value.expiresIn,
+      });
+    }
+    tokenSet.expiresIn = value.expiresIn;
+  }
+  if (value.scope !== undefined) {
+    if (typeof value.scope === "string") {
+      tokenSet.scope = value.scope;
+    } else if (Array.isArray(value.scope) && value.scope.every((entry) => typeof entry === "string")) {
+      tokenSet.scope = value.scope.join(" ");
+    } else {
+      throw new CompatibilityError("The OAuth.getTokens capability returned an invalid scope", {
+        value: value.scope,
+      });
+    }
+  }
+  return {
+    ...tokenSet,
+    isExpired: () =>
+      tokenSet.expiresIn !== undefined && Date.now() >= tokenSet.updatedAt.getTime() + tokenSet.expiresIn * 1000 - 5000,
+  };
+}
+
+function deserializeOAuthDate(value: unknown): Date {
+  if (value === undefined) {
+    return new Date();
+  }
+  if (typeof value !== "string" && typeof value !== "number") {
+    throw new CompatibilityError("The OAuth.getTokens capability returned an invalid updatedAt", { value });
+  }
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    throw new CompatibilityError("The OAuth.getTokens capability returned an invalid updatedAt", { value });
+  }
+  return date;
 }
 
 export function List(props: ListProps): ReactElement {
@@ -2313,6 +2896,24 @@ async function callCapability(
     throw new CompatibilityError(`${description} capability was not granted`, response);
   }
   return response;
+}
+
+/** Updates the current command's measured subtitle metadata through the host. */
+export async function updateCommandMetadata(metadata: CommandMetadata): Promise<void> {
+  if (!isRecord(metadata)) {
+    unsupported("updateCommandMetadata metadata", { metadata });
+  }
+  for (const key of Object.keys(metadata)) {
+    if (key !== "subtitle") {
+      unsupported(`updateCommandMetadata ${key}`, { metadata });
+    }
+  }
+  const subtitle = metadata.subtitle;
+  if (subtitle !== undefined && subtitle !== null && typeof subtitle !== "string") {
+    unsupported("updateCommandMetadata subtitle", { value: subtitle });
+  }
+  const argumentsValue = subtitle === undefined ? undefined : subtitle === null ? { clear: true } : { subtitle };
+  await callCapability("command", "updateMetadata", argumentsValue, "The updateCommandMetadata");
 }
 
 /** Requests the client to display a transient heads-up message. */
