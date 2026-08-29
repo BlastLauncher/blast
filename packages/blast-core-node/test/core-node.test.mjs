@@ -35,7 +35,7 @@ test("resolves explicit manifest entrypoints", async () => {
     commandName: "main",
     entrypoint: path.join(catalogRoot, "beta-extension", "lib", "main.cjs"),
     rootDirectory: path.join(catalogRoot, "beta-extension"),
-    preferences: { token: "secret", enabled: true },
+    preferences: { token: "secret", enabled: true, layout: "Grid" },
   });
 });
 
@@ -171,6 +171,40 @@ test("resolves manifest preference defaults", (context) => {
   context.test("descriptor carries preferences", async () => {
     const catalog = createCatalog();
     const descriptor = await catalog.resolve({ extensionId: "beta", commandName: "main" });
-    assert.deepEqual(descriptor.preferences, { token: "secret", enabled: true });
+    assert.deepEqual(descriptor.preferences, { token: "secret", enabled: true, layout: "Grid" });
+  });
+
+  context.test("parses command-scoped defaults", () => {
+    const manifest = parseManifest({
+      name: "sample",
+      commands: [
+        {
+          name: "index",
+          preferences: [
+            { name: "layout", type: "dropdown", default: "Grid" },
+            { name: "enabled", type: "checkbox" },
+          ],
+        },
+      ],
+    });
+    assert.deepEqual(manifest.commands[0], {
+      name: "index",
+      entrypoint: undefined,
+      preferences: { layout: "Grid", enabled: false },
+    });
+  });
+
+  context.test("command defaults override extension defaults", () => {
+    const manifest = parseManifest({
+      name: "sample",
+      commands: [
+        {
+          name: "index",
+          preferences: [{ name: "layout", type: "dropdown", default: "Grid" }],
+        },
+      ],
+      preferences: [{ name: "layout", type: "dropdown", default: "List" }],
+    });
+    assert.deepEqual(manifest.commands[0].preferences, { layout: "Grid" });
   });
 });

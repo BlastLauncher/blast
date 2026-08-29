@@ -5,7 +5,15 @@
       "name": "main",
       "title": "Beta Main",
       "mode": "view",
-      "entrypoint": "./lib/main.cjs"
+      "entrypoint": "./lib/main.cjs",
+      "preferences": [
+        {
+          "name": "layout",
+          "title": "Layout",
+          "type": "dropdown",
+          "default": "Grid"
+        }
+      ]
     }
   ],
   "title": "Beta Extension",

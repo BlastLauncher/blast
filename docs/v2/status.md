@@ -88,9 +88,9 @@ slice changes what is executable, what is trusted, or what should happen next.
 - A second bounded seed adds `file-url`, `filesize`, `gray-matter`,
   `javascript-time-ago`, `luxon`, `node-html-parser`, `qrcode`, `tildify`,
   `ts-pattern`, and `turndown`, also as exact-version e2e development
-  dependencies. The latest pinned corpus probe passes 1,281 of 3,231
-  extensions (39.65%), or 1,281 of 2,915 extensions with a selected renderable
-  command (43.95%).
+  dependencies. The latest pinned corpus probe passes 1,288 of 3,231
+  extensions (39.86%), or 1,288 of 2,915 extensions with a selected renderable
+  command (44.19%).
 - Navigation (useNavigation, Action.Push), LocalStorage through the
   capability broker with a reference in-memory provider, the callable plus
   property-based environment surface, and measured WindowManagement discovery
@@ -120,10 +120,11 @@ slice changes what is executable, what is trusted, or what should happen next.
   the focused 18-command diagnostic, including numbered, progress, disabled,
   and formatting variants; unknown members remain rejected rather than
   resolving through a fallback.
-- The next measured boundary is command-scoped manifest preference defaults:
-  focused diagnostics identify four remaining Grid-column failures caused by
+- Command-scoped manifest preference defaults now cross the catalog boundary:
+  focused diagnostics identified four Grid-column failures caused by
   `getPreferenceValues()` omitting preferences declared on the selected
-  command, while extension-level defaults already cross the catalog boundary.
+  command; those defaults now cross the catalog boundary and the next frontier
+  is the measured `ActionPanel.Item` alias.
 - Measured collection components accept custom function components and React
   fragments in action, list, grid, menu-bar, and form child positions; the
   resolved children remain subject to semantic parent/child validation, while
@@ -278,10 +279,10 @@ measured 80% target is not yet met; the next work should address the dominant
 remaining API boundary gaps using the same probe. Additional dependency seeds
 remain deferred until the next API slice is measured.
 
-1. Implement and re-probe command-scoped manifest preference defaults, keeping
-   the nullable Form, empty-string, `LocalStorage.allItems`/`allLocalStorageItems`,
-   Form event, literal `require`, composite-child, and measured Icon boundaries
-   covered by each reprobe.
+1. Implement and re-probe the measured `ActionPanel.Item` alias, keeping the
+   command-scoped preference, nullable Form, empty-string,
+   `LocalStorage.allItems`/`allLocalStorageItems`, Form event, literal `require`,
+   composite-child, and measured Icon boundaries covered by each reprobe.
 2. Use the current report to map the next high-frequency API gap after the
    preference boundary; keep client-only toast timing/stacking separate from the
    extension event contract.

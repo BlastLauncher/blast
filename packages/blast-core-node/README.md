@@ -12,6 +12,10 @@ resolves a stable `{ extensionId, commandName }` identity into the
 
 - the manifest `name` is the `extensionId` and each `commands[].name` is a
   `commandName`; unrecognized manifest fields are allowed and ignored;
+- extension-level preference defaults and the selected command's
+  `commands[].preferences` defaults are merged into the descriptor's
+  `preferences`, with command-level values taking precedence for duplicate
+  names;
 - when a command declares an `entrypoint`, it is resolved relative to the
   extension root and must stay inside that root; absolute paths and traversal
   are rejected with `catalog_entrypoint_outside_root`;

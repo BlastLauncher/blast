@@ -12,6 +12,8 @@ const ENTRYPOINT_EXTENSIONS = [".tsx", ".ts", ".jsx", ".js", ".mjs", ".cjs"] as 
 export interface ManifestCommand {
   readonly name: string;
   readonly entrypoint: string | undefined;
+  /** Preference defaults declared on this command in the Raycast manifest. */
+  readonly preferences?: Readonly<Record<string, string | number | boolean>>;
 }
 
 export interface ExtensionManifest {
@@ -38,7 +40,8 @@ export interface FilesystemExtensionCatalogOptions {
  *
  * The catalog is the only component allowed to turn identities into paths.
  * It never resolves an entrypoint outside the extension root and skips
- * manifests it cannot read or validate.
+ * manifests it cannot read or validate. Extension-level preference defaults are
+ * merged with the selected command's defaults when a descriptor is resolved.
  */
 export class FilesystemExtensionCatalog implements ExtensionCatalog {
   readonly #root: string;
@@ -72,12 +75,16 @@ export class FilesystemExtensionCatalog implements ExtensionCatalog {
     if (command === undefined) {
       return undefined;
     }
+    const preferences = {
+      ...entry.manifest.preferences,
+      ...command.preferences,
+    };
     return {
       extensionId: entry.manifest.name,
       commandName: command.name,
       entrypoint: await this.#resolveEntrypoint(entry.directory, command),
       rootDirectory: entry.directory,
-      ...(Object.keys(entry.manifest.preferences).length === 0 ? {} : { preferences: entry.manifest.preferences }),
+      ...(Object.keys(preferences).length === 0 ? {} : { preferences }),
     };
   }
 
@@ -201,42 +208,58 @@ export function parseManifest(value: unknown): ExtensionManifest | undefined {
     if (entrypoint !== undefined && (typeof entrypoint !== "string" || entrypoint.length === 0)) {
       return undefined;
     }
-    commands.push({ name: commandName, entrypoint });
-  }
-
-  const preferences: Record<string, string | number | boolean> = {};
-  const rawPreferences = value["preferences"];
-  if (rawPreferences !== undefined) {
-    if (!Array.isArray(rawPreferences)) {
+    const preferences = parsePreferenceDefaults(rawCommand["preferences"]);
+    if (preferences === undefined) {
       return undefined;
     }
-    for (const rawPreference of rawPreferences) {
-      if (!isRecord(rawPreference)) {
-        return undefined;
-      }
-      const preferenceName = rawPreference["name"];
-      if (typeof preferenceName !== "string" || preferenceName.length === 0) {
-        return undefined;
-      }
-      const type = rawPreference["type"];
-      const defaultValue = rawPreference["default"];
-      if (type === "checkbox") {
-        if (defaultValue === undefined) {
-          preferences[preferenceName] = false;
-        } else if (typeof defaultValue === "boolean") {
-          preferences[preferenceName] = defaultValue;
-        } else {
-          return undefined;
-        }
-      } else if (
-        defaultValue !== undefined &&
-        (typeof defaultValue === "string" || typeof defaultValue === "number" || typeof defaultValue === "boolean")
-      ) {
-        preferences[preferenceName] = defaultValue;
-      }
-    }
+    commands.push({
+      name: commandName,
+      entrypoint,
+      ...(Object.keys(preferences).length === 0 ? {} : { preferences }),
+    });
+  }
+
+  const preferences = parsePreferenceDefaults(value["preferences"]);
+  if (preferences === undefined) {
+    return undefined;
   }
   return { name, commands, preferences };
+}
+
+function parsePreferenceDefaults(value: unknown): Record<string, string | number | boolean> | undefined {
+  const preferences: Record<string, string | number | boolean> = {};
+  if (value === undefined) {
+    return preferences;
+  }
+  if (!Array.isArray(value)) {
+    return undefined;
+  }
+  for (const rawPreference of value) {
+    if (!isRecord(rawPreference)) {
+      return undefined;
+    }
+    const preferenceName = rawPreference["name"];
+    if (typeof preferenceName !== "string" || preferenceName.length === 0) {
+      return undefined;
+    }
+    const type = rawPreference["type"];
+    const defaultValue = rawPreference["default"];
+    if (type === "checkbox") {
+      if (defaultValue === undefined) {
+        preferences[preferenceName] = false;
+      } else if (typeof defaultValue === "boolean") {
+        preferences[preferenceName] = defaultValue;
+      } else {
+        return undefined;
+      }
+    } else if (
+      defaultValue !== undefined &&
+      (typeof defaultValue === "string" || typeof defaultValue === "number" || typeof defaultValue === "boolean")
+    ) {
+      preferences[preferenceName] = defaultValue;
+    }
+  }
+  return preferences;
 }
 
 function validateIdentity(identity: CommandIdentity): void {
