@@ -29,24 +29,25 @@ run package-manager scripts; unavailable packages remain dependency failures.
 
 | Outcome                        | Baseline | Previous post-slice | Current post-slice | Current vs previous |
 | ------------------------------ | -------: | ------------------: | -----------------: | ------------------: |
-| third-party dependency failure |    2,361 |               1,277 |              1,278 |                  +1 |
+| third-party dependency failure |    2,361 |               1,278 |              1,278 |                   0 |
 | not renderable command mode    |      358 |                 316 |                316 |                   0 |
-| other process/startup failure  |      432 |                 836 |                824 |                 -12 |
-| structured compatibility error |       23 |                 104 |                106 |                  +2 |
-| renders a scene end to end     |       54 |                 695 |                704 |                  +9 |
+| other process/startup failure  |      432 |                 824 |                793 |                 -31 |
+| structured compatibility error |       23 |                 106 |                101 |                  -5 |
+| renders a scene end to end     |       54 |                 704 |                740 |                 +36 |
 | no entrypoint found            |        3 |                   3 |                  3 |                   0 |
 
-Reading: the current post-slice extension pass rate is 704/3,231 (21.79%);
-among the 2,915 extensions with a selected renderable command it is 704/2,915
-(24.15%). The six blockers targeted by this slice—`copyTextToClipboard`,
-`OpenAction`, `pasteText`, `removeLocalStorageItem`, `clearLocalStorage`, and
-`PasteAction`—are no longer in the static list. Remaining named static
-blockers on non-rendering extensions are led by dynamic imports (14),
-`preferences` (6), `Navigation` (5), namespace imports (4), `Preferences` (4),
-`KeyEquivalent` (3), `randomId` (3), and `WindowManagement` (3). Dynamic and
-namespace imports remain separate unknown-shape work. The vendor root leaves
-1,278 dependency failures, so the next coverage group should combine the
-named type/platform blockers with the audited dependency provisioning decision.
+Reading: the current post-slice extension pass rate is 740/3,231 (22.90%);
+among the 2,915 extensions with a selected renderable command it is 740/2,915
+(25.39%). The measured preference, navigation, environment, form-value,
+keyboard, image-type, and `randomId` names are no longer in the static list.
+The next concrete named boundary is `WindowManagement` (3); remaining static
+gaps are led by dynamic imports (13), namespace imports (4), and small legacy
+aliases (`ActionPanelItem`, `AlertActionStyle`, `ArgumentsLaunchProps`,
+`FormItemRef`, `ItemProps`, `ListSection`, `OpenWithAction`, and `render`).
+Dynamic and namespace imports remain separate unknown-shape work. The vendor
+root leaves 1,278 dependency failures, so the next coverage group should pair
+the window-management capability with the audited dependency provisioning
+decision.
 
 ## Committed fixtures
 
@@ -71,7 +72,7 @@ named type/platform blockers with the audited dependency provisioning decision.
 | `desktop-discovery-boundaries` | list           |     2 | Application, getApplications, getSelectedText, openCommandPreferences                                                                                                                                      |
 | `finder-boundaries`            | list           |     2 | FileSystemItem, getFrontmostApplication, getSelectedFinderItems, showInFinder                                                                                                                              |
 | `host-boundaries`              | list           |     1 | BrowserExtension, ToastStyle, Tool.Confirmation, clearSearchBar, trash                                                                                                                                     |
-| `coverage-next`                | list           |     1 | CopyToClipboardAction, OpenInBrowserAction, PreferenceValues, captureException, getDefaultApplication                                                                                                      |
+| `coverage-next`                | list           |     1 | CopyToClipboardAction, OpenInBrowserAction, getPreferenceValues, environment, preferences, randomId, and legacy type aliases                                                                               |
 | `coverage-followup`            | form           |     2 | ImageMask, List, OpenAction, PasteAction, PushAction, SubmitFormAction, clearLocalStorage, copyTextToClipboard, getLocalStorageItem, pasteText, removeLocalStorageItem, setLocalStorageItem, useNavigation |
 | `runtime-boundaries`           | list           |     1 | AI, OAuth, updateCommandMetadata                                                                                                                                                                           |
 | `grid-boundaries`              | grid           |     2 | Grid, Grid.Item, Grid.Section, Grid.Dropdown, Grid.EmptyView, Icon                                                                                                                                         |
@@ -105,7 +106,8 @@ separately bundled child view.
 - `useNavigation` and `Action.Push` (28.8% of extensions),
   `LocalStorage`/`Cache` (26.5%), and `environment` (19.7%) are measured in
   the adapter but still have limited fixture coverage; the legacy push, open,
-  paste, storage, and `ImageMask` aliases are covered by `coverage-followup`;
+  paste, storage, preference, environment, and `ImageMask` aliases are covered
+  by the `coverage-followup` and `coverage-next` fixtures;
 - `showHUD`, `open`, and `confirmAlert` are measured through capability
   requests, but production host providers and consent policy are still absent;
 - `LaunchProps`, `LaunchType`, `Image.Mask`, `closeMainWindow`, `popToRoot`,

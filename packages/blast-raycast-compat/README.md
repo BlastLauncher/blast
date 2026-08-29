@@ -32,6 +32,13 @@ onto the V2 scene contract, renderer, and capability broker:
 - default-exported command components receive `LaunchProps` with a
   user-initiated launch and empty arguments by default; `LaunchType`,
   `Image.Mask`, and the deprecated `ImageMask` value/type are available;
+- `environment` exposes the measured Raycast property object and retains a
+  callable compatibility form for older Blast fixtures; `preferences` exposes
+  resolved manifest values through legacy preference metadata, and
+  `randomId` provides process-local unique IDs;
+- the official type-only aliases `Environment`, `Navigation`, `Preferences`,
+  `Preference`, `FormValue`, `FormValues`, `KeyEquivalent`, `KeyboardShortcut`,
+  and `ImageLike` are available;
 - `closeMainWindow`, `popToRoot`, and `openExtensionPreferences` route through
   `window.close`, `navigation.popToRoot`, and `preferences.openExtension`
   capability requests;
@@ -94,6 +101,9 @@ keeps uncontrolled defaults and client-provided values together and filters
 submitted values to the current form field IDs. `DatePicker` values are native
 `Date | null` values in the adapter and ISO strings on the scene wire;
 `TagPicker` and `FilePicker` values are string arrays (file values are paths).
+The public `FormValue` union also includes numeric and numeric-array values from
+the pinned Raycast declaration; the currently measured scene controls remain
+the string, boolean, date, and string-array subset.
 
 ## Compatibility boundary
 

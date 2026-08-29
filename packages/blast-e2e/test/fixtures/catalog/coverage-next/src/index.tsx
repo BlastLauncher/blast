@@ -5,11 +5,28 @@ import {
   List,
   OpenInBrowserAction,
   captureException,
+  environment,
   getDefaultApplication,
   getPreferenceValues,
+  preferences,
+  randomId,
 } from "@raycast/api";
-import type { PreferenceValues } from "@raycast/api";
+import type { Environment, FormValue, KeyEquivalent, Navigation, PreferenceValues, Preferences } from "@raycast/api";
 import { useEffect, useState } from "react";
+
+const legacyPreferenceValue = preferences.token?.value ?? "missing";
+const fixtureId = randomId();
+
+type CompatibilityTypeProbe = {
+  environment: Environment;
+  formValue: FormValue;
+  keyEquivalent: KeyEquivalent;
+  navigation: Navigation;
+  preferences: Preferences;
+};
+
+const compatibilityTypeProbe: Partial<CompatibilityTypeProbe> = {};
+void compatibilityTypeProbe;
 
 export default function Command() {
   const preferenceCount = Object.keys(getPreferenceValues<PreferenceValues>()).length;
@@ -38,6 +55,7 @@ export default function Command() {
     <List navigationTitle={`Next:${status}`}>
       <List.Item
         title="Coverage next"
+        subtitle={`${legacyPreferenceValue}:${environment.appearance}:${fixtureId}`}
         actions={
           <ActionPanel>
             <OpenInBrowserAction url="https://example.com/legacy" />

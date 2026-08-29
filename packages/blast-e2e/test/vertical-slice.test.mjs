@@ -564,7 +564,7 @@ test("runs the next measured action, telemetry, application, and preference boun
   });
 
   await waitFor(
-    () => buffer.rootId !== undefined && buffer.get(buffer.rootId).props.navigationTitle === "Next:TextEdit:0",
+    () => buffer.rootId !== undefined && buffer.get(buffer.rootId).props.navigationTitle === "Next:TextEdit:1",
     "the next-coverage snapshot",
   );
   await waitFor(
@@ -576,6 +576,7 @@ test("runs the next measured action, telemetry, application, and preference boun
   );
 
   const item = buffer.childrenOf(buffer.rootId)[0];
+  assert.match(item.props.subtitle, /^fixture-token:dark:blast-[0-9a-z]+$/);
   const group = item.children[0];
   assert.deepEqual(
     group.children.map(({ props }) => ({ title: props.title, icon: props.icon })),

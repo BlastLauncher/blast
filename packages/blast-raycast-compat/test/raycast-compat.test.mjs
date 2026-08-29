@@ -53,6 +53,8 @@ import {
   openExtensionPreferences,
   popToRoot,
   pasteText,
+  preferences,
+  randomId,
   removeLocalStorageItem,
   launchCommand,
   renderCommand,
@@ -1305,6 +1307,21 @@ test("returns manifest preference defaults", () => {
   assert.deepEqual(preferences, { token: "secret", enabled: true });
 });
 
+test("exposes legacy preference metadata and stable helper ids", () => {
+  const probe = createContext();
+  configureRaycastCompat(probe.context);
+
+  assert.equal(preferences.token.value, "secret");
+  assert.equal(preferences.enabled.value, true);
+  assert.deepEqual(Object.keys(preferences), ["token", "enabled"]);
+  assert.equal(preferences.missing, undefined);
+
+  const first = randomId();
+  const second = randomId();
+  assert.match(first, /^blast-[0-9a-z]+$/);
+  assert.notEqual(first, second);
+});
+
 test("Action.Push activation pushes the target scene root", async () => {
   const probe = createContext();
 
@@ -1414,6 +1431,13 @@ test("environment reports the runtime platform and command identity", () => {
   assert.equal(info.commandName, "index");
   assert.equal(info.extensionName, "fixture.extension");
   assert.equal(typeof info.raycastVersion, "string");
+  assert.equal(environment.entryPointName, "index");
+  assert.equal(environment.entryPointMode, "view");
+  assert.equal(environment.appearance, "dark");
+  assert.equal(environment.theme, "dark");
+  assert.equal(environment.assetsPath, "assets");
+  assert.equal(environment.supportPath, "support");
+  assert.equal(environment.canAccess("fixture-api"), false);
 });
 
 test("renders titled action panels, submenus, List actions, and tinted icons", async () => {

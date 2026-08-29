@@ -1,6 +1,7 @@
 {
   "name": "e2e.coverage-next",
   "title": "E2E Coverage Next",
-  "description": "Fixture for measured exception, action, application, and preference APIs.",
+  "description": "Fixture for measured exception, action, application, legacy preference, and environment APIs.",
+  "preferences": [{ "name": "token", "type": "textfield", "default": "fixture-token" }],
   "commands": [{ "name": "index", "title": "Coverage next", "mode": "view" }]
 }

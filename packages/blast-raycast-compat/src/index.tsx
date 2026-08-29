@@ -53,6 +53,7 @@ export interface RaycastCompatContext {
     readonly extensionId: string;
     readonly commandName: string;
     readonly preferences: Readonly<Record<string, string | number | boolean>>;
+    readonly rootDirectory?: string;
   };
   readonly platform: string;
   readonly publish: (transaction: SceneTransaction) => Promise<void>;
@@ -497,6 +498,8 @@ export namespace Image {
 
 /** @deprecated Use `Image.Mask` instead. */
 export type ImageMask = Image.Mask;
+/** @deprecated Use `Image.ImageLike` instead. */
+export type ImageLike = Image.ImageLike;
 
 /** @deprecated Use `Image.Mask` instead. */
 export const ImageMask = Image.Mask;
@@ -539,7 +542,81 @@ export interface InterExtensionLaunchOptions extends IntraExtensionLaunchOptions
 export type LaunchOptions = IntraExtensionLaunchOptions | InterExtensionLaunchOptions;
 
 export type KeyModifier = "cmd" | "ctrl" | "opt" | "shift" | "alt" | "windows";
-export type KeyEquivalent = string;
+export type KeyEquivalent =
+  | "a"
+  | "b"
+  | "c"
+  | "d"
+  | "e"
+  | "f"
+  | "g"
+  | "h"
+  | "i"
+  | "j"
+  | "k"
+  | "l"
+  | "m"
+  | "n"
+  | "o"
+  | "p"
+  | "q"
+  | "r"
+  | "s"
+  | "t"
+  | "u"
+  | "v"
+  | "w"
+  | "x"
+  | "y"
+  | "z"
+  | "0"
+  | "1"
+  | "2"
+  | "3"
+  | "4"
+  | "5"
+  | "6"
+  | "7"
+  | "8"
+  | "9"
+  | "."
+  | ","
+  | ";"
+  | "="
+  | "+"
+  | "-"
+  | "["
+  | "]"
+  | "{"
+  | "}"
+  | "«"
+  | "»"
+  | "("
+  | ")"
+  | "/"
+  | "\\"
+  | "'"
+  | "`"
+  | "§"
+  | "^"
+  | "@"
+  | "$"
+  | "return"
+  | "delete"
+  | "deleteForward"
+  | "tab"
+  | "arrowUp"
+  | "arrowDown"
+  | "arrowLeft"
+  | "arrowRight"
+  | "pageUp"
+  | "pageDown"
+  | "home"
+  | "end"
+  | "space"
+  | "escape"
+  | "enter"
+  | "backspace";
 export type ShortcutLike =
   | {
       readonly modifiers: readonly KeyModifier[];
@@ -598,6 +675,25 @@ export interface Application {
 export interface PreferenceValues {
   [name: string]: any;
 }
+
+export type PreferenceType = "appPicker" | "checkbox" | "dropdown" | "password" | "textfield" | "file" | "directory";
+
+/** Deprecated preference metadata shape retained for older extensions. */
+export interface Preference {
+  readonly name: string;
+  readonly type: PreferenceType;
+  readonly required: boolean;
+  readonly title: string;
+  readonly description: string;
+  readonly value?: unknown;
+  readonly default?: unknown;
+  readonly placeholder?: string;
+  readonly label?: string;
+  readonly data?: unknown[];
+}
+
+/** Deprecated record of preference metadata keyed by preference name. */
+export type Preferences = Record<string, Preference>;
 
 /** Structural equivalent of Node's PathLike without a Node-only dependency. */
 export type PathLike = string | URL | Uint8Array;
@@ -1170,7 +1266,7 @@ export const MenuBarExtra: MenuBarExtraComponent = Object.assign(MenuBarExtraCom
   Separator: MenuBarExtraSeparator,
 });
 
-export type FormValue = string | boolean | null | string[] | Date;
+export type FormValue = string | number | boolean | string[] | number[] | Date | null;
 export type FormValues = Readonly<Record<string, FormValue>>;
 
 export interface FormProps {
@@ -3715,9 +3811,87 @@ export function getPreferenceValues<T = PreferenceValues>(): T {
   return (requireContext().descriptor.preferences ?? {}) as T;
 }
 
-export interface NavigationApi {
+function preferenceTypeForValue(value: string | number | boolean): PreferenceType {
+  if (typeof value === "boolean") {
+    return "checkbox";
+  }
+  if (typeof value === "number") {
+    return "dropdown";
+  }
+  return "textfield";
+}
+
+function createLegacyPreference(name: string, value: string | number | boolean): Preference {
+  return {
+    name,
+    type: preferenceTypeForValue(value),
+    required: false,
+    title: name,
+    description: "",
+    value,
+  };
+}
+
+function currentPreferenceValues(): Readonly<Record<string, string | number | boolean>> {
+  return requireContext().descriptor.preferences ?? {};
+}
+
+/**
+ * Deprecated preference metadata view. The V2 descriptor currently carries
+ * resolved values rather than the full manifest metadata, so the adapter
+ * supplies stable metadata defaults while preserving the legacy `.value`
+ * access pattern used by older extensions.
+ */
+const preferenceTarget = Object.create(null) as Preferences;
+export const preferences: Preferences = new Proxy(preferenceTarget, {
+  get(target, property, receiver) {
+    if (typeof property !== "string") {
+      return Reflect.get(target, property, receiver);
+    }
+    const values = currentPreferenceValues();
+    const value = values[property];
+    return value === undefined ? undefined : createLegacyPreference(property, value);
+  },
+  has(_target, property) {
+    return typeof property === "string" && Object.hasOwn(currentPreferenceValues(), property);
+  },
+  ownKeys() {
+    return Object.keys(currentPreferenceValues());
+  },
+  getOwnPropertyDescriptor(_target, property) {
+    if (typeof property !== "string") {
+      return undefined;
+    }
+    const values = currentPreferenceValues();
+    if (!Object.hasOwn(values, property)) {
+      return undefined;
+    }
+    const value = values[property];
+    if (value === undefined) {
+      return undefined;
+    }
+    return {
+      configurable: true,
+      enumerable: true,
+      value: createLegacyPreference(property, value),
+    };
+  },
+});
+
+let randomIdCounter = 0;
+
+/** @deprecated Use a project-owned identifier generator instead. */
+export function randomId(): string {
+  randomIdCounter += 1;
+  return `blast-${randomIdCounter.toString(36)}`;
+}
+
+export interface Navigation {
   push(element: ReactNode, onPop?: () => void): void;
   pop(): void;
+}
+
+export interface NavigationApi extends Navigation {
   popToRoot(): void;
 }
 
@@ -3828,28 +4002,96 @@ function createDefaultLaunchProps(): LaunchProps {
 }
 
 export interface Environment {
-  os: readonly [string];
+  readonly raycastVersion: string;
+  readonly ownerOrAuthorName: string;
+  readonly extensionName: string;
+  readonly entryPointType: "command" | "tool";
+  readonly entryPointName: string;
+  readonly entryPointMode: "no-view" | "view" | "menu-bar";
+  readonly assetsPath: string;
+  readonly supportPath: string;
+  readonly isDevelopment: boolean;
+  readonly appearance: "light" | "dark";
+  readonly textSize: "medium" | "large";
   launchType: LaunchTypeName;
-  commandName: string;
-  extensionName: string;
-  raycastVersion: string;
+  readonly canAccess: (api: unknown) => boolean;
+  readonly theme: "light" | "dark";
+  readonly launchContext?: LaunchContext;
+  readonly commandName: string;
+  readonly commandMode: "no-view" | "view" | "menu-bar";
+  /** Legacy adapter-only platform tuple retained for existing commands. */
+  readonly os: readonly [string];
+}
+
+export interface EnvironmentAccessor extends Environment {
+  (): Environment;
+}
+
+function createEnvironment(): Environment {
+  const context = requireContext();
+  const osName = context.platform === "darwin" ? "macOS" : context.platform === "win32" ? "Windows" : "Linux";
+  const appearance = "dark" as const;
+  const rootDirectory = context.descriptor.rootDirectory;
+  const pathUnderExtension = (name: string) =>
+    rootDirectory === undefined ? name : `${rootDirectory.replace(/[\\/]$/, "")}/${name}`;
+  return {
+    raycastVersion: "1.79.0",
+    ownerOrAuthorName: context.descriptor.extensionId,
+    extensionName: context.descriptor.extensionId,
+    entryPointType: "command",
+    entryPointName: context.descriptor.commandName,
+    entryPointMode: "view",
+    assetsPath: pathUnderExtension("assets"),
+    supportPath: pathUnderExtension("support"),
+    isDevelopment: true,
+    appearance,
+    textSize: "medium",
+    launchType: compatGlobals.launchProps?.launchType ?? LaunchType.UserInitiated,
+    canAccess: () => false,
+    theme: appearance,
+    ...(compatGlobals.launchProps?.launchContext === undefined
+      ? {}
+      : { launchContext: compatGlobals.launchProps.launchContext }),
+    commandName: context.descriptor.commandName,
+    commandMode: "view",
+    os: [osName],
+  };
 }
 
 /**
- * Runtime environment for the running command. `raycastVersion` reports the
- * compatibility target the adapter implements.
+ * Runtime environment for the running command. The callable form is retained
+ * for older Blast fixtures while official property access stays live across
+ * command configuration.
  */
-export function environment(): Environment {
-  const context = requireContext();
-  const osName = context.platform === "darwin" ? "macOS" : context.platform === "win32" ? "Windows" : "Linux";
-  return {
-    os: [osName],
-    launchType: compatGlobals.launchProps?.launchType ?? LaunchType.UserInitiated,
-    commandName: context.descriptor.commandName,
-    extensionName: context.descriptor.extensionId,
-    raycastVersion: "1.79.0",
-  };
+const environmentAccessor = (() => createEnvironment()) as EnvironmentAccessor;
+for (const property of [
+  "raycastVersion",
+  "ownerOrAuthorName",
+  "extensionName",
+  "entryPointType",
+  "entryPointName",
+  "entryPointMode",
+  "assetsPath",
+  "supportPath",
+  "isDevelopment",
+  "appearance",
+  "textSize",
+  "launchType",
+  "canAccess",
+  "theme",
+  "launchContext",
+  "commandName",
+  "commandMode",
+  "os",
+] as const) {
+  Object.defineProperty(environmentAccessor, property, {
+    configurable: false,
+    enumerable: true,
+    get: () => createEnvironment()[property],
+  });
 }
+
+export const environment = environmentAccessor;
 
 /**
  * Per-extension key-value storage, brokered through the capability boundary

@@ -79,14 +79,14 @@ slice changes what is executable, what is trusted, or what should happen next.
   brokered clipboard, desktop boundaries, legacy action/storage aliases, and
   cross-bundle navigation),
   while the corpus probe records exactly which unmeasured APIs block the rest.
-- The latest pinned corpus probe passes 704 of 3,231 extensions (21.79%), or
-  704 of 2,915 extensions with a selected renderable command (24.15%).
+- The latest pinned corpus probe passes 740 of 3,231 extensions (22.90%), or
+  740 of 2,915 extensions with a selected renderable command (25.39%).
 - Navigation (useNavigation, Action.Push), LocalStorage through the
-  capability broker with a reference in-memory provider, and environment()
-  are measured adapter surface; the navigation stack retains entries and pop
-  lifecycle callbacks, and only the top view contributes scene nodes. A
-  realm-shared navigation proxy keeps bundled extension calls connected to the
-  host-owned stack.
+  capability broker with a reference in-memory provider, and the callable plus
+  property-based environment surface are measured adapter APIs; the navigation
+  stack retains entries and pop lifecycle callbacks, and only the top view
+  contributes scene nodes. A realm-shared navigation proxy keeps bundled
+  extension calls connected to the host-owned stack.
 - ActionPanel renders as a scene action-group (titles, submenus, List-level
   panels), and object icons with Color tints serialize into iconTintColor
   properties.
@@ -106,6 +106,11 @@ slice changes what is executable, what is trusted, or what should happen next.
   form-submit and action shapes. `ImageMask` aliases `Image.Mask`, while the
   top-level clipboard and LocalStorage helpers route to the same brokered
   operations; all eleven legacy names are covered by an end-to-end fixture.
+- Legacy `preferences` exposes resolved manifest values through the official
+  `.value` metadata shape, `FormValue` includes the pinned numeric forms, and
+  `Navigation`, `Environment`, `KeyEquivalent`, `FormValues`,
+  `KeyboardShortcut`, and `ImageLike` aliases are available. Environment
+  `canAccess` is deny-by-default until host permission state is connected.
 - `showHUD`, `open`, and `confirmAlert` cross explicit `hud.show`, `open.open`,
   and `alert.confirm` capability requests; alert callbacks run only after a
   validated boolean response.
@@ -223,10 +228,10 @@ dependency-policy slices are complete, but the measured 80% target is not yet
 met; the next work should address the dominant remaining API and dependency
 blockers using the same probe.
 
-1. Expand the next named static blocker group (`preferences`, `Navigation`,
-   `Preferences`, `KeyEquivalent`, `randomId`, `WindowManagement`,
-   `Environment`, and `FormValue`) with measured shapes before taking on the
-   dynamic and namespace tails.
+1. Implement the measured `WindowManagement` shape for its three corpus
+   consumers, keeping desktop discovery and bounds mutation behind explicit
+   capability operations; then address the remaining dynamic and namespace
+   tails plus the small legacy aliases.
 2. Provision an audited, pinned vendor set or an explicit installation phase
    for the remaining third-party dependency graph; keep installation outside
    extension execution.

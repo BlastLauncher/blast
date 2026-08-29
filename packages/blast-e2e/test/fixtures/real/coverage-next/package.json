@@ -2,8 +2,18 @@
   "$schema": "https://www.raycast.com/schemas/extension.json",
   "name": "coverage-next",
   "title": "Coverage Next",
-  "description": "A dependency-free action, telemetry, application, and preference compatibility fixture for Blast",
+  "description": "A dependency-free action, telemetry, application, legacy preference, and environment compatibility fixture for Blast",
   "author": "blast-fixture",
+  "preferences": [
+    {
+      "name": "token",
+      "title": "Token",
+      "description": "Fixture preference",
+      "type": "textfield",
+      "required": false,
+      "default": "fixture-token"
+    }
+  ],
   "commands": [
     {
       "name": "index",
