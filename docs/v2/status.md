@@ -100,6 +100,10 @@ slice changes what is executable, what is trusted, or what should happen next.
   connected to the host-owned stack. Window-management data is JSON-encoded
   across explicit capability operations, and bounds mutation remains
   host-authorized.
+- `LocalStorage.allItems` and the deprecated `allLocalStorageItems` alias now
+  return the complete extension-local primitive-value map through a JSON
+  encoded `local-storage.getAll` capability response; malformed responses are
+  rejected before reaching extension code.
 - ActionPanel renders as a scene action-group (titles, submenus, List-level
   panels), and object icons with Color tints serialize into iconTintColor
   properties.
@@ -235,25 +239,29 @@ slice changes what is executable, what is trusted, or what should happen next.
 The first extension-to-client vertical slice is complete, the corpus census
 (`compatibility/README.md`) justified the adapter order, and the current
 support matrix (`compatibility/support-matrix.md`) records the baseline and
-post-slice probes. The priority remains measured extension coverage: coverage
+post-slice probes. The priority has now shifted back to measured Raycast API
+compatibility: coverage
 means the share of corpus extensions that bundle and render through the current
 path, not the number of exported API names. The shortcut, imperative, cache,
 launch-boundary, desktop-discovery, finder-boundary, host-boundary,
 window-management, and dependency-policy slices are complete, but the
 measured 80% target is not yet met; the next work should address the dominant
-remaining static and dependency blockers using the same probe.
+remaining API boundary gaps using the same probe. Additional dependency seeds
+remain deferred until the next API slice is measured.
 
-1. Keep the safe dynamic, namespace, and side-effect import forms covered by
-   the import-shape fixture and keep the remaining `fetch` import outside the
-   adapter until a host network capability defines URL policy, consent, and
-   response limits.
-2. Audit the next small package group for the remaining third-party dependency
-   graph, keeping each seed exact-version, development-only, and outside
-   extension execution; hold network, cross-extension, native, and WASM
-   packages for explicit policy decisions.
-3. Re-probe after each dependency group and update the support matrix against the 80%
-   extension-pass milestone.
-4. Add a client-facing core protocol and daemon listener so the Electron
+1. Re-probe the new `LocalStorage.allItems`/`allLocalStorageItems` boundary and
+   update the support matrix with the measured result.
+2. Map and implement the next high-frequency API gap, starting with Form
+   focus/blur event callbacks if the scene event contract can carry their
+   validated target shape; keep client-only toast timing/stacking separate.
+3. Keep safe dynamic, namespace, side-effect, and literal `require` import
+   forms covered while the remaining `fetch` import stays outside the adapter
+   until a host network capability defines URL policy, consent, and response
+   limits.
+4. Return to small, exact-version, development-only dependency seeds only
+   after the next API boundary is measured; hold network, cross-extension,
+   native, and WASM packages for explicit policy decisions.
+5. Add a client-facing core protocol and daemon listener so the Electron
    client can replace the test client after the coverage boundary is stable.
 
 Keep WebSocket and remote execution as transport/provider additions. They do not

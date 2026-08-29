@@ -68,6 +68,9 @@ function createCore() {
     ...(expectation.apis?.includes("clearLocalStorage")
       ? [{ extensionId: expectation.extensionId, capability: "local-storage", operation: "clear" }]
       : []),
+    ...(expectation.apis?.includes("allLocalStorageItems")
+      ? [{ extensionId: expectation.extensionId, capability: "local-storage", operation: "getAll" }]
+      : []),
     ...(expectation.apis?.includes("AI")
       ? [{ extensionId: expectation.extensionId, capability: "ai", operation: "ask" }]
       : []),

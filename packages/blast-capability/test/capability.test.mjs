@@ -220,11 +220,23 @@ test("the in-memory local-storage provider namespaces per extension", async () =
 
   assert.equal(await provider.perform({ ...base, extensionId: "a", operation: "get", arguments: { key: "k" } }), "va");
   assert.equal(await provider.perform({ ...base, extensionId: "b", operation: "get", arguments: { key: "k" } }), "vb");
+  assert.deepEqual(
+    JSON.parse(await provider.perform({ ...base, extensionId: "a", operation: "getAll", arguments: {} })),
+    { k: "va" },
+  );
+  assert.deepEqual(
+    JSON.parse(await provider.perform({ ...base, extensionId: "b", operation: "getAll", arguments: {} })),
+    { k: "vb" },
+  );
 
   await provider.perform({ ...base, extensionId: "a", operation: "remove", arguments: { key: "k" } });
   assert.equal(
     await provider.perform({ ...base, extensionId: "a", operation: "get", arguments: { key: "k" } }),
     undefined,
+  );
+  assert.deepEqual(
+    JSON.parse(await provider.perform({ ...base, extensionId: "a", operation: "getAll", arguments: {} })),
+    {},
   );
   assert.equal(await provider.perform({ ...base, extensionId: "b", operation: "get", arguments: { key: "k" } }), "vb");
 

@@ -8,6 +8,7 @@ import {
   List,
   PushAction,
   SubmitFormAction,
+  allLocalStorageItems,
   clearLocalStorage,
   copyTextToClipboard,
   getLocalStorageItem,
@@ -38,8 +39,9 @@ export default function Command() {
     void (async () => {
       const previous = await getLocalStorageItem("alias");
       await setLocalStorageItem("alias", "ready");
+      const allItems = await allLocalStorageItems<Record<string, string>>();
       if (active) {
-        setStatus(`${previous ?? "none"}:ready`);
+        setStatus(`${previous ?? "none"}:${Object.keys(allItems).length}:ready`);
       }
     })().catch((error: unknown) => {
       if (active) {

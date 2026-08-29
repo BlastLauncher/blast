@@ -10,6 +10,7 @@ import {
   AI,
   Alert,
   AlertActionStyle,
+  allLocalStorageItems,
   BrowserExtension,
   Cache,
   Clipboard,
@@ -1476,6 +1477,8 @@ test("LocalStorage routes through the capability broker", async () => {
   assert.equal(await LocalStorage.getItem("token"), "secret");
   await LocalStorage.setItem("flag", true);
   assert.equal(await LocalStorage.getItem("flag"), true);
+  assert.deepEqual(await LocalStorage.allItems(), { token: "secret", flag: true });
+  assert.deepEqual(await allLocalStorageItems(), { token: "secret", flag: true });
   await LocalStorage.removeItem("token");
   assert.equal(await LocalStorage.getItem("token"), undefined);
   await LocalStorage.clear();
@@ -1483,7 +1486,17 @@ test("LocalStorage routes through the capability broker", async () => {
 
   assert.deepEqual(
     probe.capabilityRequests.map((request) => request.operation),
-    ["get", "set", "get", "set", "get", "remove", "get", "clear", "get"],
+    ["get", "set", "get", "set", "get", "getAll", "getAll", "remove", "get", "clear", "get"],
+  );
+});
+
+test("rejects malformed LocalStorage.allItems responses", async () => {
+  const probe = createContext({ capabilityValues: { "local-storage.getAll": JSON.stringify({ bad: [] }) } });
+  configureRaycastCompat(probe.context);
+
+  await assert.rejects(
+    () => LocalStorage.allItems(),
+    (error) => error instanceof CompatibilityError && /invalid value/.test(error.message),
   );
 });
 

@@ -1464,6 +1464,11 @@ export const MenuBarExtra: MenuBarExtraComponent = Object.assign(MenuBarExtraCom
 export type FormValue = string | number | boolean | string[] | number[] | Date | null;
 export type FormValues = Readonly<Record<string, FormValue>>;
 
+export type LocalStorageValue = string | number | boolean;
+export interface LocalStorageValues {
+  readonly [key: string]: unknown;
+}
+
 export interface FormProps {
   readonly navigationTitle?: string;
   readonly isLoading?: boolean;
@@ -3764,6 +3769,21 @@ function parseJSONCapabilityValue(value: unknown, where: string): unknown {
   }
 }
 
+function decodeLocalStorageItems<T extends LocalStorageValues>(value: unknown): T {
+  const decoded = parseJSONCapabilityValue(value, "local-storage.getAll");
+  if (!isRecord(decoded)) {
+    throw new CompatibilityError("The local-storage.getAll capability returned a non-object", { value: decoded });
+  }
+  for (const [key, item] of Object.entries(decoded)) {
+    if (typeof item !== "string" && typeof item !== "number" && typeof item !== "boolean") {
+      throw new CompatibilityError(`The local-storage.getAll result has an invalid value for ${JSON.stringify(key)}`, {
+        value: item,
+      });
+    }
+  }
+  return decoded as T;
+}
+
 function deserializeApplications(value: unknown): Application[] {
   const decoded = parseJSONCapabilityValue(value, "getApplications");
   if (!Array.isArray(decoded)) {
@@ -4492,7 +4512,18 @@ export const environment = environmentAccessor;
  * with the extension identity attached by the host.
  */
 export const LocalStorage = {
-  async getItem<T extends string | number | boolean>(key: string): Promise<T | undefined> {
+  async allItems<T extends LocalStorageValues = LocalStorageValues>(): Promise<T> {
+    const response = await requireContext().requestCapability({
+      capability: "local-storage",
+      operation: "getAll",
+    });
+    if (response.outcome !== "succeeded") {
+      throw new CompatibilityError("The local-storage getAll capability was not granted", response);
+    }
+    return decodeLocalStorageItems<T>(response.value);
+  },
+
+  async getItem<T extends LocalStorageValue>(key: string): Promise<T | undefined> {
     const response = await requireContext().requestCapability({
       capability: "local-storage",
       operation: "get",
@@ -4504,7 +4535,7 @@ export const LocalStorage = {
     return response.value === undefined || response.value === null ? undefined : (response.value as T);
   },
 
-  async setItem(key: string, value: string | number | boolean): Promise<void> {
+  async setItem(key: string, value: LocalStorageValue): Promise<void> {
     const response = await requireContext().requestCapability({
       capability: "local-storage",
       operation: "set",
@@ -4536,6 +4567,9 @@ export const LocalStorage = {
     }
   },
 };
+
+/** @deprecated Use `LocalStorage.allItems` instead. */
+export const allLocalStorageItems: typeof LocalStorage.allItems = LocalStorage.allItems;
 
 /** @deprecated Use `Clipboard.copy` instead. */
 export const copyTextToClipboard: typeof Clipboard.copy = Clipboard.copy;

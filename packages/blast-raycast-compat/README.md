@@ -60,9 +60,11 @@ onto the V2 scene contract, renderer, and capability broker:
   `getDesktops` route through the explicit `window-management` capability and
   validate JSON-encoded desktop/window results; `setWindowBounds` validates
   JSON-encodable bounds options before brokered host mutation;
-- `LocalStorage` retains the deprecated `getLocalStorageItem`,
-  `setLocalStorageItem`, `removeLocalStorageItem`, and `clearLocalStorage`
-  top-level aliases, with the same identity-scoped capability requests;
+- `LocalStorage.allItems` returns the complete extension-local key/value object
+  through the identity-scoped capability boundary, and the deprecated
+  `allLocalStorageItems` alias shares that implementation with the existing
+  `getLocalStorageItem`, `setLocalStorageItem`, `removeLocalStorageItem`, and
+  `clearLocalStorage` aliases;
 - `BrowserExtension.getTabs` and `BrowserExtension.getContent` route through
   host-owned browser-extension capabilities; tab responses are validated and
   content options are normalized before crossing the primitive boundary;

@@ -354,7 +354,7 @@
     "outcome": "renders",
     "rootType": "form",
     "minItems": 2,
-    "readyNavigationTitle": "Follow-up:none:ready",
+    "readyNavigationTitle": "Follow-up:none:1:ready",
     "apis": [
       "Action",
       "ActionPanel",
@@ -365,6 +365,7 @@
       "List",
       "PushAction",
       "SubmitFormAction",
+      "allLocalStorageItems",
       "clearLocalStorage",
       "copyTextToClipboard",
       "getLocalStorageItem",

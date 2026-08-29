@@ -72,6 +72,7 @@ function createCore() {
       { extensionId: "e2e.coverage-next", capability: "clipboard", operation: "write" },
       { extensionId: "e2e.coverage-followup", capability: "local-storage", operation: "get" },
       { extensionId: "e2e.coverage-followup", capability: "local-storage", operation: "set" },
+      { extensionId: "e2e.coverage-followup", capability: "local-storage", operation: "getAll" },
       { extensionId: "e2e.coverage-followup", capability: "local-storage", operation: "remove" },
       { extensionId: "e2e.coverage-followup", capability: "local-storage", operation: "clear" },
       { extensionId: "e2e.coverage-followup", capability: "clipboard", operation: "write" },
@@ -741,7 +742,7 @@ test("runs legacy form, action, storage, image, and push aliases end to end", as
   });
 
   await waitFor(
-    () => buffer.rootId !== undefined && buffer.get(buffer.rootId).props.navigationTitle === "Follow-up:none:ready",
+    () => buffer.rootId !== undefined && buffer.get(buffer.rootId).props.navigationTitle === "Follow-up:none:1:ready",
     "the legacy-alias follow-up snapshot",
   );
   const root = buffer.get(buffer.rootId);
@@ -863,6 +864,7 @@ test("runs legacy form, action, storage, image, and push aliases end to end", as
     [
       { operation: "get", arguments: { key: "alias" } },
       { operation: "set", arguments: { key: "alias", value: "ready" } },
+      { operation: "getAll", arguments: {} },
       { operation: "set", arguments: { key: "submitted", value: "yes" } },
       { operation: "set", arguments: { key: "opened", value: "yes" } },
       { operation: "set", arguments: { key: "pasted", value: "yes" } },
@@ -872,6 +874,7 @@ test("runs legacy form, action, storage, image, and push aliases end to end", as
       { operation: "set", arguments: { key: "popped", value: "yes" } },
       { operation: "get", arguments: { key: "alias" } },
       { operation: "set", arguments: { key: "alias", value: "ready" } },
+      { operation: "getAll", arguments: {} },
     ],
   );
 

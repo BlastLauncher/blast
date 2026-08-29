@@ -273,13 +273,15 @@ export function createInMemoryLocalStorageProvider(): CapabilityProvider {
       const namespace = namespaceFor(request.extensionId);
       const rawKey = request.arguments === undefined ? undefined : request.arguments["key"];
       const key = typeof rawKey === "string" ? rawKey : undefined;
-      if (request.operation !== "clear" && (key === undefined || key.length === 0)) {
+      if (request.operation !== "clear" && request.operation !== "getAll" && (key === undefined || key.length === 0)) {
         throw new Error("local-storage operations require a key");
       }
       const storageKey = key ?? "";
       switch (request.operation) {
         case "get":
           return namespace.has(storageKey) ? (namespace.get(storageKey) as string | number | boolean) : undefined;
+        case "getAll":
+          return JSON.stringify(Object.fromEntries(namespace.entries()));
         case "set": {
           const value = request.arguments["value"];
           if (typeof value !== "string" && typeof value !== "number" && typeof value !== "boolean") {

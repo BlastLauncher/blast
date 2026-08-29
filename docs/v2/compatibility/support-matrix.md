@@ -45,8 +45,10 @@ among the 2,915 extensions with a selected renderable command it is 1,112/2,915
 keyboard, image-type, `randomId`, WindowManagement, small legacy aliases, and
 safe import shapes are no longer in the non-rendering static blocker list. The
 only remaining static import gap is one `fetch` import. The vendor root leaves
-916 dependency failures, so the next coverage group should address audited
-dependency provisioning rather than add an unbrokered network helper.
+916 dependency failures. The current priority is the measured API boundary
+rather than another dependency seed; the next probe will measure the newly
+implemented `LocalStorage.allItems`/`allLocalStorageItems` surface before
+dependency provisioning resumes.
 
 The first audited vendor seed is `axios@1.8.4`, `cheerio@1.0.0`,
 `cross-fetch@4.0.0`, `date-fns@4.1.0`, `fast-xml-parser@5.3.2`, `fuse.js@7.1.0`,
@@ -121,7 +123,9 @@ dispatches a bounds mutation through the explicit host capability.
 - Form focus/blur callbacks;
 - `useNavigation` and `Action.Push` (28.8% of extensions),
   `LocalStorage`/`Cache` (26.5%), and `environment` (19.7%) are measured in
-  the adapter but still have limited fixture coverage; the legacy push, open,
+  the adapter but still have limited fixture coverage. `LocalStorage.allItems`
+  and `allLocalStorageItems` now share the brokered storage boundary; the
+  legacy push, open,
   paste, storage, preference, environment, and `ImageMask` aliases are covered
   by the `coverage-followup` and `coverage-next` fixtures;
 - `showHUD`, `open`, and `confirmAlert` are measured through capability
