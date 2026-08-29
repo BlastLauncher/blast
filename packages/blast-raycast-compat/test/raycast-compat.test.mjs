@@ -13,9 +13,11 @@ import {
   Clipboard,
   Color,
   CompatibilityError,
+  CopyToClipboardAction,
   Detail,
   Form,
   getApplications,
+  getDefaultApplication,
   getFrontmostApplication,
   getSelectedFinderItems,
   getSelectedText,
@@ -31,12 +33,14 @@ import {
   PopToRootType,
   Toast,
   configureRaycastCompat,
+  captureException,
   confirmAlert,
   closeMainWindow,
   clearSearchBar,
   environment,
   getPreferenceValues,
   open,
+  OpenInBrowserAction,
   openCommandPreferences,
   openExtensionPreferences,
   popToRoot,
@@ -235,6 +239,106 @@ test("copies text through the clipboard capability broker", async () => {
     { capability: "clipboard", operation: "write", arguments: { text: "from-compat" } },
   ]);
   assert.deepEqual(copies, ["copied"]);
+});
+
+test("renders modern and deprecated browser and clipboard actions", async () => {
+  const probe = createContext();
+  const opened = [];
+  const copied = [];
+
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      List,
+      null,
+      createElement(
+        List.Item,
+        { title: "First" },
+        createElement(
+          ActionPanel,
+          null,
+          createElement(OpenInBrowserAction, { url: "https://example.com", onOpen: (url) => opened.push(url) }),
+          createElement(Action.OpenInBrowser, {
+            title: "Open docs",
+            url: "https://docs.example.com",
+            onOpen: (url) => opened.push(url),
+          }),
+          createElement(CopyToClipboardAction, { content: "copied value", onCopy: (content) => copied.push(content) }),
+        ),
+      ),
+    ),
+  );
+  await renderer.flush();
+
+  const actions = probe.transactions[0].operations[0].root.children[0].children[0].children;
+  assert.deepEqual(
+    actions.map(({ props }) => ({ title: props.title, icon: props.icon })),
+    [
+      { title: "Open in Browser", icon: "globe" },
+      { title: "Open docs", icon: "globe" },
+      { title: "Copy to Clipboard", icon: "clipboard" },
+    ],
+  );
+
+  for (const action of actions) {
+    probe.dispatch(action.props.onAction);
+  }
+  await new Promise((resolve) => setTimeout(resolve, 5));
+
+  assert.deepEqual(
+    probe.capabilityRequests.map(({ capability, operation, arguments: args }) => ({
+      capability,
+      operation,
+      arguments: args,
+    })),
+    [
+      { capability: "open", operation: "open", arguments: { target: "https://example.com" } },
+      { capability: "open", operation: "open", arguments: { target: "https://docs.example.com" } },
+      { capability: "clipboard", operation: "write", arguments: { text: "copied value" } },
+    ],
+  );
+  assert.deepEqual(opened, ["https://example.com", "https://docs.example.com"]);
+  assert.deepEqual(copied, ["copied value"]);
+});
+
+test("routes structured clipboard content and default application discovery", async () => {
+  const application = {
+    name: "TextEdit",
+    localizedName: "TextEdit",
+    path: "/System/Applications/TextEdit.app",
+    bundleId: "com.apple.TextEdit",
+  };
+  const probe = createContext({
+    capabilityValues: {
+      "application.default": JSON.stringify(application),
+    },
+  });
+  configureRaycastCompat(probe.context);
+
+  assert.deepEqual(await getDefaultApplication(new URL("file:///tmp/example.txt")), application);
+  await Clipboard.copy({ html: "<strong>Hello</strong>", text: "Hello" }, { concealed: true });
+  captureException(new Error("fixture failure"));
+  await new Promise((resolve) => setTimeout(resolve, 5));
+
+  const requests = probe.capabilityRequests.map(({ capability, operation, arguments: args }) => ({
+    capability,
+    operation,
+    arguments: args,
+  }));
+  assert.deepEqual(requests.slice(0, 2), [
+    { capability: "application", operation: "default", arguments: { path: "file:///tmp/example.txt" } },
+    {
+      capability: "clipboard",
+      operation: "write",
+      arguments: { contentJSON: '{"html":"<strong>Hello</strong>","text":"Hello"}', concealed: true },
+    },
+  ]);
+  assert.equal(requests[2].capability, "telemetry");
+  assert.equal(requests[2].operation, "captureException");
+  assert.deepEqual(JSON.parse(requests[2].arguments.exceptionJSON), {
+    name: "Error",
+    message: "fixture failure",
+    stack: JSON.parse(requests[2].arguments.exceptionJSON).stack,
+  });
 });
 
 test("Clipboard singletons use the configured context", async () => {

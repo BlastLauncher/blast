@@ -29,6 +29,8 @@ const SUPPORTED_API_IMPORTS = new Set([
   "Cache",
   "Clipboard",
   "Color",
+  "CopyToClipboardAction",
+  "captureException",
   "clearSearchBar",
   "Detail",
   "Form",
@@ -45,18 +47,21 @@ const SUPPORTED_API_IMPORTS = new Set([
   "MenuBarExtra",
   "OAuth",
   "PopToRootType",
+  "PreferenceValues",
   "Toast",
   "ToastStyle",
   "Tool",
   "closeMainWindow",
   "confirmAlert",
   "environment",
+  "getDefaultApplication",
   "getPreferenceValues",
   "getApplications",
   "getFrontmostApplication",
   "getSelectedFinderItems",
   "getSelectedText",
   "open",
+  "OpenInBrowserAction",
   "openCommandPreferences",
   "openExtensionPreferences",
   "popToRoot",
@@ -234,6 +239,7 @@ function createCore(stderr) {
   const allowedCapabilities = new Set([
     "alert.confirm",
     "ai.ask",
+    "application.default",
     "application.frontmost",
     "application.list",
     "browser-extension.getContent",
@@ -261,6 +267,7 @@ function createCore(stderr) {
     "oauth.getTokens",
     "oauth.removeTokens",
     "oauth.setTokens",
+    "telemetry.captureException",
     "window.close",
   ]);
   const broker = new CapabilityBroker({
@@ -302,6 +309,14 @@ function createCore(stderr) {
               localizedName: "Terminal",
               path: "/System/Applications/Utilities/Terminal.app",
               bundleId: "com.apple.Terminal",
+            });
+          }
+          if (request.operation === "default") {
+            return JSON.stringify({
+              name: "TextEdit",
+              localizedName: "TextEdit",
+              path: "/System/Applications/TextEdit.app",
+              bundleId: "com.apple.TextEdit",
             });
           }
           throw new Error(`Unknown application operation ${JSON.stringify(request.operation)}`);
@@ -419,6 +434,14 @@ function createCore(stderr) {
             return undefined;
           }
           throw new Error(`Unknown preferences operation ${JSON.stringify(request.operation)}`);
+        },
+      },
+      telemetry: {
+        async perform(request) {
+          if (request.operation === "captureException") {
+            return undefined;
+          }
+          throw new Error(`Unknown telemetry operation ${JSON.stringify(request.operation)}`);
         },
       },
       selection: {

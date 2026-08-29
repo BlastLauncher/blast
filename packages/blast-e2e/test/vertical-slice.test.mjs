@@ -21,6 +21,7 @@ const desktopDiscoveryIdentity = { extensionId: "e2e.desktop-discovery", command
 const finderBoundariesIdentity = { extensionId: "e2e.finder-boundaries", commandName: "index" };
 const runtimeBoundariesIdentity = { extensionId: "e2e.runtime-boundaries", commandName: "index" };
 const hostBoundariesIdentity = { extensionId: "e2e.host-boundaries", commandName: "index" };
+const coverageNextIdentity = { extensionId: "e2e.coverage-next", commandName: "index" };
 
 function createCore() {
   const catalog = new FilesystemExtensionCatalog({ root: catalogRoot });
@@ -61,6 +62,10 @@ function createCore() {
       { extensionId: "e2e.host-boundaries", capability: "browser-extension", operation: "getContent" },
       { extensionId: "e2e.host-boundaries", capability: "navigation", operation: "clearSearchBar" },
       { extensionId: "e2e.host-boundaries", capability: "filesystem", operation: "trash" },
+      { extensionId: "e2e.coverage-next", capability: "application", operation: "default" },
+      { extensionId: "e2e.coverage-next", capability: "telemetry", operation: "captureException" },
+      { extensionId: "e2e.coverage-next", capability: "open", operation: "open" },
+      { extensionId: "e2e.coverage-next", capability: "clipboard", operation: "write" },
     ]),
     providers: {
       clipboard: {
@@ -126,6 +131,14 @@ function createCore() {
               bundleId: "com.apple.finder",
             });
           }
+          if (request.operation === "default") {
+            return JSON.stringify({
+              name: "TextEdit",
+              localizedName: "TextEdit",
+              path: "/System/Applications/TextEdit.app",
+              bundleId: "com.apple.TextEdit",
+            });
+          }
           throw new Error(`Unknown application operation ${JSON.stringify(request.operation)}`);
         },
       },
@@ -160,6 +173,15 @@ function createCore() {
             return undefined;
           }
           throw new Error(`Unknown filesystem operation ${JSON.stringify(request.operation)}`);
+        },
+      },
+      open: {
+        async perform(request) {
+          boundaryRequests.push(request);
+          if (request.operation === "open") {
+            return undefined;
+          }
+          throw new Error(`Unknown open operation ${JSON.stringify(request.operation)}`);
         },
       },
       command: {
@@ -200,6 +222,15 @@ function createCore() {
             return undefined;
           }
           throw new Error(`Unknown OAuth operation ${JSON.stringify(request.operation)}`);
+        },
+      },
+      telemetry: {
+        async perform(request) {
+          boundaryRequests.push(request);
+          if (request.operation === "captureException") {
+            return undefined;
+          }
+          throw new Error(`Unknown telemetry operation ${JSON.stringify(request.operation)}`);
         },
       },
     },
@@ -352,7 +383,7 @@ test("runs a Raycast-style compat extension with brokered clipboard end to end",
               {
                 id: actionId,
                 type: "action",
-                props: { title: "Copy", onAction: "event-1" },
+                props: { title: "Copy", icon: "clipboard", onAction: "event-1" },
                 children: [],
               },
               {
@@ -408,7 +439,7 @@ test("runs a bundled TSX extension with literal @raycast/api imports end to end"
   const group = buffer.childrenOf(itemId)[0];
   assert.equal(group.type, "action-group");
   const action = buffer.childrenOf(group.id)[0];
-  assert.deepEqual(action.props, { title: "Copy", onAction: "event-1" });
+  assert.deepEqual(action.props, { title: "Copy", icon: "clipboard", onAction: "event-1" });
 
   await relay.sendSceneEvent(action.props.onAction);
   await waitFor(() => clipboardWrites.length === 1, "the brokered clipboard write");
@@ -498,6 +529,78 @@ test("routes browser, search, trash, toast style, and tool contracts end to end"
   );
 
   await core.stopCommand(hostBoundariesIdentity, "host boundary slice complete");
+  await relay.done;
+  await core.close();
+});
+
+test("runs the next measured action, telemetry, application, and preference boundaries end to end", async () => {
+  const { core, broker, boundaryRequests, clipboardWrites } = createCore();
+  const buffer = new SceneStateBuffer();
+  const session = await core.runCommand(coverageNextIdentity);
+  const relay = relaySessionTraffic(session, {
+    sceneSink: createSceneSink(buffer, []),
+    capabilityBroker: broker,
+  });
+
+  await waitFor(
+    () => buffer.rootId !== undefined && buffer.get(buffer.rootId).props.navigationTitle === "Next:TextEdit:0",
+    "the next-coverage snapshot",
+  );
+  await waitFor(
+    () =>
+      boundaryRequests.some(
+        ({ capability, operation }) => capability === "telemetry" && operation === "captureException",
+      ),
+    "the captured fixture exception",
+  );
+
+  const item = buffer.childrenOf(buffer.rootId)[0];
+  const group = item.children[0];
+  assert.deepEqual(
+    group.children.map(({ props }) => ({ title: props.title, icon: props.icon })),
+    [
+      { title: "Open in Browser", icon: "globe" },
+      { title: "Open modern", icon: "globe" },
+      { title: "Copy to Clipboard", icon: "clipboard" },
+      { title: "Copy modern", icon: "clipboard" },
+    ],
+  );
+
+  for (const action of group.children) {
+    await relay.sendSceneEvent(action.props.onAction);
+  }
+  await waitFor(
+    () =>
+      boundaryRequests.filter(({ capability, operation }) => capability === "open" && operation === "open").length ===
+        2 && clipboardWrites.length === 2,
+    "the next action boundary events",
+  );
+
+  assert.deepEqual(
+    boundaryRequests
+      .filter(({ capability }) => capability === "application" || capability === "open")
+      .map(({ capability, operation, arguments: args }) => ({ capability, operation, arguments: args })),
+    [
+      { capability: "application", operation: "default", arguments: { path: "/tmp/fixture.txt" } },
+      { capability: "open", operation: "open", arguments: { target: "https://example.com/legacy" } },
+      { capability: "open", operation: "open", arguments: { target: "https://example.com/modern" } },
+    ],
+  );
+  const telemetryRequest = boundaryRequests.find(
+    ({ capability, operation }) => capability === "telemetry" && operation === "captureException",
+  );
+  assert.notEqual(telemetryRequest, undefined);
+  assert.deepEqual(JSON.parse(telemetryRequest.arguments.exceptionJSON), {
+    name: "Error",
+    message: "coverage fixture telemetry",
+    stack: JSON.parse(telemetryRequest.arguments.exceptionJSON).stack,
+  });
+  assert.deepEqual(
+    clipboardWrites.map(({ arguments: args }) => args),
+    [{ text: "next value" }, { text: "modern value" }],
+  );
+
+  await core.stopCommand(coverageNextIdentity, "next coverage slice complete");
   await relay.done;
   await core.close();
 });

@@ -5,8 +5,9 @@ Measured Raycast API compatibility adapter for Blast V2 (ADR 0011).
 The package maps the census-justified subset of the `@raycast/api` surface
 onto the V2 scene contract, renderer, and capability broker:
 
-- `List`, `List.Item`, `ActionPanel`, `Action`, `Action.CopyToClipboard`, and
-  `Action.SubmitForm`, `ActionPanel.Section`, and `Detail` render through
+- `List`, `List.Item`, `ActionPanel`, `Action`, `Action.CopyToClipboard`,
+  `Action.OpenInBrowser`, and `Action.SubmitForm`, plus the deprecated
+  `CopyToClipboardAction` and `OpenInBrowserAction` aliases, render through
   `@blastlauncher/react-renderer`;
 - `Grid` covers content tiles, sections, empty views, search-bar dropdowns,
   item actions, layout constants, and selection/search callbacks; `MenuBarExtra`
@@ -18,7 +19,8 @@ onto the V2 scene contract, renderer, and capability broker:
 - `Icon` ships a measured kebab-case subset serialized into scene `icon`
   properties, including object-icon tint colors;
 - `Clipboard.copy`/`Clipboard.read` route through the capability broker with
-  the command identity attached by the host;
+  the command identity attached by the host; text, numeric, and structured
+  clipboard content are normalized across the primitive-only boundary;
 - action and toast-action shortcut unions normalize into structured scene
   values; action styles, `autoFocus`, `Keyboard.Shortcut.Common`, and the
   measured `Alert`/`Action` constants are available;
@@ -38,12 +40,18 @@ onto the V2 scene contract, renderer, and capability broker:
   values and reveal paths accept the structural `PathLike` type;
 - `getFrontmostApplication` routes through `application.frontmost` and
   validates the shared JSON-encoded `Application` shape;
+- `getDefaultApplication` routes through `application.default`, validates the
+  shared JSON-encoded `Application` shape, and accepts structural `PathLike`
+  values; `PreferenceValues` is available as a type-only preference bag;
 - `BrowserExtension.getTabs` and `BrowserExtension.getContent` route through
   host-owned browser-extension capabilities; tab responses are validated and
   content options are normalized before crossing the primitive boundary;
 - `clearSearchBar` and `trash` route through host-owned navigation and
   filesystem capabilities. `trash` accepts one or many structural `PathLike`
   values and sends normalized paths as JSON;
+- `captureException` reports a normalized exception payload through
+  `telemetry.captureException` without making telemetry availability affect
+  command execution;
 - the legacy top-level `ToastStyle` constants retain Raycast's uppercase
   values, while `Tool.Confirmation<T>` is exposed as a type-only contract;
 - `AI.ask` routes through `ai.ask`, validates creativity/model options, and
@@ -91,4 +99,5 @@ when extension bundling lands.
 
 The adapter depends only on React, the scene contract, and the React
 renderer. It must not depend on core, hosts, transports, Node-only APIs, or
-Electron.
+Electron. The application, browser, clipboard, filesystem, and telemetry
+providers remain host responsibilities.

@@ -23,61 +23,65 @@ but are not renderable by the scene contract. The pre-slice result is preserved 
 post-slice result, including one result per extension, is
 [`runtime-probe-post-slice.json`](./runtime-probe-post-slice.json).
 
-The post-slice run supplies the workspace's installed packages through the
-explicit `vendored` dependency policy. It does not install the corpus or run
-package-manager scripts; unavailable packages remain dependency failures.
+The current post-slice run supplies the workspace's installed packages through
+the explicit `vendored` dependency policy. It does not install the corpus or
+run package-manager scripts; unavailable packages remain dependency failures.
 
-| Outcome                        | Pre-slice | Post-slice | Change |
-| ------------------------------ | --------: | ---------: | -----: |
-| third-party dependency failure |     2,361 |      1,276 | -1,085 |
-| not renderable command mode    |       358 |        316 |    -42 |
-| other process/startup failure  |       432 |        982 |   +550 |
-| structured compatibility error |        23 |         91 |    +68 |
-| renders a scene end to end     |        54 |        552 |   +498 |
-| no entrypoint found            |         3 |          3 |      0 |
+| Outcome                        | Baseline | Previous post-slice | Current post-slice | Current vs previous |
+| ------------------------------ | -------: | ------------------: | -----------------: | ------------------: |
+| third-party dependency failure |    2,361 |               1,276 |              1,278 |                  +2 |
+| not renderable command mode    |      358 |                 316 |                316 |                   0 |
+| other process/startup failure  |      432 |                 982 |                850 |                -132 |
+| structured compatibility error |       23 |                  91 |                 94 |                  +3 |
+| renders a scene end to end     |       54 |                 552 |                690 |                +138 |
+| no entrypoint found            |        3 |                   3 |                  3 |                   0 |
 
-Reading: the post-slice extension pass rate is 552/3,231 (17.08%); among the
-2,915 extensions with a selected renderable command it is 552/2,915 (18.94%).
-The high-impact `Grid`, `launchCommand`, `MenuBarExtra`, LaunchProps,
+Reading: the current post-slice extension pass rate is 690/3,231 (21.36%);
+among the 2,915 extensions with a selected renderable command it is 690/2,915
+(23.67%). The high-impact `Grid`, `launchCommand`, `MenuBarExtra`, LaunchProps,
 window/navigation, `Image`, selected-text, application-discovery, command-
 preference, Finder, frontmost-application, AI, OAuth, command-metadata,
-`BrowserExtension`, `ToastStyle`, `clearSearchBar`, and `trash` blockers are no
-longer in the static list. Remaining static blockers on non-rendering
-extensions are led by `captureException` (40), `OpenInBrowserAction` (29),
-`CopyToClipboardAction` (23), `getDefaultApplication` (18), and
-`PreferenceValues` (12). The vendor root removes 1,085 dependency failures,
-but 1,278 remain; the next coverage group should combine the top remaining API
-blockers with the audited dependency provisioning decision.
+`BrowserExtension`, `ToastStyle`, `clearSearchBar`, `trash`,
+`captureException`, `OpenInBrowserAction`, `CopyToClipboardAction`,
+`getDefaultApplication`, and `PreferenceValues` blockers are no longer in the
+static list. Remaining named static blockers on non-rendering extensions are
+led by `SubmitFormAction` (11), `getLocalStorageItem` (10),
+`setLocalStorageItem` (9), `ImageMask` (8), and `PushAction` (8); dynamic and
+namespace imports remain separate unknown-shape work. The vendor root still
+leaves 1,278 dependency failures, so the next coverage group should combine
+the named alias/type blockers with the audited dependency provisioning
+decision.
 
 ## Committed fixtures
 
-| Fixture                        | Root           | Items | Measured APIs                                                                              |
-| ------------------------------ | -------------- | ----: | ------------------------------------------------------------------------------------------ |
-| `papersize`                    | list           |    42 | Action, ActionPanel, Icon, List                                                            |
-| `golden-ratio`                 | list           |     1 | Action, ActionPanel, Clipboard, Icon, List, showToast, Toast                               |
-| `pokemon-tcg-pocket-binder`    | list           |     6 | Action, ActionPanel, List, showToast, Toast                                                |
-| `ruby-evaluate`                | list           |     0 | Action, ActionPanel, List, Detail, getPreferenceValues                                     |
-| `wifi-password-reveal`         | list           |     0 | Action, ActionPanel, Detail, Icon, List, showToast, Toast                                  |
-| `go-links`                     | list           |     0 | Action, ActionPanel, Icon, List, showToast, Toast                                          |
-| `utm-virtual-machines`         | list           |     0 | Action, ActionPanel, Icon, List, showToast, Toast                                          |
-| `time`                         | detail         |     0 | Detail                                                                                     |
-| `deutscherwetterdienst`        | detail         |     0 | Detail                                                                                     |
-| `donut`                        | detail         |     0 | Detail                                                                                     |
-| `big-o`                        | list           |     3 | Action, ActionPanel, List                                                                  |
-| `balatro-compendium`           | list           |     3 | Action, ActionPanel, Detail, Icon, List, showToast, Toast                                  |
-| `cache-control-builder`        | list           |     3 | Action, ActionPanel, Detail, Icon, List, environment, useNavigation                        |
-| `single-disk-eject`            | list           |     0 | Action, ActionPanel, List, environment, getPreferenceValues, showToast, Toast              |
-| `form-submission`              | form           |     4 | Action, ActionPanel, Form (DatePicker, TagPicker, FilePicker)                              |
-| `launch-boundaries`            | list           |     1 | Image masks, LaunchProps, LaunchType, closeMainWindow, popToRoot, openExtensionPreferences |
-| `desktop-discovery-boundaries` | list           |     2 | Application, getApplications, getSelectedText, openCommandPreferences                      |
-| `finder-boundaries`            | list           |     2 | FileSystemItem, getFrontmostApplication, getSelectedFinderItems, showInFinder              |
-| `host-boundaries`              | list           |     1 | BrowserExtension, ToastStyle, Tool.Confirmation, clearSearchBar, trash                     |
-| `runtime-boundaries`           | list           |     1 | AI, OAuth, updateCommandMetadata                                                           |
-| `grid-boundaries`              | grid           |     2 | Grid, Grid.Item, Grid.Section, Grid.Dropdown, Grid.EmptyView, Icon                         |
-| `menu-bar-boundaries`          | menu-bar-extra |     2 | MenuBarExtra, Item, Section, Submenu, Separator, Icon                                      |
-| `choose-a-license`             | —              |     — | expected `unsupported_api`: Action.OpenInBrowser                                           |
+| Fixture                        | Root           | Items | Measured APIs                                                                                         |
+| ------------------------------ | -------------- | ----: | ----------------------------------------------------------------------------------------------------- |
+| `papersize`                    | list           |    42 | Action, ActionPanel, Icon, List                                                                       |
+| `golden-ratio`                 | list           |     1 | Action, ActionPanel, Clipboard, Icon, List, showToast, Toast                                          |
+| `pokemon-tcg-pocket-binder`    | list           |     6 | Action, ActionPanel, List, showToast, Toast                                                           |
+| `ruby-evaluate`                | list           |     0 | Action, ActionPanel, List, Detail, getPreferenceValues                                                |
+| `wifi-password-reveal`         | list           |     0 | Action, ActionPanel, Detail, Icon, List, showToast, Toast                                             |
+| `go-links`                     | list           |     0 | Action, ActionPanel, Icon, List, showToast, Toast                                                     |
+| `utm-virtual-machines`         | list           |     0 | Action, ActionPanel, Icon, List, showToast, Toast                                                     |
+| `time`                         | detail         |     0 | Detail                                                                                                |
+| `deutscherwetterdienst`        | detail         |     0 | Detail                                                                                                |
+| `donut`                        | detail         |     0 | Detail                                                                                                |
+| `big-o`                        | list           |     3 | Action, ActionPanel, List                                                                             |
+| `balatro-compendium`           | list           |     3 | Action, ActionPanel, Detail, Icon, List, showToast, Toast                                             |
+| `cache-control-builder`        | list           |     3 | Action, ActionPanel, Detail, Icon, List, environment, useNavigation                                   |
+| `single-disk-eject`            | list           |     0 | Action, ActionPanel, List, environment, getPreferenceValues, showToast, Toast                         |
+| `form-submission`              | form           |     4 | Action, ActionPanel, Form (DatePicker, TagPicker, FilePicker)                                         |
+| `launch-boundaries`            | list           |     1 | Image masks, LaunchProps, LaunchType, closeMainWindow, popToRoot, openExtensionPreferences            |
+| `desktop-discovery-boundaries` | list           |     2 | Application, getApplications, getSelectedText, openCommandPreferences                                 |
+| `finder-boundaries`            | list           |     2 | FileSystemItem, getFrontmostApplication, getSelectedFinderItems, showInFinder                         |
+| `host-boundaries`              | list           |     1 | BrowserExtension, ToastStyle, Tool.Confirmation, clearSearchBar, trash                                |
+| `coverage-next`                | list           |     1 | CopyToClipboardAction, OpenInBrowserAction, PreferenceValues, captureException, getDefaultApplication |
+| `runtime-boundaries`           | list           |     1 | AI, OAuth, updateCommandMetadata                                                                      |
+| `grid-boundaries`              | grid           |     2 | Grid, Grid.Item, Grid.Section, Grid.Dropdown, Grid.EmptyView, Icon                                    |
+| `menu-bar-boundaries`          | menu-bar-extra |     2 | MenuBarExtra, Item, Section, Submenu, Separator, Icon                                                 |
+| `choose-a-license`             | list           |     8 | Action.OpenInBrowser, Action.CopyToClipboard, Action.Push                                             |
 
-The twenty-one matrix render fixtures assert root type and minimum item counts
+The twenty-three matrix render fixtures assert root type and minimum item counts
 through real child processes; the desktop-discovery fixture additionally waits
 for three brokered capability responses, the Finder fixture waits for three
 additional capability responses, and the form fixture dispatches text, date,
@@ -85,15 +89,16 @@ tag-array, and file-path changes plus a submit event with client-provided
 values. The launch-boundaries fixture is also exercised by the vertical suite.
 The runtime-boundaries fixture waits for an AI response, command subtitle
 update, and OAuth token lookup; the host-boundaries fixture waits for browser
-tab/content, search, and trash capability responses; the gap fixture asserts
-that unmeasured surface fails with a structured `unsupported_api` error and a
-non-zero exit.
+tab/content, search, and trash capability responses; the `coverage-next`
+fixture additionally exercises default-application and telemetry responses
+plus deprecated and modern browser/clipboard action events.
 
 ## Known gaps surfaced by the matrix
 
 - action groups, `ActionPanel.Section`, submenus, tinted icons, shortcut
-  objects, action styles, and `autoFocus` are measured; `Action.OpenInBrowser`
-  and broader action helpers remain unsupported;
+  objects, action styles, `autoFocus`, `Action.OpenInBrowser`, and the
+  deprecated browser/clipboard action aliases are measured; broader action
+  helpers remain unsupported;
 - toast lifecycle, mutable fields, action callbacks, and toast-action shortcut
   objects are measured; client toast timing/stacking remains unsupported;
 - Form focus/blur callbacks;
@@ -123,6 +128,11 @@ non-zero exit.
   measured. Browser integration, navigation state, destructive filesystem
   behavior, and permission/consent policy remain host work; broader browser,
   action, and Tool APIs remain unsupported;
+- `captureException`, `getDefaultApplication`, `PreferenceValues`,
+  `OpenInBrowserAction`, and `CopyToClipboardAction` are measured. Exception
+  payloads, default-application results, and action activation are brokered;
+  telemetry retention, desktop integration, clipboard policy, and consent
+  remain production host work;
 - `AI.ask` is measured through `ai.ask`, including creativity/model option
   normalization, abort preflight, and the final-result `.on("data")` adapter;
   model execution and streaming providers remain host work;

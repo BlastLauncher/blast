@@ -74,11 +74,12 @@ slice changes what is executable, what is trusted, or what should happen next.
   bundle directories are removed after each successful or failed load; an
   explicitly supplied cache directory remains caller-owned.
 - The support matrix runs a committed set of real corpus extensions through
-  the full pipeline in CI: twenty-one render fixtures (list, detail, navigation,
-  action groups, tinted icons, form controls, toasts, preferences, brokered
-  clipboard, and desktop boundaries) and one fails with a structured
-  `unsupported_api` error, while the corpus probe records exactly which
-  unmeasured APIs block the rest.
+  the full pipeline in CI: twenty-three render fixtures (list, detail,
+  navigation, action groups, tinted icons, form controls, toasts, preferences,
+  brokered clipboard, desktop boundaries, and deprecated action aliases),
+  while the corpus probe records exactly which unmeasured APIs block the rest.
+- The latest pinned corpus probe passes 690 of 3,231 extensions (21.36%), or
+  690 of 2,915 extensions with a selected renderable command (23.67%).
 - Navigation (useNavigation, Action.Push), LocalStorage through the
   capability broker with a reference in-memory provider, and environment()
   are measured adapter surface; pushed views stay mounted so state survives
@@ -141,6 +142,13 @@ slice changes what is executable, what is trusted, or what should happen next.
 - The top-level `ToastStyle` constants preserve Raycast's uppercase legacy
   values, and `Tool.Confirmation<T>` is available as a type-only contract;
   neither introduces an unbrokered runtime capability.
+- `OpenInBrowserAction` and `Action.OpenInBrowser` share a validated scene
+  action and cross `open.open`; `CopyToClipboardAction` and
+  `Action.CopyToClipboard` support string, numeric, and structured content with
+  `clipboard.write` normalization. `getDefaultApplication` crosses
+  `application.default`, `PreferenceValues` is type-only, and
+  `captureException` crosses `telemetry.captureException` without making
+  telemetry failures observable to the command.
 - `AI.ask` crosses the explicit `ai.ask` capability. Prompt, creativity, and
   model options are validated and normalized; the returned promise preserves
   Raycast's `.on("data")` shape while the host owns the actual model provider.
@@ -179,8 +187,8 @@ slice changes what is executable, what is trusted, or what should happen next.
   externalization for large npm graphs (the runtime now supports explicit
   local or vendored dependency roots but never installs packages);
 - the remaining measured Raycast surface: Form focus/blur callbacks, client
-  toast timing/stacking, broader desktop APIs such as default-application
-  discovery, broader action helpers, and additional Tool/browser APIs;
+  toast timing/stacking, broader desktop APIs, broader action helpers, and
+  additional Tool/browser APIs;
 - a client-facing core protocol, daemon listener, and desktop rendering of
   scenes (the deterministic test client stands in today);
 - capability manifest declarations, real operating-system providers, audit
@@ -206,10 +214,10 @@ dependency-policy slices are complete, but the measured 80% target is not yet
 met; the next work should address the dominant remaining API and dependency
 blockers using the same probe.
 
-1. Expand the next measured blocker group (`captureException`,
-   `OpenInBrowserAction`, `CopyToClipboardAction`, `getDefaultApplication`,
-   and `PreferenceValues`) with measured call/return shapes and explicit
-   compatibility or capability boundaries.
+1. Expand the next named static blocker group (`SubmitFormAction`,
+   `getLocalStorageItem`, `setLocalStorageItem`, `ImageMask`, and
+   `PushAction`) with measured aliases and type/value shapes before taking on
+   the longer desktop and preference tails.
 2. Provision an audited, pinned vendor set or an explicit installation phase
    for the remaining third-party dependency graph; keep installation outside
    extension execution.

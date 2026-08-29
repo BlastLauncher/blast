@@ -27,7 +27,7 @@ function createCore() {
     createSessionId: () => `session-${++sessionId}`,
   });
   const grants = expectations.flatMap((expectation) => [
-    ...(expectation.apis?.includes("Clipboard")
+    ...(expectation.apis?.some((api) => api === "Clipboard" || api === "CopyToClipboardAction")
       ? [{ extensionId: expectation.extensionId, capability: "clipboard", operation: "write" }]
       : []),
     ...(expectation.apis?.includes("getApplications")
@@ -48,6 +48,9 @@ function createCore() {
     ...(expectation.apis?.includes("getFrontmostApplication")
       ? [{ extensionId: expectation.extensionId, capability: "application", operation: "frontmost" }]
       : []),
+    ...(expectation.apis?.includes("getDefaultApplication")
+      ? [{ extensionId: expectation.extensionId, capability: "application", operation: "default" }]
+      : []),
     ...(expectation.apis?.includes("AI")
       ? [{ extensionId: expectation.extensionId, capability: "ai", operation: "ask" }]
       : []),
@@ -62,6 +65,12 @@ function createCore() {
       : []),
     ...(expectation.apis?.includes("trash")
       ? [{ extensionId: expectation.extensionId, capability: "filesystem", operation: "trash" }]
+      : []),
+    ...(expectation.apis?.includes("OpenInBrowserAction")
+      ? [{ extensionId: expectation.extensionId, capability: "open", operation: "open" }]
+      : []),
+    ...(expectation.apis?.includes("captureException")
+      ? [{ extensionId: expectation.extensionId, capability: "telemetry", operation: "captureException" }]
       : []),
     ...(expectation.apis?.includes("OAuth")
       ? [
@@ -137,6 +146,14 @@ function createCore() {
               bundleId: "com.apple.finder",
             });
           }
+          if (request.operation === "default") {
+            return JSON.stringify({
+              name: "TextEdit",
+              localizedName: "TextEdit",
+              path: "/System/Applications/TextEdit.app",
+              bundleId: "com.apple.TextEdit",
+            });
+          }
           throw new Error(`Unknown application operation ${JSON.stringify(request.operation)}`);
         },
       },
@@ -157,6 +174,14 @@ function createCore() {
             return undefined;
           }
           throw new Error(`Unknown filesystem operation ${JSON.stringify(request.operation)}`);
+        },
+      },
+      open: {
+        async perform(request) {
+          if (request.operation === "open") {
+            return undefined;
+          }
+          throw new Error(`Unknown open operation ${JSON.stringify(request.operation)}`);
         },
       },
       navigation: {
@@ -197,6 +222,14 @@ function createCore() {
             return undefined;
           }
           throw new Error(`Unknown preferences operation ${JSON.stringify(request.operation)}`);
+        },
+      },
+      telemetry: {
+        async perform(request) {
+          if (request.operation === "captureException") {
+            return undefined;
+          }
+          throw new Error(`Unknown telemetry operation ${JSON.stringify(request.operation)}`);
         },
       },
       selection: {

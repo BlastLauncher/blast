@@ -1,0 +1,6 @@
+{
+  "name": "e2e.coverage-next",
+  "title": "E2E Coverage Next",
+  "description": "Fixture for measured exception, action, application, and preference APIs.",
+  "commands": [{ "name": "index", "title": "Coverage next", "mode": "view" }]
+}

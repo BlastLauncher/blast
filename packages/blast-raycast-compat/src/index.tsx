@@ -417,14 +417,30 @@ export interface ActionProps {
 }
 
 export interface CopyToClipboardProps {
-  readonly title: string;
-  readonly content: string;
-  readonly onCopy?: () => void;
+  readonly title?: string;
+  readonly content: string | number | Clipboard.Content;
+  readonly transient?: boolean;
+  readonly concealed?: boolean;
+  readonly onCopy?: (content: string | number | Clipboard.Content) => void;
   readonly icon?: IconLike;
   readonly shortcut?: ShortcutLike;
   readonly style?: ActionStyleLike;
   readonly autoFocus?: boolean;
 }
+
+/** @deprecated Use `CopyToClipboardProps` or `Action.CopyToClipboard` instead. */
+export interface CopyToClipboardActionProps extends CopyToClipboardProps {}
+
+export interface OpenInBrowserProps {
+  readonly url: string;
+  readonly title?: string;
+  readonly icon?: IconLike;
+  readonly shortcut?: ShortcutLike;
+  readonly onOpen?: (url: string) => void;
+}
+
+/** @deprecated Use `OpenInBrowserProps` or `Action.OpenInBrowser` instead. */
+export interface OpenInBrowserActionProps extends OpenInBrowserProps {}
 
 export interface IconObject {
   readonly source: string | { readonly light: string; readonly dark: string };
@@ -544,6 +560,11 @@ export interface Application {
   readonly path: string;
   readonly bundleId?: string;
   readonly windowsAppId?: string;
+}
+
+/** Type-only preference bag used by generic Raycast command code. */
+export interface PreferenceValues {
+  [name: string]: any;
 }
 
 /** Structural equivalent of Node's PathLike without a Node-only dependency. */
@@ -2545,16 +2566,39 @@ function CopyToClipboard(props: CopyToClipboardProps): ReactElement {
   const shortcut = serializeShortcut(props.shortcut, "Action.CopyToClipboard");
   const style = normalizeActionStyle(props.style, "Action.CopyToClipboard");
   return createElement("action", {
-    title: props.title,
-    ...(icon === undefined ? {} : { icon: icon.icon, iconTintColor: icon.iconTintColor }),
+    title: props.title ?? "Copy to Clipboard",
+    ...(icon === undefined ? { icon: "clipboard" } : { icon: icon.icon, iconTintColor: icon.iconTintColor }),
     ...(shortcut === undefined ? {} : { shortcut }),
     ...(style === undefined ? {} : { style }),
     ...(props.autoFocus === undefined ? {} : { autoFocus: props.autoFocus }),
     onAction: () => {
-      void copyToClipboard(props.content).then(() => props.onCopy?.());
+      void copyToClipboard(props.content, {
+        ...(props.transient === undefined ? {} : { transient: props.transient }),
+        ...(props.concealed === undefined ? {} : { concealed: props.concealed }),
+      }).then(() => props.onCopy?.(props.content));
     },
   });
 }
+
+function OpenInBrowser(props: OpenInBrowserProps): ReactElement {
+  const url = requireNonEmptyString(props.url, "Action.OpenInBrowser url");
+  const icon = serializeIcon(props.icon ?? "globe", "Action.OpenInBrowser");
+  const shortcut = serializeShortcut(props.shortcut, "Action.OpenInBrowser");
+  return createElement("action", {
+    title: props.title ?? "Open in Browser",
+    ...(icon === undefined ? {} : { icon: icon.icon, iconTintColor: icon.iconTintColor }),
+    ...(shortcut === undefined ? {} : { shortcut }),
+    onAction: () => {
+      void open(url).then(() => props.onOpen?.(url));
+    },
+  });
+}
+
+/** @deprecated Use `Action.CopyToClipboard` instead. */
+export const CopyToClipboardAction = CopyToClipboard;
+
+/** @deprecated Use `Action.OpenInBrowser` instead. */
+export const OpenInBrowserAction = OpenInBrowser;
 
 function mapGridChildren(children: ReactNode): ReactNode {
   return Children.toArray(children).map((child, index) => {
@@ -2647,6 +2691,7 @@ function mapMenuBarChildren(children: ReactNode, where: string): ReactNode {
 interface ActionComponent {
   (props: ActionProps): ReactElement;
   CopyToClipboard: typeof CopyToClipboard;
+  OpenInBrowser: typeof OpenInBrowser;
   Push: typeof Push;
   SubmitForm: typeof SubmitForm;
   Style: typeof ActionStyle;
@@ -2654,16 +2699,76 @@ interface ActionComponent {
 
 export const Action: ActionComponent = Object.assign(ActionComponent, {
   CopyToClipboard,
+  OpenInBrowser,
   Push,
   SubmitForm,
   Style: ActionStyle,
 });
 
-async function copyToClipboard(text: string): Promise<void> {
+function serializeClipboardContent(content: string | number | Clipboard.Content, where: string): CapabilityArguments {
+  if (typeof content === "string") {
+    return { text: content };
+  }
+  if (typeof content === "number" && Number.isFinite(content)) {
+    return { text: String(content) };
+  }
+  if (!isRecord(content)) {
+    unsupported(`${where} content`, { content });
+  }
+  const contentRecord = content as Record<string, unknown>;
+  if (typeof contentRecord.text === "string" && Object.keys(contentRecord).every((key) => key === "text")) {
+    return { contentJSON: JSON.stringify({ text: contentRecord.text }) };
+  }
+  if (Object.hasOwn(contentRecord, "file") && Object.keys(contentRecord).every((key) => key === "file")) {
+    return {
+      contentJSON: JSON.stringify({ file: serializePathLike(contentRecord.file as PathLike, `${where} file`) }),
+    };
+  }
+  if (
+    typeof contentRecord.html === "string" &&
+    Object.keys(contentRecord).every((key) => key === "html" || key === "text")
+  ) {
+    if (contentRecord.text !== undefined && typeof contentRecord.text !== "string") {
+      unsupported(`${where} text`, { value: contentRecord.text });
+    }
+    return {
+      contentJSON: JSON.stringify({
+        html: contentRecord.html,
+        ...(contentRecord.text === undefined ? {} : { text: contentRecord.text }),
+      }),
+    };
+  }
+  unsupported(`${where} content`, { content });
+}
+
+async function copyToClipboard(
+  content: string | number | Clipboard.Content,
+  options?: Clipboard.CopyOptions,
+): Promise<void> {
+  const argumentsValue: Record<string, string | number | boolean> = {
+    ...serializeClipboardContent(content, "Clipboard.copy"),
+  };
+  if (options !== undefined) {
+    if (!isRecord(options)) {
+      unsupported("Clipboard.copy options", { options });
+    }
+    if (options.transient !== undefined) {
+      if (typeof options.transient !== "boolean") {
+        unsupported("Clipboard.copy transient", { value: options.transient });
+      }
+      argumentsValue.transient = options.transient;
+    }
+    if (options.concealed !== undefined) {
+      if (typeof options.concealed !== "boolean") {
+        unsupported("Clipboard.copy concealed", { value: options.concealed });
+      }
+      argumentsValue.concealed = options.concealed;
+    }
+  }
   const response = await requireContext().requestCapability({
     capability: "clipboard",
     operation: "write",
-    arguments: { text },
+    arguments: argumentsValue,
   });
   if (response.outcome !== "succeeded") {
     throw new CompatibilityError("The clipboard write capability was not granted", response);
@@ -2685,6 +2790,7 @@ function mapItemChildren(children: ReactNode, where: string): ReactNode {
       child.type === Action ||
       child.type === SubmitForm ||
       child.type === CopyToClipboard ||
+      child.type === OpenInBrowser ||
       child.type === Push
     ) {
       return keyedElement(child, `${where}-${index}`);
@@ -2702,8 +2808,8 @@ function keyedElement(child: ReactNode, key: string): ReactNode {
 }
 
 export const Clipboard = {
-  async copy(text: string): Promise<void> {
-    await copyToClipboard(text);
+  async copy(content: string | number | Clipboard.Content, options?: Clipboard.CopyOptions): Promise<void> {
+    await copyToClipboard(content, options);
   },
   async read(): Promise<string> {
     const response = await requireContext().requestCapability({ capability: "clipboard", operation: "read" });
@@ -2713,6 +2819,18 @@ export const Clipboard = {
     return typeof response.value === "string" ? response.value : "";
   },
 };
+
+export namespace Clipboard {
+  export type Content =
+    | { readonly text: string }
+    | { readonly file: PathLike }
+    | { readonly html: string; readonly text?: string };
+
+  export type CopyOptions = {
+    readonly transient?: boolean;
+    readonly concealed?: boolean;
+  };
+}
 
 Object.assign(List, { Item: ListItem });
 
@@ -2990,6 +3108,37 @@ async function callCapability(
   return response;
 }
 
+/** Reports an exception without allowing telemetry availability to affect a command. */
+export function captureException(exception: unknown): void {
+  const exceptionJSON = serializeCapturedException(exception);
+  void callCapability("telemetry", "captureException", { exceptionJSON }, "The captureException").catch(() => {});
+}
+
+function serializeCapturedException(exception: unknown): string {
+  if (exception instanceof Error) {
+    return JSON.stringify({
+      name: exception.name,
+      message: exception.message,
+      ...(exception.stack === undefined ? {} : { stack: exception.stack }),
+    });
+  }
+  try {
+    const serialized = JSON.stringify(exception);
+    if (serialized !== undefined) {
+      return serialized;
+    }
+  } catch {
+    // Fall through to a string representation for circular or hostile values.
+  }
+  let message: string;
+  try {
+    message = String(exception);
+  } catch {
+    message = "Unserializable exception";
+  }
+  return JSON.stringify({ message });
+}
+
 /** Updates the current command's measured subtitle metadata through the host. */
 export async function updateCommandMetadata(metadata: CommandMetadata): Promise<void> {
   if (!isRecord(metadata)) {
@@ -3089,6 +3238,20 @@ export async function getApplications(path?: PathLike): Promise<Application[]> {
   const argumentsValue = path === undefined ? undefined : { path: serializePathLike(path, "getApplications path") };
   const response = await callCapability("application", "list", argumentsValue, "The getApplications");
   return deserializeApplications(response.value);
+}
+
+/** Returns the default application that opens a file or folder through the host. */
+export async function getDefaultApplication(path: PathLike): Promise<Application> {
+  const response = await callCapability(
+    "application",
+    "default",
+    { path: serializePathLike(path, "getDefaultApplication path") },
+    "The getDefaultApplication",
+  );
+  return deserializeApplication(
+    parseJSONCapabilityValue(response.value, "getDefaultApplication"),
+    "getDefaultApplication",
+  );
 }
 
 /** Returns the selected Finder items through the host. */
@@ -3437,8 +3600,8 @@ export async function confirmAlert(options: AlertOptions): Promise<boolean> {
  * Returns the command's preference values: manifest defaults resolved by the
  * trusted catalog today, user overrides once preference storage exists.
  */
-export function getPreferenceValues<T = Record<string, string | number | boolean>>(): T {
-  return requireContext().descriptor.preferences as T;
+export function getPreferenceValues<T = PreferenceValues>(): T {
+  return (requireContext().descriptor.preferences ?? {}) as T;
 }
 
 export interface NavigationApi {
