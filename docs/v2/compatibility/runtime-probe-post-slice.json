@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "protocolVersion": 1,
   "corpus": {
-    "revision": "d4aae99c5e1d7ec19b2341f1058c20adfd3fd91",
+    "revision": "d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91",
     "url": "https://github.com/raycast/extensions",
     "rootSelection": "immediate subdirectories containing package.json",
     "extensions": 3231,
@@ -110,7 +110,7 @@
   },
   "census": {
     "protocolVersion": 1,
-    "corpusRevision": "d4aae99c5e1d7ec19b2341f1058c20adfd3fd91",
+    "corpusRevision": "d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91",
     "corpusUrl": "https://github.com/raycast/extensions",
     "extensions": {
       "total": 3231,
@@ -1832,18 +1832,18 @@
   "outcomes": {
     "no-entrypoint": 3,
     "not-renderable": 316,
-    "process-failure": 693,
-    "renders": 1281,
-    "structured-compatibility-error": 26,
-    "third-party-dependency": 912
+    "process-failure": 677,
+    "renders": 1304,
+    "structured-compatibility-error": 15,
+    "third-party-dependency": 916
   },
   "coverage": {
-    "extensionPasses": 1281,
+    "extensionPasses": 1304,
     "extensionTotal": 3231,
-    "extensionPassRate": 0.3965,
-    "renderableCommandPasses": 1281,
+    "extensionPassRate": 0.4036,
+    "renderableCommandPasses": 1304,
     "renderableCommandTotal": 2915,
-    "renderableCommandPassRate": 0.4395
+    "renderableCommandPassRate": 0.4473
   },
   "staticBlockers": [
     {
@@ -1853,9 +1853,9 @@
   ],
   "failureClasses": {
     "no-entrypoint": 3,
-    "process-failure": 693,
-    "structured-compatibility-error": 26,
-    "third-party-dependency": 912
+    "process-failure": 677,
+    "structured-compatibility-error": 15,
+    "third-party-dependency": 916
   },
   "failureSamples": {
     "no-entrypoint": [
@@ -1871,11 +1871,11 @@
       "CodeBlocks"
     ],
     "structured-compatibility-error": [
-      "5devs",
-      "ai-humanizer",
-      "apple-maps-search",
       "arabic-keyboard",
-      "archiver"
+      "archiver",
+      "clean-text",
+      "conventional-comments",
+      "create-t3-app"
     ],
     "third-party-dependency": [
       "1bookmark",
@@ -1969,8 +1969,7 @@
       "commandName": "empresa",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "renders"
     },
     {
       "directory": "8-divide",
@@ -2252,8 +2251,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "renders"
     },
     {
       "directory": "ai-screenshot",
@@ -2886,8 +2884,8 @@
       "commandName": "directionsTo",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "apple-notes",
@@ -3242,8 +3240,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "outcome": "third-party-dependency",
+      "failureCode": "dependency_unavailable"
     },
     {
       "directory": "auth0-management",
@@ -4341,7 +4339,7 @@
       "mode": "view",
       "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "runtime_exited_during_initialization"
+      "failureCode": "process_failed"
     },
     {
       "directory": "browser-tabs",
@@ -5044,7 +5042,8 @@
       "commandName": "search-colors",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "chmod-lookup",
@@ -5274,8 +5273,8 @@
       "commandName": "clean-text",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "cleanshotx",
@@ -5516,8 +5515,7 @@
       "commandName": "switch-virtual-network",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "renders"
     },
     {
       "directory": "cloudinary",
@@ -5566,8 +5564,7 @@
       "commandName": "transactions",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_send_failed"
+      "outcome": "renders"
     },
     {
       "directory": "cocart-docs",
@@ -5908,8 +5905,7 @@
       "commandName": "comma-separator",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "renders"
     },
     {
       "directory": "commercequest",
@@ -6139,7 +6135,7 @@
       "mode": "view",
       "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "transport_send_failed"
+      "failureCode": "process_failed"
     },
     {
       "directory": "convert-px-to-vw-vh",
@@ -6171,8 +6167,7 @@
       "commandName": "switch-project",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_send_failed"
+      "outcome": "renders"
     },
     {
       "directory": "cook",
@@ -6434,8 +6429,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "creem",
@@ -7147,8 +7142,7 @@
       "commandName": "stats",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_send_failed"
+      "outcome": "renders"
     },
     {
       "directory": "definitelytyped",
@@ -9044,8 +9038,7 @@
       "commandName": "create",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "renders"
     },
     {
       "directory": "fathom",
@@ -9800,8 +9793,7 @@
       "commandName": "repo-search",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "renders"
     },
     {
       "directory": "fork-repositories",
@@ -10409,8 +10401,7 @@
       "commandName": "write-commit-message",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "renders"
     },
     {
       "directory": "git-co-authors",
@@ -10435,8 +10426,8 @@
       "commandName": "current-profile",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "outcome": "third-party-dependency",
+      "failureCode": "dependency_unavailable"
     },
     {
       "directory": "git-repos",
@@ -10977,8 +10968,8 @@
       "commandName": "manual-profile",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "google-scholar",
@@ -13328,8 +13319,7 @@
       "commandName": "set-volume",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_send_failed"
+      "outcome": "renders"
     },
     {
       "directory": "keka",
@@ -14558,8 +14548,7 @@
       "commandName": "query-logs",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "renders"
     },
     {
       "directory": "lokalise",
@@ -14683,8 +14672,7 @@
       "commandName": "list",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "renders"
     },
     {
       "directory": "lumen",
@@ -14769,8 +14757,7 @@
       "commandName": "avatar",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "renders"
     },
     {
       "directory": "mac-app-store-search",
@@ -15638,8 +15625,7 @@
       "commandName": "view-logs",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "renders"
     },
     {
       "directory": "microblog",
@@ -16049,8 +16035,7 @@
       "commandName": "payments-list",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "outcome": "renders"
     },
     {
       "directory": "momentum",
@@ -17320,8 +17305,7 @@
       "commandName": "whats-playing",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "renders"
     },
     {
       "directory": "nts-radio",
@@ -18548,8 +18532,7 @@
       "commandName": "parse-log-file",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "renders"
     },
     {
       "directory": "party-parrot",
@@ -18876,8 +18859,8 @@
       "commandName": "trackTimeCommand",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "outcome": "third-party-dependency",
+      "failureCode": "dependency_unavailable"
     },
     {
       "directory": "pestphp-documentation",
@@ -19812,7 +19795,8 @@
       "commandName": "generate-project-code",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "project-companion",
@@ -20834,8 +20818,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "raycast-deskly",
@@ -21726,8 +21710,7 @@
       "commandName": "view-services",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "renders"
     },
     {
       "directory": "replicate",
@@ -22077,8 +22060,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "renders"
     },
     {
       "directory": "ruler",
@@ -22187,7 +22169,8 @@
       "commandName": "search-records",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "sanity",
@@ -23058,8 +23041,8 @@
       "commandName": "addBookmark",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "shiori-sh",
@@ -23127,8 +23110,7 @@
       "commandName": "browse-shop",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_send_failed"
+      "outcome": "renders"
     },
     {
       "directory": "shopify-theme-resources",
@@ -23469,7 +23451,8 @@
       "commandName": "searchDocuments",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "skills",
@@ -24049,8 +24032,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "splix",
@@ -25323,8 +25306,7 @@
       "commandName": "viewCar",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_send_failed"
+      "outcome": "renders"
     },
     {
       "directory": "tesla-clips",
@@ -25367,8 +25349,8 @@
       "commandName": "decorate-text-with-font",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "text-differ",
@@ -25408,8 +25390,7 @@
       "commandName": "text-rewrap-form",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "renders"
     },
     {
       "directory": "text-scramble",
@@ -26414,8 +26395,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "renders"
     },
     {
       "directory": "tuple",
@@ -26681,8 +26661,8 @@
       "commandName": "create-note",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "typst-symbols",
@@ -26808,8 +26788,7 @@
       "commandName": "select-site",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_send_failed"
+      "outcome": "renders"
     },
     {
       "directory": "unify-path-separator",
@@ -26987,8 +26966,8 @@
       "commandName": "upload-image",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "uploadthing",
@@ -27419,8 +27398,8 @@
       "commandName": "convert-video",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "outcome": "third-party-dependency",
+      "failureCode": "dependency_unavailable"
     },
     {
       "directory": "video-downloader",
@@ -27454,8 +27433,8 @@
       "commandName": "create-task",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "vim-bro",
@@ -27537,8 +27516,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "renders"
     },
     {
       "directory": "visitor-queue",
@@ -27655,8 +27633,7 @@
       "commandName": "speech-to-text",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "renders"
     },
     {
       "directory": "voiceink",
@@ -28750,8 +28727,7 @@
       "commandName": "xkeen-manager",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "renders"
     },
     {
       "directory": "xpf-converter",
@@ -28808,7 +28784,8 @@
       "commandName": "search",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "yandex-smart-home",

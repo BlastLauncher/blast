@@ -88,9 +88,9 @@ slice changes what is executable, what is trusted, or what should happen next.
 - A second bounded seed adds `file-url`, `filesize`, `gray-matter`,
   `javascript-time-ago`, `luxon`, `node-html-parser`, `qrcode`, `tildify`,
   `ts-pattern`, and `turndown`, also as exact-version e2e development
-  dependencies. The latest pinned corpus probe passes 1,281 of 3,231
-  extensions (39.65%), or 1,281 of 2,915 extensions with a selected renderable
-  command (43.95%).
+  dependencies. The latest pinned corpus probe passes 1,304 of 3,231
+  extensions (40.36%), or 1,304 of 2,915 extensions with a selected renderable
+  command (44.73%).
 - Navigation (useNavigation, Action.Push), LocalStorage through the
   capability broker with a reference in-memory provider, the callable plus
   property-based environment surface, and measured WindowManagement discovery
@@ -129,6 +129,10 @@ slice changes what is executable, what is trusted, or what should happen next.
   validation, event IDs, and scene serialization. Focused corpus diagnostics
   moved `iridium`, `markdown-reference`, and `vivaldi` through to rendered
   scenes; invalid action children remain structured compatibility errors.
+- Whitespace-only text nodes produced by JSX formatting are ignored in measured
+  collection mappers for forms, pickers, lists, grids, menus, and action
+  groups. Meaningful text and invalid elements remain rejected; the canonical
+  reprobe moved six formatting-only corpus failures through to rendered scenes.
 - Measured collection components accept custom function components and React
   fragments in action, list, grid, menu-bar, and form child positions; the
   resolved children remain subject to semantic parent/child validation, while
@@ -283,13 +287,13 @@ measured 80% target is not yet met; the next work should address the dominant
 remaining API boundary gaps using the same probe. Additional dependency seeds
 remain deferred until the next API slice is measured.
 
-1. Use the current report and focused diagnostics to map the next high-frequency
-   API gap after the completed `ActionPanel.Item` boundary; keep client-only
-   toast timing/stacking separate from the extension event contract.
-2. Implement and re-probe that boundary while keeping the command-scoped
-   preference, nullable Form, empty-string, `LocalStorage.allItems`/
-   `allLocalStorageItems`, Form event, literal `require`, composite-child,
-   measured Icon, and `ActionPanel.Item` boundaries covered by each reprobe.
+1. Implement and re-probe the measured `Form.searchBarAccessory`/
+   `Form.LinkAccessory` boundary, keeping client-only toast timing/stacking
+   separate from the extension event contract.
+2. Keep the command-scoped preference, nullable Form, empty-string,
+   `LocalStorage.allItems`/`allLocalStorageItems`, Form event, literal `require`,
+   composite-child, measured Icon, `ActionPanel.Item`, and whitespace-only
+   collection boundaries covered by each reprobe.
 3. Keep safe dynamic, namespace, side-effect, and literal `require` import
    forms covered while the remaining `fetch` import stays outside the adapter
    until a host network capability defines URL policy, consent, and response

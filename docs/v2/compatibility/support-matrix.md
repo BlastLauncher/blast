@@ -32,31 +32,33 @@ unavailable packages remain dependency failures.
 
 | Outcome                        | Baseline | Previous post-slice | Current post-slice | Current vs previous |
 | ------------------------------ | -------: | ------------------: | -----------------: | ------------------: |
-| third-party dependency failure |    2,361 |               1,278 |                912 |                -366 |
+| third-party dependency failure |    2,361 |               1,278 |                916 |                -362 |
 | not renderable command mode    |      358 |                 316 |                316 |                   0 |
-| other process/startup failure  |      432 |                 824 |                693 |                -131 |
-| structured compatibility error |       23 |                 106 |                 26 |                 -80 |
-| renders a scene end to end     |       54 |                 704 |              1,281 |                +577 |
+| other process/startup failure  |      432 |                 824 |                677 |                -147 |
+| structured compatibility error |       23 |                 106 |                 15 |                 -91 |
+| renders a scene end to end     |       54 |                 704 |              1,304 |                +600 |
 | no entrypoint found            |        3 |                   3 |                  3 |                   0 |
 
-Reading: the current post-slice extension pass rate is 1,281/3,231 (39.65%);
-among the 2,915 extensions with a selected renderable command it is 1,281/2,915
-(43.95%). The measured preference, navigation, environment, form-value,
+Reading: the current post-slice extension pass rate is 1,304/3,231 (40.36%);
+among the 2,915 extensions with a selected renderable command it is 1,304/2,915
+(44.73%). The measured preference, navigation, environment, form-value,
 keyboard, image-type, `randomId`, WindowManagement, small legacy aliases,
 safe import shapes, Form focus/blur callbacks, nullable Form initial values,
 empty string-valued controls, composite React children, the observed icon
-members, and the `ActionPanel.Item` alias are no longer in the non-rendering
-static blocker list. The only
+members, the `ActionPanel.Item` alias, and whitespace-only collection children
+are no longer in the non-rendering static blocker list. The only
 remaining static import gap is one `fetch` import. The vendor root leaves
 dependency failures tracked separately.
 The current priority is the measured API boundary rather than another
-dependency seed; this probe refresh records the `ActionPanel.Item` alias
-alongside the command-scoped preference, explicit icon-member, empty-string,
+dependency seed; this probe refresh records whitespace-only collection child
+handling alongside the `ActionPanel.Item` alias, command-scoped preference,
+explicit icon-member, empty-string,
 nullable Form initial-value, `LocalStorage.allItems`/`allLocalStorageItems`,
 Form event, literal `require`, and composite-child surfaces before dependency
-provisioning resumes. Focused alias diagnostics moved `iridium`,
-`markdown-reference`, and `vivaldi` to rendered scenes; the next target is the
-highest-yield remaining Form boundary.
+provisioning resumes. Focused diagnostics moved `5devs`, `ai-humanizer`,
+`comma-separator`, `fastmail-masked-email`, `m3o`, and `xkeen-manager` to
+rendered scenes; the next target is the measured `Form.searchBarAccessory` /
+`Form.LinkAccessory` boundary.
 
 The first audited vendor seed is `axios@1.8.4`, `cheerio@1.0.0`,
 `cross-fetch@4.0.0`, `date-fns@4.1.0`, `fast-xml-parser@5.3.2`, `fuse.js@7.1.0`,

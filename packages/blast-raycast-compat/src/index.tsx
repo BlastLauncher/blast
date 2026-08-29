@@ -2816,7 +2816,7 @@ function FormFilePicker(props: FilePickerProps): ReactElement {
 
 function mapFormChildren(children: ReactNode): ReactNode {
   return Children.toArray(children).map((child, index) => {
-    if (child === null || child === undefined || typeof child === "boolean") {
+    if (isIgnorableChild(child)) {
       return null;
     }
     if (!isValidElement(child)) {
@@ -2848,7 +2848,7 @@ function mapFormChildren(children: ReactNode): ReactNode {
 
 function mapTagPickerChildren(children: ReactNode): ReactNode {
   return Children.toArray(children).map((child, index) => {
-    if (child === null || child === undefined || typeof child === "boolean") {
+    if (isIgnorableChild(child)) {
       return null;
     }
     if (!isValidElement(child)) {
@@ -2868,7 +2868,7 @@ function mapTagPickerChildren(children: ReactNode): ReactNode {
 
 function mapDropdownChildren(children: ReactNode): ReactNode {
   return Children.toArray(children).map((child, index) => {
-    if (child === null || child === undefined || typeof child === "boolean") {
+    if (isIgnorableChild(child)) {
       return null;
     }
     if (!isValidElement(child)) {
@@ -3140,7 +3140,7 @@ export const PasteAction = Paste;
 
 function mapListSectionChildren(children: ReactNode): ReactNode {
   return Children.toArray(children).map((child, index) => {
-    if (child === null || child === undefined || typeof child === "boolean") {
+    if (isIgnorableChild(child)) {
       return null;
     }
     if (!isValidElement(child)) {
@@ -3155,7 +3155,7 @@ function mapListSectionChildren(children: ReactNode): ReactNode {
 
 function mapGridChildren(children: ReactNode): ReactNode {
   return Children.toArray(children).map((child, index) => {
-    if (child === null || child === undefined || typeof child === "boolean") {
+    if (isIgnorableChild(child)) {
       return null;
     }
     if (!isValidElement(child)) {
@@ -3181,7 +3181,7 @@ function mapGridChildren(children: ReactNode): ReactNode {
 
 function mapGridSectionChildren(children: ReactNode): ReactNode {
   return Children.toArray(children).map((child, index) => {
-    if (child === null || child === undefined || typeof child === "boolean") {
+    if (isIgnorableChild(child)) {
       return null;
     }
     if (!isValidElement(child)) {
@@ -3198,7 +3198,7 @@ function mapGridSectionChildren(children: ReactNode): ReactNode {
 
 function mapGridDropdownChildren(children: ReactNode): ReactNode {
   return Children.toArray(children).map((child, index) => {
-    if (child === null || child === undefined || typeof child === "boolean") {
+    if (isIgnorableChild(child)) {
       return null;
     }
     if (!isValidElement(child)) {
@@ -3218,7 +3218,7 @@ function mapGridDropdownChildren(children: ReactNode): ReactNode {
 
 function mapMenuBarChildren(children: ReactNode, where: string): ReactNode {
   return Children.toArray(children).map((child, index) => {
-    if (child === null || child === undefined || typeof child === "boolean") {
+    if (isIgnorableChild(child)) {
       return null;
     }
     if (!isValidElement(child)) {
@@ -3350,7 +3350,7 @@ async function pasteToClipboard(content: string | number | Clipboard.Content): P
 
 function mapItemChildren(children: ReactNode, where: string): ReactNode {
   return Children.toArray(children).map((child, index) => {
-    if (child === null || child === undefined || typeof child === "boolean") {
+    if (isIgnorableChild(child)) {
       return null;
     }
     if (!isValidElement(child)) {
@@ -3376,6 +3376,15 @@ function mapItemChildren(children: ReactNode, where: string): ReactNode {
     }
     return unsupported(`A ${where} child that is not an action`, { childType: String(child.type) });
   });
+}
+
+function isIgnorableChild(child: ReactNode): boolean {
+  return (
+    child === null ||
+    child === undefined ||
+    typeof child === "boolean" ||
+    (typeof child === "string" && child.trim().length === 0)
+  );
 }
 
 function isCompositeElement(element: ReactElement): boolean {

@@ -21,7 +21,9 @@ onto the V2 scene contract, renderer, and capability broker:
   dropdowns, date pickers, tag pickers, file pickers, descriptions, separators,
   dropdown sections/items, and tag items. Field `onFocus` and `onBlur`
   callbacks receive the measured `Form.Event` target shape, and custom React
-  components/fragments may compose measured field and action children;
+  components/fragments may compose measured field and action children.
+  Whitespace-only formatting text is ignored in measured collection slots, while
+  meaningful text remains unsupported;
 - `Icon` ships an explicit measured kebab-case subset serialized into scene
   `icon` properties, including object-icon tint colors; observed list, form,
   grid, menu-bar, numbered, progress, disabled, and formatting members are

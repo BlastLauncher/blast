@@ -261,6 +261,59 @@ test("accepts composite children in action groups and form collections", async (
   assert.equal(root.children[2].children[0].props.value, "admin");
 });
 
+test("ignores whitespace-only children in measured collections", async () => {
+  const probe = createContext();
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      List,
+      null,
+      createElement(
+        List.Section,
+        { title: "Items" },
+        "\n    ",
+        createElement(
+          List.Item,
+          { title: "First" },
+          createElement(ActionPanel, null, "\n      ", createElement(Action, { title: "Run" }), "\n    "),
+        ),
+        "\n  ",
+      ),
+    ),
+  );
+  await renderer.flush();
+
+  const listRoot = probe.transactions[0].operations[0].root;
+  assert.deepEqual(
+    listRoot.children.map((child) => child.type),
+    ["list-section"],
+  );
+  assert.deepEqual(
+    listRoot.children[0].children.map((child) => child.type),
+    ["list-item"],
+  );
+  assert.deepEqual(
+    listRoot.children[0].children[0].children[0].children.map((child) => child.type),
+    ["action"],
+  );
+
+  const formProbe = createContext();
+  const formRenderer = renderCommand(formProbe.context, () =>
+    createElement(
+      Form,
+      { actions: createElement(ActionPanel, null, "\n", createElement(Action, { title: "Save" }), "\n") },
+      "\n",
+      createElement(Form.TextField, { id: "name", title: "Name" }),
+      "\n",
+    ),
+  );
+  await formRenderer.flush();
+  const formRoot = formProbe.transactions[0].operations[0].root;
+  assert.deepEqual(
+    formRoot.children.map((child) => child.type),
+    ["action-group", "form-text-field"],
+  );
+});
+
 test("renders legacy list and action aliases, including OpenWithAction", async () => {
   const probe = createContext();
   const opened = [];
