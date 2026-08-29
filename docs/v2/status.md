@@ -79,8 +79,8 @@ slice changes what is executable, what is trusted, or what should happen next.
   brokered clipboard, desktop boundaries, legacy action/storage aliases, and
   cross-bundle navigation),
   while the corpus probe records exactly which unmeasured APIs block the rest.
-- The latest pinned corpus probe passes 695 of 3,231 extensions (21.51%), or
-  695 of 2,915 extensions with a selected renderable command (23.84%).
+- The latest pinned corpus probe passes 704 of 3,231 extensions (21.79%), or
+  704 of 2,915 extensions with a selected renderable command (24.15%).
 - Navigation (useNavigation, Action.Push), LocalStorage through the
   capability broker with a reference in-memory provider, and environment()
   are measured adapter surface; the navigation stack retains entries and pop
@@ -102,11 +102,10 @@ slice changes what is executable, what is trusted, or what should happen next.
 - Action and action-group shortcut objects normalize into structured scene
   values, including platform-specific Raycast shortcut unions; measured action
   styles, `autoFocus`, and common keyboard shortcut constants are available.
-- `SubmitFormAction` and `PushAction` preserve the measured form-submit and
-  push/pop lifecycle shapes. `ImageMask` aliases `Image.Mask`, while
-  `getLocalStorageItem` and `setLocalStorageItem` route to the same brokered
-  LocalStorage operations; all five legacy names are covered by an end-to-end
-  fixture.
+- `SubmitFormAction`, `OpenAction`, and `PasteAction` preserve the measured
+  form-submit and action shapes. `ImageMask` aliases `Image.Mask`, while the
+  top-level clipboard and LocalStorage helpers route to the same brokered
+  operations; all eleven legacy names are covered by an end-to-end fixture.
 - `showHUD`, `open`, and `confirmAlert` cross explicit `hud.show`, `open.open`,
   and `alert.confirm` capability requests; alert callbacks run only after a
   validated boolean response.
@@ -153,7 +152,9 @@ slice changes what is executable, what is trusted, or what should happen next.
 - `OpenInBrowserAction` and `Action.OpenInBrowser` share a validated scene
   action and cross `open.open`; `CopyToClipboardAction` and
   `Action.CopyToClipboard` support string, numeric, and structured content with
-  `clipboard.write` normalization. `getDefaultApplication` crosses
+  `clipboard.write` normalization. `Action.Open`/`OpenAction` and
+  `Action.Paste`/`PasteAction` use `open.open` and `clipboard.paste`; the
+  deprecated clipboard helper aliases share those operations. `getDefaultApplication` crosses
   `application.default`, `PreferenceValues` is type-only, and
   `captureException` crosses `telemetry.captureException` without making
   telemetry failures observable to the command.
@@ -222,11 +223,10 @@ dependency-policy slices are complete, but the measured 80% target is not yet
 met; the next work should address the dominant remaining API and dependency
 blockers using the same probe.
 
-1. Expand the next named static blocker group (`OpenAction`,
-   `copyTextToClipboard`, `pasteText`, `PasteAction`,
-   `removeLocalStorageItem`, and `clearLocalStorage`) with measured aliases and
-   type/value shapes before taking on the longer navigation and preference
-   tails.
+1. Expand the next named static blocker group (`preferences`, `Navigation`,
+   `Preferences`, `KeyEquivalent`, `randomId`, `WindowManagement`,
+   `Environment`, and `FormValue`) with measured shapes before taking on the
+   dynamic and namespace tails.
 2. Provision an audited, pinned vendor set or an explicit installation phase
    for the remaining third-party dependency graph; keep installation outside
    extension execution.

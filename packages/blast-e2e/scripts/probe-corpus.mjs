@@ -30,11 +30,15 @@ const SUPPORTED_API_IMPORTS = new Set([
   "Clipboard",
   "Color",
   "CopyToClipboardAction",
+  "OpenAction",
+  "PasteAction",
   "ImageMask",
   "PushAction",
   "SubmitFormAction",
   "captureException",
   "clearSearchBar",
+  "clearLocalStorage",
+  "copyTextToClipboard",
   "Detail",
   "Form",
   "FileIcon",
@@ -69,6 +73,8 @@ const SUPPORTED_API_IMPORTS = new Set([
   "openCommandPreferences",
   "openExtensionPreferences",
   "popToRoot",
+  "pasteText",
+  "removeLocalStorageItem",
   "launchCommand",
   "showHUD",
   "showInFinder",
@@ -344,6 +350,9 @@ function createCore(stderr) {
             return "";
           }
           if (request.operation === "write") {
+            return undefined;
+          }
+          if (request.operation === "paste") {
             return undefined;
           }
           throw new Error(`Unknown clipboard operation ${JSON.stringify(request.operation)}`);

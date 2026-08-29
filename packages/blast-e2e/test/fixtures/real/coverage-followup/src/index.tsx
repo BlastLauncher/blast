@@ -1,12 +1,18 @@
 import {
   Action,
   ActionPanel,
+  OpenAction,
+  PasteAction,
   Form,
   ImageMask,
   List,
   PushAction,
   SubmitFormAction,
+  clearLocalStorage,
+  copyTextToClipboard,
   getLocalStorageItem,
+  pasteText,
+  removeLocalStorageItem,
   setLocalStorageItem,
   useNavigation,
 } from "@raycast/api";
@@ -54,6 +60,44 @@ export default function Command() {
             title="Submit legacy"
             onSubmit={() => {
               void setLocalStorageItem("submitted", "yes");
+            }}
+          />
+          <OpenAction
+            title="Open legacy"
+            target="https://example.com/followup"
+            onOpen={() => {
+              void setLocalStorageItem("opened", "yes");
+            }}
+          />
+          <PasteAction
+            title="Paste legacy"
+            content="legacy paste"
+            onPaste={() => {
+              void setLocalStorageItem("pasted", "yes");
+            }}
+          />
+          <Action
+            title="Copy helper"
+            onAction={() => {
+              void copyTextToClipboard("helper copy");
+            }}
+          />
+          <Action
+            title="Paste helper"
+            onAction={() => {
+              void pasteText("helper paste");
+            }}
+          />
+          <Action
+            title="Remove legacy"
+            onAction={() => {
+              void removeLocalStorageItem("helper");
+            }}
+          />
+          <Action
+            title="Clear legacy"
+            onAction={() => {
+              void clearLocalStorage();
             }}
           />
           <PushAction

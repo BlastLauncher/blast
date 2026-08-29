@@ -27,8 +27,13 @@ function createCore() {
     createSessionId: () => `session-${++sessionId}`,
   });
   const grants = expectations.flatMap((expectation) => [
-    ...(expectation.apis?.some((api) => api === "Clipboard" || api === "CopyToClipboardAction")
+    ...(expectation.apis?.some(
+      (api) => api === "Clipboard" || api === "CopyToClipboardAction" || api === "copyTextToClipboard",
+    )
       ? [{ extensionId: expectation.extensionId, capability: "clipboard", operation: "write" }]
+      : []),
+    ...(expectation.apis?.some((api) => api === "PasteAction" || api === "pasteText")
+      ? [{ extensionId: expectation.extensionId, capability: "clipboard", operation: "paste" }]
       : []),
     ...(expectation.apis?.includes("getApplications")
       ? [{ extensionId: expectation.extensionId, capability: "application", operation: "list" }]
@@ -57,6 +62,12 @@ function createCore() {
     ...(expectation.apis?.includes("setLocalStorageItem")
       ? [{ extensionId: expectation.extensionId, capability: "local-storage", operation: "set" }]
       : []),
+    ...(expectation.apis?.includes("removeLocalStorageItem")
+      ? [{ extensionId: expectation.extensionId, capability: "local-storage", operation: "remove" }]
+      : []),
+    ...(expectation.apis?.includes("clearLocalStorage")
+      ? [{ extensionId: expectation.extensionId, capability: "local-storage", operation: "clear" }]
+      : []),
     ...(expectation.apis?.includes("AI")
       ? [{ extensionId: expectation.extensionId, capability: "ai", operation: "ask" }]
       : []),
@@ -72,7 +83,7 @@ function createCore() {
     ...(expectation.apis?.includes("trash")
       ? [{ extensionId: expectation.extensionId, capability: "filesystem", operation: "trash" }]
       : []),
-    ...(expectation.apis?.includes("OpenInBrowserAction")
+    ...(expectation.apis?.some((api) => api === "OpenInBrowserAction" || api === "OpenAction")
       ? [{ extensionId: expectation.extensionId, capability: "open", operation: "open" }]
       : []),
     ...(expectation.apis?.includes("captureException")

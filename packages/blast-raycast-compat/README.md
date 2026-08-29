@@ -6,8 +6,9 @@ The package maps the census-justified subset of the `@raycast/api` surface
 onto the V2 scene contract, renderer, and capability broker:
 
 - `List`, `List.Item`, `ActionPanel`, `Action`, `Action.CopyToClipboard`,
-  `Action.OpenInBrowser`, `Action.Push`, and `Action.SubmitForm`, plus the
-  deprecated `CopyToClipboardAction`, `OpenInBrowserAction`, `PushAction`, and
+  `Action.Open`, `Action.OpenInBrowser`, `Action.Paste`, `Action.Push`, and
+  `Action.SubmitForm`, plus the deprecated `CopyToClipboardAction`,
+  `OpenAction`, `OpenInBrowserAction`, `PasteAction`, `PushAction`, and
   `SubmitFormAction` aliases, render through `@blastlauncher/react-renderer`;
 - `Grid` covers content tiles, sections, empty views, search-bar dropdowns,
   item actions, layout constants, and selection/search callbacks; `MenuBarExtra`
@@ -18,9 +19,11 @@ onto the V2 scene contract, renderer, and capability broker:
   dropdown sections/items, and tag items;
 - `Icon` ships a measured kebab-case subset serialized into scene `icon`
   properties, including object-icon tint colors;
-- `Clipboard.copy`/`Clipboard.read` route through the capability broker with
-  the command identity attached by the host; text, numeric, and structured
-  clipboard content are normalized across the primitive-only boundary;
+- `Clipboard.copy`/`Clipboard.paste`/`Clipboard.read` route through the
+  capability broker with the command identity attached by the host; text,
+  numeric, and structured clipboard content are normalized across the
+  primitive-only boundary, with deprecated `copyTextToClipboard` and `pasteText`
+  aliases;
 - action and toast-action shortcut unions normalize into structured scene
   values; action styles, `autoFocus`, `Keyboard.Shortcut.Common`, and the
   measured `Alert`/`Action` constants are available;
@@ -43,9 +46,9 @@ onto the V2 scene contract, renderer, and capability broker:
 - `getDefaultApplication` routes through `application.default`, validates the
   shared JSON-encoded `Application` shape, and accepts structural `PathLike`
   values; `PreferenceValues` is available as a type-only preference bag;
-- `LocalStorage.getItem` and `LocalStorage.setItem` retain their deprecated
-  `getLocalStorageItem` and `setLocalStorageItem` top-level aliases, with the
-  same identity-scoped capability requests;
+- `LocalStorage` retains the deprecated `getLocalStorageItem`,
+  `setLocalStorageItem`, `removeLocalStorageItem`, and `clearLocalStorage`
+  top-level aliases, with the same identity-scoped capability requests;
 - `BrowserExtension.getTabs` and `BrowserExtension.getContent` route through
   host-owned browser-extension capabilities; tab responses are validated and
   content options are normalized before crossing the primitive boundary;
@@ -55,6 +58,9 @@ onto the V2 scene contract, renderer, and capability broker:
 - `captureException` reports a normalized exception payload through
   `telemetry.captureException` without making telemetry availability affect
   command execution;
+- `Action.Open`/`OpenAction` and `Action.Paste`/`PasteAction` route open and
+  paste actions through host capabilities and invoke their completion
+  callbacks;
 - `Action.Push` and `PushAction` accept measured React-element targets, route
   navigation through the runtime stack, and invoke `onPush`/`onPop` callbacks;
   the navigation proxy is shared through the command realm so bundled

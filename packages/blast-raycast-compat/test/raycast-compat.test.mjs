@@ -14,6 +14,8 @@ import {
   Color,
   CompatibilityError,
   CopyToClipboardAction,
+  OpenAction,
+  PasteAction,
   Detail,
   Form,
   getApplications,
@@ -37,9 +39,11 @@ import {
   Toast,
   configureRaycastCompat,
   captureException,
+  clearLocalStorage,
   confirmAlert,
   closeMainWindow,
   clearSearchBar,
+  copyTextToClipboard,
   environment,
   getLocalStorageItem,
   getPreferenceValues,
@@ -48,6 +52,8 @@ import {
   openCommandPreferences,
   openExtensionPreferences,
   popToRoot,
+  pasteText,
+  removeLocalStorageItem,
   launchCommand,
   renderCommand,
   showHUD,
@@ -317,6 +323,103 @@ test("renders modern and deprecated browser and clipboard actions", async () => 
   );
   assert.deepEqual(opened, ["https://example.com", "https://docs.example.com"]);
   assert.deepEqual(copied, ["copied value"]);
+});
+
+test("renders open and paste aliases and routes clipboard helper aliases", async () => {
+  const probe = createContext({ storageProvider: createInMemoryLocalStorageProvider() });
+  const opened = [];
+  const pasted = [];
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      List,
+      null,
+      createElement(
+        List.Item,
+        { title: "First" },
+        createElement(
+          ActionPanel,
+          null,
+          createElement(OpenAction, {
+            title: "Open legacy",
+            target: "https://example.com/legacy",
+            application: "Browser",
+            onOpen: (target) => opened.push(target),
+          }),
+          createElement(Action.Open, {
+            title: "Open modern",
+            target: "https://example.com/modern",
+            onOpen: (target) => opened.push(target),
+          }),
+          createElement(PasteAction, { content: "legacy paste", onPaste: (content) => pasted.push(content) }),
+          createElement(Action.Paste, {
+            title: "Paste modern",
+            content: { text: "modern paste" },
+            onPaste: (content) => pasted.push(content),
+          }),
+        ),
+      ),
+    ),
+  );
+  await renderer.flush();
+
+  const actions = probe.transactions[0].operations[0].root.children[0].children[0].children;
+  assert.deepEqual(
+    actions.map(({ props }) => ({ title: props.title, icon: props.icon })),
+    [
+      { title: "Open legacy", icon: "finder" },
+      { title: "Open modern", icon: "finder" },
+      { title: "Paste in Active App", icon: "clipboard" },
+      { title: "Paste modern", icon: "clipboard" },
+    ],
+  );
+
+  for (const action of actions) {
+    probe.dispatch(action.props.onAction);
+  }
+  await new Promise((resolve) => setTimeout(resolve, 5));
+
+  assert.deepEqual(
+    probe.capabilityRequests.map(({ capability, operation, arguments: args }) => ({
+      capability,
+      operation,
+      arguments: args,
+    })),
+    [
+      {
+        capability: "open",
+        operation: "open",
+        arguments: { target: "https://example.com/legacy", application: "Browser" },
+      },
+      { capability: "open", operation: "open", arguments: { target: "https://example.com/modern" } },
+      { capability: "clipboard", operation: "paste", arguments: { text: "legacy paste" } },
+      {
+        capability: "clipboard",
+        operation: "paste",
+        arguments: { contentJSON: JSON.stringify({ text: "modern paste" }) },
+      },
+    ],
+  );
+  assert.deepEqual(opened, ["https://example.com/legacy", "https://example.com/modern"]);
+  assert.deepEqual(pasted, ["legacy paste", { text: "modern paste" }]);
+
+  await copyTextToClipboard("helper copy");
+  await pasteText("helper paste");
+  await setLocalStorageItem("helper", "stored");
+  await removeLocalStorageItem("helper");
+  await clearLocalStorage();
+
+  assert.deepEqual(
+    probe.capabilityRequests
+      .slice(4)
+      .map(({ capability, operation, arguments: args }) => ({ capability, operation, arguments: args })),
+    [
+      { capability: "clipboard", operation: "write", arguments: { text: "helper copy" } },
+      { capability: "clipboard", operation: "paste", arguments: { text: "helper paste" } },
+      { capability: "local-storage", operation: "set", arguments: { key: "helper", value: "stored" } },
+      { capability: "local-storage", operation: "remove", arguments: { key: "helper" } },
+      { capability: "local-storage", operation: "clear", arguments: undefined },
+    ],
+  );
 });
 
 test("routes structured clipboard content and default application discovery", async () => {

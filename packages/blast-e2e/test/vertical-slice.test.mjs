@@ -36,6 +36,7 @@ function createCore() {
     createSessionId: () => `session-${++sessionId}`,
   });
   const clipboardWrites = [];
+  const clipboardPastes = [];
   const boundaryRequests = [];
   const localStorageProvider = createInMemoryLocalStorageProvider();
   const broker = new CapabilityBroker({
@@ -70,11 +71,21 @@ function createCore() {
       { extensionId: "e2e.coverage-next", capability: "clipboard", operation: "write" },
       { extensionId: "e2e.coverage-followup", capability: "local-storage", operation: "get" },
       { extensionId: "e2e.coverage-followup", capability: "local-storage", operation: "set" },
+      { extensionId: "e2e.coverage-followup", capability: "local-storage", operation: "remove" },
+      { extensionId: "e2e.coverage-followup", capability: "local-storage", operation: "clear" },
+      { extensionId: "e2e.coverage-followup", capability: "clipboard", operation: "write" },
+      { extensionId: "e2e.coverage-followup", capability: "clipboard", operation: "paste" },
+      { extensionId: "e2e.coverage-followup", capability: "open", operation: "open" },
     ]),
     providers: {
       clipboard: {
         async perform(request) {
-          clipboardWrites.push(request);
+          if (request.operation === "write") {
+            clipboardWrites.push(request);
+          }
+          if (request.operation === "paste") {
+            clipboardPastes.push(request);
+          }
           return null;
         },
       },
@@ -246,7 +257,7 @@ function createCore() {
     },
   });
   const core = new BlastCore({ catalog, extensionHost: host });
-  return { core, broker, clipboardWrites, boundaryRequests };
+  return { core, broker, clipboardWrites, clipboardPastes, boundaryRequests };
 }
 
 function createSceneSink(buffer, transactions) {
@@ -615,8 +626,8 @@ test("runs the next measured action, telemetry, application, and preference boun
   await core.close();
 });
 
-test("runs legacy form, storage, image, and push aliases end to end", async () => {
-  const { core, broker, boundaryRequests } = createCore();
+test("runs legacy form, action, storage, image, and push aliases end to end", async () => {
+  const { core, broker, boundaryRequests, clipboardWrites, clipboardPastes } = createCore();
   const buffer = new SceneStateBuffer();
   const session = await core.runCommand(coverageFollowupIdentity);
   const relay = relaySessionTraffic(session, {
@@ -634,11 +645,21 @@ test("runs legacy form, storage, image, and push aliases end to end", async () =
   const dropdown = root.children.find((child) => child.type === "form-dropdown");
   assert.deepEqual(
     actions.children.map(({ props }) => props.title),
-    ["Submit legacy", "Push legacy"],
+    [
+      "Submit legacy",
+      "Open legacy",
+      "Paste legacy",
+      "Copy helper",
+      "Paste helper",
+      "Remove legacy",
+      "Clear legacy",
+      "Push legacy",
+    ],
   );
   assert.deepEqual(dropdown.children[0].props, { value: "one", title: "One", icon: "option.png" });
+  const actionByTitle = new Map(actions.children.map((child) => [child.props.title, child]));
 
-  await relay.sendSceneEvent(actions.children[0].props.onAction, { choice: "one" });
+  await relay.sendSceneEvent(actionByTitle.get("Submit legacy").props.onAction, { choice: "one" });
   await waitFor(
     () =>
       boundaryRequests.some(
@@ -648,7 +669,65 @@ test("runs legacy form, storage, image, and push aliases end to end", async () =
     "the legacy submit storage write",
   );
 
-  await relay.sendSceneEvent(actions.children[1].props.onAction);
+  await relay.sendSceneEvent(actionByTitle.get("Open legacy").props.onAction);
+  await waitFor(
+    () =>
+      boundaryRequests.some(
+        ({ capability, operation, arguments: args }) =>
+          capability === "open" && operation === "open" && args.target === "https://example.com/followup",
+      ),
+    "the legacy open action",
+  );
+  await waitFor(
+    () =>
+      boundaryRequests.some(
+        ({ capability, operation, arguments: args }) =>
+          capability === "local-storage" && operation === "set" && args.key === "opened",
+      ),
+    "the legacy open callback storage write",
+  );
+
+  await relay.sendSceneEvent(actionByTitle.get("Paste legacy").props.onAction);
+  await waitFor(
+    () => clipboardPastes.some(({ arguments: args }) => args.text === "legacy paste"),
+    "the legacy paste action",
+  );
+  await waitFor(
+    () =>
+      boundaryRequests.some(
+        ({ capability, operation, arguments: args }) =>
+          capability === "local-storage" && operation === "set" && args.key === "pasted",
+      ),
+    "the legacy paste callback storage write",
+  );
+
+  await relay.sendSceneEvent(actionByTitle.get("Copy helper").props.onAction);
+  await waitFor(
+    () => clipboardWrites.some(({ arguments: args }) => args.text === "helper copy"),
+    "the legacy copy helper",
+  );
+  await relay.sendSceneEvent(actionByTitle.get("Paste helper").props.onAction);
+  await waitFor(
+    () => clipboardPastes.some(({ arguments: args }) => args.text === "helper paste"),
+    "the legacy paste helper",
+  );
+
+  await relay.sendSceneEvent(actionByTitle.get("Remove legacy").props.onAction);
+  await waitFor(
+    () =>
+      boundaryRequests.some(
+        ({ capability, operation, arguments: args }) =>
+          capability === "local-storage" && operation === "remove" && args.key === "helper",
+      ),
+    "the legacy remove storage operation",
+  );
+  await relay.sendSceneEvent(actionByTitle.get("Clear legacy").props.onAction);
+  await waitFor(
+    () => boundaryRequests.some(({ capability, operation }) => capability === "local-storage" && operation === "clear"),
+    "the legacy clear storage operation",
+  );
+
+  await relay.sendSceneEvent(actionByTitle.get("Push legacy").props.onAction);
   await waitFor(() => buffer.get(buffer.rootId).type === "list", "the legacy push target");
   assert.equal(buffer.get(buffer.rootId).props.navigationTitle, "Follow-up:Pushed");
   await waitFor(
@@ -680,6 +759,10 @@ test("runs legacy form, storage, image, and push aliases end to end", async () =
       { operation: "get", arguments: { key: "alias" } },
       { operation: "set", arguments: { key: "alias", value: "ready" } },
       { operation: "set", arguments: { key: "submitted", value: "yes" } },
+      { operation: "set", arguments: { key: "opened", value: "yes" } },
+      { operation: "set", arguments: { key: "pasted", value: "yes" } },
+      { operation: "remove", arguments: { key: "helper" } },
+      { operation: "clear", arguments: {} },
       { operation: "set", arguments: { key: "pushed", value: "yes" } },
       { operation: "set", arguments: { key: "popped", value: "yes" } },
       { operation: "get", arguments: { key: "alias" } },

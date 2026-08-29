@@ -332,12 +332,18 @@
     "apis": [
       "Action",
       "ActionPanel",
+      "OpenAction",
+      "PasteAction",
       "Form",
       "ImageMask",
       "List",
       "PushAction",
       "SubmitFormAction",
+      "clearLocalStorage",
+      "copyTextToClipboard",
       "getLocalStorageItem",
+      "pasteText",
+      "removeLocalStorageItem",
       "setLocalStorageItem",
       "useNavigation"
     ],

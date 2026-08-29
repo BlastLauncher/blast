@@ -445,6 +445,29 @@ export interface OpenInBrowserProps {
 /** @deprecated Use `OpenInBrowserProps` or `Action.OpenInBrowser` instead. */
 export interface OpenInBrowserActionProps extends OpenInBrowserProps {}
 
+export interface OpenProps {
+  readonly target: string;
+  readonly application?: string | ApplicationLike;
+  readonly title: string;
+  readonly icon?: IconLike;
+  readonly shortcut?: ShortcutLike;
+  readonly onOpen?: (target: string) => void;
+}
+
+/** @deprecated Use `OpenProps` or `Action.Open` instead. */
+export interface OpenActionProps extends OpenProps {}
+
+export interface PasteProps {
+  readonly content: string | number | Clipboard.Content;
+  readonly title?: string;
+  readonly icon?: IconLike;
+  readonly shortcut?: ShortcutLike;
+  readonly onPaste?: (content: string | number | Clipboard.Content) => void;
+}
+
+/** @deprecated Use `PasteProps` or `Action.Paste` instead. */
+export interface PasteActionProps extends PasteProps {}
+
 export interface IconObject {
   readonly source: string | { readonly light: string; readonly dark: string };
   readonly tintColor?: string;
@@ -2627,11 +2650,46 @@ function OpenInBrowser(props: OpenInBrowserProps): ReactElement {
   });
 }
 
+function Open(props: OpenProps): ReactElement {
+  const target = requireNonEmptyString(props.target, "Action.Open target");
+  const application =
+    props.application === undefined ? undefined : serializeApplication(props.application, "Action.Open");
+  const icon = serializeIcon(props.icon ?? "finder", "Action.Open");
+  const shortcut = serializeShortcut(props.shortcut, "Action.Open");
+  return createElement("action", {
+    title: props.title,
+    ...(icon === undefined ? {} : { icon: icon.icon, iconTintColor: icon.iconTintColor }),
+    ...(shortcut === undefined ? {} : { shortcut }),
+    onAction: () => {
+      void open(target, application).then(() => props.onOpen?.(target));
+    },
+  });
+}
+
+function Paste(props: PasteProps): ReactElement {
+  const icon = serializeIcon(props.icon ?? "clipboard", "Action.Paste");
+  const shortcut = serializeShortcut(props.shortcut, "Action.Paste");
+  return createElement("action", {
+    title: props.title ?? "Paste in Active App",
+    ...(icon === undefined ? {} : { icon: icon.icon, iconTintColor: icon.iconTintColor }),
+    ...(shortcut === undefined ? {} : { shortcut }),
+    onAction: () => {
+      void pasteToClipboard(props.content).then(() => props.onPaste?.(props.content));
+    },
+  });
+}
+
 /** @deprecated Use `Action.CopyToClipboard` instead. */
 export const CopyToClipboardAction = CopyToClipboard;
 
 /** @deprecated Use `Action.OpenInBrowser` instead. */
 export const OpenInBrowserAction = OpenInBrowser;
+
+/** @deprecated Use `Action.Open` instead. */
+export const OpenAction = Open;
+
+/** @deprecated Use `Action.Paste` instead. */
+export const PasteAction = Paste;
 
 function mapGridChildren(children: ReactNode): ReactNode {
   return Children.toArray(children).map((child, index) => {
@@ -2724,7 +2782,9 @@ function mapMenuBarChildren(children: ReactNode, where: string): ReactNode {
 interface ActionComponent {
   (props: ActionProps): ReactElement;
   CopyToClipboard: typeof CopyToClipboard;
+  Open: typeof Open;
   OpenInBrowser: typeof OpenInBrowser;
+  Paste: typeof Paste;
   Push: typeof Push;
   SubmitForm: typeof SubmitForm;
   Style: typeof ActionStyle;
@@ -2732,7 +2792,9 @@ interface ActionComponent {
 
 export const Action: ActionComponent = Object.assign(ActionComponent, {
   CopyToClipboard,
+  Open,
   OpenInBrowser,
+  Paste,
   Push,
   SubmitForm,
   Style: ActionStyle,
@@ -2808,6 +2870,17 @@ async function copyToClipboard(
   }
 }
 
+async function pasteToClipboard(content: string | number | Clipboard.Content): Promise<void> {
+  const response = await requireContext().requestCapability({
+    capability: "clipboard",
+    operation: "paste",
+    arguments: serializeClipboardContent(content, "Clipboard.paste"),
+  });
+  if (response.outcome !== "succeeded") {
+    throw new CompatibilityError("The clipboard paste capability was not granted", response);
+  }
+}
+
 function mapItemChildren(children: ReactNode, where: string): ReactNode {
   return Children.toArray(children).map((child, index) => {
     if (child === null || child === undefined || typeof child === "boolean") {
@@ -2824,6 +2897,8 @@ function mapItemChildren(children: ReactNode, where: string): ReactNode {
       child.type === SubmitForm ||
       child.type === CopyToClipboard ||
       child.type === OpenInBrowser ||
+      child.type === Open ||
+      child.type === Paste ||
       child.type === Push
     ) {
       return keyedElement(child, `${where}-${index}`);
@@ -2843,6 +2918,9 @@ function keyedElement(child: ReactNode, key: string): ReactNode {
 export const Clipboard = {
   async copy(content: string | number | Clipboard.Content, options?: Clipboard.CopyOptions): Promise<void> {
     await copyToClipboard(content, options);
+  },
+  async paste(content: string | number | Clipboard.Content): Promise<void> {
+    await pasteToClipboard(content);
   },
   async read(): Promise<string> {
     const response = await requireContext().requestCapability({ capability: "clipboard", operation: "read" });
@@ -3822,6 +3900,18 @@ export const LocalStorage = {
     }
   },
 };
+
+/** @deprecated Use `Clipboard.copy` instead. */
+export const copyTextToClipboard: typeof Clipboard.copy = Clipboard.copy;
+
+/** @deprecated Use `Clipboard.paste` instead. */
+export const pasteText: typeof Clipboard.paste = Clipboard.paste;
+
+/** @deprecated Use `LocalStorage.removeItem` instead. */
+export const removeLocalStorageItem: typeof LocalStorage.removeItem = LocalStorage.removeItem;
+
+/** @deprecated Use `LocalStorage.clear` instead. */
+export const clearLocalStorage: typeof LocalStorage.clear = LocalStorage.clear;
 
 /** @deprecated Use `LocalStorage.getItem` instead. */
 export const getLocalStorageItem: typeof LocalStorage.getItem = LocalStorage.getItem;
