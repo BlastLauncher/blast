@@ -1,0 +1,6 @@
+{
+  "name": "e2e.host-boundaries",
+  "title": "E2E Host Boundaries",
+  "description": "Fixture for browser, navigation, filesystem, toast, and tool APIs.",
+  "commands": [{ "name": "index", "title": "Host boundaries", "mode": "view" }]
+}

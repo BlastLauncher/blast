@@ -20,6 +20,8 @@ requests flow back through the capability broker.
   compatibility surface;
 - `catalog/tsx-extension`: a Raycast-style TSX component with literal
   `@raycast/api` imports, resolved at bundle time;
+- `catalog/host-boundaries`: a Raycast-style TSX component exercising measured
+  browser, search, trash, legacy toast-style, and type-only Tool boundaries;
 - `real/`: real corpus extensions committed as trimmed fixtures with named
   expectations, run by the support matrix test
   (`docs/v2/compatibility/support-matrix.md`);

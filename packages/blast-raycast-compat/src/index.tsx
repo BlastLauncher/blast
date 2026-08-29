@@ -22,7 +22,7 @@ import type {
   ToastActionPayload,
   ToastOperation,
   ToastPayload,
-  ToastStyle,
+  ToastStyle as SceneToastStyle,
 } from "@blastlauncher/scene";
 import { SceneRendererError, createSceneRenderer, type SceneRenderer } from "@blastlauncher/react-renderer";
 
@@ -551,6 +551,94 @@ export type PathLike = string | URL | Uint8Array;
 
 export interface FileSystemItem {
   readonly path: string;
+}
+
+/** Browser-tab data returned by the host browser-extension provider. */
+export namespace BrowserExtension {
+  export interface Tab {
+    readonly id: number;
+    readonly url: string;
+    readonly title?: string;
+    readonly favicon?: string;
+    readonly active: boolean;
+  }
+
+  export type ContentFormat = "html" | "text" | "markdown";
+
+  export interface GetContentOptions {
+    readonly format?: ContentFormat;
+    readonly cssSelector?: string;
+    readonly tabId?: number;
+  }
+
+  /** Returns the tabs exposed by the host browser integration. */
+  export async function getTabs(): Promise<Tab[]> {
+    const response = await callCapability("browser-extension", "getTabs", undefined, "The BrowserExtension.getTabs");
+    return deserializeBrowserTabs(response.value);
+  }
+
+  /** Returns content from the active or selected browser tab. */
+  export async function getContent(options?: GetContentOptions): Promise<string> {
+    const argumentsValue: Record<string, string | number> = {
+      format: "html",
+    };
+    if (options !== undefined) {
+      if (!isRecord(options)) {
+        unsupported("BrowserExtension.getContent options", { options });
+      }
+      if (options.format !== undefined) {
+        if (options.format !== "html" && options.format !== "text" && options.format !== "markdown") {
+          unsupported("BrowserExtension.getContent format", { value: options.format });
+        }
+        argumentsValue.format = options.format;
+      }
+      if (options.cssSelector !== undefined) {
+        argumentsValue.cssSelector = requireNonEmptyString(
+          options.cssSelector,
+          "BrowserExtension.getContent cssSelector",
+        );
+      }
+      if (options.tabId !== undefined) {
+        const tabId: unknown = options.tabId;
+        if (typeof tabId !== "number" || !Number.isInteger(tabId) || tabId < 0) {
+          unsupported("BrowserExtension.getContent tabId", { value: tabId });
+        }
+        argumentsValue.tabId = tabId;
+      }
+    }
+    const response = await callCapability(
+      "browser-extension",
+      "getContent",
+      argumentsValue,
+      "The BrowserExtension.getContent",
+    );
+    if (typeof response.value !== "string") {
+      throw new CompatibilityError("The BrowserExtension.getContent capability returned no content", response);
+    }
+    return response.value;
+  }
+}
+
+/** Legacy top-level toast constants retained for measured Raycast sources. */
+export const ToastStyle = {
+  Success: "SUCCESS",
+  Failure: "FAILURE",
+  Animated: "ANIMATED",
+} as const;
+
+export type ToastStyle = (typeof ToastStyle)[keyof typeof ToastStyle];
+
+/** Type-only tool confirmation contract used by Raycast tool entrypoints. */
+export namespace Tool {
+  export type Confirmation<T> = (input: T) => Promise<
+    | undefined
+    | {
+        readonly style?: ActionStyleLike;
+        readonly info?: readonly { readonly name: string; readonly value?: string }[];
+        readonly message?: string;
+        readonly image?: Image.URL | FileIcon;
+      }
+  >;
 }
 
 /** Measured prompt-completion surface backed by a host AI provider. */
@@ -2628,7 +2716,7 @@ export const Clipboard = {
 
 Object.assign(List, { Item: ListItem });
 
-function normalizeToastStyle(style: unknown): ToastStyle {
+function normalizeToastStyle(style: unknown): SceneToastStyle {
   if (style === "success" || style === "SUCCESS") {
     return "success";
   }
@@ -2691,7 +2779,7 @@ export class Toast {
   readonly #toastId = `toast-${++toastCounter}`;
   #title: string;
   #message: string | undefined;
-  #style: ToastStyle;
+  #style: SceneToastStyle;
   #primaryAction: ToastActionOptions | undefined;
   #secondaryAction: ToastActionOptions | undefined;
   #registeredActions = new Map<ToastActionSlot, RegisteredToastAction>();
@@ -2706,7 +2794,7 @@ export class Toast {
     this.#secondaryAction = normalizeToastAction(options.secondaryAction, "Toast.secondaryAction");
   }
 
-  get style(): ToastStyle {
+  get style(): SceneToastStyle {
     return this.#style;
   }
 
@@ -2845,10 +2933,10 @@ export class Toast {
  * Shows a toast in the client and returns the instance.
  */
 export function showToast(options: ToastOptions): Promise<Toast>;
-export function showToast(style: ToastStyle, title: string, message?: string): Promise<Toast>;
+export function showToast(style: ToastStyle | SceneToastStyle, title: string, message?: string): Promise<Toast>;
 export function showToast(title: string): Promise<Toast>;
 export function showToast(
-  optionsOrStyle: ToastOptions | ToastStyle | string,
+  optionsOrStyle: ToastOptions | ToastStyle | SceneToastStyle | string,
   title?: string,
   message?: string,
 ): Promise<Toast> {
@@ -2863,6 +2951,10 @@ export function showToast(
           })
       : new Toast(optionsOrStyle);
   return toast.show().then(() => toast);
+}
+
+export interface ClearSearchBarOptions {
+  readonly forceScrollToTop?: boolean;
 }
 
 export interface ShowHUDOptions {
@@ -2977,6 +3069,12 @@ export async function showInFinder(path: PathLike): Promise<void> {
   await callCapability("finder", "show", { path: serializePathLike(path, "showInFinder path") }, "The showInFinder");
 }
 
+/** Moves one or more files or directories to the host's trash provider. */
+export async function trash(path: PathLike | PathLike[]): Promise<void> {
+  const paths = (Array.isArray(path) ? path : [path]).map((entry) => serializePathLike(entry, "trash path"));
+  await callCapability("filesystem", "trash", { pathsJSON: JSON.stringify(paths) }, "The trash");
+}
+
 /** Returns the selected text from the frontmost application through the host. */
 export async function getSelectedText(): Promise<string> {
   const response = await callCapability("selection", "read", undefined, "The getSelectedText");
@@ -3041,6 +3139,39 @@ function deserializeApplications(value: unknown): Application[] {
     throw new CompatibilityError("The getApplications capability returned a non-array", { value: decoded });
   }
   return decoded.map((entry, index) => deserializeApplication(entry, `getApplications result ${index}`));
+}
+
+function deserializeBrowserTabs(value: unknown): BrowserExtension.Tab[] {
+  const decoded = parseJSONCapabilityValue(value, "BrowserExtension.getTabs");
+  if (!Array.isArray(decoded)) {
+    throw new CompatibilityError("The BrowserExtension.getTabs capability returned a non-array", { value: decoded });
+  }
+  return decoded.map((entry, index) => {
+    if (!isRecord(entry)) {
+      throw new CompatibilityError(`The BrowserExtension.getTabs result ${index} is invalid`, { value: entry });
+    }
+    if (typeof entry.id !== "number" || !Number.isInteger(entry.id) || entry.id < 0) {
+      throw new CompatibilityError(`The BrowserExtension.getTabs result ${index} has an invalid id`, {
+        value: entry.id,
+      });
+    }
+    if (typeof entry.active !== "boolean") {
+      throw new CompatibilityError(`The BrowserExtension.getTabs result ${index} has an invalid active flag`, {
+        value: entry.active,
+      });
+    }
+    return {
+      id: entry.id,
+      url: requireString(entry.url, `BrowserExtension.getTabs result ${index} url`),
+      active: entry.active,
+      ...(entry.title === undefined
+        ? {}
+        : { title: requireString(entry.title, `BrowserExtension.getTabs result ${index} title`) }),
+      ...(entry.favicon === undefined
+        ? {}
+        : { favicon: requireString(entry.favicon, `BrowserExtension.getTabs result ${index} favicon`) }),
+    };
+  });
 }
 
 function deserializeApplication(value: unknown, where: string): Application {
@@ -3165,6 +3296,33 @@ export async function closeMainWindow(options?: CloseMainWindowOptions): Promise
     }
   }
   await callCapability("window", "close", Object.keys(args).length === 0 ? undefined : args, "The closeMainWindow");
+}
+
+/** Clears the active search field through the host navigation capability. */
+export async function clearSearchBar(options?: ClearSearchBarOptions): Promise<void> {
+  const args: Record<string, string | number | boolean> = {};
+  if (options !== undefined) {
+    if (!isRecord(options)) {
+      unsupported("clearSearchBar options", { options });
+    }
+    for (const key of Object.keys(options)) {
+      if (key !== "forceScrollToTop") {
+        unsupported(`clearSearchBar ${key}`, { options });
+      }
+    }
+    if (options.forceScrollToTop !== undefined) {
+      if (typeof options.forceScrollToTop !== "boolean") {
+        unsupported("clearSearchBar forceScrollToTop", { value: options.forceScrollToTop });
+      }
+      args.forceScrollToTop = options.forceScrollToTop;
+    }
+  }
+  await callCapability(
+    "navigation",
+    "clearSearchBar",
+    Object.keys(args).length === 0 ? undefined : args,
+    "The clearSearchBar",
+  );
 }
 
 /** Pops the host navigation stack back to its root through a capability. */

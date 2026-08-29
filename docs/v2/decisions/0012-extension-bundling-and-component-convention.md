@@ -40,7 +40,8 @@ unmodified extensions could not run.
 - the support matrix can now measure real extension fixtures instead of
   import statistics;
 - bundles are rebuilt per load and cached per entrypoint hash in a temporary
-  directory; production cache invalidation and incremental rebuilds remain
-  future work;
+  directory; the default directory is removed after the load succeeds or
+  fails, while an explicitly supplied cache directory remains caller-owned;
+  production cache invalidation and incremental rebuilds remain future work;
 - extensions with native or large npm dependency graphs need externalization
   policy before they can load; that is measured next with real fixtures.

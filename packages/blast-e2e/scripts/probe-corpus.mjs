@@ -25,9 +25,11 @@ const SUPPORTED_API_IMPORTS = new Set([
   "Alert",
   "AI",
   "Application",
+  "BrowserExtension",
   "Cache",
   "Clipboard",
   "Color",
+  "clearSearchBar",
   "Detail",
   "Form",
   "FileIcon",
@@ -44,6 +46,8 @@ const SUPPORTED_API_IMPORTS = new Set([
   "OAuth",
   "PopToRootType",
   "Toast",
+  "ToastStyle",
+  "Tool",
   "closeMainWindow",
   "confirmAlert",
   "environment",
@@ -60,6 +64,7 @@ const SUPPORTED_API_IMPORTS = new Set([
   "showHUD",
   "showInFinder",
   "showToast",
+  "trash",
   "updateCommandMetadata",
   "useNavigation",
 ]);
@@ -231,6 +236,8 @@ function createCore(stderr) {
     "ai.ask",
     "application.frontmost",
     "application.list",
+    "browser-extension.getContent",
+    "browser-extension.getTabs",
     "clipboard.read",
     "clipboard.write",
     "command.launch",
@@ -240,6 +247,7 @@ function createCore(stderr) {
     "local-storage.get",
     "local-storage.remove",
     "local-storage.set",
+    "navigation.clearSearchBar",
     "navigation.popToRoot",
     "open.open",
     "preferences.openExtension",
@@ -247,6 +255,7 @@ function createCore(stderr) {
     "selection.read",
     "finder.selectedItems",
     "finder.show",
+    "filesystem.trash",
     "oauth.authorizationRequest",
     "oauth.authorize",
     "oauth.getTokens",
@@ -298,6 +307,17 @@ function createCore(stderr) {
           throw new Error(`Unknown application operation ${JSON.stringify(request.operation)}`);
         },
       },
+      "browser-extension": {
+        async perform(request) {
+          if (request.operation === "getTabs") {
+            return JSON.stringify([{ id: 1, url: "https://example.com", title: "Example", active: true }]);
+          }
+          if (request.operation === "getContent") {
+            return "Fixture browser content";
+          }
+          throw new Error(`Unknown browser-extension operation ${JSON.stringify(request.operation)}`);
+        },
+      },
       clipboard: {
         async perform(request) {
           if (request.operation === "read") {
@@ -345,9 +365,17 @@ function createCore(stderr) {
           throw new Error(`Unknown Finder operation ${JSON.stringify(request.operation)}`);
         },
       },
+      filesystem: {
+        async perform(request) {
+          if (request.operation === "trash") {
+            return undefined;
+          }
+          throw new Error(`Unknown filesystem operation ${JSON.stringify(request.operation)}`);
+        },
+      },
       navigation: {
         async perform(request) {
-          if (request.operation === "popToRoot") {
+          if (request.operation === "popToRoot" || request.operation === "clearSearchBar") {
             return undefined;
           }
           throw new Error(`Unknown navigation operation ${JSON.stringify(request.operation)}`);

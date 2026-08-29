@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readdir } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -12,6 +13,14 @@ const defaultAlias = { "@raycast/api": path.join(bundlesRoot, "raycast-api-stub.
 
 function createLoader(options = {}) {
   return createBundlingEntrypointLoader({ cacheDirectory: os.tmpdir(), alias: defaultAlias, ...options });
+}
+
+async function defaultBundleDirectories() {
+  return new Set(
+    (await readdir(os.tmpdir(), { withFileTypes: true }))
+      .filter((entry) => entry.isDirectory() && entry.name.startsWith("blast-extension-bundles-"))
+      .map((entry) => entry.name),
+  );
 }
 
 test("bundles a TSX entrypoint with alias resolution", async () => {
@@ -44,5 +53,25 @@ test("rejects invalid dependency policy roots", () => {
   assert.throws(
     () => createLoader({ dependencyPolicy: { strategy: "vendored", vendorRoots: ["relative-root"] } }),
     (error) => error.code === "dependency_policy_invalid",
+  );
+});
+
+test("cleans default temporary bundle directories after success and failure", async () => {
+  const before = await defaultBundleDirectories();
+  const loader = createBundlingEntrypointLoader({ alias: defaultAlias });
+
+  const entrypointModule = await loader(path.join(bundlesRoot, "tsx-command.tsx"));
+  assert.equal(typeof entrypointModule.command, "function");
+  await assert.rejects(
+    () => loader(path.join(bundlesRoot, "broken-syntax.tsx")),
+    (error) => {
+      return error.code === "entrypoint_load_failed";
+    },
+  );
+
+  const after = await defaultBundleDirectories();
+  assert.deepEqual(
+    [...after].filter((directory) => !before.has(directory)),
+    [],
   );
 });

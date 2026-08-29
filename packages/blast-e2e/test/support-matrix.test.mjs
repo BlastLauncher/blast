@@ -51,6 +51,18 @@ function createCore() {
     ...(expectation.apis?.includes("AI")
       ? [{ extensionId: expectation.extensionId, capability: "ai", operation: "ask" }]
       : []),
+    ...(expectation.apis?.includes("BrowserExtension")
+      ? [
+          { extensionId: expectation.extensionId, capability: "browser-extension", operation: "getTabs" },
+          { extensionId: expectation.extensionId, capability: "browser-extension", operation: "getContent" },
+        ]
+      : []),
+    ...(expectation.apis?.includes("clearSearchBar")
+      ? [{ extensionId: expectation.extensionId, capability: "navigation", operation: "clearSearchBar" }]
+      : []),
+    ...(expectation.apis?.includes("trash")
+      ? [{ extensionId: expectation.extensionId, capability: "filesystem", operation: "trash" }]
+      : []),
     ...(expectation.apis?.includes("OAuth")
       ? [
           { extensionId: expectation.extensionId, capability: "oauth", operation: "getTokens" },
@@ -78,6 +90,17 @@ function createCore() {
             return "probe answer";
           }
           throw new Error(`Unknown AI operation ${JSON.stringify(request.operation)}`);
+        },
+      },
+      "browser-extension": {
+        async perform(request) {
+          if (request.operation === "getTabs") {
+            return JSON.stringify([{ id: 1, url: "https://example.com", title: "Example", active: true }]);
+          }
+          if (request.operation === "getContent") {
+            return "Fixture browser content";
+          }
+          throw new Error(`Unknown browser-extension operation ${JSON.stringify(request.operation)}`);
         },
       },
       command: {
@@ -126,6 +149,22 @@ function createCore() {
             return undefined;
           }
           throw new Error(`Unknown Finder operation ${JSON.stringify(request.operation)}`);
+        },
+      },
+      filesystem: {
+        async perform(request) {
+          if (request.operation === "trash") {
+            return undefined;
+          }
+          throw new Error(`Unknown filesystem operation ${JSON.stringify(request.operation)}`);
+        },
+      },
+      navigation: {
+        async perform(request) {
+          if (request.operation === "clearSearchBar") {
+            return undefined;
+          }
+          throw new Error(`Unknown navigation operation ${JSON.stringify(request.operation)}`);
         },
       },
       oauth: {

@@ -23,6 +23,7 @@
       "ActionStyle",
       "Alert",
       "Application",
+      "BrowserExtension",
       "Cache",
       "Clipboard",
       "Color",
@@ -42,6 +43,9 @@
       "OAuth",
       "PopToRootType",
       "Toast",
+      "ToastStyle",
+      "Tool",
+      "clearSearchBar",
       "closeMainWindow",
       "confirmAlert",
       "environment",
@@ -58,6 +62,7 @@
       "showHUD",
       "showInFinder",
       "showToast",
+      "trash",
       "updateCommandMetadata",
       "useNavigation"
     ]
@@ -1786,40 +1791,20 @@
   "outcomes": {
     "no-entrypoint": 3,
     "not-renderable": 316,
-    "process-failure": 982,
-    "renders": 535,
-    "structured-compatibility-error": 119,
-    "third-party-dependency": 1276
+    "process-failure": 991,
+    "renders": 552,
+    "structured-compatibility-error": 91,
+    "third-party-dependency": 1278
   },
   "coverage": {
-    "extensionPasses": 535,
+    "extensionPasses": 552,
     "extensionTotal": 3231,
-    "extensionPassRate": 0.1656,
-    "renderableCommandPasses": 535,
+    "extensionPassRate": 0.1708,
+    "renderableCommandPasses": 552,
     "renderableCommandTotal": 2915,
-    "renderableCommandPassRate": 0.1835
+    "renderableCommandPassRate": 0.1894
   },
   "staticBlockers": [
-    {
-      "api": "Tool",
-      "extensionCount": 63
-    },
-    {
-      "api": "BrowserExtension",
-      "extensionCount": 50
-    },
-    {
-      "api": "ToastStyle",
-      "extensionCount": 44
-    },
-    {
-      "api": "clearSearchBar",
-      "extensionCount": 41
-    },
-    {
-      "api": "trash",
-      "extensionCount": 41
-    },
     {
       "api": "captureException",
       "extensionCount": 40
@@ -1838,7 +1823,7 @@
     },
     {
       "api": "<dynamic>",
-      "extensionCount": 15
+      "extensionCount": 14
     },
     {
       "api": "PreferenceValues",
@@ -1987,9 +1972,9 @@
   ],
   "failureClasses": {
     "no-entrypoint": 3,
-    "process-failure": 982,
-    "structured-compatibility-error": 119,
-    "third-party-dependency": 1276
+    "process-failure": 991,
+    "structured-compatibility-error": 91,
+    "third-party-dependency": 1278
   },
   "failureSamples": {
     "no-entrypoint": [
@@ -1998,18 +1983,18 @@
       "vortex"
     ],
     "process-failure": [
+      "0x0",
       "1password",
       "2fa-directory",
       "5devs",
-      "CodeBlocks",
-      "accordance"
+      "CodeBlocks"
     ],
     "structured-compatibility-error": [
-      "0x0",
       "amphetamine",
-      "arabic-keyboard",
+      "apple-maps-search",
       "at-profile",
-      "average-saham-indonesia"
+      "bang-dream-screenshot-search",
+      "choose-a-license"
     ],
     "third-party-dependency": [
       "1bookmark",
@@ -2026,8 +2011,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "1-click-confetti",
@@ -2428,8 +2413,7 @@
       "commandName": "track-ai-usage",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_send_failed"
+      "outcome": "renders"
     },
     {
       "directory": "ai-voice-studio",
@@ -2557,9 +2541,7 @@
       "extensionId": "aleph",
       "commandName": "remove",
       "mode": "no-view",
-      "staticUnsupportedApis": [
-        "ToastStyle"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "not-renderable"
     },
     {
@@ -2568,8 +2550,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [
-        "OpenInBrowserAction",
-        "ToastStyle"
+        "OpenInBrowserAction"
       ],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
@@ -2798,7 +2779,6 @@
       "commandName": "create-alias",
       "mode": "view",
       "staticUnsupportedApis": [
-        "BrowserExtension",
         "captureException",
         "getDefaultApplication"
       ],
@@ -2881,7 +2861,7 @@
       "mode": "view",
       "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "failureCode": "invalid_extension_readiness"
     },
     {
       "directory": "anycoffee",
@@ -2897,9 +2877,7 @@
       "extensionId": "anytype",
       "commandName": "create-object",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -2908,11 +2886,8 @@
       "extensionId": "apfel",
       "commandName": "chat",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
-      "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "staticUnsupportedApis": [],
+      "outcome": "renders"
     },
     {
       "directory": "apify",
@@ -2937,9 +2912,7 @@
       "extensionId": "app",
       "commandName": "list-apps",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "renders"
     },
     {
@@ -2974,9 +2947,7 @@
       "extensionId": "app-tag-manager",
       "commandName": "app",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -3011,11 +2982,8 @@
       "extensionId": "append-to-file",
       "commandName": "append-clipboard-to-file",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
-      "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "staticUnsupportedApis": [],
+      "outcome": "renders"
     },
     {
       "directory": "appfreezer",
@@ -3074,17 +3042,15 @@
       "commandName": "directionsTo",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "apple-notes",
       "extensionId": "apple-notes",
       "commandName": "index",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -3112,10 +3078,7 @@
       "extensionId": "apple-reminders",
       "commandName": "my-reminders",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool",
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -3133,9 +3096,7 @@
       "extensionId": "apple-tv-remote",
       "commandName": "remote",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -3163,8 +3124,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "aranet-co2-monitor",
@@ -3235,9 +3196,7 @@
       "extensionId": "are-na",
       "commandName": "search-all",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
       "failureCode": "process_failed"
     },
@@ -3324,12 +3283,8 @@
       "extensionId": "aside",
       "commandName": "search-web",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension",
-        "Tool"
-      ],
-      "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "staticUnsupportedApis": [],
+      "outcome": "renders"
     },
     {
       "directory": "asoiaf",
@@ -3501,8 +3456,8 @@
       "commandName": "average",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "awesome-mac",
@@ -3518,9 +3473,7 @@
       "extensionId": "awork",
       "commandName": "projects",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "renders"
     },
     {
@@ -3546,9 +3499,7 @@
       "extensionId": "aztu-lms",
       "commandName": "schedule",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -3565,9 +3516,7 @@
       "extensionId": "azure-tts-raycast",
       "commandName": "azure-speech",
       "mode": "no-view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "not-renderable"
     },
     {
@@ -3662,7 +3611,6 @@
       "mode": "view",
       "staticUnsupportedApis": [
         "CopyToClipboardAction",
-        "ToastStyle",
         "getLocalStorageItem",
         "setLocalStorageItem"
       ],
@@ -3683,9 +3631,7 @@
       "extensionId": "bangumi",
       "commandName": "list-collections",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -3807,8 +3753,7 @@
       "commandName": "bazinga",
       "mode": "view",
       "staticUnsupportedApis": [
-        "OpenInBrowserAction",
-        "ToastStyle"
+        "OpenInBrowserAction"
       ],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
@@ -3854,9 +3799,7 @@
       "extensionId": "bear",
       "commandName": "index",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -3900,8 +3843,7 @@
       "commandName": "search-subscribers",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "outcome": "renders"
     },
     {
       "directory": "beeminder",
@@ -3917,9 +3859,7 @@
       "extensionId": "beeper",
       "commandName": "chat",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -4042,9 +3982,7 @@
       "extensionId": "betterdisplay",
       "commandName": "manage-displays",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
       "failureCode": "invalid_extension_readiness"
     },
@@ -4163,7 +4101,6 @@
       "mode": "view",
       "staticUnsupportedApis": [
         "OpenInBrowserAction",
-        "ToastStyle",
         "preferences"
       ],
       "outcome": "third-party-dependency",
@@ -4211,8 +4148,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "biome",
@@ -4307,7 +4244,6 @@
       "commandName": "search",
       "mode": "view",
       "staticUnsupportedApis": [
-        "BrowserExtension",
         "captureException"
       ],
       "outcome": "third-party-dependency",
@@ -4328,8 +4264,8 @@
       "commandName": "snapshot",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "blackr",
@@ -4608,9 +4544,7 @@
       "extensionId": "browser-ai",
       "commandName": "ask",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -4738,11 +4672,9 @@
       "extensionId": "bunch",
       "commandName": "search-bunches",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "failureCode": "process_failed"
     },
     {
       "directory": "bundesliga",
@@ -4796,8 +4728,8 @@
       "commandName": "log-food",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "cache-control-builder",
@@ -4821,9 +4753,7 @@
       "extensionId": "cal-com-share-meeting-links",
       "commandName": "index",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -5069,9 +4999,7 @@
       "commandName": "ask",
       "mode": "view",
       "staticUnsupportedApis": [
-        "BrowserExtension",
-        "Navigation",
-        "clearSearchBar"
+        "Navigation"
       ],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
@@ -5107,9 +5035,7 @@
       "extensionId": "change-case",
       "commandName": "change-case",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -5171,9 +5097,7 @@
       "extensionId": "chatgo",
       "commandName": "ask",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -5183,9 +5107,7 @@
       "commandName": "ask",
       "mode": "view",
       "staticUnsupportedApis": [
-        "BrowserExtension",
-        "Navigation",
-        "clearSearchBar"
+        "Navigation"
       ],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
@@ -5285,8 +5207,8 @@
       "commandName": "checksum",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "cheetah",
@@ -5380,8 +5302,8 @@
       "commandName": "search-colors",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "chmod-lookup",
@@ -5473,7 +5395,6 @@
         "OpenInBrowserAction",
         "PushAction",
         "SubmitFormAction",
-        "ToastStyle",
         "getLocalStorageItem",
         "setLocalStorageItem"
       ],
@@ -5536,9 +5457,7 @@
       "extensionId": "claude",
       "commandName": "ask",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -5591,11 +5510,9 @@
       "extensionId": "claude-sessions",
       "commandName": "browse-sessions",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "failureCode": "process_failed"
     },
     {
       "directory": "claudecast",
@@ -5603,11 +5520,9 @@
       "commandName": "ask-claude",
       "mode": "view",
       "staticUnsupportedApis": [
-        "<dynamic>",
-        "trash"
+        "<dynamic>"
       ],
-      "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "outcome": "renders"
     },
     {
       "directory": "clean-agent-text",
@@ -5926,8 +5841,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "cobalt-finance",
@@ -5977,9 +5892,7 @@
       "extensionId": "code",
       "commandName": "run-shell-command",
       "mode": "no-view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "not-renderable"
     },
     {
@@ -6041,9 +5954,7 @@
       "extensionId": "code-wiki",
       "commandName": "open-page",
       "mode": "no-view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "not-renderable"
     },
     {
@@ -6090,8 +6001,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "codex",
@@ -6116,9 +6027,7 @@
       "extensionId": "codex-manager",
       "commandName": "mcp-servers",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -6127,9 +6036,7 @@
       "extensionId": "coffee",
       "commandName": "caffeinateWhile",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -6139,8 +6046,8 @@
       "commandName": "add-memory",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "coin-caster",
@@ -6159,7 +6066,6 @@
       "staticUnsupportedApis": [
         "ImageMask",
         "OpenInBrowserAction",
-        "ToastStyle",
         "preferences"
       ],
       "outcome": "process-failure",
@@ -6179,9 +6085,7 @@
       "extensionId": "coinmarketcap-crypto-price-crawler",
       "commandName": "index",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "ToastStyle"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -6225,9 +6129,7 @@
       "extensionId": "color-casket",
       "commandName": "index",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -6329,8 +6231,8 @@
       "commandName": "parse-issue-url",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "commit-message-formatter",
@@ -6469,9 +6371,7 @@
       "extensionId": "context7",
       "commandName": "search-libraries",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -6480,9 +6380,7 @@
       "extensionId": "contexts",
       "commandName": "append-to-context",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "renders"
     },
     {
@@ -6529,7 +6427,6 @@
         "FormValue",
         "OpenInBrowserAction",
         "SubmitFormAction",
-        "ToastStyle",
         "pasteText"
       ],
       "outcome": "process-failure",
@@ -6541,8 +6438,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "convert",
@@ -6585,8 +6482,8 @@
       "commandName": "base-converter",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "convex",
@@ -6635,17 +6532,15 @@
       "commandName": "start-task",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "copy-gcp-icons",
       "extensionId": "copy-gcp-icons",
       "commandName": "copy-gcp-icon",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "ToastStyle"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -6681,9 +6576,7 @@
       "extensionId": "copy-text-files",
       "commandName": "copy-text-files",
       "mode": "no-view",
-      "staticUnsupportedApis": [
-        "ToastStyle"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "not-renderable"
     },
     {
@@ -6863,11 +6756,9 @@
       "extensionId": "create-link",
       "commandName": "show-tabs",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "failureCode": "process_failed"
     },
     {
       "directory": "create-t3-app",
@@ -7177,9 +7068,7 @@
       "extensionId": "custom-icon",
       "commandName": "set-custom-icon",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -7268,9 +7157,7 @@
       "extensionId": "dagster",
       "commandName": "list-assets",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
       "failureCode": "process_failed"
     },
@@ -7280,7 +7167,6 @@
       "commandName": "dailysites",
       "mode": "view",
       "staticUnsupportedApis": [
-        "BrowserExtension",
         "OpenInBrowserAction"
       ],
       "outcome": "third-party-dependency",
@@ -7586,9 +7472,7 @@
       "extensionId": "deepwiki",
       "commandName": "search-deepwiki",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
       "failureCode": "process_failed"
     },
@@ -7653,8 +7537,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_send_failed"
+      "outcome": "renders"
     },
     {
       "directory": "defuddle",
@@ -7705,9 +7588,7 @@
       "extensionId": "deno-deploy",
       "commandName": "search-projects",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -7785,9 +7666,7 @@
       "extensionId": "desktop-manager",
       "commandName": "manage-desktop",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -7985,9 +7864,7 @@
       "extensionId": "dictionary",
       "commandName": "fromCmd",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -8030,9 +7907,7 @@
       "extensionId": "digger",
       "commandName": "digger",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -8130,9 +8005,7 @@
       "extensionId": "discussite",
       "commandName": "start",
       "mode": "no-view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "not-renderable"
     },
     {
@@ -8185,7 +8058,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "display-reinitializer",
@@ -8366,8 +8240,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "doge-tracker",
@@ -8469,8 +8343,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "dot-new",
@@ -8583,10 +8457,7 @@
       "extensionId": "downloads-manager",
       "commandName": "manage-downloads",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool",
-        "trash"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -8613,9 +8484,7 @@
       "extensionId": "drafts",
       "commandName": "create-draft-and-open",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "renders"
     },
     {
@@ -8800,8 +8669,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "e18e-module-replacements",
@@ -8851,9 +8720,7 @@
       "extensionId": "easy-invoice",
       "commandName": "create-invoice",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -8916,8 +8783,8 @@
       "commandName": "setup-bucket",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "effect-docs",
@@ -8951,9 +8818,7 @@
       "extensionId": "element",
       "commandName": "index",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "ToastStyle"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -8989,7 +8854,6 @@
       "mode": "view",
       "staticUnsupportedApis": [
         "OpenInBrowserAction",
-        "ToastStyle",
         "allLocalStorageItems",
         "setLocalStorageItem"
       ],
@@ -9010,9 +8874,7 @@
       "extensionId": "elsewhere",
       "commandName": "switch-space",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "renders"
     },
     {
@@ -9089,9 +8951,7 @@
       "extensionId": "empty-screenshots",
       "commandName": "index",
       "mode": "no-view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "not-renderable"
     },
     {
@@ -9151,9 +9011,7 @@
       "extensionId": "ente-auth",
       "commandName": "index",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -9293,9 +9151,7 @@
       "extensionId": "ets2-ats-profiles",
       "commandName": "manage-ets2-profiles",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -9399,8 +9255,8 @@
       "commandName": "import-new",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "excel-formula-beautifier",
@@ -9415,9 +9271,7 @@
       "extensionId": "exif",
       "commandName": "show-exif-data-for-image",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -9674,9 +9528,7 @@
       "extensionId": "feedbin",
       "commandName": "all-feeds",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -9948,9 +9800,7 @@
       "extensionId": "finder-file-actions",
       "commandName": "move-to-folder",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -9985,9 +9835,7 @@
       "extensionId": "finicky-rule-manager",
       "commandName": "manage-finicky-rules",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
       "failureCode": "process_failed"
     },
@@ -10116,9 +9964,7 @@
       "extensionId": "flashcards",
       "commandName": "create-card",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "renders"
     },
     {
@@ -10136,8 +9982,8 @@
       "commandName": "commandSearch",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "outcome": "third-party-dependency",
+      "failureCode": "dependency_unavailable"
     },
     {
       "directory": "flibusta-search",
@@ -10154,8 +10000,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "flighty",
@@ -10213,9 +10059,7 @@
       "extensionId": "flutter-documentation-search",
       "commandName": "index",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "ToastStyle"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
       "failureCode": "process_failed"
     },
@@ -10276,9 +10120,7 @@
       "extensionId": "focus",
       "commandName": "start-focus-with-profile",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "renders"
     },
     {
@@ -10339,9 +10181,7 @@
       "extensionId": "folder-search",
       "commandName": "search",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -10368,9 +10208,7 @@
       "extensionId": "font-sniper",
       "commandName": "extract-fonts",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -10522,9 +10360,7 @@
       "extensionId": "freeagent",
       "commandName": "list-invoices",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
       "failureCode": "process_failed"
     },
@@ -10673,9 +10509,7 @@
       "extensionId": "fx-coding-agent",
       "commandName": "search-sessions",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "renders"
     },
     {
@@ -10727,9 +10561,7 @@
       "extensionId": "gatherit",
       "commandName": "search-gather",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "renders"
     },
     {
@@ -10764,11 +10596,9 @@
       "extensionId": "gemini-cli",
       "commandName": "sessions",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "failureCode": "process_failed"
     },
     {
       "directory": "gemini-tts",
@@ -10875,9 +10705,7 @@
       "extensionId": "get-note",
       "commandName": "recent-notes",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "renders"
     },
     {
@@ -10954,9 +10782,7 @@
       "extensionId": "ghq",
       "commandName": "list",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -11009,9 +10835,7 @@
       "extensionId": "git",
       "commandName": "manage-repositories",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -11020,9 +10844,7 @@
       "extensionId": "git-assistant",
       "commandName": "search-git-repositories",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
       "failureCode": "process_failed"
     },
@@ -11084,9 +10906,7 @@
       "extensionId": "git-repos",
       "commandName": "list",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -11180,8 +11000,7 @@
       "commandName": "issues-create",
       "mode": "view",
       "staticUnsupportedApis": [
-        "FormValues",
-        "ToastStyle"
+        "FormValues"
       ],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
@@ -11292,9 +11111,7 @@
       "extensionId": "gitignore",
       "commandName": "gitignore",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -11508,8 +11325,8 @@
       "commandName": "google-advanced-search",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "google-books",
@@ -11525,9 +11342,7 @@
       "extensionId": "google-calendar",
       "commandName": "create-event",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -11536,9 +11351,7 @@
       "extensionId": "google-calendar-quickadd",
       "commandName": "select-default-calendar",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -11636,8 +11449,8 @@
       "commandName": "travelTo",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "google-maven-repository",
@@ -11665,8 +11478,8 @@
       "commandName": "search-articles",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "google-search",
@@ -11691,9 +11504,7 @@
       "extensionId": "translate",
       "commandName": "translate",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -11704,8 +11515,7 @@
       "mode": "view",
       "staticUnsupportedApis": [
         "ImageMask",
-        "OpenInBrowserAction",
-        "ToastStyle"
+        "OpenInBrowserAction"
       ],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
@@ -11798,9 +11608,7 @@
       "extensionId": "gram",
       "commandName": "search",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -11836,9 +11644,7 @@
       "extensionId": "granola",
       "commandName": "search-notes",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -11892,9 +11698,7 @@
       "extensionId": "grok-ai",
       "commandName": "ask",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -12054,9 +11858,7 @@
       "extensionId": "hackmd",
       "commandName": "browse-notes",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -12091,9 +11893,7 @@
       "extensionId": "handy",
       "commandName": "add-dictionary-word",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "structured-compatibility-error",
       "failureCode": "unsupported_api"
     },
@@ -12184,11 +11984,9 @@
       "extensionId": "hazeover",
       "commandName": "changeDimming",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "ToastStyle"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "failureCode": "process_failed"
     },
     {
       "directory": "hdr-toggle",
@@ -12257,11 +12055,8 @@
       "extensionId": "helium",
       "commandName": "search-tabs",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
-      "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "staticUnsupportedApis": [],
+      "outcome": "renders"
     },
     {
       "directory": "helldivers2",
@@ -12393,8 +12188,8 @@
       "commandName": "addProject",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "hevy",
@@ -12411,7 +12206,6 @@
       "commandName": "hexlify",
       "mode": "no-view",
       "staticUnsupportedApis": [
-        "ToastStyle",
         "copyTextToClipboard"
       ],
       "outcome": "not-renderable"
@@ -12537,9 +12331,7 @@
       "extensionId": "homeassistant",
       "commandName": "index",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -12778,7 +12570,6 @@
         "CopyToClipboardAction",
         "PasteAction",
         "SubmitFormAction",
-        "ToastStyle",
         "preferences"
       ],
       "outcome": "process-failure",
@@ -13133,9 +12924,7 @@
       "extensionId": "inbox-ai",
       "commandName": "screenshot",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
       "failureCode": "process_failed"
     },
@@ -13181,8 +12970,7 @@
       "mode": "view",
       "staticUnsupportedApis": [
         "CopyToClipboardAction",
-        "OpenInBrowserAction",
-        "ToastStyle"
+        "OpenInBrowserAction"
       ],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
@@ -13283,8 +13071,8 @@
       "commandName": "form",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "inspire-search",
@@ -13309,11 +13097,9 @@
       "extensionId": "install-fonts",
       "commandName": "install-fonts",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "failureCode": "process_failed"
     },
     {
       "directory": "installed-extensions",
@@ -13574,11 +13360,9 @@
       "extensionId": "iterm",
       "commandName": "new-iterm-window",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
-      "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "staticUnsupportedApis": [],
+      "outcome": "third-party-dependency",
+      "failureCode": "dependency_unavailable"
     },
     {
       "directory": "itranslate",
@@ -13668,9 +13452,7 @@
       "extensionId": "jetpack-commands",
       "commandName": "manage-dns-records",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -13716,8 +13498,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "jira2git",
@@ -13802,9 +13584,7 @@
       "extensionId": "jovida-daily",
       "commandName": "my-todos",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -14086,9 +13866,7 @@
       "extensionId": "karakeep",
       "commandName": "bookmarks",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -14140,9 +13918,7 @@
       "extensionId": "kef-control",
       "commandName": "set-volume",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
       "failureCode": "process_failed"
     },
@@ -14259,10 +14035,7 @@
       "extensionId": "kill-process",
       "commandName": "index",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool",
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -14280,11 +14053,9 @@
       "extensionId": "kimi",
       "commandName": "ask",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "failureCode": "process_failed"
     },
     {
       "directory": "kimi-for-coding",
@@ -14323,7 +14094,6 @@
       "staticUnsupportedApis": [
         "OpenInBrowserAction",
         "PushAction",
-        "ToastStyle",
         "preferences"
       ],
       "outcome": "process-failure",
@@ -14448,8 +14218,7 @@
       "commandName": "context",
       "mode": "view",
       "staticUnsupportedApis": [
-        "CopyToClipboardAction",
-        "ToastStyle"
+        "CopyToClipboardAction"
       ],
       "outcome": "process-failure",
       "failureCode": "runtime_closed_during_initialization"
@@ -14591,9 +14360,7 @@
       "extensionId": "laravel-cloud",
       "commandName": "search-applications",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "renders"
     },
     {
@@ -14611,9 +14378,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [
-        "Tool",
-        "captureException",
-        "trash"
+        "captureException"
       ],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
@@ -14766,9 +14531,7 @@
       "extensionId": "lattice-scholar-extension",
       "commandName": "lattice-search",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -14866,7 +14629,7 @@
       "mode": "view",
       "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "failureCode": "transport_send_failed"
     },
     {
       "directory": "leave-time-calculator",
@@ -14910,8 +14673,8 @@
       "commandName": "create-a-question",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "lemmy",
@@ -15077,8 +14840,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "ligue-1",
@@ -15259,11 +15022,9 @@
       "extensionId": "list-randomizer",
       "commandName": "index",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "failureCode": "process_failed"
     },
     {
       "directory": "litellm",
@@ -15289,8 +15050,8 @@
       "commandName": "upload-to-litterbox",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "liveblocks",
@@ -15344,8 +15105,7 @@
       "staticUnsupportedApis": [
         "CopyToClipboardAction",
         "ImageMask",
-        "OpenInBrowserAction",
-        "ToastStyle"
+        "OpenInBrowserAction"
       ],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
@@ -15453,9 +15213,7 @@
       "extensionId": "lokalise",
       "commandName": "add-translation",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -15790,9 +15548,7 @@
       "extensionId": "mail",
       "commandName": "compose-new-message",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -16032,11 +15788,9 @@
       "extensionId": "markdown-docs",
       "commandName": "list-documents",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "failureCode": "process_failed"
     },
     {
       "directory": "markdown-image-to-html",
@@ -16051,11 +15805,9 @@
       "extensionId": "markdown-navigator",
       "commandName": "markdown-navigator",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "markdown-preview",
@@ -16072,8 +15824,8 @@
       "commandName": "markdown-reference",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "markdown-slides",
@@ -16289,8 +16041,7 @@
       "commandName": "convert",
       "mode": "view",
       "staticUnsupportedApis": [
-        "PreferenceValues",
-        "Tool"
+        "PreferenceValues"
       ],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
@@ -16301,8 +16052,7 @@
       "commandName": "mediaDetails",
       "mode": "view",
       "staticUnsupportedApis": [
-        "<require>",
-        "Tool"
+        "<require>"
       ],
       "outcome": "renders"
     },
@@ -16483,9 +16233,7 @@
       "extensionId": "messages",
       "commandName": "open-chat",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -16494,9 +16242,7 @@
       "extensionId": "meta-music",
       "commandName": "manage-id3-tags",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -16505,9 +16251,7 @@
       "extensionId": "metabase",
       "commandName": "search-questions",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "renders"
     },
     {
@@ -16557,9 +16301,7 @@
       "extensionId": "metronome",
       "commandName": "index",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -16637,8 +16379,7 @@
       "commandName": "controlMeeting",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "outcome": "renders"
     },
     {
       "directory": "microsoft-tenant-id",
@@ -16885,8 +16626,7 @@
       "mode": "view",
       "staticUnsupportedApis": [
         "CopyToClipboardAction",
-        "OpenInBrowserAction",
-        "ToastStyle"
+        "OpenInBrowserAction"
       ],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
@@ -16998,7 +16738,6 @@
       "staticUnsupportedApis": [
         "CopyToClipboardAction",
         "OpenInBrowserAction",
-        "ToastStyle",
         "randomId"
       ],
       "outcome": "process-failure",
@@ -17009,9 +16748,7 @@
       "extensionId": "mole",
       "commandName": "system-status",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
       "failureCode": "process_failed"
     },
@@ -17263,9 +17000,7 @@
       "extensionId": "mui-documentation",
       "commandName": "index",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -17434,8 +17169,8 @@
       "commandName": "show-status",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "mxroute",
@@ -17486,10 +17221,7 @@
       "extensionId": "mymind",
       "commandName": "search-mymind",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension",
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -17764,7 +17496,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "network-menubar-monitor",
@@ -18120,11 +17853,8 @@
       "extensionId": "raycast-norwegian-public-transport",
       "commandName": "departures",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
-      "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "staticUnsupportedApis": [],
+      "outcome": "renders"
     },
     {
       "directory": "nos-news",
@@ -18179,11 +17909,8 @@
       "extensionId": "noteman",
       "commandName": "quickCapture",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
-      "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "staticUnsupportedApis": [],
+      "outcome": "renders"
     },
     {
       "directory": "noteplan-3",
@@ -18495,7 +18222,6 @@
       "commandName": "searchNoteCommand",
       "mode": "view",
       "staticUnsupportedApis": [
-        "Tool",
         "getDefaultApplication"
       ],
       "outcome": "third-party-dependency",
@@ -18506,10 +18232,7 @@
       "extensionId": "obsidian-bookmarks",
       "commandName": "save-bookmark",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension",
-        "trash"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -18635,8 +18358,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "ohmyzsh-plugins",
@@ -18785,8 +18508,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "oneko",
@@ -18864,9 +18587,7 @@
       "extensionId": "open-graph",
       "commandName": "open-graph",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -19103,9 +18824,7 @@
       "extensionId": "opensearch",
       "commandName": "console",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -19114,9 +18833,7 @@
       "extensionId": "openstatus",
       "commandName": "show-monitors",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -19202,9 +18919,7 @@
       "extensionId": "orbstack",
       "commandName": "machine_list",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "renders"
     },
     {
@@ -19212,9 +18927,7 @@
       "extensionId": "origami",
       "commandName": "view-instances",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
       "failureCode": "process_failed"
     },
@@ -19437,8 +19150,8 @@
       "commandName": "form",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "palette-colors",
@@ -19505,9 +19218,7 @@
       "extensionId": "paper-agent",
       "commandName": "today-papers",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
       "failureCode": "process_failed"
     },
@@ -19741,22 +19452,18 @@
       "extensionId": "paste-rs",
       "commandName": "create-paste",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "staticUnsupportedApis": [],
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "paste-safely",
       "extensionId": "paste-safely",
       "commandName": "configure",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "failureCode": "process_failed"
     },
     {
       "directory": "paste-to-markdown",
@@ -19834,8 +19541,8 @@
       "commandName": "find-pbr-ior-value",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "pcloud",
@@ -19990,8 +19697,7 @@
       "mode": "view",
       "staticUnsupportedApis": [
         "CopyToClipboardAction",
-        "OpenInBrowserAction",
-        "ToastStyle"
+        "OpenInBrowserAction"
       ],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
@@ -20093,7 +19799,6 @@
       "commandName": "php",
       "mode": "view",
       "staticUnsupportedApis": [
-        "ToastStyle",
         "getLocalStorageItem",
         "removeLocalStorageItem",
         "setLocalStorageItem"
@@ -20165,9 +19870,7 @@
       "extensionId": "pick-your-wallpaper",
       "commandName": "choose-wallpaper",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
       "failureCode": "runtime_closed_during_initialization"
     },
@@ -20176,9 +19879,7 @@
       "extensionId": "picmal",
       "commandName": "convert",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "renders"
     },
     {
@@ -20196,9 +19897,7 @@
       "commandName": "save-clipboard-history-to-pieces",
       "mode": "view",
       "staticUnsupportedApis": [
-        "BrowserExtension",
-        "Preferences",
-        "clearSearchBar"
+        "Preferences"
       ],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
@@ -20613,8 +20312,7 @@
       "mode": "view",
       "staticUnsupportedApis": [
         "CopyToClipboardAction",
-        "SubmitFormAction",
-        "ToastStyle"
+        "SubmitFormAction"
       ],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
@@ -20659,11 +20357,9 @@
       "extensionId": "popcorn",
       "commandName": "search-streams",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "failureCode": "process_failed"
     },
     {
       "directory": "popicons",
@@ -20759,8 +20455,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "positron",
@@ -20776,9 +20472,7 @@
       "extensionId": "postey",
       "commandName": "create-draft",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
       "failureCode": "process_failed"
     },
@@ -20797,8 +20491,8 @@
       "commandName": "create-post",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "postman",
@@ -20856,9 +20550,7 @@
       "extensionId": "pretty-pr-link",
       "commandName": "copy-formatted-link",
       "mode": "no-view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "not-renderable"
     },
     {
@@ -21098,11 +20790,8 @@
       "extensionId": "proton-pass",
       "commandName": "search-items",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
-      "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "staticUnsupportedApis": [],
+      "outcome": "renders"
     },
     {
       "directory": "proton-version",
@@ -21330,9 +21019,7 @@
       "extensionId": "qmd",
       "commandName": "keyword-search",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -21437,8 +21124,8 @@
       "commandName": "query-chatgpt-custom-create",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "query-domains",
@@ -21481,12 +21168,9 @@
       "extensionId": "quick-airdrop",
       "commandName": "search-airdropped-files",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension",
-        "trash"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "failureCode": "process_failed"
     },
     {
       "directory": "quick-call",
@@ -21538,9 +21222,7 @@
       "extensionId": "quick-notes",
       "commandName": "index",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -21680,11 +21362,9 @@
       "extensionId": "quit-applications",
       "commandName": "index",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "failureCode": "process_failed"
     },
     {
       "directory": "quoterism",
@@ -21815,12 +21495,8 @@
       "extensionId": "raindrop-io",
       "commandName": "latest_bookmarks",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension",
-        "Tool"
-      ],
-      "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "staticUnsupportedApis": [],
+      "outcome": "renders"
     },
     {
       "directory": "ram-prices",
@@ -21845,8 +21521,8 @@
       "commandName": "select-color",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "random-data-generator",
@@ -21898,11 +21574,8 @@
       "extensionId": "random-text-picker",
       "commandName": "index",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
-      "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "staticUnsupportedApis": [],
+      "outcome": "renders"
     },
     {
       "directory": "random-us-phone-number",
@@ -21969,9 +21642,7 @@
       "extensionId": "ray-code",
       "commandName": "get-started",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
       "failureCode": "process_failed"
     },
@@ -21997,11 +21668,9 @@
       "extensionId": "raycall",
       "commandName": "save-url",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "failureCode": "process_failed"
     },
     {
       "directory": "raycast-ai-custom-providers",
@@ -22009,8 +21678,8 @@
       "commandName": "manage-custom-providers",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "raycast-anime",
@@ -22071,7 +21740,6 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [
-        "ToastStyle",
         "getLocalStorageItem",
         "randomId",
         "removeLocalStorageItem",
@@ -22183,8 +21851,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "raycast-manual",
@@ -22259,9 +21927,7 @@
       "extensionId": "raycast-ollama",
       "commandName": "ollama-chat",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -22288,7 +21954,6 @@
       "commandName": "ai-ask",
       "mode": "no-view",
       "staticUnsupportedApis": [
-        "BrowserExtension",
         "WindowManagement"
       ],
       "outcome": "not-renderable"
@@ -22452,7 +22117,6 @@
       "commandName": "activeBudget",
       "mode": "view",
       "staticUnsupportedApis": [
-        "Tool",
         "captureException"
       ],
       "outcome": "third-party-dependency",
@@ -22542,8 +22206,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "react-icons",
@@ -22585,9 +22249,7 @@
       "extensionId": "read-this-later",
       "commandName": "list-unread",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -22605,9 +22267,7 @@
       "extensionId": "reader-mode",
       "commandName": "open",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -22634,9 +22294,7 @@
       "extensionId": "readwise-reader",
       "commandName": "save-links",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "structured-compatibility-error",
       "failureCode": "unsupported_api"
     },
@@ -22716,9 +22374,7 @@
       "extensionId": "recents",
       "commandName": "recents",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -22800,11 +22456,9 @@
       "extensionId": "rednote-viewer",
       "commandName": "view",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "failureCode": "invalid_extension_readiness"
     },
     {
       "directory": "reflect",
@@ -22821,8 +22475,8 @@
       "commandName": "append",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "refresh-browsers",
@@ -22944,8 +22598,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [
-        "SubmitFormAction",
-        "ToastStyle"
+        "SubmitFormAction"
       ],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
@@ -23058,9 +22711,7 @@
       "extensionId": "resend",
       "commandName": "api_keys",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -23098,11 +22749,9 @@
       "extensionId": "restart-system-processes",
       "commandName": "index",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "failureCode": "process_failed"
     },
     {
       "directory": "restore-photo",
@@ -23262,8 +22911,7 @@
       "staticUnsupportedApis": [
         "OpenAction",
         "OpenInBrowserAction",
-        "SubmitFormAction",
-        "ToastStyle"
+        "SubmitFormAction"
       ],
       "outcome": "process-failure",
       "failureCode": "runtime_closed_during_initialization"
@@ -23342,10 +22990,7 @@
       "extensionId": "rss-reader",
       "commandName": "feeds",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension",
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -23563,9 +23208,7 @@
       "extensionId": "save-link",
       "commandName": "save-link",
       "mode": "no-view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "not-renderable"
     },
     {
@@ -23785,7 +23428,6 @@
         "OpenInBrowserAction",
         "OpenWithAction",
         "PushAction",
-        "ToastStyle",
         "randomId"
       ],
       "outcome": "third-party-dependency",
@@ -23893,8 +23535,7 @@
       "staticUnsupportedApis": [
         "CopyToClipboardAction",
         "OpenInBrowserAction",
-        "PushAction",
-        "ToastStyle"
+        "PushAction"
       ],
       "outcome": "process-failure",
       "failureCode": "runtime_closed_during_initialization"
@@ -23934,7 +23575,6 @@
         "CopyToClipboardAction",
         "OpenAction",
         "OpenInBrowserAction",
-        "ToastStyle",
         "getLocalStorageItem",
         "setLocalStorageItem"
       ],
@@ -23973,9 +23613,7 @@
       "extensionId": "search-regexp",
       "commandName": "searchRegexp",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -24072,8 +23710,8 @@
       "commandName": "icons",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "semantic-scholar",
@@ -24089,9 +23727,7 @@
       "extensionId": "send-ai",
       "commandName": "buy-token",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -24120,9 +23756,7 @@
       "extensionId": "send-to-kindle",
       "commandName": "preview-and-send-to-kindle",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -24226,9 +23860,7 @@
       "extensionId": "servicenow",
       "commandName": "search",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -24237,9 +23869,7 @@
       "extensionId": "sesh",
       "commandName": "cmd-connect",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
       "failureCode": "runtime_closed_during_initialization"
     },
@@ -24249,8 +23879,8 @@
       "commandName": "session-start-new-form",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "setapp",
@@ -24328,9 +23958,7 @@
       "extensionId": "shakespearify",
       "commandName": "index",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "ToastStyle"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -24339,9 +23967,7 @@
       "extensionId": "shape-calendar",
       "commandName": "search-workouts",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
       "failureCode": "process_failed"
     },
@@ -24358,9 +23984,7 @@
       "extensionId": "share-a-quote",
       "commandName": "copy-selected-text-as-quote-with-link",
       "mode": "no-view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "not-renderable"
     },
     {
@@ -24377,11 +24001,8 @@
       "extensionId": "sharex",
       "commandName": "browse-library",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
-      "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "staticUnsupportedApis": [],
+      "outcome": "renders"
     },
     {
       "directory": "shell",
@@ -24416,8 +24037,7 @@
       "mode": "view",
       "staticUnsupportedApis": [
         "captureException",
-        "getDefaultApplication",
-        "trash"
+        "getDefaultApplication"
       ],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
@@ -24445,17 +24065,15 @@
       "commandName": "addBookmark",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "shiori-sh",
       "extensionId": "shiori-sh",
       "commandName": "search-links",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
       "failureCode": "process_failed"
     },
@@ -24587,8 +24205,8 @@
       "commandName": "token",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "shutdown-timer",
@@ -24596,8 +24214,8 @@
       "commandName": "schedule-shutdown",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "sidecar",
@@ -24663,11 +24281,8 @@
       "extensionId": "similarweb",
       "commandName": "show-website-data",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
-      "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "staticUnsupportedApis": [],
+      "outcome": "renders"
     },
     {
       "directory": "simon",
@@ -24682,9 +24297,7 @@
       "extensionId": "simple-dictionary",
       "commandName": "history",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
       "failureCode": "process_failed"
     },
@@ -24729,8 +24342,8 @@
       "commandName": "create-memo",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "simple-reminder",
@@ -24787,7 +24400,6 @@
         "ImageMask",
         "OpenInBrowserAction",
         "PushAction",
-        "ToastStyle",
         "getLocalStorageItem"
       ],
       "outcome": "third-party-dependency",
@@ -24860,9 +24472,7 @@
       "extensionId": "siri",
       "commandName": "type-to-siri",
       "mode": "no-view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "not-renderable"
     },
     {
@@ -24870,9 +24480,7 @@
       "extensionId": "sitemap",
       "commandName": "search-sitemap",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -24896,7 +24504,6 @@
         "KeyEquivalent",
         "OpenAction",
         "OpenInBrowserAction",
-        "ToastStyle",
         "clearLocalStorage",
         "getLocalStorageItem",
         "setLocalStorageItem"
@@ -24936,9 +24543,7 @@
       "extensionId": "slack",
       "commandName": "search",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -24947,9 +24552,7 @@
       "extensionId": "slack-status",
       "commandName": "setStatus",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -25055,9 +24658,7 @@
       "extensionId": "smallweb",
       "commandName": "search-apps",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -25085,8 +24686,7 @@
       "commandName": "show-lights",
       "mode": "view",
       "staticUnsupportedApis": [
-        "CopyToClipboardAction",
-        "ToastStyle"
+        "CopyToClipboardAction"
       ],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
@@ -25167,9 +24767,7 @@
       "extensionId": "snipperapp",
       "commandName": "search-snippets",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
       "failureCode": "process_failed"
     },
@@ -25362,8 +24960,8 @@
       "commandName": "show-my-spaces",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "spaceship",
@@ -25399,8 +24997,7 @@
       "mode": "view",
       "staticUnsupportedApis": [
         "CopyToClipboardAction",
-        "OpenInBrowserAction",
-        "ToastStyle"
+        "OpenInBrowserAction"
       ],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
@@ -25419,9 +25016,7 @@
       "extensionId": "speech-to-text",
       "commandName": "record-transcription",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -25518,11 +25113,9 @@
       "extensionId": "splix",
       "commandName": "search",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "ToastStyle"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "failureCode": "process_failed"
     },
     {
       "directory": "spoiler-converter",
@@ -25537,11 +25130,8 @@
       "extensionId": "spokenly",
       "commandName": "search-transcripts",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
-      "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "staticUnsupportedApis": [],
+      "outcome": "renders"
     },
     {
       "directory": "spoqify",
@@ -25648,8 +25238,8 @@
       "commandName": "create",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "ssh-tunnel-manager",
@@ -25797,9 +25387,7 @@
       "extensionId": "steam",
       "commandName": "steam",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -25836,11 +25424,9 @@
       "extensionId": "stik",
       "commandName": "quick-capture",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
-      "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "staticUnsupportedApis": [],
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "stock-lookup",
@@ -25956,8 +25542,8 @@
       "commandName": "format-string",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "stripe",
@@ -26027,9 +25613,7 @@
       "extensionId": "summarize-youtube-video-with-ai",
       "commandName": "summarizeVideoWithRaycast",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -26100,9 +25684,7 @@
       "extensionId": "superhuman",
       "commandName": "placeholder",
       "mode": "no-view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "not-renderable"
     },
     {
@@ -26181,9 +25763,7 @@
       "extensionId": "raycast-surge",
       "commandName": "index",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "ToastStyle"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -26297,11 +25877,9 @@
       "extensionId": "swift-repl",
       "commandName": "run-swift",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "failureCode": "process_failed"
     },
     {
       "directory": "swinsian-player",
@@ -26317,9 +25895,7 @@
       "extensionId": "swipe-photo-cleaner",
       "commandName": "review-photos",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
       "failureCode": "runtime_closed_during_initialization"
     },
@@ -26398,9 +25974,7 @@
       "extensionId": "system-information",
       "commandName": "index",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -26470,9 +26044,7 @@
       "extensionId": "tablepro",
       "commandName": "search-connections",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -26515,9 +26087,7 @@
       "extensionId": "tabstash",
       "commandName": "search-links",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
       "failureCode": "process_failed"
     },
@@ -26615,9 +26185,7 @@
       "extensionId": "tasknotes",
       "commandName": "switch-default-vault",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "renders"
     },
     {
@@ -26667,10 +26235,7 @@
       "extensionId": "teak-raycast",
       "commandName": "quick-save",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension",
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "renders"
     },
     {
@@ -26734,9 +26299,7 @@
       "extensionId": "telegram",
       "commandName": "authenticate",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -26875,11 +26438,9 @@
       "extensionId": "tesla-clips",
       "commandName": "tesla-clips",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "failureCode": "process_failed"
     },
     {
       "directory": "tesla-energy",
@@ -26955,8 +26516,8 @@
       "commandName": "text-rewrap-form",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "text-scramble",
@@ -27054,9 +26615,7 @@
       "extensionId": "the-forest-link",
       "commandName": "view-walk-history",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "renders"
     },
     {
@@ -27081,8 +26640,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "the-nobel-prize",
@@ -27170,9 +26729,7 @@
       "extensionId": "things",
       "commandName": "show-today-list",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -27252,9 +26809,7 @@
       "extensionId": "ticktick-plus",
       "commandName": "today",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -27300,11 +26855,8 @@
       "extensionId": "tikz",
       "commandName": "create-tikz",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "trash"
-      ],
-      "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "staticUnsupportedApis": [],
+      "outcome": "renders"
     },
     {
       "directory": "tim",
@@ -27339,8 +26891,8 @@
       "commandName": "calculate-time",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "time-converter",
@@ -27456,8 +27008,7 @@
       "staticUnsupportedApis": [
         "OpenInBrowserAction",
         "PushAction",
-        "SubmitFormAction",
-        "ToastStyle"
+        "SubmitFormAction"
       ],
       "outcome": "process-failure",
       "failureCode": "runtime_closed_during_initialization"
@@ -27502,8 +27053,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "tinyfaces-nft",
@@ -27553,9 +27104,7 @@
       "extensionId": "tl-dr-ai-summary-tool",
       "commandName": "index",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -27634,9 +27183,7 @@
       "extensionId": "todo-list",
       "commandName": "index",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -27654,9 +27201,7 @@
       "extensionId": "toggl-track",
       "commandName": "index",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -27757,7 +27302,6 @@
       "commandName": "generate-text",
       "mode": "view",
       "staticUnsupportedApis": [
-        "BrowserExtension",
         "KeyEquivalent"
       ],
       "outcome": "renders"
@@ -27870,9 +27414,7 @@
       "extensionId": "translate-send-webpage-to-reader",
       "commandName": "translate-send-webpage-to-Reader",
       "mode": "no-view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "not-renderable"
     },
     {
@@ -27898,9 +27440,7 @@
       "extensionId": "transmit",
       "commandName": "index",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -28145,8 +27685,8 @@
       "commandName": "twitter-trendscast",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "twitter-video-downloader",
@@ -28180,9 +27720,7 @@
       "extensionId": "txtodo",
       "commandName": "tasks",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "renders"
     },
     {
@@ -28237,9 +27775,7 @@
       "extensionId": "typefully",
       "commandName": "create-draft",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
       "failureCode": "process_failed"
     },
@@ -28275,8 +27811,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "typewhisper",
@@ -28398,8 +27934,7 @@
       "commandName": "new-group",
       "mode": "view",
       "staticUnsupportedApis": [
-        "SubmitFormAction",
-        "ToastStyle"
+        "SubmitFormAction"
       ],
       "outcome": "process-failure",
       "failureCode": "runtime_closed_during_initialization"
@@ -28507,8 +28042,8 @@
       "commandName": "timestamp-to-date",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "unix-timestamp-converter",
@@ -28853,7 +28388,6 @@
       "staticUnsupportedApis": [
         "CopyToClipboardAction",
         "OpenInBrowserAction",
-        "ToastStyle",
         "preferences"
       ],
       "outcome": "process-failure",
@@ -28899,9 +28433,7 @@
       "extensionId": "val-town",
       "commandName": "search-vals",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
       "failureCode": "process_failed"
     },
@@ -29088,9 +28620,7 @@
       "extensionId": "video-downloader",
       "commandName": "index",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -29109,8 +28639,8 @@
       "commandName": "transfer-qr-generator",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "vikunja",
@@ -29135,9 +28665,7 @@
       "extensionId": "vim-leader-key",
       "commandName": "leader-key",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "renders"
     },
     {
@@ -29273,9 +28801,7 @@
       "extensionId": "vmware-vcenter",
       "commandName": "vm",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "renders"
     },
     {
@@ -29506,9 +29032,7 @@
       "extensionId": "wayback-machine",
       "commandName": "saveMultiple",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "structured-compatibility-error",
       "failureCode": "unsupported_api"
     },
@@ -29714,9 +29238,7 @@
       "extensionId": "whatsapp",
       "commandName": "open-chat",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -30317,8 +29839,8 @@
       "commandName": "wpcli",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "wppb",
@@ -30360,8 +29882,8 @@
       "commandName": "show-my-presets",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "wsl-manager",
@@ -30394,8 +29916,7 @@
       "commandName": "search-recent-projects.command",
       "mode": "view",
       "staticUnsupportedApis": [
-        "Navigation",
-        "Tool"
+        "Navigation"
       ],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
@@ -30423,9 +29944,7 @@
       "extensionId": "xecutor",
       "commandName": "presets",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "clearSearchBar"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -30468,9 +29987,7 @@
       "extensionId": "xkeen-manager",
       "commandName": "xkeen-manager",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "process-failure",
       "failureCode": "process_failed"
     },
@@ -30636,8 +30153,8 @@
       "commandName": "search",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "youdao-translate",
@@ -30680,9 +30197,7 @@
       "extensionId": "youtrack",
       "commandName": "browse",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },
@@ -30786,11 +30301,8 @@
       "extensionId": "yubikey-code",
       "commandName": "index",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
-      "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "staticUnsupportedApis": [],
+      "outcome": "renders"
     },
     {
       "directory": "za-fake-id-number-generator",
@@ -30868,8 +30380,8 @@
       "commandName": "show-my-modes",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "zenblog",
@@ -30930,9 +30442,7 @@
       "extensionId": "zero",
       "commandName": "zero-assistant",
       "mode": "no-view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "not-renderable"
     },
     {
@@ -31088,9 +30598,7 @@
       "extensionId": "zread-ai",
       "commandName": "open-page",
       "mode": "no-view",
-      "staticUnsupportedApis": [
-        "BrowserExtension"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "not-renderable"
     },
     {
@@ -31098,9 +30606,7 @@
       "extensionId": "zsh-aliases",
       "commandName": "manage-aliases",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "Tool"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "renders"
     },
     {

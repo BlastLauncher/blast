@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdir, mkdtemp } from "node:fs/promises";
+import { mkdir, mkdtemp, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -48,10 +48,10 @@ export interface ExtensionDependencyPolicy {
 export function createBundlingEntrypointLoader(
   options: BundlingEntrypointLoaderOptions = {},
 ): ExtensionEntrypointLoader {
-  const readyCacheDirectory =
-    options.cacheDirectory !== undefined
-      ? prepareCacheDirectory(options.cacheDirectory)
-      : prepareDefaultCacheDirectory();
+  const ownsCacheDirectory = options.cacheDirectory === undefined;
+  const readyCacheDirectory = !ownsCacheDirectory
+    ? prepareCacheDirectory(options.cacheDirectory)
+    : prepareDefaultCacheDirectory();
   const alias: Record<string, string> = { ...options.alias };
   const reactModulePath = options.reactModulePath;
   const reactPlugin = reactModulePath === undefined ? undefined : createReactExternalPlugin(reactModulePath);
@@ -60,6 +60,7 @@ export function createBundlingEntrypointLoader(
   return async (entrypoint, signal) => {
     signal?.throwIfAborted();
     const cacheDirectory = await readyCacheDirectory;
+    await mkdir(cacheDirectory, { recursive: true });
     const hash = createHash("sha256")
       .update(
         JSON.stringify({
@@ -74,50 +75,55 @@ export function createBundlingEntrypointLoader(
     const bundlePath = path.join(cacheDirectory, `${hash}.cjs`);
 
     try {
-      await esbuild.build({
-        entryPoints: [entrypoint],
-        bundle: true,
-        platform: "node",
-        format: "cjs",
-        target: "node20",
-        jsx: "automatic",
-        outfile: bundlePath,
-        alias: { ...alias },
-        ...(dependencyPolicy.vendorRoots.length === 0 ? {} : { nodePaths: [...dependencyPolicy.vendorRoots] }),
-        plugins: reactPlugin === undefined ? [] : [reactPlugin],
-        logLevel: "silent",
-        sourcemap: false,
-      });
-    } catch (error) {
-      const reason = error instanceof Error ? error.message : String(error);
-      throw new ExtensionEntrypointError(
-        "entrypoint_load_failed",
-        `Extension entrypoint could not be bundled: ${reason}`,
-        {
-          entrypoint,
-          reason,
-        },
-      );
+      try {
+        await esbuild.build({
+          entryPoints: [entrypoint],
+          bundle: true,
+          platform: "node",
+          format: "cjs",
+          target: "node20",
+          jsx: "automatic",
+          outfile: bundlePath,
+          alias: { ...alias },
+          ...(dependencyPolicy.vendorRoots.length === 0 ? {} : { nodePaths: [...dependencyPolicy.vendorRoots] }),
+          plugins: reactPlugin === undefined ? [] : [reactPlugin],
+          logLevel: "silent",
+          sourcemap: false,
+        });
+      } catch (error) {
+        const reason = error instanceof Error ? error.message : String(error);
+        throw new ExtensionEntrypointError(
+          "entrypoint_load_failed",
+          `Extension entrypoint could not be bundled: ${reason}`,
+          {
+            entrypoint,
+            reason,
+          },
+        );
+      }
+      signal?.throwIfAborted();
+      const namespace = (await import(pathToFileURL(bundlePath).href)) as Record<string, unknown>;
+      // CommonJS bundles expose their exports as the default export; flatten so
+      // `command` and `default` remain reachable at the top level.
+      const bundledExports = namespace.default;
+      if (
+        typeof bundledExports === "object" &&
+        bundledExports !== null &&
+        ("command" in bundledExports || "default" in bundledExports)
+      ) {
+        const record = bundledExports as Record<string, unknown>;
+        return {
+          ...record,
+          ...namespace,
+          default: record.default ?? namespace.default,
+        } as Record<string, unknown>;
+      }
+      return namespace;
+    } finally {
+      if (ownsCacheDirectory) {
+        await rm(cacheDirectory, { recursive: true, force: true }).catch(() => {});
+      }
     }
-    signal?.throwIfAborted();
-
-    const namespace = (await import(pathToFileURL(bundlePath).href)) as Record<string, unknown>;
-    // CommonJS bundles expose their exports as the default export; flatten so
-    // `command` and `default` remain reachable at the top level.
-    const bundledExports = namespace.default;
-    if (
-      typeof bundledExports === "object" &&
-      bundledExports !== null &&
-      ("command" in bundledExports || "default" in bundledExports)
-    ) {
-      const record = bundledExports as Record<string, unknown>;
-      return {
-        ...record,
-        ...namespace,
-        default: record.default ?? namespace.default,
-      } as Record<string, unknown>;
-    }
-    return namespace;
   };
 }
 

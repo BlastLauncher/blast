@@ -32,21 +32,22 @@ package-manager scripts; unavailable packages remain dependency failures.
 | third-party dependency failure |     2,361 |      1,276 | -1,085 |
 | not renderable command mode    |       358 |        316 |    -42 |
 | other process/startup failure  |       432 |        982 |   +550 |
-| structured compatibility error |        23 |        119 |    +96 |
-| renders a scene end to end     |        54 |        535 |   +481 |
+| structured compatibility error |        23 |         91 |    +68 |
+| renders a scene end to end     |        54 |        552 |   +498 |
 | no entrypoint found            |         3 |          3 |      0 |
 
-Reading: the post-slice extension pass rate is 535/3,231 (16.56%); among the
-2,915 extensions with a selected renderable command it is 535/2,915 (18.35%).
+Reading: the post-slice extension pass rate is 552/3,231 (17.08%); among the
+2,915 extensions with a selected renderable command it is 552/2,915 (18.94%).
 The high-impact `Grid`, `launchCommand`, `MenuBarExtra`, LaunchProps,
 window/navigation, `Image`, selected-text, application-discovery, command-
-preference, Finder, frontmost-application, AI, OAuth, and command-metadata
-blockers are no longer in the static list. Remaining static blockers on
-non-rendering extensions are led by `Tool` (63), `BrowserExtension` (50),
-`ToastStyle` (44), `clearSearchBar` (41), and `trash` (41). The vendor root
-removes 1,085 dependency failures, but 1,276 remain; the next coverage group
-should combine the top remaining API blockers with the audited dependency
-provisioning decision.
+preference, Finder, frontmost-application, AI, OAuth, command-metadata,
+`BrowserExtension`, `ToastStyle`, `clearSearchBar`, and `trash` blockers are no
+longer in the static list. Remaining static blockers on non-rendering
+extensions are led by `captureException` (40), `OpenInBrowserAction` (29),
+`CopyToClipboardAction` (23), `getDefaultApplication` (18), and
+`PreferenceValues` (12). The vendor root removes 1,085 dependency failures,
+but 1,278 remain; the next coverage group should combine the top remaining API
+blockers with the audited dependency provisioning decision.
 
 ## Committed fixtures
 
@@ -70,20 +71,23 @@ provisioning decision.
 | `launch-boundaries`            | list           |     1 | Image masks, LaunchProps, LaunchType, closeMainWindow, popToRoot, openExtensionPreferences |
 | `desktop-discovery-boundaries` | list           |     2 | Application, getApplications, getSelectedText, openCommandPreferences                      |
 | `finder-boundaries`            | list           |     2 | FileSystemItem, getFrontmostApplication, getSelectedFinderItems, showInFinder              |
+| `host-boundaries`              | list           |     1 | BrowserExtension, ToastStyle, Tool.Confirmation, clearSearchBar, trash                     |
 | `runtime-boundaries`           | list           |     1 | AI, OAuth, updateCommandMetadata                                                           |
 | `grid-boundaries`              | grid           |     2 | Grid, Grid.Item, Grid.Section, Grid.Dropdown, Grid.EmptyView, Icon                         |
 | `menu-bar-boundaries`          | menu-bar-extra |     2 | MenuBarExtra, Item, Section, Submenu, Separator, Icon                                      |
 | `choose-a-license`             | —              |     — | expected `unsupported_api`: Action.OpenInBrowser                                           |
 
-The twenty matrix render fixtures assert root type and minimum item counts
+The twenty-one matrix render fixtures assert root type and minimum item counts
 through real child processes; the desktop-discovery fixture additionally waits
 for three brokered capability responses, the Finder fixture waits for three
 additional capability responses, and the form fixture dispatches text, date,
 tag-array, and file-path changes plus a submit event with client-provided
 values. The launch-boundaries fixture is also exercised by the vertical suite.
 The runtime-boundaries fixture waits for an AI response, command subtitle
-update, and OAuth token lookup; the gap fixture asserts that unmeasured surface
-fails with a structured `unsupported_api` error and a non-zero exit.
+update, and OAuth token lookup; the host-boundaries fixture waits for browser
+tab/content, search, and trash capability responses; the gap fixture asserts
+that unmeasured surface fails with a structured `unsupported_api` error and a
+non-zero exit.
 
 ## Known gaps surfaced by the matrix
 
@@ -114,6 +118,11 @@ fails with a structured `unsupported_api` error and a non-zero exit.
   `finder.show`, and `application.frontmost`; deterministic providers make
   corpus and fixture runs reproducible, while production Finder/frontmost
   application providers and consent policy remain absent;
+- `BrowserExtension.getTabs`, `BrowserExtension.getContent`, `clearSearchBar`,
+  `trash`, `ToastStyle`, and the type-only `Tool.Confirmation` contract are
+  measured. Browser integration, navigation state, destructive filesystem
+  behavior, and permission/consent policy remain host work; broader browser,
+  action, and Tool APIs remain unsupported;
 - `AI.ask` is measured through `ai.ask`, including creativity/model option
   normalization, abort preflight, and the final-result `.on("data")` adapter;
   model execution and streaming providers remain host work;

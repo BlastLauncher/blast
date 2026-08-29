@@ -273,6 +273,26 @@
     "source": "blast/compatibility-fixture"
   },
   {
+    "id": "host-boundaries",
+    "extensionId": "host-boundaries",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "list",
+    "minItems": 1,
+    "readyNavigationTitle": "Host:1:Fixture browser content:SUCCESS",
+    "apis": [
+      "Action",
+      "ActionPanel",
+      "BrowserExtension",
+      "List",
+      "ToastStyle",
+      "Tool",
+      "clearSearchBar",
+      "trash"
+    ],
+    "source": "blast/compatibility-fixture"
+  },
+  {
     "id": "runtime-boundaries",
     "extensionId": "runtime-boundaries",
     "commandName": "index",

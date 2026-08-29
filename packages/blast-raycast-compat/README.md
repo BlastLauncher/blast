@@ -38,6 +38,14 @@ onto the V2 scene contract, renderer, and capability broker:
   values and reveal paths accept the structural `PathLike` type;
 - `getFrontmostApplication` routes through `application.frontmost` and
   validates the shared JSON-encoded `Application` shape;
+- `BrowserExtension.getTabs` and `BrowserExtension.getContent` route through
+  host-owned browser-extension capabilities; tab responses are validated and
+  content options are normalized before crossing the primitive boundary;
+- `clearSearchBar` and `trash` route through host-owned navigation and
+  filesystem capabilities. `trash` accepts one or many structural `PathLike`
+  values and sends normalized paths as JSON;
+- the legacy top-level `ToastStyle` constants retain Raycast's uppercase
+  values, while `Tool.Confirmation<T>` is exposed as a type-only contract;
 - `AI.ask` routes through `ai.ask`, validates creativity/model options, and
   preserves the promise's measured `.on("data")` completion shape;
 - `OAuth.PKCEClient` routes authorization requests, browser authorization, and
@@ -69,14 +77,15 @@ submitted values to the current form field IDs. `DatePicker` values are native
 ## Compatibility boundary
 
 Unmeasured surface (client toast timing/stacking, focus/blur form callbacks,
-and broader desktop APIs) raises a structured `CompatibilityError` with code
-`unsupported_api`; it never fails silently. Menu-bar alternate items and
-right-click event identity remain outside the current scene boundary. The
-AI, OAuth, selected-text, application-list, command-preference, Finder, and
-frontmost-application capabilities still need production host providers,
-secure storage/browser integration, and consent policy. Resolution of literal
-`@raycast/api` imports to this adapter happens at the runtime layer when
-extension bundling lands.
+broader desktop APIs, and broader action/browser/Tool helpers) raises a
+structured `CompatibilityError` with code `unsupported_api`; it never fails
+silently. Menu-bar alternate items and right-click event identity remain
+outside the current scene boundary. The AI, OAuth, selected-text,
+application-list, command-preference, Finder, frontmost-application,
+browser-extension, navigation, and filesystem capabilities still need
+production host providers, secure integration, and consent policy. Resolution
+of literal `@raycast/api` imports to this adapter happens at the runtime layer
+when extension bundling lands.
 
 ## Boundaries
 

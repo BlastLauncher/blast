@@ -38,7 +38,9 @@ stay external. Bundling failures surface as structured
 `entrypoint_load_failed` errors. Third-party resolution is explicit (ADR 0020):
 the default `local` policy uses the extension's installed graph, while the
 `vendored` policy accepts absolute launcher-provisioned `vendorRoots`. The
-loader never invokes a package manager or downloads dependencies.
+loader never invokes a package manager or downloads dependencies. Its default
+temporary cache directory is removed after each successful or failed load;
+callers that provide `cacheDirectory` own its lifetime and contents.
 
 ## Boundaries
 

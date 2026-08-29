@@ -70,9 +70,11 @@ slice changes what is executable, what is trusted, or what should happen next.
 - The Node bootstrap bundles entrypoints with esbuild (TypeScript/JSX and
   literal `@raycast/api` imports resolved by launcher-provided aliases) and
   renders default-exported command components through the adapter, so
-  unmodified Raycast-style TSX fixtures run end to end.
+  unmodified Raycast-style TSX fixtures run end to end. Default temporary
+  bundle directories are removed after each successful or failed load; an
+  explicitly supplied cache directory remains caller-owned.
 - The support matrix runs a committed set of real corpus extensions through
-  the full pipeline in CI: twenty render fixtures (list, detail, navigation,
+  the full pipeline in CI: twenty-one render fixtures (list, detail, navigation,
   action groups, tinted icons, form controls, toasts, preferences, brokered
   clipboard, and desktop boundaries) and one fails with a structured
   `unsupported_api` error, while the corpus probe records exactly which
@@ -128,6 +130,17 @@ slice changes what is executable, what is trusted, or what should happen next.
   structural `PathLike` type.
 - `getFrontmostApplication` crosses `application.frontmost` and reuses the
   validated `Application` response shape.
+- `BrowserExtension.getTabs` and `BrowserExtension.getContent` cross explicit
+  `browser-extension.getTabs` and `browser-extension.getContent` capabilities;
+  tab responses are JSON-decoded and validated, while content format,
+  selector, and tab ID options are normalized before crossing the boundary.
+- `clearSearchBar` and `trash` cross explicit `navigation.clearSearchBar` and
+  `filesystem.trash` capabilities. Trash accepts one or many structural
+  `PathLike` values and encodes only normalized primitive paths; browser,
+  navigation, and destructive filesystem behavior remains host-owned.
+- The top-level `ToastStyle` constants preserve Raycast's uppercase legacy
+  values, and `Tool.Confirmation<T>` is available as a type-only contract;
+  neither introduces an unbrokered runtime capability.
 - `AI.ask` crosses the explicit `ai.ask` capability. Prompt, creativity, and
   model options are validated and normalized; the returned promise preserves
   Raycast's `.on("data")` shape while the host owns the actual model provider.
@@ -148,6 +161,9 @@ slice changes what is executable, what is trusted, or what should happen next.
   date values.
 - Toast lifecycle operations, toast IDs, styles, and action event IDs are
   validated before the relay forwards them to the client-side toast sink.
+- Browser tab responses are JSON-decoded and validated before they reach an
+  extension; filesystem trash paths are normalized to primitive strings before
+  the host receives them.
 - A runtime must identify as `extension-runtime`; a host must identify as
   `extension-host`.
 - The runtime cannot choose which descriptor it runs, and a client cannot choose
@@ -164,7 +180,7 @@ slice changes what is executable, what is trusted, or what should happen next.
   local or vendored dependency roots but never installs packages);
 - the remaining measured Raycast surface: Form focus/blur callbacks, client
   toast timing/stacking, broader desktop APIs such as default-application
-  discovery, and the next Tool/browser/action gaps;
+  discovery, broader action helpers, and additional Tool/browser APIs;
 - a client-facing core protocol, daemon listener, and desktop rendering of
   scenes (the deterministic test client stands in today);
 - capability manifest declarations, real operating-system providers, audit
@@ -185,14 +201,15 @@ support matrix (`compatibility/support-matrix.md`) records the baseline and
 post-slice probes. The priority remains measured extension coverage: coverage
 means the share of corpus extensions that bundle and render through the current
 path, not the number of exported API names. The shortcut, imperative, cache,
-launch-boundary, desktop-discovery, finder-boundary, and dependency-policy
-slices are complete, but the measured 80% target is not yet met; the next work
-should address the dominant remaining API and dependency blockers using the
-same probe.
+launch-boundary, desktop-discovery, finder-boundary, host-boundary, and
+dependency-policy slices are complete, but the measured 80% target is not yet
+met; the next work should address the dominant remaining API and dependency
+blockers using the same probe.
 
-1. Expand the next measured blocker group (`Tool`, `BrowserExtension`,
-   `ToastStyle`, `clearSearchBar`, and `trash`) with measured call/return
-   shapes and explicit compatibility or capability boundaries.
+1. Expand the next measured blocker group (`captureException`,
+   `OpenInBrowserAction`, `CopyToClipboardAction`, `getDefaultApplication`,
+   and `PreferenceValues`) with measured call/return shapes and explicit
+   compatibility or capability boundaries.
 2. Provision an audited, pinned vendor set or an explicit installation phase
    for the remaining third-party dependency graph; keep installation outside
    extension execution.

@@ -20,6 +20,7 @@ const launchBoundariesIdentity = { extensionId: "e2e.launch-boundaries", command
 const desktopDiscoveryIdentity = { extensionId: "e2e.desktop-discovery", commandName: "index" };
 const finderBoundariesIdentity = { extensionId: "e2e.finder-boundaries", commandName: "index" };
 const runtimeBoundariesIdentity = { extensionId: "e2e.runtime-boundaries", commandName: "index" };
+const hostBoundariesIdentity = { extensionId: "e2e.host-boundaries", commandName: "index" };
 
 function createCore() {
   const catalog = new FilesystemExtensionCatalog({ root: catalogRoot });
@@ -56,6 +57,10 @@ function createCore() {
       { extensionId: "e2e.runtime-boundaries", capability: "oauth", operation: "authorize" },
       { extensionId: "e2e.runtime-boundaries", capability: "oauth", operation: "setTokens" },
       { extensionId: "e2e.runtime-boundaries", capability: "oauth", operation: "removeTokens" },
+      { extensionId: "e2e.host-boundaries", capability: "browser-extension", operation: "getTabs" },
+      { extensionId: "e2e.host-boundaries", capability: "browser-extension", operation: "getContent" },
+      { extensionId: "e2e.host-boundaries", capability: "navigation", operation: "clearSearchBar" },
+      { extensionId: "e2e.host-boundaries", capability: "filesystem", operation: "trash" },
     ]),
     providers: {
       clipboard: {
@@ -134,6 +139,27 @@ function createCore() {
             return undefined;
           }
           throw new Error(`Unknown Finder operation ${JSON.stringify(request.operation)}`);
+        },
+      },
+      "browser-extension": {
+        async perform(request) {
+          boundaryRequests.push(request);
+          if (request.operation === "getTabs") {
+            return JSON.stringify([{ id: 1, url: "https://example.com", title: "Example", active: true }]);
+          }
+          if (request.operation === "getContent") {
+            return "Fixture browser content";
+          }
+          throw new Error(`Unknown browser operation ${JSON.stringify(request.operation)}`);
+        },
+      },
+      filesystem: {
+        async perform(request) {
+          boundaryRequests.push(request);
+          if (request.operation === "trash") {
+            return undefined;
+          }
+          throw new Error(`Unknown filesystem operation ${JSON.stringify(request.operation)}`);
         },
       },
       command: {
@@ -430,6 +456,48 @@ test("injects launch props and relays desktop boundary helpers", async () => {
   );
 
   await core.stopCommand(launchBoundariesIdentity, "launch boundary slice complete");
+  await relay.done;
+  await core.close();
+});
+
+test("routes browser, search, trash, toast style, and tool contracts end to end", async () => {
+  const { core, broker, boundaryRequests } = createCore();
+  const buffer = new SceneStateBuffer();
+  const session = await core.runCommand(hostBoundariesIdentity);
+  const relay = relaySessionTraffic(session, {
+    sceneSink: createSceneSink(buffer, []),
+    capabilityBroker: broker,
+  });
+
+  await waitFor(
+    () =>
+      buffer.rootId !== undefined &&
+      buffer.get(buffer.rootId).props.navigationTitle === "Host:1:Fixture browser content:SUCCESS",
+    "the host-boundaries snapshot",
+  );
+  assert.deepEqual(
+    buffer.childrenOf(buffer.rootId).map(({ props }) => props.title),
+    ["Host boundaries"],
+  );
+  assert.deepEqual(
+    boundaryRequests.map(({ capability, operation, arguments: args }) => ({ capability, operation, arguments: args })),
+    [
+      { capability: "browser-extension", operation: "getTabs", arguments: {} },
+      {
+        capability: "browser-extension",
+        operation: "getContent",
+        arguments: { format: "text", tabId: 1 },
+      },
+      { capability: "navigation", operation: "clearSearchBar", arguments: { forceScrollToTop: true } },
+      {
+        capability: "filesystem",
+        operation: "trash",
+        arguments: { pathsJSON: '["/tmp/fixture-one","/tmp/fixture-two"]' },
+      },
+    ],
+  );
+
+  await core.stopCommand(hostBoundariesIdentity, "host boundary slice complete");
   await relay.done;
   await core.close();
 });

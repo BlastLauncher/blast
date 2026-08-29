@@ -8,6 +8,7 @@ import {
   ActionStyle,
   AI,
   Alert,
+  BrowserExtension,
   Cache,
   Clipboard,
   Color,
@@ -32,6 +33,7 @@ import {
   configureRaycastCompat,
   confirmAlert,
   closeMainWindow,
+  clearSearchBar,
   environment,
   getPreferenceValues,
   open,
@@ -43,6 +45,8 @@ import {
   showHUD,
   showInFinder,
   showToast,
+  ToastStyle,
+  trash,
   updateCommandMetadata,
 } from "../dist/index.js";
 import { createElement } from "react";
@@ -1290,4 +1294,74 @@ test("routes measured AI, command metadata, and OAuth boundaries", async () => {
     { capability: "oauth", operation: "getTokens", arguments: { providerId: "fixture-oauth" } },
     { capability: "oauth", operation: "removeTokens", arguments: { providerId: "fixture-oauth" } },
   ]);
+});
+
+test("routes browser, search, trash, and legacy toast boundaries", async () => {
+  const probe = createContext({
+    capabilityValues: {
+      "browser-extension.getTabs": JSON.stringify([
+        { id: 7, url: "https://example.com", title: "Example", active: true },
+        { id: 8, url: "https://example.org", active: false },
+      ]),
+      "browser-extension.getContent": "Fixture page content",
+    },
+  });
+  configureRaycastCompat(probe.context);
+
+  assert.equal(ToastStyle.Success, "SUCCESS");
+  assert.deepEqual(await BrowserExtension.getTabs(), [
+    { id: 7, url: "https://example.com", title: "Example", active: true },
+    { id: 8, url: "https://example.org", active: false },
+  ]);
+  assert.equal(
+    await BrowserExtension.getContent({ format: "text", cssSelector: "#title", tabId: 7 }),
+    "Fixture page content",
+  );
+  await clearSearchBar({ forceScrollToTop: true });
+  await trash("/tmp/fixture-one");
+  await trash([new URL("file:///tmp/fixture-two"), new TextEncoder().encode("/tmp/fixture-three")]);
+  await showToast(ToastStyle.Success, "Boundary ready");
+
+  assert.deepEqual(probe.capabilityRequests, [
+    { capability: "browser-extension", operation: "getTabs" },
+    {
+      capability: "browser-extension",
+      operation: "getContent",
+      arguments: { format: "text", cssSelector: "#title", tabId: 7 },
+    },
+    { capability: "navigation", operation: "clearSearchBar", arguments: { forceScrollToTop: true } },
+    { capability: "filesystem", operation: "trash", arguments: { pathsJSON: '["/tmp/fixture-one"]' } },
+    {
+      capability: "filesystem",
+      operation: "trash",
+      arguments: { pathsJSON: '["file:///tmp/fixture-two","/tmp/fixture-three"]' },
+    },
+  ]);
+  assert.equal(probe.toasts[0].style, "success");
+});
+
+test("rejects malformed browser results and invalid host-boundary options", async () => {
+  const probe = createContext({
+    capabilityValues: {
+      "browser-extension.getTabs": JSON.stringify([{ id: "not-a-number", url: "https://example.com", active: true }]),
+    },
+  });
+  configureRaycastCompat(probe.context);
+
+  await assert.rejects(
+    () => BrowserExtension.getTabs(),
+    (error) => error instanceof CompatibilityError,
+  );
+  await assert.rejects(
+    () => BrowserExtension.getContent({ format: "xml" }),
+    (error) => error instanceof CompatibilityError,
+  );
+  await assert.rejects(
+    () => clearSearchBar({ forceScrollToTop: "yes" }),
+    (error) => error instanceof CompatibilityError,
+  );
+  await assert.rejects(
+    () => trash(""),
+    (error) => error instanceof CompatibilityError,
+  );
 });
