@@ -2300,8 +2300,8 @@ function GridDropdown(props: GridDropdownProps): ReactElement {
 function GridDropdownItem(props: GridDropdownItemProps): ReactElement {
   const icon = serializeIcon(props.icon, "Grid.Dropdown.Item");
   return createElement("grid-dropdown-item", {
-    value: requireNonEmptyString(props.value, "Grid.Dropdown.Item value"),
-    title: requireNonEmptyString(props.title, "Grid.Dropdown.Item title"),
+    value: requireString(props.value, "Grid.Dropdown.Item value"),
+    title: requireString(props.title, "Grid.Dropdown.Item title"),
     ...(icon === undefined
       ? {}
       : { icon: icon.icon, ...(icon.iconTintColor === undefined ? {} : { iconTintColor: icon.iconTintColor }) }),
@@ -2711,8 +2711,8 @@ function FormSeparator(_props: SeparatorProps): ReactElement {
 }
 
 function assertFormString(value: unknown, where: string): asserts value is string {
-  if (typeof value !== "string" || value.length === 0) {
-    throw new CompatibilityError(`${where} must be a non-empty string`, { value });
+  if (typeof value !== "string") {
+    throw new CompatibilityError(`${where} must be a string`, { value });
   }
 }
 

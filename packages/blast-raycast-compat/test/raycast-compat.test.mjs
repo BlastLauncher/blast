@@ -1003,6 +1003,48 @@ test("treats nullable non-date form initial values as empty", async () => {
   );
 });
 
+test("accepts empty strings for string-valued form and grid options", async () => {
+  const formProbe = createContext();
+  const formRenderer = renderCommand(formProbe.context, () =>
+    createElement(
+      Form,
+      null,
+      createElement(Form.Checkbox, { id: "enabled", label: "" }),
+      createElement(Form.Dropdown, { id: "role" }, createElement(Form.Dropdown.Item, { value: "", title: "" })),
+      createElement(Form.TagPicker, { id: "tags" }, createElement(Form.TagPicker.Item, { value: "", title: "" })),
+      createElement(Form.Description, { text: "" }),
+    ),
+  );
+  await formRenderer.flush();
+
+  const formRoot = formProbe.transactions[0].operations[0].root;
+  assert.equal(formRoot.children[0].props.label, "");
+  assert.equal(formRoot.children[1].children[0].props.value, "");
+  assert.equal(formRoot.children[1].children[0].props.title, "");
+  assert.equal(formRoot.children[2].children[0].props.value, "");
+  assert.equal(formRoot.children[2].children[0].props.title, "");
+  assert.equal(formRoot.children[3].props.text, "");
+
+  const gridProbe = createContext();
+  const gridRenderer = renderCommand(gridProbe.context, () =>
+    createElement(
+      Grid,
+      {
+        searchBarAccessory: createElement(
+          Grid.Dropdown,
+          { tooltip: "Filter" },
+          createElement(Grid.Dropdown.Item, { value: "", title: "" }),
+        ),
+      },
+      createElement(Grid.Item, { content: "item", title: "Item" }),
+    ),
+  );
+  await gridRenderer.flush();
+
+  const gridRoot = gridProbe.transactions[0].operations[0].root;
+  assert.deepEqual(gridRoot.children[0].children[0].props, { value: "", title: "" });
+});
+
 test("rejects form submit values with a mismatched field type", async () => {
   const probe = createContext();
   const renderer = renderCommand(probe.context, () =>
