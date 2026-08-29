@@ -24,36 +24,41 @@ post-slice result, including one result per extension, is
 [`runtime-probe-post-slice.json`](./runtime-probe-post-slice.json).
 
 The current post-slice run supplies the workspace's installed packages through
-the explicit `vendored` dependency policy. The private e2e package now adds a
-bounded, exact-version seed for ten high-frequency pure-JavaScript packages;
-its transitive graph is recorded in the lockfile. The probe does not install
-the corpus or run package-manager scripts; unavailable packages remain
-dependency failures.
+the explicit `vendored` dependency policy. The private e2e package now adds two
+bounded, exact-version seeds for twenty low-risk utility, parser, and fetch
+compatibility packages; their transitive graph is recorded in the lockfile.
+The probe does not install the corpus or run package-manager scripts;
+unavailable packages remain dependency failures.
 
 | Outcome                        | Baseline | Previous post-slice | Current post-slice | Current vs previous |
 | ------------------------------ | -------: | ------------------: | -----------------: | ------------------: |
-| third-party dependency failure |    2,361 |               1,278 |                960 |                -318 |
+| third-party dependency failure |    2,361 |               1,278 |                916 |                -362 |
 | not renderable command mode    |      358 |                 316 |                316 |                   0 |
-| other process/startup failure  |      432 |                 824 |                738 |                 -86 |
-| structured compatibility error |       23 |                 106 |                129 |                 +23 |
-| renders a scene end to end     |       54 |                 704 |              1,085 |                +381 |
+| other process/startup failure  |      432 |                 824 |                737 |                 -87 |
+| structured compatibility error |       23 |                 106 |                147 |                 +41 |
+| renders a scene end to end     |       54 |                 704 |              1,112 |                +408 |
 | no entrypoint found            |        3 |                   3 |                  3 |                   0 |
 
-Reading: the current post-slice extension pass rate is 1,085/3,231 (33.58%);
-among the 2,915 extensions with a selected renderable command it is 1,085/2,915
-(37.22%). The measured preference, navigation, environment, form-value,
+Reading: the current post-slice extension pass rate is 1,112/3,231 (34.42%);
+among the 2,915 extensions with a selected renderable command it is 1,112/2,915
+(38.15%). The measured preference, navigation, environment, form-value,
 keyboard, image-type, `randomId`, WindowManagement, small legacy aliases, and
 safe import shapes are no longer in the non-rendering static blocker list. The
 only remaining static import gap is one `fetch` import. The vendor root leaves
-960 dependency failures, so the next coverage group should address audited
+916 dependency failures, so the next coverage group should address audited
 dependency provisioning rather than add an unbrokered network helper.
 
 The first audited vendor seed is `axios@1.8.4`, `cheerio@1.0.0`,
 `cross-fetch@4.0.0`, `date-fns@4.1.0`, `fast-xml-parser@5.3.2`, `fuse.js@7.1.0`,
 `moment@2.30.1`, `node-html-markdown@1.3.0`, `rss-parser@3.13.0`, and
-`zod@3.24.3`. The end-to-end reprobe moved 317 extensions out of the
-dependency-failure class and 182 of those now render scenes; the remaining
-dependency failures are still tracked separately below.
+`zod@3.24.3`; it moved 317 extensions out of the dependency-failure class and
+182 of those rendered scenes in its reprobe. The second seed is
+`file-url@4.0.0`, `filesize@11.0.13`, `gray-matter@4.0.3`,
+`javascript-time-ago@2.6.4`, `luxon@3.7.2`, `node-html-parser@7.0.1`,
+`qrcode@1.5.4`, `tildify@3.0.0`, `ts-pattern@5.9.0`, and `turndown@7.2.0`;
+it moved 44 more extensions out of the dependency-failure class and 27 of
+those rendered scenes. The remaining dependency failures are still tracked
+separately below.
 
 ## Committed fixtures
 

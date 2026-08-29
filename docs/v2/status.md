@@ -85,9 +85,12 @@ slice changes what is executable, what is trusted, or what should happen next.
   `fuse.js`, `moment`, `node-html-markdown`, `rss-parser`, and `zod`. The seed
   is supplied by the explicit workspace vendor root; the runtime still never
   installs or downloads extension dependencies.
-- The latest pinned corpus probe, with the bounded vendor seed, passes 1,085 of
-  3,231 extensions (33.58%), or 1,085 of 2,915 extensions with a selected
-  renderable command (37.22%).
+- A second bounded seed adds `file-url`, `filesize`, `gray-matter`,
+  `javascript-time-ago`, `luxon`, `node-html-parser`, `qrcode`, `tildify`,
+  `ts-pattern`, and `turndown`, also as exact-version e2e development
+  dependencies. The latest pinned corpus probe passes 1,112 of 3,231
+  extensions (34.42%), or 1,112 of 2,915 extensions with a selected renderable
+  command (38.15%).
 - Navigation (useNavigation, Action.Push), LocalStorage through the
   capability broker with a reference in-memory provider, the callable plus
   property-based environment surface, and measured WindowManagement discovery
@@ -208,9 +211,10 @@ slice changes what is executable, what is trusted, or what should happen next.
 ## Intentionally missing
 
 - a persistent, watched catalog index and extension installation flows;
-- full dependency provisioning, lockfile/audit policy, and native package
-  externalization for large npm graphs (the runtime now supports explicit
-  local or vendored dependency roots but never installs packages);
+- full dependency provisioning beyond the two bounded e2e seeds, lockfile/audit
+  policy for large npm graphs, and native package externalization (the runtime
+  supports explicit local or vendored dependency roots but never installs
+  packages);
 - the remaining measured Raycast surface: Form focus/blur callbacks, client
   toast timing/stacking, broader desktop APIs, broader action helpers, and
   additional Tool/browser APIs;
@@ -243,9 +247,10 @@ remaining static and dependency blockers using the same probe.
    the import-shape fixture and keep the remaining `fetch` import outside the
    adapter until a host network capability defines URL policy, consent, and
    response limits.
-2. Re-probe the bounded vendor seed and record rendered outcomes; use small,
-   audited package groups for the remaining third-party dependency graph and
-   keep installation outside extension execution.
+2. Audit the next small package group for the remaining third-party dependency
+   graph, keeping each seed exact-version, development-only, and outside
+   extension execution; hold network, cross-extension, native, and WASM
+   packages for explicit policy decisions.
 3. Re-probe after each dependency group and update the support matrix against the 80%
    extension-pass milestone.
 4. Add a client-facing core protocol and daemon listener so the Electron
