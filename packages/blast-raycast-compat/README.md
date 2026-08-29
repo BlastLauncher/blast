@@ -19,7 +19,9 @@ onto the V2 scene contract, renderer, and capability broker:
   left-click callbacks;
 - `Form` covers text fields, text areas, password fields, checkboxes,
   dropdowns, date pickers, tag pickers, file pickers, descriptions, separators,
-  dropdown sections/items, and tag items. Field `onFocus` and `onBlur`
+  dropdown sections/items, tag items, and `searchBarAccessory` via
+  `Form.LinkAccessory`. Link accessories serialize as semantic nodes and route
+  their open event through the existing `open` capability. Field `onFocus` and `onBlur`
   callbacks receive the measured `Form.Event` target shape, and custom React
   components/fragments may compose measured field and action children.
   Whitespace-only formatting text is ignored in measured collection slots, while

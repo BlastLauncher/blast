@@ -1833,17 +1833,17 @@
     "no-entrypoint": 3,
     "not-renderable": 316,
     "process-failure": 677,
-    "renders": 1304,
-    "structured-compatibility-error": 15,
+    "renders": 1305,
+    "structured-compatibility-error": 14,
     "third-party-dependency": 916
   },
   "coverage": {
-    "extensionPasses": 1304,
+    "extensionPasses": 1305,
     "extensionTotal": 3231,
-    "extensionPassRate": 0.4036,
-    "renderableCommandPasses": 1304,
+    "extensionPassRate": 0.4039,
+    "renderableCommandPasses": 1305,
     "renderableCommandTotal": 2915,
-    "renderableCommandPassRate": 0.4473
+    "renderableCommandPassRate": 0.4477
   },
   "staticBlockers": [
     {
@@ -1854,7 +1854,7 @@
   "failureClasses": {
     "no-entrypoint": 3,
     "process-failure": 677,
-    "structured-compatibility-error": 15,
+    "structured-compatibility-error": 14,
     "third-party-dependency": 916
   },
   "failureSamples": {
@@ -1871,9 +1871,9 @@
       "CodeBlocks"
     ],
     "structured-compatibility-error": [
+      "apple-maps-search",
       "arabic-keyboard",
       "archiver",
-      "clean-text",
       "conventional-comments",
       "create-t3-app"
     ],
@@ -2884,8 +2884,8 @@
       "commandName": "directionsTo",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "apple-notes",
@@ -5042,8 +5042,7 @@
       "commandName": "search-colors",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "renders"
     },
     {
       "directory": "chmod-lookup",
@@ -5273,8 +5272,8 @@
       "commandName": "clean-text",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "cleanshotx",
@@ -5515,7 +5514,8 @@
       "commandName": "switch-virtual-network",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "cloudinary",
@@ -10401,7 +10401,8 @@
       "commandName": "write-commit-message",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "git-co-authors",
@@ -10968,8 +10969,8 @@
       "commandName": "manual-profile",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "google-scholar",
@@ -13319,7 +13320,8 @@
       "commandName": "set-volume",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_send_failed"
     },
     {
       "directory": "keka",
@@ -13993,7 +13995,7 @@
       "mode": "view",
       "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "transport_send_failed"
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "leave-time-calculator",
@@ -14647,8 +14649,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "lucky-surf",
@@ -15293,8 +15295,7 @@
       "commandName": "channels",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "outcome": "renders"
     },
     {
       "directory": "maven-central-repository",
@@ -15683,7 +15684,8 @@
       "commandName": "controlMeeting",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "microsoft-tenant-id",
@@ -20482,7 +20484,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "quran-quick-insert",
@@ -20818,8 +20821,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "raycast-deskly",
@@ -21423,8 +21426,7 @@
       "commandName": "add-reminder",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "renders"
     },
     {
       "directory": "recent-excel",
@@ -23041,8 +23043,7 @@
       "commandName": "addBookmark",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "renders"
     },
     {
       "directory": "shiori-sh",
@@ -24032,8 +24033,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "transport_send_failed"
     },
     {
       "directory": "splix",
@@ -24092,7 +24093,8 @@
       "commandName": "menuBarPlayer",
       "mode": "menu-bar",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "spotify-player",
@@ -25349,8 +25351,8 @@
       "commandName": "decorate-text-with-font",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "text-differ",
@@ -26661,8 +26663,7 @@
       "commandName": "create-note",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "renders"
     },
     {
       "directory": "typst-symbols",
@@ -26788,7 +26789,8 @@
       "commandName": "select-site",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_send_failed"
     },
     {
       "directory": "unify-path-separator",
@@ -26966,8 +26968,7 @@
       "commandName": "upload-image",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "renders"
     },
     {
       "directory": "uploadthing",
@@ -27433,8 +27434,8 @@
       "commandName": "create-task",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "vim-bro",
@@ -28591,8 +28592,7 @@
       "commandName": "create-boilerplate",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "renders"
     },
     {
       "directory": "wrap-text",
@@ -28784,8 +28784,7 @@
       "commandName": "search",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "renders"
     },
     {
       "directory": "yandex-smart-home",

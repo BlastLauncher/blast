@@ -1487,6 +1487,11 @@ export interface FormProps {
   readonly searchBarAccessory?: ReactNode;
 }
 
+export interface LinkAccessoryProps {
+  readonly target: string;
+  readonly text: string;
+}
+
 export interface FormItemProps<T extends FormValue> {
   readonly id: string;
   readonly title?: string;
@@ -2706,6 +2711,18 @@ function FormDescription(props: DescriptionProps): ReactElement {
   });
 }
 
+function FormLinkAccessory(props: LinkAccessoryProps): ReactElement {
+  const target = requireNonEmptyString(props.target, "Form.LinkAccessory target");
+  const text = requireNonEmptyString(props.text, "Form.LinkAccessory text");
+  return createElement("form-link-accessory", {
+    target,
+    text,
+    onOpen: () => {
+      void open(target);
+    },
+  });
+}
+
 function FormSeparator(_props: SeparatorProps): ReactElement {
   return createElement("form-separator");
 }
@@ -2833,6 +2850,7 @@ function mapFormChildren(children: ReactNode): ReactNode {
       child.type === FormFilePicker ||
       child.type === FormDescription ||
       child.type === FormSeparator ||
+      child.type === FormLinkAccessory ||
       child.type === ActionPanel
     ) {
       return keyedElement(child, `form-${index}`);
@@ -2901,12 +2919,10 @@ interface FormComponent {
   DatePicker: typeof DatePicker;
   TagPicker: typeof TagPicker;
   FilePicker: typeof FormFilePicker;
+  LinkAccessory: typeof FormLinkAccessory;
 }
 
 function FormComponent(props: FormProps): ReactElement {
-  if (props.searchBarAccessory !== undefined && props.searchBarAccessory !== null) {
-    unsupported("Form searchBarAccessory");
-  }
   const runtime = useMemo(() => createFormRuntime(), []);
   runtime.resetFields();
   return createElement(
@@ -2919,7 +2935,7 @@ function FormComponent(props: FormProps): ReactElement {
         ...(props.isLoading === undefined ? {} : { isLoading: props.isLoading }),
         ...(props.enableDrafts === undefined ? {} : { enableDrafts: props.enableDrafts }),
       },
-      mapFormChildren(Children.toArray([props.actions, props.children])),
+      mapFormChildren(Children.toArray([props.searchBarAccessory, props.actions, props.children])),
     ),
   );
 }
@@ -2935,6 +2951,7 @@ export const Form: FormComponent = Object.assign(FormComponent, {
   DatePicker,
   TagPicker,
   FilePicker: FormFilePicker,
+  LinkAccessory: FormLinkAccessory,
 });
 
 export namespace Form {
@@ -2942,6 +2959,9 @@ export namespace Form {
   export type Value = FormValue;
   export type Values = FormValues;
   export type Event<T extends FormValue = FormValue> = FormEvent<T>;
+  export namespace LinkAccessory {
+    export type Props = LinkAccessoryProps;
+  }
   export namespace Event {
     export type Type = FormEventType;
   }

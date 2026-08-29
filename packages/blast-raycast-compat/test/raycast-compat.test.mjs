@@ -314,6 +314,37 @@ test("ignores whitespace-only children in measured collections", async () => {
   );
 });
 
+test("renders Form.LinkAccessory and routes its open capability", async () => {
+  const probe = createContext();
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      Form,
+      {
+        searchBarAccessory: createElement(Form.LinkAccessory, {
+          target: "https://example.com/help",
+          text: "Help",
+        }),
+      },
+      createElement(Form.TextField, { id: "name", title: "Name" }),
+    ),
+  );
+  await renderer.flush();
+
+  const root = probe.transactions[0].operations[0].root;
+  assert.equal(root.children[0].type, "form-link-accessory");
+  assert.deepEqual(root.children[0].props, {
+    target: "https://example.com/help",
+    text: "Help",
+    onOpen: root.children[0].props.onOpen,
+  });
+
+  probe.dispatch(root.children[0].props.onOpen);
+  await new Promise((resolve) => setTimeout(resolve, 5));
+  assert.deepEqual(probe.capabilityRequests, [
+    { capability: "open", operation: "open", arguments: { target: "https://example.com/help" } },
+  ]);
+});
+
 test("renders legacy list and action aliases, including OpenWithAction", async () => {
   const probe = createContext();
   const opened = [];

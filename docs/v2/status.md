@@ -88,9 +88,9 @@ slice changes what is executable, what is trusted, or what should happen next.
 - A second bounded seed adds `file-url`, `filesize`, `gray-matter`,
   `javascript-time-ago`, `luxon`, `node-html-parser`, `qrcode`, `tildify`,
   `ts-pattern`, and `turndown`, also as exact-version e2e development
-  dependencies. The latest pinned corpus probe passes 1,304 of 3,231
-  extensions (40.36%), or 1,304 of 2,915 extensions with a selected renderable
-  command (44.73%).
+  dependencies. The latest pinned corpus probe passes 1,305 of 3,231
+  extensions (40.39%), or 1,305 of 2,915 extensions with a selected renderable
+  command (44.77%).
 - Navigation (useNavigation, Action.Push), LocalStorage through the
   capability broker with a reference in-memory provider, the callable plus
   property-based environment surface, and measured WindowManagement discovery
@@ -133,6 +133,10 @@ slice changes what is executable, what is trusted, or what should happen next.
   collection mappers for forms, pickers, lists, grids, menus, and action
   groups. Meaningful text and invalid elements remain rejected; the canonical
   reprobe moved six formatting-only corpus failures through to rendered scenes.
+- `Form.searchBarAccessory` accepts the measured `Form.LinkAccessory`, which
+  serializes its target and text as a semantic accessory node and routes its
+  open event through the existing `open.open` capability. Invalid accessory
+  values remain structured compatibility errors.
 - Measured collection components accept custom function components and React
   fragments in action, list, grid, menu-bar, and form child positions; the
   resolved children remain subject to semantic parent/child validation, while
@@ -287,13 +291,14 @@ measured 80% target is not yet met; the next work should address the dominant
 remaining API boundary gaps using the same probe. Additional dependency seeds
 remain deferred until the next API slice is measured.
 
-1. Implement and re-probe the measured `Form.searchBarAccessory`/
-   `Form.LinkAccessory` boundary, keeping client-only toast timing/stacking
-   separate from the extension event contract.
+1. Implement and re-probe the measured `Action.CreateQuicklink`,
+   `Action.PickDate`, and deprecated Form dropdown-item/section aliases that
+   remain in the structured corpus failures; keep action intent explicit at
+   the scene/capability boundary.
 2. Keep the command-scoped preference, nullable Form, empty-string,
    `LocalStorage.allItems`/`allLocalStorageItems`, Form event, literal `require`,
-   composite-child, measured Icon, `ActionPanel.Item`, and whitespace-only
-   collection boundaries covered by each reprobe.
+   composite-child, measured Icon, `ActionPanel.Item`, whitespace-only
+   collection boundaries, and `Form.LinkAccessory` covered by each reprobe.
 3. Keep safe dynamic, namespace, side-effect, and literal `require` import
    forms covered while the remaining `fetch` import stays outside the adapter
    until a host network capability defines URL policy, consent, and response

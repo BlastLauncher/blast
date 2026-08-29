@@ -29,6 +29,7 @@ export const SCENE_NODE_TYPES = [
   "detail",
   "action-group",
   "form",
+  "form-link-accessory",
   "form-text-field",
   "form-text-area",
   "form-password-field",
@@ -187,6 +188,7 @@ const PROP_WHITELIST: Record<SceneNodeType, readonly string[]> = {
   detail: ["markdown", "navigationTitle"],
   "action-group": ["title", "icon", "iconTintColor", "shortcut", "autoFocus"],
   form: ["navigationTitle", "isLoading", "enableDrafts"],
+  "form-link-accessory": ["target", "text", "onOpen"],
   "form-text-field": [
     "id",
     "title",
@@ -339,6 +341,7 @@ const REQUIRED_PROPS: Record<SceneNodeType, readonly string[]> = {
   detail: [],
   "action-group": [],
   form: [],
+  "form-link-accessory": ["target", "text", "onOpen"],
   "form-text-field": ["id", "onChange"],
   "form-text-area": ["id", "onChange"],
   "form-password-field": ["id", "onChange"],
@@ -451,6 +454,7 @@ const PROP_TYPES: Record<SceneNodeType, Readonly<Record<string, ScenePropType>>>
     autoFocus: "boolean",
   },
   form: { navigationTitle: "string", isLoading: "boolean", enableDrafts: "boolean" },
+  "form-link-accessory": { target: "string", text: "string", onOpen: "string" },
   "form-text-field": {
     id: "string",
     title: "string",
@@ -596,6 +600,7 @@ const CHILD_TYPES: Record<SceneNodeType, readonly SceneNodeType[]> = {
   detail: [],
   "action-group": ["action", "action-group"],
   form: [
+    "form-link-accessory",
     "form-text-field",
     "form-text-area",
     "form-password-field",
@@ -608,6 +613,7 @@ const CHILD_TYPES: Record<SceneNodeType, readonly SceneNodeType[]> = {
     "form-separator",
     "action-group",
   ],
+  "form-link-accessory": [],
   "form-text-field": [],
   "form-text-area": [],
   "form-password-field": [],

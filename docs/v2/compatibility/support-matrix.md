@@ -35,13 +35,13 @@ unavailable packages remain dependency failures.
 | third-party dependency failure |    2,361 |               1,278 |                916 |                -362 |
 | not renderable command mode    |      358 |                 316 |                316 |                   0 |
 | other process/startup failure  |      432 |                 824 |                677 |                -147 |
-| structured compatibility error |       23 |                 106 |                 15 |                 -91 |
-| renders a scene end to end     |       54 |                 704 |              1,304 |                +600 |
+| structured compatibility error |       23 |                 106 |                 14 |                 -92 |
+| renders a scene end to end     |       54 |                 704 |              1,305 |                +601 |
 | no entrypoint found            |        3 |                   3 |                  3 |                   0 |
 
-Reading: the current post-slice extension pass rate is 1,304/3,231 (40.36%);
-among the 2,915 extensions with a selected renderable command it is 1,304/2,915
-(44.73%). The measured preference, navigation, environment, form-value,
+Reading: the current post-slice extension pass rate is 1,305/3,231 (40.39%);
+among the 2,915 extensions with a selected renderable command it is 1,305/2,915
+(44.77%). The measured preference, navigation, environment, form-value,
 keyboard, image-type, `randomId`, WindowManagement, small legacy aliases,
 safe import shapes, Form focus/blur callbacks, nullable Form initial values,
 empty string-valued controls, composite React children, the observed icon
@@ -55,10 +55,13 @@ handling alongside the `ActionPanel.Item` alias, command-scoped preference,
 explicit icon-member, empty-string,
 nullable Form initial-value, `LocalStorage.allItems`/`allLocalStorageItems`,
 Form event, literal `require`, and composite-child surfaces before dependency
-provisioning resumes. Focused diagnostics moved `5devs`, `ai-humanizer`,
+provisioning resumes. `Form.searchBarAccessory` and `Form.LinkAccessory` now
+serialize as a measured semantic node and route their open event through the
+existing `open.open` capability. Focused diagnostics moved `5devs`, `ai-humanizer`,
 `comma-separator`, `fastmail-masked-email`, `m3o`, and `xkeen-manager` to
-rendered scenes; the next target is the measured `Form.searchBarAccessory` /
-`Form.LinkAccessory` boundary.
+rendered scenes; the next target is the measured action/form alias boundary
+(`Action.CreateQuicklink`, `Action.PickDate`, and deprecated Form dropdown
+members).
 
 The first audited vendor seed is `axios@1.8.4`, `cheerio@1.0.0`,
 `cross-fetch@4.0.0`, `date-fns@4.1.0`, `fast-xml-parser@5.3.2`, `fuse.js@7.1.0`,
@@ -167,6 +170,10 @@ dispatches a bounds mutation through the explicit host capability.
   cross as semantic `list-section` nodes, and Open With intent crosses the
   existing `open.open` capability as a primitive `openWith` flag; client list
   section rendering and the application chooser remain host/client work;
+- `Form.searchBarAccessory` and `Form.LinkAccessory` are measured. The
+  accessory is a semantic child with validated target/text props and a stable
+  open event that invokes the existing `open.open` capability; client-side Form
+  chrome placement remains host/client work;
 - namespace imports, literal dynamic imports, literal side-effect imports, and
   literal CommonJS `require("@raycast/api")` calls resolve through the same
   launcher alias as named imports when they access measured adapter members.

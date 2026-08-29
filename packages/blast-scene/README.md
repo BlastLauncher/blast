@@ -3,8 +3,8 @@
 Semantic scene contract for Blast V2 (ADR 0007).
 
 The package defines the semantic scene vocabulary for the current vertical
-slice: list/detail/grid/menu-bar/action nodes, action groups, and measured form
-controls with Raycast-named property whitelists, ordered `scene.transaction` messages,
+slice: list/detail/grid/menu-bar/action nodes, action groups, measured form
+controls, and Form link accessories with Raycast-named property whitelists, ordered `scene.transaction` messages,
 and `scene.event` messages carrying opaque event identifiers and optional
 validated form values. Form values remain JSON-compatible on the wire: dates
 are ISO strings and multi-value controls use string arrays. Ephemeral toast

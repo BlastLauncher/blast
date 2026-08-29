@@ -170,6 +170,12 @@ test("validates scene transaction messages", (context) => {
             type: "snapshot",
             root: form("form-root", [
               {
+                id: "help",
+                type: "form-link-accessory",
+                props: { target: "https://example.com/help", text: "Help", onOpen: "event-help" },
+                children: [],
+              },
+              {
                 id: "name",
                 type: "form-text-field",
                 props: {

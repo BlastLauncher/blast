@@ -33,6 +33,7 @@ export const SCENE_ACTION_TYPE = "action";
 export const SCENE_DETAIL_TYPE = "detail";
 export const SCENE_ACTION_GROUP_TYPE = "action-group";
 export const SCENE_FORM_TYPE = "form";
+export const SCENE_FORM_LINK_ACCESSORY_TYPE = "form-link-accessory";
 export const SCENE_FORM_TEXT_FIELD_TYPE = "form-text-field";
 export const SCENE_FORM_TEXT_AREA_TYPE = "form-text-area";
 export const SCENE_FORM_PASSWORD_FIELD_TYPE = "form-password-field";
@@ -649,6 +650,7 @@ function isCallbackProp(nodeType: SceneNodeType, property: string): boolean {
     (nodeType === SCENE_GRID_TYPE && (property === "onSelectionChange" || property === "onSearchTextChange")) ||
     (nodeType === SCENE_GRID_DROPDOWN_TYPE && property === "onChange") ||
     (nodeType === SCENE_MENU_BAR_ITEM_TYPE && property === "onAction") ||
+    (nodeType === SCENE_FORM_LINK_ACCESSORY_TYPE && property === "onOpen") ||
     ((nodeType === SCENE_FORM_TEXT_FIELD_TYPE ||
       nodeType === SCENE_FORM_TEXT_AREA_TYPE ||
       nodeType === SCENE_FORM_PASSWORD_FIELD_TYPE ||

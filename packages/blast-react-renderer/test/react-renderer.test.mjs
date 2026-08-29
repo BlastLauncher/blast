@@ -5,6 +5,7 @@ import { Children, createElement, useEffect } from "react";
 import {
   SCENE_DETAIL_TYPE,
   SCENE_FORM_FILE_PICKER_TYPE,
+  SCENE_FORM_LINK_ACCESSORY_TYPE,
   SCENE_FORM_TAG_PICKER_ITEM_TYPE,
   SCENE_FORM_TAG_PICKER_TYPE,
   SCENE_FORM_TEXT_FIELD_TYPE,
@@ -404,6 +405,36 @@ test("renders form controls and routes form values through scene events", async 
   assert.deepEqual(changes, [{ eventId: "event-1", values: { name: "Grace" } }]);
   assert.deepEqual(focuses, [{ eventId: "event-2", values: { name: "Grace" } }]);
   assert.deepEqual(blurs, [{ eventId: "event-3" }]);
+});
+
+test("renders Form link accessories and routes their open event", async () => {
+  const sink = createCollectingSink();
+  const renderer = createSceneRenderer({ sink });
+  const opened = [];
+
+  renderer.render(
+    createElement(
+      SCENE_FORM_TYPE,
+      null,
+      createElement(SCENE_FORM_LINK_ACCESSORY_TYPE, {
+        target: "https://example.com/help",
+        text: "Help",
+        onOpen: (payload) => opened.push(payload),
+      }),
+    ),
+  );
+  await renderer.flush();
+
+  const accessory = snapshotRoot(sink).children[0];
+  assert.equal(accessory.type, "form-link-accessory");
+  assert.deepEqual(accessory.props, {
+    target: "https://example.com/help",
+    text: "Help",
+    onOpen: "event-1",
+  });
+
+  renderer.dispatchSceneEvent({ eventId: "event-1" });
+  assert.deepEqual(opened, [{ eventId: "event-1" }]);
 });
 
 test("publishes string-array form props and compares array values by contents", async () => {
