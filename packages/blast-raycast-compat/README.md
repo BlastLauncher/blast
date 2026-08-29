@@ -20,13 +20,20 @@ onto the V2 scene contract, renderer, and capability broker:
   measured `Alert`/`Action` constants are available;
 - `showHUD`, `open`, and `confirmAlert` route through `hud.show`, `open.open`,
   and `alert.confirm` capability requests;
+- default-exported command components receive `LaunchProps` with a
+  user-initiated launch and empty arguments by default; `LaunchType` and
+  `Image.Mask` constants are available;
+- `closeMainWindow`, `popToRoot`, and `openExtensionPreferences` route through
+  `window.close`, `navigation.popToRoot`, and `preferences.openExtension`
+  capability requests;
 - `Cache` provides synchronous namespaced LRU semantics in a session-local
   fallback; persistence is intentionally a future host capability;
 - `showToast` and `Toast` support legacy show overloads, animated/success/
   failure styles, identified show/update/hide lifecycle messages, mutable
   toast fields, and primary/secondary actions routed through scene events;
-- `runCommand(context, component)` binds the API to the running command and
-  routes scene events back to component callbacks; the Node bootstrap's
+- `runCommand(context, component[, launchProps])` binds the API to the running
+  command, injects launch props, and routes scene events back to component
+  callbacks; the Node bootstrap's
   `configureApi` hook calls `configureRaycastCompat` before the command runs.
 
 Form changes and submissions use validated `scene.event` values. The adapter

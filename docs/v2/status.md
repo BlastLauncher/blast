@@ -102,6 +102,12 @@ slice changes what is executable, what is trusted, or what should happen next.
 - `Cache` provides synchronous namespaced UTF-8 LRU behavior as a session-local
   fallback. Its persistence-shaped `storageDirectory` remains a compatibility
   value until a host cache capability exists.
+- `LaunchProps` and `LaunchType` are injected into Raycast-style default command
+  components, with deterministic user-initiated/empty-argument defaults;
+  `Image.Mask` constants resolve through the adapter.
+- `closeMainWindow`, `popToRoot`, and `openExtensionPreferences` cross explicit
+  `window.close`, `navigation.popToRoot`, and `preferences.openExtension`
+  capability requests.
 
 ## Trust boundaries already enforced
 
@@ -128,7 +134,8 @@ slice changes what is executable, what is trusted, or what should happen next.
   externalization for large npm graphs (the runtime now supports explicit
   local or vendored dependency roots but never installs packages);
 - the remaining measured Raycast surface: Form focus/blur callbacks, client
-  toast timing/stacking, and broader desktop APIs;
+  toast timing/stacking, and broader desktop APIs such as `Grid`,
+  `MenuBarExtra`, and command launching;
 - a client-facing core protocol, daemon listener, and desktop rendering of
   scenes (the deterministic test client stands in today);
 - capability manifest declarations, real operating-system providers, audit
@@ -142,16 +149,16 @@ slice changes what is executable, what is trusted, or what should happen next.
 
 The first extension-to-client vertical slice is complete, the corpus census
 (`compatibility/README.md`) justified the adapter order, and the current
-support matrix (`compatibility/support-matrix.md`) now records a full baseline
-and a post-slice probe. The priority remains measured extension coverage:
-coverage means the share of corpus extensions that bundle and render through
-the current path, not the number of exported API names. The shortcut,
-imperative, cache, and dependency-policy slices are complete, but the measured
+support matrix (`compatibility/support-matrix.md`) records the baseline and
+post-slice probes. The priority remains measured extension coverage: coverage
+means the share of corpus extensions that bundle and render through the current
+path, not the number of exported API names. The shortcut, imperative, cache,
+launch-boundary, and dependency-policy slices are complete, but the measured
 80% target is not yet met; the next work should address the dominant remaining
 API and dependency blockers using the same probe.
 
-1. Expand the next measured blocker group (`LaunchProps`, window/navigation
-   functions, `Image`, `Grid`, and `MenuBarExtra`) with deterministic fixtures.
+1. Expand the next measured blocker group (`Grid`, `launchCommand`, and
+   `MenuBarExtra`) with deterministic fixtures and scene semantics.
 2. Provision an audited, pinned vendor set or an explicit installation phase
    for the remaining third-party dependency graph; keep installation outside
    extension execution.

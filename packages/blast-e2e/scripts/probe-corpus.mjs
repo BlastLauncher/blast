@@ -29,16 +29,21 @@ const SUPPORTED_API_IMPORTS = new Set([
   "Detail",
   "Form",
   "Icon",
+  "Image",
   "Keyboard",
   "LaunchType",
+  "LaunchProps",
   "List",
   "LocalStorage",
   "PopToRootType",
   "Toast",
+  "closeMainWindow",
   "confirmAlert",
   "environment",
   "getPreferenceValues",
   "open",
+  "openExtensionPreferences",
+  "popToRoot",
   "showHUD",
   "showToast",
   "useNavigation",
@@ -215,7 +220,10 @@ function createCore(stderr) {
     "local-storage.get",
     "local-storage.remove",
     "local-storage.set",
+    "navigation.popToRoot",
     "open.open",
+    "preferences.openExtension",
+    "window.close",
   ]);
   const broker = new CapabilityBroker({
     policy: {
@@ -252,12 +260,36 @@ function createCore(stderr) {
         },
       },
       "local-storage": createInMemoryLocalStorageProvider(),
+      navigation: {
+        async perform(request) {
+          if (request.operation === "popToRoot") {
+            return undefined;
+          }
+          throw new Error(`Unknown navigation operation ${JSON.stringify(request.operation)}`);
+        },
+      },
       open: {
         async perform(request) {
           if (request.operation === "open") {
             return undefined;
           }
           throw new Error(`Unknown open operation ${JSON.stringify(request.operation)}`);
+        },
+      },
+      preferences: {
+        async perform(request) {
+          if (request.operation === "openExtension") {
+            return undefined;
+          }
+          throw new Error(`Unknown preferences operation ${JSON.stringify(request.operation)}`);
+        },
+      },
+      window: {
+        async perform(request) {
+          if (request.operation === "close") {
+            return undefined;
+          }
+          throw new Error(`Unknown window operation ${JSON.stringify(request.operation)}`);
         },
       },
     },

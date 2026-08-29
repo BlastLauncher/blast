@@ -21,6 +21,6 @@ await runNodeExtensionBootstrap({
     configureRaycastCompat(context);
   },
   renderComponent: (context, Component) => {
-    runCommand(context, () => createElement(Component));
+    runCommand(context, (launchProps) => createElement(Component, launchProps));
   },
 });

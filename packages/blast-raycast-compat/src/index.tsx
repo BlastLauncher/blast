@@ -71,6 +71,7 @@ export interface RaycastCompatContext {
  */
 interface RaycastCompatGlobals {
   context?: RaycastCompatContext;
+  launchProps?: LaunchProps;
   renderer?: SceneRenderer;
   toastEvents?: Map<string, () => void>;
   cacheStores?: Map<string, CacheState>;
@@ -89,6 +90,7 @@ const compatGlobals: RaycastCompatGlobals = (() => {
  */
 export function configureRaycastCompat(context: RaycastCompatContext): void {
   compatGlobals.context = context;
+  delete compatGlobals.launchProps;
   compatGlobals.toastEvents ??= new Map();
 }
 
@@ -105,13 +107,20 @@ function requireContext(): RaycastCompatContext {
  * callbacks. One command per runtime. Render errors, including structured
  * compatibility errors thrown from components, fail the command loudly.
  */
-export function runCommand(context: RaycastCompatContext, component: () => ReactElement): void {
+export function runCommand(
+  context: RaycastCompatContext,
+  component: (props: LaunchProps) => ReactElement,
+  launchProps: LaunchProps = createDefaultLaunchProps(),
+): void {
   if (compatGlobals.renderer !== undefined) {
     throw new CompatibilityError("A Raycast command is already running in this runtime");
   }
   const { renderer, takeError } = createCompatRenderer(context);
+  compatGlobals.launchProps = launchProps;
   compatGlobals.renderer = renderer;
-  renderLoudly(renderer, takeError, () => adaptRootElement(createElement(NavigationHost, { base: component() })));
+  renderLoudly(renderer, takeError, () =>
+    adaptRootElement(createElement(NavigationHost, { base: component(launchProps) })),
+  );
 }
 
 /**
@@ -158,9 +167,16 @@ function adaptRootElement(element: ReactElement): ReactElement {
  * Renders a Raycast-style scene with a command-provided component factory and
  * returns the renderer for direct observation. Used by tests.
  */
-export function renderCommand(context: RaycastCompatContext, component: () => ReactElement): SceneRenderer {
+export function renderCommand(
+  context: RaycastCompatContext,
+  component: (props: LaunchProps) => ReactElement,
+  launchProps: LaunchProps = createDefaultLaunchProps(),
+): SceneRenderer {
   const { renderer, takeError } = createCompatRenderer(context);
-  renderLoudly(renderer, takeError, () => adaptRootElement(createElement(NavigationHost, { base: component() })));
+  compatGlobals.launchProps = launchProps;
+  renderLoudly(renderer, takeError, () =>
+    adaptRootElement(createElement(NavigationHost, { base: component(launchProps) })),
+  );
   return renderer;
 }
 
@@ -284,11 +300,48 @@ export interface CopyToClipboardProps {
 }
 
 export interface IconObject {
-  readonly source: string;
+  readonly source: string | { readonly light: string; readonly dark: string };
   readonly tintColor?: string;
+  readonly fallback?: string | { readonly light: string; readonly dark: string };
+  readonly mask?: Image.Mask;
 }
 
 export type IconLike = string | IconObject;
+
+/** Runtime constants and type namespace for Raycast image descriptors. */
+export namespace Image {
+  export type URL = string;
+  export type Asset = string;
+  export type Source = URL | Asset | { readonly light: URL | Asset; readonly dark: URL | Asset };
+  export type Fallback = Asset | { readonly light: Asset; readonly dark: Asset };
+  export type ImageLike = URL | Asset | IconObject;
+
+  export enum Mask {
+    Circle = "circle",
+    RoundedRectangle = "roundedRectangle",
+  }
+}
+
+export type LaunchContext = Readonly<Record<string, unknown>>;
+
+/** The top-level props supplied to a Raycast command on launch. */
+export type LaunchProps<
+  T extends {
+    arguments?: Readonly<Record<string, unknown>>;
+    draftValues?: FormValues;
+    launchContext?: LaunchContext;
+  } = {
+    arguments: Readonly<Record<string, unknown>>;
+    draftValues: FormValues;
+    launchContext?: LaunchContext;
+  },
+> = {
+  readonly launchType: LaunchTypeName;
+  readonly arguments: T["arguments"];
+  readonly draftValues?: T["draftValues"];
+  readonly launchContext?: T["launchContext"];
+  readonly fallbackText?: string;
+};
 
 export type KeyModifier = "cmd" | "ctrl" | "opt" | "shift" | "alt" | "windows";
 export type KeyEquivalent = string;
@@ -548,15 +601,31 @@ function serializeIcon(
   if (typeof icon === "string") {
     return { icon };
   }
-  if (
-    typeof icon === "object" &&
-    icon !== null &&
-    typeof (icon as unknown as Record<string, unknown>)["source"] === "string"
-  ) {
-    const record = icon as { source: string; tintColor?: unknown };
+  if (typeof icon === "object" && icon !== null && "source" in icon) {
+    const record = icon as unknown as Record<string, unknown>;
+    const source = record.source;
+    let serializedSource: string;
+    if (typeof source === "string") {
+      serializedSource = source;
+    } else if (
+      isRecord(source) &&
+      typeof source.light === "string" &&
+      typeof source.dark === "string" &&
+      source.light.length > 0 &&
+      source.dark.length > 0
+    ) {
+      // The scene contract currently carries one resolved icon source. Use the
+      // light asset deterministically until theme-aware image values are added.
+      serializedSource = source.light;
+    } else {
+      unsupported(`An icon source in ${where}`, { source });
+    }
+    if (record.mask !== undefined && record.mask !== Image.Mask.Circle && record.mask !== Image.Mask.RoundedRectangle) {
+      unsupported(`An image mask in ${where}`, { mask: record.mask });
+    }
     const tintColor = record.tintColor === undefined ? undefined : serializeTintColor(record.tintColor, where);
     return {
-      icon: record.source,
+      icon: serializedSource,
       ...(tintColor === undefined ? {} : { iconTintColor: tintColor }),
     };
   }
@@ -1581,6 +1650,15 @@ export interface ShowHUDOptions {
   readonly popToRootType?: PopToRootType;
 }
 
+export interface CloseMainWindowOptions {
+  readonly clearRootSearch?: boolean;
+  readonly popToRootType?: PopToRootType;
+}
+
+export interface PopToRootOptions {
+  readonly clearSearchBar?: boolean;
+}
+
 type CapabilityArguments = Readonly<Record<string, string | number | boolean>>;
 
 async function callCapability(
@@ -1654,6 +1732,55 @@ export async function open(target: string, application?: string | ApplicationLik
     args.application = serializeApplication(application, "open");
   }
   await callCapability("open", "open", args, "The open");
+}
+
+/** Closes the host's main window through the explicit window capability. */
+export async function closeMainWindow(options?: CloseMainWindowOptions): Promise<void> {
+  const args: Record<string, string | number | boolean> = {};
+  if (options !== undefined && options !== null) {
+    if (!isRecord(options)) {
+      unsupported("closeMainWindow options", { options });
+    }
+    if (options.clearRootSearch !== undefined) {
+      if (typeof options.clearRootSearch !== "boolean") {
+        unsupported("closeMainWindow clearRootSearch", { value: options.clearRootSearch });
+      }
+      args.clearRootSearch = options.clearRootSearch;
+    }
+    if (options.popToRootType !== undefined) {
+      if (
+        options.popToRootType !== PopToRootType.Default &&
+        options.popToRootType !== PopToRootType.Immediate &&
+        options.popToRootType !== PopToRootType.Suspended
+      ) {
+        unsupported("closeMainWindow popToRootType", { value: options.popToRootType });
+      }
+      args.popToRootType = options.popToRootType;
+    }
+  }
+  await callCapability("window", "close", Object.keys(args).length === 0 ? undefined : args, "The closeMainWindow");
+}
+
+/** Pops the host navigation stack back to its root through a capability. */
+export async function popToRoot(options?: PopToRootOptions): Promise<void> {
+  const args: Record<string, string | number | boolean> = {};
+  if (options !== undefined && options !== null) {
+    if (!isRecord(options)) {
+      unsupported("popToRoot options", { options });
+    }
+    if (options.clearSearchBar !== undefined) {
+      if (typeof options.clearSearchBar !== "boolean") {
+        unsupported("popToRoot clearSearchBar", { value: options.clearSearchBar });
+      }
+      args.clearSearchBar = options.clearSearchBar;
+    }
+  }
+  await callCapability("navigation", "popToRoot", Object.keys(args).length === 0 ? undefined : args, "The popToRoot");
+}
+
+/** Opens the current extension's preferences through the host capability. */
+export async function openExtensionPreferences(): Promise<void> {
+  await callCapability("preferences", "openExtension", undefined, "The openExtensionPreferences");
 }
 
 function normalizeAlertAction(action: AlertActionOptions | undefined, where: string): AlertActionOptions | undefined {
@@ -1796,12 +1923,18 @@ function NavigationHost({ base }: { readonly base: ReactElement }): ReactElement
 }
 
 export const LaunchType = {
-  InitialLaunch: "initial-launch",
-  HotReload: "hot-reload",
-  BackgroundCheck: "background-check",
+  UserInitiated: "userInitiated",
+  Background: "background",
 } as const;
 
 export type LaunchTypeName = (typeof LaunchType)[keyof typeof LaunchType];
+
+function createDefaultLaunchProps(): LaunchProps {
+  return {
+    launchType: LaunchType.UserInitiated,
+    arguments: {},
+  };
+}
 
 export interface Environment {
   os: readonly [string];
@@ -1820,7 +1953,7 @@ export function environment(): Environment {
   const osName = context.platform === "darwin" ? "macOS" : context.platform === "win32" ? "Windows" : "Linux";
   return {
     os: [osName],
-    launchType: LaunchType.InitialLaunch,
+    launchType: compatGlobals.launchProps?.launchType ?? LaunchType.UserInitiated,
     commandName: context.descriptor.commandName,
     extensionName: context.descriptor.extensionId,
     raycastVersion: "1.79.0",

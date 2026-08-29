@@ -16,6 +16,7 @@ const sceneIdentity = { extensionId: "e2e.scene", commandName: "index" };
 const crashIdentity = { extensionId: "e2e.crash", commandName: "index" };
 const compatIdentity = { extensionId: "e2e.compat", commandName: "index" };
 const tsxIdentity = { extensionId: "e2e.tsx", commandName: "index" };
+const launchBoundariesIdentity = { extensionId: "e2e.launch-boundaries", commandName: "index" };
 
 function createCore() {
   const catalog = new FilesystemExtensionCatalog({ root: catalogRoot });
@@ -29,11 +30,15 @@ function createCore() {
     createSessionId: () => `session-${++sessionId}`,
   });
   const clipboardWrites = [];
+  const boundaryRequests = [];
   const broker = new CapabilityBroker({
     policy: createGrantListPolicy([
       { extensionId: "e2e.scene", capability: "clipboard", operation: "write" },
       { extensionId: "e2e.compat", capability: "clipboard", operation: "write" },
       { extensionId: "e2e.tsx", capability: "clipboard", operation: "write" },
+      { extensionId: "e2e.launch-boundaries", capability: "window", operation: "close" },
+      { extensionId: "e2e.launch-boundaries", capability: "navigation", operation: "popToRoot" },
+      { extensionId: "e2e.launch-boundaries", capability: "preferences", operation: "openExtension" },
     ]),
     providers: {
       clipboard: {
@@ -42,10 +47,28 @@ function createCore() {
           return null;
         },
       },
+      window: {
+        async perform(request) {
+          boundaryRequests.push(request);
+          return undefined;
+        },
+      },
+      navigation: {
+        async perform(request) {
+          boundaryRequests.push(request);
+          return undefined;
+        },
+      },
+      preferences: {
+        async perform(request) {
+          boundaryRequests.push(request);
+          return undefined;
+        },
+      },
     },
   });
   const core = new BlastCore({ catalog, extensionHost: host });
-  return { core, broker, clipboardWrites };
+  return { core, broker, clipboardWrites, boundaryRequests };
 }
 
 function createSceneSink(buffer, transactions) {
@@ -259,4 +282,32 @@ test("runs a bundled TSX extension with literal @raycast/api imports end to end"
   await relay.done;
   await core.close();
   assert.equal(core.state, "closed");
+});
+
+test("injects launch props and relays desktop boundary helpers", async () => {
+  const { core, broker, boundaryRequests } = createCore();
+  const buffer = new SceneStateBuffer();
+  const session = await core.runCommand(launchBoundariesIdentity);
+  const relay = relaySessionTraffic(session, {
+    sceneSink: createSceneSink(buffer, []),
+    capabilityBroker: broker,
+  });
+
+  await waitFor(() => buffer.rootId !== undefined, "the launch-boundaries snapshot");
+  await waitFor(() => boundaryRequests.length === 3, "the desktop boundary requests");
+
+  assert.equal(buffer.get(buffer.rootId).props.navigationTitle, "userInitiated:userInitiated");
+  assert.deepEqual(buffer.childrenOf(buffer.rootId)[0].props, { title: "empty", icon: "launch.png" });
+  assert.deepEqual(
+    boundaryRequests.map(({ capability, operation, arguments: args }) => ({ capability, operation, arguments: args })),
+    [
+      { capability: "window", operation: "close", arguments: { clearRootSearch: true } },
+      { capability: "navigation", operation: "popToRoot", arguments: { clearSearchBar: true } },
+      { capability: "preferences", operation: "openExtension", arguments: {} },
+    ],
+  );
+
+  await core.stopCommand(launchBoundariesIdentity, "launch boundary slice complete");
+  await relay.done;
+  await core.close();
 });

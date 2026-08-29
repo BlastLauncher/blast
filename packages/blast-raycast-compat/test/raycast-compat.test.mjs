@@ -14,16 +14,21 @@ import {
   Detail,
   Form,
   Icon,
+  Image,
   Keyboard,
+  LaunchType,
   List,
   LocalStorage,
   PopToRootType,
   Toast,
   configureRaycastCompat,
   confirmAlert,
+  closeMainWindow,
   environment,
   getPreferenceValues,
   open,
+  openExtensionPreferences,
+  popToRoot,
   renderCommand,
   showHUD,
   showToast,
@@ -577,6 +582,39 @@ test("serializes platform-specific shortcuts for the active platform", async () 
   assert.deepEqual(action.props.shortcut, { modifiers: ["cmd"], key: "m" });
 });
 
+test("passes launch props to command components and exposes image masks", async () => {
+  const probe = createContext();
+  const launchProps = {
+    launchType: "background",
+    arguments: { query: "Blast" },
+    draftValues: { query: "draft" },
+    launchContext: { source: "test" },
+    fallbackText: "fallback",
+  };
+
+  const renderer = renderCommand(
+    probe.context,
+    (props) => {
+      const info = environment();
+      return createElement(
+        List,
+        { navigationTitle: `${props.launchType}:${props.arguments.query}:${info.launchType}` },
+        createElement(List.Item, {
+          title: props.launchContext.source,
+          icon: { source: "avatar.png", mask: Image.Mask.Circle },
+        }),
+      );
+    },
+    launchProps,
+  );
+  await renderer.flush();
+
+  const root = probe.transactions[0].operations[0].root;
+  assert.equal(root.props.navigationTitle, "background:Blast:background");
+  assert.deepEqual(root.children[0].props, { title: "test", icon: "avatar.png" });
+  assert.deepEqual(LaunchType, { UserInitiated: "userInitiated", Background: "background" });
+});
+
 test("routes HUD, open, and alert APIs through capabilities", async () => {
   const probe = createContext({ capabilityValues: { "alert.confirm": true } });
   configureRaycastCompat(probe.context);
@@ -628,6 +666,29 @@ test("routes HUD, open, and alert APIs through capabilities", async () => {
         dismissStyle: "cancel",
       },
     },
+  ]);
+});
+
+test("routes window, navigation, and extension-preference helpers through capabilities", async () => {
+  const probe = createContext();
+  configureRaycastCompat(probe.context);
+
+  await closeMainWindow({ clearRootSearch: true, popToRootType: PopToRootType.Suspended });
+  await popToRoot({ clearSearchBar: true });
+  await openExtensionPreferences();
+
+  assert.deepEqual(probe.capabilityRequests, [
+    {
+      capability: "window",
+      operation: "close",
+      arguments: { clearRootSearch: true, popToRootType: "suspended" },
+    },
+    {
+      capability: "navigation",
+      operation: "popToRoot",
+      arguments: { clearSearchBar: true },
+    },
+    { capability: "preferences", operation: "openExtension" },
   ]);
 });
 
@@ -837,7 +898,7 @@ test("environment reports the runtime platform and command identity", () => {
 
   const info = environment();
   assert.deepEqual(info.os, ["macOS"]);
-  assert.equal(info.launchType, "initial-launch");
+  assert.equal(info.launchType, "userInitiated");
   assert.equal(info.commandName, "index");
   assert.equal(info.extensionName, "fixture.extension");
   assert.equal(typeof info.raycastVersion, "string");
