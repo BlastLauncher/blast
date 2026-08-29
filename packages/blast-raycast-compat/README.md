@@ -5,11 +5,13 @@ Measured Raycast API compatibility adapter for Blast V2 (ADR 0011).
 The package maps the census-justified subset of the `@raycast/api` surface
 onto the V2 scene contract, renderer, and capability broker:
 
-- `List`, `List.Item`, `ActionPanel`, `Action`, `Action.CopyToClipboard`,
-  `Action.Open`, `Action.OpenInBrowser`, `Action.Paste`, `Action.Push`, and
-  `Action.SubmitForm`, plus the deprecated `CopyToClipboardAction`,
-  `OpenAction`, `OpenInBrowserAction`, `PasteAction`, `PushAction`, and
-  `SubmitFormAction` aliases, render through `@blastlauncher/react-renderer`;
+- `List`, `List.Item`, `List.Section`, `ListSection`, `ActionPanel`, `Action`,
+  `Action.CopyToClipboard`, `Action.Open`, `Action.OpenInBrowser`,
+  `Action.OpenWith`, `Action.Paste`, `Action.Push`, and `Action.SubmitForm`,
+  plus the deprecated `ActionPanelItem`, `CopyToClipboardAction`,
+  `OpenAction`, `OpenInBrowserAction`, `OpenWithAction`, `PasteAction`,
+  `PushAction`, and `SubmitFormAction` aliases, render through
+  `@blastlauncher/react-renderer`;
 - `Grid` covers content tiles, sections, empty views, search-bar dropdowns,
   item actions, layout constants, and selection/search callbacks; `MenuBarExtra`
   covers menu-bar roots, items, sections, submenus, separators, shortcuts, and
@@ -37,8 +39,9 @@ onto the V2 scene contract, renderer, and capability broker:
   resolved manifest values through legacy preference metadata, and
   `randomId` provides process-local unique IDs;
 - the official type-only aliases `Environment`, `Navigation`, `Preferences`,
-  `Preference`, `FormValue`, `FormValues`, `KeyEquivalent`, `KeyboardShortcut`,
-  and `ImageLike` are available;
+  `Preference`, `ArgumentsLaunchProps`, `FormItemRef`, `ItemProps`, `FormValue`,
+  `FormValues`, `KeyEquivalent`, `KeyboardShortcut`, and `ImageLike` are
+  available;
 - `closeMainWindow`, `popToRoot`, and `openExtensionPreferences` route through
   `window.close`, `navigation.popToRoot`, and `preferences.openExtension`
   capability requests;
@@ -69,9 +72,10 @@ onto the V2 scene contract, renderer, and capability broker:
 - `captureException` reports a normalized exception payload through
   `telemetry.captureException` without making telemetry availability affect
   command execution;
-- `Action.Open`/`OpenAction` and `Action.Paste`/`PasteAction` route open and
-  paste actions through host capabilities and invoke their completion
-  callbacks;
+- `Action.Open`/`OpenAction`, `Action.OpenWith`/`OpenWithAction`, and
+  `Action.Paste`/`PasteAction` route open and paste actions through host
+  capabilities and invoke their completion callbacks. `render` bridges
+  legacy `render(<Command />)` entrypoints into the active scene renderer;
 - `Action.Push` and `PushAction` accept measured React-element targets, route
   navigation through the runtime stack, and invoke `onPush`/`onPop` callbacks;
   the navigation proxy is shared through the command realm so bundled

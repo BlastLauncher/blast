@@ -12,6 +12,7 @@ import {
   SceneAction,
   SceneList,
   SceneListItem,
+  SceneListSection,
   SceneRendererError,
   createSceneRenderer,
 } from "../dist/index.js";
@@ -86,6 +87,29 @@ test("publishes one snapshot transaction on first render", async () => {
   assert.deepEqual(second.props, { title: "Second" });
   const ids = new Set([root.id, first.id, second.id, first.children[0].id]);
   assert.equal(ids.size, 4);
+});
+
+test("renders list sections with their item children", async () => {
+  const sink = createCollectingSink();
+  const renderer = createSceneRenderer({ sink });
+
+  renderer.render(
+    createElement(
+      SceneList,
+      null,
+      createElement(
+        SceneListSection,
+        { id: "favorites", title: "Favorites", subtitle: "Pinned" },
+        createElement(SceneListItem, { title: "First" }),
+      ),
+    ),
+  );
+  await renderer.flush();
+
+  const section = snapshotRoot(sink).children[0];
+  assert.equal(section.type, "list-section");
+  assert.deepEqual(section.props, { id: "favorites", title: "Favorites", subtitle: "Pinned" });
+  assert.deepEqual(section.children[0].props, { title: "First" });
 });
 
 test("emits update operations with stable node identifiers", async () => {

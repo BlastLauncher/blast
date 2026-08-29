@@ -74,13 +74,14 @@ slice changes what is executable, what is trusted, or what should happen next.
   bundle directories are removed after each successful or failed load; an
   explicitly supplied cache directory remains caller-owned.
 - The support matrix runs a committed set of real corpus extensions through
-  the full pipeline in CI: twenty-five render fixtures (list, detail,
+  the full pipeline in CI: twenty-six render fixtures (list, list sections,
+  and detail,
   navigation, action groups, tinted icons, form controls, toasts, preferences,
   brokered clipboard, desktop and window-management boundaries, legacy
-  action/storage aliases, and cross-bundle navigation),
+  action/storage/list/render aliases, and cross-bundle navigation),
   while the corpus probe records exactly which unmeasured APIs block the rest.
-- The latest pinned corpus probe passes 734 of 3,231 extensions (22.72%), or
-  734 of 2,915 extensions with a selected renderable command (25.18%).
+- The latest pinned corpus probe passes 911 of 3,231 extensions (28.20%), or
+  911 of 2,915 extensions with a selected renderable command (31.25%).
 - Navigation (useNavigation, Action.Push), LocalStorage through the
   capability broker with a reference in-memory provider, the callable plus
   property-based environment surface, and measured WindowManagement discovery
@@ -105,10 +106,11 @@ slice changes what is executable, what is trusted, or what should happen next.
 - Action and action-group shortcut objects normalize into structured scene
   values, including platform-specific Raycast shortcut unions; measured action
   styles, `autoFocus`, and common keyboard shortcut constants are available.
-- `SubmitFormAction`, `OpenAction`, and `PasteAction` preserve the measured
-  form-submit and action shapes. `ImageMask` aliases `Image.Mask`, while the
-  top-level clipboard and LocalStorage helpers route to the same brokered
-  operations; all eleven legacy names are covered by an end-to-end fixture.
+- `SubmitFormAction`, `OpenAction`, `OpenWithAction`, and `PasteAction` preserve
+  the measured form-submit and action shapes. `ImageMask` aliases `Image.Mask`,
+  while the top-level clipboard and LocalStorage helpers route to the same
+  brokered operations. `ListSection` maps to a semantic list-section node, and
+  legacy `render(<Command />)` calls bridge into the active renderer.
 - Legacy `preferences` exposes resolved manifest values through the official
   `.value` metadata shape, `FormValue` includes the pinned numeric forms, and
   `Navigation`, `Environment`, `KeyEquivalent`, `FormValues`,
@@ -231,9 +233,9 @@ window-management, and dependency-policy slices are complete, but the
 measured 80% target is not yet met; the next work should address the dominant
 remaining static and dependency blockers using the same probe.
 
-1. Address the remaining dynamic (14), namespace (4), and small legacy alias
-   imports surfaced by the reprobe, preserving structured errors for unknown
-   shapes and adding a fixture for each newly measured boundary.
+1. Address the remaining dynamic (12), namespace (4), side-effect (1), and
+   `fetch` (1) imports surfaced by the reprobe, preserving structured errors
+   for unknown shapes and adding a fixture for each newly measured boundary.
 2. Provision an audited, pinned vendor set or an explicit installation phase
    for the remaining third-party dependency graph; keep installation outside
    extension execution.

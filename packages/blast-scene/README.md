@@ -21,7 +21,8 @@ show payloads and identified show/update/hide operations.
   enforces referential integrity (`unknown_node`, `unknown_parent`,
   `duplicate_node`, `invalid_child`, `invalid_index`, `invalid_prop`,
   `missing_required_prop`, `remove_root`, `orphan_node`, `reorder_mismatch`).
-  Grid roots carry content tiles, sections, empty views, and search dropdowns;
+  List roots carry items and titled sections; Grid roots carry content tiles,
+  sections, empty views, and search dropdowns;
   menu-bar roots carry items, sections, submenus, and separators;
 - `SceneTransactionSink` is the transport-independent boundary the React
   renderer publishes to (ADR 0004); `createCollectingSceneSink` is the

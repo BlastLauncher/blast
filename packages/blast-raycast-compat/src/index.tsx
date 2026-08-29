@@ -76,6 +76,8 @@ interface RaycastCompatGlobals {
   launchProps?: LaunchProps;
   navigation?: NavigationApi;
   renderer?: SceneRenderer;
+  legacyRenderElement?: ReactElement;
+  rendering?: boolean;
   toastEvents?: Map<string, () => void>;
   cacheStores?: Map<string, CacheState>;
 }
@@ -95,6 +97,8 @@ export function configureRaycastCompat(context: RaycastCompatContext): void {
   compatGlobals.context = context;
   delete compatGlobals.launchProps;
   delete compatGlobals.navigation;
+  delete compatGlobals.legacyRenderElement;
+  compatGlobals.rendering = false;
   compatGlobals.toastEvents ??= new Map();
 }
 
@@ -178,6 +182,7 @@ export function renderCommand(
 ): SceneRenderer {
   const { renderer, takeError } = createCompatRenderer(context);
   compatGlobals.launchProps = launchProps;
+  compatGlobals.renderer = renderer;
   renderLoudly(renderer, takeError, () =>
     adaptRootElement(createElement(NavigationHost, { base: component(launchProps) })),
   );
@@ -186,10 +191,26 @@ export function renderCommand(
 
 function renderLoudly(renderer: SceneRenderer, takeError: () => unknown, component: () => ReactElement): void {
   let renderError: unknown;
+  compatGlobals.rendering = true;
   try {
     renderer.render(component());
   } catch (error) {
     renderError = error;
+  } finally {
+    compatGlobals.rendering = false;
+  }
+  if (renderError === undefined) {
+    const legacyRenderElement = compatGlobals.legacyRenderElement;
+    delete compatGlobals.legacyRenderElement;
+    if (legacyRenderElement !== undefined) {
+      try {
+        renderer.render(
+          createElement(NavigationHost, { key: `legacy-render-${++legacyRenderCounter}`, base: legacyRenderElement }),
+        );
+      } catch (error) {
+        renderError = error;
+      }
+    }
   }
   const captured = takeError();
   if (captured !== undefined) {
@@ -198,6 +219,27 @@ function renderLoudly(renderer: SceneRenderer, takeError: () => unknown, compone
   if (renderError !== undefined) {
     throw renderError;
   }
+}
+
+/**
+ * Compatibility bridge for older commands that call `render(<Command />)`
+ * from their default export instead of returning the element. During the
+ * initial React render the element is queued to avoid re-entering the
+ * reconciler; later calls update the active scene immediately.
+ */
+export function render(element: ReactNode): void {
+  if (!isValidElement(element)) {
+    unsupported("render element", { element });
+  }
+  const renderer = compatGlobals.renderer;
+  if (renderer === undefined) {
+    throw new CompatibilityError("render requires a running Raycast command");
+  }
+  if (compatGlobals.rendering) {
+    compatGlobals.legacyRenderElement = element;
+    return;
+  }
+  renderer.render(createElement(NavigationHost, { key: `legacy-render-${++legacyRenderCounter}`, base: element }));
 }
 
 function createCompatRenderer(context: RaycastCompatContext): {
@@ -265,6 +307,16 @@ export interface ListItemProps {
   readonly children?: ReactNode;
   readonly actions?: ReactNode;
 }
+
+export interface ListSectionProps {
+  readonly id?: string;
+  readonly title?: string;
+  readonly subtitle?: string;
+  readonly children?: ReactNode;
+}
+
+/** @deprecated Use the measured List item props or a component-specific type. */
+export type ItemProps = Partial<ListItemProps> & { readonly id: string };
 
 export type GridAspectRatio = "1" | "3/2" | "2/3" | "4/3" | "3/4" | "16/9" | "9/16";
 export type GridFit = "contain" | "fill";
@@ -455,8 +507,19 @@ export interface OpenProps {
   readonly onOpen?: (target: string) => void;
 }
 
+export interface OpenWithProps {
+  readonly path: string;
+  readonly title?: string;
+  readonly icon?: IconLike;
+  readonly shortcut?: ShortcutLike;
+  readonly onOpen?: (path: string) => void;
+}
+
 /** @deprecated Use `OpenProps` or `Action.Open` instead. */
 export interface OpenActionProps extends OpenProps {}
+
+/** @deprecated Use `OpenWithProps` or `Action.OpenWith` instead. */
+export interface OpenWithActionProps extends OpenWithProps {}
 
 export interface PasteProps {
   readonly content: string | number | Clipboard.Content;
@@ -525,6 +588,11 @@ export type LaunchProps<
   readonly launchContext?: T["launchContext"];
   readonly fallbackText?: string;
 };
+
+/** @deprecated Use `LaunchProps` directly. */
+export interface ArgumentsLaunchProps {
+  readonly arguments?: LaunchArguments;
+}
 
 export interface IntraExtensionLaunchOptions {
   readonly name: string;
@@ -1301,6 +1369,9 @@ export const Alert = {
   },
 } as const;
 
+/** @deprecated Use `Alert.ActionStyle` instead. */
+export const AlertActionStyle = Alert.ActionStyle;
+
 export const ActionStyle = {
   Regular: "regular",
   Destructive: "destructive",
@@ -2014,7 +2085,13 @@ function deserializeOAuthDate(value: unknown): Date {
   return date;
 }
 
-export function List(props: ListProps): ReactElement {
+interface ListComponent {
+  (props: ListProps): ReactElement;
+  Item: typeof ListItem;
+  Section: typeof ListSection;
+}
+
+function ListComponent(props: ListProps): ReactElement {
   return createElement(
     "list",
     {
@@ -2043,6 +2120,20 @@ function ListItem(props: ListItemProps): ReactElement {
     mapItemChildren(children, "List.Item"),
   );
 }
+
+export function ListSection(props: ListSectionProps): ReactElement {
+  return createElement(
+    "list-section",
+    {
+      ...(props.id === undefined ? {} : { id: requireNonEmptyString(props.id, "List.Section id") }),
+      ...(props.title === undefined ? {} : { title: props.title }),
+      ...(props.subtitle === undefined ? {} : { subtitle: props.subtitle }),
+    },
+    mapListSectionChildren(props.children),
+  );
+}
+
+export const List: ListComponent = Object.assign(ListComponent, { Item: ListItem, Section: ListSection });
 
 const GRID_INSET_VALUES = {
   Zero: "zero",
@@ -2886,6 +2977,20 @@ function Open(props: OpenProps): ReactElement {
   });
 }
 
+function OpenWith(props: OpenWithProps): ReactElement {
+  const path = requireNonEmptyString(props.path, "Action.OpenWith path");
+  const icon = serializeIcon(props.icon ?? "upload", "Action.OpenWith");
+  const shortcut = serializeShortcut(props.shortcut, "Action.OpenWith");
+  return createElement("action", {
+    title: props.title ?? "Open With",
+    ...(icon === undefined ? {} : { icon: icon.icon, iconTintColor: icon.iconTintColor }),
+    ...(shortcut === undefined ? {} : { shortcut }),
+    onAction: () => {
+      void openWith(path).then(() => props.onOpen?.(path));
+    },
+  });
+}
+
 function Paste(props: PasteProps): ReactElement {
   const icon = serializeIcon(props.icon ?? "clipboard", "Action.Paste");
   const shortcut = serializeShortcut(props.shortcut, "Action.Paste");
@@ -2908,8 +3013,26 @@ export const OpenInBrowserAction = OpenInBrowser;
 /** @deprecated Use `Action.Open` instead. */
 export const OpenAction = Open;
 
+/** @deprecated Use `Action.OpenWith` instead. */
+export const OpenWithAction = OpenWith;
+
 /** @deprecated Use `Action.Paste` instead. */
 export const PasteAction = Paste;
+
+function mapListSectionChildren(children: ReactNode): ReactNode {
+  return Children.toArray(children).map((child, index) => {
+    if (child === null || child === undefined || typeof child === "boolean") {
+      return null;
+    }
+    if (!isValidElement(child)) {
+      return unsupported("A List.Section text child", { child });
+    }
+    if (child.type === ListItem || isCompositeElement(child)) {
+      return keyedElement(child, `list-section-${index}`);
+    }
+    return unsupported("A List.Section child that is not a List.Item", { childType: String(child.type) });
+  });
+}
 
 function mapGridChildren(children: ReactNode): ReactNode {
   return Children.toArray(children).map((child, index) => {
@@ -3004,6 +3127,7 @@ interface ActionComponent {
   CopyToClipboard: typeof CopyToClipboard;
   Open: typeof Open;
   OpenInBrowser: typeof OpenInBrowser;
+  OpenWith: typeof OpenWith;
   Paste: typeof Paste;
   Push: typeof Push;
   SubmitForm: typeof SubmitForm;
@@ -3014,11 +3138,15 @@ export const Action: ActionComponent = Object.assign(ActionComponent, {
   CopyToClipboard,
   Open,
   OpenInBrowser,
+  OpenWith,
   Paste,
   Push,
   SubmitForm,
   Style: ActionStyle,
 });
+
+/** @deprecated Use `Action` instead. */
+export const ActionPanelItem = Action;
 
 function serializeClipboardContent(content: string | number | Clipboard.Content, where: string): CapabilityArguments {
   if (typeof content === "string") {
@@ -3118,6 +3246,7 @@ function mapItemChildren(children: ReactNode, where: string): ReactNode {
       child.type === CopyToClipboard ||
       child.type === OpenInBrowser ||
       child.type === Open ||
+      child.type === OpenWith ||
       child.type === Paste ||
       child.type === Push
     ) {
@@ -3162,8 +3291,6 @@ export namespace Clipboard {
     readonly concealed?: boolean;
   };
 }
-
-Object.assign(List, { Item: ListItem });
 
 function normalizeToastStyle(style: unknown): SceneToastStyle {
   if (style === "success" || style === "SUCCESS") {
@@ -3542,6 +3669,16 @@ export async function open(target: string, application?: string | ApplicationLik
     args.application = serializeApplication(application, "open");
   }
   await callCapability("open", "open", args, "The open");
+}
+
+/** Opens a path with the host's application chooser. */
+async function openWith(path: string): Promise<void> {
+  await callCapability(
+    "open",
+    "open",
+    { target: requireNonEmptyString(path, "openWith path"), openWith: true },
+    "The open-with",
+  );
 }
 
 /** Reveals a file or directory in Finder through the host. */
@@ -4185,6 +4322,7 @@ export function useNavigation(): NavigationApi {
 }
 
 let navigationEntryCounter = 0;
+let legacyRenderCounter = 0;
 
 function NavigationHost({ base }: { readonly base: ReactElement }): ReactElement {
   const [entries, setEntries] = useState<NavigationEntry[]>(() => [{ id: ++navigationEntryCounter, element: base }]);

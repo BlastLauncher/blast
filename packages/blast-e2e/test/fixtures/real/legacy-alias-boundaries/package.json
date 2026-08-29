@@ -1,0 +1,7 @@
+{
+  "name": "legacy-alias-boundaries",
+  "title": "Legacy aliases",
+  "description": "Fixture for measured list and action aliases.",
+  "commands": [{ "name": "index", "title": "Legacy aliases", "mode": "view" }],
+  "dependencies": { "@raycast/api": "^1.104.1" }
+}

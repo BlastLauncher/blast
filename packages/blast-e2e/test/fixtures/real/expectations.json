@@ -420,5 +420,23 @@
       "MenuBarExtra"
     ],
     "source": "blast/compatibility-fixture"
+  },
+  {
+    "id": "legacy-alias-boundaries",
+    "extensionId": "legacy-alias-boundaries",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "list",
+    "minItems": 1,
+    "apis": [
+      "ActionPanel",
+      "ActionPanelItem",
+      "AlertActionStyle",
+      "Icon",
+      "List",
+      "ListSection",
+      "OpenWithAction"
+    ],
+    "source": "blast/compatibility-fixture"
   }
 ]

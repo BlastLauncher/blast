@@ -12,6 +12,7 @@ export const UI_TOAST_MESSAGE = "ui.toast" as const;
 export const SCENE_NODE_TYPES = [
   "list",
   "list-item",
+  "list-section",
   "grid",
   "grid-item",
   "grid-section",
@@ -143,6 +144,7 @@ export function createCollectingSceneSink(): SceneTransactionSink & {
 const PROP_WHITELIST: Record<SceneNodeType, readonly string[]> = {
   list: ["navigationTitle", "searchBarPlaceholder", "isLoading"],
   "list-item": ["title", "subtitle", "icon", "iconTintColor"],
+  "list-section": ["id", "title", "subtitle"],
   grid: [
     "navigationTitle",
     "searchBarPlaceholder",
@@ -304,6 +306,7 @@ export const SCENE_PROP_WHITELIST: Record<SceneNodeType, readonly string[]> = PR
 const REQUIRED_PROPS: Record<SceneNodeType, readonly string[]> = {
   list: [],
   "list-item": ["title"],
+  "list-section": [],
   grid: [],
   "grid-item": ["content"],
   "grid-section": [],
@@ -340,6 +343,7 @@ type ScenePropType = "string" | "boolean" | "number" | "string[]" | "shortcut";
 const PROP_TYPES: Record<SceneNodeType, Readonly<Record<string, ScenePropType>>> = {
   list: { navigationTitle: "string", searchBarPlaceholder: "string", isLoading: "boolean" },
   "list-item": { title: "string", subtitle: "string", icon: "string", iconTintColor: "string" },
+  "list-section": { id: "string", title: "string", subtitle: "string" },
   grid: {
     navigationTitle: "string",
     searchBarPlaceholder: "string",
@@ -541,8 +545,9 @@ const PROP_TYPES: Record<SceneNodeType, Readonly<Record<string, ScenePropType>>>
 };
 
 const CHILD_TYPES: Record<SceneNodeType, readonly SceneNodeType[]> = {
-  list: ["list-item", "action-group"],
+  list: ["list-item", "list-section", "action-group"],
   "list-item": ["action", "action-group"],
+  "list-section": ["list-item"],
   grid: ["grid-item", "grid-section", "grid-empty-view", "grid-dropdown", "action-group"],
   "grid-item": ["action", "action-group"],
   "grid-section": ["grid-item"],

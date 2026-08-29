@@ -83,7 +83,9 @@ function createCore() {
     ...(expectation.apis?.includes("trash")
       ? [{ extensionId: expectation.extensionId, capability: "filesystem", operation: "trash" }]
       : []),
-    ...(expectation.apis?.some((api) => api === "OpenInBrowserAction" || api === "OpenAction")
+    ...(expectation.apis?.some(
+      (api) => api === "OpenInBrowserAction" || api === "OpenAction" || api === "OpenWithAction",
+    )
       ? [{ extensionId: expectation.extensionId, capability: "open", operation: "open" }]
       : []),
     ...(expectation.apis?.includes("captureException")

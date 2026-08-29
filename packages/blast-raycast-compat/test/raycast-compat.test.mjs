@@ -4,10 +4,12 @@ import test from "node:test";
 import { createInMemoryLocalStorageProvider } from "@blastlauncher/capability";
 import {
   Action,
+  ActionPanelItem,
   ActionPanel,
   ActionStyle,
   AI,
   Alert,
+  AlertActionStyle,
   BrowserExtension,
   Cache,
   Clipboard,
@@ -30,6 +32,7 @@ import {
   Keyboard,
   LaunchType,
   List,
+  ListSection,
   LocalStorage,
   MenuBarExtra,
   OAuth,
@@ -49,6 +52,7 @@ import {
   getPreferenceValues,
   open,
   OpenInBrowserAction,
+  OpenWithAction,
   openCommandPreferences,
   openExtensionPreferences,
   popToRoot,
@@ -56,6 +60,7 @@ import {
   preferences,
   randomId,
   removeLocalStorageItem,
+  render,
   launchCommand,
   renderCommand,
   showHUD,
@@ -210,6 +215,67 @@ test("renders a Raycast-style list through the compatibility surface", async () 
       },
     ],
   });
+});
+
+test("renders legacy list and action aliases, including OpenWithAction", async () => {
+  const probe = createContext();
+  const opened = [];
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      List,
+      null,
+      createElement(
+        ListSection,
+        { id: "files", title: "Files", subtitle: "Choose an application" },
+        createElement(
+          List.Item,
+          { title: "Example" },
+          createElement(
+            ActionPanel,
+            null,
+            createElement(ActionPanelItem, { title: "Legacy item", onAction: onAction }),
+            createElement(OpenWithAction, { path: "/tmp/example.txt", onOpen: (path) => opened.push(path) }),
+          ),
+        ),
+      ),
+    ),
+  );
+  await renderer.flush();
+
+  const root = probe.transactions[0].operations[0].root;
+  assert.deepEqual(root.children[0].props, { id: "files", title: "Files", subtitle: "Choose an application" });
+  const actions = root.children[0].children[0].children[0].children;
+  assert.deepEqual(
+    actions.map(({ props }) => ({ title: props.title, icon: props.icon })),
+    [
+      { title: "Legacy item", icon: undefined },
+      { title: "Open With", icon: "upload" },
+    ],
+  );
+
+  probe.dispatch(actions[1].props.onAction);
+  await new Promise((resolve) => setTimeout(resolve, 5));
+  assert.deepEqual(probe.capabilityRequests, [
+    { capability: "open", operation: "open", arguments: { target: "/tmp/example.txt", openWith: true } },
+  ]);
+  assert.deepEqual(opened, ["/tmp/example.txt"]);
+  assert.deepEqual(AlertActionStyle, { Default: "default", Cancel: "cancel", Destructive: "destructive" });
+  assert.equal(Action.OpenWith, OpenWithAction);
+});
+
+test("bridges legacy render calls into the active scene renderer", async () => {
+  const probe = createContext();
+  function LegacyCommand() {
+    render(createElement(Detail, { markdown: "Legacy render" }));
+    return null;
+  }
+
+  const renderer = renderCommand(probe.context, () => createElement(LegacyCommand));
+  await renderer.flush();
+
+  const root = probe.transactions[0].operations[0].root;
+  assert.equal(root.type, "detail");
+  assert.deepEqual(root.props, { markdown: "Legacy render" });
 });
 
 test("routes Action callbacks through scene events", async () => {

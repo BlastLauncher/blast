@@ -23,6 +23,10 @@ function listItem(id, title, actions = []) {
   return { id, type: "list-item", props: { title }, children: actions };
 }
 
+function listSection(id, title, children = []) {
+  return { id, type: "list-section", props: { title }, children };
+}
+
 function action(id, title, eventId = `event-${id}`) {
   return { id, type: "action", props: { title, onAction: eventId }, children: [] };
 }
@@ -48,7 +52,12 @@ test("validates scene transaction messages", (context) => {
     const message = envelope(
       SCENE_TRANSACTION_MESSAGE,
       transaction([
-        { type: "snapshot", root: list("root", [listItem("item-1", "Hello", [action("action-1", "Run")])]) },
+        {
+          type: "snapshot",
+          root: list("root", [
+            listSection("section-1", "Group", [listItem("item-1", "Hello", [action("action-1", "Run")])]),
+          ]),
+        },
       ]),
     );
     const result = validateSceneTransactionMessage(message);

@@ -16,6 +16,7 @@ import { SCENE_NODE_TYPES, SCENE_PROP_WHITELIST, isScenePropValue } from "@blast
 
 export const SCENE_LIST_TYPE = "list";
 export const SCENE_LIST_ITEM_TYPE = "list-item";
+export const SCENE_LIST_SECTION_TYPE = "list-section";
 export const SCENE_GRID_TYPE = "grid";
 export const SCENE_GRID_ITEM_TYPE = "grid-item";
 export const SCENE_GRID_SECTION_TYPE = "grid-section";
@@ -59,6 +60,13 @@ export interface SceneListItemProps {
   readonly children?: ReactNode;
 }
 
+export interface SceneListSectionProps {
+  readonly id?: string;
+  readonly title?: string;
+  readonly subtitle?: string;
+  readonly children?: ReactNode;
+}
+
 export interface SceneActionProps {
   readonly title: string;
   readonly onAction?: () => void;
@@ -70,6 +78,10 @@ export function SceneList(props: SceneListProps): ReactElement {
 
 export function SceneListItem(props: SceneListItemProps): ReactElement {
   return createElement(SCENE_LIST_ITEM_TYPE, props);
+}
+
+export function SceneListSection(props: SceneListSectionProps): ReactElement {
+  return createElement(SCENE_LIST_SECTION_TYPE, props);
 }
 
 export function SceneAction(props: SceneActionProps): ReactElement {
