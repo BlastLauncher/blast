@@ -80,8 +80,14 @@ slice changes what is executable, what is trusted, or what should happen next.
   brokered clipboard, desktop and window-management boundaries, legacy
   action/storage/list/render aliases, and cross-bundle navigation),
   while the corpus probe records exactly which unmeasured APIs block the rest.
-- The latest pinned corpus probe passes 903 of 3,231 extensions (27.95%), or
-  903 of 2,915 extensions with a selected renderable command (30.98%).
+- The e2e corpus probe has a bounded, exact-version development-only vendor
+  seed for `axios`, `cheerio`, `cross-fetch`, `date-fns`, `fast-xml-parser`,
+  `fuse.js`, `moment`, `node-html-markdown`, `rss-parser`, and `zod`. The seed
+  is supplied by the explicit workspace vendor root; the runtime still never
+  installs or downloads extension dependencies.
+- The latest pinned corpus probe, with the bounded vendor seed, passes 1,085 of
+  3,231 extensions (33.58%), or 1,085 of 2,915 extensions with a selected
+  renderable command (37.22%).
 - Navigation (useNavigation, Action.Push), LocalStorage through the
   capability broker with a reference in-memory provider, the callable plus
   property-based environment surface, and measured WindowManagement discovery
@@ -237,10 +243,10 @@ remaining static and dependency blockers using the same probe.
    the import-shape fixture and keep the remaining `fetch` import outside the
    adapter until a host network capability defines URL policy, consent, and
    response limits.
-2. Provision an audited, pinned vendor set or an explicit installation phase
-   for the remaining third-party dependency graph; keep installation outside
-   extension execution.
-3. Re-probe after each group and update the support matrix against the 80%
+2. Re-probe the bounded vendor seed and record rendered outcomes; use small,
+   audited package groups for the remaining third-party dependency graph and
+   keep installation outside extension execution.
+3. Re-probe after each dependency group and update the support matrix against the 80%
    extension-pass milestone.
 4. Add a client-facing core protocol and daemon listener so the Electron
    client can replace the test client after the coverage boundary is stable.
