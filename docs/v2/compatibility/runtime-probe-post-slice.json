@@ -1857,18 +1857,18 @@
   "outcomes": {
     "no-entrypoint": 3,
     "not-renderable": 316,
-    "process-failure": 250,
-    "renders": 2075,
+    "process-failure": 248,
+    "renders": 2082,
     "structured-compatibility-error": 2,
-    "third-party-dependency": 585
+    "third-party-dependency": 580
   },
   "coverage": {
-    "extensionPasses": 2075,
+    "extensionPasses": 2082,
     "extensionTotal": 3231,
-    "extensionPassRate": 0.6422,
-    "renderableCommandPasses": 2075,
+    "extensionPassRate": 0.6444,
+    "renderableCommandPasses": 2082,
     "renderableCommandTotal": 2915,
-    "renderableCommandPassRate": 0.7118
+    "renderableCommandPassRate": 0.7142
   },
   "staticBlockers": [
     {
@@ -1878,9 +1878,9 @@
   ],
   "failureClasses": {
     "no-entrypoint": 3,
-    "process-failure": 250,
+    "process-failure": 248,
     "structured-compatibility-error": 2,
-    "third-party-dependency": 585
+    "third-party-dependency": 580
   },
   "failureSamples": {
     "no-entrypoint": [
@@ -3189,8 +3189,7 @@
       "commandName": "lexicon-search",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "attio",
@@ -4058,8 +4057,7 @@
       "commandName": "home",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "blurhash",
@@ -6584,7 +6582,7 @@
       "mode": "view",
       "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "failureCode": "transport_send_failed"
     },
     {
       "directory": "cursor-recent-projects",
@@ -6845,7 +6843,7 @@
       "mode": "view",
       "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "failureCode": "transport_send_failed"
     },
     {
       "directory": "dawa",
@@ -13499,8 +13497,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "lark",
@@ -15314,8 +15311,7 @@
       "commandName": "controlMeeting",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "outcome": "renders"
     },
     {
       "directory": "microsoft-tenant-id",
@@ -15658,7 +15654,8 @@
       "commandName": "payments-list",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "momentum",
@@ -18051,8 +18048,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "outcome": "renders"
     },
     {
       "directory": "parcel",
@@ -20010,8 +20006,7 @@
       "commandName": "browse-r2-files",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "rabbit-hole",
@@ -23439,7 +23434,7 @@
       "mode": "view",
       "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "failureCode": "transport_send_failed"
     },
     {
       "directory": "splix",
@@ -26331,8 +26326,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "process-failure",
+      "failureCode": "runtime_closed_during_initialization"
     },
     {
       "directory": "uptime-robot",
@@ -26929,8 +26924,7 @@
       "commandName": "speech-to-text",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "renders"
     },
     {
       "directory": "voiceink",
@@ -27941,8 +27935,7 @@
       "commandName": "list",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "outcome": "renders"
     },
     {
       "directory": "xecutor",
