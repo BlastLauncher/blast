@@ -1951,6 +1951,13 @@ function normalizeGridColumns(value: unknown, where: string): number {
   return value;
 }
 
+function normalizePaginationPageSize(value: unknown, where: string): number {
+  if (typeof value !== "number" || !Number.isSafeInteger(value) || value < 0) {
+    unsupported(`${where} must be a non-negative safe integer`, { value });
+  }
+  return value;
+}
+
 function normalizeGridItemSize(value: unknown, where: string): GridItemSize {
   if (
     value !== GRID_ITEM_SIZE_VALUES.Small &&
@@ -2221,7 +2228,7 @@ function serializeListPagination(
   if (!isRecord(pagination)) {
     unsupported(`${where} must be an object`, { pagination });
   }
-  const pageSize = normalizeGridColumns(pagination.pageSize, `${where} pageSize`);
+  const pageSize = normalizePaginationPageSize(pagination.pageSize, `${where} pageSize`);
   if (typeof pagination.hasMore !== "boolean") {
     unsupported(`${where} hasMore must be a boolean`, { hasMore: pagination.hasMore });
   }

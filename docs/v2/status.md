@@ -90,14 +90,13 @@ slice changes what is executable, what is trusted, or what should happen next.
 - A second bounded seed adds `file-url`, `filesize`, `gray-matter`,
   `javascript-time-ago`, `luxon`, `node-html-parser`, `qrcode`, `tildify`,
   `ts-pattern`, and `turndown`, also as exact-version e2e development
-  dependencies. The latest pinned corpus probe passes 1,808 of 3,231
-  extensions (55.96%), or 1,808 of 2,915 extensions with a selected renderable
-  command (62.02%). The remaining losses are tracked separately: 914
-  third-party dependency failures, 181 process/startup failures, 316
-  non-renderable commands, 9 structured compatibility errors, and 3 missing
-  entrypoints. The six-render difference from the previous run is process
-  variance; the alternate-item slice has focused fixture coverage but no
-  deterministic aggregate lift claim.
+  dependencies. The latest pinned corpus probe passes 1,813 of 3,231
+  extensions (56.11%), or 1,813 of 2,915 extensions with a selected renderable
+  command (62.20%). The remaining losses are tracked separately: 916
+  third-party dependency failures, 178 process/startup failures, 316
+  non-renderable commands, 5 structured compatibility errors, and 3 missing
+  entrypoints. The targeted zero-pagination reprobe is deterministic; the
+  aggregate change also includes normal process and dependency variance.
 - Navigation (useNavigation, Action.Push), LocalStorage through the
   capability broker with a reference in-memory provider, the callable plus
   property-based environment surface, and measured WindowManagement discovery
@@ -187,7 +186,9 @@ slice changes what is executable, what is trusted, or what should happen next.
   instead of crossing the scene boundary as `null`.
 - The measured collection-value boundary now preserves empty Grid content
   tooltips, accepts positive safe-integer Grid column counts, and serializes
-  `List.Item` icon descriptors with optional values and tooltips. The explicit
+  `List.Item` icon descriptors with optional values and tooltips. Pagination
+  preserves non-negative safe-integer page sizes, including the zero fallback
+  emitted by async hooks before pagination state is initialized. The explicit
   icon subset includes the observed `Icon.AddPerson` member. JSX conditional
   numeric `0` sentinels and React memo/forward-ref/lazy composites are accepted
   in measured collection slots. Optional string-array Form initial values omit
@@ -350,8 +351,8 @@ means the share of corpus extensions that bundle and render through the current
 path, not the number of exported API names. The shortcut, imperative, cache,
 launch-boundary, desktop-discovery, finder-boundary, host-boundary,
 window-management, and dependency-policy slices are complete, but the
-measured 80% target is not yet met: the current run is 55.96% overall and
-62.02% among commands with a renderable selection. The declaration-backed Icon,
+measured 80% target is not yet met: the current run is 56.11% overall and
+62.20% among commands with a renderable selection. The declaration-backed Icon,
 collection, clipboard, submenu, public typing, and menu-bar alternate slices
 are complete; the next work should use the same probe to identify any
 remaining API-shaped failures before adding dependencies. Additional
@@ -362,13 +363,14 @@ dependency seeds remain deferred.
    isolated API, implement it only when its runtime values and host capability
    can be validated safely, and preserve structured errors for values that
    would require a broader scene or host policy. Keep the current structured
-   probe failures (`apple-maps-search/directionsTo`, `crawldoc/index`,
-   `dictionary/fromCmd`, `get-cat-images/get-cat-images`,
-   `manifest-viewer/view-manifest`, `modrinth-search/search-projects`,
-   `open-targets-raycast/platform`, `vikunja/create-task`, and
+   probe failures (`dictionary/fromCmd`, `get-cat-images/get-cat-images`,
+   `manifest-viewer/view-manifest`, `vikunja/create-task`, and
    `webpage-to-markdown/webpage-to-markdown`) as explicit diagnostics rather
    than weakening the scene or action validators around malformed children,
-   invalid measured values, and empty or missing targets.
+   invalid measured values, and empty or missing targets. The targeted
+   `modrinth-search/search-projects` reprobe now renders after preserving its
+   declaration-shaped zero page-size fallback; later full-run changes remain
+   subject to process and dependency variance.
 2. Keep the command-scoped preference, nullable Form, empty-string,
    `LocalStorage.allItems`/`allLocalStorageItems`, Form event, literal `require`,
    composite-child, declaration-backed Icon, cross-compatible dropdowns,
@@ -376,7 +378,8 @@ dependency seeds remain deferred.
    collection boundaries, `Form.LinkAccessory`, the measured action creators,
    Finder/trash actions, collection-value normalization, CreateSnippet and
    Quick Look actions, Detail metadata, `List.Item.Detail`, search/pagination
-   events, Clipboard read/clear, Submenu lifecycle, nested `Props` namespaces,
+   events, zero pagination fallbacks, Clipboard read/clear, Submenu lifecycle,
+   nested `Props` namespaces,
    and deprecated Form/action member aliases covered by each reprobe.
 3. Keep safe dynamic, namespace, side-effect, and literal `require` import
    forms covered while the remaining `fetch` import stays outside the adapter

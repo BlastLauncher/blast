@@ -23,7 +23,10 @@ onto the V2 scene contract, renderer, and capability broker:
 - `Grid` covers content tiles, sections, empty views, search-bar dropdowns,
   item actions, positive safe-integer column counts, empty content tooltips,
   layout constants, Quick Look metadata, filtering, pagination, and
-  selection/search callbacks. `List.Dropdown` and `Grid.Dropdown` are accepted
+  selection/search callbacks. Pagination preserves the declaration-shaped
+  non-negative safe-integer `pageSize`, including the zero fallback emitted by
+  async hooks before their pagination state is initialized. `List.Dropdown`
+  and `Grid.Dropdown` are accepted
   interchangeably as search-bar accessories;
   `MenuBarExtra`
   covers menu-bar roots, items, sections, submenus, separators, shortcuts, and
@@ -199,7 +202,8 @@ broader action/browser/Tool helpers) raises a
 structured `CompatibilityError` with code `unsupported_api`; it never fails
 silently. Menu-bar alternate presentation remains a client responsibility,
 but alternate item identity and right-click event semantics are represented in
-the scene boundary. The AI, OAuth, selected-text,
+the scene boundary. Pagination rejects negative, fractional, and unsafe page
+sizes while preserving zero. The AI, OAuth, selected-text,
 application-list, command-preference, Finder, frontmost-application,
 browser-extension, navigation, and filesystem capabilities still need
 production host providers, secure integration, and consent policy. Resolution

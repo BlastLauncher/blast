@@ -32,23 +32,25 @@ unavailable packages remain dependency failures.
 
 | Outcome                        | Baseline | Previous post-slice | Current post-slice | Current vs previous |
 | ------------------------------ | -------: | ------------------: | -----------------: | ------------------: |
-| third-party dependency failure |    2,361 |                 915 |                914 |                  -1 |
+| third-party dependency failure |    2,361 |                 914 |                916 |                  +2 |
 | not renderable command mode    |      358 |                 316 |                316 |                   0 |
-| other process/startup failure  |      432 |                 178 |                181 |                  +3 |
-| structured compatibility error |       23 |                   5 |                  9 |                  +4 |
-| renders a scene end to end     |       54 |               1,814 |              1,808 |                  -6 |
+| other process/startup failure  |      432 |                 181 |                178 |                  -3 |
+| structured compatibility error |       23 |                   9 |                  5 |                  -4 |
+| renders a scene end to end     |       54 |               1,808 |              1,813 |                  +5 |
 | no entrypoint found            |        3 |                   3 |                  3 |                   0 |
 
-Reading: the current post-slice extension pass rate is 1,808/3,231 (55.96%);
-among the 2,915 extensions with a selected renderable command it is 1,808/2,915
-(62.02%). The declaration-backed Icon enum, Raycast color values, collection
+Reading: the current post-slice extension pass rate is 1,813/3,231 (56.11%);
+among the 2,915 extensions with a selected renderable command it is 1,813/2,915
+(62.20%). The declaration-backed Icon enum, Raycast color values, collection
 metadata, List/Grid/Form search and pagination events, shared dropdown
 accessories, Clipboard read/clear behavior, Submenu lifecycle, nested public
 Props namespaces, Cache callback binding, and official aliases are now covered
-by the adapter tests and probe. Menu-bar alternate items now carry a nested
-semantic marker and separate right-click events. The only remaining static
-import gap is one `fetch` import. Dependency, process, and non-renderable
-outcomes remain tracked separately from API coverage.
+by the adapter tests and probe. Zero pagination page-size fallbacks are
+preserved and the targeted `modrinth-search/search-projects` command now
+renders. Menu-bar alternate items now carry a nested semantic marker and
+separate right-click events. The only remaining static import gap is one
+`fetch` import. Dependency, process, and non-renderable outcomes remain tracked
+separately from API coverage.
 The current priority remains the measured API boundary rather than another
 dependency seed. This refresh completes the full 478-member Icon surface and
 preserves legacy names, adds declaration-backed collection/search/pagination
@@ -57,16 +59,14 @@ Raycast theme color identifiers, decodes structured Clipboard reads, supports
 Clipboard clear, adds Submenu search/open/id behavior, and publishes nested
 Props aliases for the measured components. `MenuBarExtra.Item.alternate` now
 publishes a nested alternate item with a distinct right-click event. The
-remaining structured failures
-are `apple-maps-search/directionsTo`, `crawldoc/index`,
-`dictionary/fromCmd`, `get-cat-images/get-cat-images`,
-`manifest-viewer/view-manifest`, `modrinth-search/search-projects`,
-`open-targets-raycast/platform`, `vikunja/create-task`, and
-`webpage-to-markdown/webpage-to-markdown`; they are strict diagnostics from
-malformed children, invalid measured values, or empty/missing open targets
-under the probe's default launch arguments. The six-render difference from the
-previous run is process variance, so this menu-bar slice claims focused fixture
-coverage rather than an aggregate lift.
+remaining structured failures are `dictionary/fromCmd`,
+`get-cat-images/get-cat-images`, `manifest-viewer/view-manifest`,
+`vikunja/create-task`, and `webpage-to-markdown/webpage-to-markdown`; they are
+strict diagnostics from malformed children, invalid measured values, or
+empty/missing open targets under the probe's default launch arguments. The
+targeted `modrinth-search/search-projects` reprobe now renders after preserving
+its zero page-size fallback. The aggregate five-render increase over the
+previous run also reflects process and dependency variance.
 
 The first audited vendor seed is `axios@1.8.4`, `cheerio@1.0.0`,
 `cross-fetch@4.0.0`, `date-fns@4.1.0`, `fast-xml-parser@5.3.2`, `fuse.js@7.1.0`,
@@ -149,8 +149,10 @@ dispatches a bounds mutation through the explicit host capability.
   tooltips, while `List.Item` accepts measured `{ value, tooltip }` icon
   descriptors. The adapter mirrors all 478 declaration-backed `Icon` members,
   preserves legacy names, and accepts `List.Dropdown` and `Grid.Dropdown`
-  interchangeably as search accessories; layout clamping and icon rendering
-  remain client work;
+  interchangeably as search accessories. List/Grid pagination accepts
+  non-negative safe-integer page sizes, including zero values emitted by
+  asynchronous pagination hooks; layout clamping and icon rendering remain
+  client work;
 - `Detail.Metadata` and `List.Item.Detail` serialize labels, separators, links,
   tag lists, loading state, navigation titles, and list detail selection as
   explicit scene data. Title/subtitle tooltip descriptors are preserved;
@@ -230,14 +232,12 @@ dispatches a bounds mutation through the explicit host capability.
   its native `Date | null` behavior. Optional string-array initial values omit
   `undefined` entries only when all other entries are strings; null members and
   other invalid entries remain rejected;
-- the remaining structured probe failures are `apple-maps-search/directionsTo`,
-  `crawldoc/index`, `dictionary/fromCmd`, `get-cat-images/get-cat-images`,
-  `manifest-viewer/view-manifest`, `modrinth-search/search-projects`,
-  `open-targets-raycast/platform`, `vikunja/create-task`, and
-  `webpage-to-markdown/webpage-to-markdown`. They contain malformed children
-  invalid measured values, or empty/missing Open in Browser targets under the
-  probe's default arguments; those remain structured errors rather than being
-  silently widened or sent to the host;
+- the remaining structured probe failures are `dictionary/fromCmd`,
+  `get-cat-images/get-cat-images`, `manifest-viewer/view-manifest`,
+  `vikunja/create-task`, and `webpage-to-markdown/webpage-to-markdown`.
+  They contain malformed children, invalid measured values, or empty/missing
+  Open in Browser targets under the probe's default arguments; those remain
+  structured errors rather than being silently widened or sent to the host;
 - string-valued Form and Grid dropdown labels and values, Form checkbox labels,
   and Form descriptions preserve empty strings; non-string values remain
   invalid;

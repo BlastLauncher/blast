@@ -392,6 +392,36 @@ test("renders List empty views, search dropdowns, item metadata, and pagination"
   assert.equal(loadMore, 1);
 });
 
+test("preserves zero pagination page sizes from async hooks", async () => {
+  const probe = createContext();
+  let loadMore = 0;
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      List,
+      { pagination: { pageSize: 0, hasMore: false, onLoadMore: () => loadMore++ } },
+      createElement(List.Item, { title: "Loading" }),
+    ),
+  );
+  await renderer.flush();
+
+  const root = probe.transactions[0].operations[0].root;
+  assert.equal(root.props.paginationPageSize, 0);
+  assert.equal(root.props.paginationHasMore, false);
+  probe.dispatch(root.props.onLoadMore);
+  assert.equal(loadMore, 1);
+
+  const gridProbe = createContext();
+  const gridRenderer = renderCommand(gridProbe.context, () =>
+    createElement(
+      Grid,
+      { pagination: { pageSize: 0, hasMore: false, onLoadMore: () => {} } },
+      createElement(Grid.Item, { content: "Loading", title: "Loading" }),
+    ),
+  );
+  await gridRenderer.flush();
+  assert.equal(gridProbe.transactions[0].operations[0].root.props.paginationPageSize, 0);
+});
+
 test("exposes the complete declaration-backed icon enum without an implicit fallback", () => {
   assert.ok(Object.keys(Icon).length >= 478);
   assert.equal(Icon.AppWindowList, "app-window-list-16");
