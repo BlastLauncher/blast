@@ -87,6 +87,12 @@ onto the V2 scene contract, renderer, and capability broker:
   process-local unique IDs. Manifest title and owner/author identity plus
   explicit host environment metadata cross the trusted descriptor; legacy
   identity and presentation defaults remain when metadata is omitted;
+- the next preference fidelity slice is planned in [ADR
+  0081](../../docs/v2/decisions/0081-preserve-raycast-preference-metadata.md):
+  carry declared preference metadata and dropdown data through the descriptor
+  so deprecated `preferences` can expose its declaration-shaped fields;
+  storage, secure password persistence, and platform app-picker resolution
+  remain host responsibilities;
 - the official type-only aliases `Environment`, `Navigation`, `Preferences`,
   `Preference`, `ArgumentsLaunchProps`, `FormItemRef`, `ItemProps`, `FormValue`,
   `FormValues`, `KeyEquivalent`, `KeyboardShortcut`, and `ImageLike` are

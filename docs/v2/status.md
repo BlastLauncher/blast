@@ -335,6 +335,13 @@ slice changes what is executable, what is trusted, or what should happen next.
   appearance, and text-size values. Legacy defaults remain in place; OS
   preference detection, tool execution, and production host providers remain
   outside this slice.
+- The next API-first slice is planned in [ADR 0081](decisions/0081-preserve-raycast-preference-metadata.md):
+  carry measured manifest preference metadata through the trusted descriptor,
+  merge command declarations over extension declarations, and restore the
+  declaration-shaped deprecated `preferences` object. `getPreferenceValues()`
+  remains a deterministic default map; preference storage, secure password
+  persistence, platform app-picker resolution, and onboarding UI remain out
+  of scope.
 - Navigation (useNavigation, Action.Push), LocalStorage through the
   capability broker with a reference in-memory provider, the callable plus
   property-based environment surface, and measured WindowManagement discovery
@@ -643,6 +650,11 @@ only small portable JavaScript seeds eligible after the API-first slice.
    is also implemented: manifest title and owner/author values cross the
    trusted descriptor, and explicit scalar host metadata reaches the property
    and callable forms of `environment` with safe legacy defaults. Preserve
+   the proposed preference metadata slice in [ADR
+   0081](decisions/0081-preserve-raycast-preference-metadata.md) as the next
+   measured API increment: carry declared metadata and dropdown data through
+   the descriptor, overlay resolved defaults in deprecated `preferences`, and
+   leave storage and platform resolution to a later host boundary. Preserve
    structured errors for values that would require a broader scene or host
    policy. Keep the deterministic
    structured probe failure

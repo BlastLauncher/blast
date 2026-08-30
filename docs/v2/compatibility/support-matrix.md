@@ -431,6 +431,12 @@ dispatches a bounds mutation through the explicit host capability.
   legacy push, open,
   paste, storage, preference, environment, and `ImageMask` aliases are covered
   by the `coverage-followup` and `coverage-next` fixtures;
+- The next preference fidelity slice is planned in [ADR
+  0081](../decisions/0081-preserve-raycast-preference-metadata.md): preserve
+  declared preference metadata and dropdown data through the descriptor and
+  overlay resolved defaults in deprecated `preferences`. User preference
+  storage, secure password persistence, and platform app-picker resolution
+  remain host work;
 - `showHUD`, `open`, and `confirmAlert` are measured through capability
   requests, but production host providers and consent policy are still absent;
 - `LaunchProps`, `LaunchType`, `Image.Mask`, `closeMainWindow`, `popToRoot`,
