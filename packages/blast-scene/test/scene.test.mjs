@@ -418,7 +418,14 @@ test("validates scene transaction messages", (context) => {
                       id: "menu-item",
                       type: "menu-bar-item",
                       props: { title: "Refresh", onAction: "event-refresh" },
-                      children: [],
+                      children: [
+                        {
+                          id: "menu-item-alternate",
+                          type: "menu-bar-item",
+                          props: { title: "Refresh alternate", isAlternate: true, onAction: "event-refresh-alt" },
+                          children: [],
+                        },
+                      ],
                     },
                   ],
                 },

@@ -90,12 +90,14 @@ slice changes what is executable, what is trusted, or what should happen next.
 - A second bounded seed adds `file-url`, `filesize`, `gray-matter`,
   `javascript-time-ago`, `luxon`, `node-html-parser`, `qrcode`, `tildify`,
   `ts-pattern`, and `turndown`, also as exact-version e2e development
-  dependencies. The latest pinned corpus probe passes 1,814 of 3,231
-  extensions (56.14%), or 1,814 of 2,915 extensions with a selected renderable
-  command (62.23%). The remaining losses are tracked separately: 915
-  third-party dependency failures, 178 process/startup failures, 316
-  non-renderable commands, 5 structured compatibility errors, and 3 missing
-  entrypoints.
+  dependencies. The latest pinned corpus probe passes 1,808 of 3,231
+  extensions (55.96%), or 1,808 of 2,915 extensions with a selected renderable
+  command (62.02%). The remaining losses are tracked separately: 914
+  third-party dependency failures, 181 process/startup failures, 316
+  non-renderable commands, 9 structured compatibility errors, and 3 missing
+  entrypoints. The six-render difference from the previous run is process
+  variance; the alternate-item slice has focused fixture coverage but no
+  deterministic aggregate lift claim.
 - Navigation (useNavigation, Action.Push), LocalStorage through the
   capability broker with a reference in-memory provider, the callable plus
   property-based environment surface, and measured WindowManagement discovery
@@ -235,8 +237,9 @@ slice changes what is executable, what is trusted, or what should happen next.
 - `Grid` renders content tiles, sections, empty views, search-bar dropdowns,
   and measured layout props through a semantic grid scene root. `MenuBarExtra`
   renders menu-bar roots, items, sections, submenus, separators, shortcuts, and
-  left-click action events; menu-bar commands are included in corpus selection
-  when no view command exists.
+  left-click action events. `MenuBarExtra.Item.alternate` renders a nested
+  alternate item with a separate right-click event; menu-bar commands are
+  included in corpus selection when no view command exists.
 - `launchCommand` crosses an explicit `command.launch` capability. Command
   names, launch types, external targets, fallback text, and JSON-serializable
   arguments/context are validated before primitive-only wire encoding.
@@ -347,22 +350,25 @@ means the share of corpus extensions that bundle and render through the current
 path, not the number of exported API names. The shortcut, imperative, cache,
 launch-boundary, desktop-discovery, finder-boundary, host-boundary,
 window-management, and dependency-policy slices are complete, but the
-measured 80% target is not yet met: the current run is 56.14% overall and
-62.23% among commands with a renderable selection. The declaration-backed Icon,
-collection, clipboard, submenu, and public typing slice is complete; the next
-work should use the same probe to identify any remaining API-shaped failures
-before adding dependencies. Additional dependency seeds remain deferred.
+measured 80% target is not yet met: the current run is 55.96% overall and
+62.02% among commands with a renderable selection. The declaration-backed Icon,
+collection, clipboard, submenu, public typing, and menu-bar alternate slices
+are complete; the next work should use the same probe to identify any
+remaining API-shaped failures before adding dependencies. Additional
+dependency seeds remain deferred.
 
 1. Continue expanding the measured Raycast API boundary before adding more
    dependency seeds. Measure the next uncovered high-usage or semantically
    isolated API, implement it only when its runtime values and host capability
    can be validated safely, and preserve structured errors for values that
    would require a broader scene or host policy. Keep the current structured
-   probe failures (`crawldoc/index`, `dictionary/fromCmd`,
-   `get-cat-images/get-cat-images`, `manifest-viewer/view-manifest`, and
+   probe failures (`apple-maps-search/directionsTo`, `crawldoc/index`,
+   `dictionary/fromCmd`, `get-cat-images/get-cat-images`,
+   `manifest-viewer/view-manifest`, `modrinth-search/search-projects`,
+   `open-targets-raycast/platform`, `vikunja/create-task`, and
    `webpage-to-markdown/webpage-to-markdown`) as explicit diagnostics rather
-   than weakening the scene or action validators around malformed children and
-   empty or missing targets.
+   than weakening the scene or action validators around malformed children,
+   invalid measured values, and empty or missing targets.
 2. Keep the command-scoped preference, nullable Form, empty-string,
    `LocalStorage.allItems`/`allLocalStorageItems`, Form event, literal `require`,
    composite-child, declaration-backed Icon, cross-compatible dropdowns,

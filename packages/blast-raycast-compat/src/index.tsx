@@ -540,6 +540,12 @@ export interface MenuBarExtraItemProps {
   readonly alternate?: ReactElement<MenuBarExtraItemProps>;
 }
 
+const MenuBarExtraAlternateContext: Context<boolean> = createContext(false);
+
+function MenuBarExtraAlternateBoundary({ children }: { readonly children: ReactElement }): ReactElement {
+  return createElement(MenuBarExtraAlternateContext.Provider, { value: true }, children);
+}
+
 export interface MenuBarExtraSectionProps {
   readonly title?: string;
   readonly children?: ReactNode;
@@ -1684,15 +1690,22 @@ function MenuBarExtraComponent(props: MenuBarExtraProps): ReactElement {
 }
 
 function MenuBarExtraItem(props: MenuBarExtraItemProps): ReactElement {
+  const isAlternate = useContext(MenuBarExtraAlternateContext);
   const icon = serializeIcon(props.icon, "MenuBarExtra.Item");
   const shortcut = serializeShortcut(props.shortcut, "MenuBarExtra.Item");
-  if (props.alternate !== undefined) {
-    unsupported("MenuBarExtra.Item alternate");
+  const alternate = props.alternate as unknown;
+  let alternateChild: ReactElement | undefined;
+  if (alternate !== undefined && alternate !== null && alternate !== false) {
+    if (!isValidElement(alternate)) {
+      unsupported("MenuBarExtra.Item alternate", { alternate });
+    }
+    alternateChild = createElement(MenuBarExtraAlternateBoundary, { children: alternate });
   }
   if (props.onAction !== undefined && typeof props.onAction !== "function") {
     unsupported("MenuBarExtra.Item onAction", { onAction: props.onAction });
   }
-  return createElement("menu-bar-item", {
+  const itemProps = {
+    ...(isAlternate ? { isAlternate: true } : {}),
     title: requireNonEmptyString(props.title, "MenuBarExtra.Item title"),
     ...(props.subtitle === undefined ? {} : { subtitle: props.subtitle }),
     ...(props.tooltip === undefined ? {} : { tooltip: props.tooltip }),
@@ -1704,10 +1717,13 @@ function MenuBarExtraItem(props: MenuBarExtraItemProps): ReactElement {
       ? {}
       : {
           onAction: () => {
-            void props.onAction?.({ type: "left-click" });
+            void props.onAction?.({ type: isAlternate ? "right-click" : "left-click" });
           },
         }),
-  });
+  };
+  return alternateChild === undefined
+    ? createElement("menu-bar-item", itemProps)
+    : createElement("menu-bar-item", itemProps, alternateChild);
 }
 
 function MenuBarExtraSection(props: MenuBarExtraSectionProps): ReactElement {

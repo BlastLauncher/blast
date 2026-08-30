@@ -27,7 +27,8 @@ onto the V2 scene contract, renderer, and capability broker:
   interchangeably as search-bar accessories;
   `MenuBarExtra`
   covers menu-bar roots, items, sections, submenus, separators, shortcuts, and
-  left-click callbacks;
+  left-click callbacks. `MenuBarExtra.Item.alternate` publishes a nested
+  alternate item and routes its callback as a right-click event;
 - `Detail` and `List.Item.Detail` serialize measured labels, separators, links,
   tag lists, loading state, navigation titles, and list detail selection as
   explicit scene data. List title/subtitle tooltip descriptors are preserved;
@@ -196,8 +197,9 @@ host capability and policy are defined.
 Unmeasured surface (client toast timing/stacking, broader desktop APIs, and
 broader action/browser/Tool helpers) raises a
 structured `CompatibilityError` with code `unsupported_api`; it never fails
-silently. Menu-bar alternate items and right-click event identity remain
-outside the current scene boundary. The AI, OAuth, selected-text,
+silently. Menu-bar alternate presentation remains a client responsibility,
+but alternate item identity and right-click event semantics are represented in
+the scene boundary. The AI, OAuth, selected-text,
 application-list, command-preference, Finder, frontmost-application,
 browser-extension, navigation, and filesystem capabilities still need
 production host providers, secure integration, and consent policy. Resolution

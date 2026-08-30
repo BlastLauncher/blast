@@ -1531,6 +1531,63 @@ test("renders MenuBarExtra roots and routes item action events", async () => {
   assert.deepEqual(calls, ["left-click"]);
 });
 
+test("renders MenuBarExtra.Item alternates and routes right-click events", async () => {
+  const probe = createContext();
+  const calls = [];
+
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      MenuBarExtra,
+      { title: "Blast" },
+      createElement(MenuBarExtra.Item, {
+        title: "Open",
+        onAction: (event) => calls.push(`main:${event.type}`),
+        alternate: createElement(MenuBarExtra.Item, {
+          title: "Open alternate",
+          onAction: (event) => calls.push(`alternate:${event.type}`),
+        }),
+      }),
+    ),
+  );
+  await renderer.flush();
+
+  const item = probe.transactions[0].operations[0].root.children[0];
+  const alternate = item.children[0];
+  assert.equal(alternate.props.isAlternate, true);
+  assert.equal(alternate.props.title, "Open alternate");
+  probe.dispatch(item.props.onAction);
+  probe.dispatch(alternate.props.onAction);
+  assert.deepEqual(calls, ["main:left-click", "alternate:right-click"]);
+});
+
+test("preserves alternate semantics through a custom item component", async () => {
+  const probe = createContext();
+  const calls = [];
+  function AlternateItem() {
+    return createElement(MenuBarExtra.Item, {
+      title: "Custom alternate",
+      onAction: (event) => calls.push(event.type),
+    });
+  }
+
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      MenuBarExtra,
+      { title: "Blast" },
+      createElement(MenuBarExtra.Item, {
+        title: "Open",
+        alternate: createElement(AlternateItem),
+      }),
+    ),
+  );
+  await renderer.flush();
+
+  const alternate = probe.transactions[0].operations[0].root.children[0].children[0];
+  assert.equal(alternate.props.isAlternate, true);
+  probe.dispatch(alternate.props.onAction);
+  assert.deepEqual(calls, ["right-click"]);
+});
+
 test("renders measured form controls and submits client-provided values", async () => {
   const probe = createContext();
   const submitted = [];

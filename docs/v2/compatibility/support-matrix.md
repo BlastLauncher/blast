@@ -32,33 +32,41 @@ unavailable packages remain dependency failures.
 
 | Outcome                        | Baseline | Previous post-slice | Current post-slice | Current vs previous |
 | ------------------------------ | -------: | ------------------: | -----------------: | ------------------: |
-| third-party dependency failure |    2,361 |                 913 |                915 |                  +2 |
+| third-party dependency failure |    2,361 |                 915 |                914 |                  -1 |
 | not renderable command mode    |      358 |                 316 |                316 |                   0 |
-| other process/startup failure  |      432 |                 669 |                178 |                -491 |
-| structured compatibility error |       23 |                   3 |                  5 |                  +2 |
-| renders a scene end to end     |       54 |               1,327 |              1,814 |                +487 |
+| other process/startup failure  |      432 |                 178 |                181 |                  +3 |
+| structured compatibility error |       23 |                   5 |                  9 |                  +4 |
+| renders a scene end to end     |       54 |               1,814 |              1,808 |                  -6 |
 | no entrypoint found            |        3 |                   3 |                  3 |                   0 |
 
-Reading: the current post-slice extension pass rate is 1,814/3,231 (56.14%);
-among the 2,915 extensions with a selected renderable command it is 1,814/2,915
-(62.23%). The declaration-backed Icon enum, Raycast color values, collection
+Reading: the current post-slice extension pass rate is 1,808/3,231 (55.96%);
+among the 2,915 extensions with a selected renderable command it is 1,808/2,915
+(62.02%). The declaration-backed Icon enum, Raycast color values, collection
 metadata, List/Grid/Form search and pagination events, shared dropdown
 accessories, Clipboard read/clear behavior, Submenu lifecycle, nested public
 Props namespaces, Cache callback binding, and official aliases are now covered
-by the adapter tests and probe. The only remaining static import gap is one
-`fetch` import. Dependency, process, and non-renderable outcomes remain
-tracked separately from API coverage.
+by the adapter tests and probe. Menu-bar alternate items now carry a nested
+semantic marker and separate right-click events. The only remaining static
+import gap is one `fetch` import. Dependency, process, and non-renderable
+outcomes remain tracked separately from API coverage.
 The current priority remains the measured API boundary rather than another
 dependency seed. This refresh completes the full 478-member Icon surface and
 preserves legacy names, adds declaration-backed collection/search/pagination
 fields, and closes the shared List/Grid dropdown boundary. It also corrects
 Raycast theme color identifiers, decodes structured Clipboard reads, supports
 Clipboard clear, adds Submenu search/open/id behavior, and publishes nested
-Props aliases for the measured components. The remaining structured failures
-are `crawldoc/index`, `dictionary/fromCmd`, `get-cat-images/get-cat-images`,
-`manifest-viewer/view-manifest`, and `webpage-to-markdown/webpage-to-markdown`;
-they are malformed children or empty/missing open targets under the probe's
-default launch arguments and remain strict diagnostics.
+Props aliases for the measured components. `MenuBarExtra.Item.alternate` now
+publishes a nested alternate item with a distinct right-click event. The
+remaining structured failures
+are `apple-maps-search/directionsTo`, `crawldoc/index`,
+`dictionary/fromCmd`, `get-cat-images/get-cat-images`,
+`manifest-viewer/view-manifest`, `modrinth-search/search-projects`,
+`open-targets-raycast/platform`, `vikunja/create-task`, and
+`webpage-to-markdown/webpage-to-markdown`; they are strict diagnostics from
+malformed children, invalid measured values, or empty/missing open targets
+under the probe's default launch arguments. The six-render difference from the
+previous run is process variance, so this menu-bar slice claims focused fixture
+coverage rather than an aggregate lift.
 
 The first audited vendor seed is `axios@1.8.4`, `cheerio@1.0.0`,
 `cross-fetch@4.0.0`, `date-fns@4.1.0`, `fast-xml-parser@5.3.2`, `fuse.js@7.1.0`,
@@ -103,7 +111,7 @@ separately below.
 | `coverage-followup`            | form           |     2 | ImageMask, List, OpenAction, PasteAction, PushAction, SubmitFormAction, clearLocalStorage, copyTextToClipboard, getLocalStorageItem, pasteText, removeLocalStorageItem, setLocalStorageItem, useNavigation |
 | `runtime-boundaries`           | list           |     1 | AI, OAuth, updateCommandMetadata                                                                                                                                                                           |
 | `grid-boundaries`              | grid           |     2 | Grid, Grid.Item, Grid.Section, Grid.Dropdown, Grid.EmptyView, Icon                                                                                                                                         |
-| `menu-bar-boundaries`          | menu-bar-extra |     2 | MenuBarExtra, Item, Section, Submenu, Separator, Icon                                                                                                                                                      |
+| `menu-bar-boundaries`          | menu-bar-extra |     2 | MenuBarExtra, Item, Item.alternate, Section, Submenu, Separator, Icon                                                                                                                                      |
 | `choose-a-license`             | list           |     8 | Action.OpenInBrowser, Action.CopyToClipboard, Action.Push                                                                                                                                                  |
 
 The twenty-eight matrix render fixtures assert root type and minimum item counts
@@ -166,6 +174,9 @@ dispatches a bounds mutation through the explicit host capability.
   user-initiated launch with an empty argument map in the current launcher;
   explicit command launching is brokered, while host-side target resolution
   and process orchestration remain future client plumbing;
+- `MenuBarExtra.Item.alternate` is measured as a nested menu-bar item. Main
+  item actions carry `left-click`, alternate actions carry `right-click`, and
+  the client remains responsible for native alternate-item presentation;
 - `getSelectedText`, `getApplications`, `Application`, `FileIcon`, and
   `openCommandPreferences` are measured through `selection.read`,
   `application.list`, and `preferences.openCommand`; deterministic providers
@@ -219,12 +230,14 @@ dispatches a bounds mutation through the explicit host capability.
   its native `Date | null` behavior. Optional string-array initial values omit
   `undefined` entries only when all other entries are strings; null members and
   other invalid entries remain rejected;
-- the remaining structured probe failures are `crawldoc/index`,
-  `dictionary/fromCmd`, `get-cat-images/get-cat-images`,
-  `manifest-viewer/view-manifest`, and `webpage-to-markdown/webpage-to-markdown`.
-  They contain malformed children or empty/missing Open in Browser targets
-  under the probe's default arguments; those remain structured errors rather
-  than being silently widened or sent to the host;
+- the remaining structured probe failures are `apple-maps-search/directionsTo`,
+  `crawldoc/index`, `dictionary/fromCmd`, `get-cat-images/get-cat-images`,
+  `manifest-viewer/view-manifest`, `modrinth-search/search-projects`,
+  `open-targets-raycast/platform`, `vikunja/create-task`, and
+  `webpage-to-markdown/webpage-to-markdown`. They contain malformed children
+  invalid measured values, or empty/missing Open in Browser targets under the
+  probe's default arguments; those remain structured errors rather than being
+  silently widened or sent to the host;
 - string-valued Form and Grid dropdown labels and values, Form checkbox labels,
   and Form descriptions preserve empty strings; non-string values remain
   invalid;
