@@ -194,8 +194,10 @@ slice changes what is executable, what is trusted, or what should happen next.
   `Alert.ActionOptions`, `Cache.Options`/`Subscriber`/`Subscription`,
   `Keyboard.Shortcut`/`KeyModifier`/`KeyEquivalent`,
   `Toast.Options`/`ActionOptions`/`Style`, and `Form.ItemReference` aliases;
-  `FormItemRef` is available as a top-level type. `Toast.Style` constants use
-  Raycast's uppercase values and normalize to lower-case scene styles. Form
+  `FormItemRef` is available as a top-level type. The nested Form field ref
+  aliases and `Form.DatePicker.Type` are declaration-compatible, and deprecated
+  Form field values retain their nested static members. `Toast.Style` constants
+  use Raycast's uppercase values and normalize to lower-case scene styles. Form
   fields attach stable `focus()`/`reset()` handles; those methods are currently
   no-ops until a host-facing control boundary is defined.
 - The measured collection-value boundary now preserves empty Grid content

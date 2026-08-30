@@ -157,9 +157,12 @@ onto the V2 scene contract, renderer, and capability broker:
   existing Raycast TypeScript code retains its public typing surface. The
   utility namespaces `Alert`, `Cache`, `Keyboard`, and `Toast` expose their
   declaration-shaped option/style/shortcut aliases, and `Form.ItemReference`
-  plus `FormItemRef` are available for type consumers. Form fields attach
-  stable `focus()`/`reset()` handles; their client-side control behavior
-  remains a future host boundary;
+  plus `FormItemRef` are available for type consumers. The nested Form field
+  ref aliases (`Form.TextField`, `Form.DatePicker`, `Form.Dropdown`, and the
+  other measured fields) and `Form.DatePicker.Type` are also declaration
+  compatible; deprecated Form field values retain their nested static
+  members. Form fields attach stable `focus()`/`reset()` handles; their
+  client-side control behavior remains a future host boundary;
 - `showToast` and `Toast` support legacy show overloads, animated/success/
   failure styles, Raycast's uppercase `Toast.Style` constants, identified
   show/update/hide lifecycle messages, mutable toast fields, and

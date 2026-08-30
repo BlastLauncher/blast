@@ -3763,7 +3763,7 @@ const FormCheckbox = forwardRef<FormItemRef, CheckboxProps>(function FormCheckbo
   });
 });
 
-const FormDropdown = forwardRef<FormItemRef, DropdownProps>(function FormDropdown(props, ref): ReactElement {
+const FormDropdownComponent = forwardRef<FormItemRef, DropdownProps>(function FormDropdown(props, ref): ReactElement {
   const onChange = useFormChange(props, "Form.Dropdown", stringFormCodec);
   const onFocus = useFormEvent(props, "Form.Dropdown", stringFormCodec, "focus");
   const onBlur = useFormEvent(props, "Form.Dropdown", stringFormCodec, "blur");
@@ -3807,6 +3807,11 @@ function FormDropdownItem(props: DropdownItemProps): ReactElement {
 function FormDropdownSection(props: DropdownSectionProps): ReactElement {
   return createElement("form-dropdown-section", { title: props.title }, mapDropdownChildren(props.children));
 }
+
+const FormDropdown = Object.assign(FormDropdownComponent, {
+  Item: FormDropdownItem,
+  Section: FormDropdownSection,
+});
 
 function FormDescription(props: DescriptionProps): ReactElement {
   assertFormString(props.text, "Form.Description text");
@@ -3873,27 +3878,31 @@ function isFullDayDate(date?: Date | null): boolean {
   );
 }
 
-const FormDatePicker = forwardRef<FormItemRef, DatePickerProps>(function FormDatePicker(props, ref): ReactElement {
-  const normalized = props.defaultValue === undefined ? { ...props, defaultValue: null } : props;
-  const onChange = useFormChange(normalized, "Form.DatePicker", dateFormCodec);
-  const onFocus = useFormEvent(normalized, "Form.DatePicker", dateFormCodec, "focus");
-  const onBlur = useFormEvent(normalized, "Form.DatePicker", dateFormCodec, "blur");
-  useFormItemRef(ref);
-  const type = normalizeDatePickerType(props.type);
-  const min = props.min === undefined ? undefined : serializeDatePickerValue(props.min, "Form.DatePicker min");
-  const max = props.max === undefined ? undefined : serializeDatePickerValue(props.max, "Form.DatePicker max");
-  return createElement("form-date-picker", {
-    ...commonFormProps(normalized, onChange, dateFormCodec, onFocus, onBlur),
-    type,
-    ...(min === undefined ? {} : { min }),
-    ...(max === undefined ? {} : { max }),
-  });
-});
+const FormDatePickerComponent = forwardRef<FormItemRef, DatePickerProps>(
+  function FormDatePicker(props, ref): ReactElement {
+    const normalized = props.defaultValue === undefined ? { ...props, defaultValue: null } : props;
+    const onChange = useFormChange(normalized, "Form.DatePicker", dateFormCodec);
+    const onFocus = useFormEvent(normalized, "Form.DatePicker", dateFormCodec, "focus");
+    const onBlur = useFormEvent(normalized, "Form.DatePicker", dateFormCodec, "blur");
+    useFormItemRef(ref);
+    const type = normalizeDatePickerType(props.type);
+    const min = props.min === undefined ? undefined : serializeDatePickerValue(props.min, "Form.DatePicker min");
+    const max = props.max === undefined ? undefined : serializeDatePickerValue(props.max, "Form.DatePicker max");
+    return createElement("form-date-picker", {
+      ...commonFormProps(normalized, onChange, dateFormCodec, onFocus, onBlur),
+      type,
+      ...(min === undefined ? {} : { min }),
+      ...(max === undefined ? {} : { max }),
+    });
+  },
+);
 
-const DatePicker = Object.assign(FormDatePicker, {
+const FormDatePicker = Object.assign(FormDatePickerComponent, {
   Type: DATE_PICKER_TYPES,
   isFullDay: isFullDayDate,
 });
+
+const DatePicker = FormDatePicker;
 
 function FormTagPickerItem(props: TagPickerItemProps): ReactElement {
   assertFormString(props.value, "Form.TagPicker.Item value");
@@ -3906,23 +3915,26 @@ function FormTagPickerItem(props: TagPickerItemProps): ReactElement {
   });
 }
 
-const FormTagPicker = forwardRef<FormItemRef, TagPickerProps>(function FormTagPicker(props, ref): ReactElement {
-  const normalized = props.defaultValue === undefined ? { ...props, defaultValue: [] } : props;
-  const onChange = useFormChange(normalized, "Form.TagPicker", stringArrayFormCodec);
-  const onFocus = useFormEvent(normalized, "Form.TagPicker", stringArrayFormCodec, "focus");
-  const onBlur = useFormEvent(normalized, "Form.TagPicker", stringArrayFormCodec, "blur");
-  useFormItemRef(ref);
-  return createElement(
-    "form-tag-picker",
-    {
-      ...commonFormProps(normalized, onChange, stringArrayFormCodec, onFocus, onBlur),
-      ...(props.placeholder === undefined ? {} : { placeholder: props.placeholder }),
-    },
-    mapTagPickerChildren(props.children),
-  );
-});
+const FormTagPickerComponent = forwardRef<FormItemRef, TagPickerProps>(
+  function FormTagPicker(props, ref): ReactElement {
+    const normalized = props.defaultValue === undefined ? { ...props, defaultValue: [] } : props;
+    const onChange = useFormChange(normalized, "Form.TagPicker", stringArrayFormCodec);
+    const onFocus = useFormEvent(normalized, "Form.TagPicker", stringArrayFormCodec, "focus");
+    const onBlur = useFormEvent(normalized, "Form.TagPicker", stringArrayFormCodec, "blur");
+    useFormItemRef(ref);
+    return createElement(
+      "form-tag-picker",
+      {
+        ...commonFormProps(normalized, onChange, stringArrayFormCodec, onFocus, onBlur),
+        ...(props.placeholder === undefined ? {} : { placeholder: props.placeholder }),
+      },
+      mapTagPickerChildren(props.children),
+    );
+  },
+);
 
-const TagPicker = Object.assign(FormTagPicker, { Item: FormTagPickerItem });
+const FormTagPicker = Object.assign(FormTagPickerComponent, { Item: FormTagPickerItem });
+const TagPicker = FormTagPicker;
 
 const FormFilePicker = forwardRef<FormItemRef, FilePickerProps>(function FormFilePicker(props, ref): ReactElement {
   const normalized = props.defaultValue === undefined ? { ...props, defaultValue: [] } : props;
@@ -4096,21 +4108,28 @@ export namespace Form {
   export type Value = FormValue;
   export type Values = FormValues;
   export type Event<T extends FormValue = FormValue> = FormEvent<T>;
+  export type TextField = FormItemRef;
   export namespace TextField {
     export type Props = TextFieldProps;
   }
+  export type TextArea = FormItemRef;
   export namespace TextArea {
     export type Props = TextAreaProps;
   }
+  export type PasswordField = FormItemRef;
   export namespace PasswordField {
     export type Props = PasswordFieldProps;
   }
+  export type Checkbox = FormItemRef;
   export namespace Checkbox {
     export type Props = CheckboxProps;
   }
+  export type DatePicker = FormItemRef;
   export namespace DatePicker {
     export type Props = DatePickerProps;
+    export type Type = DatePickerType;
   }
+  export type Dropdown = FormItemRef;
   export namespace Dropdown {
     export type Props = DropdownProps;
     export namespace Item {
@@ -4120,12 +4139,14 @@ export namespace Form {
       export type Props = DropdownSectionProps;
     }
   }
+  export type TagPicker = FormItemRef;
   export namespace TagPicker {
     export type Props = TagPickerProps;
     export namespace Item {
       export type Props = TagPickerItemProps;
     }
   }
+  export type FilePicker = FormItemRef;
   export namespace FilePicker {
     export type Props = FilePickerProps;
   }

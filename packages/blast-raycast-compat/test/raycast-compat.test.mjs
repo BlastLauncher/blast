@@ -192,6 +192,11 @@ test("publishes the official deprecated component aliases", () => {
   assert.equal(FormSeparator, Form.Separator);
   assert.equal(FormTagPicker, Form.TagPicker);
   assert.equal(FormTagPickerItem, Form.TagPicker.Item);
+  assert.equal(FormDatePicker.Type, Form.DatePicker.Type);
+  assert.equal(FormDatePicker.isFullDay, Form.DatePicker.isFullDay);
+  assert.equal(FormDropdown.Item, Form.Dropdown.Item);
+  assert.equal(FormDropdown.Section, Form.Dropdown.Section);
+  assert.equal(FormTagPicker.Item, Form.TagPicker.Item);
   assert.equal(FormTextArea, Form.TextArea);
   assert.equal(FormTextField, Form.TextField);
 });

@@ -8,7 +8,7 @@ const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const workspaceRoot = resolve(packageRoot, "../..");
 const fixture = resolve(packageRoot, "test/fixtures/declaration-namespaces.ts");
 
-test("publishes declaration-shaped Alert, Cache, Form, and Toast namespaces", () => {
+test("publishes declaration-shaped utility and Form namespaces", () => {
   const result = spawnSync(
     resolve(workspaceRoot, "node_modules/.bin/tsc"),
     [
