@@ -90,14 +90,18 @@ slice changes what is executable, what is trusted, or what should happen next.
 - A second bounded seed adds `file-url`, `filesize`, `gray-matter`,
   `javascript-time-ago`, `luxon`, `node-html-parser`, `qrcode`, `tildify`,
   `ts-pattern`, and `turndown`, also as exact-version e2e development
-  dependencies. The latest pinned corpus probe passes 1,816 of 3,231
-  extensions (56.21%), or 1,816 of 2,915 extensions with a selected renderable
-  command (62.30%). The remaining losses are tracked separately: 915
-  third-party dependency failures, 179 process/startup failures, 316
-  non-renderable commands, 2 structured compatibility errors, and 3 missing
-  entrypoints. The targeted zero-pagination and OpenInBrowser reprobes are
-  deterministic; the aggregate change also includes normal process and
-  dependency variance.
+  `ts-pattern`, and `turndown`, also as exact-version e2e development
+  dependencies. A third bounded seed adds `@chrismessina/raycast-logger`,
+  `@tanstack/react-query`, `algoliasearch`, `jimp`, `openai`,
+  `raycast-cross-extension`, `remove-markdown`, `striptags`, `swr`,
+  `untildify`, and `use-debounce`. The latest pinned corpus probe passes
+  1,866 of 3,231 extensions (57.75%), or 1,866 of 2,915 extensions with a
+  selected renderable command (64.01%). The remaining losses are tracked
+  separately: 844 third-party dependency failures, 201 process/startup
+  failures, 316 non-renderable commands, 1 structured compatibility error,
+  and 3 missing entrypoints. The targeted zero-pagination and OpenInBrowser
+  reprobes are deterministic; aggregate changes also include normal process
+  and dependency variance.
 - Navigation (useNavigation, Action.Push), LocalStorage through the
   capability broker with a reference in-memory provider, the callable plus
   property-based environment surface, and measured WindowManagement discovery
@@ -338,7 +342,7 @@ slice changes what is executable, what is trusted, or what should happen next.
 ## Intentionally missing
 
 - a persistent, watched catalog index and extension installation flows;
-- full dependency provisioning beyond the two bounded e2e seeds, lockfile/audit
+- full dependency provisioning beyond the three bounded e2e seeds, lockfile/audit
   policy for large npm graphs, and native package externalization (the runtime
   supports explicit local or vendored dependency roots but never installs
   packages);
@@ -361,26 +365,27 @@ slice changes what is executable, what is trusted, or what should happen next.
 The first extension-to-client vertical slice is complete, the corpus census
 (`compatibility/README.md`) justified the adapter order, and the current
 support matrix (`compatibility/support-matrix.md`) records the baseline and
-post-slice probes. The priority has now shifted back to measured Raycast API
-compatibility: coverage
-means the share of corpus extensions that bundle and render through the current
-path, not the number of exported API names. The shortcut, imperative, cache,
-launch-boundary, desktop-discovery, finder-boundary, host-boundary,
-window-management, and dependency-policy slices are complete, but the
-measured 80% target is not yet met: the current run is 56.21% overall and
-62.30% among commands with a renderable selection. The declaration-backed Icon,
-collection, clipboard, submenu, utility typing, and menu-bar alternate slices
-are complete; the next work should use the same probe to identify any
-remaining API-shaped failures before adding dependencies. Additional
-dependency seeds remain deferred.
+post-slice probes. Coverage means the share of corpus extensions that bundle
+and render through the current path, not the number of exported API names. The
+shortcut, imperative, cache, launch-boundary, desktop-discovery,
+finder-boundary, host-boundary, window-management, declaration, and
+dependency-policy slices are complete, but the measured 80% target is not yet
+met: the current run is 57.75% overall and 64.01% among commands with a
+renderable selection. The current top-level import census and emitted
+declaration audit are clean for the measured corpus surface, so priority has
+shifted back to the remaining measured dependency and runtime outcomes while
+preserving strict API boundaries. Additional bounded seeds remain acceptable
+when diagnostics justify a small pure or policy-neutral group; network,
+cross-extension, native, and WASM packages still require explicit decisions.
 
-1. Continue expanding the measured Raycast API boundary before adding more
-   dependency seeds. Measure the next uncovered high-usage or semantically
-   isolated API, implement it only when its runtime values and host capability
-   can be validated safely, and preserve structured errors for values that
-   would require a broader scene or host policy. Keep the current structured
-   probe failures (`crawldoc/index` and `open-targets-raycast/platform`) as
-   explicit diagnostics rather than weakening the scene or action validators
+1. Use the corpus diagnostics to alternate between measured runtime/API gaps
+   and small exact-version dependency seeds. The current top-level API import
+   and declaration audits are clean, but compatibility remains limited by
+   dependency and process outcomes. Keep implementing only runtime values and
+   host capabilities that can be validated safely, and preserve structured
+   errors for values that would require a broader scene or host policy. Keep
+   the current structured probe failure (`open-targets-raycast/platform`) as
+   an explicit diagnostic rather than weakening the scene or action validators
    around malformed children, invalid measured values, and empty or missing
    targets. The targeted `modrinth-search/search-projects` reprobe renders
    after preserving its declaration-shaped zero page-size fallback, and the
@@ -402,8 +407,9 @@ dependency seeds remain deferred.
    forms covered while the remaining `fetch` import stays outside the adapter
    until a host network capability defines URL policy, consent, and response
    limits.
-4. Return to small, exact-version, development-only dependency seeds only
-   after the next API boundary is measured; hold network, cross-extension,
+4. Continue small, exact-version, development-only dependency seeds when the
+   diagnostic census supports them. Keep each group reviewable and measure
+   rendered outcomes after installation; hold network, cross-extension,
    native, and WASM packages for explicit policy decisions.
 5. Add a client-facing core protocol and daemon listener so the Electron
    client can replace the test client after the coverage boundary is stable.
