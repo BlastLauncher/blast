@@ -328,6 +328,12 @@ slice changes what is executable, what is trusted, or what should happen next.
   is now implemented: Raycast image source/fallback variants, masks, and
   dynamic tint metadata cross the scene and capability boundaries while actual
   client image loading, theme selection, and rendering remain host work.
+- The next API-first slice is planned in [ADR 0080](decisions/0080-preserve-raycast-environment-metadata.md):
+  preserve manifest title and owner/author identity through `environment`,
+  and accept explicitly supplied scalar host metadata for Raycast version,
+  entrypoint type, development state, appearance, and text size. Legacy
+  defaults remain in place; OS preference detection, tool execution, and
+  production host providers remain outside this slice.
 - Navigation (useNavigation, Action.Push), LocalStorage through the
   capability broker with a reference in-memory provider, the callable plus
   property-based environment surface, and measured WindowManagement discovery

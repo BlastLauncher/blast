@@ -114,6 +114,12 @@ selection, masking, tinting, and rendering remain client/host work. Focused
 verification covers 50 scene tests, 89 compatibility tests, and 41 e2e tests;
 the aggregate corpus counters remain unchanged.
 
+The next API-first slice is planned in [ADR 0080](../decisions/0080-preserve-raycast-environment-metadata.md):
+preserve manifest title and owner/author identity through `environment`, and
+accept explicit host-supplied scalar environment metadata while retaining
+legacy defaults. It does not infer Linux appearance, development/install
+state, or tool execution behavior.
+
 The first audited vendor seed is `axios@1.8.4`, `cheerio@1.0.0`,
 `cross-fetch@4.0.0`, `date-fns@4.1.0`, `fast-xml-parser@5.3.2`, `fuse.js@7.1.0`,
 `moment@2.30.1`, `node-html-markdown@1.3.0`, `rss-parser@3.13.0`, and

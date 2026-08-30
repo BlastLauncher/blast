@@ -84,7 +84,9 @@ onto the V2 scene contract, renderer, and capability broker:
   `canAccess` delegates to an optional host policy with default denial and
   stable names for measured API tokens; `preferences` exposes resolved
   manifest values through legacy preference metadata, and `randomId` provides
-  process-local unique IDs;
+  process-local unique IDs. Manifest title and owner/author identity plus
+  explicit host environment metadata are planned in ADR 0080; legacy identity
+  and presentation defaults remain until that slice lands;
 - the official type-only aliases `Environment`, `Navigation`, `Preferences`,
   `Preference`, `ArgumentsLaunchProps`, `FormItemRef`, `ItemProps`, `FormValue`,
   `FormValues`, `KeyEquivalent`, `KeyboardShortcut`, and `ImageLike` are
