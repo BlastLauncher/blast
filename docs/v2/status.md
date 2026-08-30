@@ -665,7 +665,12 @@ only small portable JavaScript seeds eligible after the API-first slice.
    0083](decisions/0083-preserve-raycast-oauth-provider-metadata.md) is
    implemented: provider icon variants, masks, tints, and descriptions cross
    the authorization-request boundary as validated primitives, while browser
-   and token providers remain host-owned. Preserve
+   and token providers remain host-owned. The next planned adapter-only slice
+   is [ADR
+   0084](decisions/0084-preserve-legacy-form-date-picker-values.md): restore
+   the two corpus-observed legacy `Form.DatePicker.Date`/`DateTime` runtime
+   values as aliases of the declaration-backed `Type` values without
+   widening the form scene contract. Preserve
    structured errors for values that would require a broader scene or host
    policy. Keep the deterministic
    structured probe failure
