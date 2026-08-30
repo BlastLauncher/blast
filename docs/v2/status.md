@@ -128,6 +128,18 @@ slice changes what is executable, what is trusted, or what should happen next.
   and 3 missing entrypoints. The targeted fifth-seed reprobe rendered 24 of
   the previous dependency failures; the aggregate change remains subject to
   normal process and dependency variance.
+- A sixth bounded seed adds 17 exact-version e2e development dependencies:
+  `@noble/hashes`, `bs58`, `crypto-js`, `culori`, `currency-codes`, `exifr`,
+  `jwt-decode`, `lodash.orderby`, `lunar-date-vn`, `node-localstorage`,
+  `otplib`, `parse-github-url`, `proper-url-join`, `ramda`,
+  `react-error-boundary`, `tiny-relative-date`, and `usehooks-ts`. The latest
+  pinned corpus probe passes 1,948 of 3,231 extensions (60.29%), or 1,948 of
+  2,915 extensions with a selected renderable command (66.83%). The remaining
+  losses are tracked separately: 754 third-party dependency failures, 210
+  process/startup failures, 316 non-renderable commands, no structured
+  compatibility errors, and 3 missing entrypoints. The targeted sixth-seed
+  reprobe rendered 13 of the previous dependency failures; the aggregate
+  change remains subject to normal process and dependency variance.
 - Navigation (useNavigation, Action.Push), LocalStorage through the
   capability broker with a reference in-memory provider, the callable plus
   property-based environment surface, and measured WindowManagement discovery
@@ -369,7 +381,7 @@ slice changes what is executable, what is trusted, or what should happen next.
 ## Intentionally missing
 
 - a persistent, watched catalog index and extension installation flows;
-- full dependency provisioning beyond the five bounded e2e seeds, lockfile/audit
+- full dependency provisioning beyond the six bounded e2e seeds, lockfile/audit
   policy for large npm graphs, and native package externalization (the runtime
   supports explicit local or vendored dependency roots but never installs
   packages);
@@ -397,7 +409,7 @@ and render through the current path, not the number of exported API names. The
 shortcut, imperative, cache, launch-boundary, desktop-discovery,
 finder-boundary, host-boundary, window-management, declaration, and
 dependency-policy slices are complete, but the measured 80% target is not yet
-met: the current run is 59.98% overall and 66.48% among commands with a
+met: the current run is 60.29% overall and 66.83% among commands with a
 renderable selection. The current top-level import census and emitted
 declaration audit are clean for the measured corpus surface, so priority has
 shifted back to the remaining measured dependency and runtime outcomes while
@@ -414,9 +426,9 @@ cross-extension, native, and WASM packages still require explicit decisions.
    the deterministic structured probe failure
    (`open-targets-raycast/platform`) as an explicit diagnostic rather than
    weakening the scene or action validators around malformed children, invalid
-   measured values, and empty or missing targets. The latest aggregate also
-   recorded `crawldoc` as structured, but its serial reprobe exited as a process
-   failure, so it remains tracked as run variance. The targeted
+   measured values, and empty or missing targets. The latest aggregate recorded
+   no structured errors; the focused reprobe remains a strict boundary check.
+   The targeted
    `modrinth-search/search-projects` reprobe renders
    after preserving its declaration-shaped zero page-size fallback, and the
    four targeted OpenInBrowser commands render after the action-readiness
@@ -424,7 +436,8 @@ cross-extension, native, and WASM packages still require explicit decisions.
    dependency variance.
 2. Keep the command-scoped preference, nullable Form, empty-string,
    `LocalStorage.allItems`/`allLocalStorageItems`, Form event, literal `require`,
-   composite-child/context-provider, declaration-backed Icon, cross-compatible dropdowns,
+   composite-child/context-provider, declaration-backed Icon,
+   cross-compatible dropdowns,
    `ActionPanel.Item`, whitespace-only
    collection boundaries, `Form.LinkAccessory`, the measured action creators,
    Finder/trash actions, collection-value normalization, CreateSnippet and

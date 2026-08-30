@@ -6,7 +6,7 @@
     "url": "https://github.com/raycast/extensions",
     "rootSelection": "immediate subdirectories containing package.json",
     "extensions": 3231,
-    "sourceFiles": 34600
+    "sourceFiles": 34601
   },
   "selection": {
     "strategy": "Use the first manifest command with mode=view; fall back to an unset-mode command, then a menu-bar command. An extension with only no-view commands is not renderable by the scene probe.",
@@ -1857,18 +1857,17 @@
   "outcomes": {
     "no-entrypoint": 3,
     "not-renderable": 316,
-    "process-failure": 202,
-    "renders": 1938,
-    "structured-compatibility-error": 2,
-    "third-party-dependency": 770
+    "process-failure": 210,
+    "renders": 1948,
+    "third-party-dependency": 754
   },
   "coverage": {
-    "extensionPasses": 1938,
+    "extensionPasses": 1948,
     "extensionTotal": 3231,
-    "extensionPassRate": 0.5998,
-    "renderableCommandPasses": 1938,
+    "extensionPassRate": 0.6029,
+    "renderableCommandPasses": 1948,
     "renderableCommandTotal": 2915,
-    "renderableCommandPassRate": 0.6648
+    "renderableCommandPassRate": 0.6683
   },
   "staticBlockers": [
     {
@@ -1878,9 +1877,8 @@
   ],
   "failureClasses": {
     "no-entrypoint": 3,
-    "process-failure": 202,
-    "structured-compatibility-error": 2,
-    "third-party-dependency": 770
+    "process-failure": 210,
+    "third-party-dependency": 754
   },
   "failureSamples": {
     "no-entrypoint": [
@@ -1894,10 +1892,6 @@
       "acqua",
       "adhan-time",
       "ai-gen"
-    ],
-    "structured-compatibility-error": [
-      "crawldoc",
-      "open-targets-raycast"
     ],
     "third-party-dependency": [
       "1bookmark",
@@ -2923,7 +2917,8 @@
       "commandName": "searchAppleStocks",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "apple-tv-remote",
@@ -3932,8 +3927,7 @@
       "commandName": "bookmarks",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "bit-parser",
@@ -3966,8 +3960,7 @@
       "commandName": "searchRepositories",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "bitcoin-price",
@@ -5579,7 +5572,7 @@
       "mode": "view",
       "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "failureCode": "transport_send_failed"
     },
     {
       "directory": "code-saver",
@@ -6345,8 +6338,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "create-link",
@@ -7621,8 +7614,8 @@
       "commandName": "dlmoji",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "process-failure",
+      "failureCode": "invalid_extension_readiness"
     },
     {
       "directory": "dnb-book-lookup",
@@ -8016,8 +8009,7 @@
       "commandName": "search-crypto",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "drug-search",
@@ -8157,8 +8149,8 @@
       "commandName": "search-module-replacements",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "process-failure",
+      "failureCode": "runtime_closed_during_initialization"
     },
     {
       "directory": "e2b",
@@ -9128,8 +9120,7 @@
       "commandName": "tidy-folder",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "file-tree-generator",
@@ -13732,7 +13723,7 @@
       "mode": "view",
       "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "transport_send_failed"
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "leave-time-calculator",
@@ -15732,7 +15723,8 @@
       "commandName": "payments-list",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "momentum",
@@ -15808,8 +15800,7 @@
       "commandName": "rates",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "monocle",
@@ -16403,8 +16394,7 @@
       "commandName": "find-local-sites",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "netnewswire",
@@ -17264,8 +17254,7 @@
       "commandName": "convert-color",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "okta-app-manager",
@@ -17566,8 +17555,8 @@
       "commandName": "platform",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "open-with-app",
@@ -18313,8 +18302,7 @@
       "commandName": "pastefy",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "pastery",
@@ -19369,8 +19357,7 @@
       "commandName": "create",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "privileges",
@@ -19744,8 +19731,7 @@
       "commandName": "keyword-search",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "outcome": "renders"
     },
     {
       "directory": "qobuz",
@@ -19779,8 +19765,8 @@
       "commandName": "qotp-panel",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "process-failure",
+      "failureCode": "runtime_closed_during_initialization"
     },
     {
       "directory": "qovery",
@@ -20103,8 +20089,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "r2-uploader",
@@ -22009,7 +21994,8 @@
       "commandName": "run-script",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "scrycast",
@@ -22783,7 +22769,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "similarweb",
@@ -23004,7 +22991,7 @@
       "mode": "view",
       "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "failureCode": "transport_send_failed"
     },
     {
       "directory": "skyscanner-flights",
@@ -23553,7 +23540,7 @@
       "mode": "view",
       "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "failureCode": "transport_send_failed"
     },
     {
       "directory": "splix",
@@ -25917,8 +25904,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "twenty",
@@ -26848,8 +26834,7 @@
       "commandName": "view-calendar",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "vietqr-transfer",
@@ -28350,8 +28335,7 @@
       "commandName": "create-highlight",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "youtube-music",
