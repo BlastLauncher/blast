@@ -16,6 +16,9 @@ await runNodeExtensionBootstrap({
     alias: { "@raycast/api": raycastCompatPath },
     dependencyPolicy: { strategy: "vendored", vendorRoots: [workspaceVendorRoot] },
     reactModulePath,
+    ...(process.env.BLAST_EXTENSION_BUNDLE_PREFIX === undefined
+      ? {}
+      : { temporaryDirectoryPrefix: process.env.BLAST_EXTENSION_BUNDLE_PREFIX }),
   }),
   configureApi: (context) => {
     configureRaycastCompat(context);

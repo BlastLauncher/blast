@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { rmSync } from "node:fs";
 import { mkdir, mkdtemp, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -7,6 +8,9 @@ import { pathToFileURL } from "node:url";
 import esbuild, { type Plugin } from "esbuild";
 
 import { ExtensionEntrypointError, type ExtensionEntrypointLoader } from "./index.js";
+
+const temporaryCacheDirectories = new Set<string>();
+let temporaryCacheCleanupInstalled = false;
 
 export interface BundlingEntrypointLoaderOptions {
   /**
@@ -32,6 +36,11 @@ export interface BundlingEntrypointLoaderOptions {
    * while `vendored` adds explicit, launcher-provisioned package roots.
    */
   readonly dependencyPolicy?: ExtensionDependencyPolicy;
+  /**
+   * Prefix for default temporary cache directories. It must be a single
+   * relative path segment so callers can clean up their own run-scoped files.
+   */
+  readonly temporaryDirectoryPrefix?: string;
 }
 
 export interface ExtensionDependencyPolicy {
@@ -49,9 +58,10 @@ export function createBundlingEntrypointLoader(
   options: BundlingEntrypointLoaderOptions = {},
 ): ExtensionEntrypointLoader {
   const ownsCacheDirectory = options.cacheDirectory === undefined;
+  const temporaryDirectoryPrefix = normalizeTemporaryDirectoryPrefix(options.temporaryDirectoryPrefix);
   const readyCacheDirectory = !ownsCacheDirectory
     ? prepareCacheDirectory(options.cacheDirectory)
-    : prepareDefaultCacheDirectory();
+    : prepareDefaultCacheDirectory(temporaryDirectoryPrefix);
   const alias: Record<string, string> = { ...options.alias };
   const reactModulePath = options.reactModulePath;
   const reactPlugin = reactModulePath === undefined ? undefined : createReactExternalPlugin(reactModulePath);
@@ -121,7 +131,12 @@ export function createBundlingEntrypointLoader(
       return namespace;
     } finally {
       if (ownsCacheDirectory) {
-        await rm(cacheDirectory, { recursive: true, force: true }).catch(() => {});
+        try {
+          await rm(cacheDirectory, { recursive: true, force: true });
+          temporaryCacheDirectories.delete(cacheDirectory);
+        } catch {
+          // The exit handler retries cleanup if the directory is still present.
+        }
       }
     }
   };
@@ -165,8 +180,51 @@ async function prepareCacheDirectory(directory: string): Promise<string> {
   return directory;
 }
 
-async function prepareDefaultCacheDirectory(): Promise<string> {
-  return mkdtemp(path.join(os.tmpdir(), "blast-extension-bundles-"));
+async function prepareDefaultCacheDirectory(prefix: string): Promise<string> {
+  installTemporaryCacheCleanup();
+  const directory = await mkdtemp(path.join(os.tmpdir(), prefix));
+  temporaryCacheDirectories.add(directory);
+  return directory;
+}
+
+function normalizeTemporaryDirectoryPrefix(prefix: string | undefined): string {
+  const normalized = prefix ?? "blast-extension-bundles-";
+  if (
+    normalized.length === 0 ||
+    normalized === "." ||
+    normalized === ".." ||
+    normalized.includes("/") ||
+    normalized.includes("\\")
+  ) {
+    throw new ExtensionEntrypointError(
+      "temporary_directory_prefix_invalid",
+      "Temporary bundle directory prefix must be a relative path segment",
+      { prefix },
+    );
+  }
+  return normalized;
+}
+
+function installTemporaryCacheCleanup(): void {
+  if (temporaryCacheCleanupInstalled) {
+    return;
+  }
+  temporaryCacheCleanupInstalled = true;
+  process.once("exit", cleanupTemporaryCacheDirectories);
+  process.once("SIGTERM", () => exitAfterTemporaryCacheCleanup(143));
+  process.once("SIGINT", () => exitAfterTemporaryCacheCleanup(130));
+}
+
+function cleanupTemporaryCacheDirectories(): void {
+  for (const directory of temporaryCacheDirectories) {
+    rmSync(directory, { recursive: true, force: true });
+  }
+  temporaryCacheDirectories.clear();
+}
+
+function exitAfterTemporaryCacheCleanup(exitCode: number): never {
+  cleanupTemporaryCacheDirectories();
+  process.exit(exitCode);
 }
 
 /**

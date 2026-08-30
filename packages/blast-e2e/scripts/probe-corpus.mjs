@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-import { writeFile } from "node:fs/promises";
+import { readdir, rm, writeFile } from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -147,6 +148,7 @@ const outputPath = path.resolve(args[2]);
 const timeoutMilliseconds = parsePositiveInteger(process.env.BLAST_CORPUS_PROBE_TIMEOUT_MS, DEFAULT_TIMEOUT_MS);
 const concurrency = parsePositiveInteger(process.env.BLAST_CORPUS_PROBE_CONCURRENCY, DEFAULT_CONCURRENCY);
 const bootstrapPath = fileURLToPath(new URL("../test/fixtures/bootstrap.mjs", import.meta.url));
+const bundleDirectoryPrefix = `blast-extension-bundles-probe-${process.pid}-`;
 const catalog = new FilesystemExtensionCatalog({ root: corpusRoot });
 const extensionFilter =
   process.env.BLAST_CORPUS_PROBE_EXTENSIONS === undefined
@@ -165,20 +167,24 @@ const selections = scans.map(selectCommand);
 const results = new Array(scans.length);
 let nextIndex = 0;
 
-await Promise.all(
-  Array.from({ length: Math.min(concurrency, scans.length) }, async () => {
-    while (true) {
-      const index = nextIndex++;
-      if (index >= scans.length) {
-        return;
+try {
+  await Promise.all(
+    Array.from({ length: Math.min(concurrency, scans.length) }, async () => {
+      while (true) {
+        const index = nextIndex++;
+        if (index >= scans.length) {
+          return;
+        }
+        results[index] = await probeExtension(scans[index], selections[index], bundleDirectoryPrefix);
+        if ((index + 1) % 25 === 0 || index + 1 === scans.length) {
+          console.error(`probed ${index + 1}/${scans.length}`);
+        }
       }
-      results[index] = await probeExtension(scans[index], selections[index]);
-      if ((index + 1) % 25 === 0 || index + 1 === scans.length) {
-        console.error(`probed ${index + 1}/${scans.length}`);
-      }
-    }
-  }),
-);
+    }),
+  );
+} finally {
+  await cleanupProbeBundleDirectories(bundleDirectoryPrefix);
+}
 
 const report = {
   schemaVersion: 1,
@@ -212,7 +218,7 @@ const report = {
 
 await writeFile(outputPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
 
-async function probeExtension(scan, selection) {
+async function probeExtension(scan, selection, probeBundleDirectoryPrefix) {
   const extensionId = scan.manifest?.name;
   const resultBase = {
     directory: path.basename(scan.directory),
@@ -234,7 +240,7 @@ async function probeExtension(scan, selection) {
 
   const identity = { extensionId, commandName: selection.command.name };
   const stderr = [];
-  const { core, broker } = createCore(stderr);
+  const { core, broker } = createCore(stderr, probeBundleDirectoryPrefix);
   const buffer = new SceneStateBuffer();
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort("probe timeout"), timeoutMilliseconds);
@@ -288,12 +294,12 @@ async function probeExtension(scan, selection) {
   }
 }
 
-function createCore(stderr) {
+function createCore(stderr, probeBundleDirectoryPrefix) {
   let hostMessageId = 0;
   let sessionId = 0;
   const launcher = new NodeExtensionProcessLauncher({
     bootstrapPath,
-    environment: process.env,
+    environment: { ...process.env, BLAST_EXTENSION_BUNDLE_PREFIX: probeBundleDirectoryPrefix },
     onStderr(_descriptor, chunk) {
       stderr.push(chunk);
     },
@@ -599,6 +605,15 @@ function createCore(stderr) {
     },
   });
   return { core: new BlastCore({ catalog, extensionHost: host }), broker };
+}
+
+async function cleanupProbeBundleDirectories(prefix) {
+  const entries = await readdir(os.tmpdir(), { withFileTypes: true }).catch(() => []);
+  await Promise.all(
+    entries
+      .filter((entry) => entry.isDirectory() && entry.name.startsWith(prefix))
+      .map((entry) => rm(path.join(os.tmpdir(), entry.name), { recursive: true, force: true }).catch(() => {})),
+  );
 }
 
 function createProbeWindow(active) {

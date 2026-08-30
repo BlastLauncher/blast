@@ -94,7 +94,7 @@ import {
   useUnstableAI,
   WindowManagement,
 } from "../dist/index.js";
-import { Fragment, createElement, memo } from "react";
+import { Fragment, createContext as createReactContext, createElement, memo } from "react";
 
 function onAction() {}
 
@@ -524,6 +524,30 @@ test("accepts composite children in action groups and form collections", async (
   );
   assert.equal(root.children[0].children[0].props.title, "Wrapped action");
   assert.equal(root.children[2].children[0].props.value, "admin");
+});
+
+test("accepts React context providers around measured collections", async () => {
+  const probe = createContext();
+  const CollectionContext = createReactContext("default");
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      List,
+      null,
+      createElement(
+        CollectionContext.Provider,
+        { value: "provided" },
+        createElement(List.Item, { title: "Context item" }),
+      ),
+    ),
+  );
+  await renderer.flush();
+
+  const root = probe.transactions[0].operations[0].root;
+  assert.deepEqual(
+    root.children.map((child) => child.type),
+    ["list-item"],
+  );
+  assert.equal(root.children[0].props.title, "Context item");
 });
 
 test("ignores whitespace-only children in measured collections", async () => {

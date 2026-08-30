@@ -4917,6 +4917,8 @@ function isIgnorableChild(child: ReactNode): boolean {
 }
 
 const REACT_EXOTIC_COMPONENT_TYPES = new Set([
+  Symbol.for("react.context"),
+  Symbol.for("react.consumer"),
   Symbol.for("react.memo"),
   Symbol.for("react.forward_ref"),
   Symbol.for("react.lazy"),

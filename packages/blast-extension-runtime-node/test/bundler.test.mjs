@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { spawn } from "node:child_process";
 import { readdir } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -56,6 +57,13 @@ test("rejects invalid dependency policy roots", () => {
   );
 });
 
+test("rejects temporary bundle directory prefixes that escape the temp directory", () => {
+  assert.throws(
+    () => createBundlingEntrypointLoader({ temporaryDirectoryPrefix: "../outside" }),
+    (error) => error.code === "temporary_directory_prefix_invalid",
+  );
+});
+
 test("cleans default temporary bundle directories after success and failure", async () => {
   const before = await defaultBundleDirectories();
   const loader = createBundlingEntrypointLoader({ alias: defaultAlias });
@@ -68,6 +76,44 @@ test("cleans default temporary bundle directories after success and failure", as
       return error.code === "entrypoint_load_failed";
     },
   );
+
+  const after = await defaultBundleDirectories();
+  assert.deepEqual(
+    [...after].filter((directory) => !before.has(directory)),
+    [],
+  );
+});
+
+test("cleans default temporary bundle directories when terminated", async (t) => {
+  if (process.platform === "win32") {
+    t.skip("POSIX signals are not available on Windows");
+    return;
+  }
+
+  const before = await defaultBundleDirectories();
+  const moduleUrl = new URL("../dist/index.js", import.meta.url).href;
+  const child = spawn(
+    process.execPath,
+    [
+      "--input-type=module",
+      "-e",
+      `import { createBundlingEntrypointLoader } from ${JSON.stringify(moduleUrl)}; createBundlingEntrypointLoader(); await new Promise((resolve) => setTimeout(resolve, 100)); console.log("ready"); await new Promise(() => {});`,
+    ],
+    { stdio: ["ignore", "pipe", "pipe"] },
+  );
+
+  await new Promise((resolve, reject) => {
+    child.stdout.setEncoding("utf8");
+    child.stderr.setEncoding("utf8");
+    child.stdout.once("data", resolve);
+    child.once("error", reject);
+    child.stderr.once("data", (chunk) => reject(new Error(String(chunk))));
+  });
+  child.kill("SIGTERM");
+  await new Promise((resolve, reject) => {
+    child.once("error", reject);
+    child.once("exit", resolve);
+  });
 
   const after = await defaultBundleDirectories();
   assert.deepEqual(

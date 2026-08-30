@@ -73,8 +73,10 @@ slice changes what is executable, what is trusted, or what should happen next.
   literal `@raycast/api` imports resolved by launcher-provided aliases) and
   renders default-exported command components through the adapter, so
   unmodified Raycast-style TSX fixtures run end to end. Default temporary
-  bundle directories are removed after each successful or failed load; an
-  explicitly supplied cache directory remains caller-owned.
+  bundle directories are removed after each successful or failed load, with
+  synchronous signal/exit cleanup for interrupted runtimes; an explicitly
+  supplied cache directory remains caller-owned. The corpus probe uses
+  run-scoped prefixes and reclaims its bundle directories after each run.
 - The support matrix runs a committed set of real corpus extensions through
   the full pipeline in CI: twenty-eight render fixtures (list, list sections,
   and detail,
@@ -90,7 +92,6 @@ slice changes what is executable, what is trusted, or what should happen next.
 - A second bounded seed adds `file-url`, `filesize`, `gray-matter`,
   `javascript-time-ago`, `luxon`, `node-html-parser`, `qrcode`, `tildify`,
   `ts-pattern`, and `turndown`, also as exact-version e2e development
-  `ts-pattern`, and `turndown`, also as exact-version e2e development
   dependencies. A third bounded seed adds `@chrismessina/raycast-logger`,
   `@tanstack/react-query`, `algoliasearch`, `jimp`, `openai`,
   `raycast-cross-extension`, `remove-markdown`, `striptags`, `swr`,
@@ -102,6 +103,19 @@ slice changes what is executable, what is trusted, or what should happen next.
   and 3 missing entrypoints. The targeted zero-pagination and OpenInBrowser
   reprobes are deterministic; aggregate changes also include normal process
   and dependency variance.
+- A fourth bounded seed adds 22 exact-version e2e development dependencies:
+  `adm-zip`, `bplist-parser`, `change-case`, `chrono-node`, `d3-color`,
+  `date-fns-tz`, `graphql-tag`, `image-size`, `jotai`, `json2md`, `linkedom`,
+  `marked`, `moment-timezone`, `papaparse`, `parse-git-config`, `pinyin-pro`,
+  `pretty-bytes`, `query-string`, `raycast-toolkit`, `slugify`, `timeago.js`,
+  and `turndown-plugin-gfm`. The latest pinned corpus probe passes 1,912 of
+  3,231 extensions (59.18%), or 1,912 of 2,915 extensions with a selected
+  renderable command (65.59%). The remaining losses are tracked separately:
+  797 third-party dependency failures, 202 process/startup failures, 316
+  non-renderable commands, 1 structured compatibility error, and 3 missing
+  entrypoints. The focused context-provider reprobe moves `dictionary/fromCmd`
+  through to a rendered scene; the aggregate change remains subject to normal
+  process and dependency variance.
 - Navigation (useNavigation, Action.Push), LocalStorage through the
   capability broker with a reference in-memory provider, the callable plus
   property-based environment surface, and measured WindowManagement discovery
@@ -214,10 +228,11 @@ slice changes what is executable, what is trusted, or what should happen next.
   in measured collection slots. Optional string-array Form initial values omit
   only `undefined` entries when all remaining entries are strings; null and
   other invalid members remain rejected.
-- Measured collection components accept custom function components and React
-  fragments in action, list, grid, menu-bar, and form child positions; the
-  resolved children remain subject to semantic parent/child validation, while
-  raw text and intrinsic DOM elements remain unsupported.
+- Measured collection components accept custom function components, React
+  fragments, and React context providers/consumers in action, list, grid,
+  menu-bar, and form child positions; the resolved children remain subject to
+  semantic parent/child validation, while raw text and intrinsic DOM elements
+  remain unsupported.
 - ActionPanel renders as a scene action-group (titles, submenus, List-level
   panels), and object icons with Color tints serialize into iconTintColor
   properties.
@@ -342,7 +357,7 @@ slice changes what is executable, what is trusted, or what should happen next.
 ## Intentionally missing
 
 - a persistent, watched catalog index and extension installation flows;
-- full dependency provisioning beyond the three bounded e2e seeds, lockfile/audit
+- full dependency provisioning beyond the four bounded e2e seeds, lockfile/audit
   policy for large npm graphs, and native package externalization (the runtime
   supports explicit local or vendored dependency roots but never installs
   packages);
@@ -370,7 +385,7 @@ and render through the current path, not the number of exported API names. The
 shortcut, imperative, cache, launch-boundary, desktop-discovery,
 finder-boundary, host-boundary, window-management, declaration, and
 dependency-policy slices are complete, but the measured 80% target is not yet
-met: the current run is 57.75% overall and 64.01% among commands with a
+met: the current run is 59.18% overall and 65.59% among commands with a
 renderable selection. The current top-level import census and emitted
 declaration audit are clean for the measured corpus surface, so priority has
 shifted back to the remaining measured dependency and runtime outcomes while

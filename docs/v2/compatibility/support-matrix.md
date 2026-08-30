@@ -25,23 +25,23 @@ post-slice result, including one result per extension, is
 
 The current post-slice run supplies the workspace's installed packages through
 the explicit `vendored` dependency policy. The private e2e package now adds
-three bounded, exact-version seeds for thirty-one low-risk utility, parser,
-fetch, image, and compatibility-helper packages; their transitive graph is
-recorded in the lockfile. The probe does not install the corpus or run
-package-manager scripts; unavailable packages remain dependency failures.
+four bounded, exact-version seeds for fifty-three utility, parser, fetch, image,
+state, and compatibility-helper packages; their transitive graph is recorded
+in the lockfile. The probe does not install the corpus or run package-manager
+scripts; unavailable packages remain dependency failures.
 
 | Outcome                        | Baseline | Previous post-slice | Current post-slice | Current vs previous |
 | ------------------------------ | -------: | ------------------: | -----------------: | ------------------: |
-| third-party dependency failure |    2,361 |                 915 |                844 |                 -71 |
+| third-party dependency failure |    2,361 |                 844 |                797 |                 -47 |
 | not renderable command mode    |      358 |                 316 |                316 |                   0 |
-| other process/startup failure  |      432 |                 179 |                201 |                 +22 |
-| structured compatibility error |       23 |                   2 |                  1 |                  -1 |
-| renders a scene end to end     |       54 |               1,816 |              1,866 |                 +50 |
+| other process/startup failure  |      432 |                 201 |                202 |                  +1 |
+| structured compatibility error |       23 |                   1 |                  1 |                   0 |
+| renders a scene end to end     |       54 |               1,866 |              1,912 |                 +46 |
 | no entrypoint found            |        3 |                   3 |                  3 |                   0 |
 
-Reading: the current post-slice extension pass rate is 1,866/3,231 (57.75%);
-among the 2,915 extensions with a selected renderable command it is 1,866/2,915
-(64.01%). The declaration-backed Icon enum, Raycast color values, collection
+Reading: the current post-slice extension pass rate is 1,912/3,231 (59.18%);
+among the 2,915 extensions with a selected renderable command it is 1,912/2,915
+(65.59%). The declaration-backed Icon enum, Raycast color values, collection
 metadata, List/Grid/Form search and pagination events, shared dropdown
 accessories, Clipboard read/clear behavior, Submenu lifecycle, nested public
 Props and utility namespaces, Keyboard shortcut aliases, Cache callback binding,
@@ -55,9 +55,9 @@ events. The only remaining static import gap is one `fetch` import.
 Dependency, process, and non-renderable outcomes remain tracked separately
 from API coverage.
 The current top-level API import census and emitted declaration audit are clean
-for the measured corpus surface, so priority has shifted to the remaining
-dependency and runtime outcomes while the adapter continues to preserve strict
-API boundaries. This refresh completes the full 478-member Icon surface and
+for the measured corpus surface, so priority remains the remaining dependency
+and runtime outcomes while the adapter continues to preserve strict API
+boundaries. This refresh completes the full 478-member Icon surface and
 preserves legacy names, adds declaration-backed collection/search/pagination
 fields, and closes the shared List/Grid dropdown boundary. It also corrects
 Raycast theme color identifiers, decodes structured Clipboard reads, supports
@@ -68,11 +68,12 @@ remaining structured failure is `open-targets-raycast/platform`; it is a strict
 diagnostic from malformed List children under the probe's default launch
 arguments. The targeted `modrinth-search/search-projects` and four
 OpenInBrowser reprobes now render after preserving their declaration-shaped
-readiness fallbacks. The third dependency seed moved 71 entries out of the
-dependency-failure class in the aggregate run and increased rendered outcomes
-by 50; the targeted old dependency set rendered 55 entries and left 29 in
-process/runtime failure, so the aggregate change remains subject to normal
-process and dependency variance.
+readiness fallbacks. The context-provider boundary moves
+`dictionary/fromCmd` through to a rendered scene. The fourth dependency seed
+moved 47 entries out of the dependency-failure class in the aggregate run and
+increased rendered outcomes by 46; the targeted old dependency set rendered 33
+entries and left 16 in process/runtime failure, so the aggregate change
+remains subject to normal process and dependency variance.
 
 The first audited vendor seed is `axios@1.8.4`, `cheerio@1.0.0`,
 `cross-fetch@4.0.0`, `date-fns@4.1.0`, `fast-xml-parser@5.3.2`, `fuse.js@7.1.0`,
@@ -95,6 +96,19 @@ classified entries rendered 55 and moved 29 to process/runtime failures; the
 full corpus run reduced dependency failures by 71 and recorded 1,866 rendered
 scenes. The selected group is a measurement input only: cross-extension and
 network behavior remains host-policy work even when a package bundles.
+
+The fourth seed is `adm-zip@0.5.16`, `bplist-parser@0.3.2`,
+`change-case@5.4.4`, `chrono-node@2.9.1`, `d3-color@3.1.0`,
+`date-fns-tz@3.2.0`, `graphql-tag@2.12.7`, `image-size@2.0.2`,
+`jotai@2.12.2`, `json2md@2.0.3`, `linkedom@0.18.13`, `marked@15.0.7`,
+`moment-timezone@0.5.46`, `papaparse@5.5.3`, `parse-git-config@3.0.0`,
+`pinyin-pro@3.28.1`, `pretty-bytes@6.1.1`, `query-string@8.1.0`,
+`raycast-toolkit@1.0.6`, `slugify@1.6.6`, `timeago.js@4.0.2`, and
+`turndown-plugin-gfm@1.0.2`. A targeted reprobe of the 844 previously
+dependency-classified entries rendered 33 and moved 16 to process/runtime
+failures; the full corpus run reduced dependency failures by 47 and recorded
+1,912 rendered scenes. Pure parsing and utility availability remains separate
+from host behavior, and the probe still never installs extension dependencies.
 
 ## Committed fixtures
 
@@ -242,10 +256,11 @@ dispatches a bounds mutation through the explicit host capability.
   launcher alias as named imports when they access measured adapter members.
   The remaining `fetch` import is intentionally not supported because network
   access needs an explicit host capability and policy;
-- custom function components and React fragments can compose measured action,
-  list, grid, menu-bar, and form children; raw text, intrinsic DOM elements,
-  and invalid resolved children remain outside the semantic scene contract.
-  React memo/forward-ref/lazy wrappers are treated as composites, and an exact
+- custom function components, React fragments, and React context
+  providers/consumers can compose measured action, list, grid, menu-bar, and
+  form children; raw text, intrinsic DOM elements, and invalid resolved
+  children remain outside the semantic scene contract. React
+  memo/forward-ref/lazy wrappers are treated as composites, and an exact
   numeric `0` is ignored as the standard JSX conditional-child sentinel;
 - nullable async state is accepted as a top-level `null` initial value for
   non-date Form controls and omitted from the scene props; DatePicker retains
