@@ -1857,18 +1857,18 @@
   "outcomes": {
     "no-entrypoint": 3,
     "not-renderable": 316,
-    "process-failure": 234,
-    "renders": 2055,
-    "structured-compatibility-error": 2,
-    "third-party-dependency": 621
+    "process-failure": 236,
+    "renders": 2072,
+    "structured-compatibility-error": 1,
+    "third-party-dependency": 603
   },
   "coverage": {
-    "extensionPasses": 2055,
+    "extensionPasses": 2072,
     "extensionTotal": 3231,
-    "extensionPassRate": 0.636,
-    "renderableCommandPasses": 2055,
+    "extensionPassRate": 0.6413,
+    "renderableCommandPasses": 2072,
     "renderableCommandTotal": 2915,
-    "renderableCommandPassRate": 0.705
+    "renderableCommandPassRate": 0.7108
   },
   "staticBlockers": [
     {
@@ -1878,9 +1878,9 @@
   ],
   "failureClasses": {
     "no-entrypoint": 3,
-    "process-failure": 234,
-    "structured-compatibility-error": 2,
-    "third-party-dependency": 621
+    "process-failure": 236,
+    "structured-compatibility-error": 1,
+    "third-party-dependency": 603
   },
   "failureSamples": {
     "no-entrypoint": [
@@ -1896,7 +1896,6 @@
       "android-screen-capture"
     ],
     "structured-compatibility-error": [
-      "crawldoc",
       "open-targets-raycast"
     ],
     "third-party-dependency": [
@@ -3282,7 +3281,8 @@
       "commandName": "projects",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "awx-deploy",
@@ -3406,8 +3406,7 @@
       "commandName": "bambulab-control",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "banca-d-italia-currency-converter",
@@ -3685,8 +3684,7 @@
       "commandName": "search-systems",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "betaseries",
@@ -4141,8 +4139,7 @@
       "commandName": "search-bootstrap-icons",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "renders"
     },
     {
       "directory": "bored",
@@ -4535,8 +4532,7 @@
       "commandName": "cangjie",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "renders"
     },
     {
       "directory": "canva",
@@ -4619,8 +4615,7 @@
       "commandName": "latest-articles",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "outcome": "renders"
     },
     {
       "directory": "catenary-raycast",
@@ -6132,8 +6127,7 @@
       "commandName": "copy-gcp-icon",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "copy-notion-markdown-link",
@@ -6324,8 +6318,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "create-link",
@@ -6589,7 +6583,7 @@
       "mode": "view",
       "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "failureCode": "transport_send_failed"
     },
     {
       "directory": "cursor-recent-projects",
@@ -6899,8 +6893,7 @@
       "commandName": "manage-databases",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "dbt-documentation",
@@ -8179,8 +8172,7 @@
       "commandName": "new-file-with-template",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "easy-ocr",
@@ -10524,8 +10516,7 @@
       "commandName": "mails",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "gmail-accounts",
@@ -10632,8 +10623,8 @@
       "commandName": "select-default-calendar",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "google-chrome",
@@ -11336,8 +11327,7 @@
       "commandName": "json2Swift",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "heptabase",
@@ -11952,8 +11942,7 @@
       "commandName": "process-image",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "image-hash-rename",
@@ -12246,7 +12235,8 @@
       "commandName": "download-instagram-highlight-story",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "install-fonts",
@@ -13675,7 +13665,7 @@
       "mode": "view",
       "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "transport_send_failed"
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "leave-time-calculator",
@@ -14139,8 +14129,8 @@
       "commandName": "send",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "process-failure",
+      "failureCode": "runtime_closed_during_initialization"
     },
     {
       "directory": "lock-time",
@@ -15479,8 +15469,7 @@
       "commandName": "list-devices",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "miro",
@@ -15718,8 +15707,7 @@
       "commandName": "convert-objectid-to-timestamp",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "monitor-mate",
@@ -17069,7 +17057,8 @@
       "commandName": "capture",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "obsidian-tasks",
@@ -17818,8 +17807,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "outcome": "renders"
     },
     {
       "directory": "outline-document-search",
@@ -18062,8 +18050,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "outcome": "renders"
     },
     {
       "directory": "parcel",
@@ -18926,8 +18913,7 @@
       "commandName": "search-collections",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "podcast-downloader",
@@ -19333,8 +19319,7 @@
       "commandName": "generate-project-code",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "outcome": "renders"
     },
     {
       "directory": "project-companion",
@@ -19464,8 +19449,7 @@
       "commandName": "browse",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "prowlarr",
@@ -19961,8 +19945,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "quikwallet",
@@ -21356,8 +21339,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "rick-and-morty",
@@ -22690,8 +22673,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "outcome": "renders"
     },
     {
       "directory": "similarweb",
@@ -22939,8 +22921,8 @@
       "commandName": "setStatus",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "slack-summarizer",
@@ -23459,7 +23441,7 @@
       "mode": "view",
       "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "failureCode": "transport_send_failed"
     },
     {
       "directory": "splix",
@@ -27961,8 +27943,8 @@
       "commandName": "list",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "xecutor",

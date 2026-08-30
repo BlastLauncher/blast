@@ -238,6 +238,24 @@ slice changes what is executable, what is trusted, or what should happen next.
   recorded 16 additional rendered outcomes net of normal process variance.
   The two structured diagnostics remain strict malformed-child checks for
   unsupported List text nodes, not ARM64 installation failures.
+- A fourteenth bounded seed adds 13 exact-version e2e development dependencies:
+  `@aws-sdk/client-s3`, `@googleapis/calendar`, `@googleapis/gmail`,
+  `@tryfabric/martian`, `@vitalets/google-translate-api`, `archiver`,
+  `download`, `mongodb`, `mqtt`, `pg`, `pocketbase`, `quicktype-core`, and
+  `xlsx`. The packages were selected as JavaScript SDKs, client libraries, and
+  local utilities and installed successfully on the ARM64 Linux runner with
+  lifecycle scripts disabled; no native, WASM, macOS, or host-process package
+  was selected directly, and database-native addons were not installed. The
+  latest pinned corpus probe passes 2,072 of 3,231 extensions (64.13%), or
+  2,072 of 2,915 extensions with a selected renderable command (71.08%). The
+  remaining losses are tracked separately: 603 third-party dependency
+  failures, 236 process/startup failures, 316 non-renderable commands, 1
+  structured compatibility error, and 3 missing entrypoints. The targeted
+  fourteenth-seed reprobe rendered 13 of the previous dependency failures and
+  moved 5 to process/runtime failures; the full run reduced dependency failures
+  by 18 and recorded 17 additional rendered outcomes net of normal process
+  variance. The focused serial reprobe still confirms the strict malformed List
+  text-child boundary in `crawldoc` and `open-targets-raycast`.
 - Navigation (useNavigation, Action.Push), LocalStorage through the
   capability broker with a reference in-memory provider, the callable plus
   property-based environment surface, and measured WindowManagement discovery
@@ -479,7 +497,7 @@ slice changes what is executable, what is trusted, or what should happen next.
 ## Intentionally missing
 
 - a persistent, watched catalog index and extension installation flows;
-- full dependency provisioning beyond the thirteen bounded e2e seeds, lockfile/audit
+- full dependency provisioning beyond the fourteen bounded e2e seeds, lockfile/audit
   policy for large npm graphs, and native package externalization (the runtime
   supports explicit local or vendored dependency roots but never installs
   packages);
@@ -507,7 +525,7 @@ and render through the current path, not the number of exported API names. The
 shortcut, imperative, cache, launch-boundary, desktop-discovery,
 finder-boundary, host-boundary, window-management, declaration, and
 dependency-policy slices are complete, but the measured 80% target is not yet
-met: the current run is 63.60% overall and 70.50% among commands with a
+met: the current run is 64.13% overall and 71.08% among commands with a
 renderable selection. The current top-level import census and emitted
 declaration audit are clean for the measured corpus surface, so priority has
 shifted back to the remaining measured dependency and runtime outcomes while
@@ -525,9 +543,9 @@ cross-extension, native, and WASM packages still require explicit decisions.
    (`crawldoc` and `open-targets-raycast/platform`) as explicit diagnostics
    rather than weakening the scene or action validators around malformed
    children, invalid measured values, and empty or missing targets. The latest
-   aggregate records both strict List text-child diagnostics; the focused
-   reprobe confirms they are deterministic boundary checks rather than
-   platform-install failures.
+   aggregate retains `open-targets-raycast/platform`; a focused serial reprobe
+   confirms both are deterministic boundary checks rather than platform-install
+   failures.
    The targeted
    `modrinth-search/search-projects` reprobe renders
    after preserving its declaration-shaped zero page-size fallback, and the

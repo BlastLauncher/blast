@@ -25,7 +25,7 @@ post-slice result, including one result per extension, is
 
 The current post-slice run supplies the workspace's installed packages through
 the explicit `vendored` dependency policy. The private e2e package now adds
-thirteen bounded, exact-version seeds for 189 utility, parser, fetch, image,
+fourteen bounded, exact-version seeds for 202 utility, parser, fetch, image,
 state, compatibility-helper, and JavaScript SDK packages; their transitive graph
 is recorded in the lockfile. This round was selected to install on the ARM64
 Linux runner with package-manager scripts disabled; no native, WASM, macOS, or
@@ -36,16 +36,16 @@ remain dependency failures.
 
 | Outcome                        | Baseline | Previous post-slice | Current post-slice | Current vs previous |
 | ------------------------------ | -------: | ------------------: | -----------------: | ------------------: |
-| third-party dependency failure |    2,361 |                 642 |                621 |                 -21 |
+| third-party dependency failure |    2,361 |                 621 |                603 |                 -18 |
 | not renderable command mode    |      358 |                 316 |                316 |                   0 |
-| other process/startup failure  |      432 |                 229 |                234 |                  +5 |
-| structured compatibility error |       23 |                   2 |                  2 |                   0 |
-| renders a scene end to end     |       54 |               2,039 |              2,055 |                 +16 |
+| other process/startup failure  |      432 |                 234 |                236 |                  +2 |
+| structured compatibility error |       23 |                   2 |                  1 |                  -1 |
+| renders a scene end to end     |       54 |               2,055 |              2,072 |                 +17 |
 | no entrypoint found            |        3 |                   3 |                  3 |                   0 |
 
-Reading: the current post-slice extension pass rate is 2,055/3,231 (63.60%);
-among the 2,915 extensions with a selected renderable command it is 2,055/2,915
-(70.50%). The declaration-backed Icon enum, Raycast color values, collection
+Reading: the current post-slice extension pass rate is 2,072/3,231 (64.13%);
+among the 2,915 extensions with a selected renderable command it is 2,072/2,915
+(71.08%). The declaration-backed Icon enum, Raycast color values, collection
 metadata, List/Grid/Form search and pagination events, shared dropdown
 accessories, Clipboard read/clear behavior, Submenu lifecycle, nested public
 Props and utility namespaces, Keyboard shortcut aliases, Cache callback binding,
@@ -68,9 +68,10 @@ Raycast theme color identifiers, decodes structured Clipboard reads, supports
 Clipboard clear, adds Submenu search/open/id behavior, and publishes nested
 Props aliases for the measured components. `MenuBarExtra.Item.alternate` now
 publishes a nested alternate item with a distinct right-click event. The current
-run records deterministic strict List text-child diagnostics for `crawldoc` and
-`open-targets-raycast/platform`; these remain boundary checks rather than
-reasons to widen the semantic collection contract. The targeted
+aggregate retains `open-targets-raycast/platform` as a strict List text-child
+diagnostic; a focused serial reprobe also deterministically surfaces the same
+boundary in `crawldoc`. These remain boundary checks rather than reasons to
+widen the semantic collection contract. The targeted
 `modrinth-search/search-projects` and four
 OpenInBrowser reprobes now render after preserving their declaration-shaped
 readiness fallbacks. The context-provider boundary moves
@@ -229,6 +230,20 @@ JavaScript SDK and HTTP-client availability only: network calls, host providers,
 and cross-extension behavior remain outside the compatibility boundary. No
 native, WASM, macOS, or host-process package was selected directly; Solana was
 held because its websocket graph includes optional native helpers.
+
+The fourteenth seed is `@aws-sdk/client-s3@3.1121.0`,
+`@googleapis/calendar@16.0.0`, `@googleapis/gmail@18.0.0`,
+`@tryfabric/martian@1.2.4`, `@vitalets/google-translate-api@9.2.1`,
+`archiver@8.0.0`, `download@8.0.0`, `mongodb@7.6.0`, `mqtt@5.15.2`,
+`pg@8.23.0`, `pocketbase@0.28.0`, `quicktype-core@26.0.0`, and
+`xlsx@0.18.5`. A targeted reprobe of the 621 previously dependency-classified
+entries rendered 13 and moved 5 to process/runtime failures; the full corpus
+run reduced dependency failures by 18 and recorded 2,072 rendered scenes. The
+group provides JavaScript SDK, archive, database-client, messaging, translation,
+and code-generation availability only: network, database, host providers, and
+cross-extension behavior remain outside the compatibility boundary. Postgres
+and MongoDB native addons were not installed; the batch remains suitable for
+the ARM64 Linux measurement runner with lifecycle scripts disabled.
 
 ## Committed fixtures
 
