@@ -1857,18 +1857,18 @@
   "outcomes": {
     "no-entrypoint": 3,
     "not-renderable": 316,
-    "process-failure": 209,
-    "renders": 1967,
-    "structured-compatibility-error": 2,
-    "third-party-dependency": 734
+    "process-failure": 222,
+    "renders": 1980,
+    "structured-compatibility-error": 1,
+    "third-party-dependency": 709
   },
   "coverage": {
-    "extensionPasses": 1967,
+    "extensionPasses": 1980,
     "extensionTotal": 3231,
-    "extensionPassRate": 0.6088,
-    "renderableCommandPasses": 1967,
+    "extensionPassRate": 0.6128,
+    "renderableCommandPasses": 1980,
     "renderableCommandTotal": 2915,
-    "renderableCommandPassRate": 0.6748
+    "renderableCommandPassRate": 0.6792
   },
   "staticBlockers": [
     {
@@ -1878,9 +1878,9 @@
   ],
   "failureClasses": {
     "no-entrypoint": 3,
-    "process-failure": 209,
-    "structured-compatibility-error": 2,
-    "third-party-dependency": 734
+    "process-failure": 222,
+    "structured-compatibility-error": 1,
+    "third-party-dependency": 709
   },
   "failureSamples": {
     "no-entrypoint": [
@@ -1889,15 +1889,14 @@
       "vortex"
     ],
     "process-failure": [
+      "1-click-confetti",
       "CodeBlocks",
       "acqua",
       "adhan-time",
-      "ai-gen",
-      "airtable"
+      "ai-gen"
     ],
     "structured-compatibility-error": [
-      "crawldoc",
-      "open-targets-raycast"
+      "crawldoc"
     ],
     "third-party-dependency": [
       "1bookmark",
@@ -1922,7 +1921,8 @@
       "commandName": "confetti-menu",
       "mode": "menu-bar",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "1bookmark",
@@ -3117,8 +3117,7 @@
       "commandName": "books",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "aspect-raytio",
@@ -4255,8 +4254,7 @@
       "commandName": "installed",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "brew-services",
@@ -4288,8 +4286,8 @@
       "commandName": "ask",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "process-failure",
+      "failureCode": "runtime_closed_during_initialization"
     },
     {
       "directory": "browser-bookmarks",
@@ -4486,8 +4484,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "calendly",
@@ -4671,7 +4668,8 @@
       "commandName": "search",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "ccusage",
@@ -4833,8 +4831,8 @@
       "commandName": "summarize",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "process-failure",
+      "failureCode": "runtime_closed_during_initialization"
     },
     {
       "directory": "chatgpt-search",
@@ -5461,7 +5459,8 @@
       "commandName": "switch-virtual-network",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "cloudinary",
@@ -6606,7 +6605,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_send_failed"
     },
     {
       "directory": "cursor-recent-projects",
@@ -7007,8 +7007,8 @@
       "commandName": "summarize",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "process-failure",
+      "failureCode": "runtime_closed_during_initialization"
     },
     {
       "directory": "deepwiki",
@@ -7581,8 +7581,7 @@
       "commandName": "config",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "distraction-tracker",
@@ -7706,7 +7705,8 @@
       "commandName": "set-dock-control-mode",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "docsearch",
@@ -9136,8 +9136,7 @@
       "commandName": "view-snippets",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "files-shelf",
@@ -9633,8 +9632,7 @@
       "commandName": "fork-repositories",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "forked-extensions",
@@ -10133,8 +10131,8 @@
       "commandName": "list",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "gif-maker",
@@ -13484,8 +13482,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "laravel-herd",
@@ -14391,8 +14388,7 @@
       "commandName": "lumen",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "luna-search",
@@ -14987,8 +14983,7 @@
       "commandName": "channels",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "outcome": "renders"
     },
     {
       "directory": "maven-central-repository",
@@ -15372,7 +15367,8 @@
       "commandName": "controlMeeting",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "microsoft-tenant-id",
@@ -15570,8 +15566,7 @@
       "commandName": "time-entry",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "mittwald",
@@ -16083,8 +16078,7 @@
       "commandName": "addLink",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "must",
@@ -17549,8 +17543,8 @@
       "commandName": "platform",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "open-with-app",
@@ -17885,8 +17879,7 @@
       "commandName": "search-outline-documents",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "outline-page",
@@ -18122,7 +18115,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "parcel",
@@ -18576,8 +18570,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "php-docs",
@@ -18709,7 +18702,8 @@
       "commandName": "addBookmark",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "pinch-svg",
@@ -19377,7 +19371,7 @@
       "mode": "view",
       "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "transport_send_failed"
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "productlane",
@@ -22333,8 +22327,7 @@
       "commandName": "database_list",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "sequoia-tiling",
@@ -23219,8 +23212,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "snippetsurfer",
@@ -23437,8 +23429,7 @@
       "commandName": "search-colors",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "speech-to-text",
@@ -23531,7 +23522,7 @@
       "mode": "view",
       "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "failureCode": "transport_send_failed"
     },
     {
       "directory": "splix",
@@ -23795,8 +23786,7 @@
       "commandName": "steam",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "steam-player-counts",
@@ -23869,8 +23859,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "storybook-launcher",
@@ -23960,8 +23949,8 @@
       "commandName": "save-link",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "subnoto",
@@ -24171,8 +24160,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "svg-studio",
@@ -24404,8 +24392,7 @@
       "commandName": "database_list",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "tablepro",
@@ -28669,8 +28656,7 @@
       "commandName": "find",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "zread-ai",

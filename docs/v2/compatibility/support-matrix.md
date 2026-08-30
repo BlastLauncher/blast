@@ -25,23 +25,23 @@ post-slice result, including one result per extension, is
 
 The current post-slice run supplies the workspace's installed packages through
 the explicit `vendored` dependency policy. The private e2e package now adds
-seven bounded, exact-version seeds for 107 utility, parser, fetch, image, state,
+eight bounded, exact-version seeds for 120 utility, parser, fetch, image, state,
 and compatibility-helper packages; their transitive graph is recorded in the
 lockfile. The probe does not install the corpus or run package-manager scripts;
 unavailable packages remain dependency failures.
 
 | Outcome                        | Baseline | Previous post-slice | Current post-slice | Current vs previous |
 | ------------------------------ | -------: | ------------------: | -----------------: | ------------------: |
-| third-party dependency failure |    2,361 |                 754 |                734 |                 -20 |
+| third-party dependency failure |    2,361 |                 734 |                709 |                 -25 |
 | not renderable command mode    |      358 |                 316 |                316 |                   0 |
-| other process/startup failure  |      432 |                 210 |                209 |                  -1 |
-| structured compatibility error |       23 |                   0 |                  2 |                  +2 |
-| renders a scene end to end     |       54 |               1,948 |              1,967 |                 +19 |
+| other process/startup failure  |      432 |                 209 |                222 |                 +13 |
+| structured compatibility error |       23 |                   2 |                  1 |                  -1 |
+| renders a scene end to end     |       54 |               1,967 |              1,980 |                 +13 |
 | no entrypoint found            |        3 |                   3 |                  3 |                   0 |
 
-Reading: the current post-slice extension pass rate is 1,967/3,231 (60.88%);
-among the 2,915 extensions with a selected renderable command it is 1,967/2,915
-(67.48%). The declaration-backed Icon enum, Raycast color values, collection
+Reading: the current post-slice extension pass rate is 1,980/3,231 (61.28%);
+among the 2,915 extensions with a selected renderable command it is 1,980/2,915
+(67.92%). The declaration-backed Icon enum, Raycast color values, collection
 metadata, List/Grid/Form search and pagination events, shared dropdown
 accessories, Clipboard read/clear behavior, Submenu lifecycle, nested public
 Props and utility namespaces, Keyboard shortcut aliases, Cache callback binding,
@@ -151,6 +151,18 @@ process/runtime failures; the full corpus run reduced dependency failures by
 20 and recorded 1,967 rendered scenes. The group provides parsing, formatting,
 date, URL, color, and small local-data behavior only; the probe still never
 installs extension dependencies or grants network/host capabilities.
+
+The eighth seed is `@faker-js/faker@10.5.0`, `@iarna/toml@2.2.5`,
+`@nem035/gpt-3-encoder@1.1.7`, `@total-typescript/ts-reset@0.6.1`,
+`@web3-storage/parse-link-header@3.1.0`, `calendar@0.1.1`,
+`expand-tilde@2.0.2`, `formdata-node@6.0.3`, `fzf@0.5.2`, `p-queue@8.0.1`,
+`react-use@17.6.0`, `stream-json@1.9.1`, and `valibot@1.1.0`. A targeted
+reprobe of the 734 previously dependency-classified entries rendered 20 and
+moved 6 to process/runtime failures; the full corpus run reduced dependency
+failures by 25 and recorded 1,980 rendered scenes. The group provides test
+data, encoding, parsing, queue, validation, React utility, and form-data
+behavior only; the probe still never installs extension dependencies or grants
+network/host capabilities.
 
 ## Committed fixtures
 
