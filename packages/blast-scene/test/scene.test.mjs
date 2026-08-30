@@ -349,6 +349,19 @@ test("validates scene transaction messages", (context) => {
                 children: [],
               },
               {
+                id: "choice",
+                type: "form-dropdown",
+                props: { id: "choice", title: "Choice", onChange: "event-choice" },
+                children: [
+                  {
+                    id: "choice-one",
+                    type: "form-dropdown-item",
+                    props: { value: "one", title: "One", keywords: ["primary", "first"] },
+                    children: [],
+                  },
+                ],
+              },
+              {
                 id: "due",
                 type: "form-date-picker",
                 props: {

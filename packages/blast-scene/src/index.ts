@@ -516,6 +516,7 @@ const PROP_WHITELIST: Record<SceneNodeType, readonly string[]> = {
   "form-dropdown-item": [
     "value",
     "title",
+    "keywords",
     "icon",
     "iconDark",
     "iconFallback",
@@ -1015,6 +1016,7 @@ const PROP_TYPES: Record<SceneNodeType, Readonly<Record<string, ScenePropType>>>
   "form-dropdown-item": {
     value: "string",
     title: "string",
+    keywords: "string[]",
     icon: "string",
     iconDark: "string",
     iconFallback: "string",

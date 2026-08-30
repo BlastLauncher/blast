@@ -1,6 +1,6 @@
 # ADR 0085: Preserve Form Dropdown item keywords
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-08-30
 
 ## Context
@@ -11,7 +11,7 @@ terms. The compatibility adapter validates and serializes the same property
 for List and Grid dropdown items, but currently drops it from Form dropdown
 items. The scene schema also omits the property from `form-dropdown-item`.
 
-The local corpus contains 5,074 `Form.Dropdown.Item` nodes and 58 explicit
+The local corpus contains 5,074 `Form.Dropdown.Item` nodes and 35 explicit
 `keywords` attributes on those nodes. Dropping the values loses declared
 search metadata even though the rest of the form dropdown already crosses the
 scene boundary.
@@ -37,7 +37,7 @@ errors at the adapter edge.
 ## Evidence
 
 - The pinned `DropdownItemProps` declaration includes `keywords?: string[]`.
-- The local corpus audit found 58 `keywords` attributes across the measured
+- The local corpus audit found 35 `keywords` attributes across the measured
   `Form.Dropdown.Item` nodes.
 - List and Grid dropdown items already use the same normalizer and scene value
   type, so Form can share the established representation.
@@ -51,7 +51,9 @@ another extension API change.
 
 ## Verification
 
-The adapter test suite will render a Form dropdown item with keywords and
-assert the serialized string array. The scene validation/build path will
-confirm that the new property is accepted and that the existing no-keywords
-shape remains unchanged.
+The adapter test suite renders a Form dropdown item with keywords and asserts
+the serialized string array. The scene suite accepts the new property, and
+the existing no-keywords shape remains unchanged. The focused scene and
+adapter suites pass; the aggregate corpus counters remain unchanged because
+this slice preserves metadata without changing command selection or host
+execution.

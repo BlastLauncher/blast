@@ -2111,6 +2111,7 @@ export interface DropdownItemProps {
   readonly value: string;
   readonly title: string;
   readonly icon?: IconLike;
+  readonly keywords?: string[];
 }
 
 export interface DropdownSectionProps {
@@ -4036,6 +4037,9 @@ function FormDropdownItem(props: DropdownItemProps): ReactElement {
   return createElement("form-dropdown-item", {
     value: props.value,
     title: props.title,
+    ...(props.keywords === undefined
+      ? {}
+      : { keywords: normalizeStringArray(props.keywords, "Form.Dropdown.Item keywords") }),
     ...serializeIconProperties(icon),
   });
 }

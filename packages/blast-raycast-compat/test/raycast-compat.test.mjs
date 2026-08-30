@@ -894,7 +894,7 @@ test("supports deprecated Form dropdown member aliases", async () => {
       createElement(
         Form.Dropdown,
         { id: "choice", title: "Choice" },
-        createElement(Form.DropdownItem, { value: "one", title: "One" }),
+        createElement(Form.DropdownItem, { value: "one", title: "One", keywords: ["primary", "first"] }),
         createElement(
           Form.DropdownSection,
           { title: "More" },
@@ -910,7 +910,10 @@ test("supports deprecated Form dropdown member aliases", async () => {
   assert.deepEqual(
     dropdown.children.map(({ type, props }) => ({ type, props })),
     [
-      { type: "form-dropdown-item", props: { value: "one", title: "One" } },
+      {
+        type: "form-dropdown-item",
+        props: { value: "one", title: "One", keywords: ["primary", "first"] },
+      },
       { type: "form-dropdown-section", props: { title: "More" } },
     ],
   );

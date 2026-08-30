@@ -180,7 +180,8 @@ onto the V2 scene contract, renderer, and capability broker:
   compatible; deprecated Form field values retain their nested static
   members, including legacy `Form.DatePicker.Date` and `DateTime` aliases.
   Form fields attach stable `focus()`/`reset()` handles; their
-  client-side control behavior remains a future host boundary;
+  client-side control behavior remains a future host boundary. Form dropdown
+  item `keywords` arrays are validated and preserved for client-side search;
 - `showToast` and `Toast` support legacy show overloads, animated/success/
   failure styles, Raycast's uppercase `Toast.Style` constants, identified
   show/update/hide lifecycle messages, mutable toast fields, and

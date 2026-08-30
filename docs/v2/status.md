@@ -671,12 +671,11 @@ only small portable JavaScript seeds eligible after the API-first slice.
    0084](decisions/0084-preserve-legacy-form-date-picker-values.md) is also
    implemented: the two corpus-observed legacy `Form.DatePicker.Date` and
    `DateTime` runtime values alias the declaration-backed `Type` values
-   without widening the form scene contract. The next planned measured Form
-   semantics slice is [ADR
-   0085](decisions/0085-preserve-form-dropdown-keywords.md): carry the
-   declaration-backed `Form.Dropdown.Item.keywords` string array through the
-   existing scene boundary with the same validation already used by List and
-   Grid dropdowns. Preserve
+   without widening the form scene contract. The Form Dropdown keyword slice
+   in [ADR
+   0085](decisions/0085-preserve-form-dropdown-keywords.md) is now implemented:
+   `Form.Dropdown.Item.keywords` is validated and preserved as a scene string
+   array, while filtering remains client behavior. Preserve
    structured errors for values that would require a broader scene or host
    policy. Keep the deterministic
    structured probe failure
@@ -699,7 +698,8 @@ only small portable JavaScript seeds eligible after the API-first slice.
    cross-compatible dropdowns,
    `ActionPanel.Item`, whitespace-only
    collection boundaries, `Form.LinkAccessory`, the measured action creators,
-   Finder/trash actions, collection-value normalization, CreateSnippet and
+   Form dropdown keyword metadata, Finder/trash actions, collection-value
+   normalization, CreateSnippet and
    Quick Look actions, Detail metadata, `List.Item.Detail`, search/pagination
    events, zero pagination and OpenInBrowser readiness fallbacks, Clipboard
    read/clear, Submenu lifecycle,

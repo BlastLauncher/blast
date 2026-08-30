@@ -476,7 +476,8 @@ dispatches a bounds mutation through the explicit host capability.
   dropdown/tag-picker members are measured. Quicklink creation and date picking
   use explicit `quicklink.create` and `date-picker.pick` capabilities; the
   legacy `Form.DatePicker.Date` and `DateTime` values alias the modern `Type`
-  values. Provider consent and native UI remain host work.
+  values. Form dropdown item `keywords` arrays are preserved as validated
+  scene metadata. Provider consent and native UI remain host work.
 - `List`, `Grid`, and `Form.Dropdown` carry search text, filtering, loading,
   throttling, selection, and pagination fields as semantic scene properties
   and events. `Clipboard.read`/`readText` decode the official `{ text }` shape
@@ -519,7 +520,8 @@ dispatches a bounds mutation through the explicit host capability.
   aliases, `Form.DatePicker.Type`, and the deprecated Form field value statics
   are also declaration-compatible; the legacy `Form.DatePicker.Date` and
   `DateTime` values are runtime aliases of the modern `Type` values.
-  `Cache.subscribe` remains bound for
+  Form dropdown item `keywords` arrays are also validated and preserved for
+  client-side filtering. `Cache.subscribe` remains bound for
   external-store hooks. Form fields attach stable focus/reset handles, while
   their client-side behavior remains deferred until a host control boundary is
   defined;
@@ -553,6 +555,10 @@ dispatches a bounds mutation through the explicit host capability.
   `Form.DatePicker.Date` and `Form.DatePicker.DateTime` as aliases of the
   declaration-backed `Type` values; form serialization and native date-picker
   behavior remain unchanged.
+- The Form Dropdown keyword slice in [ADR
+  0085](../decisions/0085-preserve-form-dropdown-keywords.md) carries
+  declaration-backed `keywords` arrays through `form-dropdown-item` scene
+  nodes with existing string-array validation; filtering remains client work.
 - `OAuth.PKCEClient` is measured through host-owned `oauth` operations for
   authorization requests, browser authorization, token storage, lookup, and
   removal. PKCE generation, browser routing, secure storage, consent, and
