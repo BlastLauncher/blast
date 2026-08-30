@@ -980,6 +980,9 @@ export type ShortcutLike =
         readonly key: KeyEquivalent;
       };
     };
+type KeyboardShortcutType = ShortcutLike;
+type KeyboardKeyModifierType = KeyModifier;
+type KeyboardKeyEquivalentType = KeyEquivalent;
 export type KeyboardShortcut = ShortcutLike;
 export type ActionStyleLike = "regular" | "destructive";
 export type AlertActionStyleLike = "default" | "cancel" | "destructive";
@@ -1631,6 +1634,12 @@ export const Keyboard = {
     },
   },
 } as const;
+
+export namespace Keyboard {
+  export type Shortcut = KeyboardShortcutType;
+  export type KeyModifier = KeyboardKeyModifierType;
+  export type KeyEquivalent = KeyboardKeyEquivalentType;
+}
 
 /** @deprecated Use `Keyboard.KeyEquivalent` values directly. */
 export const specialKeys = {

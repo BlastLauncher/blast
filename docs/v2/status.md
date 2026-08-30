@@ -192,6 +192,7 @@ slice changes what is executable, what is trusted, or what should happen next.
   instead of crossing the scene boundary as `null`.
 - The declaration surface now also exposes Raycast's `Alert.Options` and
   `Alert.ActionOptions`, `Cache.Options`/`Subscriber`/`Subscription`,
+  `Keyboard.Shortcut`/`KeyModifier`/`KeyEquivalent`,
   `Toast.Options`/`ActionOptions`/`Style`, and `Form.ItemReference` aliases;
   `FormItemRef` is available as a top-level type. `Toast.Style` constants use
   Raycast's uppercase values and normalize to lower-case scene styles. Form
