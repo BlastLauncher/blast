@@ -1857,18 +1857,18 @@
   "outcomes": {
     "no-entrypoint": 3,
     "not-renderable": 316,
-    "process-failure": 236,
-    "renders": 2072,
-    "structured-compatibility-error": 1,
-    "third-party-dependency": 603
+    "process-failure": 250,
+    "renders": 2075,
+    "structured-compatibility-error": 2,
+    "third-party-dependency": 585
   },
   "coverage": {
-    "extensionPasses": 2072,
+    "extensionPasses": 2075,
     "extensionTotal": 3231,
-    "extensionPassRate": 0.6413,
-    "renderableCommandPasses": 2072,
+    "extensionPassRate": 0.6422,
+    "renderableCommandPasses": 2075,
     "renderableCommandTotal": 2915,
-    "renderableCommandPassRate": 0.7108
+    "renderableCommandPassRate": 0.7118
   },
   "staticBlockers": [
     {
@@ -1878,9 +1878,9 @@
   ],
   "failureClasses": {
     "no-entrypoint": 3,
-    "process-failure": 236,
-    "structured-compatibility-error": 1,
-    "third-party-dependency": 603
+    "process-failure": 250,
+    "structured-compatibility-error": 2,
+    "third-party-dependency": 585
   },
   "failureSamples": {
     "no-entrypoint": [
@@ -1896,6 +1896,7 @@
       "android-screen-capture"
     ],
     "structured-compatibility-error": [
+      "crawldoc",
       "open-targets-raycast"
     ],
     "third-party-dependency": [
@@ -2470,8 +2471,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "alloy",
@@ -2884,7 +2884,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "apple-passwords",
@@ -2918,7 +2919,8 @@
       "commandName": "searchAppleStocks",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "apple-tv-remote",
@@ -3103,7 +3105,8 @@
       "commandName": "search-web",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "asoiaf",
@@ -4212,7 +4215,8 @@
       "commandName": "new-tab",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "brave-search",
@@ -4548,8 +4552,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "capacities",
@@ -4615,7 +4618,8 @@
       "commandName": "latest-articles",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "catenary-raycast",
@@ -4656,7 +4660,8 @@
       "commandName": "search",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "ccusage",
@@ -5449,8 +5454,7 @@
       "commandName": "search",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "cloudstash",
@@ -5807,8 +5811,7 @@
       "commandName": "new-tab",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "cometapi",
@@ -5922,8 +5925,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "compressx",
@@ -6318,8 +6320,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "create-link",
@@ -6498,8 +6500,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "cta",
@@ -6583,7 +6584,7 @@
       "mode": "view",
       "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "transport_send_failed"
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "cursor-recent-projects",
@@ -6732,7 +6733,8 @@
       "commandName": "assets",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "danbooru",
@@ -6843,7 +6845,7 @@
       "mode": "view",
       "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "transport_send_failed"
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "dawa",
@@ -7307,7 +7309,8 @@
       "commandName": "search",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "dia-skills",
@@ -10138,8 +10141,8 @@
       "commandName": "get-insights",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "git",
@@ -12235,8 +12238,7 @@
       "commandName": "download-instagram-highlight-story",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "renders"
     },
     {
       "directory": "install-fonts",
@@ -13964,8 +13966,8 @@
       "commandName": "search-linkace",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "linkding",
@@ -16989,7 +16991,8 @@
       "commandName": "find-departures",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "nzbget",
@@ -17057,8 +17060,7 @@
       "commandName": "capture",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "outcome": "renders"
     },
     {
       "directory": "obsidian-tasks",
@@ -17131,8 +17133,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "oh-shoot",
@@ -17746,8 +17747,7 @@
       "commandName": "oss-manager",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "ossinsight",
@@ -17807,7 +17807,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "outline-document-search",
@@ -18050,7 +18051,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "parcel",
@@ -18679,8 +18681,7 @@
       "commandName": "new-pin",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "pinwork",
@@ -19319,7 +19320,8 @@
       "commandName": "generate-project-code",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "project-companion",
@@ -19367,8 +19369,7 @@
       "commandName": "create-command",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "promptnote",
@@ -19424,8 +19425,7 @@
       "commandName": "list-emails",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "proton-pass",
@@ -19698,8 +19698,7 @@
       "commandName": "list-emails",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "qq-music-controls",
@@ -21263,8 +21262,8 @@
       "commandName": "restore",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "process-failure",
+      "failureCode": "runtime_closed_during_initialization"
     },
     {
       "directory": "retool",
@@ -22673,7 +22672,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "similarweb",
@@ -22885,8 +22885,7 @@
       "commandName": "search-skills",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "skills-re",
@@ -22903,8 +22902,7 @@
       "commandName": "search-flights",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "slack",
@@ -23441,7 +23439,7 @@
       "mode": "view",
       "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "transport_send_failed"
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "splix",
@@ -23909,8 +23907,7 @@
       "commandName": "summarizeVideoWithRaycast",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "summation",
@@ -26932,7 +26929,8 @@
       "commandName": "speech-to-text",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "voiceink",

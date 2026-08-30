@@ -25,27 +25,27 @@ post-slice result, including one result per extension, is
 
 The current post-slice run supplies the workspace's installed packages through
 the explicit `vendored` dependency policy. The private e2e package now adds
-fourteen bounded, exact-version seeds for 202 utility, parser, fetch, image,
-state, compatibility-helper, and JavaScript SDK packages; their transitive graph
-is recorded in the lockfile. This round was selected to install on the ARM64
-Linux runner with package-manager scripts disabled; no native, WASM, macOS, or
-host-process package was selected directly. Ethers and OpenAI still resolve
-through the workspace's existing optional websocket-helper graph. The probe does
-not install the corpus or run package-manager scripts; unavailable packages
-remain dependency failures.
+fifteen bounded, exact-version dependency rounds covering 214 utility, parser,
+fetch, image, state, compatibility-helper, SDK, client, and JavaScript utility
+packages; their transitive graph is recorded in the lockfile. This round was
+selected to install on the ARM64 Linux runner with package-manager scripts
+disabled; no native, WASM, macOS, or host-process package was selected directly.
+Ethers and OpenAI still resolve through the workspace's existing optional
+websocket-helper graph. The probe does not install the corpus or run
+package-manager scripts; unavailable packages remain dependency failures.
 
 | Outcome                        | Baseline | Previous post-slice | Current post-slice | Current vs previous |
 | ------------------------------ | -------: | ------------------: | -----------------: | ------------------: |
-| third-party dependency failure |    2,361 |                 621 |                603 |                 -18 |
+| third-party dependency failure |    2,361 |                 603 |                585 |                 -18 |
 | not renderable command mode    |      358 |                 316 |                316 |                   0 |
-| other process/startup failure  |      432 |                 234 |                236 |                  +2 |
-| structured compatibility error |       23 |                   2 |                  1 |                  -1 |
-| renders a scene end to end     |       54 |               2,055 |              2,072 |                 +17 |
+| other process/startup failure  |      432 |                 236 |                250 |                 +14 |
+| structured compatibility error |       23 |                   1 |                  2 |                  +1 |
+| renders a scene end to end     |       54 |               2,072 |              2,075 |                  +3 |
 | no entrypoint found            |        3 |                   3 |                  3 |                   0 |
 
-Reading: the current post-slice extension pass rate is 2,072/3,231 (64.13%);
-among the 2,915 extensions with a selected renderable command it is 2,072/2,915
-(71.08%). The declaration-backed Icon enum, Raycast color values, collection
+Reading: the current post-slice extension pass rate is 2,075/3,231 (64.22%);
+among the 2,915 extensions with a selected renderable command it is 2,075/2,915
+(71.18%). The declaration-backed Icon enum, Raycast color values, collection
 metadata, List/Grid/Form search and pagination events, shared dropdown
 accessories, Clipboard read/clear behavior, Submenu lifecycle, nested public
 Props and utility namespaces, Keyboard shortcut aliases, Cache callback binding,
@@ -68,10 +68,10 @@ Raycast theme color identifiers, decodes structured Clipboard reads, supports
 Clipboard clear, adds Submenu search/open/id behavior, and publishes nested
 Props aliases for the measured components. `MenuBarExtra.Item.alternate` now
 publishes a nested alternate item with a distinct right-click event. The current
-aggregate retains `open-targets-raycast/platform` as a strict List text-child
-diagnostic; a focused serial reprobe also deterministically surfaces the same
-boundary in `crawldoc`. These remain boundary checks rather than reasons to
-widen the semantic collection contract. The targeted
+aggregate retains `crawldoc` and `open-targets-raycast/platform` as strict List
+text-child diagnostics; a focused serial reprobe deterministically surfaces the
+same boundary in both commands. These remain boundary checks rather than
+reasons to widen the semantic collection contract. The targeted
 `modrinth-search/search-projects` and four
 OpenInBrowser reprobes now render after preserving their declaration-shaped
 readiness fallbacks. The context-provider boundary moves
@@ -244,6 +244,23 @@ and code-generation availability only: network, database, host providers, and
 cross-extension behavior remain outside the compatibility boundary. Postgres
 and MongoDB native addons were not installed; the batch remains suitable for
 the ARM64 Linux measurement runner with lifecycle scripts disabled.
+
+The fifteenth seed is `@alicloud/pop-core@1.8.0`,
+`@api-blueprints/pathmaker@1.3.0`, `@aternus/csv-to-xlsx@3.0.5`,
+`ali-oss@6.23.0`, `cloudconvert@3.0.0`, `cloudinary@2.11.0`,
+`imapflow@1.7.6`, `mixpanel@0.23.0`, `placeholders-toolkit@0.1.5`,
+`proper-lockfile@4.1.2`, `proxy-agent@8.0.2`, and `ytdl-core@4.11.5`.
+A targeted reprobe of the 603 previously dependency-classified entries rendered
+15 and moved 3 to process/runtime failures, leaving 585 dependency failures in
+that set. The full corpus run recorded 2,075 rendered scenes, 585 dependency
+failures, 250 process/startup failures, 2 structured compatibility errors, 316
+non-renderable commands, and 3 missing entrypoints. The aggregate gained 3
+rendered outcomes; the larger process and structured deltas remain normal probe
+variance. The group provides portable client and local utility availability
+only: network, host providers, cross-extension behavior, and database access
+remain outside the compatibility boundary. All selected roots resolved on the
+ARM64 Linux runner with lifecycle scripts disabled; no native, WASM, macOS, or
+host-process package was selected directly.
 
 ## Committed fixtures
 
