@@ -114,11 +114,12 @@ selection, masking, tinting, and rendering remain client/host work. Focused
 verification covers 50 scene tests, 89 compatibility tests, and 41 e2e tests;
 the aggregate corpus counters remain unchanged.
 
-The next API-first slice is planned in [ADR 0080](../decisions/0080-preserve-raycast-environment-metadata.md):
-preserve manifest title and owner/author identity through `environment`, and
-accept explicit host-supplied scalar environment metadata while retaining
-legacy defaults. It does not infer Linux appearance, development/install
-state, or tool execution behavior.
+The environment metadata slice in [ADR 0080](../decisions/0080-preserve-raycast-environment-metadata.md)
+is now implemented. The trusted catalog preserves manifest title and
+owner/author identity through `environment`, and the descriptor accepts
+explicit host-supplied scalar metadata with validated enums and safe legacy
+defaults. It does not infer Linux appearance, development/install state, or
+tool execution behavior; aggregate counters remain unchanged.
 
 The first audited vendor seed is `axios@1.8.4`, `cheerio@1.0.0`,
 `cross-fetch@4.0.0`, `date-fns@4.1.0`, `fast-xml-parser@5.3.2`, `fuse.js@7.1.0`,
@@ -419,10 +420,12 @@ dispatches a bounds mutation through the explicit host capability.
   objects are measured; client toast timing/stacking remains unsupported;
 - `useNavigation` and `Action.Push` (28.8% of extensions),
   `LocalStorage`/`Cache` (26.5%), and `environment` (19.7%) are measured in
-  the adapter but still have limited fixture coverage. The measured
-  `environment.canAccess` query is used by roughly 100 corpus extensions and
-  now delegates to an optional default-deny host-policy callback; it does not
-  itself grant access or provide AI, browser, clipboard, or desktop providers.
+  the adapter. Environment now preserves manifest identity and explicitly
+  supplied scalar host metadata, while OS-derived state still uses safe
+  defaults. The measured `environment.canAccess` query is used by roughly 100
+  corpus extensions and now delegates to an optional default-deny host-policy
+  callback; it does not itself grant access or provide AI, browser, clipboard,
+  or desktop providers.
   `LocalStorage.allItems`
   and `allLocalStorageItems` now share the brokered storage boundary; the
   legacy push, open,

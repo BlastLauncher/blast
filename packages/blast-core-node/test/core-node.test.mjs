@@ -20,6 +20,7 @@ test("resolves Raycast-style manifests through the entrypoint convention", async
     commandName: "index",
     entrypoint: path.join(catalogRoot, "alpha-extension", "src", "index.tsx"),
     rootDirectory: path.join(catalogRoot, "alpha-extension"),
+    extensionName: "Alpha Extension",
     entryPointMode: "view",
   });
 
@@ -36,6 +37,8 @@ test("resolves explicit manifest entrypoints", async () => {
     commandName: "main",
     entrypoint: path.join(catalogRoot, "beta-extension", "lib", "main.cjs"),
     rootDirectory: path.join(catalogRoot, "beta-extension"),
+    extensionName: "Beta Extension",
+    ownerOrAuthorName: "beta-owner",
     entryPointMode: "view",
     preferences: { token: "secret", enabled: true, layout: "Grid" },
   });
@@ -160,6 +163,26 @@ test("parses manifests strictly", () => {
   assert.equal(parseManifest({ name: "sample", commands: [{ name: "index", entrypoint: 7 }] }), undefined);
   assert.equal(parseManifest({ name: "sample", commands: [{ name: "index", mode: "invalid" }] }), undefined);
   assert.equal(parseManifest("sample"), undefined);
+
+  assert.deepEqual(
+    parseManifest({
+      name: "sample",
+      title: "Sample Extension",
+      author: "sample-author",
+      owner: "sample-owner",
+      commands: [{ name: "index" }],
+    }),
+    {
+      name: "sample",
+      title: "Sample Extension",
+      author: "sample-author",
+      owner: "sample-owner",
+      commands: [{ name: "index", entrypoint: undefined }],
+      preferences: {},
+    },
+  );
+  assert.equal(parseManifest({ name: "sample", title: 7, commands: [{ name: "index" }] }), undefined);
+  assert.equal(parseManifest({ name: "sample", author: "", commands: [{ name: "index" }] }), undefined);
 });
 
 test("resolves manifest preference defaults", (context) => {

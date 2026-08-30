@@ -17,6 +17,8 @@
     }
   ],
   "title": "Beta Extension",
+  "author": "beta-author",
+  "owner": "beta-owner",
   "preferences": [
     {
       "name": "token",

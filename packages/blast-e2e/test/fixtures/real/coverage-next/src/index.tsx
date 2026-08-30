@@ -57,7 +57,10 @@ export default function Command() {
     <List isShowingDetail navigationTitle={`Next:${status}`}>
       <List.Item
         title={{ value: "Coverage next", tooltip: "Measured detail fixture" }}
-        subtitle={{ value: `${legacyPreferenceValue}:${environment.appearance}:${fixtureId}`, tooltip: "State" }}
+        subtitle={{
+          value: `${legacyPreferenceValue}:${environment.extensionName}:${environment.ownerOrAuthorName}:${environment.appearance}:${fixtureId}`,
+          tooltip: "State",
+        }}
         detail={
           <List.Item.Detail
             markdown="# Coverage next"

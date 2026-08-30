@@ -55,7 +55,7 @@ export default function Command() {
     <List navigationTitle={`Next:${status}`}>
       <List.Item
         title="Coverage next"
-        subtitle={`${legacyPreferenceValue}:${environment.appearance}:${fixtureId}`}
+        subtitle={`${legacyPreferenceValue}:${environment.extensionName}:${environment.ownerOrAuthorName}:${environment.appearance}:${fixtureId}`}
         actions={
           <ActionPanel>
             <OpenInBrowserAction url="https://example.com/legacy" />

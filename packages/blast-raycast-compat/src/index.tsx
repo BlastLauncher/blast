@@ -55,6 +55,17 @@ export class CompatibilityError extends Error {
 }
 
 export type RaycastEntryPointMode = "no-view" | "view" | "menu-bar";
+export type RaycastEntryPointType = "command" | "tool";
+export type RaycastAppearance = "light" | "dark";
+export type RaycastTextSize = "medium" | "large";
+
+export interface RaycastEnvironmentMetadata {
+  readonly raycastVersion?: string;
+  readonly entryPointType?: RaycastEntryPointType;
+  readonly isDevelopment?: boolean;
+  readonly appearance?: RaycastAppearance;
+  readonly textSize?: RaycastTextSize;
+}
 
 export interface RaycastCompatContext {
   readonly descriptor: {
@@ -62,8 +73,14 @@ export interface RaycastCompatContext {
     readonly commandName: string;
     readonly preferences: Readonly<Record<string, string | number | boolean>>;
     readonly rootDirectory?: string;
+    /** Optional manifest title used by environment.extensionName. */
+    readonly extensionName?: string;
+    /** Optional manifest owner/author used by environment.ownerOrAuthorName. */
+    readonly ownerOrAuthorName?: string;
     /** Optional for compatibility with manually-created legacy contexts. */
     readonly entryPointMode?: RaycastEntryPointMode;
+    /** Optional host-owned scalar environment values. */
+    readonly environment?: RaycastEnvironmentMetadata;
   };
   readonly platform: string;
   readonly publish: (transaction: SceneTransaction) => Promise<void>;
@@ -6261,7 +6278,7 @@ export interface Environment {
   readonly raycastVersion: string;
   readonly ownerOrAuthorName: string;
   readonly extensionName: string;
-  readonly entryPointType: "command" | "tool";
+  readonly entryPointType: RaycastEntryPointType;
   readonly entryPointName: string;
   readonly entryPointMode: "no-view" | "view" | "menu-bar";
   readonly assetsPath: string;
@@ -6286,23 +6303,24 @@ export interface EnvironmentAccessor extends Environment {
 function createEnvironment(): Environment {
   const context = requireContext();
   const osName = context.platform === "darwin" ? "macOS" : context.platform === "win32" ? "Windows" : "Linux";
-  const appearance = "dark" as const;
+  const metadata = context.descriptor.environment;
+  const appearance = metadata?.appearance ?? "dark";
   const entryPointMode = context.descriptor.entryPointMode ?? "view";
   const rootDirectory = context.descriptor.rootDirectory;
   const pathUnderExtension = (name: string) =>
     rootDirectory === undefined ? name : `${rootDirectory.replace(/[\\/]$/, "")}/${name}`;
   return {
-    raycastVersion: "1.79.0",
-    ownerOrAuthorName: context.descriptor.extensionId,
-    extensionName: context.descriptor.extensionId,
-    entryPointType: "command",
+    raycastVersion: metadata?.raycastVersion ?? "1.79.0",
+    ownerOrAuthorName: context.descriptor.ownerOrAuthorName ?? context.descriptor.extensionId,
+    extensionName: context.descriptor.extensionName ?? context.descriptor.extensionId,
+    entryPointType: metadata?.entryPointType ?? "command",
     entryPointName: context.descriptor.commandName,
     entryPointMode,
     assetsPath: pathUnderExtension("assets"),
     supportPath: pathUnderExtension("support"),
-    isDevelopment: true,
+    isDevelopment: metadata?.isDevelopment ?? true,
     appearance,
-    textSize: "medium",
+    textSize: metadata?.textSize ?? "medium",
     launchType: compatGlobals.launchProps?.launchType ?? LaunchType.UserInitiated,
     canAccess: environmentCanAccess,
     theme: appearance,

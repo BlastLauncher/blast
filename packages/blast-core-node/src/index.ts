@@ -20,6 +20,9 @@ export interface ManifestCommand {
 
 export interface ExtensionManifest {
   readonly name: string;
+  readonly title?: string;
+  readonly author?: string;
+  readonly owner?: string;
   readonly commands: readonly ManifestCommand[];
   /** Manifest preference defaults keyed by preference name. */
   readonly preferences: Readonly<Record<string, string | number | boolean>>;
@@ -81,11 +84,14 @@ export class FilesystemExtensionCatalog implements ExtensionCatalog {
       ...entry.manifest.preferences,
       ...command.preferences,
     };
+    const ownerOrAuthorName = entry.manifest.owner ?? entry.manifest.author;
     return {
       extensionId: entry.manifest.name,
       commandName: command.name,
       entrypoint: await this.#resolveEntrypoint(entry.directory, command),
       rootDirectory: entry.directory,
+      ...(entry.manifest.title === undefined ? {} : { extensionName: entry.manifest.title }),
+      ...(ownerOrAuthorName === undefined ? {} : { ownerOrAuthorName }),
       entryPointMode: command.mode ?? "view",
       ...(Object.keys(preferences).length === 0 ? {} : { preferences }),
     };
@@ -193,6 +199,12 @@ export function parseManifest(value: unknown): ExtensionManifest | undefined {
   if (typeof name !== "string" || name.length === 0) {
     return undefined;
   }
+  const title = parseOptionalManifestString(value["title"]);
+  const author = parseOptionalManifestString(value["author"]);
+  const owner = parseOptionalManifestString(value["owner"]);
+  if (title === INVALID_MANIFEST_STRING || author === INVALID_MANIFEST_STRING || owner === INVALID_MANIFEST_STRING) {
+    return undefined;
+  }
   const rawCommands = value["commands"];
   if (!Array.isArray(rawCommands)) {
     return undefined;
@@ -231,7 +243,23 @@ export function parseManifest(value: unknown): ExtensionManifest | undefined {
   if (preferences === undefined) {
     return undefined;
   }
-  return { name, commands, preferences };
+  return {
+    name,
+    ...(title === undefined ? {} : { title }),
+    ...(author === undefined ? {} : { author }),
+    ...(owner === undefined ? {} : { owner }),
+    commands,
+    preferences,
+  };
+}
+
+const INVALID_MANIFEST_STRING = Symbol("invalid-manifest-string");
+
+function parseOptionalManifestString(value: unknown): string | undefined | typeof INVALID_MANIFEST_STRING {
+  if (value === undefined) {
+    return undefined;
+  }
+  return typeof value === "string" && value.length > 0 ? value : INVALID_MANIFEST_STRING;
 }
 
 function parsePreferenceDefaults(value: unknown): Record<string, string | number | boolean> | undefined {

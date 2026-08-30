@@ -9,14 +9,32 @@ export const EXTENSION_INITIALIZE_MESSAGE = "extension.initialize" as const;
 export const EXTENSION_READY_MESSAGE = "extension.ready" as const;
 
 export type ExtensionEntryPointMode = "no-view" | "view" | "menu-bar";
+export type ExtensionEntryPointType = "command" | "tool";
+export type ExtensionAppearance = "light" | "dark";
+export type ExtensionTextSize = "medium" | "large";
+
+/** Host-owned scalar values used to populate Raycast's environment object. */
+export interface ExtensionEnvironmentMetadata {
+  readonly raycastVersion?: string;
+  readonly entryPointType?: ExtensionEntryPointType;
+  readonly isDevelopment?: boolean;
+  readonly appearance?: ExtensionAppearance;
+  readonly textSize?: ExtensionTextSize;
+}
 
 export interface ExtensionDescriptor {
   readonly extensionId: string;
   readonly commandName: string;
   readonly entrypoint: string;
   readonly rootDirectory: string;
+  /** Manifest title used by environment.extensionName. */
+  readonly extensionName?: string;
+  /** Manifest owner, falling back to author, used by environment.ownerOrAuthorName. */
+  readonly ownerOrAuthorName?: string;
   /** Raycast manifest command mode; omitted by older manually-built descriptors. */
   readonly entryPointMode?: ExtensionEntryPointMode;
+  /** Optional host-owned scalar environment values. */
+  readonly environment?: ExtensionEnvironmentMetadata;
   /** Manifest preference defaults resolved by the trusted catalog. */
   readonly preferences?: Readonly<Record<string, string | number | boolean>>;
 }
@@ -86,6 +104,12 @@ function validateDescriptor(value: Record<string, unknown>, path: string, issues
   validateNonEmptyString(value.commandName, `${path}.commandName`, issues);
   validateNonEmptyString(value.entrypoint, `${path}.entrypoint`, issues);
   validateNonEmptyString(value.rootDirectory, `${path}.rootDirectory`, issues);
+  if (value.extensionName !== undefined) {
+    validateNonEmptyString(value.extensionName, `${path}.extensionName`, issues);
+  }
+  if (value.ownerOrAuthorName !== undefined) {
+    validateNonEmptyString(value.ownerOrAuthorName, `${path}.ownerOrAuthorName`, issues);
+  }
   if (
     value.entryPointMode !== undefined &&
     value.entryPointMode !== "no-view" &&
@@ -93,6 +117,9 @@ function validateDescriptor(value: Record<string, unknown>, path: string, issues
     value.entryPointMode !== "menu-bar"
   ) {
     issues.push({ path: `${path}.entryPointMode`, message: "Expected a valid entrypoint mode" });
+  }
+  if (value.environment !== undefined) {
+    validateEnvironmentMetadata(value.environment, `${path}.environment`, issues);
   }
   if (value.preferences === undefined) {
     return;
@@ -106,6 +133,28 @@ function validateDescriptor(value: Record<string, unknown>, path: string, issues
     if (typeof preference !== "string" && typeof preference !== "number" && typeof preference !== "boolean") {
       issues.push({ path: `${path}.preferences.${key}`, message: "Expected a primitive preference value" });
     }
+  }
+}
+
+function validateEnvironmentMetadata(value: unknown, path: string, issues: ValidationIssue[]): void {
+  if (!isRecord(value)) {
+    issues.push({ path, message: "Expected an object" });
+    return;
+  }
+  if (value.raycastVersion !== undefined) {
+    validateNonEmptyString(value.raycastVersion, `${path}.raycastVersion`, issues);
+  }
+  if (value.entryPointType !== undefined && value.entryPointType !== "command" && value.entryPointType !== "tool") {
+    issues.push({ path: `${path}.entryPointType`, message: "Expected a valid entrypoint type" });
+  }
+  if (value.isDevelopment !== undefined && typeof value.isDevelopment !== "boolean") {
+    issues.push({ path: `${path}.isDevelopment`, message: "Expected a boolean" });
+  }
+  if (value.appearance !== undefined && value.appearance !== "light" && value.appearance !== "dark") {
+    issues.push({ path: `${path}.appearance`, message: "Expected a valid appearance" });
+  }
+  if (value.textSize !== undefined && value.textSize !== "medium" && value.textSize !== "large") {
+    issues.push({ path: `${path}.textSize`, message: "Expected a valid text size" });
   }
 }
 

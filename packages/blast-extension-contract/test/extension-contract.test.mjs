@@ -16,7 +16,16 @@ const descriptor = {
   commandName: "index",
   entrypoint: "/extensions/example/index.js",
   rootDirectory: "/extensions/example",
+  extensionName: "Example Extension",
+  ownerOrAuthorName: "example-owner",
   entryPointMode: "menu-bar",
+  environment: {
+    raycastVersion: "1.80.0",
+    entryPointType: "command",
+    isDevelopment: false,
+    appearance: "light",
+    textSize: "large",
+  },
 };
 
 test("validates extension initialization messages", () => {
@@ -42,6 +51,16 @@ test("reports invalid extension descriptor fields", () => {
   assert.equal(invalidMode.ok, false);
   assert.deepEqual(invalidMode.issues, [
     { path: "$.payload.descriptor.entryPointMode", message: "Expected a valid entrypoint mode" },
+  ]);
+
+  const invalidEnvironment = validateExtensionInitializeMessage(
+    createMessage("initialize-1", EXTENSION_INITIALIZE_MESSAGE, {
+      descriptor: { ...descriptor, environment: { appearance: "sepia" } },
+    }),
+  );
+  assert.equal(invalidEnvironment.ok, false);
+  assert.deepEqual(invalidEnvironment.issues, [
+    { path: "$.payload.descriptor.environment.appearance", message: "Expected a valid appearance" },
   ]);
 });
 

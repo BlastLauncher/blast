@@ -1,6 +1,6 @@
 # ADR 0080: Preserve Raycast environment metadata
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-08-30
 
 ## Context
@@ -49,9 +49,9 @@ Raycast adapter.
   intended manifest/runtime sources.
 - The corpus census records 638 `environment` consumers; the local manifest
   audit found titles/authors on all 3,231 manifests and owners on 77.
-- The implementation will be covered by contract, catalog, adapter, and e2e
-  tests, with aggregate corpus counters expected to remain unchanged because
-  this is metadata propagation rather than provider or dependency support.
+- Contract, catalog, adapter, and child-process e2e tests cover the metadata
+  path, with aggregate corpus counters unchanged because this is metadata
+  propagation rather than provider or dependency support.
 
 ## Consequences
 

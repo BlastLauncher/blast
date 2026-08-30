@@ -2922,11 +2922,40 @@ test("environment reports the runtime platform and command identity", () => {
   assert.equal(environment.entryPointName, "index");
   assert.equal(environment.entryPointMode, "view");
   assert.equal(environment.commandMode, "view");
+  assert.equal(environment.entryPointType, "command");
   assert.equal(environment.appearance, "dark");
+  assert.equal(environment.textSize, "medium");
+  assert.equal(environment.isDevelopment, true);
   assert.equal(environment.theme, "dark");
   assert.equal(environment.assetsPath, "assets");
   assert.equal(environment.supportPath, "support");
   assert.equal(environment.canAccess("fixture-api"), false);
+});
+
+test("environment preserves manifest identity and host metadata", () => {
+  const probe = createContext();
+  probe.context.descriptor.extensionName = "Fixture Display Name";
+  probe.context.descriptor.ownerOrAuthorName = "fixture-owner";
+  probe.context.descriptor.environment = {
+    raycastVersion: "1.80.0",
+    entryPointType: "tool",
+    isDevelopment: false,
+    appearance: "light",
+    textSize: "large",
+  };
+  configureRaycastCompat(probe.context);
+
+  const info = environment();
+  assert.equal(info.raycastVersion, "1.80.0");
+  assert.equal(info.extensionName, "Fixture Display Name");
+  assert.equal(info.ownerOrAuthorName, "fixture-owner");
+  assert.equal(info.entryPointType, "tool");
+  assert.equal(info.isDevelopment, false);
+  assert.equal(info.appearance, "light");
+  assert.equal(info.theme, "light");
+  assert.equal(info.textSize, "large");
+  assert.equal(environment.entryPointType, "tool");
+  assert.equal(environment.appearance, "light");
 });
 
 test("environment preserves the descriptor entry point mode", () => {

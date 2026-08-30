@@ -328,12 +328,13 @@ slice changes what is executable, what is trusted, or what should happen next.
   is now implemented: Raycast image source/fallback variants, masks, and
   dynamic tint metadata cross the scene and capability boundaries while actual
   client image loading, theme selection, and rendering remain host work.
-- The next API-first slice is planned in [ADR 0080](decisions/0080-preserve-raycast-environment-metadata.md):
-  preserve manifest title and owner/author identity through `environment`,
-  and accept explicitly supplied scalar host metadata for Raycast version,
-  entrypoint type, development state, appearance, and text size. Legacy
-  defaults remain in place; OS preference detection, tool execution, and
-  production host providers remain outside this slice.
+- The environment metadata slice in [ADR 0080](decisions/0080-preserve-raycast-environment-metadata.md)
+  is now implemented: the trusted catalog carries manifest title and
+  owner/author identity into `environment`, and the descriptor accepts
+  validated host-supplied Raycast version, entrypoint type, development state,
+  appearance, and text-size values. Legacy defaults remain in place; OS
+  preference detection, tool execution, and production host providers remain
+  outside this slice.
 - Navigation (useNavigation, Action.Push), LocalStorage through the
   capability broker with a reference in-memory provider, the callable plus
   property-based environment surface, and measured WindowManagement discovery
@@ -609,7 +610,8 @@ post-slice probes. Coverage means the share of corpus extensions that bundle
 and render through the current path, not the number of exported API names. The
 shortcut, imperative, cache, launch-boundary, desktop-discovery,
 finder-boundary, host-boundary, window-management, declaration,
-image-descriptor, and dependency-policy slices are complete, but the measured
+image-descriptor, environment-metadata, and dependency-policy slices are
+complete, but the measured
 80% target is not yet met: the current run is 64.69% overall and 71.70% among
 commands with a
 renderable selection. The current top-level import census and emitted
@@ -636,8 +638,13 @@ only small portable JavaScript seeds eligible after the API-first slice.
    implemented: theme-aware source/fallback, mask, and dynamic tint metadata
    are carried as primitive scene and host-payload fields without pretending the
    current client can render them. Deterministic scene, adapter, and e2e
-   verification covers 50, 89, and 41 tests respectively. Preserve structured
-   errors for values that would require a broader scene or host policy. Keep the deterministic
+   verification covers 50, 90, and 41 tests respectively. The environment
+   metadata slice in [ADR 0080](decisions/0080-preserve-raycast-environment-metadata.md)
+   is also implemented: manifest title and owner/author values cross the
+   trusted descriptor, and explicit scalar host metadata reaches the property
+   and callable forms of `environment` with safe legacy defaults. Preserve
+   structured errors for values that would require a broader scene or host
+   policy. Keep the deterministic
    structured probe failure
    (`crawldoc` and `open-targets-raycast/platform`) as explicit diagnostics
    rather than weakening the scene or action validators around malformed
