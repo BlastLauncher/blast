@@ -90,6 +90,14 @@ declared `Grid` and `Grid.Section` column range of `1..8` and rejects
 Those adapter-owned checks have deterministic coverage and do not change the
 aggregate counters because they add no dependency or host capability.
 
+The following API-first metadata slice, [ADR 0077](../decisions/0077-preserve-raycast-entrypoint-mode.md),
+now preserves trusted manifest `view`, `no-view`, and `menu-bar` modes through
+the catalog and extension descriptor into `environment.entryPointMode` and the
+deprecated `environment.commandMode` alias. Omitted modes retain the `view`
+default for compatibility. Contract, catalog, and adapter tests cover all three
+modes; aggregate corpus counters remain unchanged because this is metadata
+fidelity rather than dependency provisioning or client presentation.
+
 The first audited vendor seed is `axios@1.8.4`, `cheerio@1.0.0`,
 `cross-fetch@4.0.0`, `date-fns@4.1.0`, `fast-xml-parser@5.3.2`, `fuse.js@7.1.0`,
 `moment@2.30.1`, `node-html-markdown@1.3.0`, `rss-parser@3.13.0`, and

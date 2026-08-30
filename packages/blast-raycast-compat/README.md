@@ -76,9 +76,11 @@ onto the V2 scene contract, renderer, and capability broker:
   user-initiated launch and empty arguments by default; `LaunchType`,
   `Image.Mask`, and the deprecated `ImageMask` value/type are available;
 - `environment` exposes the measured Raycast property object and retains a
-  callable compatibility form for older Blast fixtures; `preferences` exposes
-  resolved manifest values through legacy preference metadata, and
-  `randomId` provides process-local unique IDs;
+  callable compatibility form for older Blast fixtures. Its `entryPointMode`
+  and deprecated `commandMode` values preserve trusted manifest `view`,
+  `no-view`, and `menu-bar` modes, defaulting to `view` for legacy contexts;
+  `preferences` exposes resolved manifest values through legacy preference
+  metadata, and `randomId` provides process-local unique IDs;
 - the official type-only aliases `Environment`, `Navigation`, `Preferences`,
   `Preference`, `ArgumentsLaunchProps`, `FormItemRef`, `ItemProps`, `FormValue`,
   `FormValues`, `KeyEquivalent`, `KeyboardShortcut`, and `ImageLike` are

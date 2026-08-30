@@ -8,11 +8,15 @@ import {
 export const EXTENSION_INITIALIZE_MESSAGE = "extension.initialize" as const;
 export const EXTENSION_READY_MESSAGE = "extension.ready" as const;
 
+export type ExtensionEntryPointMode = "no-view" | "view" | "menu-bar";
+
 export interface ExtensionDescriptor {
   readonly extensionId: string;
   readonly commandName: string;
   readonly entrypoint: string;
   readonly rootDirectory: string;
+  /** Raycast manifest command mode; omitted by older manually-built descriptors. */
+  readonly entryPointMode?: ExtensionEntryPointMode;
   /** Manifest preference defaults resolved by the trusted catalog. */
   readonly preferences?: Readonly<Record<string, string | number | boolean>>;
 }
@@ -82,6 +86,14 @@ function validateDescriptor(value: Record<string, unknown>, path: string, issues
   validateNonEmptyString(value.commandName, `${path}.commandName`, issues);
   validateNonEmptyString(value.entrypoint, `${path}.entrypoint`, issues);
   validateNonEmptyString(value.rootDirectory, `${path}.rootDirectory`, issues);
+  if (
+    value.entryPointMode !== undefined &&
+    value.entryPointMode !== "no-view" &&
+    value.entryPointMode !== "view" &&
+    value.entryPointMode !== "menu-bar"
+  ) {
+    issues.push({ path: `${path}.entryPointMode`, message: "Expected a valid entrypoint mode" });
+  }
   if (value.preferences === undefined) {
     return;
   }

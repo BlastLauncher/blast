@@ -3,7 +3,7 @@ import type { Dirent } from "node:fs";
 import path from "node:path";
 
 import { BlastCoreError, type CommandIdentity, type ExtensionCatalog } from "@blastlauncher/core";
-import type { ExtensionDescriptor } from "@blastlauncher/extension-contract";
+import type { ExtensionDescriptor, ExtensionEntryPointMode } from "@blastlauncher/extension-contract";
 
 export const DEFAULT_MANIFEST_FILE_NAME = "package.json";
 
@@ -12,6 +12,8 @@ const ENTRYPOINT_EXTENSIONS = [".tsx", ".ts", ".jsx", ".js", ".mjs", ".cjs"] as 
 export interface ManifestCommand {
   readonly name: string;
   readonly entrypoint: string | undefined;
+  /** Raycast command mode; omitted manifests default to a view command. */
+  readonly mode?: ExtensionEntryPointMode;
   /** Preference defaults declared on this command in the Raycast manifest. */
   readonly preferences?: Readonly<Record<string, string | number | boolean>>;
 }
@@ -84,6 +86,7 @@ export class FilesystemExtensionCatalog implements ExtensionCatalog {
       commandName: command.name,
       entrypoint: await this.#resolveEntrypoint(entry.directory, command),
       rootDirectory: entry.directory,
+      entryPointMode: command.mode ?? "view",
       ...(Object.keys(preferences).length === 0 ? {} : { preferences }),
     };
   }
@@ -208,6 +211,10 @@ export function parseManifest(value: unknown): ExtensionManifest | undefined {
     if (entrypoint !== undefined && (typeof entrypoint !== "string" || entrypoint.length === 0)) {
       return undefined;
     }
+    const mode = rawCommand["mode"];
+    if (mode !== undefined && mode !== "no-view" && mode !== "view" && mode !== "menu-bar") {
+      return undefined;
+    }
     const preferences = parsePreferenceDefaults(rawCommand["preferences"]);
     if (preferences === undefined) {
       return undefined;
@@ -215,6 +222,7 @@ export function parseManifest(value: unknown): ExtensionManifest | undefined {
     commands.push({
       name: commandName,
       entrypoint,
+      ...(mode === undefined ? {} : { mode }),
       ...(Object.keys(preferences).length === 0 ? {} : { preferences }),
     });
   }

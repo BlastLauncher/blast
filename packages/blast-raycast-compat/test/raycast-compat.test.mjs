@@ -2785,11 +2785,23 @@ test("environment reports the runtime platform and command identity", () => {
   assert.equal(typeof info.raycastVersion, "string");
   assert.equal(environment.entryPointName, "index");
   assert.equal(environment.entryPointMode, "view");
+  assert.equal(environment.commandMode, "view");
   assert.equal(environment.appearance, "dark");
   assert.equal(environment.theme, "dark");
   assert.equal(environment.assetsPath, "assets");
   assert.equal(environment.supportPath, "support");
   assert.equal(environment.canAccess("fixture-api"), false);
+});
+
+test("environment preserves the descriptor entry point mode", () => {
+  const probe = createContext();
+  configureRaycastCompat(probe.context);
+
+  for (const mode of ["no-view", "view", "menu-bar"]) {
+    probe.context.descriptor.entryPointMode = mode;
+    assert.equal(environment().entryPointMode, mode);
+    assert.equal(environment.commandMode, mode);
+  }
 });
 
 test("routes WindowManagement discovery and bounds through capabilities", async () => {

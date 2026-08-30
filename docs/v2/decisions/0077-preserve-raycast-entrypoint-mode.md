@@ -1,6 +1,6 @@
 # ADR 0077: Preserve Raycast entrypoint mode in the environment
 
-- Status: Proposed for implementation
+- Status: Accepted
 - Date: 2026-08-30
 
 ## Context
@@ -16,7 +16,7 @@ This is an API metadata fidelity issue, not a host capability or platform
 dependency issue. The selected command mode is trusted manifest data and can
 cross the existing descriptor boundary without changing scene semantics.
 
-## Proposed slice
+## Decision
 
 - Carry an optional validated `entryPointMode` through the extension contract
   and filesystem catalog, defaulting an omitted manifest mode to Raycast's
@@ -33,3 +33,23 @@ cross the existing descriptor boundary without changing scene semantics.
 The slice does not infer tool entrypoints, change command selection, or add
 menu-bar client presentation. `entryPointType`, owner metadata, appearance,
 and host-owned environment providers remain separate follow-ups.
+
+## Evidence
+
+- `@blastlauncher/extension-contract` validates the optional mode and rejects
+  unknown values.
+- `@blastlauncher/core-node` preserves manifest modes and defaults omitted modes
+  to `"view"` in resolved descriptors.
+- `@blastlauncher/raycast-compat` derives both `environment.entryPointMode` and
+  the deprecated `environment.commandMode` from the descriptor, with a legacy
+  context fallback.
+- Contract, catalog, and adapter tests cover all three modes and pass in the V2
+  test loop.
+
+## Consequences
+
+Entrypoint metadata now remains faithful across the trusted catalog, runtime
+descriptor, and Raycast compatibility surface. Existing manually constructed
+contexts remain compatible when they omit the new field. This slice changes no
+scene presentation or command-selection behavior; menu-bar rendering and
+host-owned environment providers remain separate work.

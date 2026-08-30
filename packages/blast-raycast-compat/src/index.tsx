@@ -54,12 +54,16 @@ export class CompatibilityError extends Error {
   }
 }
 
+export type RaycastEntryPointMode = "no-view" | "view" | "menu-bar";
+
 export interface RaycastCompatContext {
   readonly descriptor: {
     readonly extensionId: string;
     readonly commandName: string;
     readonly preferences: Readonly<Record<string, string | number | boolean>>;
     readonly rootDirectory?: string;
+    /** Optional for compatibility with manually-created legacy contexts. */
+    readonly entryPointMode?: RaycastEntryPointMode;
   };
   readonly platform: string;
   readonly publish: (transaction: SceneTransaction) => Promise<void>;
@@ -6229,6 +6233,7 @@ function createEnvironment(): Environment {
   const context = requireContext();
   const osName = context.platform === "darwin" ? "macOS" : context.platform === "win32" ? "Windows" : "Linux";
   const appearance = "dark" as const;
+  const entryPointMode = context.descriptor.entryPointMode ?? "view";
   const rootDirectory = context.descriptor.rootDirectory;
   const pathUnderExtension = (name: string) =>
     rootDirectory === undefined ? name : `${rootDirectory.replace(/[\\/]$/, "")}/${name}`;
@@ -6238,7 +6243,7 @@ function createEnvironment(): Environment {
     extensionName: context.descriptor.extensionId,
     entryPointType: "command",
     entryPointName: context.descriptor.commandName,
-    entryPointMode: "view",
+    entryPointMode,
     assetsPath: pathUnderExtension("assets"),
     supportPath: pathUnderExtension("support"),
     isDevelopment: true,
@@ -6251,7 +6256,7 @@ function createEnvironment(): Environment {
       ? {}
       : { launchContext: compatGlobals.launchProps.launchContext }),
     commandName: context.descriptor.commandName,
-    commandMode: "view",
+    commandMode: entryPointMode,
     os: [osName],
   };
 }

@@ -313,6 +313,12 @@ slice changes what is executable, what is trusted, or what should happen next.
   selector. Both boundaries have deterministic adapter tests and structured
   compatibility errors; the corpus outcome counters intentionally remain
   unchanged because these checks do not add dependencies or host providers.
+- The API-first metadata slice, [ADR 0077](decisions/0077-preserve-raycast-entrypoint-mode.md),
+  now preserves manifest `view`, `no-view`, and `menu-bar` modes through the
+  trusted catalog and extension descriptor into both `environment.entryPointMode`
+  and its deprecated `environment.commandMode` alias. Omitted modes and legacy
+  manually constructed contexts default to `view`; contract, catalog, and
+  adapter tests cover the three explicit modes.
 - Navigation (useNavigation, Action.Push), LocalStorage through the
   capability broker with a reference in-memory provider, the callable plus
   property-based environment surface, and measured WindowManagement discovery
@@ -598,11 +604,11 @@ only small portable JavaScript seeds eligible after the API-first slice.
    census and declarations, choose the highest-yield incomplete behavior, and
    add deterministic adapter, fixture, and focused-probe coverage. Keep API
    progress distinct from dependency/platform provisioning and host
-   capability/renderability outcomes. The next API slice is the proposed
-   entrypoint-mode propagation in
-   [ADR 0077](decisions/0077-preserve-raycast-entrypoint-mode.md): carry the
-   trusted manifest `view`/`no-view`/`menu-bar` mode into the Environment API
-   before considering another dependency round. Preserve structured errors for
+   capability/renderability outcomes. The entrypoint-mode propagation in
+   [ADR 0077](decisions/0077-preserve-raycast-entrypoint-mode.md) is now
+   implemented: trusted manifest `view`/`no-view`/`menu-bar` mode crosses into
+   the Environment API before any dependency round. Continue auditing the
+   remaining measured API surface and preserve structured errors for
    values that would require a broader scene or host policy. Keep the deterministic
    structured probe failure
    (`crawldoc` and `open-targets-raycast/platform`) as explicit diagnostics
@@ -630,12 +636,13 @@ only small portable JavaScript seeds eligible after the API-first slice.
    read/clear, Submenu lifecycle,
    nested `Props` and utility namespaces, `Form.ItemReference`, deprecated
    Form/action member aliases, Grid column bounds, and the
-   BrowserExtension markdown/selector rule covered by each test slice.
+   BrowserExtension markdown/selector rule, and Environment entrypoint-mode
+   propagation covered by each test slice.
 3. Keep safe dynamic, namespace, side-effect, and literal `require` import
    forms covered while the remaining `fetch` import stays outside the adapter
    until a host network capability defines URL policy, consent, and response
    limits.
-4. Only after the next API slice, consider small, exact-version,
+4. After each API slice, consider only small, exact-version,
    development-only portable JavaScript dependency seeds when the diagnostic
    census supports them. Keep each group reviewable and measure rendered
    outcomes after installation; hold network, cross-extension, native, macOS,

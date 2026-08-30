@@ -16,6 +16,7 @@ const descriptor = {
   commandName: "index",
   entrypoint: "/extensions/example/index.js",
   rootDirectory: "/extensions/example",
+  entryPointMode: "menu-bar",
 };
 
 test("validates extension initialization messages", () => {
@@ -31,6 +32,16 @@ test("reports invalid extension descriptor fields", () => {
   assert.equal(result.ok, false);
   assert.deepEqual(result.issues, [
     { path: "$.payload.descriptor.entrypoint", message: "Expected a non-empty string" },
+  ]);
+
+  const invalidMode = validateExtensionInitializeMessage(
+    createMessage("initialize-1", EXTENSION_INITIALIZE_MESSAGE, {
+      descriptor: { ...descriptor, entryPointMode: "invalid" },
+    }),
+  );
+  assert.equal(invalidMode.ok, false);
+  assert.deepEqual(invalidMode.issues, [
+    { path: "$.payload.descriptor.entryPointMode", message: "Expected a valid entrypoint mode" },
   ]);
 });
 

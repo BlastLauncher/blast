@@ -20,6 +20,7 @@ test("resolves Raycast-style manifests through the entrypoint convention", async
     commandName: "index",
     entrypoint: path.join(catalogRoot, "alpha-extension", "src", "index.tsx"),
     rootDirectory: path.join(catalogRoot, "alpha-extension"),
+    entryPointMode: "view",
   });
 
   const detail = await catalog.resolve({ extensionId: "alpha", commandName: "detail" });
@@ -35,6 +36,7 @@ test("resolves explicit manifest entrypoints", async () => {
     commandName: "main",
     entrypoint: path.join(catalogRoot, "beta-extension", "lib", "main.cjs"),
     rootDirectory: path.join(catalogRoot, "beta-extension"),
+    entryPointMode: "view",
     preferences: { token: "secret", enabled: true, layout: "Grid" },
   });
 });
@@ -132,14 +134,31 @@ test("honors an aborted signal", async () => {
 test("parses manifests strictly", () => {
   assert.deepEqual(parseManifest({ name: "sample", commands: [{ name: "index", mode: "view" }] }), {
     name: "sample",
-    commands: [{ name: "index", entrypoint: undefined }],
+    commands: [{ name: "index", entrypoint: undefined, mode: "view" }],
     preferences: {},
   });
+
+  assert.deepEqual(
+    parseManifest({
+      name: "sample",
+      commands: [
+        { name: "view", mode: "view" },
+        { name: "background", mode: "no-view" },
+        { name: "menu", mode: "menu-bar" },
+      ],
+    })?.commands.map(({ name, mode }) => ({ name, mode })),
+    [
+      { name: "view", mode: "view" },
+      { name: "background", mode: "no-view" },
+      { name: "menu", mode: "menu-bar" },
+    ],
+  );
 
   assert.equal(parseManifest({ commands: [] }), undefined);
   assert.equal(parseManifest({ name: "sample", commands: "index" }), undefined);
   assert.equal(parseManifest({ name: "sample", commands: [{ name: "" }] }), undefined);
   assert.equal(parseManifest({ name: "sample", commands: [{ name: "index", entrypoint: 7 }] }), undefined);
+  assert.equal(parseManifest({ name: "sample", commands: [{ name: "index", mode: "invalid" }] }), undefined);
   assert.equal(parseManifest("sample"), undefined);
 });
 
