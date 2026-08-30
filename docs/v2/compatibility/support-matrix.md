@@ -25,25 +25,27 @@ post-slice result, including one result per extension, is
 
 The current post-slice run supplies the workspace's installed packages through
 the explicit `vendored` dependency policy. The private e2e package now adds
-twelve bounded, exact-version seeds for 177 utility, parser, fetch, image, state,
-compatibility-helper, and JavaScript SDK packages; their transitive graph is
-recorded in the lockfile. This round was selected to install on the ARM64 Linux
-runner with package-manager scripts disabled; native, WASM, macOS, and
-host-process packages remain deferred. The probe does not install the corpus or
-run package-manager scripts; unavailable packages remain dependency failures.
+thirteen bounded, exact-version seeds for 189 utility, parser, fetch, image,
+state, compatibility-helper, and JavaScript SDK packages; their transitive graph
+is recorded in the lockfile. This round was selected to install on the ARM64
+Linux runner with package-manager scripts disabled; no native, WASM, macOS, or
+host-process package was selected directly. Ethers and OpenAI still resolve
+through the workspace's existing optional websocket-helper graph. The probe does
+not install the corpus or run package-manager scripts; unavailable packages
+remain dependency failures.
 
 | Outcome                        | Baseline | Previous post-slice | Current post-slice | Current vs previous |
 | ------------------------------ | -------: | ------------------: | -----------------: | ------------------: |
-| third-party dependency failure |    2,361 |                 663 |                642 |                 -21 |
+| third-party dependency failure |    2,361 |                 642 |                621 |                 -21 |
 | not renderable command mode    |      358 |                 316 |                316 |                   0 |
-| other process/startup failure  |      432 |                 225 |                229 |                  +4 |
-| structured compatibility error |       23 |                   0 |                  2 |                  +2 |
-| renders a scene end to end     |       54 |               2,024 |              2,039 |                 +15 |
+| other process/startup failure  |      432 |                 229 |                234 |                  +5 |
+| structured compatibility error |       23 |                   2 |                  2 |                   0 |
+| renders a scene end to end     |       54 |               2,039 |              2,055 |                 +16 |
 | no entrypoint found            |        3 |                   3 |                  3 |                   0 |
 
-Reading: the current post-slice extension pass rate is 2,039/3,231 (63.11%);
-among the 2,915 extensions with a selected renderable command it is 2,039/2,915
-(69.95%). The declaration-backed Icon enum, Raycast color values, collection
+Reading: the current post-slice extension pass rate is 2,055/3,231 (63.60%);
+among the 2,915 extensions with a selected renderable command it is 2,055/2,915
+(70.50%). The declaration-backed Icon enum, Raycast color values, collection
 metadata, List/Grid/Form search and pagination events, shared dropdown
 accessories, Clipboard read/clear behavior, Submenu lifecycle, nested public
 Props and utility namespaces, Keyboard shortcut aliases, Cache callback binding,
@@ -213,6 +215,20 @@ disabled. It measures dependency availability only: network calls, host
 providers, and cross-extension behavior remain outside the compatibility
 boundary. The two structured outcomes are deterministic unsupported List text
 child diagnostics, not native or platform installation failures.
+
+The thirteenth seed is `ai@5.0.249`, `@ai-sdk/openai@2.0.122`,
+`@anthropic-ai/sdk@0.122.0`, `@modelcontextprotocol/sdk@1.30.0`,
+`@slack/web-api@7.19.0`, `ethers@6.17.0`, `eventsource@2.0.2`,
+`meilisearch@0.45.0`, `openapi-fetch@0.17.0`, `stripe@17.7.0`,
+`user-agents@1.1.675`, and `youtube-transcript@1.3.1`; the existing `zod`
+seed was advanced to `3.25.76` for provider SDK peer compatibility. A targeted
+reprobe of the 642 previously dependency-classified entries rendered 16 and
+moved 6 to process/runtime failures; the full corpus run reduced dependency
+failures by 21 and recorded 2,055 rendered scenes. The group provides
+JavaScript SDK and HTTP-client availability only: network calls, host providers,
+and cross-extension behavior remain outside the compatibility boundary. No
+native, WASM, macOS, or host-process package was selected directly; Solana was
+held because its websocket graph includes optional native helpers.
 
 ## Committed fixtures
 
