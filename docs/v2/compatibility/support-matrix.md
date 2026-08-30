@@ -25,23 +25,23 @@ post-slice result, including one result per extension, is
 
 The current post-slice run supplies the workspace's installed packages through
 the explicit `vendored` dependency policy. The private e2e package now adds
-six bounded, exact-version seeds for 87 utility, parser, fetch, image, state,
+seven bounded, exact-version seeds for 107 utility, parser, fetch, image, state,
 and compatibility-helper packages; their transitive graph is recorded in the
 lockfile. The probe does not install the corpus or run package-manager scripts;
 unavailable packages remain dependency failures.
 
 | Outcome                        | Baseline | Previous post-slice | Current post-slice | Current vs previous |
 | ------------------------------ | -------: | ------------------: | -----------------: | ------------------: |
-| third-party dependency failure |    2,361 |                 770 |                754 |                 -16 |
+| third-party dependency failure |    2,361 |                 754 |                734 |                 -20 |
 | not renderable command mode    |      358 |                 316 |                316 |                   0 |
-| other process/startup failure  |      432 |                 202 |                210 |                  +8 |
-| structured compatibility error |       23 |                   2 |                  0 |                  -2 |
-| renders a scene end to end     |       54 |               1,938 |              1,948 |                 +10 |
+| other process/startup failure  |      432 |                 210 |                209 |                  -1 |
+| structured compatibility error |       23 |                   0 |                  2 |                  +2 |
+| renders a scene end to end     |       54 |               1,948 |              1,967 |                 +19 |
 | no entrypoint found            |        3 |                   3 |                  3 |                   0 |
 
-Reading: the current post-slice extension pass rate is 1,948/3,231 (60.29%);
-among the 2,915 extensions with a selected renderable command it is 1,948/2,915
-(66.83%). The declaration-backed Icon enum, Raycast color values, collection
+Reading: the current post-slice extension pass rate is 1,967/3,231 (60.88%);
+among the 2,915 extensions with a selected renderable command it is 1,967/2,915
+(67.48%). The declaration-backed Icon enum, Raycast color values, collection
 metadata, List/Grid/Form search and pagination events, shared dropdown
 accessories, Clipboard read/clear behavior, Submenu lifecycle, nested public
 Props and utility namespaces, Keyboard shortcut aliases, Cache callback binding,
@@ -76,8 +76,9 @@ moved 47 entries out of the dependency-failure class in the aggregate run and
 increased rendered outcomes by 46; the targeted old dependency set rendered 33
 entries and left 16 in process/runtime failure, so the aggregate change
 remains subject to normal process and dependency variance. The latest aggregate
-recorded no structured compatibility errors; a focused serial reprobe still
-retains `open-targets-raycast/platform` as the strict malformed-child diagnostic.
+recorded structured results for `crawldoc` and `open-targets-raycast/platform`;
+a focused serial reprobe retained only `open-targets-raycast/platform` as the
+strict malformed-child diagnostic, while `crawldoc` remained process variance.
 
 The first audited vendor seed is `axios@1.8.4`, `cheerio@1.0.0`,
 `cross-fetch@4.0.0`, `date-fns@4.1.0`, `fast-xml-parser@5.3.2`, `fuse.js@7.1.0`,
@@ -137,6 +138,19 @@ failures; the full corpus run reduced dependency failures by 16 and recorded
 1,948 rendered scenes. The group provides encoding, date, URL, numeric,
 image-metadata, and React utility behavior only; the probe still never installs
 extension dependencies or grants network/host capabilities.
+
+The seventh seed is `color-namer@1.4.0`, `cronstrue@3.24.0`,
+`csv-parse@5.6.0`, `debounce@1.2.1`, `dedupe@4.0.3`, `fromnow@3.0.1`,
+`image-meta@0.2.1`, `is-image@4.0.0`, `is-valid-domain@0.1.6`,
+`lodash.isempty@4.4.0`, `lodash.unescape@4.0.1`, `nzh@1.0.14`,
+`parse-url@11.1.0`, `simple-plist@1.4.0`, `tiny-pinyin@1.3.2`,
+`title@3.5.3`, `use-interval@1.4.0`, `url-join@5.0.0`,
+`weeknumber@1.2.1`, and `xml-js@1.6.11`. A targeted reprobe of the 754
+previously dependency-classified entries rendered 18 and moved 4 to
+process/runtime failures; the full corpus run reduced dependency failures by
+20 and recorded 1,967 rendered scenes. The group provides parsing, formatting,
+date, URL, color, and small local-data behavior only; the probe still never
+installs extension dependencies or grants network/host capabilities.
 
 ## Committed fixtures
 

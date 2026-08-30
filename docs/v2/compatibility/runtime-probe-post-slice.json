@@ -1857,17 +1857,18 @@
   "outcomes": {
     "no-entrypoint": 3,
     "not-renderable": 316,
-    "process-failure": 210,
-    "renders": 1948,
-    "third-party-dependency": 754
+    "process-failure": 209,
+    "renders": 1967,
+    "structured-compatibility-error": 2,
+    "third-party-dependency": 734
   },
   "coverage": {
-    "extensionPasses": 1948,
+    "extensionPasses": 1967,
     "extensionTotal": 3231,
-    "extensionPassRate": 0.6029,
-    "renderableCommandPasses": 1948,
+    "extensionPassRate": 0.6088,
+    "renderableCommandPasses": 1967,
     "renderableCommandTotal": 2915,
-    "renderableCommandPassRate": 0.6683
+    "renderableCommandPassRate": 0.6748
   },
   "staticBlockers": [
     {
@@ -1877,8 +1878,9 @@
   ],
   "failureClasses": {
     "no-entrypoint": 3,
-    "process-failure": 210,
-    "third-party-dependency": 754
+    "process-failure": 209,
+    "structured-compatibility-error": 2,
+    "third-party-dependency": 734
   },
   "failureSamples": {
     "no-entrypoint": [
@@ -1887,11 +1889,15 @@
       "vortex"
     ],
     "process-failure": [
-      "1-click-confetti",
       "CodeBlocks",
       "acqua",
       "adhan-time",
-      "ai-gen"
+      "ai-gen",
+      "airtable"
+    ],
+    "structured-compatibility-error": [
+      "crawldoc",
+      "open-targets-raycast"
     ],
     "third-party-dependency": [
       "1bookmark",
@@ -1916,8 +1922,7 @@
       "commandName": "confetti-menu",
       "mode": "menu-bar",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "outcome": "renders"
     },
     {
       "directory": "1bookmark",
@@ -2753,7 +2758,8 @@
       "commandName": "list-apps",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "app-icon-generator",
@@ -3283,7 +3289,8 @@
       "commandName": "projects",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "awx-deploy",
@@ -4095,8 +4102,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "bob",
@@ -4845,8 +4851,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "chatwith",
@@ -4969,8 +4974,7 @@
       "commandName": "convert-number-to-rmb",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "chinese-lottery",
@@ -4986,8 +4990,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "chinese-traditional-colors",
@@ -5572,7 +5575,7 @@
       "mode": "view",
       "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "transport_send_failed"
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "code-saver",
@@ -6338,8 +6341,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "create-link",
@@ -6372,8 +6375,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "crisp",
@@ -6407,8 +6409,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "cron-manager",
@@ -6605,8 +6606,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "outcome": "renders"
     },
     {
       "directory": "cursor-recent-projects",
@@ -6866,7 +6866,7 @@
       "mode": "view",
       "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "transport_send_failed"
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "dawa",
@@ -8149,8 +8149,8 @@
       "commandName": "search-module-replacements",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "runtime_closed_during_initialization"
+      "outcome": "third-party-dependency",
+      "failureCode": "dependency_unavailable"
     },
     {
       "directory": "e2b",
@@ -9668,8 +9668,7 @@
       "commandName": "browse-scores",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "fotmob",
@@ -11406,8 +11405,7 @@
       "commandName": "icons",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "heroku",
@@ -11787,8 +11785,7 @@
       "commandName": "searchModels",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "huggingcast",
@@ -12872,8 +12869,8 @@
       "commandName": "start-breathing",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "just-delete-me",
@@ -13038,8 +13035,7 @@
       "commandName": "search",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "keeper-security",
@@ -15376,8 +15372,7 @@
       "commandName": "controlMeeting",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "outcome": "renders"
     },
     {
       "directory": "microsoft-tenant-id",
@@ -16525,8 +16520,7 @@
       "commandName": "allowlist",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "nextjs-docs",
@@ -17555,8 +17549,8 @@
       "commandName": "platform",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "open-with-app",
@@ -17882,7 +17876,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "outline-document-search",
@@ -18176,8 +18171,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "pass",
@@ -18714,8 +18709,7 @@
       "commandName": "addBookmark",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "outcome": "renders"
     },
     {
       "directory": "pinch-svg",
@@ -19383,7 +19377,7 @@
       "mode": "view",
       "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "failureCode": "transport_send_failed"
     },
     {
       "directory": "productlane",
@@ -21472,8 +21466,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "roblox",
@@ -21847,8 +21840,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "schoology",
@@ -22769,8 +22761,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "outcome": "renders"
     },
     {
       "directory": "similarweb",
@@ -22973,7 +22964,8 @@
       "commandName": "searchDocuments",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "skills",
@@ -22991,7 +22983,7 @@
       "mode": "view",
       "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "transport_send_failed"
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "skyscanner-flights",
@@ -23161,8 +23153,7 @@
       "commandName": "snake",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "snap-jot",
@@ -23540,7 +23531,7 @@
       "mode": "view",
       "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "transport_send_failed"
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "splix",
@@ -23903,8 +23894,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "storytime",
@@ -24237,8 +24228,7 @@
       "commandName": "manage-commands",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "swift-evolution",
@@ -26067,8 +26057,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "typescript-mock-generator",
@@ -26422,8 +26411,7 @@
       "commandName": "favicone",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "upstash",
@@ -27374,8 +27362,7 @@
       "commandName": "find-week-number",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "weread-sync",
