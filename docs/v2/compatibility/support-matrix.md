@@ -474,8 +474,9 @@ dispatches a bounds mutation through the explicit host capability.
   chrome placement remains host/client work;
 - `Action.CreateQuicklink`, `Action.PickDate`, and the deprecated direct Form
   dropdown/tag-picker members are measured. Quicklink creation and date picking
-  use explicit `quicklink.create` and `date-picker.pick` capabilities; provider
-  consent and native UI remain host work.
+  use explicit `quicklink.create` and `date-picker.pick` capabilities; the
+  legacy `Form.DatePicker.Date` and `DateTime` values alias the modern `Type`
+  values. Provider consent and native UI remain host work.
 - `List`, `Grid`, and `Form.Dropdown` carry search text, filtering, loading,
   throttling, selection, and pagination fields as semantic scene properties
   and events. `Clipboard.read`/`readText` decode the official `{ text }` shape
@@ -516,7 +517,9 @@ dispatches a bounds mutation through the explicit host capability.
   pinned declaration, the `Alert`/`Cache`/`Keyboard`/`Toast` utility namespaces and
   `Form.ItemReference` mirror the pinned declaration. Nested Form field ref
   aliases, `Form.DatePicker.Type`, and the deprecated Form field value statics
-  are also declaration-compatible. `Cache.subscribe` remains bound for
+  are also declaration-compatible; the legacy `Form.DatePicker.Date` and
+  `DateTime` values are runtime aliases of the modern `Type` values.
+  `Cache.subscribe` remains bound for
   external-store hooks. Form fields attach stable focus/reset handles, while
   their client-side behavior remains deferred until a host control boundary is
   defined;
@@ -545,6 +548,11 @@ dispatches a bounds mutation through the explicit host capability.
   carries validated provider icons and descriptions through the
   authorization-request boundary as primitive fields. Overlay rendering,
   browser interaction, and token storage remain host work.
+- The legacy Form DatePicker value slice in [ADR
+  0084](../decisions/0084-preserve-legacy-form-date-picker-values.md) restores
+  `Form.DatePicker.Date` and `Form.DatePicker.DateTime` as aliases of the
+  declaration-backed `Type` values; form serialization and native date-picker
+  behavior remain unchanged.
 - `OAuth.PKCEClient` is measured through host-owned `oauth` operations for
   authorization requests, browser authorization, token storage, lookup, and
   removal. PKCE generation, browser routing, secure storage, consent, and

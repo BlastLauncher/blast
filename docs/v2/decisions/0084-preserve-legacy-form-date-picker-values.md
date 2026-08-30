@@ -1,6 +1,6 @@
 # ADR 0084: Preserve legacy Form DatePicker values
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-08-30
 
 ## Context
@@ -54,6 +54,8 @@ adapter's public runtime object is closer to the historical Raycast surface.
 
 ## Verification
 
-The implementation will assert identity between the legacy values and the
-modern `Type` values and will render a date picker using the legacy value,
-confirming that it serializes as `type: "date"`.
+The adapter test suite asserts identity between the legacy values and the
+modern `Type` values and renders a date picker using the legacy value,
+confirming that it serializes as `type: "date"`. The focused adapter suite,
+format check, and workspace lint pass; the aggregate corpus counters remain
+unchanged because this is an in-process value alias.

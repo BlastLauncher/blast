@@ -4135,6 +4135,8 @@ const FormDatePickerComponent = forwardRef<FormItemRef, DatePickerProps>(
 
 const FormDatePicker = Object.assign(FormDatePickerComponent, {
   Type: DATE_PICKER_TYPES,
+  Date: DATE_PICKER_TYPES.Date,
+  DateTime: DATE_PICKER_TYPES.DateTime,
   isFullDay: isFullDayDate,
 });
 

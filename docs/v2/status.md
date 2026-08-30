@@ -440,7 +440,8 @@ slice changes what is executable, what is trusted, or what should happen next.
   `Toast.Options`/`ActionOptions`/`Style`, and `Form.ItemReference` aliases;
   `FormItemRef` is available as a top-level type. The nested Form field ref
   aliases and `Form.DatePicker.Type` are declaration-compatible, and deprecated
-  Form field values retain their nested static members. `Toast.Style` constants
+  Form field values retain their nested static members, including the legacy
+  `Form.DatePicker.Date` and `DateTime` values. `Toast.Style` constants
   use Raycast's uppercase values and normalize to lower-case scene styles. Form
   fields attach stable `focus()`/`reset()` handles; those methods are currently
   no-ops until a host-facing control boundary is defined.
@@ -665,12 +666,12 @@ only small portable JavaScript seeds eligible after the API-first slice.
    0083](decisions/0083-preserve-raycast-oauth-provider-metadata.md) is
    implemented: provider icon variants, masks, tints, and descriptions cross
    the authorization-request boundary as validated primitives, while browser
-   and token providers remain host-owned. The next planned adapter-only slice
-   is [ADR
-   0084](decisions/0084-preserve-legacy-form-date-picker-values.md): restore
-   the two corpus-observed legacy `Form.DatePicker.Date`/`DateTime` runtime
-   values as aliases of the declaration-backed `Type` values without
-   widening the form scene contract. Preserve
+   and token providers remain host-owned. The Form DatePicker compatibility
+   slice in [ADR
+   0084](decisions/0084-preserve-legacy-form-date-picker-values.md) is also
+   implemented: the two corpus-observed legacy `Form.DatePicker.Date` and
+   `DateTime` runtime values alias the declaration-backed `Type` values
+   without widening the form scene contract. Preserve
    structured errors for values that would require a broader scene or host
    policy. Keep the deterministic
    structured probe failure

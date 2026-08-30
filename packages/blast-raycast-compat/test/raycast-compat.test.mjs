@@ -200,6 +200,10 @@ test("publishes the official deprecated component aliases", () => {
   assert.equal(FormTagPicker.Item, Form.TagPicker.Item);
   assert.equal(FormTextArea, Form.TextArea);
   assert.equal(FormTextField, Form.TextField);
+  assert.equal(FormDatePicker.Date, Form.DatePicker.Type.Date);
+  assert.equal(FormDatePicker.DateTime, Form.DatePicker.Type.DateTime);
+  assert.equal(Form.DatePicker.Date, Form.DatePicker.Type.Date);
+  assert.equal(Form.DatePicker.DateTime, Form.DatePicker.Type.DateTime);
 });
 
 test("publishes the remaining declaration-backed compatibility aliases", () => {
@@ -1850,7 +1854,7 @@ test("renders richer form controls and restores native values on events and subm
       createElement(Form.DatePicker, {
         id: "due",
         title: "Due",
-        type: Form.DatePicker.Type.Date,
+        type: Form.DatePicker.Date,
         min: dueMin,
         max: dueMax,
         defaultValue: dueDefault,
