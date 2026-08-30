@@ -460,7 +460,10 @@ slice changes what is executable, what is trusted, or what should happen next.
   `.value` metadata shape, `FormValue` includes the pinned numeric forms, and
   `Navigation`, `Environment`, `KeyEquivalent`, `FormValues`,
   `KeyboardShortcut`, and `ImageLike` aliases are available. Environment
-  `canAccess` is deny-by-default until host permission state is connected.
+  `canAccess` is deny-by-default until host permission state is connected;
+  [ADR 0078](decisions/0078-measured-environment-access-policy.md) now plans
+  the measured adapter callback boundary without claiming a production
+  provider.
 - `showHUD`, `open`, and `confirmAlert` cross explicit `hud.show`, `open.open`,
   and `alert.confirm` capability requests; alert callbacks run only after a
   validated boolean response.
@@ -608,7 +611,11 @@ only small portable JavaScript seeds eligible after the API-first slice.
    [ADR 0077](decisions/0077-preserve-raycast-entrypoint-mode.md) is now
    implemented: trusted manifest `view`/`no-view`/`menu-bar` mode crosses into
    the Environment API before any dependency round. Continue auditing the
-   remaining measured API surface and preserve structured errors for
+   remaining measured API surface. The next slice is the measured
+   `environment.canAccess` delegation in [ADR
+   0078](decisions/0078-measured-environment-access-policy.md): keep the
+   default deny, expose a stable host-policy callback, and preserve structured
+   validation at the adapter edge. Preserve structured errors for
    values that would require a broader scene or host policy. Keep the deterministic
    structured probe failure
    (`crawldoc` and `open-targets-raycast/platform`) as explicit diagnostics

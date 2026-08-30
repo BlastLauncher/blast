@@ -98,6 +98,14 @@ default for compatibility. Contract, catalog, and adapter tests cover all three
 modes; aggregate corpus counters remain unchanged because this is metadata
 fidelity rather than dependency provisioning or client presentation.
 
+The next API-first slice is [ADR 0078](../decisions/0078-measured-environment-access-policy.md):
+delegate `environment.canAccess` to an optional synchronous host policy while
+retaining default denial and stable names for separately bundled API tokens.
+The corpus census finds this query in roughly 100 extensions, but provider
+availability, consent, and capability grants remain outside the adapter. The
+implementation is expected to change no aggregate counters until a host opts
+into a measured API provider.
+
 The first audited vendor seed is `axios@1.8.4`, `cheerio@1.0.0`,
 `cross-fetch@4.0.0`, `date-fns@4.1.0`, `fast-xml-parser@5.3.2`, `fuse.js@7.1.0`,
 `moment@2.30.1`, `node-html-markdown@1.3.0`, `rss-parser@3.13.0`, and
@@ -394,7 +402,11 @@ dispatches a bounds mutation through the explicit host capability.
   objects are measured; client toast timing/stacking remains unsupported;
 - `useNavigation` and `Action.Push` (28.8% of extensions),
   `LocalStorage`/`Cache` (26.5%), and `environment` (19.7%) are measured in
-  the adapter but still have limited fixture coverage. `LocalStorage.allItems`
+  the adapter but still have limited fixture coverage. The measured
+  `environment.canAccess` query is used by roughly 100 corpus extensions and
+  is planned as a default-deny host-policy callback; it does not itself grant
+  access or provide AI, browser, clipboard, or desktop providers.
+  `LocalStorage.allItems`
   and `allLocalStorageItems` now share the brokered storage boundary; the
   legacy push, open,
   paste, storage, preference, environment, and `ImageMask` aliases are covered
