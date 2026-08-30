@@ -559,6 +559,11 @@ dispatches a bounds mutation through the explicit host capability.
   0085](../decisions/0085-preserve-form-dropdown-keywords.md) carries
   declaration-backed `keywords` arrays through `form-dropdown-item` scene
   nodes with existing string-array validation; filtering remains client work.
+- The next API tail slice in [ADR
+  0086](../decisions/0086-preserve-legacy-color-and-toast-aliases.md) preserves
+  the one API-bound `Color.Gray` use and one `Toast.Style.SuccessMessage` use
+  found by the binding-aware corpus audit. Extension-owned `Color.Grey` model
+  values and speculative aliases remain outside the adapter.
 - `OAuth.PKCEClient` is measured through host-owned `oauth` operations for
   authorization requests, browser authorization, token storage, lookup, and
   removal. PKCE generation, browser routing, secure storage, consent, and
