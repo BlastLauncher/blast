@@ -21,7 +21,7 @@ onto the V2 scene contract, renderer, and capability broker:
   icon/text tooltips, Quick Look metadata, filtering, selection/search events,
   and pagination are serialized into the scene contract;
 - `Grid` covers content tiles, sections, empty views, search-bar dropdowns,
-  item actions, positive safe-integer column counts, empty content tooltips,
+  item actions, integer column counts from one through eight, empty content tooltips,
   layout constants, Quick Look metadata, filtering, pagination, and
   selection/search callbacks. Pagination preserves the declaration-shaped
   non-negative safe-integer `pageSize`, including the zero fallback emitted by
@@ -115,7 +115,9 @@ onto the V2 scene contract, renderer, and capability broker:
   `clearLocalStorage` aliases;
 - `BrowserExtension.getTabs` and `BrowserExtension.getContent` route through
   host-owned browser-extension capabilities; tab responses are validated and
-  content options are normalized before crossing the primitive boundary;
+  content options are normalized before crossing the primitive boundary,
+  including Raycast's restriction against combining a CSS selector with
+  markdown content;
 - `clearSearchBar` and `trash` route through host-owned navigation and
   filesystem capabilities. `trash` accepts one or many structural `PathLike`
   values and sends normalized paths as JSON;

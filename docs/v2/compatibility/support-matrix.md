@@ -84,6 +84,12 @@ increased rendered outcomes by 46; the targeted old dependency set rendered 33
 entries and left 16 in process/runtime failure, so the aggregate change
 remains subject to normal process and dependency variance.
 
+The first API-first validation slice after this aggregate run now enforces the
+declared `Grid` and `Grid.Section` column range of `1..8` and rejects
+`BrowserExtension.getContent` markdown requests paired with a CSS selector.
+Those adapter-owned checks have deterministic coverage and do not change the
+aggregate counters because they add no dependency or host capability.
+
 The first audited vendor seed is `axios@1.8.4`, `cheerio@1.0.0`,
 `cross-fetch@4.0.0`, `date-fns@4.1.0`, `fast-xml-parser@5.3.2`, `fuse.js@7.1.0`,
 `moment@2.30.1`, `node-html-markdown@1.3.0`, `rss-parser@3.13.0`, and

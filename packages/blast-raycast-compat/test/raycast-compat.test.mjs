@@ -1489,10 +1489,10 @@ test("accepts measured Grid columns and empty content tooltips", async () => {
   const renderer = renderCommand(probe.context, () =>
     createElement(
       Grid,
-      { columns: 11 },
+      { columns: 8 },
       createElement(
         Grid.Section,
-        null,
+        { columns: 1 },
         createElement(Grid.Item, {
           content: { value: Icon.Circle, tooltip: "" },
           title: "Circle",
@@ -1503,12 +1503,27 @@ test("accepts measured Grid columns and empty content tooltips", async () => {
   await renderer.flush();
 
   const root = probe.transactions[0].operations[0].root;
-  assert.equal(root.props.columns, 11);
+  assert.equal(root.props.columns, 8);
+  assert.equal(root.children[0].props.columns, 1);
   assert.deepEqual(root.children[0].children[0].props, {
     content: "circle-16",
     contentTooltip: "",
     title: "Circle",
   });
+});
+
+test("rejects Grid columns outside Raycast's one-through-eight range", () => {
+  const probe = createContext();
+  for (const columns of [0, 9, 1.5, Number.NaN]) {
+    assert.throws(
+      () => renderCommand(probe.context, () => createElement(Grid, { columns })),
+      (error) => error instanceof CompatibilityError && /between 1 and 8/.test(error.message),
+    );
+  }
+  assert.throws(
+    () => renderCommand(probe.context, () => createElement(Grid, null, createElement(Grid.Section, { columns: 9 }))),
+    (error) => error instanceof CompatibilityError && /between 1 and 8/.test(error.message),
+  );
 });
 
 test("routes Grid and dropdown search and pagination events", async () => {
@@ -3110,6 +3125,10 @@ test("rejects malformed browser results and invalid host-boundary options", asyn
   await assert.rejects(
     () => BrowserExtension.getContent({ format: "xml" }),
     (error) => error instanceof CompatibilityError,
+  );
+  await assert.rejects(
+    () => BrowserExtension.getContent({ format: "markdown", cssSelector: "#title" }),
+    (error) => error instanceof CompatibilityError && /cssSelector with markdown/.test(error.message),
   );
   await assert.rejects(
     () => clearSearchBar({ forceScrollToTop: "yes" }),

@@ -307,6 +307,12 @@ slice changes what is executable, what is trusted, or what should happen next.
   normal process variance. The full aggregate classified the known malformed
   List-child cases as process failures this run; focused reprobes remain the
   semantic boundary check.
+- The first API-first validation slice after the vendor rounds now enforces
+  Raycast's `Grid`/`Grid.Section` column range (`1..8`) and rejects
+  `BrowserExtension.getContent` markdown requests that also provide a CSS
+  selector. Both boundaries have deterministic adapter tests and structured
+  compatibility errors; the corpus outcome counters intentionally remain
+  unchanged because these checks do not add dependencies or host providers.
 - Navigation (useNavigation, Action.Push), LocalStorage through the
   capability broker with a reference in-memory provider, the callable plus
   property-based environment surface, and measured WindowManagement discovery
@@ -410,7 +416,7 @@ slice changes what is executable, what is trusted, or what should happen next.
   fields attach stable `focus()`/`reset()` handles; those methods are currently
   no-ops until a host-facing control boundary is defined.
 - The measured collection-value boundary now preserves empty Grid content
-  tooltips, accepts positive safe-integer Grid column counts, and serializes
+  tooltips, accepts Grid column counts from 1 through 8, and serializes
   `List.Item` icon descriptors with optional values and tooltips. Pagination
   preserves non-negative safe-integer page sizes, including the zero fallback
   emitted by async hooks before pagination state is initialized. The explicit
@@ -485,7 +491,8 @@ slice changes what is executable, what is trusted, or what should happen next.
 - `BrowserExtension.getTabs` and `BrowserExtension.getContent` cross explicit
   `browser-extension.getTabs` and `browser-extension.getContent` capabilities;
   tab responses are JSON-decoded and validated, while content format,
-  selector, and tab ID options are normalized before crossing the boundary.
+  selector, and tab ID options are normalized before crossing the boundary;
+  markdown requests with a selector are rejected at the adapter edge.
 - `clearSearchBar` and `trash` cross explicit `navigation.clearSearchBar` and
   `filesystem.trash` capabilities. Trash accepts one or many structural
   `PathLike` values and encodes only normalized primitive paths; browser,
@@ -617,8 +624,9 @@ only small portable JavaScript seeds eligible after the API-first slice.
    Quick Look actions, Detail metadata, `List.Item.Detail`, search/pagination
    events, zero pagination and OpenInBrowser readiness fallbacks, Clipboard
    read/clear, Submenu lifecycle,
-   nested `Props` and utility namespaces, `Form.ItemReference`,
-   and deprecated Form/action member aliases covered by each reprobe.
+   nested `Props` and utility namespaces, `Form.ItemReference`, deprecated
+   Form/action member aliases, Grid column bounds, and the
+   BrowserExtension markdown/selector rule covered by each test slice.
 3. Keep safe dynamic, namespace, side-effect, and literal `require` import
    forms covered while the remaining `fetch` import stays outside the adapter
    until a host network capability defines URL policy, consent, and response

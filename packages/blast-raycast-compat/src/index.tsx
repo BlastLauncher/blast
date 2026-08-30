@@ -1213,10 +1213,14 @@ export namespace BrowserExtension {
         argumentsValue.format = options.format;
       }
       if (options.cssSelector !== undefined) {
-        argumentsValue.cssSelector = requireNonEmptyString(
-          options.cssSelector,
-          "BrowserExtension.getContent cssSelector",
-        );
+        const cssSelector = requireNonEmptyString(options.cssSelector, "BrowserExtension.getContent cssSelector");
+        if (argumentsValue.format === "markdown") {
+          unsupported("BrowserExtension.getContent cssSelector with markdown format", {
+            format: argumentsValue.format,
+            cssSelector,
+          });
+        }
+        argumentsValue.cssSelector = cssSelector;
       }
       if (options.tabId !== undefined) {
         const tabId: unknown = options.tabId;
@@ -1990,8 +1994,8 @@ function normalizeStringArray(value: unknown, where: string): string[] {
 }
 
 function normalizeGridColumns(value: unknown, where: string): number {
-  if (typeof value !== "number" || !Number.isSafeInteger(value) || value < 1) {
-    unsupported(`${where} must be a positive safe integer`, { value });
+  if (typeof value !== "number" || !Number.isSafeInteger(value) || value < 1 || value > 8) {
+    unsupported(`${where} must be an integer between 1 and 8`, { value });
   }
   return value;
 }
