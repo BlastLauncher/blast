@@ -661,7 +661,11 @@ only small portable JavaScript seeds eligible after the API-first slice.
    all 158 pinned `AI.Model` key/value pairs cross with their declared
    identifiers, the pre-existing legacy spelling remains supported, and
    unknown names retain the open runtime fallback. Model providers and
-   availability stay host work. Preserve
+   availability stay host work. [ADR
+   0083](decisions/0083-preserve-raycast-oauth-provider-metadata.md) is the
+   next API-first slice: preserve OAuth provider icons and descriptions as
+   validated primitive authorization-request metadata while keeping browser
+   and token providers host-owned. Preserve
    structured errors for values that would require a broader scene or host
    policy. Keep the deterministic
    structured probe failure

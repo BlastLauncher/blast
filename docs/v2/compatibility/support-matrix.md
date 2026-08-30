@@ -541,6 +541,10 @@ dispatches a bounds mutation through the explicit host capability.
   mirrors all 158 pinned `AI.Model` identifiers and historical aliases while
   retaining runtime extensibility. Provider availability and execution remain
   outside the adapter.
+- The next API-first slice is [ADR 0083](../decisions/0083-preserve-raycast-oauth-provider-metadata.md):
+  carry validated OAuth provider icons and descriptions through the
+  authorization-request boundary as primitive fields. Overlay rendering,
+  browser interaction, and token storage remain host work.
 - `OAuth.PKCEClient` is measured through host-owned `oauth` operations for
   authorization requests, browser authorization, token storage, lookup, and
   removal. PKCE generation, browser routing, secure storage, consent, and
