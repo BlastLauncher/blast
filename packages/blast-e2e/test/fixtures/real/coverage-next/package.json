@@ -12,6 +12,17 @@
       "type": "textfield",
       "required": false,
       "default": "fixture-token"
+    },
+    {
+      "name": "region",
+      "title": "Region",
+      "description": "Fixture region",
+      "type": "dropdown",
+      "required": true,
+      "data": [
+        { "title": "United States", "value": "us" },
+        { "title": "Europe", "value": "eu" }
+      ]
     }
   ],
   "commands": [

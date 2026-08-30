@@ -15,6 +15,7 @@ import type { Environment, FormValue, KeyEquivalent, Navigation, PreferenceValue
 import { useEffect, useState } from "react";
 
 const legacyPreferenceValue = preferences.token?.value ?? "missing";
+const legacyPreferenceOptionCount = preferences.region?.data?.length ?? 0;
 const fixtureId = randomId();
 
 type CompatibilityTypeProbe = {
@@ -55,7 +56,7 @@ export default function Command() {
     <List navigationTitle={`Next:${status}`}>
       <List.Item
         title="Coverage next"
-        subtitle={`${legacyPreferenceValue}:${environment.extensionName}:${environment.ownerOrAuthorName}:${environment.appearance}:${fixtureId}`}
+        subtitle={`${legacyPreferenceValue}:${legacyPreferenceOptionCount}:${environment.extensionName}:${environment.ownerOrAuthorName}:${environment.appearance}:${fixtureId}`}
         actions={
           <ActionPanel>
             <OpenInBrowserAction url="https://example.com/legacy" />

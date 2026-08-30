@@ -26,6 +26,20 @@ const descriptor = {
     appearance: "light",
     textSize: "large",
   },
+  preferenceMetadata: {
+    region: {
+      name: "region",
+      type: "dropdown",
+      required: true,
+      title: "Region",
+      description: "Choose a region",
+      default: "us",
+      data: [
+        { title: "United States", value: "us" },
+        { title: "Europe", value: "eu" },
+      ],
+    },
+  },
 };
 
 test("validates extension initialization messages", () => {
@@ -61,6 +75,24 @@ test("reports invalid extension descriptor fields", () => {
   assert.equal(invalidEnvironment.ok, false);
   assert.deepEqual(invalidEnvironment.issues, [
     { path: "$.payload.descriptor.environment.appearance", message: "Expected a valid appearance" },
+  ]);
+
+  const invalidPreferenceMetadata = validateExtensionInitializeMessage(
+    createMessage("initialize-1", EXTENSION_INITIALIZE_MESSAGE, {
+      descriptor: {
+        ...descriptor,
+        preferenceMetadata: {
+          region: {
+            ...descriptor.preferenceMetadata.region,
+            data: [{ title: "United States", value: 7 }],
+          },
+        },
+      },
+    }),
+  );
+  assert.equal(invalidPreferenceMetadata.ok, false);
+  assert.deepEqual(invalidPreferenceMetadata.issues, [
+    { path: "$.payload.descriptor.preferenceMetadata.region.data[0].value", message: "Expected a string" },
   ]);
 });
 

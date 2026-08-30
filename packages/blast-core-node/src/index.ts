@@ -3,7 +3,15 @@ import type { Dirent } from "node:fs";
 import path from "node:path";
 
 import { BlastCoreError, type CommandIdentity, type ExtensionCatalog } from "@blastlauncher/core";
-import type { ExtensionDescriptor, ExtensionEntryPointMode } from "@blastlauncher/extension-contract";
+import type {
+  ExtensionDescriptor,
+  ExtensionEntryPointMode,
+  ExtensionPreferenceDataItem,
+  ExtensionPreferenceMetadata,
+  ExtensionPreferenceMetadataValue,
+  ExtensionPreferenceScalar,
+  ExtensionPreferenceType,
+} from "@blastlauncher/extension-contract";
 
 export const DEFAULT_MANIFEST_FILE_NAME = "package.json";
 
@@ -15,7 +23,9 @@ export interface ManifestCommand {
   /** Raycast command mode; omitted manifests default to a view command. */
   readonly mode?: ExtensionEntryPointMode;
   /** Preference defaults declared on this command in the Raycast manifest. */
-  readonly preferences?: Readonly<Record<string, string | number | boolean>>;
+  readonly preferences?: Readonly<Record<string, ExtensionPreferenceScalar>>;
+  /** Full measured preference declarations keyed by preference name. */
+  readonly preferenceMetadata?: Readonly<Record<string, ExtensionPreferenceMetadata>>;
 }
 
 export interface ExtensionManifest {
@@ -25,7 +35,9 @@ export interface ExtensionManifest {
   readonly owner?: string;
   readonly commands: readonly ManifestCommand[];
   /** Manifest preference defaults keyed by preference name. */
-  readonly preferences: Readonly<Record<string, string | number | boolean>>;
+  readonly preferences: Readonly<Record<string, ExtensionPreferenceScalar>>;
+  /** Full measured preference declarations keyed by preference name. */
+  readonly preferenceMetadata: Readonly<Record<string, ExtensionPreferenceMetadata>>;
 }
 
 export interface FilesystemExtensionCatalogOptions {
@@ -84,6 +96,10 @@ export class FilesystemExtensionCatalog implements ExtensionCatalog {
       ...entry.manifest.preferences,
       ...command.preferences,
     };
+    const preferenceMetadata = {
+      ...entry.manifest.preferenceMetadata,
+      ...command.preferenceMetadata,
+    };
     const ownerOrAuthorName = entry.manifest.owner ?? entry.manifest.author;
     return {
       extensionId: entry.manifest.name,
@@ -94,6 +110,7 @@ export class FilesystemExtensionCatalog implements ExtensionCatalog {
       ...(ownerOrAuthorName === undefined ? {} : { ownerOrAuthorName }),
       entryPointMode: command.mode ?? "view",
       ...(Object.keys(preferences).length === 0 ? {} : { preferences }),
+      ...(Object.keys(preferenceMetadata).length === 0 ? {} : { preferenceMetadata }),
     };
   }
 
@@ -227,20 +244,25 @@ export function parseManifest(value: unknown): ExtensionManifest | undefined {
     if (mode !== undefined && mode !== "no-view" && mode !== "view" && mode !== "menu-bar") {
       return undefined;
     }
-    const preferences = parsePreferenceDefaults(rawCommand["preferences"]);
-    if (preferences === undefined) {
+    const parsedPreferences = parsePreferenceDeclarations(rawCommand["preferences"]);
+    if (parsedPreferences === undefined) {
       return undefined;
     }
     commands.push({
       name: commandName,
       entrypoint,
       ...(mode === undefined ? {} : { mode }),
-      ...(Object.keys(preferences).length === 0 ? {} : { preferences }),
+      ...(Object.keys(parsedPreferences.preferences).length === 0
+        ? {}
+        : { preferences: parsedPreferences.preferences }),
+      ...(Object.keys(parsedPreferences.metadata).length === 0
+        ? {}
+        : { preferenceMetadata: parsedPreferences.metadata }),
     });
   }
 
-  const preferences = parsePreferenceDefaults(value["preferences"]);
-  if (preferences === undefined) {
+  const parsedPreferences = parsePreferenceDeclarations(value["preferences"]);
+  if (parsedPreferences === undefined) {
     return undefined;
   }
   return {
@@ -249,7 +271,8 @@ export function parseManifest(value: unknown): ExtensionManifest | undefined {
     ...(author === undefined ? {} : { author }),
     ...(owner === undefined ? {} : { owner }),
     commands,
-    preferences,
+    preferences: parsedPreferences.preferences,
+    preferenceMetadata: parsedPreferences.metadata,
   };
 }
 
@@ -262,10 +285,16 @@ function parseOptionalManifestString(value: unknown): string | undefined | typeo
   return typeof value === "string" && value.length > 0 ? value : INVALID_MANIFEST_STRING;
 }
 
-function parsePreferenceDefaults(value: unknown): Record<string, string | number | boolean> | undefined {
-  const preferences: Record<string, string | number | boolean> = {};
+interface ParsedPreferenceDeclarations {
+  readonly preferences: Record<string, ExtensionPreferenceScalar>;
+  readonly metadata: Record<string, ExtensionPreferenceMetadata>;
+}
+
+function parsePreferenceDeclarations(value: unknown): ParsedPreferenceDeclarations | undefined {
+  const preferences: Record<string, ExtensionPreferenceScalar> = {};
+  const metadata: Record<string, ExtensionPreferenceMetadata> = {};
   if (value === undefined) {
-    return preferences;
+    return { preferences, metadata };
   }
   if (!Array.isArray(value)) {
     return undefined;
@@ -288,14 +317,90 @@ function parsePreferenceDefaults(value: unknown): Record<string, string | number
       } else {
         return undefined;
       }
-    } else if (
-      defaultValue !== undefined &&
-      (typeof defaultValue === "string" || typeof defaultValue === "number" || typeof defaultValue === "boolean")
-    ) {
+    } else if (defaultValue !== undefined && isPreferenceScalar(defaultValue)) {
       preferences[preferenceName] = defaultValue;
     }
+
+    const preferenceType = parsePreferenceType(type);
+    if (preferenceType !== undefined) {
+      metadata[preferenceName] = parsePreferenceMetadata(rawPreference, preferenceName, preferenceType);
+    }
   }
-  return preferences;
+  return { preferences, metadata };
+}
+
+function parsePreferenceMetadata(
+  value: Record<string, unknown>,
+  name: string,
+  type: ExtensionPreferenceType,
+): ExtensionPreferenceMetadata {
+  const preferenceValue = parsePreferenceMetadataValue(value["value"]);
+  const defaultValue = parsePreferenceMetadataValue(value["default"]);
+  const data = parsePreferenceData(value["data"]);
+  return {
+    name,
+    type,
+    required: value["required"] === true,
+    title: typeof value["title"] === "string" ? value["title"] : "",
+    description: typeof value["description"] === "string" ? value["description"] : "",
+    ...(preferenceValue === undefined ? {} : { value: preferenceValue }),
+    ...(defaultValue === undefined ? {} : { default: defaultValue }),
+    ...(typeof value["placeholder"] === "string" ? { placeholder: value["placeholder"] } : {}),
+    ...(typeof value["label"] === "string" ? { label: value["label"] } : {}),
+    ...(data === undefined ? {} : { data }),
+  };
+}
+
+function parsePreferenceType(value: unknown): ExtensionPreferenceType | undefined {
+  if (
+    value === "appPicker" ||
+    value === "checkbox" ||
+    value === "dropdown" ||
+    value === "password" ||
+    value === "textfield" ||
+    value === "file" ||
+    value === "directory"
+  ) {
+    return value;
+  }
+  return undefined;
+}
+
+function parsePreferenceMetadataValue(value: unknown): ExtensionPreferenceMetadataValue | undefined {
+  if (isPreferenceScalar(value)) {
+    return value;
+  }
+  if (!isRecord(value)) {
+    return undefined;
+  }
+  const platformValue: Record<string, ExtensionPreferenceScalar> = {};
+  for (const [key, entry] of Object.entries(value)) {
+    if (!isPreferenceScalar(entry)) {
+      return undefined;
+    }
+    platformValue[key] = entry;
+  }
+  return platformValue;
+}
+
+function parsePreferenceData(value: unknown): readonly ExtensionPreferenceDataItem[] | undefined {
+  if (!Array.isArray(value)) {
+    return undefined;
+  }
+  const data: ExtensionPreferenceDataItem[] = [];
+  for (const item of value) {
+    if (!isRecord(item) || typeof item["title"] !== "string" || typeof item["value"] !== "string") {
+      return undefined;
+    }
+    data.push({ title: item["title"], value: item["value"] });
+  }
+  return data;
+}
+
+function isPreferenceScalar(value: unknown): value is ExtensionPreferenceScalar {
+  return (
+    typeof value === "string" || typeof value === "boolean" || (typeof value === "number" && Number.isFinite(value))
+  );
 }
 
 function validateIdentity(identity: CommandIdentity): void {

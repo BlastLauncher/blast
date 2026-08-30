@@ -2797,6 +2797,38 @@ test("exposes legacy preference metadata and stable helper ids", () => {
   assert.notEqual(first, second);
 });
 
+test("preserves declared preference metadata and values without defaults", () => {
+  const probe = createContext();
+  probe.context.descriptor.preferenceMetadata = {
+    region: {
+      name: "region",
+      type: "dropdown",
+      required: true,
+      title: "Region",
+      description: "Choose a region",
+      data: [
+        { title: "United States", value: "us" },
+        { title: "Europe", value: "eu" },
+      ],
+    },
+  };
+  configureRaycastCompat(probe.context);
+
+  assert.deepEqual(preferences.region, {
+    name: "region",
+    type: "dropdown",
+    required: true,
+    title: "Region",
+    description: "Choose a region",
+    data: [
+      { title: "United States", value: "us" },
+      { title: "Europe", value: "eu" },
+    ],
+  });
+  assert.deepEqual(Object.keys(preferences), ["region", "token", "enabled"]);
+  assert.equal(preferences.token.value, "secret");
+});
+
 test("Action.Push activation pushes the target scene root", async () => {
   const probe = createContext();
 

@@ -71,7 +71,8 @@ export interface RaycastCompatContext {
   readonly descriptor: {
     readonly extensionId: string;
     readonly commandName: string;
-    readonly preferences: Readonly<Record<string, string | number | boolean>>;
+    readonly preferences?: Readonly<Record<string, string | number | boolean>>;
+    readonly preferenceMetadata?: Readonly<Record<string, RaycastPreferenceMetadata>>;
     readonly rootDirectory?: string;
     /** Optional manifest title used by environment.extensionName. */
     readonly extensionName?: string;
@@ -1198,6 +1199,28 @@ export interface PreferenceValues {
 }
 
 export type PreferenceType = "appPicker" | "checkbox" | "dropdown" | "password" | "textfield" | "file" | "directory";
+export type PreferenceMetadataScalar = string | number | boolean;
+export type PreferenceMetadataPlatformValue = Readonly<Record<string, PreferenceMetadataScalar>>;
+export type PreferenceMetadataValue = PreferenceMetadataScalar | PreferenceMetadataPlatformValue;
+
+export interface PreferenceDataItem {
+  readonly title: string;
+  readonly value: string;
+}
+
+/** JSON-safe measured declaration metadata carried by the trusted catalog. */
+export interface RaycastPreferenceMetadata {
+  readonly name: string;
+  readonly type: PreferenceType;
+  readonly required: boolean;
+  readonly title: string;
+  readonly description: string;
+  readonly value?: PreferenceMetadataValue;
+  readonly default?: PreferenceMetadataValue;
+  readonly placeholder?: string;
+  readonly label?: string;
+  readonly data?: readonly PreferenceDataItem[];
+}
 
 /** Deprecated preference metadata shape retained for older extensions. */
 export interface Preference {
@@ -6068,7 +6091,7 @@ export function getPreferenceValues<T = PreferenceValues>(): T {
   return (requireContext().descriptor.preferences ?? {}) as T;
 }
 
-function preferenceTypeForValue(value: string | number | boolean): PreferenceType {
+function preferenceTypeForValue(value: string | number | boolean | undefined): PreferenceType {
   if (typeof value === "boolean") {
     return "checkbox";
   }
@@ -6078,7 +6101,27 @@ function preferenceTypeForValue(value: string | number | boolean): PreferenceTyp
   return "textfield";
 }
 
-function createLegacyPreference(name: string, value: string | number | boolean): Preference {
+function createLegacyPreference(
+  name: string,
+  values: Readonly<Record<string, string | number | boolean>>,
+  metadata?: RaycastPreferenceMetadata,
+): Preference {
+  if (metadata !== undefined) {
+    const value = Object.hasOwn(values, name) ? values[name] : metadata.value;
+    return {
+      name: metadata.name,
+      type: metadata.type,
+      required: metadata.required,
+      title: metadata.title,
+      description: metadata.description,
+      ...(value === undefined ? {} : { value }),
+      ...(metadata.default === undefined ? {} : { default: metadata.default }),
+      ...(metadata.placeholder === undefined ? {} : { placeholder: metadata.placeholder }),
+      ...(metadata.label === undefined ? {} : { label: metadata.label }),
+      ...(metadata.data === undefined ? {} : { data: [...metadata.data] }),
+    };
+  }
+  const value = values[name];
   return {
     name,
     type: preferenceTypeForValue(value),
@@ -6093,11 +6136,22 @@ function currentPreferenceValues(): Readonly<Record<string, string | number | bo
   return requireContext().descriptor.preferences ?? {};
 }
 
+function currentPreferenceMetadata(): Readonly<Record<string, RaycastPreferenceMetadata>> {
+  return requireContext().descriptor.preferenceMetadata ?? {};
+}
+
+function currentPreferenceNames(): string[] {
+  const names = new Set<string>(Object.keys(currentPreferenceMetadata()));
+  for (const name of Object.keys(currentPreferenceValues())) {
+    names.add(name);
+  }
+  return [...names];
+}
+
 /**
- * Deprecated preference metadata view. The V2 descriptor currently carries
- * resolved values rather than the full manifest metadata, so the adapter
- * supplies stable metadata defaults while preserving the legacy `.value`
- * access pattern used by older extensions.
+ * Deprecated preference metadata view. Declared metadata comes from the
+ * trusted descriptor, with resolved manifest values overlaid on `.value`;
+ * manually-created legacy contexts still receive inferred metadata.
  */
 const preferenceTarget = Object.create(null) as Preferences;
 export const preferences: Preferences = new Proxy(preferenceTarget, {
@@ -6106,31 +6160,34 @@ export const preferences: Preferences = new Proxy(preferenceTarget, {
       return Reflect.get(target, property, receiver);
     }
     const values = currentPreferenceValues();
-    const value = values[property];
-    return value === undefined ? undefined : createLegacyPreference(property, value);
+    const metadata = currentPreferenceMetadata()[property];
+    if (metadata === undefined && !Object.hasOwn(values, property)) {
+      return undefined;
+    }
+    return createLegacyPreference(property, values, metadata);
   },
   has(_target, property) {
-    return typeof property === "string" && Object.hasOwn(currentPreferenceValues(), property);
+    return (
+      typeof property === "string" &&
+      (Object.hasOwn(currentPreferenceValues(), property) || Object.hasOwn(currentPreferenceMetadata(), property))
+    );
   },
   ownKeys() {
-    return Object.keys(currentPreferenceValues());
+    return currentPreferenceNames();
   },
   getOwnPropertyDescriptor(_target, property) {
     if (typeof property !== "string") {
       return undefined;
     }
     const values = currentPreferenceValues();
-    if (!Object.hasOwn(values, property)) {
-      return undefined;
-    }
-    const value = values[property];
-    if (value === undefined) {
+    const metadata = currentPreferenceMetadata()[property];
+    if (metadata === undefined && !Object.hasOwn(values, property)) {
       return undefined;
     }
     return {
       configurable: true,
       enumerable: true,
-      value: createLegacyPreference(property, value),
+      value: createLegacyPreference(property, values, metadata),
     };
   },
 });

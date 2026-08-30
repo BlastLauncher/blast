@@ -41,6 +41,38 @@ test("resolves explicit manifest entrypoints", async () => {
     ownerOrAuthorName: "beta-owner",
     entryPointMode: "view",
     preferences: { token: "secret", enabled: true, layout: "Grid" },
+    preferenceMetadata: {
+      token: {
+        name: "token",
+        type: "password",
+        required: true,
+        title: "Token",
+        description: "API token",
+        default: "secret",
+        placeholder: "token...",
+      },
+      enabled: {
+        name: "enabled",
+        type: "checkbox",
+        required: false,
+        title: "Enabled",
+        description: "Enable the fixture",
+        default: true,
+        label: "Enabled",
+      },
+      layout: {
+        name: "layout",
+        type: "dropdown",
+        required: true,
+        title: "Layout",
+        description: "Choose a layout",
+        default: "Grid",
+        data: [
+          { title: "Grid", value: "Grid" },
+          { title: "List", value: "List" },
+        ],
+      },
+    },
   });
 });
 
@@ -139,6 +171,7 @@ test("parses manifests strictly", () => {
     name: "sample",
     commands: [{ name: "index", entrypoint: undefined, mode: "view" }],
     preferences: {},
+    preferenceMetadata: {},
   });
 
   assert.deepEqual(
@@ -179,6 +212,7 @@ test("parses manifests strictly", () => {
       owner: "sample-owner",
       commands: [{ name: "index", entrypoint: undefined }],
       preferences: {},
+      preferenceMetadata: {},
     },
   );
   assert.equal(parseManifest({ name: "sample", title: 7, commands: [{ name: "index" }] }), undefined);
@@ -197,6 +231,23 @@ test("resolves manifest preference defaults", (context) => {
       ],
     });
     assert.deepEqual(manifest.preferences, { city: "Berlin", enabled: false, limit: 5 });
+    assert.deepEqual(manifest.preferenceMetadata, {
+      city: {
+        name: "city",
+        type: "textfield",
+        required: false,
+        title: "",
+        description: "",
+        default: "Berlin",
+      },
+      enabled: {
+        name: "enabled",
+        type: "checkbox",
+        required: false,
+        title: "",
+        description: "",
+      },
+    });
   });
 
   context.test("invalid checkbox default invalidates the manifest", () => {
@@ -214,6 +265,8 @@ test("resolves manifest preference defaults", (context) => {
     const catalog = createCatalog();
     const descriptor = await catalog.resolve({ extensionId: "beta", commandName: "main" });
     assert.deepEqual(descriptor.preferences, { token: "secret", enabled: true, layout: "Grid" });
+    assert.equal(descriptor.preferenceMetadata.layout.data[1].value, "List");
+    assert.equal(descriptor.preferenceMetadata.token.placeholder, "token...");
   });
 
   context.test("parses command-scoped defaults", () => {
@@ -233,6 +286,23 @@ test("resolves manifest preference defaults", (context) => {
       name: "index",
       entrypoint: undefined,
       preferences: { layout: "Grid", enabled: false },
+      preferenceMetadata: {
+        layout: {
+          name: "layout",
+          type: "dropdown",
+          required: false,
+          title: "",
+          description: "",
+          default: "Grid",
+        },
+        enabled: {
+          name: "enabled",
+          type: "checkbox",
+          required: false,
+          title: "",
+          description: "",
+        },
+      },
     });
   });
 
@@ -248,5 +318,6 @@ test("resolves manifest preference defaults", (context) => {
       preferences: [{ name: "layout", type: "dropdown", default: "List" }],
     });
     assert.deepEqual(manifest.commands[0].preferences, { layout: "Grid" });
+    assert.equal(manifest.commands[0].preferenceMetadata.layout.default, "Grid");
   });
 });

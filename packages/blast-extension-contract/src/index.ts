@@ -13,6 +13,37 @@ export type ExtensionEntryPointType = "command" | "tool";
 export type ExtensionAppearance = "light" | "dark";
 export type ExtensionTextSize = "medium" | "large";
 
+export type ExtensionPreferenceType =
+  | "appPicker"
+  | "checkbox"
+  | "dropdown"
+  | "password"
+  | "textfield"
+  | "file"
+  | "directory";
+export type ExtensionPreferenceScalar = string | number | boolean;
+export type ExtensionPreferencePlatformValue = Readonly<Record<string, ExtensionPreferenceScalar>>;
+export type ExtensionPreferenceMetadataValue = ExtensionPreferenceScalar | ExtensionPreferencePlatformValue;
+
+export interface ExtensionPreferenceDataItem {
+  readonly title: string;
+  readonly value: string;
+}
+
+/** JSON-safe measured metadata for one Raycast manifest preference. */
+export interface ExtensionPreferenceMetadata {
+  readonly name: string;
+  readonly type: ExtensionPreferenceType;
+  readonly required: boolean;
+  readonly title: string;
+  readonly description: string;
+  readonly value?: ExtensionPreferenceMetadataValue;
+  readonly default?: ExtensionPreferenceMetadataValue;
+  readonly placeholder?: string;
+  readonly label?: string;
+  readonly data?: readonly ExtensionPreferenceDataItem[];
+}
+
 /** Host-owned scalar values used to populate Raycast's environment object. */
 export interface ExtensionEnvironmentMetadata {
   readonly raycastVersion?: string;
@@ -36,7 +67,9 @@ export interface ExtensionDescriptor {
   /** Optional host-owned scalar environment values. */
   readonly environment?: ExtensionEnvironmentMetadata;
   /** Manifest preference defaults resolved by the trusted catalog. */
-  readonly preferences?: Readonly<Record<string, string | number | boolean>>;
+  readonly preferences?: Readonly<Record<string, ExtensionPreferenceScalar>>;
+  /** Full measured manifest preference declarations keyed by preference name. */
+  readonly preferenceMetadata?: Readonly<Record<string, ExtensionPreferenceMetadata>>;
 }
 
 export interface ExtensionInitializePayload {
@@ -121,17 +154,96 @@ function validateDescriptor(value: Record<string, unknown>, path: string, issues
   if (value.environment !== undefined) {
     validateEnvironmentMetadata(value.environment, `${path}.environment`, issues);
   }
-  if (value.preferences === undefined) {
+  if (value.preferences !== undefined) {
+    if (!isRecord(value.preferences)) {
+      issues.push({ path: `${path}.preferences`, message: "Expected an object" });
+    } else {
+      for (const key of Object.keys(value.preferences)) {
+        const preference = value.preferences[key];
+        if (!isPreferenceScalar(preference)) {
+          issues.push({ path: `${path}.preferences.${key}`, message: "Expected a primitive preference value" });
+        }
+      }
+    }
+  }
+  if (value.preferenceMetadata !== undefined) {
+    validatePreferenceMetadata(value.preferenceMetadata, `${path}.preferenceMetadata`, issues);
+  }
+}
+
+function validatePreferenceMetadata(value: unknown, path: string, issues: ValidationIssue[]): void {
+  if (!isRecord(value)) {
+    issues.push({ path, message: "Expected an object" });
     return;
   }
-  if (!isRecord(value.preferences)) {
-    issues.push({ path: `${path}.preferences`, message: "Expected an object" });
+  for (const key of Object.keys(value)) {
+    const metadataPath = `${path}.${key}`;
+    const metadata = value[key];
+    if (!isRecord(metadata)) {
+      issues.push({ path: metadataPath, message: "Expected an object" });
+      continue;
+    }
+    validateNonEmptyString(metadata.name, `${metadataPath}.name`, issues);
+    if (metadata.name !== key) {
+      issues.push({ path: `${metadataPath}.name`, message: "Expected the metadata key to match the preference name" });
+    }
+    if (
+      metadata.type !== "appPicker" &&
+      metadata.type !== "checkbox" &&
+      metadata.type !== "dropdown" &&
+      metadata.type !== "password" &&
+      metadata.type !== "textfield" &&
+      metadata.type !== "file" &&
+      metadata.type !== "directory"
+    ) {
+      issues.push({ path: `${metadataPath}.type`, message: "Expected a valid preference type" });
+    }
+    if (typeof metadata.required !== "boolean") {
+      issues.push({ path: `${metadataPath}.required`, message: "Expected a boolean" });
+    }
+    validateString(metadata.title, `${metadataPath}.title`, issues);
+    validateString(metadata.description, `${metadataPath}.description`, issues);
+    if (metadata.value !== undefined) {
+      validatePreferenceMetadataValue(metadata.value, `${metadataPath}.value`, issues);
+    }
+    if (metadata.default !== undefined) {
+      validatePreferenceMetadataValue(metadata.default, `${metadataPath}.default`, issues);
+    }
+    if (metadata.placeholder !== undefined) {
+      validateString(metadata.placeholder, `${metadataPath}.placeholder`, issues);
+    }
+    if (metadata.label !== undefined) {
+      validateString(metadata.label, `${metadataPath}.label`, issues);
+    }
+    if (metadata.data !== undefined) {
+      if (!Array.isArray(metadata.data)) {
+        issues.push({ path: `${metadataPath}.data`, message: "Expected an array" });
+      } else {
+        metadata.data.forEach((item, index) => {
+          const itemPath = `${metadataPath}.data[${index}]`;
+          if (!isRecord(item)) {
+            issues.push({ path: itemPath, message: "Expected an object" });
+            return;
+          }
+          validateString(item.title, `${itemPath}.title`, issues);
+          validateString(item.value, `${itemPath}.value`, issues);
+        });
+      }
+    }
+  }
+}
+
+function validatePreferenceMetadataValue(value: unknown, path: string, issues: ValidationIssue[]): void {
+  if (isPreferenceScalar(value)) {
     return;
   }
-  for (const key of Object.keys(value.preferences)) {
-    const preference = value.preferences[key];
-    if (typeof preference !== "string" && typeof preference !== "number" && typeof preference !== "boolean") {
-      issues.push({ path: `${path}.preferences.${key}`, message: "Expected a primitive preference value" });
+  if (!isRecord(value)) {
+    issues.push({ path, message: "Expected a scalar or platform value map" });
+    return;
+  }
+  for (const key of Object.keys(value)) {
+    if (!isPreferenceScalar(value[key])) {
+      issues.push({ path: `${path}.${key}`, message: "Expected a primitive platform preference value" });
     }
   }
 }
@@ -162,6 +274,18 @@ function validateNonEmptyString(value: unknown, path: string, issues: Validation
   if (typeof value !== "string" || value.length === 0) {
     issues.push({ path, message: "Expected a non-empty string" });
   }
+}
+
+function validateString(value: unknown, path: string, issues: ValidationIssue[]): void {
+  if (typeof value !== "string") {
+    issues.push({ path, message: "Expected a string" });
+  }
+}
+
+function isPreferenceScalar(value: unknown): value is ExtensionPreferenceScalar {
+  return (
+    typeof value === "string" || typeof value === "boolean" || (typeof value === "number" && Number.isFinite(value))
+  );
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

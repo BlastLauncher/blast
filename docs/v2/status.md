@@ -335,13 +335,13 @@ slice changes what is executable, what is trusted, or what should happen next.
   appearance, and text-size values. Legacy defaults remain in place; OS
   preference detection, tool execution, and production host providers remain
   outside this slice.
-- The next API-first slice is planned in [ADR 0081](decisions/0081-preserve-raycast-preference-metadata.md):
-  carry measured manifest preference metadata through the trusted descriptor,
-  merge command declarations over extension declarations, and restore the
-  declaration-shaped deprecated `preferences` object. `getPreferenceValues()`
-  remains a deterministic default map; preference storage, secure password
-  persistence, platform app-picker resolution, and onboarding UI remain out
-  of scope.
+- The preference metadata slice in [ADR 0081](decisions/0081-preserve-raycast-preference-metadata.md)
+  is now implemented: measured manifest declarations and dropdown data cross
+  the trusted descriptor, command declarations override extension declarations,
+  and deprecated `preferences` exposes declared entries with resolved values
+  overlaid when available. `getPreferenceValues()` remains a deterministic
+  default map; preference storage, secure password persistence, platform
+  app-picker resolution, and onboarding UI remain out of scope.
 - Navigation (useNavigation, Action.Push), LocalStorage through the
   capability broker with a reference in-memory provider, the callable plus
   property-based environment surface, and measured WindowManagement discovery
@@ -480,8 +480,10 @@ slice changes what is executable, what is trusted, or what should happen next.
   while the top-level clipboard and LocalStorage helpers route to the same
   brokered operations. `ListSection` maps to a semantic list-section node, and
   legacy `render(<Command />)` calls bridge into the active renderer.
-- Legacy `preferences` exposes resolved manifest values through the official
-  `.value` metadata shape, `FormValue` includes the pinned numeric forms, and
+- Legacy `preferences` exposes declaration-shaped manifest metadata, including
+  required/type/description fields, optional labels/placeholders/defaults, and
+  measured dropdown data; resolved values overlay the official `.value` field.
+  `FormValue` includes the pinned numeric forms, and
   `Navigation`, `Environment`, `KeyEquivalent`, `FormValues`,
   `KeyboardShortcut`, and `ImageLike` aliases are available. Environment
   `canAccess` delegates to an optional host policy with stable measured API
@@ -649,12 +651,12 @@ only small portable JavaScript seeds eligible after the API-first slice.
    metadata slice in [ADR 0080](decisions/0080-preserve-raycast-environment-metadata.md)
    is also implemented: manifest title and owner/author values cross the
    trusted descriptor, and explicit scalar host metadata reaches the property
-   and callable forms of `environment` with safe legacy defaults. Preserve
-   the proposed preference metadata slice in [ADR
-   0081](decisions/0081-preserve-raycast-preference-metadata.md) as the next
-   measured API increment: carry declared metadata and dropdown data through
-   the descriptor, overlay resolved defaults in deprecated `preferences`, and
-   leave storage and platform resolution to a later host boundary. Preserve
+   and callable forms of `environment` with safe legacy defaults. The
+   preference metadata slice in [ADR
+   0081](decisions/0081-preserve-raycast-preference-metadata.md) is implemented:
+   declared metadata and dropdown data cross the descriptor, resolved defaults
+   overlay deprecated `preferences`, and storage/platform resolution remain a
+   later host boundary. Preserve
    structured errors for values that would require a broader scene or host
    policy. Keep the deterministic
    structured probe failure

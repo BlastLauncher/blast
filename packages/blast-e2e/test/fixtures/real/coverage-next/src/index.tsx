@@ -17,6 +17,7 @@ import type { Environment, FormValue, KeyEquivalent, Navigation, PreferenceValue
 import { useEffect, useState } from "react";
 
 const legacyPreferenceValue = preferences.token?.value ?? "missing";
+const legacyPreferenceOptionCount = preferences.region?.data?.length ?? 0;
 const fixtureId = randomId();
 
 type CompatibilityTypeProbe = {
@@ -58,7 +59,7 @@ export default function Command() {
       <List.Item
         title={{ value: "Coverage next", tooltip: "Measured detail fixture" }}
         subtitle={{
-          value: `${legacyPreferenceValue}:${environment.extensionName}:${environment.ownerOrAuthorName}:${environment.appearance}:${fixtureId}`,
+          value: `${legacyPreferenceValue}:${legacyPreferenceOptionCount}:${environment.extensionName}:${environment.ownerOrAuthorName}:${environment.appearance}:${fixtureId}`,
           tooltip: "State",
         }}
         detail={

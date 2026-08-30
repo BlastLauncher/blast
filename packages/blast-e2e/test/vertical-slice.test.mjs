@@ -637,7 +637,7 @@ test("runs the next measured action, telemetry, application, and preference boun
   );
 
   const item = buffer.childrenOf(buffer.rootId)[0];
-  assert.match(item.props.subtitle, /^fixture-token:E2E Coverage Next:e2e-fixture:dark:blast-[0-9a-z]+$/);
+  assert.match(item.props.subtitle, /^fixture-token:2:E2E Coverage Next:e2e-fixture:dark:blast-[0-9a-z]+$/);
   const group = item.children[0];
   assert.deepEqual(
     group.children.map(({ props }) => ({ title: props.title, icon: props.icon })),

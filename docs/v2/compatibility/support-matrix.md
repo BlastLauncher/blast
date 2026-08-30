@@ -431,12 +431,12 @@ dispatches a bounds mutation through the explicit host capability.
   legacy push, open,
   paste, storage, preference, environment, and `ImageMask` aliases are covered
   by the `coverage-followup` and `coverage-next` fixtures;
-- The next preference fidelity slice is planned in [ADR
-  0081](../decisions/0081-preserve-raycast-preference-metadata.md): preserve
-  declared preference metadata and dropdown data through the descriptor and
-  overlay resolved defaults in deprecated `preferences`. User preference
-  storage, secure password persistence, and platform app-picker resolution
-  remain host work;
+- The preference fidelity slice in [ADR
+  0081](../decisions/0081-preserve-raycast-preference-metadata.md) is
+  implemented: declared preference metadata and measured dropdown data cross
+  the descriptor, and resolved defaults overlay deprecated `preferences`.
+  User preference storage, secure password persistence, and platform app-picker
+  resolution remain host work;
 - `showHUD`, `open`, and `confirmAlert` are measured through capability
   requests, but production host providers and consent policy are still absent;
 - `LaunchProps`, `LaunchType`, `Image.Mask`, `closeMainWindow`, `popToRoot`,
@@ -520,10 +520,10 @@ dispatches a bounds mutation through the explicit host capability.
   external-store hooks. Form fields attach stable focus/reset handles, while
   their client-side behavior remains deferred until a host control boundary is
   defined;
-- command-scoped manifest preference defaults are merged into the selected
-  command descriptor, with command values taking precedence over extension-level
-  values; the focused Grid-column failures now proceed past `getPreferenceValues()`
-  into their later measured boundaries;
+- command-scoped manifest preference defaults and metadata are merged into the
+  selected command descriptor, with command declarations taking precedence over
+  extension-level values; the focused Grid-column failures now proceed past
+  `getPreferenceValues()` into their later measured boundaries;
 - `BrowserExtension.getTabs`, `BrowserExtension.getContent`, `clearSearchBar`,
   `trash`, `ToastStyle`, and the type-only `Tool.Confirmation` contract are
   measured. Browser integration, navigation state, destructive filesystem

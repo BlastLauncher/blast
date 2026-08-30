@@ -1,6 +1,6 @@
 # ADR 0081: Preserve Raycast preference metadata
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-08-30
 
 ## Context
@@ -60,7 +60,14 @@ ARM64 Linux measurement runner.
 
 ## Consequences
 
-Deprecated preference consumers regain the declaration-shaped object they
+Deprecated preference consumers now regain the declaration-shaped object they
 expect, while `getPreferenceValues` remains deterministic and provider-free.
 The descriptor grows only by optional, validated manifest metadata; storage,
 platform resolution, and preference UI remain visible follow-up boundaries.
+
+## Verification
+
+Contract, catalog, adapter, and child-process e2e tests cover metadata
+validation, extension/command merging, no-default declarations, dropdown data,
+and resolved-value overlays. The aggregate corpus counters remain unchanged
+because this slice adds no dependency or host provider.

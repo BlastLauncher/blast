@@ -10,7 +10,13 @@
         {
           "name": "layout",
           "title": "Layout",
+          "description": "Choose a layout",
           "type": "dropdown",
+          "required": true,
+          "data": [
+            { "title": "Grid", "value": "Grid" },
+            { "title": "List", "value": "List" }
+          ],
           "default": "Grid"
         }
       ]
@@ -20,17 +26,23 @@
   "author": "beta-author",
   "owner": "beta-owner",
   "preferences": [
-    {
-      "name": "token",
-      "title": "Token",
-      "type": "password",
-      "default": "secret"
-    },
-    {
-      "name": "enabled",
-      "title": "Enabled",
-      "type": "checkbox",
-      "default": true
+      {
+        "name": "token",
+        "title": "Token",
+        "description": "API token",
+        "type": "password",
+        "required": true,
+        "placeholder": "token...",
+        "default": "secret"
+      },
+      {
+        "name": "enabled",
+        "title": "Enabled",
+        "description": "Enable the fixture",
+        "type": "checkbox",
+        "required": false,
+        "label": "Enabled",
+        "default": true
     }
   ]
 }
