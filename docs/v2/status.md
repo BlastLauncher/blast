@@ -598,8 +598,12 @@ only small portable JavaScript seeds eligible after the API-first slice.
    census and declarations, choose the highest-yield incomplete behavior, and
    add deterministic adapter, fixture, and focused-probe coverage. Keep API
    progress distinct from dependency/platform provisioning and host
-   capability/renderability outcomes. Preserve structured errors for values
-   that would require a broader scene or host policy. Keep the deterministic
+   capability/renderability outcomes. The next API slice is the proposed
+   entrypoint-mode propagation in
+   [ADR 0077](decisions/0077-preserve-raycast-entrypoint-mode.md): carry the
+   trusted manifest `view`/`no-view`/`menu-bar` mode into the Environment API
+   before considering another dependency round. Preserve structured errors for
+   values that would require a broader scene or host policy. Keep the deterministic
    structured probe failure
    (`crawldoc` and `open-targets-raycast/platform`) as explicit diagnostics
    rather than weakening the scene or action validators around malformed
