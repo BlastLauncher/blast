@@ -537,6 +537,10 @@ dispatches a bounds mutation through the explicit host capability.
 - `AI.ask` is measured through `ai.ask`, including creativity/model option
   normalization, abort preflight, and the final-result `.on("data")` adapter;
   model execution and streaming providers remain host work;
+- The next API-first slice is [ADR 0082](../decisions/0082-preserve-raycast-ai-model-catalog.md):
+  mirror the pinned `AI.Model` identifiers and historical aliases while
+  retaining runtime extensibility. Provider availability and execution remain
+  outside the adapter.
 - `OAuth.PKCEClient` is measured through host-owned `oauth` operations for
   authorization requests, browser authorization, token storage, lookup, and
   removal. PKCE generation, browser routing, secure storage, consent, and
