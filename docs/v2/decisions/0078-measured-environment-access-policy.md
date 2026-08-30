@@ -1,6 +1,6 @@
 # ADR 0078: Delegate measured environment access policy
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-08-30
 
 ## Context
@@ -44,8 +44,9 @@ normally be denied.
 
 - The corpus census records `environment.canAccess` usage in approximately 100
   extensions, with AI and BrowserExtension being the dominant measured names.
-- Adapter tests will cover default denial, string and marked-token identity,
-  callback delegation, and rejection of non-boolean policy results.
+- The focused `@blastlauncher/raycast-compat` suite passes 86 tests covering
+  default denial, string and marked-token identity, callback delegation, and
+  rejection of non-boolean policy results.
 - The focused corpus diagnostics found no additional adapter-owned gap behind
   the can-access calls; remaining failures are dependency, OAuth/provider,
   malformed-child, or host-policy boundaries.
@@ -54,6 +55,6 @@ normally be denied.
 
 Guarded Raycast API branches can now be enabled by an explicitly configured
 host policy while existing contexts remain secure and behaviorally compatible.
-The aggregate corpus counters are expected to remain unchanged until a host
-provider opts into specific API access; that is intentional and keeps API
-semantics separate from provider availability.
+The aggregate corpus counters remain unchanged until a host provider opts into
+specific API access; that is intentional and keeps API semantics separate from
+provider availability.

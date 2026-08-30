@@ -79,8 +79,10 @@ onto the V2 scene contract, renderer, and capability broker:
   callable compatibility form for older Blast fixtures. Its `entryPointMode`
   and deprecated `commandMode` values preserve trusted manifest `view`,
   `no-view`, and `menu-bar` modes, defaulting to `view` for legacy contexts;
-  `preferences` exposes resolved manifest values through legacy preference
-  metadata, and `randomId` provides process-local unique IDs;
+  `canAccess` delegates to an optional host policy with default denial and
+  stable names for measured API tokens; `preferences` exposes resolved
+  manifest values through legacy preference metadata, and `randomId` provides
+  process-local unique IDs;
 - the official type-only aliases `Environment`, `Navigation`, `Preferences`,
   `Preference`, `ArgumentsLaunchProps`, `FormItemRef`, `ItemProps`, `FormValue`,
   `FormValues`, `KeyEquivalent`, `KeyboardShortcut`, and `ImageLike` are

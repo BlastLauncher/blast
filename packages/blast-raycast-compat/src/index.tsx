@@ -74,6 +74,12 @@ export interface RaycastCompatContext {
     readonly arguments?: Readonly<Record<string, string | number | boolean>>;
   }) => Promise<{ readonly outcome: string; readonly value?: string | number | boolean | null }>;
   readonly showToast: (payload: ToastPayload) => Promise<void>;
+  /**
+   * Answers the Raycast environment.canAccess policy query. The optional
+   * second argument is a stable adapter name for known API tokens; it is
+   * useful when the extension bundle carries a separate adapter copy.
+   */
+  readonly canAccess?: (api: unknown, apiName?: string) => boolean;
 }
 
 /**
@@ -97,6 +103,29 @@ const compatGlobals: RaycastCompatGlobals = (() => {
   holder.__blastRaycastCompat ??= {};
   return holder.__blastRaycastCompat;
 })();
+
+const RAYCAST_API_ACCESS = Symbol.for("blastlauncher.raycast-api-access");
+
+function markRaycastApiAccess<T extends object>(value: T, name: string): T {
+  Object.defineProperty(value, RAYCAST_API_ACCESS, {
+    configurable: false,
+    enumerable: false,
+    value: name,
+    writable: false,
+  });
+  return value;
+}
+
+function getRaycastApiAccessName(api: unknown): string | undefined {
+  if (typeof api === "string") {
+    return api;
+  }
+  if ((typeof api !== "object" || api === null) && typeof api !== "function") {
+    return undefined;
+  }
+  const name = Reflect.get(api, RAYCAST_API_ACCESS);
+  return typeof name === "string" ? name : undefined;
+}
 
 /**
  * Binds the adapter to the running command context. The runtime bootstrap
@@ -6250,7 +6279,7 @@ function createEnvironment(): Environment {
     appearance,
     textSize: "medium",
     launchType: compatGlobals.launchProps?.launchType ?? LaunchType.UserInitiated,
-    canAccess: () => false,
+    canAccess: environmentCanAccess,
     theme: appearance,
     ...(compatGlobals.launchProps?.launchContext === undefined
       ? {}
@@ -6259,6 +6288,22 @@ function createEnvironment(): Environment {
     commandMode: entryPointMode,
     os: [osName],
   };
+}
+
+function environmentCanAccess(api: unknown): boolean {
+  const context = requireContext();
+  if (context.canAccess === undefined) {
+    return false;
+  }
+  const apiName = getRaycastApiAccessName(api);
+  const result = context.canAccess(api, apiName);
+  if (typeof result !== "boolean") {
+    throw new CompatibilityError("The environment.canAccess provider must return a boolean", {
+      apiName,
+      result,
+    });
+  }
+  return result;
 }
 
 /**
@@ -6536,3 +6581,13 @@ export namespace Cache {
 function cacheByteLength(value: string): number {
   return new TextEncoder().encode(value).byteLength;
 }
+
+// Extension bundles inline their own adapter copy, so environment.canAccess
+// identifies measured API tokens with a realm-stable marker rather than
+// relying on object identity across the host and extension modules.
+markRaycastApiAccess(AI, "AI");
+markRaycastApiAccess(BrowserExtension, "BrowserExtension");
+markRaycastApiAccess(WindowManagement, "WindowManagement");
+markRaycastApiAccess(Clipboard, "Clipboard");
+markRaycastApiAccess(getSelectedText, "getSelectedText");
+markRaycastApiAccess(getSelectedFinderItems, "getSelectedFinderItems");

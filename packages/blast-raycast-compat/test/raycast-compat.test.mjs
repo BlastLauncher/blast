@@ -117,7 +117,7 @@ function stripToastId(payload) {
   return withoutId;
 }
 
-function createContext({ grantClipboard = true, storageProvider = null, capabilityValues = {} } = {}) {
+function createContext({ grantClipboard = true, storageProvider = null, capabilityValues = {}, canAccess } = {}) {
   const transactions = [];
   const capabilityRequests = [];
   const eventHandlers = [];
@@ -144,6 +144,7 @@ function createContext({ grantClipboard = true, storageProvider = null, capabili
       showToast: async (payload) => {
         toasts.push(payload);
       },
+      canAccess,
       requestCapability: (request) => {
         capabilityRequests.push(request);
         const granted = grantClipboard || request.capability !== "clipboard";
@@ -2802,6 +2803,43 @@ test("environment preserves the descriptor entry point mode", () => {
     assert.equal(environment().entryPointMode, mode);
     assert.equal(environment.commandMode, mode);
   }
+});
+
+test("environment delegates canAccess to a host policy with stable API names", () => {
+  const requests = [];
+  const probe = createContext({
+    canAccess: (api, apiName) => {
+      requests.push({ api, apiName });
+      return apiName === "AI" || apiName === "getSelectedText";
+    },
+  });
+  configureRaycastCompat(probe.context);
+
+  assert.equal(environment.canAccess(AI), true);
+  assert.equal(environment.canAccess("AI"), true);
+  assert.equal(environment.canAccess(getSelectedText), true);
+  assert.equal(environment.canAccess(BrowserExtension), false);
+  assert.equal(environment.canAccess({}), false);
+  assert.deepEqual(
+    requests.map(({ apiName }) => apiName),
+    ["AI", "AI", "getSelectedText", "BrowserExtension", undefined],
+  );
+  assert.equal(requests[0].api, AI);
+  assert.equal(requests[2].api, getSelectedText);
+});
+
+test("environment rejects a non-boolean canAccess policy response", () => {
+  const probe = createContext({ canAccess: () => "granted" });
+  configureRaycastCompat(probe.context);
+
+  assert.throws(
+    () => environment.canAccess(AI),
+    (error) =>
+      error instanceof CompatibilityError &&
+      /must return a boolean/.test(error.message) &&
+      error.details.apiName === "AI" &&
+      error.details.result === "granted",
+  );
 });
 
 test("routes WindowManagement discovery and bounds through capabilities", async () => {
