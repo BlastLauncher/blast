@@ -4,14 +4,17 @@ import {
   cloneElement,
   createContext,
   createElement,
+  forwardRef,
   isValidElement,
   useContext,
   useEffect,
   useId as useReactId,
+  useImperativeHandle,
   useMemo,
   useRef,
   useState,
   type Context,
+  type ForwardedRef,
   type ReactElement,
   type ReactNode,
 } from "react";
@@ -1841,6 +1844,22 @@ export interface FormItemProps<T extends FormValue> {
 export interface FormItemRef {
   focus: () => void;
   reset: () => void;
+}
+
+/**
+ * Form refs are part of Raycast's component contract. The scene has no
+ * control-command channel yet, so expose stable handles while keeping their
+ * host-facing behavior for a later protocol slice.
+ */
+function useFormItemRef(ref: ForwardedRef<FormItemRef>): void {
+  useImperativeHandle(
+    ref,
+    () => ({
+      focus: () => {},
+      reset: () => {},
+    }),
+    [],
+  );
 }
 
 /** Deprecated top-level Form prop aliases retained for declaration parity. */
@@ -3685,54 +3704,61 @@ function commonFormProps<T extends FormValue>(
   };
 }
 
-function FormTextField(props: TextFieldProps): ReactElement {
+const FormTextField = forwardRef<FormItemRef, TextFieldProps>(function FormTextField(props, ref): ReactElement {
   const onChange = useFormChange(props, "Form.TextField", stringFormCodec);
   const onFocus = useFormEvent(props, "Form.TextField", stringFormCodec, "focus");
   const onBlur = useFormEvent(props, "Form.TextField", stringFormCodec, "blur");
+  useFormItemRef(ref);
   return createElement("form-text-field", {
     ...commonFormProps(props, onChange, stringFormCodec, onFocus, onBlur),
     ...(props.placeholder === undefined ? {} : { placeholder: props.placeholder }),
   });
-}
+});
 
-function FormTextArea(props: TextAreaProps): ReactElement {
+const FormTextArea = forwardRef<FormItemRef, TextAreaProps>(function FormTextArea(props, ref): ReactElement {
   const onChange = useFormChange(props, "Form.TextArea", stringFormCodec);
   const onFocus = useFormEvent(props, "Form.TextArea", stringFormCodec, "focus");
   const onBlur = useFormEvent(props, "Form.TextArea", stringFormCodec, "blur");
+  useFormItemRef(ref);
   const enableMarkdown = props.enableMarkdown === null ? undefined : props.enableMarkdown;
   return createElement("form-text-area", {
     ...commonFormProps(props, onChange, stringFormCodec, onFocus, onBlur),
     ...(props.placeholder === undefined ? {} : { placeholder: props.placeholder }),
     ...(enableMarkdown === undefined ? {} : { enableMarkdown }),
   });
-}
+});
 
-function FormPasswordField(props: PasswordFieldProps): ReactElement {
-  const onChange = useFormChange(props, "Form.PasswordField", stringFormCodec);
-  const onFocus = useFormEvent(props, "Form.PasswordField", stringFormCodec, "focus");
-  const onBlur = useFormEvent(props, "Form.PasswordField", stringFormCodec, "blur");
-  return createElement("form-password-field", {
-    ...commonFormProps(props, onChange, stringFormCodec, onFocus, onBlur),
-    ...(props.placeholder === undefined ? {} : { placeholder: props.placeholder }),
-  });
-}
+const FormPasswordField = forwardRef<FormItemRef, PasswordFieldProps>(
+  function FormPasswordField(props, ref): ReactElement {
+    const onChange = useFormChange(props, "Form.PasswordField", stringFormCodec);
+    const onFocus = useFormEvent(props, "Form.PasswordField", stringFormCodec, "focus");
+    const onBlur = useFormEvent(props, "Form.PasswordField", stringFormCodec, "blur");
+    useFormItemRef(ref);
+    return createElement("form-password-field", {
+      ...commonFormProps(props, onChange, stringFormCodec, onFocus, onBlur),
+      ...(props.placeholder === undefined ? {} : { placeholder: props.placeholder }),
+    });
+  },
+);
 
-function FormCheckbox(props: CheckboxProps): ReactElement {
+const FormCheckbox = forwardRef<FormItemRef, CheckboxProps>(function FormCheckbox(props, ref): ReactElement {
   assertFormString(props.label, "Form.Checkbox label");
   const normalized = props.defaultValue === undefined ? { ...props, defaultValue: false } : props;
   const onChange = useFormChange(normalized, "Form.Checkbox", booleanFormCodec);
   const onFocus = useFormEvent(normalized, "Form.Checkbox", booleanFormCodec, "focus");
   const onBlur = useFormEvent(normalized, "Form.Checkbox", booleanFormCodec, "blur");
+  useFormItemRef(ref);
   return createElement("form-checkbox", {
     ...commonFormProps(normalized, onChange, booleanFormCodec, onFocus, onBlur),
     label: props.label,
   });
-}
+});
 
-function FormDropdown(props: DropdownProps): ReactElement {
+const FormDropdown = forwardRef<FormItemRef, DropdownProps>(function FormDropdown(props, ref): ReactElement {
   const onChange = useFormChange(props, "Form.Dropdown", stringFormCodec);
   const onFocus = useFormEvent(props, "Form.Dropdown", stringFormCodec, "focus");
   const onBlur = useFormEvent(props, "Form.Dropdown", stringFormCodec, "blur");
+  useFormItemRef(ref);
   if (props.onSearchTextChange !== undefined && typeof props.onSearchTextChange !== "function") {
     unsupported("Form.Dropdown onSearchTextChange", { onSearchTextChange: props.onSearchTextChange });
   }
@@ -3756,7 +3782,7 @@ function FormDropdown(props: DropdownProps): ReactElement {
     },
     mapDropdownChildren(props.children),
   );
-}
+});
 
 function FormDropdownItem(props: DropdownItemProps): ReactElement {
   assertFormString(props.value, "Form.Dropdown.Item value");
@@ -3838,11 +3864,12 @@ function isFullDayDate(date?: Date | null): boolean {
   );
 }
 
-function FormDatePicker(props: DatePickerProps): ReactElement {
+const FormDatePicker = forwardRef<FormItemRef, DatePickerProps>(function FormDatePicker(props, ref): ReactElement {
   const normalized = props.defaultValue === undefined ? { ...props, defaultValue: null } : props;
   const onChange = useFormChange(normalized, "Form.DatePicker", dateFormCodec);
   const onFocus = useFormEvent(normalized, "Form.DatePicker", dateFormCodec, "focus");
   const onBlur = useFormEvent(normalized, "Form.DatePicker", dateFormCodec, "blur");
+  useFormItemRef(ref);
   const type = normalizeDatePickerType(props.type);
   const min = props.min === undefined ? undefined : serializeDatePickerValue(props.min, "Form.DatePicker min");
   const max = props.max === undefined ? undefined : serializeDatePickerValue(props.max, "Form.DatePicker max");
@@ -3852,7 +3879,7 @@ function FormDatePicker(props: DatePickerProps): ReactElement {
     ...(min === undefined ? {} : { min }),
     ...(max === undefined ? {} : { max }),
   });
-}
+});
 
 const DatePicker = Object.assign(FormDatePicker, {
   Type: DATE_PICKER_TYPES,
@@ -3870,11 +3897,12 @@ function FormTagPickerItem(props: TagPickerItemProps): ReactElement {
   });
 }
 
-function FormTagPicker(props: TagPickerProps): ReactElement {
+const FormTagPicker = forwardRef<FormItemRef, TagPickerProps>(function FormTagPicker(props, ref): ReactElement {
   const normalized = props.defaultValue === undefined ? { ...props, defaultValue: [] } : props;
   const onChange = useFormChange(normalized, "Form.TagPicker", stringArrayFormCodec);
   const onFocus = useFormEvent(normalized, "Form.TagPicker", stringArrayFormCodec, "focus");
   const onBlur = useFormEvent(normalized, "Form.TagPicker", stringArrayFormCodec, "blur");
+  useFormItemRef(ref);
   return createElement(
     "form-tag-picker",
     {
@@ -3883,15 +3911,16 @@ function FormTagPicker(props: TagPickerProps): ReactElement {
     },
     mapTagPickerChildren(props.children),
   );
-}
+});
 
 const TagPicker = Object.assign(FormTagPicker, { Item: FormTagPickerItem });
 
-function FormFilePicker(props: FilePickerProps): ReactElement {
+const FormFilePicker = forwardRef<FormItemRef, FilePickerProps>(function FormFilePicker(props, ref): ReactElement {
   const normalized = props.defaultValue === undefined ? { ...props, defaultValue: [] } : props;
   const onChange = useFormChange(normalized, "Form.FilePicker", stringArrayFormCodec);
   const onFocus = useFormEvent(normalized, "Form.FilePicker", stringArrayFormCodec, "focus");
   const onBlur = useFormEvent(normalized, "Form.FilePicker", stringArrayFormCodec, "blur");
+  useFormItemRef(ref);
   return createElement("form-file-picker", {
     ...commonFormProps(normalized, onChange, stringArrayFormCodec, onFocus, onBlur),
     ...(props.canChooseFiles === undefined ? {} : { canChooseFiles: props.canChooseFiles }),
@@ -3899,7 +3928,7 @@ function FormFilePicker(props: FilePickerProps): ReactElement {
     ...(props.showHiddenFiles === undefined ? {} : { showHiddenFiles: props.showHiddenFiles }),
     ...(props.allowMultipleSelection === undefined ? {} : { allowMultipleSelection: props.allowMultipleSelection }),
   });
-}
+});
 
 function mapFormChildren(children: ReactNode): ReactNode {
   return Children.toArray(children).map((child, index) => {

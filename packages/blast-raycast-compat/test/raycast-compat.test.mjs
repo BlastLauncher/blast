@@ -1885,6 +1885,39 @@ test("renders richer form controls and restores native values on events and subm
   assert.deepEqual(submitted[0].files, ["/tmp/example.txt"]);
 });
 
+test("attaches declaration-shaped handles to Form fields", async () => {
+  const probe = createContext();
+  const refs = Array(8);
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      Form,
+      null,
+      createElement(Form.TextField, { id: "text", ref: (value) => (refs[0] = value) }),
+      createElement(Form.TextArea, { id: "area", ref: (value) => (refs[1] = value) }),
+      createElement(Form.PasswordField, { id: "password", ref: (value) => (refs[2] = value) }),
+      createElement(Form.Checkbox, { id: "checkbox", label: "Ready", ref: (value) => (refs[3] = value) }),
+      createElement(Form.Dropdown, { id: "dropdown", ref: (value) => (refs[4] = value) }),
+      createElement(Form.DatePicker, { id: "date", ref: (value) => (refs[5] = value) }),
+      createElement(Form.TagPicker, { id: "tags", ref: (value) => (refs[6] = value) }),
+      createElement(Form.FilePicker, { id: "files", ref: (value) => (refs[7] = value) }),
+    ),
+  );
+  await renderer.flush();
+
+  assert.equal(
+    refs.every((ref) => ref !== null && typeof ref?.focus === "function"),
+    true,
+  );
+  assert.equal(
+    refs.every((ref) => typeof ref?.reset === "function"),
+    true,
+  );
+  for (const ref of refs) {
+    ref.focus();
+    ref.reset();
+  }
+});
+
 test("treats nullable non-date form initial values as empty", async () => {
   const probe = createContext();
   const submitted = [];

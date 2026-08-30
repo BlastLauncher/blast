@@ -25,8 +25,9 @@ normalizer can preserve the public values while translating at the scene edge.
   with the existing runtime exports and expose the measured option, callback,
   style, and item-reference aliases.
 - Export the `FormItemRef` handle shape at the top level and expose it as
-  `Form.ItemReference`. These are type-only declarations for now; focus/reset
-  execution waits for a host-facing form-control boundary.
+  `Form.ItemReference`. The declaration-level handle is completed here;
+  runtime handle attachment is covered separately by ADR 0056, while actual
+  focus/reset execution waits for a host-facing form-control boundary.
 - Use Raycast's uppercase values for the runtime `Toast.Style` constants and
   continue normalizing both uppercase and lower-case inputs to the lower-case
   scene style.
@@ -40,7 +41,6 @@ normalizer can preserve the public values while translating at the scene edge.
 - No protocol, scene schema, capability, or host provider changes are needed
   for this declaration-only slice.
 - A later form-control decision must define how `focus()` and `reset()` cross
-  the runtime/client boundary before those methods are advertised as runtime
-  behavior.
+  the runtime/client boundary before those no-op methods gain host behavior.
 
 ---

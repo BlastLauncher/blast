@@ -249,8 +249,9 @@ dispatches a bounds mutation through the explicit host capability.
   `Action`, `ActionPanel`, `List`, `Grid`, `Form`, and `MenuBarExtra` mirror the
   pinned declaration, the `Alert`/`Cache`/`Toast` utility namespaces and
   `Form.ItemReference` mirror the pinned declaration, and `Cache.subscribe`
-  remains bound for external-store hooks. Form focus/reset handles are
-  declaration-only until a host control boundary is defined;
+  remains bound for external-store hooks. Form fields attach stable
+  focus/reset handles, while their client-side behavior remains deferred until
+  a host control boundary is defined;
 - command-scoped manifest preference defaults are merged into the selected
   command descriptor, with command values taking precedence over extension-level
   values; the focused Grid-column failures now proceed past `getPreferenceValues()`

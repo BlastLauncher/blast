@@ -195,8 +195,8 @@ slice changes what is executable, what is trusted, or what should happen next.
   `Toast.Options`/`ActionOptions`/`Style`, and `Form.ItemReference` aliases;
   `FormItemRef` is available as a top-level type. `Toast.Style` constants use
   Raycast's uppercase values and normalize to lower-case scene styles. Form
-  focus/reset handles remain type-only until a host-facing control boundary is
-  defined.
+  fields attach stable `focus()`/`reset()` handles; those methods are currently
+  no-ops until a host-facing control boundary is defined.
 - The measured collection-value boundary now preserves empty Grid content
   tooltips, accepts positive safe-integer Grid column counts, and serializes
   `List.Item` icon descriptors with optional values and tooltips. Pagination
