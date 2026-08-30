@@ -32,25 +32,27 @@ unavailable packages remain dependency failures.
 
 | Outcome                        | Baseline | Previous post-slice | Current post-slice | Current vs previous |
 | ------------------------------ | -------: | ------------------: | -----------------: | ------------------: |
-| third-party dependency failure |    2,361 |                 914 |                916 |                  +2 |
+| third-party dependency failure |    2,361 |                 916 |                915 |                  -1 |
 | not renderable command mode    |      358 |                 316 |                316 |                   0 |
-| other process/startup failure  |      432 |                 181 |                178 |                  -3 |
-| structured compatibility error |       23 |                   9 |                  5 |                  -4 |
-| renders a scene end to end     |       54 |               1,808 |              1,813 |                  +5 |
+| other process/startup failure  |      432 |                 178 |                179 |                  +1 |
+| structured compatibility error |       23 |                   5 |                  2 |                  -3 |
+| renders a scene end to end     |       54 |               1,813 |              1,816 |                  +3 |
 | no entrypoint found            |        3 |                   3 |                  3 |                   0 |
 
-Reading: the current post-slice extension pass rate is 1,813/3,231 (56.11%);
-among the 2,915 extensions with a selected renderable command it is 1,813/2,915
-(62.20%). The declaration-backed Icon enum, Raycast color values, collection
+Reading: the current post-slice extension pass rate is 1,816/3,231 (56.21%);
+among the 2,915 extensions with a selected renderable command it is 1,816/2,915
+(62.30%). The declaration-backed Icon enum, Raycast color values, collection
 metadata, List/Grid/Form search and pagination events, shared dropdown
 accessories, Clipboard read/clear behavior, Submenu lifecycle, nested public
 Props namespaces, Cache callback binding, and official aliases are now covered
 by the adapter tests and probe. Zero pagination page-size fallbacks are
 preserved and the targeted `modrinth-search/search-projects` command now
-renders. Menu-bar alternate items now carry a nested semantic marker and
-separate right-click events. The only remaining static import gap is one
-`fetch` import. Dependency, process, and non-renderable outcomes remain tracked
-separately from API coverage.
+renders. Empty and absent `Action.OpenInBrowser` targets are handled at the
+action-readiness boundary; the four targeted commands now render. Menu-bar
+alternate items now carry a nested semantic marker and separate right-click
+events. The only remaining static import gap is one `fetch` import.
+Dependency, process, and non-renderable outcomes remain tracked separately
+from API coverage.
 The current priority remains the measured API boundary rather than another
 dependency seed. This refresh completes the full 478-member Icon surface and
 preserves legacy names, adds declaration-backed collection/search/pagination
@@ -59,14 +61,13 @@ Raycast theme color identifiers, decodes structured Clipboard reads, supports
 Clipboard clear, adds Submenu search/open/id behavior, and publishes nested
 Props aliases for the measured components. `MenuBarExtra.Item.alternate` now
 publishes a nested alternate item with a distinct right-click event. The
-remaining structured failures are `dictionary/fromCmd`,
-`get-cat-images/get-cat-images`, `manifest-viewer/view-manifest`,
-`vikunja/create-task`, and `webpage-to-markdown/webpage-to-markdown`; they are
-strict diagnostics from malformed children, invalid measured values, or
-empty/missing open targets under the probe's default launch arguments. The
-targeted `modrinth-search/search-projects` reprobe now renders after preserving
-its zero page-size fallback. The aggregate five-render increase over the
-previous run also reflects process and dependency variance.
+remaining structured failures are `crawldoc/index` and
+`open-targets-raycast/platform`; they are strict diagnostics from malformed
+List children under the probe's default launch arguments. The targeted
+`modrinth-search/search-projects` and four OpenInBrowser reprobes now render
+after preserving their declaration-shaped readiness fallbacks. The aggregate
+three-render increase over the previous run also reflects process and
+dependency variance.
 
 The first audited vendor seed is `axios@1.8.4`, `cheerio@1.0.0`,
 `cross-fetch@4.0.0`, `date-fns@4.1.0`, `fast-xml-parser@5.3.2`, `fuse.js@7.1.0`,
@@ -141,6 +142,10 @@ dispatches a bounds mutation through the explicit host capability.
   include search, lazy-open, loading, filtering, throttling, and deprecated
   `id` behavior; custom React components/fragments can compose action children;
   broader action helpers remain unsupported;
+- `Action.OpenInBrowser` preserves empty string URLs while data is loading and
+  omits the action when its required URL is absent at runtime; non-string
+  values remain structured errors, and activation still crosses the validated
+  `open.open` capability boundary;
 - `Action.CreateSnippet` and `Action.ToggleQuickLook` are measured. Snippet
   payloads cross `snippet.create`; Quick Look toggles cross `quick-look.toggle`,
   while List/Grid item preview paths are carried as validated scene metadata.
@@ -232,12 +237,10 @@ dispatches a bounds mutation through the explicit host capability.
   its native `Date | null` behavior. Optional string-array initial values omit
   `undefined` entries only when all other entries are strings; null members and
   other invalid entries remain rejected;
-- the remaining structured probe failures are `dictionary/fromCmd`,
-  `get-cat-images/get-cat-images`, `manifest-viewer/view-manifest`,
-  `vikunja/create-task`, and `webpage-to-markdown/webpage-to-markdown`.
-  They contain malformed children, invalid measured values, or empty/missing
-  Open in Browser targets under the probe's default arguments; those remain
-  structured errors rather than being silently widened or sent to the host;
+- the remaining structured probe failures are `crawldoc/index` and
+  `open-targets-raycast/platform`. They contain malformed List children under
+  the probe's default arguments; those remain structured errors rather than
+  being silently widened or sent to the host;
 - string-valued Form and Grid dropdown labels and values, Form checkbox labels,
   and Form descriptions preserve empty strings; non-string values remain
   invalid;

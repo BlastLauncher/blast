@@ -37,6 +37,9 @@ onto the V2 scene contract, renderer, and capability broker:
   explicit scene data. List title/subtitle tooltip descriptors are preserved;
   the measured corpus usage of `Action.SubmitForm` outside `Form` is
   supported as a generic action whose callback receives an empty value bag.
+  `Action.OpenInBrowser` preserves declaration-valid empty string URLs while an
+  async command is loading and omits the action when its required URL is
+  absent; host opening still validates the target when the action is activated.
 - The deprecated top-level `ListItem` alias preserves `List.Item` identity.
 - `Form` covers text fields, text areas, password fields, checkboxes,
   dropdowns, date pickers, tag pickers, file pickers, descriptions, separators,

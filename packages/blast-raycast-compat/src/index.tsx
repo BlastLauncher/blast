@@ -4396,8 +4396,11 @@ function CopyToClipboard(props: CopyToClipboardProps): ReactElement {
   });
 }
 
-function OpenInBrowser(props: OpenInBrowserProps): ReactElement {
-  const url = requireNonEmptyString(props.url, "Action.OpenInBrowser url");
+function OpenInBrowser(props: OpenInBrowserProps): ReactElement | null {
+  if (props.url === undefined) {
+    return null;
+  }
+  const url = requireString(props.url, "Action.OpenInBrowser url");
   const icon = serializeIcon(props.icon ?? "globe", "Action.OpenInBrowser");
   const shortcut = serializeShortcut(props.shortcut, "Action.OpenInBrowser");
   return createElement("action", {

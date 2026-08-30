@@ -1042,6 +1042,30 @@ test("renders modern and deprecated browser and clipboard actions", async () => 
   assert.deepEqual(copied, ["copied value"]);
 });
 
+test("keeps OpenInBrowser actions with empty declaration-valid URLs renderable", async () => {
+  const probe = createContext();
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      List,
+      null,
+      createElement(
+        List.Item,
+        { title: "Loading" },
+        createElement(
+          ActionPanel,
+          null,
+          createElement(Action.OpenInBrowser, { title: "Open when ready", url: "" }),
+          createElement(Action.OpenInBrowser, { title: "Not ready" }),
+        ),
+      ),
+    ),
+  );
+  await renderer.flush();
+
+  const action = probe.transactions[0].operations[0].root.children[0].children[0].children[0];
+  assert.deepEqual(action.props, { title: "Open when ready", icon: "globe", onAction: action.props.onAction });
+});
+
 test("renders open and paste aliases and routes clipboard helper aliases", async () => {
   const probe = createContext({ storageProvider: createInMemoryLocalStorageProvider() });
   const opened = [];
