@@ -5335,6 +5335,7 @@ function normalizeToastAction(action: ToastActionOptions | undefined, where: str
 export class Toast {
   static readonly Style = {
     Success: "SUCCESS",
+    SuccessMessage: "SUCCESS",
     Failure: "FAILURE",
     Animated: "ANIMATED",
   } as const;
@@ -5498,6 +5499,7 @@ export namespace Toast {
   export type Style = ToastStyle;
   export namespace Style {
     export type Success = "SUCCESS";
+    export type SuccessMessage = "SUCCESS";
     export type Failure = "FAILURE";
     export type Animated = "ANIMATED";
   }

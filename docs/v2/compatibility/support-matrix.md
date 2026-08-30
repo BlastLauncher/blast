@@ -513,7 +513,7 @@ dispatches a bounds mutation through the explicit host capability.
   and Form descriptions preserve empty strings; non-string values remain
   invalid;
 - `Color` now emits Raycast's `raycast-*` theme identifiers while retaining the
-  legacy raw `Pink`/`Brown` values. The public nested `Props` namespaces for
+  legacy raw `Pink`/`Brown`/`Gray` values. The public nested `Props` namespaces for
   `Action`, `ActionPanel`, `List`, `Grid`, `Form`, and `MenuBarExtra` mirror the
   pinned declaration, the `Alert`/`Cache`/`Keyboard`/`Toast` utility namespaces and
   `Form.ItemReference` mirror the pinned declaration. Nested Form field ref
@@ -559,7 +559,7 @@ dispatches a bounds mutation through the explicit host capability.
   0085](../decisions/0085-preserve-form-dropdown-keywords.md) carries
   declaration-backed `keywords` arrays through `form-dropdown-item` scene
   nodes with existing string-array validation; filtering remains client work.
-- The next API tail slice in [ADR
+- The legacy constant slice in [ADR
   0086](../decisions/0086-preserve-legacy-color-and-toast-aliases.md) preserves
   the one API-bound `Color.Gray` use and one `Toast.Style.SuccessMessage` use
   found by the binding-aware corpus audit. Extension-owned `Color.Grey` model

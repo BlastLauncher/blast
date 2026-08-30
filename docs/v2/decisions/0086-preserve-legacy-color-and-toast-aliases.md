@@ -1,6 +1,6 @@
 # ADR 0086: Preserve measured legacy color and toast aliases
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-08-30
 
 ## Context
@@ -54,8 +54,13 @@ part of an explicit compatibility policy change.
 
 ## Verification
 
-The adapter test will assert both constant aliases, render `Color.Gray` through
-an icon tint, and normalize `Toast.Style.SuccessMessage` through a `Toast`
-instance. A focused corpus probe will recheck the two source extensions; the
-aggregate counters are expected to remain unchanged because this is an
-adapter-only constant slice.
+- The adapter suite passes 94/94 tests, including both constant aliases,
+  `Color.Gray` rendered through an icon tint, and
+  `Toast.Style.SuccessMessage` normalized through a `Toast` instance.
+- The focused corpus probe reports no static unsupported API imports for either
+  source extension: `raycast-arcade` renders, while `schoology` reaches the
+  existing `dependency_unavailable` boundary.
+- The full V2 suite passes across 17 packages, including all 41 end-to-end
+  fixtures, and the formatter check passes.
+- Aggregate corpus counters remain unchanged because this is an adapter-only
+  constant slice.

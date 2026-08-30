@@ -56,7 +56,8 @@ onto the V2 scene contract, renderer, and capability broker:
   formatting variants. Legacy corpus names remain available; unknown members
   stay unsupported rather than resolving through an implicit fallback.
   `Color` exposes theme-aware `raycast-*` values while retaining legacy
-  `Pink`/`Brown` aliases. Object/file/theme-aware icon descriptors are
+  `Pink`/`Brown` aliases plus the measured `Gray` raw alias.
+  Object/file/theme-aware icon descriptors are
   validated at the adapter edge; source/fallback variants, masks, dynamic
   tint metadata, and List item icon tooltips cross the semantic boundary while
   client image transforms remain host work;
@@ -183,7 +184,8 @@ onto the V2 scene contract, renderer, and capability broker:
   client-side control behavior remains a future host boundary. Form dropdown
   item `keywords` arrays are validated and preserved for client-side search;
 - `showToast` and `Toast` support legacy show overloads, animated/success/
-  failure styles, Raycast's uppercase `Toast.Style` constants, identified
+  failure styles, Raycast's uppercase `Toast.Style` constants (including the
+  measured `SuccessMessage` alias), identified
   show/update/hide lifecycle messages, mutable toast fields, and
   primary/secondary actions routed through scene events;
 - `runCommand(context, component[, launchProps])` binds the API to the running

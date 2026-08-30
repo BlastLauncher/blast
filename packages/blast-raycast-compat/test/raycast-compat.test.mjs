@@ -240,6 +240,30 @@ test("publishes the remaining declaration-backed compatibility aliases", () => {
   );
 });
 
+test("preserves measured legacy color and toast style aliases", async () => {
+  assert.equal(Color.Gray, "gray");
+  assert.equal(Toast.Style.SuccessMessage, Toast.Style.Success);
+
+  const probe = createContext();
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      List,
+      null,
+      createElement(List.Item, { title: "Legacy gray", icon: { source: Icon.Circle, tintColor: Color.Gray } }),
+    ),
+  );
+  await renderer.flush();
+
+  assert.deepEqual(probe.transactions[0].operations[0].root.children[0].props, {
+    title: "Legacy gray",
+    icon: "circle-16",
+    iconTintColor: "gray",
+  });
+
+  const toast = new Toast({ title: "Loaded", style: Toast.Style.SuccessMessage });
+  assert.equal(toast.style, "success");
+});
+
 test("renders a Raycast-style list through the compatibility surface", async () => {
   const probe = createContext();
 

@@ -371,9 +371,9 @@ slice changes what is executable, what is trusted, or what should happen next.
   declaration, while retaining legacy corpus names as explicit aliases;
   unknown members remain rejected rather than resolving through a fallback.
   `Color` emits Raycast's `raycast-*` theme identifiers while retaining the
-  legacy raw `Pink` and `Brown` values. The next measured tail is the
-  corpus-only `Color.Gray` alias and `Toast.Style.SuccessMessage` alias
-  recorded in [ADR 0086](decisions/0086-preserve-legacy-color-and-toast-aliases.md).
+  legacy raw `Pink`, `Brown`, and measured `Gray` values. The measured legacy
+  `Toast.Style.SuccessMessage` constant is an identity alias of `Success`;
+  both adapter-only aliases are recorded in [ADR 0086](decisions/0086-preserve-legacy-color-and-toast-aliases.md).
 - Command-scoped manifest preference defaults now cross the catalog boundary:
   focused diagnostics identified four Grid-column failures caused by
   `getPreferenceValues()` omitting preferences declared on the selected
@@ -475,7 +475,8 @@ slice changes what is executable, what is trusted, or what should happen next.
 - Toasts support legacy show calls plus identified show/update/hide lifecycle
   messages, animated/success/failure styles, mutable fields, and primary or
   secondary actions addressed by validated `scene.event` IDs. The measured
-  legacy `Toast.Style.SuccessMessage` alias remains planned in ADR 0086.
+  legacy `Toast.Style.SuccessMessage` alias is preserved as an adapter-local
+  identity alias in ADR 0086.
 - Action and action-group shortcut objects normalize into structured scene
   values, including platform-specific Raycast shortcut unions; measured action
   styles, `autoFocus`, and common keyboard shortcut constants are available.
@@ -678,12 +679,12 @@ only small portable JavaScript seeds eligible after the API-first slice.
    in [ADR
    0085](decisions/0085-preserve-form-dropdown-keywords.md) is now implemented:
    `Form.Dropdown.Item.keywords` is validated and preserved as a scene string
-   array, while filtering remains client behavior. The next API tail slice is
-   [ADR 0086](decisions/0086-preserve-legacy-color-and-toast-aliases.md):
-   preserve the one API-bound `Color.Gray` use and one
-   `Toast.Style.SuccessMessage` use found by the binding-aware corpus audit,
-   without adding extension-owned `Color.Grey` model values or speculative
-   aliases. Preserve
+   array, while filtering remains client behavior. The legacy constant slice
+   in [ADR 0086](decisions/0086-preserve-legacy-color-and-toast-aliases.md) is
+   now implemented: the one API-bound `Color.Gray` use and one
+   `Toast.Style.SuccessMessage` use found by the binding-aware corpus audit
+   remain supported, without adding extension-owned `Color.Grey` model values
+   or speculative aliases. Preserve
    structured errors for values that would require a broader scene or host
    policy. Keep the deterministic
    structured probe failure
