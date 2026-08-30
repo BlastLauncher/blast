@@ -56,8 +56,10 @@ onto the V2 scene contract, renderer, and capability broker:
   formatting variants. Legacy corpus names remain available; unknown members
   stay unsupported rather than resolving through an implicit fallback.
   `Color` exposes theme-aware `raycast-*` values while retaining legacy
-  `Pink`/`Brown` aliases, and object/file/theme-aware icon descriptors,
-  tinting, masks, and List item icon tooltips are validated at the adapter edge;
+  `Pink`/`Brown` aliases. Object/file/theme-aware icon descriptors are
+  validated at the adapter edge; source/fallback variants, masks, dynamic
+  tint metadata, and List item icon tooltips cross the semantic boundary while
+  client image transforms remain host work;
 - `Clipboard.copy`/`Clipboard.paste`/`Clipboard.read`/`Clipboard.readText`/
   `Clipboard.clear` route through the capability broker with the command
   identity attached by the host; text, numeric, and structured clipboard

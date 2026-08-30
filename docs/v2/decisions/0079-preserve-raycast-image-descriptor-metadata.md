@@ -1,17 +1,17 @@
 # ADR 0079: Preserve Raycast image descriptor metadata
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-08-30
 
 ## Context
 
 The Raycast `Image` contract is broader than a single icon string. An image can
 provide light and dark sources, a fallback, a circle or rounded-rectangle mask,
-and a tint color with light/dark values and optional contrast adjustment. The
-compatibility adapter currently validates some of these shapes but serializes
-only the primary light source and light tint. `fallback` and `mask` are dropped,
-and a non-null `mask` is validated without reaching the scene or capability
-boundary.
+and a tint color with light/dark values and optional contrast adjustment. Before
+this slice, the compatibility adapter validated some of these shapes but
+serialized only the primary light source and light tint. `fallback` and `mask`
+were dropped, and a non-null `mask` was validated without reaching the scene or
+capability boundary.
 
 `Image` is imported by 433 corpus extensions (13.4%), and image-like values are
 used throughout List, Grid, actions, menu-bar items, metadata, forms, and host
@@ -44,11 +44,13 @@ image transforms; the primary light-source field remains unchanged.
 
 - The pinned Raycast declaration defines `Image.Source`, `Image.Fallback`,
   `Image.Mask`, and dynamic tint colors with `adjustContrast`.
-- The current adapter's `serializeIcon` validates a subset of these values but
-  drops fallback and mask metadata and resolves theme-aware values to light.
-- Deterministic scene, adapter, and capability-payload tests will cover source
-  and fallback variants, both masks, dynamic tints, explicit nulls, and invalid
-  descriptor values.
+- `serializeIcon` now preserves source and fallback light/dark variants, both
+  supported masks, and dynamic tint metadata across scene fields and the
+  quicklink, MCP, date-picker, and alert payloads. Explicit null fallback,
+  mask, and tint values are omitted.
+- Deterministic verification covers the scene contract (50 tests), the
+  compatibility adapter (89 tests), and the full e2e fixture set (41 tests),
+  including invalid descriptor values and both mask variants.
 
 ## Consequences
 

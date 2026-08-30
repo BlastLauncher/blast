@@ -543,7 +543,11 @@ test("injects launch props and relays desktop boundary helpers", async () => {
   await waitFor(() => boundaryRequests.length === 4, "the desktop boundary requests");
 
   assert.equal(buffer.get(buffer.rootId).props.navigationTitle, "userInitiated:userInitiated");
-  assert.deepEqual(buffer.childrenOf(buffer.rootId)[0].props, { title: "empty", icon: "launch.png" });
+  assert.deepEqual(buffer.childrenOf(buffer.rootId)[0].props, {
+    title: "empty",
+    icon: "launch.png",
+    iconMask: "roundedRectangle",
+  });
   assert.deepEqual(
     boundaryRequests.map(({ capability, operation, arguments: args }) => ({ capability, operation, arguments: args })),
     [
@@ -762,7 +766,12 @@ test("runs legacy form, action, storage, image, and push aliases end to end", as
       "Push legacy",
     ],
   );
-  assert.deepEqual(dropdown.children[0].props, { value: "one", title: "One", icon: "option.png" });
+  assert.deepEqual(dropdown.children[0].props, {
+    value: "one",
+    title: "One",
+    icon: "option.png",
+    iconMask: "circle",
+  });
   const actionByTitle = new Map(actions.children.map((child) => [child.props.title, child]));
 
   await relay.sendSceneEvent(actionByTitle.get("Submit legacy").props.onAction, { choice: "one" });

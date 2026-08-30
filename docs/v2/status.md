@@ -324,10 +324,10 @@ slice changes what is executable, what is trusted, or what should happen next.
   Known API tokens use realm-stable names across separately bundled adapter
   copies, unknown values remain host-policy inputs, non-boolean results fail
   with a structured compatibility error, and the default remains deny.
-- The next API-first slice is [ADR 0079](decisions/0079-preserve-raycast-image-descriptor-metadata.md):
-  preserve Raycast image source/fallback variants, masks, and dynamic tint
-  metadata through the scene and capability boundaries while leaving actual
-  client image loading and rendering to the host.
+- The image descriptor fidelity slice in [ADR 0079](decisions/0079-preserve-raycast-image-descriptor-metadata.md)
+  is now implemented: Raycast image source/fallback variants, masks, and
+  dynamic tint metadata cross the scene and capability boundaries while actual
+  client image loading, theme selection, and rendering remain host work.
 - Navigation (useNavigation, Action.Push), LocalStorage through the
   capability broker with a reference in-memory provider, the callable plus
   property-based environment surface, and measured WindowManagement discovery
@@ -446,8 +446,9 @@ slice changes what is executable, what is trusted, or what should happen next.
   semantic parent/child validation, while raw text and intrinsic DOM elements
   remain unsupported.
 - ActionPanel renders as a scene action-group (titles, submenus, List-level
-  panels), and object icons with Color tints serialize into iconTintColor
-  properties.
+  panels), and object icons preserve light/dark sources, fallbacks, masks, and
+  dynamic tint metadata as primitive scene properties. Existing light icon
+  fields remain backwards compatible; client image transforms are future work.
 - Form renders the measured text, textarea, password, checkbox, dropdown,
   `DatePicker`, `TagPicker`, `FilePicker`, description, separator, and
   submit-action subset. Form field changes and submissions carry validated
@@ -601,9 +602,10 @@ support matrix (`compatibility/support-matrix.md`) records the baseline and
 post-slice probes. Coverage means the share of corpus extensions that bundle
 and render through the current path, not the number of exported API names. The
 shortcut, imperative, cache, launch-boundary, desktop-discovery,
-finder-boundary, host-boundary, window-management, declaration, and
-dependency-policy slices are complete, but the measured 80% target is not yet
-met: the current run is 64.69% overall and 71.70% among commands with a
+finder-boundary, host-boundary, window-management, declaration,
+image-descriptor, and dependency-policy slices are complete, but the measured
+80% target is not yet met: the current run is 64.69% overall and 71.70% among
+commands with a
 renderable selection. The current top-level import census and emitted
 declaration audit are clean for the measured corpus surface, but that is not a
 claim that every API semantic is complete. Per ADR 0075, priority is now the
@@ -623,11 +625,13 @@ only small portable JavaScript seeds eligible after the API-first slice.
    remaining measured API surface. The `environment.canAccess` delegation in
    [ADR 0078](decisions/0078-measured-environment-access-policy.md) is now
    implemented with default denial, stable host-policy names, and structured
-   return validation. The next slice is image descriptor fidelity in [ADR
-   0079](decisions/0079-preserve-raycast-image-descriptor-metadata.md): carry
-   theme-aware source/fallback, mask, and dynamic tint metadata without
-   pretending the current client can render it. Preserve structured errors for
-   values that would require a broader scene or host policy. Keep the deterministic
+   return validation. The image descriptor fidelity slice in [ADR
+   0079](decisions/0079-preserve-raycast-image-descriptor-metadata.md) is now
+   implemented: theme-aware source/fallback, mask, and dynamic tint metadata
+   are carried as primitive scene and host-payload fields without pretending the
+   current client can render them. Deterministic scene, adapter, and e2e
+   verification covers 50, 89, and 41 tests respectively. Preserve structured
+   errors for values that would require a broader scene or host policy. Keep the deterministic
    structured probe failure
    (`crawldoc` and `open-targets-raycast/platform`) as explicit diagnostics
    rather than weakening the scene or action validators around malformed

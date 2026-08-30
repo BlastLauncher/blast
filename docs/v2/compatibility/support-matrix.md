@@ -106,11 +106,13 @@ provider availability, consent, and capability grants remain outside the
 adapter. Aggregate counters remain unchanged until a host opts into a measured
 API provider.
 
-The next API-first slice is [ADR 0079](../decisions/0079-preserve-raycast-image-descriptor-metadata.md):
-preserve Image source/fallback variants, masks, and dynamic tint metadata in
-the semantic scene and host payloads. The existing light-source fields remain
-backwards compatible; image loading, theme selection, and rendering remain
-client/host work.
+The image descriptor fidelity slice in [ADR 0079](../decisions/0079-preserve-raycast-image-descriptor-metadata.md)
+is now implemented. Image source/fallback variants, masks, and dynamic tint
+metadata are preserved in the semantic scene and host payloads; existing
+light-source fields remain backwards compatible. Image loading, theme
+selection, masking, tinting, and rendering remain client/host work. Focused
+verification covers 50 scene tests, 89 compatibility tests, and 41 e2e tests;
+the aggregate corpus counters remain unchanged.
 
 The first audited vendor seed is `axios@1.8.4`, `cheerio@1.0.0`,
 `cross-fetch@4.0.0`, `date-fns@4.1.0`, `fast-xml-parser@5.3.2`, `fuse.js@7.1.0`,
@@ -397,9 +399,10 @@ dispatches a bounds mutation through the explicit host capability.
   interchangeably as search accessories. List/Grid pagination accepts
   non-negative safe-integer page sizes, including zero values emitted by
   asynchronous pagination hooks; layout clamping and icon rendering remain
-  client work. Image-like source/fallback, mask, and dynamic tint metadata is
-  the next preservation slice; the current adapter still only carries the
-  primary light source and tint through the semantic boundary;
+  client work. Image-like source/fallback, mask, and dynamic tint metadata now
+  cross the semantic boundary as primitive fields, including accessory and
+  Grid content prefixes; client image loading and transforms remain future
+  work;
 - `Detail.Metadata` and `List.Item.Detail` serialize labels, separators, links,
   tag lists, loading state, navigation titles, and list detail selection as
   explicit scene data. Title/subtitle tooltip descriptors are preserved;

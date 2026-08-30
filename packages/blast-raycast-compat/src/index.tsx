@@ -1740,9 +1740,7 @@ function MenuBarExtraComponent(props: MenuBarExtraProps): ReactElement {
     {
       ...(props.title === undefined ? {} : { title: props.title }),
       ...(props.tooltip === undefined ? {} : { tooltip: props.tooltip }),
-      ...(icon === undefined
-        ? {}
-        : { icon: icon.icon, ...(icon.iconTintColor === undefined ? {} : { iconTintColor: icon.iconTintColor }) }),
+      ...serializeIconProperties(icon),
       ...(props.isLoading === undefined ? {} : { isLoading: props.isLoading }),
     },
     mapMenuBarChildren(props.children, "MenuBarExtra"),
@@ -1769,9 +1767,7 @@ function MenuBarExtraItem(props: MenuBarExtraItemProps): ReactElement {
     title: requireNonEmptyString(props.title, "MenuBarExtra.Item title"),
     ...(props.subtitle === undefined ? {} : { subtitle: props.subtitle }),
     ...(props.tooltip === undefined ? {} : { tooltip: props.tooltip }),
-    ...(icon === undefined
-      ? {}
-      : { icon: icon.icon, ...(icon.iconTintColor === undefined ? {} : { iconTintColor: icon.iconTintColor }) }),
+    ...serializeIconProperties(icon),
     ...(shortcut === undefined ? {} : { shortcut }),
     ...(props.onAction === undefined
       ? {}
@@ -1800,9 +1796,7 @@ function MenuBarExtraSubmenu(props: MenuBarExtraSubmenuProps): ReactElement {
     "menu-bar-submenu",
     {
       title: requireNonEmptyString(props.title, "MenuBarExtra.Submenu title"),
-      ...(icon === undefined
-        ? {}
-        : { icon: icon.icon, ...(icon.iconTintColor === undefined ? {} : { iconTintColor: icon.iconTintColor }) }),
+      ...serializeIconProperties(icon),
     },
     mapMenuBarChildren(props.children, "MenuBarExtra.Submenu"),
   );
@@ -2093,10 +2087,38 @@ function normalizeGridFiltering(
   return { filtering: true, filteringKeepSectionOrder: value.keepSectionOrder };
 }
 
-function serializeGridContent(
-  content: unknown,
-  where: string,
-): { content: string; contentTintColor?: string; contentTooltip?: string } {
+type SerializedIcon = {
+  readonly icon: string;
+  readonly iconDark?: string;
+  readonly iconFallback?: string;
+  readonly iconFallbackDark?: string;
+  readonly iconMask?: string;
+  readonly iconTintColor?: string;
+  readonly iconTintColorDark?: string;
+  readonly iconTintColorAdjustContrast?: boolean;
+};
+
+type SerializedIconProperties = Record<string, string | boolean>;
+
+function serializeIconProperties(icon: Partial<SerializedIcon> | undefined, prefix = "icon"): SerializedIconProperties {
+  if (icon === undefined || icon.icon === undefined) {
+    return {};
+  }
+  return {
+    [prefix]: icon.icon,
+    ...(icon.iconDark === undefined ? {} : { [`${prefix}Dark`]: icon.iconDark }),
+    ...(icon.iconFallback === undefined ? {} : { [`${prefix}Fallback`]: icon.iconFallback }),
+    ...(icon.iconFallbackDark === undefined ? {} : { [`${prefix}FallbackDark`]: icon.iconFallbackDark }),
+    ...(icon.iconMask === undefined ? {} : { [`${prefix}Mask`]: icon.iconMask }),
+    ...(icon.iconTintColor === undefined ? {} : { [`${prefix}TintColor`]: icon.iconTintColor }),
+    ...(icon.iconTintColorDark === undefined ? {} : { [`${prefix}TintColorDark`]: icon.iconTintColorDark }),
+    ...(icon.iconTintColorAdjustContrast === undefined
+      ? {}
+      : { [`${prefix}TintColorAdjustContrast`]: icon.iconTintColorAdjustContrast }),
+  };
+}
+
+function serializeGridContent(content: unknown, where: string): SerializedIconProperties {
   if (typeof content === "string") {
     return { content };
   }
@@ -2117,10 +2139,7 @@ function serializeGridContent(
     if (icon === undefined) {
       unsupported(`${where} content`, { content });
     }
-    return {
-      content: icon.icon,
-      ...(icon.iconTintColor === undefined ? {} : { contentTintColor: icon.iconTintColor }),
-    };
+    return serializeIconProperties(icon, "content");
   }
   unsupported(`${where} content`, { content });
 }
@@ -2135,10 +2154,7 @@ function serializeGridColor(color: unknown, where: string): string {
   unsupported(`${where} color`, { color });
 }
 
-function serializeIcon(
-  icon: IconLike | null | undefined,
-  where: string,
-): { icon: string; iconTintColor?: string } | undefined {
+function serializeIcon(icon: IconLike | null | undefined, where: string): SerializedIcon | undefined {
   if (icon === undefined || icon === null) {
     return undefined;
   }
@@ -2147,33 +2163,30 @@ function serializeIcon(
   }
   if (typeof icon === "object" && icon !== null && "source" in icon) {
     const record = icon as unknown as Record<string, unknown>;
-    const source = record.source;
-    let serializedSource: string;
-    if (typeof source === "string") {
-      serializedSource = source;
-    } else if (
-      isRecord(source) &&
-      typeof source.light === "string" &&
-      typeof source.dark === "string" &&
-      source.light.length > 0 &&
-      source.dark.length > 0
-    ) {
-      // The scene contract currently carries one resolved icon source. Use the
-      // light asset deterministically until theme-aware image values are added.
-      serializedSource = source.light;
-    } else {
-      unsupported(`An icon source in ${where}`, { source });
-    }
-    if (record.mask !== undefined && record.mask !== Image.Mask.Circle && record.mask !== Image.Mask.RoundedRectangle) {
-      unsupported(`An image mask in ${where}`, { mask: record.mask });
-    }
+    const source = serializeImageVariant(record.source, `An icon source in ${where}`);
+    const fallback =
+      record.fallback === undefined || record.fallback === null
+        ? undefined
+        : serializeImageVariant(record.fallback, `An image fallback in ${where}`);
+    const mask =
+      record.mask === undefined || record.mask === null
+        ? undefined
+        : record.mask === Image.Mask.Circle || record.mask === Image.Mask.RoundedRectangle
+          ? record.mask
+          : unsupported(`An image mask in ${where}`, { mask: record.mask });
     const tintColor =
       record.tintColor === undefined || record.tintColor === null
         ? undefined
-        : serializeTintColor(record.tintColor, where);
+        : serializeIconTintColor(record.tintColor, where);
     return {
-      icon: serializedSource,
-      ...(tintColor === undefined ? {} : { iconTintColor: tintColor }),
+      icon: source.light,
+      ...(source.dark === undefined ? {} : { iconDark: source.dark }),
+      ...(fallback === undefined ? {} : { iconFallback: fallback.light }),
+      ...(fallback?.dark === undefined ? {} : { iconFallbackDark: fallback.dark }),
+      ...(mask === undefined ? {} : { iconMask: mask }),
+      ...(tintColor === undefined ? {} : { iconTintColor: tintColor.light }),
+      ...(tintColor?.dark === undefined ? {} : { iconTintColorDark: tintColor.dark }),
+      ...(tintColor?.adjustContrast === undefined ? {} : { iconTintColorAdjustContrast: tintColor.adjustContrast }),
     };
   }
   if (typeof icon === "object" && icon !== null && "fileIcon" in icon) {
@@ -2186,7 +2199,7 @@ function serializeIcon(
 function serializeListItemIcon(
   icon: ListItemProps["icon"] | null | undefined,
   where: string,
-): { icon?: string; iconTintColor?: string; iconTooltip?: string } | undefined {
+): (Partial<SerializedIcon> & { readonly iconTooltip?: string }) | undefined {
   if (isRecord(icon) && "value" in icon) {
     const serialized = serializeIcon(icon.value as IconLike | null | undefined, where);
     return {
@@ -2195,6 +2208,48 @@ function serializeListItemIcon(
     };
   }
   return serializeIcon(icon as IconLike | null | undefined, where);
+}
+
+function serializeImageVariant(value: unknown, where: string): { light: string; dark?: string } {
+  if (typeof value === "string") {
+    return { light: value };
+  }
+  if (
+    isRecord(value) &&
+    typeof value.light === "string" &&
+    typeof value.dark === "string" &&
+    value.light.length > 0 &&
+    value.dark.length > 0
+  ) {
+    return { light: value.light, dark: value.dark };
+  }
+  unsupported(`${where} must be a string or a light/dark descriptor`, { value });
+}
+
+function serializeIconTintColor(
+  value: unknown,
+  where: string,
+): { light: string; dark?: string; adjustContrast?: boolean } {
+  if (typeof value === "string") {
+    return { light: value };
+  }
+  if (isRecord(value) && typeof value.light === "string" && typeof value.dark === "string") {
+    if (
+      value.adjustContrast !== undefined &&
+      value.adjustContrast !== null &&
+      typeof value.adjustContrast !== "boolean"
+    ) {
+      unsupported(`${where} tintColor adjustContrast`, { value: value.adjustContrast });
+    }
+    return {
+      light: value.light,
+      dark: value.dark,
+      ...(value.adjustContrast === undefined || value.adjustContrast === null
+        ? {}
+        : { adjustContrast: value.adjustContrast }),
+    };
+  }
+  unsupported(`${where} tintColor`, { value });
 }
 
 function serializeListItemText(
@@ -2242,7 +2297,7 @@ function serializeListItemAccessories(accessories: ListItemProps["accessories"],
     if (!isRecord(accessory)) {
       unsupported(`${where}[${index}] must be an object`, { accessory });
     }
-    const result: Record<string, string> = {};
+    const result: Record<string, string | boolean> = {};
     for (const field of ["text", "date", "tag"] as const) {
       if (!(field in accessory) || accessory[field] === undefined || accessory[field] === null) {
         continue;
@@ -2258,10 +2313,7 @@ function serializeListItemAccessories(accessories: ListItemProps["accessories"],
     if (accessory.icon !== undefined && accessory.icon !== null) {
       const icon = serializeIcon(accessory.icon as IconLike, `${where}[${index}] icon`);
       if (icon !== undefined) {
-        result.icon = icon.icon;
-        if (icon.iconTintColor !== undefined) {
-          result.iconTintColor = icon.iconTintColor;
-        }
+        Object.assign(result, serializeIconProperties(icon));
       }
     }
     if (accessory.tooltip !== undefined && accessory.tooltip !== null) {
@@ -2349,7 +2401,7 @@ function serializeQuicklink(quicklink: unknown, where: string): string {
   if (!isRecord(quicklink)) {
     unsupported(`${where} must be an object`, { quicklink });
   }
-  const serialized: Record<string, string> = {
+  const serialized: Record<string, string | boolean> = {
     link: requireNonEmptyString(quicklink.link, `${where} link`),
   };
   if (quicklink.name !== undefined) {
@@ -2364,10 +2416,7 @@ function serializeQuicklink(quicklink: unknown, where: string): string {
   if (quicklink.icon !== undefined) {
     const icon = serializeIcon(quicklink.icon as IconLike, `${where} icon`);
     if (icon !== undefined) {
-      serialized.icon = icon.icon;
-      if (icon.iconTintColor !== undefined) {
-        serialized.iconTintColor = icon.iconTintColor;
-      }
+      Object.assign(serialized, serializeIconProperties(icon));
     }
   }
   return JSON.stringify(serialized);
@@ -2403,10 +2452,7 @@ function serializeMCPServer(server: unknown, where: string): string {
   if (server.icon !== undefined) {
     const icon = serializeIcon(server.icon as IconLike, `${where} icon`);
     if (icon !== undefined) {
-      serialized.icon = icon.icon;
-      if (icon.iconTintColor !== undefined) {
-        serialized.iconTintColor = icon.iconTintColor;
-      }
+      Object.assign(serialized, serializeIconProperties(icon));
     }
   }
   if (server.transport === "stdio") {
@@ -2855,13 +2901,11 @@ function ListItemComponent(props: ListItemProps): ReactElement {
       ...(title.tooltip === undefined ? {} : { titleTooltip: title.tooltip }),
       ...(subtitle.value === undefined ? {} : { subtitle: subtitle.value }),
       ...(subtitle.tooltip === undefined ? {} : { subtitleTooltip: subtitle.tooltip }),
-      ...(icon?.icon === undefined ? {} : { icon: icon.icon }),
-      ...(icon?.iconTintColor === undefined ? {} : { iconTintColor: icon.iconTintColor }),
+      ...serializeIconProperties(icon),
       ...(icon?.iconTooltip === undefined ? {} : { iconTooltip: icon.iconTooltip }),
       ...(props.keywords === undefined ? {} : { keywords: normalizeStringArray(props.keywords, "List.Item keywords") }),
       ...(accessories === undefined ? {} : { accessories }),
-      ...(accessoryIcon === undefined ? {} : { accessoryIcon: accessoryIcon.icon }),
-      ...(accessoryIcon?.iconTintColor === undefined ? {} : { accessoryIconTintColor: accessoryIcon.iconTintColor }),
+      ...serializeIconProperties(accessoryIcon, "accessoryIcon"),
       ...(props.accessoryTitle === undefined
         ? {}
         : { accessoryTitle: requireString(props.accessoryTitle, "List.Item accessoryTitle") }),
@@ -2888,9 +2932,7 @@ function ListEmptyView(props: ListEmptyViewProps): ReactElement {
   return createElement(
     "list-empty-view",
     {
-      ...(icon === undefined
-        ? {}
-        : { icon: icon.icon, ...(icon.iconTintColor === undefined ? {} : { iconTintColor: icon.iconTintColor }) }),
+      ...serializeIconProperties(icon),
       ...(props.title === undefined ? {} : { title: props.title }),
       ...(props.description === undefined ? {} : { description: props.description }),
     },
@@ -2947,9 +2989,7 @@ function ListDropdownItem(props: ListDropdownItemProps): ReactElement {
   return createElement("list-dropdown-item", {
     value: requireString(props.value, "List.Dropdown.Item value"),
     title: requireString(props.title, "List.Dropdown.Item title"),
-    ...(icon === undefined
-      ? {}
-      : { icon: icon.icon, ...(icon.iconTintColor === undefined ? {} : { iconTintColor: icon.iconTintColor }) }),
+    ...serializeIconProperties(icon),
     ...(props.keywords === undefined
       ? {}
       : { keywords: normalizeStringArray(props.keywords, "List.Dropdown.Item keywords") }),
@@ -3101,12 +3141,11 @@ function GridItem(props: GridItemProps): ReactElement {
     {
       ...(props.id === undefined ? {} : { id: requireNonEmptyString(props.id, "Grid.Item id") }),
       content: content.content,
-      ...(content.contentTintColor === undefined ? {} : { contentTintColor: content.contentTintColor }),
-      ...(content.contentTooltip === undefined ? {} : { contentTooltip: content.contentTooltip }),
+      ...content,
       ...(props.title === undefined ? {} : { title: props.title }),
       ...(props.subtitle === undefined ? {} : { subtitle: props.subtitle }),
       ...(props.keywords === undefined ? {} : { keywords: normalizeStringArray(props.keywords, "Grid.Item keywords") }),
-      ...(icon === undefined ? {} : { accessoryIcon: icon.icon }),
+      ...serializeIconProperties(icon, "accessoryIcon"),
       ...(props.accessory?.tooltip === undefined ? {} : { accessoryTooltip: props.accessory.tooltip }),
       ...(quickLook === undefined ? {} : quickLook),
     },
@@ -3136,9 +3175,7 @@ function GridEmptyView(props: GridEmptyViewProps): ReactElement {
   return createElement(
     "grid-empty-view",
     {
-      ...(icon === undefined
-        ? {}
-        : { icon: icon.icon, ...(icon.iconTintColor === undefined ? {} : { iconTintColor: icon.iconTintColor }) }),
+      ...serializeIconProperties(icon),
       ...(props.title === undefined ? {} : { title: props.title }),
       ...(props.description === undefined ? {} : { description: props.description }),
     },
@@ -3195,9 +3232,7 @@ function GridDropdownItem(props: GridDropdownItemProps): ReactElement {
   return createElement("grid-dropdown-item", {
     value: requireString(props.value, "Grid.Dropdown.Item value"),
     title: requireString(props.title, "Grid.Dropdown.Item title"),
-    ...(icon === undefined
-      ? {}
-      : { icon: icon.icon, ...(icon.iconTintColor === undefined ? {} : { iconTintColor: icon.iconTintColor }) }),
+    ...serializeIconProperties(icon),
     ...(props.keywords === undefined
       ? {}
       : { keywords: normalizeStringArray(props.keywords, "Grid.Dropdown.Item keywords") }),
@@ -3290,9 +3325,7 @@ function DetailMetadataLabel(props: DetailMetadataLabelProps): ReactElement {
   const text = serializeDetailMetadataLabelText(props.text, "Detail.Metadata.Label");
   return createElement("detail-metadata-label", {
     title: requireString(props.title, "Detail.Metadata.Label title"),
-    ...(icon === undefined
-      ? {}
-      : { icon: icon.icon, ...(icon.iconTintColor === undefined ? {} : { iconTintColor: icon.iconTintColor }) }),
+    ...serializeIconProperties(icon),
     ...(text.text === undefined ? {} : { text: text.text }),
     ...(text.textColor === undefined ? {} : { textColor: text.textColor }),
   });
@@ -3324,9 +3357,7 @@ function DetailMetadataTagListItem(props: DetailMetadataTagListItemProps): React
       ? undefined
       : serializeTintColor(props.color, "Detail.Metadata.TagList.Item");
   return createElement("detail-metadata-tag-list-item", {
-    ...(icon === undefined
-      ? {}
-      : { icon: icon.icon, ...(icon.iconTintColor === undefined ? {} : { iconTintColor: icon.iconTintColor }) }),
+    ...serializeIconProperties(icon),
     ...(text === undefined ? {} : { text }),
     ...(color === undefined ? {} : { color }),
     ...(props.onAction === undefined ? {} : { onAction: props.onAction }),
@@ -3837,7 +3868,7 @@ function FormDropdownItem(props: DropdownItemProps): ReactElement {
   return createElement("form-dropdown-item", {
     value: props.value,
     title: props.title,
-    ...(icon === undefined ? {} : { icon: icon.icon, iconTintColor: icon.iconTintColor }),
+    ...serializeIconProperties(icon),
   });
 }
 
@@ -3948,7 +3979,7 @@ function FormTagPickerItem(props: TagPickerItemProps): ReactElement {
   return createElement("form-tag-picker-item", {
     value: props.value,
     title: props.title,
-    ...(icon === undefined ? {} : { icon: icon.icon, iconTintColor: icon.iconTintColor }),
+    ...serializeIconProperties(icon),
   });
 }
 
@@ -4220,7 +4251,7 @@ function Submenu(props: SubmenuProps): ReactElement {
     {
       ...(props.id === undefined ? {} : { id: requireNonEmptyString(props.id, "ActionPanel.Submenu id") }),
       title: props.title,
-      ...(icon === undefined ? {} : { icon: icon.icon, iconTintColor: icon.iconTintColor }),
+      ...serializeIconProperties(icon),
       ...(shortcut === undefined ? {} : { shortcut }),
       ...(filtering === undefined ? {} : filtering),
       ...(props.isLoading === undefined ? {} : { isLoading: props.isLoading }),
@@ -4282,7 +4313,7 @@ function ActionComponent(props: ActionProps): ReactElement {
   return createElement("action", {
     ...(props.id === undefined ? {} : { id: requireNonEmptyString(props.id, "Action id") }),
     title: props.title,
-    ...(icon === undefined ? {} : { icon: icon.icon, iconTintColor: icon.iconTintColor }),
+    ...serializeIconProperties(icon),
     ...(shortcut === undefined ? {} : { shortcut }),
     ...(style === undefined ? {} : { style }),
     ...(props.autoFocus === undefined ? {} : { autoFocus: props.autoFocus }),
@@ -4329,7 +4360,7 @@ function Push(props: PushProps): ReactElement {
   const navigation = useContext(NavigationContext);
   return createElement("action", {
     title: props.title,
-    ...(icon === undefined ? {} : { icon: icon.icon, iconTintColor: icon.iconTintColor }),
+    ...serializeIconProperties(icon),
     ...(shortcut === undefined ? {} : { shortcut }),
     ...(style === undefined ? {} : { style }),
     ...(props.autoFocus === undefined ? {} : { autoFocus: props.autoFocus }),
@@ -4418,10 +4449,7 @@ function PickDate(props: PickDateProps): ReactElement {
   const argumentsValue: Record<string, string | number | boolean> = { title, type };
   const serializedIcon = serializeIcon(icon, "Action.PickDate");
   if (serializedIcon !== undefined) {
-    argumentsValue.icon = serializedIcon.icon;
-    if (serializedIcon.iconTintColor !== undefined) {
-      argumentsValue.iconTintColor = serializedIcon.iconTintColor;
-    }
+    Object.assign(argumentsValue, serializeIconProperties(serializedIcon));
   }
   if (props.shortcut !== undefined) {
     argumentsValue.shortcutJSON = JSON.stringify(serializeShortcut(props.shortcut, "Action.PickDate"));
@@ -4497,7 +4525,7 @@ function CopyToClipboard(props: CopyToClipboardProps): ReactElement {
   const style = normalizeActionStyle(props.style, "Action.CopyToClipboard");
   return createElement("action", {
     title: props.title ?? "Copy to Clipboard",
-    ...(icon === undefined ? { icon: "clipboard" } : { icon: icon.icon, iconTintColor: icon.iconTintColor }),
+    ...(icon === undefined ? { icon: "clipboard" } : serializeIconProperties(icon)),
     ...(shortcut === undefined ? {} : { shortcut }),
     ...(style === undefined ? {} : { style }),
     ...(props.autoFocus === undefined ? {} : { autoFocus: props.autoFocus }),
@@ -4519,7 +4547,7 @@ function OpenInBrowser(props: OpenInBrowserProps): ReactElement | null {
   const shortcut = serializeShortcut(props.shortcut, "Action.OpenInBrowser");
   return createElement("action", {
     title: props.title ?? "Open in Browser",
-    ...(icon === undefined ? {} : { icon: icon.icon, iconTintColor: icon.iconTintColor }),
+    ...serializeIconProperties(icon),
     ...(shortcut === undefined ? {} : { shortcut }),
     onAction: () => {
       void open(url).then(() => props.onOpen?.(url));
@@ -4535,7 +4563,7 @@ function Open(props: OpenProps): ReactElement {
   const shortcut = serializeShortcut(props.shortcut, "Action.Open");
   return createElement("action", {
     title: props.title,
-    ...(icon === undefined ? {} : { icon: icon.icon, iconTintColor: icon.iconTintColor }),
+    ...serializeIconProperties(icon),
     ...(shortcut === undefined ? {} : { shortcut }),
     onAction: () => {
       void open(target, application).then(() => props.onOpen?.(target));
@@ -4549,7 +4577,7 @@ function OpenWith(props: OpenWithProps): ReactElement {
   const shortcut = serializeShortcut(props.shortcut, "Action.OpenWith");
   return createElement("action", {
     title: props.title ?? "Open With",
-    ...(icon === undefined ? {} : { icon: icon.icon, iconTintColor: icon.iconTintColor }),
+    ...serializeIconProperties(icon),
     ...(shortcut === undefined ? {} : { shortcut }),
     onAction: () => {
       void openWith(path).then(() => props.onOpen?.(path));
@@ -4562,7 +4590,7 @@ function Paste(props: PasteProps): ReactElement {
   const shortcut = serializeShortcut(props.shortcut, "Action.Paste");
   return createElement("action", {
     title: props.title ?? "Paste in Active App",
-    ...(icon === undefined ? {} : { icon: icon.icon, iconTintColor: icon.iconTintColor }),
+    ...serializeIconProperties(icon),
     ...(shortcut === undefined ? {} : { shortcut }),
     onAction: () => {
       void pasteToClipboard(props.content).then(() => props.onPaste?.(props.content));
@@ -5984,10 +6012,7 @@ export async function confirmAlert(options: AlertOptions): Promise<boolean> {
     args.message = options.message;
   }
   if (icon !== undefined) {
-    args.icon = icon.icon;
-    if (icon.iconTintColor !== undefined) {
-      args.iconTintColor = icon.iconTintColor;
-    }
+    Object.assign(args, serializeIconProperties(icon));
   }
   if (options.rememberUserChoice !== undefined) {
     if (typeof options.rememberUserChoice !== "boolean") {

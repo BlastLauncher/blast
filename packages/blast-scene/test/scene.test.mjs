@@ -86,6 +86,44 @@ test("validates scene transaction messages", (context) => {
     assert.equal(result.ok, true);
   });
 
+  context.test("accepts image descriptor metadata", () => {
+    const result = validateSceneTransactionMessage(
+      envelope(
+        SCENE_TRANSACTION_MESSAGE,
+        transaction([
+          {
+            type: "snapshot",
+            root: list("root", [
+              {
+                id: "item-1",
+                type: "list-item",
+                props: {
+                  title: "Profile",
+                  icon: "avatar-light.png",
+                  iconDark: "avatar-dark.png",
+                  iconFallback: "fallback-light.png",
+                  iconFallbackDark: "fallback-dark.png",
+                  iconMask: "circle",
+                  iconTintColor: "#111111",
+                  iconTintColorDark: "#eeeeee",
+                  iconTintColorAdjustContrast: true,
+                  accessoryIcon: "badge-light.png",
+                  accessoryIconDark: "badge-dark.png",
+                  accessoryIconFallback: "badge-fallback.png",
+                  accessoryIconMask: "roundedRectangle",
+                  accessoryIconTintColor: "#222222",
+                  accessoryIconTintColorAdjustContrast: false,
+                },
+                children: [],
+              },
+            ]),
+          },
+        ]),
+      ),
+    );
+    assert.equal(result.ok, true);
+  });
+
   context.test("accepts list item Quick Look metadata", () => {
     const result = validateSceneTransactionMessage(
       envelope(

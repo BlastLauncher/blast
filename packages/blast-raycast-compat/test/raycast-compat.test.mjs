@@ -639,6 +639,12 @@ test("renders Form.LinkAccessory and routes its open capability", async () => {
 test("renders measured action creators and routes their host operations", async () => {
   const probe = createContext({ capabilityValues: { "date-picker.pick": "2026-08-29T12:00:00.000Z" } });
   const picked = [];
+  const image = {
+    source: { light: "image-light.png", dark: "image-dark.png" },
+    fallback: "image-fallback.png",
+    mask: Image.Mask.Circle,
+    tintColor: { light: "#111111", dark: "#eeeeee", adjustContrast: true },
+  };
   const renderer = renderCommand(probe.context, () =>
     createElement(
       List,
@@ -649,7 +655,7 @@ test("renders measured action creators and routes their host operations", async 
           ActionPanel,
           null,
           createElement(Action.CreateQuicklink, {
-            quicklink: { link: "raycast://extensions/example", name: "Example" },
+            quicklink: { link: "raycast://extensions/example", name: "Example", icon: image },
           }),
           createElement(Action.CreateSnippet, {
             snippet: { text: 'console.log("example")', name: "Example", keyword: "ex" },
@@ -658,6 +664,7 @@ test("renders measured action creators and routes their host operations", async 
           createElement(Action.PickDate, {
             title: "Pick date",
             type: Action.PickDate.Type.Date,
+            icon: image,
             onChange: (date) => picked.push(date),
           }),
         ),
@@ -673,7 +680,7 @@ test("renders measured action creators and routes their host operations", async 
       { title: "Create Quicklink", icon: "link" },
       { title: "Create Snippet", icon: "snippets-16" },
       { title: "Quick Look", icon: "eye" },
-      { title: "Pick date", icon: "calendar" },
+      { title: "Pick date", icon: "image-light.png" },
     ],
   );
 
@@ -693,7 +700,10 @@ test("renders measured action creators and routes their host operations", async 
       {
         capability: "quicklink",
         operation: "create",
-        arguments: { quicklinkJSON: '{"link":"raycast://extensions/example","name":"Example"}' },
+        arguments: {
+          quicklinkJSON:
+            '{"link":"raycast://extensions/example","name":"Example","icon":"image-light.png","iconDark":"image-dark.png","iconFallback":"image-fallback.png","iconMask":"circle","iconTintColor":"#111111","iconTintColorDark":"#eeeeee","iconTintColorAdjustContrast":true}',
+        },
       },
       {
         capability: "snippet",
@@ -708,7 +718,17 @@ test("renders measured action creators and routes their host operations", async 
       {
         capability: "date-picker",
         operation: "pick",
-        arguments: { title: "Pick date", type: "date", icon: "calendar" },
+        arguments: {
+          title: "Pick date",
+          type: "date",
+          icon: "image-light.png",
+          iconDark: "image-dark.png",
+          iconFallback: "image-fallback.png",
+          iconMask: "circle",
+          iconTintColor: "#111111",
+          iconTintColorDark: "#eeeeee",
+          iconTintColorAdjustContrast: true,
+        },
       },
     ],
   );
@@ -2176,6 +2196,23 @@ test("rejects unmeasured API surface with structured errors", (context) => {
     );
   });
 
+  context.test("rejects invalid image descriptor metadata", () => {
+    assert.throws(
+      () =>
+        renderCommand(probe.context, () =>
+          createElement(
+            List,
+            null,
+            createElement(List.Item, {
+              title: "Invalid image",
+              icon: { source: "avatar.png", mask: "square" },
+            }),
+          ),
+        ),
+      (error) => error instanceof CompatibilityError && /image mask/.test(error.message),
+    );
+  });
+
   context.test("unconfigured Clipboard", async () => {
     configureRaycastCompat(undefined);
     await assert.rejects(
@@ -2266,7 +2303,12 @@ test("passes launch props to command components and exposes image masks", async 
         { navigationTitle: `${props.launchType}:${props.arguments.query}:${info.launchType}` },
         createElement(List.Item, {
           title: props.launchContext.source,
-          icon: { source: "avatar.png", mask: Image.Mask.Circle },
+          icon: {
+            source: { light: "avatar-light.png", dark: "avatar-dark.png" },
+            fallback: { light: "fallback-light.png", dark: "fallback-dark.png" },
+            mask: Image.Mask.Circle,
+            tintColor: { light: "#111111", dark: "#eeeeee", adjustContrast: true },
+          },
         }),
       );
     },
@@ -2276,8 +2318,90 @@ test("passes launch props to command components and exposes image masks", async 
 
   const root = probe.transactions[0].operations[0].root;
   assert.equal(root.props.navigationTitle, "background:Blast:background");
-  assert.deepEqual(root.children[0].props, { title: "test", icon: "avatar.png" });
+  assert.deepEqual(root.children[0].props, {
+    title: "test",
+    icon: "avatar-light.png",
+    iconDark: "avatar-dark.png",
+    iconFallback: "fallback-light.png",
+    iconFallbackDark: "fallback-dark.png",
+    iconMask: "circle",
+    iconTintColor: "#111111",
+    iconTintColorDark: "#eeeeee",
+    iconTintColorAdjustContrast: true,
+  });
   assert.deepEqual(LaunchType, { UserInitiated: "userInitiated", Background: "background" });
+});
+
+test("preserves image metadata on Grid content and accessory icons", async () => {
+  const probe = createContext();
+  const image = {
+    source: { light: "content-light.png", dark: "content-dark.png" },
+    fallback: "content-fallback.png",
+    mask: Image.Mask.RoundedRectangle,
+    tintColor: { light: "#123456", dark: "#abcdef", adjustContrast: false },
+  };
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      Grid,
+      null,
+      createElement(
+        Grid.Item,
+        { content: image, accessory: { icon: image, tooltip: "Accessory" } },
+        createElement(ActionPanel, null, createElement(Action, { title: "Run", icon: image })),
+      ),
+    ),
+  );
+  await renderer.flush();
+
+  const item = probe.transactions[0].operations[0].root.children[0];
+  assert.deepEqual(item.props, {
+    content: "content-light.png",
+    contentDark: "content-dark.png",
+    contentFallback: "content-fallback.png",
+    contentMask: "roundedRectangle",
+    contentTintColor: "#123456",
+    contentTintColorDark: "#abcdef",
+    contentTintColorAdjustContrast: false,
+    accessoryIcon: "content-light.png",
+    accessoryIconDark: "content-dark.png",
+    accessoryIconFallback: "content-fallback.png",
+    accessoryIconMask: "roundedRectangle",
+    accessoryIconTintColor: "#123456",
+    accessoryIconTintColorDark: "#abcdef",
+    accessoryIconTintColorAdjustContrast: false,
+    accessoryTooltip: "Accessory",
+  });
+  assert.deepEqual(item.children[0].children[0].props, {
+    title: "Run",
+    icon: "content-light.png",
+    iconDark: "content-dark.png",
+    iconFallback: "content-fallback.png",
+    iconMask: "roundedRectangle",
+    iconTintColor: "#123456",
+    iconTintColorDark: "#abcdef",
+    iconTintColorAdjustContrast: false,
+    onAction: item.children[0].children[0].props.onAction,
+  });
+});
+
+test("treats null image fallback, mask, and tint as omitted", async () => {
+  const probe = createContext();
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      List,
+      null,
+      createElement(List.Item, {
+        title: "Nullable image",
+        icon: { source: "avatar.png", fallback: null, mask: null, tintColor: null },
+      }),
+    ),
+  );
+  await renderer.flush();
+
+  assert.deepEqual(probe.transactions[0].operations[0].root.children[0].props, {
+    title: "Nullable image",
+    icon: "avatar.png",
+  });
 });
 
 test("routes HUD, open, and alert APIs through capabilities", async () => {
@@ -2290,7 +2414,12 @@ test("routes HUD, open, and alert APIs through capabilities", async () => {
   const confirmed = await confirmAlert({
     title: "Delete item?",
     message: "This cannot be undone.",
-    icon: Icon.Trash,
+    icon: {
+      source: { light: "alert-light.png", dark: "alert-dark.png" },
+      fallback: "alert-fallback.png",
+      mask: Image.Mask.RoundedRectangle,
+      tintColor: { light: "#220000", dark: "#ffcccc", adjustContrast: false },
+    },
     rememberUserChoice: true,
     primaryAction: {
       title: "Delete",
@@ -2323,7 +2452,13 @@ test("routes HUD, open, and alert APIs through capabilities", async () => {
       arguments: {
         title: "Delete item?",
         message: "This cannot be undone.",
-        icon: "trash-16",
+        icon: "alert-light.png",
+        iconDark: "alert-dark.png",
+        iconFallback: "alert-fallback.png",
+        iconMask: "roundedRectangle",
+        iconTintColor: "#220000",
+        iconTintColorDark: "#ffcccc",
+        iconTintColorAdjustContrast: false,
         rememberUserChoice: true,
         primaryTitle: "Delete",
         primaryStyle: "destructive",
