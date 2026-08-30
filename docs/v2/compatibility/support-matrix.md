@@ -25,23 +25,25 @@ post-slice result, including one result per extension, is
 
 The current post-slice run supplies the workspace's installed packages through
 the explicit `vendored` dependency policy. The private e2e package now adds
-eleven bounded, exact-version seeds for 170 utility, parser, fetch, image, state,
-and compatibility-helper packages; their transitive graph is recorded in the
-lockfile. The probe does not install the corpus or run package-manager scripts;
-unavailable packages remain dependency failures.
+twelve bounded, exact-version seeds for 177 utility, parser, fetch, image, state,
+compatibility-helper, and JavaScript SDK packages; their transitive graph is
+recorded in the lockfile. This round was selected to install on the ARM64 Linux
+runner with package-manager scripts disabled; native, WASM, macOS, and
+host-process packages remain deferred. The probe does not install the corpus or
+run package-manager scripts; unavailable packages remain dependency failures.
 
 | Outcome                        | Baseline | Previous post-slice | Current post-slice | Current vs previous |
 | ------------------------------ | -------: | ------------------: | -----------------: | ------------------: |
-| third-party dependency failure |    2,361 |                 668 |                663 |                  -5 |
+| third-party dependency failure |    2,361 |                 663 |                642 |                 -21 |
 | not renderable command mode    |      358 |                 316 |                316 |                   0 |
-| other process/startup failure  |      432 |                 220 |                225 |                  +5 |
-| structured compatibility error |       23 |                   2 |                  0 |                  -2 |
-| renders a scene end to end     |       54 |               2,022 |              2,024 |                  +2 |
+| other process/startup failure  |      432 |                 225 |                229 |                  +4 |
+| structured compatibility error |       23 |                   0 |                  2 |                  +2 |
+| renders a scene end to end     |       54 |               2,024 |              2,039 |                 +15 |
 | no entrypoint found            |        3 |                   3 |                  3 |                   0 |
 
-Reading: the current post-slice extension pass rate is 2,024/3,231 (62.64%);
-among the 2,915 extensions with a selected renderable command it is 2,024/2,915
-(69.43%). The declaration-backed Icon enum, Raycast color values, collection
+Reading: the current post-slice extension pass rate is 2,039/3,231 (63.11%);
+among the 2,915 extensions with a selected renderable command it is 2,039/2,915
+(69.95%). The declaration-backed Icon enum, Raycast color values, collection
 metadata, List/Grid/Form search and pagination events, shared dropdown
 accessories, Clipboard read/clear behavior, Submenu lifecycle, nested public
 Props and utility namespaces, Keyboard shortcut aliases, Cache callback binding,
@@ -63,22 +65,18 @@ fields, and closes the shared List/Grid dropdown boundary. It also corrects
 Raycast theme color identifiers, decodes structured Clipboard reads, supports
 Clipboard clear, adds Submenu search/open/id behavior, and publishes nested
 Props aliases for the measured components. `MenuBarExtra.Item.alternate` now
-publishes a nested alternate item with a distinct right-click event. An earlier
-aggregate recorded structured results for `crawldoc` and
-`open-targets-raycast/platform`; a serial reprobe retained only
-`open-targets-raycast/platform` as the strict malformed-child diagnostic, while
-`crawldoc` exited as a process failure. The targeted `modrinth-search/search-projects`
-and four
+publishes a nested alternate item with a distinct right-click event. The current
+run records deterministic strict List text-child diagnostics for `crawldoc` and
+`open-targets-raycast/platform`; these remain boundary checks rather than
+reasons to widen the semantic collection contract. The targeted
+`modrinth-search/search-projects` and four
 OpenInBrowser reprobes now render after preserving their declaration-shaped
 readiness fallbacks. The context-provider boundary moves
 `dictionary/fromCmd` through to a rendered scene. The fourth dependency seed
 moved 47 entries out of the dependency-failure class in the aggregate run and
 increased rendered outcomes by 46; the targeted old dependency set rendered 33
 entries and left 16 in process/runtime failure, so the aggregate change
-remains subject to normal process and dependency variance. An earlier aggregate
-recorded structured results for `crawldoc` and `open-targets-raycast/platform`;
-a focused serial reprobe retained only `open-targets-raycast/platform` as the
-strict malformed-child diagnostic, while `crawldoc` remained process variance.
+remains subject to normal process and dependency variance.
 
 The first audited vendor seed is `axios@1.8.4`, `cheerio@1.0.0`,
 `cross-fetch@4.0.0`, `date-fns@4.1.0`, `fast-xml-parser@5.3.2`, `fuse.js@7.1.0`,
@@ -179,18 +177,6 @@ validation, typography, SQL formatting, and Raycast helper behavior only; the
 probe still never installs extension dependencies or grants network, host,
 native, or WASM capabilities.
 
-The eleventh seed is `@adobe/leonardo-contrast-colors@1.0.0-alpha.13`,
-`@asyncapi/parser@1.14.1`,
-`@tanstack/query-async-storage-persister@5.66.4`,
-`@tanstack/react-query-persist-client@5.66.9`, `@xstate/react@6.1.0`,
-`colorjs.io@0.5.2`, `oazapfts@4.10.0`, and `tough-cookie@6.0.2`. A targeted
-reprobe of the 668 previously dependency-classified entries rendered 3 and
-moved 3 to process/runtime failures; the full corpus run reduced dependency
-failures by 5 and recorded 2,024 rendered scenes. The group provides bounded
-color, schema, persistence, state, OpenAPI, and cookie parsing behavior only;
-the probe still never installs extension dependencies or grants network, host,
-native, or WASM capabilities.
-
 The tenth seed is `binary-split@1.0.5`, `city-timezones@1.3.4`, `edn-data@1.2.2`,
 `js-beautify@1.15.4`, `jsonwebtoken@9.0.3`, `lodash-es@4.18.1`,
 `mailparser@3.9.17`, `phone@3.1.72`, `showdown@2.1.0`, `suncalc@1.9.0`,
@@ -203,6 +189,30 @@ process/runtime failures; the full corpus run reduced dependency failures by
 parsing, text, hashing, date, XML, state-machine, and stream behavior only; the
 probe still never installs extension dependencies or grants network, host,
 native, or WASM capabilities.
+
+The eleventh seed is `@adobe/leonardo-contrast-colors@1.0.0-alpha.13`,
+`@asyncapi/parser@1.14.1`,
+`@tanstack/query-async-storage-persister@5.66.4`,
+`@tanstack/react-query-persist-client@5.66.9`, `@xstate/react@6.1.0`,
+`colorjs.io@0.5.2`, `oazapfts@4.10.0`, and `tough-cookie@6.0.2`. A targeted
+reprobe of the 668 previously dependency-classified entries rendered 3 and
+moved 3 to process/runtime failures; the full corpus run reduced dependency
+failures by 5 and recorded 2,024 rendered scenes. The group provides bounded
+color, schema, persistence, state, OpenAPI, and cookie parsing behavior only;
+the probe still never installs extension dependencies or grants network, host,
+native, or WASM capabilities.
+
+The twelfth seed is `@apollo/client@3.14.1`, `@notionhq/client@2.3.0`,
+`@supabase/supabase-js@2.112.4`, `graphql-request@7.4.0`, `ky@1.14.3`,
+`ofetch@1.5.1`, and `octokit@5.0.5`. A targeted reprobe of the 663 previously
+dependency-classified entries rendered 14 and moved 12 to process/runtime
+failures; the full corpus run reduced dependency failures by 21 and recorded
+2,039 rendered scenes. The group was selected as a JavaScript-only SDK seed
+and installed successfully on the ARM64 Linux runner with lifecycle scripts
+disabled. It measures dependency availability only: network calls, host
+providers, and cross-extension behavior remain outside the compatibility
+boundary. The two structured outcomes are deterministic unsupported List text
+child diagnostics, not native or platform installation failures.
 
 ## Committed fixtures
 

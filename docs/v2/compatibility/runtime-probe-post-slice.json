@@ -1857,17 +1857,18 @@
   "outcomes": {
     "no-entrypoint": 3,
     "not-renderable": 316,
-    "process-failure": 225,
-    "renders": 2024,
-    "third-party-dependency": 663
+    "process-failure": 229,
+    "renders": 2039,
+    "structured-compatibility-error": 2,
+    "third-party-dependency": 642
   },
   "coverage": {
-    "extensionPasses": 2024,
+    "extensionPasses": 2039,
     "extensionTotal": 3231,
-    "extensionPassRate": 0.6264,
-    "renderableCommandPasses": 2024,
+    "extensionPassRate": 0.6311,
+    "renderableCommandPasses": 2039,
     "renderableCommandTotal": 2915,
-    "renderableCommandPassRate": 0.6943
+    "renderableCommandPassRate": 0.6995
   },
   "staticBlockers": [
     {
@@ -1877,8 +1878,9 @@
   ],
   "failureClasses": {
     "no-entrypoint": 3,
-    "process-failure": 225,
-    "third-party-dependency": 663
+    "process-failure": 229,
+    "structured-compatibility-error": 2,
+    "third-party-dependency": 642
   },
   "failureSamples": {
     "no-entrypoint": [
@@ -1889,9 +1891,13 @@
     "process-failure": [
       "CodeBlocks",
       "acqua",
+      "adguard-home",
       "adhan-time",
-      "ai-gen",
-      "airtable"
+      "ai-gen"
+    ],
+    "structured-compatibility-error": [
+      "crawldoc",
+      "open-targets-raycast"
     ],
     "third-party-dependency": [
       "1bookmark",
@@ -2088,7 +2094,8 @@
       "commandName": "toggle-protection",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "adhan-time",
@@ -2271,8 +2278,7 @@
       "commandName": "view",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "ai-text-to-calendar",
@@ -3626,8 +3632,7 @@
       "commandName": "search-subscribers",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "outcome": "renders"
     },
     {
       "directory": "beeminder",
@@ -4368,8 +4373,7 @@
       "commandName": "search-pipelines",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "builtbybit",
@@ -4919,8 +4923,7 @@
       "commandName": "shorten-url",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "chiikawa-character",
@@ -5560,7 +5563,7 @@
       "mode": "view",
       "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "failureCode": "transport_send_failed"
     },
     {
       "directory": "code-saver",
@@ -6325,8 +6328,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "create-link",
@@ -10279,8 +10282,8 @@
       "commandName": "my-pull-requests",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "github-cli-manual",
@@ -10331,8 +10334,8 @@
       "commandName": "menu",
       "mode": "menu-bar",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "process-failure",
+      "failureCode": "runtime_closed_during_initialization"
     },
     {
       "directory": "github-profile",
@@ -10357,8 +10360,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "github-search",
@@ -10424,8 +10426,7 @@
       "commandName": "issue_my",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "gitlab-docs",
@@ -12215,8 +12216,8 @@
       "commandName": "add-card",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "process-failure",
+      "failureCode": "invalid_extension_readiness"
     },
     {
       "directory": "inoreader",
@@ -12675,8 +12676,8 @@
       "commandName": "add-card",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "process-failure",
+      "failureCode": "invalid_extension_readiness"
     },
     {
       "directory": "johnny-decimal",
@@ -13686,7 +13687,7 @@
       "mode": "view",
       "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "failureCode": "transport_send_failed"
     },
     {
       "directory": "leave-time-calculator",
@@ -14076,8 +14077,7 @@
       "commandName": "literal",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "litterbox",
@@ -15979,8 +15979,7 @@
       "commandName": "manage-players",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "music",
@@ -17500,8 +17499,7 @@
       "commandName": "search-css-variables",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "open-targets-raycast",
@@ -17509,8 +17507,8 @@
       "commandName": "platform",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "structured-compatibility-error",
+      "failureCode": "unsupported_api"
     },
     {
       "directory": "open-with-app",
@@ -17693,8 +17691,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "orbit",
@@ -17810,8 +17807,8 @@
       "commandName": "search",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "process-failure",
+      "failureCode": "runtime_closed_during_initialization"
     },
     {
       "directory": "ottomatic",
@@ -19408,8 +19405,7 @@
       "commandName": "search-notes",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "prompts-chat",
@@ -19681,8 +19677,7 @@
       "commandName": "keyword-search",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "outcome": "renders"
     },
     {
       "directory": "qobuz",
@@ -20548,8 +20543,7 @@
       "commandName": "start-pomodoro",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "raycast-port",
@@ -21660,8 +21654,7 @@
       "commandName": "search-records",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "outcome": "renders"
     },
     {
       "directory": "sanity",
@@ -22711,7 +22704,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "similarweb",
@@ -23479,7 +23473,7 @@
       "mode": "view",
       "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "failureCode": "transport_send_failed"
     },
     {
       "directory": "splix",
@@ -23643,8 +23637,7 @@
       "commandName": "search-resources",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "stagehand",
@@ -23982,8 +23975,8 @@
       "commandName": "cron-jobs",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "supabase-docs",
@@ -25402,8 +25395,7 @@
       "commandName": "manage-links",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "to-streamshare",
@@ -25850,8 +25842,8 @@
       "commandName": "search-resources",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "twitch",
@@ -27383,8 +27375,7 @@
       "commandName": "my_balance",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "whmcs-client-search",
