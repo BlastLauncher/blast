@@ -671,7 +671,12 @@ only small portable JavaScript seeds eligible after the API-first slice.
    0084](decisions/0084-preserve-legacy-form-date-picker-values.md) is also
    implemented: the two corpus-observed legacy `Form.DatePicker.Date` and
    `DateTime` runtime values alias the declaration-backed `Type` values
-   without widening the form scene contract. Preserve
+   without widening the form scene contract. The next planned measured Form
+   semantics slice is [ADR
+   0085](decisions/0085-preserve-form-dropdown-keywords.md): carry the
+   declaration-backed `Form.Dropdown.Item.keywords` string array through the
+   existing scene boundary with the same validation already used by List and
+   Grid dropdowns. Preserve
    structured errors for values that would require a broader scene or host
    policy. Keep the deterministic
    structured probe failure
