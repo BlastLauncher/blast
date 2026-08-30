@@ -1857,18 +1857,17 @@
   "outcomes": {
     "no-entrypoint": 3,
     "not-renderable": 316,
-    "process-failure": 220,
-    "renders": 2022,
-    "structured-compatibility-error": 2,
-    "third-party-dependency": 668
+    "process-failure": 225,
+    "renders": 2024,
+    "third-party-dependency": 663
   },
   "coverage": {
-    "extensionPasses": 2022,
+    "extensionPasses": 2024,
     "extensionTotal": 3231,
-    "extensionPassRate": 0.6258,
-    "renderableCommandPasses": 2022,
+    "extensionPassRate": 0.6264,
+    "renderableCommandPasses": 2024,
     "renderableCommandTotal": 2915,
-    "renderableCommandPassRate": 0.6937
+    "renderableCommandPassRate": 0.6943
   },
   "staticBlockers": [
     {
@@ -1878,9 +1877,8 @@
   ],
   "failureClasses": {
     "no-entrypoint": 3,
-    "process-failure": 220,
-    "structured-compatibility-error": 2,
-    "third-party-dependency": 668
+    "process-failure": 225,
+    "third-party-dependency": 663
   },
   "failureSamples": {
     "no-entrypoint": [
@@ -1894,10 +1892,6 @@
       "adhan-time",
       "ai-gen",
       "airtable"
-    ],
-    "structured-compatibility-error": [
-      "crawldoc",
-      "open-targets-raycast"
     ],
     "third-party-dependency": [
       "1bookmark",
@@ -3141,8 +3135,7 @@
       "commandName": "validate",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "at-profile",
@@ -3667,8 +3660,7 @@
       "commandName": "search-links",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "bento-window",
@@ -5568,7 +5560,7 @@
       "mode": "view",
       "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "transport_send_failed"
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "code-saver",
@@ -6333,8 +6325,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "create-link",
@@ -7514,8 +7506,7 @@
       "commandName": "disk-usage",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "renders"
     },
     {
       "directory": "diskutil",
@@ -8362,8 +8353,7 @@
       "commandName": "emoji",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_send_failed"
+      "outcome": "renders"
     },
     {
       "directory": "emoji-kitchen",
@@ -10205,8 +10195,7 @@
       "commandName": "write-commit-message",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "process_failed"
+      "outcome": "renders"
     },
     {
       "directory": "git-co-authors",
@@ -13538,8 +13527,8 @@
       "commandName": "search-docs",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "process-failure",
+      "failureCode": "runtime_closed_during_initialization"
     },
     {
       "directory": "lark-applink",
@@ -17520,8 +17509,8 @@
       "commandName": "platform",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "structured-compatibility-error",
-      "failureCode": "unsupported_api"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "open-with-app",
@@ -17847,7 +17836,8 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "outline-document-search",
@@ -19344,7 +19334,7 @@
       "mode": "view",
       "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "transport_send_failed"
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "productlane",
@@ -19360,7 +19350,8 @@
       "commandName": "generate-project-code",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "project-companion",
@@ -22720,8 +22711,7 @@
       "commandName": "index",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "process-failure",
-      "failureCode": "transport_receive_failed"
+      "outcome": "renders"
     },
     {
       "directory": "similarweb",
@@ -22924,7 +22914,8 @@
       "commandName": "searchDocuments",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "skills",
@@ -22942,7 +22933,7 @@
       "mode": "view",
       "staticUnsupportedApis": [],
       "outcome": "process-failure",
-      "failureCode": "transport_send_failed"
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "skyscanner-flights",
@@ -25263,7 +25254,8 @@
       "commandName": "command-status",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "renders"
+      "outcome": "process-failure",
+      "failureCode": "transport_receive_failed"
     },
     {
       "directory": "timezone-buddy",
@@ -27425,8 +27417,8 @@
       "commandName": "biometrics",
       "mode": "view",
       "staticUnsupportedApis": [],
-      "outcome": "third-party-dependency",
-      "failureCode": "dependency_unavailable"
+      "outcome": "process-failure",
+      "failureCode": "process_failed"
     },
     {
       "directory": "whosampled",

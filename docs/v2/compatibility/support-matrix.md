@@ -25,23 +25,23 @@ post-slice result, including one result per extension, is
 
 The current post-slice run supplies the workspace's installed packages through
 the explicit `vendored` dependency policy. The private e2e package now adds
-ten bounded, exact-version seeds for 162 utility, parser, fetch, image, state,
+eleven bounded, exact-version seeds for 170 utility, parser, fetch, image, state,
 and compatibility-helper packages; their transitive graph is recorded in the
 lockfile. The probe does not install the corpus or run package-manager scripts;
 unavailable packages remain dependency failures.
 
 | Outcome                        | Baseline | Previous post-slice | Current post-slice | Current vs previous |
 | ------------------------------ | -------: | ------------------: | -----------------: | ------------------: |
-| third-party dependency failure |    2,361 |                 683 |                668 |                 -15 |
+| third-party dependency failure |    2,361 |                 668 |                663 |                  -5 |
 | not renderable command mode    |      358 |                 316 |                316 |                   0 |
-| other process/startup failure  |      432 |                 223 |                220 |                  -3 |
-| structured compatibility error |       23 |                   1 |                  2 |                  +1 |
-| renders a scene end to end     |       54 |               2,005 |              2,022 |                 +17 |
+| other process/startup failure  |      432 |                 220 |                225 |                  +5 |
+| structured compatibility error |       23 |                   2 |                  0 |                  -2 |
+| renders a scene end to end     |       54 |               2,022 |              2,024 |                  +2 |
 | no entrypoint found            |        3 |                   3 |                  3 |                   0 |
 
-Reading: the current post-slice extension pass rate is 2,022/3,231 (62.58%);
-among the 2,915 extensions with a selected renderable command it is 2,022/2,915
-(69.37%). The declaration-backed Icon enum, Raycast color values, collection
+Reading: the current post-slice extension pass rate is 2,024/3,231 (62.64%);
+among the 2,915 extensions with a selected renderable command it is 2,024/2,915
+(69.43%). The declaration-backed Icon enum, Raycast color values, collection
 metadata, List/Grid/Form search and pagination events, shared dropdown
 accessories, Clipboard read/clear behavior, Submenu lifecycle, nested public
 Props and utility namespaces, Keyboard shortcut aliases, Cache callback binding,
@@ -177,6 +177,18 @@ failures; the full corpus run reduced dependency failures by 26 and recorded
 2,005 rendered scenes. The group provides bounded parsing, search, color, text,
 validation, typography, SQL formatting, and Raycast helper behavior only; the
 probe still never installs extension dependencies or grants network, host,
+native, or WASM capabilities.
+
+The eleventh seed is `@adobe/leonardo-contrast-colors@1.0.0-alpha.13`,
+`@asyncapi/parser@1.14.1`,
+`@tanstack/query-async-storage-persister@5.66.4`,
+`@tanstack/react-query-persist-client@5.66.9`, `@xstate/react@6.1.0`,
+`colorjs.io@0.5.2`, `oazapfts@4.10.0`, and `tough-cookie@6.0.2`. A targeted
+reprobe of the 668 previously dependency-classified entries rendered 3 and
+moved 3 to process/runtime failures; the full corpus run reduced dependency
+failures by 5 and recorded 2,024 rendered scenes. The group provides bounded
+color, schema, persistence, state, OpenAPI, and cookie parsing behavior only;
+the probe still never installs extension dependencies or grants network, host,
 native, or WASM capabilities.
 
 The tenth seed is `binary-split@1.0.5`, `city-timezones@1.3.4`, `edn-data@1.2.2`,
