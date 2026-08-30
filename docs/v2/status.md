@@ -190,6 +190,13 @@ slice changes what is executable, what is trusted, or what should happen next.
   `MenuBarExtra` APIs. `Cache.subscribe` stays bound when passed to React
   external-store hooks, and nullable `Form.TextArea.enableMarkdown` is omitted
   instead of crossing the scene boundary as `null`.
+- The declaration surface now also exposes Raycast's `Alert.Options` and
+  `Alert.ActionOptions`, `Cache.Options`/`Subscriber`/`Subscription`,
+  `Toast.Options`/`ActionOptions`/`Style`, and `Form.ItemReference` aliases;
+  `FormItemRef` is available as a top-level type. `Toast.Style` constants use
+  Raycast's uppercase values and normalize to lower-case scene styles. Form
+  focus/reset handles remain type-only until a host-facing control boundary is
+  defined.
 - The measured collection-value boundary now preserves empty Grid content
   tooltips, accepts positive safe-integer Grid column counts, and serializes
   `List.Item` icon descriptors with optional values and tooltips. Pagination
@@ -359,7 +366,7 @@ launch-boundary, desktop-discovery, finder-boundary, host-boundary,
 window-management, and dependency-policy slices are complete, but the
 measured 80% target is not yet met: the current run is 56.21% overall and
 62.30% among commands with a renderable selection. The declaration-backed Icon,
-collection, clipboard, submenu, public typing, and menu-bar alternate slices
+collection, clipboard, submenu, utility typing, and menu-bar alternate slices
 are complete; the next work should use the same probe to identify any
 remaining API-shaped failures before adding dependencies. Additional
 dependency seeds remain deferred.
@@ -386,7 +393,7 @@ dependency seeds remain deferred.
    Quick Look actions, Detail metadata, `List.Item.Detail`, search/pagination
    events, zero pagination and OpenInBrowser readiness fallbacks, Clipboard
    read/clear, Submenu lifecycle,
-   nested `Props` namespaces,
+   nested `Props` and utility namespaces, `Form.ItemReference`,
    and deprecated Form/action member aliases covered by each reprobe.
 3. Keep safe dynamic, namespace, side-effect, and literal `require` import
    forms covered while the remaining `fetch` import stays outside the adapter

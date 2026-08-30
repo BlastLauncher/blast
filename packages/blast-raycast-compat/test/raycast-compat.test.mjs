@@ -2457,6 +2457,9 @@ test("shows toasts through the configured context", async () => {
   const probe = createContext();
   configureRaycastCompat(probe.context);
 
+  assert.equal(Toast.Style.Success, "SUCCESS");
+  assert.equal(Toast.Style.Failure, "FAILURE");
+  assert.equal(Toast.Style.Animated, "ANIMATED");
   const toast = await showToast({ title: "Saved", message: "All done", style: Toast.Style.Success });
   await toast.show();
   toast.style = Toast.Style.Animated;

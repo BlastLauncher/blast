@@ -154,10 +154,15 @@ onto the V2 scene contract, renderer, and capability broker:
   hooks; persistence is intentionally a future host capability;
 - Declaration-shaped nested `Props` namespaces are available for the measured
   `Action`, `ActionPanel`, `List`, `Grid`, `Form`, and `MenuBarExtra` members so
-  existing Raycast TypeScript code retains its public typing surface;
+  existing Raycast TypeScript code retains its public typing surface. The
+  utility namespaces `Alert`, `Cache`, and `Toast` expose their declaration-
+  shaped option/style aliases, and `Form.ItemReference` plus `FormItemRef` are
+  available for type consumers; form focus/reset behavior remains a future
+  host boundary;
 - `showToast` and `Toast` support legacy show overloads, animated/success/
-  failure styles, identified show/update/hide lifecycle messages, mutable
-  toast fields, and primary/secondary actions routed through scene events;
+  failure styles, Raycast's uppercase `Toast.Style` constants, identified
+  show/update/hide lifecycle messages, mutable toast fields, and
+  primary/secondary actions routed through scene events;
 - `runCommand(context, component[, launchProps])` binds the API to the running
   command, injects launch props, and routes scene events back to component
   callbacks; the Node bootstrap's

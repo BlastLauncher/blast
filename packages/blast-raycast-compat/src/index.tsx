@@ -1665,6 +1665,17 @@ export const Alert = {
   },
 } as const;
 
+export namespace Alert {
+  export type Options = AlertOptions;
+  export type ActionOptions = AlertActionOptions;
+  export type ActionStyle = AlertActionStyleLike;
+  export namespace ActionStyle {
+    export type Default = "default";
+    export type Cancel = "cancel";
+    export type Destructive = "destructive";
+  }
+}
+
 /** @deprecated Use `Alert.ActionStyle` instead. */
 export const AlertActionStyle = Alert.ActionStyle;
 
@@ -1824,6 +1835,12 @@ export interface FormItemProps<T extends FormValue> {
   readonly onChange?: (value: T) => void;
   readonly onFocus?: (event: FormEvent<T>) => void;
   readonly onBlur?: (event: FormEvent<T>) => void;
+}
+
+/** Handle exposed by Form items for focusing and resetting their value. */
+export interface FormItemRef {
+  focus: () => void;
+  reset: () => void;
 }
 
 /** Deprecated top-level Form prop aliases retained for declaration parity. */
@@ -4037,6 +4054,7 @@ export { FormTextField };
 export namespace Form {
   export type Props = FormProps;
   export type ItemProps<T extends FormValue> = FormItemProps<T>;
+  export type ItemReference = FormItemRef;
   export type Value = FormValue;
   export type Values = FormValues;
   export type Event<T extends FormValue = FormValue> = FormEvent<T>;
@@ -5016,9 +5034,9 @@ function normalizeToastAction(action: ToastActionOptions | undefined, where: str
 
 export class Toast {
   static readonly Style = {
-    Success: "success",
-    Failure: "failure",
-    Animated: "animated",
+    Success: "SUCCESS",
+    Failure: "FAILURE",
+    Animated: "ANIMATED",
   } as const;
 
   readonly #toastId = `toast-${++toastCounter}`;
@@ -5171,6 +5189,17 @@ export class Toast {
       return;
     }
     void this.enqueue("update").catch(() => {});
+  }
+}
+
+export namespace Toast {
+  export type Options = ToastOptions;
+  export type ActionOptions = ToastActionOptions;
+  export type Style = ToastStyle;
+  export namespace Style {
+    export type Success = "SUCCESS";
+    export type Failure = "FAILURE";
+    export type Animated = "ANIMATED";
   }
 }
 
@@ -6426,6 +6455,12 @@ export class Cache {
       subscriber(key, data);
     }
   }
+}
+
+export namespace Cache {
+  export type Options = CacheOptions;
+  export type Subscriber = CacheSubscriber;
+  export type Subscription = CacheSubscription;
 }
 
 function cacheByteLength(value: string): number {

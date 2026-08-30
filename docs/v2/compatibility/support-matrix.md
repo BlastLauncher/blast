@@ -44,8 +44,8 @@ among the 2,915 extensions with a selected renderable command it is 1,816/2,915
 (62.30%). The declaration-backed Icon enum, Raycast color values, collection
 metadata, List/Grid/Form search and pagination events, shared dropdown
 accessories, Clipboard read/clear behavior, Submenu lifecycle, nested public
-Props namespaces, Cache callback binding, and official aliases are now covered
-by the adapter tests and probe. Zero pagination page-size fallbacks are
+Props and utility namespaces, Cache callback binding, and official aliases are
+now covered by the adapter tests and probe. Zero pagination page-size fallbacks are
 preserved and the targeted `modrinth-search/search-projects` command now
 renders. Empty and absent `Action.OpenInBrowser` targets are handled at the
 action-readiness boundary; the four targeted commands now render. Menu-bar
@@ -247,8 +247,10 @@ dispatches a bounds mutation through the explicit host capability.
 - `Color` now emits Raycast's `raycast-*` theme identifiers while retaining the
   legacy raw `Pink`/`Brown` values. The public nested `Props` namespaces for
   `Action`, `ActionPanel`, `List`, `Grid`, `Form`, and `MenuBarExtra` mirror the
-  pinned declaration, and `Cache.subscribe` remains bound for external-store
-  hooks;
+  pinned declaration, the `Alert`/`Cache`/`Toast` utility namespaces and
+  `Form.ItemReference` mirror the pinned declaration, and `Cache.subscribe`
+  remains bound for external-store hooks. Form focus/reset handles are
+  declaration-only until a host control boundary is defined;
 - command-scoped manifest preference defaults are merged into the selected
   command descriptor, with command values taking precedence over extension-level
   values; the focused Grid-column failures now proceed past `getPreferenceValues()`
