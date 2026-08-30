@@ -656,11 +656,12 @@ only small portable JavaScript seeds eligible after the API-first slice.
    0081](decisions/0081-preserve-raycast-preference-metadata.md) is implemented:
    declared metadata and dropdown data cross the descriptor, resolved defaults
    overlay deprecated `preferences`, and storage/platform resolution remain a
-   later host boundary. [ADR
-   0082](decisions/0082-preserve-raycast-ai-model-catalog.md) is the next
-   API-first slice: mirror the pinned `AI.Model` key/value catalog while
-   retaining the open runtime fallback; model providers and availability stay
-   host work. Preserve
+   later host boundary. The AI model catalog slice in [ADR
+   0082](decisions/0082-preserve-raycast-ai-model-catalog.md) is implemented:
+   all 158 pinned `AI.Model` key/value pairs cross with their declared
+   identifiers, the pre-existing legacy spelling remains supported, and
+   unknown names retain the open runtime fallback. Model providers and
+   availability stay host work. Preserve
    structured errors for values that would require a broader scene or host
    policy. Keep the deterministic
    structured probe failure

@@ -3312,6 +3312,16 @@ test("routes measured AI, command metadata, and OAuth boundaries", async () => {
   ]);
 });
 
+test("mirrors the pinned AI model catalog while keeping unknown names extensible", () => {
+  assert.equal(Object.keys(AI.Model).length, 159);
+  assert.equal(AI.Model["OpenAI_GPT-4.1"], "openai-gpt-4.1");
+  assert.equal(AI.Model["Anthropic_Claude_4.5_Haiku"], "anthropic-claude-4-5-haiku");
+  assert.equal(AI.Model["OpenAI_GPT-5.1_Codex"], "openai-gpt-5.3-codex");
+  assert.equal(AI.Model["xAI_Grok-4.1_Fast"], "xai-grok-4.5");
+  assert.equal(AI.Model.OpenAI_GPT4_Turbo, "openai-gpt-4-turbo");
+  assert.equal(AI.Model.Future_Model, "Future_Model");
+});
+
 test("routes browser, search, trash, and legacy toast boundaries", async () => {
   const probe = createContext({
     capabilityValues: {

@@ -1,6 +1,6 @@
 # ADR 0082: Preserve the Raycast AI model catalog
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-08-30
 
 ## Context
@@ -53,3 +53,12 @@ Known Raycast model constants now retain their declared provider identifiers,
 including legacy aliases, while arbitrary names remain runtime-extensible.
 The change improves option fidelity without coupling the runtime to a model
 provider or changing the ARM64 Linux host boundary.
+
+## Verification
+
+The adapter test suite verifies canonical, historical, and unknown model names.
+The generated adapter catalog was compared against all 158 string-valued
+members in the pinned `@raycast/api` declaration; every pair matches, with the
+pre-existing `OpenAI_GPT4_Turbo` spelling retained as a 159th compatibility
+alias. The host AI provider boundary and aggregate corpus outcomes are
+unchanged.

@@ -152,8 +152,9 @@ onto the V2 scene contract, renderer, and capability broker:
   `@raycast/api` copies can reach the bootstrap-owned stack;
 - the legacy top-level `ToastStyle` constants retain Raycast's uppercase
   values, while `Tool.Confirmation<T>` is exposed as a type-only contract;
-- `AI.ask` routes through `ai.ask`, validates creativity/model options, and
-  preserves the promise's measured `.on("data")` completion shape;
+- `AI.ask` routes through `ai.ask`, validates creativity/model options, mirrors
+  the pinned 158-entry `AI.Model` catalog plus the retained legacy spelling,
+  and preserves the promise's measured `.on("data")` completion shape;
 - `OAuth.PKCEClient` routes authorization requests, browser authorization, and
   token-set lifecycle operations through explicit host-owned `oauth.*`
   capabilities;
