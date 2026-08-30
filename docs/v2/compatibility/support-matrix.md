@@ -59,9 +59,11 @@ events. The only remaining static import gap is one `fetch` import.
 Dependency, process, and non-renderable outcomes remain tracked separately
 from API coverage.
 The current top-level API import census and emitted declaration audit are clean
-for the measured corpus surface, so priority remains the remaining dependency
-and runtime outcomes while the adapter continues to preserve strict API
-boundaries. This refresh completes the full 478-member Icon surface and
+for the measured corpus surface, but that is not a claim that every API
+semantic is complete. Per ADR 0075, priority now returns to the remaining
+measured Raycast API behavior while dependency, platform, host-capability, and
+renderability outcomes remain separate. This refresh completes the full
+478-member Icon surface and
 preserves legacy names, adds declaration-backed collection/search/pagination
 fields, and closes the shared List/Grid dropdown boundary. It also corrects
 Raycast theme color identifiers, decodes structured Clipboard reads, supports

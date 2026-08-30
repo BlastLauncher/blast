@@ -551,7 +551,9 @@ slice changes what is executable, what is trusted, or what should happen next.
 - full dependency provisioning beyond the seventeen bounded e2e seeds, lockfile/audit
   policy for large npm graphs, and native package externalization (the runtime
   supports explicit local or vendored dependency roots but never installs
-  packages);
+  packages); these dependency and platform concerns are tracked separately
+  from Raycast API compatibility, and extension authors own third-party native
+  module support on their target platforms;
 - the remaining measured Raycast surface: client toast timing/stacking, broader
   desktop APIs, broader action helpers, and additional Tool/browser APIs;
 - a client-facing core protocol, daemon listener, and desktop rendering of
@@ -578,19 +580,20 @@ finder-boundary, host-boundary, window-management, declaration, and
 dependency-policy slices are complete, but the measured 80% target is not yet
 met: the current run is 64.69% overall and 71.70% among commands with a
 renderable selection. The current top-level import census and emitted
-declaration audit are clean for the measured corpus surface, so priority has
-shifted back to the remaining measured dependency and runtime outcomes while
-preserving strict API boundaries. Additional bounded seeds remain acceptable
-when diagnostics justify a small pure or policy-neutral group; network,
-cross-extension, native, and WASM packages still require explicit decisions.
+declaration audit are clean for the measured corpus surface, but that is not a
+claim that every API semantic is complete. Per ADR 0075, priority is now the
+remaining measured Raycast API behavior; dependency, platform, host
+capability, and renderability outcomes stay separate. Native/macOS, WASM,
+test-only, large-graph, and host-process dependencies remain deferred, with
+only small portable JavaScript seeds eligible after the API-first slice.
 
-1. Use the corpus diagnostics to alternate between measured runtime/API gaps
-   and small exact-version dependency seeds. The current top-level API import
-   and declaration audits are clean, but compatibility remains limited by
-   dependency and process outcomes. Keep implementing only runtime values and
-   host capabilities that can be validated safely, and preserve structured
-   errors for values that would require a broader scene or host policy. Keep
-   the deterministic structured probe failure
+1. Finish measured Raycast API semantics first. Audit the adapter against the
+   census and declarations, choose the highest-yield incomplete behavior, and
+   add deterministic adapter, fixture, and focused-probe coverage. Keep API
+   progress distinct from dependency/platform provisioning and host
+   capability/renderability outcomes. Preserve structured errors for values
+   that would require a broader scene or host policy. Keep the deterministic
+   structured probe failure
    (`crawldoc` and `open-targets-raycast/platform`) as explicit diagnostics
    rather than weakening the scene or action validators around malformed
    children, invalid measured values, and empty or missing targets. The latest
@@ -620,10 +623,13 @@ cross-extension, native, and WASM packages still require explicit decisions.
    forms covered while the remaining `fetch` import stays outside the adapter
    until a host network capability defines URL policy, consent, and response
    limits.
-4. Continue small, exact-version, development-only dependency seeds when the
-   diagnostic census supports them. Keep each group reviewable and measure
-   rendered outcomes after installation; hold network, cross-extension,
-   native, and WASM packages for explicit policy decisions.
+4. Only after the next API slice, consider small, exact-version,
+   development-only portable JavaScript dependency seeds when the diagnostic
+   census supports them. Keep each group reviewable and measure rendered
+   outcomes after installation; hold network, cross-extension, native, macOS,
+   WASM, test-only, large-graph, and host-process packages for explicit policy
+   decisions. Do not count extension-owned platform incompatibility as a
+   missing Raycast API member.
 5. Add a client-facing core protocol and daemon listener so the Electron
    client can replace the test client after the coverage boundary is stable.
 
