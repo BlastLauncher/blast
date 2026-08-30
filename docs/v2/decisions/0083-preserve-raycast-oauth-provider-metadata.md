@@ -1,6 +1,6 @@
 # ADR 0083: Preserve Raycast OAuth provider metadata
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-08-30
 
 ## Context
@@ -57,3 +57,10 @@ OAuth-capable extensions retain the metadata required by a Raycast-style host
 overlay without widening the transport to arbitrary objects. Existing hosts
 that ignore these optional fields remain compatible, while a future client can
 render the metadata without changing the extension API again.
+
+## Verification
+
+The adapter suite verifies light/dark source and fallback variants, mask and
+tint metadata, descriptions, and rejection of an invalid provider icon before
+the capability broker is called. The full V2 suite remains green; aggregate
+corpus outcomes are unchanged because this slice carries metadata only.

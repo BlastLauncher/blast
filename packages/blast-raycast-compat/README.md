@@ -157,7 +157,8 @@ onto the V2 scene contract, renderer, and capability broker:
   and preserves the promise's measured `.on("data")` completion shape;
 - `OAuth.PKCEClient` routes authorization requests, browser authorization, and
   token-set lifecycle operations through explicit host-owned `oauth.*`
-  capabilities;
+  capabilities; provider icon variants, masks, tints, and descriptions are
+  validated and preserved on authorization requests;
 - `updateCommandMetadata` routes measured subtitle updates and `null` clears
   through `command.updateMetadata`;
 - `openCommandPreferences` routes through `preferences.openCommand`;

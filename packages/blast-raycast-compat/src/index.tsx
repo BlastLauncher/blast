@@ -1654,6 +1654,7 @@ export namespace OAuth {
             : unsupported("OAuth.authorizationRequest clientId", { options })
           : requireNonEmptyString(options.clientId, "OAuth.authorizationRequest clientId");
       const extraParameters = normalizeOAuthExtraParameters(options.extraParameters);
+      const providerIcon = serializeIcon(this.providerIcon, "OAuth.PKCEClient providerIcon");
       const argumentsValue: Record<string, string | number | boolean> = {
         providerId: this.providerId,
         providerName: this.providerName,
@@ -1661,6 +1662,8 @@ export namespace OAuth {
         endpoint,
         clientId,
         scope,
+        ...serializeIconProperties(providerIcon, "providerIcon"),
+        ...(this.description === undefined ? {} : { description: this.description }),
       };
       if (extraParameters !== undefined) {
         argumentsValue.extraParametersJSON = JSON.stringify(extraParameters);

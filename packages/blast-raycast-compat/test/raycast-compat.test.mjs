@@ -3252,6 +3252,13 @@ test("routes measured AI, command metadata, and OAuth boundaries", async () => {
     redirectMethod: OAuth.RedirectMethod.Web,
     providerName: "Fixture OAuth",
     providerId: "fixture-oauth",
+    providerIcon: {
+      source: { light: "oauth-light.png", dark: "oauth-dark.png" },
+      fallback: { light: "oauth-fallback-light.png", dark: "oauth-fallback-dark.png" },
+      mask: Image.Mask.Circle,
+      tintColor: { light: "#111111", dark: "#eeeeee", adjustContrast: true },
+    },
+    description: "Connect the fixture account",
   });
   const request = await client.authorizationRequest({
     endpoint: "https://example.com/oauth/authorize",
@@ -3288,6 +3295,15 @@ test("routes measured AI, command metadata, and OAuth boundaries", async () => {
         endpoint: "https://example.com/oauth/authorize",
         clientId: "fixture-client",
         scope: "read write",
+        providerIcon: "oauth-light.png",
+        providerIconDark: "oauth-dark.png",
+        providerIconFallback: "oauth-fallback-light.png",
+        providerIconFallbackDark: "oauth-fallback-dark.png",
+        providerIconMask: "circle",
+        providerIconTintColor: "#111111",
+        providerIconTintColorDark: "#eeeeee",
+        providerIconTintColorAdjustContrast: true,
+        description: "Connect the fixture account",
         extraParametersJSON: '{"audience":"fixture"}',
       },
     },
@@ -3310,6 +3326,27 @@ test("routes measured AI, command metadata, and OAuth boundaries", async () => {
     { capability: "oauth", operation: "getTokens", arguments: { providerId: "fixture-oauth" } },
     { capability: "oauth", operation: "removeTokens", arguments: { providerId: "fixture-oauth" } },
   ]);
+});
+
+test("rejects invalid OAuth provider icons before the host boundary", async () => {
+  const probe = createContext();
+  configureRaycastCompat(probe.context);
+  const client = new OAuth.PKCEClient({
+    redirectMethod: OAuth.RedirectMethod.Web,
+    providerName: "Fixture OAuth",
+    providerIcon: { source: "oauth.png", mask: "square" },
+  });
+
+  await assert.rejects(
+    () =>
+      client.authorizationRequest({
+        endpoint: "https://example.com/oauth/authorize",
+        clientId: "fixture-client",
+        scope: "read",
+      }),
+    (error) => error instanceof CompatibilityError && /image mask/.test(error.message),
+  );
+  assert.deepEqual(probe.capabilityRequests, []);
 });
 
 test("mirrors the pinned AI model catalog while keeping unknown names extensible", () => {
