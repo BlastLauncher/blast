@@ -25,23 +25,23 @@ post-slice result, including one result per extension, is
 
 The current post-slice run supplies the workspace's installed packages through
 the explicit `vendored` dependency policy. The private e2e package now adds
-four bounded, exact-version seeds for fifty-three utility, parser, fetch, image,
+five bounded, exact-version seeds for seventy utility, parser, fetch, image,
 state, and compatibility-helper packages; their transitive graph is recorded
 in the lockfile. The probe does not install the corpus or run package-manager
 scripts; unavailable packages remain dependency failures.
 
 | Outcome                        | Baseline | Previous post-slice | Current post-slice | Current vs previous |
 | ------------------------------ | -------: | ------------------: | -----------------: | ------------------: |
-| third-party dependency failure |    2,361 |                 844 |                797 |                 -47 |
+| third-party dependency failure |    2,361 |                 797 |                770 |                 -27 |
 | not renderable command mode    |      358 |                 316 |                316 |                   0 |
-| other process/startup failure  |      432 |                 201 |                202 |                  +1 |
-| structured compatibility error |       23 |                   1 |                  1 |                   0 |
-| renders a scene end to end     |       54 |               1,866 |              1,912 |                 +46 |
+| other process/startup failure  |      432 |                 202 |                202 |                   0 |
+| structured compatibility error |       23 |                   1 |                  2 |                  +1 |
+| renders a scene end to end     |       54 |               1,912 |              1,938 |                 +26 |
 | no entrypoint found            |        3 |                   3 |                  3 |                   0 |
 
-Reading: the current post-slice extension pass rate is 1,912/3,231 (59.18%);
-among the 2,915 extensions with a selected renderable command it is 1,912/2,915
-(65.59%). The declaration-backed Icon enum, Raycast color values, collection
+Reading: the current post-slice extension pass rate is 1,938/3,231 (59.98%);
+among the 2,915 extensions with a selected renderable command it is 1,938/2,915
+(66.48%). The declaration-backed Icon enum, Raycast color values, collection
 metadata, List/Grid/Form search and pagination events, shared dropdown
 accessories, Clipboard read/clear behavior, Submenu lifecycle, nested public
 Props and utility namespaces, Keyboard shortcut aliases, Cache callback binding,
@@ -63,10 +63,12 @@ fields, and closes the shared List/Grid dropdown boundary. It also corrects
 Raycast theme color identifiers, decodes structured Clipboard reads, supports
 Clipboard clear, adds Submenu search/open/id behavior, and publishes nested
 Props aliases for the measured components. `MenuBarExtra.Item.alternate` now
-publishes a nested alternate item with a distinct right-click event. The
-remaining structured failure is `open-targets-raycast/platform`; it is a strict
-diagnostic from malformed List children under the probe's default launch
-arguments. The targeted `modrinth-search/search-projects` and four
+publishes a nested alternate item with a distinct right-click event. The latest
+aggregate recorded structured results for `crawldoc` and
+`open-targets-raycast/platform`; a serial reprobe retained only
+`open-targets-raycast/platform` as the strict malformed-child diagnostic, while
+`crawldoc` exited as a process failure. The targeted `modrinth-search/search-projects`
+and four
 OpenInBrowser reprobes now render after preserving their declaration-shaped
 readiness fallbacks. The context-provider boundary moves
 `dictionary/fromCmd` through to a rendered scene. The fourth dependency seed
@@ -109,6 +111,18 @@ dependency-classified entries rendered 33 and moved 16 to process/runtime
 failures; the full corpus run reduced dependency failures by 47 and recorded
 1,912 rendered scenes. Pure parsing and utility availability remains separate
 from host behavior, and the probe still never installs extension dependencies.
+
+The fifth seed is `@mozilla/readability@0.6.0`, `bignumber.js@11.1.1`,
+`color-hash@2.0.2`, `cron-parser@5.6.0`, `dateformat@5.0.3`,
+`dedent-js@1.0.1`, `eventsource-parser@1.1.2`, `fast-fuzzy@1.12.0`,
+`fuzzysort@3.1.0`, `hi-base32@0.5.1`, `html-to-text@10.0.0`,
+`jose@6.2.3`, `js-base64@3.8.0`, `lodash.groupby@4.6.0`, `numeral@2.0.6`,
+`otpauth@9.5.0`, and `validator@13.15.35`. A targeted reprobe of the 797
+previously dependency-classified entries rendered 24 and moved 5 to
+process/runtime failures; the full corpus run reduced dependency failures by
+27 and recorded 1,938 rendered scenes. These packages provide parser, utility,
+formatting, and local crypto behavior only; the probe still never installs
+extension dependencies or grants network/host capabilities.
 
 ## Committed fixtures
 
@@ -267,10 +281,11 @@ dispatches a bounds mutation through the explicit host capability.
   its native `Date | null` behavior. Optional string-array initial values omit
   `undefined` entries only when all other entries are strings; null members and
   other invalid entries remain rejected;
-- the remaining structured probe failure is `open-targets-raycast/platform`.
-  It contains malformed List children under the probe's default arguments;
-  that remains a structured error rather than being silently widened or sent
-  to the host;
+- `open-targets-raycast/platform` contains malformed List children under the
+  probe's default arguments and remains a structured error rather than being
+  silently widened or sent to the host. The latest aggregate also recorded
+  `crawldoc` as structured, but a serial reprobe classified it as a process
+  failure; that result remains tracked as run variance;
 - string-valued Form and Grid dropdown labels and values, Form checkbox labels,
   and Form descriptions preserve empty strings; non-string values remain
   invalid;
