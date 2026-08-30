@@ -165,6 +165,19 @@ slice changes what is executable, what is trusted, or what should happen next.
   entrypoints. The targeted eighth-seed reprobe rendered 20 of the previous
   dependency failures and moved 6 to process/runtime failures; the aggregate
   change remains subject to normal process and dependency variance.
+- A ninth bounded seed adds 21 exact-version e2e development dependencies:
+  `@chrismessina/raycast-kit`, `@ts-rest/core`, `@zxcvbn-ts/core`,
+  `@zxcvbn-ts/language-common`, `@zxcvbn-ts/language-en`, `colord`, `es-toolkit`,
+  `friendly-mimes`, `html-to-md`, `jsqr`, `json-ts`, `linkify-it`, `minisearch`,
+  `node-emoji`, `opentype.js`, `p-min-delay`, `polished`, `protobufjs`,
+  `raycast-hooks`, `sanitize-html`, and `sql-formatter`. The latest pinned corpus
+  probe passes 2,005 of 3,231 extensions (62.06%), or 2,005 of 2,915 extensions
+  with a selected renderable command (68.78%). The remaining losses are tracked
+  separately: 683 third-party dependency failures, 223 process/startup failures,
+  316 non-renderable commands, 1 structured compatibility error, and 3 missing
+  entrypoints. The targeted ninth-seed reprobe rendered 21 of the previous
+  dependency failures and moved 5 to process/runtime failures; the aggregate
+  change remains subject to normal process and dependency variance.
 - Navigation (useNavigation, Action.Push), LocalStorage through the
   capability broker with a reference in-memory provider, the callable plus
   property-based environment surface, and measured WindowManagement discovery
@@ -406,7 +419,7 @@ slice changes what is executable, what is trusted, or what should happen next.
 ## Intentionally missing
 
 - a persistent, watched catalog index and extension installation flows;
-- full dependency provisioning beyond the eight bounded e2e seeds, lockfile/audit
+- full dependency provisioning beyond the nine bounded e2e seeds, lockfile/audit
   policy for large npm graphs, and native package externalization (the runtime
   supports explicit local or vendored dependency roots but never installs
   packages);
@@ -434,7 +447,7 @@ and render through the current path, not the number of exported API names. The
 shortcut, imperative, cache, launch-boundary, desktop-discovery,
 finder-boundary, host-boundary, window-management, declaration, and
 dependency-policy slices are complete, but the measured 80% target is not yet
-met: the current run is 61.28% overall and 67.92% among commands with a
+met: the current run is 62.06% overall and 68.78% among commands with a
 renderable selection. The current top-level import census and emitted
 declaration audit are clean for the measured corpus surface, so priority has
 shifted back to the remaining measured dependency and runtime outcomes while
@@ -451,8 +464,9 @@ cross-extension, native, and WASM packages still require explicit decisions.
    the deterministic structured probe failure
    (`open-targets-raycast/platform`) as an explicit diagnostic rather than
    weakening the scene or action validators around malformed children, invalid
-   measured values, and empty or missing targets. The latest aggregate recorded
-   no structured errors; the focused reprobe remains a strict boundary check.
+   measured values, and empty or missing targets. The latest aggregate retains
+   one structured error for `open-targets-raycast/platform`; the focused reprobe
+   remains a strict boundary check.
    The targeted
    `modrinth-search/search-projects` reprobe renders
    after preserving its declaration-shaped zero page-size fallback, and the

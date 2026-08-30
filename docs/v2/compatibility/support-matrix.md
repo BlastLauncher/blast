@@ -25,23 +25,23 @@ post-slice result, including one result per extension, is
 
 The current post-slice run supplies the workspace's installed packages through
 the explicit `vendored` dependency policy. The private e2e package now adds
-eight bounded, exact-version seeds for 120 utility, parser, fetch, image, state,
+nine bounded, exact-version seeds for 141 utility, parser, fetch, image, state,
 and compatibility-helper packages; their transitive graph is recorded in the
 lockfile. The probe does not install the corpus or run package-manager scripts;
 unavailable packages remain dependency failures.
 
 | Outcome                        | Baseline | Previous post-slice | Current post-slice | Current vs previous |
 | ------------------------------ | -------: | ------------------: | -----------------: | ------------------: |
-| third-party dependency failure |    2,361 |                 734 |                709 |                 -25 |
+| third-party dependency failure |    2,361 |                 709 |                683 |                 -26 |
 | not renderable command mode    |      358 |                 316 |                316 |                   0 |
-| other process/startup failure  |      432 |                 209 |                222 |                 +13 |
-| structured compatibility error |       23 |                   2 |                  1 |                  -1 |
-| renders a scene end to end     |       54 |               1,967 |              1,980 |                 +13 |
+| other process/startup failure  |      432 |                 222 |                223 |                  +1 |
+| structured compatibility error |       23 |                   1 |                  1 |                   0 |
+| renders a scene end to end     |       54 |               1,980 |              2,005 |                 +25 |
 | no entrypoint found            |        3 |                   3 |                  3 |                   0 |
 
-Reading: the current post-slice extension pass rate is 1,980/3,231 (61.28%);
-among the 2,915 extensions with a selected renderable command it is 1,980/2,915
-(67.92%). The declaration-backed Icon enum, Raycast color values, collection
+Reading: the current post-slice extension pass rate is 2,005/3,231 (62.06%);
+among the 2,915 extensions with a selected renderable command it is 2,005/2,915
+(68.78%). The declaration-backed Icon enum, Raycast color values, collection
 metadata, List/Grid/Form search and pagination events, shared dropdown
 accessories, Clipboard read/clear behavior, Submenu lifecycle, nested public
 Props and utility namespaces, Keyboard shortcut aliases, Cache callback binding,
@@ -75,7 +75,7 @@ readiness fallbacks. The context-provider boundary moves
 moved 47 entries out of the dependency-failure class in the aggregate run and
 increased rendered outcomes by 46; the targeted old dependency set rendered 33
 entries and left 16 in process/runtime failure, so the aggregate change
-remains subject to normal process and dependency variance. The latest aggregate
+remains subject to normal process and dependency variance. An earlier aggregate
 recorded structured results for `crawldoc` and `open-targets-raycast/platform`;
 a focused serial reprobe retained only `open-targets-raycast/platform` as the
 strict malformed-child diagnostic, while `crawldoc` remained process variance.
@@ -163,6 +163,21 @@ failures by 25 and recorded 1,980 rendered scenes. The group provides test
 data, encoding, parsing, queue, validation, React utility, and form-data
 behavior only; the probe still never installs extension dependencies or grants
 network/host capabilities.
+
+The ninth seed is `@chrismessina/raycast-kit@0.1.4`, `@ts-rest/core@3.52.1`,
+`@zxcvbn-ts/core@3.0.4`, `@zxcvbn-ts/language-common@3.0.4`,
+`@zxcvbn-ts/language-en@3.0.2`, `colord@2.10.0`, `es-toolkit@1.52.0`,
+`friendly-mimes@3.0.1`, `html-to-md@0.8.8`, `jsqr@1.4.0`, `json-ts@1.6.4`,
+`linkify-it@5.0.2`, `minisearch@7.2.0`, `node-emoji@2.2.0`,
+`opentype.js@1.3.4`, `p-min-delay@4.2.0`, `polished@4.3.1`,
+`protobufjs@7.5.4`, `raycast-hooks@1.0.4`, `sanitize-html@2.17.7`, and
+`sql-formatter@15.8.2`. A targeted reprobe of the 709 previously
+dependency-classified entries rendered 21 and moved 5 to process/runtime
+failures; the full corpus run reduced dependency failures by 26 and recorded
+2,005 rendered scenes. The group provides bounded parsing, search, color, text,
+validation, typography, SQL formatting, and Raycast helper behavior only; the
+probe still never installs extension dependencies or grants network, host,
+native, or WASM capabilities.
 
 ## Committed fixtures
 
@@ -323,7 +338,7 @@ dispatches a bounds mutation through the explicit host capability.
   other invalid entries remain rejected;
 - `open-targets-raycast/platform` contains malformed List children under the
   probe's default arguments and remains a structured error rather than being
-  silently widened or sent to the host. The latest aggregate also recorded
+  silently widened or sent to the host. An earlier aggregate also recorded
   `crawldoc` as structured, but a serial reprobe classified it as a process
   failure; that result remains tracked as run variance;
 - string-valued Form and Grid dropdown labels and values, Form checkbox labels,
