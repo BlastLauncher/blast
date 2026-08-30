@@ -324,6 +324,10 @@ slice changes what is executable, what is trusted, or what should happen next.
   Known API tokens use realm-stable names across separately bundled adapter
   copies, unknown values remain host-policy inputs, non-boolean results fail
   with a structured compatibility error, and the default remains deny.
+- The next API-first slice is [ADR 0079](decisions/0079-preserve-raycast-image-descriptor-metadata.md):
+  preserve Raycast image source/fallback variants, masks, and dynamic tint
+  metadata through the scene and capability boundaries while leaving actual
+  client image loading and rendering to the host.
 - Navigation (useNavigation, Action.Push), LocalStorage through the
   capability broker with a reference in-memory provider, the callable plus
   property-based environment surface, and measured WindowManagement discovery
@@ -619,7 +623,10 @@ only small portable JavaScript seeds eligible after the API-first slice.
    remaining measured API surface. The `environment.canAccess` delegation in
    [ADR 0078](decisions/0078-measured-environment-access-policy.md) is now
    implemented with default denial, stable host-policy names, and structured
-   return validation. Preserve structured errors for
+   return validation. The next slice is image descriptor fidelity in [ADR
+   0079](decisions/0079-preserve-raycast-image-descriptor-metadata.md): carry
+   theme-aware source/fallback, mask, and dynamic tint metadata without
+   pretending the current client can render it. Preserve structured errors for
    values that would require a broader scene or host policy. Keep the deterministic
    structured probe failure
    (`crawldoc` and `open-targets-raycast/platform`) as explicit diagnostics
