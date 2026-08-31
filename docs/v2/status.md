@@ -89,11 +89,12 @@ slice changes what is executable, what is trusted, or what should happen next.
   0096](decisions/0096-electron-main-client-bridge.md). Host tests cover lazy
   shared startup, command forwarding, shutdown, and non-serializable failure
   details.
-- The Electron app has the opt-in main-process bridge from ADR 0096: when
-  `BLAST_V2_SOCKET_PATH` is explicitly supplied, the main process registers
-  snapshot/toast subscriptions and validated semantic command/event IPC over
-  the bounded Node connector. The V1 WebSocket runtime and renderer remain the
-  default; the ARM64 Linux Debian Forge bundle passes without launching the UI.
+- The Electron app has the opt-in main-process bridge from ADR 0096: when an
+  external `BLAST_V2_SOCKET_PATH`, explicit app-owned paths, or packaged mode
+  is supplied, the main process registers snapshot/toast subscriptions and
+  validated semantic command/event IPC over the bounded Node connector. The V1
+  WebSocket runtime and renderer remain the default; the ARM64 Linux Debian
+  Forge bundle passes without launching the UI.
 - The Electron app has the opt-in semantic scene renderer from [ADR
   0097](decisions/0097-opt-in-scene-client-ui.md): with the bridge exposed, it
   skips the V1 WebSocket setup and renders path-free discovery plus the first
@@ -109,8 +110,9 @@ slice changes what is executable, what is trusted, or what should happen next.
 - The opt-in Electron renderer now consumes `menu-bar-extra` scenes under [ADR
   0099](decisions/0099-menu-bar-scene-renderer.md), including labeled sections,
   expandable submenus, separators, icons, shortcuts, left-click actions, and
-  marked alternate-item right-click actions. Native OS menu-bar registration
-  remains outside this client-window boundary.
+  marked alternate-item right-click actions. [ADR
+  0101](decisions/0101-native-menu-bar-registration.md) now projects that
+  surface into the main-process native status-item menu.
 - [ADR 0100](decisions/0100-packaged-v2-bootstrap-and-catalog.md) adds the
   higher-level `@blastlauncher/raycast-runtime-node` composition and packages
   standalone V2 bootstrap, adapter, and React resources for Electron. The
@@ -677,8 +679,8 @@ slice changes what is executable, what is trusted, or what should happen next.
   daemon composition, path-free discovery snapshot, transport-neutral client
   consumer, Node local connector, opt-in Electron main bridge, first semantic
   scene renderer, explicit app-owned daemon mode, menu-bar scene renderer, and
-  packaged bootstrap/catalog bridge now exist; packaged mode is still opt-in,
-  while V1 installation UI/migration, native OS menu-bar registration, and
+  packaged bootstrap/catalog bridge and native status-item menu projection now
+  exist; packaged mode is still opt-in, while V1 installation UI/migration and
   remaining scene visuals are still missing);
 - capability manifest declarations, real operating-system providers, audit
   records, and consent UI;
@@ -859,10 +861,11 @@ only small portable JavaScript seeds eligible after the API-first slice.
    renderer is now implemented under [ADR
    0099](decisions/0099-menu-bar-scene-renderer.md), and packaged
    daemon/bootstrap/catalog policy is implemented behind the explicit [ADR
-   0100](decisions/0100-packaged-v2-bootstrap-and-catalog.md) mode. The next
-   client boundary is native OS menu-bar registration and remaining scene
-   visuals, followed by installation UI/migration and eventual V2 default
-   cutover.
+   0100](decisions/0100-packaged-v2-bootstrap-and-catalog.md) mode, and the
+   native status-item menu projection is implemented under [ADR
+   0101](decisions/0101-native-menu-bar-registration.md). The next client
+   boundary is installation UI/migration and remaining scene visuals, followed
+   by eventual V2 default cutover.
 
 Keep WebSocket and remote execution as transport/provider additions. They do not
 require changing the session, extension contract, runtime, host, or core

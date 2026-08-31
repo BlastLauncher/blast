@@ -14,11 +14,13 @@ import { connectLocalCoreClient } from "@blastlauncher/core-node";
 import { registerV2ClientIPCEvents, type V2ClientIPCRegistration } from "./v2Client";
 import { V2ClientChannels } from "./v2ClientChannels";
 import { getOwnedV2DaemonSocketPath, startOptInV2Daemon, stopOptInV2Daemon } from "./v2Daemon";
+import { registerV2NativeMenuBar, type V2NativeMenuBarRegistration } from "./v2MenuBar";
 import { createApplicationWindow, createNodeInstallerWindow } from "./window";
 
 const debug = createDebug("electron-client:index");
 
 let v2ClientIPC: V2ClientIPCRegistration | undefined;
+let v2NativeMenuBar: V2NativeMenuBarRegistration | undefined;
 let v2MessageSequence = 0;
 
 ipcMain.handle(V2ClientChannels.enabled, () => v2ClientIPC !== undefined);
@@ -38,6 +40,9 @@ const onReady = async (): Promise<void> => {
     try {
       await startOptInV2Daemon();
       v2Enabled = registerOptInV2Client();
+      if (v2Enabled) {
+        v2NativeMenuBar = registerV2NativeMenuBar(v2ClientIPC!.host);
+      }
     } catch (error) {
       debug("failed to start opt-in V2 daemon", error);
       await stopOptInV2Daemon("V2 startup failed").catch((closeError) => {
@@ -77,6 +82,8 @@ app.on("will-quit", () => {
   stopRuntime();
   void (async () => {
     try {
+      v2NativeMenuBar?.dispose();
+      v2NativeMenuBar = undefined;
       await v2ClientIPC?.dispose();
     } finally {
       await stopOptInV2Daemon();

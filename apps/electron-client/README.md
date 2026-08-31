@@ -17,6 +17,6 @@ with the bridge present, the renderer uses the semantic SceneNode view. Set
 `~/.blast/dev-extensions/node_modules` plus
 `~/.blast/extensions/node_modules/@blast-extensions` catalog roots (development
 extensions win duplicates). Packaged mode remains opt-in and does not install
-extensions or third-party dependencies; native OS menu-bar registration,
-installation UI/migration, and the remaining scene-visual polish remain future
-work.
+extensions or third-party dependencies. Menu-bar scenes also project into the
+Electron-owned native status-item menu when V2 is active; installation
+UI/migration and the remaining scene-visual polish remain future work.
