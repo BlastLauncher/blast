@@ -88,6 +88,12 @@ rejection of paths that escape the extension root, skipping unreadable or
 invalid manifests, deterministic duplicate resolution, and error codes for
 missing entrypoints and unreadable catalog roots.
 
+The Node local core listener adds socket-level tests for `0600` endpoint
+permissions, owned-socket cleanup, stale and active path handling, malformed
+input, handshake deadlines, concurrent-connection bounds, and a real
+`connectCoreClient` lifecycle through the listener. These tests use temporary
+Unix sockets and do not require Electron.
+
 ### Renderer conformance
 
 `@blastlauncher/react-renderer` runs React trees on `react-reconciler` and

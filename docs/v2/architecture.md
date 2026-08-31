@@ -110,7 +110,9 @@ ownership are deliberate later slices. `@blastlauncher/core-node` ships the
 first catalog implementation: it discovers Raycast-style `package.json`
 manifests from a filesystem root and resolves entrypoints without ever
 returning a path outside the extension root. A persistent, watched catalog
-index and the local daemon listener remain later slices.
+index remains a later slice. The Node-only local listener from ADR 0091 now
+owns a bounded same-user socket and delegates connections to the client
+session; daemon ownership and Electron consumption remain later boundaries.
 
 ### Clients
 
@@ -150,6 +152,7 @@ extension-host-node ---> extension-host
 core-node ---> core
   +-----> scene
   +-----> capability ---> protocol
+  +-----> transport-node ---> transport
 
 extension-runtime-node ---> extension-runtime
           +---------------> transport-node ---> transport

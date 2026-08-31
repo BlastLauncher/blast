@@ -31,8 +31,16 @@ resolves a stable `{ extensionId, commandName }` identity into the
 The catalog resolves paths on every request and keeps no persistent state; a
 persistent, watched index and installation flows are deliberate later slices.
 
+The package also exposes the Node-only local listener from [ADR
+0091](../../docs/v2/decisions/0091-bounded-local-core-listener.md). That
+listener wraps accepted local sockets in `@blastlauncher/transport-node` and
+delegates them to the transport-neutral core session without exposing
+filesystem paths to clients. POSIX endpoints are mode `0600`, and the listener
+cleans up only socket paths it owns.
+
 ## Boundaries
 
-This package may use Node.js APIs. It must not depend on Electron, React, the
-prototype packages, or any concrete transport, and it must not make
-`@blastlauncher/core` depend on Node.
+This package may use Node.js APIs. Its catalog remains independent of transport,
+while its local-listener module may depend on `@blastlauncher/transport-node`.
+It must not depend on Electron, React, or the prototype packages, and it must
+not make `@blastlauncher/core` depend on Node.

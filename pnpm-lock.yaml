@@ -311,6 +311,9 @@ importers:
       '@blastlauncher/extension-contract':
         specifier: workspace:*
         version: link:../blast-extension-contract
+      '@blastlauncher/transport-node':
+        specifier: workspace:*
+        version: link:../blast-transport-node
 
   packages/blast-e2e:
     dependencies:

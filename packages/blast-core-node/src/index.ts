@@ -13,6 +13,9 @@ import type {
   ExtensionPreferenceType,
 } from "@blastlauncher/extension-contract";
 
+export { LocalCoreServer, LocalCoreServerError, createLocalCoreServer } from "./local-server.js";
+export type { LocalCoreServerOptions, LocalCoreServerState } from "./local-server.js";
+
 export const DEFAULT_MANIFEST_FILE_NAME = "package.json";
 
 const ENTRYPOINT_EXTENSIONS = [".tsx", ".ts", ".jsx", ".js", ".mjs", ".cjs"] as const;
