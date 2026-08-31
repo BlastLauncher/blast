@@ -128,9 +128,10 @@ events. The transport-neutral client state consumer is implemented in ADR 0094;
 the Electron desktop application is the reference client during the V2
 migration. ADR 0096 adds a transport-neutral client host and an opt-in Electron
 main-process IPC adapter; ADR 0097 adds the corresponding opt-in semantic scene
-renderer; and ADR 0098 adds explicit Electron-owned daemon startup. Client-
-specific types must not enter the protocol package. The existing V1 renderer
-remains the default until a packaged bootstrap and catalog layout are ready.
+renderer; ADR 0098 adds explicit Electron-owned daemon startup; and ADR 0099
+completes the first menu-bar scene renderer in that client. Client-specific
+types must not enter the protocol package. The existing V1 renderer remains the
+default until a packaged bootstrap and catalog layout are ready.
 
 ### Capability providers
 

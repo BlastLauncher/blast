@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import type { SceneFormValue, SceneFormValues, SceneNode, ScenePropValue } from "@blastlauncher/scene";
+import type { SceneFormValue, SceneFormValues, SceneNode, ScenePropValue, SceneShortcut } from "@blastlauncher/scene";
 
 import { Detail } from "./components/Detail";
 
@@ -22,6 +22,8 @@ export function V2Scene({ root, disabled, onEvent }: V2SceneProps): React.JSX.El
       return <DetailScene disabled={disabled} onEvent={onEvent} root={root} />;
     case "form":
       return <FormScene disabled={disabled} onEvent={onEvent} root={root} />;
+    case "menu-bar-extra":
+      return <MenuBarScene disabled={disabled} onEvent={onEvent} root={root} />;
     default:
       return <UnsupportedScene node={root} />;
   }
@@ -146,6 +148,139 @@ function GridScene({ root, disabled, onEvent }: V2SceneProps) {
       </div>
       <PaginationControl disabled={disabled} node={root} onEvent={onEvent} />
     </CollectionLayout>
+  );
+}
+
+function MenuBarScene({ root, disabled, onEvent }: V2SceneProps): React.JSX.Element {
+  const loading = booleanProp(root, "isLoading");
+  return (
+    <section className="mx-auto flex max-w-xl flex-col gap-3">
+      <header className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-3 py-3">
+        <SceneIcon node={root} />
+        <div className="min-w-0 flex-1">
+          <h1 className="truncate text-lg font-semibold">{stringProp(root, "title") ?? "Menu Bar"}</h1>
+          {stringProp(root, "tooltip") !== undefined && (
+            <p className="truncate text-xs text-white/50">{stringProp(root, "tooltip")}</p>
+          )}
+        </div>
+        {loading && <span className="text-xs text-white/45">Loading…</span>}
+      </header>
+      <div className="rounded-lg border border-white/10 bg-black/10 p-2">
+        <MenuBarNodes disabled={disabled || loading === true} nodes={root.children} onEvent={onEvent} />
+      </div>
+    </section>
+  );
+}
+
+function MenuBarNodes({
+  nodes,
+  disabled,
+  onEvent,
+}: {
+  readonly nodes: readonly SceneNode[];
+  readonly disabled: boolean;
+  readonly onEvent: V2SceneEventSender;
+}): React.JSX.Element {
+  return (
+    <div className="flex flex-col gap-1">
+      {nodes.map((node) => (
+        <MenuBarNode disabled={disabled} key={node.id} node={node} onEvent={onEvent} />
+      ))}
+    </div>
+  );
+}
+
+function MenuBarNode({
+  node,
+  disabled,
+  onEvent,
+}: {
+  readonly node: SceneNode;
+  readonly disabled: boolean;
+  readonly onEvent: V2SceneEventSender;
+}): React.JSX.Element | null {
+  switch (node.type) {
+    case "menu-bar-item":
+      return <MenuBarItem disabled={disabled} node={node} onEvent={onEvent} />;
+    case "menu-bar-section":
+      return (
+        <section className="flex flex-col gap-1 px-1 py-2 first:pt-0 last:pb-0" key={node.id}>
+          {stringProp(node, "title") !== undefined && (
+            <h2 className="px-2 pb-1 text-[0.7rem] font-semibold uppercase tracking-wide text-white/45">
+              {stringProp(node, "title")}
+            </h2>
+          )}
+          <MenuBarNodes disabled={disabled} nodes={node.children} onEvent={onEvent} />
+        </section>
+      );
+    case "menu-bar-submenu":
+      return (
+        <details className="group" onClick={(event) => disabled && event.preventDefault()}>
+          <summary
+            aria-disabled={disabled}
+            className="flex cursor-pointer list-none items-center gap-2 rounded-md px-2 py-2 text-sm hover:bg-white/10 [&::-webkit-details-marker]:hidden"
+          >
+            <SceneIcon node={node} />
+            <span className="min-w-0 flex-1 truncate">{stringProp(node, "title") ?? "More"}</span>
+            <span className="text-xs text-white/40 transition-transform group-open:rotate-90">›</span>
+          </summary>
+          <div className="ml-3 border-l border-white/10 pl-2">
+            <MenuBarNodes disabled={disabled} nodes={node.children} onEvent={onEvent} />
+          </div>
+        </details>
+      );
+    case "menu-bar-separator":
+      return <hr className="my-1 border-white/10" />;
+    default:
+      return null;
+  }
+}
+
+function MenuBarItem({
+  node,
+  disabled,
+  onEvent,
+}: {
+  readonly node: SceneNode;
+  readonly disabled: boolean;
+  readonly onEvent: V2SceneEventSender;
+}): React.JSX.Element {
+  const actionEvent = stringProp(node, "onAction");
+  const alternate = node.children.find(
+    (child) => child.type === "menu-bar-item" && booleanProp(child, "isAlternate") === true,
+  );
+  const alternateEvent = alternate === undefined ? undefined : stringProp(alternate, "onAction");
+  const shortcut = shortcutProp(node, "shortcut");
+
+  return (
+    <button
+      className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-45"
+      disabled={disabled || actionEvent === undefined}
+      onClick={() => (actionEvent === undefined ? undefined : fireEvent(onEvent, actionEvent, { type: "left-click" }))}
+      onContextMenu={(event) => {
+        if (disabled || alternateEvent === undefined) {
+          return;
+        }
+        event.preventDefault();
+        fireEvent(onEvent, alternateEvent, { type: "right-click" });
+      }}
+      title={stringProp(node, "tooltip")}
+      type="button"
+    >
+      <SceneIcon node={node} />
+      <span className="min-w-0 flex-1">
+        <span className="block truncate">{stringProp(node, "title") ?? node.id}</span>
+        {stringProp(node, "subtitle") !== undefined && (
+          <span className="block truncate text-xs text-white/50">{stringProp(node, "subtitle")}</span>
+        )}
+        {alternate !== undefined && (
+          <span className="block truncate text-[0.65rem] text-white/35">
+            Right-click: {stringProp(alternate, "title") ?? "alternate action"}
+          </span>
+        )}
+      </span>
+      {shortcut !== undefined && <kbd className="shrink-0 text-xs text-white/45">{shortcut}</kbd>}
+    </button>
   );
 }
 
@@ -819,6 +954,29 @@ function stringProp(node: SceneNode, name: string): string | undefined {
 function stringArrayProp(node: SceneNode, name: string): readonly string[] | undefined {
   const value = node.props[name];
   return Array.isArray(value) && value.every((entry) => typeof entry === "string") ? value : undefined;
+}
+
+function shortcutProp(node: SceneNode, name: string): string | undefined {
+  const value = node.props[name];
+  if (typeof value === "string") {
+    return value;
+  }
+  if (!isSceneShortcut(value)) {
+    return undefined;
+  }
+  return [...value.modifiers, value.key].join(" + ");
+}
+
+function isSceneShortcut(value: ScenePropValue | undefined): value is SceneShortcut {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return false;
+  }
+  const candidate = value as SceneShortcut;
+  return (
+    Array.isArray(candidate.modifiers) &&
+    candidate.modifiers.every((modifier: unknown): modifier is string => typeof modifier === "string") &&
+    typeof candidate.key === "string"
+  );
 }
 
 function booleanProp(node: SceneNode, name: string): boolean | undefined {

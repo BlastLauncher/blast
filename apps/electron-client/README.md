@@ -14,4 +14,5 @@ and exposes only serialized snapshots and semantic commands through preload.
 The V1 WebSocket renderer remains the default without a working V2 opt-in;
 with the bridge present, the renderer uses the semantic SceneNode view. The
 app still does not choose a packaged bootstrap or migrate the V1 installation
-layout, and complete scene-visual coverage remains future work.
+layout, and native OS menu-bar registration plus the remaining scene-visual
+polish remain future work.

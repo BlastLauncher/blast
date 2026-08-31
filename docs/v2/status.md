@@ -106,6 +106,11 @@ slice changes what is executable, what is trusted, or what should happen next.
   trusted Node composition before exposing the bridge and skips the unused V1
   runtime. External-daemon socket mode and the V1 fallback remain available;
   no packaged bootstrap or V1 installation-layout migration is implied.
+- The opt-in Electron renderer now consumes `menu-bar-extra` scenes under [ADR
+  0099](decisions/0099-menu-bar-scene-renderer.md), including labeled sections,
+  expandable submenus, separators, icons, shortcuts, left-click actions, and
+  marked alternate-item right-click actions. Native OS menu-bar registration
+  remains outside this client-window boundary.
 - The Node filesystem catalog discovers Raycast-style `package.json` manifests,
   probes `src/<command-name>` entrypoints, honors explicit entrypoint
   overrides, and never resolves a path outside the extension root.
@@ -665,9 +670,10 @@ slice changes what is executable, what is trusted, or what should happen next.
   every scene member, and default daemon startup (the local listener, Node
   daemon composition, path-free discovery snapshot, transport-neutral client
   consumer, Node local connector, opt-in Electron main bridge, first semantic
-  scene renderer, and explicit app-owned daemon mode now exist; packaged
-  bootstrap/catalog policy, V1 installation-layout migration, and remaining
-  scene visuals are still missing);
+  scene renderer, explicit app-owned daemon mode, and menu-bar scene renderer
+  now exist; packaged bootstrap/catalog policy, V1 installation-layout
+  migration, native OS menu-bar registration, and remaining scene visuals are
+  still missing);
 - capability manifest declarations, real operating-system providers, audit
   records, and consent UI;
 - production AI providers, OAuth browser/token-store providers, and command
@@ -841,9 +847,11 @@ only small portable JavaScript seeds eligible after the API-first slice.
    opt-in; the first semantic SceneNode renderer is now implemented in [ADR
    0097](decisions/0097-opt-in-scene-client-ui.md), and Electron can now start
    the daemon itself when all paths are explicit under [ADR
-   0098](decisions/0098-electron-owned-opt-in-daemon.md). The next boundary is
-   packaged daemon/bootstrap/catalog policy, followed by the remaining scene
-   visuals and eventual V2 default cutover.
+   0098](decisions/0098-electron-owned-opt-in-daemon.md). The menu-bar scene
+   renderer is now implemented under [ADR
+   0099](decisions/0099-menu-bar-scene-renderer.md). The next boundary is
+   packaged daemon/bootstrap/catalog policy, followed by native OS menu-bar
+   registration, remaining scene visuals, and eventual V2 default cutover.
 
 Keep WebSocket and remote execution as transport/provider additions. They do not
 require changing the session, extension contract, runtime, host, or core
