@@ -691,7 +691,12 @@ only small portable JavaScript seeds eligible after the API-first slice.
    glyphs because their original declaration values are absent from sampled
    public Raycast API archives. The focused probe reports no static unsupported
    APIs for either call site, while both remain separately classified at the
-   existing dependency boundary. Preserve
+   existing dependency boundary. The next bounded client-facing icon step is
+   documented in proposed [ADR
+   0088](decisions/0088-complete-available-client-icon-assets.md): register
+   every existing local SVG already referenced by the client lookup table,
+   while leaving absent numbered/warning artwork explicit and ungenerated.
+   Preserve
    structured errors for values that would require a broader scene or host
    policy. Keep the deterministic
    structured probe failure
