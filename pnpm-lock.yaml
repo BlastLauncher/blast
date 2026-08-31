@@ -290,10 +290,12 @@ importers:
       '@blastlauncher/extension-host':
         specifier: workspace:*
         version: link:../blast-extension-host
+      '@blastlauncher/protocol':
+        specifier: workspace:*
+        version: link:../blast-protocol
       '@blastlauncher/scene':
         specifier: workspace:*
         version: link:../blast-scene
-    devDependencies:
       '@blastlauncher/session':
         specifier: workspace:*
         version: link:../blast-session
@@ -339,6 +341,9 @@ importers:
       '@blastlauncher/scene':
         specifier: workspace:*
         version: link:../blast-scene
+      '@blastlauncher/transport':
+        specifier: workspace:*
+        version: link:../blast-transport
       react:
         specifier: ^19.2.8
         version: 19.2.8

@@ -1,5 +1,19 @@
 import type { ExtensionDescriptor } from "@blastlauncher/extension-contract";
-import type { ExtensionHostEvent, ExtensionSession } from "@blastlauncher/extension-host";
+import type { ExtensionHostEvent, ExtensionProcessExit, ExtensionSession } from "@blastlauncher/extension-host";
+import {
+  acceptProtocolSession,
+  connectProtocolSession,
+  type ProtocolSession,
+  ProtocolSessionError,
+} from "@blastlauncher/session";
+import {
+  validateProtocolEnvelope,
+  type PeerImplementation,
+  type ProtocolEnvelope,
+  type ValidationIssue,
+  type ValidationResult,
+} from "@blastlauncher/protocol";
+import type { ProtocolTransport } from "@blastlauncher/transport";
 import {
   CAPABILITY_REQUEST_MESSAGE,
   CAPABILITY_RESPONSE_MESSAGE,
@@ -14,11 +28,15 @@ import {
   SCENE_EVENT_MESSAGE,
   SCENE_TRANSACTION_MESSAGE,
   UI_TOAST_MESSAGE,
+  validateSceneEventMessage,
   validateSceneEventPayload,
   validateSceneTransactionMessage,
   validateToastMessage,
+  type SceneEventMessage,
   type SceneFormValues,
+  type SceneTransactionMessage,
   type SceneTransactionSink,
+  type ToastMessage,
   type ToastPayload,
 } from "@blastlauncher/scene";
 
@@ -312,4 +330,614 @@ export function relaySessionTraffic(session: ExtensionSession, options: SessionR
       // The pump error remains the primary failure.
     }
   }
+}
+
+export const CORE_COMMAND_RUN_MESSAGE = "core.command.run" as const;
+export const CORE_COMMAND_STOP_MESSAGE = "core.command.stop" as const;
+export const CORE_COMMAND_STARTED_MESSAGE = "core.command.started" as const;
+export const CORE_COMMAND_START_FAILED_MESSAGE = "core.command.start-failed" as const;
+export const CORE_COMMAND_STOPPED_MESSAGE = "core.command.stopped" as const;
+export const CORE_COMMAND_EXITED_MESSAGE = "core.command.exited" as const;
+
+export type CoreCommandRunPayload = CommandIdentity;
+
+export interface CoreCommandStopPayload extends CommandIdentity {
+  readonly reason?: string;
+}
+
+export type CoreCommandStartedPayload = CommandIdentity;
+
+export interface CoreCommandStartFailedPayload extends CommandIdentity {
+  readonly code: string;
+  readonly message: string;
+}
+
+export interface CoreCommandStoppedPayload extends CommandIdentity {
+  readonly reason?: string;
+}
+
+export interface CoreCommandExitedPayload extends CommandIdentity {
+  readonly code: number | null;
+  readonly signal?: string;
+}
+
+export type CoreCommandRunMessage = ProtocolEnvelope<typeof CORE_COMMAND_RUN_MESSAGE, CoreCommandRunPayload>;
+export type CoreCommandStopMessage = ProtocolEnvelope<typeof CORE_COMMAND_STOP_MESSAGE, CoreCommandStopPayload>;
+export type CoreCommandStartedMessage = ProtocolEnvelope<
+  typeof CORE_COMMAND_STARTED_MESSAGE,
+  CoreCommandStartedPayload
+>;
+export type CoreCommandStartFailedMessage = ProtocolEnvelope<
+  typeof CORE_COMMAND_START_FAILED_MESSAGE,
+  CoreCommandStartFailedPayload
+>;
+export type CoreCommandStoppedMessage = ProtocolEnvelope<
+  typeof CORE_COMMAND_STOPPED_MESSAGE,
+  CoreCommandStoppedPayload
+>;
+export type CoreCommandExitedMessage = ProtocolEnvelope<typeof CORE_COMMAND_EXITED_MESSAGE, CoreCommandExitedPayload>;
+
+export type CoreClientMessage =
+  | CoreCommandStartedMessage
+  | CoreCommandStartFailedMessage
+  | CoreCommandStoppedMessage
+  | CoreCommandExitedMessage
+  | SceneTransactionMessage
+  | ToastMessage;
+
+export type CoreClientRequest = CoreCommandRunMessage | CoreCommandStopMessage | SceneEventMessage;
+
+export class CoreClientError extends Error {
+  readonly code: string;
+  readonly details?: unknown;
+
+  constructor(code: string, message: string, details?: unknown) {
+    super(message);
+    this.name = "CoreClientError";
+    this.code = code;
+    if (details !== undefined) {
+      this.details = details;
+    }
+  }
+}
+
+export interface CoreClientConnectOptions {
+  readonly implementation: PeerImplementation;
+  readonly createMessageId: () => string;
+  readonly protocolVersions?: readonly number[];
+  readonly signal?: AbortSignal;
+}
+
+export interface AcceptCoreClientSessionOptions extends CoreClientConnectOptions {
+  readonly createSessionId: () => string;
+  readonly capabilityBroker?: CapabilityBroker;
+}
+
+export interface CoreClientSession {
+  readonly protocol: ProtocolSession;
+  readonly done: Promise<void>;
+}
+
+export interface CoreClient {
+  readonly protocol: ProtocolSession;
+  runCommand(identity: CommandIdentity): Promise<void>;
+  stopCommand(identity: CommandIdentity, reason?: string): Promise<void>;
+  sendSceneEvent(eventId: string, values?: SceneFormValues): Promise<void>;
+  receive(signal?: AbortSignal): Promise<CoreClientMessage | undefined>;
+  close(reason?: string): Promise<void>;
+}
+
+/**
+ * Connects a client to a core over any protocol transport. The returned
+ * client exposes semantic command, scene, and event operations; it never
+ * exposes extension paths or the internal extension session.
+ */
+export async function connectCoreClient(
+  transport: ProtocolTransport,
+  options: CoreClientConnectOptions,
+): Promise<CoreClient> {
+  const protocol = await connectProtocolSession(transport, {
+    role: "client",
+    implementation: options.implementation,
+    createMessageId: options.createMessageId,
+    ...(options.protocolVersions === undefined ? {} : { protocolVersions: options.protocolVersions }),
+    ...(options.signal === undefined ? {} : { signal: options.signal }),
+  });
+  if (protocol.remotePeer.role !== "core") {
+    await closeProtocolBestEffort(protocol, "Unexpected peer role");
+    throw new ProtocolSessionError("unexpected_peer_role", `Expected core, received ${protocol.remotePeer.role}`);
+  }
+  return new ConnectedCoreClient(protocol);
+}
+
+/**
+ * Accepts one client connection and starts its command/scene/event pump.
+ * Ownership of the returned `done` promise remains with the caller, which
+ * can later use it to observe a client disconnect or protocol failure.
+ */
+export async function acceptCoreClientSession(
+  core: Pick<BlastCore, "runCommand" | "stopCommand">,
+  transport: ProtocolTransport,
+  options: AcceptCoreClientSessionOptions,
+): Promise<CoreClientSession> {
+  const protocol = await acceptProtocolSession(transport, {
+    role: "core",
+    implementation: options.implementation,
+    createMessageId: options.createMessageId,
+    createSessionId: options.createSessionId,
+    ...(options.protocolVersions === undefined ? {} : { protocolVersions: options.protocolVersions }),
+    ...(options.signal === undefined ? {} : { signal: options.signal }),
+  });
+  if (protocol.remotePeer.role !== "client") {
+    await closeProtocolBestEffort(protocol, "Unexpected peer role");
+    throw new ProtocolSessionError("unexpected_peer_role", `Expected client, received ${protocol.remotePeer.role}`);
+  }
+  return new AcceptedCoreClientSession(core, protocol, options.capabilityBroker);
+}
+
+export function validateCoreClientMessage(value: unknown): ValidationResult<CoreClientMessage | undefined> {
+  const envelope = validateProtocolEnvelope(value);
+  if (!envelope.ok) {
+    return { ok: false, issues: envelope.issues };
+  }
+
+  switch (envelope.value.type) {
+    case CORE_COMMAND_STARTED_MESSAGE:
+      return validateCoreCommandStartedMessage(value);
+    case CORE_COMMAND_START_FAILED_MESSAGE:
+      return validateCoreCommandStartFailedMessage(value);
+    case CORE_COMMAND_STOPPED_MESSAGE:
+      return validateCoreCommandStoppedMessage(value);
+    case CORE_COMMAND_EXITED_MESSAGE:
+      return validateCoreCommandExitedMessage(value);
+    case SCENE_TRANSACTION_MESSAGE:
+      return validateSceneTransactionMessage(value);
+    case UI_TOAST_MESSAGE:
+      return validateToastMessage(value);
+    default:
+      return { ok: true, value: undefined };
+  }
+}
+
+export function validateCoreClientRequestMessage(value: unknown): ValidationResult<CoreClientRequest | undefined> {
+  const envelope = validateProtocolEnvelope(value);
+  if (!envelope.ok) {
+    return { ok: false, issues: envelope.issues };
+  }
+
+  switch (envelope.value.type) {
+    case CORE_COMMAND_RUN_MESSAGE:
+      return validateCoreCommandRunMessage(value);
+    case CORE_COMMAND_STOP_MESSAGE:
+      return validateCoreCommandStopMessage(value);
+    case SCENE_EVENT_MESSAGE:
+      return validateSceneEventMessage(value);
+    default:
+      return { ok: true, value: undefined };
+  }
+}
+
+function validateCoreCommandRunMessage(value: unknown): ValidationResult<CoreCommandRunMessage> {
+  return validateCorePayloadEnvelope(value, CORE_COMMAND_RUN_MESSAGE, validateCommandIdentityPayload);
+}
+
+function validateCoreCommandStopMessage(value: unknown): ValidationResult<CoreCommandStopMessage> {
+  return validateCorePayloadEnvelope(value, CORE_COMMAND_STOP_MESSAGE, (payload, path, issues) => {
+    validateCommandIdentityPayload(payload, path, issues);
+    if (isRecord(payload) && payload.reason !== undefined && typeof payload.reason !== "string") {
+      issues.push({ path: `${path}.reason`, message: "Expected a string" });
+    }
+  });
+}
+
+function validateCoreCommandStartedMessage(value: unknown): ValidationResult<CoreCommandStartedMessage> {
+  return validateCorePayloadEnvelope(value, CORE_COMMAND_STARTED_MESSAGE, validateCommandIdentityPayload);
+}
+
+function validateCoreCommandStartFailedMessage(value: unknown): ValidationResult<CoreCommandStartFailedMessage> {
+  return validateCorePayloadEnvelope(value, CORE_COMMAND_START_FAILED_MESSAGE, (payload, path, issues) => {
+    validateCommandIdentityPayload(payload, path, issues);
+    if (!isRecord(payload)) {
+      return;
+    }
+    validateNonEmptyString(payload.code, `${path}.code`, issues);
+    validateNonEmptyString(payload.message, `${path}.message`, issues);
+  });
+}
+
+function validateCoreCommandStoppedMessage(value: unknown): ValidationResult<CoreCommandStoppedMessage> {
+  return validateCorePayloadEnvelope(value, CORE_COMMAND_STOPPED_MESSAGE, (payload, path, issues) => {
+    validateCommandIdentityPayload(payload, path, issues);
+    if (isRecord(payload) && payload.reason !== undefined && typeof payload.reason !== "string") {
+      issues.push({ path: `${path}.reason`, message: "Expected a string" });
+    }
+  });
+}
+
+function validateCoreCommandExitedMessage(value: unknown): ValidationResult<CoreCommandExitedMessage> {
+  return validateCorePayloadEnvelope(value, CORE_COMMAND_EXITED_MESSAGE, (payload, path, issues) => {
+    validateCommandIdentityPayload(payload, path, issues);
+    if (!isRecord(payload)) {
+      return;
+    }
+    if (!("code" in payload)) {
+      issues.push({ path: `${path}.code`, message: "Missing property" });
+    } else if (payload.code !== null && !Number.isSafeInteger(payload.code)) {
+      issues.push({ path: `${path}.code`, message: "Expected a safe integer or null" });
+    }
+    if (payload.signal !== undefined) {
+      validateNonEmptyString(payload.signal, `${path}.signal`, issues);
+    }
+  });
+}
+
+function validateCorePayloadEnvelope<TType extends string, TPayload>(
+  value: unknown,
+  expectedType: TType,
+  validatePayload: (payload: unknown, path: string, issues: ValidationIssue[]) => void,
+): ValidationResult<ProtocolEnvelope<TType, TPayload>> {
+  const envelope = validateProtocolEnvelope(value);
+  if (!envelope.ok) {
+    return { ok: false, issues: envelope.issues };
+  }
+  if (envelope.value.type !== expectedType) {
+    return invalid("$.type", `Expected ${JSON.stringify(expectedType)}`);
+  }
+
+  const issues: ValidationIssue[] = [];
+  validatePayload(envelope.value.payload, "$.payload", issues);
+  return issues.length === 0
+    ? { ok: true, value: envelope.value as ProtocolEnvelope<TType, TPayload> }
+    : { ok: false, issues };
+}
+
+function validateCommandIdentityPayload(value: unknown, path: string, issues: ValidationIssue[]): void {
+  if (!isRecord(value)) {
+    issues.push({ path, message: "Expected an object" });
+    return;
+  }
+  validateNonEmptyString(value.extensionId, `${path}.extensionId`, issues);
+  validateNonEmptyString(value.commandName, `${path}.commandName`, issues);
+}
+
+function validateNonEmptyString(value: unknown, path: string, issues: ValidationIssue[]): void {
+  if (typeof value !== "string" || value.length === 0) {
+    issues.push({ path, message: "Expected a non-empty string" });
+  }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function invalid<T>(path: string, message: string): ValidationResult<T> {
+  return { ok: false, issues: [{ path, message }] };
+}
+
+function normalizeIdentity(identity: CommandIdentity): CommandIdentity {
+  validateIdentity(identity);
+  return { extensionId: identity.extensionId, commandName: identity.commandName };
+}
+
+function normalizeStopPayload(payload: CoreCommandStopPayload): CoreCommandStopPayload {
+  const identity = normalizeIdentity(payload);
+  return payload.reason === undefined ? identity : { ...identity, reason: payload.reason };
+}
+
+function commandStartFailure(error: unknown): Pick<CoreCommandStartFailedPayload, "code" | "message"> {
+  if (error instanceof BlastCoreError) {
+    return { code: error.code, message: error.message };
+  }
+  return { code: "command_start_failed", message: "Extension command failed to start" };
+}
+
+function exitedPayload(identity: CommandIdentity, exit: ExtensionProcessExit): CoreCommandExitedPayload {
+  return exit.signal === undefined
+    ? { ...identity, code: exit.code }
+    : { ...identity, code: exit.code, signal: exit.signal };
+}
+
+async function closeProtocolBestEffort(protocol: ProtocolSession, reason: string): Promise<void> {
+  try {
+    await protocol.close(reason);
+  } catch {
+    // Preserve the role or client-session failure instead of masking it.
+  }
+}
+
+class ConnectedCoreClient implements CoreClient {
+  readonly protocol: ProtocolSession;
+  #sendQueue: Promise<void> = Promise.resolve();
+
+  constructor(protocol: ProtocolSession) {
+    this.protocol = protocol;
+  }
+
+  async runCommand(identity: CommandIdentity): Promise<void> {
+    const payload = normalizeIdentity(identity);
+    await this.#send(CORE_COMMAND_RUN_MESSAGE, payload);
+  }
+
+  async stopCommand(identity: CommandIdentity, reason?: string): Promise<void> {
+    const payload = normalizeStopPayload(reason === undefined ? identity : { ...identity, reason });
+    await this.#send(CORE_COMMAND_STOP_MESSAGE, payload);
+  }
+
+  async sendSceneEvent(eventId: string, values?: SceneFormValues): Promise<void> {
+    const payload = values === undefined ? { eventId } : { eventId, values };
+    const validation = validateSceneEventPayload(payload);
+    if (!validation.ok) {
+      throw new CoreClientError("invalid_scene_event", "Refusing to send an invalid scene event", validation.issues);
+    }
+    await this.#send(SCENE_EVENT_MESSAGE, validation.value);
+  }
+
+  async receive(signal?: AbortSignal): Promise<CoreClientMessage | undefined> {
+    while (true) {
+      const message = await this.protocol.receive(signal);
+      if (message === undefined || message.type === "shutdown") {
+        return undefined;
+      }
+
+      const validation = validateCoreClientMessage(message);
+      if (!validation.ok) {
+        await closeProtocolBestEffort(this.protocol, "Invalid core client message");
+        throw new CoreClientError(
+          "invalid_core_client_message",
+          "Core sent an invalid client message",
+          validation.issues,
+        );
+      }
+      if (validation.value !== undefined) {
+        return validation.value;
+      }
+    }
+  }
+
+  async close(reason?: string): Promise<void> {
+    await this.#sendQueue;
+    await this.protocol.close(reason);
+  }
+
+  #send(type: string, payload: unknown): Promise<void> {
+    const operation = this.#sendQueue.then(() => this.protocol.send(type, payload)).then(() => undefined);
+    this.#sendQueue = operation.catch(() => undefined);
+    return operation;
+  }
+}
+
+interface ActiveCoreCommand {
+  readonly identity: CommandIdentity;
+  readonly relay: SessionRelay;
+  readonly releaseScene: () => void;
+  stopping: boolean;
+}
+
+class AcceptedCoreClientSession implements CoreClientSession {
+  readonly protocol: ProtocolSession;
+  readonly done: Promise<void>;
+  readonly #core: Pick<BlastCore, "runCommand" | "stopCommand">;
+  readonly #capabilityBroker: CapabilityBroker | undefined;
+  #active: ActiveCoreCommand | undefined;
+  #sendQueue: Promise<void> = Promise.resolve();
+  #closed = false;
+
+  constructor(
+    core: Pick<BlastCore, "runCommand" | "stopCommand">,
+    protocol: ProtocolSession,
+    capabilityBroker: CapabilityBroker | undefined,
+  ) {
+    this.#core = core;
+    this.protocol = protocol;
+    this.#capabilityBroker = capabilityBroker;
+    this.done = this.#pump();
+  }
+
+  async #pump(): Promise<void> {
+    try {
+      while (this.protocol.state === "ready") {
+        const message = await this.protocol.receive();
+        if (message === undefined || message.type === "shutdown") {
+          return;
+        }
+
+        const validation = validateCoreClientRequestMessage(message);
+        if (!validation.ok) {
+          throw new CoreClientError(
+            "invalid_core_client_message",
+            "Client sent an invalid core message",
+            validation.issues,
+          );
+        }
+        if (validation.value === undefined) {
+          continue;
+        }
+
+        switch (validation.value.type) {
+          case CORE_COMMAND_RUN_MESSAGE:
+            await this.#run(validation.value.payload);
+            break;
+          case CORE_COMMAND_STOP_MESSAGE:
+            await this.#stop(validation.value.payload);
+            break;
+          case SCENE_EVENT_MESSAGE:
+            await this.#sendSceneEvent(validation.value.payload);
+            break;
+        }
+      }
+    } catch (error) {
+      await closeProtocolBestEffort(
+        this.protocol,
+        error instanceof Error ? error.message : "Core client session failed",
+      );
+      throw error;
+    } finally {
+      this.#closed = true;
+      await this.#stopActive("Client disconnected");
+    }
+  }
+
+  async #run(payload: CoreCommandRunPayload): Promise<void> {
+    const identity = normalizeIdentity(payload);
+    if (this.#active !== undefined) {
+      await this.#send(CORE_COMMAND_START_FAILED_MESSAGE, {
+        ...identity,
+        code: "command_already_running",
+        message: "A command is already running on this client session",
+      });
+      return;
+    }
+
+    let session: ExtensionSession;
+    try {
+      session = await this.#core.runCommand(identity);
+    } catch (error) {
+      await this.#send(CORE_COMMAND_START_FAILED_MESSAGE, { ...identity, ...commandStartFailure(error) });
+      return;
+    }
+
+    const sceneGate = createPromiseGate();
+    const relay = relaySessionTraffic(session, {
+      sceneSink: {
+        publish: (transaction) => sceneGate.promise.then(() => this.#send(SCENE_TRANSACTION_MESSAGE, transaction)),
+      },
+      toastSink: (toast) => sceneGate.promise.then(() => this.#send(UI_TOAST_MESSAGE, toast)),
+      ...(this.#capabilityBroker === undefined ? {} : { capabilityBroker: this.#capabilityBroker }),
+    });
+    const active: ActiveCoreCommand = {
+      identity,
+      relay,
+      releaseScene: sceneGate.resolve,
+      stopping: false,
+    };
+    this.#active = active;
+    void this.#watchRelay(active);
+
+    try {
+      await this.#send(CORE_COMMAND_STARTED_MESSAGE, identity);
+    } finally {
+      sceneGate.resolve();
+    }
+
+    void this.#watchProcess(active, session.process.completion);
+  }
+
+  async #stop(payload: CoreCommandStopPayload): Promise<void> {
+    const requested = normalizeStopPayload(payload);
+    const active = this.#active;
+    if (active === undefined) {
+      await this.#send(CORE_COMMAND_STOPPED_MESSAGE, requested);
+      return;
+    }
+    if (!sameIdentity(active.identity, requested)) {
+      await this.#send(CORE_COMMAND_START_FAILED_MESSAGE, {
+        ...requested,
+        code: "command_not_active",
+        message: "The requested command is not active on this client session",
+      });
+      return;
+    }
+
+    active.stopping = true;
+    try {
+      await this.#core.stopCommand(active.identity, requested.reason);
+    } finally {
+      if (this.#active === active) {
+        this.#active = undefined;
+      }
+      active.releaseScene();
+    }
+    await this.#send(CORE_COMMAND_STOPPED_MESSAGE, requested);
+  }
+
+  async #sendSceneEvent(payload: SceneEventMessage["payload"]): Promise<void> {
+    const active = this.#active;
+    if (active === undefined) {
+      throw new CoreClientError("no_active_command", "No command is active on this client session");
+    }
+    await active.relay.sendSceneEvent(payload.eventId, payload.values);
+  }
+
+  async #watchProcess(active: ActiveCoreCommand, completion: Promise<ExtensionProcessExit>): Promise<void> {
+    let exit: ExtensionProcessExit;
+    try {
+      exit = await completion;
+    } catch {
+      exit = { code: null };
+    }
+    if (this.#closed || this.#active !== active || active.stopping) {
+      return;
+    }
+
+    this.#active = undefined;
+    active.releaseScene();
+    try {
+      await this.#send(CORE_COMMAND_EXITED_MESSAGE, exitedPayload(active.identity, exit));
+    } catch {
+      // The client may have disconnected while the process was exiting.
+    }
+  }
+
+  async #watchRelay(active: ActiveCoreCommand): Promise<void> {
+    try {
+      await active.relay.done;
+    } catch {
+      if (this.#closed || this.#active !== active || active.stopping) {
+        return;
+      }
+      active.stopping = true;
+      this.#active = undefined;
+      active.releaseScene();
+      try {
+        await this.#core.stopCommand(active.identity, "Extension traffic relay failed");
+      } catch {
+        // The relay failure remains the authoritative client-side lifecycle event.
+      }
+      try {
+        await this.#send(CORE_COMMAND_EXITED_MESSAGE, { ...active.identity, code: null });
+      } catch {
+        // The client may have disconnected while the relay was closing.
+      }
+    }
+  }
+
+  async #stopActive(reason: string): Promise<void> {
+    const active = this.#active;
+    if (active === undefined) {
+      return;
+    }
+    active.stopping = true;
+    this.#active = undefined;
+    active.releaseScene();
+    try {
+      await this.#core.stopCommand(active.identity, reason);
+    } catch {
+      // Disconnect cleanup is best effort and must not mask the session result.
+    }
+  }
+
+  #send(type: string, payload: unknown): Promise<void> {
+    const operation = this.#sendQueue.then(() => this.protocol.send(type, payload)).then(() => undefined);
+    this.#sendQueue = operation.catch(() => undefined);
+    return operation;
+  }
+}
+
+function sameIdentity(left: CommandIdentity, right: CommandIdentity): boolean {
+  return left.extensionId === right.extensionId && left.commandName === right.commandName;
+}
+
+function createPromiseGate(): { readonly promise: Promise<void>; readonly resolve: () => void } {
+  let settled = false;
+  let resolvePromise: () => void = () => {};
+  const promise = new Promise<void>((resolve) => {
+    resolvePromise = () => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      resolve();
+    };
+  });
+  return { promise, resolve: resolvePromise };
 }

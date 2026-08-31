@@ -14,16 +14,18 @@ in-flight catalog resolutions, and closes the supervisor once.
 it forwards validated scene transactions to a `SceneTransactionSink`, verifies
 and executes capability requests through the `CapabilityBroker`, sends scene
 events toward the extension, and fails closed on invalid traffic (ADR 0010).
-It does not yet host a client-facing protocol server. The first
-transport-neutral client/core session boundary is proposed in [ADR
-0090](../../docs/v2/decisions/0090-client-facing-core-session-boundary.md);
-daemon listeners and Electron wiring remain subsequent slices.
+The transport-neutral client/core session boundary is implemented in [ADR
+0090](../../docs/v2/decisions/0090-client-facing-core-session-boundary.md).
+`acceptCoreClientSession` and `connectCoreClient` carry one active command,
+validated semantic scenes/events, lifecycle messages, and disconnect cleanup
+over any `ProtocolTransport`. A daemon listener and Electron wiring remain
+subsequent slices.
 
 ## Next responsibilities
 
 - a persistent, watched extension catalog index
   (`@blastlauncher/core-node` already provides filesystem discovery);
-- connected client sessions and command discovery messages;
+- command discovery messages for daemon-managed client sessions;
 - capability policy and provider routing;
 - structured diagnostics and audit events;
 - restart policy and daemon ownership.

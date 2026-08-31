@@ -102,14 +102,15 @@ desktop operations on behalf of an extension without a capability provider.
 `@blastlauncher/core` is the first daemon-independent orchestration façade.
 Clients request a stable extension and command identity; an injected trusted
 catalog resolves the actual filesystem descriptor before the extension host is
-called. The core already coordinates in-flight startup and shutdown, but client
-sessions, discovery, persistence, capability routing, and daemon ownership are
-deliberate later slices. `@blastlauncher/core-node` ships the first catalog
-implementation: it discovers Raycast-style `package.json` manifests from a
-filesystem root and resolves entrypoints without ever returning a path outside
-the extension root. The first client-facing session boundary is proposed in
-ADR 0090; it will keep the core contract transport-neutral before a daemon
-listener is added. A persistent, watched catalog index remains a later slice.
+called. The core coordinates in-flight startup and shutdown and now exposes
+the transport-neutral one-command client session in ADR 0090: clients receive
+semantic scene/toast messages and send semantic events without seeing
+extension paths. Discovery, persistence, capability routing, and daemon
+ownership are deliberate later slices. `@blastlauncher/core-node` ships the
+first catalog implementation: it discovers Raycast-style `package.json`
+manifests from a filesystem root and resolves entrypoints without ever
+returning a path outside the extension root. A persistent, watched catalog
+index and the local daemon listener remain later slices.
 
 ### Clients
 
@@ -137,7 +138,7 @@ core ---> extension-host ---> session ---> transport ---> protocol
   |             |               ^             ^
   |             +--> extension-contract       |
   |                             ^              |
-  +--> future client sessions   |              |
+  +--> client session            |              |
                                 |              |
 extension-runtime --------------+              |
        |                                        |

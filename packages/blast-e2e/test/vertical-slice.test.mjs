@@ -3,11 +3,12 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 
 import { CapabilityBroker, createGrantListPolicy, createInMemoryLocalStorageProvider } from "@blastlauncher/capability";
-import { BlastCore, relaySessionTraffic } from "@blastlauncher/core";
+import { acceptCoreClientSession, BlastCore, connectCoreClient, relaySessionTraffic } from "@blastlauncher/core";
 import { FilesystemExtensionCatalog } from "@blastlauncher/core-node";
 import { ExtensionHost } from "@blastlauncher/extension-host";
 import { NodeExtensionProcessLauncher } from "@blastlauncher/extension-host-node";
 import { SceneStateBuffer } from "@blastlauncher/scene";
+import { createInMemoryTransportPair } from "@blastlauncher/transport";
 
 const catalogRoot = fileURLToPath(new URL("./fixtures/catalog", import.meta.url));
 const bootstrapPath = fileURLToPath(new URL("./fixtures/bootstrap.mjs", import.meta.url));
@@ -326,6 +327,26 @@ function createSceneSink(buffer, transactions) {
   };
 }
 
+function idFactory(prefix) {
+  let value = 0;
+  return () => `${prefix}-${++value}`;
+}
+
+async function connectCoreClientSession(core, broker) {
+  const [clientTransport, coreTransport] = createInMemoryTransportPair();
+  const accepting = acceptCoreClientSession(core, coreTransport, {
+    implementation: { name: "e2e-core-client-server", version: "0.0.0" },
+    createMessageId: idFactory("core-client"),
+    createSessionId: idFactory("core-session"),
+    capabilityBroker: broker,
+  });
+  const client = await connectCoreClient(clientTransport, {
+    implementation: { name: "e2e-client", version: "0.0.0" },
+    createMessageId: idFactory("client"),
+  });
+  return { client, server: await accepting };
+}
+
 async function waitFor(predicate, description, timeoutMs = 5000) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
@@ -391,6 +412,39 @@ test("runs the vertical slice: manifest, launch, scene, action, and brokered cli
   await core.close();
   assert.equal(core.state, "closed");
   assert.equal(core.activeExtensions.length, 0);
+});
+
+test("runs the vertical slice through the client-facing core boundary", async () => {
+  const { core, broker, clipboardWrites } = createCore();
+  const buffer = new SceneStateBuffer();
+  const { client, server } = await connectCoreClientSession(core, broker);
+
+  await client.runCommand(sceneIdentity);
+  const started = await client.receive();
+  assert.equal(started.type, "core.command.started");
+  assert.deepEqual(started.payload, sceneIdentity);
+
+  const initial = await client.receive();
+  assert.equal(initial.type, "scene.transaction");
+  buffer.apply(initial.payload);
+  const action = buffer.childrenOf("root")[0].children.find((child) => child.type === "action");
+  await client.sendSceneEvent(action.props.onAction);
+
+  const update = await client.receive();
+  assert.equal(update.type, "scene.transaction");
+  buffer.apply(update.payload);
+  assert.equal(buffer.get("item-1").props.title, "Ran:event-action-1");
+  assert.equal(clipboardWrites.length, 1);
+
+  await client.stopCommand(sceneIdentity, "client boundary complete");
+  const stopped = await client.receive();
+  assert.equal(stopped.type, "core.command.stopped");
+  assert.equal(stopped.payload.reason, "client boundary complete");
+
+  await client.close("test complete");
+  await server.done;
+  await core.close();
+  assert.equal(core.state, "closed");
 });
 
 test("survives a deliberate runtime crash while the core keeps serving", async () => {

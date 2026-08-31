@@ -22,9 +22,8 @@
     "@blastlauncher/capability": "workspace:*",
     "@blastlauncher/extension-contract": "workspace:*",
     "@blastlauncher/extension-host": "workspace:*",
-    "@blastlauncher/scene": "workspace:*"
-  },
-  "devDependencies": {
+    "@blastlauncher/protocol": "workspace:*",
+    "@blastlauncher/scene": "workspace:*",
     "@blastlauncher/session": "workspace:*",
     "@blastlauncher/transport": "workspace:*"
   }

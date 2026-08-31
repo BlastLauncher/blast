@@ -1,6 +1,6 @@
 # ADR 0090: Establish the client-facing core session boundary
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-08-31
 
 ## Context
@@ -27,10 +27,10 @@ Add a transport-neutral client session contract to `@blastlauncher/core`:
   connection, with validated `core.command.run` and `core.command.stop`
   requests carrying only `{ extensionId, commandName }` plus an optional stop
   reason;
-- the core reports `started`, `start-failed`, and `stopped` command lifecycle
-  messages, forwards validated `scene.transaction` and `ui.toast` messages to
-  the client, and forwards validated `scene.event` messages from the client to
-  the extension relay;
+- the core reports `started`, `start-failed`, `stopped`, and unexpected
+  `exited` command lifecycle messages, forwards validated `scene.transaction`
+  and `ui.toast` messages to the client, and forwards validated `scene.event`
+  messages from the client to the extension relay;
 - all client messages use the existing versioned session and generic
   `ProtocolTransport`; the core contract does not depend on Electron, React,
   WebSocket, TCP, or a local-socket implementation; and
@@ -53,7 +53,10 @@ receive extension entrypoint paths or root directories and cannot select them.
 
 The deterministic test client can exercise the same core-facing lifecycle that
 the desktop client will use, including scene updates and user events. The
-existing extension session relay remains the sole extension traffic pump.
+existing extension session relay remains the sole extension traffic pump. A
+single-command client session now reports startup failure and unexpected
+process exit separately, and always stops its active command when the client
+disconnects.
 Keeping the first connection single-command makes ownership and disconnect
 cleanup explicit; multiplexing is deferred until a real client flow requires
 it.

@@ -48,6 +48,13 @@ slice changes what is executable, what is trusted, or what should happen next.
 - The core accepts only stable command identities, resolves paths through a
   trusted catalog, delegates lifecycle, and coordinates shutdown with in-flight
   starts.
+- The core exposes a transport-neutral client session boundary: a role-checked
+  client can run and stop one active command, receive validated scene/toast
+  messages, send validated scene events, observe startup failure or unexpected
+  process exit, and trigger best-effort command cleanup on disconnect. The
+  deterministic in-memory and real child-process vertical slices exercise the
+  same boundary; daemon listeners and Electron consumption remain later work
+  (ADR 0090).
 - The Node filesystem catalog discovers Raycast-style `package.json` manifests,
   probes `src/<command-name>` entrypoints, honors explicit entrypoint
   overrides, and never resolves a path outside the extension root.
@@ -603,8 +610,9 @@ slice changes what is executable, what is trusted, or what should happen next.
   module support on their target platforms;
 - the remaining measured Raycast surface: client toast timing/stacking, broader
   desktop APIs, broader action helpers, and additional Tool/browser APIs;
-- a client-facing core protocol, daemon listener, and desktop rendering of
-  scenes (the deterministic test client stands in today);
+- a daemon listener and desktop rendering of scenes (the deterministic client
+  session boundary now stands in for the app; the Electron consumer is still
+  missing);
 - capability manifest declarations, real operating-system providers, audit
   records, and consent UI;
 - production AI providers, OAuth browser/token-store providers, and command
@@ -747,13 +755,13 @@ only small portable JavaScript seeds eligible after the API-first slice.
    WASM, test-only, large-graph, and host-process packages for explicit policy
    decisions. Do not count extension-owned platform incompatibility as a
    missing Raycast API member.
-5. Add a client-facing core protocol and daemon listener so the Electron
-   client can replace the test client after the coverage boundary is stable.
-   The first transport-neutral session slice is proposed in [ADR
-   0090](decisions/0090-client-facing-core-session-boundary.md): establish a
-   validated client/core connection for one active command, semantic scene and
-   event forwarding, and lifecycle cleanup before adding a daemon listener or
-   Electron wiring.
+5. Add the daemon listener and then the Electron consumer. The transport-neutral
+   client/core session slice in [ADR
+   0090](decisions/0090-client-facing-core-session-boundary.md) is implemented:
+   it establishes a validated client/core connection for one active command,
+   semantic scene and event forwarding, lifecycle reporting, and disconnect
+   cleanup. The next boundary is a local transport listener that reuses this
+   session without adding Electron or filesystem paths to the protocol.
 
 Keep WebSocket and remote execution as transport/provider additions. They do not
 require changing the session, extension contract, runtime, host, or core

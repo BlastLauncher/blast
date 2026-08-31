@@ -19,6 +19,7 @@
     "@blastlauncher/extension-runtime-node": "workspace:*",
     "@blastlauncher/raycast-compat": "workspace:*",
     "@blastlauncher/scene": "workspace:*",
+    "@blastlauncher/transport": "workspace:*",
     "react": "^19.2.8"
   },
   "devDependencies": {
