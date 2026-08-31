@@ -1,4 +1,4 @@
-import { AI, Action, ActionPanel, List, OAuth, updateCommandMetadata } from "@raycast/api";
+import { AI, Action, ActionPanel, List, OAuth, fetch, updateCommandMetadata } from "@raycast/api";
 import { useEffect, useState } from "react";
 
 const oauthClient = new OAuth.PKCEClient({
@@ -17,10 +17,12 @@ export default function Command() {
         creativity: "low",
         model: AI.Model["OpenAI_GPT4o-mini"],
       });
+      const fetchResponse = await fetch("data:text/plain,fetch-ready");
+      const fetchBody = await fetchResponse.text();
       await updateCommandMetadata({ subtitle: "AI ready" });
       const tokens = await oauthClient.getTokens();
       if (active) {
-        setStatus(`${answer}:${tokens === undefined ? "signed-out" : "signed-in"}`);
+        setStatus(`${answer}:${fetchBody}:${tokens === undefined ? "signed-out" : "signed-in"}`);
       }
     })().catch((error: unknown) => {
       if (active) {

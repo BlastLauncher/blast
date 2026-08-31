@@ -698,11 +698,11 @@ only small portable JavaScript seeds eligible after the API-first slice.
    lookup table. ADR 0088 is now implemented with 302 active client map keys
    (171 added in this slice); the 102 absent numbered/warning assets remain
    explicit and ungenerated.
-   The next measured API slice is proposed in [ADR
-   0089](decisions/0089-allow-permissive-runtime-fetch.md): expose the one
-   corpus-observed named `fetch` import as a permissive current-runtime
-   delegate, with native-host network enforcement deferred to a later policy
-   boundary.
+   The measured fetch slice in [ADR
+   0089](decisions/0089-allow-permissive-runtime-fetch.md) is now implemented:
+   the one corpus-observed named `fetch` import delegates to the current
+   runtime without URL policy, with native-host network enforcement deferred
+   to a later policy boundary.
    Preserve
    structured errors for values that would require a broader scene or host
    policy. Keep the deterministic
@@ -736,10 +736,10 @@ only small portable JavaScript seeds eligible after the API-first slice.
    BrowserExtension markdown/selector rule, and Environment entrypoint-mode
    propagation covered by each test slice.
 3. Keep safe dynamic, namespace, side-effect, and literal `require` import
-   forms covered, then implement the proposed permissive runtime `fetch` slice
-   in [ADR 0089](decisions/0089-allow-permissive-runtime-fetch.md). Do not add
-   URL policy, consent, or response limits to the adapter; leave those controls
-   for a future native host boundary.
+   forms covered. The permissive runtime `fetch` slice in [ADR
+   0089](decisions/0089-allow-permissive-runtime-fetch.md) is implemented
+   without URL policy, consent, or response limits; leave those controls for a
+   future native host boundary.
 4. After each API slice, consider only small, exact-version,
    development-only portable JavaScript dependency seeds when the diagnostic
    census supports them. Keep each group reviewable and measure rendered

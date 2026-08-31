@@ -33,9 +33,9 @@ corpus probe:
 The packages are installed through the explicit workspace vendor root with
 package-manager lifecycle scripts disabled. This changes dependency resolution
 for measurement only; the runtime still never installs extension dependencies,
-and this ADR grants no network, host, cross-extension, or OS capability. The
-remaining static `fetch` import stays outside the adapter until a bounded host
-network capability and policy exist.
+and this ADR grants no network, host, cross-extension, or OS capability. Named
+`fetch` runtime availability is governed separately by ADR 0089 and is not
+granted by this dependency seed.
 
 ## Evidence
 

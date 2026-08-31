@@ -1316,6 +1316,19 @@ export namespace BrowserExtension {
   }
 }
 
+/**
+ * Provides Raycast's runtime fetch entry point without adding a host policy.
+ * Resolve the implementation at call time so a native host can interpose on
+ * the runtime before an extension starts.
+ */
+export function fetch(...args: Parameters<typeof globalThis.fetch>): ReturnType<typeof globalThis.fetch> {
+  const runtimeFetch = globalThis.fetch;
+  if (typeof runtimeFetch !== "function") {
+    throw new Error("The extension runtime does not provide fetch");
+  }
+  return runtimeFetch(...args);
+}
+
 /** Legacy top-level toast constants retained for measured Raycast sources. */
 export const ToastStyle = {
   Success: "SUCCESS",

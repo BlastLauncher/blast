@@ -385,13 +385,14 @@
     "outcome": "renders",
     "rootType": "list",
     "minItems": 1,
-    "readyNavigationTitle": "Runtime:probe answer:signed-out",
+    "readyNavigationTitle": "Runtime:probe answer:fetch-ready:signed-out",
     "apis": [
       "AI",
       "Action",
       "ActionPanel",
       "List",
       "OAuth",
+      "fetch",
       "updateCommandMetadata"
     ],
     "source": "blast/compatibility-fixture"

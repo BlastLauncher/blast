@@ -1,6 +1,6 @@
 # ADR 0089: Allow permissive extension-runtime fetch
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-08-31
 
 ## Context
@@ -51,7 +51,8 @@ enforcement and consent separately if Blast-native extensions need them.
 ## Consequences
 
 The current runtime can load extensions that use the measured named `fetch`
-import, and the focused `coze` probe should report no static unsupported API.
+import, and the focused `coze` probe reports no static unsupported API. Its
+remaining dependency failure is unrelated to the Raycast API surface.
 Direct extension network calls remain an explicit future host-policy concern;
 this slice intentionally does not pretend to provide consent, sandboxing, or
 resource quotas.

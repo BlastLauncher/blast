@@ -3,6 +3,10 @@
 - Status: accepted
 - Date: 2026-08-29
 
+The fetch-specific boundary below was superseded by [ADR
+0089](0089-allow-permissive-runtime-fetch.md) on 2026-08-31. The import-shape
+decision remains active for the other four forms.
+
 ## Context
 
 The corpus probe found twelve literal dynamic imports, four namespace imports,
@@ -20,8 +24,10 @@ imply unbrokered network access if added as a convenience.
   the same way for the CommonJS bundles produced by the Node runtime.
 - Keep the import alias launcher-owned so all three forms share the same
   compatibility module and capability context as named imports.
-- Keep `fetch` outside the compatibility surface until a separately designed
-  host network capability defines URL policy, consent, and response limits.
+- At the time of this decision, keep `fetch` outside the compatibility surface
+  until a separately designed host network capability defines URL policy,
+  consent, and response limits. The later fetch-specific boundary is recorded
+  in ADR 0089.
 - Cover the four safe forms with a real child-process fixture and keep the
   corpus probe's static allowlist explicit.
 
@@ -29,5 +35,5 @@ imply unbrokered network access if added as a convenience.
 
 Import syntax no longer creates a false static blocker for measured API
 members, while unsupported named members still fail through the adapter's
-structured compatibility boundary. The probe will continue to report the
-unsupported `fetch` import until network policy is accepted and implemented.
+structured compatibility boundary. The fetch-specific probe behavior was
+later superseded by ADR 0089.

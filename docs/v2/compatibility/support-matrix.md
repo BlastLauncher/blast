@@ -55,8 +55,9 @@ pagination page-size fallbacks are preserved and the targeted
 renders. Empty and absent `Action.OpenInBrowser` targets are handled at the
 action-readiness boundary; the four targeted commands now render. Menu-bar
 alternate items now carry a nested semantic marker and separate right-click
-events. The declaration-backed static import gap is one `fetch` import; its
-permissive current-runtime implementation is proposed in [ADR
+events. The declaration-backed static import audit is now clean for the
+measured corpus: the one `fetch` import is supported as a permissive
+current-runtime delegate under [ADR
 0089](../decisions/0089-allow-permissive-runtime-fetch.md). The
 binding-aware runtime audit's two corpus-observed legacy icon names—
 `Icon.Safari` and `Icon.Application`—are now explicit aliases to the current
@@ -502,9 +503,9 @@ dispatches a bounds mutation through the explicit host capability.
 - namespace imports, literal dynamic imports, literal side-effect imports, and
   literal CommonJS `require("@raycast/api")` calls resolve through the same
   launcher alias as named imports when they access measured adapter members.
-  The remaining `fetch` import is intentionally pending the permissive
-  current-runtime slice in [ADR 0089](../decisions/0089-allow-permissive-runtime-fetch.md);
-  native-host network policy remains a later boundary;
+  the measured `fetch` import delegates to the current runtime under [ADR
+  0089](../decisions/0089-allow-permissive-runtime-fetch.md); native-host
+  network policy remains a later boundary;
 - custom function components, React fragments, and React context
   providers/consumers can compose measured action, list, grid, menu-bar, and
   form children; raw text, intrinsic DOM elements, and invalid resolved

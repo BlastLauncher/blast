@@ -62,6 +62,7 @@ import {
   clearSearchBar,
   copyTextToClipboard,
   environment,
+  fetch as raycastFetch,
   getLocalStorageItem,
   getPreferenceValues,
   open,
@@ -238,6 +239,23 @@ test("publishes the remaining declaration-backed compatibility aliases", () => {
       return true;
     },
   );
+});
+
+test("delegates fetch to the current runtime implementation", async () => {
+  const originalFetch = globalThis.fetch;
+  const calls = [];
+  const response = { ok: true };
+  globalThis.fetch = async (...args) => {
+    calls.push(args);
+    return response;
+  };
+
+  try {
+    assert.equal(await raycastFetch("https://example.test/resource", { method: "POST" }), response);
+    assert.deepEqual(calls, [["https://example.test/resource", { method: "POST" }]]);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
 });
 
 test("preserves measured legacy color and toast style aliases", async () => {

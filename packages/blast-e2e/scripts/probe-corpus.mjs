@@ -102,6 +102,7 @@ const SUPPORTED_API_IMPORTS = new Set([
   "clearClipboard",
   "confirmAlert",
   "environment",
+  "fetch",
   "getDefaultApplication",
   "getLocalStorageItem",
   "getPreferenceValues",

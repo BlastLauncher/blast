@@ -971,7 +971,7 @@ test("routes AI, command metadata, and OAuth token lookup end to end", async () 
   await waitFor(
     () =>
       buffer.rootId !== undefined &&
-      buffer.get(buffer.rootId).props.navigationTitle === "Runtime:fixture answer:signed-out",
+      buffer.get(buffer.rootId).props.navigationTitle === "Runtime:fixture answer:fetch-ready:signed-out",
     "the runtime-boundaries snapshot",
   );
   assert.deepEqual(

@@ -102,6 +102,7 @@
       "confirmAlert",
       "copyTextToClipboard",
       "environment",
+      "fetch",
       "getApplications",
       "getDefaultApplication",
       "getFrontmostApplication",
@@ -1869,12 +1870,7 @@
     "renderableCommandTotal": 2915,
     "renderableCommandPassRate": 0.717
   },
-  "staticBlockers": [
-    {
-      "api": "fetch",
-      "extensionCount": 1
-    }
-  ],
+  "staticBlockers": [],
   "failureClasses": {
     "no-entrypoint": 3,
     "process-failure": 249,
@@ -6252,9 +6248,7 @@
       "extensionId": "coze",
       "commandName": "bot-chat",
       "mode": "view",
-      "staticUnsupportedApis": [
-        "fetch"
-      ],
+      "staticUnsupportedApis": [],
       "outcome": "third-party-dependency",
       "failureCode": "dependency_unavailable"
     },

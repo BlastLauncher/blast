@@ -50,8 +50,8 @@ collection behaviors as a coherent slice. The canonical probe at the pinned
 corpus revision renders 1,814 of 3,231 extensions (56.14%), or 1,814 of 2,915
 selected renderable commands (62.23%). The remaining failures are dominated by
 third-party dependency availability and host/process setup rather than missing
-members from this API slice; the only static import gap is `fetch`, which stays
-outside the adapter pending an explicit network capability and policy.
+members from this API slice. The static `fetch` gap recorded at the time was
+later addressed by ADR 0089.
 
 This decision extends the measured icon work in ADR 0041. It does not make the
 desktop client responsible for icon assets, native masks, dropdown presentation,

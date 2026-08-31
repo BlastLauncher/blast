@@ -231,8 +231,8 @@ the string, boolean, date, and string-array subset.
 Literal dynamic imports, namespace imports, side-effect imports, and literal
 CommonJS `require("@raycast/api")` calls resolve through the same launcher alias
 as named imports. The adapter only promises the measured exported members;
-the one measured named `fetch` import is planned as a permissive current-runtime
-delegate under [ADR 0089](../../docs/v2/decisions/0089-allow-permissive-runtime-fetch.md).
+the one measured named `fetch` import is a permissive current-runtime delegate
+under [ADR 0089](../../docs/v2/decisions/0089-allow-permissive-runtime-fetch.md).
 Native-host network enforcement remains a later boundary.
 
 ## Compatibility boundary

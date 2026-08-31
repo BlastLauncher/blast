@@ -3,6 +3,11 @@
 - Status: Accepted
 - Date: 2026-08-30
 
+The fetch-specific boundary in this plan was superseded by [ADR
+0089](0089-allow-permissive-runtime-fetch.md) on 2026-08-31. The current
+runtime delegates the measured named import to Node's Fetch API; native-host
+network enforcement remains future work.
+
 ## Context
 
 The current corpus probe renders 2,090 of 3,231 extensions (64.69%), or
@@ -45,8 +50,10 @@ decision authorizes them. Extension authors remain responsible for whether
 their third-party native dependencies support the target platform; Blast does
 not silently install or emulate those modules.
 
-`fetch` remains outside the adapter until a host network capability defines URL
-policy, consent, response limits, and deterministic tests.
+`fetch` was initially left outside the adapter while this plan was being
+executed. [ADR 0089](0089-allow-permissive-runtime-fetch.md) supersedes that
+fetch-specific boundary with a permissive current-runtime delegate; native-host
+network policy remains future work.
 
 ## Consequences
 
