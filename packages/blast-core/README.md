@@ -14,7 +14,10 @@ in-flight catalog resolutions, and closes the supervisor once.
 it forwards validated scene transactions to a `SceneTransactionSink`, verifies
 and executes capability requests through the `CapabilityBroker`, sends scene
 events toward the extension, and fails closed on invalid traffic (ADR 0010).
-It does not yet host a client-facing protocol server.
+It does not yet host a client-facing protocol server. The first
+transport-neutral client/core session boundary is proposed in [ADR
+0090](../../docs/v2/decisions/0090-client-facing-core-session-boundary.md);
+daemon listeners and Electron wiring remain subsequent slices.
 
 ## Next responsibilities
 

@@ -749,6 +749,11 @@ only small portable JavaScript seeds eligible after the API-first slice.
    missing Raycast API member.
 5. Add a client-facing core protocol and daemon listener so the Electron
    client can replace the test client after the coverage boundary is stable.
+   The first transport-neutral session slice is proposed in [ADR
+   0090](decisions/0090-client-facing-core-session-boundary.md): establish a
+   validated client/core connection for one active command, semantic scene and
+   event forwarding, and lifecycle cleanup before adding a daemon listener or
+   Electron wiring.
 
 Keep WebSocket and remote execution as transport/provider additions. They do not
 require changing the session, extension contract, runtime, host, or core

@@ -107,7 +107,9 @@ sessions, discovery, persistence, capability routing, and daemon ownership are
 deliberate later slices. `@blastlauncher/core-node` ships the first catalog
 implementation: it discovers Raycast-style `package.json` manifests from a
 filesystem root and resolves entrypoints without ever returning a path outside
-the extension root. A persistent, watched catalog index remains a later slice.
+the extension root. The first client-facing session boundary is proposed in
+ADR 0090; it will keep the core contract transport-neutral before a daemon
+listener is added. A persistent, watched catalog index remains a later slice.
 
 ### Clients
 
