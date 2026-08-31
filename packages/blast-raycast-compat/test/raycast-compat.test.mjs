@@ -473,6 +473,26 @@ test("exposes the complete declaration-backed icon enum without an implicit fall
   assert.equal(Icon.NotMeasured, undefined);
 });
 
+test("preserves measured legacy icon aliases", async () => {
+  assert.equal(Icon.Safari, Icon.Globe);
+  assert.equal(Icon.Application, Icon.AppWindow);
+
+  const probe = createContext();
+  const renderer = renderCommand(probe.context, () =>
+    createElement(
+      List,
+      null,
+      createElement(List.Item, { title: "Browser", icon: Icon.Safari }),
+      createElement(List.Item, { title: "Application", icon: Icon.Application }),
+    ),
+  );
+  await renderer.flush();
+
+  const root = probe.transactions[0].operations[0].root;
+  assert.equal(root.children[0].props.icon, "globe-01-16");
+  assert.equal(root.children[1].props.icon, "app-window-16");
+});
+
 test("accepts the shared List and Grid dropdown search accessory implementations", async () => {
   const listProbe = createContext();
   const listRenderer = renderCommand(listProbe.context, () =>

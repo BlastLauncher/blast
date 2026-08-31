@@ -684,13 +684,14 @@ only small portable JavaScript seeds eligible after the API-first slice.
    now implemented: the one API-bound `Color.Gray` use and one
    `Toast.Style.SuccessMessage` use found by the binding-aware corpus audit
    remain supported, without adding extension-owned `Color.Grey` model values
-   or speculative aliases. The next docs-first boundary is [ADR
-   0087](decisions/0087-preserve-measured-legacy-icon-aliases.md): the same
-   binding-aware audit leaves only the measured `Icon.Safari` and
-   `Icon.Application` runtime names. Their original declaration values are
-   absent from sampled public Raycast API archives, so the proposed slice maps
-   them explicitly to the current globe and app-window glyphs before source
-   changes. Preserve
+   or speculative aliases. The legacy icon slice in [ADR
+   0087](decisions/0087-preserve-measured-legacy-icon-aliases.md) is now
+   implemented: the binding-aware audit's measured `Icon.Safari` and
+   `Icon.Application` names map explicitly to the current globe and app-window
+   glyphs because their original declaration values are absent from sampled
+   public Raycast API archives. The focused probe reports no static unsupported
+   APIs for either call site, while both remain separately classified at the
+   existing dependency boundary. Preserve
    structured errors for values that would require a broader scene or host
    policy. Keep the deterministic
    structured probe failure

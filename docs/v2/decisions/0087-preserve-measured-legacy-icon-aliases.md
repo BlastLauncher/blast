@@ -1,6 +1,6 @@
 # ADR 0087: Preserve measured legacy icon aliases
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-08-31
 
 ## Context
@@ -67,13 +67,17 @@ reviewable. The alias choice is visible in the scene as a current drawable
 identifier; if future evidence recovers the historical IDs, that policy can
 be revised in a focused compatibility change.
 
-## Verification plan
+## Verification
 
-- Extend the adapter test to assert both aliases and their serialized scene
-  values.
-- Add the globe asset to the client icon map and run its type/build checks.
-- Reprobe `schoology` and `system-information` with a bounded serial corpus
-  probe, recording dependency or platform failures separately from API
-  compatibility.
-- Run the full V2 suite and formatter check; aggregate corpus counters should
-  remain unchanged because this is a constant/rendering alias slice.
+- The adapter suite passes 95/95 tests, including both aliases and their
+  serialized scene values.
+- The existing `globe-01-16.svg` asset is registered in the Electron client;
+  the client typecheck passes and its lint completes with only pre-existing
+  warnings.
+- The bounded serial probe reports `staticUnsupportedApis: []` for both
+  `schoology` and `system-information`; both stop at the existing
+  `dependency_unavailable` boundary on the ARM64 Linux runner.
+- The full V2 suite passes across 17 packages, including all 41 end-to-end
+  fixtures, and the formatter check passes.
+- Aggregate corpus counters remain unchanged because this is a constant and
+  existing-asset alias slice.

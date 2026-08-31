@@ -484,6 +484,9 @@ export const Icon = {
   SpeakerSlash: "speaker-off-16",
   TextDocument: "blank-document-16",
   XmarkCircle: "x-mark-circle-16",
+  // Measured legacy names with no recoverable declaration-backed value.
+  Safari: "globe-01-16",
+  Application: "app-window-16",
   Asterisk: "asterisk",
   AtTheRate: "at-the-rate",
   Bill: "bill",

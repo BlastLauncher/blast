@@ -55,10 +55,11 @@ pagination page-size fallbacks are preserved and the targeted
 renders. Empty and absent `Action.OpenInBrowser` targets are handled at the
 action-readiness boundary; the four targeted commands now render. Menu-bar
 alternate items now carry a nested semantic marker and separate right-click
-events. The declaration-backed static import gap is one `fetch` import. A
-separate binding-aware runtime audit found two corpus-observed legacy icon
-names—`Icon.Safari` and `Icon.Application`—and records their planned narrow
-compatibility boundary in [ADR 0087](../decisions/0087-preserve-measured-legacy-icon-aliases.md).
+events. The declaration-backed static import gap is one `fetch` import. The
+binding-aware runtime audit's two corpus-observed legacy icon names—
+`Icon.Safari` and `Icon.Application`—are now explicit aliases to the current
+globe and app-window glyphs under [ADR 0087](../decisions/0087-preserve-measured-legacy-icon-aliases.md);
+the focused probe reports no static unsupported APIs for either call site.
 Dependency, process, and non-renderable outcomes remain tracked separately
 from API coverage.
 The current top-level API import census and emitted declaration audit are clean
@@ -405,7 +406,8 @@ dispatches a bounds mutation through the explicit host capability.
 - Grid accepts positive safe-integer column counts and preserves empty content
   tooltips, while `List.Item` accepts measured `{ value, tooltip }` icon
   descriptors. The adapter mirrors all 478 declaration-backed `Icon` members,
-  preserves legacy names, and accepts `List.Dropdown` and `Grid.Dropdown`
+  preserves legacy names, including the measured `Safari` and `Application`
+  aliases, and accepts `List.Dropdown` and `Grid.Dropdown`
   interchangeably as search accessories. List/Grid pagination accepts
   non-negative safe-integer page sizes, including zero values emitted by
   asynchronous pagination hooks; layout clamping and icon rendering remain

@@ -53,8 +53,10 @@ onto the V2 scene contract, renderer, and capability broker:
   meaningful text remains unsupported;
 - `Icon` mirrors all 478 members of the pinned Raycast declaration in one
   explicit enum-like object, including numbered, progress, disabled, and
-  formatting variants. Legacy corpus names remain available; unknown members
-  stay unsupported rather than resolving through an implicit fallback.
+  formatting variants. Legacy corpus names remain available, including the
+  measured `Safari` and `Application` aliases mapped to the current globe and
+  app-window glyphs; unknown members stay unsupported rather than resolving
+  through an implicit fallback.
   `Color` exposes theme-aware `raycast-*` values while retaining legacy
   `Pink`/`Brown` aliases plus the measured `Gray` raw alias.
   Object/file/theme-aware icon descriptors are

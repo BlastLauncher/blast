@@ -146,7 +146,7 @@ import ExclamationMark from "./images/important-01-16.svg";
 // import Germ from "./images/germ-16.svg";
 // import Gift from "./images/gift-16.svg";
 // import Glasses from "./images/glasses-16.svg";
-// import Globe from "./images/globe-01-16.svg";
+import Globe from "./images/globe-01-16.svg";
 // import Goal from "./images/goal-16.svg";
 // import Hammer from "./images/hammer-16.svg";
 // import HardDrive from "./images/hard-drive-16.svg";
@@ -568,7 +568,7 @@ const icons = {
   // "germ-16": Germ,
   // "gift-16": Gift,
   // "glasses-16": Glasses,
-  // "globe-01-16": Globe,
+  "globe-01-16": Globe,
   // "goal-16": Goal,
   // "hammer-16": Hammer,
   // "hard-drive-16": HardDrive,
