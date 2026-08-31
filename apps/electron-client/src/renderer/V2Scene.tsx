@@ -3,7 +3,7 @@ import { useState } from "react";
 import type { SceneFormValue, SceneFormValues, SceneNode, ScenePropValue, SceneShortcut } from "@blastlauncher/scene";
 
 import { Detail } from "./components/Detail";
-import { V2SceneIcon } from "./V2SceneIcon";
+import { selectV2SceneImageSource, V2SceneIcon } from "./V2SceneIcon";
 
 export type V2SceneEventSender = (eventId: string, values?: SceneFormValues) => Promise<void>;
 
@@ -839,17 +839,25 @@ function ActionButton({
   readonly values?: SceneFormValues;
 }): React.JSX.Element {
   const eventId = stringProp(action, "onAction");
+  const iconSource = selectV2SceneImageSource(action);
+  const destructive = stringProp(action, "style") === "destructive";
   return (
     <button
-      className="rounded-md bg-blue-400/20 px-3 py-1.5 text-xs text-blue-100 hover:bg-blue-400/30 disabled:opacity-50"
+      autoFocus={booleanProp(action, "autoFocus")}
+      className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs disabled:opacity-50 ${
+        destructive
+          ? "bg-red-400/20 text-red-100 hover:bg-red-400/30"
+          : "bg-blue-400/20 text-blue-100 hover:bg-blue-400/30"
+      }`}
+      data-action-style={destructive ? "destructive" : "regular"}
       disabled={disabled || eventId === undefined}
       onClick={() => (eventId === undefined ? undefined : fireEvent(onEvent, eventId, values))}
       type="button"
     >
-      <V2SceneIcon node={action} size="small" />
+      {iconSource !== undefined && <V2SceneIcon node={action} size="small" />}
       {stringProp(action, "title") ?? "Run"}
-      {stringProp(action, "shortcut") !== undefined && (
-        <span className="ml-2 text-blue-100/50">{stringProp(action, "shortcut")}</span>
+      {shortcutProp(action, "shortcut") !== undefined && (
+        <span className="ml-2 text-white/50">{shortcutProp(action, "shortcut")}</span>
       )}
     </button>
   );

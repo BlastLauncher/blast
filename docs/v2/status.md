@@ -122,6 +122,10 @@ slice changes what is executable, what is trusted, or what should happen next.
   SVG registry, renders safe data/HTTP(S) image sources, and keeps a
   deterministic fallback for unsupported sources; mask/tint transforms remain
   separate future work.
+- [ADR 0104](decisions/0104-v2-action-chrome-fidelity.md) preserves structured
+  action shortcut labels, regular/destructive styling, and validated auto-focus
+  intent in the opt-in V2 scene renderer; broader action helpers remain
+  separate.
 - [ADR 0100](decisions/0100-packaged-v2-bootstrap-and-catalog.md) adds the
   higher-level `@blastlauncher/raycast-runtime-node` composition and packages
   standalone V2 bootstrap, adapter, and React resources for Electron. The
@@ -690,10 +694,10 @@ slice changes what is executable, what is trusted, or what should happen next.
   consumer, Node local connector, opt-in Electron main bridge, first semantic
   scene renderer, explicit app-owned daemon mode, menu-bar scene renderer, and
   packaged bootstrap/catalog bridge, native status-item menu projection, and
-  toast lifecycle/action presentation, and scene icon/image source presentation
-  now exist; packaged mode is still opt-in, while V1 installation
-  UI/migration, toast timeout policy, icon mask/tint transforms, and remaining
-  scene visuals are still missing);
+  toast lifecycle/action presentation, scene icon/image source presentation,
+  and action chrome fidelity now exist; packaged mode is still opt-in, while V1
+  installation UI/migration, toast timeout policy, icon mask/tint transforms,
+  broader action helpers, and remaining scene visuals are still missing);
 - capability manifest declarations, real operating-system providers, audit
   records, and consent UI;
 - production AI providers, OAuth browser/token-store providers, and command
@@ -879,10 +883,12 @@ only small portable JavaScript seeds eligible after the API-first slice.
    lifecycle/action presentation is now implemented under [ADR
    0102](decisions/0102-v2-toast-lifecycle-presentation.md), and scene
    icon/image source presentation is now implemented under [ADR
-   0103](decisions/0103-v2-scene-icon-source-presentation.md). The next client
-   boundary is installation UI/migration, toast timeout policy, icon mask/tint
-   transforms, and remaining scene visuals, followed by eventual V2 default
-   cutover.
+   0103](decisions/0103-v2-scene-icon-source-presentation.md), and action chrome
+   fidelity is now implemented under [ADR
+   0104](decisions/0104-v2-action-chrome-fidelity.md). The next client boundary
+   is installation UI/migration, toast timeout policy, icon mask/tint transforms,
+   broader action helpers, and remaining scene visuals, followed by eventual V2
+   default cutover.
 
 Keep WebSocket and remote execution as transport/provider additions. They do not
 require changing the session, extension contract, runtime, host, or core

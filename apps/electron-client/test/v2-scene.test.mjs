@@ -96,3 +96,44 @@ test("server-renders menu-bar scenes with nested controls and shortcut labels", 
   assert.match(markup, /<hr/);
   assert.doesNotMatch(markup, /does not yet display/);
 });
+
+test("server-renders action styles, structured shortcuts, and auto-focus", () => {
+  const markup = renderToStaticMarkup(
+    React.createElement(V2Scene, {
+      disabled: false,
+      onEvent: async () => {},
+      root: {
+        id: "root",
+        type: "list",
+        props: { navigationTitle: "Actions" },
+        children: [
+          {
+            id: "item",
+            type: "list-item",
+            props: { title: "Item" },
+            children: [
+              {
+                id: "action",
+                type: "action",
+                props: {
+                  title: "Delete",
+                  onAction: "delete-item",
+                  shortcut: { modifiers: ["cmd", "shift"], key: "D" },
+                  style: "destructive",
+                  autoFocus: true,
+                },
+                children: [],
+              },
+            ],
+          },
+        ],
+      },
+    }),
+  );
+
+  assert.match(markup, /data-action-style="destructive"/);
+  assert.match(markup, /bg-red-400\/20/);
+  assert.match(markup, /Delete/);
+  assert.match(markup, /cmd \+ shift \+ D/);
+  assert.match(markup, /autofocus/);
+});

@@ -398,7 +398,9 @@ dispatches a bounds mutation through the explicit host capability.
 - action groups, `ActionPanel.Item`, `ActionPanel.Section`, submenus, tinted icons, shortcut
   objects, action styles, `autoFocus`, `Action.OpenInBrowser`, `Action.Open`,
   `Action.Paste`, `Action.ShowInFinder`, `Action.Trash`, `Action.InstallMCPServer`,
-  and the deprecated browser/clipboard/action aliases are measured. Submenus
+  and the deprecated browser/clipboard/action aliases are measured. V2 action
+  shortcut/style/auto-focus presentation is implemented under [ADR
+  0104](../decisions/0104-v2-action-chrome-fidelity.md). Submenus
   include search, lazy-open, loading, filtering, throttling, and deprecated
   `id` behavior; custom React components/fragments can compose action children;
   broader action helpers remain unsupported;
