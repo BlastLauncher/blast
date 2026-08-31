@@ -8,5 +8,6 @@ The V2 client bridge is opt-in. Set `BLAST_V2_SOCKET_PATH` to an explicitly
 started V2 daemon socket to register the main-process bridge; it keeps the
 socket and `CoreClientHost` in the main process and exposes only serialized
 snapshots and semantic commands through the preload API. The V1 WebSocket
-runtime and renderer remain the default, and the app does not yet start the V2
-daemon or migrate the existing scene UI.
+renderer remains the default without the bridge. With the bridge present, the
+renderer uses the opt-in semantic SceneNode view; the app still does not start
+the V2 daemon or claim complete scene-visual coverage.

@@ -117,7 +117,9 @@ layer rather than opening the socket from renderer code.
 
 ADR 0096 provides deterministic host-level coverage for the injected connection
 factory and snapshot sinks, while the Electron adapter is type-checked and
-Forge-bundled without launching Electron on ARM64 Linux. IPC inputs are
+Forge-bundled without launching Electron on ARM64 Linux. ADR 0097 exercises
+the same renderer selection through the app type-check and bundle gates. IPC
+inputs are
 validated at the main-process boundary, subscriptions clean up with the
 sender, and snapshots use JSON-safe failure details; these checks do not
 require a running V2 daemon or the legacy WebSocket runtime.

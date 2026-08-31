@@ -94,6 +94,12 @@ slice changes what is executable, what is trusted, or what should happen next.
   snapshot/toast subscriptions and validated semantic command/event IPC over
   the bounded Node connector. The V1 WebSocket runtime and renderer remain the
   default; the ARM64 Linux Debian Forge bundle passes without launching the UI.
+- The Electron app has the opt-in semantic scene renderer from [ADR
+  0097](decisions/0097-opt-in-scene-client-ui.md): with the bridge exposed, it
+  skips the V1 WebSocket setup and renders path-free discovery plus the first
+  List, Grid, Detail, and Form scene roots through the same event channel. The
+  renderer does not receive sockets or extension paths, and V1 remains the
+  default when the bridge is absent.
 - The Node filesystem catalog discovers Raycast-style `package.json` manifests,
   probes `src/<command-name>` entrypoints, honors explicit entrypoint
   overrides, and never resolves a path outside the extension root.
@@ -649,11 +655,12 @@ slice changes what is executable, what is trusted, or what should happen next.
   module support on their target platforms;
 - the remaining measured Raycast surface: client toast timing/stacking, broader
   desktop APIs, broader action helpers, and additional Tool/browser APIs;
-- persistent catalog refresh, command watching, and desktop rendering of scenes
-  (the local listener, Node daemon composition, path-free discovery snapshot,
-  transport-neutral client consumer, Node local connector, and opt-in Electron
-  main bridge now exist; the V2 renderer scene UI and default daemon startup
-  are still missing);
+- persistent catalog refresh, command watching, complete desktop rendering of
+  every scene member, and default daemon startup (the local listener, Node
+  daemon composition, path-free discovery snapshot, transport-neutral client
+  consumer, Node local connector, opt-in Electron main bridge, and first
+  semantic scene renderer now exist; production bootstrap/catalog policy and
+  the remaining scene visuals are still missing);
 - capability manifest declarations, real operating-system providers, audit
   records, and consent UI;
 - production AI providers, OAuth browser/token-store providers, and command
@@ -819,8 +826,10 @@ only small portable JavaScript seeds eligible after the API-first slice.
    0093](decisions/0093-path-free-command-discovery.md) is now implemented as
    a deterministic snapshot, and the controller in ADR 0094 now consumes it;
    the Electron host/IPC adapter is now implemented behind an explicit socket
-   opt-in; the next boundary is production daemon bootstrap/catalog policy and
-   a renderer that consumes `SceneNode`.
+   opt-in; the first semantic SceneNode renderer is now implemented in [ADR
+   0097](decisions/0097-opt-in-scene-client-ui.md). The next boundary is
+   production daemon bootstrap/catalog policy, followed by the remaining
+   scene visuals and eventual V2 default cutover.
 
 Keep WebSocket and remote execution as transport/provider additions. They do not
 require changing the session, extension contract, runtime, host, or core

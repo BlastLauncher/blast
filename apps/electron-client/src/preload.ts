@@ -7,6 +7,7 @@ import { V2ClientChannels } from "./v2ClientChannels";
 let v2SubscriptionCount = 0;
 
 const v2: V2ClientRendererAPI = {
+  isEnabled: () => ipcRenderer.invoke(V2ClientChannels.enabled),
   subscribeSnapshots(listener: V2ClientSnapshotListener): () => void {
     const handler = (_event: IpcRendererEvent, snapshot: Parameters<V2ClientSnapshotListener>[0]): void => {
       listener(snapshot);

@@ -1,0 +1,839 @@
+import { useState } from "react";
+
+import type { SceneFormValue, SceneFormValues, SceneNode, ScenePropValue } from "@blastlauncher/scene";
+
+import { Detail } from "./components/Detail";
+
+export type V2SceneEventSender = (eventId: string, values?: SceneFormValues) => Promise<void>;
+
+export interface V2SceneProps {
+  readonly root: SceneNode;
+  readonly disabled: boolean;
+  readonly onEvent: V2SceneEventSender;
+}
+
+export function V2Scene({ root, disabled, onEvent }: V2SceneProps): React.JSX.Element {
+  switch (root.type) {
+    case "list":
+      return <ListScene disabled={disabled} onEvent={onEvent} root={root} />;
+    case "grid":
+      return <GridScene disabled={disabled} onEvent={onEvent} root={root} />;
+    case "detail":
+      return <DetailScene disabled={disabled} onEvent={onEvent} root={root} />;
+    case "form":
+      return <FormScene disabled={disabled} onEvent={onEvent} root={root} />;
+    default:
+      return <UnsupportedScene node={root} />;
+  }
+}
+
+function ListScene({ root, disabled, onEvent }: V2SceneProps) {
+  const remoteSearchText = stringProp(root, "searchText") ?? "";
+  const [searchText, setSearchText] = useState(remoteSearchText);
+  const searchEvent = stringProp(root, "onSearchTextChange");
+  const selectionEvent = stringProp(root, "onSelectionChange");
+
+  const sendSearch = (value: string): void => {
+    setSearchText(value);
+    if (searchEvent !== undefined) {
+      fireEvent(onEvent, searchEvent, { searchText: value });
+    }
+  };
+
+  return (
+    <CollectionLayout
+      disabled={disabled}
+      loading={booleanProp(root, "isLoading")}
+      navigationTitle={stringProp(root, "navigationTitle")}
+      onSearch={searchEvent === undefined ? undefined : sendSearch}
+      searchText={searchText}
+      searchPlaceholder={stringProp(root, "searchBarPlaceholder")}
+    >
+      {root.children.map((child) => {
+        if (child.type === "list-section") {
+          return (
+            <section className="flex flex-col gap-2" key={child.id}>
+              {stringProp(child, "title") !== undefined && (
+                <h2 className="px-1 text-xs font-semibold uppercase tracking-wide text-white/45">
+                  {stringProp(child, "title")}
+                </h2>
+              )}
+              {child.children.map((sectionChild) => (
+                <ListChild
+                  child={sectionChild}
+                  disabled={disabled}
+                  key={sectionChild.id}
+                  onEvent={onEvent}
+                  selectionEvent={selectionEvent}
+                />
+              ))}
+            </section>
+          );
+        }
+        return (
+          <ListChild
+            child={child}
+            disabled={disabled}
+            key={child.id}
+            onEvent={onEvent}
+            selectionEvent={selectionEvent}
+          />
+        );
+      })}
+      <PaginationControl disabled={disabled} node={root} onEvent={onEvent} />
+    </CollectionLayout>
+  );
+}
+
+function GridScene({ root, disabled, onEvent }: V2SceneProps) {
+  const remoteSearchText = stringProp(root, "searchText") ?? "";
+  const [searchText, setSearchText] = useState(remoteSearchText);
+  const searchEvent = stringProp(root, "onSearchTextChange");
+  const selectionEvent = stringProp(root, "onSelectionChange");
+  const columns = Math.max(1, Math.min(8, numberProp(root, "columns") ?? 3));
+
+  const sendSearch = (value: string): void => {
+    setSearchText(value);
+    if (searchEvent !== undefined) {
+      fireEvent(onEvent, searchEvent, { searchText: value });
+    }
+  };
+
+  return (
+    <CollectionLayout
+      disabled={disabled}
+      grid
+      loading={booleanProp(root, "isLoading")}
+      navigationTitle={stringProp(root, "navigationTitle")}
+      onSearch={searchEvent === undefined ? undefined : sendSearch}
+      searchText={searchText}
+      searchPlaceholder={stringProp(root, "searchBarPlaceholder")}
+    >
+      <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}>
+        {root.children.map((child) => {
+          if (child.type === "grid-section") {
+            return (
+              <section className="col-span-full flex flex-col gap-2" key={child.id}>
+                {stringProp(child, "title") !== undefined && (
+                  <h2 className="px-1 text-xs font-semibold uppercase tracking-wide text-white/45">
+                    {stringProp(child, "title")}
+                  </h2>
+                )}
+                <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}>
+                  {child.children.map((sectionChild) => (
+                    <GridChild
+                      child={sectionChild}
+                      disabled={disabled}
+                      key={sectionChild.id}
+                      onEvent={onEvent}
+                      selectionEvent={selectionEvent}
+                    />
+                  ))}
+                </div>
+              </section>
+            );
+          }
+          return (
+            <GridChild
+              child={child}
+              disabled={disabled}
+              key={child.id}
+              onEvent={onEvent}
+              selectionEvent={selectionEvent}
+            />
+          );
+        })}
+      </div>
+      <PaginationControl disabled={disabled} node={root} onEvent={onEvent} />
+    </CollectionLayout>
+  );
+}
+
+function CollectionLayout({
+  children,
+  disabled,
+  grid = false,
+  loading,
+  navigationTitle,
+  onSearch,
+  searchText,
+  searchPlaceholder,
+}: {
+  readonly children: React.ReactNode;
+  readonly disabled: boolean;
+  readonly grid?: boolean;
+  readonly loading?: boolean;
+  readonly navigationTitle?: string;
+  readonly onSearch?: (value: string) => void;
+  readonly searchText: string;
+  readonly searchPlaceholder?: string;
+}): React.JSX.Element {
+  return (
+    <section className="mx-auto flex max-w-3xl flex-col gap-3">
+      <div className="flex items-center gap-2">
+        <div className="min-w-0 flex-1">
+          <h1 className="truncate text-lg font-semibold">{navigationTitle ?? (grid ? "Grid" : "List")}</h1>
+          {loading && <p className="text-xs text-white/45">Loading…</p>}
+        </div>
+      </div>
+      {onSearch !== undefined && (
+        <input
+          className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none focus:border-blue-400/60"
+          disabled={disabled}
+          onChange={(event) => onSearch(event.target.value)}
+          placeholder={searchPlaceholder ?? "Search…"}
+          value={searchText}
+        />
+      )}
+      <div className="flex min-h-0 flex-col gap-2">{children}</div>
+    </section>
+  );
+}
+
+function ListChild({
+  child,
+  disabled,
+  onEvent,
+  selectionEvent,
+}: {
+  readonly child: SceneNode;
+  readonly disabled: boolean;
+  readonly onEvent: V2SceneEventSender;
+  readonly selectionEvent?: string;
+}): React.JSX.Element | null {
+  switch (child.type) {
+    case "list-item":
+      return (
+        <CollectionItem
+          disabled={disabled}
+          item={child}
+          onEvent={onEvent}
+          selectionEvent={selectionEvent}
+          variant="list"
+        />
+      );
+    case "list-dropdown":
+    case "grid-dropdown":
+      return <SceneDropdown disabled={disabled} node={child} onEvent={onEvent} />;
+    case "list-empty-view":
+      return <EmptyView disabled={disabled} node={child} onEvent={onEvent} />;
+    case "action-group":
+      return <ActionButtons disabled={disabled} nodes={[child]} onEvent={onEvent} />;
+    default:
+      return null;
+  }
+}
+
+function GridChild({
+  child,
+  disabled,
+  onEvent,
+  selectionEvent,
+}: {
+  readonly child: SceneNode;
+  readonly disabled: boolean;
+  readonly onEvent: V2SceneEventSender;
+  readonly selectionEvent?: string;
+}): React.JSX.Element | null {
+  switch (child.type) {
+    case "grid-item":
+      return (
+        <CollectionItem
+          disabled={disabled}
+          item={child}
+          onEvent={onEvent}
+          selectionEvent={selectionEvent}
+          variant="grid"
+        />
+      );
+    case "grid-dropdown":
+    case "list-dropdown":
+      return (
+        <div className="col-span-full">
+          <SceneDropdown disabled={disabled} node={child} onEvent={onEvent} />
+        </div>
+      );
+    case "grid-empty-view":
+      return (
+        <div className="col-span-full">
+          <EmptyView disabled={disabled} node={child} onEvent={onEvent} />
+        </div>
+      );
+    case "action-group":
+      return (
+        <div className="col-span-full">
+          <ActionButtons disabled={disabled} nodes={[child]} onEvent={onEvent} />
+        </div>
+      );
+    default:
+      return null;
+  }
+}
+
+function CollectionItem({
+  item,
+  disabled,
+  onEvent,
+  selectionEvent,
+  variant,
+}: {
+  readonly item: SceneNode;
+  readonly disabled: boolean;
+  readonly onEvent: V2SceneEventSender;
+  readonly selectionEvent?: string;
+  readonly variant: "list" | "grid";
+}): React.JSX.Element {
+  const itemId = stringProp(item, "id") ?? item.id;
+  const primaryAction = firstAction(item.children);
+  const select = (): void => {
+    if (selectionEvent !== undefined) {
+      fireEvent(onEvent, selectionEvent, { selectedItemId: itemId });
+    }
+    const actionEvent = primaryAction === undefined ? undefined : stringProp(primaryAction, "onAction");
+    if (actionEvent !== undefined) {
+      fireEvent(onEvent, actionEvent);
+    }
+  };
+
+  return (
+    <article className={`rounded-lg border border-white/10 bg-white/5 p-3 ${variant === "grid" ? "min-h-28" : ""}`}>
+      <button
+        className="flex w-full items-start gap-3 text-left hover:text-blue-100 disabled:opacity-50"
+        disabled={disabled}
+        onClick={select}
+        type="button"
+      >
+        <SceneIcon node={item} />
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-sm font-medium">{stringProp(item, "title") ?? item.id}</span>
+          {stringProp(item, "subtitle") !== undefined && (
+            <span className="mt-1 block truncate text-xs text-white/50">{stringProp(item, "subtitle")}</span>
+          )}
+        </span>
+      </button>
+      <ActionButtons disabled={disabled} nodes={item.children} onEvent={onEvent} />
+    </article>
+  );
+}
+
+function SceneDropdown({
+  node,
+  disabled,
+  onEvent,
+}: {
+  readonly node: SceneNode;
+  readonly disabled: boolean;
+  readonly onEvent: V2SceneEventSender;
+}): React.JSX.Element {
+  const currentValue = stringProp(node, "value") ?? stringProp(node, "defaultValue") ?? "";
+  const eventId = stringProp(node, "onChange");
+  const fieldId = stringProp(node, "id");
+
+  return (
+    <select
+      className="max-w-48 rounded-md border border-white/10 bg-white/5 px-2 py-1.5 text-xs outline-none disabled:opacity-50"
+      disabled={disabled || booleanProp(node, "isLoading")}
+      onChange={(event) => {
+        if (eventId === undefined) {
+          return;
+        }
+        const value = event.target.value;
+        fireEvent(onEvent, eventId, fieldId === undefined ? { value } : { value, [fieldId]: value });
+      }}
+      value={currentValue}
+    >
+      {dropdownOptions(node)}
+    </select>
+  );
+}
+
+function PaginationControl({
+  node,
+  disabled,
+  onEvent,
+}: {
+  readonly node: SceneNode;
+  readonly disabled: boolean;
+  readonly onEvent: V2SceneEventSender;
+}): React.JSX.Element | null {
+  const eventId = stringProp(node, "onLoadMore");
+  if (eventId === undefined) {
+    return null;
+  }
+  return (
+    <button
+      className="self-center rounded-md bg-white/10 px-3 py-2 text-xs hover:bg-white/20 disabled:opacity-50"
+      disabled={disabled || booleanProp(node, "isLoading") || booleanProp(node, "paginationHasMore") === false}
+      onClick={() => fireEvent(onEvent, eventId)}
+      type="button"
+    >
+      Load more
+    </button>
+  );
+}
+
+function EmptyView({
+  node,
+  disabled,
+  onEvent,
+}: {
+  readonly node: SceneNode;
+  readonly disabled: boolean;
+  readonly onEvent: V2SceneEventSender;
+}): React.JSX.Element {
+  return (
+    <div className="rounded-lg border border-dashed border-white/10 px-4 py-10 text-center">
+      <SceneIcon node={node} />
+      <div className="mt-2 text-sm font-medium">{stringProp(node, "title") ?? "Nothing here"}</div>
+      {stringProp(node, "description") !== undefined && (
+        <div className="mt-1 text-xs text-white/50">{stringProp(node, "description")}</div>
+      )}
+      <ActionButtons disabled={disabled} nodes={node.children} onEvent={onEvent} />
+    </div>
+  );
+}
+
+function DetailScene({ root, disabled, onEvent }: V2SceneProps) {
+  const markdown = stringProp(root, "markdown") ?? "";
+  return (
+    <section className="mx-auto flex max-w-3xl flex-col gap-4">
+      {stringProp(root, "navigationTitle") !== undefined && (
+        <h1 className="text-lg font-semibold">{stringProp(root, "navigationTitle")}</h1>
+      )}
+      <div className="min-h-0 rounded-lg border border-white/10 bg-white/5 p-4">
+        <Detail markdown={markdown} />
+        {root.children
+          .filter((child) => child.type === "detail-metadata")
+          .map((child) => (
+            <DetailMetadata key={child.id} node={child} />
+          ))}
+      </div>
+      <ActionButtons disabled={disabled} nodes={root.children} onEvent={onEvent} />
+    </section>
+  );
+}
+
+function DetailMetadata({ node }: { readonly node: SceneNode }): React.JSX.Element {
+  return (
+    <div className="mt-4 grid gap-2 border-t border-white/10 pt-3 text-xs">
+      {node.children.map((child) => {
+        switch (child.type) {
+          case "detail-metadata-label":
+            return (
+              <div className="flex gap-3" key={child.id}>
+                <span className="w-28 shrink-0 text-white/45">{stringProp(child, "title")}</span>
+                <span>{stringProp(child, "text") ?? ""}</span>
+              </div>
+            );
+          case "detail-metadata-separator":
+            return <hr className="border-white/10" key={child.id} />;
+          case "detail-metadata-link":
+            return (
+              <div className="flex gap-3" key={child.id}>
+                <span className="w-28 shrink-0 text-white/45">{stringProp(child, "title")}</span>
+                <span className="truncate text-blue-200">
+                  {stringProp(child, "text") ?? stringProp(child, "target")}
+                </span>
+              </div>
+            );
+          case "detail-metadata-tag-list":
+            return (
+              <div className="flex gap-3" key={child.id}>
+                <span className="w-28 shrink-0 text-white/45">{stringProp(child, "title")}</span>
+                <span className="flex flex-wrap gap-1">
+                  {child.children.map((tag) => (
+                    <span className="rounded bg-white/10 px-1.5 py-0.5" key={tag.id}>
+                      {stringProp(tag, "text") ?? ""}
+                    </span>
+                  ))}
+                </span>
+              </div>
+            );
+          default:
+            return null;
+        }
+      })}
+    </div>
+  );
+}
+
+function FormScene({ root, disabled, onEvent }: V2SceneProps) {
+  const fields = root.children.filter(isFormField);
+  const [values, setValues] = useState<SceneFormValues>(() => initialFormValues(fields));
+
+  const updateField = (field: SceneNode, value: SceneFormValue): void => {
+    const id = stringProp(field, "id");
+    if (id === undefined) {
+      return;
+    }
+    const nextValues = { ...values, [id]: value };
+    setValues(nextValues);
+    const eventId = stringProp(field, "onChange");
+    if (eventId !== undefined) {
+      fireEvent(onEvent, eventId, nextValues);
+    }
+  };
+
+  const sendFieldFocus = (field: SceneNode, property: "onFocus" | "onBlur"): void => {
+    const eventId = stringProp(field, property);
+    if (eventId !== undefined) {
+      fireEvent(onEvent, eventId, values);
+    }
+  };
+
+  return (
+    <section className="mx-auto flex max-w-2xl flex-col gap-4">
+      {stringProp(root, "navigationTitle") !== undefined && (
+        <h1 className="text-lg font-semibold">{stringProp(root, "navigationTitle")}</h1>
+      )}
+      {booleanProp(root, "isLoading") && <div className="text-xs text-white/45">Loading…</div>}
+      <div className="flex flex-col gap-3">
+        {root.children.map((child) => {
+          if (isFormField(child)) {
+            return (
+              <FormField
+                disabled={disabled || booleanProp(root, "isLoading")}
+                field={child}
+                key={child.id}
+                onBlur={() => sendFieldFocus(child, "onBlur")}
+                onChange={(value) => updateField(child, value)}
+                onFocus={() => sendFieldFocus(child, "onFocus")}
+                value={values[stringProp(child, "id") ?? ""]}
+              />
+            );
+          }
+          if (child.type === "form-description") {
+            return (
+              <div className="text-xs text-white/55" key={child.id}>
+                {stringProp(child, "title") !== undefined && (
+                  <div className="font-medium">{stringProp(child, "title")}</div>
+                )}
+                <div>{stringProp(child, "text")}</div>
+              </div>
+            );
+          }
+          if (child.type === "form-separator") {
+            return <hr className="border-white/10" key={child.id} />;
+          }
+          if (child.type === "form-link-accessory") {
+            const eventId = stringProp(child, "onOpen");
+            return (
+              <button
+                className="self-start rounded-md bg-white/10 px-3 py-2 text-xs hover:bg-white/20 disabled:opacity-50"
+                disabled={disabled || eventId === undefined}
+                key={child.id}
+                onClick={() => (eventId === undefined ? undefined : fireEvent(onEvent, eventId))}
+                type="button"
+              >
+                {stringProp(child, "text") ?? stringProp(child, "target") ?? "Open link"}
+              </button>
+            );
+          }
+          return null;
+        })}
+      </div>
+      <ActionButtons disabled={disabled} nodes={root.children} onEvent={onEvent} values={values} />
+    </section>
+  );
+}
+
+function FormField({
+  field,
+  value,
+  disabled,
+  onChange,
+  onFocus,
+  onBlur,
+}: {
+  readonly field: SceneNode;
+  readonly value: SceneFormValue | undefined;
+  readonly disabled: boolean;
+  readonly onChange: (value: SceneFormValue) => void;
+  readonly onFocus: () => void;
+  readonly onBlur: () => void;
+}): React.JSX.Element | null {
+  const id = stringProp(field, "id") ?? field.id;
+  const title = stringProp(field, "title") ?? stringProp(field, "label") ?? id;
+  const info = stringProp(field, "info");
+  const error = stringProp(field, "error");
+  const common = { disabled, onBlur, onFocus };
+
+  let control: React.ReactNode;
+  switch (field.type) {
+    case "form-text-field":
+    case "form-password-field":
+      control = (
+        <input
+          {...common}
+          className="w-full rounded-md border border-white/10 bg-black/20 px-3 py-2 text-sm outline-none focus:border-blue-400/60"
+          onChange={(event) => onChange(event.target.value)}
+          placeholder={stringProp(field, "placeholder")}
+          type={field.type === "form-password-field" ? "password" : "text"}
+          value={
+            typeof value === "string" ? value : (stringProp(field, "value") ?? stringProp(field, "defaultValue") ?? "")
+          }
+        />
+      );
+      break;
+    case "form-text-area":
+      control = (
+        <textarea
+          {...common}
+          className="min-h-24 w-full rounded-md border border-white/10 bg-black/20 px-3 py-2 text-sm outline-none focus:border-blue-400/60"
+          onChange={(event) => onChange(event.target.value)}
+          placeholder={stringProp(field, "placeholder")}
+          value={
+            typeof value === "string" ? value : (stringProp(field, "value") ?? stringProp(field, "defaultValue") ?? "")
+          }
+        />
+      );
+      break;
+    case "form-checkbox":
+      control = (
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            {...common}
+            checked={
+              typeof value === "boolean"
+                ? value
+                : (booleanProp(field, "value") ?? booleanProp(field, "defaultValue") ?? false)
+            }
+            onChange={(event) => onChange(event.target.checked)}
+            type="checkbox"
+          />
+          <span>{stringProp(field, "label") ?? title}</span>
+        </label>
+      );
+      break;
+    case "form-dropdown":
+      control = (
+        <select
+          {...common}
+          className="w-full rounded-md border border-white/10 bg-black/20 px-3 py-2 text-sm outline-none focus:border-blue-400/60"
+          onChange={(event) => onChange(event.target.value)}
+          value={
+            typeof value === "string" ? value : (stringProp(field, "value") ?? stringProp(field, "defaultValue") ?? "")
+          }
+        >
+          {dropdownOptions(field)}
+        </select>
+      );
+      break;
+    case "form-date-picker":
+      control = (
+        <input
+          {...common}
+          className="w-full rounded-md border border-white/10 bg-black/20 px-3 py-2 text-sm outline-none focus:border-blue-400/60"
+          onChange={(event) => onChange(event.target.value)}
+          type="text"
+          value={
+            typeof value === "string" ? value : (stringProp(field, "value") ?? stringProp(field, "defaultValue") ?? "")
+          }
+        />
+      );
+      break;
+    case "form-tag-picker":
+    case "form-file-picker":
+      control = (
+        <input
+          {...common}
+          className="w-full rounded-md border border-white/10 bg-black/20 px-3 py-2 text-sm outline-none focus:border-blue-400/60"
+          onChange={(event) => onChange(splitList(event.target.value))}
+          placeholder="Comma-separated values"
+          value={Array.isArray(value) ? value.join(", ") : (stringArrayProp(field, "value")?.join(", ") ?? "")}
+        />
+      );
+      break;
+    default:
+      return null;
+  }
+
+  return (
+    <label className="flex flex-col gap-1 text-xs">
+      <span className="font-medium text-white/75">{title}</span>
+      {control}
+      {info !== undefined && <span className="text-white/45">{info}</span>}
+      {error !== undefined && <span className="text-red-200">{error}</span>}
+    </label>
+  );
+}
+
+function ActionButtons({
+  nodes,
+  disabled,
+  onEvent,
+  values,
+}: {
+  readonly nodes: readonly SceneNode[];
+  readonly disabled: boolean;
+  readonly onEvent: V2SceneEventSender;
+  readonly values?: SceneFormValues;
+}): React.JSX.Element | null {
+  const actions = nodes.filter((node) => node.type === "action");
+  const groups = nodes.filter((node) => node.type === "action-group");
+  if (actions.length === 0 && groups.length === 0) {
+    return null;
+  }
+  return (
+    <div className="mt-3 flex flex-wrap items-center gap-2">
+      {actions.map((action) => (
+        <ActionButton action={action} disabled={disabled} key={action.id} onEvent={onEvent} values={values} />
+      ))}
+      {groups.map((group) => (
+        <div className="flex flex-wrap items-center gap-2" key={group.id}>
+          {stringProp(group, "title") !== undefined && (
+            <span className="mr-1 text-xs text-white/45">{stringProp(group, "title")}</span>
+          )}
+          <ActionButtons disabled={disabled} nodes={group.children} onEvent={onEvent} values={values} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ActionButton({
+  action,
+  disabled,
+  onEvent,
+  values,
+}: {
+  readonly action: SceneNode;
+  readonly disabled: boolean;
+  readonly onEvent: V2SceneEventSender;
+  readonly values?: SceneFormValues;
+}): React.JSX.Element {
+  const eventId = stringProp(action, "onAction");
+  return (
+    <button
+      className="rounded-md bg-blue-400/20 px-3 py-1.5 text-xs text-blue-100 hover:bg-blue-400/30 disabled:opacity-50"
+      disabled={disabled || eventId === undefined}
+      onClick={() => (eventId === undefined ? undefined : fireEvent(onEvent, eventId, values))}
+      type="button"
+    >
+      {stringProp(action, "title") ?? "Run"}
+      {stringProp(action, "shortcut") !== undefined && (
+        <span className="ml-2 text-blue-100/50">{stringProp(action, "shortcut")}</span>
+      )}
+    </button>
+  );
+}
+
+function UnsupportedScene({ node }: { readonly node: SceneNode }): React.JSX.Element {
+  return (
+    <div className="mx-auto max-w-xl rounded-lg border border-amber-300/30 bg-amber-300/10 px-4 py-5 text-sm text-amber-100">
+      This V2 renderer does not yet display the `{node.type}` scene member.
+    </div>
+  );
+}
+
+function SceneIcon({ node }: { readonly node: SceneNode }): React.JSX.Element {
+  const source = stringProp(node, "icon") ?? stringProp(node, "iconDark") ?? stringProp(node, "content") ?? "";
+  if (source.startsWith("data:image/") || source.startsWith("https://") || source.startsWith("http://")) {
+    return <img alt="" className="h-8 w-8 shrink-0 rounded-md object-contain" src={source} />;
+  }
+  return (
+    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-white/10 text-xs text-white/70">
+      {source.trim().slice(0, 1).toUpperCase() || "•"}
+    </span>
+  );
+}
+
+function isFormField(node: SceneNode): boolean {
+  return (
+    node.type.startsWith("form-") && !["form-link-accessory", "form-description", "form-separator"].includes(node.type)
+  );
+}
+
+function initialFormValues(fields: readonly SceneNode[]): SceneFormValues {
+  const values: Record<string, SceneFormValue> = {};
+  for (const field of fields) {
+    const id = stringProp(field, "id");
+    if (id === undefined) {
+      continue;
+    }
+    const value = sceneFormValue(field.props.value) ?? sceneFormValue(field.props.defaultValue);
+    if (value !== undefined) {
+      values[id] = value;
+    }
+  }
+  return values;
+}
+
+function firstAction(nodes: readonly SceneNode[]): SceneNode | undefined {
+  for (const node of nodes) {
+    if (node.type === "action") {
+      return node;
+    }
+    if (node.type === "action-group") {
+      const nested = firstAction(node.children);
+      if (nested !== undefined) {
+        return nested;
+      }
+    }
+  }
+  return undefined;
+}
+
+function dropdownOptions(node: SceneNode): React.ReactNode[] {
+  return node.children.flatMap((child) => {
+    if (child.type.endsWith("dropdown-item")) {
+      return [
+        <option key={child.id} value={stringProp(child, "value") ?? ""}>
+          {stringProp(child, "title") ?? stringProp(child, "value") ?? ""}
+        </option>,
+      ];
+    }
+    if (child.type.endsWith("dropdown-section")) {
+      return [
+        <optgroup key={child.id} label={stringProp(child, "title") ?? ""}>
+          {child.children
+            .filter((sectionChild) => sectionChild.type.endsWith("dropdown-item"))
+            .map((option) => (
+              <option key={option.id} value={stringProp(option, "value") ?? ""}>
+                {stringProp(option, "title") ?? stringProp(option, "value") ?? ""}
+              </option>
+            ))}
+        </optgroup>,
+      ];
+    }
+    return [];
+  });
+}
+
+function fireEvent(onEvent: V2SceneEventSender, eventId: string, values?: SceneFormValues): void {
+  void onEvent(eventId, values).catch(() => {});
+}
+
+function sceneFormValue(value: ScenePropValue | undefined): SceneFormValue | undefined {
+  if (typeof value === "string" || typeof value === "boolean" || Array.isArray(value)) {
+    return value;
+  }
+  return undefined;
+}
+
+function stringProp(node: SceneNode, name: string): string | undefined {
+  const value = node.props[name];
+  return typeof value === "string" ? value : undefined;
+}
+
+function stringArrayProp(node: SceneNode, name: string): readonly string[] | undefined {
+  const value = node.props[name];
+  return Array.isArray(value) && value.every((entry) => typeof entry === "string") ? value : undefined;
+}
+
+function booleanProp(node: SceneNode, name: string): boolean | undefined {
+  const value = node.props[name];
+  return typeof value === "boolean" ? value : undefined;
+}
+
+function numberProp(node: SceneNode, name: string): number | undefined {
+  const value = node.props[name];
+  return typeof value === "number" ? value : undefined;
+}
+
+function splitList(value: string): readonly string[] {
+  return value
+    .split(",")
+    .map((entry) => entry.trim())
+    .filter((entry) => entry.length > 0);
+}

@@ -1,4 +1,5 @@
 export const V2ClientChannels = {
+  enabled: "blast:v2:enabled",
   subscribe: "blast:v2:subscribe",
   unsubscribe: "blast:v2:unsubscribe",
   snapshot: "blast:v2:snapshot",

@@ -125,10 +125,11 @@ main-process adapter consumes the client controller.
 Clients discover commands, render semantic scenes, collect user input, and send
 events. The transport-neutral client state consumer is implemented in ADR 0094;
 the Electron desktop application is the reference client during the V2
-migration. ADR 0096 adds the next boundary: a transport-neutral client host
-and an opt-in Electron main-process IPC adapter; client-specific types must not
-enter the protocol package. The existing V1 renderer remains the default until
-the V2 bootstrap, catalog layout, and semantic scene UI are ready.
+migration. ADR 0096 adds a transport-neutral client host and an opt-in Electron
+main-process IPC adapter; ADR 0097 adds the corresponding opt-in semantic scene
+renderer. Client-specific types must not enter the protocol package. The
+existing V1 renderer remains the default until the V2 bootstrap and catalog
+layout are ready.
 
 ### Capability providers
 

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, globalShortcut } from "electron";
+import { app, BrowserWindow, globalShortcut, ipcMain } from "electron";
 
 // import installExtension, { REACT_DEVELOPER_TOOLS } from "electron-devtools-installer";
 
@@ -12,12 +12,15 @@ import { startRuntime, stopRuntime } from "./runtime";
 import { createTray } from "./tray";
 import { connectLocalCoreClient } from "@blastlauncher/core-node";
 import { registerV2ClientIPCEvents, type V2ClientIPCRegistration } from "./v2Client";
+import { V2ClientChannels } from "./v2ClientChannels";
 import { createApplicationWindow, createNodeInstallerWindow } from "./window";
 
 const debug = createDebug("electron-client:index");
 
 let v2ClientIPC: V2ClientIPCRegistration | undefined;
 let v2MessageSequence = 0;
+
+ipcMain.handle(V2ClientChannels.enabled, () => v2ClientIPC !== undefined);
 
 require("update-electron-app")();
 

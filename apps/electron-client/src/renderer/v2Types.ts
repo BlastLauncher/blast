@@ -6,6 +6,7 @@ export type V2ClientSnapshotListener = (snapshot: CoreClientSnapshot) => void;
 export type V2ClientToastListener = (toast: ToastPayload) => void;
 
 export interface V2ClientRendererAPI {
+  isEnabled(): Promise<boolean>;
   subscribeSnapshots(listener: V2ClientSnapshotListener): () => void;
   subscribeToasts(listener: V2ClientToastListener): () => void;
   start(): Promise<CoreClientSnapshot>;
