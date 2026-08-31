@@ -188,6 +188,20 @@ slice changes what is executable, what is trusted, or what should happen next.
   explicit Blast compatibility alias, so the declaration/runtime finish gate
   is green. This remains a contract-shape gate; adapter behavior, host
   providers, and corpus rendering stay separate.
+- The first application boundary slice in [ADR
+  0110](decisions/0110-v2-application-boundary-performance-baseline.md) is
+  implemented: the V2 command chooser supports keyboard selection, wrapping,
+  Enter-to-run, selected-state semantics, and listbox metadata. The real
+  daemon/client benchmark records cold and warm command-to-scene latency,
+  scene-event round trips, and shutdown on the ARM64 runner; it remains
+  separate from Electron paint, native providers, and extension-owned
+  dependency startup.
+- The first three-sample ARM64 baseline is committed in
+  [`v2-arm64-baseline.json`](performance/v2-arm64-baseline.json): median client
+  readiness is 5.197 ms, cold command-to-scene is 105.485 ms, warm
+  command-to-scene is 105.305 ms, scene-event round trip is 2.626 ms, and
+  warm stop is 10.881 ms. These are comparison points, not timing acceptance
+  thresholds; the warm command still launches a fresh extension process.
 - The e2e corpus probe has a bounded, exact-version development-only vendor
   seed for `axios`, `cheerio`, `cross-fetch`, `date-fns`, `fast-xml-parser`,
   `fuse.js`, `moment`, `node-html-markdown`, `rss-parser`, and `zod`. The seed
@@ -707,8 +721,9 @@ slice changes what is executable, what is trusted, or what should happen next.
   module support on their target platforms;
 - the remaining measured Raycast surface: client toast timeout policy, broader
   desktop APIs, broader action helpers, and additional Tool/browser APIs; the
-  declaration-driven ARM64 finish gate is now the compatibility priority
-  before application-layer polishing;
+  declaration-driven ARM64 finish gate is green, so application-layer work can
+  now proceed while those behavior/provider boundaries remain separately
+  measured;
 - persistent catalog refresh, command watching, and complete desktop rendering
   of every scene member (the local listener, Node
   daemon composition, path-free discovery snapshot, transport-neutral client
@@ -716,8 +731,8 @@ slice changes what is executable, what is trusted, or what should happen next.
   scene renderer, explicit app-owned daemon mode, menu-bar scene renderer, and
   packaged bootstrap/catalog bridge, native status-item menu projection, and
   toast lifecycle/action presentation, scene icon/image source presentation,
-  icon mask/tint presentation, and action chrome fidelity now exist; packaged
-  mode is now the default under ADR 0108, while V1 installation UI/migration,
+  icon mask/tint presentation, action chrome fidelity, and the keyboard command
+  chooser now exist; packaged mode is now the default under ADR 0108, while V1 installation UI/migration,
   toast timeout
   policy, automatic icon contrast adjustment, broader action helpers, and
   remaining scene visuals are still missing);
@@ -745,13 +760,15 @@ complete, but the measured
 80% target is not yet met: the current run is 64.53% overall and 71.53% among
 commands with a
 renderable selection. Per [ADR 0109](decisions/0109-declaration-driven-arm64-compatibility-finish-line.md),
-compatibility is now the first priority: the declaration inventory must show
-100% coverage of the portable pinned Raycast surface on the ARM64 runner is now
-green: the declaration shape, runtime export, observed-import, and static-blocker
+compatibility is now measured at the ARM64 declaration/runtime/import finish
+line: the declaration shape, runtime export, observed-import, and static-blocker
 checks all pass. The remaining measured adapter behavior is covered by focused
 tests; the two aggregate structured outcomes are intentional validation
 boundaries. Declaration shape, adapter behavior, corpus runtime coverage, and
-host/provider coverage remain separate measurements. Native/macOS, WASM,
+host/provider coverage remain separate measurements. The first application
+slice is now recorded by [ADR 0110](decisions/0110-v2-application-boundary-performance-baseline.md)
+and its baseline artifact.
+Native/macOS, WASM,
 test-only, large-graph, and host-process dependencies remain deferred, with
 only small portable JavaScript seeds eligible after the API-first slice.
 
@@ -920,10 +937,12 @@ only small portable JavaScript seeds eligible after the API-first slice.
    fidelity is now implemented under [ADR
    0104](decisions/0104-v2-action-chrome-fidelity.md), and supported icon
    mask/tint presentation is now implemented under [ADR
-   0105](decisions/0105-v2-icon-mask-and-tint-presentation.md). The next client
-   boundary is installation UI/migration, toast timeout policy, automatic icon
-   contrast adjustment, broader action helpers, and remaining scene visuals,
-   followed by installation UI/migration and the remaining desktop boundary.
+   0105](decisions/0105-v2-icon-mask-and-tint-presentation.md). The first
+   application slice in [ADR 0110](decisions/0110-v2-application-boundary-performance-baseline.md)
+   is complete, with keyboard command selection and a committed cold/warm
+   latency baseline. Installation UI/migration, toast timeout policy, automatic
+   icon contrast adjustment, broader action helpers, and remaining scene visuals
+   follow.
 
 Keep WebSocket and remote execution as transport/provider additions. They do not
 require changing the session, extension contract, runtime, host, or core

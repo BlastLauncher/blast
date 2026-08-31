@@ -17,7 +17,7 @@ const originalResolveFilename = Reflect.get(NodeModule, "_resolveFilename");
 if (typeof originalResolveFilename !== "function") {
   throw new Error("Node module resolver is unavailable");
 }
-const svgStub = fileURLToPath(new URL("../dist/renderer/components/Icon/images/add-person-16.svg", import.meta.url));
+const svgStub = fileURLToPath(new URL("../dist/renderer/components/Icon/images/v2-scene-test.svg", import.meta.url));
 mkdirSync(fileURLToPath(new URL("../dist/renderer/components/Icon/images/", import.meta.url)), { recursive: true });
 writeFileSync(svgStub, "");
 Reflect.set(NodeModule, "_resolveFilename", (request, parent, isMain, options) =>
@@ -32,7 +32,7 @@ writeFileSync(markdownStylesheet, "");
 const { V2Scene } = await import("../dist/renderer/V2Scene.js");
 Reflect.set(NodeModule, "_resolveFilename", originalResolveFilename);
 rmSync(markdownStylesheet);
-rmSync(svgStub);
+rmSync(svgStub, { force: true });
 
 test("server-renders menu-bar scenes with nested controls and shortcut labels", () => {
   const markup = renderToStaticMarkup(

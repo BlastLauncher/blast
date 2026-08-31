@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "runner": "v2-application-boundary-performance",
+  "runnerVersion": 1,
+  "generatedAt": "2026-08-31T20:20:40.289Z",
+  "environment": {
+    "platform": "linux",
+    "arch": "arm64",
+    "node": "v24.20.0",
+    "cpuCount": 4,
+    "cpuModel": "Neoverse-N1"
+  },
+  "workload": {
+    "fixture": "e2e.scene",
+    "identity": {
+      "extensionId": "e2e.scene",
+      "commandName": "index"
+    },
+    "catalog": "packages/blast-e2e/test/fixtures/catalog",
+    "iterations": 3,
+    "timeoutMilliseconds": 5000
+  },
+  "metrics": {
+    "daemonStartup": {
+      "samplesMs": [1.753, 0.301, 0.326],
+      "minMs": 0.301,
+      "meanMs": 0.793,
+      "medianMs": 0.326,
+      "p95Ms": 1.753,
+      "maxMs": 1.753
+    },
+    "clientReady": {
+      "samplesMs": [13.699, 4.106, 5.197],
+      "minMs": 4.106,
+      "meanMs": 7.667,
+      "medianMs": 5.197,
+      "p95Ms": 13.699,
+      "maxMs": 13.699
+    },
+    "coldCommandToScene": {
+      "samplesMs": [114.392, 102.579, 105.485],
+      "minMs": 102.579,
+      "meanMs": 107.485,
+      "medianMs": 105.485,
+      "p95Ms": 114.392,
+      "maxMs": 114.392
+    },
+    "coldStop": {
+      "samplesMs": [12.817, 11.551, 11.133],
+      "minMs": 11.133,
+      "meanMs": 11.834,
+      "medianMs": 11.551,
+      "p95Ms": 12.817,
+      "maxMs": 12.817
+    },
+    "warmDiscovery": {
+      "samplesMs": [0.609, 0.398, 0.444],
+      "minMs": 0.398,
+      "meanMs": 0.484,
+      "medianMs": 0.444,
+      "p95Ms": 0.609,
+      "maxMs": 0.609
+    },
+    "warmCommandToScene": {
+      "samplesMs": [107.34, 105.305, 104.123],
+      "minMs": 104.123,
+      "meanMs": 105.589,
+      "medianMs": 105.305,
+      "p95Ms": 107.34,
+      "maxMs": 107.34
+    },
+    "sceneEventRoundTrip": {
+      "samplesMs": [3.609, 2.409, 2.626],
+      "minMs": 2.409,
+      "meanMs": 2.881,
+      "medianMs": 2.626,
+      "p95Ms": 3.609,
+      "maxMs": 3.609
+    },
+    "warmStop": {
+      "samplesMs": [11.152, 10.614, 10.881],
+      "minMs": 10.614,
+      "meanMs": 10.882,
+      "medianMs": 10.881,
+      "p95Ms": 11.152,
+      "maxMs": 11.152
+    }
+  },
+  "samples": [
+    {
+      "iteration": 1,
+      "daemonStartup": 1.753,
+      "clientReady": 13.699,
+      "coldCommandToScene": 114.392,
+      "coldStop": 12.817,
+      "warmDiscovery": 0.609,
+      "warmCommandToScene": 107.34,
+      "sceneEventRoundTrip": 3.609,
+      "warmStop": 11.152
+    },
+    {
+      "iteration": 2,
+      "daemonStartup": 0.301,
+      "clientReady": 4.106,
+      "coldCommandToScene": 102.579,
+      "coldStop": 11.551,
+      "warmDiscovery": 0.398,
+      "warmCommandToScene": 105.305,
+      "sceneEventRoundTrip": 2.409,
+      "warmStop": 10.614
+    },
+    {
+      "iteration": 3,
+      "daemonStartup": 0.326,
+      "clientReady": 5.197,
+      "coldCommandToScene": 105.485,
+      "coldStop": 11.133,
+      "warmDiscovery": 0.444,
+      "warmCommandToScene": 104.123,
+      "sceneEventRoundTrip": 2.626,
+      "warmStop": 10.881
+    }
+  ]
+}

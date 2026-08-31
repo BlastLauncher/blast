@@ -139,6 +139,11 @@ ADR 0108 adds main-process configuration coverage for default packaged startup,
 explicit packaged and legacy modes, external-daemon precedence, conflicting
 settings, and visible failure behavior; the Electron type-check and ARM64
 package gates verify that the default resource paths are bundled.
+ADR 0110 adds pure command-chooser filtering/selection tests and a real
+three-sample ARM64 performance runner over the daemon, local client, extension
+scene, event, and shutdown boundaries. The runner records raw samples and
+min/mean/median/p95/max summaries; it is a baseline rather than a timing-based
+test gate.
 IPC inputs are
 validated at the main-process boundary, subscriptions clean up with the
 sender, and snapshots use JSON-safe failure details; these checks do not
@@ -230,6 +235,7 @@ pnpm run test
 pnpm run test:v2
 pnpm run lint
 pnpm run fmt:check
+pnpm --filter @blastlauncher/e2e run measure:performance
 ```
 
 V2 package tests build their package and use the Node.js test runner. The legacy

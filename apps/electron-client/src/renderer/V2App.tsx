@@ -8,6 +8,7 @@ import type { V2ClientRendererAPI } from "./v2Types";
 
 import { V2Scene } from "./V2Scene";
 import { V2ToastStack } from "./V2ToastStack";
+import { clampV2CommandSelection, filterV2Commands, moveV2CommandSelection } from "./v2CommandListModel";
 import { applyV2ToastPayload, createV2ToastState, type V2ToastState } from "./v2ToastModel";
 
 export interface V2AppProps {
@@ -178,15 +179,29 @@ function CommandList({
   readonly onRun: (identity: CommandIdentity) => void;
 }): React.JSX.Element {
   const [query, setQuery] = useState("");
-  const normalizedQuery = query.trim().toLocaleLowerCase();
-  const visibleCommands = commands.filter((command) => {
-    if (normalizedQuery.length === 0) {
-      return true;
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const visibleCommands = filterV2Commands(commands, query);
+  const activeIndex = clampV2CommandSelection(selectedIndex, visibleCommands.length);
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>): void => {
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setSelectedIndex(moveV2CommandSelection(activeIndex, "next", visibleCommands.length));
+      return;
     }
-    return [command.title, command.extensionName, command.extensionId, command.commandName]
-      .filter((value): value is string => value !== undefined)
-      .some((value) => value.toLocaleLowerCase().includes(normalizedQuery));
-  });
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setSelectedIndex(moveV2CommandSelection(activeIndex, "previous", visibleCommands.length));
+      return;
+    }
+    if (event.key === "Enter") {
+      event.preventDefault();
+      const selected = visibleCommands[activeIndex];
+      if (selected !== undefined && !disabled) {
+        onRun({ extensionId: selected.extensionId, commandName: selected.commandName });
+      }
+    }
+  };
 
   return (
     <section className="mx-auto flex max-w-2xl flex-col gap-3">
@@ -196,18 +211,30 @@ function CommandList({
       </div>
       <input
         autoFocus
+        aria-controls="v2-command-results"
+        aria-label="Search commands"
         className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none focus:border-blue-400/60"
-        onChange={(event) => setQuery(event.target.value)}
+        onChange={(event) => {
+          setQuery(event.target.value);
+          setSelectedIndex(0);
+        }}
+        onKeyDown={handleKeyDown}
         placeholder="Search commands…"
         value={query}
       />
-      <div className="flex flex-col gap-2">
-        {visibleCommands.map((command) => (
+      <div className="flex flex-col gap-2" id="v2-command-results" role="listbox" aria-label="Available commands">
+        {visibleCommands.map((command, index) => (
           <button
-            className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-3 py-3 text-left hover:bg-white/10 disabled:opacity-50"
+            aria-selected={index === activeIndex}
+            className={`flex items-center gap-3 rounded-lg border px-3 py-3 text-left hover:bg-white/10 disabled:opacity-50 ${
+              index === activeIndex ? "border-blue-300/60 bg-blue-400/15" : "border-white/10 bg-white/5"
+            }`}
             disabled={disabled}
+            id={`v2-command-${command.extensionId}-${command.commandName}`}
             key={`${command.extensionId}:${command.commandName}`}
             onClick={() => onRun({ extensionId: command.extensionId, commandName: command.commandName })}
+            onMouseEnter={() => setSelectedIndex(index)}
+            role="option"
             type="button"
           >
             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-blue-400/20 text-sm text-blue-100">

@@ -16,7 +16,9 @@ const originalResolveFilename = Reflect.get(NodeModule, "_resolveFilename");
 if (typeof originalResolveFilename !== "function") {
   throw new Error("Node module resolver is unavailable");
 }
-const svgStub = fileURLToPath(new URL("../dist/renderer/components/Icon/images/add-person-16.svg", import.meta.url));
+const svgStub = fileURLToPath(
+  new URL("../dist/renderer/components/Icon/images/v2-scene-icon-test.svg", import.meta.url),
+);
 mkdirSync(fileURLToPath(new URL("../dist/renderer/components/Icon/images/", import.meta.url)), { recursive: true });
 writeFileSync(svgStub, "");
 Reflect.set(NodeModule, "_resolveFilename", (request, parent, isMain, options) =>
@@ -28,7 +30,7 @@ Reflect.set(NodeModule, "_resolveFilename", (request, parent, isMain, options) =
 const { V2SceneIcon, selectV2SceneIconTint, selectV2SceneImageSource } =
   await import("../dist/renderer/V2SceneIcon.js");
 Reflect.set(NodeModule, "_resolveFilename", originalResolveFilename);
-rmSync(svgStub);
+rmSync(svgStub, { force: true });
 
 test("prefers dark registered assets and falls back to another renderable source", () => {
   const darkNode = {

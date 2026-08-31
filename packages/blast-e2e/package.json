@@ -6,6 +6,7 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
+    "measure:performance": "pnpm --filter '@blastlauncher/raycast-runtime-node...' run build && pnpm --filter '@blastlauncher/core-node...' run build && pnpm --filter '@blastlauncher/client...' run build && node scripts/measure-v2-performance.mjs --output ../../docs/v2/performance/v2-arm64-baseline.json",
     "test": "pnpm --filter '@blastlauncher/raycast-runtime-node...' run build && pnpm --filter '@blastlauncher/e2e...' run build && node --test test/*.test.mjs",
     "probe:corpus": "node scripts/probe-corpus.mjs"
   },
