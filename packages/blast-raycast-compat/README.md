@@ -57,6 +57,10 @@ onto the V2 scene contract, renderer, and capability broker:
   measured `Safari` and `Application` aliases mapped to the current globe and
   app-window glyphs; unknown members stay unsupported rather than resolving
   through an implicit fallback.
+  The bundled Electron client registers 302 unique drawable icon keys,
+  including 171 additional local assets from [ADR
+  0088](../../docs/v2/decisions/0088-complete-available-client-icon-assets.md);
+  the 102 absent numbered/warning assets remain explicit client asset gaps.
   `Color` exposes theme-aware `raycast-*` values while retaining legacy
   `Pink`/`Brown` aliases plus the measured `Gray` raw alias.
   Object/file/theme-aware icon descriptors are

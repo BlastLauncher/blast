@@ -692,10 +692,12 @@ only small portable JavaScript seeds eligible after the API-first slice.
    public Raycast API archives. The focused probe reports no static unsupported
    APIs for either call site, while both remain separately classified at the
    existing dependency boundary. The next bounded client-facing icon step is
-   documented in proposed [ADR
+   documented in [ADR
    0088](decisions/0088-complete-available-client-icon-assets.md): register
-   every existing local SVG already referenced by the client lookup table,
-   while leaving absent numbered/warning artwork explicit and ungenerated.
+   every additional unique existing local SVG already referenced by the client
+   lookup table. ADR 0088 is now implemented with 302 active client map keys
+   (171 added in this slice); the 102 absent numbered/warning assets remain
+   explicit and ungenerated.
    Preserve
    structured errors for values that would require a broader scene or host
    policy. Keep the deterministic

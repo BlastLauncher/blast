@@ -128,85 +128,85 @@ import Eye from "./images/eye-16.svg";
 import EyeDisabled from "./images/eye-disabled-16.svg";
 import EyeDropper from "./images/eye-dropper-16.svg";
 import ExclamationMark from "./images/important-01-16.svg";
-// import Female from "./images/female-16.svg";
-// import FilmStrip from "./images/film-strip-16.svg";
-// import Filter from "./images/filter-16.svg";
-// import Finder from "./images/finder-16.svg";
-// import Fingerprint from "./images/fingerprint-16.svg";
-// import Folder from "./images/folder-16.svg";
-// import Footprints from "./images/footprints-16.svg";
-// import Forward from "./images/forward-16.svg";
-// import ForwardFilled from "./images/forward-filled-16.svg";
-// import FountainTip from "./images/fountain-tip-16.svg";
-// import FullSignal from "./images/full-signal-16.svg";
-// import GameController from "./images/game-controller-16.svg";
-// import Gauge from "./images/gauge-16.svg";
+import Female from "./images/female-16.svg";
+import FilmStrip from "./images/film-strip-16.svg";
+import Filter from "./images/filter-16.svg";
+import Finder from "./images/finder-16.svg";
+import Fingerprint from "./images/fingerprint-16.svg";
+import Folder from "./images/folder-16.svg";
+import Footprints from "./images/footprints-16.svg";
+import Forward from "./images/forward-16.svg";
+import ForwardFilled from "./images/forward-filled-16.svg";
+import FountainTip from "./images/fountain-tip-16.svg";
+import FullSignal from "./images/full-signal-16.svg";
+import GameController from "./images/game-controller-16.svg";
+import Gauge from "./images/gauge-16.svg";
 // import Gear from "./images/cog-16.svg";
-// import Geopin from "./images/geopin-16.svg";
-// import Germ from "./images/germ-16.svg";
-// import Gift from "./images/gift-16.svg";
-// import Glasses from "./images/glasses-16.svg";
+import Geopin from "./images/geopin-16.svg";
+import Germ from "./images/germ-16.svg";
+import Gift from "./images/gift-16.svg";
+import Glasses from "./images/glasses-16.svg";
 import Globe from "./images/globe-01-16.svg";
-// import Goal from "./images/goal-16.svg";
-// import Hammer from "./images/hammer-16.svg";
-// import HardDrive from "./images/hard-drive-16.svg";
-// import Hashtag from "./images/hashtag-16.svg";
-// import Headphones from "./images/headphones-16.svg";
-// import Heart from "./images/heart-16.svg";
-// import HeartDisabled from "./images/heart-disabled-16.svg";
-// import Heartbeat from "./images/heartbeat-16.svg";
-// import Highlight from "./images/highlight-16.svg";
-// import Hourglass from "./images/hourglass-16.svg";
-// import House from "./images/house-16.svg";
-// import Image from "./images/image-16.svg";
+import Goal from "./images/goal-16.svg";
+import Hammer from "./images/hammer-16.svg";
+import HardDrive from "./images/hard-drive-16.svg";
+import Hashtag from "./images/hashtag-16.svg";
+import Headphones from "./images/headphones-16.svg";
+import Heart from "./images/heart-16.svg";
+import HeartDisabled from "./images/heart-disabled-16.svg";
+import Heartbeat from "./images/heartbeat-16.svg";
+import Highlight from "./images/highlight-16.svg";
+import Hourglass from "./images/hourglass-16.svg";
+import House from "./images/house-16.svg";
+import Image from "./images/image-16.svg";
 // import Important from "./images/important-01-16.svg";
-// import Info from "./images/info-01-16.svg";
-// import Italics from "./images/italics-16.svg";
-// import Key from "./images/key-16.svg";
-// import Keyboard from "./images/keyboard-16.svg";
-// import Layers from "./images/layers-16.svg";
-// import Leaderboard from "./images/leaderboard-16.svg";
-// import Leaf from "./images/leaf-16.svg";
-// import LevelMeter from "./images/signal-2-16.svg";
-// import LightBulb from "./images/light-bulb-16.svg";
-// import LightBulbOff from "./images/light-bulb-off-16.svg";
-// import LineChart from "./images/line-chart-16.svg";
-// import Link from "./images/link-16.svg";
+import Info from "./images/info-01-16.svg";
+import Italics from "./images/italics-16.svg";
+import Key from "./images/key-16.svg";
+import Keyboard from "./images/keyboard-16.svg";
+import Layers from "./images/layers-16.svg";
+import Leaderboard from "./images/leaderboard-16.svg";
+import Leaf from "./images/leaf-16.svg";
+import LevelMeter from "./images/signal-2-16.svg";
+import LightBulb from "./images/light-bulb-16.svg";
+import LightBulbOff from "./images/light-bulb-off-16.svg";
+import LineChart from "./images/line-chart-16.svg";
+import Link from "./images/link-16.svg";
 // import List from "./images/app-window-list-16.svg";
-// import Livestream from "./images/livestream-01-16.svg";
-// import LivestreamDisabled from "./images/livestream-disabled-01-16.svg";
-// import Lock from "./images/lock-16.svg";
-// import LockDisabled from "./images/lock-disabled-16.svg";
-// import LockUnlocked from "./images/lock-unlocked-16.svg";
-// import Logout from "./images/logout-16.svg";
-// import Lorry from "./images/lorry-16.svg";
-// import Lowercase from "./images/lowercase-16.svg";
-// import MagnifyingGlass from "./images/magnifying-glass-16.svg";
-// import Male from "./images/male-16.svg";
-// import Map from "./images/map-16.svg";
-// import Mask from "./images/mask-16.svg";
-// import Maximize from "./images/maximize-16.svg";
-// import MedicalSupport from "./images/medical-support-16.svg";
-// import Megaphone from "./images/megaphone-16.svg";
+import Livestream from "./images/livestream-01-16.svg";
+import LivestreamDisabled from "./images/livestream-disabled-01-16.svg";
+import Lock from "./images/lock-16.svg";
+import LockDisabled from "./images/lock-disabled-16.svg";
+import LockUnlocked from "./images/lock-unlocked-16.svg";
+import Logout from "./images/logout-16.svg";
+import Lorry from "./images/lorry-16.svg";
+import Lowercase from "./images/lowercase-16.svg";
+import MagnifyingGlass from "./images/magnifying-glass-16.svg";
+import Male from "./images/male-16.svg";
+import Map from "./images/map-16.svg";
+import Mask from "./images/mask-16.svg";
+import Maximize from "./images/maximize-16.svg";
+import MedicalSupport from "./images/medical-support-16.svg";
+import Megaphone from "./images/megaphone-16.svg";
 // import MemoryChip from "./images/computer-chip-16.svg";
-// import MemoryStick from "./images/memory-stick-16.svg";
+import MemoryStick from "./images/memory-stick-16.svg";
 // import Message from "./images/speech-bubble-16.svg";
-// import Microphone from "./images/microphone-16.svg";
-// import MicrophoneDisabled from "./images/microphone-disabled-16.svg";
-// import Minimize from "./images/minimize-16.svg";
-// import Minus from "./images/minus-16.svg";
-// import MinusCircle from "./images/minus-circle-16.svg";
-// import MinusCircleFilled from "./images/minus-circle-filled-16.svg";
-// import Mobile from "./images/mobile-16.svg";
-// import Monitor from "./images/monitor-16.svg";
-// import Moon from "./images/moon-16.svg";
-// import Mountain from "./images/mountain-16.svg";
-// import Mouse from "./images/mouse-16.svg";
-// import Multiply from "./images/multiply-16.svg";
-// import Music from "./images/music-16.svg";
-// import Network from "./images/network-16.svg";
-// import NewDocument from "./images/new-document-16.svg";
-// import NewFolder from "./images/new-folder-16.svg";
+import Microphone from "./images/microphone-16.svg";
+import MicrophoneDisabled from "./images/microphone-disabled-16.svg";
+import Minimize from "./images/minimize-16.svg";
+import Minus from "./images/minus-16.svg";
+import MinusCircle from "./images/minus-circle-16.svg";
+import MinusCircleFilled from "./images/minus-circle-filled-16.svg";
+import Mobile from "./images/mobile-16.svg";
+import Monitor from "./images/monitor-16.svg";
+import Moon from "./images/moon-16.svg";
+import Mountain from "./images/mountain-16.svg";
+import Mouse from "./images/mouse-16.svg";
+import Multiply from "./images/multiply-16.svg";
+import Music from "./images/music-16.svg";
+import Network from "./images/network-16.svg";
+import NewDocument from "./images/new-document-16.svg";
+import NewFolder from "./images/new-folder-16.svg";
 // import Number00 from "./images/number-00-16.svg";
 // import Number01 from "./images/number-01-16.svg";
 // import Number02 from "./images/number-02-16.svg";
@@ -307,113 +307,113 @@ import Globe from "./images/globe-01-16.svg";
 // import Number97 from "./images/number-97-16.svg";
 // import Number98 from "./images/number-98-16.svg";
 // import Number99 from "./images/number-99-16.svg";
-// import Paperclip from "./images/paperclip-16.svg";
-// import Patch from "./images/patch-16.svg";
-// import Pause from "./images/pause-16.svg";
-// import PauseFilled from "./images/pause-filled-16.svg";
+import Paperclip from "./images/paperclip-16.svg";
+import Patch from "./images/patch-16.svg";
+import Pause from "./images/pause-16.svg";
+import PauseFilled from "./images/pause-filled-16.svg";
 import Pencil from "./images/pencil-16.svg";
 import Bubble from "./images/speech-bubble-16.svg";
-// import Person from "./images/person-16.svg";
-// import PersonCircle from "./images/person-circle-16.svg";
-// import PersonLines from "./images/person-lines-16.svg";
-// import Phone from "./images/phone-16.svg";
-// import PhoneRinging from "./images/phone-ringing-16.svg";
-// import PieChart from "./images/pie-chart-16.svg";
-// import Pill from "./images/pill-16.svg";
-// import Pin from "./images/pin-16.svg";
-// import PinDisabled from "./images/pin-disabled-16.svg";
-// import Play from "./images/play-16.svg";
-// import PlayFilled from "./images/play-filled-16.svg";
-// import Plug from "./images/plug-16.svg";
-// import Plus from "./images/plus-16.svg";
-// import PlusCircle from "./images/plus-circle-16.svg";
-// import PlusCircleFilled from "./images/plus-circle-filled-16.svg";
-// import PlusMinusDivideMultiply from "./images/plus-minus-divide-multiply-16.svg";
-// import Power from "./images/power-16.svg";
-// import Print from "./images/print-16.svg";
-// import QuestionMark from "./images/question-mark-circle-16.svg";
+import Person from "./images/person-16.svg";
+import PersonCircle from "./images/person-circle-16.svg";
+import PersonLines from "./images/person-lines-16.svg";
+import Phone from "./images/phone-16.svg";
+import PhoneRinging from "./images/phone-ringing-16.svg";
+import PieChart from "./images/pie-chart-16.svg";
+import Pill from "./images/pill-16.svg";
+import Pin from "./images/pin-16.svg";
+import PinDisabled from "./images/pin-disabled-16.svg";
+import Play from "./images/play-16.svg";
+import PlayFilled from "./images/play-filled-16.svg";
+import Plug from "./images/plug-16.svg";
+import Plus from "./images/plus-16.svg";
+import PlusCircle from "./images/plus-circle-16.svg";
+import PlusCircleFilled from "./images/plus-circle-filled-16.svg";
+import PlusMinusDivideMultiply from "./images/plus-minus-divide-multiply-16.svg";
+import Power from "./images/power-16.svg";
+import Print from "./images/print-16.svg";
+import QuestionMark from "./images/question-mark-circle-16.svg";
 // import QuestionMarkCircle from "./images/question-mark-circle-16.svg";
-// import QuotationMarks from "./images/quotation-marks-16.svg";
-// import QuoteBlock from "./images/quote-block-16.svg";
-// import Racket from "./images/racket-16.svg";
-// import Raindrop from "./images/raindrop-16.svg";
-// import RaycastLogoNeg from "./images/raycast-logo-neg-16.svg";
-// import RaycastLogoPos from "./images/raycast-logo-pos-16.svg";
-// import Receipt from "./images/receipt-16.svg";
-// import Redo from "./images/redo-16.svg";
-// import RemovePerson from "./images/remove-person-16.svg";
-// import Repeat from "./images/repeat-16.svg";
-// import Reply from "./images/reply-16.svg";
-// import Rewind from "./images/rewind-16.svg";
-// import RewindFilled from "./images/rewind-filled-16.svg";
-// import Rocket from "./images/rocket-16.svg";
-// import Rosette from "./images/rosette-16.svg";
-// import RotateAntiClockwise from "./images/rotate-anti-clockwise-16.svg";
-// import RotateClockwise from "./images/rotate-clockwise-16.svg";
-// import Ruler from "./images/ruler-16.svg";
-// import SaveDocument from "./images/save-document-16.svg";
-// import Shield from "./images/shield-01-16.svg";
-// import Shuffle from "./images/shuffle-16.svg";
+import QuotationMarks from "./images/quotation-marks-16.svg";
+import QuoteBlock from "./images/quote-block-16.svg";
+import Racket from "./images/racket-16.svg";
+import Raindrop from "./images/raindrop-16.svg";
+import RaycastLogoNeg from "./images/raycast-logo-neg-16.svg";
+import RaycastLogoPos from "./images/raycast-logo-pos-16.svg";
+import Receipt from "./images/receipt-16.svg";
+import Redo from "./images/redo-16.svg";
+import RemovePerson from "./images/remove-person-16.svg";
+import Repeat from "./images/repeat-16.svg";
+import Reply from "./images/reply-16.svg";
+import Rewind from "./images/rewind-16.svg";
+import RewindFilled from "./images/rewind-filled-16.svg";
+import Rocket from "./images/rocket-16.svg";
+import Rosette from "./images/rosette-16.svg";
+import RotateAntiClockwise from "./images/rotate-anti-clockwise-16.svg";
+import RotateClockwise from "./images/rotate-clockwise-16.svg";
+import Ruler from "./images/ruler-16.svg";
+import SaveDocument from "./images/save-document-16.svg";
+import Shield from "./images/shield-01-16.svg";
+import Shuffle from "./images/shuffle-16.svg";
 // import Sidebar from "./images/app-window-sidebar-right-16.svg";
-// import Signal1 from "./images/signal-1-16.svg";
+import Signal1 from "./images/signal-1-16.svg";
 // import Signal2 from "./images/signal-2-16.svg";
-// import Signal3 from "./images/signal-3-16.svg";
-// import Snippets from "./images/snippets-16.svg";
-// import Snowflake from "./images/snowflake-16.svg";
-// import SoccerBall from "./images/soccer-ball-16.svg";
-// import SpeakerDown from "./images/speaker-down-16.svg";
-// import SpeakerHigh from "./images/speaker-high-16.svg";
-// import SpeakerLow from "./images/speaker-low-16.svg";
-// import SpeakerOff from "./images/speaker-off-16.svg";
-// import SpeakerOn from "./images/speaker-on-16.svg";
-// import SpeakerUp from "./images/speaker-up-16.svg";
+import Signal3 from "./images/signal-3-16.svg";
+import Snippets from "./images/snippets-16.svg";
+import Snowflake from "./images/snowflake-16.svg";
+import SoccerBall from "./images/soccer-ball-16.svg";
+import SpeakerDown from "./images/speaker-down-16.svg";
+import SpeakerHigh from "./images/speaker-high-16.svg";
+import SpeakerLow from "./images/speaker-low-16.svg";
+import SpeakerOff from "./images/speaker-off-16.svg";
+import SpeakerOn from "./images/speaker-on-16.svg";
+import SpeakerUp from "./images/speaker-up-16.svg";
 // import SpeechBubble from "./images/speech-bubble-16.svg";
-// import SpeechBubbleActive from "./images/speech-bubble-active-16.svg";
-// import SpeechBubbleImportant from "./images/speech-bubble-important-16.svg";
-// import Star from "./images/star-16.svg";
-// import StarCircle from "./images/star-circle-16.svg";
-// import StarDisabled from "./images/star-disabled-16.svg";
-// import Stars from "./images/stars-16.svg";
-// import Stop from "./images/stop-16.svg";
-// import StopFilled from "./images/stop-filled-16.svg";
-// import Stopwatch from "./images/stopwatch-16.svg";
-// import Store from "./images/store-16.svg";
-// import StrikeThrough from "./images/strike-through-16.svg";
-// import Sun from "./images/sun-16.svg";
-// import Sunrise from "./images/sunrise-16.svg";
-// import Swatch from "./images/swatch-16.svg";
-// import Switch from "./images/switch-16.svg";
-// import Syringe from "./images/syringe-16.svg";
-// import Tag from "./images/tag-16.svg";
-// import Temperature from "./images/temperature-16.svg";
-// import TennisBall from "./images/tennis-ball-16.svg";
-// import Terminal from "./images/terminal-16.svg";
-// import Text from "./images/text-16.svg";
-// import TextCursor from "./images/text-cursor-16.svg";
-// import Torch from "./images/torch-16.svg";
-// import Train from "./images/train-16.svg";
+import SpeechBubbleActive from "./images/speech-bubble-active-16.svg";
+import SpeechBubbleImportant from "./images/speech-bubble-important-16.svg";
+import Star from "./images/star-16.svg";
+import StarCircle from "./images/star-circle-16.svg";
+import StarDisabled from "./images/star-disabled-16.svg";
+import Stars from "./images/stars-16.svg";
+import Stop from "./images/stop-16.svg";
+import StopFilled from "./images/stop-filled-16.svg";
+import Stopwatch from "./images/stopwatch-16.svg";
+import Store from "./images/store-16.svg";
+import StrikeThrough from "./images/strike-through-16.svg";
+import Sun from "./images/sun-16.svg";
+import Sunrise from "./images/sunrise-16.svg";
+import Swatch from "./images/swatch-16.svg";
+import Switch from "./images/switch-16.svg";
+import Syringe from "./images/syringe-16.svg";
+import Tag from "./images/tag-16.svg";
+import Temperature from "./images/temperature-16.svg";
+import TennisBall from "./images/tennis-ball-16.svg";
+import Terminal from "./images/terminal-16.svg";
+import Text from "./images/text-16.svg";
+import TextCursor from "./images/text-cursor-16.svg";
+import Torch from "./images/torch-16.svg";
+import Train from "./images/train-16.svg";
 import Trash from "./images/trash-16.svg";
-// import Tray from "./images/tray-16.svg";
-// import Tree from "./images/tree-16.svg";
-// import Trophy from "./images/trophy-16.svg";
-// import TwoPeople from "./images/two-people-16.svg";
-// import Umbrella from "./images/umbrella-16.svg";
-// import Underline from "./images/underline-16.svg";
-// import Undo from "./images/undo-16.svg";
-// import Upload from "./images/upload-16.svg";
-// import Uppercase from "./images/uppercase-16.svg";
-// import Video from "./images/video-16.svg";
-// import Wallet from "./images/wallet-16.svg";
-// import Wand from "./images/wand-16.svg";
+import Tray from "./images/tray-16.svg";
+import Tree from "./images/tree-16.svg";
+import Trophy from "./images/trophy-16.svg";
+import TwoPeople from "./images/two-people-16.svg";
+import Umbrella from "./images/umbrella-16.svg";
+import Underline from "./images/underline-16.svg";
+import Undo from "./images/undo-16.svg";
+import Upload from "./images/upload-16.svg";
+import Uppercase from "./images/uppercase-16.svg";
+import Video from "./images/video-16.svg";
+import Wallet from "./images/wallet-16.svg";
+import Wand from "./images/wand-16.svg";
 // import Warning from "./images/warning-16.svg";
-// import Weights from "./images/weights-16.svg";
-// import Wifi from "./images/wifi-16.svg";
-// import WifiDisabled from "./images/wifi-disabled-16.svg";
+import Weights from "./images/weights-16.svg";
+import Wifi from "./images/wifi-16.svg";
+import WifiDisabled from "./images/wifi-disabled-16.svg";
 // import Window from "./images/app-window-16.svg";
-// import WrenchScrewdriver from "./images/wrench-screwdriver-16.svg";
-// import WristWatch from "./images/wrist-watch-16.svg";
-// import XMarkCircle from "./images/x-mark-circle-16.svg";
-// import XMarkCircleFilled from "./images/x-mark-circle-filled-16.svg";
+import WrenchScrewdriver from "./images/wrench-screwdriver-16.svg";
+import WristWatch from "./images/wrist-watch-16.svg";
+import XMarkCircle from "./images/x-mark-circle-16.svg";
+import XMarkCircleFilled from "./images/x-mark-circle-filled-16.svg";
 // import TwoArrowsClockwise from "./images/arrow-clockwise-16.svg";
 // import EyeSlash from "./images/eye-disabled-16.svg";
 // import SpeakerArrowDown from "./images/speaker-down-16.svg";
@@ -551,80 +551,80 @@ const icons = {
   "eye-16": Eye,
   "eye-disabled-16": EyeDisabled,
   "eye-dropper-16": EyeDropper,
-  // "female-16": Female,
-  // "film-strip-16": FilmStrip,
-  // "filter-16": Filter,
-  // "finder-16": Finder,
-  // "fingerprint-16": Fingerprint,
-  // "folder-16": Folder,
-  // "footprints-16": Footprints,
-  // "forward-16": Forward,
-  // "forward-filled-16": ForwardFilled,
-  // "fountain-tip-16": FountainTip,
-  // "full-signal-16": FullSignal,
-  // "game-controller-16": GameController,
-  // "gauge-16": Gauge,
-  // "geopin-16": Geopin,
-  // "germ-16": Germ,
-  // "gift-16": Gift,
-  // "glasses-16": Glasses,
+  "female-16": Female,
+  "film-strip-16": FilmStrip,
+  "filter-16": Filter,
+  "finder-16": Finder,
+  "fingerprint-16": Fingerprint,
+  "folder-16": Folder,
+  "footprints-16": Footprints,
+  "forward-16": Forward,
+  "forward-filled-16": ForwardFilled,
+  "fountain-tip-16": FountainTip,
+  "full-signal-16": FullSignal,
+  "game-controller-16": GameController,
+  "gauge-16": Gauge,
+  "geopin-16": Geopin,
+  "germ-16": Germ,
+  "gift-16": Gift,
+  "glasses-16": Glasses,
   "globe-01-16": Globe,
-  // "goal-16": Goal,
-  // "hammer-16": Hammer,
-  // "hard-drive-16": HardDrive,
-  // "hashtag-16": Hashtag,
-  // "headphones-16": Headphones,
-  // "heart-16": Heart,
-  // "heart-disabled-16": HeartDisabled,
-  // "heartbeat-16": Heartbeat,
-  // "highlight-16": Highlight,
-  // "hourglass-16": Hourglass,
-  // "house-16": House,
-  // "image-16": Image,
-  // "info-01-16": Info,
-  // "italics-16": Italics,
-  // "key-16": Key,
-  // "keyboard-16": Keyboard,
-  // "layers-16": Layers,
-  // "leaderboard-16": Leaderboard,
-  // "leaf-16": Leaf,
-  // "signal-2-16": LevelMeter,
-  // "light-bulb-16": LightBulb,
-  // "light-bulb-off-16": LightBulbOff,
-  // "line-chart-16": LineChart,
-  // "link-16": Link,
-  // "livestream-01-16": Livestream,
-  // "livestream-disabled-01-16": LivestreamDisabled,
-  // "lock-16": Lock,
-  // "lock-disabled-16": LockDisabled,
-  // "lock-unlocked-16": LockUnlocked,
-  // "logout-16": Logout,
-  // "lorry-16": Lorry,
-  // "lowercase-16": Lowercase,
-  // "magnifying-glass-16": MagnifyingGlass,
-  // "male-16": Male,
-  // "map-16": Map,
-  // "mask-16": Mask,
-  // "maximize-16": Maximize,
-  // "medical-support-16": MedicalSupport,
-  // "megaphone-16": Megaphone,
-  // "memory-stick-16": MemoryStick,
-  // "microphone-16": Microphone,
-  // "microphone-disabled-16": MicrophoneDisabled,
-  // "minimize-16": Minimize,
-  // "minus-16": Minus,
-  // "minus-circle-16": MinusCircle,
-  // "minus-circle-filled-16": MinusCircleFilled,
-  // "mobile-16": Mobile,
-  // "monitor-16": Monitor,
-  // "moon-16": Moon,
-  // "mountain-16": Mountain,
-  // "mouse-16": Mouse,
-  // "multiply-16": Multiply,
-  // "music-16": Music,
-  // "network-16": Network,
-  // "new-document-16": NewDocument,
-  // "new-folder-16": NewFolder,
+  "goal-16": Goal,
+  "hammer-16": Hammer,
+  "hard-drive-16": HardDrive,
+  "hashtag-16": Hashtag,
+  "headphones-16": Headphones,
+  "heart-16": Heart,
+  "heart-disabled-16": HeartDisabled,
+  "heartbeat-16": Heartbeat,
+  "highlight-16": Highlight,
+  "hourglass-16": Hourglass,
+  "house-16": House,
+  "image-16": Image,
+  "info-01-16": Info,
+  "italics-16": Italics,
+  "key-16": Key,
+  "keyboard-16": Keyboard,
+  "layers-16": Layers,
+  "leaderboard-16": Leaderboard,
+  "leaf-16": Leaf,
+  "signal-2-16": LevelMeter,
+  "light-bulb-16": LightBulb,
+  "light-bulb-off-16": LightBulbOff,
+  "line-chart-16": LineChart,
+  "link-16": Link,
+  "livestream-01-16": Livestream,
+  "livestream-disabled-01-16": LivestreamDisabled,
+  "lock-16": Lock,
+  "lock-disabled-16": LockDisabled,
+  "lock-unlocked-16": LockUnlocked,
+  "logout-16": Logout,
+  "lorry-16": Lorry,
+  "lowercase-16": Lowercase,
+  "magnifying-glass-16": MagnifyingGlass,
+  "male-16": Male,
+  "map-16": Map,
+  "mask-16": Mask,
+  "maximize-16": Maximize,
+  "medical-support-16": MedicalSupport,
+  "megaphone-16": Megaphone,
+  "memory-stick-16": MemoryStick,
+  "microphone-16": Microphone,
+  "microphone-disabled-16": MicrophoneDisabled,
+  "minimize-16": Minimize,
+  "minus-16": Minus,
+  "minus-circle-16": MinusCircle,
+  "minus-circle-filled-16": MinusCircleFilled,
+  "mobile-16": Mobile,
+  "monitor-16": Monitor,
+  "moon-16": Moon,
+  "mountain-16": Mountain,
+  "mouse-16": Mouse,
+  "multiply-16": Multiply,
+  "music-16": Music,
+  "network-16": Network,
+  "new-document-16": NewDocument,
+  "new-folder-16": NewFolder,
   // "number-00-16": Number00,
   // "number-01-16": Number01,
   // "number-02-16": Number02,
@@ -725,110 +725,110 @@ const icons = {
   // "number-97-16": Number97,
   // "number-98-16": Number98,
   // "number-99-16": Number99,
-  // "paperclip-16": Paperclip,
-  // "patch-16": Patch,
-  // "pause-16": Pause,
-  // "pause-filled-16": PauseFilled,
+  "paperclip-16": Paperclip,
+  "patch-16": Patch,
+  "pause-16": Pause,
+  "pause-filled-16": PauseFilled,
   "pencil-16": Pencil,
-  // "person-16": Person,
-  // "person-circle-16": PersonCircle,
-  // "person-lines-16": PersonLines,
-  // "phone-16": Phone,
-  // "phone-ringing-16": PhoneRinging,
-  // "pie-chart-16": PieChart,
-  // "pill-16": Pill,
-  // "pin-16": Pin,
-  // "pin-disabled-16": PinDisabled,
-  // "play-16": Play,
-  // "play-filled-16": PlayFilled,
-  // "plug-16": Plug,
-  // "plus-16": Plus,
-  // "plus-circle-16": PlusCircle,
-  // "plus-circle-filled-16": PlusCircleFilled,
-  // "plus-minus-divide-multiply-16": PlusMinusDivideMultiply,
-  // "power-16": Power,
-  // "print-16": Print,
-  // "question-mark-circle-16": QuestionMark,
-  // "quotation-marks-16": QuotationMarks,
-  // "quote-block-16": QuoteBlock,
-  // "racket-16": Racket,
-  // "raindrop-16": Raindrop,
-  // "raycast-logo-neg-16": RaycastLogoNeg,
-  // "raycast-logo-pos-16": RaycastLogoPos,
-  // "receipt-16": Receipt,
-  // "redo-16": Redo,
-  // "remove-person-16": RemovePerson,
-  // "repeat-16": Repeat,
-  // "reply-16": Reply,
-  // "rewind-16": Rewind,
-  // "rewind-filled-16": RewindFilled,
-  // "rocket-16": Rocket,
-  // "rosette-16": Rosette,
-  // "rotate-anti-clockwise-16": RotateAntiClockwise,
-  // "rotate-clockwise-16": RotateClockwise,
-  // "ruler-16": Ruler,
-  // "save-document-16": SaveDocument,
-  // "shield-01-16": Shield,
-  // "shuffle-16": Shuffle,
+  "person-16": Person,
+  "person-circle-16": PersonCircle,
+  "person-lines-16": PersonLines,
+  "phone-16": Phone,
+  "phone-ringing-16": PhoneRinging,
+  "pie-chart-16": PieChart,
+  "pill-16": Pill,
+  "pin-16": Pin,
+  "pin-disabled-16": PinDisabled,
+  "play-16": Play,
+  "play-filled-16": PlayFilled,
+  "plug-16": Plug,
+  "plus-16": Plus,
+  "plus-circle-16": PlusCircle,
+  "plus-circle-filled-16": PlusCircleFilled,
+  "plus-minus-divide-multiply-16": PlusMinusDivideMultiply,
+  "power-16": Power,
+  "print-16": Print,
+  "question-mark-circle-16": QuestionMark,
+  "quotation-marks-16": QuotationMarks,
+  "quote-block-16": QuoteBlock,
+  "racket-16": Racket,
+  "raindrop-16": Raindrop,
+  "raycast-logo-neg-16": RaycastLogoNeg,
+  "raycast-logo-pos-16": RaycastLogoPos,
+  "receipt-16": Receipt,
+  "redo-16": Redo,
+  "remove-person-16": RemovePerson,
+  "repeat-16": Repeat,
+  "reply-16": Reply,
+  "rewind-16": Rewind,
+  "rewind-filled-16": RewindFilled,
+  "rocket-16": Rocket,
+  "rosette-16": Rosette,
+  "rotate-anti-clockwise-16": RotateAntiClockwise,
+  "rotate-clockwise-16": RotateClockwise,
+  "ruler-16": Ruler,
+  "save-document-16": SaveDocument,
+  "shield-01-16": Shield,
+  "shuffle-16": Shuffle,
   // "app-window-sidebar-right-16": Sidebar,
-  // "signal-1-16": Signal1,
+  "signal-1-16": Signal1,
   // "signal-2-16": Signal2,
-  // "signal-3-16": Signal3,
-  // "snippets-16": Snippets,
-  // "snowflake-16": Snowflake,
-  // "soccer-ball-16": SoccerBall,
-  // "speaker-down-16": SpeakerDown,
-  // "speaker-high-16": SpeakerHigh,
-  // "speaker-low-16": SpeakerLow,
-  // "speaker-off-16": SpeakerOff,
-  // "speaker-on-16": SpeakerOn,
-  // "speaker-up-16": SpeakerUp,
+  "signal-3-16": Signal3,
+  "snippets-16": Snippets,
+  "snowflake-16": Snowflake,
+  "soccer-ball-16": SoccerBall,
+  "speaker-down-16": SpeakerDown,
+  "speaker-high-16": SpeakerHigh,
+  "speaker-low-16": SpeakerLow,
+  "speaker-off-16": SpeakerOff,
+  "speaker-on-16": SpeakerOn,
+  "speaker-up-16": SpeakerUp,
   // "speech-bubble-16": SpeechBubble,
-  // "speech-bubble-active-16": SpeechBubbleActive,
-  // "speech-bubble-important-16": SpeechBubbleImportant,
-  // "star-16": Star,
-  // "star-circle-16": StarCircle,
-  // "star-disabled-16": StarDisabled,
-  // "stars-16": Stars,
-  // "stop-16": Stop,
-  // "stop-filled-16": StopFilled,
-  // "stopwatch-16": Stopwatch,
-  // "store-16": Store,
-  // "strike-through-16": StrikeThrough,
-  // "sun-16": Sun,
-  // "sunrise-16": Sunrise,
-  // "swatch-16": Swatch,
-  // "switch-16": Switch,
-  // "syringe-16": Syringe,
-  // "tag-16": Tag,
-  // "temperature-16": Temperature,
-  // "tennis-ball-16": TennisBall,
-  // "terminal-16": Terminal,
-  // "text-16": Text,
-  // "text-cursor-16": TextCursor,
-  // "torch-16": Torch,
-  // "train-16": Train,
+  "speech-bubble-active-16": SpeechBubbleActive,
+  "speech-bubble-important-16": SpeechBubbleImportant,
+  "star-16": Star,
+  "star-circle-16": StarCircle,
+  "star-disabled-16": StarDisabled,
+  "stars-16": Stars,
+  "stop-16": Stop,
+  "stop-filled-16": StopFilled,
+  "stopwatch-16": Stopwatch,
+  "store-16": Store,
+  "strike-through-16": StrikeThrough,
+  "sun-16": Sun,
+  "sunrise-16": Sunrise,
+  "swatch-16": Swatch,
+  "switch-16": Switch,
+  "syringe-16": Syringe,
+  "tag-16": Tag,
+  "temperature-16": Temperature,
+  "tennis-ball-16": TennisBall,
+  "terminal-16": Terminal,
+  "text-16": Text,
+  "text-cursor-16": TextCursor,
+  "torch-16": Torch,
+  "train-16": Train,
   "trash-16": Trash,
-  // "tray-16": Tray,
-  // "tree-16": Tree,
-  // "trophy-16": Trophy,
-  // "two-people-16": TwoPeople,
-  // "umbrella-16": Umbrella,
-  // "underline-16": Underline,
-  // "undo-16": Undo,
-  // "upload-16": Upload,
-  // "uppercase-16": Uppercase,
-  // "video-16": Video,
-  // "wallet-16": Wallet,
-  // "wand-16": Wand,
+  "tray-16": Tray,
+  "tree-16": Tree,
+  "trophy-16": Trophy,
+  "two-people-16": TwoPeople,
+  "umbrella-16": Umbrella,
+  "underline-16": Underline,
+  "undo-16": Undo,
+  "upload-16": Upload,
+  "uppercase-16": Uppercase,
+  "video-16": Video,
+  "wallet-16": Wallet,
+  "wand-16": Wand,
   // "warning-16": Warning,
-  // "weights-16": Weights,
-  // "wifi-16": Wifi,
-  // "wifi-disabled-16": WifiDisabled,
-  // "wrench-screwdriver-16": WrenchScrewdriver,
-  // "wrist-watch-16": WristWatch,
-  // "x-mark-circle-16": XMarkCircle,
-  // "x-mark-circle-filled-16": XMarkCircleFilled,
+  "weights-16": Weights,
+  "wifi-16": Wifi,
+  "wifi-disabled-16": WifiDisabled,
+  "wrench-screwdriver-16": WrenchScrewdriver,
+  "wrist-watch-16": WristWatch,
+  "x-mark-circle-16": XMarkCircle,
+  "x-mark-circle-filled-16": XMarkCircleFilled,
   // "x-mark-circle-1": XmarkCircle,
 };
 

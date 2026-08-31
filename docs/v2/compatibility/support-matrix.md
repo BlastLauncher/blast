@@ -60,10 +60,10 @@ binding-aware runtime audit's two corpus-observed legacy icon names—
 `Icon.Safari` and `Icon.Application`—are now explicit aliases to the current
 globe and app-window glyphs under [ADR 0087](../decisions/0087-preserve-measured-legacy-icon-aliases.md);
 the focused probe reports no static unsupported APIs for either call site.
-The next bounded client-facing icon step is proposed in [ADR 0088](../decisions/0088-complete-available-client-icon-assets.md):
-register the 174 additional locally available SVG assets already present in the
-client's lookup table, while keeping the absent numbered/warning artwork
-explicitly unregistered.
+The client-facing icon registration slice in [ADR 0088](../decisions/0088-complete-available-client-icon-assets.md)
+is now implemented: 171 additional unique locally available SVG keys are
+registered, for 302 active client map keys, while the 102 absent
+numbered/warning assets remain explicitly unregistered.
 Dependency, process, and non-renderable outcomes remain tracked separately
 from API coverage.
 The current top-level API import census and emitted declaration audit are clean
