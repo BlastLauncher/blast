@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
@@ -255,6 +257,51 @@ test("ignores a missing optional additional root", async () => {
     additionalRoots: [path.join(catalogRoot, "missing-additional-root")],
   });
   assert.equal((await catalog.listCommands()).length, 7);
+});
+
+test("refreshes the cached catalog after extensions are added, changed, or removed", async () => {
+  const root = mkdtempSync(path.join(os.tmpdir(), "blast-catalog-refresh-"));
+  try {
+    const extensionDirectory = path.join(root, "fresh-extension");
+    mkdirSync(path.join(extensionDirectory, "src"), { recursive: true });
+    const manifestPath = path.join(extensionDirectory, "package.json");
+    writeFileSync(
+      manifestPath,
+      JSON.stringify({ name: "fresh", title: "Fresh", commands: [{ name: "index", title: "Before" }] }),
+    );
+
+    const catalog = new FilesystemExtensionCatalog({ root });
+    assert.equal((await catalog.listCommands())[0]?.title, "Before");
+
+    writeFileSync(
+      manifestPath,
+      JSON.stringify({ name: "fresh", title: "Fresh", commands: [{ name: "index", title: "After" }] }),
+    );
+    const addedDirectory = path.join(root, "added-extension");
+    mkdirSync(path.join(addedDirectory, "src"), { recursive: true });
+    writeFileSync(
+      path.join(addedDirectory, "package.json"),
+      JSON.stringify({ name: "added", commands: [{ name: "index" }] }),
+    );
+
+    await catalog.refresh();
+    assert.deepEqual(
+      (await catalog.listCommands()).map(({ extensionId, title }) => ({ extensionId, title })),
+      [
+        { extensionId: "added", title: undefined },
+        { extensionId: "fresh", title: "After" },
+      ],
+    );
+
+    rmSync(extensionDirectory, { recursive: true, force: true });
+    await catalog.refresh();
+    assert.deepEqual(
+      (await catalog.listCommands()).map(({ extensionId }) => extensionId),
+      ["added"],
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
 
 test("rejects entrypoints that escape the extension root", async (context) => {

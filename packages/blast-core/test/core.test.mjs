@@ -265,6 +265,33 @@ test("serves path-free command discovery through the client boundary", async () 
   await core.close();
 });
 
+test("refreshes the catalog before serving a client discovery request", async () => {
+  const { core, calls } = createHarness({
+    catalog: {
+      async refresh() {
+        calls.push(["refresh"]);
+      },
+      listCommands: async () => [
+        {
+          extensionId: "example.extension",
+          commandName: "index",
+          title: "Example",
+          entryPointMode: "view",
+        },
+      ],
+    },
+  });
+  const { client, server } = await connectClient(core);
+
+  await client.requestCommandList();
+  assert.equal((await client.receive()).type, "core.command.listed");
+  assert.deepEqual(calls, [["refresh"]]);
+
+  await client.close("test complete");
+  await server.done;
+  await core.close();
+});
+
 test("reports discovery failures through the client boundary", async () => {
   const { core } = createHarness();
   const { client, server } = await connectClient(core);

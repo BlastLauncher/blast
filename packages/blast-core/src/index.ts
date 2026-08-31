@@ -57,6 +57,8 @@ export interface ExtensionCatalog {
   resolve(identity: CommandIdentity, signal?: AbortSignal): Promise<ExtensionDescriptor | undefined>;
   /** Returns path-free command metadata when the catalog supports discovery. */
   readonly listCommands?: (signal?: AbortSignal) => Promise<readonly CoreCommandDescriptor[]>;
+  /** Invalidates catalog caches before a caller requests fresh discovery. */
+  readonly refresh?: (signal?: AbortSignal) => Promise<void>;
 }
 
 export interface ExtensionSupervisor {
@@ -131,6 +133,17 @@ export class BlastCore {
   async listCommands(signal?: AbortSignal): Promise<readonly CoreCommandDescriptor[]> {
     this.#assertRunning();
     signal?.throwIfAborted();
+    return this.#listCommands(signal);
+  }
+
+  async refreshCommands(signal?: AbortSignal): Promise<readonly CoreCommandDescriptor[]> {
+    this.#assertRunning();
+    signal?.throwIfAborted();
+    await this.#catalog.refresh?.(signal);
+    return this.#listCommands(signal);
+  }
+
+  async #listCommands(signal?: AbortSignal): Promise<readonly CoreCommandDescriptor[]> {
     if (this.#catalog.listCommands === undefined) {
       throw new BlastCoreError("command_discovery_unavailable", "The extension catalog does not support discovery");
     }
@@ -512,6 +525,7 @@ export interface AcceptCoreClientSessionOptions extends CoreClientConnectOptions
 
 export type CoreClientCore = Pick<BlastCore, "runCommand" | "stopCommand"> & {
   readonly listCommands?: BlastCore["listCommands"];
+  readonly refreshCommands?: BlastCore["refreshCommands"];
 };
 
 export interface CoreClientSession {
@@ -964,6 +978,10 @@ class AcceptedCoreClientSession implements CoreClientSession {
 
   async #list(): Promise<void> {
     try {
+      if (this.#core.refreshCommands !== undefined) {
+        await this.#send(CORE_COMMAND_LISTED_MESSAGE, { commands: await this.#core.refreshCommands() });
+        return;
+      }
       if (this.#core.listCommands === undefined) {
         throw new BlastCoreError("command_discovery_unavailable", "The extension catalog does not support discovery");
       }

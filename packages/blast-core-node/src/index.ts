@@ -85,7 +85,9 @@ export interface FilesystemExtensionCatalogOptions {
 export class FilesystemExtensionCatalog implements ExtensionCatalog {
   readonly #roots: readonly string[];
   readonly #manifestFileName: string;
-  #extensionIndex?: Promise<ReadonlyMap<string, { readonly directory: string; readonly manifest: ExtensionManifest }>>;
+  #extensionIndex:
+    | Promise<ReadonlyMap<string, { readonly directory: string; readonly manifest: ExtensionManifest }>>
+    | undefined;
 
   constructor(options: FilesystemExtensionCatalogOptions) {
     validateNonEmptyString(options.root, "root");
@@ -105,6 +107,12 @@ export class FilesystemExtensionCatalog implements ExtensionCatalog {
 
   get roots(): readonly string[] {
     return this.#roots;
+  }
+
+  /** Invalidates the cached manifest index without changing catalog roots. */
+  async refresh(signal?: AbortSignal): Promise<void> {
+    signal?.throwIfAborted();
+    this.#extensionIndex = undefined;
   }
 
   async listCommands(signal?: AbortSignal): Promise<readonly CoreCommandDescriptor[]> {
