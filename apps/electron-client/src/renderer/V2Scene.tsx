@@ -35,6 +35,8 @@ function ListScene({ root, disabled, onEvent }: V2SceneProps) {
   const [searchText, setSearchText] = useState(remoteSearchText);
   const searchEvent = stringProp(root, "onSearchTextChange");
   const selectionEvent = stringProp(root, "onSelectionChange");
+  const filtering = booleanProp(root, "filtering") ?? searchEvent === undefined;
+  const children = filterCollectionChildren(root.children, filtering ? searchText : "", "list-section", "list-item");
 
   const sendSearch = (value: string): void => {
     setSearchText(value);
@@ -48,11 +50,11 @@ function ListScene({ root, disabled, onEvent }: V2SceneProps) {
       disabled={disabled}
       loading={booleanProp(root, "isLoading")}
       navigationTitle={stringProp(root, "navigationTitle")}
-      onSearch={searchEvent === undefined ? undefined : sendSearch}
+      onSearch={filtering || searchEvent !== undefined ? sendSearch : undefined}
       searchText={searchText}
       searchPlaceholder={stringProp(root, "searchBarPlaceholder")}
     >
-      {root.children.map((child) => {
+      {children.map((child) => {
         if (child.type === "list-section") {
           return (
             <section className="flex flex-col gap-2" key={child.id}>
@@ -94,6 +96,8 @@ function GridScene({ root, disabled, onEvent }: V2SceneProps) {
   const searchEvent = stringProp(root, "onSearchTextChange");
   const selectionEvent = stringProp(root, "onSelectionChange");
   const columns = Math.max(1, Math.min(8, numberProp(root, "columns") ?? 3));
+  const filtering = booleanProp(root, "filtering") ?? searchEvent === undefined;
+  const children = filterCollectionChildren(root.children, filtering ? searchText : "", "grid-section", "grid-item");
 
   const sendSearch = (value: string): void => {
     setSearchText(value);
@@ -108,12 +112,12 @@ function GridScene({ root, disabled, onEvent }: V2SceneProps) {
       grid
       loading={booleanProp(root, "isLoading")}
       navigationTitle={stringProp(root, "navigationTitle")}
-      onSearch={searchEvent === undefined ? undefined : sendSearch}
+      onSearch={filtering || searchEvent !== undefined ? sendSearch : undefined}
       searchText={searchText}
       searchPlaceholder={stringProp(root, "searchBarPlaceholder")}
     >
       <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}>
-        {root.children.map((child) => {
+        {children.map((child) => {
           if (child.type === "grid-section") {
             return (
               <section className="col-span-full flex flex-col gap-2" key={child.id}>
@@ -150,6 +154,45 @@ function GridScene({ root, disabled, onEvent }: V2SceneProps) {
       <PaginationControl disabled={disabled} node={root} onEvent={onEvent} />
     </CollectionLayout>
   );
+}
+
+function filterCollectionChildren(
+  children: readonly SceneNode[],
+  searchText: string,
+  sectionType: "list-section" | "grid-section",
+  itemType: "list-item" | "grid-item",
+): readonly SceneNode[] {
+  const query = searchText.trim().toLowerCase();
+  if (query.length === 0) {
+    return children;
+  }
+
+  return children.flatMap((child) => {
+    if (child.type === sectionType) {
+      const sectionItems = child.children.filter((sectionChild) => sectionChild.type === itemType);
+      if (sectionItems.length === 0) {
+        return [child];
+      }
+      const visibleChildren = child.children.filter(
+        (sectionChild) => sectionChild.type !== itemType || matchesCollectionItem(sectionChild, query),
+      );
+      return visibleChildren.some((sectionChild) => sectionChild.type === itemType)
+        ? [{ ...child, children: visibleChildren }]
+        : [];
+    }
+    if (child.type === itemType) {
+      return matchesCollectionItem(child, query) ? [child] : [];
+    }
+    return [child];
+  });
+}
+
+function matchesCollectionItem(item: SceneNode, query: string): boolean {
+  const searchable = [stringProp(item, "title"), ...(stringArrayProp(item, "keywords") ?? [])]
+    .filter((value): value is string => value !== undefined)
+    .join("\n")
+    .toLowerCase();
+  return searchable.includes(query);
 }
 
 function MenuBarScene({ root, disabled, onEvent }: V2SceneProps): React.JSX.Element {

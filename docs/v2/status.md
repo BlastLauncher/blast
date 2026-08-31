@@ -134,6 +134,9 @@ slice changes what is executable, what is trusted, or what should happen next.
   safe colors plus Grid accessory icons/tooltips in a compact trailing rail;
   malformed records are ignored at the client edge and accessory interaction
   remains separate.
+- [ADR 0107](decisions/0107-v2-local-collection-filtering.md) implements
+  deterministic local List/Grid title-and-keyword filtering with Raycast-style
+  default inference, section retention, and custom-filtering opt-out behavior.
 - [ADR 0100](decisions/0100-packaged-v2-bootstrap-and-catalog.md) adds the
   higher-level `@blastlauncher/raycast-runtime-node` composition and packages
   standalone V2 bootstrap, adapter, and React resources for Electron. The

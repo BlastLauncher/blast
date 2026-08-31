@@ -253,3 +253,89 @@ test("server-renders List and Grid collection accessories defensively", () => {
   assert.match(unsafeMarkup, /Unsafe/);
   assert.doesNotMatch(unsafeMarkup, /style="color:red/);
 });
+
+test("locally filters List and Grid items by title and keywords", () => {
+  const listChildren = [
+    {
+      id: "section",
+      type: "list-section",
+      props: { title: "Matches" },
+      children: [
+        { id: "visible", type: "list-item", props: { title: "Visible", keywords: ["Needle alias"] }, children: [] },
+        { id: "hidden", type: "list-item", props: { title: "Hidden", keywords: ["other"] }, children: [] },
+      ],
+    },
+    { id: "root-hidden", type: "list-item", props: { title: "Root hidden" }, children: [] },
+  ];
+  const locallyFilteredList = renderToStaticMarkup(
+    React.createElement(V2Scene, {
+      disabled: false,
+      onEvent: async () => {},
+      root: {
+        id: "local-list",
+        type: "list",
+        props: { searchText: "needle" },
+        children: listChildren,
+      },
+    }),
+  );
+  assert.match(locallyFilteredList, /Visible/);
+  assert.match(locallyFilteredList, /Matches/);
+  assert.match(locallyFilteredList, /placeholder="Search…"/);
+  assert.doesNotMatch(locallyFilteredList, /Hidden/);
+  assert.doesNotMatch(locallyFilteredList, /Root hidden/);
+
+  const customFilteredList = renderToStaticMarkup(
+    React.createElement(V2Scene, {
+      disabled: false,
+      onEvent: async () => {},
+      root: {
+        id: "custom-list",
+        type: "list",
+        props: { searchText: "needle", onSearchTextChange: "search" },
+        children: listChildren,
+      },
+    }),
+  );
+  assert.match(customFilteredList, /Visible/);
+  assert.match(customFilteredList, /Hidden/);
+  assert.match(customFilteredList, /Root hidden/);
+
+  const explicitlyDisabledList = renderToStaticMarkup(
+    React.createElement(V2Scene, {
+      disabled: false,
+      onEvent: async () => {},
+      root: {
+        id: "disabled-list",
+        type: "list",
+        props: { filtering: false, searchText: "needle" },
+        children: listChildren,
+      },
+    }),
+  );
+  assert.match(explicitlyDisabledList, /Hidden/);
+  assert.match(explicitlyDisabledList, /Root hidden/);
+
+  const locallyFilteredGrid = renderToStaticMarkup(
+    React.createElement(V2Scene, {
+      disabled: false,
+      onEvent: async () => {},
+      root: {
+        id: "local-grid",
+        type: "grid",
+        props: { searchText: "alias" },
+        children: [
+          {
+            id: "grid-visible",
+            type: "grid-item",
+            props: { title: "Grid visible", keywords: ["Alias"] },
+            children: [],
+          },
+          { id: "grid-hidden", type: "grid-item", props: { title: "Grid hidden" }, children: [] },
+        ],
+      },
+    }),
+  );
+  assert.match(locallyFilteredGrid, /Grid visible/);
+  assert.doesNotMatch(locallyFilteredGrid, /Grid hidden/);
+});
