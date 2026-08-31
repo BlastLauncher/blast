@@ -3,6 +3,7 @@ import { useState } from "react";
 import type { SceneFormValue, SceneFormValues, SceneNode, ScenePropValue, SceneShortcut } from "@blastlauncher/scene";
 
 import { Detail } from "./components/Detail";
+import { V2SceneIcon } from "./V2SceneIcon";
 
 export type V2SceneEventSender = (eventId: string, values?: SceneFormValues) => Promise<void>;
 
@@ -156,7 +157,7 @@ function MenuBarScene({ root, disabled, onEvent }: V2SceneProps): React.JSX.Elem
   return (
     <section className="mx-auto flex max-w-xl flex-col gap-3">
       <header className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-3 py-3">
-        <SceneIcon node={root} />
+        <V2SceneIcon node={root} />
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-lg font-semibold">{stringProp(root, "title") ?? "Menu Bar"}</h1>
           {stringProp(root, "tooltip") !== undefined && (
@@ -220,7 +221,7 @@ function MenuBarNode({
             aria-disabled={disabled}
             className="flex cursor-pointer list-none items-center gap-2 rounded-md px-2 py-2 text-sm hover:bg-white/10 [&::-webkit-details-marker]:hidden"
           >
-            <SceneIcon node={node} />
+            <V2SceneIcon node={node} />
             <span className="min-w-0 flex-1 truncate">{stringProp(node, "title") ?? "More"}</span>
             <span className="text-xs text-white/40 transition-transform group-open:rotate-90">›</span>
           </summary>
@@ -267,7 +268,7 @@ function MenuBarItem({
       title={stringProp(node, "tooltip")}
       type="button"
     >
-      <SceneIcon node={node} />
+      <V2SceneIcon node={node} />
       <span className="min-w-0 flex-1">
         <span className="block truncate">{stringProp(node, "title") ?? node.id}</span>
         {stringProp(node, "subtitle") !== undefined && (
@@ -438,7 +439,7 @@ function CollectionItem({
         onClick={select}
         type="button"
       >
-        <SceneIcon node={item} />
+        <V2SceneIcon kind={variant === "grid" ? "content" : "icon"} node={item} />
         <span className="min-w-0 flex-1">
           <span className="block truncate text-sm font-medium">{stringProp(item, "title") ?? item.id}</span>
           {stringProp(item, "subtitle") !== undefined && (
@@ -518,7 +519,7 @@ function EmptyView({
 }): React.JSX.Element {
   return (
     <div className="rounded-lg border border-dashed border-white/10 px-4 py-10 text-center">
-      <SceneIcon node={node} />
+      <V2SceneIcon node={node} />
       <div className="mt-2 text-sm font-medium">{stringProp(node, "title") ?? "Nothing here"}</div>
       {stringProp(node, "description") !== undefined && (
         <div className="mt-1 text-xs text-white/50">{stringProp(node, "description")}</div>
@@ -845,6 +846,7 @@ function ActionButton({
       onClick={() => (eventId === undefined ? undefined : fireEvent(onEvent, eventId, values))}
       type="button"
     >
+      <V2SceneIcon node={action} size="small" />
       {stringProp(action, "title") ?? "Run"}
       {stringProp(action, "shortcut") !== undefined && (
         <span className="ml-2 text-blue-100/50">{stringProp(action, "shortcut")}</span>
@@ -858,18 +860,6 @@ function UnsupportedScene({ node }: { readonly node: SceneNode }): React.JSX.Ele
     <div className="mx-auto max-w-xl rounded-lg border border-amber-300/30 bg-amber-300/10 px-4 py-5 text-sm text-amber-100">
       This V2 renderer does not yet display the `{node.type}` scene member.
     </div>
-  );
-}
-
-function SceneIcon({ node }: { readonly node: SceneNode }): React.JSX.Element {
-  const source = stringProp(node, "icon") ?? stringProp(node, "iconDark") ?? stringProp(node, "content") ?? "";
-  if (source.startsWith("data:image/") || source.startsWith("https://") || source.startsWith("http://")) {
-    return <img alt="" className="h-8 w-8 shrink-0 rounded-md object-contain" src={source} />;
-  }
-  return (
-    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-white/10 text-xs text-white/70">
-      {source.trim().slice(0, 1).toUpperCase() || "•"}
-    </span>
   );
 }
 

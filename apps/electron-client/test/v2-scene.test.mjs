@@ -9,12 +9,30 @@ import { renderToStaticMarkup } from "react-dom/server";
 
 const require = createRequire(import.meta.url);
 require.extensions[".scss"] = () => {};
+require.extensions[".svg"] = (module) => {
+  module.exports = () => null;
+};
+const NodeModule = require("node:module");
+const originalResolveFilename = Reflect.get(NodeModule, "_resolveFilename");
+if (typeof originalResolveFilename !== "function") {
+  throw new Error("Node module resolver is unavailable");
+}
+const svgStub = fileURLToPath(new URL("../dist/renderer/components/Icon/images/add-person-16.svg", import.meta.url));
+mkdirSync(fileURLToPath(new URL("../dist/renderer/components/Icon/images/", import.meta.url)), { recursive: true });
+writeFileSync(svgStub, "");
+Reflect.set(NodeModule, "_resolveFilename", (request, parent, isMain, options) =>
+  request.endsWith(".svg")
+    ? svgStub
+    : Reflect.apply(originalResolveFilename, NodeModule, [request, parent, isMain, options]),
+);
 
 const markdownStylesheet = fileURLToPath(new URL("../dist/renderer/components/Detail/markdown.scss", import.meta.url));
 mkdirSync(fileURLToPath(new URL("../dist/renderer/components/Detail/", import.meta.url)), { recursive: true });
 writeFileSync(markdownStylesheet, "");
 const { V2Scene } = await import("../dist/renderer/V2Scene.js");
+Reflect.set(NodeModule, "_resolveFilename", originalResolveFilename);
 rmSync(markdownStylesheet);
+rmSync(svgStub);
 
 test("server-renders menu-bar scenes with nested controls and shortcut labels", () => {
   const markup = renderToStaticMarkup(

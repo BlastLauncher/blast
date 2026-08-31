@@ -117,6 +117,11 @@ slice changes what is executable, what is trusted, or what should happen next.
   deterministic V2 toast show/update/hide reconciliation, bounded stacking,
   message/style presentation, and semantic primary/secondary action buttons
   in the opt-in Electron window; automatic timeout policy remains separate.
+- [ADR 0103](decisions/0103-v2-scene-icon-source-presentation.md) presents
+  validated dark/light icon sources and fallbacks through the existing client
+  SVG registry, renders safe data/HTTP(S) image sources, and keeps a
+  deterministic fallback for unsupported sources; mask/tint transforms remain
+  separate future work.
 - [ADR 0100](decisions/0100-packaged-v2-bootstrap-and-catalog.md) adds the
   higher-level `@blastlauncher/raycast-runtime-node` composition and packages
   standalone V2 bootstrap, adapter, and React resources for Electron. The
@@ -401,8 +406,9 @@ slice changes what is executable, what is trusted, or what should happen next.
   with a structured compatibility error, and the default remains deny.
 - The image descriptor fidelity slice in [ADR 0079](decisions/0079-preserve-raycast-image-descriptor-metadata.md)
   is now implemented: Raycast image source/fallback variants, masks, and
-  dynamic tint metadata cross the scene and capability boundaries while actual
-  client image loading, theme selection, and rendering remain host work.
+  dynamic tint metadata cross the scene and capability boundaries. ADR 0103
+  now renders registered and safe data/HTTP(S) sources in the opt-in V2
+  client; theme-specific mask/tint transforms remain future work.
 - The environment metadata slice in [ADR 0080](decisions/0080-preserve-raycast-environment-metadata.md)
   is now implemented: the trusted catalog carries manifest title and
   owner/author identity into `environment`, and the descriptor accepts
@@ -684,9 +690,10 @@ slice changes what is executable, what is trusted, or what should happen next.
   consumer, Node local connector, opt-in Electron main bridge, first semantic
   scene renderer, explicit app-owned daemon mode, menu-bar scene renderer, and
   packaged bootstrap/catalog bridge, native status-item menu projection, and
-  toast lifecycle/action presentation now exist; packaged mode is still opt-in,
-  while V1 installation UI/migration, toast timeout policy, and remaining scene
-  visuals are still missing);
+  toast lifecycle/action presentation, and scene icon/image source presentation
+  now exist; packaged mode is still opt-in, while V1 installation
+  UI/migration, toast timeout policy, icon mask/tint transforms, and remaining
+  scene visuals are still missing);
 - capability manifest declarations, real operating-system providers, audit
   records, and consent UI;
 - production AI providers, OAuth browser/token-store providers, and command
@@ -870,9 +877,12 @@ only small portable JavaScript seeds eligible after the API-first slice.
    native status-item menu projection is implemented under [ADR
    0101](decisions/0101-native-menu-bar-registration.md), and the toast
    lifecycle/action presentation is now implemented under [ADR
-   0102](decisions/0102-v2-toast-lifecycle-presentation.md). The next client
-   boundary is installation UI/migration, toast timeout policy, and remaining
-   scene visuals, followed by eventual V2 default cutover.
+   0102](decisions/0102-v2-toast-lifecycle-presentation.md), and scene
+   icon/image source presentation is now implemented under [ADR
+   0103](decisions/0103-v2-scene-icon-source-presentation.md). The next client
+   boundary is installation UI/migration, toast timeout policy, icon mask/tint
+   transforms, and remaining scene visuals, followed by eventual V2 default
+   cutover.
 
 Keep WebSocket and remote execution as transport/provider additions. They do not
 require changing the session, extension contract, runtime, host, or core

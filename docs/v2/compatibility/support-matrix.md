@@ -420,8 +420,9 @@ dispatches a bounds mutation through the explicit host capability.
   asynchronous pagination hooks; layout clamping and icon rendering remain
   client work. Image-like source/fallback, mask, and dynamic tint metadata now
   cross the semantic boundary as primitive fields, including accessory and
-  Grid content prefixes; client image loading and transforms remain future
-  work;
+  Grid content prefixes; [ADR 0103](../decisions/0103-v2-scene-icon-source-presentation.md)
+  now presents registered SVG keys and safe data/HTTP(S) image sources in the
+  V2 window, while client mask/tint transforms remain future work;
 - `Detail.Metadata` and `List.Item.Detail` serialize labels, separators, links,
   tag lists, loading state, navigation titles, and list detail selection as
   explicit scene data. Title/subtitle tooltip descriptors are preserved;
@@ -429,7 +430,9 @@ dispatches a bounds mutation through the explicit host capability.
   outside Form with an empty callback value bag. The measured icon surface now
   includes `Icon.CircleProgress` and `Icon.AppWindowList`.
 - toast lifecycle, mutable fields, action callbacks, and toast-action shortcut
-  objects are measured; client toast timing/stacking remains unsupported;
+  objects are measured; V2 client stacking and reconciliation are implemented
+  under [ADR 0102](../decisions/0102-v2-toast-lifecycle-presentation.md), while
+  automatic timeout policy remains unsupported;
 - `useNavigation` and `Action.Push` (28.8% of extensions),
   `LocalStorage`/`Cache` (26.5%), and `environment` (19.7%) are measured in
   the adapter. Environment now preserves manifest identity and explicitly

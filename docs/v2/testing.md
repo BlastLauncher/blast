@@ -128,7 +128,8 @@ packaged resource presence to the same app packaging gates. ADR 0101 adds pure
 native menu-bar model tests for command filtering, nested projection,
 accelerators, and alternate actions; the Electron adapter remains covered by
 the app type-check and Forge bundle gates. ADR 0102 adds pure toast reducer tests
-and a server-rendered toast stack smoke; IPC inputs are
+and a server-rendered toast stack smoke. ADR 0103 adds server-rendered icon source
+selection and image-source cases; IPC inputs are
 validated at the main-process boundary, subscriptions clean up with the
 sender, and snapshots use JSON-safe failure details; these checks do not
 require a running V2 daemon or the legacy WebSocket runtime.
