@@ -67,6 +67,13 @@ slice changes what is executable, what is trusted, or what should happen next.
   fixed Node extension launcher, host, core, and local listener, starts at
   listener readiness, and closes client sessions before the extension host.
   A real fixture exercises command and scene traffic through this composition.
+- `@blastlauncher/core-node` exposes the bounded local client connector from
+  [ADR 0095](decisions/0095-bounded-local-core-client.md): it owns local socket
+  creation, JSON-lines framing, connection/handshake deadlines, caller abort
+  propagation, and failed-socket cleanup while returning the existing
+  transport-neutral `CoreClient`. Real-socket tests cover successful discovery,
+  missing endpoints, pre-connect abort, stalled handshakes, and deadline
+  cleanup.
 - The client session has a path-free command-discovery snapshot in [ADR
   0093](decisions/0093-path-free-command-discovery.md): clients request a
   deterministic list of stable command identities and display metadata;
@@ -633,9 +640,9 @@ slice changes what is executable, what is trusted, or what should happen next.
 - the remaining measured Raycast surface: client toast timing/stacking, broader
   desktop APIs, broader action helpers, and additional Tool/browser APIs;
 - persistent catalog refresh, command watching, and desktop rendering of scenes
-  (the local listener, Node daemon composition, and path-free discovery
-  snapshot and transport-neutral client consumer now exist; the Electron
-  consumer is still missing);
+  (the local listener, Node daemon composition, path-free discovery snapshot,
+  transport-neutral client consumer, and Node local connector now exist; the
+  Electron consumer is still missing);
 - capability manifest declarations, real operating-system providers, audit
   records, and consent UI;
 - production AI providers, OAuth browser/token-store providers, and command
@@ -780,7 +787,13 @@ only small portable JavaScript seeds eligible after the API-first slice.
    missing Raycast API member.
 5. Integrate the transport-neutral client consumer from [ADR
    0094](decisions/0094-transport-neutral-client-consumer.md) into the Electron
-   client. The transport-neutral client/core session slice in [ADR
+   client. The bounded Node connector in [ADR
+   0095](decisions/0095-bounded-local-core-client.md) is now implemented, so
+   Electron main-process code can reuse one socket connection, handshake,
+   timeout, abort, and cleanup policy. Add the Electron adapter only after the
+   production V2 bootstrap and catalog-layout decisions are explicit; keep the
+   V1 WebSocket path as the default during that migration. The
+   transport-neutral client/core session slice in [ADR
    0090](decisions/0090-client-facing-core-session-boundary.md) is implemented:
    it establishes a validated client/core connection for one active command,
    semantic scene and event forwarding, lifecycle reporting, and disconnect

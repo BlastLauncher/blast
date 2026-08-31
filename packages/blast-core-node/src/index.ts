@@ -20,6 +20,12 @@ import type {
 
 export { LocalCoreServer, LocalCoreServerError, createLocalCoreServer } from "./local-server.js";
 export type { LocalCoreServerOptions, LocalCoreServerState } from "./local-server.js";
+export {
+  DEFAULT_CORE_CONNECT_TIMEOUT_MILLISECONDS,
+  LocalCoreClientError,
+  connectLocalCoreClient,
+} from "./local-client.js";
+export type { LocalCoreClientOptions } from "./local-client.js";
 export { NodeCoreDaemon, NodeCoreDaemonError, createNodeCoreDaemon } from "./daemon.js";
 export type { NodeCoreDaemonOptions, NodeCoreDaemonState } from "./daemon.js";
 

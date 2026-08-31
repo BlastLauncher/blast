@@ -116,7 +116,9 @@ ADR 0091 local listener. The listener is the daemon's readiness point and
 delegates connections to the client session. A persistent, watched catalog
 index and command watching remain later boundaries; the path-free command
 discovery snapshot from ADR 0093 is now available to the client, with Electron
-consumption as the next boundary.
+consumption as the next boundary. The bounded Node connector in ADR 0095 owns
+socket creation, framing, and connection/handshake cleanup before an Electron
+main-process adapter consumes the client controller.
 
 ### Clients
 
@@ -258,7 +260,7 @@ packages/blast-extension-runtime-node/  Node runtime bootstrap and entrypoint lo
 packages/blast-extension-host/  Transport-neutral lifecycle supervisor
 packages/blast-extension-host-node/  Node child-process launcher
 packages/blast-core/            Trusted catalog and lifecycle orchestration
-packages/blast-core-node/       Node catalog, daemon composition, local listener
+packages/blast-core-node/       Node catalog, daemon composition, local listener/client connector
 packages/blast-client/           Transport-neutral command/scene client consumer
 packages/blast-e2e/             End-to-end vertical slice fixtures
 packages/blast-compatibility/   Static compatibility scanning and census

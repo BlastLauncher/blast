@@ -2,7 +2,7 @@
   "name": "@blastlauncher/core-node",
   "version": "0.0.0",
   "private": true,
-  "description": "Node.js catalog, daemon composition, and local listener for Blast V2",
+  "description": "Node.js catalog, daemon composition, and local client/server for Blast V2",
   "license": "MIT",
   "files": [
     "dist"

@@ -46,10 +46,17 @@ and socket options ([ADR 0092](../../docs/v2/decisions/0092-node-core-daemon-com
 The listener is the readiness point; shutdown closes client sessions before
 the host and leaves no owned socket behind.
 
+The package also exposes `connectLocalCoreClient` from [ADR
+0095](../../docs/v2/decisions/0095-bounded-local-core-client.md). It composes
+an explicitly supplied socket path with the transport-neutral `CoreClient`,
+including bounded connection/handshake timeout, abort, framing, and failed
+socket cleanup, so application hosts do not duplicate Node connection logic.
+
 ## Boundaries
 
 This package may use Node.js APIs. Its catalog remains independent of transport,
-while its local-listener module may depend on `@blastlauncher/transport-node`.
+while its local-listener and local-client modules may depend on
+`@blastlauncher/transport-node`.
 Its daemon-composition module may depend on the Node host launcher. It must not
 depend on Electron, React, or the prototype packages, and it must not make
 `@blastlauncher/core` depend on Node.

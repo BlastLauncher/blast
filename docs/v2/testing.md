@@ -103,6 +103,12 @@ Discovery tests verify sorted path-free command summaries from the filesystem
 catalog, structured catalog failures, and the same list request/response over
 the in-memory session and real daemon socket.
 
+The bounded local client connector in ADR 0095 adds Node-level coverage for
+successful socket/handshake setup, frame-size forwarding, missing-socket
+failures, connection deadlines, abort cleanup, and idempotent client shutdown.
+The socket path and operating-system error details stay out of the protocol
+assertions.
+
 The transport-neutral client consumer tests its single receive pump,
 command/lifecycle state, scene materialization, event forwarding, and failure
 cleanup in-memory; a daemon-backed test repeats the flow over the protected
