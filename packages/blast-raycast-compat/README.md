@@ -65,8 +65,10 @@ onto the V2 scene contract, renderer, and capability broker:
   `Pink`/`Brown` aliases plus the measured `Gray` raw alias.
   Object/file/theme-aware icon descriptors are
   validated at the adapter edge; source/fallback variants, masks, dynamic
-  tint metadata, and List item icon tooltips cross the semantic boundary while
-  client image transforms remain host work;
+  tint metadata, and List item icon tooltips cross the semantic boundary. The
+  opt-in V2 client presents validated masks and supported theme/raw tints under
+  [ADR 0105](../../docs/v2/decisions/0105-v2-icon-mask-and-tint-presentation.md);
+  native contrast adjustment remains client follow-up work;
 - `Clipboard.copy`/`Clipboard.paste`/`Clipboard.read`/`Clipboard.readText`/
   `Clipboard.clear` route through the capability broker with the command
   identity attached by the host; text, numeric, and structured clipboard

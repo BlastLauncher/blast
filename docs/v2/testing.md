@@ -130,7 +130,8 @@ accelerators, and alternate actions; the Electron adapter remains covered by
 the app type-check and Forge bundle gates. ADR 0102 adds pure toast reducer tests
 and a server-rendered toast stack smoke. ADR 0103 adds server-rendered icon source
 selection and image-source cases. ADR 0104 adds server-rendered structured
-shortcut, style, and auto-focus cases; IPC inputs are
+shortcut, style, and auto-focus cases. ADR 0105 adds server-rendered mask,
+theme-tint, content-prefix, safe-image, and unsafe-color cases; IPC inputs are
 validated at the main-process boundary, subscriptions clean up with the
 sender, and snapshots use JSON-safe failure details; these checks do not
 require a running V2 daemon or the legacy WebSocket runtime.

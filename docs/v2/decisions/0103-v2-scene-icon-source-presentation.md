@@ -23,9 +23,9 @@ Add a reusable V2 scene icon component that:
 - retains a deterministic letter fallback for unknown or unsupported sources.
 
 The component accepts both icon-prefixed and grid-content-prefixed scene
-properties. It does not enable filesystem-backed image URLs, invent a network
-policy, or implement mask and tint transforms; those remain separate host or
-client decisions.
+properties. It does not enable filesystem-backed image URLs or invent a
+network policy. Mask and supported tint presentation are defined separately in
+[ADR 0105](0105-v2-icon-mask-and-tint-presentation.md).
 
 ## Boundary
 
@@ -38,8 +38,8 @@ the browser's normal image behavior and the deterministic source fallback.
 
 Registered Raycast icon names and safe remote/data image descriptors now render
 on the primary V2 scene surfaces. Dark-theme source precedence is explicit and
-testable, while unsupported local paths and visual transforms remain visible as
-known future work instead of becoming implicit filesystem or security policy.
+testable, while unsupported local paths remain visible as known future work
+instead of becoming implicit filesystem or security policy.
 
 ## Verification
 

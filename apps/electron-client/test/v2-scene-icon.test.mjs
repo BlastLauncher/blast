@@ -25,7 +25,8 @@ Reflect.set(NodeModule, "_resolveFilename", (request, parent, isMain, options) =
     : Reflect.apply(originalResolveFilename, NodeModule, [request, parent, isMain, options]),
 );
 
-const { V2SceneIcon, selectV2SceneImageSource } = await import("../dist/renderer/V2SceneIcon.js");
+const { V2SceneIcon, selectV2SceneIconTint, selectV2SceneImageSource } =
+  await import("../dist/renderer/V2SceneIcon.js");
 Reflect.set(NodeModule, "_resolveFilename", originalResolveFilename);
 rmSync(svgStub);
 
@@ -71,4 +72,63 @@ test("retains a deterministic letter fallback for unknown sources", () => {
   assert.match(markup, /data-v2-icon-kind="icon"/);
   assert.match(markup, />C<\/span>/);
   assert.match(markup, /h-4 w-4/);
+});
+
+test("presents masks and theme-aware tints without injecting unsafe CSS", () => {
+  const node = {
+    id: "tinted",
+    type: "list-item",
+    props: {
+      icon: "circle-16",
+      iconMask: "circle",
+      iconTintColor: "raycast-red",
+      iconTintColorDark: "#abcdef",
+      iconTintColorAdjustContrast: true,
+    },
+    children: [],
+  };
+  assert.deepEqual(selectV2SceneIconTint(node), {
+    light: "raycast-red",
+    dark: "#abcdef",
+    adjustContrast: true,
+  });
+  const markup = renderToStaticMarkup(React.createElement(V2SceneIcon, { node }));
+  assert.match(markup, /data-v2-icon-mask="circle"/);
+  assert.match(markup, /data-v2-icon-tinted="true"/);
+  assert.match(markup, /data-v2-icon-tint="raycast-red"/);
+  assert.match(markup, /data-v2-icon-tint-adjust-contrast="true"/);
+  assert.match(markup, /--v2-icon-tint-light:#ff6363/);
+  assert.match(markup, /--v2-icon-tint-dark:#abcdef/);
+
+  const unsafeMarkup = renderToStaticMarkup(
+    React.createElement(V2SceneIcon, {
+      node: {
+        ...node,
+        id: "unsafe",
+        props: { ...node.props, iconTintColor: "red; background: url(https://bad.invalid)" },
+      },
+    }),
+  );
+  assert.doesNotMatch(unsafeMarkup, /--v2-icon-tint-light/);
+  assert.match(unsafeMarkup, /data-v2-icon-tint="red; background: url\(https:\/\/bad.invalid\)"/);
+});
+
+test("applies content-prefixed masks and tints to external images", () => {
+  const node = {
+    id: "content-image",
+    type: "grid-item",
+    props: {
+      content: "https://example.test/content.png",
+      contentMask: "roundedRectangle",
+      contentTintColor: "rgb(10, 20, 30)",
+    },
+    children: [],
+  };
+  const markup = renderToStaticMarkup(React.createElement(V2SceneIcon, { kind: "content", node, size: "large" }));
+  assert.match(markup, /data-v2-icon-kind="content"/);
+  assert.match(markup, /data-v2-icon-mask="roundedRectangle"/);
+  assert.match(markup, /rounded-\[20%\]/);
+  assert.match(markup, /grayscale/);
+  assert.match(markup, /mix-blend-mode:color/);
+  assert.match(markup, /src="https:\/\/example.test\/content.png"/);
 });
