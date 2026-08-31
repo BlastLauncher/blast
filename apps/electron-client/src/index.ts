@@ -13,7 +13,7 @@ import { createTray } from "./tray";
 import { connectLocalCoreClient } from "@blastlauncher/core-node";
 import { registerV2ClientIPCEvents, type V2ClientIPCRegistration } from "./v2Client";
 import { V2ClientChannels } from "./v2ClientChannels";
-import { startOptInV2Daemon, stopOptInV2Daemon } from "./v2Daemon";
+import { getOwnedV2DaemonSocketPath, startOptInV2Daemon, stopOptInV2Daemon } from "./v2Daemon";
 import { createApplicationWindow, createNodeInstallerWindow } from "./window";
 
 const debug = createDebug("electron-client:index");
@@ -102,7 +102,7 @@ app.whenReady().then(() => {
 });
 
 function registerOptInV2Client(): boolean {
-  const socketPath = process.env.BLAST_V2_SOCKET_PATH;
+  const socketPath = getOwnedV2DaemonSocketPath() ?? process.env.BLAST_V2_SOCKET_PATH;
   if (socketPath === undefined || socketPath.length === 0) {
     return false;
   }

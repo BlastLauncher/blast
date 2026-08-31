@@ -12,6 +12,7 @@ import {
 } from "./v2DaemonConfig";
 
 let ownedV2Daemon: NodeCoreDaemon | undefined;
+let ownedV2DaemonSocketPath: string | undefined;
 
 /** Starts the app-owned V2 daemon only when all explicit paths are configured. */
 export async function startOptInV2Daemon(): Promise<boolean> {
@@ -40,13 +41,20 @@ export async function startOptInV2Daemon(): Promise<boolean> {
   });
   await daemon.start();
   ownedV2Daemon = daemon;
+  ownedV2DaemonSocketPath = configuration.socketPath;
   return true;
+}
+
+/** Returns the socket owned by the current app process, when V2 is running. */
+export function getOwnedV2DaemonSocketPath(): string | undefined {
+  return ownedV2DaemonSocketPath;
 }
 
 /** Closes the app-owned daemon and releases its socket/child-process owner. */
 export async function stopOptInV2Daemon(reason = "Application shutdown"): Promise<void> {
   const daemon = ownedV2Daemon;
   ownedV2Daemon = undefined;
+  ownedV2DaemonSocketPath = undefined;
   if (daemon !== undefined) {
     await daemon.close(reason);
   }
