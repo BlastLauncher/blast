@@ -112,7 +112,15 @@ assertions.
 The transport-neutral client consumer tests its single receive pump,
 command/lifecycle state, scene materialization, event forwarding, and failure
 cleanup in-memory; a daemon-backed test repeats the flow over the protected
-local socket before an Electron adapter is introduced.
+local socket. The Electron adapter consumes this boundary through the host
+layer rather than opening the socket from renderer code.
+
+ADR 0096 provides deterministic host-level coverage for the injected connection
+factory and snapshot sinks, while the Electron adapter is type-checked and
+Forge-bundled without launching Electron on ARM64 Linux. IPC inputs are
+validated at the main-process boundary, subscriptions clean up with the
+sender, and snapshots use JSON-safe failure details; these checks do not
+require a running V2 daemon or the legacy WebSocket runtime.
 
 ### Renderer conformance
 

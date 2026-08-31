@@ -39,6 +39,13 @@ export interface CoreClientControllerOptions {
 
 export type CoreClientSnapshotListener = (snapshot: CoreClientSnapshot) => void;
 
+export interface CoreClientHostOptions {
+  readonly connect: () => Promise<CoreClient>;
+  readonly onToast?: (toast: ToastPayload) => void;
+}
+
+export type CoreClientHostSnapshotListener = CoreClientSnapshotListener;
+
 export class CoreClientControllerError extends Error {
   readonly code: string;
   readonly details?: unknown;
@@ -46,6 +53,20 @@ export class CoreClientControllerError extends Error {
   constructor(code: string, message: string, details?: unknown) {
     super(message);
     this.name = "CoreClientControllerError";
+    this.code = code;
+    if (details !== undefined) {
+      this.details = details;
+    }
+  }
+}
+
+export class CoreClientHostError extends Error {
+  readonly code: string;
+  readonly details?: unknown;
+
+  constructor(code: string, message: string, details?: unknown) {
+    super(message);
+    this.name = "CoreClientHostError";
     this.code = code;
     if (details !== undefined) {
       this.details = details;
@@ -389,6 +410,204 @@ export class CoreClientController {
     } catch {
       // Subscriber failures must not corrupt the protocol receive pump.
     }
+  }
+}
+
+/**
+ * Owns connection creation around one transport-neutral client controller.
+ * Hosts such as Electron can subscribe to snapshots without receiving a
+ * socket, protocol session, or extension descriptor.
+ */
+export class CoreClientHost {
+  readonly #connect: () => Promise<CoreClient>;
+  readonly #onToast: ((toast: ToastPayload) => void) | undefined;
+  readonly #listeners = new Set<CoreClientHostSnapshotListener>();
+  #controller: CoreClientController | undefined;
+  #unsubscribeController: (() => void) | undefined;
+  #startPromise: Promise<CoreClientSnapshot> | undefined;
+  #closePromise: Promise<void> | undefined;
+  #closed = false;
+
+  constructor(options: CoreClientHostOptions) {
+    this.#connect = options.connect;
+    this.#onToast = options.onToast;
+  }
+
+  get snapshot(): CoreClientSnapshot | undefined {
+    return this.#controller?.snapshot;
+  }
+
+  subscribe(listener: CoreClientHostSnapshotListener): () => void {
+    this.#listeners.add(listener);
+    const snapshot = this.#controller?.snapshot;
+    if (snapshot !== undefined) {
+      this.#notify(listener, snapshot);
+    }
+    return () => {
+      this.#listeners.delete(listener);
+    };
+  }
+
+  start(): Promise<CoreClientSnapshot> {
+    if (this.#closed) {
+      return Promise.reject(new CoreClientHostError("host_closed", "The client host is closed"));
+    }
+    if (this.#startPromise !== undefined) {
+      return this.#startPromise;
+    }
+    if (this.#controller !== undefined) {
+      return Promise.reject(new CoreClientHostError("host_already_started", "The client host has already started"));
+    }
+
+    const operation = this.#start();
+    this.#startPromise = operation;
+    void operation.then(
+      () => this.#clearStartPromise(operation),
+      () => this.#clearStartPromise(operation),
+    );
+    return operation;
+  }
+
+  async refreshCommands(): Promise<CoreClientSnapshot> {
+    if (this.#closed) {
+      return Promise.reject(new CoreClientHostError("host_closed", "The client host is closed"));
+    }
+    const controller = this.#requireController();
+    const operation = controller.refreshCommands();
+    await operation;
+    return controller.snapshot;
+  }
+
+  async runCommand(identity: CommandIdentity): Promise<void> {
+    await this.#requireController().runCommand(identity);
+  }
+
+  async stopCommand(reason?: string): Promise<void> {
+    await this.#requireController().stopCommand(reason);
+  }
+
+  async sendSceneEvent(eventId: string, values?: SceneFormValues): Promise<void> {
+    await this.#requireController().sendSceneEvent(eventId, values);
+  }
+
+  close(reason?: string): Promise<void> {
+    this.#closePromise ??= this.#close(reason);
+    return this.#closePromise;
+  }
+
+  async #start(): Promise<CoreClientSnapshot> {
+    const client = await this.#connect();
+    if (this.#closed) {
+      await client.close("Client host closed before startup completed").catch(() => {});
+      throw new CoreClientHostError("host_closed", "The client host is closed");
+    }
+
+    const controller = new CoreClientController({
+      client,
+      ...(this.#onToast === undefined ? {} : { onToast: this.#onToast }),
+    });
+    this.#controller = controller;
+    this.#unsubscribeController = controller.subscribe((snapshot) => this.#emit(snapshot));
+    await controller.start();
+    return controller.snapshot;
+  }
+
+  async #close(reason?: string): Promise<void> {
+    this.#closed = true;
+    const startPromise = this.#startPromise;
+    if (startPromise !== undefined) {
+      await startPromise.catch(() => {});
+    }
+    try {
+      await this.#controller?.close(reason);
+    } finally {
+      this.#unsubscribeController?.();
+      this.#unsubscribeController = undefined;
+    }
+  }
+
+  #requireController(): CoreClientController {
+    if (this.#closed) {
+      throw new CoreClientHostError("host_closed", "The client host is closed");
+    }
+    if (this.#controller === undefined) {
+      throw new CoreClientHostError("host_not_started", "Start the client host first");
+    }
+    return this.#controller;
+  }
+
+  #clearStartPromise(operation: Promise<CoreClientSnapshot>): void {
+    if (this.#startPromise === operation) {
+      this.#startPromise = undefined;
+    }
+  }
+
+  #emit(snapshot: CoreClientSnapshot): void {
+    for (const listener of this.#listeners) {
+      this.#notify(listener, snapshot);
+    }
+  }
+
+  #notify(listener: CoreClientHostSnapshotListener, snapshot: CoreClientSnapshot): void {
+    try {
+      listener(snapshot);
+    } catch {
+      // Host subscribers are presentation code and must not break the client pump.
+    }
+  }
+}
+
+/**
+ * Produces the JSON-safe snapshot shape used by application IPC adapters.
+ * Controller failures may contain host-local error objects, so arbitrary
+ * details are reduced without allowing functions or cycles across a renderer
+ * boundary.
+ */
+export function serializeCoreClientSnapshot(snapshot: CoreClientSnapshot): CoreClientSnapshot {
+  try {
+    const seen = new WeakSet<object>();
+    const encoded = JSON.stringify(snapshot, (_key, value: unknown) => {
+      if (typeof value === "bigint") {
+        return value.toString();
+      }
+      if (typeof value === "function" || typeof value === "symbol") {
+        return undefined;
+      }
+      if (value instanceof Error) {
+        const record = value as Error & { readonly code?: unknown };
+        return {
+          name: value.name,
+          message: value.message,
+          ...(typeof record.code === "string" ? { code: record.code } : {}),
+        };
+      }
+      if (typeof value === "object" && value !== null) {
+        if (seen.has(value)) {
+          return "[Circular]";
+        }
+        seen.add(value);
+      }
+      return value;
+    });
+    if (encoded === undefined) {
+      throw new Error("Snapshot did not encode to JSON");
+    }
+    return JSON.parse(encoded) as CoreClientSnapshot;
+  } catch {
+    return {
+      state: snapshot.state,
+      commands: snapshot.commands.map((command) => ({ ...command })),
+      ...(snapshot.activeCommand === undefined ? {} : { activeCommand: { ...snapshot.activeCommand } }),
+      ...(snapshot.scene === undefined ? {} : { scene: snapshot.scene }),
+      ...(snapshot.error === undefined
+        ? {}
+        : {
+            error: {
+              code: snapshot.error.code,
+              message: snapshot.error.message,
+            },
+          }),
+    };
   }
 }
 

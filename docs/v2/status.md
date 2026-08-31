@@ -84,6 +84,16 @@ slice changes what is executable, what is trusted, or what should happen next.
   materializes validated scenes, forwards scene events, and isolates toast and
   snapshot subscribers. In-memory tests and the real daemon socket exercise the
   complete controller flow.
+- `@blastlauncher/client` also provides the connection-owning
+  `CoreClientHost` and JSON-safe snapshot serializer from [ADR
+  0096](decisions/0096-electron-main-client-bridge.md). Host tests cover lazy
+  shared startup, command forwarding, shutdown, and non-serializable failure
+  details.
+- The Electron app has the opt-in main-process bridge from ADR 0096: when
+  `BLAST_V2_SOCKET_PATH` is explicitly supplied, the main process registers
+  snapshot/toast subscriptions and validated semantic command/event IPC over
+  the bounded Node connector. The V1 WebSocket runtime and renderer remain the
+  default; the ARM64 Linux Debian Forge bundle passes without launching the UI.
 - The Node filesystem catalog discovers Raycast-style `package.json` manifests,
   probes `src/<command-name>` entrypoints, honors explicit entrypoint
   overrides, and never resolves a path outside the extension root.
@@ -641,8 +651,9 @@ slice changes what is executable, what is trusted, or what should happen next.
   desktop APIs, broader action helpers, and additional Tool/browser APIs;
 - persistent catalog refresh, command watching, and desktop rendering of scenes
   (the local listener, Node daemon composition, path-free discovery snapshot,
-  transport-neutral client consumer, and Node local connector now exist; the
-  Electron consumer is still missing);
+  transport-neutral client consumer, Node local connector, and opt-in Electron
+  main bridge now exist; the V2 renderer scene UI and default daemon startup
+  are still missing);
 - capability manifest declarations, real operating-system providers, audit
   records, and consent UI;
 - production AI providers, OAuth browser/token-store providers, and command
@@ -788,11 +799,13 @@ only small portable JavaScript seeds eligible after the API-first slice.
 5. Integrate the transport-neutral client consumer from [ADR
    0094](decisions/0094-transport-neutral-client-consumer.md) into the Electron
    client. The bounded Node connector in [ADR
-   0095](decisions/0095-bounded-local-core-client.md) is now implemented, so
-   Electron main-process code can reuse one socket connection, handshake,
-   timeout, abort, and cleanup policy. Add the Electron adapter only after the
-   production V2 bootstrap and catalog-layout decisions are explicit; keep the
-   V1 WebSocket path as the default during that migration. The
+   0095](decisions/0095-bounded-local-core-client.md) and the opt-in main-process
+   bridge in [ADR 0096](decisions/0096-electron-main-client-bridge.md) are now
+   implemented, so Electron can reuse one socket connection, handshake,
+   timeout, abort, cleanup, snapshot, and semantic event policy. The next
+   decision is the production V2 bootstrap and catalog layout, followed by a
+   renderer that can consume `SceneNode`; keep the V1 WebSocket path as the
+   default during that migration. The
    transport-neutral client/core session slice in [ADR
    0090](decisions/0090-client-facing-core-session-boundary.md) is implemented:
    it establishes a validated client/core connection for one active command,
@@ -805,7 +818,9 @@ only small portable JavaScript seeds eligible after the API-first slice.
    dependency graph. The path-free discovery contract in [ADR
    0093](decisions/0093-path-free-command-discovery.md) is now implemented as
    a deterministic snapshot, and the controller in ADR 0094 now consumes it;
-   the next boundary is the Electron adapter.
+   the Electron host/IPC adapter is now implemented behind an explicit socket
+   opt-in; the next boundary is production daemon bootstrap/catalog policy and
+   a renderer that consumes `SceneNode`.
 
 Keep WebSocket and remote execution as transport/provider additions. They do not
 require changing the session, extension contract, runtime, host, or core

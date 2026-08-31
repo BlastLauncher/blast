@@ -53,9 +53,21 @@ importers:
 
   apps/electron-client:
     dependencies:
+      '@blastlauncher/client':
+        specifier: workspace:*
+        version: link:../../packages/blast-client
+      '@blastlauncher/core':
+        specifier: workspace:*
+        version: link:../../packages/blast-core
+      '@blastlauncher/core-node':
+        specifier: workspace:*
+        version: link:../../packages/blast-core-node
       '@blastlauncher/runtime':
         specifier: workspace:*
         version: link:../../packages/blast-runtime
+      '@blastlauncher/scene':
+        specifier: workspace:*
+        version: link:../../packages/blast-scene
       '@blastlauncher/utils':
         specifier: workspace:*
         version: link:../../packages/blast-utils

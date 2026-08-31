@@ -22,7 +22,11 @@
     "start": "electron-forge start"
   },
   "dependencies": {
+    "@blastlauncher/client": "workspace:*",
+    "@blastlauncher/core": "workspace:*",
+    "@blastlauncher/core-node": "workspace:*",
     "@blastlauncher/runtime": "workspace:*",
+    "@blastlauncher/scene": "workspace:*",
     "@blastlauncher/utils": "workspace:*",
     "electron-squirrel-startup": "^1.0.1",
     "update-electron-app": "^3.3.0"

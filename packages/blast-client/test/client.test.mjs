@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { CoreClientController } from "../dist/index.js";
+import { CoreClientController, CoreClientHost, serializeCoreClientSnapshot } from "../dist/index.js";
 
 const identity = { extensionId: "example.extension", commandName: "index" };
 
@@ -239,4 +239,82 @@ test("rejects command actions until the consumer is ready", async () => {
     (error) => error.code === "controller_not_started",
   );
   await controller.close();
+});
+
+test("the client host shares lazy startup and publishes controller snapshots", async () => {
+  const client = new FakeCoreClient();
+  let connectionCount = 0;
+  const host = new CoreClientHost({
+    connect: async () => {
+      connectionCount += 1;
+      return client;
+    },
+  });
+  const snapshots = [];
+  const unsubscribe = host.subscribe((snapshot) => snapshots.push(snapshot));
+
+  const firstStart = host.start();
+  const secondStart = host.start();
+  assert.strictEqual(firstStart, secondStart);
+  await flush();
+  assert.equal(connectionCount, 1);
+  client.push(
+    message("core.command.listed", {
+      commands: [{ ...identity, title: "Example", extensionName: "Example Extension", entryPointMode: "view" }],
+    }),
+  );
+  const ready = await firstStart;
+  assert.equal(ready.state, "ready");
+  assert.equal(host.snapshot.state, "ready");
+
+  await host.runCommand(identity);
+  client.push(message("core.command.started", identity));
+  await flush();
+  assert.equal(host.snapshot.state, "running");
+  assert.ok(snapshots.some((snapshot) => snapshot.state === "running"));
+
+  await host.stopCommand("host test complete");
+  client.push(message("core.command.stopped", { ...identity, reason: "host test complete" }));
+  await flush();
+  assert.equal(host.snapshot.state, "ready");
+
+  unsubscribe();
+  await host.close("host test complete");
+  assert.equal(client.closed, true);
+  assert.equal(host.snapshot.state, "closed");
+});
+
+test("the client host rejects commands before startup and after shutdown", async () => {
+  const client = new FakeCoreClient();
+  const host = new CoreClientHost({ connect: async () => client });
+
+  await assert.rejects(
+    () => host.runCommand(identity),
+    (error) => error.code === "host_not_started",
+  );
+  await host.close();
+  await assert.rejects(
+    () => host.start(),
+    (error) => error.code === "host_closed",
+  );
+});
+
+test("serializes snapshots with JSON-safe failure details", () => {
+  const details = { nested: { count: 3n }, callback: () => {}, error: new Error("transport failed") };
+  details.nested.self = details;
+  const serialized = serializeCoreClientSnapshot({
+    state: "failed",
+    commands: [],
+    error: { code: "transport_failed", message: "The connection failed", details },
+  });
+
+  assert.deepEqual(serialized.error, {
+    code: "transport_failed",
+    message: "The connection failed",
+    details: {
+      nested: { count: "3", self: "[Circular]" },
+      error: { name: "Error", message: "transport failed" },
+    },
+  });
+  assert.doesNotThrow(() => JSON.stringify(serialized));
 });

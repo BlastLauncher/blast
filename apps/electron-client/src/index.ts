@@ -10,9 +10,14 @@ import { hasVersionInstalled } from "./nrm";
 import { registerIPCMainEvents as registerRendererIPCEvents } from "./renderer/events";
 import { startRuntime, stopRuntime } from "./runtime";
 import { createTray } from "./tray";
+import { connectLocalCoreClient } from "@blastlauncher/core-node";
+import { registerV2ClientIPCEvents, type V2ClientIPCRegistration } from "./v2Client";
 import { createApplicationWindow, createNodeInstallerWindow } from "./window";
 
 const debug = createDebug("electron-client:index");
+
+let v2ClientIPC: V2ClientIPCRegistration | undefined;
+let v2MessageSequence = 0;
 
 require("update-electron-app")();
 
@@ -25,6 +30,7 @@ const onReady = (): void => {
   debug("onReady");
   if (hasVersionInstalled()) {
     debug("hasVersionInstalled");
+    registerOptInV2Client();
     startRuntime();
     setMenu();
     registerRendererIPCEvents();
@@ -54,6 +60,7 @@ app.on("will-quit", () => {
   globalShortcut.unregisterAll();
 
   stopRuntime();
+  void v2ClientIPC?.dispose();
 });
 
 app.on("activate", () => {
@@ -70,6 +77,23 @@ app.whenReady().then(() => {
   //   .then((name) => console.log(`Added Extension:  ${name}`))
   //   .catch((err) => console.log("An error occurred: ", err));
 });
+
+function registerOptInV2Client(): void {
+  const socketPath = process.env.BLAST_V2_SOCKET_PATH;
+  if (socketPath === undefined || socketPath.length === 0) {
+    return;
+  }
+
+  v2ClientIPC = registerV2ClientIPCEvents({
+    connect: () =>
+      connectLocalCoreClient({
+        socketPath,
+        implementation: { name: "blast-electron-client", version: app.getVersion() },
+        createMessageId: () => `electron-client-${++v2MessageSequence}`,
+      }),
+  });
+  debug("registered opt-in V2 client bridge", socketPath);
+}
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
