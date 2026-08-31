@@ -1028,15 +1028,135 @@ function ActionButtons({
         <ActionButton action={action} disabled={disabled} key={action.id} onEvent={onEvent} values={values} />
       ))}
       {groups.map((group) => (
-        <div className="flex flex-wrap items-center gap-2" key={group.id}>
-          {stringProp(group, "title") !== undefined && (
-            <span className="mr-1 text-xs text-white/45">{stringProp(group, "title")}</span>
-          )}
-          <ActionButtons disabled={disabled} nodes={group.children} onEvent={onEvent} values={values} />
-        </div>
+        <ActionGroup disabled={disabled} group={group} key={group.id} onEvent={onEvent} values={values} />
       ))}
     </div>
   );
+}
+
+function ActionGroup({
+  group,
+  disabled,
+  onEvent,
+  values,
+}: {
+  readonly group: SceneNode;
+  readonly disabled: boolean;
+  readonly onEvent: V2SceneEventSender;
+  readonly values?: SceneFormValues;
+}): React.JSX.Element {
+  if (booleanProp(group, "isSubmenu") === true) {
+    return <ActionSubmenu disabled={disabled} group={group} onEvent={onEvent} values={values} />;
+  }
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      {stringProp(group, "title") !== undefined && (
+        <span className="mr-1 text-xs text-white/45">{stringProp(group, "title")}</span>
+      )}
+      <ActionButtons disabled={disabled} nodes={group.children} onEvent={onEvent} values={values} />
+    </div>
+  );
+}
+
+function ActionSubmenu({
+  group,
+  disabled,
+  onEvent,
+  values,
+}: {
+  readonly group: SceneNode;
+  readonly disabled: boolean;
+  readonly onEvent: V2SceneEventSender;
+  readonly values?: SceneFormValues;
+}): React.JSX.Element {
+  const autoFocus = booleanProp(group, "autoFocus") === true;
+  const [open, setOpen] = useState(false);
+  const [searchText, setSearchText] = useState("");
+  const searchEvent = stringProp(group, "onSearchTextChange");
+  const filtering = booleanProp(group, "filtering") ?? searchEvent === undefined;
+  const visibleChildren = filterV2SceneActionChildren(group.children, filtering ? searchText : "");
+  const title = stringProp(group, "title") ?? "More actions";
+  const iconSource = selectV2SceneImageSource(group);
+  const openEvent = stringProp(group, "onOpen");
+
+  const toggle = (event: React.SyntheticEvent<HTMLDetailsElement>): void => {
+    const nextOpen = event.currentTarget.open;
+    setOpen(nextOpen);
+    if (nextOpen && openEvent !== undefined) {
+      fireEvent(onEvent, openEvent);
+    }
+  };
+  const search = (value: string): void => {
+    setSearchText(value);
+    if (searchEvent !== undefined) {
+      fireEvent(onEvent, searchEvent, { searchText: value });
+    }
+  };
+
+  return (
+    <details
+      className="min-w-40 rounded-md border border-white/10 bg-white/5"
+      data-action-submenu="true"
+      data-action-submenu-loading={booleanProp(group, "isLoading") ? "true" : undefined}
+      data-action-submenu-open={open ? "true" : "false"}
+      open={open}
+      onToggle={toggle}
+    >
+      <summary
+        aria-busy={booleanProp(group, "isLoading")}
+        autoFocus={autoFocus}
+        className="flex cursor-pointer list-none items-center gap-1.5 px-2.5 py-1.5 text-xs text-white/80 outline-none hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-blue-300/60"
+      >
+        {iconSource !== undefined && <V2SceneIcon node={group} size="small" />}
+        <span className="truncate">{title}</span>
+        {booleanProp(group, "isLoading") && <span className="text-white/45">Loading…</span>}
+        {shortcutProp(group, "shortcut") !== undefined && (
+          <kbd className="ml-1 text-white/45">{shortcutProp(group, "shortcut")}</kbd>
+        )}
+      </summary>
+      {(filtering || searchEvent !== undefined) && (
+        <div className="border-t border-white/10 p-2">
+          <input
+            aria-label={`${title} search`}
+            className="w-full rounded border border-white/10 bg-black/10 px-2 py-1 text-xs outline-none focus:border-blue-400/60"
+            disabled={disabled || booleanProp(group, "isLoading")}
+            onChange={(event) => search(event.target.value)}
+            placeholder="Filter actions…"
+            value={searchText}
+          />
+        </div>
+      )}
+      <div className="flex flex-wrap items-center gap-2 border-t border-white/10 p-2">
+        <ActionButtons
+          disabled={disabled || booleanProp(group, "isLoading") === true}
+          nodes={visibleChildren}
+          onEvent={onEvent}
+          values={values}
+        />
+      </div>
+    </details>
+  );
+}
+
+export function filterV2SceneActionChildren(nodes: readonly SceneNode[], query: string): readonly SceneNode[] {
+  const normalizedQuery = query.trim().toLowerCase();
+  if (normalizedQuery.length === 0) {
+    return nodes;
+  }
+  return nodes.flatMap((node) => {
+    if (node.type === "action") {
+      return (stringProp(node, "title") ?? "").toLowerCase().includes(normalizedQuery) ? [node] : [];
+    }
+    if (node.type !== "action-group") {
+      return [];
+    }
+    const titleMatches = (stringProp(node, "title") ?? "").toLowerCase().includes(normalizedQuery);
+    if (titleMatches) {
+      return [node];
+    }
+    const children = filterV2SceneActionChildren(node.children, normalizedQuery);
+    return children.length === 0 ? [] : [{ ...node, children }];
+  });
 }
 
 function ActionButton({

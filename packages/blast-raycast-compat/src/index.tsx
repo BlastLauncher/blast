@@ -4456,6 +4456,7 @@ function Submenu(props: SubmenuProps): ReactElement {
           }),
       ...(props.onOpen === undefined ? {} : { onOpen: () => props.onOpen?.() }),
       ...(props.autoFocus === undefined ? {} : { autoFocus: props.autoFocus }),
+      isSubmenu: true,
     },
     mapItemChildren(props.children, "ActionPanel.Submenu"),
   );

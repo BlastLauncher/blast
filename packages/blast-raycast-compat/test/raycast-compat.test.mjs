@@ -3217,7 +3217,7 @@ test("renders titled action panels, submenus, List actions, and tinted icons", a
   assert.equal(itemGroup.children[0].type, "action");
   const submenu = itemGroup.children[1];
   assert.equal(submenu.type, "action-group");
-  assert.deepEqual(submenu.props, { title: "More" });
+  assert.deepEqual(submenu.props, { title: "More", isSubmenu: true });
   assert.equal(submenu.children[0].type, "action");
 
   const listGroup = root.children[1];
@@ -3269,6 +3269,7 @@ test("routes ActionPanel.Submenu search and open callbacks", async () => {
     throttle: true,
     onSearchTextChange: submenu.props.onSearchTextChange,
     onOpen: submenu.props.onOpen,
+    isSubmenu: true,
   });
   assert.deepEqual(submenu.children[0].props, {
     id: "child",

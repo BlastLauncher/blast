@@ -192,9 +192,11 @@ report.
 
 `@blastlauncher/raycast-compat` fixtures render Raycast-style component trees
 through the adapter and assert the resulting scene transactions: ActionPanel
-groups and sections, icon serialization, Detail and Form roots, typed form
+groups, sections, and submenus, icon serialization, Detail and Form roots, typed form
 field values (including ISO date and string-array wire conversions), event
-routing, and toast show/update/hide payloads. Toast action event IDs are
+routing, and toast show/update/hide payloads. Submenu search/open event
+routing and deterministic nested action filtering are covered by the V2
+Electron scene tests. Toast action event IDs are
 dispatched through the existing scene-event path and are released on hide.
 Capability tests cover brokered clipboard writes and reads, denied-write
 errors, imperative HUD/open/alert requests and responses, cache eviction, and

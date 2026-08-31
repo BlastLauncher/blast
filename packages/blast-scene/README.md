@@ -23,7 +23,8 @@ show payloads and identified show/update/hide operations.
   `missing_required_prop`, `remove_root`, `orphan_node`, `reorder_mismatch`).
   List roots carry items and titled sections; Grid roots carry content tiles,
   sections, empty views, and search dropdowns;
-  menu-bar roots carry items, sections, submenus, and separators;
+  menu-bar roots carry items, sections, submenus, and separators; action groups
+  preserve the internal marker needed to present ActionPanel.Submenu controls;
 - `SceneTransactionSink` is the transport-independent boundary the React
   renderer publishes to (ADR 0004); `createCollectingSceneSink` is the
   deterministic in-memory implementation for tests;

@@ -29,7 +29,7 @@ Reflect.set(NodeModule, "_resolveFilename", (request, parent, isMain, options) =
 const markdownStylesheet = fileURLToPath(new URL("../dist/renderer/components/Detail/markdown.scss", import.meta.url));
 mkdirSync(fileURLToPath(new URL("../dist/renderer/components/Detail/", import.meta.url)), { recursive: true });
 writeFileSync(markdownStylesheet, "");
-const { V2Scene } = await import("../dist/renderer/V2Scene.js");
+const { V2Scene, filterV2SceneActionChildren } = await import("../dist/renderer/V2Scene.js");
 Reflect.set(NodeModule, "_resolveFilename", originalResolveFilename);
 rmSync(markdownStylesheet);
 rmSync(svgStub, { force: true });
@@ -136,6 +136,69 @@ test("server-renders action styles, structured shortcuts, and auto-focus", () =>
   assert.match(markup, /Delete/);
   assert.match(markup, /cmd \+ shift \+ D/);
   assert.match(markup, /autofocus/);
+});
+
+test("presents action-panel submenus and filters nested actions deterministically", () => {
+  const action = (id, title) => ({ id, type: "action", props: { title, onAction: `event-${id}` }, children: [] });
+  const nested = {
+    id: "nested",
+    type: "action-group",
+    props: { title: "Utilities" },
+    children: [action("copy", "Copy value"), action("remove", "Remove value")],
+  };
+  const children = [action("open", "Open item"), nested, action("save", "Save item")];
+  const filtered = filterV2SceneActionChildren(children, "copy");
+  assert.deepEqual(
+    filtered.map((node) => node.id),
+    ["nested"],
+  );
+  assert.deepEqual(
+    filtered[0].children.map((node) => node.id),
+    ["copy"],
+  );
+  assert.deepEqual(
+    filterV2SceneActionChildren(children, "item").map((node) => node.id),
+    ["open", "save"],
+  );
+
+  const markup = renderToStaticMarkup(
+    React.createElement(V2Scene, {
+      disabled: false,
+      onEvent: async () => {},
+      root: {
+        id: "submenu-root",
+        type: "detail",
+        props: { markdown: "Actions" },
+        children: [
+          {
+            id: "submenu",
+            type: "action-group",
+            props: {
+              title: "More actions",
+              icon: "ellipsis-16",
+              shortcut: { modifiers: ["cmd"], key: "k" },
+              filtering: true,
+              isLoading: true,
+              onOpen: "submenu-open",
+              onSearchTextChange: "submenu-search",
+              autoFocus: true,
+              isSubmenu: true,
+            },
+            children: [action("copy", "Copy value")],
+          },
+        ],
+      },
+    }),
+  );
+  assert.match(markup, /data-action-submenu="true"/);
+  assert.match(markup, /data-action-submenu-loading="true"/);
+  assert.match(markup, /data-action-submenu-open="false"/);
+  assert.match(markup, /More actions search/);
+  assert.match(markup, /Filter actions…/);
+  assert.match(markup, /Copy value/);
+  assert.match(markup, /aria-busy="true"/);
+  assert.match(markup, /autofocus/);
+  assert.match(markup, /cmd \+ k/);
 });
 
 test("server-renders List and Grid collection accessories defensively", () => {

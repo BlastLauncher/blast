@@ -321,6 +321,30 @@ test("validates scene transaction messages", (context) => {
     assert.equal(result.ok, true);
   });
 
+  context.test("accepts the ActionPanel.Submenu presentation marker", () => {
+    const result = validateSceneTransactionMessage(
+      envelope(
+        SCENE_TRANSACTION_MESSAGE,
+        transaction([
+          {
+            type: "snapshot",
+            root: list("root", [
+              listItem("item-1", "Item", [
+                {
+                  id: "submenu-1",
+                  type: "action-group",
+                  props: { title: "More", isSubmenu: true },
+                  children: [action("action-1", "Run")],
+                },
+              ]),
+            ]),
+          },
+        ]),
+      ),
+    );
+    assert.equal(result.ok, true);
+  });
+
   context.test("accepts measured form nodes", () => {
     const result = validateSceneTransactionMessage(
       envelope(

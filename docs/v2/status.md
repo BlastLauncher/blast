@@ -130,6 +130,10 @@ slice changes what is executable, what is trusted, or what should happen next.
   registered icons, safe image sources, Grid content, and deterministic
   fallbacks; [ADR 0112](decisions/0112-v2-icon-contrast-adjustment.md) now
   applies deterministic contrast adjustment to parseable colors.
+- [ADR 0113](decisions/0113-v2-action-submenu-presentation.md) now presents
+  measured `ActionPanel.Submenu` groups as accessible expandable controls with
+  loading, open, search, local filtering, nested actions, and autofocus
+  behavior over the existing scene-event bridge.
 - [ADR 0106](decisions/0106-v2-collection-accessory-presentation.md) presents
   validated List accessory titles, icons, text/date/tag records, tooltips, and
   safe colors plus Grid accessory icons/tooltips in a compact trailing rail;
@@ -722,11 +726,12 @@ slice changes what is executable, what is trusted, or what should happen next.
   packages); these dependency and platform concerns are tracked separately
   from Raycast API compatibility, and extension authors own third-party native
   module support on their target platforms;
-- the remaining measured Raycast surface: broader desktop APIs, broader action
-  helpers, and additional Tool/browser APIs; the declaration-driven ARM64 finish
-  gate is green, and the client toast timeout policy is now defined under ADR
-  0111 while the remaining behavior/provider boundaries stay separately
-  measured;
+- the remaining measured Raycast surface: broader desktop APIs, additional
+  action helpers/providers, and additional Tool/browser APIs; the
+  declaration-driven ARM64 finish gate is green, and the client toast timeout,
+  icon contrast, and ActionPanel.Submenu presentation policies are now defined
+  under ADRs 0111, 0112, and 0113 while the remaining behavior/provider
+  boundaries stay separately measured;
 - persistent catalog refresh, command watching, and complete desktop rendering
   of every scene member (the local listener, Node
   daemon composition, path-free discovery snapshot, transport-neutral client
@@ -734,11 +739,12 @@ slice changes what is executable, what is trusted, or what should happen next.
   scene renderer, explicit app-owned daemon mode, menu-bar scene renderer, and
   packaged bootstrap/catalog bridge, native status-item menu projection, and
   toast lifecycle/action presentation, scene icon/image source presentation,
-  icon mask/tint presentation, action chrome fidelity, and the keyboard command
-  chooser and the bounded toast timeout policy now exist; packaged mode is now
-  the default under ADR 0108, while installation UI and internal V2
-  migration/update flows, broader action helpers, and remaining scene visuals
-  are still missing. There is no V1 user
+  icon mask/tint presentation, icon contrast adjustment, action chrome fidelity,
+  ActionPanel.Submenu presentation, and the keyboard command chooser, plus the
+  bounded toast timeout policy, now exist; packaged mode is now the default
+  under ADR 0108, while installation UI and internal V2
+  migration/update flows, additional action helpers/providers, and remaining
+  scene visuals are still missing. There is no V1 user
   migration path because V1 was never released);
 - capability manifest declarations, real operating-system providers, audit
   records, and consent UI;
@@ -772,22 +778,25 @@ tests; the two aggregate structured outcomes are intentional validation
 boundaries. Declaration shape, adapter behavior, corpus runtime coverage, and
 host/provider coverage remain separate measurements. The first application
 slice is now recorded by [ADR 0110](decisions/0110-v2-application-boundary-performance-baseline.md)
-and its baseline artifact. Application-layer work is now led by the bounded
-toast timeout policy in [ADR 0111](decisions/0111-v2-toast-timeout-policy.md).
+and its baseline artifact. The bounded toast timeout, icon contrast, and
+ActionPanel.Submenu presentation slices are recorded by ADRs 0111, 0112, and
+0113; the next application work is installation/update UX, remaining action
+helpers/providers, and scene visuals.
 Installation UI and internal V2 migration/update flows are later product work;
 no V1 user migration is needed because V1 was never released.
 Native/macOS, WASM,
 test-only, large-graph, and host-process dependencies remain deferred, with
 only small portable JavaScript seeds eligible after the API-first slice.
 
-1. Complete bounded application-layer policies first. The first target is the
-   client-owned toast timeout policy in [ADR
-   0111](decisions/0111-v2-toast-timeout-policy.md), followed by installation UI
-   and internal V2 migration/update flows, broader action helpers, and remaining
-   scene visuals. Automatic icon contrast is covered by ADR 0112. There is no V1 user
-   migration requirement because V1 was never released. Keep these client
-   boundaries separate from the already-green API finish gate and from
-   host/provider work.
+1. Complete bounded application-layer policies first. The client-owned toast
+   timeout, deterministic icon contrast, and ActionPanel.Submenu presentation
+   are implemented under ADRs [0111](decisions/0111-v2-toast-timeout-policy.md),
+   [0112](decisions/0112-v2-icon-contrast-adjustment.md), and
+   [0113](decisions/0113-v2-action-submenu-presentation.md). Continue with
+   installation UI and internal V2 migration/update flows, remaining action
+   helpers/providers, and scene visuals. There is no V1 user migration
+   requirement because V1 was never released. Keep these client boundaries
+   separate from the already-green API finish gate and from host/provider work.
 2. Finish measured Raycast API semantics as new gaps are found. The declaration inventory and
    declaration-derived corpus allowlist are green: 147/147 top-level exports,
    1,167/1,167 normalized nested members, 88/88 declared runtime exports, all
@@ -956,10 +965,11 @@ only small portable JavaScript seeds eligible after the API-first slice.
    0105](decisions/0105-v2-icon-mask-and-tint-presentation.md). The first
    application slice in [ADR 0110](decisions/0110-v2-application-boundary-performance-baseline.md)
    is complete, with keyboard command selection and a committed cold/warm
-   latency baseline. ADR 0111 now defines the toast timeout policy. Installation
-   UI and internal V2 migration/update flows, broader action helpers, and
-   remaining scene visuals follow; automatic icon contrast is covered by ADR
-   0112, and no V1 user migration is planned.
+   latency baseline. ADRs 0111 and 0112 define the toast timeout and automatic
+   icon contrast policies, and ADR 0113 defines ActionPanel.Submenu
+   presentation. Installation UI and internal V2 migration/update flows,
+   remaining action helpers/providers, and remaining scene visuals follow; no
+   V1 user migration is planned.
 
 Keep WebSocket and remote execution as transport/provider additions. They do not
 require changing the session, extension contract, runtime, host, or core
