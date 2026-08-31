@@ -27,8 +27,13 @@ Reflect.set(NodeModule, "_resolveFilename", (request, parent, isMain, options) =
     : Reflect.apply(originalResolveFilename, NodeModule, [request, parent, isMain, options]),
 );
 
-const { V2SceneIcon, selectV2SceneIconTint, selectV2SceneImageSource } =
-  await import("../dist/renderer/V2SceneIcon.js");
+const {
+  V2SceneIcon,
+  adjustV2SceneColorContrast,
+  selectV2SceneIconTint,
+  selectV2SceneImageSource,
+  v2SceneIconContrastRatio,
+} = await import("../dist/renderer/V2SceneIcon.js");
 Reflect.set(NodeModule, "_resolveFilename", originalResolveFilename);
 rmSync(svgStub, { force: true });
 
@@ -99,7 +104,7 @@ test("presents masks and theme-aware tints without injecting unsafe CSS", () => 
   assert.match(markup, /data-v2-icon-tinted="true"/);
   assert.match(markup, /data-v2-icon-tint="raycast-red"/);
   assert.match(markup, /data-v2-icon-tint-adjust-contrast="true"/);
-  assert.match(markup, /--v2-icon-tint-light:#ff6363/);
+  assert.match(markup, /--v2-icon-tint-light:#f76060/);
   assert.match(markup, /--v2-icon-tint-dark:#abcdef/);
 
   const unsafeMarkup = renderToStaticMarkup(
@@ -113,6 +118,37 @@ test("presents masks and theme-aware tints without injecting unsafe CSS", () => 
   );
   assert.doesNotMatch(unsafeMarkup, /--v2-icon-tint-light/);
   assert.match(unsafeMarkup, /data-v2-icon-tint="red; background: url\(https:\/\/bad.invalid\)"/);
+});
+
+test("adjusts parseable colors to the active canvas contrast and preserves opt-outs", () => {
+  const adjustedLight = adjustV2SceneColorContrast("#eeeeee", "light");
+  const adjustedDark = adjustV2SceneColorContrast("#111111", "dark");
+  assert.notEqual(adjustedLight, "#eeeeee");
+  assert.notEqual(adjustedDark, "#111111");
+  assert.ok((v2SceneIconContrastRatio(adjustedLight, "light") ?? 0) >= 3);
+  assert.ok((v2SceneIconContrastRatio(adjustedDark, "dark") ?? 0) >= 3);
+  assert.equal(adjustV2SceneColorContrast("var(--gray12)", "light"), "var(--gray12)");
+  for (const value of ["rgb(238, 238, 238)", "rgba(238, 238, 238, 1)", "hsl(0, 0%, 93%)", "pink"]) {
+    const adjusted = adjustV2SceneColorContrast(value, "light");
+    assert.ok((v2SceneIconContrastRatio(adjusted, "light") ?? 0) >= 3, value);
+  }
+
+  const optOutMarkup = renderToStaticMarkup(
+    React.createElement(V2SceneIcon, {
+      node: {
+        id: "opt-out",
+        type: "list-item",
+        props: {
+          icon: "circle-16",
+          iconTintColor: "#eeeeee",
+          iconTintColorAdjustContrast: false,
+        },
+        children: [],
+      },
+    }),
+  );
+  assert.match(optOutMarkup, /--v2-icon-tint-light:#eeeeee/);
+  assert.doesNotMatch(optOutMarkup, /data-v2-icon-tint-adjust-contrast="true"/);
 });
 
 test("applies content-prefixed masks and tints to external images", () => {

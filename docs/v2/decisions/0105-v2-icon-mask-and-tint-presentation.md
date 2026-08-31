@@ -44,8 +44,8 @@ adapter remain unchanged.
 Measured masks and common theme/raw tint colors now affect all V2 icon
 surfaces, including Grid content and fallback glyphs. The color allowlist
 keeps extension-controlled values out of inline CSS while preserving unknown
-values as non-destructive metadata. Automatic contrast adjustment remains an
-explicit follow-up rather than an undocumented visual guess.
+values as non-destructive metadata. Automatic contrast adjustment is defined
+separately and is implemented by [ADR 0112](0112-v2-icon-contrast-adjustment.md).
 
 ## Verification
 

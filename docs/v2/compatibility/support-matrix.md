@@ -445,8 +445,9 @@ dispatches a bounds mutation through the explicit host capability.
   cross the semantic boundary as primitive fields, including accessory and
   Grid content prefixes; [ADR 0103](../decisions/0103-v2-scene-icon-source-presentation.md)
   now presents registered SVG keys and safe data/HTTP(S) image sources in the
-  V2 window under [ADR 0105](../decisions/0105-v2-icon-mask-and-tint-presentation.md),
-  while automatic contrast adjustment remains future work;
+  V2 window under [ADR 0105](../decisions/0105-v2-icon-mask-and-tint-presentation.md)
+  and [ADR 0112](../decisions/0112-v2-icon-contrast-adjustment.md), which
+  adjusts parseable colors against the active canvas;
 - `Detail.Metadata` and `List.Item.Detail` serialize labels, separators, links,
   tag lists, loading state, navigation titles, and list detail selection as
   explicit scene data. Title/subtitle tooltip descriptors are preserved;

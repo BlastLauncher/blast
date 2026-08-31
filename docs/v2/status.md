@@ -128,7 +128,8 @@ slice changes what is executable, what is trusted, or what should happen next.
 - [ADR 0105](decisions/0105-v2-icon-mask-and-tint-presentation.md) presents
   circle/rounded-rectangle masks and supported light/dark tint colors across
   registered icons, safe image sources, Grid content, and deterministic
-  fallbacks; automatic contrast adjustment remains separate.
+  fallbacks; [ADR 0112](decisions/0112-v2-icon-contrast-adjustment.md) now
+  applies deterministic contrast adjustment to parseable colors.
 - [ADR 0106](decisions/0106-v2-collection-accessory-presentation.md) presents
   validated List accessory titles, icons, text/date/tag records, tooltips, and
   safe colors plus Grid accessory icons/tooltips in a compact trailing rail;
@@ -444,7 +445,8 @@ slice changes what is executable, what is trusted, or what should happen next.
   is now implemented: Raycast image source/fallback variants, masks, and
   dynamic tint metadata cross the scene and capability boundaries. ADR 0103
   now renders registered and safe data/HTTP(S) sources in the opt-in V2
-  client; automatic icon contrast adjustment remains future work.
+  client; ADR 0112 now adjusts parseable icon tint colors against the active
+  V2 canvas and preserves unsupported CSS values unchanged.
 - The environment metadata slice in [ADR 0080](decisions/0080-preserve-raycast-environment-metadata.md)
   is now implemented: the trusted catalog carries manifest title and
   owner/author identity into `environment`, and the descriptor accepts
@@ -583,7 +585,8 @@ slice changes what is executable, what is trusted, or what should happen next.
   panels), and object icons preserve light/dark sources, fallbacks, masks, and
   dynamic tint metadata as primitive scene properties. Existing light icon
   fields remain backwards compatible; the opt-in V2 client presents masks and
-  supported tints while automatic contrast adjustment remains future work.
+  supported tints; ADR 0112 now applies deterministic contrast adjustment when
+  the color can be parsed safely.
 - Form renders the measured text, textarea, password, checkbox, dropdown,
   `DatePicker`, `TagPicker`, `FilePicker`, description, separator, and
   submit-action subset. Form field changes and submissions carry validated
@@ -734,8 +737,8 @@ slice changes what is executable, what is trusted, or what should happen next.
   icon mask/tint presentation, action chrome fidelity, and the keyboard command
   chooser and the bounded toast timeout policy now exist; packaged mode is now
   the default under ADR 0108, while installation UI and internal V2
-  migration/update flows, automatic icon contrast adjustment, broader action
-  helpers, and remaining scene visuals are still missing. There is no V1 user
+  migration/update flows, broader action helpers, and remaining scene visuals
+  are still missing. There is no V1 user
   migration path because V1 was never released);
 - capability manifest declarations, real operating-system providers, audit
   records, and consent UI;
@@ -780,8 +783,8 @@ only small portable JavaScript seeds eligible after the API-first slice.
 1. Complete bounded application-layer policies first. The first target is the
    client-owned toast timeout policy in [ADR
    0111](decisions/0111-v2-toast-timeout-policy.md), followed by installation UI
-   and internal V2 migration/update flows, automatic icon contrast adjustment,
-   broader action helpers, and remaining scene visuals. There is no V1 user
+   and internal V2 migration/update flows, broader action helpers, and remaining
+   scene visuals. Automatic icon contrast is covered by ADR 0112. There is no V1 user
    migration requirement because V1 was never released. Keep these client
    boundaries separate from the already-green API finish gate and from
    host/provider work.
@@ -954,9 +957,9 @@ only small portable JavaScript seeds eligible after the API-first slice.
    application slice in [ADR 0110](decisions/0110-v2-application-boundary-performance-baseline.md)
    is complete, with keyboard command selection and a committed cold/warm
    latency baseline. ADR 0111 now defines the toast timeout policy. Installation
-   UI and internal V2 migration/update flows, automatic icon contrast
-   adjustment, broader action helpers, and remaining scene visuals follow; no
-   V1 user migration is planned.
+   UI and internal V2 migration/update flows, broader action helpers, and
+   remaining scene visuals follow; automatic icon contrast is covered by ADR
+   0112, and no V1 user migration is planned.
 
 Keep WebSocket and remote execution as transport/provider additions. They do not
 require changing the session, extension contract, runtime, host, or core

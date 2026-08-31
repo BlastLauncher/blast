@@ -144,7 +144,9 @@ three-sample ARM64 performance runner over the daemon, local client, extension
 scene, event, and shutdown boundaries. The runner records raw samples and
 min/mean/median/p95/max summaries; it is a baseline rather than a timing-based
 test gate. ADR 0111 adds deterministic toast timeout-policy tests and keeps
-local expiry outside the semantic protocol lifecycle.
+local expiry outside the semantic protocol lifecycle. ADR 0112 adds pure color
+contrast calculations and server-rendered icon cases for adjusted and opted-out
+tints.
 IPC inputs are
 validated at the main-process boundary, subscriptions clean up with the
 sender, and snapshots use JSON-safe failure details; these checks do not
