@@ -719,10 +719,10 @@ slice changes what is executable, what is trusted, or what should happen next.
   packages); these dependency and platform concerns are tracked separately
   from Raycast API compatibility, and extension authors own third-party native
   module support on their target platforms;
-- the remaining measured Raycast surface: client toast timeout policy, broader
-  desktop APIs, broader action helpers, and additional Tool/browser APIs; the
-  declaration-driven ARM64 finish gate is green, so application-layer work can
-  now proceed while those behavior/provider boundaries remain separately
+- the remaining measured Raycast surface: broader desktop APIs, broader action
+  helpers, and additional Tool/browser APIs; the declaration-driven ARM64 finish
+  gate is green, and the client toast timeout policy is now defined under ADR
+  0111 while the remaining behavior/provider boundaries stay separately
   measured;
 - persistent catalog refresh, command watching, and complete desktop rendering
   of every scene member (the local listener, Node
@@ -732,10 +732,11 @@ slice changes what is executable, what is trusted, or what should happen next.
   packaged bootstrap/catalog bridge, native status-item menu projection, and
   toast lifecycle/action presentation, scene icon/image source presentation,
   icon mask/tint presentation, action chrome fidelity, and the keyboard command
-  chooser now exist; packaged mode is now the default under ADR 0108, while V1 installation UI/migration,
-  toast timeout
-  policy, automatic icon contrast adjustment, broader action helpers, and
-  remaining scene visuals are still missing);
+  chooser and the bounded toast timeout policy now exist; packaged mode is now
+  the default under ADR 0108, while installation UI and internal V2
+  migration/update flows, automatic icon contrast adjustment, broader action
+  helpers, and remaining scene visuals are still missing. There is no V1 user
+  migration path because V1 was never released);
 - capability manifest declarations, real operating-system providers, audit
   records, and consent UI;
 - production AI providers, OAuth browser/token-store providers, and command
@@ -744,7 +745,8 @@ slice changes what is executable, what is trusted, or what should happen next.
 - structured logs beyond captured child stderr;
 - startup deadlines chosen by the core, restart policy, quotas, and OS sandbox;
 - authenticated local sockets, WebSocket transport, and remote pairing;
-- installation UI/migration, CLI control, mobile, and web clients.
+- installation UI and internal V2 migration/update flows, CLI control, mobile,
+  and web clients. V1 was never released, so no V1 user migration is planned.
 
 ## Recommended continuation
 
@@ -767,12 +769,23 @@ tests; the two aggregate structured outcomes are intentional validation
 boundaries. Declaration shape, adapter behavior, corpus runtime coverage, and
 host/provider coverage remain separate measurements. The first application
 slice is now recorded by [ADR 0110](decisions/0110-v2-application-boundary-performance-baseline.md)
-and its baseline artifact.
+and its baseline artifact. Application-layer work is now led by the bounded
+toast timeout policy in [ADR 0111](decisions/0111-v2-toast-timeout-policy.md).
+Installation UI and internal V2 migration/update flows are later product work;
+no V1 user migration is needed because V1 was never released.
 Native/macOS, WASM,
 test-only, large-graph, and host-process dependencies remain deferred, with
 only small portable JavaScript seeds eligible after the API-first slice.
 
-1. Finish measured Raycast API semantics first. The declaration inventory and
+1. Complete bounded application-layer policies first. The first target is the
+   client-owned toast timeout policy in [ADR
+   0111](decisions/0111-v2-toast-timeout-policy.md), followed by installation UI
+   and internal V2 migration/update flows, automatic icon contrast adjustment,
+   broader action helpers, and remaining scene visuals. There is no V1 user
+   migration requirement because V1 was never released. Keep these client
+   boundaries separate from the already-green API finish gate and from
+   host/provider work.
+2. Finish measured Raycast API semantics as new gaps are found. The declaration inventory and
    declaration-derived corpus allowlist are green: 147/147 top-level exports,
    1,167/1,167 normalized nested members, 88/88 declared runtime exports, all
    85 observed corpus names represented, and zero static blockers. Continue
@@ -860,7 +873,7 @@ only small portable JavaScript seeds eligible after the API-first slice.
    boundaries remain explicitly deferred until compatibility behavior is signed
    off; they need host/client decisions before implementation even though the
    declaration/runtime finish gate is green.
-2. Keep the command-scoped preference, nullable Form, empty-string,
+3. Keep the command-scoped preference, nullable Form, empty-string,
    `LocalStorage.allItems`/`allLocalStorageItems`, Form event, literal `require`,
    composite-child/context-provider, declaration-backed Icon,
    cross-compatible dropdowns,
@@ -875,19 +888,19 @@ only small portable JavaScript seeds eligible after the API-first slice.
    Form/action member aliases, Grid column bounds, and the
    BrowserExtension markdown/selector rule, and Environment entrypoint-mode
    propagation covered by each test slice.
-3. Keep safe dynamic, namespace, side-effect, and literal `require` import
+4. Keep safe dynamic, namespace, side-effect, and literal `require` import
    forms covered. The permissive runtime `fetch` slice in [ADR
    0089](decisions/0089-allow-permissive-runtime-fetch.md) is implemented
    without URL policy, consent, or response limits; leave those controls for a
    future native host boundary.
-4. After each API slice, consider only small, exact-version,
+5. After each API slice, consider only small, exact-version,
    development-only portable JavaScript dependency seeds when the diagnostic
    census supports them. Keep each group reviewable and measure rendered
    outcomes after installation; hold network, cross-extension, native, macOS,
    WASM, test-only, large-graph, and host-process packages for explicit policy
    decisions. Do not count extension-owned platform incompatibility as a
    missing Raycast API member.
-5. Integrate the transport-neutral client consumer from [ADR
+6. Integrate the transport-neutral client consumer from [ADR
    0094](decisions/0094-transport-neutral-client-consumer.md) into the Electron
    client. The bounded Node connector in [ADR
    0095](decisions/0095-bounded-local-core-client.md) and the opt-in main-process
@@ -940,9 +953,10 @@ only small portable JavaScript seeds eligible after the API-first slice.
    0105](decisions/0105-v2-icon-mask-and-tint-presentation.md). The first
    application slice in [ADR 0110](decisions/0110-v2-application-boundary-performance-baseline.md)
    is complete, with keyboard command selection and a committed cold/warm
-   latency baseline. Installation UI/migration, toast timeout policy, automatic
-   icon contrast adjustment, broader action helpers, and remaining scene visuals
-   follow.
+   latency baseline. ADR 0111 now defines the toast timeout policy. Installation
+   UI and internal V2 migration/update flows, automatic icon contrast
+   adjustment, broader action helpers, and remaining scene visuals follow; no
+   V1 user migration is planned.
 
 Keep WebSocket and remote execution as transport/provider additions. They do not
 require changing the session, extension contract, runtime, host, or core

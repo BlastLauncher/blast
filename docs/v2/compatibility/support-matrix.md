@@ -456,7 +456,7 @@ dispatches a bounds mutation through the explicit host capability.
 - toast lifecycle, mutable fields, action callbacks, and toast-action shortcut
   objects are measured; V2 client stacking and reconciliation are implemented
   under [ADR 0102](../decisions/0102-v2-toast-lifecycle-presentation.md), while
-  automatic timeout policy remains unsupported;
+  automatic timeout policy is implemented as the client-owned ADR 0111 policy;
 - `useNavigation` and `Action.Push` (28.8% of extensions),
   `LocalStorage`/`Cache` (26.5%), and `environment` (19.7%) are measured in
   the adapter. Environment now preserves manifest identity and explicitly

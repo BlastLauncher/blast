@@ -140,7 +140,8 @@ types must not enter the protocol package. ADR 0100 packages a V2 bootstrap and
 maps the existing V1 production/development installation roots behind the
 `BLAST_V2_MODE=packaged` configuration. ADR 0108 makes that packaged path the
 default when no mode is specified, keeps the V1 renderer available through the
-explicit `BLAST_V2_MODE=legacy` escape hatch, and does not add installation UI.
+explicit `BLAST_V2_MODE=legacy` escape hatch, and does not add installation UI
+or imply a V1 user migration path; V1 was never released.
 
 ### Capability providers
 

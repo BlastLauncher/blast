@@ -11,6 +11,7 @@ test("server-renders toast content, styles, actions, and shortcut labels", () =>
     React.createElement(V2ToastStack, {
       disabled: false,
       onAction: () => {},
+      onTimeout: () => {},
       toasts: [
         {
           toastId: "toast-success",
@@ -43,7 +44,9 @@ test("server-renders toast content, styles, actions, and shortcut labels", () =>
 
 test("does not render an empty toast region", () => {
   assert.equal(
-    renderToStaticMarkup(React.createElement(V2ToastStack, { disabled: false, onAction: () => {}, toasts: [] })),
+    renderToStaticMarkup(
+      React.createElement(V2ToastStack, { disabled: false, onAction: () => {}, onTimeout: () => {}, toasts: [] }),
+    ),
     "",
   );
 });

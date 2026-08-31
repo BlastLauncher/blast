@@ -143,7 +143,8 @@ ADR 0110 adds pure command-chooser filtering/selection tests and a real
 three-sample ARM64 performance runner over the daemon, local client, extension
 scene, event, and shutdown boundaries. The runner records raw samples and
 min/mean/median/p95/max summaries; it is a baseline rather than a timing-based
-test gate.
+test gate. ADR 0111 adds deterministic toast timeout-policy tests and keeps
+local expiry outside the semantic protocol lifecycle.
 IPC inputs are
 validated at the main-process boundary, subscriptions clean up with the
 sender, and snapshots use JSON-safe failure details; these checks do not

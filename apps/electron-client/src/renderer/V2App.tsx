@@ -9,7 +9,13 @@ import type { V2ClientRendererAPI } from "./v2Types";
 import { V2Scene } from "./V2Scene";
 import { V2ToastStack } from "./V2ToastStack";
 import { clampV2CommandSelection, filterV2Commands, moveV2CommandSelection } from "./v2CommandListModel";
-import { applyV2ToastPayload, createV2ToastState, type V2ToastState } from "./v2ToastModel";
+import {
+  applyV2ToastPayload,
+  createV2ToastState,
+  expireV2Toast,
+  type V2ToastState,
+  type VisibleV2Toast,
+} from "./v2ToastModel";
 
 export interface V2AppProps {
   readonly api: V2ClientRendererAPI;
@@ -81,6 +87,9 @@ export function V2App({ api }: V2AppProps): React.JSX.Element {
     },
     [api, perform],
   );
+  const expireToast = useCallback((toast: VisibleV2Toast) => {
+    setToastState((current) => expireV2Toast(current, toast));
+  }, []);
   const refreshCommands = useCallback(
     () =>
       perform(async () => {
@@ -164,7 +173,7 @@ export function V2App({ api }: V2AppProps): React.JSX.Element {
         )}
       </main>
 
-      <V2ToastStack disabled={busy} onAction={sendToastAction} toasts={toastState.items} />
+      <V2ToastStack disabled={busy} onAction={sendToastAction} onTimeout={expireToast} toasts={toastState.items} />
     </div>
   );
 }

@@ -1,14 +1,17 @@
+import { useEffect } from "react";
+
 import type { SceneShortcut, ToastActionPayload, ToastStyle } from "@blastlauncher/scene";
 
-import type { VisibleV2Toast } from "./v2ToastModel";
+import { getV2ToastTimeoutMs, type VisibleV2Toast } from "./v2ToastModel";
 
 export interface V2ToastStackProps {
   readonly toasts: readonly VisibleV2Toast[];
   readonly disabled: boolean;
   readonly onAction: (eventId: string) => void;
+  readonly onTimeout: (toast: VisibleV2Toast) => void;
 }
 
-export function V2ToastStack({ toasts, disabled, onAction }: V2ToastStackProps): React.JSX.Element | null {
+export function V2ToastStack({ toasts, disabled, onAction, onTimeout }: V2ToastStackProps): React.JSX.Element | null {
   if (toasts.length === 0) {
     return null;
   }
@@ -21,36 +24,58 @@ export function V2ToastStack({ toasts, disabled, onAction }: V2ToastStackProps):
       role="region"
     >
       {toasts.map((toast) => (
-        <article
-          aria-label={toast.title}
-          className={`pointer-events-auto rounded-lg border bg-black/85 px-3 py-2.5 text-xs shadow-xl backdrop-blur ${styleClasses(toast.style)}`}
-          data-toast-id={toast.toastId}
-          data-toast-style={toast.style}
-          key={toast.toastId}
-        >
-          <div className="flex items-start gap-2">
-            <span
-              aria-hidden="true"
-              className={`mt-0.5 h-2 w-2 shrink-0 rounded-full ${indicatorClass(toast.style)}`}
-            />
-            <div className="min-w-0 flex-1">
-              <h2 className="font-semibold text-white">{toast.title}</h2>
-              {toast.message !== undefined && <p className="mt-1 text-white/65">{toast.message}</p>}
-            </div>
-          </div>
-          {(toast.primaryAction !== undefined || toast.secondaryAction !== undefined) && (
-            <div className="mt-2 flex flex-wrap justify-end gap-1.5">
-              {toast.secondaryAction !== undefined && (
-                <ToastActionButton action={toast.secondaryAction} disabled={disabled} onAction={onAction} secondary />
-              )}
-              {toast.primaryAction !== undefined && (
-                <ToastActionButton action={toast.primaryAction} disabled={disabled} onAction={onAction} />
-              )}
-            </div>
-          )}
-        </article>
+        <V2ToastItem disabled={disabled} key={toast.toastId} onAction={onAction} onTimeout={onTimeout} toast={toast} />
       ))}
     </div>
+  );
+}
+
+function V2ToastItem({
+  toast,
+  disabled,
+  onAction,
+  onTimeout,
+}: {
+  readonly toast: VisibleV2Toast;
+  readonly disabled: boolean;
+  readonly onAction: (eventId: string) => void;
+  readonly onTimeout: (toast: VisibleV2Toast) => void;
+}): React.JSX.Element {
+  const timeoutMs = getV2ToastTimeoutMs(toast);
+
+  useEffect(() => {
+    if (timeoutMs === undefined) {
+      return undefined;
+    }
+    const timeout = globalThis.setTimeout(() => onTimeout(toast), timeoutMs);
+    return () => globalThis.clearTimeout(timeout);
+  }, [onTimeout, timeoutMs, toast]);
+
+  return (
+    <article
+      aria-label={toast.title}
+      className={`pointer-events-auto rounded-lg border bg-black/85 px-3 py-2.5 text-xs shadow-xl backdrop-blur ${styleClasses(toast.style)}`}
+      data-toast-id={toast.toastId}
+      data-toast-style={toast.style}
+    >
+      <div className="flex items-start gap-2">
+        <span aria-hidden="true" className={`mt-0.5 h-2 w-2 shrink-0 rounded-full ${indicatorClass(toast.style)}`} />
+        <div className="min-w-0 flex-1">
+          <h2 className="font-semibold text-white">{toast.title}</h2>
+          {toast.message !== undefined && <p className="mt-1 text-white/65">{toast.message}</p>}
+        </div>
+      </div>
+      {(toast.primaryAction !== undefined || toast.secondaryAction !== undefined) && (
+        <div className="mt-2 flex flex-wrap justify-end gap-1.5">
+          {toast.secondaryAction !== undefined && (
+            <ToastActionButton action={toast.secondaryAction} disabled={disabled} onAction={onAction} secondary />
+          )}
+          {toast.primaryAction !== undefined && (
+            <ToastActionButton action={toast.primaryAction} disabled={disabled} onAction={onAction} />
+          )}
+        </div>
+      )}
+    </article>
   );
 }
 
