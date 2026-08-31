@@ -552,8 +552,9 @@ export type IconName = (typeof Icon)[keyof typeof Icon];
 
 /**
  * Raycast's built-in theme-aware colors, serialized into scene
- * iconTintColor properties. Pink, Brown, and Gray remain as legacy raw
- * aliases because older corpus extensions still reference them.
+ * iconTintColor properties. Pink and Gray remain as legacy raw aliases, while
+ * the declaration-backed Brown dynamic color remains available for older
+ * extensions.
  */
 export const Color = {
   Red: "raycast-red",
@@ -564,13 +565,28 @@ export const Color = {
   Purple: "raycast-purple",
   Magenta: "raycast-magenta",
   Pink: "pink",
-  Brown: "brown",
+  Brown: { light: "brown", dark: "brown" } as {
+    readonly light: string;
+    readonly dark: string;
+    readonly adjustContrast?: boolean | null;
+  },
   Gray: "gray",
   PrimaryText: "raycast-primary-text",
   SecondaryText: "raycast-secondary-text",
 } as const;
 
-export type ColorName = (typeof Color)[keyof typeof Color];
+export type ColorName =
+  | "raycast-red"
+  | "raycast-blue"
+  | "raycast-green"
+  | "raycast-yellow"
+  | "raycast-orange"
+  | "raycast-purple"
+  | "raycast-magenta"
+  | "raycast-primary-text"
+  | "raycast-secondary-text"
+  | "pink"
+  | "gray";
 
 export namespace Color {
   export type Raw = string;

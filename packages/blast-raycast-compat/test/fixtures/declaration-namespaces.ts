@@ -6,6 +6,7 @@ import {
   FormDropdown,
   FormTagPicker,
   Keyboard,
+  LocalStorage,
   Toast,
 } from "../../dist/index.js";
 import type { FormItemRef } from "../../dist/index.js";
@@ -27,6 +28,8 @@ const cacheSubscription: Cache.Subscription = () => {};
 const keyboardShortcut: Keyboard.Shortcut = Keyboard.Shortcut.Common.New;
 const keyboardModifier: Keyboard.KeyModifier = "cmd";
 const keyboardKey: Keyboard.KeyEquivalent = "return";
+const localStorageValue: LocalStorage.Value = "stored";
+const localStorageValues: LocalStorage.Values = { token: localStorageValue };
 
 const formReference: Form.ItemReference = {
   focus: () => {},
@@ -66,6 +69,7 @@ void cacheSubscription;
 void keyboardShortcut;
 void keyboardModifier;
 void keyboardKey;
+void localStorageValues;
 void topLevelFormReference;
 void textFieldReference;
 void textAreaReference;

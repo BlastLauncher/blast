@@ -180,6 +180,14 @@ slice changes what is executable, what is trusted, or what should happen next.
   brokered clipboard, desktop and window-management boundaries, legacy
   action/storage/list/render aliases, and cross-bundle navigation),
   while the corpus probe records exactly which unmeasured APIs block the rest.
+- The declaration inventory compares the pinned Raycast 2.1.0 declaration,
+  the emitted compatibility declaration, and the built adapter runtime on the
+  ARM64 runner. The current artifact covers 147/147 top-level exports,
+  1,167/1,167 normalized nested members, and 88/88 declared runtime exports;
+  all 85 corpus-observed API names are represented by either Raycast or an
+  explicit Blast compatibility alias, so the declaration/runtime finish gate
+  is green. This remains a contract-shape gate; adapter behavior, host
+  providers, and corpus rendering stay separate.
 - The e2e corpus probe has a bounded, exact-version development-only vendor
   seed for `axios`, `cheerio`, `cross-fetch`, `date-fns`, `fast-xml-parser`,
   `fuse.js`, `moment`, `node-html-markdown`, `rss-parser`, and `zod`. The seed
@@ -392,17 +400,15 @@ slice changes what is executable, what is trusted, or what should happen next.
   `@salesforce/core`. The packages were selected as portable client libraries
   and installed successfully on the ARM64 Linux runner with lifecycle scripts
   disabled; no native, WASM, macOS, or host-process package was selected
-  directly. The latest pinned corpus probe passes 2,090 of 3,231 extensions
-  (64.69%), or 2,090 of 2,915 extensions with a selected renderable command
-  (71.70%). The remaining losses are tracked separately: 573 third-party
-  dependency failures, 249 process/startup failures, 316 non-renderable
-  commands, no structured compatibility errors, and 3 missing entrypoints. The
-  targeted seventeenth-seed reprobe rendered 5 of the previous dependency
-  failures and moved 1 to a process/runtime failure; the full run reduced
-  dependency failures by 7 and recorded 8 additional rendered outcomes net of
-  normal process variance. The full aggregate classified the known malformed
-  List-child cases as process failures this run; focused reprobes remain the
-  semantic boundary check.
+  directly. The latest pinned corpus probe passes 2,085 of 3,231 extensions
+  (64.53%), or 2,085 of 2,915 extensions with a selected renderable command
+  (71.53%). The remaining losses are tracked separately: 575 third-party
+  dependency failures, 250 process/startup failures, 316 non-renderable
+  commands, 2 structured compatibility errors, and 3 missing entrypoints. The
+  full run is subject to normal process variance; focused diagnostics confirm
+  the structured outcomes are the deterministic invalid-Grid-column and
+  malformed-List-child boundaries, not missing API exports or ARM64
+  installation failures.
 - The first API-first validation slice after the vendor rounds now enforces
   Raycast's `Grid`/`Grid.Section` column range (`1..8`) and rejects
   `BrowserExtension.getContent` markdown requests that also provide a CSS
@@ -468,7 +474,7 @@ slice changes what is executable, what is trusted, or what should happen next.
   declaration, while retaining legacy corpus names as explicit aliases;
   unknown members remain rejected rather than resolving through a fallback.
   `Color` emits Raycast's `raycast-*` theme identifiers while retaining the
-  legacy raw `Pink`, `Brown`, and measured `Gray` values. The measured legacy
+  legacy raw `Pink`/`Gray` values and declaration-shaped dynamic `Brown`. The measured legacy
   `Toast.Style.SuccessMessage` constant is an identity alias of `Success`;
   both adapter-only aliases are recorded in [ADR 0086](decisions/0086-preserve-legacy-color-and-toast-aliases.md).
 - Command-scoped manifest preference defaults now cross the catalog boundary:
@@ -700,7 +706,9 @@ slice changes what is executable, what is trusted, or what should happen next.
   from Raycast API compatibility, and extension authors own third-party native
   module support on their target platforms;
 - the remaining measured Raycast surface: client toast timeout policy, broader
-  desktop APIs, broader action helpers, and additional Tool/browser APIs;
+  desktop APIs, broader action helpers, and additional Tool/browser APIs; the
+  declaration-driven ARM64 finish gate is now the compatibility priority
+  before application-layer polishing;
 - persistent catalog refresh, command watching, and complete desktop rendering
   of every scene member (the local listener, Node
   daemon composition, path-free discovery snapshot, transport-neutral client
@@ -734,19 +742,25 @@ shortcut, imperative, cache, launch-boundary, desktop-discovery,
 finder-boundary, host-boundary, window-management, declaration,
 image-descriptor, environment-metadata, and dependency-policy slices are
 complete, but the measured
-80% target is not yet met: the current run is 64.69% overall and 71.70% among
+80% target is not yet met: the current run is 64.53% overall and 71.53% among
 commands with a
-renderable selection. The current top-level import census and emitted
-declaration audit are clean for the measured corpus surface, but that is not a
-claim that every API semantic is complete. Per ADR 0075, priority is now the
-remaining measured Raycast API behavior; dependency, platform, host
-capability, and renderability outcomes stay separate. Native/macOS, WASM,
+renderable selection. Per [ADR 0109](decisions/0109-declaration-driven-arm64-compatibility-finish-line.md),
+compatibility is now the first priority: the declaration inventory must show
+100% coverage of the portable pinned Raycast surface on the ARM64 runner is now
+green: the declaration shape, runtime export, observed-import, and static-blocker
+checks all pass. The remaining measured adapter behavior is covered by focused
+tests; the two aggregate structured outcomes are intentional validation
+boundaries. Declaration shape, adapter behavior, corpus runtime coverage, and
+host/provider coverage remain separate measurements. Native/macOS, WASM,
 test-only, large-graph, and host-process dependencies remain deferred, with
 only small portable JavaScript seeds eligible after the API-first slice.
 
-1. Finish measured Raycast API semantics first. Audit the adapter against the
-   census and declarations, choose the highest-yield incomplete behavior, and
-   add deterministic adapter, fixture, and focused-probe coverage. Keep API
+1. Finish measured Raycast API semantics first. The declaration inventory and
+   declaration-derived corpus allowlist are green: 147/147 top-level exports,
+   1,167/1,167 normalized nested members, 88/88 declared runtime exports, all
+   85 observed corpus names represented, and zero static blockers. Continue
+   closing any newly measured portable behavior gap with deterministic adapter,
+   fixture, and focused-probe coverage. Keep API
    progress distinct from dependency/platform provisioning and host
    capability/renderability outcomes. The entrypoint-mode propagation in
    [ADR 0077](decisions/0077-preserve-raycast-entrypoint-mode.md) is now
@@ -813,25 +827,22 @@ only small portable JavaScript seeds eligible after the API-first slice.
    to a later policy boundary.
    Preserve
    structured errors for values that would require a broader scene or host
-   policy. Keep the deterministic
-   structured probe failure
-   (`crawldoc` and `open-targets-raycast/platform`) as explicit diagnostics
-   rather than weakening the scene or action validators around malformed
-   children, invalid measured values, and empty or missing targets. The latest
-   latest aggregate has no structured compatibility outcome because the known
-   `crawldoc` and `open-targets-raycast/platform` cases surfaced as process
-   failures; focused serial reprobes confirm they remain deterministic boundary
-   checks rather than platform-install failures.
+   policy. Keep deterministic structured diagnostics such as the invalid
+   `arabic-keyboard` Grid column and malformed `crawldoc` List child rather
+   than weakening the scene or action validators around malformed children,
+   invalid measured values, and empty or missing targets. Focused serial
+   reprobes confirm these are deterministic boundary checks rather than
+   platform-install failures.
    The targeted
    `modrinth-search/search-projects` reprobe renders
    after preserving its declaration-shaped zero page-size fallback, and the
    four targeted OpenInBrowser commands render after the action-readiness
    boundary was added; later full-run changes remain subject to process and
    dependency variance.
-   The next client-focused visual boundary is now the separately deferred
-   Quick Look/application-chooser surface; it needs an explicit host/client
-   decision before implementation. Continue the measured API audit alongside
-   that boundary work.
+   The Quick Look/application-chooser surface and other client-focused visual
+   boundaries remain explicitly deferred until compatibility behavior is signed
+   off; they need host/client decisions before implementation even though the
+   declaration/runtime finish gate is green.
 2. Keep the command-scoped preference, nullable Form, empty-string,
    `LocalStorage.allItems`/`allLocalStorageItems`, Form event, literal `require`,
    composite-child/context-provider, declaration-backed Icon,

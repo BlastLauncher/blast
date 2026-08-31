@@ -260,6 +260,7 @@ test("delegates fetch to the current runtime implementation", async () => {
 
 test("preserves measured legacy color and toast style aliases", async () => {
   assert.equal(Color.Gray, "gray");
+  assert.deepEqual(Color.Brown, { light: "brown", dark: "brown" });
   assert.equal(Toast.Style.SuccessMessage, Toast.Style.Success);
 
   const probe = createContext();

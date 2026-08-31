@@ -61,8 +61,8 @@ onto the V2 scene contract, renderer, and capability broker:
   including 171 additional local assets from [ADR
   0088](../../docs/v2/decisions/0088-complete-available-client-icon-assets.md);
   the 102 absent numbered/warning assets remain explicit client asset gaps.
-  `Color` exposes theme-aware `raycast-*` values while retaining legacy
-  `Pink`/`Brown` aliases plus the measured `Gray` raw alias.
+  `Color` exposes theme-aware `raycast-*` values while retaining the legacy
+  `Pink`/`Gray` raw aliases and the declaration-shaped dynamic `Brown` alias.
   Object/file/theme-aware icon descriptors are
   validated at the adapter edge; source/fallback variants, masks, dynamic
   tint metadata, and List item icon tooltips cross the semantic boundary. The

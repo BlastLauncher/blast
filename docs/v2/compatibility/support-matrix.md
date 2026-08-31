@@ -36,16 +36,16 @@ package-manager scripts; unavailable packages remain dependency failures.
 
 | Outcome                        | Baseline | Previous post-slice | Current post-slice | Current vs previous |
 | ------------------------------ | -------: | ------------------: | -----------------: | ------------------: |
-| third-party dependency failure |    2,361 |                 580 |                573 |                  -7 |
+| third-party dependency failure |    2,361 |                 580 |                575 |                  -5 |
 | not renderable command mode    |      358 |                 316 |                316 |                   0 |
-| other process/startup failure  |      432 |                 248 |                249 |                  +1 |
-| structured compatibility error |       23 |                   2 |                  0 |                  -2 |
-| renders a scene end to end     |       54 |               2,082 |              2,090 |                  +8 |
+| other process/startup failure  |      432 |                 248 |                250 |                  +2 |
+| structured compatibility error |       23 |                   2 |                  2 |                   0 |
+| renders a scene end to end     |       54 |               2,082 |              2,085 |                  +3 |
 | no entrypoint found            |        3 |                   3 |                  3 |                   0 |
 
-Reading: the current post-slice extension pass rate is 2,090/3,231 (64.69%);
-among the 2,915 extensions with a selected renderable command it is 2,090/2,915
-(71.70%). The declaration-backed Icon enum, Raycast color values, collection
+Reading: the current post-slice extension pass rate is 2,085/3,231 (64.53%);
+among the 2,915 extensions with a selected renderable command it is 2,085/2,915
+(71.53%). The declaration-backed Icon enum, Raycast color values, collection
 metadata, List/Grid/Form search and pagination events, shared dropdown
 accessories, Clipboard read/clear behavior, Submenu lifecycle, nested public
 Props and utility namespaces, Keyboard shortcut aliases, Cache callback binding,
@@ -71,9 +71,12 @@ Dependency, process, and non-renderable outcomes remain tracked separately
 from API coverage.
 The current top-level API import census and emitted declaration audit are clean
 for the declaration-backed measured surface, but that is not a claim that every
-API semantic is complete. Per ADR 0075, priority now returns to the remaining
-measured Raycast API behavior while dependency, platform, host-capability, and
-renderability outcomes remain separate. This refresh completes the full
+API semantic is complete. The corpus probe now derives its named-import support
+set from the emitted declaration and embeds the declaration/runtime report, so
+static API blockers cannot drift from the compatibility artifact. Per ADR 0075,
+priority now returns to the remaining measured Raycast API behavior while
+dependency, platform, host-capability, and renderability outcomes remain
+separate. This refresh completes the full
 478-member Icon surface and
 preserves legacy names, adds declaration-backed collection/search/pagination
 fields, and closes the shared List/Grid dropdown boundary. It also corrects
@@ -81,11 +84,11 @@ Raycast theme color identifiers, decodes structured Clipboard reads, supports
 Clipboard clear, adds Submenu search/open/id behavior, and publishes nested
 Props aliases for the measured components. `MenuBarExtra.Item.alternate` now
 publishes a nested alternate item with a distinct right-click event. The current
-aggregate has no structured compatibility outcomes; this full run classified the
-known `crawldoc` and `open-targets-raycast/platform` cases as process failures.
-A focused serial reprobe still surfaces their strict List text-child boundary,
-so the classification change is run variance rather than a reason to widen the
-semantic collection contract. The targeted
+aggregate has two structured compatibility outcomes: `arabic-keyboard` passes
+invalid `Grid` columns (`11`, outside Raycast's declared `1..8` range), and
+`crawldoc` emits a literal `");"` List child. Focused serial diagnostics
+confirm both are deterministic validation boundaries rather than missing APIs
+or ARM64 installation failures; the scene contract remains strict. The targeted
 `modrinth-search/search-projects` and four
 OpenInBrowser reprobes now render after preserving their declaration-shaped
 readiness fallbacks. The context-provider boundary moves
@@ -94,6 +97,24 @@ moved 47 entries out of the dependency-failure class in the aggregate run and
 increased rendered outcomes by 46; the targeted old dependency set rendered 33
 entries and left 16 in process/runtime failure, so the aggregate change
 remains subject to normal process and dependency variance.
+
+## Declaration and runtime inventory
+
+The committed [`declaration-inventory.json`](./declaration-inventory.json)
+provides the declaration-driven ARM64 finish gate from [ADR
+0109](../decisions/0109-declaration-driven-arm64-compatibility-finish-line.md):
+
+- 147/147 pinned Raycast top-level exports are represented by the adapter;
+- 1,167/1,167 normalized public nested members are represented, including
+  open-record members such as the extensible `AI.Model` catalog;
+- 88/88 declared runtime exports are present in the built adapter;
+- all 85 corpus-observed API names are represented, including the explicit
+  adapter-only aliases `FormItemRef`, `ItemProps`, and `fetch`; and
+- static import blockers: 0; finish-line result: passed.
+
+This is the shape/runtime-export gate, not semantic proof. Adapter tests cover
+the measured behavior, while browser/OAuth/AI/OS providers and extension-owned
+native dependencies remain explicitly outside this percentage.
 
 The first API-first validation slice after this aggregate run now enforces the
 declared `Grid` and `Grid.Section` column range of `1..8` and rejects
@@ -532,7 +553,7 @@ dispatches a bounds mutation through the explicit host capability.
   and Form descriptions preserve empty strings; non-string values remain
   invalid;
 - `Color` now emits Raycast's `raycast-*` theme identifiers while retaining the
-  legacy raw `Pink`/`Brown`/`Gray` values. The public nested `Props` namespaces for
+  legacy raw `Pink`/`Gray` values and declaration-shaped dynamic `Brown`. The public nested `Props` namespaces for
   `Action`, `ActionPanel`, `List`, `Grid`, `Form`, and `MenuBarExtra` mirror the
   pinned declaration, the `Alert`/`Cache`/`Keyboard`/`Toast` utility namespaces and
   `Form.ItemReference` mirror the pinned declaration. Nested Form field ref

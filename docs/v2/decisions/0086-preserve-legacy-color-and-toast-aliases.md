@@ -15,13 +15,14 @@ still referenced by extension code:
   is imported from `@raycast/api`.
 
 The current adapter already retains measured legacy `Color.Pink` and
-`Color.Brown` raw aliases. The audit also found five `Color.Grey` references in
+the declaration-backed `Color.Brown` dynamic alias. The audit also found five `Color.Grey` references in
 `anytype`, but those are bound to an extension-owned model enum rather than the
 Raycast API and must not expand the compatibility surface.
 
 ## Decision
 
 - Add `Color.Gray` as the raw CSS color keyword `"gray"`.
+- Preserve `Color.Brown` as a declaration-shaped dynamic color descriptor.
 - Add `Toast.Style.SuccessMessage` as an identity alias of
   `Toast.Style.Success` (`"SUCCESS"`).
 - Keep the aliases adapter-local: they require no scene property, transport
@@ -34,6 +35,7 @@ Raycast API and must not expand the compatibility surface.
 These are explicit legacy constants, not an open property fallback. `Color.Gray`
 uses the existing `Color.Raw` path and therefore preserves a primitive string
 through the same icon tint serialization already used by other raw colors.
+`Color.Brown` uses the declaration's light/dark descriptor shape, and
 `SuccessMessage` normalizes through the existing toast style handling.
 
 ## Evidence

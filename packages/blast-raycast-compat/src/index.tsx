@@ -1855,6 +1855,9 @@ export const Keyboard = {
 
 export namespace Keyboard {
   export type Shortcut = KeyboardShortcutType;
+  export namespace Shortcut {
+    export type Common = typeof Keyboard.Shortcut.Common;
+  }
   export type KeyModifier = KeyboardKeyModifierType;
   export type KeyEquivalent = KeyboardKeyEquivalentType;
 }
@@ -6655,6 +6658,11 @@ export const LocalStorage = {
     await LocalStorage.clear();
   },
 };
+
+export namespace LocalStorage {
+  export type Value = LocalStorageValue;
+  export type Values = LocalStorageValues;
+}
 
 /** @deprecated Use `LocalStorage.allItems` instead. */
 export const allLocalStorageItems: typeof LocalStorage.allItems = LocalStorage.allItems;

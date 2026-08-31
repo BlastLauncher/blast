@@ -5,137 +5,23 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { buildCensusReport, scanCorpus } from "@blastlauncher/compatibility";
+import { buildCensusReport, buildDeclarationCompatibilityReport, scanCorpus } from "@blastlauncher/compatibility";
 import { CapabilityBroker, createInMemoryLocalStorageProvider } from "@blastlauncher/capability";
 import { BlastCore, relaySessionTraffic } from "@blastlauncher/core";
 import { FilesystemExtensionCatalog } from "@blastlauncher/core-node";
 import { ExtensionHost } from "@blastlauncher/extension-host";
 import { NodeExtensionProcessLauncher } from "@blastlauncher/extension-host-node";
+import * as raycastCompatRuntime from "@blastlauncher/raycast-compat";
 import { SceneStateBuffer } from "@blastlauncher/scene";
 
 const CORPUS_URL = "https://github.com/raycast/extensions";
 const DEFAULT_TIMEOUT_MS = 8_000;
 const DEFAULT_CONCURRENCY = 8;
 
-// Keep this list in the probe so the report distinguishes static API gaps from
-// failures caused by bundling, command execution, or the scene boundary.
-const SUPPORTED_API_IMPORTS = new Set([
-  "<dynamic>",
-  "<namespace>",
-  "<require>",
-  "<side-effect>",
-  "Action",
-  "ActionPanelItem",
-  "ActionPanelSection",
-  "ActionPanelSubmenu",
-  "ActionPanel",
-  "ActionStyle",
-  "Alert",
-  "AlertActionStyle",
-  "AI",
-  "Application",
-  "ArgumentsLaunchProps",
-  "allLocalStorageItems",
-  "BrowserExtension",
-  "Cache",
-  "Clipboard",
-  "Color",
-  "DynamicColor",
-  "CopyToClipboardAction",
-  "OpenAction",
-  "PasteAction",
-  "ImageMask",
-  "PushAction",
-  "SubmitFormAction",
-  "captureException",
-  "captureMemorySnapshot",
-  "clearSearchBar",
-  "clearLocalStorage",
-  "copyTextToClipboard",
-  "Detail",
-  "Environment",
-  "Form",
-  "FormCheckbox",
-  "FormDatePicker",
-  "FormDropdown",
-  "FormDropdownItem",
-  "FormDropdownSection",
-  "FormItemRef",
-  "FormLaunchProps",
-  "FormSeparator",
-  "FormTagPicker",
-  "FormTagPickerItem",
-  "FormTextArea",
-  "FormTextField",
-  "FormValue",
-  "FormValues",
-  "FileIcon",
-  "FileSystemItem",
-  "Grid",
-  "Icon",
-  "Image",
-  "ImageLike",
-  "ImageSource",
-  "ItemProps",
-  "Keyboard",
-  "KeyEquivalent",
-  "KeyboardShortcut",
-  "LaunchType",
-  "LaunchProps",
-  "List",
-  "ListItem",
-  "ListSection",
-  "LocalStorage",
-  "MenuBarExtra",
-  "Navigation",
-  "OAuth",
-  "PopToRootType",
-  "PreferenceValues",
-  "Preference",
-  "Preferences",
-  "preferences",
-  "Toast",
-  "ToastStyle",
-  "Tool",
-  "TrashAction",
-  "closeMainWindow",
-  "clearClipboard",
-  "confirmAlert",
-  "environment",
-  "fetch",
-  "getDefaultApplication",
-  "getLocalStorageItem",
-  "getPreferenceValues",
-  "getApplications",
-  "getFrontmostApplication",
-  "getSelectedFinderItems",
-  "getSelectedText",
-  "open",
-  "OpenInBrowserAction",
-  "OpenWithAction",
-  "ShowInFinderAction",
-  "openCommandPreferences",
-  "openExtensionPreferences",
-  "popToRoot",
-  "pasteText",
-  "removeLocalStorageItem",
-  "randomId",
-  "render",
-  "launchCommand",
-  "showHUD",
-  "showInFinder",
-  "showToast",
-  "setLocalStorageItem",
-  "trash",
-  "updateCommandMetadata",
-  "specialKeys",
-  "unstable_AI",
-  "useActionPanel",
-  "useId",
-  "useNavigation",
-  "useUnstableAI",
-  "WindowManagement",
-]);
+// These are scanner markers rather than named exports. Named API support is
+// derived from the emitted adapter declaration below so the probe cannot drift
+// from the declaration inventory.
+const IMPORT_SHAPE_MARKERS = new Set(["<dynamic>", "<namespace>", "<require>", "<side-effect>"]);
 
 const args = process.argv.slice(2);
 if (args.length !== 3 || args.includes("--help")) {
@@ -149,6 +35,7 @@ const outputPath = path.resolve(args[2]);
 const timeoutMilliseconds = parsePositiveInteger(process.env.BLAST_CORPUS_PROBE_TIMEOUT_MS, DEFAULT_TIMEOUT_MS);
 const concurrency = parsePositiveInteger(process.env.BLAST_CORPUS_PROBE_CONCURRENCY, DEFAULT_CONCURRENCY);
 const bootstrapPath = fileURLToPath(new URL("../test/fixtures/bootstrap.mjs", import.meta.url));
+const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 const bundleDirectoryPrefix = `blast-extension-bundles-probe-${process.pid}-`;
 const catalog = new FilesystemExtensionCatalog({ root: corpusRoot });
 const extensionFilter =
@@ -164,6 +51,18 @@ const scans = (await scanCorpus(corpusRoot)).filter(
   (scan) => extensionFilter === undefined || extensionFilter.has(path.basename(scan.directory)),
 );
 const census = buildCensusReport(scans, { corpusRevision, corpusUrl: CORPUS_URL });
+const declarationCompatibility = buildDeclarationCompatibilityReport({
+  adapterDeclarationPath: path.join(workspaceRoot, "packages/blast-raycast-compat/dist/index.d.ts"),
+  adapterLabel: "@blastlauncher/raycast-compat/dist/index.d.ts",
+  adapterRuntimeExports: Object.keys(raycastCompatRuntime),
+  observedApiImports: census.apiUsage.map((entry) => entry.api),
+  raycastDeclarationPath: path.join(workspaceRoot, "node_modules/@raycast/api/types/index.d.ts"),
+  raycastLabel: "@raycast/api@2.1.0/types/index.d.ts",
+});
+const supportedApiImports = new Set([
+  ...IMPORT_SHAPE_MARKERS,
+  ...declarationCompatibility.adapter.topLevel.map((member) => member.path),
+]);
 const selections = scans.map(selectCommand);
 const results = new Array(scans.length);
 let nextIndex = 0;
@@ -206,7 +105,8 @@ const report = {
     concurrency,
   },
   adapter: {
-    supportedApiImports: [...SUPPORTED_API_IMPORTS].toSorted(),
+    supportedApiImports: [...supportedApiImports].toSorted(),
+    declarationCompatibility,
   },
   census,
   outcomes: countBy(results, (result) => result.outcome),
@@ -228,7 +128,7 @@ async function probeExtension(scan, selection, probeBundleDirectoryPrefix) {
     mode: selection.command?.mode ?? null,
     staticUnsupportedApis: scan.apiImports
       .map(({ api }) => api)
-      .filter((api) => !SUPPORTED_API_IMPORTS.has(api))
+      .filter((api) => !supportedApiImports.has(api))
       .toSorted(),
   };
 

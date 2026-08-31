@@ -8,7 +8,7 @@ the measured Raycast compatibility surface.
 - source: <https://github.com/raycast/extensions>
 - revision: `d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91`
 - scanned: 3,231 extension directories (immediate subdirectories containing a
-  `package.json`), 38,393 source files
+  `package.json`), 34,600 source files in the runtime probe
 - full report: [`census.json`](./census.json)
 
 ## Methodology
@@ -34,6 +34,42 @@ Regenerate with:
 node packages/blast-compatibility/scripts/scan-corpus.mjs \
   <corpus-directory> <corpus-revision> docs/v2/compatibility/census.json \
   "https://github.com/raycast/extensions"
+```
+
+## Declaration inventory
+
+The census is paired with a declaration-driven compatibility inventory. The
+inventory reads the pinned `@raycast/api` declaration entrypoint and compares
+its top-level exports and normalized public nested members with the emitted
+declaration of `@blastlauncher/raycast-compat`. It is committed as
+[`declaration-inventory.json`](./declaration-inventory.json).
+
+The inventory, adapter tests, and corpus probe answer different questions:
+
+- declarations: is the public contract represented by the adapter shape?
+- adapter tests: does the represented API preserve measured behavior?
+- corpus probe: do real extensions bundle and reach a scene end to end?
+
+The ARM64 compatibility finish line is defined in
+[ADR 0109](../decisions/0109-declaration-driven-arm64-compatibility-finish-line.md).
+Host/platform provider work and extension-owned native dependencies remain
+explicitly classified rather than being hidden in the API percentage.
+
+The current inventory is green: 147/147 top-level exports, 1,167/1,167
+normalized nested members, 88/88 declared runtime exports, all 85 corpus-
+observed API names represented, and zero static import blockers. The full
+corpus probe embeds the same inventory and derives its named-import support set
+from the emitted adapter declaration rather than a second hand-maintained list.
+
+Regenerate the inventory after building the V2 packages with:
+
+```bash
+node packages/blast-compatibility/scripts/inventory-declarations.mjs \
+  node_modules/@raycast/api/types/index.d.ts \
+  packages/blast-raycast-compat/dist/index.d.ts \
+  docs/v2/compatibility/declaration-inventory.json \
+  docs/v2/compatibility/census.json \
+  packages/blast-raycast-compat/dist/index.js
 ```
 
 ## Headline numbers

@@ -5,6 +5,8 @@ import ts from "typescript";
 
 import { BLAST_PROTOCOL_VERSION } from "@blastlauncher/protocol";
 
+export * from "./declaration-inventory.js";
+
 export const RAYCAST_API_PACKAGE = "@raycast/api";
 
 export interface ManifestCommandSummary {
