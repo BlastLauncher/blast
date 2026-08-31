@@ -100,6 +100,12 @@ slice changes what is executable, what is trusted, or what should happen next.
   List, Grid, Detail, and Form scene roots through the same event channel. The
   renderer does not receive sockets or extension paths, and V1 remains the
   default when the bridge is absent.
+- The Electron app can own the opt-in V2 daemon lifecycle from [ADR
+  0098](decisions/0098-electron-owned-opt-in-daemon.md): when absolute catalog,
+  bootstrap, and socket paths are all supplied, the main process starts the
+  trusted Node composition before exposing the bridge and skips the unused V1
+  runtime. External-daemon socket mode and the V1 fallback remain available;
+  no packaged bootstrap or V1 installation-layout migration is implied.
 - The Node filesystem catalog discovers Raycast-style `package.json` manifests,
   probes `src/<command-name>` entrypoints, honors explicit entrypoint
   overrides, and never resolves a path outside the extension root.
@@ -658,9 +664,10 @@ slice changes what is executable, what is trusted, or what should happen next.
 - persistent catalog refresh, command watching, complete desktop rendering of
   every scene member, and default daemon startup (the local listener, Node
   daemon composition, path-free discovery snapshot, transport-neutral client
-  consumer, Node local connector, opt-in Electron main bridge, and first
-  semantic scene renderer now exist; production bootstrap/catalog policy and
-  the remaining scene visuals are still missing);
+  consumer, Node local connector, opt-in Electron main bridge, first semantic
+  scene renderer, and explicit app-owned daemon mode now exist; packaged
+  bootstrap/catalog policy, V1 installation-layout migration, and remaining
+  scene visuals are still missing);
 - capability manifest declarations, real operating-system providers, audit
   records, and consent UI;
 - production AI providers, OAuth browser/token-store providers, and command
@@ -669,7 +676,8 @@ slice changes what is executable, what is trusted, or what should happen next.
 - structured logs beyond captured child stderr;
 - startup deadlines chosen by the core, restart policy, quotas, and OS sandbox;
 - authenticated local sockets, WebSocket transport, and remote pairing;
-- Electron V2 integration, CLI control, mobile, and web clients.
+- packaged Electron V2 integration/default cutover, CLI control, mobile, and
+  web clients.
 
 ## Recommended continuation
 
@@ -809,10 +817,14 @@ only small portable JavaScript seeds eligible after the API-first slice.
    0095](decisions/0095-bounded-local-core-client.md) and the opt-in main-process
    bridge in [ADR 0096](decisions/0096-electron-main-client-bridge.md) are now
    implemented, so Electron can reuse one socket connection, handshake,
-   timeout, abort, cleanup, snapshot, and semantic event policy. The next
-   decision is the production V2 bootstrap and catalog layout, followed by a
-   renderer that can consume `SceneNode`; keep the V1 WebSocket path as the
-   default during that migration. The
+   timeout, abort, cleanup, snapshot, and semantic event policy. The first
+   semantic renderer is implemented in [ADR
+   0097](decisions/0097-opt-in-scene-client-ui.md), and explicit app-owned
+   daemon startup is implemented in [ADR
+   0098](decisions/0098-electron-owned-opt-in-daemon.md). The remaining
+   production decision is the packaged bootstrap/catalog and V1 installation
+   migration; keep the V1 WebSocket path as the default until that is settled.
+   The
    transport-neutral client/core session slice in [ADR
    0090](decisions/0090-client-facing-core-session-boundary.md) is implemented:
    it establishes a validated client/core connection for one active command,
@@ -827,9 +839,11 @@ only small portable JavaScript seeds eligible after the API-first slice.
    a deterministic snapshot, and the controller in ADR 0094 now consumes it;
    the Electron host/IPC adapter is now implemented behind an explicit socket
    opt-in; the first semantic SceneNode renderer is now implemented in [ADR
-   0097](decisions/0097-opt-in-scene-client-ui.md). The next boundary is
-   production daemon bootstrap/catalog policy, followed by the remaining
-   scene visuals and eventual V2 default cutover.
+   0097](decisions/0097-opt-in-scene-client-ui.md), and Electron can now start
+   the daemon itself when all paths are explicit under [ADR
+   0098](decisions/0098-electron-owned-opt-in-daemon.md). The next boundary is
+   packaged daemon/bootstrap/catalog policy, followed by the remaining scene
+   visuals and eventual V2 default cutover.
 
 Keep WebSocket and remote execution as transport/provider additions. They do not
 require changing the session, extension contract, runtime, host, or core

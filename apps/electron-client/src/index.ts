@@ -13,6 +13,7 @@ import { createTray } from "./tray";
 import { connectLocalCoreClient } from "@blastlauncher/core-node";
 import { registerV2ClientIPCEvents, type V2ClientIPCRegistration } from "./v2Client";
 import { V2ClientChannels } from "./v2ClientChannels";
+import { startOptInV2Daemon, stopOptInV2Daemon } from "./v2Daemon";
 import { createApplicationWindow, createNodeInstallerWindow } from "./window";
 
 const debug = createDebug("electron-client:index");
@@ -29,12 +30,23 @@ if (require("electron-squirrel-startup")) {
   app.quit();
 }
 
-const onReady = (): void => {
+const onReady = async (): Promise<void> => {
   debug("onReady");
   if (hasVersionInstalled()) {
     debug("hasVersionInstalled");
-    registerOptInV2Client();
-    startRuntime();
+    let v2Enabled = false;
+    try {
+      await startOptInV2Daemon();
+      v2Enabled = registerOptInV2Client();
+    } catch (error) {
+      debug("failed to start opt-in V2 daemon", error);
+      await stopOptInV2Daemon("V2 startup failed").catch((closeError) => {
+        debug("failed to close opt-in V2 daemon after startup failure", closeError);
+      });
+    }
+    if (!v2Enabled) {
+      await startRuntime();
+    }
     setMenu();
     registerRendererIPCEvents();
     createApplicationWindow();
@@ -63,7 +75,15 @@ app.on("will-quit", () => {
   globalShortcut.unregisterAll();
 
   stopRuntime();
-  void v2ClientIPC?.dispose();
+  void (async () => {
+    try {
+      await v2ClientIPC?.dispose();
+    } finally {
+      await stopOptInV2Daemon();
+    }
+  })().catch((error: unknown) => {
+    debug("failed to close V2 resources", error);
+  });
 });
 
 app.on("activate", () => {
@@ -81,10 +101,10 @@ app.whenReady().then(() => {
   //   .catch((err) => console.log("An error occurred: ", err));
 });
 
-function registerOptInV2Client(): void {
+function registerOptInV2Client(): boolean {
   const socketPath = process.env.BLAST_V2_SOCKET_PATH;
   if (socketPath === undefined || socketPath.length === 0) {
-    return;
+    return false;
   }
 
   v2ClientIPC = registerV2ClientIPCEvents({
@@ -96,6 +116,7 @@ function registerOptInV2Client(): void {
       }),
   });
   debug("registered opt-in V2 client bridge", socketPath);
+  return true;
 }
 
 // In this file you can include the rest of your app's specific main process

@@ -115,10 +115,11 @@ its `NodeCoreDaemon` composes that catalog with the fixed Node host, core, and
 ADR 0091 local listener. The listener is the daemon's readiness point and
 delegates connections to the client session. A persistent, watched catalog
 index and command watching remain later boundaries; the path-free command
-discovery snapshot from ADR 0093 is now available to the client, with Electron
-consumption as the next boundary. The bounded Node connector in ADR 0095 owns
-socket creation, framing, and connection/handshake cleanup before an Electron
-main-process adapter consumes the client controller.
+discovery snapshot from ADR 0093 is now available to the client. The bounded
+Node connector in ADR 0095 owns socket creation, framing, and
+connection/handshake cleanup, while ADR 0098 lets Electron own that daemon
+composition only when all catalog, bootstrap, and socket paths are explicitly
+provided.
 
 ### Clients
 
@@ -127,9 +128,9 @@ events. The transport-neutral client state consumer is implemented in ADR 0094;
 the Electron desktop application is the reference client during the V2
 migration. ADR 0096 adds a transport-neutral client host and an opt-in Electron
 main-process IPC adapter; ADR 0097 adds the corresponding opt-in semantic scene
-renderer. Client-specific types must not enter the protocol package. The
-existing V1 renderer remains the default until the V2 bootstrap and catalog
-layout are ready.
+renderer; and ADR 0098 adds explicit Electron-owned daemon startup. Client-
+specific types must not enter the protocol package. The existing V1 renderer
+remains the default until a packaged bootstrap and catalog layout are ready.
 
 ### Capability providers
 

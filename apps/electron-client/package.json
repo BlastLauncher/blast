@@ -19,7 +19,8 @@
     "make": "electron-forge make",
     "package": "electron-forge package",
     "publish": "electron-forge publish",
-    "start": "electron-forge start"
+    "start": "electron-forge start",
+    "test": "tsc -p tsconfig.json && node --test test/*.test.mjs"
   },
   "dependencies": {
     "@blastlauncher/client": "workspace:*",
