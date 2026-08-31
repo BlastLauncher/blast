@@ -25,7 +25,7 @@
     "lint": "oxlint .",
     "start:client": "pnpm --filter blast run start",
     "test": "pnpm --recursive --workspace-concurrency=1 --if-present run test",
-    "test:v2": "pnpm --workspace-concurrency=1 --filter @blastlauncher/protocol --filter @blastlauncher/scene --filter @blastlauncher/capability --filter @blastlauncher/extension-contract --filter @blastlauncher/transport --filter @blastlauncher/transport-node --filter @blastlauncher/session --filter @blastlauncher/extension-runtime --filter @blastlauncher/extension-runtime-node --filter @blastlauncher/extension-host --filter @blastlauncher/extension-host-node --filter @blastlauncher/core --filter @blastlauncher/core-node --filter @blastlauncher/client --filter @blastlauncher/e2e --filter @blastlauncher/compatibility --filter @blastlauncher/react-renderer --filter @blastlauncher/raycast-compat --if-present run test",
+    "test:v2": "pnpm --workspace-concurrency=1 --filter @blastlauncher/protocol --filter @blastlauncher/scene --filter @blastlauncher/capability --filter @blastlauncher/extension-contract --filter @blastlauncher/transport --filter @blastlauncher/transport-node --filter @blastlauncher/session --filter @blastlauncher/extension-runtime --filter @blastlauncher/extension-runtime-node --filter @blastlauncher/extension-host --filter @blastlauncher/extension-host-node --filter @blastlauncher/core --filter @blastlauncher/core-node --filter @blastlauncher/client --filter @blastlauncher/e2e --filter @blastlauncher/compatibility --filter @blastlauncher/react-renderer --filter @blastlauncher/raycast-compat --filter @blastlauncher/raycast-runtime-node --if-present run test",
     "cli": "pnpm --filter cli run start"
   },
   "devDependencies": {

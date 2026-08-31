@@ -63,6 +63,11 @@ export interface FilesystemExtensionCatalogOptions {
    * subdirectory is expected to hold a manifest file.
    */
   readonly root: string;
+  /**
+   * Optional lower-priority roots using the same layout. The first valid
+   * manifest for a duplicate extension name wins.
+   */
+  readonly additionalRoots?: readonly string[];
   readonly manifestFileName?: string;
 }
 
@@ -78,21 +83,28 @@ export interface FilesystemExtensionCatalogOptions {
  * merged with the selected command's defaults when a descriptor is resolved.
  */
 export class FilesystemExtensionCatalog implements ExtensionCatalog {
-  readonly #root: string;
+  readonly #roots: readonly string[];
   readonly #manifestFileName: string;
   #extensionIndex?: Promise<ReadonlyMap<string, { readonly directory: string; readonly manifest: ExtensionManifest }>>;
 
   constructor(options: FilesystemExtensionCatalogOptions) {
     validateNonEmptyString(options.root, "root");
+    for (const [index, root] of (options.additionalRoots ?? []).entries()) {
+      validateNonEmptyString(root, `additionalRoots[${index}]`);
+    }
     if (options.manifestFileName !== undefined) {
       validateNonEmptyString(options.manifestFileName, "manifestFileName");
     }
-    this.#root = path.resolve(options.root);
+    this.#roots = [options.root, ...(options.additionalRoots ?? [])].map((root) => path.resolve(root));
     this.#manifestFileName = options.manifestFileName ?? DEFAULT_MANIFEST_FILE_NAME;
   }
 
   get root(): string {
-    return this.#root;
+    return this.#roots[0]!;
+  }
+
+  get roots(): readonly string[] {
+    return this.#roots;
   }
 
   async listCommands(signal?: AbortSignal): Promise<readonly CoreCommandDescriptor[]> {
@@ -163,24 +175,29 @@ export class FilesystemExtensionCatalog implements ExtensionCatalog {
     ReadonlyMap<string, { readonly directory: string; readonly manifest: ExtensionManifest }>
   > {
     const index = new Map<string, { readonly directory: string; readonly manifest: ExtensionManifest }>();
-    for (const directory of await this.#listExtensionDirectories()) {
-      const manifest = await this.#readManifest(path.join(directory, this.#manifestFileName));
-      if (manifest !== undefined && !index.has(manifest.name)) {
-        // Directories are sorted, so retaining the first entry preserves the
-        // existing deterministic duplicate-name behavior.
-        index.set(manifest.name, { directory, manifest });
+    for (const [rootIndex, root] of this.#roots.entries()) {
+      for (const directory of await this.#listExtensionDirectories(root, rootIndex === 0)) {
+        const manifest = await this.#readManifest(path.join(directory, this.#manifestFileName));
+        if (manifest !== undefined && !index.has(manifest.name)) {
+          // Roots are ordered and directories are sorted, so retaining the
+          // first entry preserves deterministic duplicate-name behavior.
+          index.set(manifest.name, { directory, manifest });
+        }
       }
     }
     return index;
   }
 
-  async #listExtensionDirectories(): Promise<string[]> {
+  async #listExtensionDirectories(root: string, required: boolean): Promise<string[]> {
     let entries: Dirent[];
     try {
-      entries = await readdir(this.#root, { withFileTypes: true });
+      entries = await readdir(root, { withFileTypes: true });
     } catch (error) {
+      if (!required && isMissingPath(error)) {
+        return [];
+      }
       throw new BlastCoreError("catalog_root_unreadable", "Extension catalog root is not readable", {
-        root: this.#root,
+        root,
         reason: String(error),
       });
     }
@@ -190,7 +207,7 @@ export class FilesystemExtensionCatalog implements ExtensionCatalog {
       if (!entry.isDirectory() && !entry.isSymbolicLink()) {
         continue;
       }
-      const directory = path.join(this.#root, entry.name);
+      const directory = path.join(root, entry.name);
       if (await isDirectory(directory)) {
         directories.push(directory);
       }
@@ -461,6 +478,10 @@ function validateNonEmptyString(value: string, field: string): void {
   if (typeof value !== "string" || value.length === 0) {
     throw new BlastCoreError("invalid_catalog_options", `Catalog ${field} must be a non-empty string`);
   }
+}
+
+function isMissingPath(error: unknown): boolean {
+  return typeof error === "object" && error !== null && "code" in error && error.code === "ENOENT";
 }
 
 function isInsideRoot(rootDirectory: string, candidate: string): boolean {

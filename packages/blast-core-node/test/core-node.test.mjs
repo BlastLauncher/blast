@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { FilesystemExtensionCatalog, parseManifest } from "../dist/index.js";
 
 const catalogRoot = fileURLToPath(new URL("./fixtures/catalog-root", import.meta.url));
+const secondaryCatalogRoot = fileURLToPath(new URL("./fixtures/catalog-root-secondary", import.meta.url));
 
 function createCatalog() {
   return new FilesystemExtensionCatalog({ root: catalogRoot });
@@ -181,6 +182,79 @@ test("resolves duplicate extension names deterministically", async (context) => 
   await context.test("unknown command in the duplicate", async () => {
     assert.equal(await catalog.resolve({ extensionId: "dup", commandName: "missing" }), undefined);
   });
+});
+
+test("uses ordered additional roots without overriding the primary root", async () => {
+  const catalog = new FilesystemExtensionCatalog({
+    root: secondaryCatalogRoot,
+    additionalRoots: [catalogRoot],
+  });
+
+  assert.deepEqual(catalog.roots, [secondaryCatalogRoot, catalogRoot]);
+  assert.deepEqual(await catalog.listCommands(), [
+    {
+      extensionId: "alpha",
+      commandName: "index",
+      title: "Secondary Index",
+      extensionName: "Secondary Alpha",
+      entryPointMode: "view",
+    },
+    {
+      extensionId: "secondary",
+      commandName: "index",
+      title: "Secondary Index",
+      extensionName: "Secondary Extension",
+      entryPointMode: "view",
+    },
+    {
+      extensionId: "beta",
+      commandName: "main",
+      title: "Beta Main",
+      extensionName: "Beta Extension",
+      ownerOrAuthorName: "beta-owner",
+      entryPointMode: "view",
+    },
+    {
+      extensionId: "dup",
+      commandName: "index",
+      title: "Duplicate Index",
+      extensionName: "Duplicate A",
+      entryPointMode: "view",
+    },
+    {
+      extensionId: "gamma",
+      commandName: "index",
+      title: "Gamma Index",
+      extensionName: "Gamma Extension",
+      entryPointMode: "view",
+    },
+    {
+      extensionId: "zeta",
+      commandName: "escape",
+      title: "Escape",
+      extensionName: "Zeta Extension",
+      entryPointMode: "view",
+    },
+    {
+      extensionId: "zeta",
+      commandName: "absolute",
+      title: "Absolute",
+      extensionName: "Zeta Extension",
+      entryPointMode: "view",
+    },
+  ]);
+  assert.equal(
+    (await catalog.resolve({ extensionId: "alpha", commandName: "index" })).rootDirectory,
+    path.join(secondaryCatalogRoot, "alpha-override"),
+  );
+});
+
+test("ignores a missing optional additional root", async () => {
+  const catalog = new FilesystemExtensionCatalog({
+    root: catalogRoot,
+    additionalRoots: [path.join(catalogRoot, "missing-additional-root")],
+  });
+  assert.equal((await catalog.listCommands()).length, 7);
 });
 
 test("rejects entrypoints that escape the extension root", async (context) => {

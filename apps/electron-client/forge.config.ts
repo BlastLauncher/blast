@@ -1,3 +1,4 @@
+import { realpathSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 
@@ -14,7 +15,14 @@ import { rendererConfig } from "./webpack.renderer.config";
 const config: ForgeConfig = {
   packagerConfig: {
     executableName: "blast",
-    extraResource: [path.join(__dirname, "node_modules/@blastlauncher/runtime/dist/run.cjs")],
+    extraResource: [
+      path.join(__dirname, "node_modules/@blastlauncher/runtime/dist/run.cjs"),
+      path.join(__dirname, "node_modules/@blastlauncher/raycast-runtime-node/dist/v2-bootstrap.cjs"),
+      path.join(__dirname, "node_modules/@blastlauncher/raycast-runtime-node/dist/v2-raycast-api.cjs"),
+      realpathSync(path.join(__dirname, "node_modules/react")),
+      path.join(__dirname, "../../node_modules/esbuild"),
+      path.join(__dirname, "../../node_modules/@esbuild"),
+    ],
   },
   hooks: {
     postPackage: async (forgeConfig, packageResult) => {

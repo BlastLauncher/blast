@@ -131,7 +131,10 @@ main-process IPC adapter; ADR 0097 adds the corresponding opt-in semantic scene
 renderer; ADR 0098 adds explicit Electron-owned daemon startup; and ADR 0099
 completes the first menu-bar scene renderer in that client. Client-specific
 types must not enter the protocol package. The existing V1 renderer remains the
-default until a packaged bootstrap and catalog layout are ready.
+default. ADR 0100 packages a V2 bootstrap and maps the existing V1
+production/development installation roots behind the explicit
+`BLAST_V2_MODE=packaged` opt-in; it does not change the default or add
+installation UI.
 
 ### Capability providers
 

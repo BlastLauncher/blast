@@ -3,10 +3,12 @@
 Node.js filesystem manifest catalog for Blast V2.
 
 `FilesystemExtensionCatalog` implements the `ExtensionCatalog` interface from
-`@blastlauncher/core`. It scans a root directory that contains one subdirectory
-per installed extension, reads each Raycast-style `package.json` manifest, and
-resolves a stable `{ extensionId, commandName }` identity into the
-`ExtensionDescriptor` the extension host requires.
+`@blastlauncher/core`. It scans a primary root that contains one subdirectory
+per installed extension, optionally followed by ordered additional roots,
+reads each Raycast-style `package.json` manifest, and resolves a stable
+`{ extensionId, commandName }` identity into the `ExtensionDescriptor` the
+extension host requires. The first valid manifest for a duplicate extension
+name wins; an absent optional additional root is ignored.
 
 ## Resolution rules
 

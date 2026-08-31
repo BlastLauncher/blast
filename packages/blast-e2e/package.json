@@ -6,7 +6,7 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "test": "pnpm --filter '@blastlauncher/e2e...' run build && node --test test/*.test.mjs",
+    "test": "pnpm --filter '@blastlauncher/raycast-runtime-node...' run build && pnpm --filter '@blastlauncher/e2e...' run build && node --test test/*.test.mjs",
     "probe:corpus": "node scripts/probe-corpus.mjs"
   },
   "dependencies": {

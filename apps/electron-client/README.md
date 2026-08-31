@@ -12,7 +12,11 @@ trusted Node daemon. All three paths must be absolute in app-owned mode;
 The bridge keeps the socket, daemon, and `CoreClientHost` in the main process
 and exposes only serialized snapshots and semantic commands through preload.
 The V1 WebSocket renderer remains the default without a working V2 opt-in;
-with the bridge present, the renderer uses the semantic SceneNode view. The
-app still does not choose a packaged bootstrap or migrate the V1 installation
-layout, and native OS menu-bar registration plus the remaining scene-visual
-polish remain future work.
+with the bridge present, the renderer uses the semantic SceneNode view. Set
+`BLAST_V2_MODE=packaged` to use the packaged V2 bootstrap and the existing
+`~/.blast/dev-extensions/node_modules` plus
+`~/.blast/extensions/node_modules/@blast-extensions` catalog roots (development
+extensions win duplicates). Packaged mode remains opt-in and does not install
+extensions or third-party dependencies; native OS menu-bar registration,
+installation UI/migration, and the remaining scene-visual polish remain future
+work.

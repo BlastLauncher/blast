@@ -122,7 +122,9 @@ the same renderer selection through the app type-check and bundle gates. ADR
 0098 adds deterministic configuration-parser coverage and verifies the
 Electron-owned daemon path through the same type-check and bundle gates. ADR
 0099 adds a deterministic server-render smoke for the menu-bar scene surface
-and verifies it through the same app type-check and Forge bundle gates. IPC
+and verifies it through the same app type-check and Forge bundle gates. ADR
+0100 adds multi-root catalog tests, standalone bootstrap resource checks, and
+packaged resource presence to the same app packaging gates. IPC
 inputs are
 validated at the main-process boundary, subscriptions clean up with the
 sender, and snapshots use JSON-safe failure details; these checks do not

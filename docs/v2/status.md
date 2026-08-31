@@ -105,12 +105,18 @@ slice changes what is executable, what is trusted, or what should happen next.
   bootstrap, and socket paths are all supplied, the main process starts the
   trusted Node composition before exposing the bridge and skips the unused V1
   runtime. External-daemon socket mode and the V1 fallback remain available;
-  no packaged bootstrap or V1 installation-layout migration is implied.
+  packaged mode is supplied separately by ADR 0100 and remains opt-in.
 - The opt-in Electron renderer now consumes `menu-bar-extra` scenes under [ADR
   0099](decisions/0099-menu-bar-scene-renderer.md), including labeled sections,
   expandable submenus, separators, icons, shortcuts, left-click actions, and
   marked alternate-item right-click actions. Native OS menu-bar registration
   remains outside this client-window boundary.
+- [ADR 0100](decisions/0100-packaged-v2-bootstrap-and-catalog.md) adds the
+  higher-level `@blastlauncher/raycast-runtime-node` composition and packages
+  standalone V2 bootstrap, adapter, and React resources for Electron. The
+  explicit `BLAST_V2_MODE=packaged` mode reads the existing development and
+  production extension roots with development precedence and owns a stable
+  `~/.blast/v2/core.sock` endpoint; V1 remains the default.
 - The Node filesystem catalog discovers Raycast-style `package.json` manifests,
   probes `src/<command-name>` entrypoints, honors explicit entrypoint
   overrides, and never resolves a path outside the extension root.
@@ -670,10 +676,10 @@ slice changes what is executable, what is trusted, or what should happen next.
   every scene member, and default daemon startup (the local listener, Node
   daemon composition, path-free discovery snapshot, transport-neutral client
   consumer, Node local connector, opt-in Electron main bridge, first semantic
-  scene renderer, explicit app-owned daemon mode, and menu-bar scene renderer
-  now exist; packaged bootstrap/catalog policy, V1 installation-layout
-  migration, native OS menu-bar registration, and remaining scene visuals are
-  still missing);
+  scene renderer, explicit app-owned daemon mode, menu-bar scene renderer, and
+  packaged bootstrap/catalog bridge now exist; packaged mode is still opt-in,
+  while V1 installation UI/migration, native OS menu-bar registration, and
+  remaining scene visuals are still missing);
 - capability manifest declarations, real operating-system providers, audit
   records, and consent UI;
 - production AI providers, OAuth browser/token-store providers, and command
@@ -827,9 +833,11 @@ only small portable JavaScript seeds eligible after the API-first slice.
    semantic renderer is implemented in [ADR
    0097](decisions/0097-opt-in-scene-client-ui.md), and explicit app-owned
    daemon startup is implemented in [ADR
-   0098](decisions/0098-electron-owned-opt-in-daemon.md). The remaining
-   production decision is the packaged bootstrap/catalog and V1 installation
-   migration; keep the V1 WebSocket path as the default until that is settled.
+   0098](decisions/0098-electron-owned-opt-in-daemon.md). The packaged
+   bootstrap/catalog bridge is now implemented behind the explicit [ADR
+   0100](decisions/0100-packaged-v2-bootstrap-and-catalog.md) mode; keep the
+   V1 WebSocket path as the default until that mode and its installation flow
+   are proven.
    The
    transport-neutral client/core session slice in [ADR
    0090](decisions/0090-client-facing-core-session-boundary.md) is implemented:
@@ -849,9 +857,12 @@ only small portable JavaScript seeds eligible after the API-first slice.
    the daemon itself when all paths are explicit under [ADR
    0098](decisions/0098-electron-owned-opt-in-daemon.md). The menu-bar scene
    renderer is now implemented under [ADR
-   0099](decisions/0099-menu-bar-scene-renderer.md). The next boundary is
-   packaged daemon/bootstrap/catalog policy, followed by native OS menu-bar
-   registration, remaining scene visuals, and eventual V2 default cutover.
+   0099](decisions/0099-menu-bar-scene-renderer.md), and packaged
+   daemon/bootstrap/catalog policy is implemented behind the explicit [ADR
+   0100](decisions/0100-packaged-v2-bootstrap-and-catalog.md) mode. The next
+   client boundary is native OS menu-bar registration and remaining scene
+   visuals, followed by installation UI/migration and eventual V2 default
+   cutover.
 
 Keep WebSocket and remote execution as transport/provider additions. They do not
 require changing the session, extension contract, runtime, host, or core

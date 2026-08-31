@@ -2,9 +2,17 @@ import path from "node:path";
 
 export interface V2DaemonConfiguration {
   readonly catalogRoot: string;
+  readonly additionalCatalogRoots?: readonly string[];
   readonly bootstrapPath: string;
   readonly socketPath: string;
   readonly nodeExecutable?: string;
+  readonly raycastApiPath?: string;
+  readonly reactModulePath?: string;
+}
+
+export interface PackagedV2DaemonPathOptions {
+  readonly userDirectory: string;
+  readonly resourcesPath: string;
 }
 
 export type V2DaemonConfigurationErrorCode = "configuration_incomplete" | "path_not_absolute";
@@ -41,10 +49,22 @@ const REQUIRED_VARIABLES = [
  */
 export function readV2DaemonConfiguration(
   environment: Readonly<Record<string, string | undefined>>,
+  packagedConfiguration?: V2DaemonConfiguration,
 ): V2DaemonConfiguration | undefined {
   const appOwnedPathConfigured =
     hasValue(environment.BLAST_V2_CATALOG_ROOT) || hasValue(environment.BLAST_V2_BOOTSTRAP_PATH);
   if (!appOwnedPathConfigured) {
+    if (environment.BLAST_V2_MODE === "packaged") {
+      if (packagedConfiguration === undefined) {
+        throw new V2DaemonConfigurationError(
+          "configuration_incomplete",
+          "Packaged V2 mode requires the app to provide packaged resource paths",
+          "BLAST_V2_MODE",
+          environment.BLAST_V2_MODE,
+        );
+      }
+      return packagedConfiguration;
+    }
     return undefined;
   }
 
@@ -62,11 +82,33 @@ export function readV2DaemonConfiguration(
     );
   }
 
+  const raycastApiPath = readOptionalAbsolutePath(environment.BLAST_V2_RAYCAST_API_PATH, "BLAST_V2_RAYCAST_API_PATH");
+  const reactModulePath = readOptionalAbsolutePath(
+    environment.BLAST_V2_REACT_MODULE_PATH,
+    "BLAST_V2_REACT_MODULE_PATH",
+  );
+
   return {
     catalogRoot,
     bootstrapPath,
     socketPath,
     ...(hasValue(nodeExecutable) ? { nodeExecutable } : {}),
+    ...(raycastApiPath === undefined ? {} : { raycastApiPath }),
+    ...(reactModulePath === undefined ? {} : { reactModulePath }),
+  };
+}
+
+export function createPackagedV2DaemonConfiguration(options: PackagedV2DaemonPathOptions): V2DaemonConfiguration {
+  requireAbsolutePathOption(options.userDirectory, "userDirectory");
+  requireAbsolutePathOption(options.resourcesPath, "resourcesPath");
+
+  return {
+    catalogRoot: path.join(options.userDirectory, "dev-extensions", "node_modules"),
+    additionalCatalogRoots: [path.join(options.userDirectory, "extensions", "node_modules", "@blast-extensions")],
+    bootstrapPath: path.join(options.resourcesPath, "v2-bootstrap.cjs"),
+    socketPath: path.join(options.userDirectory, "v2", "core.sock"),
+    raycastApiPath: path.join(options.resourcesPath, "v2-raycast-api.cjs"),
+    reactModulePath: path.join(options.resourcesPath, "react"),
   };
 }
 
@@ -83,6 +125,19 @@ function requireAbsolutePath(value: string | undefined, variable: string): strin
     throw new V2DaemonConfigurationError("path_not_absolute", `${variable} must be an absolute path`, variable, value);
   }
   return value;
+}
+
+function readOptionalAbsolutePath(value: string | undefined, variable: string): string | undefined {
+  if (!hasValue(value)) {
+    return undefined;
+  }
+  return requireAbsolutePath(value, variable);
+}
+
+function requireAbsolutePathOption(value: string, option: string): void {
+  if (!path.isAbsolute(value)) {
+    throw new V2DaemonConfigurationError("path_not_absolute", `${option} must be an absolute path`, option, value);
+  }
 }
 
 function hasValue(value: string | undefined): value is string {

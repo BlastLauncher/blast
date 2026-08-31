@@ -17,6 +17,8 @@ export type NodeCoreDaemonState = "created" | "starting" | "running" | "closing"
 
 export interface NodeCoreDaemonOptions {
   readonly catalogRoot: string;
+  /** Optional lower-priority catalog roots, in discovery order. */
+  readonly additionalCatalogRoots?: readonly string[];
   readonly manifestFileName?: FilesystemExtensionCatalogOptions["manifestFileName"];
   readonly bootstrapPath: string;
   /** An explicit environment object or descriptor-based factory for children. */
@@ -85,6 +87,7 @@ export class NodeCoreDaemon {
 
     const catalog = new FilesystemExtensionCatalog({
       root: options.catalogRoot,
+      ...(options.additionalCatalogRoots === undefined ? {} : { additionalRoots: options.additionalCatalogRoots }),
       ...(options.manifestFileName === undefined ? {} : { manifestFileName: options.manifestFileName }),
     });
     const launcher = new NodeExtensionProcessLauncher({

@@ -17,7 +17,9 @@
   "scripts": {
     "lint": "oxlint .",
     "make": "electron-forge make",
+    "premake": "pnpm --filter '@blastlauncher/raycast-runtime-node...' run build",
     "package": "electron-forge package",
+    "prepackage": "pnpm --filter '@blastlauncher/raycast-runtime-node...' run build",
     "publish": "electron-forge publish",
     "start": "electron-forge start",
     "test": "tsc -p tsconfig.json && node --test test/*.test.mjs"
@@ -26,6 +28,7 @@
     "@blastlauncher/client": "workspace:*",
     "@blastlauncher/core": "workspace:*",
     "@blastlauncher/core-node": "workspace:*",
+    "@blastlauncher/raycast-runtime-node": "workspace:*",
     "@blastlauncher/runtime": "workspace:*",
     "@blastlauncher/scene": "workspace:*",
     "@blastlauncher/utils": "workspace:*",
@@ -54,6 +57,7 @@
     "css-loader": "^7.1.4",
     "electron": "44.0.0",
     "electron-devtools-installer": "^4.0.0",
+    "esbuild": "^0.28.2",
     "fork-ts-checker-webpack-plugin": "^9.1.0",
     "github-markdown-css": "^5.9.0",
     "highlight.js": "^11.12.0",
