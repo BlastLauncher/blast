@@ -135,6 +135,10 @@ theme-tint, content-prefix, safe-image, and unsafe-color cases. ADR 0106 adds
 server-rendered List/Grid accessory, malformed-payload, and safe-color cases.
 ADR 0107 adds server-rendered local List/Grid filtering, title/keyword
 matching, section retention, default inference, and custom-filtering cases.
+ADR 0108 adds main-process configuration coverage for default packaged startup,
+explicit packaged and legacy modes, external-daemon precedence, conflicting
+settings, and visible failure behavior; the Electron type-check and ARM64
+package gates verify that the default resource paths are bundled.
 IPC inputs are
 validated at the main-process boundary, subscriptions clean up with the
 sender, and snapshots use JSON-safe failure details; these checks do not

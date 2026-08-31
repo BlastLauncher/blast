@@ -1,9 +1,7 @@
-import { ipcMain } from "electron";
+import { app, ipcMain } from "electron";
 
-import { setMenu } from "../menu";
 import { installNode, nrm, hasVersionInstalled } from "../nrm";
-import { startRuntime } from "../runtime";
-import { closeNodeInstallerWindow, createApplicationWindow } from "../window";
+import { closeNodeInstallerWindow } from "../window";
 
 import { EventTypes } from "./types";
 
@@ -26,8 +24,9 @@ export function registerIPCMainEvents() {
 
   ipcMain.handle(EventTypes.EXIT_AND_START, async () => {
     closeNodeInstallerWindow();
-    await startRuntime();
-    setMenu();
-    createApplicationWindow();
+    // Re-run the main-process startup selector so a newly installed runtime
+    // enters packaged V2 by default instead of bypassing it through V1.
+    app.relaunch();
+    app.exit(0);
   });
 }

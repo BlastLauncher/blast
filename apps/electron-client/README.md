@@ -4,19 +4,20 @@ The client app uses WebSocket to connect to the backend and then render the JSON
 
 Most of the code is inside `src/renderer`, which is a React app built with Electron.
 
-The V2 client bridge is opt-in. Set `BLAST_V2_SOCKET_PATH` to an explicitly
-started V2 daemon socket to register the main-process bridge, or also set
+The packaged V2 client bridge is the default. Set `BLAST_V2_SOCKET_PATH` to an
+explicitly started V2 daemon socket to use external-daemon mode, or also set
 `BLAST_V2_CATALOG_ROOT` and `BLAST_V2_BOOTSTRAP_PATH` to let Electron start the
-trusted Node daemon. All three paths must be absolute in app-owned mode;
-`BLAST_V2_NODE_EXECUTABLE` optionally selects an absolute Node executable.
+trusted Node daemon with explicit paths. All three paths must be absolute in
+app-owned mode; `BLAST_V2_NODE_EXECUTABLE` optionally selects an absolute Node
+executable. Use `BLAST_V2_MODE=legacy` to explicitly run the prototype V1
+WebSocket/runtime path.
 The bridge keeps the socket, daemon, and `CoreClientHost` in the main process
 and exposes only serialized snapshots and semantic commands through preload.
-The V1 WebSocket renderer remains the default without a working V2 opt-in;
-with the bridge present, the renderer uses the semantic SceneNode view. Set
-`BLAST_V2_MODE=packaged` to use the packaged V2 bootstrap and the existing
+The renderer uses the semantic SceneNode view when V2 is active. Set
+`BLAST_V2_MODE=packaged` to explicitly select the packaged V2 bootstrap and the existing
 `~/.blast/dev-extensions/node_modules` plus
 `~/.blast/extensions/node_modules/@blast-extensions` catalog roots (development
-extensions win duplicates). Packaged mode remains opt-in and does not install
-extensions or third-party dependencies. Menu-bar scenes also project into the
+extensions win duplicates). Packaged mode does not install extensions or
+third-party dependencies. Menu-bar scenes also project into the
 Electron-owned native status-item menu when V2 is active; installation
 UI/migration and the remaining scene-visual polish remain future work.

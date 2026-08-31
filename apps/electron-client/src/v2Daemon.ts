@@ -14,12 +14,9 @@ import {
 let ownedV2Daemon: NodeCoreDaemon | undefined;
 let ownedV2DaemonSocketPath: string | undefined;
 
-/** Starts the app-owned V2 daemon only when all explicit paths are configured. */
-export async function startOptInV2Daemon(): Promise<boolean> {
-  const packagedConfiguration =
-    process.env.BLAST_V2_MODE === "packaged"
-      ? createPackagedV2DaemonConfiguration({ userDirectory: USER_DIR, resourcesPath: process.resourcesPath })
-      : undefined;
+/** Starts the app-owned V2 daemon for packaged default or explicit V2 modes. */
+export async function startV2Daemon(): Promise<boolean> {
+  const packagedConfiguration = createDefaultPackagedV2DaemonConfiguration();
   const configuration = readV2DaemonConfiguration(process.env, packagedConfiguration);
   if (configuration === undefined) {
     return false;
@@ -51,7 +48,7 @@ export function getOwnedV2DaemonSocketPath(): string | undefined {
 }
 
 /** Closes the app-owned daemon and releases its socket/child-process owner. */
-export async function stopOptInV2Daemon(reason = "Application shutdown"): Promise<void> {
+export async function stopV2Daemon(reason = "Application shutdown"): Promise<void> {
   const daemon = ownedV2Daemon;
   ownedV2Daemon = undefined;
   ownedV2DaemonSocketPath = undefined;
@@ -90,5 +87,23 @@ function createExtensionEnvironment(configuration: V2DaemonConfiguration): NodeJ
             .filter((value): value is string => value !== undefined)
             .join(path.delimiter),
         }),
+  };
+}
+
+function createDefaultPackagedV2DaemonConfiguration(): V2DaemonConfiguration {
+  if (process.env.NODE_ENV !== "development") {
+    return createPackagedV2DaemonConfiguration({ userDirectory: USER_DIR, resourcesPath: process.resourcesPath });
+  }
+
+  // Forge's development main bundle runs from .webpack/main. Resolve the
+  // standalone resources and React package from the workspace there; the
+  // packaged app receives the same files under process.resourcesPath.
+  const developmentResourcePath = path.resolve(
+    __dirname,
+    "../../node_modules/@blastlauncher/raycast-runtime-node/dist",
+  );
+  return {
+    ...createPackagedV2DaemonConfiguration({ userDirectory: USER_DIR, resourcesPath: developmentResourcePath }),
+    reactModulePath: path.resolve(__dirname, "../../node_modules/react"),
   };
 }

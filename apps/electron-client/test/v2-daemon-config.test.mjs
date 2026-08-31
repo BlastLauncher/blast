@@ -13,7 +13,7 @@ const complete = {
   BLAST_V2_SOCKET_PATH: "/tmp/blast-v2/core.sock",
 };
 
-test("returns no app-owned configuration when V2 variables are absent", () => {
+test("returns no configuration when no packaged roots are supplied", () => {
   assert.equal(readV2DaemonConfiguration({}), undefined);
 });
 
@@ -67,6 +67,32 @@ test("derives packaged paths from the stable user and resource roots", () => {
     reactModulePath: "/opt/blast/resources/react",
   });
   assert.deepEqual(readV2DaemonConfiguration({ BLAST_V2_MODE: "packaged" }, packaged), packaged);
+});
+
+test("uses packaged paths by default when the app supplies its roots", () => {
+  const packaged = createPackagedV2DaemonConfiguration({
+    userDirectory: "/home/example/.blast",
+    resourcesPath: "/opt/blast/resources",
+  });
+  assert.deepEqual(readV2DaemonConfiguration({}, packaged), packaged);
+});
+
+test("selects the explicit legacy mode without V2 configuration", () => {
+  assert.equal(readV2DaemonConfiguration({ BLAST_V2_MODE: "legacy" }), undefined);
+});
+
+test("rejects V2 variables combined with the legacy mode", () => {
+  assert.throws(
+    () => readV2DaemonConfiguration({ BLAST_V2_MODE: "legacy", BLAST_V2_SOCKET_PATH: complete.BLAST_V2_SOCKET_PATH }),
+    (error) => error instanceof V2DaemonConfigurationError && error.code === "configuration_conflict",
+  );
+});
+
+test("rejects unknown V2 modes", () => {
+  assert.throws(
+    () => readV2DaemonConfiguration({ BLAST_V2_MODE: "experimental" }),
+    (error) => error instanceof V2DaemonConfigurationError && error.code === "configuration_invalid",
+  );
 });
 
 test("rejects packaged mode without app-provided resource paths", () => {

@@ -57,10 +57,12 @@ single-root API for callers that do not need a second installation channel.
 Missing optional additional roots are ignored; an unreadable primary root
 still fails closed as before.
 
-Packaged mode is explicit and does not become the default in this slice. The
-socket-only external daemon mode and the V1 WebSocket/runtime path remain
-available. Native OS menu-bar registration, extension installation UI, and
-the eventual V2 default cutover remain separate boundaries.
+At the time of this decision packaged mode was explicit. [ADR
+0108](0108-default-packaged-v2-startup.md) subsequently makes it the
+application default; socket-only external-daemon mode and the V1
+WebSocket/runtime path remain available through explicit configuration. Native
+OS menu-bar registration and extension installation UI remain separate
+boundaries.
 
 ## Boundary
 
@@ -73,8 +75,9 @@ dependencies, or provide host capabilities that are not yet implemented.
 
 The first packaged V2 smoke path can use existing production or development
 extensions without a migration copy. A duplicate manifest is deterministic,
-and the app can roll back to V1 by removing the explicit mode or by failing
-V2 startup. The packaged resources add a small duplicate adapter bundle and
+and the app can roll back to V1 with the explicit `BLAST_V2_MODE=legacy` mode.
+Packaged startup failures are now surfaced by ADR 0108 rather than silently
+downgrading. The packaged resources add a small duplicate adapter bundle and
 React runtime to the application, while avoiding a runtime dependency on the
 workspace's package layout.
 

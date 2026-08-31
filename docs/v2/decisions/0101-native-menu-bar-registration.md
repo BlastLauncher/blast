@@ -42,8 +42,8 @@ icon asset resolution is still a renderer concern.
 This registers the current V2 menu-bar command surface with Electron's native
 status-item menu on supported desktop environments. It does not promise that
 every Linux desktop shell exposes a tray area, does not add background
-installation or migration, and does not change the V1 default or packaged-mode
-opt-in policy.
+installation or migration. The later default selection is defined by [ADR
+0108](0108-default-packaged-v2-startup.md).
 
 ## Consequences
 

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, globalShortcut, ipcMain } from "electron";
+import { app, BrowserWindow, dialog, globalShortcut, ipcMain } from "electron";
 
 // import installExtension, { REACT_DEVELOPER_TOOLS } from "electron-devtools-installer";
 
@@ -13,7 +13,7 @@ import { createTray } from "./tray";
 import { connectLocalCoreClient } from "@blastlauncher/core-node";
 import { registerV2ClientIPCEvents, type V2ClientIPCRegistration } from "./v2Client";
 import { V2ClientChannels } from "./v2ClientChannels";
-import { getOwnedV2DaemonSocketPath, startOptInV2Daemon, stopOptInV2Daemon } from "./v2Daemon";
+import { getOwnedV2DaemonSocketPath, startV2Daemon, stopV2Daemon } from "./v2Daemon";
 import { registerV2NativeMenuBar, type V2NativeMenuBarRegistration } from "./v2MenuBar";
 import { createApplicationWindow, createNodeInstallerWindow } from "./window";
 
@@ -38,18 +38,23 @@ const onReady = async (): Promise<void> => {
     debug("hasVersionInstalled");
     let v2Enabled = false;
     try {
-      await startOptInV2Daemon();
-      v2Enabled = registerOptInV2Client();
+      await startV2Daemon();
+      v2Enabled = registerV2Client();
       if (v2Enabled) {
         v2NativeMenuBar = registerV2NativeMenuBar(v2ClientIPC!.host);
       }
     } catch (error) {
-      debug("failed to start opt-in V2 daemon", error);
-      await stopOptInV2Daemon("V2 startup failed").catch((closeError) => {
-        debug("failed to close opt-in V2 daemon after startup failure", closeError);
+      reportV2StartupFailure(error);
+      await stopV2Daemon("V2 startup failed").catch((closeError) => {
+        debug("failed to close V2 daemon after startup failure", closeError);
       });
+      return;
     }
     if (!v2Enabled) {
+      if (process.env.BLAST_V2_MODE !== "legacy") {
+        reportV2StartupFailure(new Error("V2 startup did not expose a client session"));
+        return;
+      }
       await startRuntime();
     }
     setMenu();
@@ -86,7 +91,7 @@ app.on("will-quit", () => {
       v2NativeMenuBar = undefined;
       await v2ClientIPC?.dispose();
     } finally {
-      await stopOptInV2Daemon();
+      await stopV2Daemon();
     }
   })().catch((error: unknown) => {
     debug("failed to close V2 resources", error);
@@ -108,7 +113,7 @@ app.whenReady().then(() => {
   //   .catch((err) => console.log("An error occurred: ", err));
 });
 
-function registerOptInV2Client(): boolean {
+function registerV2Client(): boolean {
   const socketPath = getOwnedV2DaemonSocketPath() ?? process.env.BLAST_V2_SOCKET_PATH;
   if (socketPath === undefined || socketPath.length === 0) {
     return false;
@@ -122,8 +127,16 @@ function registerOptInV2Client(): boolean {
         createMessageId: () => `electron-client-${++v2MessageSequence}`,
       }),
   });
-  debug("registered opt-in V2 client bridge", socketPath);
+  debug("registered V2 client bridge", socketPath);
   return true;
+}
+
+function reportV2StartupFailure(error: unknown): void {
+  const message = error instanceof Error ? error.message : String(error);
+  debug("failed to start V2", error);
+  console.error(`Blast V2 startup failed: ${message}`);
+  dialog.showErrorBox("Blast V2 startup failed", `${message}\n\nSet BLAST_V2_MODE=legacy to use the legacy runtime.`);
+  app.quit();
 }
 
 // In this file you can include the rest of your app's specific main process

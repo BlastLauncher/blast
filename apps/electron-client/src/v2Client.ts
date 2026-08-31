@@ -22,7 +22,7 @@ interface Subscription {
 }
 
 /**
- * Registers the opt-in V2 main-process boundary. Renderer messages are
+ * Registers the V2 main-process boundary. Renderer messages are
  * validated here and never receive a socket, protocol session, or path.
  */
 export function registerV2ClientIPCEvents(options: V2ClientIPCOptions): V2ClientIPCRegistration {

@@ -89,24 +89,24 @@ slice changes what is executable, what is trusted, or what should happen next.
   0096](decisions/0096-electron-main-client-bridge.md). Host tests cover lazy
   shared startup, command forwarding, shutdown, and non-serializable failure
   details.
-- The Electron app has the opt-in main-process bridge from ADR 0096: when an
+- The Electron app has the main-process bridge from ADR 0096: when an
   external `BLAST_V2_SOCKET_PATH`, explicit app-owned paths, or packaged mode
   is supplied, the main process registers snapshot/toast subscriptions and
   validated semantic command/event IPC over the bounded Node connector. The V1
-  WebSocket runtime and renderer remain the default; the ARM64 Linux Debian
-  Forge bundle passes without launching the UI.
-- The Electron app has the opt-in semantic scene renderer from [ADR
+  WebSocket runtime remains available through the explicit legacy mode; the
+  ARM64 Linux Debian Forge bundle passes without launching the UI.
+- The Electron app has the semantic scene renderer from [ADR
   0097](decisions/0097-opt-in-scene-client-ui.md): with the bridge exposed, it
   skips the V1 WebSocket setup and renders path-free discovery plus the first
   List, Grid, Detail, and Form scene roots through the same event channel. The
-  renderer does not receive sockets or extension paths, and V1 remains the
-  default when the bridge is absent.
-- The Electron app can own the opt-in V2 daemon lifecycle from [ADR
+  renderer does not receive sockets or extension paths.
+- The Electron app can own the V2 daemon lifecycle from [ADR
   0098](decisions/0098-electron-owned-opt-in-daemon.md): when absolute catalog,
   bootstrap, and socket paths are all supplied, the main process starts the
   trusted Node composition before exposing the bridge and skips the unused V1
-  runtime. External-daemon socket mode and the V1 fallback remain available;
-  packaged mode is supplied separately by ADR 0100 and remains opt-in.
+  runtime. External-daemon socket mode and the explicit V1 legacy mode remain
+  available; packaged mode is supplied by ADR 0100 and is now the default under
+  ADR 0108.
 - The opt-in Electron renderer now consumes `menu-bar-extra` scenes under [ADR
   0099](decisions/0099-menu-bar-scene-renderer.md), including labeled sections,
   expandable submenus, separators, icons, shortcuts, left-click actions, and
@@ -140,9 +140,10 @@ slice changes what is executable, what is trusted, or what should happen next.
 - [ADR 0100](decisions/0100-packaged-v2-bootstrap-and-catalog.md) adds the
   higher-level `@blastlauncher/raycast-runtime-node` composition and packages
   standalone V2 bootstrap, adapter, and React resources for Electron. The
-  explicit `BLAST_V2_MODE=packaged` mode reads the existing development and
+  `BLAST_V2_MODE=packaged` mode reads the existing development and
   production extension roots with development precedence and owns a stable
-  `~/.blast/v2/core.sock` endpoint; V1 remains the default.
+  `~/.blast/v2/core.sock` endpoint; ADR 0108 now makes it the default, with V1
+  available through the explicit legacy mode.
 - The Node filesystem catalog discovers Raycast-style `package.json` manifests,
   probes `src/<command-name>` entrypoints, honors explicit entrypoint
   overrides, and never resolves a path outside the extension root.
@@ -700,15 +701,16 @@ slice changes what is executable, what is trusted, or what should happen next.
   module support on their target platforms;
 - the remaining measured Raycast surface: client toast timeout policy, broader
   desktop APIs, broader action helpers, and additional Tool/browser APIs;
-- persistent catalog refresh, command watching, complete desktop rendering of
-  every scene member, and default daemon startup (the local listener, Node
+- persistent catalog refresh, command watching, and complete desktop rendering
+  of every scene member (the local listener, Node
   daemon composition, path-free discovery snapshot, transport-neutral client
   consumer, Node local connector, opt-in Electron main bridge, first semantic
   scene renderer, explicit app-owned daemon mode, menu-bar scene renderer, and
   packaged bootstrap/catalog bridge, native status-item menu projection, and
   toast lifecycle/action presentation, scene icon/image source presentation,
   icon mask/tint presentation, and action chrome fidelity now exist; packaged
-  mode is still opt-in, while V1 installation UI/migration, toast timeout
+  mode is now the default under ADR 0108, while V1 installation UI/migration,
+  toast timeout
   policy, automatic icon contrast adjustment, broader action helpers, and
   remaining scene visuals are still missing);
 - capability manifest declarations, real operating-system providers, audit
@@ -719,8 +721,7 @@ slice changes what is executable, what is trusted, or what should happen next.
 - structured logs beyond captured child stderr;
 - startup deadlines chosen by the core, restart policy, quotas, and OS sandbox;
 - authenticated local sockets, WebSocket transport, and remote pairing;
-- packaged Electron V2 integration/default cutover, CLI control, mobile, and
-  web clients.
+- installation UI/migration, CLI control, mobile, and web clients.
 
 ## Recommended continuation
 
@@ -869,10 +870,12 @@ only small portable JavaScript seeds eligible after the API-first slice.
    0097](decisions/0097-opt-in-scene-client-ui.md), and explicit app-owned
    daemon startup is implemented in [ADR
    0098](decisions/0098-electron-owned-opt-in-daemon.md). The packaged
-   bootstrap/catalog bridge is now implemented behind the explicit [ADR
-   0100](decisions/0100-packaged-v2-bootstrap-and-catalog.md) mode; keep the
-   V1 WebSocket path as the default until that mode and its installation flow
-   are proven.
+   bootstrap/catalog bridge is implemented in [ADR
+   0100](decisions/0100-packaged-v2-bootstrap-and-catalog.md), and [ADR
+   0108](decisions/0108-default-packaged-v2-startup.md) now makes that packaged
+   path the application default. Keep the V1 WebSocket path available through
+   the explicit `BLAST_V2_MODE=legacy` escape hatch while compatibility and
+   installation work continue.
    The
    transport-neutral client/core session slice in [ADR
    0090](decisions/0090-client-facing-core-session-boundary.md) is implemented:
@@ -893,8 +896,10 @@ only small portable JavaScript seeds eligible after the API-first slice.
    0098](decisions/0098-electron-owned-opt-in-daemon.md). The menu-bar scene
    renderer is now implemented under [ADR
    0099](decisions/0099-menu-bar-scene-renderer.md), and packaged
-   daemon/bootstrap/catalog policy is implemented behind the explicit [ADR
-   0100](decisions/0100-packaged-v2-bootstrap-and-catalog.md) mode, and the
+   daemon/bootstrap/catalog policy is implemented under [ADR
+   0100](decisions/0100-packaged-v2-bootstrap-and-catalog.md), and default
+   startup selection is defined by [ADR
+   0108](decisions/0108-default-packaged-v2-startup.md), and the
    native status-item menu projection is implemented under [ADR
    0101](decisions/0101-native-menu-bar-registration.md), and the toast
    lifecycle/action presentation is now implemented under [ADR
@@ -907,7 +912,7 @@ only small portable JavaScript seeds eligible after the API-first slice.
    0105](decisions/0105-v2-icon-mask-and-tint-presentation.md). The next client
    boundary is installation UI/migration, toast timeout policy, automatic icon
    contrast adjustment, broader action helpers, and remaining scene visuals,
-   followed by eventual V2 default cutover.
+   followed by installation UI/migration and the remaining desktop boundary.
 
 Keep WebSocket and remote execution as transport/provider additions. They do not
 require changing the session, extension contract, runtime, host, or core

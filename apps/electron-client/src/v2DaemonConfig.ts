@@ -15,7 +15,11 @@ export interface PackagedV2DaemonPathOptions {
   readonly resourcesPath: string;
 }
 
-export type V2DaemonConfigurationErrorCode = "configuration_incomplete" | "path_not_absolute";
+export type V2DaemonConfigurationErrorCode =
+  | "configuration_conflict"
+  | "configuration_incomplete"
+  | "configuration_invalid"
+  | "path_not_absolute";
 
 export class V2DaemonConfigurationError extends Error {
   readonly code: V2DaemonConfigurationErrorCode;
@@ -42,19 +46,52 @@ const REQUIRED_VARIABLES = [
 ] as const;
 
 /**
- * Reads the explicit app-owned daemon mode without resolving or inventing any
- * filesystem paths. Returning undefined preserves the external-socket mode
- * when only its socket variable is present, as well as the legacy V1 mode when
- * no V2 configuration is present.
+ * Reads the app-owned daemon mode without resolving filesystem paths. When the
+ * caller supplies packagedConfiguration, an otherwise unconfigured app uses
+ * that configuration as its default. Returning undefined preserves
+ * external-socket mode and the explicit legacy V1 mode.
  */
 export function readV2DaemonConfiguration(
   environment: Readonly<Record<string, string | undefined>>,
   packagedConfiguration?: V2DaemonConfiguration,
 ): V2DaemonConfiguration | undefined {
+  const mode = hasValue(environment.BLAST_V2_MODE) ? environment.BLAST_V2_MODE : undefined;
+  if (mode !== undefined && mode !== "packaged" && mode !== "legacy") {
+    throw new V2DaemonConfigurationError(
+      "configuration_invalid",
+      "BLAST_V2_MODE must be packaged or legacy",
+      "BLAST_V2_MODE",
+      mode,
+    );
+  }
+
+  if (mode === "legacy") {
+    const conflictingVariable = [
+      "BLAST_V2_CATALOG_ROOT",
+      "BLAST_V2_BOOTSTRAP_PATH",
+      "BLAST_V2_SOCKET_PATH",
+      "BLAST_V2_NODE_EXECUTABLE",
+      "BLAST_V2_RAYCAST_API_PATH",
+      "BLAST_V2_REACT_MODULE_PATH",
+    ].find((variable) => hasValue(environment[variable]));
+    if (conflictingVariable !== undefined) {
+      throw new V2DaemonConfigurationError(
+        "configuration_conflict",
+        `${conflictingVariable} cannot be used with BLAST_V2_MODE=legacy`,
+        conflictingVariable,
+        environment[conflictingVariable],
+      );
+    }
+    return undefined;
+  }
+
   const appOwnedPathConfigured =
     hasValue(environment.BLAST_V2_CATALOG_ROOT) || hasValue(environment.BLAST_V2_BOOTSTRAP_PATH);
   if (!appOwnedPathConfigured) {
-    if (environment.BLAST_V2_MODE === "packaged") {
+    if (hasValue(environment.BLAST_V2_SOCKET_PATH)) {
+      return undefined;
+    }
+    if (mode === "packaged" || packagedConfiguration !== undefined) {
       if (packagedConfiguration === undefined) {
         throw new V2DaemonConfigurationError(
           "configuration_incomplete",
@@ -63,7 +100,7 @@ export function readV2DaemonConfiguration(
           environment.BLAST_V2_MODE,
         );
       }
-      return packagedConfiguration;
+      return applyPackagedOverrides(environment, packagedConfiguration);
     }
     return undefined;
   }
@@ -93,6 +130,25 @@ export function readV2DaemonConfiguration(
     bootstrapPath,
     socketPath,
     ...(hasValue(nodeExecutable) ? { nodeExecutable } : {}),
+    ...(raycastApiPath === undefined ? {} : { raycastApiPath }),
+    ...(reactModulePath === undefined ? {} : { reactModulePath }),
+  };
+}
+
+function applyPackagedOverrides(
+  environment: Readonly<Record<string, string | undefined>>,
+  packagedConfiguration: V2DaemonConfiguration,
+): V2DaemonConfiguration {
+  const nodeExecutable = readOptionalAbsolutePath(environment.BLAST_V2_NODE_EXECUTABLE, "BLAST_V2_NODE_EXECUTABLE");
+  const raycastApiPath = readOptionalAbsolutePath(environment.BLAST_V2_RAYCAST_API_PATH, "BLAST_V2_RAYCAST_API_PATH");
+  const reactModulePath = readOptionalAbsolutePath(
+    environment.BLAST_V2_REACT_MODULE_PATH,
+    "BLAST_V2_REACT_MODULE_PATH",
+  );
+
+  return {
+    ...packagedConfiguration,
+    ...(nodeExecutable === undefined ? {} : { nodeExecutable }),
     ...(raycastApiPath === undefined ? {} : { raycastApiPath }),
     ...(reactModulePath === undefined ? {} : { reactModulePath }),
   };

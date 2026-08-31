@@ -136,11 +136,11 @@ image sources; ADR 0104 preserves V2 action chrome fidelity; and ADR 0105
 presents validated icon masks and supported tint colors. ADR 0106 presents the
 validated List/Grid collection accessory boundary; ADR 0107 defines the
 deterministic local List/Grid filtering boundary in the client. Client-specific
-types must not enter the protocol package. The existing V1 renderer remains the
-default. ADR 0100 packages a V2 bootstrap and maps the existing V1
-production/development installation roots behind the explicit
-`BLAST_V2_MODE=packaged` opt-in; it does not change the default or add
-installation UI.
+types must not enter the protocol package. ADR 0100 packages a V2 bootstrap and
+maps the existing V1 production/development installation roots behind the
+`BLAST_V2_MODE=packaged` configuration. ADR 0108 makes that packaged path the
+default when no mode is specified, keeps the V1 renderer available through the
+explicit `BLAST_V2_MODE=legacy` escape hatch, and does not add installation UI.
 
 ### Capability providers
 
