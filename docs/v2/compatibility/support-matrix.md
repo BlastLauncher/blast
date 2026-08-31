@@ -55,12 +55,15 @@ pagination page-size fallbacks are preserved and the targeted
 renders. Empty and absent `Action.OpenInBrowser` targets are handled at the
 action-readiness boundary; the four targeted commands now render. Menu-bar
 alternate items now carry a nested semantic marker and separate right-click
-events. The only remaining static import gap is one `fetch` import.
+events. The declaration-backed static import gap is one `fetch` import. A
+separate binding-aware runtime audit found two corpus-observed legacy icon
+names—`Icon.Safari` and `Icon.Application`—and records their planned narrow
+compatibility boundary in [ADR 0087](../decisions/0087-preserve-measured-legacy-icon-aliases.md).
 Dependency, process, and non-renderable outcomes remain tracked separately
 from API coverage.
 The current top-level API import census and emitted declaration audit are clean
-for the measured corpus surface, but that is not a claim that every API
-semantic is complete. Per ADR 0075, priority now returns to the remaining
+for the declaration-backed measured surface, but that is not a claim that every
+API semantic is complete. Per ADR 0075, priority now returns to the remaining
 measured Raycast API behavior while dependency, platform, host-capability, and
 renderability outcomes remain separate. This refresh completes the full
 478-member Icon surface and

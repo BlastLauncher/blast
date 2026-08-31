@@ -684,7 +684,13 @@ only small portable JavaScript seeds eligible after the API-first slice.
    now implemented: the one API-bound `Color.Gray` use and one
    `Toast.Style.SuccessMessage` use found by the binding-aware corpus audit
    remain supported, without adding extension-owned `Color.Grey` model values
-   or speculative aliases. Preserve
+   or speculative aliases. The next docs-first boundary is [ADR
+   0087](decisions/0087-preserve-measured-legacy-icon-aliases.md): the same
+   binding-aware audit leaves only the measured `Icon.Safari` and
+   `Icon.Application` runtime names. Their original declaration values are
+   absent from sampled public Raycast API archives, so the proposed slice maps
+   them explicitly to the current globe and app-window glyphs before source
+   changes. Preserve
    structured errors for values that would require a broader scene or host
    policy. Keep the deterministic
    structured probe failure
