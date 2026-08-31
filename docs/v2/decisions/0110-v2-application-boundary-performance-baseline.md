@@ -63,20 +63,20 @@ capability, or catalog trust rule changes in this slice.
 
 ## ARM64 baseline
 
-The first three-sample run on Linux ARM64 with Node 24.20.0, four available
+The refreshed three-sample run on Linux ARM64 with Node 24.20.0, four available
 parallel workers, and a Neoverse-N1 CPU is committed in
 [`v2-arm64-baseline.json`](../performance/v2-arm64-baseline.json).
 
 | Metric                      |     Median |        p95 |
 | --------------------------- | ---------: | ---------: |
-| daemon listener startup     |   0.326 ms |   1.753 ms |
-| client readiness            |   5.197 ms |  13.699 ms |
-| cold command to first scene | 105.485 ms | 114.392 ms |
-| cold command stop           |  11.551 ms |  12.817 ms |
-| warm discovery              |   0.444 ms |   0.609 ms |
-| warm command to first scene | 105.305 ms | 107.340 ms |
-| scene event round trip      |   2.626 ms |   3.609 ms |
-| warm command stop           |  10.881 ms |  11.152 ms |
+| daemon listener startup     |   0.411 ms |   1.779 ms |
+| client readiness            |   4.664 ms |  18.096 ms |
+| cold command to first scene | 103.710 ms | 107.426 ms |
+| cold command stop           |  11.016 ms |  12.307 ms |
+| warm discovery              |   0.419 ms |   0.703 ms |
+| warm command to first scene | 103.593 ms | 104.670 ms |
+| scene event round trip      |   2.619 ms |   3.413 ms |
+| warm command stop           |  10.823 ms |  10.972 ms |
 
 These numbers are comparison points rather than acceptance thresholds. The
 warm command still launches a fresh extension process; it reuses the daemon,

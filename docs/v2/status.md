@@ -203,10 +203,12 @@ slice changes what is executable, what is trusted, or what should happen next.
   dependency startup.
 - The first three-sample ARM64 baseline is committed in
   [`v2-arm64-baseline.json`](performance/v2-arm64-baseline.json): median client
-  readiness is 5.197 ms, cold command-to-scene is 105.485 ms, warm
-  command-to-scene is 105.305 ms, scene-event round trip is 2.626 ms, and
-  warm stop is 10.881 ms. These are comparison points, not timing acceptance
-  thresholds; the warm command still launches a fresh extension process.
+  readiness is 4.664 ms, cold command-to-scene is 103.710 ms, warm
+  command-to-scene is 103.593 ms, scene-event round trip is 2.619 ms, and
+  warm stop is 10.823 ms. These are comparison points, not timing acceptance
+  thresholds; the warm command still launches a fresh extension process. The
+  baseline was refreshed after the icon and ActionPanel.Submenu slices on the
+  same ARM64 runner.
 - The e2e corpus probe has a bounded, exact-version development-only vendor
   seed for `axios`, `cheerio`, `cross-fetch`, `date-fns`, `fast-xml-parser`,
   `fuse.js`, `moment`, `node-html-markdown`, `rss-parser`, and `zod`. The seed
