@@ -2,11 +2,13 @@ import { useCallback, useEffect, useState } from "react";
 
 import type { CoreClientSnapshot } from "@blastlauncher/client";
 import type { CommandIdentity } from "@blastlauncher/core";
-import type { SceneFormValues, ToastPayload } from "@blastlauncher/scene";
+import type { SceneFormValues } from "@blastlauncher/scene";
 
 import type { V2ClientRendererAPI } from "./v2Types";
 
 import { V2Scene } from "./V2Scene";
+import { V2ToastStack } from "./V2ToastStack";
+import { applyV2ToastPayload, createV2ToastState, type V2ToastState } from "./v2ToastModel";
 
 export interface V2AppProps {
   readonly api: V2ClientRendererAPI;
@@ -15,7 +17,7 @@ export interface V2AppProps {
 export function V2App({ api }: V2AppProps): React.JSX.Element {
   const [snapshot, setSnapshot] = useState<CoreClientSnapshot | undefined>();
   const [failure, setFailure] = useState<string | undefined>();
-  const [toasts, setToasts] = useState<readonly ToastPayload[]>([]);
+  const [toastState, setToastState] = useState<V2ToastState>(() => createV2ToastState());
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -31,7 +33,7 @@ export function V2App({ api }: V2AppProps): React.JSX.Element {
     });
     const unsubscribeToast = api.subscribeToasts((toast) => {
       if (mounted) {
-        setToasts((current) => [...current, toast].slice(-3));
+        setToastState((current) => applyV2ToastPayload(current, toast));
       }
     });
 
@@ -72,6 +74,12 @@ export function V2App({ api }: V2AppProps): React.JSX.Element {
     [api, perform],
   );
   const stopCommand = useCallback(() => perform(() => api.stopCommand("Stopped by user")), [api, perform]);
+  const sendToastAction = useCallback(
+    (eventId: string) => {
+      void perform(() => api.sendSceneEvent(eventId));
+    },
+    [api, perform],
+  );
   const refreshCommands = useCallback(
     () =>
       perform(async () => {
@@ -155,15 +163,7 @@ export function V2App({ api }: V2AppProps): React.JSX.Element {
         )}
       </main>
 
-      {toasts.length > 0 && (
-        <div className="pointer-events-none fixed bottom-4 right-4 flex max-w-[20rem] flex-col gap-2">
-          {toasts.map((toast, index) => (
-            <div className="rounded-lg border border-white/10 bg-black/80 px-3 py-2 text-xs shadow-lg" key={index}>
-              {toast.title}
-            </div>
-          ))}
-        </div>
-      )}
+      <V2ToastStack disabled={busy} onAction={sendToastAction} toasts={toastState.items} />
     </div>
   );
 }

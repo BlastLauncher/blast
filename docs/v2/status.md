@@ -113,6 +113,10 @@ slice changes what is executable, what is trusted, or what should happen next.
   marked alternate-item right-click actions. [ADR
   0101](decisions/0101-native-menu-bar-registration.md) now projects that
   surface into the main-process native status-item menu.
+- [ADR 0102](decisions/0102-v2-toast-lifecycle-presentation.md) adds
+  deterministic V2 toast show/update/hide reconciliation, bounded stacking,
+  message/style presentation, and semantic primary/secondary action buttons
+  in the opt-in Electron window; automatic timeout policy remains separate.
 - [ADR 0100](decisions/0100-packaged-v2-bootstrap-and-catalog.md) adds the
   higher-level `@blastlauncher/raycast-runtime-node` composition and packages
   standalone V2 bootstrap, adapter, and React resources for Electron. The
@@ -672,16 +676,17 @@ slice changes what is executable, what is trusted, or what should happen next.
   packages); these dependency and platform concerns are tracked separately
   from Raycast API compatibility, and extension authors own third-party native
   module support on their target platforms;
-- the remaining measured Raycast surface: client toast timing/stacking, broader
+- the remaining measured Raycast surface: client toast timeout policy, broader
   desktop APIs, broader action helpers, and additional Tool/browser APIs;
 - persistent catalog refresh, command watching, complete desktop rendering of
   every scene member, and default daemon startup (the local listener, Node
   daemon composition, path-free discovery snapshot, transport-neutral client
   consumer, Node local connector, opt-in Electron main bridge, first semantic
   scene renderer, explicit app-owned daemon mode, menu-bar scene renderer, and
-  packaged bootstrap/catalog bridge and native status-item menu projection now
-  exist; packaged mode is still opt-in, while V1 installation UI/migration and
-  remaining scene visuals are still missing);
+  packaged bootstrap/catalog bridge, native status-item menu projection, and
+  toast lifecycle/action presentation now exist; packaged mode is still opt-in,
+  while V1 installation UI/migration, toast timeout policy, and remaining scene
+  visuals are still missing);
 - capability manifest declarations, real operating-system providers, audit
   records, and consent UI;
 - production AI providers, OAuth browser/token-store providers, and command
@@ -863,9 +868,11 @@ only small portable JavaScript seeds eligible after the API-first slice.
    daemon/bootstrap/catalog policy is implemented behind the explicit [ADR
    0100](decisions/0100-packaged-v2-bootstrap-and-catalog.md) mode, and the
    native status-item menu projection is implemented under [ADR
-   0101](decisions/0101-native-menu-bar-registration.md). The next client
-   boundary is installation UI/migration and remaining scene visuals, followed
-   by eventual V2 default cutover.
+   0101](decisions/0101-native-menu-bar-registration.md), and the toast
+   lifecycle/action presentation is now implemented under [ADR
+   0102](decisions/0102-v2-toast-lifecycle-presentation.md). The next client
+   boundary is installation UI/migration, toast timeout policy, and remaining
+   scene visuals, followed by eventual V2 default cutover.
 
 Keep WebSocket and remote execution as transport/provider additions. They do not
 require changing the session, extension contract, runtime, host, or core

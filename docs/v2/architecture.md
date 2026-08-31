@@ -129,8 +129,9 @@ the Electron desktop application is the reference client during the V2
 migration. ADR 0096 adds a transport-neutral client host and an opt-in Electron
 main-process IPC adapter; ADR 0097 adds the corresponding opt-in semantic scene
 renderer; ADR 0098 adds explicit Electron-owned daemon startup; ADR 0099
-completes the first menu-bar scene renderer in that client; and ADR 0101
-registers that scene in the Electron native status-item menu. Client-specific
+completes the first menu-bar scene renderer in that client; ADR 0101 registers
+that scene in the Electron native status-item menu; and ADR 0102 completes the
+first V2 toast lifecycle presentation. Client-specific
 types must not enter the protocol package. The existing V1 renderer remains the
 default. ADR 0100 packages a V2 bootstrap and maps the existing V1
 production/development installation roots behind the explicit
