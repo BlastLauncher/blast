@@ -26,6 +26,7 @@ export interface LocalCoreServerOptions {
   readonly maxConnections?: number;
   readonly handshakeTimeoutMilliseconds?: number;
   readonly backlog?: number;
+  readonly protocolVersions?: AcceptCoreClientSessionOptions["protocolVersions"];
   readonly onError?: (error: Error) => void;
 }
 
@@ -215,6 +216,7 @@ export class LocalCoreServer {
         implementation: this.#options.implementation,
         createMessageId: this.#options.createMessageId,
         createSessionId: this.#options.createSessionId,
+        ...(this.#options.protocolVersions === undefined ? {} : { protocolVersions: this.#options.protocolVersions }),
         ...(this.#options.capabilityBroker === undefined ? {} : { capabilityBroker: this.#options.capabilityBroker }),
         signal: connection.handshakeController.signal,
       });

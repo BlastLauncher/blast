@@ -15,6 +15,8 @@ import type {
 
 export { LocalCoreServer, LocalCoreServerError, createLocalCoreServer } from "./local-server.js";
 export type { LocalCoreServerOptions, LocalCoreServerState } from "./local-server.js";
+export { NodeCoreDaemon, NodeCoreDaemonError, createNodeCoreDaemon } from "./daemon.js";
+export type { NodeCoreDaemonOptions, NodeCoreDaemonState } from "./daemon.js";
 
 export const DEFAULT_MANIFEST_FILE_NAME = "package.json";
 

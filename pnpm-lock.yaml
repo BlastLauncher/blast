@@ -311,6 +311,12 @@ importers:
       '@blastlauncher/extension-contract':
         specifier: workspace:*
         version: link:../blast-extension-contract
+      '@blastlauncher/extension-host':
+        specifier: workspace:*
+        version: link:../blast-extension-host
+      '@blastlauncher/extension-host-node':
+        specifier: workspace:*
+        version: link:../blast-extension-host-node
       '@blastlauncher/transport-node':
         specifier: workspace:*
         version: link:../blast-transport-node
@@ -347,6 +353,9 @@ importers:
       '@blastlauncher/transport':
         specifier: workspace:*
         version: link:../blast-transport
+      '@blastlauncher/transport-node':
+        specifier: workspace:*
+        version: link:../blast-transport-node
       react:
         specifier: ^19.2.8
         version: 19.2.8

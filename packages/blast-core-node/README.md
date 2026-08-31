@@ -38,9 +38,16 @@ delegates them to the transport-neutral core session without exposing
 filesystem paths to clients. POSIX endpoints are mode `0600`, and the listener
 cleans up only socket paths it owns.
 
+`NodeCoreDaemon` composes the catalog, fixed Node launcher, extension host,
+`BlastCore`, and local listener from explicit catalog, bootstrap, environment,
+and socket options ([ADR 0092](../../docs/v2/decisions/0092-node-core-daemon-composition.md)).
+The listener is the readiness point; shutdown closes client sessions before
+the host and leaves no owned socket behind.
+
 ## Boundaries
 
 This package may use Node.js APIs. Its catalog remains independent of transport,
 while its local-listener module may depend on `@blastlauncher/transport-node`.
-It must not depend on Electron, React, or the prototype packages, and it must
-not make `@blastlauncher/core` depend on Node.
+Its daemon-composition module may depend on the Node host launcher. It must not
+depend on Electron, React, or the prototype packages, and it must not make
+`@blastlauncher/core` depend on Node.

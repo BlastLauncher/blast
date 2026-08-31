@@ -28,7 +28,8 @@ subsequent slices.
 - command discovery messages for daemon-managed client sessions;
 - capability policy and provider routing;
 - structured diagnostics and audit events;
-- restart policy and daemon ownership.
+- restart policy (the current Node daemon composition lives in
+  `@blastlauncher/core-node`).
 
 Those additions should depend on the interfaces here. They must not make the
 core depend on Electron, React, or a concrete transport.

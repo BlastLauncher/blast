@@ -105,14 +105,15 @@ catalog resolves the actual filesystem descriptor before the extension host is
 called. The core coordinates in-flight startup and shutdown and now exposes
 the transport-neutral one-command client session in ADR 0090: clients receive
 semantic scene/toast messages and send semantic events without seeing
-extension paths. Discovery, persistence, capability routing, and daemon
-ownership are deliberate later slices. `@blastlauncher/core-node` ships the
-first catalog implementation: it discovers Raycast-style `package.json`
-manifests from a filesystem root and resolves entrypoints without ever
-returning a path outside the extension root. A persistent, watched catalog
-index remains a later slice. The Node-only local listener from ADR 0091 now
-owns a bounded same-user socket and delegates connections to the client
-session; daemon ownership and Electron consumption remain later boundaries.
+extension paths. Persistent discovery, command listing, capability provider
+policy, and restart ownership are deliberate later slices.
+`@blastlauncher/core-node` ships the first Node composition: its filesystem
+catalog discovers Raycast-style `package.json` manifests from a root and
+resolves entrypoints without ever returning a path outside the extension root;
+its `NodeCoreDaemon` composes that catalog with the fixed Node host, core, and
+ADR 0091 local listener. The listener is the daemon's readiness point and
+delegates connections to the client session. A persistent, watched catalog
+index, command discovery, and Electron consumption remain later boundaries.
 
 ### Clients
 
@@ -252,7 +253,7 @@ packages/blast-extension-runtime-node/  Node runtime bootstrap and entrypoint lo
 packages/blast-extension-host/  Transport-neutral lifecycle supervisor
 packages/blast-extension-host-node/  Node child-process launcher
 packages/blast-core/            Trusted catalog and lifecycle orchestration
-packages/blast-core-node/       Node filesystem manifest catalog
+packages/blast-core-node/       Node catalog, daemon composition, local listener
 packages/blast-e2e/             End-to-end vertical slice fixtures
 packages/blast-compatibility/   Static compatibility scanning and census
 packages/blast-react-renderer/  React renderer adapter for scene transactions

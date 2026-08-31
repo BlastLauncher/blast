@@ -94,6 +94,11 @@ input, handshake deadlines, concurrent-connection bounds, and a real
 `connectCoreClient` lifecycle through the listener. These tests use temporary
 Unix sockets and do not require Electron.
 
+The Node daemon composition adds a real local-socket fixture test: explicit
+environment and path options build the catalog/launcher/host/core/listener
+graph, a command runs through the socket, scene and lifecycle messages reach
+the client, and ordered shutdown leaves no active process or owned endpoint.
+
 ### Renderer conformance
 
 `@blastlauncher/react-renderer` runs React trees on `react-reconciler` and

@@ -20,6 +20,7 @@
     "@blastlauncher/raycast-compat": "workspace:*",
     "@blastlauncher/scene": "workspace:*",
     "@blastlauncher/transport": "workspace:*",
+    "@blastlauncher/transport-node": "workspace:*",
     "react": "^19.2.8"
   },
   "devDependencies": {

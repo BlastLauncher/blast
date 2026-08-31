@@ -53,7 +53,7 @@ slice changes what is executable, what is trusted, or what should happen next.
   messages, send validated scene events, observe startup failure or unexpected
   process exit, and trigger best-effort command cleanup on disconnect. The
   deterministic in-memory and real child-process vertical slices exercise the
-  same boundary; daemon listeners and Electron consumption remain later work
+  same boundary; daemon composition and Electron consumption remain later work
   (ADR 0090).
 - `@blastlauncher/core-node` exposes the bounded Node local listener from [ADR
   0091](decisions/0091-bounded-local-core-listener.md): it exposes that session
@@ -62,6 +62,11 @@ slice changes what is executable, what is trusted, or what should happen next.
   outside the semantic protocol. Deterministic socket tests cover lifecycle,
   stale/active paths, malformed input, handshake timeout, and connection
   bounds.
+- `NodeCoreDaemon` is the explicit Node composition from [ADR
+  0092](decisions/0092-node-core-daemon-composition.md): it owns the catalog,
+  fixed Node extension launcher, host, core, and local listener, starts at
+  listener readiness, and closes client sessions before the extension host.
+  A real fixture exercises command and scene traffic through this composition.
 - The Node filesystem catalog discovers Raycast-style `package.json` manifests,
   probes `src/<command-name>` entrypoints, honors explicit entrypoint
   overrides, and never resolves a path outside the extension root.
@@ -617,9 +622,9 @@ slice changes what is executable, what is trusted, or what should happen next.
   module support on their target platforms;
 - the remaining measured Raycast surface: client toast timing/stacking, broader
   desktop APIs, broader action helpers, and additional Tool/browser APIs;
-- daemon ownership around the local listener, persistent catalog refresh, and
-  desktop rendering of scenes (the listener and transport-neutral client
-  session now exist; the Electron consumer is still missing);
+- persistent catalog refresh, command discovery, and desktop rendering of
+  scenes (the local listener and Node daemon composition now exist; the
+  Electron consumer is still missing);
 - capability manifest declarations, real operating-system providers, audit
   records, and consent UI;
 - production AI providers, OAuth browser/token-store providers, and command
@@ -762,15 +767,18 @@ only small portable JavaScript seeds eligible after the API-first slice.
    WASM, test-only, large-graph, and host-process packages for explicit policy
    decisions. Do not count extension-owned platform incompatibility as a
    missing Raycast API member.
-5. Put a daemon façade around the bounded local listener and then add the
-   Electron consumer. The transport-neutral client/core session slice in [ADR
+5. Add command discovery and a client-side scene consumer, then integrate the
+   Electron client. The transport-neutral client/core session slice in [ADR
    0090](decisions/0090-client-facing-core-session-boundary.md) is implemented:
    it establishes a validated client/core connection for one active command,
    semantic scene and event forwarding, lifecycle reporting, and disconnect
    cleanup. The bounded local listener from [ADR
    0091](decisions/0091-bounded-local-core-listener.md) now reuses this session
-   without adding Electron or filesystem paths to the protocol; the next
-   boundary is daemon ownership and a client-side scene consumer.
+   without adding Electron or filesystem paths to the protocol, and the Node
+   daemon composition from [ADR
+   0092](decisions/0092-node-core-daemon-composition.md) now owns the local
+   dependency graph. The next boundary is command discovery and a client-side
+   scene consumer.
 
 Keep WebSocket and remote execution as transport/provider additions. They do not
 require changing the session, extension contract, runtime, host, or core
