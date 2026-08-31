@@ -103,6 +103,11 @@ Discovery tests verify sorted path-free command summaries from the filesystem
 catalog, structured catalog failures, and the same list request/response over
 the in-memory session and real daemon socket.
 
+The transport-neutral client consumer tests its single receive pump,
+command/lifecycle state, scene materialization, event forwarding, and failure
+cleanup in-memory; a daemon-backed test repeats the flow over the protected
+local socket before an Electron adapter is introduced.
+
 ### Renderer conformance
 
 `@blastlauncher/react-renderer` runs React trees on `react-reconciler` and

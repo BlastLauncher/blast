@@ -270,6 +270,15 @@ importers:
         specifier: ^5.8.0
         version: 5.8.1(encoding@0.1.13)(supports-color@8.1.1)
 
+  packages/blast-client:
+    dependencies:
+      '@blastlauncher/core':
+        specifier: workspace:*
+        version: link:../blast-core
+      '@blastlauncher/scene':
+        specifier: workspace:*
+        version: link:../blast-scene
+
   packages/blast-compatibility:
     dependencies:
       '@blastlauncher/protocol':
@@ -326,6 +335,9 @@ importers:
       '@blastlauncher/capability':
         specifier: workspace:*
         version: link:../blast-capability
+      '@blastlauncher/client':
+        specifier: workspace:*
+        version: link:../blast-client
       '@blastlauncher/compatibility':
         specifier: workspace:*
         version: link:../blast-compatibility

@@ -25,8 +25,9 @@ subsequent slices.
 
 - a persistent, watched extension catalog index
   (`@blastlauncher/core-node` already provides filesystem discovery);
-- a client-side consumer for the path-free command-discovery snapshot in [ADR
-  0093](../../docs/v2/decisions/0093-path-free-command-discovery.md);
+- the Electron adapter for the path-free command-discovery snapshot and
+  semantic scene consumer in [ADR
+  0094](../../docs/v2/decisions/0094-transport-neutral-client-consumer.md);
 - capability policy and provider routing;
 - structured diagnostics and audit events;
 - restart policy (the current Node daemon composition lives in

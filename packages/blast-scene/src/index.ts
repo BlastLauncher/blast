@@ -1500,14 +1500,11 @@ export class SceneStateBuffer {
     }
   }
 
-  toJSON(): Record<string, unknown> | undefined {
+  toJSON(): SceneNode | undefined {
     if (this.#rootId === undefined) {
       return undefined;
     }
-    return this.#materialize(this.#rootId, this.#nodes.get(this.#rootId) as InternalNode) as unknown as Record<
-      string,
-      unknown
-    >;
+    return this.#materialize(this.#rootId, this.#nodes.get(this.#rootId) as InternalNode);
   }
 
   #internal(nodeId: string): InternalNode {

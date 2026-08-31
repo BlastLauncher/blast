@@ -12,6 +12,7 @@
   "dependencies": {
     "@blastlauncher/capability": "workspace:*",
     "@blastlauncher/compatibility": "workspace:*",
+    "@blastlauncher/client": "workspace:*",
     "@blastlauncher/core": "workspace:*",
     "@blastlauncher/core-node": "workspace:*",
     "@blastlauncher/extension-host": "workspace:*",

@@ -121,8 +121,10 @@ consumption as the next boundary.
 ### Clients
 
 Clients discover commands, render semantic scenes, collect user input, and send
-events. The Electron desktop application is the reference client during the V2
-migration, but client-specific types must not enter the protocol package.
+events. The transport-neutral client state consumer is implemented in ADR 0094;
+the Electron desktop application is the reference client during the V2
+migration and is the next adapter boundary, but client-specific types must not
+enter the protocol package.
 
 ### Capability providers
 
@@ -257,6 +259,7 @@ packages/blast-extension-host/  Transport-neutral lifecycle supervisor
 packages/blast-extension-host-node/  Node child-process launcher
 packages/blast-core/            Trusted catalog and lifecycle orchestration
 packages/blast-core-node/       Node catalog, daemon composition, local listener
+packages/blast-client/           Transport-neutral command/scene client consumer
 packages/blast-e2e/             End-to-end vertical slice fixtures
 packages/blast-compatibility/   Static compatibility scanning and census
 packages/blast-react-renderer/  React renderer adapter for scene transactions

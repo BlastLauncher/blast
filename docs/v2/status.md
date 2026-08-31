@@ -71,6 +71,12 @@ slice changes what is executable, what is trusted, or what should happen next.
   0093](decisions/0093-path-free-command-discovery.md): clients request a
   deterministic list of stable command identities and display metadata;
   entrypoints, roots, dependencies, and preference values remain host-only.
+- `@blastlauncher/client` provides the transport-neutral `CoreClientController`
+  from [ADR 0094](decisions/0094-transport-neutral-client-consumer.md): it
+  owns one client receive pump, tracks discovery and command lifecycle state,
+  materializes validated scenes, forwards scene events, and isolates toast and
+  snapshot subscribers. In-memory tests and the real daemon socket exercise the
+  complete controller flow.
 - The Node filesystem catalog discovers Raycast-style `package.json` manifests,
   probes `src/<command-name>` entrypoints, honors explicit entrypoint
   overrides, and never resolves a path outside the extension root.
@@ -628,7 +634,8 @@ slice changes what is executable, what is trusted, or what should happen next.
   desktop APIs, broader action helpers, and additional Tool/browser APIs;
 - persistent catalog refresh, command watching, and desktop rendering of scenes
   (the local listener, Node daemon composition, and path-free discovery
-  snapshot now exist; the client/Electron consumer is still missing);
+  snapshot and transport-neutral client consumer now exist; the Electron
+  consumer is still missing);
 - capability manifest declarations, real operating-system providers, audit
   records, and consent UI;
 - production AI providers, OAuth browser/token-store providers, and command
@@ -771,7 +778,8 @@ only small portable JavaScript seeds eligible after the API-first slice.
    WASM, test-only, large-graph, and host-process packages for explicit policy
    decisions. Do not count extension-owned platform incompatibility as a
    missing Raycast API member.
-5. Add a client-side command/scene consumer, then integrate the Electron
+5. Integrate the transport-neutral client consumer from [ADR
+   0094](decisions/0094-transport-neutral-client-consumer.md) into the Electron
    client. The transport-neutral client/core session slice in [ADR
    0090](decisions/0090-client-facing-core-session-boundary.md) is implemented:
    it establishes a validated client/core connection for one active command,
@@ -783,8 +791,8 @@ only small portable JavaScript seeds eligible after the API-first slice.
    0092](decisions/0092-node-core-daemon-composition.md) now owns the local
    dependency graph. The path-free discovery contract in [ADR
    0093](decisions/0093-path-free-command-discovery.md) is now implemented as
-   a deterministic snapshot; the next boundary is a client-side command and
-   scene consumer.
+   a deterministic snapshot, and the controller in ADR 0094 now consumes it;
+   the next boundary is the Electron adapter.
 
 Keep WebSocket and remote execution as transport/provider additions. They do not
 require changing the session, extension contract, runtime, host, or core

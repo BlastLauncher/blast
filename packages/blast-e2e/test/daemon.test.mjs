@@ -7,6 +7,7 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
+import { CoreClientController } from "@blastlauncher/client";
 import { connectCoreClient } from "@blastlauncher/core";
 import { createNodeCoreDaemon } from "@blastlauncher/core-node";
 import { SceneStateBuffer } from "@blastlauncher/scene";
@@ -38,6 +39,17 @@ async function connectClient(socketPath) {
 function createIdFactory(prefix) {
   let value = 0;
   return () => `${prefix}-${++value}`;
+}
+
+async function waitFor(predicate, description, timeoutMs = 5000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (predicate()) {
+      return;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+  throw new Error(`Timed out waiting for ${description}`);
 }
 
 test("composes the Node daemon and serves a real command over its local socket", async () => {
@@ -95,6 +107,49 @@ test("composes the Node daemon and serves a real command over its local socket",
     await daemon.close("repeat close");
   } finally {
     await client?.close().catch(() => {});
+    await daemon.close().catch(() => {});
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test("consumes discovery and semantic scenes through the transport-neutral client", async () => {
+  const directory = await mkdtemp(path.join(tmpdir(), "blast-node-daemon-"));
+  const socketPath = path.join(directory, "core.sock");
+  const daemon = createDaemon(socketPath);
+  let controller;
+  try {
+    await daemon.start();
+    const client = await connectClient(socketPath);
+    controller = new CoreClientController({ client });
+    await controller.start();
+
+    assert.equal(controller.state, "ready");
+    assert.deepEqual(
+      controller.snapshot.commands.find((command) => command.extensionId === identity.extensionId),
+      {
+        extensionId: identity.extensionId,
+        commandName: identity.commandName,
+        title: "Scene",
+        extensionName: "E2E Scene Extension",
+        entryPointMode: "view",
+      },
+    );
+
+    await controller.runCommand(identity);
+    await waitFor(() => controller.state === "running", "the command to start");
+    await waitFor(() => controller.snapshot.scene !== undefined, "the initial scene");
+
+    const action = controller.snapshot.scene.children[0].children.find((child) => child.type === "action");
+    await controller.sendSceneEvent(action.props.onAction);
+    await waitFor(() => controller.snapshot.scene.children[0].props.title === "Ran:event-action-1", "the scene update");
+
+    await controller.stopCommand("controller test complete");
+    await waitFor(() => controller.state === "ready", "the command to stop");
+    assert.equal(controller.snapshot.scene, undefined);
+    await controller.close("controller test complete");
+    assert.equal(controller.state, "closed");
+  } finally {
+    await controller?.close().catch(() => {});
     await daemon.close().catch(() => {});
     await rm(directory, { recursive: true, force: true });
   }
