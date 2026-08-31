@@ -2,7 +2,12 @@ import { readdir, readFile, stat } from "node:fs/promises";
 import type { Dirent } from "node:fs";
 import path from "node:path";
 
-import { BlastCoreError, type CommandIdentity, type ExtensionCatalog } from "@blastlauncher/core";
+import {
+  BlastCoreError,
+  type CommandIdentity,
+  type CoreCommandDescriptor,
+  type ExtensionCatalog,
+} from "@blastlauncher/core";
 import type {
   ExtensionDescriptor,
   ExtensionEntryPointMode,
@@ -24,6 +29,7 @@ const ENTRYPOINT_EXTENSIONS = [".tsx", ".ts", ".jsx", ".js", ".mjs", ".cjs"] as 
 
 export interface ManifestCommand {
   readonly name: string;
+  readonly title?: string;
   readonly entrypoint: string | undefined;
   /** Raycast command mode; omitted manifests default to a view command. */
   readonly mode?: ExtensionEntryPointMode;
@@ -81,6 +87,27 @@ export class FilesystemExtensionCatalog implements ExtensionCatalog {
 
   get root(): string {
     return this.#root;
+  }
+
+  async listCommands(signal?: AbortSignal): Promise<readonly CoreCommandDescriptor[]> {
+    signal?.throwIfAborted();
+    const indexed = await this.#getExtensionIndex();
+    const commands: CoreCommandDescriptor[] = [];
+    for (const { manifest } of indexed.values()) {
+      signal?.throwIfAborted();
+      const ownerOrAuthorName = manifest.owner ?? manifest.author;
+      for (const command of manifest.commands) {
+        commands.push({
+          extensionId: manifest.name,
+          commandName: command.name,
+          ...(command.title === undefined ? {} : { title: command.title }),
+          ...(manifest.title === undefined ? {} : { extensionName: manifest.title }),
+          ...(ownerOrAuthorName === undefined ? {} : { ownerOrAuthorName }),
+          entryPointMode: command.mode ?? "view",
+        });
+      }
+    }
+    return commands;
   }
 
   async resolve(identity: CommandIdentity, signal?: AbortSignal): Promise<ExtensionDescriptor | undefined> {
@@ -245,6 +272,10 @@ export function parseManifest(value: unknown): ExtensionManifest | undefined {
     if (entrypoint !== undefined && (typeof entrypoint !== "string" || entrypoint.length === 0)) {
       return undefined;
     }
+    const commandTitle = parseOptionalManifestString(rawCommand["title"]);
+    if (commandTitle === INVALID_MANIFEST_STRING) {
+      return undefined;
+    }
     const mode = rawCommand["mode"];
     if (mode !== undefined && mode !== "no-view" && mode !== "view" && mode !== "menu-bar") {
       return undefined;
@@ -255,6 +286,7 @@ export function parseManifest(value: unknown): ExtensionManifest | undefined {
     }
     commands.push({
       name: commandName,
+      ...(commandTitle === undefined ? {} : { title: commandTitle }),
       entrypoint,
       ...(mode === undefined ? {} : { mode }),
       ...(Object.keys(parsedPreferences.preferences).length === 0

@@ -25,7 +25,8 @@ subsequent slices.
 
 - a persistent, watched extension catalog index
   (`@blastlauncher/core-node` already provides filesystem discovery);
-- command discovery messages for daemon-managed client sessions;
+- a client-side consumer for the path-free command-discovery snapshot in [ADR
+  0093](../../docs/v2/decisions/0093-path-free-command-discovery.md);
 - capability policy and provider routing;
 - structured diagnostics and audit events;
 - restart policy (the current Node daemon composition lives in

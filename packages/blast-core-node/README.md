@@ -28,8 +28,10 @@ resolves a stable `{ extensionId, commandName }` identity into the
 - a missing catalog root fails with `catalog_root_unreadable` instead of
   silently resolving nothing.
 
-The catalog resolves paths on every request and keeps no persistent state; a
-persistent, watched index and installation flows are deliberate later slices.
+`listCommands()` exposes a deterministic, path-free command snapshot from the
+validated manifest index. It never resolves entrypoints or returns roots,
+dependencies, or preference values. The catalog keeps no persistent refresh or
+watching flow; those and installation flows are deliberate later slices.
 
 The package also exposes the Node-only local listener from [ADR
 0091](../../docs/v2/decisions/0091-bounded-local-core-listener.md). That

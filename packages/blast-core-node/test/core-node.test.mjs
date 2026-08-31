@@ -11,6 +11,72 @@ function createCatalog() {
   return new FilesystemExtensionCatalog({ root: catalogRoot });
 }
 
+test("lists deterministic path-free command summaries without resolving entrypoints", async () => {
+  const catalog = createCatalog();
+  const commands = await catalog.listCommands();
+
+  assert.deepEqual(commands, [
+    {
+      extensionId: "alpha",
+      commandName: "index",
+      title: "Alpha Index",
+      extensionName: "Alpha Extension",
+      entryPointMode: "view",
+    },
+    {
+      extensionId: "alpha",
+      commandName: "detail",
+      title: "Alpha Detail",
+      extensionName: "Alpha Extension",
+      entryPointMode: "view",
+    },
+    {
+      extensionId: "beta",
+      commandName: "main",
+      title: "Beta Main",
+      extensionName: "Beta Extension",
+      ownerOrAuthorName: "beta-owner",
+      entryPointMode: "view",
+    },
+    {
+      extensionId: "dup",
+      commandName: "index",
+      title: "Duplicate Index",
+      extensionName: "Duplicate A",
+      entryPointMode: "view",
+    },
+    {
+      extensionId: "gamma",
+      commandName: "index",
+      title: "Gamma Index",
+      extensionName: "Gamma Extension",
+      entryPointMode: "view",
+    },
+    {
+      extensionId: "zeta",
+      commandName: "escape",
+      title: "Escape",
+      extensionName: "Zeta Extension",
+      entryPointMode: "view",
+    },
+    {
+      extensionId: "zeta",
+      commandName: "absolute",
+      title: "Absolute",
+      extensionName: "Zeta Extension",
+      entryPointMode: "view",
+    },
+  ]);
+  assert.equal(JSON.stringify(commands).includes(catalogRoot), false);
+  assert.equal(JSON.stringify(commands).includes("secret"), false);
+  for (const command of commands) {
+    assert.equal("entrypoint" in command, false);
+    assert.equal("rootDirectory" in command, false);
+    assert.equal("preferences" in command, false);
+    assert.equal("preferenceMetadata" in command, false);
+  }
+});
+
 test("resolves Raycast-style manifests through the entrypoint convention", async () => {
   const catalog = createCatalog();
 

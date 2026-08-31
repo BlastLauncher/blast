@@ -3,7 +3,13 @@ import test from "node:test";
 
 import { createInMemoryTransportPair } from "@blastlauncher/transport";
 
-import { acceptCoreClientSession, BlastCore, connectCoreClient, CORE_COMMAND_RUN_MESSAGE } from "../dist/index.js";
+import {
+  acceptCoreClientSession,
+  BlastCore,
+  connectCoreClient,
+  CORE_COMMAND_LIST_MESSAGE,
+  CORE_COMMAND_RUN_MESSAGE,
+} from "../dist/index.js";
 
 const identity = { extensionId: "example.extension", commandName: "index" };
 const descriptor = {
@@ -134,6 +140,42 @@ test("routes stop requests by stable command identity", async () => {
   assert.deepEqual(calls, [["stop", identity.extensionId, identity.commandName, "user closed command"]]);
 });
 
+test("normalizes path-free command discovery metadata", async () => {
+  const { core } = createHarness({
+    catalog: {
+      listCommands: async () => [
+        {
+          extensionId: "example.extension",
+          commandName: "index",
+          title: "Example",
+          extensionName: "Example Extension",
+          ownerOrAuthorName: "example-owner",
+          entryPointMode: "view",
+        },
+      ],
+    },
+  });
+
+  assert.deepEqual(await core.listCommands(), [
+    {
+      extensionId: "example.extension",
+      commandName: "index",
+      title: "Example",
+      extensionName: "Example Extension",
+      ownerOrAuthorName: "example-owner",
+      entryPointMode: "view",
+    },
+  ]);
+});
+
+test("fails discovery closed when the catalog cannot list commands", async () => {
+  const { core } = createHarness();
+  await assert.rejects(
+    () => core.listCommands(),
+    (error) => error.code === "command_discovery_unavailable",
+  );
+});
+
 test("waits for in-flight starts before closing the supervisor", async () => {
   const resolution = createDeferred();
   const { core, calls } = createHarness({ catalog: { resolve: () => resolution.promise } });
@@ -184,11 +226,83 @@ test("reports command startup failures through the client boundary", async () =>
   await core.close();
 });
 
+test("serves path-free command discovery through the client boundary", async () => {
+  const { core } = createHarness({
+    catalog: {
+      listCommands: async () => [
+        {
+          extensionId: "example.extension",
+          commandName: "index",
+          title: "Example",
+          extensionName: "Example Extension",
+          entryPointMode: "view",
+        },
+      ],
+    },
+  });
+  const { client, server } = await connectClient(core);
+
+  await client.requestCommandList();
+  assert.deepEqual(await client.receive(), {
+    protocolVersion: 1,
+    id: "core-2",
+    type: "core.command.listed",
+    payload: {
+      commands: [
+        {
+          extensionId: "example.extension",
+          commandName: "index",
+          title: "Example",
+          extensionName: "Example Extension",
+          entryPointMode: "view",
+        },
+      ],
+    },
+  });
+
+  await client.close("test complete");
+  await server.done;
+  await core.close();
+});
+
+test("reports discovery failures through the client boundary", async () => {
+  const { core } = createHarness();
+  const { client, server } = await connectClient(core);
+
+  await client.requestCommandList();
+  assert.deepEqual(await client.receive(), {
+    protocolVersion: 1,
+    id: "core-2",
+    type: "core.command.list-failed",
+    payload: {
+      code: "command_discovery_unavailable",
+      message: "The extension catalog does not support discovery",
+    },
+  });
+
+  await client.close("test complete");
+  await server.done;
+  await core.close();
+});
+
 test("fails closed when a client sends a malformed command message", async () => {
   const { core } = createHarness({ catalog: { resolve: async () => undefined } });
   const { client, server } = await connectClient(core);
 
   await client.protocol.send(CORE_COMMAND_RUN_MESSAGE, { extensionId: "", commandName: "index" });
+  await assert.rejects(
+    () => server.done,
+    (error) => error.code === "invalid_core_client_message",
+  );
+  assert.equal(await client.receive(), undefined);
+  await core.close();
+});
+
+test("fails closed when a client sends a non-empty discovery payload", async () => {
+  const { core } = createHarness();
+  const { client, server } = await connectClient(core);
+
+  await client.protocol.send(CORE_COMMAND_LIST_MESSAGE, { unexpected: true });
   await assert.rejects(
     () => server.done,
     (error) => error.code === "invalid_core_client_message",

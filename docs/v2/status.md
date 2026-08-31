@@ -67,6 +67,10 @@ slice changes what is executable, what is trusted, or what should happen next.
   fixed Node extension launcher, host, core, and local listener, starts at
   listener readiness, and closes client sessions before the extension host.
   A real fixture exercises command and scene traffic through this composition.
+- The client session has a path-free command-discovery snapshot in [ADR
+  0093](decisions/0093-path-free-command-discovery.md): clients request a
+  deterministic list of stable command identities and display metadata;
+  entrypoints, roots, dependencies, and preference values remain host-only.
 - The Node filesystem catalog discovers Raycast-style `package.json` manifests,
   probes `src/<command-name>` entrypoints, honors explicit entrypoint
   overrides, and never resolves a path outside the extension root.
@@ -622,9 +626,9 @@ slice changes what is executable, what is trusted, or what should happen next.
   module support on their target platforms;
 - the remaining measured Raycast surface: client toast timing/stacking, broader
   desktop APIs, broader action helpers, and additional Tool/browser APIs;
-- persistent catalog refresh, command discovery, and desktop rendering of
-  scenes (the local listener and Node daemon composition now exist; the
-  Electron consumer is still missing);
+- persistent catalog refresh, command watching, and desktop rendering of scenes
+  (the local listener, Node daemon composition, and path-free discovery
+  snapshot now exist; the client/Electron consumer is still missing);
 - capability manifest declarations, real operating-system providers, audit
   records, and consent UI;
 - production AI providers, OAuth browser/token-store providers, and command
@@ -767,8 +771,8 @@ only small portable JavaScript seeds eligible after the API-first slice.
    WASM, test-only, large-graph, and host-process packages for explicit policy
    decisions. Do not count extension-owned platform incompatibility as a
    missing Raycast API member.
-5. Add command discovery and a client-side scene consumer, then integrate the
-   Electron client. The transport-neutral client/core session slice in [ADR
+5. Add a client-side command/scene consumer, then integrate the Electron
+   client. The transport-neutral client/core session slice in [ADR
    0090](decisions/0090-client-facing-core-session-boundary.md) is implemented:
    it establishes a validated client/core connection for one active command,
    semantic scene and event forwarding, lifecycle reporting, and disconnect
@@ -777,7 +781,9 @@ only small portable JavaScript seeds eligible after the API-first slice.
    without adding Electron or filesystem paths to the protocol, and the Node
    daemon composition from [ADR
    0092](decisions/0092-node-core-daemon-composition.md) now owns the local
-   dependency graph. The next boundary is command discovery and a client-side
+   dependency graph. The path-free discovery contract in [ADR
+   0093](decisions/0093-path-free-command-discovery.md) is now implemented as
+   a deterministic snapshot; the next boundary is a client-side command and
    scene consumer.
 
 Keep WebSocket and remote execution as transport/provider additions. They do not

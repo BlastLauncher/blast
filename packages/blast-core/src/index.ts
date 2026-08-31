@@ -1,4 +1,4 @@
-import type { ExtensionDescriptor } from "@blastlauncher/extension-contract";
+import type { ExtensionDescriptor, ExtensionEntryPointMode } from "@blastlauncher/extension-contract";
 import type { ExtensionHostEvent, ExtensionProcessExit, ExtensionSession } from "@blastlauncher/extension-host";
 import {
   acceptProtocolSession,
@@ -45,8 +45,18 @@ export interface CommandIdentity {
   readonly commandName: string;
 }
 
+/** Public command metadata safe to expose to a client chooser. */
+export interface CoreCommandDescriptor extends CommandIdentity {
+  readonly title?: string;
+  readonly extensionName?: string;
+  readonly ownerOrAuthorName?: string;
+  readonly entryPointMode?: ExtensionEntryPointMode;
+}
+
 export interface ExtensionCatalog {
   resolve(identity: CommandIdentity, signal?: AbortSignal): Promise<ExtensionDescriptor | undefined>;
+  /** Returns path-free command metadata when the catalog supports discovery. */
+  readonly listCommands?: (signal?: AbortSignal) => Promise<readonly CoreCommandDescriptor[]>;
 }
 
 export interface ExtensionSupervisor {
@@ -118,6 +128,17 @@ export class BlastCore {
     await this.#extensionHost.stop(identity.extensionId, identity.commandName, reason);
   }
 
+  async listCommands(signal?: AbortSignal): Promise<readonly CoreCommandDescriptor[]> {
+    this.#assertRunning();
+    signal?.throwIfAborted();
+    if (this.#catalog.listCommands === undefined) {
+      throw new BlastCoreError("command_discovery_unavailable", "The extension catalog does not support discovery");
+    }
+    const commands = await this.#catalog.listCommands(signal);
+    signal?.throwIfAborted();
+    return commands.map(normalizeCommandDescriptor);
+  }
+
   close(reason?: string): Promise<void> {
     this.#closePromise ??= this.#close(reason);
     return this.#closePromise;
@@ -168,6 +189,56 @@ function validateIdentity(identity: CommandIdentity): void {
   ) {
     throw new BlastCoreError("invalid_command_identity", "Extension and command identifiers must not be empty");
   }
+}
+
+function normalizeCommandDescriptor(value: unknown): CoreCommandDescriptor {
+  if (!isRecord(value)) {
+    throw new BlastCoreError("invalid_catalog_command", "The extension catalog returned an invalid command summary");
+  }
+  if (
+    typeof value.extensionId !== "string" ||
+    value.extensionId.length === 0 ||
+    typeof value.commandName !== "string" ||
+    value.commandName.length === 0
+  ) {
+    throw new BlastCoreError("invalid_catalog_command", "The extension catalog returned an invalid command identity");
+  }
+  for (const field of ["entrypoint", "rootDirectory", "preferences", "preferenceMetadata"]) {
+    if (field in value) {
+      throw new BlastCoreError("invalid_catalog_command", "The extension catalog returned host-only command data", {
+        field,
+      });
+    }
+  }
+  const title = normalizeOptionalCommandString(value.title, "title");
+  const extensionName = normalizeOptionalCommandString(value.extensionName, "extensionName");
+  const ownerOrAuthorName = normalizeOptionalCommandString(value.ownerOrAuthorName, "ownerOrAuthorName");
+  if (
+    value.entryPointMode !== undefined &&
+    value.entryPointMode !== "no-view" &&
+    value.entryPointMode !== "view" &&
+    value.entryPointMode !== "menu-bar"
+  ) {
+    throw new BlastCoreError("invalid_catalog_command", "The extension catalog returned an invalid entrypoint mode");
+  }
+  return {
+    extensionId: value.extensionId,
+    commandName: value.commandName,
+    ...(title === undefined ? {} : { title }),
+    ...(extensionName === undefined ? {} : { extensionName }),
+    ...(ownerOrAuthorName === undefined ? {} : { ownerOrAuthorName }),
+    ...(value.entryPointMode === undefined ? {} : { entryPointMode: value.entryPointMode }),
+  };
+}
+
+function normalizeOptionalCommandString(value: unknown, field: string): string | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (typeof value !== "string" || value.length === 0) {
+    throw new BlastCoreError("invalid_catalog_command", `The extension catalog returned an invalid ${field}`);
+  }
+  return value;
 }
 
 export class SessionRelayError extends Error {
@@ -334,10 +405,13 @@ export function relaySessionTraffic(session: ExtensionSession, options: SessionR
 
 export const CORE_COMMAND_RUN_MESSAGE = "core.command.run" as const;
 export const CORE_COMMAND_STOP_MESSAGE = "core.command.stop" as const;
+export const CORE_COMMAND_LIST_MESSAGE = "core.command.list" as const;
 export const CORE_COMMAND_STARTED_MESSAGE = "core.command.started" as const;
 export const CORE_COMMAND_START_FAILED_MESSAGE = "core.command.start-failed" as const;
 export const CORE_COMMAND_STOPPED_MESSAGE = "core.command.stopped" as const;
 export const CORE_COMMAND_EXITED_MESSAGE = "core.command.exited" as const;
+export const CORE_COMMAND_LISTED_MESSAGE = "core.command.listed" as const;
+export const CORE_COMMAND_LIST_FAILED_MESSAGE = "core.command.list-failed" as const;
 
 export type CoreCommandRunPayload = CommandIdentity;
 
@@ -361,6 +435,17 @@ export interface CoreCommandExitedPayload extends CommandIdentity {
   readonly signal?: string;
 }
 
+export type CoreCommandListPayload = Readonly<Record<string, never>>;
+
+export interface CoreCommandListedPayload {
+  readonly commands: readonly CoreCommandDescriptor[];
+}
+
+export interface CoreCommandListFailedPayload {
+  readonly code: string;
+  readonly message: string;
+}
+
 export type CoreCommandRunMessage = ProtocolEnvelope<typeof CORE_COMMAND_RUN_MESSAGE, CoreCommandRunPayload>;
 export type CoreCommandStopMessage = ProtocolEnvelope<typeof CORE_COMMAND_STOP_MESSAGE, CoreCommandStopPayload>;
 export type CoreCommandStartedMessage = ProtocolEnvelope<
@@ -376,16 +461,28 @@ export type CoreCommandStoppedMessage = ProtocolEnvelope<
   CoreCommandStoppedPayload
 >;
 export type CoreCommandExitedMessage = ProtocolEnvelope<typeof CORE_COMMAND_EXITED_MESSAGE, CoreCommandExitedPayload>;
+export type CoreCommandListMessage = ProtocolEnvelope<typeof CORE_COMMAND_LIST_MESSAGE, CoreCommandListPayload>;
+export type CoreCommandListedMessage = ProtocolEnvelope<typeof CORE_COMMAND_LISTED_MESSAGE, CoreCommandListedPayload>;
+export type CoreCommandListFailedMessage = ProtocolEnvelope<
+  typeof CORE_COMMAND_LIST_FAILED_MESSAGE,
+  CoreCommandListFailedPayload
+>;
 
 export type CoreClientMessage =
   | CoreCommandStartedMessage
   | CoreCommandStartFailedMessage
   | CoreCommandStoppedMessage
   | CoreCommandExitedMessage
+  | CoreCommandListedMessage
+  | CoreCommandListFailedMessage
   | SceneTransactionMessage
   | ToastMessage;
 
-export type CoreClientRequest = CoreCommandRunMessage | CoreCommandStopMessage | SceneEventMessage;
+export type CoreClientRequest =
+  | CoreCommandRunMessage
+  | CoreCommandStopMessage
+  | CoreCommandListMessage
+  | SceneEventMessage;
 
 export class CoreClientError extends Error {
   readonly code: string;
@@ -413,6 +510,10 @@ export interface AcceptCoreClientSessionOptions extends CoreClientConnectOptions
   readonly capabilityBroker?: CapabilityBroker;
 }
 
+export type CoreClientCore = Pick<BlastCore, "runCommand" | "stopCommand"> & {
+  readonly listCommands?: BlastCore["listCommands"];
+};
+
 export interface CoreClientSession {
   readonly protocol: ProtocolSession;
   readonly done: Promise<void>;
@@ -422,6 +523,7 @@ export interface CoreClient {
   readonly protocol: ProtocolSession;
   runCommand(identity: CommandIdentity): Promise<void>;
   stopCommand(identity: CommandIdentity, reason?: string): Promise<void>;
+  requestCommandList(): Promise<void>;
   sendSceneEvent(eventId: string, values?: SceneFormValues): Promise<void>;
   receive(signal?: AbortSignal): Promise<CoreClientMessage | undefined>;
   close(reason?: string): Promise<void>;
@@ -456,7 +558,7 @@ export async function connectCoreClient(
  * can later use it to observe a client disconnect or protocol failure.
  */
 export async function acceptCoreClientSession(
-  core: Pick<BlastCore, "runCommand" | "stopCommand">,
+  core: CoreClientCore,
   transport: ProtocolTransport,
   options: AcceptCoreClientSessionOptions,
 ): Promise<CoreClientSession> {
@@ -490,6 +592,10 @@ export function validateCoreClientMessage(value: unknown): ValidationResult<Core
       return validateCoreCommandStoppedMessage(value);
     case CORE_COMMAND_EXITED_MESSAGE:
       return validateCoreCommandExitedMessage(value);
+    case CORE_COMMAND_LISTED_MESSAGE:
+      return validateCoreCommandListedMessage(value);
+    case CORE_COMMAND_LIST_FAILED_MESSAGE:
+      return validateCoreCommandListFailedMessage(value);
     case SCENE_TRANSACTION_MESSAGE:
       return validateSceneTransactionMessage(value);
     case UI_TOAST_MESSAGE:
@@ -510,6 +616,8 @@ export function validateCoreClientRequestMessage(value: unknown): ValidationResu
       return validateCoreCommandRunMessage(value);
     case CORE_COMMAND_STOP_MESSAGE:
       return validateCoreCommandStopMessage(value);
+    case CORE_COMMAND_LIST_MESSAGE:
+      return validateCoreCommandListMessage(value);
     case SCENE_EVENT_MESSAGE:
       return validateSceneEventMessage(value);
     default:
@@ -519,6 +627,10 @@ export function validateCoreClientRequestMessage(value: unknown): ValidationResu
 
 function validateCoreCommandRunMessage(value: unknown): ValidationResult<CoreCommandRunMessage> {
   return validateCorePayloadEnvelope(value, CORE_COMMAND_RUN_MESSAGE, validateCommandIdentityPayload);
+}
+
+function validateCoreCommandListMessage(value: unknown): ValidationResult<CoreCommandListMessage> {
+  return validateCorePayloadEnvelope(value, CORE_COMMAND_LIST_MESSAGE, validateEmptyPayload);
 }
 
 function validateCoreCommandStopMessage(value: unknown): ValidationResult<CoreCommandStopMessage> {
@@ -569,6 +681,69 @@ function validateCoreCommandExitedMessage(value: unknown): ValidationResult<Core
       validateNonEmptyString(payload.signal, `${path}.signal`, issues);
     }
   });
+}
+
+function validateCoreCommandListedMessage(value: unknown): ValidationResult<CoreCommandListedMessage> {
+  return validateCorePayloadEnvelope(value, CORE_COMMAND_LISTED_MESSAGE, (payload, path, issues) => {
+    if (!isRecord(payload)) {
+      issues.push({ path, message: "Expected an object" });
+      return;
+    }
+    if (!Array.isArray(payload.commands)) {
+      issues.push({ path: `${path}.commands`, message: "Expected an array" });
+      return;
+    }
+    payload.commands.forEach((command, index) => {
+      validateCoreCommandDescriptorPayload(command, `${path}.commands[${index}]`, issues);
+    });
+  });
+}
+
+function validateCoreCommandListFailedMessage(value: unknown): ValidationResult<CoreCommandListFailedMessage> {
+  return validateCorePayloadEnvelope(value, CORE_COMMAND_LIST_FAILED_MESSAGE, (payload, path, issues) => {
+    if (!isRecord(payload)) {
+      issues.push({ path, message: "Expected an object" });
+      return;
+    }
+    validateNonEmptyString(payload.code, `${path}.code`, issues);
+    validateNonEmptyString(payload.message, `${path}.message`, issues);
+  });
+}
+
+function validateCoreCommandDescriptorPayload(value: unknown, path: string, issues: ValidationIssue[]): void {
+  if (!isRecord(value)) {
+    issues.push({ path, message: "Expected an object" });
+    return;
+  }
+  validateCommandIdentityPayload(value, path, issues);
+  for (const field of ["title", "extensionName", "ownerOrAuthorName"] as const) {
+    if (value[field] !== undefined) {
+      validateNonEmptyString(value[field], `${path}.${field}`, issues);
+    }
+  }
+  if (
+    value.entryPointMode !== undefined &&
+    value.entryPointMode !== "no-view" &&
+    value.entryPointMode !== "view" &&
+    value.entryPointMode !== "menu-bar"
+  ) {
+    issues.push({ path: `${path}.entryPointMode`, message: "Expected a valid entrypoint mode" });
+  }
+  for (const field of ["entrypoint", "rootDirectory", "preferences", "preferenceMetadata"]) {
+    if (field in value) {
+      issues.push({ path: `${path}.${field}`, message: "Host-only field is not allowed in command discovery" });
+    }
+  }
+}
+
+function validateEmptyPayload(value: unknown, path: string, issues: ValidationIssue[]): void {
+  if (!isRecord(value)) {
+    issues.push({ path, message: "Expected an object" });
+    return;
+  }
+  for (const field of Object.keys(value)) {
+    issues.push({ path: `${path}.${field}`, message: "Unexpected property" });
+  }
 }
 
 function validateCorePayloadEnvelope<TType extends string, TPayload>(
@@ -631,6 +806,13 @@ function commandStartFailure(error: unknown): Pick<CoreCommandStartFailedPayload
   return { code: "command_start_failed", message: "Extension command failed to start" };
 }
 
+function commandListFailure(error: unknown): CoreCommandListFailedPayload {
+  if (error instanceof BlastCoreError) {
+    return { code: error.code, message: error.message };
+  }
+  return { code: "command_discovery_failed", message: "Command discovery failed" };
+}
+
 function exitedPayload(identity: CommandIdentity, exit: ExtensionProcessExit): CoreCommandExitedPayload {
   return exit.signal === undefined
     ? { ...identity, code: exit.code }
@@ -661,6 +843,10 @@ class ConnectedCoreClient implements CoreClient {
   async stopCommand(identity: CommandIdentity, reason?: string): Promise<void> {
     const payload = normalizeStopPayload(reason === undefined ? identity : { ...identity, reason });
     await this.#send(CORE_COMMAND_STOP_MESSAGE, payload);
+  }
+
+  async requestCommandList(): Promise<void> {
+    await this.#send(CORE_COMMAND_LIST_MESSAGE, {});
   }
 
   async sendSceneEvent(eventId: string, values?: SceneFormValues): Promise<void> {
@@ -716,17 +902,13 @@ interface ActiveCoreCommand {
 class AcceptedCoreClientSession implements CoreClientSession {
   readonly protocol: ProtocolSession;
   readonly done: Promise<void>;
-  readonly #core: Pick<BlastCore, "runCommand" | "stopCommand">;
+  readonly #core: CoreClientCore;
   readonly #capabilityBroker: CapabilityBroker | undefined;
   #active: ActiveCoreCommand | undefined;
   #sendQueue: Promise<void> = Promise.resolve();
   #closed = false;
 
-  constructor(
-    core: Pick<BlastCore, "runCommand" | "stopCommand">,
-    protocol: ProtocolSession,
-    capabilityBroker: CapabilityBroker | undefined,
-  ) {
+  constructor(core: CoreClientCore, protocol: ProtocolSession, capabilityBroker: CapabilityBroker | undefined) {
     this.#core = core;
     this.protocol = protocol;
     this.#capabilityBroker = capabilityBroker;
@@ -760,6 +942,9 @@ class AcceptedCoreClientSession implements CoreClientSession {
           case CORE_COMMAND_STOP_MESSAGE:
             await this.#stop(validation.value.payload);
             break;
+          case CORE_COMMAND_LIST_MESSAGE:
+            await this.#list();
+            break;
           case SCENE_EVENT_MESSAGE:
             await this.#sendSceneEvent(validation.value.payload);
             break;
@@ -774,6 +959,17 @@ class AcceptedCoreClientSession implements CoreClientSession {
     } finally {
       this.#closed = true;
       await this.#stopActive("Client disconnected");
+    }
+  }
+
+  async #list(): Promise<void> {
+    try {
+      if (this.#core.listCommands === undefined) {
+        throw new BlastCoreError("command_discovery_unavailable", "The extension catalog does not support discovery");
+      }
+      await this.#send(CORE_COMMAND_LISTED_MESSAGE, { commands: await this.#core.listCommands() });
+    } catch (error) {
+      await this.#send(CORE_COMMAND_LIST_FAILED_MESSAGE, commandListFailure(error));
     }
   }
 

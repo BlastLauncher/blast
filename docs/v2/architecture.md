@@ -105,15 +105,18 @@ catalog resolves the actual filesystem descriptor before the extension host is
 called. The core coordinates in-flight startup and shutdown and now exposes
 the transport-neutral one-command client session in ADR 0090: clients receive
 semantic scene/toast messages and send semantic events without seeing
-extension paths. Persistent discovery, command listing, capability provider
-policy, and restart ownership are deliberate later slices.
+extension paths. ADR 0093 adds a deterministic, path-free command-discovery
+snapshot for clients; persistent catalog refresh, command watching, capability
+provider policy, and restart ownership are deliberate later slices.
 `@blastlauncher/core-node` ships the first Node composition: its filesystem
 catalog discovers Raycast-style `package.json` manifests from a root and
 resolves entrypoints without ever returning a path outside the extension root;
 its `NodeCoreDaemon` composes that catalog with the fixed Node host, core, and
 ADR 0091 local listener. The listener is the daemon's readiness point and
 delegates connections to the client session. A persistent, watched catalog
-index, command discovery, and Electron consumption remain later boundaries.
+index and command watching remain later boundaries; the path-free command
+discovery snapshot from ADR 0093 is now available to the client, with Electron
+consumption as the next boundary.
 
 ### Clients
 

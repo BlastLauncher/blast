@@ -52,6 +52,22 @@ test("composes the Node daemon and serves a real command over its local socket",
     assert.equal((await stat(socketPath)).mode & 0o777, 0o600);
 
     client = await connectClient(socketPath);
+    await client.requestCommandList();
+    const listed = await client.receive();
+    assert.equal(listed.type, "core.command.listed");
+    const discovered = listed.payload.commands.find(
+      (command) => command.extensionId === identity.extensionId && command.commandName === identity.commandName,
+    );
+    assert.deepEqual(discovered, {
+      extensionId: identity.extensionId,
+      commandName: identity.commandName,
+      title: "Scene",
+      extensionName: "E2E Scene Extension",
+      entryPointMode: "view",
+    });
+    assert.equal("entrypoint" in discovered, false);
+    assert.equal("rootDirectory" in discovered, false);
+
     await client.runCommand(identity);
     assert.deepEqual((await client.receive()).payload, identity);
 

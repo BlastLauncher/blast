@@ -5,7 +5,7 @@ import { createConnection, createServer, type Server, type Socket } from "node:n
 import {
   acceptCoreClientSession,
   type AcceptCoreClientSessionOptions,
-  type BlastCore,
+  type CoreClientCore,
   type CoreClientSession,
 } from "@blastlauncher/core";
 import { DEFAULT_MAX_FRAME_BYTES, createJsonLineTransport } from "@blastlauncher/transport-node";
@@ -16,7 +16,7 @@ export const DEFAULT_CORE_HANDSHAKE_TIMEOUT_MILLISECONDS = 5_000;
 export type LocalCoreServerState = "created" | "starting" | "listening" | "closing" | "closed";
 
 export interface LocalCoreServerOptions {
-  readonly core: Pick<BlastCore, "runCommand" | "stopCommand">;
+  readonly core: CoreClientCore;
   readonly socketPath: string;
   readonly implementation: AcceptCoreClientSessionOptions["implementation"];
   readonly createMessageId: () => string;

@@ -99,6 +99,10 @@ environment and path options build the catalog/launcher/host/core/listener
 graph, a command runs through the socket, scene and lifecycle messages reach
 the client, and ordered shutdown leaves no active process or owned endpoint.
 
+Discovery tests verify sorted path-free command summaries from the filesystem
+catalog, structured catalog failures, and the same list request/response over
+the in-memory session and real daemon socket.
+
 ### Renderer conformance
 
 `@blastlauncher/react-renderer` runs React trees on `react-reconciler` and
