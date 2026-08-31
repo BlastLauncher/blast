@@ -137,3 +137,119 @@ test("server-renders action styles, structured shortcuts, and auto-focus", () =>
   assert.match(markup, /cmd \+ shift \+ D/);
   assert.match(markup, /autofocus/);
 });
+
+test("server-renders List and Grid collection accessories defensively", () => {
+  const listMarkup = renderToStaticMarkup(
+    React.createElement(V2Scene, {
+      disabled: false,
+      onEvent: async () => {},
+      root: {
+        id: "list-root",
+        type: "list",
+        props: { navigationTitle: "Accessories" },
+        children: [
+          {
+            id: "list-item",
+            type: "list-item",
+            props: {
+              title: "Ready item",
+              accessoryIcon: "star-16",
+              accessoryTitle: "Favorite",
+              accessories: JSON.stringify([
+                { text: "Ready", icon: "checkmark-16", tooltip: "Status", textColor: "raycast-green" },
+                { date: "2026-08-31T00:00:00.000Z", tag: "New", tagColor: "#abcdef" },
+              ]),
+            },
+            children: [],
+          },
+        ],
+      },
+    }),
+  );
+  assert.match(listMarkup, /Favorite/);
+  assert.match(listMarkup, /data-v2-icon-kind="accessory"/);
+  assert.match(listMarkup, /data-accessory-kind="text"/);
+  assert.match(listMarkup, /data-accessory-kind="date"/);
+  assert.match(listMarkup, /data-accessory-kind="tag"/);
+  assert.match(listMarkup, /title="Status"/);
+  assert.match(listMarkup, /style="color:#4ade80"/);
+  assert.match(listMarkup, /style="color:#abcdef"/);
+
+  const gridMarkup = renderToStaticMarkup(
+    React.createElement(V2Scene, {
+      disabled: false,
+      onEvent: async () => {},
+      root: {
+        id: "grid-root",
+        type: "grid",
+        props: { navigationTitle: "Grid" },
+        children: [
+          {
+            id: "grid-item",
+            type: "grid-item",
+            props: {
+              content: "circle-16",
+              title: "Grid item",
+              accessoryIcon: "checkmark-16",
+              accessoryTooltip: "Done",
+            },
+            children: [],
+          },
+        ],
+      },
+    }),
+  );
+  assert.match(gridMarkup, /Grid item/);
+  assert.match(gridMarkup, /title="Done"/);
+  assert.match(gridMarkup, /data-v2-icon-kind="accessory"/);
+
+  const malformedMarkup = renderToStaticMarkup(
+    React.createElement(V2Scene, {
+      disabled: false,
+      onEvent: async () => {},
+      root: {
+        id: "malformed-root",
+        type: "list",
+        props: {},
+        children: [
+          {
+            id: "malformed-item",
+            type: "list-item",
+            props: {
+              title: "Malformed",
+              accessories: "not-json",
+            },
+            children: [],
+          },
+        ],
+      },
+    }),
+  );
+  assert.match(malformedMarkup, /Malformed/);
+  assert.doesNotMatch(malformedMarkup, /data-accessory-kind/);
+
+  const unsafeMarkup = renderToStaticMarkup(
+    React.createElement(V2Scene, {
+      disabled: false,
+      onEvent: async () => {},
+      root: {
+        id: "unsafe-root",
+        type: "list",
+        props: {},
+        children: [
+          {
+            id: "unsafe-item",
+            type: "list-item",
+            props: {
+              title: "Unsafe color",
+              accessories: JSON.stringify([{ text: "Unsafe", textColor: "red; background: url(https://bad.invalid)" }]),
+            },
+            children: [],
+          },
+        ],
+      },
+    }),
+  );
+  assert.match(unsafeMarkup, /Unsafe/);
+  assert.doesNotMatch(unsafeMarkup, /style="color:red/);
+});

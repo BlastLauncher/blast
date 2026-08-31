@@ -2,7 +2,7 @@ import type { SceneNode } from "@blastlauncher/scene";
 
 import Icons from "./components/Icon";
 
-export type V2SceneIconKind = "icon" | "content";
+export type V2SceneIconKind = "icon" | "content" | "accessory";
 export type V2SceneIconSize = "small" | "medium" | "large";
 
 export interface V2SceneIconProps {
@@ -105,7 +105,7 @@ function IconTintOverlay(): React.JSX.Element {
 }
 
 export function selectV2SceneImageSource(node: SceneNode, kind: V2SceneIconKind = "icon"): string | undefined {
-  const prefix = kind === "content" ? "content" : "icon";
+  const prefix = sceneIconPrefix(kind);
   const candidates = [
     stringProp(node, `${prefix}Dark`),
     stringProp(node, prefix),
@@ -119,7 +119,7 @@ export function selectV2SceneImageSource(node: SceneNode, kind: V2SceneIconKind 
 }
 
 export function selectV2SceneIconTint(node: SceneNode, kind: V2SceneIconKind = "icon"): V2SceneIconTint | undefined {
-  const prefix = kind === "content" ? "content" : "icon";
+  const prefix = sceneIconPrefix(kind);
   const light = stringProp(node, `${prefix}TintColor`);
   const dark = stringProp(node, `${prefix}TintColorDark`);
   const adjustContrast = booleanProp(node, `${prefix}TintColorAdjustContrast`);
@@ -134,8 +134,12 @@ export function selectV2SceneIconTint(node: SceneNode, kind: V2SceneIconKind = "
 }
 
 function selectV2SceneIconMask(node: SceneNode, kind: V2SceneIconKind): string | undefined {
-  const prefix = kind === "content" ? "content" : "icon";
+  const prefix = sceneIconPrefix(kind);
   return stringProp(node, `${prefix}Mask`);
+}
+
+function sceneIconPrefix(kind: V2SceneIconKind): "icon" | "content" | "accessoryIcon" {
+  return kind === "accessory" ? "accessoryIcon" : kind;
 }
 
 function isRegisteredIcon(source: string): boolean {
@@ -215,8 +219,8 @@ function createTintStyle(tint: V2SceneIconTint | undefined): V2IconStyle | undef
   if (tint === undefined) {
     return undefined;
   }
-  const light = tint.light === undefined ? undefined : safeCssColor(tint.light);
-  const dark = tint.dark === undefined ? light : safeCssColor(tint.dark);
+  const light = tint.light === undefined ? undefined : normalizeV2SceneColor(tint.light);
+  const dark = tint.dark === undefined ? light : normalizeV2SceneColor(tint.dark);
   if (light === undefined && dark === undefined) {
     return undefined;
   }
@@ -226,7 +230,7 @@ function createTintStyle(tint: V2SceneIconTint | undefined): V2IconStyle | undef
   };
 }
 
-function safeCssColor(value: string): string | undefined {
+export function normalizeV2SceneColor(value: string): string | undefined {
   const normalized = value.trim();
   const builtIn = RAYCAST_TINT_COLORS[normalized];
   if (builtIn !== undefined) {

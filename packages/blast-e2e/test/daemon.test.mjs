@@ -165,6 +165,7 @@ test("daemon shutdown stops an active real command before closing the host", asy
     client = await connectClient(socketPath);
     await client.runCommand(identity);
     assert.equal((await client.receive()).type, "core.command.started");
+    assert.equal((await client.receive()).type, "scene.transaction");
 
     await daemon.close("application shutdown");
 

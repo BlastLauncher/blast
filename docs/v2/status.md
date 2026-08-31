@@ -129,6 +129,11 @@ slice changes what is executable, what is trusted, or what should happen next.
   circle/rounded-rectangle masks and supported light/dark tint colors across
   registered icons, safe image sources, Grid content, and deterministic
   fallbacks; automatic contrast adjustment remains separate.
+- [ADR 0106](decisions/0106-v2-collection-accessory-presentation.md) presents
+  validated List accessory titles, icons, text/date/tag records, tooltips, and
+  safe colors plus Grid accessory icons/tooltips in a compact trailing rail;
+  malformed records are ignored at the client edge and accessory interaction
+  remains separate.
 - [ADR 0100](decisions/0100-packaged-v2-bootstrap-and-catalog.md) adds the
   higher-level `@blastlauncher/raycast-runtime-node` composition and packages
   standalone V2 bootstrap, adapter, and React resources for Electron. The
@@ -819,6 +824,10 @@ only small portable JavaScript seeds eligible after the API-first slice.
    four targeted OpenInBrowser commands render after the action-readiness
    boundary was added; later full-run changes remain subject to process and
    dependency variance.
+   The next client-focused visual boundary is now the separately deferred
+   Quick Look/application-chooser surface; it needs an explicit host/client
+   decision before implementation. Continue the measured API audit alongside
+   that boundary work.
 2. Keep the command-scoped preference, nullable Form, empty-string,
    `LocalStorage.allItems`/`allLocalStorageItems`, Form event, literal `require`,
    composite-child/context-provider, declaration-backed Icon,

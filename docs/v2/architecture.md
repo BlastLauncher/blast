@@ -133,8 +133,9 @@ completes the first menu-bar scene renderer in that client; ADR 0101 registers
 that scene in the Electron native status-item menu; ADR 0102 completes the first
 V2 toast lifecycle presentation; ADR 0103 presents validated scene icon and
 image sources; ADR 0104 preserves V2 action chrome fidelity; and ADR 0105
-presents validated icon masks and supported tint colors. Client-specific types
-must not enter the protocol package. The existing V1 renderer remains the
+presents validated icon masks and supported tint colors. ADR 0106 presents the
+validated List/Grid collection accessory boundary. Client-specific types must
+not enter the protocol package. The existing V1 renderer remains the
 default. ADR 0100 packages a V2 bootstrap and maps the existing V1
 production/development installation roots behind the explicit
 `BLAST_V2_MODE=packaged` opt-in; it does not change the default or add

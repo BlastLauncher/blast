@@ -3,7 +3,7 @@ import { useState } from "react";
 import type { SceneFormValue, SceneFormValues, SceneNode, ScenePropValue, SceneShortcut } from "@blastlauncher/scene";
 
 import { Detail } from "./components/Detail";
-import { selectV2SceneImageSource, V2SceneIcon } from "./V2SceneIcon";
+import { normalizeV2SceneColor, selectV2SceneImageSource, V2SceneIcon } from "./V2SceneIcon";
 
 export type V2SceneEventSender = (eventId: string, values?: SceneFormValues) => Promise<void>;
 
@@ -433,23 +433,192 @@ function CollectionItem({
 
   return (
     <article className={`rounded-lg border border-white/10 bg-white/5 p-3 ${variant === "grid" ? "min-h-28" : ""}`}>
-      <button
-        className="flex w-full items-start gap-3 text-left hover:text-blue-100 disabled:opacity-50"
-        disabled={disabled}
-        onClick={select}
-        type="button"
-      >
-        <V2SceneIcon kind={variant === "grid" ? "content" : "icon"} node={item} />
-        <span className="min-w-0 flex-1">
-          <span className="block truncate text-sm font-medium">{stringProp(item, "title") ?? item.id}</span>
-          {stringProp(item, "subtitle") !== undefined && (
-            <span className="mt-1 block truncate text-xs text-white/50">{stringProp(item, "subtitle")}</span>
-          )}
-        </span>
-      </button>
+      <div className="flex items-start gap-3">
+        <button
+          className="min-w-0 flex-1 text-left hover:text-blue-100 disabled:opacity-50"
+          disabled={disabled}
+          onClick={select}
+          type="button"
+        >
+          <span className="flex items-start gap-3">
+            <V2SceneIcon kind={variant === "grid" ? "content" : "icon"} node={item} />
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-sm font-medium">{stringProp(item, "title") ?? item.id}</span>
+              {stringProp(item, "subtitle") !== undefined && (
+                <span className="mt-1 block truncate text-xs text-white/50">{stringProp(item, "subtitle")}</span>
+              )}
+            </span>
+          </span>
+        </button>
+        <CollectionAccessories item={item} variant={variant} />
+      </div>
       <ActionButtons disabled={disabled} nodes={item.children} onEvent={onEvent} />
     </article>
   );
+}
+
+function CollectionAccessories({
+  item,
+  variant,
+}: {
+  readonly item: SceneNode;
+  readonly variant: "list" | "grid";
+}): React.JSX.Element | null {
+  const iconSource = selectV2SceneImageSource(item, "accessory");
+  const title = stringProp(item, "accessoryTitle");
+  const tooltip = stringProp(item, "accessoryTooltip");
+  const accessories = variant === "list" ? parseListAccessories(item) : [];
+  if (iconSource === undefined && title === undefined && accessories.length === 0) {
+    return null;
+  }
+
+  return (
+    <aside className="flex max-w-[45%] shrink-0 flex-wrap items-center justify-end gap-1 text-xs text-white/55">
+      {iconSource !== undefined && (
+        <span title={tooltip}>
+          <V2SceneIcon kind="accessory" node={item} size="small" />
+        </span>
+      )}
+      {title !== undefined && (
+        <span className="max-w-32 truncate" title={title}>
+          {title}
+        </span>
+      )}
+      {accessories.map((accessory, index) => (
+        <CollectionAccessory
+          key={`${item.id}-accessory-${index}`}
+          parentId={item.id}
+          accessory={accessory}
+          index={index}
+        />
+      ))}
+    </aside>
+  );
+}
+
+interface ParsedListAccessory {
+  readonly text?: string;
+  readonly date?: string;
+  readonly tag?: string;
+  readonly textColor?: string;
+  readonly dateColor?: string;
+  readonly tagColor?: string;
+  readonly tooltip?: string;
+  readonly icon?: string;
+  readonly iconDark?: string;
+  readonly iconFallback?: string;
+  readonly iconFallbackDark?: string;
+  readonly iconMask?: string;
+  readonly iconTintColor?: string;
+  readonly iconTintColorDark?: string;
+  readonly iconTintColorAdjustContrast?: boolean;
+}
+
+function CollectionAccessory({
+  accessory,
+  index,
+  parentId,
+}: {
+  readonly accessory: ParsedListAccessory;
+  readonly index: number;
+  readonly parentId: string;
+}): React.JSX.Element | null {
+  const values = [
+    ["text", accessory.text, accessory.textColor],
+    ["date", accessory.date, accessory.dateColor],
+    ["tag", accessory.tag, accessory.tagColor],
+  ].filter(([, value]) => value !== undefined) as Array<[string, string, string | undefined]>;
+  const iconNode = accessoryIconNode(parentId, index, accessory);
+  const iconSource = selectV2SceneImageSource(iconNode, "accessory");
+  if (values.length === 0 && iconSource === undefined) {
+    return null;
+  }
+
+  return (
+    <span
+      className="inline-flex max-w-full items-center gap-1 rounded bg-white/10 px-1.5 py-0.5"
+      title={accessory.tooltip}
+    >
+      {iconSource !== undefined && <V2SceneIcon kind="accessory" node={iconNode} size="small" />}
+      {values.map(([kind, value, color]) => (
+        <span data-accessory-kind={kind} key={kind} style={safeColorStyle(color)}>
+          {value}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+function parseListAccessories(node: SceneNode): readonly ParsedListAccessory[] {
+  const serialized = stringProp(node, "accessories");
+  if (serialized === undefined) {
+    return [];
+  }
+  try {
+    const value: unknown = JSON.parse(serialized);
+    if (!Array.isArray(value)) {
+      return [];
+    }
+    return value.flatMap((entry) => {
+      if (!isRecord(entry)) {
+        return [];
+      }
+      return [parseListAccessory(entry)];
+    });
+  } catch {
+    return [];
+  }
+}
+
+function parseListAccessory(value: Record<string, unknown>): ParsedListAccessory {
+  return {
+    ...optionalString(value.text, "text"),
+    ...optionalString(value.date, "date"),
+    ...optionalString(value.tag, "tag"),
+    ...optionalString(value.textColor, "textColor"),
+    ...optionalString(value.dateColor, "dateColor"),
+    ...optionalString(value.tagColor, "tagColor"),
+    ...optionalString(value.tooltip, "tooltip"),
+    ...optionalString(value.icon, "icon"),
+    ...optionalString(value.iconDark, "iconDark"),
+    ...optionalString(value.iconFallback, "iconFallback"),
+    ...optionalString(value.iconFallbackDark, "iconFallbackDark"),
+    ...optionalString(value.iconMask, "iconMask"),
+    ...optionalString(value.iconTintColor, "iconTintColor"),
+    ...optionalString(value.iconTintColorDark, "iconTintColorDark"),
+    ...(typeof value.iconTintColorAdjustContrast === "boolean"
+      ? { iconTintColorAdjustContrast: value.iconTintColorAdjustContrast }
+      : {}),
+  };
+}
+
+function accessoryIconNode(parentId: string, index: number, accessory: ParsedListAccessory): SceneNode {
+  return {
+    id: `${parentId}-accessory-${index}`,
+    type: "list-item",
+    props: {
+      ...(accessory.icon === undefined ? {} : { accessoryIcon: accessory.icon }),
+      ...(accessory.iconDark === undefined ? {} : { accessoryIconDark: accessory.iconDark }),
+      ...(accessory.iconFallback === undefined ? {} : { accessoryIconFallback: accessory.iconFallback }),
+      ...(accessory.iconFallbackDark === undefined ? {} : { accessoryIconFallbackDark: accessory.iconFallbackDark }),
+      ...(accessory.iconMask === undefined ? {} : { accessoryIconMask: accessory.iconMask }),
+      ...(accessory.iconTintColor === undefined ? {} : { accessoryIconTintColor: accessory.iconTintColor }),
+      ...(accessory.iconTintColorDark === undefined ? {} : { accessoryIconTintColorDark: accessory.iconTintColorDark }),
+      ...(accessory.iconTintColorAdjustContrast === undefined
+        ? {}
+        : { accessoryIconTintColorAdjustContrast: accessory.iconTintColorAdjustContrast }),
+    },
+    children: [],
+  };
+}
+
+function optionalString(value: unknown, key: string): Record<string, string> {
+  return typeof value === "string" ? { [key]: value } : {};
+}
+
+function safeColorStyle(value: string | undefined): React.CSSProperties | undefined {
+  const color = value === undefined ? undefined : normalizeV2SceneColor(value);
+  return color === undefined ? undefined : { color };
 }
 
 function SceneDropdown({
@@ -992,4 +1161,8 @@ function splitList(value: string): readonly string[] {
     .split(",")
     .map((entry) => entry.trim())
     .filter((entry) => entry.length > 0);
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
