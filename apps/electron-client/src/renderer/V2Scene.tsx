@@ -673,25 +673,90 @@ function SceneDropdown({
   readonly disabled: boolean;
   readonly onEvent: V2SceneEventSender;
 }): React.JSX.Element {
-  const currentValue = stringProp(node, "value") ?? stringProp(node, "defaultValue") ?? "";
   const eventId = stringProp(node, "onChange");
   const fieldId = stringProp(node, "id");
 
   return (
-    <select
-      className="max-w-48 rounded-md border border-white/10 bg-white/5 px-2 py-1.5 text-xs outline-none disabled:opacity-50"
-      disabled={disabled || booleanProp(node, "isLoading")}
-      onChange={(event) => {
-        if (eventId === undefined) {
-          return;
+    <DropdownControl
+      disabled={disabled || booleanProp(node, "isLoading") === true}
+      node={node}
+      onChange={(value) => {
+        if (eventId !== undefined) {
+          fireEvent(onEvent, eventId, fieldId === undefined ? { value } : { value, [fieldId]: value });
         }
-        const value = event.target.value;
-        fireEvent(onEvent, eventId, fieldId === undefined ? { value } : { value, [fieldId]: value });
       }}
-      value={currentValue}
-    >
-      {dropdownOptions(node)}
-    </select>
+      onSearchTextChange={(value) => {
+        const searchEvent = stringProp(node, "onSearchTextChange");
+        if (searchEvent !== undefined) {
+          fireEvent(onEvent, searchEvent, { searchText: value });
+        }
+      }}
+      selectClassName="max-w-48 rounded-md border border-white/10 bg-white/5 px-2 py-1.5 text-xs outline-none disabled:opacity-50"
+    />
+  );
+}
+
+function DropdownControl({
+  node,
+  disabled,
+  onChange,
+  onSearchTextChange,
+  onBlur,
+  onFocus,
+  selectClassName,
+  value,
+}: {
+  readonly node: SceneNode;
+  readonly disabled: boolean;
+  readonly onChange: (value: string) => void;
+  readonly onSearchTextChange?: (value: string) => void;
+  readonly onBlur?: () => void;
+  readonly onFocus?: () => void;
+  readonly selectClassName: string;
+  readonly value?: string;
+}): React.JSX.Element {
+  const searchEvent = stringProp(node, "onSearchTextChange");
+  const filtering = booleanProp(node, "filtering") ?? searchEvent === undefined;
+  const [searchText, setSearchText] = useState("");
+  const initialValue = stringProp(node, "value") ?? stringProp(node, "defaultValue") ?? "";
+  const [localValue, setLocalValue] = useState(initialValue);
+  const selectedValue = value ?? stringProp(node, "value") ?? localValue;
+  const visibleChildren = filterV2SceneDropdownChildren(node.children, filtering ? searchText : "");
+  const label = stringProp(node, "tooltip") ?? stringProp(node, "title") ?? "Dropdown";
+
+  const sendSearch = (nextValue: string): void => {
+    setSearchText(nextValue);
+    onSearchTextChange?.(nextValue);
+  };
+
+  return (
+    <div className="flex flex-col gap-1">
+      {(filtering || searchEvent !== undefined) && (
+        <input
+          aria-label={`${label} search`}
+          className="rounded-md border border-white/10 bg-black/10 px-2 py-1.5 text-xs outline-none focus:border-blue-400/60 disabled:opacity-50"
+          data-v2-dropdown-search="true"
+          disabled={disabled}
+          onChange={(event) => sendSearch(event.target.value)}
+          placeholder="Search options…"
+          value={searchText}
+        />
+      )}
+      <select
+        className={selectClassName}
+        disabled={disabled}
+        onBlur={onBlur}
+        onChange={(event) => {
+          const nextValue = event.target.value;
+          setLocalValue(nextValue);
+          onChange(nextValue);
+        }}
+        onFocus={onFocus}
+        value={selectedValue}
+      >
+        {dropdownOptions(visibleChildren)}
+      </select>
+    </div>
   );
 }
 
@@ -829,6 +894,13 @@ function FormScene({ root, disabled, onEvent }: V2SceneProps) {
     }
   };
 
+  const sendFieldSearch = (field: SceneNode, searchText: string): void => {
+    const eventId = stringProp(field, "onSearchTextChange");
+    if (eventId !== undefined) {
+      fireEvent(onEvent, eventId, { searchText });
+    }
+  };
+
   return (
     <section className="mx-auto flex max-w-2xl flex-col gap-4">
       {stringProp(root, "navigationTitle") !== undefined && (
@@ -846,6 +918,7 @@ function FormScene({ root, disabled, onEvent }: V2SceneProps) {
                 onBlur={() => sendFieldFocus(child, "onBlur")}
                 onChange={(value) => updateField(child, value)}
                 onFocus={() => sendFieldFocus(child, "onFocus")}
+                onSearchTextChange={(value) => sendFieldSearch(child, value)}
                 value={values[stringProp(child, "id") ?? ""]}
               />
             );
@@ -892,6 +965,7 @@ function FormField({
   onChange,
   onFocus,
   onBlur,
+  onSearchTextChange,
 }: {
   readonly field: SceneNode;
   readonly value: SceneFormValue | undefined;
@@ -899,6 +973,7 @@ function FormField({
   readonly onChange: (value: SceneFormValue) => void;
   readonly onFocus: () => void;
   readonly onBlur: () => void;
+  readonly onSearchTextChange?: (value: string) => void;
 }): React.JSX.Element | null {
   const id = stringProp(field, "id") ?? field.id;
   const title = stringProp(field, "title") ?? stringProp(field, "label") ?? id;
@@ -955,16 +1030,18 @@ function FormField({
       break;
     case "form-dropdown":
       control = (
-        <select
-          {...common}
-          className="w-full rounded-md border border-white/10 bg-black/20 px-3 py-2 text-sm outline-none focus:border-blue-400/60"
-          onChange={(event) => onChange(event.target.value)}
+        <DropdownControl
+          disabled={disabled || booleanProp(field, "isLoading") === true}
+          node={field}
+          onBlur={onBlur}
+          onChange={onChange}
+          onFocus={onFocus}
+          onSearchTextChange={onSearchTextChange}
+          selectClassName="w-full rounded-md border border-white/10 bg-black/20 px-3 py-2 text-sm outline-none focus:border-blue-400/60"
           value={
             typeof value === "string" ? value : (stringProp(field, "value") ?? stringProp(field, "defaultValue") ?? "")
           }
-        >
-          {dropdownOptions(field)}
-        </select>
+        />
       );
       break;
     case "form-date-picker":
@@ -1253,8 +1330,41 @@ function firstAction(nodes: readonly SceneNode[]): SceneNode | undefined {
   return undefined;
 }
 
-function dropdownOptions(node: SceneNode): React.ReactNode[] {
-  return node.children.flatMap((child) => {
+export function filterV2SceneDropdownChildren(nodes: readonly SceneNode[], query: string): readonly SceneNode[] {
+  const normalizedQuery = query.trim().toLowerCase();
+  if (normalizedQuery.length === 0) {
+    return nodes;
+  }
+  return nodes.flatMap((node) => {
+    if (node.type.endsWith("dropdown-item")) {
+      return dropdownItemMatches(node, normalizedQuery) ? [node] : [];
+    }
+    if (node.type.endsWith("dropdown-section")) {
+      const sectionTitle = stringProp(node, "title")?.toLowerCase() ?? "";
+      if (sectionTitle.includes(normalizedQuery)) {
+        return [node];
+      }
+      const children = filterV2SceneDropdownChildren(node.children, normalizedQuery);
+      return children.length === 0 ? [] : [{ ...node, children }];
+    }
+    return [];
+  });
+}
+
+function dropdownItemMatches(node: SceneNode, query: string): boolean {
+  const searchable = [
+    stringProp(node, "title"),
+    stringProp(node, "value"),
+    ...(stringArrayProp(node, "keywords") ?? []),
+  ]
+    .filter((value): value is string => value !== undefined)
+    .join("\n")
+    .toLowerCase();
+  return searchable.includes(query);
+}
+
+function dropdownOptions(nodes: readonly SceneNode[]): React.ReactNode[] {
+  return nodes.flatMap((child) => {
     if (child.type.endsWith("dropdown-item")) {
       return [
         <option key={child.id} value={stringProp(child, "value") ?? ""}>

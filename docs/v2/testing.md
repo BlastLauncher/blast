@@ -166,6 +166,10 @@ ADR 0121 adds pure Electron package-result and renderer-management coverage for
 ID-only operations, sanitized success/failure payloads, chooser cancellation,
 and unavailable packaged lifecycle state. Native dialogs are kept behind the
 main-process boundary and are covered by the Electron type-check/package gate.
+ADR 0122 adds renderer coverage for List/Grid/Form dropdown search inputs,
+local title/value/keyword filtering, extension-owned filtering mode, and the
+existing submenu/menu-bar alternate regression paths. These tests remain
+server-rendered and deterministic; native Electron execution is not required.
 
 ### Renderer conformance
 

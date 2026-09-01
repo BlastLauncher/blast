@@ -29,8 +29,13 @@ Reflect.set(NodeModule, "_resolveFilename", (request, parent, isMain, options) =
 const markdownStylesheet = fileURLToPath(new URL("../dist/renderer/components/Detail/markdown.scss", import.meta.url));
 mkdirSync(fileURLToPath(new URL("../dist/renderer/components/Detail/", import.meta.url)), { recursive: true });
 writeFileSync(markdownStylesheet, "");
-const { V2Scene, filterV2SceneActionChildren, formatV2DatePickerValue, serializeV2DatePickerValue } =
-  await import("../dist/renderer/V2Scene.js");
+const {
+  V2Scene,
+  filterV2SceneActionChildren,
+  filterV2SceneDropdownChildren,
+  formatV2DatePickerValue,
+  serializeV2DatePickerValue,
+} = await import("../dist/renderer/V2Scene.js");
 Reflect.set(NodeModule, "_resolveFilename", originalResolveFilename);
 rmSync(markdownStylesheet);
 rmSync(svgStub, { force: true });
@@ -269,6 +274,158 @@ test("presents action-panel submenus and filters nested actions deterministicall
   assert.match(markup, /aria-busy="true"/);
   assert.match(markup, /autofocus/);
   assert.match(markup, /cmd \+ k/);
+});
+
+test("presents dropdown search inputs and filters local options by metadata", () => {
+  const dropdownChildren = [
+    {
+      id: "languages",
+      type: "list-dropdown-section",
+      props: { title: "Languages" },
+      children: [
+        {
+          id: "rust",
+          type: "list-dropdown-item",
+          props: { value: "rust", title: "Rust", keywords: ["systems"] },
+          children: [],
+        },
+        {
+          id: "go",
+          type: "list-dropdown-item",
+          props: { value: "golang", title: "Go" },
+          children: [],
+        },
+      ],
+    },
+    {
+      id: "tools",
+      type: "list-dropdown-section",
+      props: { title: "Tools" },
+      children: [
+        {
+          id: "git",
+          type: "list-dropdown-item",
+          props: { value: "git", title: "Git", keywords: ["version control"] },
+          children: [],
+        },
+      ],
+    },
+  ];
+  const filtered = filterV2SceneDropdownChildren(dropdownChildren, "systems");
+  assert.deepEqual(
+    filtered.map((node) => node.id),
+    ["languages"],
+  );
+  assert.deepEqual(
+    filtered[0].children.map((node) => node.id),
+    ["rust"],
+  );
+  assert.deepEqual(
+    filterV2SceneDropdownChildren(dropdownChildren, "golang")[0].children.map((node) => node.id),
+    ["go"],
+  );
+  assert.deepEqual(
+    filterV2SceneDropdownChildren(dropdownChildren, "tools").map((node) => node.id),
+    ["tools"],
+  );
+  assert.equal(filterV2SceneDropdownChildren(dropdownChildren, "").length, 2);
+
+  const markup = renderToStaticMarkup(
+    React.createElement(V2Scene, {
+      disabled: false,
+      onEvent: async () => {},
+      root: {
+        id: "dropdown-list",
+        type: "list",
+        props: {},
+        children: [
+          {
+            id: "dropdown",
+            type: "list-dropdown",
+            props: {
+              tooltip: "Filter options",
+              filtering: true,
+              onChange: "dropdown-change",
+              onSearchTextChange: "dropdown-search",
+            },
+            children: dropdownChildren,
+          },
+        ],
+      },
+    }),
+  );
+  assert.match(markup, /data-v2-dropdown-search="true"/);
+  assert.match(markup, /aria-label="Filter options search"/);
+  assert.match(markup, /placeholder="Search options…"/);
+  assert.match(markup, /value="rust"/);
+  assert.match(markup, /value="git"/);
+
+  const gridMarkup = renderToStaticMarkup(
+    React.createElement(V2Scene, {
+      disabled: false,
+      onEvent: async () => {},
+      root: {
+        id: "dropdown-grid",
+        type: "grid",
+        props: {},
+        children: [
+          {
+            id: "grid-dropdown",
+            type: "grid-dropdown",
+            props: { tooltip: "Grid filter", filtering: true },
+            children: dropdownChildren,
+          },
+        ],
+      },
+    }),
+  );
+  assert.match(gridMarkup, /aria-label="Grid filter search"/);
+});
+
+test("presents Form dropdown search without locally filtering extension-owned options", () => {
+  const markup = renderToStaticMarkup(
+    React.createElement(V2Scene, {
+      disabled: false,
+      onEvent: async () => {},
+      root: {
+        id: "dropdown-form",
+        type: "form",
+        props: {},
+        children: [
+          {
+            id: "role",
+            type: "form-dropdown",
+            props: {
+              id: "role",
+              title: "Role",
+              filtering: false,
+              onChange: "role-change",
+              onSearchTextChange: "role-search",
+              defaultValue: "admin",
+            },
+            children: [
+              {
+                id: "admin",
+                type: "form-dropdown-item",
+                props: { value: "admin", title: "Administrator" },
+                children: [],
+              },
+              {
+                id: "member",
+                type: "form-dropdown-item",
+                props: { value: "member", title: "Member" },
+                children: [],
+              },
+            ],
+          },
+        ],
+      },
+    }),
+  );
+  assert.match(markup, /data-v2-dropdown-search="true"/);
+  assert.match(markup, /aria-label="Role search"/);
+  assert.match(markup, /Administrator/);
+  assert.match(markup, /Member/);
 });
 
 test("server-renders List and Grid collection accessories defensively", () => {

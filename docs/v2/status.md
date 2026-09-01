@@ -173,6 +173,12 @@ slice changes what is executable, what is trusted, or what should happen next.
   archive selection, ID-only remove/rollback requests, sanitized operation
   results, and minimal external-package management controls without exposing
   filesystem paths to the renderer.
+- [ADR 0122](decisions/0122-dropdown-search-presentation.md) completes the
+  renderer side of the measured dropdown interaction boundary: List, Grid, and
+  Form dropdown search inputs dispatch validated search events and locally
+  filter title/value/keyword matches while preserving extension-owned filtering
+  when requested. Existing submenu and menu-bar alternate paths remain covered
+  by regression tests.
 - [ADR 0106](decisions/0106-v2-collection-accessory-presentation.md) presents
   validated List accessory titles, icons, text/date/tag records, tooltips, and
   safe colors plus Grid accessory icons/tooltips in a compact trailing rail;
@@ -587,7 +593,8 @@ slice changes what is executable, what is trusted, or what should happen next.
   members.
 - `List`, `Grid`, and `Form.Dropdown` now carry the declaration-backed search
   lifecycle, filtering, loading, and pagination fields that map to semantic
-  scene events. `List.Dropdown` and `Grid.Dropdown` are accepted
+  scene events. ADR 0122 also presents dropdown-specific search inputs in the
+  Electron client. `List.Dropdown` and `Grid.Dropdown` are accepted
   interchangeably as search-bar accessories, matching Raycast's shared
   dropdown contract.
 - Clipboard `read`/`readText` decode the official structured `{ text }` shape,
@@ -789,7 +796,7 @@ slice changes what is executable, what is trusted, or what should happen next.
   ActionPanel.Submenu presentation, the keyboard command chooser, and native
   Form.DatePicker presentation, plus the bounded toast timeout policy, now
   exist; packaged mode is now the default
-  under ADR 0108, while installation UI and internal V2
+  under ADR 0108, while richer package-management UI, internal V2
   migration/update flows, additional action helpers/providers, and remaining
   scene visuals are still missing. There is no V1 user
   migration path because V1 was never released);
@@ -801,8 +808,9 @@ slice changes what is executable, what is trusted, or what should happen next.
 - structured logs beyond captured child stderr;
 - startup deadlines chosen by the core, restart policy, quotas, and OS sandbox;
 - authenticated local sockets, WebSocket transport, and remote pairing;
-- installation UI and internal V2 migration/update flows, CLI control, mobile,
-  and web clients. V1 was never released, so no V1 user migration is planned.
+- richer package-management UI and internal V2 migration/update flows, CLI
+  control, mobile, and web clients. V1 was never released, so no V1 user
+  migration is planned.
 
 ## Recommended continuation
 
@@ -864,7 +872,9 @@ only small portable JavaScript seeds eligible after the API-first slice.
    the host-side package lifecycle is implemented under [ADR
    0120](decisions/0120-explicit-extension-package-lifecycle.md), and the
    packaged Electron bridge/minimal controls are implemented under [ADR
-   0121](decisions/0121-electron-extension-package-bridge.md). Next polish
+   0121](decisions/0121-electron-extension-package-bridge.md), and dropdown
+   search presentation is implemented under [ADR
+   0122](decisions/0122-dropdown-search-presentation.md). Next polish
    package-management UX and internal V2 migration/update flows, remaining
    action helpers/providers, and scene visuals. There is no V1 user
    migration requirement because V1 was never released. Keep these client
@@ -1043,9 +1053,10 @@ only small portable JavaScript seeds eligible after the API-first slice.
    latency baseline. ADRs 0111 and 0112 define the toast timeout and automatic
    icon contrast policies, and ADR 0113 defines ActionPanel.Submenu
    presentation. ADR 0114 adds on-demand catalog freshness, and ADR 0115
-   aligns the managed Node prerequisite with the V2 baseline. Extension
-   installation/update UI and internal V2 migration/update flows, remaining
-   action helpers/providers, and remaining scene visuals follow; no V1 user
+   aligns the managed Node prerequisite with the V2 baseline. ADR 0122 adds
+   dropdown search presentation; richer package-management UI and internal V2
+   migration/update flows, remaining action helpers/providers, and remaining
+   scene visuals follow; no V1 user
    migration is planned.
 
 Keep WebSocket and remote execution as transport/provider additions. They do not

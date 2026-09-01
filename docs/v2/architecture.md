@@ -157,6 +157,8 @@ explicit `BLAST_V2_MODE=legacy` escape hatch, and does not add installation UI
 or imply a V1 user migration path; V1 was never released. ADR 0121 now adds
 minimal local external-package controls through the Electron main-process
 bridge; it does not widen the protocol or add dependency provisioning.
+ADR 0122 completes the renderer affordance for the already-measured dropdown
+search callbacks without widening the protocol.
 
 ### Capability providers
 
