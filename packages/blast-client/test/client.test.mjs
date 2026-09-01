@@ -284,6 +284,36 @@ test("the client host shares lazy startup and publishes controller snapshots", a
   assert.equal(host.snapshot.state, "closed");
 });
 
+test("the client host can retry after a transient connection failure", async () => {
+  const client = new FakeCoreClient();
+  let connectionCount = 0;
+  const host = new CoreClientHost({
+    connect: async () => {
+      connectionCount += 1;
+      if (connectionCount === 1) {
+        throw new Error("core is still starting");
+      }
+      return client;
+    },
+  });
+
+  await assert.rejects(() => host.start(), /core is still starting/);
+  assert.equal(host.snapshot, undefined);
+
+  const retry = host.start();
+  await flush();
+  client.push(
+    message("core.command.listed", {
+      commands: [{ ...identity, title: "Example", extensionName: "Example Extension", entryPointMode: "view" }],
+    }),
+  );
+  const ready = await retry;
+
+  assert.equal(connectionCount, 2);
+  assert.equal(ready.state, "ready");
+  await host.close("retry test complete");
+});
+
 test("the client host rejects commands before startup and after shutdown", async () => {
   const client = new FakeCoreClient();
   const host = new CoreClientHost({ connect: async () => client });
