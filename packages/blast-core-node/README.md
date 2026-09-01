@@ -35,8 +35,10 @@ validated manifest index. It never resolves entrypoints or returns roots,
 dependencies, or preference values. `refresh()` invalidates that in-memory
 index, and the core's command-list protocol calls it before discovery so the
 existing application Refresh action observes external installs and updates.
-The catalog keeps no persistent index or filesystem-watching flow; those and
-installation flows are deliberate later slices.
+`watch()` adds bounded Node filesystem change detection for configured roots;
+it invalidates the same index and debounces a change callback, while the
+`NodeCoreDaemon` owns the watcher's shutdown. There is still no persistent
+index, recursive watcher, or installation flow.
 
 The package also exposes the Node-only local listener from [ADR
 0091](../../docs/v2/decisions/0091-bounded-local-core-listener.md). That

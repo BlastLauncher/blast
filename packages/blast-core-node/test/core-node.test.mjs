@@ -14,6 +14,17 @@ function createCatalog() {
   return new FilesystemExtensionCatalog({ root: catalogRoot });
 }
 
+async function waitFor(predicate, description, timeoutMilliseconds = 2000) {
+  const deadline = Date.now() + timeoutMilliseconds;
+  while (Date.now() < deadline) {
+    if (predicate()) {
+      return;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 25));
+  }
+  throw new Error(`Timed out waiting for ${description}`);
+}
+
 test("lists deterministic path-free command summaries without resolving entrypoints", async () => {
   const catalog = createCatalog();
   const commands = await catalog.listCommands();
@@ -300,6 +311,53 @@ test("refreshes the cached catalog after extensions are added, changed, or remov
       ["added"],
     );
   } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("watches manifest and extension-directory changes", async () => {
+  const root = mkdtempSync(path.join(os.tmpdir(), "blast-catalog-watch-"));
+  const extensionDirectory = path.join(root, "watched-extension");
+  mkdirSync(path.join(extensionDirectory, "src"), { recursive: true });
+  const manifestPath = path.join(extensionDirectory, "package.json");
+  writeFileSync(manifestPath, JSON.stringify({ name: "watched", title: "Before", commands: [{ name: "index" }] }));
+
+  const catalog = new FilesystemExtensionCatalog({ root });
+  let changeCount = 0;
+  const watcher = await catalog.watch(() => {
+    changeCount += 1;
+  });
+  try {
+    const waitForNextChange = async (previousCount) =>
+      waitFor(() => changeCount > previousCount, "the catalog watcher notification");
+
+    const beforeManifestChange = changeCount;
+    writeFileSync(manifestPath, JSON.stringify({ name: "watched", title: "After", commands: [{ name: "index" }] }));
+    await waitForNextChange(beforeManifestChange);
+    assert.equal((await catalog.listCommands())[0]?.extensionName, "After");
+
+    const addedDirectory = path.join(root, "added-extension");
+    const beforeAdd = changeCount;
+    mkdirSync(path.join(addedDirectory, "src"), { recursive: true });
+    writeFileSync(
+      path.join(addedDirectory, "package.json"),
+      JSON.stringify({ name: "added", commands: [{ name: "index" }] }),
+    );
+    await waitForNextChange(beforeAdd);
+    assert.deepEqual(
+      (await catalog.listCommands()).map(({ extensionId }) => extensionId),
+      ["added", "watched"],
+    );
+
+    const beforeRemove = changeCount;
+    rmSync(extensionDirectory, { recursive: true, force: true });
+    await waitForNextChange(beforeRemove);
+    assert.deepEqual(
+      (await catalog.listCommands()).map(({ extensionId }) => extensionId),
+      ["added"],
+    );
+  } finally {
+    watcher.close();
     rmSync(root, { recursive: true, force: true });
   }
 });

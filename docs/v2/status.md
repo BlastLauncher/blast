@@ -143,6 +143,12 @@ slice changes what is executable, what is trusted, or what should happen next.
   application-managed Node target with the V2/CI baseline and keeps failed
   first-run installations visible and retryable; it does not remove older
   managed runtimes or install extension dependencies.
+- [ADR 0116](decisions/0116-automatic-catalog-change-detection.md) adds
+  bounded Node filesystem change detection for configured extension roots,
+  invalidates the trusted catalog on changes, and lets the Electron client
+  refresh an idle command snapshot without interrupting an active command;
+  installation, dependency provisioning, and persistent indexes remain out
+  of scope.
 - [ADR 0106](decisions/0106-v2-collection-accessory-presentation.md) presents
   validated List accessory titles, icons, text/date/tag records, tooltips, and
   safe colors plus Grid accessory icons/tooltips in a compact trailing rail;
@@ -744,7 +750,7 @@ slice changes what is executable, what is trusted, or what should happen next.
   icon contrast, and ActionPanel.Submenu presentation policies are now defined
   under ADRs 0111, 0112, and 0113 while the remaining behavior/provider
   boundaries stay separately measured;
-- persistent catalog refresh, command watching, and complete desktop rendering
+- persistent catalog indexing and complete desktop rendering
   of every scene member (the local listener, Node
   daemon composition, path-free discovery snapshot, transport-neutral client
   consumer, Node local connector, opt-in Electron main bridge, first semantic
@@ -792,8 +798,9 @@ host/provider coverage remain separate measurements. The first application
 slice is now recorded by [ADR 0110](decisions/0110-v2-application-boundary-performance-baseline.md)
 and its baseline artifact. The bounded toast timeout, icon contrast, and
 ActionPanel.Submenu presentation slices are recorded by ADRs 0111, 0112, and
-0113, 0114, and 0115; the managed runtime prerequisite is now aligned, and the
-next application work is extension installation/update UX, remaining action
+0113, 0114, 0115, and 0116; the managed runtime prerequisite is now aligned and
+automatic catalog change detection is now live, while the next application
+work is extension installation/update UX, remaining action
 helpers/providers, and scene visuals.
 Installation UI and internal V2 migration/update flows are later product work;
 no V1 user migration is needed because V1 was never released.
@@ -807,8 +814,10 @@ only small portable JavaScript seeds eligible after the API-first slice.
    [0112](decisions/0112-v2-icon-contrast-adjustment.md), and
    [0113](decisions/0113-v2-action-submenu-presentation.md). The trusted
    on-demand catalog refresh is now implemented under [ADR
-   0114](decisions/0114-on-demand-catalog-refresh.md). Automatic watchers and
-   persistent indexes remain follow-ups. The managed Node prerequisite and
+   0114](decisions/0114-on-demand-catalog-refresh.md). Automatic catalog
+   change detection is implemented under [ADR
+   0116](decisions/0116-automatic-catalog-change-detection.md); persistent
+   indexes remain a follow-up. The managed Node prerequisite and
    retryable first-run installer are implemented under [ADR
    0115](decisions/0115-managed-node-runtime-baseline.md). Continue with
    extension installation/update UX and internal V2 migration/update flows,

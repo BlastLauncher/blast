@@ -106,15 +106,18 @@ called. The core coordinates in-flight startup and shutdown and now exposes
 the transport-neutral one-command client session in ADR 0090: clients receive
 semantic scene/toast messages and send semantic events without seeing
 extension paths. ADR 0093 adds a deterministic, path-free command-discovery
-snapshot for clients; persistent catalog refresh, command watching, capability
-provider policy, and restart ownership are deliberate later slices.
+snapshot for clients; persistent catalog indexing, capability provider policy,
+and restart ownership are deliberate later slices. ADR 0116 adds bounded Node
+catalog change detection without
+changing the client-facing protocol.
 `@blastlauncher/core-node` ships the first Node composition: its filesystem
 catalog discovers Raycast-style `package.json` manifests from a root and
 resolves entrypoints without ever returning a path outside the extension root;
 its `NodeCoreDaemon` composes that catalog with the fixed Node host, core, and
 ADR 0091 local listener. The listener is the daemon's readiness point and
-delegates connections to the client session. A persistent, watched catalog
-index and command watching remain later boundaries; the path-free command
+delegates connections to the client session. The catalog's bounded root and
+immediate-extension watchers are owned by the daemon under ADR 0116; a
+persistent catalog index remains a later boundary. The path-free command
 discovery snapshot from ADR 0093 is now available to the client. The bounded
 Node connector in ADR 0095 owns socket creation, framing, and
 connection/handshake cleanup, while ADR 0098 lets Electron own that daemon

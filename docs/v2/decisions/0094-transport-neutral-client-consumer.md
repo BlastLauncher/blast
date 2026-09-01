@@ -50,8 +50,9 @@ The desktop client can migrate incrementally: a future Electron adapter can
 connect a local daemon, subscribe to one typed snapshot source, render the
 semantic scene, and dispatch events without knowing extension paths. Tests can
 exercise the same consumer without launching Electron. The controller is
-intentionally snapshot-based; command watching and richer client caching remain
-later boundaries.
+intentionally snapshot-based; richer client caching remains a later boundary.
+The daemon-owned catalog change notification and idle refresh policy are
+defined separately by ADR 0116.
 
 ## Verification
 

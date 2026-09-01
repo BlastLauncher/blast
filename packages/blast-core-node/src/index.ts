@@ -1,5 +1,5 @@
+import { watch as watchFileSystem, type Dirent, type FSWatcher } from "node:fs";
 import { readdir, readFile, stat } from "node:fs/promises";
-import type { Dirent } from "node:fs";
 import path from "node:path";
 
 import {
@@ -71,6 +71,11 @@ export interface FilesystemExtensionCatalogOptions {
   readonly manifestFileName?: string;
 }
 
+export interface FilesystemExtensionCatalogWatch {
+  /** Stops all filesystem watchers and cancels a pending change notification. */
+  close(): void;
+}
+
 /**
  * Trusted catalog implementation that discovers extension manifests on the
  * local filesystem. Manifests follow the Raycast `package.json` shape, with an
@@ -88,6 +93,7 @@ export class FilesystemExtensionCatalog implements ExtensionCatalog {
   #extensionIndex:
     | Promise<ReadonlyMap<string, { readonly directory: string; readonly manifest: ExtensionManifest }>>
     | undefined;
+  #watchActive = false;
 
   constructor(options: FilesystemExtensionCatalogOptions) {
     validateNonEmptyString(options.root, "root");
@@ -113,6 +119,136 @@ export class FilesystemExtensionCatalog implements ExtensionCatalog {
   async refresh(signal?: AbortSignal): Promise<void> {
     signal?.throwIfAborted();
     this.#extensionIndex = undefined;
+  }
+
+  /**
+   * Watches configured roots and installed extension directories for changes.
+   * The returned handle is owned by the caller and must be closed when the
+   * catalog is no longer serving requests.
+   */
+  async watch(onChange: () => void | Promise<void>): Promise<FilesystemExtensionCatalogWatch> {
+    if (this.#watchActive) {
+      throw new BlastCoreError("catalog_watch_active", "The extension catalog is already being watched");
+    }
+    if (typeof onChange !== "function") {
+      throw new BlastCoreError("invalid_catalog_watch", "The catalog watch callback must be a function");
+    }
+
+    this.#watchActive = true;
+    const rootWatchers = new Map<string, FSWatcher>();
+    const extensionWatchers = new Map<string, { readonly root: string; readonly watcher: FSWatcher }>();
+    let debounceTimer: NodeJS.Timeout | undefined;
+    let closed = false;
+
+    const notify = (): void => {
+      if (closed) {
+        return;
+      }
+      this.#extensionIndex = undefined;
+      if (debounceTimer !== undefined) {
+        clearTimeout(debounceTimer);
+      }
+      debounceTimer = setTimeout(() => {
+        debounceTimer = undefined;
+        if (closed) {
+          return;
+        }
+        void Promise.resolve(onChange()).catch(() => {
+          // A presentation callback must not become an uncaught watcher error.
+        });
+      }, CATALOG_WATCH_DEBOUNCE_MILLISECONDS);
+      debounceTimer.unref();
+    };
+
+    const removeExtensionWatchers = (root: string): void => {
+      for (const [directory, entry] of extensionWatchers) {
+        if (entry.root !== root) {
+          continue;
+        }
+        extensionWatchers.delete(directory);
+        closeFileSystemWatcher(entry.watcher);
+      }
+    };
+
+    const installExtensionWatchers = (root: string, directories: readonly string[]): void => {
+      const currentDirectories = new Set(directories);
+      for (const [directory, entry] of extensionWatchers) {
+        if (entry.root === root && !currentDirectories.has(directory)) {
+          extensionWatchers.delete(directory);
+          closeFileSystemWatcher(entry.watcher);
+        }
+      }
+      for (const directory of directories) {
+        if (extensionWatchers.has(directory)) {
+          continue;
+        }
+        extensionWatchers.set(directory, {
+          root,
+          watcher: createFileSystemWatcher(directory, notify),
+        });
+      }
+    };
+
+    const resyncRoot = (root: string, required: boolean): void => {
+      void (async () => {
+        try {
+          const directories = await this.#listExtensionDirectories(root, required);
+          if (!closed && rootWatchers.has(root)) {
+            installExtensionWatchers(root, directories);
+          }
+        } catch {
+          // The root may be in the middle of an atomic replacement. The next
+          // explicit discovery refresh remains authoritative if the watcher
+          // cannot be re-established.
+          removeExtensionWatchers(root);
+        }
+      })();
+    };
+
+    const close = (): void => {
+      if (closed) {
+        return;
+      }
+      closed = true;
+      this.#watchActive = false;
+      if (debounceTimer !== undefined) {
+        clearTimeout(debounceTimer);
+        debounceTimer = undefined;
+      }
+      for (const watcher of rootWatchers.values()) {
+        closeFileSystemWatcher(watcher);
+      }
+      rootWatchers.clear();
+      for (const { watcher } of extensionWatchers.values()) {
+        closeFileSystemWatcher(watcher);
+      }
+      extensionWatchers.clear();
+    };
+
+    try {
+      for (const [rootIndex, root] of this.#roots.entries()) {
+        const required = rootIndex === 0;
+        const directories = await this.#listExtensionDirectories(root, required);
+        if (!required && !(await isDirectory(root))) {
+          // Missing optional roots remain optional, including when they are
+          // created after this watcher starts; explicit refresh still sees it.
+          continue;
+        }
+        if (rootWatchers.has(root)) {
+          continue;
+        }
+        const watcher = createFileSystemWatcher(root, () => {
+          notify();
+          resyncRoot(root, required);
+        });
+        rootWatchers.set(root, watcher);
+        installExtensionWatchers(root, directories);
+      }
+      return { close };
+    } catch (error) {
+      close();
+      throw error;
+    }
   }
 
   async listCommands(signal?: AbortSignal): Promise<readonly CoreCommandDescriptor[]> {
@@ -268,6 +404,22 @@ export class FilesystemExtensionCatalog implements ExtensionCatalog {
       rootDirectory,
       commandName: command.name,
     });
+  }
+}
+
+const CATALOG_WATCH_DEBOUNCE_MILLISECONDS = 75;
+
+function createFileSystemWatcher(directory: string, callback: () => void): FSWatcher {
+  const watcher = watchFileSystem(directory, { persistent: false }, callback);
+  watcher.on("error", callback);
+  return watcher;
+}
+
+function closeFileSystemWatcher(watcher: FSWatcher): void {
+  try {
+    watcher.close();
+  } catch {
+    // A watcher may already have closed after a rename/error event.
   }
 }
 

@@ -21,6 +21,8 @@ const debug = createDebug("electron-client:index");
 
 let v2ClientIPC: V2ClientIPCRegistration | undefined;
 let v2NativeMenuBar: V2NativeMenuBarRegistration | undefined;
+let v2CatalogRefreshPending = false;
+let v2CatalogSubscription: (() => void) | undefined;
 let v2MessageSequence = 0;
 
 ipcMain.handle(V2ClientChannels.enabled, () => v2ClientIPC !== undefined);
@@ -38,7 +40,7 @@ const onReady = async (): Promise<void> => {
     debug("hasVersionInstalled");
     let v2Enabled = false;
     try {
-      await startV2Daemon();
+      await startV2Daemon({ onCatalogChanged: requestV2CatalogRefresh });
       v2Enabled = registerV2Client();
       if (v2Enabled) {
         v2NativeMenuBar = registerV2NativeMenuBar(v2ClientIPC!.host);
@@ -89,6 +91,9 @@ app.on("will-quit", () => {
     try {
       v2NativeMenuBar?.dispose();
       v2NativeMenuBar = undefined;
+      v2CatalogSubscription?.();
+      v2CatalogSubscription = undefined;
+      v2CatalogRefreshPending = false;
       await v2ClientIPC?.dispose();
     } finally {
       await stopV2Daemon();
@@ -127,8 +132,33 @@ function registerV2Client(): boolean {
         createMessageId: () => `electron-client-${++v2MessageSequence}`,
       }),
   });
+  v2CatalogSubscription = v2ClientIPC.host.subscribe((snapshot) => {
+    if (snapshot.state === "ready") {
+      flushV2CatalogRefresh();
+    }
+  });
   debug("registered V2 client bridge", socketPath);
   return true;
+}
+
+function requestV2CatalogRefresh(): void {
+  v2CatalogRefreshPending = true;
+  flushV2CatalogRefresh();
+}
+
+function flushV2CatalogRefresh(): void {
+  if (!v2CatalogRefreshPending) {
+    return;
+  }
+  const host = v2ClientIPC?.host;
+  if (host?.snapshot?.state !== "ready") {
+    return;
+  }
+  v2CatalogRefreshPending = false;
+  void host.refreshCommands().catch((error: unknown) => {
+    v2CatalogRefreshPending = true;
+    debug("failed to refresh V2 commands after a catalog change", error);
+  });
 }
 
 function reportV2StartupFailure(error: unknown): void {

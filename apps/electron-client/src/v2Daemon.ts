@@ -14,8 +14,12 @@ import {
 let ownedV2Daemon: NodeCoreDaemon | undefined;
 let ownedV2DaemonSocketPath: string | undefined;
 
+export interface V2DaemonStartOptions {
+  readonly onCatalogChanged?: () => void | Promise<void>;
+}
+
 /** Starts the app-owned V2 daemon for packaged default or explicit V2 modes. */
-export async function startV2Daemon(): Promise<boolean> {
+export async function startV2Daemon(options: V2DaemonStartOptions = {}): Promise<boolean> {
   const packagedConfiguration = createDefaultPackagedV2DaemonConfiguration();
   const configuration = readV2DaemonConfiguration(process.env, packagedConfiguration);
   if (configuration === undefined) {
@@ -35,6 +39,7 @@ export async function startV2Daemon(): Promise<boolean> {
       ? {}
       : { additionalCatalogRoots: configuration.additionalCatalogRoots }),
     environment: createExtensionEnvironment(configuration),
+    ...(options.onCatalogChanged === undefined ? {} : { onCatalogChanged: options.onCatalogChanged }),
   });
   await daemon.start();
   ownedV2Daemon = daemon;

@@ -30,25 +30,26 @@ so both the Electron Refresh action and future clients use the same freshness
 policy. In-flight command sessions are not interrupted, and resolving an
 already-running command continues to use its trusted descriptor.
 
-Automatic filesystem watching and persistent catalog indexes remain separate
-follow-ups. Until those are implemented, clients must request a refresh after
-an installation or update operation; the daemon never installs or downloads
-extension dependencies itself.
+Automatic filesystem watching was later added as the bounded watcher lifecycle
+in [ADR 0116](0116-automatic-catalog-change-detection.md); a persistent catalog
+index remains a separate follow-up. Clients may still request an explicit
+refresh after an installation or update operation, and the daemon never
+installs or downloads extension dependencies itself.
 
 ## Boundary
 
 This is an on-demand catalog freshness policy across the Node catalog, core,
 and existing command-list protocol. It does not add extension installation,
-dependency management, migration, watcher lifecycle, or host capabilities.
+dependency management, migration, persistent indexing, or host capabilities.
 
 ## Consequences
 
 The current V2 Refresh action now observes changes in both configured extension
 roots without restarting the daemon. Catalog reads remain deterministic and
 fail closed, while the cache still avoids repeated directory scans during one
-refresh cycle. A future installer or watcher can call the same refresh
-operation without changing the protocol or exposing filesystem paths to the
-client.
+refresh cycle. A future installer can call the same refresh operation without
+changing the protocol or exposing filesystem paths to the client; the watcher
+in ADR 0116 uses the same invalidation boundary.
 
 ## Verification
 

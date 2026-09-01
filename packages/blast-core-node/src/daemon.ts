@@ -11,7 +11,11 @@ import {
   LocalCoreServerError,
   type LocalCoreServerOptions,
 } from "./local-server.js";
-import { FilesystemExtensionCatalog, type FilesystemExtensionCatalogOptions } from "./index.js";
+import {
+  FilesystemExtensionCatalog,
+  type FilesystemExtensionCatalogOptions,
+  type FilesystemExtensionCatalogWatch,
+} from "./index.js";
 
 export type NodeCoreDaemonState = "created" | "starting" | "running" | "closing" | "closed";
 
@@ -37,6 +41,8 @@ export interface NodeCoreDaemonOptions {
   readonly hostImplementation?: ExtensionHostOptions["implementation"];
   readonly onStderr?: NodeExtensionProcessLauncherOptions["onStderr"];
   readonly onError?: LocalCoreServerOptions["onError"];
+  /** Called after the catalog observes an external filesystem change. */
+  readonly onCatalogChanged?: () => void | Promise<void>;
 }
 
 export class NodeCoreDaemonError extends Error {
@@ -81,6 +87,8 @@ export class NodeCoreDaemon {
   #state: NodeCoreDaemonState = "created";
   #startPromise: Promise<void> | undefined;
   #closePromise: Promise<void> | undefined;
+  #catalogWatch: FilesystemExtensionCatalogWatch | undefined;
+  readonly #onCatalogChanged: (() => void | Promise<void>) | undefined;
 
   constructor(options: NodeCoreDaemonOptions) {
     validateOptions(options);
@@ -131,6 +139,7 @@ export class NodeCoreDaemon {
     this.host = host;
     this.core = core;
     this.listener = listener;
+    this.#onCatalogChanged = options.onCatalogChanged;
   }
 
   get state(): NodeCoreDaemonState {
@@ -173,9 +182,12 @@ export class NodeCoreDaemon {
 
   async #start(): Promise<void> {
     try {
+      this.#catalogWatch = await this.catalog.watch(() => this.#onCatalogChanged?.());
       await this.listener.listen();
       this.#state = "running";
     } catch (error) {
+      this.#catalogWatch?.close();
+      this.#catalogWatch = undefined;
       this.#state = "created";
       if (error instanceof LocalCoreServerError) {
         throw new NodeCoreDaemonError("daemon_listener_failed", "Failed to start the Node core daemon listener", {
@@ -190,6 +202,8 @@ export class NodeCoreDaemon {
 
   async #close(reason?: string): Promise<void> {
     const failures: unknown[] = [];
+    this.#catalogWatch?.close();
+    this.#catalogWatch = undefined;
     try {
       await this.listener.close(reason);
     } catch (error) {

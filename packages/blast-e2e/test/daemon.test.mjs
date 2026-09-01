@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, rm, stat } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, stat, writeFile } from "node:fs/promises";
 import { once } from "node:events";
 import { createConnection } from "node:net";
 import { tmpdir } from "node:os";
@@ -107,6 +107,46 @@ test("composes the Node daemon and serves a real command over its local socket",
     await daemon.close("repeat close");
   } finally {
     await client?.close().catch(() => {});
+    await daemon.close().catch(() => {});
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test("owns the catalog watcher and closes it with the daemon", async () => {
+  const directory = await mkdtemp(path.join(tmpdir(), "blast-node-daemon-watch-"));
+  const watchRoot = path.join(directory, "extensions");
+  const socketPath = path.join(directory, "core.sock");
+  await mkdir(watchRoot);
+  let changes = 0;
+  const daemon = createNodeCoreDaemon({
+    catalogRoot: watchRoot,
+    bootstrapPath,
+    environment: process.env,
+    socketPath,
+    onCatalogChanged: () => {
+      changes += 1;
+    },
+  });
+  try {
+    await daemon.start();
+    const extensionDirectory = path.join(watchRoot, "watched-extension");
+    await mkdir(path.join(extensionDirectory, "src"), { recursive: true });
+    await writeFile(
+      path.join(extensionDirectory, "package.json"),
+      JSON.stringify({ name: "watched", commands: [{ name: "index" }] }),
+    );
+    await waitFor(() => changes > 0, "the daemon catalog watcher");
+
+    const observedChanges = changes;
+    await daemon.close("watcher lifecycle test complete");
+    await writeFile(
+      path.join(extensionDirectory, "package.json"),
+      JSON.stringify({ name: "watched", title: "After close", commands: [{ name: "index" }] }),
+    );
+    await new Promise((resolve) => setTimeout(resolve, 125));
+    assert.equal(changes, observedChanges);
+    assert.equal(daemon.state, "closed");
+  } finally {
     await daemon.close().catch(() => {});
     await rm(directory, { recursive: true, force: true });
   }
