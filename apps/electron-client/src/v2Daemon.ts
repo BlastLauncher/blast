@@ -38,6 +38,12 @@ export async function startV2Daemon(options: V2DaemonStartOptions = {}): Promise
     ...(configuration.additionalCatalogRoots === undefined
       ? {}
       : { additionalCatalogRoots: configuration.additionalCatalogRoots }),
+    ...(configuration.catalogRootSourceKind === undefined
+      ? {}
+      : { catalogRootSourceKind: configuration.catalogRootSourceKind }),
+    ...(configuration.additionalCatalogRootSourceKinds === undefined
+      ? {}
+      : { additionalCatalogRootSourceKinds: configuration.additionalCatalogRootSourceKinds }),
     environment: createExtensionEnvironment(configuration),
     ...(options.onCatalogChanged === undefined ? {} : { onCatalogChanged: options.onCatalogChanged }),
   });

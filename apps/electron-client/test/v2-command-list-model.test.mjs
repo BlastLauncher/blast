@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-const { clampV2CommandSelection, filterV2Commands, moveV2CommandSelection } =
+const { clampV2CommandSelection, describeV2CommandSource, filterV2Commands, moveV2CommandSelection } =
   await import("../dist/renderer/v2CommandListModel.js");
 
 const commands = [
@@ -40,6 +40,26 @@ test("filters by title, extension metadata, identifiers, and whitespace-insensit
   );
   assert.strictEqual(filterV2Commands(commands, ""), commands);
   assert.deepEqual(filterV2Commands(commands, "missing"), []);
+});
+
+test("labels and filters by host-assigned command source", () => {
+  assert.equal(describeV2CommandSource("local"), "Local development");
+  assert.equal(describeV2CommandSource("raycast-curated"), "Raycast-curated");
+  assert.equal(describeV2CommandSource("external"), "Unreviewed external");
+  assert.equal(describeV2CommandSource(undefined), undefined);
+
+  const commandsWithSources = [
+    { ...commands[0], sourceKind: "raycast-curated" },
+    { ...commands[1], sourceKind: "external" },
+  ];
+  assert.deepEqual(
+    filterV2Commands(commandsWithSources, "curated").map((command) => command.commandName),
+    ["current"],
+  );
+  assert.deepEqual(
+    filterV2Commands(commandsWithSources, "unreviewed").map((command) => command.commandName),
+    ["search"],
+  );
 });
 
 test("clamps selections for empty and changing command lists", () => {

@@ -46,16 +46,20 @@ Add a `BLAST_V2_MODE=packaged` opt-in configuration. In that mode Electron
 uses:
 
 - `~/.blast/dev-extensions/node_modules` as the primary catalog root;
-- `~/.blast/extensions/node_modules/@blast-extensions` as a secondary catalog
-  root; and
+- `~/.blast/external-extensions` as the first optional root for explicit,
+  user-managed external packages;
+- `~/.blast/extensions/node_modules/@blast-extensions` as the second optional
+  root for the Raycast-curated channel; and
 - `~/.blast/v2/core.sock` as the owned local endpoint.
 
-The catalog accepts ordered additional roots and keeps the first valid
-manifest for a duplicate extension name, so the existing development-over-
-production precedence is retained. The primary root remains the existing
-single-root API for callers that do not need a second installation channel.
-Missing optional additional roots are ignored; an unreadable primary root
-still fails closed as before.
+The catalog assigns host-owned source provenance to these roots as `local`,
+`external`, and `raycast-curated`. It keeps the first valid manifest for a
+duplicate extension name, so development-over-curated precedence is retained
+and an explicit external copy can override a curated copy. The primary root
+remains the existing single-root API for callers that do not need multiple
+installation channels. Missing optional additional roots are ignored; an
+unreadable primary root still fails closed as before. The external root uses
+one direct subdirectory per extension package and is not an npm installer.
 
 At the time of this decision packaged mode was explicit. [ADR
 0108](0108-default-packaged-v2-startup.md) subsequently makes it the
@@ -67,9 +71,11 @@ boundaries.
 ## Boundary
 
 This makes the existing V1 installation layout consumable by an opt-in,
-packaged V2 daemon and gives the daemon a relocatable bootstrap resource. It
-does not promise that every installed extension renders, provision third-party
-dependencies, or provide host capabilities that are not yet implemented.
+packaged V2 daemon, adds an explicit external package channel, and gives the
+daemon a relocatable bootstrap resource. It does not promise that every
+installed extension renders, provision third-party dependencies, verify source
+artifacts, sandbox extensions, or provide host capabilities that are not yet
+implemented.
 
 ## Consequences
 

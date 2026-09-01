@@ -2,6 +2,20 @@ import type { CoreCommandDescriptor } from "@blastlauncher/core";
 
 export type V2CommandSelectionDirection = "next" | "previous";
 
+/** Human-readable source label for the host-assigned chooser provenance. */
+export function describeV2CommandSource(sourceKind: CoreCommandDescriptor["sourceKind"]): string | undefined {
+  switch (sourceKind) {
+    case "local":
+      return "Local development";
+    case "raycast-curated":
+      return "Raycast-curated";
+    case "external":
+      return "Unreviewed external";
+    default:
+      return undefined;
+  }
+}
+
 /** Returns the path-free commands matching the chooser query. */
 export function filterV2Commands(
   commands: readonly CoreCommandDescriptor[],
@@ -13,7 +27,13 @@ export function filterV2Commands(
   }
 
   return commands.filter((command) =>
-    [command.title, command.extensionName, command.extensionId, command.commandName]
+    [
+      command.title,
+      command.extensionName,
+      command.extensionId,
+      command.commandName,
+      describeV2CommandSource(command.sourceKind),
+    ]
       .filter((value): value is string => value !== undefined)
       .some((value) => value.toLocaleLowerCase().includes(normalizedQuery)),
   );

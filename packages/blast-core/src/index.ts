@@ -45,12 +45,19 @@ export interface CommandIdentity {
   readonly commandName: string;
 }
 
+/** Host-assigned ecosystem classification for a discovered extension. */
+export type ExtensionSourceKind = "local" | "raycast-curated" | "external";
+
+export const EXTENSION_SOURCE_KINDS: readonly ExtensionSourceKind[] = ["local", "raycast-curated", "external"];
+
 /** Public command metadata safe to expose to a client chooser. */
 export interface CoreCommandDescriptor extends CommandIdentity {
   readonly title?: string;
   readonly extensionName?: string;
   readonly ownerOrAuthorName?: string;
   readonly entryPointMode?: ExtensionEntryPointMode;
+  /** Classification assigned by the host catalog root, never by the manifest. */
+  readonly sourceKind?: ExtensionSourceKind;
 }
 
 export interface ExtensionCatalog {
@@ -226,6 +233,7 @@ function normalizeCommandDescriptor(value: unknown): CoreCommandDescriptor {
   const title = normalizeOptionalCommandString(value.title, "title");
   const extensionName = normalizeOptionalCommandString(value.extensionName, "extensionName");
   const ownerOrAuthorName = normalizeOptionalCommandString(value.ownerOrAuthorName, "ownerOrAuthorName");
+  const sourceKind = normalizeOptionalSourceKind(value.sourceKind);
   if (
     value.entryPointMode !== undefined &&
     value.entryPointMode !== "no-view" &&
@@ -241,6 +249,7 @@ function normalizeCommandDescriptor(value: unknown): CoreCommandDescriptor {
     ...(extensionName === undefined ? {} : { extensionName }),
     ...(ownerOrAuthorName === undefined ? {} : { ownerOrAuthorName }),
     ...(value.entryPointMode === undefined ? {} : { entryPointMode: value.entryPointMode }),
+    ...(sourceKind === undefined ? {} : { sourceKind }),
   };
 }
 
@@ -252,6 +261,16 @@ function normalizeOptionalCommandString(value: unknown, field: string): string |
     throw new BlastCoreError("invalid_catalog_command", `The extension catalog returned an invalid ${field}`);
   }
   return value;
+}
+
+function normalizeOptionalSourceKind(value: unknown): ExtensionSourceKind | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (!EXTENSION_SOURCE_KINDS.includes(value as ExtensionSourceKind)) {
+    throw new BlastCoreError("invalid_catalog_command", "The extension catalog returned an invalid source kind");
+  }
+  return value as ExtensionSourceKind;
 }
 
 export class SessionRelayError extends Error {
@@ -742,6 +761,9 @@ function validateCoreCommandDescriptorPayload(value: unknown, path: string, issu
     value.entryPointMode !== "menu-bar"
   ) {
     issues.push({ path: `${path}.entryPointMode`, message: "Expected a valid entrypoint mode" });
+  }
+  if (value.sourceKind !== undefined && !EXTENSION_SOURCE_KINDS.includes(value.sourceKind as ExtensionSourceKind)) {
+    issues.push({ path: `${path}.sourceKind`, message: "Expected a valid extension source kind" });
   }
   for (const field of ["entrypoint", "rootDirectory", "preferences", "preferenceMetadata"]) {
     if (field in value) {

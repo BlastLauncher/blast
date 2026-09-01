@@ -262,6 +262,31 @@ test("uses ordered additional roots without overriding the primary root", async 
   );
 });
 
+test("labels commands with host-owned source classifications", async () => {
+  const catalog = new FilesystemExtensionCatalog({
+    root: secondaryCatalogRoot,
+    additionalRoots: [catalogRoot],
+    rootSourceKind: "external",
+    additionalRootSourceKinds: ["raycast-curated"],
+  });
+
+  const commands = await catalog.listCommands();
+  assert.equal(commands.find(({ extensionId }) => extensionId === "alpha")?.sourceKind, "external");
+  assert.equal(commands.find(({ extensionId }) => extensionId === "beta")?.sourceKind, "raycast-curated");
+  assert.equal(commands.find(({ extensionId }) => extensionId === "secondary")?.sourceKind, "external");
+});
+
+test("rejects source classifications without matching catalog roots", () => {
+  assert.throws(
+    () =>
+      new FilesystemExtensionCatalog({
+        root: catalogRoot,
+        additionalRootSourceKinds: ["external"],
+      }),
+    (error) => error.code === "invalid_catalog_source_configuration",
+  );
+});
+
 test("ignores a missing optional additional root", async () => {
   const catalog = new FilesystemExtensionCatalog({
     root: catalogRoot,

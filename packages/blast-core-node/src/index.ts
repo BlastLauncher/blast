@@ -4,9 +4,11 @@ import path from "node:path";
 
 import {
   BlastCoreError,
+  EXTENSION_SOURCE_KINDS,
   type CommandIdentity,
   type CoreCommandDescriptor,
   type ExtensionCatalog,
+  type ExtensionSourceKind,
 } from "@blastlauncher/core";
 import type {
   ExtensionDescriptor,
@@ -68,6 +70,10 @@ export interface FilesystemExtensionCatalogOptions {
    * manifest for a duplicate extension name wins.
    */
   readonly additionalRoots?: readonly string[];
+  /** Host-owned classification for the primary root's discovered commands. */
+  readonly rootSourceKind?: ExtensionSourceKind;
+  /** Classifications matching `additionalRoots` by index. */
+  readonly additionalRootSourceKinds?: readonly ExtensionSourceKind[];
   readonly manifestFileName?: string;
 }
 
@@ -89,9 +95,19 @@ export interface FilesystemExtensionCatalogWatch {
  */
 export class FilesystemExtensionCatalog implements ExtensionCatalog {
   readonly #roots: readonly string[];
+  readonly #rootSourceKinds: readonly (ExtensionSourceKind | undefined)[];
   readonly #manifestFileName: string;
   #extensionIndex:
-    | Promise<ReadonlyMap<string, { readonly directory: string; readonly manifest: ExtensionManifest }>>
+    | Promise<
+        ReadonlyMap<
+          string,
+          {
+            readonly directory: string;
+            readonly manifest: ExtensionManifest;
+            readonly sourceKind?: ExtensionSourceKind;
+          }
+        >
+      >
     | undefined;
   #watchActive = false;
 
@@ -100,10 +116,23 @@ export class FilesystemExtensionCatalog implements ExtensionCatalog {
     for (const [index, root] of (options.additionalRoots ?? []).entries()) {
       validateNonEmptyString(root, `additionalRoots[${index}]`);
     }
+    validateOptionalSourceKind(options.rootSourceKind, "rootSourceKind");
+    for (const [index, sourceKind] of (options.additionalRootSourceKinds ?? []).entries()) {
+      validateOptionalSourceKind(sourceKind, `additionalRootSourceKinds[${index}]`);
+    }
+    if ((options.additionalRootSourceKinds?.length ?? 0) > (options.additionalRoots?.length ?? 0)) {
+      throw new BlastCoreError(
+        "invalid_catalog_source_configuration",
+        "additionalRootSourceKinds cannot contain more entries than additionalRoots",
+      );
+    }
     if (options.manifestFileName !== undefined) {
       validateNonEmptyString(options.manifestFileName, "manifestFileName");
     }
     this.#roots = [options.root, ...(options.additionalRoots ?? [])].map((root) => path.resolve(root));
+    this.#rootSourceKinds = this.#roots.map((_, index) =>
+      index === 0 ? options.rootSourceKind : options.additionalRootSourceKinds?.[index - 1],
+    );
     this.#manifestFileName = options.manifestFileName ?? DEFAULT_MANIFEST_FILE_NAME;
   }
 
@@ -255,7 +284,7 @@ export class FilesystemExtensionCatalog implements ExtensionCatalog {
     signal?.throwIfAborted();
     const indexed = await this.#getExtensionIndex();
     const commands: CoreCommandDescriptor[] = [];
-    for (const { manifest } of indexed.values()) {
+    for (const { manifest, sourceKind } of indexed.values()) {
       signal?.throwIfAborted();
       const ownerOrAuthorName = manifest.owner ?? manifest.author;
       for (const command of manifest.commands) {
@@ -266,6 +295,7 @@ export class FilesystemExtensionCatalog implements ExtensionCatalog {
           ...(manifest.title === undefined ? {} : { extensionName: manifest.title }),
           ...(ownerOrAuthorName === undefined ? {} : { ownerOrAuthorName }),
           entryPointMode: command.mode ?? "view",
+          ...(sourceKind === undefined ? {} : { sourceKind }),
         });
       }
     }
@@ -309,23 +339,45 @@ export class FilesystemExtensionCatalog implements ExtensionCatalog {
   }
 
   async #getExtensionIndex(): Promise<
-    ReadonlyMap<string, { readonly directory: string; readonly manifest: ExtensionManifest }>
+    ReadonlyMap<
+      string,
+      {
+        readonly directory: string;
+        readonly manifest: ExtensionManifest;
+        readonly sourceKind?: ExtensionSourceKind;
+      }
+    >
   > {
     this.#extensionIndex ??= this.#buildExtensionIndex();
     return this.#extensionIndex;
   }
 
   async #buildExtensionIndex(): Promise<
-    ReadonlyMap<string, { readonly directory: string; readonly manifest: ExtensionManifest }>
+    ReadonlyMap<
+      string,
+      {
+        readonly directory: string;
+        readonly manifest: ExtensionManifest;
+        readonly sourceKind?: ExtensionSourceKind;
+      }
+    >
   > {
-    const index = new Map<string, { readonly directory: string; readonly manifest: ExtensionManifest }>();
+    const index = new Map<
+      string,
+      { readonly directory: string; readonly manifest: ExtensionManifest; readonly sourceKind?: ExtensionSourceKind }
+    >();
     for (const [rootIndex, root] of this.#roots.entries()) {
       for (const directory of await this.#listExtensionDirectories(root, rootIndex === 0)) {
         const manifest = await this.#readManifest(path.join(directory, this.#manifestFileName));
         if (manifest !== undefined && !index.has(manifest.name)) {
           // Roots are ordered and directories are sorted, so retaining the
           // first entry preserves deterministic duplicate-name behavior.
-          index.set(manifest.name, { directory, manifest });
+          const sourceKind = this.#rootSourceKinds[rootIndex];
+          index.set(manifest.name, {
+            directory,
+            manifest,
+            ...(sourceKind === undefined ? {} : { sourceKind }),
+          });
         }
       }
     }
@@ -637,6 +689,12 @@ function validateIdentity(identity: CommandIdentity): void {
 function validateNonEmptyString(value: string, field: string): void {
   if (typeof value !== "string" || value.length === 0) {
     throw new BlastCoreError("invalid_catalog_options", `Catalog ${field} must be a non-empty string`);
+  }
+}
+
+function validateOptionalSourceKind(value: unknown, field: string): void {
+  if (value !== undefined && !EXTENSION_SOURCE_KINDS.includes(value as ExtensionSourceKind)) {
+    throw new BlastCoreError("invalid_catalog_source_configuration", `${field} must be a valid extension source kind`);
   }
 }
 

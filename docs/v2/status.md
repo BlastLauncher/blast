@@ -157,6 +157,12 @@ slice changes what is executable, what is trusted, or what should happen next.
   `Form.DatePicker` with native date and date-time controls, preserves ISO/null
   event values, and honors validated bounds and autofocus metadata without
   adding a host or protocol boundary.
+- [ADR 0119](decisions/0119-extension-source-provenance.md) adds host-assigned
+  `local`, `raycast-curated`, and `external` source classification to path-free
+  command discovery, configures the packaged external root, and presents the
+  provenance label in the chooser. The label is informational; signatures,
+  sandboxing, artifact verification, and automatic package installation remain
+  separate boundaries.
 - [ADR 0106](decisions/0106-v2-collection-accessory-presentation.md) presents
   validated List accessory titles, icons, text/date/tag records, tooltips, and
   safe colors plus Grid accessory icons/tooltips in a compact trailing rail;
@@ -168,10 +174,10 @@ slice changes what is executable, what is trusted, or what should happen next.
 - [ADR 0100](decisions/0100-packaged-v2-bootstrap-and-catalog.md) adds the
   higher-level `@blastlauncher/raycast-runtime-node` composition and packages
   standalone V2 bootstrap, adapter, and React resources for Electron. The
-  `BLAST_V2_MODE=packaged` mode reads the existing development and
-  production extension roots with development precedence and owns a stable
-  `~/.blast/v2/core.sock` endpoint; ADR 0108 now makes it the default, with V1
-  available through the explicit legacy mode.
+  `BLAST_V2_MODE=packaged` mode reads local development, explicit external,
+  and Raycast-curated extension roots with the precedence defined by ADR 0119
+  and owns a stable `~/.blast/v2/core.sock` endpoint; ADR 0108 now makes it the
+  default, with V1 available through the explicit legacy mode.
 - The Node filesystem catalog discovers Raycast-style `package.json` manifests,
   probes `src/<command-name>` entrypoints, honors explicit entrypoint
   overrides, and never resolves a path outside the extension root.
@@ -744,14 +750,17 @@ slice changes what is executable, what is trusted, or what should happen next.
 
 ## Intentionally missing
 
-- a persistent, watched catalog index and extension installation flows; the
-  current on-demand catalog refresh is implemented under ADR 0114;
+- a persistent catalog index and extension installation/update flows; bounded
+  watching and on-demand refresh are implemented under ADRs 0114 and 0116, and
+  ADR 0119 now classifies packaged local, curated, and external roots without
+  installing packages;
 - full dependency provisioning beyond the seventeen bounded e2e seeds, lockfile/audit
-  policy for large npm graphs, and native package externalization (the runtime
-  supports explicit local or vendored dependency roots but never installs
-  packages); these dependency and platform concerns are tracked separately
-  from Raycast API compatibility, and extension authors own third-party native
-  module support on their target platforms;
+  policy for large npm graphs, native package externalization, and stronger
+  source verification (the runtime supports explicit local or vendored
+  dependency roots but never installs packages); these dependency, trust, and
+  platform concerns are tracked separately from Raycast API compatibility, and
+  extension authors own third-party native module support on their target
+  platforms;
 - the remaining measured Raycast surface: broader desktop APIs, additional
   action helpers/providers, and additional Tool/browser APIs; the
   declaration-driven ARM64 finish gate is green, and the client toast timeout,
@@ -812,6 +821,10 @@ automatic catalog change detection, renderer startup recovery, and
 Form.DatePicker presentation are now live,
 while the next application work is extension installation/update UX, remaining action
 helpers/providers, and scene visuals.
+The source-provenance slice in [ADR 0119](decisions/0119-extension-source-provenance.md)
+now distinguishes packaged local, Raycast-curated, and unreviewed external
+roots in the chooser; it deliberately does not add an installer, package
+manager, signature verifier, or sandbox.
 Installation UI and internal V2 migration/update flows are later product work;
 no V1 user migration is needed because V1 was never released.
 Native/macOS, WASM,
@@ -831,7 +844,9 @@ only small portable JavaScript seeds eligible after the API-first slice.
    0117](decisions/0117-v2-client-startup-recovery.md), and native
    Form.DatePicker presentation is implemented under [ADR
    0118](decisions/0118-v2-date-picker-presentation.md); persistent indexes
-   remain a follow-up. The managed Node prerequisite and
+   remain a follow-up. Source provenance and packaged root classification are
+   implemented under [ADR 0119](decisions/0119-extension-source-provenance.md);
+   the managed Node prerequisite and
    retryable first-run installer are implemented under [ADR
    0115](decisions/0115-managed-node-runtime-baseline.md). Continue with
    extension installation/update UX and internal V2 migration/update flows,

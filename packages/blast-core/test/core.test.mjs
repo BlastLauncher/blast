@@ -151,6 +151,7 @@ test("normalizes path-free command discovery metadata", async () => {
           extensionName: "Example Extension",
           ownerOrAuthorName: "example-owner",
           entryPointMode: "view",
+          sourceKind: "raycast-curated",
         },
       ],
     },
@@ -164,8 +165,22 @@ test("normalizes path-free command discovery metadata", async () => {
       extensionName: "Example Extension",
       ownerOrAuthorName: "example-owner",
       entryPointMode: "view",
+      sourceKind: "raycast-curated",
     },
   ]);
+});
+
+test("rejects an unknown catalog source classification", async () => {
+  const { core } = createHarness({
+    catalog: {
+      listCommands: async () => [{ extensionId: "example.extension", commandName: "index", sourceKind: "verified" }],
+    },
+  });
+
+  await assert.rejects(
+    () => core.listCommands(),
+    (error) => error.code === "invalid_catalog_command",
+  );
 });
 
 test("fails discovery closed when the catalog cannot list commands", async () => {
@@ -236,6 +251,7 @@ test("serves path-free command discovery through the client boundary", async () 
           title: "Example",
           extensionName: "Example Extension",
           entryPointMode: "view",
+          sourceKind: "external",
         },
       ],
     },
@@ -255,6 +271,7 @@ test("serves path-free command discovery through the client boundary", async () 
           title: "Example",
           extensionName: "Example Extension",
           entryPointMode: "view",
+          sourceKind: "external",
         },
       ],
     },

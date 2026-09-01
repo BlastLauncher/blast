@@ -15,10 +15,12 @@ The bridge keeps the socket, daemon, and `CoreClientHost` in the main process
 and exposes only serialized snapshots and semantic commands through preload.
 The renderer uses the semantic SceneNode view when V2 is active. Set
 `BLAST_V2_MODE=packaged` to explicitly select the packaged V2 bootstrap and the existing
-`~/.blast/dev-extensions/node_modules` plus
-`~/.blast/extensions/node_modules/@blast-extensions` catalog roots (development
-extensions win duplicates). Packaged mode does not install extensions or
-third-party dependencies. Menu-bar scenes also project into the
+`~/.blast/dev-extensions/node_modules`, `~/.blast/external-extensions`, and
+`~/.blast/extensions/node_modules/@blast-extensions` catalog roots (local
+development wins duplicates, followed by explicit external packages, then the
+Raycast-curated channel). The chooser labels external packages as unreviewed;
+this is source provenance, not signature verification or sandboxing. Packaged
+mode does not install extensions or third-party dependencies. Menu-bar scenes also project into the
 Electron-owned native status-item menu when V2 is active; installation UI,
 internal V2 migration/update flows, and the remaining scene-visual polish
 remain future work. V1 was never released, so this does not imply a V1 user

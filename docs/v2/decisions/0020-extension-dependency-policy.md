@@ -30,7 +30,11 @@ as a deterministic vendor root. This improves measurement for packages that
 are already available without pretending that the entire public corpus has
 been installed. Native or unavailable packages remain explicit dependency
 failures; installation, lockfile resolution, package signing, and native
-externalization are follow-up launcher policy.
+externalization are follow-up launcher policy. The packaged source policy in
+[ADR 0119](0119-extension-source-provenance.md) does not change this: both
+Raycast-curated artifacts and user-managed external packages must arrive with
+their dependencies already installed or bundled, and source labels do not
+grant broader runtime access.
 
 ## Consequences
 

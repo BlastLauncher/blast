@@ -7,6 +7,7 @@ import type { SceneFormValues } from "@blastlauncher/scene";
 import type { V2ClientRendererAPI } from "./v2Types";
 
 import { V2CommandEmptyState, V2StartupFailure } from "./V2AppStates";
+import { V2CommandSourceBadge } from "./V2CommandSource";
 import { V2Scene } from "./V2Scene";
 import { V2ToastStack } from "./V2ToastStack";
 import { clampV2CommandSelection, filterV2Commands, moveV2CommandSelection } from "./v2CommandListModel";
@@ -290,6 +291,7 @@ export function V2CommandList({
               <span className="block truncate text-xs text-white/50">
                 {command.extensionName ?? command.extensionId} · {command.commandName}
               </span>
+              <V2CommandSourceBadge sourceKind={command.sourceKind} />
             </span>
             <span className="text-white/30">›</span>
           </button>

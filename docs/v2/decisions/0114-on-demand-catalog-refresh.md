@@ -5,9 +5,9 @@
 
 ## Context
 
-The packaged V2 daemon already reads the existing development and production
-extension roots, and the Electron command chooser already exposes a Refresh
-action. The filesystem catalog currently caches its first manifest scan for the
+The packaged V2 daemon already reads local development, explicit external, and
+Raycast-curated extension roots, and the Electron command chooser already
+exposes a Refresh action. The filesystem catalog currently caches its first manifest scan for the
 life of the daemon, however. An extension installed, removed, or updated
 outside the process therefore remains invisible until the daemon is restarted,
 which makes the existing refresh affordance misleading.

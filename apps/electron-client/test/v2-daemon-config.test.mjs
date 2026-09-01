@@ -60,7 +60,12 @@ test("derives packaged paths from the stable user and resource roots", () => {
   });
   assert.deepEqual(packaged, {
     catalogRoot: "/home/example/.blast/dev-extensions/node_modules",
-    additionalCatalogRoots: ["/home/example/.blast/extensions/node_modules/@blast-extensions"],
+    additionalCatalogRoots: [
+      "/home/example/.blast/external-extensions",
+      "/home/example/.blast/extensions/node_modules/@blast-extensions",
+    ],
+    catalogRootSourceKind: "local",
+    additionalCatalogRootSourceKinds: ["external", "raycast-curated"],
     bootstrapPath: "/opt/blast/resources/v2-bootstrap.cjs",
     socketPath: "/home/example/.blast/v2/core.sock",
     raycastApiPath: "/opt/blast/resources/v2-raycast-api.cjs",

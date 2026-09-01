@@ -1,8 +1,12 @@
 import path from "node:path";
 
+import type { ExtensionSourceKind } from "@blastlauncher/core";
+
 export interface V2DaemonConfiguration {
   readonly catalogRoot: string;
   readonly additionalCatalogRoots?: readonly string[];
+  readonly catalogRootSourceKind?: ExtensionSourceKind;
+  readonly additionalCatalogRootSourceKinds?: readonly ExtensionSourceKind[];
   readonly bootstrapPath: string;
   readonly socketPath: string;
   readonly nodeExecutable?: string;
@@ -160,7 +164,12 @@ export function createPackagedV2DaemonConfiguration(options: PackagedV2DaemonPat
 
   return {
     catalogRoot: path.join(options.userDirectory, "dev-extensions", "node_modules"),
-    additionalCatalogRoots: [path.join(options.userDirectory, "extensions", "node_modules", "@blast-extensions")],
+    additionalCatalogRoots: [
+      path.join(options.userDirectory, "external-extensions"),
+      path.join(options.userDirectory, "extensions", "node_modules", "@blast-extensions"),
+    ],
+    catalogRootSourceKind: "local",
+    additionalCatalogRootSourceKinds: ["external", "raycast-curated"],
     bootstrapPath: path.join(options.resourcesPath, "v2-bootstrap.cjs"),
     socketPath: path.join(options.userDirectory, "v2", "core.sock"),
     raycastApiPath: path.join(options.resourcesPath, "v2-raycast-api.cjs"),

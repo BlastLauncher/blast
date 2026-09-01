@@ -109,7 +109,10 @@ extension paths. ADR 0093 adds a deterministic, path-free command-discovery
 snapshot for clients; persistent catalog indexing, capability provider policy,
 and restart ownership are deliberate later slices. ADR 0116 adds bounded Node
 catalog change detection without
-changing the client-facing protocol.
+changing the client-facing protocol. ADR 0119 adds host-assigned source
+provenance to that path-free snapshot so the client can distinguish local,
+Raycast-curated, and unreviewed external roots without treating the label as a
+signature, sandbox, or capability decision.
 `@blastlauncher/core-node` ships the first Node composition: its filesystem
 catalog discovers Raycast-style `package.json` manifests from a root and
 resolves entrypoints without ever returning a path outside the extension root;
@@ -122,7 +125,9 @@ discovery snapshot from ADR 0093 is now available to the client. The bounded
 Node connector in ADR 0095 owns socket creation, framing, and
 connection/handshake cleanup, while ADR 0098 lets Electron own that daemon
 composition only when all catalog, bootstrap, and socket paths are explicitly
-provided.
+provided. Packaged mode assigns source provenance to its local, external, and
+Raycast-curated roots under ADR 0119; it still does not install or provision
+extension dependencies.
 
 ### Clients
 

@@ -1,4 +1,4 @@
-import { BlastCore } from "@blastlauncher/core";
+import { BlastCore, type ExtensionSourceKind } from "@blastlauncher/core";
 import { ExtensionHost, type ExtensionHostOptions } from "@blastlauncher/extension-host";
 import {
   NodeExtensionProcessLauncher,
@@ -23,6 +23,10 @@ export interface NodeCoreDaemonOptions {
   readonly catalogRoot: string;
   /** Optional lower-priority catalog roots, in discovery order. */
   readonly additionalCatalogRoots?: readonly string[];
+  /** Host-owned classification for the primary catalog root. */
+  readonly catalogRootSourceKind?: ExtensionSourceKind;
+  /** Classifications matching `additionalCatalogRoots` by index. */
+  readonly additionalCatalogRootSourceKinds?: readonly ExtensionSourceKind[];
   readonly manifestFileName?: FilesystemExtensionCatalogOptions["manifestFileName"];
   readonly bootstrapPath: string;
   /** An explicit environment object or descriptor-based factory for children. */
@@ -96,6 +100,10 @@ export class NodeCoreDaemon {
     const catalog = new FilesystemExtensionCatalog({
       root: options.catalogRoot,
       ...(options.additionalCatalogRoots === undefined ? {} : { additionalRoots: options.additionalCatalogRoots }),
+      ...(options.catalogRootSourceKind === undefined ? {} : { rootSourceKind: options.catalogRootSourceKind }),
+      ...(options.additionalCatalogRootSourceKinds === undefined
+        ? {}
+        : { additionalRootSourceKinds: options.additionalCatalogRootSourceKinds }),
       ...(options.manifestFileName === undefined ? {} : { manifestFileName: options.manifestFileName }),
     });
     const launcher = new NodeExtensionProcessLauncher({
