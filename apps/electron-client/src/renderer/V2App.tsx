@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { CoreClientSnapshot } from "@blastlauncher/client";
 import type { CommandIdentity } from "@blastlauncher/core";
@@ -6,6 +6,7 @@ import type { SceneFormValues } from "@blastlauncher/scene";
 
 import type { V2ClientRendererAPI } from "./v2Types";
 
+import { V2CommandEmptyState, V2StartupFailure } from "./V2AppStates";
 import { V2Scene } from "./V2Scene";
 import { V2ToastStack } from "./V2ToastStack";
 import { clampV2CommandSelection, filterV2Commands, moveV2CommandSelection } from "./v2CommandListModel";
@@ -26,9 +27,11 @@ export function V2App({ api }: V2AppProps): React.JSX.Element {
   const [failure, setFailure] = useState<string | undefined>();
   const [toastState, setToastState] = useState<V2ToastState>(() => createV2ToastState());
   const [busy, setBusy] = useState(false);
+  const mountedRef = useRef(true);
 
   useEffect(() => {
     let mounted = true;
+    mountedRef.current = true;
     const unsubscribeSnapshot = api.subscribeSnapshots((next) => {
       if (!mounted) {
         return;
@@ -59,6 +62,7 @@ export function V2App({ api }: V2AppProps): React.JSX.Element {
 
     return () => {
       mounted = false;
+      mountedRef.current = false;
       unsubscribeSnapshot();
       unsubscribeToast();
     };
@@ -97,6 +101,27 @@ export function V2App({ api }: V2AppProps): React.JSX.Element {
       }),
     [api, perform],
   );
+  const retryConnection = useCallback((): void => {
+    setBusy(true);
+    setFailure(undefined);
+    void api
+      .start()
+      .then((initial) => {
+        if (mountedRef.current) {
+          setSnapshot(initial);
+        }
+      })
+      .catch((error: unknown) => {
+        if (mountedRef.current) {
+          setFailure(describeError(error));
+        }
+      })
+      .finally(() => {
+        if (mountedRef.current) {
+          setBusy(false);
+        }
+      });
+  }, [api]);
   const sendSceneEvent = useCallback(
     async (eventId: string, values?: SceneFormValues): Promise<void> => {
       try {
@@ -158,9 +183,18 @@ export function V2App({ api }: V2AppProps): React.JSX.Element {
 
       <main className="min-h-0 flex-1 overflow-auto p-4">
         {snapshot === undefined ? (
-          <LoadingState />
+          failure === undefined ? (
+            <LoadingState />
+          ) : (
+            <V2StartupFailure disabled={busy} onRetry={retryConnection} />
+          )
         ) : snapshot.activeCommand === undefined ? (
-          <CommandList commands={snapshot.commands} disabled={busy} onRun={runCommand} />
+          <V2CommandList
+            commands={snapshot.commands}
+            disabled={busy}
+            onRefresh={() => void refreshCommands()}
+            onRun={runCommand}
+          />
         ) : snapshot.scene === undefined ? (
           <LoadingState label={snapshot.state === "stopping" ? "Stopping command…" : "Starting command…"} />
         ) : (
@@ -178,13 +212,15 @@ export function V2App({ api }: V2AppProps): React.JSX.Element {
   );
 }
 
-function CommandList({
+export function V2CommandList({
   commands,
   disabled,
+  onRefresh,
   onRun,
 }: {
   readonly commands: CoreClientSnapshot["commands"];
   readonly disabled: boolean;
+  readonly onRefresh: () => void;
   readonly onRun: (identity: CommandIdentity) => void;
 }): React.JSX.Element {
   const [query, setQuery] = useState("");
@@ -259,7 +295,7 @@ function CommandList({
           </button>
         ))}
         {visibleCommands.length === 0 && (
-          <div className="py-10 text-center text-sm text-white/50">No commands found.</div>
+          <V2CommandEmptyState disabled={disabled} onRefresh={onRefresh} query={query} />
         )}
       </div>
     </section>

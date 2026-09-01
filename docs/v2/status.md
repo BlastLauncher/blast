@@ -149,6 +149,10 @@ slice changes what is executable, what is trusted, or what should happen next.
   refresh an idle command snapshot without interrupting an active command;
   installation, dependency provisioning, and persistent indexes remain out
   of scope.
+- [ADR 0117](decisions/0117-v2-client-startup-recovery.md) makes transient V2
+  startup failures retryable in the renderer and distinguishes an empty
+  command catalog from an empty search result; it does not restart active
+  controllers or add installation/provider behavior.
 - [ADR 0106](decisions/0106-v2-collection-accessory-presentation.md) presents
   validated List accessory titles, icons, text/date/tag records, tooltips, and
   safe colors plus Grid accessory icons/tooltips in a compact trailing rail;
@@ -799,8 +803,8 @@ slice is now recorded by [ADR 0110](decisions/0110-v2-application-boundary-perfo
 and its baseline artifact. The bounded toast timeout, icon contrast, and
 ActionPanel.Submenu presentation slices are recorded by ADRs 0111, 0112, and
 0113, 0114, 0115, and 0116; the managed runtime prerequisite is now aligned and
-automatic catalog change detection is now live, while the next application
-work is extension installation/update UX, remaining action
+automatic catalog change detection and renderer startup recovery are now live,
+while the next application work is extension installation/update UX, remaining action
 helpers/providers, and scene visuals.
 Installation UI and internal V2 migration/update flows are later product work;
 no V1 user migration is needed because V1 was never released.
@@ -816,8 +820,10 @@ only small portable JavaScript seeds eligible after the API-first slice.
    on-demand catalog refresh is now implemented under [ADR
    0114](decisions/0114-on-demand-catalog-refresh.md). Automatic catalog
    change detection is implemented under [ADR
-   0116](decisions/0116-automatic-catalog-change-detection.md); persistent
-   indexes remain a follow-up. The managed Node prerequisite and
+   0116](decisions/0116-automatic-catalog-change-detection.md), and renderer
+   startup recovery is implemented under [ADR
+   0117](decisions/0117-v2-client-startup-recovery.md); persistent indexes
+   remain a follow-up. The managed Node prerequisite and
    retryable first-run installer are implemented under [ADR
    0115](decisions/0115-managed-node-runtime-baseline.md). Continue with
    extension installation/update UX and internal V2 migration/update flows,

@@ -149,7 +149,8 @@ contrast calculations and server-rendered icon cases for adjusted and opted-out
 tints. ADR 0116 adds temporary-root filesystem watcher tests for manifest
 changes, extension add/remove events, daemon-owned watcher shutdown, and the
 idle application refresh callback; the ARM64 performance baseline is refreshed
-after that lifecycle change.
+after that lifecycle change. ADR 0117 adds server-rendered empty-catalog,
+empty-search, and retry-state coverage at the Electron renderer boundary.
 IPC inputs are
 validated at the main-process boundary, subscriptions clean up with the
 sender, and snapshots use JSON-safe failure details; these checks do not
