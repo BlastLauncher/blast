@@ -179,6 +179,11 @@ slice changes what is executable, what is trusted, or what should happen next.
   filter title/value/keyword matches while preserving extension-owned filtering
   when requested. Existing submenu and menu-bar alternate paths remain covered
   by regression tests.
+- [ADR 0123](decisions/0123-minimal-package-control-polish.md) keeps the
+  first-release external package controls intentionally small while adding
+  inline remove/rollback confirmation, operation-specific busy feedback, and
+  visible chooser-cancellation status. Package discovery, dependency
+  provisioning, automatic updates, and migration tooling remain deferred.
 - [ADR 0106](decisions/0106-v2-collection-accessory-presentation.md) presents
   validated List accessory titles, icons, text/date/tag records, tooltips, and
   safe colors plus Grid accessory icons/tooltips in a compact trailing rail;
@@ -874,9 +879,12 @@ only small portable JavaScript seeds eligible after the API-first slice.
    packaged Electron bridge/minimal controls are implemented under [ADR
    0121](decisions/0121-electron-extension-package-bridge.md), and dropdown
    search presentation is implemented under [ADR
-   0122](decisions/0122-dropdown-search-presentation.md). Next polish
-   package-management UX and internal V2 migration/update flows, remaining
-   action helpers/providers, and scene visuals. There is no V1 user
+   0122](decisions/0122-dropdown-search-presentation.md). The necessary
+   first-release safety polish is implemented under [ADR
+   0123](decisions/0123-minimal-package-control-polish.md); next consider
+   only the smallest internal V2 refresh/update affordance if a real release
+   workflow needs it, followed by remaining action helpers/providers and scene
+   visuals. There is no V1 user
    migration requirement because V1 was never released. Keep these client
    boundaries separate from the already-green API finish gate and from
    host/provider work.

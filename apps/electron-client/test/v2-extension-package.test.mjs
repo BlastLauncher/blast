@@ -12,7 +12,12 @@ const {
   runV2ExtensionPackageSourceOperation,
 } = await import("../dist/v2ExtensionPackageTypes.js");
 const { registerV2ExtensionPackageIPCEvents } = await import("../dist/v2ExtensionPackages.js");
-const { V2ExtensionPackageControls } = await import("../dist/renderer/V2ExtensionPackageControls.js");
+const {
+  V2ExtensionPackageConfirmation,
+  V2ExtensionPackageControls,
+  describeV2ExtensionPackageCancellation,
+  describeV2ExtensionPackageProgress,
+} = await import("../dist/renderer/V2ExtensionPackageControls.js");
 const { V2ClientChannels } = await import("../dist/v2ClientChannels.js");
 
 test("serializes package results without managed paths", () => {
@@ -195,12 +200,46 @@ test("renders minimal external package management controls", () => {
   );
 
   assert.match(markup, /External packages/);
+  assert.match(markup, /data-v2-package-controls="true"/);
+  assert.match(markup, /aria-busy="false"/);
   assert.match(markup, /Import package/);
   assert.match(markup, /Update package/);
   assert.match(markup, /Remove demo\.extension/);
   assert.match(markup, /Rollback demo\.extension/);
   assert.doesNotMatch(markup, /curated\.extension/);
   assert.doesNotMatch(markup, /\/home\/example|\.blast\/external-extensions/);
+});
+
+test("requires explicit confirmation for destructive package actions", () => {
+  const removeMarkup = renderToStaticMarkup(
+    React.createElement(V2ExtensionPackageConfirmation, {
+      disabled: false,
+      extensionId: "demo.extension",
+      onCancel: () => {},
+      onConfirm: () => {},
+      operation: "remove",
+    }),
+  );
+  assert.match(removeMarkup, /Remove demo\.extension from managed packages\?/);
+  assert.match(removeMarkup, /Remove demo\.extension confirmation/);
+  assert.match(removeMarkup, />Cancel</);
+  assert.match(removeMarkup, />Remove</);
+
+  const rollbackMarkup = renderToStaticMarkup(
+    React.createElement(V2ExtensionPackageConfirmation, {
+      disabled: true,
+      extensionId: "demo.extension",
+      onCancel: () => {},
+      onConfirm: () => {},
+      operation: "rollback",
+    }),
+  );
+  assert.match(rollbackMarkup, /Restore the previous package for demo\.extension\?/);
+  assert.match(rollbackMarkup, /disabled=""/);
+  assert.equal(describeV2ExtensionPackageProgress("remove", "demo.extension"), "Removing demo.extension…");
+  assert.equal(describeV2ExtensionPackageProgress("rollback", "demo.extension"), "Restoring demo.extension…");
+  assert.equal(describeV2ExtensionPackageCancellation("install"), "Import cancelled; no package was changed.");
+  assert.equal(describeV2ExtensionPackageCancellation("update"), "Update cancelled; no package was changed.");
 });
 
 test("does not render package controls when the main bridge is unavailable", () => {

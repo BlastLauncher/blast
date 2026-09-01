@@ -170,6 +170,10 @@ ADR 0122 adds renderer coverage for List/Grid/Form dropdown search inputs,
 local title/value/keyword filtering, extension-owned filtering mode, and the
 existing submenu/menu-bar alternate regression paths. These tests remain
 server-rendered and deterministic; native Electron execution is not required.
+ADR 0123 adds server-rendered coverage for the package controls’ explicit
+confirmation, operation-specific busy labels, and chooser-cancellation
+status. It intentionally does not introduce registry, dependency, or
+background-update fixtures.
 
 ### Renderer conformance
 

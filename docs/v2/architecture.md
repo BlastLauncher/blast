@@ -159,6 +159,9 @@ minimal local external-package controls through the Electron main-process
 bridge; it does not widen the protocol or add dependency provisioning.
 ADR 0122 completes the renderer affordance for the already-measured dropdown
 search callbacks without widening the protocol.
+ADR 0123 keeps the existing package controls safe and explicit with inline
+confirmation and operation feedback; it does not add package discovery,
+dependency provisioning, or migration tooling.
 
 ### Capability providers
 
