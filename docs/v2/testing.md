@@ -152,6 +152,8 @@ idle application refresh callback; the ARM64 performance baseline is refreshed
 after that lifecycle change. ADR 0117 adds server-rendered empty-catalog,
 empty-search, and retry-state coverage at the Electron renderer boundary, plus
 a client-host regression proving transient connection failures can be retried.
+ADR 0118 adds server-rendered date and date-time picker coverage with ISO
+conversion, bounds, invalid-value fallback, and nullable clearing semantics.
 IPC inputs are
 validated at the main-process boundary, subscriptions clean up with the
 sender, and snapshots use JSON-safe failure details; these checks do not

@@ -153,6 +153,10 @@ slice changes what is executable, what is trusted, or what should happen next.
   startup failures retryable in the renderer and distinguishes an empty
   command catalog from an empty search result; it does not restart active
   controllers or add installation/provider behavior.
+- [ADR 0118](decisions/0118-v2-date-picker-presentation.md) presents
+  `Form.DatePicker` with native date and date-time controls, preserves ISO/null
+  event values, and honors validated bounds and autofocus metadata without
+  adding a host or protocol boundary.
 - [ADR 0106](decisions/0106-v2-collection-accessory-presentation.md) presents
   validated List accessory titles, icons, text/date/tag records, tooltips, and
   safe colors plus Grid accessory icons/tooltips in a compact trailing rail;
@@ -762,8 +766,9 @@ slice changes what is executable, what is trusted, or what should happen next.
   packaged bootstrap/catalog bridge, native status-item menu projection, and
   toast lifecycle/action presentation, scene icon/image source presentation,
   icon mask/tint presentation, icon contrast adjustment, action chrome fidelity,
-  ActionPanel.Submenu presentation, and the keyboard command chooser, plus the
-  bounded toast timeout policy, now exist; packaged mode is now the default
+  ActionPanel.Submenu presentation, the keyboard command chooser, and native
+  Form.DatePicker presentation, plus the bounded toast timeout policy, now
+  exist; packaged mode is now the default
   under ADR 0108, while installation UI and internal V2
   migration/update flows, additional action helpers/providers, and remaining
   scene visuals are still missing. There is no V1 user
@@ -803,7 +808,8 @@ slice is now recorded by [ADR 0110](decisions/0110-v2-application-boundary-perfo
 and its baseline artifact. The bounded toast timeout, icon contrast, and
 ActionPanel.Submenu presentation slices are recorded by ADRs 0111, 0112, and
 0113, 0114, 0115, and 0116; the managed runtime prerequisite is now aligned and
-automatic catalog change detection and renderer startup recovery are now live,
+automatic catalog change detection, renderer startup recovery, and
+Form.DatePicker presentation are now live,
 while the next application work is extension installation/update UX, remaining action
 helpers/providers, and scene visuals.
 Installation UI and internal V2 migration/update flows are later product work;
@@ -822,7 +828,9 @@ only small portable JavaScript seeds eligible after the API-first slice.
    change detection is implemented under [ADR
    0116](decisions/0116-automatic-catalog-change-detection.md), and renderer
    startup recovery is implemented under [ADR
-   0117](decisions/0117-v2-client-startup-recovery.md); persistent indexes
+   0117](decisions/0117-v2-client-startup-recovery.md), and native
+   Form.DatePicker presentation is implemented under [ADR
+   0118](decisions/0118-v2-date-picker-presentation.md); persistent indexes
    remain a follow-up. The managed Node prerequisite and
    retryable first-run installer are implemented under [ADR
    0115](decisions/0115-managed-node-runtime-baseline.md). Continue with

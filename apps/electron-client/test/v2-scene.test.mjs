@@ -29,7 +29,8 @@ Reflect.set(NodeModule, "_resolveFilename", (request, parent, isMain, options) =
 const markdownStylesheet = fileURLToPath(new URL("../dist/renderer/components/Detail/markdown.scss", import.meta.url));
 mkdirSync(fileURLToPath(new URL("../dist/renderer/components/Detail/", import.meta.url)), { recursive: true });
 writeFileSync(markdownStylesheet, "");
-const { V2Scene, filterV2SceneActionChildren } = await import("../dist/renderer/V2Scene.js");
+const { V2Scene, filterV2SceneActionChildren, formatV2DatePickerValue, serializeV2DatePickerValue } =
+  await import("../dist/renderer/V2Scene.js");
 Reflect.set(NodeModule, "_resolveFilename", originalResolveFilename);
 rmSync(markdownStylesheet);
 rmSync(svgStub, { force: true });
@@ -135,6 +136,75 @@ test("server-renders action styles, structured shortcuts, and auto-focus", () =>
   assert.match(markup, /bg-red-400\/20/);
   assert.match(markup, /Delete/);
   assert.match(markup, /cmd \+ shift \+ D/);
+  assert.match(markup, /autofocus/);
+});
+
+test("server-renders native date-picker modes and normalizes ISO values", () => {
+  const source = "2026-08-28T12:30:00.000Z";
+  const dateValue = formatV2DatePickerValue(source, "date");
+  const dateTimeValue = formatV2DatePickerValue(source, "date_time");
+  const min = formatV2DatePickerValue("2026-08-01T00:00:00.000Z", "date");
+  const max = formatV2DatePickerValue("2026-09-30T00:00:00.000Z", "date");
+
+  assert.match(dateValue, /^\d{4}-\d{2}-\d{2}$/);
+  assert.match(dateTimeValue, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);
+  assert.equal(
+    serializeV2DatePickerValue(dateValue, "date"),
+    new Date(
+      Number(dateValue.slice(0, 4)),
+      Number(dateValue.slice(5, 7)) - 1,
+      Number(dateValue.slice(8, 10)),
+    ).toISOString(),
+  );
+  assert.equal(serializeV2DatePickerValue("", "date"), null);
+  assert.equal(serializeV2DatePickerValue("2026-02-30", "date"), null);
+  const preciseSource = "2026-08-28T12:30:45.123Z";
+  const preciseValue = formatV2DatePickerValue(preciseSource, "date_time");
+  assert.match(preciseValue, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}$/);
+  assert.equal(serializeV2DatePickerValue(preciseValue, "date_time"), preciseSource);
+  assert.equal(formatV2DatePickerValue("2026-02-30T00:00:00.000Z", "date"), "");
+  assert.equal(formatV2DatePickerValue("not-a-date", "date_time"), "");
+
+  const markup = renderToStaticMarkup(
+    React.createElement(V2Scene, {
+      disabled: false,
+      onEvent: async () => {},
+      root: {
+        id: "date-form",
+        type: "form",
+        props: { navigationTitle: "Dates" },
+        children: [
+          {
+            id: "due",
+            type: "form-date-picker",
+            props: {
+              id: "due",
+              title: "Due date",
+              type: "date",
+              min: "2026-08-01T00:00:00.000Z",
+              max: "2026-09-30T00:00:00.000Z",
+              defaultValue: source,
+              autoFocus: true,
+            },
+            children: [],
+          },
+          {
+            id: "meeting",
+            type: "form-date-picker",
+            props: { id: "meeting", title: "Meeting", type: "date_time", defaultValue: source },
+            children: [],
+          },
+        ],
+      },
+    }),
+  );
+
+  assert.match(markup, new RegExp(`type="date"`));
+  assert.match(markup, new RegExp(`value="${dateValue}"`));
+  assert.match(markup, new RegExp(`min="${min}"`));
+  assert.match(markup, new RegExp(`max="${max}"`));
+  assert.match(markup, new RegExp(`type="datetime-local"`));
+  assert.match(markup, new RegExp(`value="${dateTimeValue}"`));
   assert.match(markup, /autofocus/);
 });
 

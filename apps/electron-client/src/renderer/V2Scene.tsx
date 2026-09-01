@@ -968,17 +968,31 @@ function FormField({
       );
       break;
     case "form-date-picker":
-      control = (
-        <input
-          {...common}
-          className="w-full rounded-md border border-white/10 bg-black/20 px-3 py-2 text-sm outline-none focus:border-blue-400/60"
-          onChange={(event) => onChange(event.target.value)}
-          type="text"
-          value={
-            typeof value === "string" ? value : (stringProp(field, "value") ?? stringProp(field, "defaultValue") ?? "")
-          }
-        />
-      );
+      {
+        const datePickerType = stringProp(field, "type") === "date" ? "date" : "date_time";
+        const sourceValue =
+          value === null
+            ? undefined
+            : typeof value === "string"
+              ? value
+              : (stringProp(field, "value") ?? stringProp(field, "defaultValue"));
+        const inputValue = formatV2DatePickerValue(sourceValue, datePickerType);
+        const min = formatV2DatePickerValue(stringProp(field, "min"), datePickerType);
+        const max = formatV2DatePickerValue(stringProp(field, "max"), datePickerType);
+        control = (
+          <input
+            {...common}
+            autoFocus={booleanProp(field, "autoFocus")}
+            className="w-full rounded-md border border-white/10 bg-black/20 px-3 py-2 text-sm outline-none focus:border-blue-400/60"
+            max={max === "" ? undefined : max}
+            min={min === "" ? undefined : min}
+            onChange={(event) => onChange(serializeV2DatePickerValue(event.target.value, datePickerType))}
+            step={datePickerType === "date_time" ? 0.001 : undefined}
+            type={datePickerType === "date" ? "date" : "datetime-local"}
+            value={inputValue}
+          />
+        );
+      }
       break;
     case "form-tag-picker":
     case "form-file-picker":
@@ -1274,6 +1288,85 @@ function sceneFormValue(value: ScenePropValue | undefined): SceneFormValue | und
     return value;
   }
   return undefined;
+}
+
+export type V2DatePickerType = "date" | "date_time";
+
+export function formatV2DatePickerValue(value: string | undefined, type: V2DatePickerType): string {
+  if (value === undefined || !isValidV2DateWireValue(value)) {
+    return "";
+  }
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) {
+    return "";
+  }
+  const year = String(date.getFullYear()).padStart(4, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  if (type === "date") {
+    return `${year}-${month}-${day}`;
+  }
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = date.getSeconds();
+  const milliseconds = date.getMilliseconds();
+  if (seconds === 0 && milliseconds === 0) {
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
+  const secondValue = String(seconds).padStart(2, "0");
+  const millisecondValue = milliseconds === 0 ? "" : `.${String(milliseconds).padStart(3, "0")}`;
+  return `${year}-${month}-${day}T${hours}:${minutes}:${secondValue}${millisecondValue}`;
+}
+
+export function serializeV2DatePickerValue(value: string, type: V2DatePickerType): string | null {
+  if (value === "") {
+    return null;
+  }
+  const pattern =
+    type === "date"
+      ? /^(\d{4})-(\d{2})-(\d{2})$/
+      : /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?$/;
+  const match = pattern.exec(value);
+  if (match === null) {
+    return null;
+  }
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const hour = type === "date_time" ? Number(match[4]) : 0;
+  const minute = type === "date_time" ? Number(match[5]) : 0;
+  const second = type === "date_time" && match[6] !== undefined ? Number(match[6]) : 0;
+  const millisecond = type === "date_time" && match[7] !== undefined ? Number(match[7].padEnd(3, "0")) : 0;
+  const date = new Date(year, month - 1, day, hour, minute, second, millisecond);
+  if (
+    !Number.isFinite(date.getTime()) ||
+    date.getFullYear() !== year ||
+    date.getMonth() !== month - 1 ||
+    date.getDate() !== day ||
+    date.getHours() !== hour ||
+    date.getMinutes() !== minute ||
+    date.getSeconds() !== second ||
+    date.getMilliseconds() !== millisecond
+  ) {
+    return null;
+  }
+  return date.toISOString();
+}
+
+function isValidV2DateWireValue(value: string): boolean {
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
+  if (match === null) {
+    return false;
+  }
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  if (month < 1 || month > 12 || day < 1) {
+    return false;
+  }
+  const leapYear = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+  const daysInMonth = [31, leapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1];
+  return daysInMonth !== undefined && day <= daysInMonth;
 }
 
 function stringProp(node: SceneNode, name: string): string | undefined {
