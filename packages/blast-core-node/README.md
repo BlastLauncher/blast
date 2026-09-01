@@ -38,12 +38,20 @@ existing application Refresh action observes external installs and updates.
 `watch()` adds bounded Node filesystem change detection for configured roots;
 it invalidates the same index and debounces a change callback, while the
 `NodeCoreDaemon` owns the watcher's shutdown. There is still no persistent
-index, recursive watcher, or installation flow. Callers may assign a
-host-owned `rootSourceKind` and matching `additionalRootSourceKinds`; those
-values appear only in path-free command summaries. The catalog never trusts a
-manifest-provided source label. Packaged V2 uses direct extension directories
-under `~/.blast/external-extensions` for user-managed external packages and
-keeps that channel distinct from the Raycast-curated root.
+index or recursive watcher. Callers may assign a host-owned `rootSourceKind`
+and matching `additionalRootSourceKinds`; those values appear only in
+path-free command summaries. The catalog never trusts a manifest-provided
+source label. Packaged V2 uses direct extension directories under
+`~/.blast/external-extensions` for user-managed external packages and keeps
+that channel distinct from the Raycast-curated root.
+
+`ExternalExtensionStore` provides the explicit host-side lifecycle for that
+external root. It validates and stages a user-selected directory or local
+`.tgz`/`.tar.gz`/`.tar` archive, atomically installs or updates it, and keeps
+one recoverable backup for remove/rollback. It never resolves npm names, runs
+a package manager, installs dependencies, or uses network state; callers can
+provide `refreshCatalog` to invalidate an existing catalog after a successful
+mutation. Electron IPC and installation UI remain application-layer work.
 
 The package also exposes the Node-only local listener from [ADR
 0091](../../docs/v2/decisions/0091-bounded-local-core-listener.md). That

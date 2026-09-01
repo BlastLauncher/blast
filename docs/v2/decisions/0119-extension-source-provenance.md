@@ -44,8 +44,9 @@ Packaged V2 uses these ordered roots:
 The first valid manifest for a duplicate extension name wins. This preserves
 local development precedence and lets an explicitly placed external package
 override a curated package with the same name. The external root uses one
-direct subdirectory per extension package; a future importer or installer can
-normalize an arbitrary npm layout into that root.
+direct subdirectory per extension package. ADR 0120 now provides a bounded
+host-side importer for user-selected directories and local tar archives;
+arbitrary npm layouts still require a future package-manager-aware importer.
 
 This slice does not clone the upstream repository, download packages, run npm
 or pnpm, verify signatures or hashes, sandbox extensions, or promise native
@@ -64,8 +65,9 @@ context, capability policy, or cryptographic verification layer.
 The first packaged client can make the curated/external distinction visible
 without claiming more trust than the source channel provides. Existing callers
 that do not configure source kinds retain path-free descriptors without the
-optional field. Installation, update, artifact pinning, lockfile/audit
-provisioning, and stronger verification remain separate application boundaries.
+optional field. Electron installation/update UI, automatic installation,
+artifact pinning, lockfile/audit provisioning, and stronger verification remain
+separate application boundaries.
 
 ## Verification
 

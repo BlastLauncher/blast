@@ -347,6 +347,13 @@ importers:
       '@blastlauncher/transport-node':
         specifier: workspace:*
         version: link:../blast-transport-node
+      tar:
+        specifier: ^6.2.1
+        version: 6.2.1
+    devDependencies:
+      '@types/tar':
+        specifier: ^6.1.13
+        version: 6.1.13
 
   packages/blast-e2e:
     dependencies:

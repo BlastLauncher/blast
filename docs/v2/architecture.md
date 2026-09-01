@@ -126,8 +126,11 @@ Node connector in ADR 0095 owns socket creation, framing, and
 connection/handshake cleanup, while ADR 0098 lets Electron own that daemon
 composition only when all catalog, bootstrap, and socket paths are explicitly
 provided. Packaged mode assigns source provenance to its local, external, and
-Raycast-curated roots under ADR 0119; it still does not install or provision
-extension dependencies.
+Raycast-curated roots under ADR 0119. `ExternalExtensionStore` adds the
+explicit host-side directory/archive import and recoverable update/remove/
+rollback lifecycle under ADR 0120; it still does not resolve npm names or
+install/provision extension dependencies, and its Electron UI boundary remains
+separate.
 
 ### Clients
 
@@ -283,7 +286,7 @@ packages/blast-extension-runtime-node/  Node runtime bootstrap and entrypoint lo
 packages/blast-extension-host/  Transport-neutral lifecycle supervisor
 packages/blast-extension-host-node/  Node child-process launcher
 packages/blast-core/            Trusted catalog and lifecycle orchestration
-packages/blast-core-node/       Node catalog, daemon composition, local listener/client connector
+packages/blast-core-node/       Node catalog, package lifecycle, daemon composition, local listener/client connector
 packages/blast-client/           Transport-neutral command/scene client consumer
 packages/blast-e2e/             End-to-end vertical slice fixtures
 packages/blast-compatibility/   Static compatibility scanning and census

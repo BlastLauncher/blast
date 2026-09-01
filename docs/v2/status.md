@@ -162,7 +162,12 @@ slice changes what is executable, what is trusted, or what should happen next.
   command discovery, configures the packaged external root, and presents the
   provenance label in the chooser. The label is informational; signatures,
   sandboxing, artifact verification, and automatic package installation remain
-  separate boundaries.
+  separate boundaries from the explicit host lifecycle.
+- [ADR 0120](decisions/0120-explicit-extension-package-lifecycle.md) implements
+  the explicit host-side external package lifecycle: staged directory/archive
+  validation, atomic activation, recoverable update/remove/rollback, and
+  post-mutation catalog refresh. It deliberately does not resolve npm names,
+  install dependencies, or add renderer IPC.
 - [ADR 0106](decisions/0106-v2-collection-accessory-presentation.md) presents
   validated List accessory titles, icons, text/date/tag records, tooltips, and
   safe colors plus Grid accessory icons/tooltips in a compact trailing rail;
@@ -750,10 +755,10 @@ slice changes what is executable, what is trusted, or what should happen next.
 
 ## Intentionally missing
 
-- a persistent catalog index and extension installation/update flows; bounded
+- a persistent catalog index and Electron installation/update UI; bounded
   watching and on-demand refresh are implemented under ADRs 0114 and 0116, and
-  ADR 0119 now classifies packaged local, curated, and external roots without
-  installing packages;
+  ADRs 0119 and 0120 now classify packaged roots and provide an explicit
+  host-side external package lifecycle without implicit installation;
 - full dependency provisioning beyond the seventeen bounded e2e seeds, lockfile/audit
   policy for large npm graphs, native package externalization, and stronger
   source verification (the runtime supports explicit local or vendored
@@ -819,8 +824,8 @@ ActionPanel.Submenu presentation slices are recorded by ADRs 0111, 0112, and
 0113, 0114, 0115, and 0116; the managed runtime prerequisite is now aligned and
 automatic catalog change detection, renderer startup recovery, and
 Form.DatePicker presentation are now live,
-while the next application work is extension installation/update UX, remaining action
-helpers/providers, and scene visuals.
+while the next application work is wiring the explicit package lifecycle into
+installation/update UX, remaining action helpers/providers, and scene visuals.
 The source-provenance slice in [ADR 0119](decisions/0119-extension-source-provenance.md)
 now distinguishes packaged local, Raycast-curated, and unreviewed external
 roots in the chooser; it deliberately does not add an installer, package
@@ -849,7 +854,9 @@ only small portable JavaScript seeds eligible after the API-first slice.
    the managed Node prerequisite and
    retryable first-run installer are implemented under [ADR
    0115](decisions/0115-managed-node-runtime-baseline.md). Continue with
-   extension installation/update UX and internal V2 migration/update flows,
+   the host-side package lifecycle is implemented under [ADR
+   0120](decisions/0120-explicit-extension-package-lifecycle.md); next wire it
+   into extension installation/update UX and internal V2 migration/update flows,
    remaining action helpers/providers, and scene visuals. There is no V1 user
    migration requirement because V1 was never released. Keep these client
    boundaries separate from the already-green API finish gate and from

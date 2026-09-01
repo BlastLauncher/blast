@@ -23,6 +23,10 @@
     "@blastlauncher/extension-contract": "workspace:*",
     "@blastlauncher/extension-host": "workspace:*",
     "@blastlauncher/extension-host-node": "workspace:*",
-    "@blastlauncher/transport-node": "workspace:*"
+    "@blastlauncher/transport-node": "workspace:*",
+    "tar": "^6.2.1"
+  },
+  "devDependencies": {
+    "@types/tar": "^6.1.13"
   }
 }

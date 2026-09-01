@@ -30,6 +30,17 @@ export {
 export type { LocalCoreClientOptions } from "./local-client.js";
 export { NodeCoreDaemon, NodeCoreDaemonError, createNodeCoreDaemon } from "./daemon.js";
 export type { NodeCoreDaemonOptions, NodeCoreDaemonState } from "./daemon.js";
+export {
+  DEFAULT_EXTERNAL_EXTENSION_MAX_ARCHIVE_ENTRIES,
+  DEFAULT_EXTERNAL_EXTENSION_MAX_PACKAGE_BYTES,
+  ExternalExtensionStore,
+  ExternalExtensionStoreError,
+} from "./extension-package-store.js";
+export type {
+  ExternalExtensionPackage,
+  ExternalExtensionStoreErrorCode,
+  ExternalExtensionStoreOptions,
+} from "./extension-package-store.js";
 
 export const DEFAULT_MANIFEST_FILE_NAME = "package.json";
 

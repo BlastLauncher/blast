@@ -158,6 +158,10 @@ IPC inputs are
 validated at the main-process boundary, subscriptions clean up with the
 sender, and snapshots use JSON-safe failure details; these checks do not
 require a running V2 daemon or the legacy WebSocket runtime.
+ADR 0120 adds temporary-root package-store coverage for validated directory and
+archive imports, unsafe links and oversized packages, atomic update/remove/
+rollback behavior, and post-mutation catalog refresh counts. These tests do not
+invoke npm, install dependencies, or generate an application bundle.
 
 ### Renderer conformance
 
