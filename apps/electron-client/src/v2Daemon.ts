@@ -1,7 +1,7 @@
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 
-import { createNodeCoreDaemon, type NodeCoreDaemon } from "@blastlauncher/core-node";
+import { createNodeCoreDaemon, ExternalExtensionStore, type NodeCoreDaemon } from "@blastlauncher/core-node";
 
 import { USER_DIR } from "./constants";
 import { nrm } from "./nrm";
@@ -13,6 +13,7 @@ import {
 
 let ownedV2Daemon: NodeCoreDaemon | undefined;
 let ownedV2DaemonSocketPath: string | undefined;
+let ownedV2ExternalExtensionStore: ExternalExtensionStore | undefined;
 
 export interface V2DaemonStartOptions {
   readonly onCatalogChanged?: () => void | Promise<void>;
@@ -30,6 +31,14 @@ export async function startV2Daemon(options: V2DaemonStartOptions = {}): Promise
   }
 
   await ensureDaemonDirectories(configuration);
+  const externalExtensionRoot = findExternalExtensionRoot(configuration);
+  const externalExtensionStore =
+    externalExtensionRoot === undefined
+      ? undefined
+      : new ExternalExtensionStore({
+          root: externalExtensionRoot,
+          ...(options.onCatalogChanged === undefined ? {} : { refreshCatalog: options.onCatalogChanged }),
+        });
   const daemon = createNodeCoreDaemon({
     catalogRoot: configuration.catalogRoot,
     bootstrapPath: configuration.bootstrapPath,
@@ -50,6 +59,7 @@ export async function startV2Daemon(options: V2DaemonStartOptions = {}): Promise
   await daemon.start();
   ownedV2Daemon = daemon;
   ownedV2DaemonSocketPath = configuration.socketPath;
+  ownedV2ExternalExtensionStore = externalExtensionStore;
   return true;
 }
 
@@ -58,14 +68,31 @@ export function getOwnedV2DaemonSocketPath(): string | undefined {
   return ownedV2DaemonSocketPath;
 }
 
+/** Returns the packaged external package store owned by the current app process. */
+export function getV2ExternalExtensionStore(): ExternalExtensionStore | undefined {
+  return ownedV2ExternalExtensionStore;
+}
+
 /** Closes the app-owned daemon and releases its socket/child-process owner. */
 export async function stopV2Daemon(reason = "Application shutdown"): Promise<void> {
   const daemon = ownedV2Daemon;
   ownedV2Daemon = undefined;
   ownedV2DaemonSocketPath = undefined;
+  ownedV2ExternalExtensionStore = undefined;
   if (daemon !== undefined) {
     await daemon.close(reason);
   }
+}
+
+function findExternalExtensionRoot(configuration: V2DaemonConfiguration): string | undefined {
+  const roots = configuration.additionalCatalogRoots ?? [];
+  const sourceKinds = configuration.additionalCatalogRootSourceKinds ?? [];
+  for (const [index, sourceKind] of sourceKinds.entries()) {
+    if (sourceKind === "external") {
+      return roots[index];
+    }
+  }
+  return undefined;
 }
 
 async function ensureDaemonDirectories(configuration: V2DaemonConfiguration): Promise<void> {

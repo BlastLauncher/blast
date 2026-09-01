@@ -8,6 +8,7 @@ import type { V2ClientRendererAPI } from "./v2Types";
 
 import { V2CommandEmptyState, V2StartupFailure } from "./V2AppStates";
 import { V2CommandSourceBadge } from "./V2CommandSource";
+import { V2ExtensionPackageControls } from "./V2ExtensionPackageControls";
 import { V2Scene } from "./V2Scene";
 import { V2ToastStack } from "./V2ToastStack";
 import { clampV2CommandSelection, filterV2Commands, moveV2CommandSelection } from "./v2CommandListModel";
@@ -28,6 +29,7 @@ export function V2App({ api }: V2AppProps): React.JSX.Element {
   const [failure, setFailure] = useState<string | undefined>();
   const [toastState, setToastState] = useState<V2ToastState>(() => createV2ToastState());
   const [busy, setBusy] = useState(false);
+  const [packageLifecycleEnabled, setPackageLifecycleEnabled] = useState(false);
   const mountedRef = useRef(true);
 
   useEffect(() => {
@@ -66,6 +68,31 @@ export function V2App({ api }: V2AppProps): React.JSX.Element {
       mountedRef.current = false;
       unsubscribeSnapshot();
       unsubscribeToast();
+    };
+  }, [api]);
+
+  useEffect(() => {
+    let mounted = true;
+    const packageApi = api.packages;
+    if (packageApi === undefined) {
+      return () => {
+        mounted = false;
+      };
+    }
+    void packageApi.isEnabled().then(
+      (enabled) => {
+        if (mounted) {
+          setPackageLifecycleEnabled(enabled);
+        }
+      },
+      () => {
+        if (mounted) {
+          setPackageLifecycleEnabled(false);
+        }
+      },
+    );
+    return () => {
+      mounted = false;
     };
   }, [api]);
 
@@ -180,6 +207,16 @@ export function V2App({ api }: V2AppProps): React.JSX.Element {
         <div className="mx-4 mt-3 rounded-md border border-red-400/30 bg-red-400/10 px-3 py-2 text-xs text-red-100">
           {failure ?? snapshotFailure}
         </div>
+      )}
+
+      {packageLifecycleEnabled && api.packages !== undefined && (
+        <V2ExtensionPackageControls
+          api={api.packages}
+          commands={snapshot?.commands ?? []}
+          disabled={busy || snapshot?.activeCommand !== undefined}
+          enabled
+          onRefresh={refreshCommands}
+        />
       )}
 
       <main className="min-h-0 flex-1 overflow-auto p-4">

@@ -13,13 +13,15 @@ import { createTray } from "./tray";
 import { connectLocalCoreClient } from "@blastlauncher/core-node";
 import { registerV2ClientIPCEvents, type V2ClientIPCRegistration } from "./v2Client";
 import { V2ClientChannels } from "./v2ClientChannels";
-import { getOwnedV2DaemonSocketPath, startV2Daemon, stopV2Daemon } from "./v2Daemon";
+import { getOwnedV2DaemonSocketPath, getV2ExternalExtensionStore, startV2Daemon, stopV2Daemon } from "./v2Daemon";
+import { registerV2ExtensionPackageIPCEvents, type V2ExtensionPackageIPCRegistration } from "./v2ExtensionPackages";
 import { registerV2NativeMenuBar, type V2NativeMenuBarRegistration } from "./v2MenuBar";
 import { createApplicationWindow, createNodeInstallerWindow } from "./window";
 
 const debug = createDebug("electron-client:index");
 
 let v2ClientIPC: V2ClientIPCRegistration | undefined;
+let v2ExtensionPackageIPC: V2ExtensionPackageIPCRegistration | undefined;
 let v2NativeMenuBar: V2NativeMenuBarRegistration | undefined;
 let v2CatalogRefreshPending = false;
 let v2CatalogSubscription: (() => void) | undefined;
@@ -91,6 +93,8 @@ app.on("will-quit", () => {
     try {
       v2NativeMenuBar?.dispose();
       v2NativeMenuBar = undefined;
+      v2ExtensionPackageIPC?.dispose();
+      v2ExtensionPackageIPC = undefined;
       v2CatalogSubscription?.();
       v2CatalogSubscription = undefined;
       v2CatalogRefreshPending = false;
@@ -132,6 +136,7 @@ function registerV2Client(): boolean {
         createMessageId: () => `electron-client-${++v2MessageSequence}`,
       }),
   });
+  v2ExtensionPackageIPC = registerV2ExtensionPackageIPCEvents({ store: getV2ExternalExtensionStore() });
   v2CatalogSubscription = v2ClientIPC.host.subscribe((snapshot) => {
     if (snapshot.state === "ready") {
       flushV2CatalogRefresh();

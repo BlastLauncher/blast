@@ -162,6 +162,10 @@ ADR 0120 adds temporary-root package-store coverage for validated directory and
 archive imports, unsafe links and oversized packages, atomic update/remove/
 rollback behavior, and post-mutation catalog refresh counts. These tests do not
 invoke npm, install dependencies, or generate an application bundle.
+ADR 0121 adds pure Electron package-result and renderer-management coverage for
+ID-only operations, sanitized success/failure payloads, chooser cancellation,
+and unavailable packaged lifecycle state. Native dialogs are kept behind the
+main-process boundary and are covered by the Electron type-check/package gate.
 
 ### Renderer conformance
 

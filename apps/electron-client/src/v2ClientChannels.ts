@@ -10,4 +10,9 @@ export const V2ClientChannels = {
   stopCommand: "blast:v2:stop-command",
   sceneEvent: "blast:v2:scene-event",
   close: "blast:v2:close",
+  extensionPackagesEnabled: "blast:v2:extension-packages-enabled",
+  installExtensionPackage: "blast:v2:install-extension-package",
+  updateExtensionPackage: "blast:v2:update-extension-package",
+  removeExtensionPackage: "blast:v2:remove-extension-package",
+  rollbackExtensionPackage: "blast:v2:rollback-extension-package",
 } as const;

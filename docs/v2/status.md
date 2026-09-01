@@ -168,6 +168,11 @@ slice changes what is executable, what is trusted, or what should happen next.
   validation, atomic activation, recoverable update/remove/rollback, and
   post-mutation catalog refresh. It deliberately does not resolve npm names,
   install dependencies, or add renderer IPC.
+- [ADR 0121](decisions/0121-electron-extension-package-bridge.md) adds the
+  packaged Electron main-process bridge for that lifecycle: native directory/
+  archive selection, ID-only remove/rollback requests, sanitized operation
+  results, and minimal external-package management controls without exposing
+  filesystem paths to the renderer.
 - [ADR 0106](decisions/0106-v2-collection-accessory-presentation.md) presents
   validated List accessory titles, icons, text/date/tag records, tooltips, and
   safe colors plus Grid accessory icons/tooltips in a compact trailing rail;
@@ -755,10 +760,11 @@ slice changes what is executable, what is trusted, or what should happen next.
 
 ## Intentionally missing
 
-- a persistent catalog index and Electron installation/update UI; bounded
+- a persistent catalog index and richer package-management UI; bounded
   watching and on-demand refresh are implemented under ADRs 0114 and 0116, and
-  ADRs 0119 and 0120 now classify packaged roots and provide an explicit
-  host-side external package lifecycle without implicit installation;
+  ADRs 0119 through 0121 now classify packaged roots, provide an explicit
+  host-side external package lifecycle, and expose minimal packaged controls
+  without implicit installation;
 - full dependency provisioning beyond the seventeen bounded e2e seeds, lockfile/audit
   policy for large npm graphs, native package externalization, and stronger
   source verification (the runtime supports explicit local or vendored
@@ -824,14 +830,15 @@ ActionPanel.Submenu presentation slices are recorded by ADRs 0111, 0112, and
 0113, 0114, 0115, and 0116; the managed runtime prerequisite is now aligned and
 automatic catalog change detection, renderer startup recovery, and
 Form.DatePicker presentation are now live,
-while the next application work is wiring the explicit package lifecycle into
-installation/update UX, remaining action helpers/providers, and scene visuals.
+while the next application work is polishing package-management UX,
+persistent indexes, remaining action helpers/providers, and scene visuals.
 The source-provenance slice in [ADR 0119](decisions/0119-extension-source-provenance.md)
 now distinguishes packaged local, Raycast-curated, and unreviewed external
-roots in the chooser; it deliberately does not add an installer, package
-manager, signature verifier, or sandbox.
-Installation UI and internal V2 migration/update flows are later product work;
-no V1 user migration is needed because V1 was never released.
+roots in the chooser; the follow-on package lifecycle and Electron bridge do
+not add a package manager, signature verifier, or sandbox.
+Richer installation/package-management UI and internal V2 migration/update
+flows are later product work; no V1 user migration is needed because V1 was
+never released.
 Native/macOS, WASM,
 test-only, large-graph, and host-process dependencies remain deferred, with
 only small portable JavaScript seeds eligible after the API-first slice.
@@ -855,9 +862,11 @@ only small portable JavaScript seeds eligible after the API-first slice.
    retryable first-run installer are implemented under [ADR
    0115](decisions/0115-managed-node-runtime-baseline.md). Continue with
    the host-side package lifecycle is implemented under [ADR
-   0120](decisions/0120-explicit-extension-package-lifecycle.md); next wire it
-   into extension installation/update UX and internal V2 migration/update flows,
-   remaining action helpers/providers, and scene visuals. There is no V1 user
+   0120](decisions/0120-explicit-extension-package-lifecycle.md), and the
+   packaged Electron bridge/minimal controls are implemented under [ADR
+   0121](decisions/0121-electron-extension-package-bridge.md). Next polish
+   package-management UX and internal V2 migration/update flows, remaining
+   action helpers/providers, and scene visuals. There is no V1 user
    migration requirement because V1 was never released. Keep these client
    boundaries separate from the already-green API finish gate and from
    host/provider work.

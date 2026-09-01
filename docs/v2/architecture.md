@@ -128,9 +128,11 @@ composition only when all catalog, bootstrap, and socket paths are explicitly
 provided. Packaged mode assigns source provenance to its local, external, and
 Raycast-curated roots under ADR 0119. `ExternalExtensionStore` adds the
 explicit host-side directory/archive import and recoverable update/remove/
-rollback lifecycle under ADR 0120; it still does not resolve npm names or
-install/provision extension dependencies, and its Electron UI boundary remains
-separate.
+rollback lifecycle under ADR 0120; ADR 0121 bridges that store through the
+packaged Electron main process with native source selection and minimal
+path-free renderer controls. It still does not resolve npm names or
+install/provision extension dependencies; richer package browsing and trust
+decisions remain application work.
 
 ### Clients
 
@@ -152,7 +154,9 @@ maps the existing V1 production/development installation roots behind the
 `BLAST_V2_MODE=packaged` configuration. ADR 0108 makes that packaged path the
 default when no mode is specified, keeps the V1 renderer available through the
 explicit `BLAST_V2_MODE=legacy` escape hatch, and does not add installation UI
-or imply a V1 user migration path; V1 was never released.
+or imply a V1 user migration path; V1 was never released. ADR 0121 now adds
+minimal local external-package controls through the Electron main-process
+bridge; it does not widen the protocol or add dependency provisioning.
 
 ### Capability providers
 
