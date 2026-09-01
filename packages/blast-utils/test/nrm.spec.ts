@@ -10,7 +10,7 @@ import tar from "tar";
 import { NRM } from "../src/nrm";
 import { temporaryDirectory } from "../src/nrm/utils";
 
-const version = "v18.17.1";
+const version = "v24.20.0";
 const archiveDirectory = `node-${version}-${process.platform}-${process.arch}`;
 
 async function createNodeArchive(): Promise<Buffer> {
@@ -97,7 +97,7 @@ describe("NRM", function () {
     const nrm = new NRM({ installPath: directory });
 
     try {
-      const versionsToCreate = ["v14.15.0", "v16.0.0", "v18.17.1"];
+      const versionsToCreate = ["v14.15.0", "v16.0.0", "v24.20.0"];
 
       for (const version of versionsToCreate) {
         const versionDir = path.join(directory, version);
@@ -105,7 +105,7 @@ describe("NRM", function () {
       }
 
       const versions = nrm.listVersions();
-      expect(versions).toEqual(["v18.17.1", "v16.0.0", "v14.15.0"]);
+      expect(versions).toEqual(["v24.20.0", "v16.0.0", "v14.15.0"]);
     } finally {
       await fsPromises.rm(directory, { recursive: true, force: true });
     }

@@ -1,6 +1,6 @@
 import { app, ipcMain } from "electron";
 
-import { installNode, nrm, hasVersionInstalled } from "../nrm";
+import { hasVersionInstalled, installNode } from "../nrm";
 import { closeNodeInstallerWindow } from "../window";
 
 import { EventTypes } from "./types";
@@ -12,14 +12,7 @@ export function registerIPCMainEvents() {
     }
 
     await installNode();
-
-    try {
-      nrm.nodePath;
-    } catch (error) {
-      return false;
-    }
-
-    return true;
+    return hasVersionInstalled();
   });
 
   ipcMain.handle(EventTypes.EXIT_AND_START, async () => {

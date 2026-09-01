@@ -139,6 +139,10 @@ slice changes what is executable, what is trusted, or what should happen next.
   invalidated on demand, and core command discovery refreshes it before
   returning a path-free snapshot. Automatic watching and persistent indexes
   remain separate follow-ups.
+- [ADR 0115](decisions/0115-managed-node-runtime-baseline.md) aligns the
+  application-managed Node target with the V2/CI baseline and keeps failed
+  first-run installations visible and retryable; it does not remove older
+  managed runtimes or install extension dependencies.
 - [ADR 0106](decisions/0106-v2-collection-accessory-presentation.md) presents
   validated List accessory titles, icons, text/date/tag records, tooltips, and
   safe colors plus Grid accessory icons/tooltips in a compact trailing rail;
@@ -788,8 +792,9 @@ host/provider coverage remain separate measurements. The first application
 slice is now recorded by [ADR 0110](decisions/0110-v2-application-boundary-performance-baseline.md)
 and its baseline artifact. The bounded toast timeout, icon contrast, and
 ActionPanel.Submenu presentation slices are recorded by ADRs 0111, 0112, and
-0113 and 0114; the next application work is installation/update UX, remaining
-action helpers/providers, and scene visuals.
+0113, 0114, and 0115; the managed runtime prerequisite is now aligned, and the
+next application work is extension installation/update UX, remaining action
+helpers/providers, and scene visuals.
 Installation UI and internal V2 migration/update flows are later product work;
 no V1 user migration is needed because V1 was never released.
 Native/macOS, WASM,
@@ -803,11 +808,14 @@ only small portable JavaScript seeds eligible after the API-first slice.
    [0113](decisions/0113-v2-action-submenu-presentation.md). The trusted
    on-demand catalog refresh is now implemented under [ADR
    0114](decisions/0114-on-demand-catalog-refresh.md). Automatic watchers and
-   persistent indexes remain follow-ups. Continue with installation UI and
-   internal V2 migration/update flows, remaining action helpers/providers, and
-   scene visuals. There is no V1 user migration requirement because V1 was
-   never released. Keep these client boundaries separate from the already-green
-   API finish gate and from host/provider work.
+   persistent indexes remain follow-ups. The managed Node prerequisite and
+   retryable first-run installer are implemented under [ADR
+   0115](decisions/0115-managed-node-runtime-baseline.md). Continue with
+   extension installation/update UX and internal V2 migration/update flows,
+   remaining action helpers/providers, and scene visuals. There is no V1 user
+   migration requirement because V1 was never released. Keep these client
+   boundaries separate from the already-green API finish gate and from
+   host/provider work.
 2. Finish measured Raycast API semantics as new gaps are found. The declaration inventory and
    declaration-derived corpus allowlist are green: 147/147 top-level exports,
    1,167/1,167 normalized nested members, 88/88 declared runtime exports, all
@@ -940,7 +948,8 @@ only small portable JavaScript seeds eligible after the API-first slice.
    path the application default. Keep the V1 WebSocket path available through
    the explicit `BLAST_V2_MODE=legacy` escape hatch while compatibility and
    installation work continue. Core command discovery now refreshes the
-   trusted catalog on demand under ADR 0114.
+   trusted catalog on demand under ADR 0114, and the managed Node prerequisite
+   is aligned under ADR 0115.
    The
    transport-neutral client/core session slice in [ADR
    0090](decisions/0090-client-facing-core-session-boundary.md) is implemented:
@@ -979,9 +988,11 @@ only small portable JavaScript seeds eligible after the API-first slice.
    is complete, with keyboard command selection and a committed cold/warm
    latency baseline. ADRs 0111 and 0112 define the toast timeout and automatic
    icon contrast policies, and ADR 0113 defines ActionPanel.Submenu
-   presentation. ADR 0114 adds on-demand catalog freshness. Installation UI
-   and internal V2 migration/update flows, remaining action helpers/providers,
-   and remaining scene visuals follow; no V1 user migration is planned.
+   presentation. ADR 0114 adds on-demand catalog freshness, and ADR 0115
+   aligns the managed Node prerequisite with the V2 baseline. Extension
+   installation/update UI and internal V2 migration/update flows, remaining
+   action helpers/providers, and remaining scene visuals follow; no V1 user
+   migration is planned.
 
 Keep WebSocket and remote execution as transport/provider additions. They do not
 require changing the session, extension contract, runtime, host, or core

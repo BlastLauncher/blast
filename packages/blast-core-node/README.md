@@ -32,8 +32,11 @@ name wins; an absent optional additional root is ignored.
 
 `listCommands()` exposes a deterministic, path-free command snapshot from the
 validated manifest index. It never resolves entrypoints or returns roots,
-dependencies, or preference values. The catalog keeps no persistent refresh or
-watching flow; those and installation flows are deliberate later slices.
+dependencies, or preference values. `refresh()` invalidates that in-memory
+index, and the core's command-list protocol calls it before discovery so the
+existing application Refresh action observes external installs and updates.
+The catalog keeps no persistent index or filesystem-watching flow; those and
+installation flows are deliberate later slices.
 
 The package also exposes the Node-only local listener from [ADR
 0091](../../docs/v2/decisions/0091-bounded-local-core-listener.md). That
