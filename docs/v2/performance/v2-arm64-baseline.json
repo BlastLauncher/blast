@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "runner": "v2-application-boundary-performance",
   "runnerVersion": 1,
-  "generatedAt": "2026-08-31T21:41:20.467Z",
+  "generatedAt": "2026-09-01T01:40:06.489Z",
   "environment": {
     "platform": "linux",
     "arch": "arm64",
@@ -22,103 +22,103 @@
   },
   "metrics": {
     "daemonStartup": {
-      "samplesMs": [1.779, 0.302, 0.411],
-      "minMs": 0.302,
-      "meanMs": 0.831,
-      "medianMs": 0.411,
-      "p95Ms": 1.779,
-      "maxMs": 1.779
+      "samplesMs": [4.041, 1.28, 1.341],
+      "minMs": 1.28,
+      "meanMs": 2.221,
+      "medianMs": 1.341,
+      "p95Ms": 4.041,
+      "maxMs": 4.041
     },
     "clientReady": {
-      "samplesMs": [18.096, 4.248, 4.664],
-      "minMs": 4.248,
-      "meanMs": 9.003,
-      "medianMs": 4.664,
-      "p95Ms": 18.096,
-      "maxMs": 18.096
+      "samplesMs": [12.705, 6.532, 3.773],
+      "minMs": 3.773,
+      "meanMs": 7.67,
+      "medianMs": 6.532,
+      "p95Ms": 12.705,
+      "maxMs": 12.705
     },
     "coldCommandToScene": {
-      "samplesMs": [107.426, 102.09, 103.71],
-      "minMs": 102.09,
-      "meanMs": 104.409,
-      "medianMs": 103.71,
-      "p95Ms": 107.426,
-      "maxMs": 107.426
+      "samplesMs": [107.453, 104.077, 101.45],
+      "minMs": 101.45,
+      "meanMs": 104.327,
+      "medianMs": 104.077,
+      "p95Ms": 107.453,
+      "maxMs": 107.453
     },
     "coldStop": {
-      "samplesMs": [12.307, 11.016, 10.836],
-      "minMs": 10.836,
-      "meanMs": 11.386,
-      "medianMs": 11.016,
-      "p95Ms": 12.307,
-      "maxMs": 12.307
+      "samplesMs": [12.139, 11.076, 10.568],
+      "minMs": 10.568,
+      "meanMs": 11.261,
+      "medianMs": 11.076,
+      "p95Ms": 12.139,
+      "maxMs": 12.139
     },
     "warmDiscovery": {
-      "samplesMs": [0.703, 0.386, 0.419],
-      "minMs": 0.386,
-      "meanMs": 0.503,
-      "medianMs": 0.419,
-      "p95Ms": 0.703,
-      "maxMs": 0.703
+      "samplesMs": [4.162, 4.155, 3.065],
+      "minMs": 3.065,
+      "meanMs": 3.794,
+      "medianMs": 4.155,
+      "p95Ms": 4.162,
+      "maxMs": 4.162
     },
     "warmCommandToScene": {
-      "samplesMs": [102.447, 104.67, 103.593],
-      "minMs": 102.447,
-      "meanMs": 103.57,
-      "medianMs": 103.593,
-      "p95Ms": 104.67,
-      "maxMs": 104.67
+      "samplesMs": [104.01, 106.121, 102.7],
+      "minMs": 102.7,
+      "meanMs": 104.277,
+      "medianMs": 104.01,
+      "p95Ms": 106.121,
+      "maxMs": 106.121
     },
     "sceneEventRoundTrip": {
-      "samplesMs": [3.413, 2.619, 2.513],
-      "minMs": 2.513,
-      "meanMs": 2.848,
-      "medianMs": 2.619,
-      "p95Ms": 3.413,
-      "maxMs": 3.413
+      "samplesMs": [3.855, 2.601, 2.606],
+      "minMs": 2.601,
+      "meanMs": 3.021,
+      "medianMs": 2.606,
+      "p95Ms": 3.855,
+      "maxMs": 3.855
     },
     "warmStop": {
-      "samplesMs": [10.823, 10.321, 10.972],
-      "minMs": 10.321,
-      "meanMs": 10.705,
-      "medianMs": 10.823,
-      "p95Ms": 10.972,
-      "maxMs": 10.972
+      "samplesMs": [11.628, 11.227, 10.29],
+      "minMs": 10.29,
+      "meanMs": 11.048,
+      "medianMs": 11.227,
+      "p95Ms": 11.628,
+      "maxMs": 11.628
     }
   },
   "samples": [
     {
       "iteration": 1,
-      "daemonStartup": 1.779,
-      "clientReady": 18.096,
-      "coldCommandToScene": 107.426,
-      "coldStop": 12.307,
-      "warmDiscovery": 0.703,
-      "warmCommandToScene": 102.447,
-      "sceneEventRoundTrip": 3.413,
-      "warmStop": 10.823
+      "daemonStartup": 4.041,
+      "clientReady": 12.705,
+      "coldCommandToScene": 107.453,
+      "coldStop": 12.139,
+      "warmDiscovery": 4.162,
+      "warmCommandToScene": 104.01,
+      "sceneEventRoundTrip": 3.855,
+      "warmStop": 11.628
     },
     {
       "iteration": 2,
-      "daemonStartup": 0.302,
-      "clientReady": 4.248,
-      "coldCommandToScene": 102.09,
-      "coldStop": 11.016,
-      "warmDiscovery": 0.386,
-      "warmCommandToScene": 104.67,
-      "sceneEventRoundTrip": 2.619,
-      "warmStop": 10.321
+      "daemonStartup": 1.28,
+      "clientReady": 6.532,
+      "coldCommandToScene": 104.077,
+      "coldStop": 11.076,
+      "warmDiscovery": 4.155,
+      "warmCommandToScene": 106.121,
+      "sceneEventRoundTrip": 2.601,
+      "warmStop": 11.227
     },
     {
       "iteration": 3,
-      "daemonStartup": 0.411,
-      "clientReady": 4.664,
-      "coldCommandToScene": 103.71,
-      "coldStop": 10.836,
-      "warmDiscovery": 0.419,
-      "warmCommandToScene": 103.593,
-      "sceneEventRoundTrip": 2.513,
-      "warmStop": 10.972
+      "daemonStartup": 1.341,
+      "clientReady": 3.773,
+      "coldCommandToScene": 101.45,
+      "coldStop": 10.568,
+      "warmDiscovery": 3.065,
+      "warmCommandToScene": 102.7,
+      "sceneEventRoundTrip": 2.606,
+      "warmStop": 10.29
     }
   ]
 }

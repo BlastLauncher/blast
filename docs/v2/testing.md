@@ -146,7 +146,10 @@ min/mean/median/p95/max summaries; it is a baseline rather than a timing-based
 test gate. ADR 0111 adds deterministic toast timeout-policy tests and keeps
 local expiry outside the semantic protocol lifecycle. ADR 0112 adds pure color
 contrast calculations and server-rendered icon cases for adjusted and opted-out
-tints.
+tints. ADR 0116 adds temporary-root filesystem watcher tests for manifest
+changes, extension add/remove events, daemon-owned watcher shutdown, and the
+idle application refresh callback; the ARM64 performance baseline is refreshed
+after that lifecycle change.
 IPC inputs are
 validated at the main-process boundary, subscriptions clean up with the
 sender, and snapshots use JSON-safe failure details; these checks do not

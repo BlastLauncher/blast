@@ -63,20 +63,21 @@ capability, or catalog trust rule changes in this slice.
 
 ## ARM64 baseline
 
-The refreshed three-sample run on Linux ARM64 with Node 24.20.0, four available
-parallel workers, and a Neoverse-N1 CPU is committed in
+The latest three-sample refresh after the daemon-owned catalog watcher in ADR
+0116 ran on Linux ARM64 with Node 24.20.0, four available parallel workers,
+and a Neoverse-N1 CPU. It is committed in
 [`v2-arm64-baseline.json`](../performance/v2-arm64-baseline.json).
 
 | Metric                      |     Median |        p95 |
 | --------------------------- | ---------: | ---------: |
-| daemon listener startup     |   0.411 ms |   1.779 ms |
-| client readiness            |   4.664 ms |  18.096 ms |
-| cold command to first scene | 103.710 ms | 107.426 ms |
-| cold command stop           |  11.016 ms |  12.307 ms |
-| warm discovery              |   0.419 ms |   0.703 ms |
-| warm command to first scene | 103.593 ms | 104.670 ms |
-| scene event round trip      |   2.619 ms |   3.413 ms |
-| warm command stop           |  10.823 ms |  10.972 ms |
+| daemon listener startup     |   1.341 ms |   4.041 ms |
+| client readiness            |   6.532 ms |  12.705 ms |
+| cold command to first scene | 104.077 ms | 107.453 ms |
+| cold command stop           |  11.076 ms |  12.139 ms |
+| warm discovery              |   4.155 ms |   4.162 ms |
+| warm command to first scene | 104.010 ms | 106.121 ms |
+| scene event round trip      |   2.606 ms |   3.855 ms |
+| warm command stop           |  11.227 ms |  11.628 ms |
 
 These numbers are comparison points rather than acceptance thresholds. The
 warm command still launches a fresh extension process; it reuses the daemon,
