@@ -17,8 +17,16 @@ export function registerIPCMainEvents() {
 
   ipcMain.handle(EventTypes.EXIT_AND_START, async () => {
     closeNodeInstallerWindow();
-    // Re-run the main-process startup selector so a newly installed runtime
-    // enters packaged V2 by default instead of bypassing it through V1.
+    if (!app.isPackaged) {
+      // Under electron-forge start the dev server belongs to the CLI parent
+      // process: app.relaunch() would orphan the app from its dev server and
+      // leave blank windows behind. Re-enter the main flow in-process instead.
+      // Re-run the main-process startup selector so a newly installed runtime
+      // enters packaged V2 by default instead of bypassing it through V1.
+      const { startMainFlow } = await import("../index");
+      await startMainFlow();
+      return;
+    }
     app.relaunch();
     app.exit(0);
   });

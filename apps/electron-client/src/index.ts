@@ -29,45 +29,69 @@ let v2MessageSequence = 0;
 
 ipcMain.handle(V2ClientChannels.enabled, () => v2ClientIPC !== undefined);
 
-require("update-electron-app")();
+require("update-electron-app").updateElectronApp();
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
   app.quit();
 }
 
+// Only one app instance may own the V2 daemon socket (~/.blast/v2/core.sock).
+// Without this, a second instance fails with "Failed to start the Node core
+// daemon listener" instead of yielding to the running one.
+if (!app.requestSingleInstanceLock()) {
+  app.quit();
+} else {
+  app.on("second-instance", () => {
+    const [firstWindow] = BrowserWindow.getAllWindows();
+    if (firstWindow !== undefined) {
+      if (firstWindow.isMinimized()) {
+        firstWindow.restore();
+      }
+      firstWindow.show();
+      firstWindow.focus();
+    }
+  });
+}
+
 const onReady = async (): Promise<void> => {
   debug("onReady");
   if (hasVersionInstalled()) {
-    debug("hasVersionInstalled");
-    let v2Enabled = false;
-    try {
-      await startV2Daemon({ onCatalogChanged: requestV2CatalogRefresh });
-      v2Enabled = registerV2Client();
-      if (v2Enabled) {
-        v2NativeMenuBar = registerV2NativeMenuBar(v2ClientIPC!.host);
-      }
-    } catch (error) {
-      reportV2StartupFailure(error);
-      await stopV2Daemon("V2 startup failed").catch((closeError) => {
-        debug("failed to close V2 daemon after startup failure", closeError);
-      });
-      return;
-    }
-    if (!v2Enabled) {
-      if (process.env.BLAST_V2_MODE !== "legacy") {
-        reportV2StartupFailure(new Error("V2 startup did not expose a client session"));
-        return;
-      }
-      await startRuntime();
-    }
-    setMenu();
-    registerRendererIPCEvents();
-    createApplicationWindow();
+    await startMainFlow();
   } else {
     createNodeInstallerWindow();
     registerNodeInstallerIPCEvents();
   }
+};
+
+// Main-window startup flow, extracted so the node installer can re-enter it
+// in-process (see nodeInstaller/events.ts EXIT_AND_START).
+export const startMainFlow = async (): Promise<void> => {
+  debug("hasVersionInstalled");
+  let v2Enabled = false;
+  try {
+    await startV2Daemon({ onCatalogChanged: requestV2CatalogRefresh });
+    v2Enabled = registerV2Client();
+    if (v2Enabled) {
+      v2NativeMenuBar = registerV2NativeMenuBar(v2ClientIPC!.host);
+    }
+  } catch (error) {
+    reportV2StartupFailure(error);
+    await stopV2Daemon("V2 startup failed").catch((closeError) => {
+      debug("failed to close V2 daemon after startup failure", closeError);
+    });
+    return;
+  }
+  if (!v2Enabled) {
+    if (process.env.BLAST_V2_MODE !== "legacy") {
+      reportV2StartupFailure(new Error("V2 startup did not expose a client session"));
+      return;
+    }
+    await startRuntime();
+  }
+  setMenu();
+  registerRendererIPCEvents();
+  createApplicationWindow();
 };
 
 // This method will be called when Electron has finished

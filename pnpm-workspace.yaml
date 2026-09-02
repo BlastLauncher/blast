@@ -7,10 +7,13 @@ nodeLinker: hoisted
 allowBuilds:
   "@parcel/watcher": true
   bufferutil: true
+  core-js: true
+  core-js-pure: true
   electron: true
   electron-winstaller: true
   es5-ext: true
   esbuild: true
+  protobufjs: true
   unrs-resolver: true
   utf-8-validate: true
 
