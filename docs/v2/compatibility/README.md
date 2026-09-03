@@ -72,6 +72,21 @@ node packages/blast-compatibility/scripts/inventory-declarations.mjs \
   packages/blast-raycast-compat/dist/index.js
 ```
 
+## Nested member usage
+
+Top-level imports cannot rank nested surface such as
+`Detail.Metadata.TagList.Item.onAction` or `Action.OpenWith`. The member audit
+resolves local import, namespace, and `require()` bindings with the TypeScript
+compiler API and counts value-level member chains and JSX tags
+(`scanExtensionMembers` / `buildMemberUsageReport`). Type positions, shadowed
+locals, re-exports, and dynamic imports are best-effort limitations, not
+resolved. Run it over a corpus checkout with:
+
+```bash
+node packages/blast-compatibility/scripts/audit-member-usage.mjs \
+  <corpus-directory> --limit 50 --min-extensions 5
+```
+
 ## Headline numbers
 
 - 3,229 of 3,231 extensions import `@raycast/api`;

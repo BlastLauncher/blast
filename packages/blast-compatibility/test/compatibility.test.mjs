@@ -3,7 +3,14 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { buildCensusReport, readManifestSummary, scanCorpus, scanExtension } from "../dist/index.js";
+import {
+  buildCensusReport,
+  buildMemberUsageReport,
+  readManifestSummary,
+  scanCorpus,
+  scanExtension,
+  scanExtensionMembers,
+} from "../dist/index.js";
 
 const fixturesRoot = fileURLToPath(new URL("./fixtures", import.meta.url));
 const extensionA = path.join(fixturesRoot, "extension-a");
@@ -52,6 +59,41 @@ test("collects @raycast/api imports from source files", async () => {
     { api: "Clipboard", count: 1 },
     { api: "Icon", count: 1 },
   ]);
+});
+
+test("collects nested @raycast/api member usage", async () => {
+  const scan = await scanExtensionMembers(path.join(fixturesRoot, "extension-d"));
+
+  assert.equal(scan.sourceFiles, 1);
+  assert.deepEqual(scan.memberUsage, [
+    { member: "Detail", count: 2 },
+    { member: "Detail.Metadata", count: 2 },
+    { member: "Detail.Metadata.TagList", count: 2 },
+    { member: "List", count: 2 },
+    { member: "Action.OpenWith", count: 1 },
+    { member: "Clipboard.readText", count: 1 },
+    { member: "Detail.Metadata.TagList.Item", count: 1 },
+    { member: "List.Item", count: 1 },
+    { member: "List.Item.Detail", count: 1 },
+  ]);
+});
+
+test("aggregates member usage across extensions deterministically", async () => {
+  const first = await scanExtensionMembers(path.join(fixturesRoot, "extension-d"));
+  const second = await scanExtensionMembers(path.join(fixturesRoot, "extension-b"));
+  const report = buildMemberUsageReport([first, second]);
+  const repeat = buildMemberUsageReport([second, first]);
+
+  assert.deepEqual(report, repeat);
+  assert.deepEqual(
+    report.memberUsage.find((entry) => entry.member === "Detail.Metadata.TagList.Item"),
+    {
+      member: "Detail.Metadata.TagList.Item",
+      extensionCount: 1,
+      usageCount: 1,
+    },
+  );
+  assert.deepEqual(report.memberUsage[0]?.member, "Detail");
 });
 
 test("reports extensions without API imports", async () => {

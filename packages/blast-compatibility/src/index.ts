@@ -36,6 +36,27 @@ export interface ApiImportCount {
   readonly count: number;
 }
 
+export interface ApiMemberCount {
+  readonly member: string;
+  readonly count: number;
+}
+
+export interface ExtensionMemberScan {
+  readonly directory: string;
+  readonly memberUsage: readonly ApiMemberCount[];
+  readonly sourceFiles: number;
+}
+
+export interface MemberUsage {
+  readonly member: string;
+  readonly extensionCount: number;
+  readonly usageCount: number;
+}
+
+export interface MemberUsageReport {
+  readonly memberUsage: readonly MemberUsage[];
+}
+
 export interface ExtensionScan {
   readonly directory: string;
   readonly manifest: ExtensionManifestSummary | undefined;
@@ -155,6 +176,66 @@ export async function scanExtension(directory: string): Promise<ExtensionScan> {
     apiImports: sortedCounts(totals),
     sourceFiles,
   };
+}
+
+/**
+ * Scans one extension directory for nested `@raycast/api` member usage such
+ * as `Detail.Metadata.TagList.Item` or `Action.OpenWith`. Only value-level
+ * member expressions and JSX tags rooted at a package binding are counted;
+ * type positions and dynamic imports are out of scope.
+ */
+export async function scanExtensionMembers(directory: string): Promise<ExtensionMemberScan> {
+  const totals = new Map<string, number>();
+  let sourceFiles = 0;
+
+  for (const file of await listSourceFiles(directory)) {
+    sourceFiles += 1;
+    let content: string;
+    try {
+      content = await readFile(file, "utf8");
+    } catch {
+      continue;
+    }
+    // Parent pointers are required so nested member segments are counted
+    // once at the outermost chain and bare JSX tags resolve their position.
+    const sourceFile = ts.createSourceFile(file, content, ts.ScriptTarget.Latest, true, scriptKind(file));
+    for (const [member, count] of collectApiMemberUsage(sourceFile)) {
+      totals.set(member, (totals.get(member) ?? 0) + count);
+    }
+  }
+
+  return {
+    directory,
+    memberUsage: sortedMemberCounts(totals),
+    sourceFiles,
+  };
+}
+
+/**
+ * Aggregates per-extension member scans into a deterministic usage report
+ * sorted by extension count, then usage count, then member name.
+ */
+export function buildMemberUsageReport(scans: readonly ExtensionMemberScan[]): MemberUsageReport {
+  const usage = new Map<string, { extensionCount: number; usageCount: number }>();
+
+  for (const scan of scans) {
+    for (const { member, count } of scan.memberUsage) {
+      const entry = usage.get(member) ?? { extensionCount: 0, usageCount: 0 };
+      entry.extensionCount += 1;
+      entry.usageCount += count;
+      usage.set(member, entry);
+    }
+  }
+
+  const memberUsage = [...usage.entries()]
+    .map(([member, counts]) => ({ member, ...counts }))
+    .toSorted(
+      (left, right) =>
+        right.extensionCount - left.extensionCount ||
+        right.usageCount - left.usageCount ||
+        left.member.localeCompare(right.member),
+    );
+  return { memberUsage };
 }
 
 /**
@@ -279,6 +360,144 @@ function collectApiImports(sourceFile: ts.SourceFile): Map<string, number> {
   return counts;
 }
 
+/**
+ * Counts nested member paths rooted at `@raycast/api` bindings, e.g.
+ * `Detail.Metadata.TagList.Item`, `Action.OpenWith`, or `<List.Item>`.
+ * Named imports resolve through their local (possibly aliased) name,
+ * namespace imports and `require()` objects resolve through the local
+ * namespace root, and simple destructured `require()` bindings resolve like
+ * named imports. This is a best-effort static heuristic: shadowed locals,
+ * re-exports, and dynamic imports are not resolved.
+ */
+export function collectApiMemberUsage(sourceFile: ts.SourceFile): Map<string, number> {
+  const counts = new Map<string, number>();
+  const bindings = new Map<string, string>();
+  const record = (member: string): void => {
+    counts.set(member, (counts.get(member) ?? 0) + 1);
+  };
+
+  for (const statement of sourceFile.statements) {
+    if (
+      ts.isImportDeclaration(statement) &&
+      statement.moduleSpecifier !== undefined &&
+      ts.isStringLiteral(statement.moduleSpecifier) &&
+      statement.moduleSpecifier.text === RAYCAST_API_PACKAGE
+    ) {
+      const named = statement.importClause?.namedBindings;
+      if (named !== undefined && ts.isNamespaceImport(named)) {
+        bindings.set(named.name.text, "");
+      } else if (named !== undefined && ts.isNamedImports(named)) {
+        for (const element of named.elements) {
+          bindings.set(element.name.text, (element.propertyName ?? element.name).text);
+        }
+      }
+      continue;
+    }
+    if (ts.isVariableStatement(statement)) {
+      for (const declaration of statement.declarationList.declarations) {
+        const initializer = declaration.initializer;
+        if (
+          initializer === undefined ||
+          !ts.isCallExpression(initializer) ||
+          !ts.isIdentifier(initializer.expression) ||
+          initializer.expression.text !== "require" ||
+          initializer.arguments.length !== 1
+        ) {
+          continue;
+        }
+        const [requiredModule] = initializer.arguments;
+        if (
+          requiredModule === undefined ||
+          !ts.isStringLiteral(requiredModule) ||
+          requiredModule.text !== RAYCAST_API_PACKAGE
+        ) {
+          continue;
+        }
+        if (ts.isIdentifier(declaration.name)) {
+          bindings.set(declaration.name.text, "");
+        } else if (ts.isObjectBindingPattern(declaration.name)) {
+          for (const element of declaration.name.elements) {
+            if (ts.isIdentifier(element.name) && element.name.text.length > 0) {
+              const api =
+                element.propertyName !== undefined && ts.isIdentifier(element.propertyName)
+                  ? element.propertyName.text
+                  : element.name.text;
+              bindings.set(element.name.text, api);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  const chainText = (node: ts.PropertyAccessExpression): { root: string; path: string } | undefined => {
+    const segments: string[] = [node.name.text];
+    let current: ts.Expression = node.expression;
+    while (ts.isPropertyAccessExpression(current)) {
+      segments.unshift(current.name.text);
+      current = current.expression;
+    }
+    if (!ts.isIdentifier(current)) {
+      return undefined;
+    }
+    const binding = bindings.get(current.text);
+    if (binding === undefined) {
+      return undefined;
+    }
+    return binding.length === 0
+      ? { root: current.text, path: segments.join(".") }
+      : { root: current.text, path: [binding, ...segments].join(".") };
+  };
+
+  const visit = (node: ts.Node): void => {
+    if (ts.isPropertyAccessExpression(node)) {
+      const parent = node.parent;
+      const nested = parent !== undefined && ts.isPropertyAccessExpression(parent) && parent.expression === node;
+      if (!nested) {
+        const chain = chainText(node);
+        if (chain !== undefined) {
+          record(chain.path);
+        }
+      }
+    } else if (
+      ts.isIdentifier(node) &&
+      node.parent !== undefined &&
+      !ts.isPropertyAccessExpression(node.parent) &&
+      !ts.isImportSpecifier(node.parent) &&
+      !ts.isNamespaceImport(node.parent) &&
+      !ts.isImportClause(node.parent)
+    ) {
+      const binding = bindings.get(node.text);
+      if (binding !== undefined && binding.length > 0 && isValuePosition(node)) {
+        record(binding);
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  return counts;
+}
+
+function isValuePosition(node: ts.Identifier): boolean {
+  const parent = node.parent;
+  if (parent === undefined) {
+    return false;
+  }
+  if (ts.isTypeReferenceNode(parent) || ts.isTypeQueryNode(parent) || ts.isQualifiedName(parent)) {
+    return false;
+  }
+  if ((ts.isVariableDeclaration(parent) || ts.isFunctionDeclaration(parent)) && parent.name === node) {
+    return false;
+  }
+  if (
+    (ts.isParameter(parent) || ts.isPropertyDeclaration(parent) || ts.isPropertyAssignment(parent)) &&
+    parent.name === node
+  ) {
+    return false;
+  }
+  return true;
+}
+
 function collectModuleBindings(node: ts.ImportDeclaration | ts.ExportDeclaration, record: (api: string) => void): void {
   if (ts.isImportDeclaration(node)) {
     const clause = node.importClause;
@@ -346,6 +565,12 @@ function scriptKind(file: string): ts.ScriptKind {
     default:
       return ts.ScriptKind.TS;
   }
+}
+
+function sortedMemberCounts(counts: Map<string, number>): ApiMemberCount[] {
+  return [...counts.entries()]
+    .map(([member, count]) => ({ member, count }))
+    .toSorted((left, right) => right.count - left.count || left.member.localeCompare(right.member));
 }
 
 function sortedCounts(counts: Map<string, number>): ApiImportCount[] {
