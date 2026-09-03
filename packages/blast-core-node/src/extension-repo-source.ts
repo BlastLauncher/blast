@@ -39,6 +39,13 @@ export interface FetchExtensionsFromRepoOptions {
   readonly cacheDir: string;
   /** Root receiving one `<name>/` directory per fetched extension. */
   readonly targetRoot: string;
+  /**
+   * Directory inside the repository that contains one subdirectory per
+   * extension (the public `raycast/extensions` layout nests extensions under
+   * `extensions/`). Prefixed paths are tried first with one leading component
+   * stripped; bare names remain supported for synthetic/test repositories.
+   */
+  readonly pathPrefix?: string;
   readonly maxArchiveEntries?: number;
   readonly maxPackageBytes?: number;
   readonly signal?: AbortSignal;
@@ -76,6 +83,7 @@ export async function fetchExtensionsFromRepo(options: FetchExtensionsFromRepoOp
   );
   options.signal?.throwIfAborted();
   assertGitAvailable();
+  const pathPrefix = normalizePathPrefix(options.pathPrefix ?? DEFAULT_REPO_PATH_PREFIX);
 
   await mkdir(targetRoot, { recursive: true });
   await ensurePartialClone({ repoUrl, revision, cacheDir, signal: options.signal });
@@ -87,6 +95,7 @@ export async function fetchExtensionsFromRepo(options: FetchExtensionsFromRepoOp
     revision,
     names,
     targetRoot,
+    pathPrefix,
     maxArchiveEntries,
     maxPackageBytes,
     signal: options.signal,
@@ -121,24 +130,41 @@ interface ExtractOptions {
   readonly revision: string;
   readonly names: readonly string[];
   readonly targetRoot: string;
+  readonly pathPrefix: string | undefined;
   readonly maxArchiveEntries: number;
   readonly maxPackageBytes: number;
   readonly signal?: AbortSignal | undefined;
 }
 
+const DEFAULT_REPO_PATH_PREFIX = "extensions";
+
 async function extractWithFallback(options: ExtractOptions): Promise<string[]> {
+  const prefixedBatch =
+    options.pathPrefix === undefined ? undefined : options.names.map((name) => `${options.pathPrefix}/${name}`);
+  if (prefixedBatch !== undefined) {
+    try {
+      await archiveTo(options.cacheDir, options.revision, prefixedBatch, options, 1);
+      return [];
+    } catch (error) {
+      // Quota breaches are authoritative; only unknown names fall back.
+      if (error instanceof ExtensionRepoSourceError && error.code === "repo_archive_too_large") {
+        throw error;
+      }
+      // Fall through to bare batch so synthetic repositories without the
+      // prefix keep working; per-name fallback reports truly missing names.
+    }
+  }
   try {
-    await archiveTo(options.cacheDir, options.revision, options.names, options);
+    await archiveTo(options.cacheDir, options.revision, options.names, options, 0);
     return [];
   } catch (error) {
-    // Quota breaches are authoritative; only unknown names fall back per directory.
     if (error instanceof ExtensionRepoSourceError && error.code === "repo_archive_too_large") {
       throw error;
     }
     const missing: string[] = [];
     for (const name of options.names) {
       try {
-        await archiveTo(options.cacheDir, options.revision, [name], options);
+        await archiveNames(options, [name]);
       } catch (retryError) {
         if (retryError instanceof ExtensionRepoSourceError && retryError.code === "repo_archive_too_large") {
           throw retryError;
@@ -150,11 +176,33 @@ async function extractWithFallback(options: ExtractOptions): Promise<string[]> {
   }
 }
 
+async function archiveNames(options: ExtractOptions, names: readonly string[]): Promise<void> {
+  if (options.pathPrefix !== undefined) {
+    try {
+      await archiveTo(
+        options.cacheDir,
+        options.revision,
+        names.map((name) => `${options.pathPrefix}/${name}`),
+        options,
+        1,
+      );
+      return;
+    } catch (error) {
+      if (error instanceof ExtensionRepoSourceError && error.code === "repo_archive_too_large") {
+        throw error;
+      }
+      // Fall through to bare names for synthetic repositories.
+    }
+  }
+  await archiveTo(options.cacheDir, options.revision, names, options, 0);
+}
+
 function archiveTo(
   cacheDir: string,
   revision: string,
   names: readonly string[],
   options: ExtractOptions,
+  stripComponents: number,
 ): Promise<void> {
   return new Promise((resolve, reject) => {
     let entryCount = 0;
@@ -172,6 +220,7 @@ function archiveTo(
     });
     const extractor = tar.x({
       cwd: options.targetRoot,
+      ...(stripComponents > 0 ? { strip: stripComponents } : {}),
       onentry: (entry) => {
         entryCount += 1;
         totalBytes += entry.size ?? 0;
@@ -308,6 +357,32 @@ function requireExtensionName(value: string): string {
     });
   }
   return value;
+}
+
+function normalizePathPrefix(value: string): string | undefined {
+  if (typeof value !== "string" || value.length === 0) {
+    return undefined;
+  }
+  const trimmed = value.replace(/^\/+|\/+$/g, "");
+  if (
+    trimmed.length === 0 ||
+    trimmed === "." ||
+    trimmed === ".." ||
+    trimmed.includes("\\") ||
+    trimmed.startsWith("-")
+  ) {
+    throw new ExtensionRepoSourceError("invalid_repo_options", "pathPrefix must be a safe relative directory", {
+      value,
+    });
+  }
+  for (const segment of trimmed.split("/")) {
+    if (segment.length === 0 || segment === "." || segment === "..") {
+      throw new ExtensionRepoSourceError("invalid_repo_options", "pathPrefix must be a safe relative directory", {
+        value,
+      });
+    }
+  }
+  return trimmed;
 }
 
 function validateLimit(value: number, name: string): number {

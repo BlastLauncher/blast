@@ -629,3 +629,95 @@ test("locally filters List and Grid items by title and keywords", () => {
   assert.match(locallyFilteredGrid, /Grid visible/);
   assert.doesNotMatch(locallyFilteredGrid, /Grid hidden/);
 });
+
+test("renders actionable detail metadata tags as buttons and static tags as text", () => {
+  const markup = renderToStaticMarkup(
+    React.createElement(V2Scene, {
+      disabled: false,
+      onEvent: async () => {},
+      root: {
+        id: "detail",
+        type: "detail",
+        props: { markdown: "hello" },
+        children: [
+          {
+            id: "metadata",
+            type: "detail-metadata",
+            props: {},
+            children: [
+              {
+                id: "tags",
+                type: "detail-metadata-tag-list",
+                props: { title: "Tags" },
+                children: [
+                  { id: "static", type: "detail-metadata-tag-list-item", props: { text: "Static" }, children: [] },
+                  {
+                    id: "actionable",
+                    type: "detail-metadata-tag-list-item",
+                    props: { text: "Actionable", onAction: "tag-event" },
+                    children: [],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    }),
+  );
+
+  assert.match(markup, /Static/);
+  assert.match(markup, /Actionable/);
+  assert.match(markup, /<button[^>]*>Actionable<\/button>/);
+  assert.doesNotMatch(markup, /tag-event/);
+});
+
+test("presents Quick Look metadata on list and grid items without loading file contents", () => {
+  const roots = [
+    {
+      id: "quick-list",
+      type: "list",
+      props: {},
+      children: [
+        {
+          id: "with-name",
+          type: "list-item",
+          props: { title: "Report", quickLookPath: "/tmp/report.pdf", quickLookName: "Report preview" },
+          children: [],
+        },
+        {
+          id: "with-path-only",
+          type: "list-item",
+          props: { title: "Notes", quickLookPath: "/tmp/notes.txt" },
+          children: [],
+        },
+        { id: "without", type: "list-item", props: { title: "Plain" }, children: [] },
+      ],
+    },
+    {
+      id: "quick-grid",
+      type: "grid",
+      props: {},
+      children: [
+        {
+          id: "grid-item",
+          type: "grid-item",
+          props: { title: "Photo", quickLookPath: "C:\\tmp\\photo.png" },
+          children: [],
+        },
+      ],
+    },
+  ];
+
+  const listMarkup = renderToStaticMarkup(
+    React.createElement(V2Scene, { disabled: false, onEvent: async () => {}, root: roots[0] }),
+  );
+  assert.match(listMarkup, /Quick Look: Report preview/);
+  assert.match(listMarkup, /Quick Look: notes\.txt/);
+  assert.doesNotMatch(listMarkup, /Plain.*Quick Look/);
+
+  const gridMarkup = renderToStaticMarkup(
+    React.createElement(V2Scene, { disabled: false, onEvent: async () => {}, root: roots[1] }),
+  );
+  assert.match(gridMarkup, /Quick Look: photo\.png/);
+});

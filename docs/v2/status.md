@@ -98,7 +98,21 @@ slice changes what is executable, what is trusted, or what should happen next.
   `fetchExtensionsFromRepo` streams selected folders through a cached
   partial clone (no full checkout), `pnpm run fetch:v2` installs one
   extension into a catalog directory, and the scheduled `Compatibility
-Probe` workflow batches failure classes with provisioning on.
+Probe` workflow batches failure classes with provisioning on. [ADR
+  0127](decisions/0127-repo-fetch-prefix-and-store-staging.md) fixes the
+  real `extensions/` repository prefix (with bare-name fallback for test
+  repositories) and stages `fetch:v2` through
+  `ExternalExtensionStore.install`/`update` with version-aware no-ops.
+- Detail metadata tag actions from [ADR
+  0128](decisions/0128-detail-tag-action-presentation.md): tags carrying the
+  already-measured `onAction` scene event render as buttons firing the
+  existing event channel; static tags remain text. No scene, protocol, or
+  validator changes.
+- Quick Look metadata from [ADR
+  0129](decisions/0129-quick-look-presentation.md): List/Grid items with
+  `quickLookPath` show a `Quick Look: <name or basename>` affordance; the
+  existing `ToggleQuickLook` action keeps crossing `quick-look.toggle`.
+  No file contents are loaded and no scene, protocol, or validator changes.
 - Extension dependency provisioning from [ADR
   0125](decisions/0125-extension-dependency-provisioning.md) is implemented:
   `@blastlauncher/extension-deps` resolves manifest runtime dependencies

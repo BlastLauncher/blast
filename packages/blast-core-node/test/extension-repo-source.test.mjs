@@ -11,7 +11,7 @@ function git(args, cwd) {
   execFileSync("git", args, { cwd, stdio: "pipe", env: { ...process.env } });
 }
 
-async function createCorpusRepo(names) {
+async function createCorpusRepo(names, prefix = undefined) {
   const base = await mkdtemp(path.join(tmpdir(), "blast-repo-source-"));
   const origin = path.join(base, "origin");
   await mkdir(origin, { recursive: true });
@@ -19,7 +19,7 @@ async function createCorpusRepo(names) {
   git(["config", "user.email", "test@blast.local"], origin);
   git(["config", "user.name", "blast-test"], origin);
   for (const name of names) {
-    const directory = path.join(origin, name);
+    const directory = prefix === undefined ? path.join(origin, name) : path.join(origin, prefix, name);
     await mkdir(path.join(directory, "src"), { recursive: true });
     await writeFile(
       path.join(directory, "package.json"),
@@ -63,6 +63,26 @@ test("fetches selected extensions and reports missing names", async (t) => {
   });
   assert.deepEqual(again.fetched, ["ext-b"]);
   assert.deepEqual(again.missing, []);
+});
+
+test("fetches extensions nested under the default extensions/ prefix", async (t) => {
+  const { base, origin, revision } = await createCorpusRepo(["ext-a", "ext-b"], "extensions");
+  t.after(() => rm(base, { recursive: true, force: true }));
+  const cacheDir = path.join(base, "cache");
+  const targetRoot = path.join(base, "target");
+
+  const result = await fetchExtensionsFromRepo({
+    repoUrl: origin,
+    revision,
+    extensionNames: ["ext-a", "no-such-ext"],
+    cacheDir,
+    targetRoot,
+  });
+
+  assert.deepEqual(result.fetched, ["ext-a"]);
+  assert.deepEqual(result.missing, ["no-such-ext"]);
+  const manifest = JSON.parse(await readFile(path.join(targetRoot, "ext-a", "package.json"), "utf8"));
+  assert.equal(manifest.name, "ext-a");
 });
 
 test("rejects unsafe extension names and relative paths", async (t) => {

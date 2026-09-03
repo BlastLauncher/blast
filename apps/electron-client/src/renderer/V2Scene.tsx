@@ -490,6 +490,11 @@ function CollectionItem({
               {stringProp(item, "subtitle") !== undefined && (
                 <span className="mt-1 block truncate text-xs text-white/50">{stringProp(item, "subtitle")}</span>
               )}
+              {quickLookLabel(item) !== undefined && (
+                <span className="mt-1 block truncate text-xs text-white/45" title={stringProp(item, "quickLookPath")}>
+                  Quick Look: {quickLookLabel(item)}
+                </span>
+              )}
             </span>
           </span>
         </button>
@@ -818,7 +823,7 @@ function DetailScene({ root, disabled, onEvent }: V2SceneProps) {
         {root.children
           .filter((child) => child.type === "detail-metadata")
           .map((child) => (
-            <DetailMetadata key={child.id} node={child} />
+            <DetailMetadata disabled={disabled} key={child.id} node={child} onEvent={onEvent} />
           ))}
       </div>
       <ActionButtons disabled={disabled} nodes={root.children} onEvent={onEvent} />
@@ -826,7 +831,15 @@ function DetailScene({ root, disabled, onEvent }: V2SceneProps) {
   );
 }
 
-function DetailMetadata({ node }: { readonly node: SceneNode }): React.JSX.Element {
+function DetailMetadata({
+  node,
+  disabled,
+  onEvent,
+}: {
+  readonly node: SceneNode;
+  readonly disabled: boolean;
+  readonly onEvent: V2SceneEventSender;
+}): React.JSX.Element {
   return (
     <div className="mt-4 grid gap-2 border-t border-white/10 pt-3 text-xs">
       {node.children.map((child) => {
@@ -854,11 +867,27 @@ function DetailMetadata({ node }: { readonly node: SceneNode }): React.JSX.Eleme
               <div className="flex gap-3" key={child.id}>
                 <span className="w-28 shrink-0 text-white/45">{stringProp(child, "title")}</span>
                 <span className="flex flex-wrap gap-1">
-                  {child.children.map((tag) => (
-                    <span className="rounded bg-white/10 px-1.5 py-0.5" key={tag.id}>
-                      {stringProp(tag, "text") ?? ""}
-                    </span>
-                  ))}
+                  {child.children.map((tag) => {
+                    const tagEvent = stringProp(tag, "onAction");
+                    if (tagEvent === undefined) {
+                      return (
+                        <span className="rounded bg-white/10 px-1.5 py-0.5" key={tag.id}>
+                          {stringProp(tag, "text") ?? ""}
+                        </span>
+                      );
+                    }
+                    return (
+                      <button
+                        className="rounded bg-white/10 px-1.5 py-0.5 hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-50"
+                        disabled={disabled}
+                        key={tag.id}
+                        onClick={() => fireEvent(onEvent, tagEvent)}
+                        type="button"
+                      >
+                        {stringProp(tag, "text") ?? ""}
+                      </button>
+                    );
+                  })}
                 </span>
               </div>
             );
@@ -1482,6 +1511,19 @@ function isValidV2DateWireValue(value: string): boolean {
 function stringProp(node: SceneNode, name: string): string | undefined {
   const value = node.props[name];
   return typeof value === "string" ? value : undefined;
+}
+
+function quickLookLabel(node: SceneNode): string | undefined {
+  const path = stringProp(node, "quickLookPath");
+  if (path === undefined || path.length === 0) {
+    return undefined;
+  }
+  const name = stringProp(node, "quickLookName");
+  if (name !== undefined && name.length > 0) {
+    return name;
+  }
+  const segments = path.split(/[/\\]+/).filter((segment) => segment.length > 0);
+  return segments.length > 0 ? segments[segments.length - 1] : path;
 }
 
 function stringArrayProp(node: SceneNode, name: string): readonly string[] | undefined {
