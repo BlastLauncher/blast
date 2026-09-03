@@ -1021,6 +1021,9 @@ test("renders legacy list and action aliases, including OpenWithAction", async (
     ],
   );
 
+  assert.equal(actions[2].props.openTarget, "/tmp/example.txt");
+  assert.equal(actions[2].props.openWith, true);
+
   probe.dispatch(actions[2].props.onAction);
   await new Promise((resolve) => setTimeout(resolve, 5));
   assert.deepEqual(probe.capabilityRequests, [

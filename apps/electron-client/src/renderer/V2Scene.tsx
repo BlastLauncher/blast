@@ -1293,6 +1293,7 @@ function ActionButton({
   const eventId = stringProp(action, "onAction");
   const iconSource = selectV2SceneImageSource(action);
   const destructive = stringProp(action, "style") === "destructive";
+  const openTargetLabel = openActionTargetLabel(action);
   return (
     <button
       autoFocus={booleanProp(action, "autoFocus")}
@@ -1304,15 +1305,29 @@ function ActionButton({
       data-action-style={destructive ? "destructive" : "regular"}
       disabled={disabled || eventId === undefined}
       onClick={() => (eventId === undefined ? undefined : fireEvent(onEvent, eventId, values))}
+      title={openTargetLabel === undefined ? undefined : stringProp(action, "openTarget")}
       type="button"
     >
       {iconSource !== undefined && <V2SceneIcon node={action} size="small" />}
       {stringProp(action, "title") ?? "Run"}
+      {openTargetLabel !== undefined && <span className="max-w-40 truncate text-white/50">{openTargetLabel}</span>}
       {shortcutProp(action, "shortcut") !== undefined && (
         <span className="ml-2 text-white/50">{shortcutProp(action, "shortcut")}</span>
       )}
     </button>
   );
+}
+
+function openActionTargetLabel(node: SceneNode): string | undefined {
+  if (booleanProp(node, "openWith") !== true) {
+    return undefined;
+  }
+  const target = stringProp(node, "openTarget");
+  if (target === undefined || target.length === 0) {
+    return undefined;
+  }
+  const segments = target.split(/[/\\]+/).filter((segment) => segment.length > 0);
+  return segments.length > 0 ? segments[segments.length - 1] : target;
 }
 
 function UnsupportedScene({ node }: { readonly node: SceneNode }): React.JSX.Element {

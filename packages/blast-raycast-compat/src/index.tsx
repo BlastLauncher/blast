@@ -4770,6 +4770,8 @@ function OpenWith(props: OpenWithProps): ReactElement {
     title: props.title ?? "Open With",
     ...serializeIconProperties(icon),
     ...(shortcut === undefined ? {} : { shortcut }),
+    openTarget: path,
+    openWith: true,
     onAction: () => {
       void openWith(path).then(() => props.onOpen?.(path));
     },

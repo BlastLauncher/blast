@@ -672,6 +672,41 @@ test("renders actionable detail metadata tags as buttons and static tags as text
   assert.doesNotMatch(markup, /tag-event/);
 });
 
+test("presents Open With actions with their target without changing activation", () => {
+  const markup = renderToStaticMarkup(
+    React.createElement(V2Scene, {
+      disabled: false,
+      onEvent: async () => {},
+      root: {
+        id: "list",
+        type: "list",
+        props: {},
+        children: [
+          {
+            id: "item",
+            type: "list-item",
+            props: { title: "Example" },
+            children: [
+              {
+                id: "open-with",
+                type: "action",
+                props: { title: "Open With", onAction: "event-open", openTarget: "/tmp/example.txt", openWith: true },
+                children: [],
+              },
+              { id: "plain", type: "action", props: { title: "Run", onAction: "event-run" }, children: [] },
+            ],
+          },
+        ],
+      },
+    }),
+  );
+
+  assert.match(markup, /Open With/);
+  assert.match(markup, /example\.txt/);
+  assert.doesNotMatch(markup, /openWith/);
+  assert.doesNotMatch(markup, /openTarget/);
+});
+
 test("presents Quick Look metadata on list and grid items without loading file contents", () => {
   const roots = [
     {

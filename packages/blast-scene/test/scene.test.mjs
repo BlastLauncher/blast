@@ -321,6 +321,59 @@ test("validates scene transaction messages", (context) => {
     assert.equal(result.ok, true);
   });
 
+  context.test("accepts Open With action target markers", () => {
+    const result = validateSceneTransactionMessage(
+      envelope(
+        SCENE_TRANSACTION_MESSAGE,
+        transaction([
+          {
+            type: "snapshot",
+            root: list("root", [
+              listItem("item-1", "Item", [
+                {
+                  id: "action-1",
+                  type: "action",
+                  props: {
+                    title: "Open With",
+                    onAction: "event-action",
+                    openTarget: "/tmp/example.txt",
+                    openWith: true,
+                  },
+                  children: [],
+                },
+              ]),
+            ]),
+          },
+        ]),
+      ),
+    );
+    assert.equal(result.ok, true);
+  });
+
+  context.test("rejects mistyped Open With action markers", () => {
+    const result = validateSceneTransactionMessage(
+      envelope(
+        SCENE_TRANSACTION_MESSAGE,
+        transaction([
+          {
+            type: "snapshot",
+            root: list("root", [
+              listItem("item-1", "Item", [
+                {
+                  id: "action-1",
+                  type: "action",
+                  props: { title: "Open With", onAction: "event-action", openWith: "yes" },
+                  children: [],
+                },
+              ]),
+            ]),
+          },
+        ]),
+      ),
+    );
+    assert.equal(result.ok, false);
+  });
+
   context.test("accepts the ActionPanel.Submenu presentation marker", () => {
     const result = validateSceneTransactionMessage(
       envelope(

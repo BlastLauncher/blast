@@ -113,6 +113,12 @@ Probe` workflow batches failure classes with provisioning on. [ADR
   `quickLookPath` show a `Quick Look: <name or basename>` affordance; the
   existing `ToggleQuickLook` action keeps crossing `quick-look.toggle`.
   No file contents are loaded and no scene, protocol, or validator changes.
+- Open With action identity from [ADR
+  0130](decisions/0130-open-with-action-presentation.md): `Action.OpenWith`
+  carries validated `openTarget`/`openWith` scene props and the client shows
+  the target basename beside the action title. Activation still crosses the
+  existing `open.open` capability; without a production provider it keeps the
+  structured denial, and the host chooser remains follow-up provider work.
 - Extension dependency provisioning from [ADR
   0125](decisions/0125-extension-dependency-provisioning.md) is implemented:
   `@blastlauncher/extension-deps` resolves manifest runtime dependencies
