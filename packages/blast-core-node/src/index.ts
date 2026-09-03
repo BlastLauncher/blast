@@ -41,6 +41,12 @@ export type {
   ExternalExtensionStoreErrorCode,
   ExternalExtensionStoreOptions,
 } from "./extension-package-store.js";
+export { ExtensionRepoSourceError, fetchExtensionsFromRepo } from "./extension-repo-source.js";
+export type {
+  ExtensionRepoSourceErrorCode,
+  FetchExtensionsFromRepoOptions,
+  FetchedExtensions,
+} from "./extension-repo-source.js";
 
 export const DEFAULT_MANIFEST_FILE_NAME = "package.json";
 

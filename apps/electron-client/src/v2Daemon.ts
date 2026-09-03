@@ -17,6 +17,8 @@ let ownedV2ExternalExtensionStore: ExternalExtensionStore | undefined;
 
 export interface V2DaemonStartOptions {
   readonly onCatalogChanged?: () => void | Promise<void>;
+  readonly onError?: (error: Error) => void;
+  readonly onStderr?: (descriptor: unknown, chunk: string) => void;
 }
 
 /** Starts the app-owned V2 daemon for packaged default or explicit V2 modes. */
@@ -43,6 +45,7 @@ export async function startV2Daemon(options: V2DaemonStartOptions = {}): Promise
     catalogRoot: configuration.catalogRoot,
     bootstrapPath: configuration.bootstrapPath,
     socketPath: configuration.socketPath,
+    extensionDependencies: { storeRoot: path.join(USER_DIR, "v2", "extension-deps") },
     nodeExecutable: configuration.nodeExecutable ?? nrm.nodePath,
     ...(configuration.additionalCatalogRoots === undefined
       ? {}
@@ -55,6 +58,8 @@ export async function startV2Daemon(options: V2DaemonStartOptions = {}): Promise
       : { additionalCatalogRootSourceKinds: configuration.additionalCatalogRootSourceKinds }),
     environment: createExtensionEnvironment(configuration),
     ...(options.onCatalogChanged === undefined ? {} : { onCatalogChanged: options.onCatalogChanged }),
+    ...(options.onError === undefined ? {} : { onError: options.onError }),
+    ...(options.onStderr === undefined ? {} : { onStderr: options.onStderr }),
   });
   await daemon.start();
   ownedV2Daemon = daemon;

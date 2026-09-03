@@ -455,7 +455,7 @@ export class CoreClientHost {
     if (this.#startPromise !== undefined) {
       return this.#startPromise;
     }
-    if (this.#controller !== undefined) {
+    if (this.#controller !== undefined && !isRestartableState(this.#controller.state)) {
       return Promise.reject(new CoreClientHostError("host_already_started", "The client host has already started"));
     }
 
@@ -496,6 +496,7 @@ export class CoreClientHost {
   }
 
   async #start(): Promise<CoreClientSnapshot> {
+    await this.#dropTerminalController();
     const client = await this.#connect();
     if (this.#closed) {
       await client.close("Client host closed before startup completed").catch(() => {});
@@ -508,8 +509,26 @@ export class CoreClientHost {
     });
     this.#controller = controller;
     this.#unsubscribeController = controller.subscribe((snapshot) => this.#emit(snapshot));
+    // A discovery failure leaves the controller in `failed` state with its
+    // snapshot observable; a later start() reconnects instead of reporting
+    // host_already_started.
     await controller.start();
     return controller.snapshot;
+  }
+
+  async #dropTerminalController(): Promise<void> {
+    const previous = this.#controller;
+    if (previous === undefined || !isRestartableState(previous.state)) {
+      return;
+    }
+    const unsubscribe = this.#unsubscribeController;
+    this.#controller = undefined;
+    this.#unsubscribeController = undefined;
+    unsubscribe?.();
+    await previous.close("Client host reconnecting").catch(() => {});
+    if (this.#closed) {
+      throw new CoreClientHostError("host_closed", "The client host is closed");
+    }
   }
 
   async #close(reason?: string): Promise<void> {
@@ -629,6 +648,10 @@ function createPromiseGate<T>(): PromiseGate<T> {
 
 function sameIdentity(left: CommandIdentity | undefined, right: CommandIdentity): boolean {
   return left !== undefined && left.extensionId === right.extensionId && left.commandName === right.commandName;
+}
+
+function isRestartableState(state: CoreClientControllerState): boolean {
+  return state === "failed" || state === "closed";
 }
 
 function toControllerError(error: unknown, fallbackCode: string, fallbackMessage: string): CoreClientControllerError {

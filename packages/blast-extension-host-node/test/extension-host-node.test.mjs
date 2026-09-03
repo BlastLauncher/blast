@@ -1,4 +1,7 @@
 import assert from "node:assert/strict";
+import { mkdtemp, readdir, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
@@ -112,6 +115,85 @@ test("reports a runtime that crashes before negotiation", async () => {
     ["extension.starting", "extension.process-exited", "extension.start-failed"],
   );
   assert.equal(observed[1].exit.code, 17);
+  assert.equal(host.activeSessions.length, 0);
+});
+
+test("provisions manifest dependencies into an isolated view before spawning", async (t) => {
+  const storeRoot = await mkdtemp(path.join(tmpdir(), "blast-launcher-deps-"));
+  t.after(() => rm(storeRoot, { recursive: true, force: true }));
+  const provisionedRoot = fileURLToPath(new URL("./fixtures/provisioned-extension", import.meta.url));
+  const stderr = [];
+  const launcher = new NodeExtensionProcessLauncher({
+    bootstrapPath,
+    environment: process.env,
+    dependencies: { storeRoot },
+    onStderr: (_descriptor, chunk) => stderr.push(chunk),
+  });
+  const host = new ExtensionHost({
+    launcher,
+    implementation: { name: "node-test-host", version: "0.0.0" },
+    createMessageId: idFactory("host"),
+    createSessionId: idFactory("session"),
+  });
+  t.after(() => host.close("test complete").catch(() => {}));
+  const provisionedDescriptor = {
+    extensionId: "provisioned.fixture",
+    commandName: "index",
+    entrypoint: bootstrapPath,
+    rootDirectory: provisionedRoot,
+  };
+
+  const session = await host.start(provisionedDescriptor);
+  const views = [];
+  for (const entry of await readdir(storeRoot)) {
+    const depManifestPath = path.join(storeRoot, entry, "node_modules", "fixture-dep", "package.json");
+    try {
+      views.push(JSON.parse(await readFile(depManifestPath, "utf8")));
+    } catch {
+      // Lock scaffolding and unrelated entries are not views.
+    }
+  }
+  assert.equal(views.length, 1);
+  assert.equal(views[0].version, "1.0.0");
+
+  const vendorLine = stderr
+    .join("")
+    .split("\n")
+    .find((line) => line.startsWith("vendor-roots:"));
+  assert.ok(vendorLine !== undefined && vendorLine.length > "vendor-roots:".length, "expected an isolated vendor root");
+
+  await host.stop(provisionedDescriptor.extensionId, provisionedDescriptor.commandName, "test complete");
+  const exit = await session.process.completion;
+  assert.equal(exit.code, 0);
+});
+
+test("surfaces dependency install failures with a structured code", async (t) => {
+  const storeRoot = await mkdtemp(path.join(tmpdir(), "blast-launcher-deps-"));
+  t.after(() => rm(storeRoot, { recursive: true, force: true }));
+  const brokenRoot = fileURLToPath(new URL("./fixtures/broken-extension", import.meta.url));
+  const launcher = new NodeExtensionProcessLauncher({
+    bootstrapPath,
+    environment: process.env,
+    dependencies: { storeRoot },
+  });
+  const host = new ExtensionHost({
+    launcher,
+    implementation: { name: "node-test-host", version: "0.0.0" },
+    createMessageId: idFactory("host"),
+    createSessionId: idFactory("session"),
+  });
+  t.after(() => host.close("test complete").catch(() => {}));
+
+  await assert.rejects(
+    () =>
+      host.start({
+        extensionId: "broken.fixture",
+        commandName: "index",
+        entrypoint: bootstrapPath,
+        rootDirectory: brokenRoot,
+      }),
+    (error) => error.code === "dependency_install_failed",
+  );
   assert.equal(host.activeSessions.length, 0);
 });
 

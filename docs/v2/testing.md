@@ -152,6 +152,17 @@ idle application refresh callback; the ARM64 performance baseline is refreshed
 after that lifecycle change. ADR 0117 adds server-rendered empty-catalog,
 empty-search, and retry-state coverage at the Electron renderer boundary, plus
 a client-host regression proving transient connection failures can be retried.
+ADR 0124 adds client-host regressions for reconnecting after structured
+discovery failure and after a clean controller close, while keeping the
+already-started guard for active controllers. ADR 0125 adds installer unit
+coverage (lockfile hits, manifest-change reinstalls, per-identity isolation,
+`file:` rebasing, structured install/platform/offline/quota failures, LRU
+cache eviction), launcher coverage for provisioning before spawn with
+`BLAST_V2_VENDOR_ROOTS` propagation and structured install-failure
+rejection, and a core regression preserving host-owned failure codes across
+`core.command.start-failed`; installer tests stub the package manager and
+launcher tests use local `file:` fixtures, so no test needs network or a
+registry.
 ADR 0118 adds server-rendered date and date-time picker coverage with ISO
 conversion, bounds, invalid-value fallback, and nullable clearing semantics.
 IPC inputs are

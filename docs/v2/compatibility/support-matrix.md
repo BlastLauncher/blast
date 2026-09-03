@@ -414,6 +414,50 @@ separately bundled child view. The `window-management-boundaries` fixture
 waits for active-window, desktop-window, and desktop-list responses, then
 dispatches a bounds mutation through the explicit host capability.
 
+## Focused reprobes without a full clone
+
+The full probe needs the 3,231-extension corpus checkout, which is too large
+to clone routinely. `probe:extensions` runs the same `probe-corpus.mjs`
+pipeline over a pickable set, fetching only the selected extensions through
+a cached partial clone (`git clone --filter=blob:none` plus
+`git archive <revision> -- <dirs> | tar -x` into a temporary root that is
+removed afterwards):
+
+```bash
+# Single extensions by directory name (no full clone needed)
+pnpm run probe:v2 -- donut crawldoc
+# Batch through one failure class of the last full report
+pnpm run probe:v2 -- --from-report docs/v2/compatibility/runtime-probe-post-slice.json \
+  --outcome third-party-dependency --limit 20
+# Offline against an existing checkout (skips fetching entirely)
+pnpm run probe:v2 -- --corpus-root /path/to/extensions donut
+```
+
+`--file`, `--offset`, `--revision`, `--timeout`, `--concurrency`,
+`--provision [store]`, `--diagnostics`, `--json`, `--output`, `--keep`, and
+`--cache-dir` refine selection, behavior, and cleanup. `--provision`
+installs manifest dependencies into an isolated per-extension store before
+probing (the ADR 0125 installer path); without it the probe keeps its
+hermetic vendored-only resolution. Exit status is non-zero when any selected
+extension lands in a failure outcome, so the cycle composes with scripts:
+pick a failure class, fix, reprobe, then refresh the full report.
+
+Installing a single extension follows the same acquisition seam
+([ADR 0126](../decisions/0126-repo-fetch-install-and-coverage-loop.md)):
+
+```bash
+# Download one extension folder into the product external-extensions root
+pnpm run fetch:v2 -- donut
+# ...or into any catalog directory at a chosen revision
+pnpm run fetch:v2 -- donut --target ./my-catalog --revision <sha>
+```
+
+The `Compatibility Probe` workflow batches a failure class on schedule and
+on manual dispatch (provisioning on by default) and uploads the report
+artifact; extension failures do not fail the workflow, infrastructure
+crashes do. A fixed extension graduates by adding its trimmed sources plus
+an expectations entry to the committed `test/fixtures/real` matrix.
+
 ## Known gaps surfaced by the matrix
 
 - action groups, `ActionPanel.Item`, `ActionPanel.Section`, submenus, tinted icons, shortcut

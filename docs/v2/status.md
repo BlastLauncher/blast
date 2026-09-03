@@ -88,7 +88,27 @@ slice changes what is executable, what is trusted, or what should happen next.
   `CoreClientHost` and JSON-safe snapshot serializer from [ADR
   0096](decisions/0096-electron-main-client-bridge.md). Host tests cover lazy
   shared startup, command forwarding, shutdown, and non-serializable failure
-  details.
+  details. `start()` reconnects a terminal (`failed`/`closed`) controller over
+  a fresh session instead of reporting `host_already_started` ([ADR
+  0124](decisions/0124-client-host-reconnect-and-diagnostics.md)); the
+  headless `pnpm run diagnose:v2` smoke exercises the same daemon socket,
+  discovery, and run-command path without Electron.
+- Repo-fetch installation and the one-by-one coverage loop from [ADR
+  0126](decisions/0126-repo-fetch-install-and-coverage-loop.md):
+  `fetchExtensionsFromRepo` streams selected folders through a cached
+  partial clone (no full checkout), `pnpm run fetch:v2` installs one
+  extension into a catalog directory, and the scheduled `Compatibility
+Probe` workflow batches failure classes with provisioning on.
+- Extension dependency provisioning from [ADR
+  0125](decisions/0125-extension-dependency-provisioning.md) is implemented:
+  `@blastlauncher/extension-deps` resolves manifest runtime dependencies
+  with the host package manager into lockfile-pinned isolated views with
+  quotas and offline cache mode (no supply-chain checks: the reviewed
+  upstream corpus is trusted). The Node launcher provisions before spawn and
+  exposes the view through `BLAST_V2_VENDOR_ROOTS`, host failure codes cross
+  `core.command.start-failed` unmasked, and the app-owned daemon provisions
+  into `~/.blast/v2/extension-deps`. `pnpm run probe:v2 -- --provision`
+  exercises the installer path per extension without a full clone.
 - The Electron app has the main-process bridge from ADR 0096: when an
   external `BLAST_V2_SOCKET_PATH`, explicit app-owned paths, or packaged mode
   is supplied, the main process registers snapshot/toast subscriptions and
@@ -777,13 +797,11 @@ slice changes what is executable, what is trusted, or what should happen next.
   ADRs 0119 through 0121 now classify packaged roots, provide an explicit
   host-side external package lifecycle, and expose minimal packaged controls
   without implicit installation;
-- full dependency provisioning beyond the seventeen bounded e2e seeds, lockfile/audit
-  policy for large npm graphs, native package externalization, and stronger
-  source verification (the runtime supports explicit local or vendored
-  dependency roots but never installs packages); these dependency, trust, and
-  platform concerns are tracked separately from Raycast API compatibility, and
-  extension authors own third-party native module support on their target
-  platforms;
+- a native-module build farm and install-policy checks beyond quotas and
+  offline mode (dependency provisioning itself is implemented — see the
+  executable list — but platform-blocked packages stay classified
+  diagnostics, and visible first-run install progress in the client remains
+  a follow-up);
 - the remaining measured Raycast surface: broader desktop APIs, additional
   action helpers/providers, and additional Tool/browser APIs; the
   declaration-driven ARM64 finish gate is green, and the client toast timeout,

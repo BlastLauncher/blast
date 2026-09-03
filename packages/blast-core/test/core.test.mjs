@@ -241,6 +241,37 @@ test("reports command startup failures through the client boundary", async () =>
   await core.close();
 });
 
+test("preserves host-owned failure codes through the client boundary", async () => {
+  const failure = Object.assign(new Error("Dependencies for example.extension failed to install"), {
+    code: "dependency_install_failed",
+  });
+  const { core } = createHarness({
+    supervisor: {
+      async start() {
+        throw failure;
+      },
+    },
+  });
+  const { client, server } = await connectClient(core);
+
+  await client.runCommand(identity);
+  assert.deepEqual(await client.receive(), {
+    protocolVersion: 1,
+    id: "core-2",
+    type: "core.command.start-failed",
+    payload: {
+      extensionId: identity.extensionId,
+      commandName: identity.commandName,
+      code: "dependency_install_failed",
+      message: "Dependencies for example.extension failed to install",
+    },
+  });
+
+  await client.close("test complete");
+  await server.done;
+  await core.close();
+});
+
 test("serves path-free command discovery through the client boundary", async () => {
   const { core } = createHarness({
     catalog: {

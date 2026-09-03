@@ -2,6 +2,7 @@ import { BlastCore, type ExtensionSourceKind } from "@blastlauncher/core";
 import { ExtensionHost, type ExtensionHostOptions } from "@blastlauncher/extension-host";
 import {
   NodeExtensionProcessLauncher,
+  type NodeExtensionProcessLauncherDependencyOptions,
   type NodeExtensionProcessLauncherOptions,
 } from "@blastlauncher/extension-host-node";
 
@@ -32,6 +33,7 @@ export interface NodeCoreDaemonOptions {
   /** An explicit environment object or descriptor-based factory for children. */
   readonly environment: NodeExtensionProcessLauncherOptions["environment"];
   readonly socketPath: string;
+  readonly extensionDependencies?: NodeExtensionProcessLauncherDependencyOptions;
   readonly nodeExecutable?: NodeExtensionProcessLauncherOptions["nodeExecutable"];
   readonly execArguments?: NodeExtensionProcessLauncherOptions["execArguments"];
   readonly gracefulShutdownMilliseconds?: NodeExtensionProcessLauncherOptions["gracefulShutdownMilliseconds"];
@@ -108,6 +110,7 @@ export class NodeCoreDaemon {
     });
     const launcher = new NodeExtensionProcessLauncher({
       bootstrapPath: options.bootstrapPath,
+      ...(options.extensionDependencies === undefined ? {} : { dependencies: options.extensionDependencies }),
       environment: options.environment,
       ...(options.nodeExecutable === undefined ? {} : { nodeExecutable: options.nodeExecutable }),
       ...(options.execArguments === undefined ? {} : { execArguments: options.execArguments }),

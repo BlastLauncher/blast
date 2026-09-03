@@ -1,9 +1,21 @@
 import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
-import { isAbsolute } from "node:path";
+import { existsSync } from "node:fs";
+import { delimiter, isAbsolute, resolve } from "node:path";
 
+import { ensureExtensionDependencies } from "@blastlauncher/extension-deps";
 import type { ExtensionDescriptor } from "@blastlauncher/extension-contract";
 import type { ExtensionProcess, ExtensionProcessExit, ExtensionProcessLauncher } from "@blastlauncher/extension-host";
 import { createJsonLineTransport } from "@blastlauncher/transport-node";
+
+export interface NodeExtensionProcessLauncherDependencyOptions {
+  /** Absolute store root owning one isolated view per extension identity. */
+  readonly storeRoot: string;
+  readonly npmExecutable?: string;
+  readonly offline?: boolean;
+  readonly maxInstallBytes?: number;
+  readonly maxCacheBytes?: number;
+  readonly installTimeoutMilliseconds?: number;
+}
 
 export interface NodeExtensionProcessLauncherOptions {
   readonly bootstrapPath: string;
@@ -13,6 +25,13 @@ export interface NodeExtensionProcessLauncherOptions {
   readonly gracefulShutdownMilliseconds?: number;
   readonly maxFrameBytes?: number;
   readonly onStderr?: (descriptor: ExtensionDescriptor, chunk: string) => void;
+  /**
+   * When set, the launcher provisions the extension manifest dependencies
+   * into an isolated view before spawning and exposes the view to the
+   * bootstrap through `BLAST_V2_VENDOR_ROOTS`. Install failures abort the
+   * launch with a structured dependency diagnostic.
+   */
+  readonly dependencies?: NodeExtensionProcessLauncherDependencyOptions;
 }
 
 export class NodeExtensionProcessLauncher implements ExtensionProcessLauncher {
@@ -36,12 +55,14 @@ export class NodeExtensionProcessLauncher implements ExtensionProcessLauncher {
       throw abortError(signal.reason);
     }
 
+    const provisionedVendorRoots = await this.#provisionDependencies(descriptor, signal);
+
     const child = spawn(
       this.#options.nodeExecutable ?? process.execPath,
       [...(this.#options.execArguments ?? []), this.#options.bootstrapPath],
       {
         cwd: descriptor.rootDirectory,
-        env: resolveEnvironment(this.#options.environment, descriptor),
+        env: withVendorRoots(resolveEnvironment(this.#options.environment, descriptor), provisionedVendorRoots),
         shell: false,
         stdio: ["pipe", "pipe", "pipe"],
         windowsHide: true,
@@ -82,6 +103,29 @@ export class NodeExtensionProcessLauncher implements ExtensionProcessLauncher {
       );
     }
     return extensionProcess;
+  }
+
+  async #provisionDependencies(descriptor: ExtensionDescriptor, signal?: AbortSignal): Promise<readonly string[]> {
+    const dependencies = this.#options.dependencies;
+    if (dependencies === undefined) {
+      return [];
+    }
+    const view = await ensureExtensionDependencies({
+      extensionRoot: resolve(descriptor.rootDirectory),
+      extensionId: descriptor.extensionId,
+      storeRoot: dependencies.storeRoot,
+      ...(dependencies.npmExecutable === undefined ? {} : { npmExecutable: dependencies.npmExecutable }),
+      ...(dependencies.offline === undefined ? {} : { offline: dependencies.offline }),
+      ...(dependencies.maxInstallBytes === undefined ? {} : { maxInstallBytes: dependencies.maxInstallBytes }),
+      ...(dependencies.maxCacheBytes === undefined ? {} : { maxCacheBytes: dependencies.maxCacheBytes }),
+      ...(dependencies.installTimeoutMilliseconds === undefined
+        ? {}
+        : { installTimeoutMilliseconds: dependencies.installTimeoutMilliseconds }),
+      ...(signal === undefined ? {} : { signal }),
+    });
+    // A view without installed packages may not exist on disk; esbuild only
+    // receives roots that actually resolve.
+    return existsSync(view.nodeModulesRoot) ? [view.nodeModulesRoot] : [];
   }
 }
 
@@ -134,6 +178,15 @@ function resolveEnvironment(
   descriptor: ExtensionDescriptor,
 ): NodeJS.ProcessEnv {
   return typeof environment === "function" ? environment(descriptor) : environment;
+}
+
+function withVendorRoots(environment: NodeJS.ProcessEnv, provisioned: readonly string[]): NodeJS.ProcessEnv {
+  if (provisioned.length === 0) {
+    return environment;
+  }
+  const existing = environment.BLAST_V2_VENDOR_ROOTS;
+  const roots = [...provisioned, ...(existing === undefined || existing.length === 0 ? [] : [existing])];
+  return { ...environment, BLAST_V2_VENDOR_ROOTS: roots.join(delimiter) };
 }
 
 function processCompletion(child: ChildProcessWithoutNullStreams): Promise<ExtensionProcessExit> {

@@ -3,8 +3,11 @@ import { ipcMain, type IpcMainEvent, type IpcMainInvokeEvent, type WebContents }
 import { CoreClientHost, serializeCoreClientSnapshot, type CoreClientSnapshot } from "@blastlauncher/client";
 import type { CoreClient, CommandIdentity } from "@blastlauncher/core";
 import { validateSceneEventPayload, type SceneEventPayload, type ToastPayload } from "@blastlauncher/scene";
+import { createDebug } from "@blastlauncher/utils/src";
 
 import { V2ClientChannels } from "./v2ClientChannels";
+
+const debug = createDebug("electron-client:v2-client");
 
 export interface V2ClientIPCOptions {
   readonly connect: () => Promise<CoreClient>;
@@ -41,22 +44,55 @@ export function registerV2ClientIPCEvents(options: V2ClientIPCOptions): V2Client
 
   ipcMain.on(V2ClientChannels.subscribe, onSubscribe);
   ipcMain.on(V2ClientChannels.unsubscribe, onUnsubscribe);
-  ipcMain.handle(V2ClientChannels.start, async () => serializeCoreClientSnapshot(await host.start()));
-  ipcMain.handle(V2ClientChannels.refreshCommands, async () =>
-    serializeCoreClientSnapshot(await host.refreshCommands()),
-  );
+  ipcMain.handle(V2ClientChannels.start, async () => {
+    try {
+      const snapshot = await host.start();
+      debug("v2 start ok", snapshot.state, snapshot.commands.length);
+      return serializeCoreClientSnapshot(snapshot);
+    } catch (error) {
+      throw toIpcError(error, "v2_start_failed", "V2 start failed");
+    }
+  });
+  ipcMain.handle(V2ClientChannels.refreshCommands, async () => {
+    try {
+      const snapshot = await host.refreshCommands();
+      debug("v2 refresh ok", snapshot.state, snapshot.commands.length);
+      return serializeCoreClientSnapshot(snapshot);
+    } catch (error) {
+      throw toIpcError(error, "v2_refresh_failed", "V2 refresh failed", host.snapshot?.state);
+    }
+  });
   ipcMain.handle(V2ClientChannels.runCommand, async (_event: IpcMainInvokeEvent, value: unknown) => {
-    await host.runCommand(parseCommandIdentity(value));
+    let identity: CommandIdentity | undefined;
+    try {
+      identity = parseCommandIdentity(value);
+      await host.runCommand(identity);
+      debug("v2 run ok", identity.extensionId, identity.commandName);
+    } catch (error) {
+      throw toIpcError(error, "v2_run_failed", "V2 run failed", host.snapshot?.state, identity);
+    }
   });
   ipcMain.handle(V2ClientChannels.stopCommand, async (_event: IpcMainInvokeEvent, value: unknown) => {
-    await host.stopCommand(parseOptionalReason(value));
+    try {
+      await host.stopCommand(parseOptionalReason(value));
+    } catch (error) {
+      throw toIpcError(error, "v2_stop_failed", "V2 stop failed", host.snapshot?.state);
+    }
   });
   ipcMain.handle(V2ClientChannels.sceneEvent, async (_event: IpcMainInvokeEvent, value: unknown) => {
-    const event = parseSceneEvent(value);
-    await host.sendSceneEvent(event.eventId, event.values);
+    try {
+      const event = parseSceneEvent(value);
+      await host.sendSceneEvent(event.eventId, event.values);
+    } catch (error) {
+      throw toIpcError(error, "v2_scene_event_failed", "V2 scene event failed", host.snapshot?.state);
+    }
   });
   ipcMain.handle(V2ClientChannels.close, async (_event: IpcMainInvokeEvent, value: unknown) => {
-    await host.close(parseOptionalReason(value));
+    try {
+      await host.close(parseOptionalReason(value));
+    } catch (error) {
+      throw toIpcError(error, "v2_close_failed", "V2 close failed");
+    }
   });
 
   return {
@@ -171,4 +207,32 @@ function isNonEmptyString(value: unknown): value is string {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+/**
+ * Preserves the structured error code across the Electron invoke boundary.
+ * Electron serializes thrown Errors by message, so the code is embedded in
+ * the message prefix and also attached as a `code` property when possible.
+ */
+function toIpcError(
+  error: unknown,
+  fallbackCode: string,
+  context: string,
+  snapshotState?: string,
+  identity?: CommandIdentity,
+): Error {
+  const record = (typeof error === "object" && error !== null ? error : {}) as {
+    readonly code?: unknown;
+    readonly message?: unknown;
+  };
+  const code = typeof record.code === "string" && record.code.length > 0 ? record.code : fallbackCode;
+  const message = typeof record.message === "string" && record.message.length > 0 ? record.message : context;
+  const detail =
+    `${context} [${code}]` +
+    (snapshotState === undefined ? "" : ` (client ${snapshotState})`) +
+    (identity === undefined ? "" : ` ${identity.extensionId}/${identity.commandName}`) +
+    `: ${message}`;
+  debug(context, detail, error);
+  console.error(detail);
+  return Object.assign(new Error(detail), { code });
 }

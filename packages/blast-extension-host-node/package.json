@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@blastlauncher/extension-contract": "workspace:*",
+    "@blastlauncher/extension-deps": "workspace:*",
     "@blastlauncher/extension-host": "workspace:*",
     "@blastlauncher/transport-node": "workspace:*"
   },

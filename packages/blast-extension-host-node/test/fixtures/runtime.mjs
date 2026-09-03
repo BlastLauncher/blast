@@ -7,6 +7,7 @@ const runtime = await initializeExtensionRuntime(createProcessStdioTransport(), 
   createMessageId: () => `runtime-${++messageId}`,
   initialize(descriptor) {
     process.stderr.write(`initialized:${descriptor.extensionId}:${descriptor.commandName}\n`);
+    process.stderr.write(`vendor-roots:${process.env.BLAST_V2_VENDOR_ROOTS ?? ""}\n`);
   },
 });
 

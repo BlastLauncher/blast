@@ -839,6 +839,17 @@ function commandStartFailure(error: unknown): Pick<CoreCommandStartFailedPayload
   if (error instanceof BlastCoreError) {
     return { code: error.code, message: error.message };
   }
+  // Host-owned failures (such as dependency provisioning) already carry
+  // structured codes; preserve them instead of masking with a generic code.
+  if (isRecord(error) && typeof error.code === "string" && error.code.length > 0) {
+    return {
+      code: error.code,
+      message:
+        typeof error.message === "string" && error.message.length > 0
+          ? error.message
+          : "Extension command failed to start",
+    };
+  }
   return { code: "command_start_failed", message: "Extension command failed to start" };
 }
 

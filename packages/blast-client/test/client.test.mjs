@@ -314,6 +314,89 @@ test("the client host can retry after a transient connection failure", async () 
   await host.close("retry test complete");
 });
 
+test("the client host reconnects after a structured discovery failure", async () => {
+  const first = new FakeCoreClient();
+  const second = new FakeCoreClient();
+  const clients = [first, second];
+  let connectionCount = 0;
+  const host = new CoreClientHost({
+    connect: async () => clients[connectionCount++],
+  });
+
+  const failing = host.start();
+  await flush();
+  first.push(
+    message("core.command.list-failed", {
+      code: "catalog_root_unreadable",
+      message: "Extension catalog root is not readable",
+    }),
+  );
+  await assert.rejects(failing, (error) => error.code === "catalog_root_unreadable");
+  assert.equal(host.snapshot.state, "failed");
+  assert.equal(first.closed, false);
+
+  const retry = host.start();
+  await flush();
+  second.push(message("core.command.listed", { commands: [] }));
+  const ready = await retry;
+  assert.equal(connectionCount, 2);
+  assert.equal(ready.state, "ready");
+  assert.equal(host.snapshot.state, "ready");
+  assert.equal(first.closed, true);
+  await host.close("reconnect test complete");
+});
+
+test("the client host reconnects after the controller closes cleanly", async () => {
+  const first = new FakeCoreClient();
+  const second = new FakeCoreClient();
+  const clients = [first, second];
+  let connectionCount = 0;
+  const host = new CoreClientHost({
+    connect: async () => clients[connectionCount++],
+  });
+
+  const starting = host.start();
+  await flush();
+  first.push(message("core.command.listed", { commands: [] }));
+  await starting;
+  assert.equal(host.snapshot.state, "ready");
+
+  await first.close();
+  for (let attempt = 0; attempt < 50 && host.snapshot?.state !== "closed"; attempt += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  }
+  assert.equal(host.snapshot.state, "closed");
+  await assert.rejects(
+    () => host.runCommand(identity),
+    (error) => error.name === "CoreClientControllerError" && error.code === "controller_closed",
+  );
+
+  const retry = host.start();
+  await flush();
+  second.push(message("core.command.listed", { commands: [] }));
+  const ready = await retry;
+  assert.equal(connectionCount, 2);
+  assert.equal(ready.state, "ready");
+
+  await host.runCommand(identity);
+  assert.equal(host.snapshot.state, "starting");
+  await host.close("reconnect test complete");
+});
+
+test("the client host keeps rejecting start while a controller is active", async () => {
+  const client = new FakeCoreClient();
+  const host = new CoreClientHost({ connect: async () => client });
+  const starting = host.start();
+  await flush();
+  client.push(message("core.command.listed", { commands: [] }));
+  await starting;
+  await assert.rejects(
+    () => host.start(),
+    (error) => error.code === "host_already_started",
+  );
+  await host.close("active guard test complete");
+});
+
 test("the client host rejects commands before startup and after shutdown", async () => {
   const client = new FakeCoreClient();
   const host = new CoreClientHost({ connect: async () => client });

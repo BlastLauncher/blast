@@ -109,7 +109,20 @@ export function V2App({ api }: V2AppProps): React.JSX.Element {
   }, []);
 
   const runCommand = useCallback(
-    (identity: CommandIdentity) => perform(() => api.runCommand(identity)),
+    (identity: CommandIdentity) =>
+      perform(async () => {
+        try {
+          await api.runCommand(identity);
+        } catch (error) {
+          if (errorCode(error) !== "controller_closed") {
+            throw error;
+          }
+          // The shared host closed cleanly (daemon restart or socket close).
+          // Reconnect once, then retry the requested command transparently.
+          await api.start();
+          await api.runCommand(identity);
+        }
+      }),
     [api, perform],
   );
   const stopCommand = useCallback(() => perform(() => api.stopCommand("Stopped by user")), [api, perform]);
@@ -125,7 +138,14 @@ export function V2App({ api }: V2AppProps): React.JSX.Element {
   const refreshCommands = useCallback(
     () =>
       perform(async () => {
-        await api.refreshCommands();
+        try {
+          await api.refreshCommands();
+        } catch (error) {
+          if (errorCode(error) !== "controller_closed") {
+            throw error;
+          }
+          await api.start();
+        }
       }),
     [api, perform],
   );
@@ -162,7 +182,17 @@ export function V2App({ api }: V2AppProps): React.JSX.Element {
     [api],
   );
 
-  const snapshotFailure = snapshot?.error?.message;
+  const snapshotFailure = snapshot?.error === undefined ? undefined : describeSnapshotError(snapshot.error);
+  const diagnostics = snapshot === undefined ? failure : JSON.stringify(snapshot, null, 2);
+
+  const copyDiagnostics = useCallback(() => {
+    const text = diagnostics ?? "No V2 snapshot yet";
+    if (navigator.clipboard !== undefined) {
+      void navigator.clipboard.writeText(text).catch(() => {});
+    } else {
+      console.error(text);
+    }
+  }, [diagnostics]);
 
   return (
     <div className="h-full dark text-white flex flex-col bg-[var(--app-bg)]">
@@ -204,8 +234,16 @@ export function V2App({ api }: V2AppProps): React.JSX.Element {
       </header>
 
       {(failure !== undefined || snapshotFailure !== undefined) && (
-        <div className="mx-4 mt-3 rounded-md border border-red-400/30 bg-red-400/10 px-3 py-2 text-xs text-red-100">
-          {failure ?? snapshotFailure}
+        <div className="mx-4 mt-3 flex items-start gap-3 rounded-md border border-red-400/30 bg-red-400/10 px-3 py-2 text-xs text-red-100">
+          <span className="min-w-0 flex-1 break-words">{failure ?? snapshotFailure}</span>
+          <button
+            className="shrink-0 rounded-md px-2 py-1 text-white/60 hover:bg-white/10 hover:text-white"
+            onClick={copyDiagnostics}
+            title="Copy V2 diagnostics snapshot to the clipboard"
+            type="button"
+          >
+            Copy diagnostics
+          </button>
         </div>
       )}
 
@@ -353,10 +391,22 @@ function describeState(snapshot: CoreClientSnapshot): string {
 }
 
 function describeError(error: unknown): string {
+  const code = errorCode(error);
   if (typeof error === "object" && error !== null && "message" in error && typeof error.message === "string") {
-    return error.message;
+    return code === undefined ? error.message : `[${code}] ${error.message}`;
   }
   return String(error);
+}
+
+function describeSnapshotError(error: NonNullable<CoreClientSnapshot["error"]>): string {
+  return `[${error.code}] ${error.message}`;
+}
+
+function errorCode(error: unknown): string | undefined {
+  if (typeof error === "object" && error !== null && "code" in error && typeof error.code === "string") {
+    return error.code;
+  }
+  return undefined;
 }
 
 function firstLetter(value: string): string {

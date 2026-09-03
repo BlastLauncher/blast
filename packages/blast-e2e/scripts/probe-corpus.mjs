@@ -198,9 +198,13 @@ async function probeExtension(scan, selection, probeBundleDirectoryPrefix) {
 function createCore(stderr, probeBundleDirectoryPrefix) {
   let hostMessageId = 0;
   let sessionId = 0;
+  const provisionStore = process.env.BLAST_CORPUS_PROBE_DEPS_STORE;
   const launcher = new NodeExtensionProcessLauncher({
     bootstrapPath,
     environment: { ...process.env, BLAST_EXTENSION_BUNDLE_PREFIX: probeBundleDirectoryPrefix },
+    ...(provisionStore === undefined || provisionStore.length === 0
+      ? {}
+      : { dependencies: { storeRoot: provisionStore } }),
     onStderr(_descriptor, chunk) {
       stderr.push(chunk);
     },
@@ -571,6 +575,9 @@ function classifyFailure(resultBase, error, stderr, session) {
 
   if (code === "catalog_entrypoint_missing") {
     return { ...resultBase, ...diagnosticFields, outcome: "no-entrypoint", failureCode: code };
+  }
+  if (typeof code === "string" && code.startsWith("dependency_")) {
+    return { ...resultBase, ...diagnosticFields, outcome: "third-party-dependency", failureCode: code };
   }
   if (lower.includes("probe timeout") || lower.includes("aborted")) {
     return { ...resultBase, ...diagnosticFields, outcome: "timeout", failureCode: "probe_timeout" };

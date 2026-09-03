@@ -1,0 +1,87 @@
+name: Compatibility Probe
+
+on:
+  workflow_dispatch:
+    inputs:
+      outcome:
+        description: "Failure class to batch through (see support-matrix outcomes)"
+        required: false
+        default: "third-party-dependency"
+        type: choice
+        options:
+          - third-party-dependency
+          - process-failure
+          - timeout
+          - structured-compatibility-error
+      limit:
+        description: "Maximum extensions to probe"
+        required: false
+        default: "20"
+      revision:
+        description: "Corpus revision (default: pinned census revision)"
+        required: false
+        default: "d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91"
+      provision:
+        description: "Install manifest dependencies before probing"
+        required: false
+        default: true
+        type: boolean
+  schedule:
+    # Weekly batch through the largest failure class with provisioning on.
+    - cron: "0 3 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: compatibility-probe-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  probe-batch:
+    name: Probe extension batch
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: ./.github/actions/setup-repo
+
+      - name: Probe batch
+        run: |
+          # Exit 1 means extensions failed (the expected signal for a failure
+          # batch); only exit 2 (crash/usage error) fails the workflow.
+          set +e
+          pnpm --filter @blastlauncher/e2e run probe:extensions -- \
+            --from-report docs/v2/compatibility/runtime-probe-post-slice.json \
+            --outcome "${{ inputs.outcome || 'third-party-dependency' }}" \
+            --limit "${{ inputs.limit || '20' }}" \
+            --revision "${{ inputs.revision || 'd4aae99c5e1d7ec19b2341f1058c20adfd3fdc91 }}" \
+            ${{ inputs.provision != false && '--provision' || '' }} \
+            --output probe-batch-report.json \
+            --json > probe-batch-summary.json
+          code=$?
+          if [ "$code" -eq 2 ]; then
+            exit 2
+          fi
+          exit 0
+        env:
+          BLAST_CORPUS_PROBE_TIMEOUT_MS: "30000"
+
+      - name: Summarize
+        if: always()
+        run: |
+          echo "## Compatibility probe batch" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo '```json' >> "$GITHUB_STEP_SUMMARY"
+          cat probe-batch-summary.json >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6e8d5a38368bd9d663a153df93d2538 # v4.6.0
+        with:
+          name: probe-batch-report
+          path: |
+            probe-batch-report.json
+            probe-batch-summary.json
+          retention-days: 30

@@ -70,7 +70,11 @@ export const startMainFlow = async (): Promise<void> => {
   debug("hasVersionInstalled");
   let v2Enabled = false;
   try {
-    await startV2Daemon({ onCatalogChanged: requestV2CatalogRefresh });
+    await startV2Daemon({
+      onCatalogChanged: requestV2CatalogRefresh,
+      onError: (error) => debug("v2 daemon error", error),
+      onStderr: (descriptor, chunk) => debug("v2 extension stderr", descriptor, chunk.trimEnd()),
+    });
     v2Enabled = registerV2Client();
     if (v2Enabled) {
       v2NativeMenuBar = registerV2NativeMenuBar(v2ClientIPC!.host);
