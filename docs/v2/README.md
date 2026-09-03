@@ -18,6 +18,7 @@ The durable project context is split by purpose:
 - `testing.md` defines the test layers and required reusable contracts;
 - `status.md` is the current implementation ledger and recommended continuation
   point;
+- `checkpoints.md` records how experimental baselines are frozen and resumed;
 - `decisions/` records choices that future work should not silently reverse;
 - each V2 package README documents its public boundary and invariants;
 - tests are executable examples of protocol and lifecycle behavior.
