@@ -1,3 +1,4 @@
+import { realpathSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 
@@ -9,12 +10,22 @@ import { WebpackPlugin } from "@electron-forge/plugin-webpack";
 import type { ForgeConfig } from "@electron-forge/shared-types";
 
 import { mainConfig } from "./webpack.main.config";
+import { preloadConfig } from "./webpack.preload.config";
 import { rendererConfig } from "./webpack.renderer.config";
 
 const config: ForgeConfig = {
   packagerConfig: {
     executableName: "blast",
-    extraResource: [path.join(__dirname, "node_modules/@blastlauncher/runtime/dist/run.cjs")],
+    extraResource: [
+      path.join(__dirname, "node_modules/@blastlauncher/runtime/dist/run.cjs"),
+      path.join(__dirname, "node_modules/@blastlauncher/raycast-runtime-node/dist/v2-bootstrap.cjs"),
+      path.join(__dirname, "node_modules/@blastlauncher/raycast-runtime-node/dist/v2-raycast-api.cjs"),
+      // Resolved via Node rather than a hardcoded node_modules path so this
+      // works with both hoisted (root) and isolated (per-package) layouts.
+      realpathSync(path.dirname(require.resolve("react/package.json", { paths: [__dirname] }))),
+      path.join(__dirname, "../../node_modules/esbuild"),
+      path.join(__dirname, "../../node_modules/@esbuild"),
+    ],
   },
   hooks: {
     postPackage: async (forgeConfig, packageResult) => {
@@ -51,6 +62,7 @@ const config: ForgeConfig = {
             name: "main_window",
             preload: {
               js: "./src/preload.ts",
+              config: preloadConfig,
             },
           },
           {
@@ -59,6 +71,7 @@ const config: ForgeConfig = {
             name: "node_installer",
             preload: {
               js: "./src/nodeInstaller/preload.ts",
+              config: preloadConfig,
             },
           },
         ],

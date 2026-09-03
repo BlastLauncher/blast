@@ -1,0 +1,53 @@
+# `@blastlauncher/extension-runtime-node`
+
+Node.js extension runtime bootstrap for Blast V2.
+
+`runNodeExtensionBootstrap` is the fixed bootstrap ADR 0006 describes: it
+negotiates a versioned protocol session as `extension-runtime`, loads the
+descriptor's entrypoint when the host sends `extension.initialize`, observes
+the loaded module, sends `extension.ready`, and drains application messages
+until the session closes or the host shuts down. It defaults to the process
+stdio transport so a spawned extension process needs no additional wiring.
+
+`loadExtensionEntrypoint` resolves absolute entrypoint paths through the
+ECMAScript module loader. CommonJS entrypoints appear as the `default` export
+of the returned namespace. Existence checks belong to the trusted catalog;
+load failures surface here as structured `entrypoint_*` error codes.
+
+## Command context
+
+After `extension.ready`, the bootstrap invokes the entrypoint's `command`
+export with a context of `descriptor`, `publish(transaction)`,
+`onEvent(handler)`, and `requestCapability(request)` (ADR 0008). When the
+entrypoint instead default-exports a command component and the launcher
+configured `renderComponent`, the component goes to that hook so launchers
+can render Raycast-style components through their API adapter (ADR 0012).
+The single message pump dispatches valid `scene.event` payloads to the
+registered handler and resolves capability requests with
+`capability.response` messages; an invalid scene event closes the session,
+and a rejecting command fails the bootstrap. Pending capability requests are
+rejected when the session ends. Entry points with neither export load
+without being invoked.
+
+## Bundling
+
+`createBundlingEntrypointLoader` bundles entrypoints with esbuild before
+importing them (ADR 0012): TypeScript and JSX sources work, launcher-provided
+aliases resolve literal `@raycast/api` imports, and only Node.js builtins
+stay external. Bundling failures surface as structured
+`entrypoint_load_failed` errors. Third-party resolution is explicit (ADR 0020):
+the default `local` policy uses the extension's installed graph, while the
+`vendored` policy accepts absolute launcher-provisioned `vendorRoots`. The
+loader never invokes a package manager or downloads dependencies. Its default
+temporary cache directory is removed after each successful or failed load;
+callers that provide `cacheDirectory` own its lifetime and contents.
+
+## Boundaries
+
+- module loading stays behind an injected hook so alternative runtimes and
+  deterministic tests reuse the same lifecycle;
+- the bootstrap never chooses what to run: the descriptor comes from the
+  validated `extension.initialize` message, whose paths the trusted catalog
+  resolved;
+- this package may use Node.js APIs but must not depend on Electron, React,
+  the prototype packages, or any concrete client.

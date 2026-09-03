@@ -1,7 +1,7 @@
 import type { ProtocolEnvelope } from "@blastlauncher/protocol";
 
 export interface ProtocolTransport {
-  readonly messages: AsyncIterable<ProtocolEnvelope>;
+  readonly messages: AsyncIterable<unknown>;
   send(message: ProtocolEnvelope): Promise<void>;
   close(reason?: string): Promise<void>;
 }
@@ -17,7 +17,7 @@ export function createInMemoryTransportPair(): InMemoryTransportPair {
 }
 
 class InMemoryTransport implements ProtocolTransport {
-  readonly messages: AsyncIterable<ProtocolEnvelope>;
+  readonly messages: AsyncIterable<unknown>;
   readonly #outbox: AsyncQueue<ProtocolEnvelope>;
   readonly #state: PairState;
 

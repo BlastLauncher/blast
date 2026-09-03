@@ -1,0 +1,39 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "coverage-next",
+  "title": "Coverage Next",
+  "description": "A dependency-free action, telemetry, application, legacy preference, and environment compatibility fixture for Blast",
+  "author": "blast-fixture",
+  "preferences": [
+    {
+      "name": "token",
+      "title": "Token",
+      "description": "Fixture preference",
+      "type": "textfield",
+      "required": false,
+      "default": "fixture-token"
+    },
+    {
+      "name": "region",
+      "title": "Region",
+      "description": "Fixture region",
+      "type": "dropdown",
+      "required": true,
+      "data": [
+        { "title": "United States", "value": "us" },
+        { "title": "Europe", "value": "eu" }
+      ]
+    }
+  ],
+  "commands": [
+    {
+      "name": "index",
+      "title": "Coverage Next",
+      "description": "Render a scene using the next measured APIs",
+      "mode": "view"
+    }
+  ],
+  "dependencies": {
+    "@raycast/api": "^1.104.1"
+  }
+}

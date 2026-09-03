@@ -1,0 +1,6 @@
+{
+  "name": "e2e.desktop-discovery",
+  "title": "E2E Desktop Discovery",
+  "description": "Fixture for selected text, application discovery, and command preferences.",
+  "commands": [{ "name": "index", "title": "Desktop discovery", "mode": "view" }]
+}

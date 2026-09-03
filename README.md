@@ -13,6 +13,8 @@ against real extensions rather than claimed as complete feature parity.
 - [V2 product direction](./docs/v2/README.md)
 - [V2 architecture](./docs/v2/architecture.md)
 - [Migration plan](./docs/v2/migration.md)
+- [Testing strategy](./docs/v2/testing.md)
+- [Current implementation status](./docs/v2/status.md)
 - [Architecture decisions](./docs/v2/decisions/)
 
 ## V1 prototype
@@ -71,7 +73,11 @@ You can learn more about the blast architecture in the following documents:
   - or right click on the Blast app and select "Open" to open the app
   - If it doesn't show up in the context menu, do it again.
 
-After opening the Blast app, it will ask to install Node.js runtime. Just click "Install" and wait for the installation to complete. It downloads node.js and extract it to `~/.blast/node`.
+After opening the Blast app, it will ask to install the Node.js `24.20.0`
+runtime. Click Install and wait for the installation to complete. It downloads
+Node.js for the current platform and architecture and extracts it to
+`~/.blast/node`; failed installs stay on the installer screen so they can be
+retried.
 
 ### Usage
 

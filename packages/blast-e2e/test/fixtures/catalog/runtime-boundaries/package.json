@@ -1,0 +1,6 @@
+{
+  "name": "e2e.runtime-boundaries",
+  "title": "E2E Runtime Boundaries",
+  "description": "Fixture for AI, OAuth, and command metadata APIs.",
+  "commands": [{ "name": "index", "title": "Runtime boundaries", "mode": "view" }]
+}

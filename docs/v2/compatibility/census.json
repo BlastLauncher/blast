@@ -1,0 +1,1721 @@
+{
+  "protocolVersion": 1,
+  "corpusRevision": "d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91",
+  "corpusUrl": "https://github.com/raycast/extensions",
+  "extensions": {
+    "total": 3231,
+    "withManifest": 3231,
+    "withApiImports": 3229
+  },
+  "apiUsage": [
+    {
+      "api": "ActionPanel",
+      "extensionCount": 2823,
+      "usageCount": 8792
+    },
+    {
+      "api": "Action",
+      "extensionCount": 2785,
+      "usageCount": 9027
+    },
+    {
+      "api": "List",
+      "extensionCount": 2415,
+      "usageCount": 6929
+    },
+    {
+      "api": "Icon",
+      "extensionCount": 2394,
+      "usageCount": 8493
+    },
+    {
+      "api": "showToast",
+      "extensionCount": 2300,
+      "usageCount": 6898
+    },
+    {
+      "api": "Toast",
+      "extensionCount": 2244,
+      "usageCount": 6742
+    },
+    {
+      "api": "getPreferenceValues",
+      "extensionCount": 1957,
+      "usageCount": 4064
+    },
+    {
+      "api": "Color",
+      "extensionCount": 1296,
+      "usageCount": 3125
+    },
+    {
+      "api": "Form",
+      "extensionCount": 1244,
+      "usageCount": 2649
+    },
+    {
+      "api": "Detail",
+      "extensionCount": 1203,
+      "usageCount": 2157
+    },
+    {
+      "api": "Clipboard",
+      "extensionCount": 953,
+      "usageCount": 1566
+    },
+    {
+      "api": "useNavigation",
+      "extensionCount": 929,
+      "usageCount": 2113
+    },
+    {
+      "api": "LocalStorage",
+      "extensionCount": 856,
+      "usageCount": 1624
+    },
+    {
+      "api": "showHUD",
+      "extensionCount": 835,
+      "usageCount": 1826
+    },
+    {
+      "api": "open",
+      "extensionCount": 823,
+      "usageCount": 1484
+    },
+    {
+      "api": "confirmAlert",
+      "extensionCount": 753,
+      "usageCount": 1352
+    },
+    {
+      "api": "environment",
+      "extensionCount": 638,
+      "usageCount": 1005
+    },
+    {
+      "api": "Alert",
+      "extensionCount": 627,
+      "usageCount": 1075
+    },
+    {
+      "api": "Keyboard",
+      "extensionCount": 588,
+      "usageCount": 1181
+    },
+    {
+      "api": "LaunchProps",
+      "extensionCount": 577,
+      "usageCount": 965
+    },
+    {
+      "api": "closeMainWindow",
+      "extensionCount": 547,
+      "usageCount": 1181
+    },
+    {
+      "api": "popToRoot",
+      "extensionCount": 524,
+      "usageCount": 845
+    },
+    {
+      "api": "openExtensionPreferences",
+      "extensionCount": 450,
+      "usageCount": 694
+    },
+    {
+      "api": "Image",
+      "extensionCount": 433,
+      "usageCount": 753
+    },
+    {
+      "api": "LaunchType",
+      "extensionCount": 366,
+      "usageCount": 642
+    },
+    {
+      "api": "launchCommand",
+      "extensionCount": 313,
+      "usageCount": 538
+    },
+    {
+      "api": "MenuBarExtra",
+      "extensionCount": 296,
+      "usageCount": 367
+    },
+    {
+      "api": "Grid",
+      "extensionCount": 294,
+      "usageCount": 510
+    },
+    {
+      "api": "Cache",
+      "extensionCount": 292,
+      "usageCount": 413
+    },
+    {
+      "api": "getSelectedText",
+      "extensionCount": 228,
+      "usageCount": 287
+    },
+    {
+      "api": "getApplications",
+      "extensionCount": 187,
+      "usageCount": 213
+    },
+    {
+      "api": "openCommandPreferences",
+      "extensionCount": 172,
+      "usageCount": 209
+    },
+    {
+      "api": "getSelectedFinderItems",
+      "extensionCount": 146,
+      "usageCount": 182
+    },
+    {
+      "api": "OAuth",
+      "extensionCount": 120,
+      "usageCount": 130
+    },
+    {
+      "api": "showInFinder",
+      "extensionCount": 118,
+      "usageCount": 149
+    },
+    {
+      "api": "PopToRootType",
+      "extensionCount": 107,
+      "usageCount": 162
+    },
+    {
+      "api": "AI",
+      "extensionCount": 100,
+      "usageCount": 145
+    },
+    {
+      "api": "Application",
+      "extensionCount": 99,
+      "usageCount": 208
+    },
+    {
+      "api": "updateCommandMetadata",
+      "extensionCount": 96,
+      "usageCount": 139
+    },
+    {
+      "api": "getFrontmostApplication",
+      "extensionCount": 91,
+      "usageCount": 104
+    },
+    {
+      "api": "Tool",
+      "extensionCount": 84,
+      "usageCount": 227
+    },
+    {
+      "api": "BrowserExtension",
+      "extensionCount": 53,
+      "usageCount": 68
+    },
+    {
+      "api": "ToastStyle",
+      "extensionCount": 44,
+      "usageCount": 69
+    },
+    {
+      "api": "clearSearchBar",
+      "extensionCount": 41,
+      "usageCount": 57
+    },
+    {
+      "api": "trash",
+      "extensionCount": 41,
+      "usageCount": 53
+    },
+    {
+      "api": "captureException",
+      "extensionCount": 40,
+      "usageCount": 98
+    },
+    {
+      "api": "OpenInBrowserAction",
+      "extensionCount": 29,
+      "usageCount": 46
+    },
+    {
+      "api": "CopyToClipboardAction",
+      "extensionCount": 23,
+      "usageCount": 31
+    },
+    {
+      "api": "getDefaultApplication",
+      "extensionCount": 18,
+      "usageCount": 18
+    },
+    {
+      "api": "<dynamic>",
+      "extensionCount": 15,
+      "usageCount": 28
+    },
+    {
+      "api": "PreferenceValues",
+      "extensionCount": 14,
+      "usageCount": 16
+    },
+    {
+      "api": "SubmitFormAction",
+      "extensionCount": 11,
+      "usageCount": 16
+    },
+    {
+      "api": "setLocalStorageItem",
+      "extensionCount": 10,
+      "usageCount": 13
+    },
+    {
+      "api": "getLocalStorageItem",
+      "extensionCount": 10,
+      "usageCount": 12
+    },
+    {
+      "api": "FileSystemItem",
+      "extensionCount": 10,
+      "usageCount": 11
+    },
+    {
+      "api": "PushAction",
+      "extensionCount": 8,
+      "usageCount": 12
+    },
+    {
+      "api": "ImageMask",
+      "extensionCount": 8,
+      "usageCount": 10
+    },
+    {
+      "api": "<namespace>",
+      "extensionCount": 6,
+      "usageCount": 12
+    },
+    {
+      "api": "preferences",
+      "extensionCount": 6,
+      "usageCount": 6
+    },
+    {
+      "api": "Navigation",
+      "extensionCount": 5,
+      "usageCount": 7
+    },
+    {
+      "api": "KeyEquivalent",
+      "extensionCount": 4,
+      "usageCount": 6
+    },
+    {
+      "api": "Preferences",
+      "extensionCount": 4,
+      "usageCount": 4
+    },
+    {
+      "api": "WindowManagement",
+      "extensionCount": 3,
+      "usageCount": 6
+    },
+    {
+      "api": "copyTextToClipboard",
+      "extensionCount": 3,
+      "usageCount": 4
+    },
+    {
+      "api": "pasteText",
+      "extensionCount": 3,
+      "usageCount": 4
+    },
+    {
+      "api": "OpenAction",
+      "extensionCount": 3,
+      "usageCount": 3
+    },
+    {
+      "api": "randomId",
+      "extensionCount": 3,
+      "usageCount": 3
+    },
+    {
+      "api": "removeLocalStorageItem",
+      "extensionCount": 3,
+      "usageCount": 3
+    },
+    {
+      "api": "FormValue",
+      "extensionCount": 2,
+      "usageCount": 4
+    },
+    {
+      "api": "ImageLike",
+      "extensionCount": 2,
+      "usageCount": 4
+    },
+    {
+      "api": "clearLocalStorage",
+      "extensionCount": 2,
+      "usageCount": 3
+    },
+    {
+      "api": "Environment",
+      "extensionCount": 2,
+      "usageCount": 3
+    },
+    {
+      "api": "PasteAction",
+      "extensionCount": 2,
+      "usageCount": 2
+    },
+    {
+      "api": "FormItemRef",
+      "extensionCount": 1,
+      "usageCount": 4
+    },
+    {
+      "api": "FileIcon",
+      "extensionCount": 1,
+      "usageCount": 3
+    },
+    {
+      "api": "<require>",
+      "extensionCount": 1,
+      "usageCount": 2
+    },
+    {
+      "api": "OpenWithAction",
+      "extensionCount": 1,
+      "usageCount": 2
+    },
+    {
+      "api": "<side-effect>",
+      "extensionCount": 1,
+      "usageCount": 1
+    },
+    {
+      "api": "ActionPanelItem",
+      "extensionCount": 1,
+      "usageCount": 1
+    },
+    {
+      "api": "AlertActionStyle",
+      "extensionCount": 1,
+      "usageCount": 1
+    },
+    {
+      "api": "allLocalStorageItems",
+      "extensionCount": 1,
+      "usageCount": 1
+    },
+    {
+      "api": "ArgumentsLaunchProps",
+      "extensionCount": 1,
+      "usageCount": 1
+    },
+    {
+      "api": "fetch",
+      "extensionCount": 1,
+      "usageCount": 1
+    },
+    {
+      "api": "FormValues",
+      "extensionCount": 1,
+      "usageCount": 1
+    },
+    {
+      "api": "ItemProps",
+      "extensionCount": 1,
+      "usageCount": 1
+    },
+    {
+      "api": "KeyboardShortcut",
+      "extensionCount": 1,
+      "usageCount": 1
+    },
+    {
+      "api": "ListItem",
+      "extensionCount": 1,
+      "usageCount": 1
+    },
+    {
+      "api": "ListSection",
+      "extensionCount": 1,
+      "usageCount": 1
+    },
+    {
+      "api": "render",
+      "extensionCount": 1,
+      "usageCount": 1
+    }
+  ],
+  "commandModes": {
+    "menu-bar": 317,
+    "no-view": 2925,
+    "view": 6716
+  },
+  "preferenceTypes": {
+    "appPicker": 92,
+    "checkbox": 1240,
+    "directory": 131,
+    "dropdown": 1021,
+    "file": 46,
+    "password": 1007,
+    "textfield": 1716
+  },
+  "apiDependencyRanges": [
+    {
+      "range": "^1.104.1",
+      "extensionCount": 139
+    },
+    {
+      "range": "^1.103.0",
+      "extensionCount": 102
+    },
+    {
+      "range": "^1.104.23",
+      "extensionCount": 72
+    },
+    {
+      "range": "^1.104.19",
+      "extensionCount": 70
+    },
+    {
+      "range": "^1.79.0",
+      "extensionCount": 65
+    },
+    {
+      "range": "^1.103.10",
+      "extensionCount": 64
+    },
+    {
+      "range": "^1.100.3",
+      "extensionCount": 61
+    },
+    {
+      "range": "^1.104.6",
+      "extensionCount": 57
+    },
+    {
+      "range": "^1.94.0",
+      "extensionCount": 55
+    },
+    {
+      "range": "^1.104.20",
+      "extensionCount": 53
+    },
+    {
+      "range": "^1.104.24",
+      "extensionCount": 52
+    },
+    {
+      "range": "^1.103.6",
+      "extensionCount": 45
+    },
+    {
+      "range": "^1.104.11",
+      "extensionCount": 41
+    },
+    {
+      "range": "^1.104.3",
+      "extensionCount": 39
+    },
+    {
+      "range": "^1.69.0",
+      "extensionCount": 39
+    },
+    {
+      "range": "^1.104.17",
+      "extensionCount": 35
+    },
+    {
+      "range": "^1.104.0",
+      "extensionCount": 34
+    },
+    {
+      "range": "^1.93.2",
+      "extensionCount": 32
+    },
+    {
+      "range": "^1.101.1",
+      "extensionCount": 31
+    },
+    {
+      "range": "^1.103.3",
+      "extensionCount": 31
+    },
+    {
+      "range": "^1.44.0",
+      "extensionCount": 30
+    },
+    {
+      "range": "^1.102.3",
+      "extensionCount": 29
+    },
+    {
+      "range": "^1.104.21",
+      "extensionCount": 28
+    },
+    {
+      "range": "^1.104.8",
+      "extensionCount": 28
+    },
+    {
+      "range": "^1.104.9",
+      "extensionCount": 28
+    },
+    {
+      "range": "^1.103.2",
+      "extensionCount": 27
+    },
+    {
+      "range": "^1.76.0",
+      "extensionCount": 27
+    },
+    {
+      "range": "^1.81.2",
+      "extensionCount": 27
+    },
+    {
+      "range": "^1.88.4",
+      "extensionCount": 27
+    },
+    {
+      "range": "^1.67.1",
+      "extensionCount": 26
+    },
+    {
+      "range": "^1.104.12",
+      "extensionCount": 25
+    },
+    {
+      "range": "^1.72.1",
+      "extensionCount": 25
+    },
+    {
+      "range": "^1.93.0",
+      "extensionCount": 25
+    },
+    {
+      "range": "^1.102.6",
+      "extensionCount": 24
+    },
+    {
+      "range": "^1.103.5",
+      "extensionCount": 23
+    },
+    {
+      "range": "^1.104.5",
+      "extensionCount": 23
+    },
+    {
+      "range": "^1.104.22",
+      "extensionCount": 22
+    },
+    {
+      "range": "^1.47.3",
+      "extensionCount": 22
+    },
+    {
+      "range": "^1.104.18",
+      "extensionCount": 21
+    },
+    {
+      "range": "^1.104.7",
+      "extensionCount": 21
+    },
+    {
+      "range": "^1.104.15",
+      "extensionCount": 20
+    },
+    {
+      "range": "^1.83.1",
+      "extensionCount": 20
+    },
+    {
+      "range": "^1.39.3",
+      "extensionCount": 19
+    },
+    {
+      "range": "^1.45.2",
+      "extensionCount": 19
+    },
+    {
+      "range": "^1.99.4",
+      "extensionCount": 19
+    },
+    {
+      "range": "^1.49.3",
+      "extensionCount": 18
+    },
+    {
+      "range": "^1.64.4",
+      "extensionCount": 18
+    },
+    {
+      "range": "^1.68.1",
+      "extensionCount": 18
+    },
+    {
+      "range": "^1.79.1",
+      "extensionCount": 18
+    },
+    {
+      "range": "^1.104.16",
+      "extensionCount": 17
+    },
+    {
+      "range": "^1.104.4",
+      "extensionCount": 17
+    },
+    {
+      "range": "^1.51.1",
+      "extensionCount": 17
+    },
+    {
+      "range": "^1.80.0",
+      "extensionCount": 17
+    },
+    {
+      "range": "^1.84.3",
+      "extensionCount": 17
+    },
+    {
+      "range": "^1.102.7",
+      "extensionCount": 16
+    },
+    {
+      "range": "^1.103.4",
+      "extensionCount": 16
+    },
+    {
+      "range": "^1.103.7",
+      "extensionCount": 16
+    },
+    {
+      "range": "^1.48.9",
+      "extensionCount": 16
+    },
+    {
+      "range": "^1.55.2",
+      "extensionCount": 16
+    },
+    {
+      "range": "^1.59.0",
+      "extensionCount": 16
+    },
+    {
+      "range": "^1.85.2",
+      "extensionCount": 16
+    },
+    {
+      "range": "^1.91.2",
+      "extensionCount": 16
+    },
+    {
+      "range": "^1.104.10",
+      "extensionCount": 15
+    },
+    {
+      "range": "^1.31.0",
+      "extensionCount": 15
+    },
+    {
+      "range": "^1.100.2",
+      "extensionCount": 14
+    },
+    {
+      "range": "^1.102.5",
+      "extensionCount": 14
+    },
+    {
+      "range": "^1.103.9",
+      "extensionCount": 14
+    },
+    {
+      "range": "^1.104.13",
+      "extensionCount": 14
+    },
+    {
+      "range": "^1.63.0",
+      "extensionCount": 14
+    },
+    {
+      "range": "^1.99.3",
+      "extensionCount": 14
+    },
+    {
+      "range": "^1.65.0",
+      "extensionCount": 13
+    },
+    {
+      "range": "^1.65.1",
+      "extensionCount": 13
+    },
+    {
+      "range": "^1.78.1",
+      "extensionCount": 13
+    },
+    {
+      "range": "^1.86.1",
+      "extensionCount": 13
+    },
+    {
+      "range": "^1.92.1",
+      "extensionCount": 13
+    },
+    {
+      "range": "^1.103.8",
+      "extensionCount": 12
+    },
+    {
+      "range": "^1.32.1",
+      "extensionCount": 12
+    },
+    {
+      "range": "^1.57.1",
+      "extensionCount": 12
+    },
+    {
+      "range": "^1.60.1",
+      "extensionCount": 12
+    },
+    {
+      "range": "^1.89.1",
+      "extensionCount": 12
+    },
+    {
+      "range": "^1.90.0",
+      "extensionCount": 12
+    },
+    {
+      "range": "^1.94.3",
+      "extensionCount": 12
+    },
+    {
+      "range": "^1.102.4",
+      "extensionCount": 11
+    },
+    {
+      "range": "^1.39.2",
+      "extensionCount": 11
+    },
+    {
+      "range": "^1.43.2",
+      "extensionCount": 11
+    },
+    {
+      "range": "^1.66.2",
+      "extensionCount": 11
+    },
+    {
+      "range": "^1.84.2",
+      "extensionCount": 11
+    },
+    {
+      "range": "^1.96.0",
+      "extensionCount": 11
+    },
+    {
+      "range": "^1.101.0",
+      "extensionCount": 10
+    },
+    {
+      "range": "^1.40.1",
+      "extensionCount": 10
+    },
+    {
+      "range": "^1.56.0",
+      "extensionCount": 10
+    },
+    {
+      "range": "^1.58.1",
+      "extensionCount": 10
+    },
+    {
+      "range": "^1.70.3",
+      "extensionCount": 10
+    },
+    {
+      "range": "^1.71.4",
+      "extensionCount": 10
+    },
+    {
+      "range": "^1.74.1",
+      "extensionCount": 10
+    },
+    {
+      "range": "^1.89.0",
+      "extensionCount": 10
+    },
+    {
+      "range": "^1.28.0",
+      "extensionCount": 9
+    },
+    {
+      "range": "^1.35.2",
+      "extensionCount": 9
+    },
+    {
+      "range": "^1.46.0",
+      "extensionCount": 9
+    },
+    {
+      "range": "^1.48.8",
+      "extensionCount": 9
+    },
+    {
+      "range": "^1.50.0",
+      "extensionCount": 9
+    },
+    {
+      "range": "^1.51.3",
+      "extensionCount": 9
+    },
+    {
+      "range": "^1.52.1",
+      "extensionCount": 9
+    },
+    {
+      "range": "^1.64.5",
+      "extensionCount": 9
+    },
+    {
+      "range": "^1.77.0",
+      "extensionCount": 9
+    },
+    {
+      "range": "^1.94.2",
+      "extensionCount": 9
+    },
+    {
+      "range": "^2.0.5",
+      "extensionCount": 9
+    },
+    {
+      "range": "^1.100.0",
+      "extensionCount": 8
+    },
+    {
+      "range": "^1.25.0",
+      "extensionCount": 8
+    },
+    {
+      "range": "^1.37.1",
+      "extensionCount": 8
+    },
+    {
+      "range": "^1.38.3",
+      "extensionCount": 8
+    },
+    {
+      "range": "^1.39.1",
+      "extensionCount": 8
+    },
+    {
+      "range": "^1.46.1",
+      "extensionCount": 8
+    },
+    {
+      "range": "^1.56.1",
+      "extensionCount": 8
+    },
+    {
+      "range": "^1.57.2",
+      "extensionCount": 8
+    },
+    {
+      "range": "^1.72.0",
+      "extensionCount": 8
+    },
+    {
+      "range": "^1.77.1",
+      "extensionCount": 8
+    },
+    {
+      "range": "^1.83.0",
+      "extensionCount": 8
+    },
+    {
+      "range": "^1.86.0",
+      "extensionCount": 8
+    },
+    {
+      "range": "^1.87.5",
+      "extensionCount": 8
+    },
+    {
+      "range": "^1.95.0",
+      "extensionCount": 8
+    },
+    {
+      "range": "^1.102.0",
+      "extensionCount": 7
+    },
+    {
+      "range": "^1.104.2",
+      "extensionCount": 7
+    },
+    {
+      "range": "^1.27.0",
+      "extensionCount": 7
+    },
+    {
+      "range": "^1.29.1",
+      "extensionCount": 7
+    },
+    {
+      "range": "^1.33.2",
+      "extensionCount": 7
+    },
+    {
+      "range": "^1.34.1",
+      "extensionCount": 7
+    },
+    {
+      "range": "^1.36.0",
+      "extensionCount": 7
+    },
+    {
+      "range": "^1.36.1",
+      "extensionCount": 7
+    },
+    {
+      "range": "^1.38.0",
+      "extensionCount": 7
+    },
+    {
+      "range": "^1.42.0",
+      "extensionCount": 7
+    },
+    {
+      "range": "^1.42.2",
+      "extensionCount": 7
+    },
+    {
+      "range": "^1.45.1",
+      "extensionCount": 7
+    },
+    {
+      "range": "^1.54.1",
+      "extensionCount": 7
+    },
+    {
+      "range": "^1.75.1",
+      "extensionCount": 7
+    },
+    {
+      "range": "^1.81.0",
+      "extensionCount": 7
+    },
+    {
+      "range": "^1.85.1",
+      "extensionCount": 7
+    },
+    {
+      "range": "^1.87.4",
+      "extensionCount": 7
+    },
+    {
+      "range": "^1.91.0",
+      "extensionCount": 7
+    },
+    {
+      "range": "^1.93.1",
+      "extensionCount": 7
+    },
+    {
+      "range": "^1.93.3",
+      "extensionCount": 7
+    },
+    {
+      "range": "^1.99.0",
+      "extensionCount": 7
+    },
+    {
+      "range": "^2.1.0",
+      "extensionCount": 7
+    },
+    {
+      "range": "^1.40.3",
+      "extensionCount": 6
+    },
+    {
+      "range": "^1.41.1",
+      "extensionCount": 6
+    },
+    {
+      "range": "^1.49.1",
+      "extensionCount": 6
+    },
+    {
+      "range": "^1.55.0",
+      "extensionCount": 6
+    },
+    {
+      "range": "^1.57.0",
+      "extensionCount": 6
+    },
+    {
+      "range": "^1.58.0",
+      "extensionCount": 6
+    },
+    {
+      "range": "^1.61.2",
+      "extensionCount": 6
+    },
+    {
+      "range": "^1.62.1",
+      "extensionCount": 6
+    },
+    {
+      "range": "^1.73.2",
+      "extensionCount": 6
+    },
+    {
+      "range": "^1.75.2",
+      "extensionCount": 6
+    },
+    {
+      "range": "^1.82.4",
+      "extensionCount": 6
+    },
+    {
+      "range": "^1.87.0",
+      "extensionCount": 6
+    },
+    {
+      "range": "^1.98.0",
+      "extensionCount": 6
+    },
+    {
+      "range": "^1.27.1",
+      "extensionCount": 5
+    },
+    {
+      "range": "^1.38.2",
+      "extensionCount": 5
+    },
+    {
+      "range": "^1.47.2",
+      "extensionCount": 5
+    },
+    {
+      "range": "^1.48.4",
+      "extensionCount": 5
+    },
+    {
+      "range": "^1.55.1",
+      "extensionCount": 5
+    },
+    {
+      "range": "^1.56.3",
+      "extensionCount": 5
+    },
+    {
+      "range": "^1.62.0",
+      "extensionCount": 5
+    },
+    {
+      "range": "^1.66.1",
+      "extensionCount": 5
+    },
+    {
+      "range": "^1.74.0",
+      "extensionCount": 5
+    },
+    {
+      "range": "^1.82.5",
+      "extensionCount": 5
+    },
+    {
+      "range": "^1.96.1",
+      "extensionCount": 5
+    },
+    {
+      "range": "^1.96.3",
+      "extensionCount": 5
+    },
+    {
+      "range": "^1.97.0",
+      "extensionCount": 5
+    },
+    {
+      "range": "^1.97.1",
+      "extensionCount": 5
+    },
+    {
+      "range": "^1.99.2",
+      "extensionCount": 5
+    },
+    {
+      "range": "^1.103.1",
+      "extensionCount": 4
+    },
+    {
+      "range": "^1.104.25",
+      "extensionCount": 4
+    },
+    {
+      "range": "^1.25.6",
+      "extensionCount": 4
+    },
+    {
+      "range": "^1.26.1",
+      "extensionCount": 4
+    },
+    {
+      "range": "^1.26.3",
+      "extensionCount": 4
+    },
+    {
+      "range": "^1.30.3",
+      "extensionCount": 4
+    },
+    {
+      "range": "^1.37.0",
+      "extensionCount": 4
+    },
+    {
+      "range": "^1.48.5",
+      "extensionCount": 4
+    },
+    {
+      "range": "^1.49.2",
+      "extensionCount": 4
+    },
+    {
+      "range": "^1.53.2",
+      "extensionCount": 4
+    },
+    {
+      "range": "^1.60.0",
+      "extensionCount": 4
+    },
+    {
+      "range": "^1.64.3",
+      "extensionCount": 4
+    },
+    {
+      "range": "^1.69.3",
+      "extensionCount": 4
+    },
+    {
+      "range": "^1.70.0",
+      "extensionCount": 4
+    },
+    {
+      "range": "^1.70.2",
+      "extensionCount": 4
+    },
+    {
+      "range": "^1.71.3",
+      "extensionCount": 4
+    },
+    {
+      "range": "^1.76.1",
+      "extensionCount": 4
+    },
+    {
+      "range": "^1.78.0",
+      "extensionCount": 4
+    },
+    {
+      "range": "^1.82.0",
+      "extensionCount": 4
+    },
+    {
+      "range": "^1.82.3",
+      "extensionCount": 4
+    },
+    {
+      "range": "^1.83.2",
+      "extensionCount": 4
+    },
+    {
+      "range": "^1.92.0",
+      "extensionCount": 4
+    },
+    {
+      "range": "^1.98.5",
+      "extensionCount": 4
+    },
+    {
+      "range": "1.104.23",
+      "extensionCount": 4
+    },
+    {
+      "range": "^1.102.2",
+      "extensionCount": 3
+    },
+    {
+      "range": "^1.25.3",
+      "extensionCount": 3
+    },
+    {
+      "range": "^1.33.0",
+      "extensionCount": 3
+    },
+    {
+      "range": "^1.35.0",
+      "extensionCount": 3
+    },
+    {
+      "range": "^1.35.1",
+      "extensionCount": 3
+    },
+    {
+      "range": "^1.38.1",
+      "extensionCount": 3
+    },
+    {
+      "range": "^1.39.0",
+      "extensionCount": 3
+    },
+    {
+      "range": "^1.45.3",
+      "extensionCount": 3
+    },
+    {
+      "range": "^1.50.2",
+      "extensionCount": 3
+    },
+    {
+      "range": "^1.53.3",
+      "extensionCount": 3
+    },
+    {
+      "range": "^1.53.4",
+      "extensionCount": 3
+    },
+    {
+      "range": "^1.62.2",
+      "extensionCount": 3
+    },
+    {
+      "range": "^1.64.0",
+      "extensionCount": 3
+    },
+    {
+      "range": "^1.68.0",
+      "extensionCount": 3
+    },
+    {
+      "range": "^1.69.2",
+      "extensionCount": 3
+    },
+    {
+      "range": "^1.77.3",
+      "extensionCount": 3
+    },
+    {
+      "range": "^1.84.0",
+      "extensionCount": 3
+    },
+    {
+      "range": "^1.84.7",
+      "extensionCount": 3
+    },
+    {
+      "range": "^1.85.0",
+      "extensionCount": 3
+    },
+    {
+      "range": "^1.87.2",
+      "extensionCount": 3
+    },
+    {
+      "range": "^1.88.3",
+      "extensionCount": 3
+    },
+    {
+      "range": "^1.91.1",
+      "extensionCount": 3
+    },
+    {
+      "range": "^1.98.2",
+      "extensionCount": 3
+    },
+    {
+      "range": "^2.0.3",
+      "extensionCount": 3
+    },
+    {
+      "range": "^2.0.6",
+      "extensionCount": 3
+    },
+    {
+      "range": "1.104.12",
+      "extensionCount": 3
+    },
+    {
+      "range": "1.104.18",
+      "extensionCount": 3
+    },
+    {
+      "range": "1.104.20",
+      "extensionCount": 3
+    },
+    {
+      "range": "1.104.21",
+      "extensionCount": 3
+    },
+    {
+      "range": "1.104.24",
+      "extensionCount": 3
+    },
+    {
+      "range": "latest",
+      "extensionCount": 3
+    },
+    {
+      "range": "^1.29.0",
+      "extensionCount": 2
+    },
+    {
+      "range": "^1.32.0",
+      "extensionCount": 2
+    },
+    {
+      "range": "^1.41.0",
+      "extensionCount": 2
+    },
+    {
+      "range": "^1.45.0",
+      "extensionCount": 2
+    },
+    {
+      "range": "^1.47.0",
+      "extensionCount": 2
+    },
+    {
+      "range": "^1.47.1",
+      "extensionCount": 2
+    },
+    {
+      "range": "^1.48.0",
+      "extensionCount": 2
+    },
+    {
+      "range": "^1.50.3",
+      "extensionCount": 2
+    },
+    {
+      "range": "^1.51.0",
+      "extensionCount": 2
+    },
+    {
+      "range": "^1.54.0",
+      "extensionCount": 2
+    },
+    {
+      "range": "^1.66.0",
+      "extensionCount": 2
+    },
+    {
+      "range": "^1.67.0",
+      "extensionCount": 2
+    },
+    {
+      "range": "^1.73.3",
+      "extensionCount": 2
+    },
+    {
+      "range": "^1.75.0",
+      "extensionCount": 2
+    },
+    {
+      "range": "^1.84.12",
+      "extensionCount": 2
+    },
+    {
+      "range": "^1.84.6",
+      "extensionCount": 2
+    },
+    {
+      "range": "^1.94.4",
+      "extensionCount": 2
+    },
+    {
+      "range": "^1.98.4",
+      "extensionCount": 2
+    },
+    {
+      "range": "1.103.0",
+      "extensionCount": 2
+    },
+    {
+      "range": "1.104.1",
+      "extensionCount": 2
+    },
+    {
+      "range": "1.51.1",
+      "extensionCount": 2
+    },
+    {
+      "range": "1.70.3",
+      "extensionCount": 2
+    },
+    {
+      "range": "^1.0.0",
+      "extensionCount": 1
+    },
+    {
+      "range": "^1.100.1",
+      "extensionCount": 1
+    },
+    {
+      "range": "^1.25.1",
+      "extensionCount": 1
+    },
+    {
+      "range": "^1.26.2",
+      "extensionCount": 1
+    },
+    {
+      "range": "^1.30.1",
+      "extensionCount": 1
+    },
+    {
+      "range": "^1.42.1",
+      "extensionCount": 1
+    },
+    {
+      "range": "^1.48.3",
+      "extensionCount": 1
+    },
+    {
+      "range": "^1.48.7",
+      "extensionCount": 1
+    },
+    {
+      "range": "^1.49.0",
+      "extensionCount": 1
+    },
+    {
+      "range": "^1.50.1",
+      "extensionCount": 1
+    },
+    {
+      "range": "^1.50.4",
+      "extensionCount": 1
+    },
+    {
+      "range": "^1.51.2",
+      "extensionCount": 1
+    },
+    {
+      "range": "^1.52.0",
+      "extensionCount": 1
+    },
+    {
+      "range": "^1.53.0",
+      "extensionCount": 1
+    },
+    {
+      "range": "^1.53.1",
+      "extensionCount": 1
+    },
+    {
+      "range": "^1.61.0",
+      "extensionCount": 1
+    },
+    {
+      "range": "^1.61.1",
+      "extensionCount": 1
+    },
+    {
+      "range": "^1.71.0",
+      "extensionCount": 1
+    },
+    {
+      "range": "^1.73.0",
+      "extensionCount": 1
+    },
+    {
+      "range": "^1.77.2",
+      "extensionCount": 1
+    },
+    {
+      "range": "^1.81",
+      "extensionCount": 1
+    },
+    {
+      "range": "^1.84.10",
+      "extensionCount": 1
+    },
+    {
+      "range": "^1.84.9",
+      "extensionCount": 1
+    },
+    {
+      "range": "^1.88.0",
+      "extensionCount": 1
+    },
+    {
+      "range": "^1.88.7",
+      "extensionCount": 1
+    },
+    {
+      "range": "~1.100.3",
+      "extensionCount": 1
+    },
+    {
+      "range": "~1.102.3",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.101.1",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.102.4",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.102.5",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.103.9",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.104.11",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.104.15",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.104.17",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.104.19",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.104.22",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.104.6",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.104.7",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.32.1",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.36.0",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.38.1",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.38.2",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.39.3",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.44.0",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.45.3",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.48.5",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.50.2",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.52.1",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.53.4",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.67.1",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.68.0",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.68.1",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.75.0",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.78.1",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.79.1",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.84.12",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.84.3",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.85.2",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.91.1",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.91.2",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.92.1",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.93.0",
+      "extensionCount": 1
+    },
+    {
+      "range": "1.94.0",
+      "extensionCount": 1
+    },
+    {
+      "range": "2.0.5",
+      "extensionCount": 1
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "name": "e2e.finder-boundaries",
+  "title": "E2E Finder Boundaries",
+  "description": "Fixture for Finder selection, reveal, and frontmost application APIs.",
+  "commands": [{ "name": "index", "title": "Finder boundaries", "mode": "view" }]
+}

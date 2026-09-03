@@ -17,22 +17,31 @@ async function start() {
 
   const root = createRoot(container);
 
-  setupWS(async (ws) => {
-    const initialTree = (await ws.call("getTree")) as BlastComponent;
-    console.log("initialTree", initialTree);
+  let v2Enabled = false;
+  try {
+    v2Enabled = (await window.electron.v2?.isEnabled()) ?? false;
+  } catch {
+    // A missing or unavailable V2 bridge falls back to the legacy runtime.
+  }
 
-    const state = remoteBlastTree.getState();
-    state.setTree(initialTree);
-    state.setWs(ws);
+  if (!v2Enabled) {
+    setupWS(async (ws) => {
+      const initialTree = (await ws.call("getTree")) as BlastComponent;
+      console.log("initialTree", initialTree);
 
-    ws.subscribe("updateTree");
-    ws.on("updateTree", (data) => {
-      console.log("updateTree", data);
-      state.setTree(data);
+      const state = remoteBlastTree.getState();
+      state.setTree(initialTree);
+      state.setWs(ws);
+
+      ws.subscribe("updateTree");
+      ws.on("updateTree", (data) => {
+        console.log("updateTree", data);
+        state.setTree(data);
+      });
     });
-  });
+  }
 
-  root.render(React.createElement(App));
+  root.render(React.createElement(App, { v2Enabled }));
 }
 
 start();

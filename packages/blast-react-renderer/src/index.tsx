@@ -1,0 +1,864 @@
+import Reconciler from "react-reconciler";
+import { ConcurrentRoot, DiscreteEventPriority } from "react-reconciler/constants.js";
+import { createElement, type ReactElement, type ReactNode } from "react";
+
+import type {
+  SceneEventPayload,
+  SceneNode,
+  SceneNodeType,
+  SceneOperation,
+  ScenePropValue,
+  SceneShortcut,
+  SceneTransaction,
+  SceneTransactionSink,
+} from "@blastlauncher/scene";
+import { SCENE_NODE_TYPES, SCENE_PROP_WHITELIST, isScenePropValue } from "@blastlauncher/scene";
+
+export const SCENE_LIST_TYPE = "list";
+export const SCENE_LIST_ITEM_TYPE = "list-item";
+export const SCENE_LIST_SECTION_TYPE = "list-section";
+export const SCENE_LIST_EMPTY_VIEW_TYPE = "list-empty-view";
+export const SCENE_LIST_DROPDOWN_TYPE = "list-dropdown";
+export const SCENE_LIST_DROPDOWN_ITEM_TYPE = "list-dropdown-item";
+export const SCENE_LIST_DROPDOWN_SECTION_TYPE = "list-dropdown-section";
+export const SCENE_GRID_TYPE = "grid";
+export const SCENE_GRID_ITEM_TYPE = "grid-item";
+export const SCENE_GRID_SECTION_TYPE = "grid-section";
+export const SCENE_GRID_EMPTY_VIEW_TYPE = "grid-empty-view";
+export const SCENE_GRID_DROPDOWN_TYPE = "grid-dropdown";
+export const SCENE_GRID_DROPDOWN_ITEM_TYPE = "grid-dropdown-item";
+export const SCENE_GRID_DROPDOWN_SECTION_TYPE = "grid-dropdown-section";
+export const SCENE_MENU_BAR_EXTRA_TYPE = "menu-bar-extra";
+export const SCENE_MENU_BAR_ITEM_TYPE = "menu-bar-item";
+export const SCENE_MENU_BAR_SECTION_TYPE = "menu-bar-section";
+export const SCENE_MENU_BAR_SUBMENU_TYPE = "menu-bar-submenu";
+export const SCENE_MENU_BAR_SEPARATOR_TYPE = "menu-bar-separator";
+export const SCENE_ACTION_TYPE = "action";
+export const SCENE_DETAIL_TYPE = "detail";
+export const SCENE_DETAIL_METADATA_TYPE = "detail-metadata";
+export const SCENE_DETAIL_METADATA_LABEL_TYPE = "detail-metadata-label";
+export const SCENE_DETAIL_METADATA_SEPARATOR_TYPE = "detail-metadata-separator";
+export const SCENE_DETAIL_METADATA_LINK_TYPE = "detail-metadata-link";
+export const SCENE_DETAIL_METADATA_TAG_LIST_TYPE = "detail-metadata-tag-list";
+export const SCENE_DETAIL_METADATA_TAG_LIST_ITEM_TYPE = "detail-metadata-tag-list-item";
+export const SCENE_ACTION_GROUP_TYPE = "action-group";
+export const SCENE_FORM_TYPE = "form";
+export const SCENE_FORM_LINK_ACCESSORY_TYPE = "form-link-accessory";
+export const SCENE_FORM_TEXT_FIELD_TYPE = "form-text-field";
+export const SCENE_FORM_TEXT_AREA_TYPE = "form-text-area";
+export const SCENE_FORM_PASSWORD_FIELD_TYPE = "form-password-field";
+export const SCENE_FORM_CHECKBOX_TYPE = "form-checkbox";
+export const SCENE_FORM_DROPDOWN_TYPE = "form-dropdown";
+export const SCENE_FORM_DROPDOWN_ITEM_TYPE = "form-dropdown-item";
+export const SCENE_FORM_DROPDOWN_SECTION_TYPE = "form-dropdown-section";
+export const SCENE_FORM_DATE_PICKER_TYPE = "form-date-picker";
+export const SCENE_FORM_TAG_PICKER_TYPE = "form-tag-picker";
+export const SCENE_FORM_TAG_PICKER_ITEM_TYPE = "form-tag-picker-item";
+export const SCENE_FORM_FILE_PICKER_TYPE = "form-file-picker";
+export const SCENE_FORM_DESCRIPTION_TYPE = "form-description";
+export const SCENE_FORM_SEPARATOR_TYPE = "form-separator";
+
+export interface SceneListProps {
+  readonly navigationTitle?: string;
+  readonly searchBarPlaceholder?: string;
+  readonly isLoading?: boolean;
+  readonly isShowingDetail?: boolean;
+  readonly searchText?: string;
+  readonly filtering?: boolean;
+  readonly filteringKeepSectionOrder?: boolean;
+  readonly throttle?: boolean;
+  readonly selectedItemId?: string;
+  readonly onSelectionChange?: (event: SceneEventPayload) => void;
+  readonly onSearchTextChange?: (event: SceneEventPayload) => void;
+  readonly children?: ReactNode;
+}
+
+export interface SceneListItemProps {
+  readonly id?: string;
+  readonly title: string;
+  readonly titleTooltip?: string;
+  readonly subtitle?: string;
+  readonly subtitleTooltip?: string;
+  readonly icon?: string;
+  readonly iconTintColor?: string;
+  readonly iconTooltip?: string;
+  readonly keywords?: readonly string[];
+  readonly accessories?: string;
+  readonly accessoryIcon?: string;
+  readonly accessoryTitle?: string;
+  readonly quickLookPath?: string;
+  readonly quickLookName?: string;
+  readonly children?: ReactNode;
+}
+
+export interface SceneListSectionProps {
+  readonly id?: string;
+  readonly title?: string;
+  readonly subtitle?: string;
+  readonly children?: ReactNode;
+}
+
+export interface SceneListEmptyViewProps {
+  readonly icon?: string;
+  readonly iconTintColor?: string;
+  readonly title?: string;
+  readonly description?: string;
+  readonly children?: ReactNode;
+}
+
+export interface SceneListDropdownProps {
+  readonly id?: string;
+  readonly tooltip: string;
+  readonly placeholder?: string;
+  readonly isLoading?: boolean;
+  readonly filtering?: boolean;
+  readonly filteringKeepSectionOrder?: boolean;
+  readonly throttle?: boolean;
+  readonly storeValue?: boolean;
+  readonly value?: string;
+  readonly defaultValue?: string;
+  readonly onChange?: (event: SceneEventPayload) => void;
+  readonly onSearchTextChange?: (event: SceneEventPayload) => void;
+  readonly children?: ReactNode;
+}
+
+export interface SceneListDropdownItemProps {
+  readonly value: string;
+  readonly title: string;
+  readonly icon?: string;
+  readonly iconTintColor?: string;
+  readonly keywords?: readonly string[];
+}
+
+export interface SceneListDropdownSectionProps {
+  readonly title?: string;
+  readonly children?: ReactNode;
+}
+
+export interface SceneActionProps {
+  readonly title: string;
+  readonly onAction?: () => void;
+}
+
+export function SceneList(props: SceneListProps): ReactElement {
+  return createElement(SCENE_LIST_TYPE, props);
+}
+
+export function SceneListItem(props: SceneListItemProps): ReactElement {
+  return createElement(SCENE_LIST_ITEM_TYPE, props);
+}
+
+export function SceneListSection(props: SceneListSectionProps): ReactElement {
+  return createElement(SCENE_LIST_SECTION_TYPE, props);
+}
+
+export function SceneListEmptyView(props: SceneListEmptyViewProps): ReactElement {
+  return createElement(SCENE_LIST_EMPTY_VIEW_TYPE, props);
+}
+
+export function SceneListDropdown(props: SceneListDropdownProps): ReactElement {
+  return createElement(SCENE_LIST_DROPDOWN_TYPE, props);
+}
+
+export function SceneListDropdownItem(props: SceneListDropdownItemProps): ReactElement {
+  return createElement(SCENE_LIST_DROPDOWN_ITEM_TYPE, props);
+}
+
+export function SceneListDropdownSection(props: SceneListDropdownSectionProps): ReactElement {
+  return createElement(SCENE_LIST_DROPDOWN_SECTION_TYPE, props);
+}
+
+export function SceneAction(props: SceneActionProps): ReactElement {
+  return createElement(SCENE_ACTION_TYPE, props);
+}
+
+export class SceneRendererError extends Error {
+  readonly code: string;
+  readonly details?: unknown;
+
+  constructor(code: string, message: string, details?: unknown) {
+    super(message);
+    this.name = "SceneRendererError";
+    this.code = code;
+    if (details !== undefined) {
+      this.details = details;
+    }
+  }
+}
+
+export interface SceneRendererOptions {
+  readonly sink: SceneTransactionSink;
+  readonly createNodeId?: () => string;
+  readonly createEventId?: () => string;
+  readonly createTransactionId?: () => string;
+  /** Receives uncaught React render errors and sink publish failures. */
+  readonly onError?: (error: unknown) => void;
+}
+
+export interface SceneRenderer {
+  /** Renders (or re-renders) the extension scene and publishes one transaction per commit. */
+  render(element: ReactNode): void;
+  /** Routes a `scene.event` payload to the callback registered for its identifier. */
+  dispatchSceneEvent(payload: SceneEventPayload): void;
+  /** Resolves after every queued sink publish has settled. */
+  flush(): Promise<void>;
+  /** Clears the scene without publishing; the renderer cannot render afterwards. */
+  unmount(): void;
+}
+
+interface SceneContainer {
+  children: HostNode[];
+}
+
+interface HostContext {}
+
+const SCENE_HOST_CONTEXT: HostContext = {};
+
+interface HostNode {
+  readonly id: string;
+  readonly type: SceneNodeType;
+  props: Readonly<Record<string, ScenePropValue>>;
+  callbacks: Map<string, { eventId: string; callback: (payload: SceneEventPayload) => void }>;
+  children: HostNode[];
+  parent: HostNode | null;
+}
+
+interface PendingRemoval {
+  readonly nodeId: string;
+  readonly ancestorIds: readonly string[];
+  readonly subtreeIds: readonly string[];
+}
+
+export function createSceneRenderer(options: SceneRendererOptions): SceneRenderer {
+  const eventRegistry = new Map<string, (payload: SceneEventPayload) => void>();
+  let nodeCounter = 0;
+  let eventCounter = 0;
+  let transactionCounter = 0;
+  let unmounted = false;
+  let hasPublished = false;
+  let pendingOperations: SceneOperation[] = [];
+  let pendingRemovals: PendingRemoval[] = [];
+  let rootMutated = false;
+  let publishQueue: Promise<void> = Promise.resolve();
+  let contractViolation: SceneRendererError | undefined;
+  let renderErrored = false;
+
+  const nextNodeId = options.createNodeId ?? (() => `node-${++nodeCounter}`);
+  const nextEventId = options.createEventId ?? (() => `event-${++eventCounter}`);
+  const nextTransactionId = options.createTransactionId ?? (() => `transaction-${++transactionCounter}`);
+
+  const reconciler = Reconciler<
+    string,
+    Record<string, unknown>,
+    SceneContainer,
+    HostNode,
+    HostNode,
+    HostNode,
+    HostNode,
+    HostNode,
+    HostNode,
+    HostContext,
+    null,
+    NodeJS.Timeout,
+    -1,
+    null
+  >({
+    isPrimaryRenderer: true,
+    supportsMutation: true,
+    supportsPersistence: false,
+    supportsHydration: false,
+
+    createInstance(type: string, props: Record<string, unknown>): HostNode {
+      return createHostNode(type, props);
+    },
+
+    createTextInstance(): HostNode {
+      throw contractViolationError(
+        new SceneRendererError(
+          "text_not_supported",
+          "The scene contract has no text nodes; put text into node properties",
+        ),
+      );
+    },
+
+    appendInitialChild(parentInstance: HostNode, child: HostNode): void {
+      attachChild(parentInstance, child);
+    },
+
+    appendChild(parentInstance: HostNode, child: HostNode): void {
+      attachChild(parentInstance, child);
+      if (hasPublished) {
+        pendingOperations.push({ type: "insert", node: materialize(child), parentId: parentInstance.id });
+      }
+    },
+
+    appendChildToContainer(container: SceneContainer, child: HostNode): void {
+      container.children.push(child);
+      child.parent = null;
+      if (hasPublished) {
+        rootMutated = true;
+      }
+    },
+
+    finalizeInitialChildren(): boolean {
+      return false;
+    },
+
+    commitUpdate(
+      instance: HostNode,
+      _type: string,
+      _prevProps: Record<string, unknown>,
+      nextProps: Record<string, unknown>,
+      _internalHandle: unknown,
+    ): void {
+      const diff = applyProps(instance, nextProps);
+      if (diff !== null && hasPublished) {
+        pendingOperations.push({ type: "update", nodeId: instance.id, props: diff });
+      }
+    },
+
+    commitMount(): void {},
+
+    insertBefore(parentInstance: HostNode, child: HostNode, beforeChild: HostNode): void {
+      const index = parentInstance.children.indexOf(beforeChild);
+      parentInstance.children.splice(index, 0, child);
+      child.parent = parentInstance;
+      if (hasPublished) {
+        pendingOperations.push({
+          type: "insert",
+          node: materialize(child),
+          parentId: parentInstance.id,
+          index,
+        });
+      }
+    },
+
+    insertInContainerBefore(container: SceneContainer, child: HostNode, beforeChild: HostNode): void {
+      const index = container.children.indexOf(beforeChild);
+      container.children.splice(index, 0, child);
+      child.parent = null;
+      if (hasPublished) {
+        rootMutated = true;
+      }
+    },
+
+    removeChild(parentInstance: HostNode, child: HostNode): void {
+      const index = parentInstance.children.indexOf(child);
+      parentInstance.children.splice(index, 1);
+      pendingRemovals.push(createPendingRemoval(child));
+      child.parent = null;
+      releaseCallbacks(child);
+      if (hasPublished) {
+        pendingOperations.push({ type: "remove", nodeId: child.id });
+      }
+    },
+
+    removeChildFromContainer(container: SceneContainer, child: HostNode): void {
+      const index = container.children.indexOf(child);
+      container.children.splice(index, 1);
+      child.parent = null;
+      releaseCallbacks(child);
+      if (hasPublished) {
+        rootMutated = true;
+        pendingRemovals = [];
+      }
+    },
+
+    clearContainer(container: SceneContainer): void {
+      for (const child of container.children) {
+        releaseCallbacks(child);
+      }
+      container.children.length = 0;
+      if (hasPublished) {
+        rootMutated = true;
+        pendingRemovals = [];
+      }
+    },
+
+    resetTextContent(): void {},
+
+    commitTextUpdate(): void {
+      throw new SceneRendererError("text_not_supported", "The scene contract has no text nodes");
+    },
+
+    getRootHostContext(): HostContext {
+      return SCENE_HOST_CONTEXT;
+    },
+
+    getChildHostContext(parentHostContext: HostContext): HostContext {
+      return parentHostContext;
+    },
+
+    shouldSetTextContent(): boolean {
+      return false;
+    },
+
+    getPublicInstance(instance: HostNode): HostNode {
+      return instance;
+    },
+
+    prepareForCommit(): null {
+      return null;
+    },
+
+    resetAfterCommit(container: SceneContainer): void {
+      publish(container);
+    },
+
+    preparePortalMount(): void {
+      throw new SceneRendererError("portals_not_supported", "Scene rendering does not support portals");
+    },
+
+    scheduleTimeout(fn: (...args: unknown[]) => unknown, delay?: number): NodeJS.Timeout {
+      return setTimeout(fn, delay);
+    },
+
+    cancelTimeout(id: NodeJS.Timeout): void {
+      clearTimeout(id);
+    },
+
+    noTimeout: -1 as const,
+    supportsMicrotasks: true,
+    scheduleMicrotask: queueMicrotask,
+    setCurrentUpdatePriority(): void {},
+    getCurrentUpdatePriority(): number {
+      return DiscreteEventPriority;
+    },
+    resolveUpdatePriority(): number {
+      return DiscreteEventPriority;
+    },
+    shouldAttemptEagerTransition(): boolean {
+      return false;
+    },
+    NotPendingTransition: null,
+    HostTransitionContext: null as never,
+    resetFormInstance(): void {},
+    requestPostPaintCallback(): void {},
+    trackSchedulerEvent(): void {},
+    resolveEventType(): string | null {
+      return null;
+    },
+    resolveEventTimeStamp(): number {
+      return 0;
+    },
+    maySuspendCommit(): boolean {
+      return false;
+    },
+    preloadInstance(): boolean {
+      return true;
+    },
+    startSuspendingCommit(): void {},
+    suspendInstance(): void {},
+    waitForCommitToBeReady(): null {
+      return null;
+    },
+    getInstanceFromNode(): null {
+      return null;
+    },
+    prepareScopeUpdate(): void {},
+    getInstanceFromScope(): null {
+      return null;
+    },
+    detachDeletedInstance(): void {},
+    beforeActiveInstanceBlur(): void {},
+    afterActiveInstanceBlur(): void {},
+  });
+
+  const container: SceneContainer = { children: [] };
+  let root: object | null = null;
+
+  function createHostNode(type: string, props: Record<string, unknown>): HostNode {
+    if (!SCENE_NODE_TYPES.includes(type as SceneNodeType)) {
+      throw contractViolationError(new SceneRendererError("unknown_node_type", "Unknown scene node type", { type }));
+    }
+    const node: HostNode = {
+      id: nextNodeId(),
+      type: type as SceneNodeType,
+      props: {},
+      callbacks: new Map(),
+      children: [],
+      parent: null,
+    };
+    applyProps(node, props);
+    return node;
+  }
+
+  function applyProps(node: HostNode, props: Record<string, unknown>): Record<string, ScenePropValue | null> | null {
+    const nextSceneProps: Record<string, ScenePropValue> = {};
+    const nextCallbacks = new Map<string, { eventId: string; callback: (payload: SceneEventPayload) => void }>();
+    const diff: Record<string, ScenePropValue | null> = {};
+
+    for (const key of Object.keys(props)) {
+      if (key === "children") {
+        continue;
+      }
+      const value = props[key];
+      if (isCallbackProp(node.type, key)) {
+        if (value === undefined) {
+          continue;
+        }
+        if (typeof value !== "function") {
+          throw contractViolationError(
+            new SceneRendererError("invalid_callback", "Scene callbacks must be functions", {
+              nodeId: node.id,
+              property: key,
+            }),
+          );
+        }
+        const existing = node.callbacks.get(key);
+        if (existing !== undefined && existing.callback === value) {
+          nextCallbacks.set(key, existing);
+          nextSceneProps[key] = existing.eventId;
+          continue;
+        }
+        const eventId = nextEventId();
+        const callback = value as (payload: SceneEventPayload) => void;
+        nextCallbacks.set(key, { eventId, callback });
+        eventRegistry.set(eventId, callback);
+        nextSceneProps[key] = eventId;
+        continue;
+      }
+      if (!SCENE_PROP_WHITELIST[node.type].includes(key)) {
+        throw contractViolationError(
+          new SceneRendererError("unknown_prop", "Property is not in the scene whitelist", {
+            nodeType: node.type,
+            property: key,
+          }),
+        );
+      }
+      if (value === undefined) {
+        continue;
+      }
+      if (!isScenePropValue(value)) {
+        throw contractViolationError(
+          new SceneRendererError("invalid_prop", "Expected a JSON-compatible scene property value", {
+            nodeId: node.id,
+            property: key,
+          }),
+        );
+      }
+      nextSceneProps[key] = cloneSceneProp(value);
+    }
+
+    for (const [key, before] of Object.entries(node.props)) {
+      const after = nextSceneProps[key];
+      if (after === undefined ? before !== undefined : !sameSceneProp(before, after)) {
+        diff[key] = after === undefined ? null : after;
+      }
+    }
+    for (const [key, after] of Object.entries(nextSceneProps)) {
+      if (!(key in node.props)) {
+        diff[key] = after;
+      }
+    }
+    for (const [key, existing] of node.callbacks) {
+      const next = nextCallbacks.get(key);
+      if (next === undefined || next.eventId !== existing.eventId) {
+        eventRegistry.delete(existing.eventId);
+      }
+    }
+
+    node.props = nextSceneProps;
+    node.callbacks = nextCallbacks;
+    return Object.keys(diff).length === 0 ? null : diff;
+  }
+
+  function releaseCallbacks(node: HostNode): void {
+    for (const [, existing] of node.callbacks) {
+      eventRegistry.delete(existing.eventId);
+    }
+    node.callbacks = new Map();
+    for (const child of node.children) {
+      releaseCallbacks(child);
+    }
+  }
+
+  function rootList(sceneContainer: SceneContainer): HostNode {
+    if (sceneContainer.children.length > 1) {
+      throw new SceneRendererError("invalid_scene_root", "The scene must render exactly one root node", {
+        children: sceneContainer.children.length,
+      });
+    }
+    const rootChild = sceneContainer.children[0] as HostNode;
+    if (
+      rootChild.type !== SCENE_LIST_TYPE &&
+      rootChild.type !== SCENE_DETAIL_TYPE &&
+      rootChild.type !== SCENE_FORM_TYPE &&
+      rootChild.type !== SCENE_GRID_TYPE &&
+      rootChild.type !== SCENE_MENU_BAR_EXTRA_TYPE
+    ) {
+      throw new SceneRendererError(
+        "invalid_scene_root",
+        "The scene root must be a list, detail, form, grid, or menu-bar-extra",
+        { type: rootChild.type },
+      );
+    }
+    return rootChild;
+  }
+
+  function publish(sceneContainer: SceneContainer): void {
+    if (unmounted) {
+      return;
+    }
+    if (renderErrored) {
+      // React errored while rendering this commit; keep the client's last
+      // good scene instead of publishing a broken tree.
+      renderErrored = false;
+      pendingOperations = [];
+      pendingRemovals = [];
+      rootMutated = false;
+      return;
+    }
+    if (sceneContainer.children.length === 0) {
+      // An errored commit leaves an empty root; report it and keep the
+      // client's last good scene.
+      pendingOperations = [];
+      pendingRemovals = [];
+      rootMutated = false;
+      options.onError?.(new SceneRendererError("empty_scene_root", "The commit produced an empty scene"));
+      return;
+    }
+    const rootChild = rootList(sceneContainer);
+    if (!hasPublished || rootMutated) {
+      queuePublish({
+        transactionId: nextTransactionId(),
+        operations: [{ type: "snapshot", root: materialize(rootChild) }],
+      });
+      hasPublished = true;
+      rootMutated = false;
+      pendingOperations = [];
+      pendingRemovals = [];
+      return;
+    }
+    const operations = normalizePendingOperations(pendingOperations, pendingRemovals);
+    if (operations.length === 0) {
+      pendingOperations = [];
+      pendingRemovals = [];
+      return;
+    }
+    queuePublish({ transactionId: nextTransactionId(), operations });
+    pendingOperations = [];
+    pendingRemovals = [];
+  }
+
+  function queuePublish(transaction: SceneTransaction): void {
+    publishQueue = publishQueue
+      .then(() => options.sink.publish(transaction))
+      .then(
+        () => undefined,
+        (error: unknown) => {
+          options.onError?.(error);
+        },
+      );
+  }
+
+  function contractViolationError(error: SceneRendererError): SceneRendererError {
+    contractViolation ??= error;
+    return error;
+  }
+
+  return {
+    render(element: ReactNode): void {
+      if (unmounted) {
+        throw new SceneRendererError("renderer_unmounted", "The scene renderer was unmounted");
+      }
+      if (root === null) {
+        root = reconciler.createContainer(
+          container,
+          ConcurrentRoot,
+          null,
+          false,
+          null,
+          "",
+          (error: unknown) => {
+            renderErrored = true;
+            options.onError?.(error);
+          },
+          (error: unknown) => {
+            renderErrored = true;
+            options.onError?.(error);
+          },
+          (error: unknown) => {
+            renderErrored = true;
+            options.onError?.(error);
+          },
+          () => {},
+        );
+      }
+      contractViolation = undefined;
+      try {
+        reconciler.updateContainerSync(element, root, null, () => {});
+        reconciler.flushSyncWork();
+      } catch (error) {
+        contractViolation = undefined;
+        throw error;
+      }
+      const violation = contractViolation;
+      contractViolation = undefined;
+      if (violation !== undefined) {
+        throw violation;
+      }
+    },
+
+    dispatchSceneEvent(payload: SceneEventPayload): void {
+      const callback = eventRegistry.get(payload.eventId);
+      if (callback === undefined) {
+        throw new SceneRendererError("unknown_event", "No scene callback is registered for the event identifier", {
+          eventId: payload.eventId,
+        });
+      }
+      callback(payload);
+    },
+
+    flush(): Promise<void> {
+      reconciler.flushSyncWork();
+      reconciler.flushPassiveEffects();
+      return publishQueue;
+    },
+
+    unmount(): void {
+      if (unmounted) {
+        return;
+      }
+      unmounted = true;
+      if (root !== null) {
+        reconciler.updateContainerSync(null, root, null, () => {});
+        reconciler.flushSyncWork();
+      }
+      eventRegistry.clear();
+    },
+  };
+}
+
+function attachChild(parent: HostNode, child: HostNode): void {
+  parent.children.push(child);
+  child.parent = parent;
+}
+
+function createPendingRemoval(node: HostNode): PendingRemoval {
+  const ancestorIds: string[] = [];
+  let ancestor = node.parent;
+  while (ancestor !== null) {
+    ancestorIds.push(ancestor.id);
+    ancestor = ancestor.parent;
+  }
+  const subtreeIds: string[] = [];
+  collectHostNodeIds(node, subtreeIds);
+  return { nodeId: node.id, ancestorIds, subtreeIds };
+}
+
+function collectHostNodeIds(node: HostNode, nodeIds: string[]): void {
+  nodeIds.push(node.id);
+  for (const child of node.children) {
+    collectHostNodeIds(child, nodeIds);
+  }
+}
+
+function normalizePendingOperations(
+  operations: readonly SceneOperation[],
+  removals: readonly PendingRemoval[],
+): SceneOperation[] {
+  if (removals.length === 0) {
+    return [...operations];
+  }
+  const removedNodeIds = new Set(removals.flatMap((removal) => removal.subtreeIds));
+  const removedRootIds = new Set(
+    removals
+      .filter(
+        (removal) =>
+          !removals.some(
+            (candidate) => candidate.nodeId !== removal.nodeId && removal.ancestorIds.includes(candidate.nodeId),
+          ),
+      )
+      .map((removal) => removal.nodeId),
+  );
+  const emittedRemovalIds = new Set<string>();
+  return operations.filter((operation) => {
+    switch (operation.type) {
+      case "remove":
+        if (!removedRootIds.has(operation.nodeId) || emittedRemovalIds.has(operation.nodeId)) {
+          return false;
+        }
+        emittedRemovalIds.add(operation.nodeId);
+        return true;
+      case "update":
+        return !removedNodeIds.has(operation.nodeId);
+      case "insert":
+        return !removedNodeIds.has(operation.parentId) && !removedNodeIds.has(operation.node.id);
+      case "reorder":
+        return !removedNodeIds.has(operation.parentId);
+      default:
+        return true;
+    }
+  });
+}
+
+function materialize(node: HostNode): SceneNode {
+  return {
+    id: node.id,
+    type: node.type,
+    props: { ...node.props },
+    children: node.children.map(materialize),
+  };
+}
+
+function isCallbackProp(nodeType: SceneNodeType, property: string): boolean {
+  return (
+    (nodeType === SCENE_ACTION_TYPE && property === "onAction") ||
+    (nodeType === SCENE_ACTION_GROUP_TYPE && (property === "onSearchTextChange" || property === "onOpen")) ||
+    (nodeType === SCENE_DETAIL_METADATA_TAG_LIST_ITEM_TYPE && property === "onAction") ||
+    (nodeType === SCENE_LIST_TYPE &&
+      (property === "onSelectionChange" || property === "onSearchTextChange" || property === "onLoadMore")) ||
+    (nodeType === SCENE_LIST_DROPDOWN_TYPE && (property === "onChange" || property === "onSearchTextChange")) ||
+    (nodeType === SCENE_GRID_TYPE &&
+      (property === "onSelectionChange" || property === "onSearchTextChange" || property === "onLoadMore")) ||
+    (nodeType === SCENE_GRID_DROPDOWN_TYPE && (property === "onChange" || property === "onSearchTextChange")) ||
+    (nodeType === SCENE_FORM_DROPDOWN_TYPE && property === "onSearchTextChange") ||
+    (nodeType === SCENE_MENU_BAR_ITEM_TYPE && property === "onAction") ||
+    (nodeType === SCENE_FORM_LINK_ACCESSORY_TYPE && property === "onOpen") ||
+    ((nodeType === SCENE_FORM_TEXT_FIELD_TYPE ||
+      nodeType === SCENE_FORM_TEXT_AREA_TYPE ||
+      nodeType === SCENE_FORM_PASSWORD_FIELD_TYPE ||
+      nodeType === SCENE_FORM_CHECKBOX_TYPE ||
+      nodeType === SCENE_FORM_DROPDOWN_TYPE ||
+      nodeType === SCENE_FORM_DATE_PICKER_TYPE ||
+      nodeType === SCENE_FORM_TAG_PICKER_TYPE ||
+      nodeType === SCENE_FORM_FILE_PICKER_TYPE) &&
+      (property === "onChange" || property === "onFocus" || property === "onBlur"))
+  );
+}
+
+function sameSceneProp(before: ScenePropValue, after: ScenePropValue): boolean {
+  if (Array.isArray(before) || Array.isArray(after)) {
+    return (
+      Array.isArray(before) &&
+      Array.isArray(after) &&
+      before.length === after.length &&
+      before.every((value, index) => value === after[index])
+    );
+  }
+  if (isSceneShortcut(before) || isSceneShortcut(after)) {
+    return (
+      isSceneShortcut(before) &&
+      isSceneShortcut(after) &&
+      before.key === after.key &&
+      before.modifiers.length === after.modifiers.length &&
+      before.modifiers.every((modifier, index) => modifier === after.modifiers[index])
+    );
+  }
+  return before === after;
+}
+
+function cloneSceneProp(value: ScenePropValue): ScenePropValue {
+  if (Array.isArray(value)) {
+    return [...value];
+  }
+  if (isSceneShortcut(value)) {
+    return { key: value.key, modifiers: [...value.modifiers] } satisfies SceneShortcut;
+  }
+  return value;
+}
+
+function isSceneShortcut(value: ScenePropValue): value is SceneShortcut {
+  return typeof value === "object" && !Array.isArray(value) && value !== null && "key" in value && "modifiers" in value;
+}

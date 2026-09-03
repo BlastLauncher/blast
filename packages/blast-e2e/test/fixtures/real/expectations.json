@@ -1,0 +1,467 @@
+[
+  {
+    "id": "papersize",
+    "extensionId": "papersize",
+    "commandName": "papersize",
+    "outcome": "renders",
+    "rootType": "list",
+    "minItems": 3,
+    "apis": [
+      "Action",
+      "ActionPanel",
+      "Icon",
+      "List"
+    ],
+    "source": "raycast/extensions@d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91"
+  },
+  {
+    "id": "golden-ratio",
+    "extensionId": "golden-ratio",
+    "commandName": "golden-ratio",
+    "outcome": "renders",
+    "rootType": "list",
+    "minItems": 1,
+    "apis": [
+      "Action",
+      "ActionPanel",
+      "Clipboard",
+      "Icon",
+      "List",
+      "showToast",
+      "Toast"
+    ],
+    "source": "raycast/extensions@d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91"
+  },
+  {
+    "id": "pokemon-tcg-pocket-binder",
+    "extensionId": "pokemon-tcg-pocket-binder",
+    "commandName": "pokemon-tcg-pocket-binder",
+    "outcome": "renders",
+    "rootType": "list",
+    "minItems": 3,
+    "apis": [
+      "Action",
+      "ActionPanel",
+      "List",
+      "showToast",
+      "Toast"
+    ],
+    "source": "raycast/extensions@d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91"
+  },
+  {
+    "id": "ruby-evaluate",
+    "extensionId": "ruby-evaluate",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "list",
+    "minItems": 0,
+    "apis": [
+      "Action",
+      "ActionPanel",
+      "List",
+      "Detail",
+      "getPreferenceValues"
+    ],
+    "source": "raycast/extensions@d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91"
+  },
+  {
+    "id": "wifi-password-reveal",
+    "extensionId": "wifi-password-reveal",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "list",
+    "minItems": 0,
+    "apis": [
+      "Action",
+      "ActionPanel",
+      "Detail",
+      "Icon",
+      "List",
+      "showToast",
+      "Toast"
+    ],
+    "source": "raycast/extensions@d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91"
+  },
+  {
+    "id": "go-links",
+    "extensionId": "go-links",
+    "commandName": "go",
+    "outcome": "renders",
+    "rootType": "list",
+    "minItems": 0,
+    "apis": [
+      "Action",
+      "ActionPanel",
+      "Icon",
+      "List",
+      "showToast",
+      "Toast"
+    ],
+    "source": "raycast/extensions@d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91"
+  },
+  {
+    "id": "time",
+    "extensionId": "time",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "detail",
+    "minItems": 0,
+    "apis": [
+      "Detail"
+    ],
+    "source": "raycast/extensions@d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91"
+  },
+  {
+    "id": "deutscherwetterdienst",
+    "extensionId": "deutscherwetterdienst",
+    "commandName": "rainradar",
+    "outcome": "renders",
+    "rootType": "detail",
+    "minItems": 0,
+    "apis": [
+      "Detail"
+    ],
+    "source": "raycast/extensions@d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91"
+  },
+  {
+    "id": "donut",
+    "extensionId": "donut",
+    "commandName": "show-donut",
+    "outcome": "renders",
+    "rootType": "detail",
+    "minItems": 0,
+    "apis": [
+      "Detail"
+    ],
+    "source": "raycast/extensions@d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91"
+  },
+  {
+    "id": "utm-virtual-machines",
+    "extensionId": "utm-virtual-machines",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "list",
+    "minItems": 0,
+    "apis": [
+      "Action",
+      "ActionPanel",
+      "Icon",
+      "List",
+      "showToast",
+      "Toast"
+    ],
+    "source": "raycast/extensions@d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91"
+  },
+  {
+    "id": "big-o",
+    "extensionId": "big-o",
+    "commandName": "big-o",
+    "outcome": "renders",
+    "rootType": "list",
+    "minItems": 3,
+    "apis": [
+      "Action",
+      "ActionPanel",
+      "List"
+    ],
+    "source": "raycast/extensions@d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91"
+  },
+  {
+    "id": "choose-a-license",
+    "extensionId": "choose-a-license",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "list",
+    "minItems": 3,
+    "source": "raycast/extensions@d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91",
+    "apis": [
+      "Action",
+      "ActionPanel",
+      "Detail",
+      "List"
+    ]
+  },
+  {
+    "id": "balatro-compendium",
+    "extensionId": "balatro-compendium",
+    "commandName": "jokers",
+    "outcome": "renders",
+    "rootType": "list",
+    "minItems": 3,
+    "apis": [
+      "List",
+      "Action",
+      "ActionPanel",
+      "Icon",
+      "showToast",
+      "Toast",
+      "Detail"
+    ],
+    "source": "raycast/extensions@d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91"
+  },
+  {
+    "id": "cache-control-builder",
+    "extensionId": "cache-control-builder",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "list",
+    "minItems": 3,
+    "apis": [
+      "Action",
+      "ActionPanel",
+      "Detail",
+      "environment",
+      "Icon",
+      "List",
+      "useNavigation"
+    ],
+    "source": "raycast/extensions@d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91"
+  },
+  {
+    "id": "single-disk-eject",
+    "extensionId": "single-disk-eject",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "list",
+    "minItems": 0,
+    "apis": [
+      "List",
+      "showToast",
+      "Toast",
+      "Action",
+      "ActionPanel",
+      "environment",
+      "getPreferenceValues"
+    ],
+    "source": "raycast/extensions@d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91"
+  },
+  {
+    "id": "form-submission",
+    "extensionId": "form-submission",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "form",
+    "minItems": 4,
+    "apis": [
+      "Action",
+      "ActionPanel",
+      "Form"
+    ],
+    "source": "blast/compatibility-fixture"
+  },
+  {
+    "id": "desktop-discovery-boundaries",
+    "extensionId": "desktop-discovery-boundaries",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "list",
+    "minItems": 2,
+    "readyNavigationTitle": "Discovery:selected from matrix",
+    "apis": [
+      "getApplications",
+      "getSelectedText",
+      "openCommandPreferences"
+    ],
+    "source": "raycast/extensions@d4aae99c5e1d7ec19b2341f1058c20adfd3fdc91"
+  },
+  {
+    "id": "finder-boundaries",
+    "extensionId": "finder-boundaries",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "list",
+    "minItems": 2,
+    "readyNavigationTitle": "Finder:Finder",
+    "apis": [
+      "FileSystemItem",
+      "getFrontmostApplication",
+      "getSelectedFinderItems",
+      "showInFinder"
+    ],
+    "source": "blast/compatibility-fixture"
+  },
+  {
+    "id": "window-management-boundaries",
+    "extensionId": "window-management-boundaries",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "list",
+    "minItems": 1,
+    "readyNavigationTitle": "Window:window-1:2:1:denied",
+    "apis": [
+      "Action",
+      "ActionPanel",
+      "List",
+      "WindowManagement",
+      "environment"
+    ],
+    "source": "blast/compatibility-fixture"
+  },
+  {
+    "id": "host-boundaries",
+    "extensionId": "host-boundaries",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "list",
+    "minItems": 1,
+    "readyNavigationTitle": "Host:1:Fixture browser content:SUCCESS",
+    "apis": [
+      "Action",
+      "ActionPanel",
+      "BrowserExtension",
+      "List",
+      "ToastStyle",
+      "Tool",
+      "clearSearchBar",
+      "trash"
+    ],
+    "source": "blast/compatibility-fixture"
+  },
+  {
+    "id": "coverage-next",
+    "extensionId": "coverage-next",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "list",
+    "minItems": 1,
+    "readyNavigationTitle": "Next:TextEdit:1",
+    "apis": [
+      "Action",
+      "ActionPanel",
+      "Color",
+      "CopyToClipboardAction",
+      "Environment",
+      "FormValue",
+      "KeyEquivalent",
+      "List",
+      "Navigation",
+      "OpenInBrowserAction",
+      "Preference",
+      "Preferences",
+      "PreferenceValues",
+      "captureException",
+      "environment",
+      "getDefaultApplication",
+      "getPreferenceValues",
+      "Icon",
+      "preferences",
+      "randomId"
+    ],
+    "source": "blast/compatibility-fixture"
+  },
+  {
+    "id": "coverage-followup",
+    "extensionId": "coverage-followup",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "form",
+    "minItems": 2,
+    "readyNavigationTitle": "Follow-up:none:1:ready",
+    "apis": [
+      "Action",
+      "ActionPanel",
+      "OpenAction",
+      "PasteAction",
+      "Form",
+      "ImageMask",
+      "List",
+      "PushAction",
+      "SubmitFormAction",
+      "allLocalStorageItems",
+      "clearLocalStorage",
+      "copyTextToClipboard",
+      "getLocalStorageItem",
+      "pasteText",
+      "removeLocalStorageItem",
+      "setLocalStorageItem",
+      "useNavigation"
+    ],
+    "source": "blast/compatibility-fixture"
+  },
+  {
+    "id": "runtime-boundaries",
+    "extensionId": "runtime-boundaries",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "list",
+    "minItems": 1,
+    "readyNavigationTitle": "Runtime:probe answer:fetch-ready:signed-out",
+    "apis": [
+      "AI",
+      "Action",
+      "ActionPanel",
+      "List",
+      "OAuth",
+      "fetch",
+      "updateCommandMetadata"
+    ],
+    "source": "blast/compatibility-fixture"
+  },
+  {
+    "id": "grid-boundaries",
+    "extensionId": "grid-boundaries",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "grid",
+    "minItems": 2,
+    "apis": [
+      "Action",
+      "ActionPanel",
+      "Grid",
+      "Icon"
+    ],
+    "source": "blast/compatibility-fixture"
+  },
+  {
+    "id": "menu-bar-boundaries",
+    "extensionId": "menu-bar-boundaries",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "menu-bar-extra",
+    "minItems": 2,
+    "apis": [
+      "Icon",
+      "MenuBarExtra"
+    ],
+    "source": "blast/compatibility-fixture"
+  },
+  {
+    "id": "legacy-alias-boundaries",
+    "extensionId": "legacy-alias-boundaries",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "list",
+    "minItems": 1,
+    "apis": [
+      "ActionPanel",
+      "ActionPanelItem",
+      "AlertActionStyle",
+      "Icon",
+      "List",
+      "ListSection",
+      "OpenWithAction"
+    ],
+    "source": "blast/compatibility-fixture"
+  },
+  {
+    "id": "import-shape-boundaries",
+    "extensionId": "import-shape-boundaries",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "list",
+    "minItems": 1,
+    "readyNavigationTitle": "Import shapes:ready",
+    "apis": ["<require>", "List", "Icon"],
+    "source": "blast/compatibility-fixture"
+  },
+  {
+    "id": "composite-children",
+    "extensionId": "composite-children",
+    "commandName": "index",
+    "outcome": "renders",
+    "rootType": "form",
+    "minItems": 3,
+    "apis": ["Action", "ActionPanel", "Form"],
+    "source": "blast/compatibility-fixture"
+  }
+]

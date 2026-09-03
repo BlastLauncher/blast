@@ -16,9 +16,15 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "pnpm run build && node --test test/*.test.mjs"
+    "test": "pnpm --filter '@blastlauncher/extension-host...' run build && node --test test/*.test.mjs"
   },
   "dependencies": {
+    "@blastlauncher/extension-contract": "workspace:*",
+    "@blastlauncher/protocol": "workspace:*",
+    "@blastlauncher/session": "workspace:*",
     "@blastlauncher/transport": "workspace:*"
+  },
+  "devDependencies": {
+    "@blastlauncher/extension-runtime": "workspace:*"
   }
 }

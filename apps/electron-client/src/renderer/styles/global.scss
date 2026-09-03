@@ -1,4 +1,4 @@
-@import "./raycast.scss";
+@use "./raycast.scss";
 
 :root {
   --font-sans:
@@ -98,4 +98,20 @@
 
 .drag-area {
   -webkit-app-region: drag;
+}
+
+[data-v2-icon-tinted="true"] {
+  color: var(--v2-icon-tint-light, currentColor);
+
+  svg [stroke]:not([stroke="none"]) {
+    stroke: currentColor !important;
+  }
+
+  svg [fill]:not([fill="none"]) {
+    fill: currentColor !important;
+  }
+}
+
+.dark [data-v2-icon-tinted="true"] {
+  color: var(--v2-icon-tint-dark, var(--v2-icon-tint-light, currentColor));
 }

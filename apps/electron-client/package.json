@@ -17,12 +17,20 @@
   "scripts": {
     "lint": "oxlint .",
     "make": "electron-forge make",
+    "premake": "pnpm --filter '@blastlauncher/raycast-runtime-node...' run build",
     "package": "electron-forge package",
+    "prepackage": "pnpm --filter '@blastlauncher/raycast-runtime-node...' run build",
     "publish": "electron-forge publish",
-    "start": "electron-forge start"
+    "start": "electron-forge start",
+    "test": "tsc -p tsconfig.json && node --test test/*.test.mjs"
   },
   "dependencies": {
+    "@blastlauncher/client": "workspace:*",
+    "@blastlauncher/core": "workspace:*",
+    "@blastlauncher/core-node": "workspace:*",
+    "@blastlauncher/raycast-runtime-node": "workspace:*",
     "@blastlauncher/runtime": "workspace:*",
+    "@blastlauncher/scene": "workspace:*",
     "@blastlauncher/utils": "workspace:*",
     "electron-squirrel-startup": "^1.0.1",
     "update-electron-app": "^3.3.0"
@@ -41,7 +49,7 @@
     "@types/node": "22.19.17",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.5",
-    "@vercel/webpack-asset-relocator-loader": "^1.11.0",
+    "@vercel/webpack-asset-relocator-loader": "1.7.3",
     "ahooks": "^3.9.7",
     "classnames": "^2.3.2",
     "cmdk": "^1.1.1",
@@ -49,6 +57,7 @@
     "css-loader": "^7.1.4",
     "electron": "44.0.0",
     "electron-devtools-installer": "^4.0.0",
+    "esbuild": "^0.28.2",
     "fork-ts-checker-webpack-plugin": "^9.1.0",
     "github-markdown-css": "^5.9.0",
     "highlight.js": "^11.12.0",

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "runtime-boundaries",
+  "title": "Runtime Boundaries",
+  "description": "A dependency-free AI, OAuth, and command metadata compatibility fixture for Blast",
+  "author": "blast-fixture",
+  "commands": [
+    {
+      "name": "index",
+      "title": "Runtime Boundaries",
+      "description": "Render a scene using AI, OAuth, and command metadata APIs",
+      "mode": "view"
+    }
+  ],
+  "dependencies": {
+    "@raycast/api": "^1.104.1"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "name": "@blastlauncher/core-node",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Node.js catalog, daemon composition, and local client/server for Blast V2",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "pnpm --filter '@blastlauncher/core-node...' run build && node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@blastlauncher/core": "workspace:*",
+    "@blastlauncher/extension-contract": "workspace:*",
+    "@blastlauncher/extension-host": "workspace:*",
+    "@blastlauncher/extension-host-node": "workspace:*",
+    "@blastlauncher/transport-node": "workspace:*",
+    "tar": "^6.2.1"
+  },
+  "devDependencies": {
+    "@types/tar": "^6.1.13"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "name": "@blastlauncher/raycast-runtime-node",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Packaged Node.js runtime composition for Raycast-compatible Blast V2 extensions",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node build.js",
+    "test": "pnpm --filter '@blastlauncher/raycast-runtime-node...' run build && node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@blastlauncher/extension-runtime-node": "workspace:*",
+    "@blastlauncher/raycast-compat": "workspace:*",
+    "react": "^19.2.8"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.2.18",
+    "esbuild": "^0.28.2"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "e2e.coverage-followup",
+  "title": "E2E Coverage Follow-up",
+  "description": "Fixture for measured legacy action, storage, and image aliases.",
+  "commands": [{ "name": "index", "title": "Coverage follow-up", "mode": "view" }]
+}

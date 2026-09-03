@@ -1,0 +1,6 @@
+{
+  "name": "e2e.scene",
+  "title": "E2E Scene Extension",
+  "description": "Fixture extension that renders a list and brokers clipboard access.",
+  "commands": [{ "name": "index", "title": "Scene", "mode": "view" }]
+}

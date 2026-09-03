@@ -1,0 +1,29 @@
+{
+  "name": "@blastlauncher/extension-runtime",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Runtime-side lifecycle framework for Blast V2 extensions",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "pnpm --filter '@blastlauncher/extension-runtime...' run build && node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@blastlauncher/capability": "workspace:*",
+    "@blastlauncher/extension-contract": "workspace:*",
+    "@blastlauncher/protocol": "workspace:*",
+    "@blastlauncher/scene": "workspace:*",
+    "@blastlauncher/session": "workspace:*",
+    "@blastlauncher/transport": "workspace:*"
+  }
+}

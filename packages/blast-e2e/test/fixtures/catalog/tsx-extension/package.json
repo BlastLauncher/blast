@@ -1,0 +1,6 @@
+{
+  "name": "e2e.tsx",
+  "title": "E2E TSX Extension",
+  "description": "Fixture extension written as a Raycast-style TSX component with literal @raycast/api imports.",
+  "commands": [{ "name": "index", "title": "TSX", "mode": "view" }]
+}

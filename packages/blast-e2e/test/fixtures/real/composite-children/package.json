@@ -1,0 +1,7 @@
+{
+  "name": "composite-children",
+  "title": "Composite children",
+  "description": "Fixture for measured React component and fragment composition.",
+  "commands": [{ "name": "index", "title": "Composite children", "mode": "view" }],
+  "dependencies": { "@raycast/api": "^1.104.1" }
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "host-boundaries",
+  "title": "Host Boundaries",
+  "description": "A dependency-free browser, filesystem, navigation, and tool compatibility fixture for Blast",
+  "author": "blast-fixture",
+  "commands": [
+    {
+      "name": "index",
+      "title": "Host Boundaries",
+      "description": "Render a scene using measured host APIs",
+      "mode": "view"
+    }
+  ],
+  "dependencies": {
+    "@raycast/api": "^1.104.1"
+  }
+}

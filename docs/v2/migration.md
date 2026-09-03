@@ -25,12 +25,22 @@ existing checks.
 Exit condition: a test process can negotiate, exchange a message, cancel, and
 shut down without Electron or WebSocket.
 
+Implementation note: this phase is complete. Protocol validation, asymmetric
+sessions, reusable transport conformance, bounded JSON-lines stdio, a real
+child-process fixture, host/runtime initialization, graceful shutdown, and
+process-exit observation are executable. See `status.md` for exact coverage.
+
 ## Phase 2: compatibility census
 
 - Build a static scanner for extension manifests and `@raycast/api` imports.
 - Select a varied fixture set of real extensions.
 - Publish a generated support matrix by API, command, platform, and failure
   reason.
+
+Implementation note: the scanner and the first corpus run are complete. The
+census of 3,231 public extensions and the resulting adapter plan live in
+`compatibility/README.md`; the support matrix over named fixtures follows with
+the renderer and adapter work.
 
 Exit condition: the first supported API subset is justified by corpus usage and
 named fixtures.
@@ -45,6 +55,11 @@ named fixtures.
 
 Exit condition: the scenario in the V2 product document passes as an automated
 integration test.
+
+Framework note: process isolation, the host/runtime handshake, lifecycle event
+stream, and trusted catalog boundary now exist. Manifest discovery, actual
+module loading, semantic scene messages, a test client, and the first capability
+provider remain before this phase's exit condition is met.
 
 ## Phase 4: useful compatibility subset
 

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "coverage-followup",
+  "title": "Coverage Follow-up",
+  "description": "A dependency-free legacy action, storage, and image compatibility fixture for Blast",
+  "author": "blast-fixture",
+  "commands": [
+    {
+      "name": "index",
+      "title": "Coverage Follow-up",
+      "description": "Render a scene using the next measured aliases",
+      "mode": "view"
+    }
+  ],
+  "dependencies": {
+    "@raycast/api": "^1.104.1"
+  }
+}

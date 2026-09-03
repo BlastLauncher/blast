@@ -1,0 +1,18 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "menu-bar-boundaries",
+  "title": "Menu Bar Boundaries",
+  "description": "A dependency-free MenuBarExtra compatibility fixture for Blast",
+  "author": "blast-fixture",
+  "commands": [
+    {
+      "name": "index",
+      "title": "Menu Bar Boundaries",
+      "description": "Render a measured menu-bar scene",
+      "mode": "menu-bar"
+    }
+  ],
+  "dependencies": {
+    "@raycast/api": "^1.104.1"
+  }
+}

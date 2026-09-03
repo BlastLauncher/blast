@@ -1,0 +1,18 @@
+{
+  "name": "zeta",
+  "commands": [
+    {
+      "name": "escape",
+      "title": "Escape",
+      "mode": "view",
+      "entrypoint": "../../outside.js"
+    },
+    {
+      "name": "absolute",
+      "title": "Absolute",
+      "mode": "view",
+      "entrypoint": "/etc/passwd"
+    }
+  ],
+  "title": "Zeta Extension"
+}

@@ -1,0 +1,11 @@
+{
+  "name": "dup",
+  "commands": [
+    {
+      "name": "index",
+      "title": "Duplicate Index",
+      "mode": "view"
+    }
+  ],
+  "title": "Duplicate B"
+}

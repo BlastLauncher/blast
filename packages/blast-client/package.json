@@ -1,0 +1,25 @@
+{
+  "name": "@blastlauncher/client",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Transport-neutral command and scene client consumer for Blast V2",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "pnpm --filter '@blastlauncher/client...' run build && node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@blastlauncher/core": "workspace:*",
+    "@blastlauncher/scene": "workspace:*"
+  }
+}

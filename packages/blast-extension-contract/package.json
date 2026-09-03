@@ -1,0 +1,24 @@
+{
+  "name": "@blastlauncher/extension-contract",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Extension host/runtime wire contract for Blast V2",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "pnpm --filter '@blastlauncher/extension-contract...' run build && node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@blastlauncher/protocol": "workspace:*"
+  }
+}

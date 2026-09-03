@@ -13,6 +13,7 @@
     "resolveJsonModule": true,
     "paths": {
       "rpc-websockets": ["node_modules/rpc-websockets/dist/index.d.ts"],
+      "@blastlauncher/*": ["../../packages/blast-*/dist/index.d.ts"],
       "*": ["node_modules/*"]
     },
     "jsx": "react-jsx"

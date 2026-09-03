@@ -1,9 +1,7 @@
-import { ipcMain } from "electron";
+import { app, ipcMain } from "electron";
 
-import { setMenu } from "../menu";
-import { installNode, nrm, hasVersionInstalled } from "../nrm";
-import { startRuntime } from "../runtime";
-import { closeNodeInstallerWindow, createApplicationWindow } from "../window";
+import { hasVersionInstalled, installNode } from "../nrm";
+import { closeNodeInstallerWindow } from "../window";
 
 import { EventTypes } from "./types";
 
@@ -14,20 +12,22 @@ export function registerIPCMainEvents() {
     }
 
     await installNode();
-
-    try {
-      nrm.nodePath;
-    } catch (error) {
-      return false;
-    }
-
-    return true;
+    return hasVersionInstalled();
   });
 
   ipcMain.handle(EventTypes.EXIT_AND_START, async () => {
     closeNodeInstallerWindow();
-    await startRuntime();
-    setMenu();
-    createApplicationWindow();
+    if (!app.isPackaged) {
+      // Under electron-forge start the dev server belongs to the CLI parent
+      // process: app.relaunch() would orphan the app from its dev server and
+      // leave blank windows behind. Re-enter the main flow in-process instead.
+      // Re-run the main-process startup selector so a newly installed runtime
+      // enters packaged V2 by default instead of bypassing it through V1.
+      const { startMainFlow } = await import("../index");
+      await startMainFlow();
+      return;
+    }
+    app.relaunch();
+    app.exit(0);
   });
 }

@@ -1,0 +1,30 @@
+{
+  "name": "@blastlauncher/react-renderer",
+  "version": "0.0.0",
+  "private": true,
+  "description": "React renderer adapter publishing scene transactions for Blast V2",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "pnpm --filter '@blastlauncher/react-renderer...' run build && node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@blastlauncher/scene": "workspace:*",
+    "react": "^19.2.8",
+    "react-reconciler": "^0.33.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-reconciler": "^0.33.0"
+  }
+}

@@ -27,8 +27,23 @@ The main data flow is:
 V2 is being developed alongside the prototype:
 
 - `packages/blast-protocol/` — transport-independent V2 messages and schemas.
+- `packages/blast-scene/` — semantic scene contract and mutation sink boundary.
+- `packages/blast-capability/` — deny-by-default capability request broker.
+- `packages/blast-extension-contract/` — validated host/runtime lifecycle messages.
 - `packages/blast-transport/` — V2 connection contract and in-memory test transport.
-- `packages/blast-extension-host/` — V2 extension lifecycle boundary.
+- `packages/blast-transport-node/` — bounded JSON-lines Node stream transport.
+- `packages/blast-session/` — validated V2 handshake and session state machine.
+- `packages/blast-transport-test-suite/` — reusable tests for every V2 transport.
+- `packages/blast-extension-runtime/` — runtime-side command initialization.
+- `packages/blast-extension-runtime-node/` — Node runtime bootstrap and entrypoint loading.
+- `packages/blast-extension-host/` — V2 transport-neutral lifecycle supervisor.
+- `packages/blast-extension-host-node/` — concrete Node child-process launcher.
+- `packages/blast-core/` — trusted catalog and lifecycle orchestration façade.
+- `packages/blast-core-node/` — Node filesystem manifest catalog.
+- `packages/blast-e2e/` — end-to-end vertical slice fixtures.
+- `packages/blast-compatibility/` — static compatibility scanning and census tooling.
+- `packages/blast-react-renderer/` — React renderer adapter publishing scene transactions.
+- `packages/blast-raycast-compat/` — measured Raycast API compatibility adapter.
 - `docs/v2/` — accepted product direction, architecture, decisions, and migration plan.
 
 V2 packages must not import from the prototype packages' `src/` directories.
@@ -63,7 +78,7 @@ are modernized further.
 Run from the repository root unless noted otherwise:
 
 ```bash
-# Build all five workspace packages
+# Build all workspace packages
 pnpm run build
 
 # Run backend/runtime watchers
@@ -81,6 +96,9 @@ pnpm run fmt
 
 # Run all available workspace tests serially
 pnpm run test
+
+# Run the faster V2 protocol/lifecycle test loop
+pnpm run test:v2
 
 # Package the Electron application without distro makers
 pnpm --filter blast run package
@@ -106,6 +124,15 @@ pnpm --filter @blastlauncher/api run test
 pnpm --filter @blastlauncher/renderer run test
 pnpm --filter @blastlauncher/utils run test
 ```
+
+V2 packages use the Node.js test runner against their ESM build output. Every
+new transport must use `@blastlauncher/transport-test-suite` and may add
+transport-specific failure tests. See `docs/v2/testing.md` for the required test
+layers and invariants.
+
+Read `docs/v2/status.md` before continuing V2 implementation. Keep its
+executable, missing, and recommended-next sections accurate when completing a
+vertical slice.
 
 The renderer test configuration ignores generated `dist` files. The utils NRM
 tests use a local compressed archive and mocked HTTPS response, so they do not
@@ -136,6 +163,8 @@ ignore files.
 - Use Changesets for publishable package changes when release work begins.
 - Read the package README and relevant files in `docs/` before changing a
   package's public behavior.
+- Record new durable V2 boundaries, wire contracts, security decisions, and
+  compatibility policy in `docs/v2/` in the same change that introduces them.
 
 ## V2 direction
 

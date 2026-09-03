@@ -14,6 +14,10 @@ export const mainConfig: Configuration = {
     rules,
   },
   resolve: {
+    // V2 packages intentionally publish their NodeNext ESM entrypoints. The
+    // Electron main bundle is emitted as CommonJS, but webpack can bundle
+    // those ESM modules directly when it selects the import condition.
+    conditionNames: ["webpack", "import", "default"],
     extensions: [".js", ".ts", ".jsx", ".tsx", ".css", ".json"],
   },
   plugins: [

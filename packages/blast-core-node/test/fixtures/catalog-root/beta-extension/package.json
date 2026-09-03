@@ -1,0 +1,48 @@
+{
+  "name": "beta",
+  "commands": [
+    {
+      "name": "main",
+      "title": "Beta Main",
+      "mode": "view",
+      "entrypoint": "./lib/main.cjs",
+      "preferences": [
+        {
+          "name": "layout",
+          "title": "Layout",
+          "description": "Choose a layout",
+          "type": "dropdown",
+          "required": true,
+          "data": [
+            { "title": "Grid", "value": "Grid" },
+            { "title": "List", "value": "List" }
+          ],
+          "default": "Grid"
+        }
+      ]
+    }
+  ],
+  "title": "Beta Extension",
+  "author": "beta-author",
+  "owner": "beta-owner",
+  "preferences": [
+      {
+        "name": "token",
+        "title": "Token",
+        "description": "API token",
+        "type": "password",
+        "required": true,
+        "placeholder": "token...",
+        "default": "secret"
+      },
+      {
+        "name": "enabled",
+        "title": "Enabled",
+        "description": "Enable the fixture",
+        "type": "checkbox",
+        "required": false,
+        "label": "Enabled",
+        "default": true
+    }
+  ]
+}

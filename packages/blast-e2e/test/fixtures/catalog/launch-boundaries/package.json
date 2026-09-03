@@ -1,0 +1,6 @@
+{
+  "name": "e2e.launch-boundaries",
+  "title": "E2E Launch Boundaries",
+  "description": "Fixture for Raycast launch props, image masks, and desktop boundary helpers.",
+  "commands": [{ "name": "index", "title": "Launch boundaries", "mode": "view" }]
+}

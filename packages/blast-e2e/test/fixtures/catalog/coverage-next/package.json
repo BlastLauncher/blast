@@ -1,0 +1,28 @@
+{
+  "name": "e2e.coverage-next",
+  "title": "E2E Coverage Next",
+  "author": "e2e-fixture",
+  "description": "Fixture for measured exception, action, application, legacy preference, and environment APIs.",
+  "preferences": [
+    {
+      "name": "token",
+      "title": "Token",
+      "description": "Fixture preference",
+      "type": "textfield",
+      "required": false,
+      "default": "fixture-token"
+    },
+    {
+      "name": "region",
+      "title": "Region",
+      "description": "Fixture region",
+      "type": "dropdown",
+      "required": true,
+      "data": [
+        { "title": "United States", "value": "us" },
+        { "title": "Europe", "value": "eu" }
+      ]
+    }
+  ],
+  "commands": [{ "name": "index", "title": "Coverage next", "mode": "view" }]
+}

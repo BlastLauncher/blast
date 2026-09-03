@@ -1,0 +1,35 @@
+{
+  "name": "@blastlauncher/extension-runtime-node",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Node.js extension runtime bootstrap for Blast V2",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "pnpm --filter '@blastlauncher/extension-runtime-node...' run build && node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@blastlauncher/capability": "workspace:*",
+    "@blastlauncher/extension-contract": "workspace:*",
+    "@blastlauncher/extension-runtime": "workspace:*",
+    "@blastlauncher/protocol": "workspace:*",
+    "@blastlauncher/scene": "workspace:*",
+    "@blastlauncher/session": "workspace:*",
+    "@blastlauncher/transport": "workspace:*",
+    "@blastlauncher/transport-node": "workspace:*",
+    "esbuild": "^0.28.2"
+  },
+  "devDependencies": {
+    "@blastlauncher/session": "workspace:*"
+  }
+}
