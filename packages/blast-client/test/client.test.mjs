@@ -178,6 +178,47 @@ test("consumes discovery, lifecycle, scenes, events, and toasts through one pump
   assert.equal(client.closed, true);
 });
 
+test("tracks live command subtitles and clears them with the command", async () => {
+  const client = new FakeCoreClient();
+  const controller = await startController(client);
+
+  await controller.runCommand(identity);
+  client.push(message("core.command.started", identity));
+  await flush();
+  assert.equal(controller.snapshot.activeCommandSubtitle, undefined);
+
+  client.push(message("core.command.metadata", { ...identity, subtitle: "AI ready" }));
+  await flush();
+  assert.equal(controller.snapshot.activeCommandSubtitle, "AI ready");
+
+  client.push(message("core.command.metadata", { ...identity }));
+  await flush();
+  assert.equal(controller.snapshot.activeCommandSubtitle, undefined);
+
+  client.push(message("core.command.metadata", { ...identity, subtitle: "AI ready" }));
+  await flush();
+  assert.equal(controller.snapshot.activeCommandSubtitle, "AI ready");
+
+  client.push(message("core.command.stopped", identity));
+  await flush();
+  assert.equal(controller.snapshot.activeCommandSubtitle, undefined);
+
+  await controller.close("test complete");
+});
+
+test("ignores command subtitles for inactive commands", async () => {
+  const client = new FakeCoreClient();
+  const controller = await startController(client);
+
+  client.push(
+    message("core.command.metadata", { extensionId: "other.extension", commandName: "other", subtitle: "Nope" }),
+  );
+  await flush();
+  assert.equal(controller.snapshot.activeCommandSubtitle, undefined);
+
+  await controller.close("test complete");
+});
+
 test("keeps a structured discovery failure recoverable", async () => {
   const client = new FakeCoreClient();
   const controller = new CoreClientController({ client });

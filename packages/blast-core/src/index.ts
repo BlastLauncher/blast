@@ -292,6 +292,13 @@ export interface SessionRelayOptions {
   readonly sceneSink?: SceneTransactionSink;
   /** Receives every validated `ui.toast` payload from the extension. */
   readonly toastSink?: (toast: ToastPayload) => void | Promise<void>;
+  /**
+   * Receives the latest `command.updateMetadata` subtitle after a succeeded
+   * capability execution (`null` when cleared). Denied, failed, and
+   * malformed requests never reach the sink. Presentation-only: the broker
+   * outcome remains authoritative for the extension.
+   */
+  readonly metadataSink?: (subtitle: string | null) => void | Promise<void>;
   /** Executes brokered capability requests; without a broker, requests are denied. */
   readonly capabilityBroker?: CapabilityBroker;
 }
@@ -403,6 +410,34 @@ export function relaySessionTraffic(session: ExtensionSession, options: SessionR
           }
         : await options.capabilityBroker.execute(request);
     await respond(response);
+    if (
+      options.metadataSink !== undefined &&
+      payload.capability === "command" &&
+      payload.operation === "updateMetadata" &&
+      response.outcome === "succeeded"
+    ) {
+      const subtitle = parseCommandMetadataArguments(request.arguments);
+      if (subtitle !== undefined) {
+        await options.metadataSink(subtitle);
+      }
+    }
+  }
+
+  /**
+   * Reads the presentation-only subtitle from an executed
+   * `command.updateMetadata` request. Returns `undefined` when the arguments
+   * carry no well-formed update; the broker outcome already governed the
+   * extension, so malformed chrome input is ignored rather than failing the
+   * session.
+   */
+  function parseCommandMetadataArguments(args: Readonly<Record<string, unknown>>): string | null | undefined {
+    if (typeof args.subtitle === "string") {
+      return args.subtitle;
+    }
+    if (args.clear === true) {
+      return null;
+    }
+    return undefined;
   }
 
   async function respond(response: CapabilityResponsePayload): Promise<void> {
@@ -444,6 +479,7 @@ export const CORE_COMMAND_STOPPED_MESSAGE = "core.command.stopped" as const;
 export const CORE_COMMAND_EXITED_MESSAGE = "core.command.exited" as const;
 export const CORE_COMMAND_LISTED_MESSAGE = "core.command.listed" as const;
 export const CORE_COMMAND_LIST_FAILED_MESSAGE = "core.command.list-failed" as const;
+export const CORE_COMMAND_METADATA_MESSAGE = "core.command.metadata" as const;
 
 export type CoreCommandRunPayload = CommandIdentity;
 
@@ -478,6 +514,14 @@ export interface CoreCommandListFailedPayload {
   readonly message: string;
 }
 
+/**
+ * Live subtitle for the active command, set by `command.updateMetadata` and
+ * cleared when the command stops. Absent `subtitle` means cleared.
+ */
+export interface CoreCommandMetadataPayload extends CommandIdentity {
+  readonly subtitle?: string;
+}
+
 export type CoreCommandRunMessage = ProtocolEnvelope<typeof CORE_COMMAND_RUN_MESSAGE, CoreCommandRunPayload>;
 export type CoreCommandStopMessage = ProtocolEnvelope<typeof CORE_COMMAND_STOP_MESSAGE, CoreCommandStopPayload>;
 export type CoreCommandStartedMessage = ProtocolEnvelope<
@@ -499,6 +543,10 @@ export type CoreCommandListFailedMessage = ProtocolEnvelope<
   typeof CORE_COMMAND_LIST_FAILED_MESSAGE,
   CoreCommandListFailedPayload
 >;
+export type CoreCommandMetadataMessage = ProtocolEnvelope<
+  typeof CORE_COMMAND_METADATA_MESSAGE,
+  CoreCommandMetadataPayload
+>;
 
 export type CoreClientMessage =
   | CoreCommandStartedMessage
@@ -507,6 +555,7 @@ export type CoreClientMessage =
   | CoreCommandExitedMessage
   | CoreCommandListedMessage
   | CoreCommandListFailedMessage
+  | CoreCommandMetadataMessage
   | SceneTransactionMessage
   | ToastMessage;
 
@@ -629,6 +678,8 @@ export function validateCoreClientMessage(value: unknown): ValidationResult<Core
       return validateCoreCommandListedMessage(value);
     case CORE_COMMAND_LIST_FAILED_MESSAGE:
       return validateCoreCommandListFailedMessage(value);
+    case CORE_COMMAND_METADATA_MESSAGE:
+      return validateCoreCommandMetadataMessage(value);
     case SCENE_TRANSACTION_MESSAGE:
       return validateSceneTransactionMessage(value);
     case UI_TOAST_MESSAGE:
@@ -740,6 +791,19 @@ function validateCoreCommandListFailedMessage(value: unknown): ValidationResult<
     }
     validateNonEmptyString(payload.code, `${path}.code`, issues);
     validateNonEmptyString(payload.message, `${path}.message`, issues);
+  });
+}
+
+function validateCoreCommandMetadataMessage(value: unknown): ValidationResult<CoreCommandMetadataMessage> {
+  return validateCorePayloadEnvelope(value, CORE_COMMAND_METADATA_MESSAGE, (payload, path, issues) => {
+    if (!isRecord(payload)) {
+      issues.push({ path, message: "Expected an object" });
+      return;
+    }
+    validateCommandIdentityPayload(payload, path, issues);
+    if (payload.subtitle !== undefined && typeof payload.subtitle !== "string") {
+      issues.push({ path: `${path}.subtitle`, message: "Expected a string" });
+    }
   });
 }
 
@@ -1049,6 +1113,10 @@ class AcceptedCoreClientSession implements CoreClientSession {
         publish: (transaction) => sceneGate.promise.then(() => this.#send(SCENE_TRANSACTION_MESSAGE, transaction)),
       },
       toastSink: (toast) => sceneGate.promise.then(() => this.#send(UI_TOAST_MESSAGE, toast)),
+      metadataSink: (subtitle) =>
+        sceneGate.promise.then(() =>
+          this.#send(CORE_COMMAND_METADATA_MESSAGE, subtitle === null ? { ...identity } : { ...identity, subtitle }),
+        ),
       ...(this.#capabilityBroker === undefined ? {} : { capabilityBroker: this.#capabilityBroker }),
     });
     const active: ActiveCoreCommand = {

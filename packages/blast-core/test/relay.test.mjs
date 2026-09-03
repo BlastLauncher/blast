@@ -41,7 +41,7 @@ function idFactory(prefix) {
   return () => `${prefix}-${++value}`;
 }
 
-async function createRelayHarness({ broker, sceneSink, toastSink } = {}) {
+async function createRelayHarness({ broker, sceneSink, toastSink, metadataSink } = {}) {
   const [runtimeTransport, hostTransport] = createInMemoryTransportPair();
   const runtimeSessionPromise = connectProtocolSession(runtimeTransport, {
     role: "extension-runtime",
@@ -60,7 +60,7 @@ async function createRelayHarness({ broker, sceneSink, toastSink } = {}) {
     process: { connection: runtimeTransport, completion: new Promise(() => {}), stop: async () => {} },
     protocol: hostSession,
   };
-  const relay = relaySessionTraffic(session, { sceneSink, toastSink, capabilityBroker: broker });
+  const relay = relaySessionTraffic(session, { sceneSink, toastSink, metadataSink, capabilityBroker: broker });
   return { runtimeSession, hostSession, relay };
 }
 
@@ -265,4 +265,74 @@ test("rejects invalid toast payloads and closes the session", async () => {
     (error) => error.code === "invalid_toast",
   );
   assert.equal((await runtimeSession.receive()).type, "shutdown");
+});
+
+function metadataBroker() {
+  return new CapabilityBroker({
+    policy: createGrantListPolicy([
+      { extensionId: "relay.extension", capability: "command", operation: "updateMetadata" },
+    ]),
+    providers: {
+      command: {
+        async perform() {
+          return undefined;
+        },
+      },
+    },
+  });
+}
+
+function metadataRequest(requestId, args) {
+  return {
+    requestId,
+    extensionId: "relay.extension",
+    commandName: "index",
+    capability: "command",
+    operation: "updateMetadata",
+    arguments: args,
+  };
+}
+
+test("forwards succeeded command subtitles to the metadata sink", async () => {
+  const subtitles = [];
+  const { runtimeSession, relay } = await createRelayHarness({
+    broker: metadataBroker(),
+    metadataSink: (subtitle) => subtitles.push(subtitle),
+  });
+
+  await runtimeSession.send("capability.request", metadataRequest("request-1", { subtitle: "AI ready" }));
+  assert.deepEqual((await runtimeSession.receive()).payload, { requestId: "request-1", outcome: "succeeded" });
+  await runtimeSession.send("capability.request", metadataRequest("request-2", { clear: true }));
+  assert.deepEqual((await runtimeSession.receive()).payload, { requestId: "request-2", outcome: "succeeded" });
+  await new Promise((resolve) => setTimeout(resolve, 5));
+
+  assert.deepEqual(subtitles, ["AI ready", null]);
+  await runtimeSession.close("test complete");
+  await relay.done;
+});
+
+test("never forwards denied or malformed command metadata", async () => {
+  const subtitles = [];
+  const deniedBroker = new CapabilityBroker({ providers: { command: { async perform() {} } } });
+  const denied = await createRelayHarness({
+    broker: deniedBroker,
+    metadataSink: (subtitle) => subtitles.push(subtitle),
+  });
+  await denied.runtimeSession.send("capability.request", metadataRequest("request-1", { subtitle: "AI ready" }));
+  assert.equal((await denied.runtimeSession.receive()).payload.outcome, "denied");
+  await new Promise((resolve) => setTimeout(resolve, 5));
+
+  const { runtimeSession, relay } = await createRelayHarness({
+    broker: metadataBroker(),
+    metadataSink: (subtitle) => subtitles.push(subtitle),
+  });
+  await runtimeSession.send("capability.request", metadataRequest("request-2", { subtitle: 42 }));
+  assert.equal((await runtimeSession.receive()).payload.outcome, "succeeded");
+  await new Promise((resolve) => setTimeout(resolve, 5));
+
+  assert.deepEqual(subtitles, []);
+  await denied.runtimeSession.close("test complete");
+  await denied.relay.done;
+  await runtimeSession.close("test complete");
+  await relay.done;
 });

@@ -9,6 +9,7 @@ import {
   connectCoreClient,
   CORE_COMMAND_LIST_MESSAGE,
   CORE_COMMAND_RUN_MESSAGE,
+  validateCoreClientMessage,
 } from "../dist/index.js";
 
 const identity = { extensionId: "example.extension", commandName: "index" };
@@ -311,6 +312,14 @@ test("serves path-free command discovery through the client boundary", async () 
   await client.close("test complete");
   await server.done;
   await core.close();
+});
+
+test("validates live command subtitle messages on the client boundary", () => {
+  const envelope = (payload) => ({ protocolVersion: 1, id: "core-1", type: "core.command.metadata", payload });
+
+  assert.equal(validateCoreClientMessage(envelope({ ...identity, subtitle: "AI ready" })).ok, true);
+  assert.equal(validateCoreClientMessage(envelope({ ...identity })).ok, true);
+  assert.equal(validateCoreClientMessage(envelope({ ...identity, subtitle: 42 })).ok, false);
 });
 
 test("refreshes the catalog before serving a client discovery request", async () => {

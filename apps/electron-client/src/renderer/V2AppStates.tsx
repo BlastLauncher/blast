@@ -30,6 +30,13 @@ export function V2CommandEmptyState({
   );
 }
 
+export function V2ActiveCommandSubtitle({ subtitle }: { readonly subtitle?: string }): React.JSX.Element | null {
+  if (subtitle === undefined) {
+    return null;
+  }
+  return <div className="text-xs text-blue-200/80 truncate">{subtitle}</div>;
+}
+
 export function V2StartupFailure({
   disabled,
   onRetry,

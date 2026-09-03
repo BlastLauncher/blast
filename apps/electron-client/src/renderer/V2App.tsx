@@ -6,7 +6,7 @@ import type { SceneFormValues } from "@blastlauncher/scene";
 
 import type { V2ClientRendererAPI } from "./v2Types";
 
-import { V2CommandEmptyState, V2StartupFailure } from "./V2AppStates";
+import { V2ActiveCommandSubtitle, V2CommandEmptyState, V2StartupFailure } from "./V2AppStates";
 import { V2CommandSourceBadge } from "./V2CommandSource";
 import { V2ExtensionPackageControls } from "./V2ExtensionPackageControls";
 import { V2Scene } from "./V2Scene";
@@ -202,6 +202,7 @@ export function V2App({ api }: V2AppProps): React.JSX.Element {
           <div className="text-xs text-white/50 truncate">
             {snapshot === undefined ? "Connecting to core…" : describeState(snapshot)}
           </div>
+          <V2ActiveCommandSubtitle subtitle={snapshot?.activeCommandSubtitle} />
         </div>
         {snapshot?.activeCommand !== undefined && (
           <button

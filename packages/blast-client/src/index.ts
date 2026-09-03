@@ -28,6 +28,8 @@ export interface CoreClientSnapshot {
   readonly state: CoreClientControllerState;
   readonly commands: readonly CoreCommandDescriptor[];
   readonly activeCommand?: CommandIdentity;
+  /** Live subtitle set by `command.updateMetadata`; absent when cleared or inactive. */
+  readonly activeCommandSubtitle?: string;
   readonly scene?: SceneNode;
   readonly error?: CoreClientFailure;
 }
@@ -85,6 +87,7 @@ export class CoreClientController {
   #state: CoreClientControllerState = "created";
   #commands: readonly CoreCommandDescriptor[] = [];
   #activeCommand: CommandIdentity | undefined;
+  #activeCommandSubtitle: string | undefined;
   #scene = new SceneStateBuffer();
   #error: CoreClientFailure | undefined;
   #pumpPromise: Promise<void> | undefined;
@@ -107,6 +110,7 @@ export class CoreClientController {
       state: this.#state,
       commands: [...this.#commands],
       ...(this.#activeCommand === undefined ? {} : { activeCommand: { ...this.#activeCommand } }),
+      ...(this.#activeCommandSubtitle === undefined ? {} : { activeCommandSubtitle: this.#activeCommandSubtitle }),
       ...(scene === undefined ? {} : { scene }),
       ...(this.#error === undefined ? {} : { error: { ...this.#error } }),
     };
@@ -165,6 +169,7 @@ export class CoreClientController {
     }
 
     this.#activeCommand = { ...identity };
+    this.#activeCommandSubtitle = undefined;
     this.#scene = new SceneStateBuffer();
     this.#error = undefined;
     this.#setState("starting");
@@ -287,12 +292,19 @@ export class CoreClientController {
       case "core.command.start-failed":
         if (sameIdentity(this.#activeCommand, message.payload)) {
           this.#activeCommand = undefined;
+          this.#activeCommandSubtitle = undefined;
           this.#scene = new SceneStateBuffer();
           this.#error = {
             code: message.payload.code,
             message: message.payload.message,
           };
           this.#setState("ready");
+        }
+        return;
+      case "core.command.metadata":
+        if (sameIdentity(this.#activeCommand, message.payload)) {
+          this.#activeCommandSubtitle = message.payload.subtitle;
+          this.#emit();
         }
         return;
       case "core.command.stopped":
@@ -381,6 +393,7 @@ export class CoreClientController {
 
   #clearCommand(): void {
     this.#activeCommand = undefined;
+    this.#activeCommandSubtitle = undefined;
     this.#scene = new SceneStateBuffer();
   }
 
@@ -617,6 +630,9 @@ export function serializeCoreClientSnapshot(snapshot: CoreClientSnapshot): CoreC
       state: snapshot.state,
       commands: snapshot.commands.map((command) => ({ ...command })),
       ...(snapshot.activeCommand === undefined ? {} : { activeCommand: { ...snapshot.activeCommand } }),
+      ...(snapshot.activeCommandSubtitle === undefined
+        ? {}
+        : { activeCommandSubtitle: snapshot.activeCommandSubtitle }),
       ...(snapshot.scene === undefined ? {} : { scene: snapshot.scene }),
       ...(snapshot.error === undefined
         ? {}

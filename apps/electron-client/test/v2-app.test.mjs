@@ -4,7 +4,8 @@ import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
-const { V2CommandEmptyState, V2StartupFailure } = await import("../dist/renderer/V2AppStates.js");
+const { V2ActiveCommandSubtitle, V2CommandEmptyState, V2StartupFailure } =
+  await import("../dist/renderer/V2AppStates.js");
 const { V2CommandSourceBadge } = await import("../dist/renderer/V2CommandSource.js");
 
 test("explains an empty V2 catalog and provides a refresh action", () => {
@@ -47,6 +48,14 @@ test("presents a retry action when the V2 client cannot start", () => {
   assert.match(markup, /The local core may still be starting\./);
   assert.match(markup, /Retry connection/);
   assert.match(markup, /role="status"/);
+});
+
+test("presents the live command subtitle set by updateCommandMetadata", () => {
+  const markup = renderToStaticMarkup(React.createElement(V2ActiveCommandSubtitle, { subtitle: "AI ready" }));
+  const clearedMarkup = renderToStaticMarkup(React.createElement(V2ActiveCommandSubtitle, { subtitle: undefined }));
+
+  assert.match(markup, /AI ready/);
+  assert.equal(clearedMarkup, "");
 });
 
 test("presents the source provenance label used by the command chooser", () => {

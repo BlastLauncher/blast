@@ -119,6 +119,13 @@ Probe` workflow batches failure classes with provisioning on. [ADR
   the target basename beside the action title. Activation still crosses the
   existing `open.open` capability; without a production provider it keeps the
   structured denial, and the host chooser remains follow-up provider work.
+- Live command subtitles from [ADR
+  0131](decisions/0131-command-metadata-chrome.md): succeeded
+  `command.updateMetadata` requests flow through a relay metadata sink into a
+  validated `core.command.metadata` client message; the controller tracks it
+  as session-local `activeCommandSubtitle` and the Electron header renders it
+  under the active command. Denied, failed, and malformed updates never reach
+  the chrome, and no catalog, discovery, or provider changes.
 - Extension dependency provisioning from [ADR
   0125](decisions/0125-extension-dependency-provisioning.md) is implemented:
   `@blastlauncher/extension-deps` resolves manifest runtime dependencies
