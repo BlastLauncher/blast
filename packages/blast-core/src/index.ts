@@ -423,23 +423,6 @@ export function relaySessionTraffic(session: ExtensionSession, options: SessionR
     }
   }
 
-  /**
-   * Reads the presentation-only subtitle from an executed
-   * `command.updateMetadata` request. Returns `undefined` when the arguments
-   * carry no well-formed update; the broker outcome already governed the
-   * extension, so malformed chrome input is ignored rather than failing the
-   * session.
-   */
-  function parseCommandMetadataArguments(args: Readonly<Record<string, unknown>>): string | null | undefined {
-    if (typeof args.subtitle === "string") {
-      return args.subtitle;
-    }
-    if (args.clear === true) {
-      return null;
-    }
-    return undefined;
-  }
-
   async function respond(response: CapabilityResponsePayload): Promise<void> {
     const validation = validateCapabilityResponsePayload(response);
     if (!validation.ok) {
@@ -468,6 +451,23 @@ export function relaySessionTraffic(session: ExtensionSession, options: SessionR
       // The pump error remains the primary failure.
     }
   }
+}
+
+/**
+ * Reads the presentation-only subtitle from an executed
+ * `command.updateMetadata` request. Returns `undefined` when the arguments
+ * carry no well-formed update; the broker outcome already governed the
+ * extension, so malformed chrome input is ignored rather than failing the
+ * session.
+ */
+function parseCommandMetadataArguments(args: Readonly<Record<string, unknown>>): string | null | undefined {
+  if (typeof args.subtitle === "string") {
+    return args.subtitle;
+  }
+  if (args.clear === true) {
+    return null;
+  }
+  return undefined;
 }
 
 export const CORE_COMMAND_RUN_MESSAGE = "core.command.run" as const;
