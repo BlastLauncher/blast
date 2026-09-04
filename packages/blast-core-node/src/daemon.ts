@@ -29,6 +29,8 @@ export interface NodeCoreDaemonOptions {
   /** Classifications matching `additionalCatalogRoots` by index. */
   readonly additionalCatalogRootSourceKinds?: readonly ExtensionSourceKind[];
   readonly manifestFileName?: FilesystemExtensionCatalogOptions["manifestFileName"];
+  /** Optional host-owned path for the persistent catalog manifest index. */
+  readonly catalogCachePath?: FilesystemExtensionCatalogOptions["cachePath"];
   readonly bootstrapPath: string;
   /** An explicit environment object or descriptor-based factory for children. */
   readonly environment: NodeExtensionProcessLauncherOptions["environment"];
@@ -107,6 +109,7 @@ export class NodeCoreDaemon {
         ? {}
         : { additionalRootSourceKinds: options.additionalCatalogRootSourceKinds }),
       ...(options.manifestFileName === undefined ? {} : { manifestFileName: options.manifestFileName }),
+      ...(options.catalogCachePath === undefined ? {} : { cachePath: options.catalogCachePath }),
     });
     const launcher = new NodeExtensionProcessLauncher({
       bootstrapPath: options.bootstrapPath,

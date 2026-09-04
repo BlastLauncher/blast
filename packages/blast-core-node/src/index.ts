@@ -20,6 +20,16 @@ import type {
   ExtensionPreferenceType,
 } from "@blastlauncher/extension-contract";
 
+export {
+  CATALOG_CACHE_VERSION,
+  checkCachedEntry,
+  parseCachedManifest,
+  readCatalogCache,
+  writeCatalogCache,
+} from "./extension-catalog-cache.js";
+export type { CachedExtensionEntry, CatalogCacheKey } from "./extension-catalog-cache.js";
+import type { CachedExtensionEntry } from "./extension-catalog-cache.js";
+import * as catalogCache from "./extension-catalog-cache.js";
 export { LocalCoreServer, LocalCoreServerError, createLocalCoreServer } from "./local-server.js";
 export type { LocalCoreServerOptions, LocalCoreServerState } from "./local-server.js";
 export {
@@ -92,6 +102,13 @@ export interface FilesystemExtensionCatalogOptions {
   /** Classifications matching `additionalRoots` by index. */
   readonly additionalRootSourceKinds?: readonly ExtensionSourceKind[];
   readonly manifestFileName?: string;
+  /**
+   * Optional host-owned path for the persistent manifest index. When set,
+   * cold builds reuse unchanged manifests after a manifest stat check and
+   * rewrite the index atomically with owner-only permissions. Any corrupt,
+   * versioned-out, or over-permissive cache falls back to a full scan.
+   */
+  readonly cachePath?: string;
 }
 
 export interface FilesystemExtensionCatalogWatch {
@@ -114,6 +131,7 @@ export class FilesystemExtensionCatalog implements ExtensionCatalog {
   readonly #roots: readonly string[];
   readonly #rootSourceKinds: readonly (ExtensionSourceKind | undefined)[];
   readonly #manifestFileName: string;
+  readonly #cachePath: string | undefined;
   #extensionIndex:
     | Promise<
         ReadonlyMap<
@@ -146,11 +164,15 @@ export class FilesystemExtensionCatalog implements ExtensionCatalog {
     if (options.manifestFileName !== undefined) {
       validateNonEmptyString(options.manifestFileName, "manifestFileName");
     }
+    if (options.cachePath !== undefined) {
+      validateNonEmptyString(options.cachePath, "cachePath");
+    }
     this.#roots = [options.root, ...(options.additionalRoots ?? [])].map((root) => path.resolve(root));
     this.#rootSourceKinds = this.#roots.map((_, index) =>
       index === 0 ? options.rootSourceKind : options.additionalRootSourceKinds?.[index - 1],
     );
     this.#manifestFileName = options.manifestFileName ?? DEFAULT_MANIFEST_FILE_NAME;
+    this.#cachePath = options.cachePath === undefined ? undefined : path.resolve(options.cachePath);
   }
 
   get root(): string {
@@ -383,22 +405,107 @@ export class FilesystemExtensionCatalog implements ExtensionCatalog {
       string,
       { readonly directory: string; readonly manifest: ExtensionManifest; readonly sourceKind?: ExtensionSourceKind }
     >();
+    const cached =
+      this.#cachePath === undefined
+        ? undefined
+        : await catalogCache.readCatalogCache({
+            cachePath: this.#cachePath,
+            manifestFileName: this.#manifestFileName,
+            roots: this.#roots,
+          });
+    const fresh: CachedExtensionEntry[] = [];
     for (const [rootIndex, root] of this.#roots.entries()) {
       for (const directory of await this.#listExtensionDirectories(root, rootIndex === 0)) {
-        const manifest = await this.#readManifest(path.join(directory, this.#manifestFileName));
-        if (manifest !== undefined && !index.has(manifest.name)) {
+        const found = await this.#manifestForDirectory(cached?.get(directory), directory);
+        if (found === undefined) {
+          continue;
+        }
+        fresh.push({ root, directory, ...found });
+        if (!index.has(found.manifest.name)) {
           // Roots are ordered and directories are sorted, so retaining the
           // first entry preserves deterministic duplicate-name behavior.
           const sourceKind = this.#rootSourceKinds[rootIndex];
-          index.set(manifest.name, {
+          index.set(found.manifest.name, {
             directory,
-            manifest,
+            manifest: found.manifest,
             ...(sourceKind === undefined ? {} : { sourceKind }),
           });
         }
       }
     }
+    if (this.#cachePath !== undefined) {
+      await catalogCache.writeCatalogCache(
+        { cachePath: this.#cachePath, manifestFileName: this.#manifestFileName, roots: this.#roots },
+        fresh,
+      );
+    }
     return index;
+  }
+
+  async #manifestForDirectory(
+    cached: CachedExtensionEntry | undefined,
+    directory: string,
+  ): Promise<
+    | {
+        readonly manifest: ExtensionManifest;
+        readonly manifestRaw: string;
+        readonly manifestMtimeMs: number;
+        readonly manifestSize: number;
+      }
+    | undefined
+  > {
+    if (cached !== undefined) {
+      const checked = await catalogCache.checkCachedEntry(cached, this.#manifestFileName);
+      if (checked === "fresh") {
+        const manifest = catalogCache.parseCachedManifest(cached.manifestRaw);
+        if (manifest === undefined) {
+          return undefined;
+        }
+        return {
+          manifest,
+          manifestRaw: cached.manifestRaw,
+          manifestMtimeMs: cached.manifestMtimeMs,
+          manifestSize: cached.manifestSize,
+        };
+      }
+      if (checked === "stale") {
+        return this.#readManifestWithStat(directory);
+      }
+      return undefined;
+    }
+    return this.#readManifestWithStat(directory);
+  }
+
+  async #readManifestWithStat(directory: string): Promise<
+    | {
+        readonly manifest: ExtensionManifest;
+        readonly manifestRaw: string;
+        readonly manifestMtimeMs: number;
+        readonly manifestSize: number;
+      }
+    | undefined
+  > {
+    const manifestPath = path.join(directory, this.#manifestFileName);
+    let stats;
+    try {
+      stats = await stat(manifestPath);
+    } catch {
+      return undefined;
+    }
+    if (!stats.isFile()) {
+      return undefined;
+    }
+    let raw: string;
+    try {
+      raw = await readFile(manifestPath, "utf8");
+    } catch {
+      return undefined;
+    }
+    const manifest = catalogCache.parseCachedManifest(raw);
+    if (manifest === undefined) {
+      return undefined;
+    }
+    return { manifest, manifestRaw: raw, manifestMtimeMs: stats.mtimeMs, manifestSize: stats.size };
   }
 
   async #listExtensionDirectories(root: string, required: boolean): Promise<string[]> {
@@ -426,23 +533,6 @@ export class FilesystemExtensionCatalog implements ExtensionCatalog {
       }
     }
     return directories.toSorted();
-  }
-
-  async #readManifest(manifestPath: string): Promise<ExtensionManifest | undefined> {
-    let raw: string;
-    try {
-      raw = await readFile(manifestPath, "utf8");
-    } catch {
-      return undefined;
-    }
-
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(raw);
-    } catch {
-      return undefined;
-    }
-    return parseManifest(parsed);
   }
 
   async #resolveEntrypoint(rootDirectory: string, command: ManifestCommand): Promise<string> {

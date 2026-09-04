@@ -126,6 +126,13 @@ Probe` workflow batches failure classes with provisioning on. [ADR
   as session-local `activeCommandSubtitle` and the Electron header renders it
   under the active command. Denied, failed, and malformed updates never reach
   the chrome, and no catalog, discovery, or provider changes.
+- Persistent catalog manifest index from [ADR
+  0132](decisions/0132-persistent-catalog-index.md): the filesystem catalog
+  accepts a host-owned `cachePath`, reuses unchanged manifests after a
+  manifest stat check, and rewrites the index atomically with owner-only
+  permissions; any unusable cache falls back to a full scan. The daemon
+  passes the option through and packaged Electron mode derives it next to
+  the daemon socket. No discovery, watcher, or refresh changes.
 - Extension dependency provisioning from [ADR
   0125](decisions/0125-extension-dependency-provisioning.md) is implemented:
   `@blastlauncher/extension-deps` resolves manifest runtime dependencies

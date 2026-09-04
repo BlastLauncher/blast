@@ -45,6 +45,7 @@ export async function startV2Daemon(options: V2DaemonStartOptions = {}): Promise
     catalogRoot: configuration.catalogRoot,
     bootstrapPath: configuration.bootstrapPath,
     socketPath: configuration.socketPath,
+    ...(configuration.catalogCachePath === undefined ? {} : { catalogCachePath: configuration.catalogCachePath }),
     extensionDependencies: { storeRoot: path.join(USER_DIR, "v2", "extension-deps") },
     nodeExecutable: configuration.nodeExecutable ?? nrm.nodePath,
     ...(configuration.additionalCatalogRoots === undefined

@@ -9,6 +9,8 @@ export interface V2DaemonConfiguration {
   readonly additionalCatalogRootSourceKinds?: readonly ExtensionSourceKind[];
   readonly bootstrapPath: string;
   readonly socketPath: string;
+  /** Optional host-owned path for the persistent catalog manifest index. */
+  readonly catalogCachePath?: string;
   readonly nodeExecutable?: string;
   readonly raycastApiPath?: string;
   readonly reactModulePath?: string;
@@ -74,6 +76,7 @@ export function readV2DaemonConfiguration(
       "BLAST_V2_CATALOG_ROOT",
       "BLAST_V2_BOOTSTRAP_PATH",
       "BLAST_V2_SOCKET_PATH",
+      "BLAST_V2_CATALOG_CACHE_PATH",
       "BLAST_V2_NODE_EXECUTABLE",
       "BLAST_V2_RAYCAST_API_PATH",
       "BLAST_V2_REACT_MODULE_PATH",
@@ -128,11 +131,16 @@ export function readV2DaemonConfiguration(
     environment.BLAST_V2_REACT_MODULE_PATH,
     "BLAST_V2_REACT_MODULE_PATH",
   );
+  const catalogCachePath = readOptionalAbsolutePath(
+    environment.BLAST_V2_CATALOG_CACHE_PATH,
+    "BLAST_V2_CATALOG_CACHE_PATH",
+  );
 
   return {
     catalogRoot,
     bootstrapPath,
     socketPath,
+    ...(catalogCachePath === undefined ? {} : { catalogCachePath }),
     ...(hasValue(nodeExecutable) ? { nodeExecutable } : {}),
     ...(raycastApiPath === undefined ? {} : { raycastApiPath }),
     ...(reactModulePath === undefined ? {} : { reactModulePath }),
@@ -172,6 +180,7 @@ export function createPackagedV2DaemonConfiguration(options: PackagedV2DaemonPat
     additionalCatalogRootSourceKinds: ["external", "raycast-curated"],
     bootstrapPath: path.join(options.resourcesPath, "v2-bootstrap.cjs"),
     socketPath: path.join(options.userDirectory, "v2", "core.sock"),
+    catalogCachePath: path.join(options.userDirectory, "v2", "catalog-index.json"),
     raycastApiPath: path.join(options.resourcesPath, "v2-raycast-api.cjs"),
     reactModulePath: path.join(options.resourcesPath, "react"),
   };

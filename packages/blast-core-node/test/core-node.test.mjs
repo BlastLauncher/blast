@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdirSync, mkdtempSync, rmSync, statSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -590,4 +590,128 @@ test("resolves manifest preference defaults", (context) => {
     assert.deepEqual(manifest.commands[0].preferences, { layout: "Grid" });
     assert.equal(manifest.commands[0].preferenceMetadata.layout.default, "Grid");
   });
+});
+
+function writeCachedExtension(root, directoryName, manifest) {
+  const directory = path.join(root, directoryName);
+  mkdirSync(path.join(directory, "src"), { recursive: true });
+  writeFileSync(path.join(directory, "package.json"), JSON.stringify(manifest));
+  return directory;
+}
+
+test("persists and reuses the manifest index across catalog instances", async () => {
+  const root = mkdtempSync(path.join(os.tmpdir(), "blast-catalog-cache-"));
+  try {
+    writeCachedExtension(root, "first", { name: "first", commands: [{ name: "index", title: "First" }] });
+    writeCachedExtension(root, "second", { name: "second", commands: [{ name: "index", title: "Second" }] });
+    const cachePath = path.join(root, "..", `${path.basename(root)}.index.json`);
+
+    const before = await new FilesystemExtensionCatalog({ root, cachePath }).listCommands();
+    assert.deepEqual(
+      before.map(({ extensionId, title }) => ({ extensionId, title })),
+      [
+        { extensionId: "first", title: "First" },
+        { extensionId: "second", title: "Second" },
+      ],
+    );
+    assert.equal(statSync(cachePath).mode & 0o777, 0o600);
+
+    const after = await new FilesystemExtensionCatalog({ root, cachePath }).listCommands();
+    assert.deepEqual(after, before);
+
+    rmSync(cachePath, { force: true });
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("detects changed, added, and removed extensions through the persistent index", async () => {
+  const root = mkdtempSync(path.join(os.tmpdir(), "blast-catalog-cache-refresh-"));
+  try {
+    const changedDirectory = writeCachedExtension(root, "changed", {
+      name: "changed",
+      commands: [{ name: "index", title: "Before" }],
+    });
+    const cachePath = path.join(root, "index.json");
+
+    assert.equal((await new FilesystemExtensionCatalog({ root, cachePath }).listCommands()).length, 1);
+
+    writeFileSync(
+      path.join(changedDirectory, "package.json"),
+      JSON.stringify({ name: "changed", commands: [{ name: "index", title: "After with a longer title" }] }),
+    );
+    writeCachedExtension(root, "added", { name: "added", commands: [{ name: "index" }] });
+
+    assert.deepEqual(
+      (await new FilesystemExtensionCatalog({ root, cachePath }).listCommands()).map(({ extensionId, title }) => ({
+        extensionId,
+        title,
+      })),
+      [
+        { extensionId: "added", title: undefined },
+        { extensionId: "changed", title: "After with a longer title" },
+      ],
+    );
+
+    rmSync(changedDirectory, { recursive: true, force: true });
+    assert.deepEqual(
+      (await new FilesystemExtensionCatalog({ root, cachePath }).listCommands()).map(({ extensionId }) => extensionId),
+      ["added"],
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("falls back to a full scan for unusable persistent indexes", async (context) => {
+  const root = mkdtempSync(path.join(os.tmpdir(), "blast-catalog-cache-fallback-"));
+  try {
+    writeCachedExtension(root, "only", { name: "only", commands: [{ name: "index" }] });
+
+    const cases = {
+      "corrupt JSON": "{ not json",
+      "version mismatch": JSON.stringify({
+        version: 999,
+        manifestFileName: "package.json",
+        roots: [root],
+        entries: [],
+      }),
+      "root mismatch": JSON.stringify({
+        version: 1,
+        manifestFileName: "package.json",
+        roots: ["/elsewhere"],
+        entries: [],
+      }),
+    };
+    for (const [label, content] of Object.entries(cases)) {
+      await context.test(label, async () => {
+        const cachePath = path.join(root, "index.json");
+        writeFileSync(cachePath, content);
+        assert.deepEqual(
+          (await new FilesystemExtensionCatalog({ root, cachePath }).listCommands()).map(
+            ({ extensionId }) => extensionId,
+          ),
+          ["only"],
+        );
+      });
+    }
+
+    await context.test("over-permissive cache file", async () => {
+      const cachePath = path.join(root, "index.json");
+      await new FilesystemExtensionCatalog({ root, cachePath }).listCommands();
+      chmodSync(cachePath, 0o644);
+      assert.deepEqual(
+        (await new FilesystemExtensionCatalog({ root, cachePath }).listCommands()).map(
+          ({ extensionId }) => extensionId,
+        ),
+        ["only"],
+      );
+    });
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("rejects an empty persistent index path", () => {
+  assert.throws(() => new FilesystemExtensionCatalog({ root: os.tmpdir(), cachePath: "" }));
 });

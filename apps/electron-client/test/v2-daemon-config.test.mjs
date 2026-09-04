@@ -68,6 +68,7 @@ test("derives packaged paths from the stable user and resource roots", () => {
     additionalCatalogRootSourceKinds: ["external", "raycast-curated"],
     bootstrapPath: "/opt/blast/resources/v2-bootstrap.cjs",
     socketPath: "/home/example/.blast/v2/core.sock",
+    catalogCachePath: "/home/example/.blast/v2/catalog-index.json",
     raycastApiPath: "/opt/blast/resources/v2-raycast-api.cjs",
     reactModulePath: "/opt/blast/resources/react",
   });
@@ -90,6 +91,27 @@ test("rejects V2 variables combined with the legacy mode", () => {
   assert.throws(
     () => readV2DaemonConfiguration({ BLAST_V2_MODE: "legacy", BLAST_V2_SOCKET_PATH: complete.BLAST_V2_SOCKET_PATH }),
     (error) => error instanceof V2DaemonConfigurationError && error.code === "configuration_conflict",
+  );
+  assert.throws(
+    () =>
+      readV2DaemonConfiguration({
+        BLAST_V2_MODE: "legacy",
+        BLAST_V2_CATALOG_CACHE_PATH: "/tmp/blast-v2/catalog-index.json",
+      }),
+    (error) => error instanceof V2DaemonConfigurationError && error.code === "configuration_conflict",
+  );
+});
+
+test("accepts an optional absolute catalog cache path", () => {
+  assert.equal(
+    readV2DaemonConfiguration({ ...complete, BLAST_V2_CATALOG_CACHE_PATH: "/tmp/blast-v2/catalog-index.json" })
+      .catalogCachePath,
+    "/tmp/blast-v2/catalog-index.json",
+  );
+  assert.equal(readV2DaemonConfiguration(complete).catalogCachePath, undefined);
+  assert.throws(
+    () => readV2DaemonConfiguration({ ...complete, BLAST_V2_CATALOG_CACHE_PATH: "catalog-index.json" }),
+    (error) => error instanceof V2DaemonConfigurationError && error.code === "path_not_absolute",
   );
 });
 
