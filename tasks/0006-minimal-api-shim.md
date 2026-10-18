@@ -1,7 +1,7 @@
 ---
 id: "0006"
 title: Minimal @raycast/api shim for List, ActionPanel, Action, Clipboard
-status: doing
+status: review
 milestone: M1
 depends: ["0005"]
 ---
@@ -56,6 +56,50 @@ requester.
 - Toasts, navigation, forms, hooks, preferences.
 
 ## Handoff
+
+```
+Branch/commit: t3/107d0d74 @ 0385ba6
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 1.1s (67 tests)
+Done:
+  - packages/runtime/src/api/: List (+ .Item/.Section/.EmptyView), ActionPanel
+    (+ .Section), Action, Action.CopyToClipboard, Clipboard.copy, and
+    capability.ts with setCapabilityRequester/requestCapability; exported as
+    `@blastlauncher/runtime/api`.
+  - Element-valued props render as `Slot` host children with
+    `props: { name: "<propName>" }`; convention documented in the new
+    "Scene conventions" section of docs/architecture.md.
+  - Action.CopyToClipboard defaults title to "Copy to Clipboard" and its
+    internal onAction calls Clipboard.copy(content) then onCopy?.(content);
+    Clipboard.copy maps string | number | { text } to the `clipboard.copy`
+    capability with { text: string }, other shapes reject with an
+    "unsupported content in Blast" TypeError.
+  - Tests render every component through createSceneRoot asserting scene
+    types, props, Slot placement, handler dispatch (onAction,
+    onSelectionChange, copy flow incl. failure → no onCopy), and both
+    rejection paths; all shipped symbols/props carry @covers tags
+    (9 partial components/namespace, 39 covered props, Clipboard.copy).
+  - compat/ regenerated with `bun run compat:report`
+    (non-deprecated: 40 covered, 9 partial).
+Not done / risks:
+  - scripts/compat/coverage.test.ts had an M0-era assertion that the real-run
+    coverage is exactly zero ("no product packages yet"); it is stale by
+    design now. Relaxed it to assert version 2.8.2 and
+    covered + partial + missing == 2473 (denominator guard) while keeping the
+    committed-report-matches-regeneration checks. Shared-infra edit outside
+    the task's strict scope — flagging for review.
+  - Prop types for pass-through values are widened structural minimums
+    (ImageLike, Keyboard.Shortcut) since literal unions ship with full
+    surface tasks; CapabilityRequester also accepts `undefined` so hosts can
+    uninstall.
+  - Gaps intentionally not implemented (not invented): List filtering/
+    pagination/throttle/onSearchTextChange, deprecated enableFiltering,
+    List.Item accessories/accessoryIcon/accessoryTitle/quickLook,
+    Action.Style + style prop, Clipboard clear/paste/read/readText,
+    CopyToClipboard.transient (deprecated) and CopyOptions are accepted but
+    not forwarded (capability carries { text } only), Action deprecated id.
+  - Module resolution of `@raycast/api` from extension code (task 0007) and
+    the runtime entry that installs the requester remain open.
+```
 
 ```
 Branch/commit:
