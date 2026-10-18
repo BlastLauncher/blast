@@ -67,11 +67,11 @@ diagnostics instead of ESM link errors.
 - [x] 0018 `List.Item.Detail` and `Detail.Metadata` components
 - [x] 0019 Feedback UI: showToast/Toast, showHUD, confirmAlert
 - [x] 0020 List completeness: accessories, search, dropdown, Action.Style
-- [ ] 0021 LocalStorage persistence and open()
+- [x] 0021 LocalStorage persistence and open()
 - [ ] Next: Form (TextField, Dropdown, SubmitForm); larger curated set
 
 Smoke 2026-10-18 (`compat/SMOKE.md`): 13/13 curated commands render. Coverage
-41.3% non-deprecated. Order: curated-set failures first, then highest corpus weight. Each
+45.4% non-deprecated. Order: curated-set failures first, then highest corpus weight. Each
 step is a task with `@covers` evidence.
 
 ### M4 — Desktop client
