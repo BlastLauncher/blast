@@ -6,8 +6,7 @@ files.
 
 ## Current focus
 
-M2 done. M3 — coverage to 100%: Remaining v2 blockers: Grid, closeMainWindow, menu-bar, 2 startup capability
-denials. Next batch from the usage ranking. Then
+M2 done. M3 — coverage to 100%: 0028, 0029, 0030 in parallel (usage ranking + last v2 blockers). Then
 alternate: curated failures first, else the top of "Top missing by usage" in
 `compat/COVERAGE.md`. Known gap: `List.onSearchTextChange` undeclared.
 
@@ -74,6 +73,9 @@ diagnostics instead of ESM link errors.
 - [x] 0025 CommonJS globals in bundles; clearer smoke outcomes
 - [x] 0026 getApplications, openExtensionPreferences, Clipboard read/clear
 - [x] 0027 Raycast-like assets layout; popToRoot
+- [ ] 0028 Launch props/arguments, launchCommand, closeMainWindow, Image enums
+- [ ] 0029 Grid
+- [ ] 0030 Menu-bar commands (MenuBarExtra)
 
 Smoke 2026-10-18 (`compat/SMOKE.md`, 40 extensions): 60/66 render, 1 completed.
 Coverage 52.7% non-deprecated. Order: curated-set failures first, then highest corpus weight. Each
