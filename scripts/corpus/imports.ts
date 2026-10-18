@@ -6,6 +6,9 @@ import { isBuiltin } from "node:module";
 import { isProvidedSpecifier, PROVIDED_PACKAGES } from "../../packages/host/src/dependencies.ts";
 export { PROVIDED_PACKAGES };
 
+// Stable baseline keeps the usage ranking comparable as the shared set grows.
+export const BASE_PACKAGES = ["@raycast/api", "@raycast/utils", "react"] as const;
+
 /** One source file of an extension, as read from the pinned checkout. */
 export type Source = { file: string; source: string };
 
@@ -49,7 +52,7 @@ const NPM_PACKAGE = /^(?:@[a-z0-9][a-z0-9-._~]*\/)?[a-z0-9][a-z0-9-._~]*$/;
  * npm packages imported by non-test sources. `unprovidedImports` keeps
  * specifiers because the bundler reports those; this keeps packages because
  * the dependency report sums a package's whole import surface. Relative paths,
- * the provided packages, non-npm specifiers (`node:`, `swift:`) and names npm
+ * the baseline packages, non-npm specifiers (`node:`, `swift:`) and names npm
  * would not accept are left out.
  */
 export function importedPackages(sources: Iterable<Source>): string[] {
@@ -59,7 +62,8 @@ export function importedPackages(sources: Iterable<Source>): string[] {
     for (const match of source.matchAll(IMPORT_SPECIFIER)) {
       const specifier = match[1]!;
       if (specifier.startsWith(".") || specifier.startsWith("/")) continue;
-      if (specifier.includes(":") || isProvidedSpecifier(specifier)) continue;
+      if (specifier.includes(":")) continue;
+      if (BASE_PACKAGES.some((name) => specifier === name || specifier.startsWith(`${name}/`))) continue;
       if (isBuiltin(specifier)) continue;
       const name = packageName(specifier);
       if (NPM_PACKAGE.test(name)) found.add(name);

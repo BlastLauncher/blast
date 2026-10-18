@@ -4,7 +4,7 @@
 // the most-imported packages. `scan.ts` feeds it the same pass that writes
 // `raycast-usage.json`; nothing here reads files or touches the network.
 import { isBuiltin } from "node:module";
-import { importedPackages, PROVIDED_PACKAGES, type Source } from "./imports.ts";
+import { BASE_PACKAGES, importedPackages, PROVIDED_PACKAGES, type Source } from "./imports.ts";
 import type { Manifest } from "./selection.ts";
 
 export const DEPENDENCIES_PATH = "compat/dependencies.json";
@@ -26,7 +26,7 @@ export function trackedPackage(name: string): boolean {
   return (
     !TYPES_PACKAGE.test(name) &&
     !isBuiltin(name) &&
-    !(PROVIDED_PACKAGES as readonly string[]).includes(name)
+    !(BASE_PACKAGES as readonly string[]).includes(name)
   );
 }
 
@@ -77,6 +77,8 @@ export type Dependencies = {
   extensions: number;
   /** Extensions that need no package beyond the provided set. */
   providedOnly: number;
+  /** Exact satisfaction for the host allowlist, including baseline packages. */
+  shared: { provided: string[]; satisfied: number };
   /** Providing the top `provided` importers satisfies `satisfied` extensions. */
   curve: Array<{ provided: number; satisfied: number }>;
   /** Ordering: `imported` desc, then name asc. */
@@ -105,6 +107,7 @@ export function aggregateDependencies(
   commit: string,
   extensions: ExtensionDependencies[],
   steps: readonly number[] = CURVE_STEPS,
+  provided: readonly string[] = PROVIDED_PACKAGES,
 ): Dependencies {
   const entries = new Map<string, DependencyEntry>();
   const entry = (name: string): DependencyEntry => {
@@ -141,6 +144,10 @@ export function aggregateDependencies(
     corpusCommit: commit,
     extensions: extensions.length,
     providedOnly: needs.filter((need) => need.size === 0).length,
+    shared: {
+      provided: [...new Set(provided)].toSorted(),
+      satisfied: needs.filter((need) => [...need].every((name) => provided.includes(name))).length,
+    },
     curve: steps.map((provided) => {
       const available = new Set(byImports.slice(0, provided));
       return {
@@ -161,13 +168,13 @@ function topMajor({ declared, majors }: DependencyEntry): string {
 
 /** Human summary; generated, so it must stay readable rather than exhaustive. */
 export function renderDependenciesMd(dependencies: Dependencies): string {
-  const { corpusCommit, extensions, providedOnly, curve, packages } = dependencies;
+  const { corpusCommit, extensions, providedOnly, shared, curve, packages } = dependencies;
   const shown = packages.slice(0, TOP_PACKAGES);
   return `${[
     "# Corpus dependencies",
     "",
     "What the pinned corpus needs beyond the packages Blast already provides",
-    `(\`${PROVIDED_PACKAGES.join("`, `")}\`) and Node built-ins. An extension is`,
+    `(\`${BASE_PACKAGES.join("`, `")}\`) and Node built-ins. An extension is`,
     "*satisfied* when every package it declares in `dependencies` and every",
     "package its non-test sources import is provided. `devDependencies`, test",
     "files and `@types/*` never count because they are not bundled, and a",
@@ -182,6 +189,8 @@ export function renderDependenciesMd(dependencies: Dependencies): string {
     "## Summary",
     "",
     `- ${providedOnly} of ${extensions} extensions need nothing beyond the provided set.`,
+    `- ${shared.satisfied} of ${extensions} extensions are satisfied by the current shared allowlist`,
+    `  (\`${shared.provided.join("\`, \`")}\`).`,
     `- ${packages.length} packages are declared or imported by at least one extension.`,
     "",
     "## Cumulative curve",
