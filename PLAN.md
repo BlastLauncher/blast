@@ -68,7 +68,7 @@ diagnostics instead of ESM link errors.
 - [ ] 0036 Corpus dependency usage scan
 - [ ] 0037 Shared dependency allowlist (interim, until v1)
 - [ ] 0038 Form.TagPicker, PasswordField, events and props
-- [ ] 0039 List and Grid prop completeness
+- [x] 0039 List and Grid prop completeness
 - [ ] 0040 Image, Keyboard and environment completeness
 - [x] 0041 OAuth PKCE client
 - [ ] Next: Form refs/storeValue/drafts, AI, Tool, BrowserExtension
