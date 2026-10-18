@@ -6,8 +6,7 @@ files.
 
 ## Current focus
 
-M2 done. M3 — coverage to 100%: 0022 (Form) and 0023 (curated set v2) in parallel; then work from the v2
-smoke blockers and the usage ranking. Then
+M2 done. M3 — coverage to 100%: 0024, 0025, 0026 in parallel (v2 smoke blockers). Then usage-ranked gaps. Then
 alternate: curated failures first, else the top of "Top missing by usage" in
 `compat/COVERAGE.md`. Known gap: `List.onSearchTextChange` undeclared.
 
@@ -69,10 +68,13 @@ diagnostics instead of ESM link errors.
 - [x] 0020 List completeness: accessories, search, dropdown, Action.Style
 - [x] 0021 LocalStorage persistence and open()
 - [x] 0022 Form fields, values and `Action.SubmitForm`
-- [ ] 0023 Curated set v2 (~40 commands, script-selected, incl. utils users)
+- [x] 0023 Curated set v2 (~40 commands, script-selected, incl. utils users)
+- [ ] 0024 `Cache` with per-extension support directory
+- [ ] 0025 CommonJS globals in bundles; clearer smoke outcomes
+- [ ] 0026 getApplications, openExtensionPreferences, Clipboard read/clear
 
-Smoke 2026-10-18 (`compat/SMOKE.md`): 13/13 curated commands render. Coverage
-45.4% non-deprecated. Order: curated-set failures first, then highest corpus weight. Each
+Smoke 2026-10-18 (`compat/SMOKE.md`, 40 extensions): 41/66 commands render.
+Coverage 50.8% non-deprecated. Order: curated-set failures first, then highest corpus weight. Each
 step is a task with `@covers` evidence.
 
 ### M4 — Desktop client

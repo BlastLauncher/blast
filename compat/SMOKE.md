@@ -5,7 +5,7 @@ Headless run of every command of the curated extensions at corpus commit
 defaults. Regenerate with `bun run corpus:smoke` (network required; not
 part of `bun run verify`).
 
-66 commands: rendered 35, bundle-failed 0, crashed 2, timeout 0, unsupported-mode 2, unsupported-api 27.
+66 commands: rendered 41, bundle-failed 0, crashed 2, timeout 0, unsupported-mode 2, unsupported-api 21.
 
 | Command                                                          | Mode     | Outcome          | Detail                                                     |
 | ---------------------------------------------------------------- | -------- | ---------------- | ---------------------------------------------------------- |
@@ -35,21 +35,21 @@ part of `bun run verify`).
 | `google-maps-search/find`                                        | view     | rendered         | 4 nodes, root Navigation                                   |
 | `google-maps-search/quickSearchMaps`                             | no-view  | unsupported-mode | command mode "no-view" completed without rendering a scene |
 | `google-maps-search/travelHome`                                  | no-view  | crashed          | code 1; Capability denied: open.url                        |
-| `google-maps-search/travelTo`                                    | view     | unsupported-api  | Form                                                       |
+| `google-maps-search/travelTo`                                    | view     | rendered         | 18 nodes, root Navigation                                  |
 | `invisible-text-detector/analyze-clipboard-invisible-characters` | no-view  | unsupported-api  | Clipboard.readText                                         |
 | `invisible-text-detector/fix-invisible-characters`               | no-view  | rendered         | 3 nodes, root Navigation                                   |
-| `invisible-text-detector/open-invisible-text-detector`           | view     | unsupported-api  | Form                                                       |
-| `laravel-shift/generate-shift`                                   | view     | unsupported-api  | Form                                                       |
+| `invisible-text-detector/open-invisible-text-detector`           | view     | rendered         | 32 nodes, root Navigation                                  |
+| `laravel-shift/generate-shift`                                   | view     | rendered         | 59 nodes, root Navigation                                  |
 | `markdown-reference/markdown-reference`                          | view     | rendered         | 63 nodes, root Navigation                                  |
 | `menucloak/open-settings`                                        | no-view  | unsupported-api  | getApplications                                            |
-| `menucloak/set-focus`                                            | view     | unsupported-api  | Form                                                       |
+| `menucloak/set-focus`                                            | view     | rendered         | 7 nodes, root Navigation                                   |
 | `menucloak/toggle`                                               | no-view  | unsupported-api  | getApplications                                            |
 | `menucloak/turn-off`                                             | no-view  | unsupported-api  | getApplications                                            |
 | `menucloak/turn-on`                                              | no-view  | unsupported-api  | getApplications                                            |
 | `mise-window-sets/apply-set`                                     | view     | unsupported-api  | Cache                                                      |
 | `mise-window-sets/reload-sets`                                   | no-view  | rendered         | 3 nodes, root Navigation                                   |
 | `nano-games/play-nano-snake`                                     | view     | unsupported-api  | Cache                                                      |
-| `nterm-calculator/nterm-calculator`                              | view     | unsupported-api  | Form                                                       |
+| `nterm-calculator/nterm-calculator`                              | view     | rendered         | 39 nodes, root Navigation                                  |
 | `ohmyzsh-git-alias/index`                                        | view     | rendered         | 1632 nodes, root Navigation                                |
 | `one-thing/remove-one-thing`                                     | no-view  | unsupported-api  | Cache                                                      |
 | `one-thing/set-one-thing`                                        | view     | unsupported-api  | Cache                                                      |
@@ -65,7 +65,7 @@ part of `bun run verify`).
 | `radix/themes`                                                   | view     | rendered         | 429 nodes, root Navigation                                 |
 | `ratio-calculator/calculate-ratio`                               | view     | rendered         | 4 nodes, root Navigation                                   |
 | `raytyping/raytype`                                              | view     | rendered         | 15 nodes, root Navigation                                  |
-| `rtl-reader/rtl-text`                                            | view     | unsupported-api  | Form                                                       |
+| `rtl-reader/rtl-text`                                            | view     | rendered         | 9 nodes, root Navigation                                   |
 | `spacejump/list-spaces`                                          | view     | rendered         | 3 nodes, root Navigation                                   |
 | `spacejump/switch-space`                                         | view     | rendered         | 3 nodes, root Navigation                                   |
 | `storybook-sandboxes/local`                                      | view     | unsupported-api  | openExtensionPreferences                                   |
@@ -89,25 +89,19 @@ part of `bun run verify`).
 - `google-maps-search/quickSearchMaps` (unsupported-mode): command mode "no-view" completed without rendering a scene
 - `google-maps-search/travelHome` (crashed): code 1; Capability denied: open.url
   - log: RUNTIME_ERROR: Capability denied: open.url
-- `google-maps-search/travelTo` (unsupported-api): Form
 - `invisible-text-detector/analyze-clipboard-invisible-characters` (unsupported-api): Clipboard.readText
-- `invisible-text-detector/open-invisible-text-detector` (unsupported-api): Form
-- `laravel-shift/generate-shift` (unsupported-api): Form
 - `menucloak/open-settings` (unsupported-api): getApplications
-- `menucloak/set-focus` (unsupported-api): Form
 - `menucloak/toggle` (unsupported-api): getApplications
 - `menucloak/turn-off` (unsupported-api): getApplications
 - `menucloak/turn-on` (unsupported-api): getApplications
 - `mise-window-sets/apply-set` (unsupported-api): Cache
 - `nano-games/play-nano-snake` (unsupported-api): Cache
-- `nterm-calculator/nterm-calculator` (unsupported-api): Form
 - `one-thing/remove-one-thing` (unsupported-api): Cache
 - `one-thing/set-one-thing` (unsupported-api): Cache
 - `one-thing/show-one-thing` (unsupported-mode): command mode "menu-bar" is not supported
 - `pinch-svg/grid` (unsupported-api): Grid
 - `portless/list` (unsupported-api): Cache
 - `promptty/search-promptty` (unsupported-api): Cache
-- `rtl-reader/rtl-text` (unsupported-api): Form
 - `storybook-sandboxes/local` (unsupported-api): openExtensionPreferences
 - `storybook-sandboxes/online` (unsupported-api): openExtensionPreferences
 - `windows-domain/my-user` (unsupported-api): Cache

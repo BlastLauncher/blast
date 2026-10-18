@@ -1,12 +1,12 @@
 {
   "commit": "3b812d1e153a1862df29bc8ec34e170c728512ea",
   "totals": {
-    "rendered": 35,
+    "rendered": 41,
     "bundle-failed": 0,
     "crashed": 2,
     "timeout": 0,
     "unsupported-mode": 2,
-    "unsupported-api": 27
+    "unsupported-api": 21
   },
   "results": [
     {
@@ -226,9 +226,9 @@
       "extension": "google-maps-search",
       "command": "travelTo",
       "mode": "view",
-      "outcome": "unsupported-api",
-      "path": "Form",
-      "error": "Unsupported API in Blast: Form"
+      "outcome": "rendered",
+      "nodes": 18,
+      "rootType": "Navigation"
     },
     {
       "extension": "invisible-text-detector",
@@ -250,17 +250,17 @@
       "extension": "invisible-text-detector",
       "command": "open-invisible-text-detector",
       "mode": "view",
-      "outcome": "unsupported-api",
-      "path": "Form",
-      "error": "Unsupported API in Blast: Form"
+      "outcome": "rendered",
+      "nodes": 32,
+      "rootType": "Navigation"
     },
     {
       "extension": "laravel-shift",
       "command": "generate-shift",
       "mode": "view",
-      "outcome": "unsupported-api",
-      "path": "Form",
-      "error": "Unsupported API in Blast: Form"
+      "outcome": "rendered",
+      "nodes": 59,
+      "rootType": "Navigation"
     },
     {
       "extension": "markdown-reference",
@@ -282,9 +282,9 @@
       "extension": "menucloak",
       "command": "set-focus",
       "mode": "view",
-      "outcome": "unsupported-api",
-      "path": "Form",
-      "error": "Unsupported API in Blast: Form"
+      "outcome": "rendered",
+      "nodes": 7,
+      "rootType": "Navigation"
     },
     {
       "extension": "menucloak",
@@ -338,9 +338,9 @@
       "extension": "nterm-calculator",
       "command": "nterm-calculator",
       "mode": "view",
-      "outcome": "unsupported-api",
-      "path": "Form",
-      "error": "Unsupported API in Blast: Form"
+      "outcome": "rendered",
+      "nodes": 39,
+      "rootType": "Navigation"
     },
     {
       "extension": "ohmyzsh-git-alias",
@@ -465,9 +465,9 @@
       "extension": "rtl-reader",
       "command": "rtl-text",
       "mode": "view",
-      "outcome": "unsupported-api",
-      "path": "Form",
-      "error": "Unsupported API in Blast: Form"
+      "outcome": "rendered",
+      "nodes": 9,
+      "rootType": "Navigation"
     },
     {
       "extension": "spacejump",
