@@ -1,0 +1,9 @@
+{
+  "name": "selection",
+  "commands": [
+    {
+      "name": "index",
+      "mode": "view"
+    }
+  ]
+}

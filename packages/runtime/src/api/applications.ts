@@ -11,7 +11,7 @@ export type ApplicationPath = string | Buffer | URL;
 /** Fields other than the required `name` and `path`. */
 const OPTIONAL_FIELDS = ["localizedName", "bundleId", "windowsAppId"] as const;
 
-function pathParam(path: ApplicationPath, api: string): string {
+export function pathParam(path: ApplicationPath, api: string): string {
   if (typeof path !== "string" && !(path instanceof URL) && !Buffer.isBuffer(path)) {
     throw new TypeError(`${api}: path must be a string, Buffer or URL`);
   }
@@ -22,7 +22,7 @@ function pathParam(path: ApplicationPath, api: string): string {
 
 // The host is another process: rebuild each application from the declared
 // fields rather than trusting whatever shape arrived on the wire.
-function toApplication(value: JsonValue): Application {
+export function toApplication(value: JsonValue, api = "getApplications"): Application {
   if (
     typeof value !== "object" ||
     value === null ||
@@ -30,7 +30,7 @@ function toApplication(value: JsonValue): Application {
     typeof value.name !== "string" ||
     typeof value.path !== "string"
   ) {
-    throw new TypeError("getApplications: the host returned an invalid Application");
+    throw new TypeError(`${api}: the host returned an invalid Application`);
   }
   const application: Application = { name: value.name, path: value.path };
   for (const field of OPTIONAL_FIELDS) {
@@ -47,5 +47,5 @@ export async function getApplications(path?: ApplicationPath): Promise<Applicati
   if (!Array.isArray(value)) {
     throw new TypeError("getApplications: the host returned a non-array");
   }
-  return value.map(toApplication);
+  return value.map((item) => toApplication(item));
 }

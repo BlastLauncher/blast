@@ -38,7 +38,6 @@ test("every value-level top-level inventory symbol is exported; types are absent
 test("top-level, nested and partially implemented component stubs name the exact path", () => {
   for (const [component, path] of [
     [api.WindowManagement, "WindowManagement"],
-    [api.Form.FilePicker!, "Form.FilePicker"],
     [api.Action.Open!, "Action.Open"],
     [withUnsupported("ActionPanel", implemented.ActionPanel).Submenu!, "ActionPanel.Submenu"],
   ] as const) {
@@ -51,11 +50,11 @@ test("top-level, nested and partially implemented component stubs name the exact
 });
 
 test("sync and promise-returning APIs throw structured errors when called", async () => {
-  unsupported(() => api.getSelectedFinderItems(), "getSelectedFinderItems");
-  unsupported(() => api.showInFinder("/tmp/report.pdf"), "showInFinder");
-  await expect((async () => api.getSelectedText())()).rejects.toMatchObject({
+  unsupported(() => api.getDefaultApplication("/tmp/file"), "getDefaultApplication");
+  unsupported(() => api.clearSearchBar(), "clearSearchBar");
+  await expect((async () => api.getDefaultApplication("/tmp/file"))()).rejects.toMatchObject({
     code: "UNSUPPORTED_API",
-    path: "getSelectedText",
+    path: "getDefaultApplication",
   });
 });
 

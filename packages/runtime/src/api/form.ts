@@ -53,6 +53,12 @@ export interface FormCheckboxProps extends FormItemProps<boolean> {
 }
 /** `Form.DatePicker.Type`: what a date picker lets the user pick. */
 export { DatePickerType };
+export interface FormFilePickerProps extends FormItemProps<string[]> {
+  allowMultipleSelection?: boolean;
+  canChooseDirectories?: boolean;
+  canChooseFiles?: boolean;
+  showHiddenFiles?: boolean;
+}
 export interface FormDatePickerProps extends FormItemProps<Date | null> {
   type?: (typeof DatePickerType)[keyof typeof DatePickerType];
   min?: Date;
@@ -84,7 +90,7 @@ export interface FormDescriptionProps {
 type Fields = Map<string, () => FormValue>;
 const FormContext = createContext<Fields | null>(null);
 
-function Field<T extends string | boolean | Date | null>({
+function Field<T extends string | string[] | boolean | Date | null>({
   kind,
   initial,
   ...props
@@ -140,6 +146,17 @@ const DatePicker = Object.assign(
   },
   { Type: DatePickerType },
 );
+function FilePicker(props: FormFilePickerProps) {
+  return createElement(Field<string[]>, {
+    allowMultipleSelection: true,
+    canChooseDirectories: false,
+    canChooseFiles: true,
+    showHiddenFiles: false,
+    ...props,
+    kind: "FilePicker",
+    initial: [],
+  });
+}
 function firstValue(children: ReactNode): string | undefined {
   for (const child of Children.toArray(children)) {
     if (!isValidElement<{ value?: string; children?: ReactNode }>(child)) continue;
@@ -176,6 +193,7 @@ export const Form = Object.assign(
     );
   },
   {
+    FilePicker,
     TextField,
     TextArea,
     Checkbox,

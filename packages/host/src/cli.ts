@@ -57,6 +57,10 @@ Options:
   --clipboard <text>    Answer Clipboard.read/readText with <text> at offset 0
                         and an empty text at older offsets. Defaults to an
                         empty text. No real clipboard is touched.
+  --selected-text <text> Answer getSelectedText; rejects when omitted or empty.
+  --selected-files <path> Answer getSelectedFinderItems (repeatable; default: []).
+  --frontmost <bundleId> Answer getFrontmostApplication from --applications,
+                        or with that identifier and an empty path (default: Headless).
   --data-dir <dir>      Root directory for LocalStorage (default:
                         "$XDG_DATA_HOME/blast"); the command's values are kept
                         in <dir>/storage/<extension>.json.
@@ -69,8 +73,9 @@ Options:
 
 Capabilities a headless run always answers: applications.list
 (--applications), clipboard.read (--clipboard), preferences.open and
-command.metadata (printed like any other capability). clipboard.paste and clipboard.clear still need
---grant.
+selection.text, selection.files, applications.frontmost and command.metadata
+(printed like any other capability). clipboard.paste and clipboard.clear still need
+--grant; finder.show and trash also require --grant.
 
 Script commands (one per line, "#" starts a comment):
   action <title>  Dispatch an Action or menu item with that title.
@@ -83,7 +88,8 @@ Script commands (one per line, "#" starts a comment):
                   with the value.
   wait            Wait until the next scene is published.
   expect <text>   Fail (exit 1) unless the latest scene tree contains the text.
-  field <id> <value>  Edit a Form field (checkbox values: true/false; dates: ISO).
+  field <id> <value>  Edit a Form field (checkbox values: true/false; dates: ISO;
+                     file pickers: comma-separated paths; omit value to clear).
   submit          Run the first Action.SubmitForm.
   quit            Shut down and finish with exit code 0.
 
@@ -219,9 +225,13 @@ function parseScript(source: string): Step[] {
         break;
       case "field": {
         const split = rest.indexOf(" ");
-        if (split < 1)
+        if (rest === "")
           throw new ScriptError(`script line ${index + 1}: field needs an id and value`);
-        steps.push({ op: "field", id: rest.slice(0, split), value: rest.slice(split + 1) });
+        steps.push({
+          op: "field",
+          id: split === -1 ? rest : rest.slice(0, split),
+          value: split === -1 ? "" : rest.slice(split + 1),
+        });
         break;
       }
       case "submit":
@@ -356,7 +366,15 @@ async function runScript(session: Session, steps: Step[]): Promise<void> {
         if (step.op === "field") {
           if (node.type === "Form.Checkbox" && !["true", "false"].includes(step.value))
             throw new ScriptError("checkbox field value must be true or false");
-          args = [node.type === "Form.Checkbox" ? step.value === "true" : step.value];
+          const value =
+            node.type === "Form.FilePicker"
+              ? step.value === ""
+                ? []
+                : step.value.split(",")
+              : node.type === "Form.Checkbox"
+                ? step.value === "true"
+                : step.value;
+          args = [value];
         }
         session.sendEvent(node.id, handler.$handler, args);
         break;
@@ -411,6 +429,9 @@ type RunOptions = {
   grants: string[];
   applications: Application[] | undefined;
   clipboard: string | undefined;
+  selectedText: string | undefined;
+  selectedFiles: string[];
+  frontmost: string | undefined;
   dataDir: string;
   scriptSource: string | undefined;
   json: boolean;
@@ -520,6 +541,9 @@ async function run(options: RunOptions): Promise<number> {
       ...createHeadlessHandlers({
         applications: options.applications,
         clipboard: options.clipboard,
+        selectedText: options.selectedText,
+        selectedFiles: options.selectedFiles,
+        frontmost: options.frontmost,
       }),
       ...createStorageHandlers({ extensionName: bundled.extensionName, dataDir: options.dataDir }),
     };
@@ -575,6 +599,9 @@ function parseArguments(argv: string[]) {
         grant: { type: "string", multiple: true },
         applications: { type: "string" },
         clipboard: { type: "string" },
+        "selected-text": { type: "string" },
+        "selected-files": { type: "string", multiple: true },
+        frontmost: { type: "string" },
         "data-dir": { type: "string" },
         script: { type: "string" },
         json: { type: "boolean" },
@@ -657,6 +684,9 @@ async function main(argv: string[]): Promise<number> {
     applications:
       applicationsPath === undefined ? undefined : await readApplications(applicationsPath),
     clipboard: parsed.values.clipboard,
+    selectedText: parsed.values["selected-text"],
+    selectedFiles: parsed.values["selected-files"] ?? [],
+    frontmost: parsed.values.frontmost,
     dataDir: dataDir ?? defaultDataDir(),
     scriptSource: script === undefined ? undefined : await readScript(script),
     json: parsed.values.json === true,

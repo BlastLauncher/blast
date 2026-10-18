@@ -1,4 +1,4 @@
-import { getSelectedText } from "@raycast/api";
+import { getDefaultApplication } from "@raycast/api";
 export default async function Command() {
-  return getSelectedText();
+  return getDefaultApplication("/tmp/report.pdf");
 }

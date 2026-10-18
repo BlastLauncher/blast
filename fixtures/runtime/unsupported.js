@@ -1,8 +1,8 @@
-import { Action, Form, List, showInFinder } from "@raycast/api";
+import { Action, List, WindowManagement, getDefaultApplication } from "@raycast/api";
 import { createElement } from "react";
 
 export default function Command() {
-  return createElement(Form.FilePicker);
+  return createElement(WindowManagement);
 }
 export function EventCommand() {
   return createElement(
@@ -10,11 +10,11 @@ export function EventCommand() {
     null,
     createElement(Action, {
       title: "Unsupported sync",
-      onAction: () => showInFinder("/tmp/report.pdf"),
+      onAction: () => getDefaultApplication("/tmp/report.pdf"),
     }),
     createElement(Action, {
       title: "Unsupported async",
-      onAction: async () => showInFinder("/tmp/report.pdf"),
+      onAction: async () => getDefaultApplication("/tmp/report.pdf"),
     }),
   );
 }
