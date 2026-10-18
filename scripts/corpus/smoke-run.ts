@@ -45,10 +45,13 @@ const MAX_WARNINGS = 5;
 const MAX_ERROR_LOGS = 3;
 
 /**
- * First non-null scene, exit, or timeout — whichever comes first. The probe
- * keeps raw messages; sanitation happens once, when the result is built.
+ * First non-null scene, first empty menu bar, exit, or timeout — whichever comes
+ * first. A menu-bar command that renders `null` publishes a scene with no root,
+ * which Raycast shows as an empty menu bar (task 0033); every other mode keeps
+ * waiting for a root. The probe keeps raw messages; sanitation happens once,
+ * when the result is built.
  */
-function firstSceneOrExit(session: Session, timeoutMs: number): Promise<ProbeResult> {
+function firstSceneOrExit(session: Session, timeoutMs: number, mode: string): Promise<ProbeResult> {
   return new Promise((resolve) => {
     let settled = false;
     let unsubscribe: (() => void) | undefined;
@@ -67,6 +70,8 @@ function firstSceneOrExit(session: Session, timeoutMs: number): Promise<ProbeRes
           nodeCount: countNodes(scene.root),
           rootType: scene.root.type,
         });
+      } else if (mode === "menu-bar") {
+        finish({ kind: "empty-menu-bar" });
       }
     });
     void session.exited.then((exit) => {
@@ -150,7 +155,7 @@ async function runOne(
         [],
       );
     }
-    const probe = await firstSceneOrExit(session, SCENE_TIMEOUT_MS);
+    const probe = await firstSceneOrExit(session, SCENE_TIMEOUT_MS, mode);
     const warnings = logLines(session, "warn", clean);
     const errorLogs = logLines(session, "error", clean);
     return build(probe, warnings, errorLogs);

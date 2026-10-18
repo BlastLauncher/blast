@@ -41,7 +41,27 @@
     "pinch-svg",
     "vim-bro",
     "ego-lite",
-    "windows-domain"
+    "windows-domain",
+    "pbr-assistant",
+    "random-color",
+    "tiny-tycho",
+    "sf-symbols-search",
+    "rectangle",
+    "timezone-buddy",
+    "convert-px-to-vw-vh",
+    "leap-new",
+    "clocky-time-tracker",
+    "punch-clock",
+    "quick-jump",
+    "multi-ai-chat",
+    "mealie",
+    "appgrid",
+    "melanite-search",
+    "color-studio-picker",
+    "fix-helper",
+    "text-decorator",
+    "cangjie",
+    "input-source-switcher"
   ],
   "selection": {
     "criteria": {
@@ -55,7 +75,8 @@
         "child_process",
         "applescript",
         "filesystem-write",
-        "native-module"
+        "native-module",
+        "unprovided-import"
       ],
       "preferred": "no network access (fetch, axios, http(s), useFetch, useStreamJSON)",
       "order": "sha256(name) ascending; candidates without network access are picked first",
@@ -63,13 +84,23 @@
         "form": 10,
         "detail": 10,
         "utils": 10,
-        "list-only": 10
+        "list-only": 10,
+        "grid": 5,
+        "menu-bar": 5,
+        "action-variants": 5,
+        "selection-apis": 5
+      },
+      "featureStrata": {
+        "grid": "<Grid",
+        "menu-bar": "<MenuBarExtra",
+        "action-variants": "ActionPanel.Submenu, or an Action.* variant beyond CopyToClipboard/OpenInBrowser/Paste/Push",
+        "selection-apis": "Form.FilePicker, getSelectedText or getSelectedFinderItems"
       },
       "scan": {
         "batch": 64,
         "cap": 768
       },
-      "note": "the list-only quota is already met by the extensions kept from the first curated set"
+      "note": "the list-only quota is already met by the extensions kept from the first curated set; the first four strata keep the first 40 picks unchanged"
     },
     "strata": {
       "form": [
@@ -119,9 +150,37 @@
         "biaodian",
         "markdown-reference",
         "conventional-commits"
+      ],
+      "grid": [
+        "pbr-assistant",
+        "random-color",
+        "tiny-tycho",
+        "sf-symbols-search",
+        "rectangle"
+      ],
+      "menu-bar": [
+        "timezone-buddy",
+        "convert-px-to-vw-vh",
+        "leap-new",
+        "clocky-time-tracker",
+        "punch-clock"
+      ],
+      "action-variants": [
+        "quick-jump",
+        "multi-ai-chat",
+        "mealie",
+        "appgrid",
+        "melanite-search"
+      ],
+      "selection-apis": [
+        "color-studio-picker",
+        "fix-helper",
+        "text-decorator",
+        "cangjie",
+        "input-source-switcher"
       ]
     },
     "scanned": 768,
-    "eligible": 458
+    "eligible": 441
   }
 }

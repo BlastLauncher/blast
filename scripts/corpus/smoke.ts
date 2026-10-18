@@ -22,6 +22,7 @@ export type Json = string | number | boolean | null | Json[] | { [key: string]: 
 export type ProbeResult =
   | { kind: "bundle-failed"; error?: string; missing?: string[] }
   | { kind: "scene"; nodeCount: number; rootType: string }
+  | { kind: "empty-menu-bar" }
   | {
       kind: "exit";
       code: number | null;
@@ -43,6 +44,8 @@ export type CommandResult = {
   /** Rendered: nodes in the first scene and the root node's type. */
   nodes?: number | undefined;
   rootType?: string | undefined;
+  /** Rendered with no root node: a menu-bar command that shows nothing. */
+  empty?: true | undefined;
   /** Bundle-failed with a MISSING_DEPENDENCY error: the absent package names. */
   missing?: string[] | undefined;
   /** Bundle-failed esbuild message, or the crash error. */
@@ -183,6 +186,10 @@ export function buildResult(input: BuildInput): CommandResult {
   switch (probe.kind) {
     case "scene":
       return set({ outcome: "rendered", nodes: probe.nodeCount, rootType: probe.rootType });
+    case "empty-menu-bar":
+      // Raycast shows an empty menu bar when the command renders null, so this
+      // is a rendered command, not a timeout.
+      return set({ outcome: "rendered", empty: true });
     case "bundle-failed":
       return set({
         outcome: "bundle-failed",
@@ -261,7 +268,9 @@ function detail(result: CommandResult): string {
   const warnings = result.warnings === undefined ? "" : `; ${result.warnings.length} warning(s)`;
   switch (result.outcome) {
     case "rendered":
-      return `${result.nodes} nodes, root ${result.rootType}${warnings}`;
+      return `${
+        result.empty === true ? "empty menu bar" : `${result.nodes} nodes, root ${result.rootType}`
+      }${warnings}`;
     case "bundle-failed":
       return `${result.missing ? `missing ${result.missing.join(", ")}` : result.error}${warnings}`;
     case "crashed":

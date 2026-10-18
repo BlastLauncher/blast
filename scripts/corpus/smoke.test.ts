@@ -71,6 +71,20 @@ test("a first scene renders with node count and root type", () => {
   });
 });
 
+test("a menu-bar command that renders an empty scene counts as rendered", () => {
+  const empty = result({ kind: "empty-menu-bar" }, "menu-bar");
+  expect(empty).toMatchObject({ outcome: "rendered", empty: true });
+  const report = buildReport("pinned", [empty]);
+  expect(report.totals.rendered).toBe(1);
+  expect(report.totals.timeout).toBe(0);
+  expect(renderJsonReport(report)).toContain('"empty": true');
+  expect(renderMarkdownReport(report)).toContain(
+    "| `ext/index` | menu-bar | rendered | empty menu bar |",
+  );
+  // It is a success, so the report has no failure section for it.
+  expect(renderMarkdownReport(report)).not.toContain("## Failures");
+});
+
 test("bundle failures separate missing dependencies from other errors", () => {
   expect(result({ kind: "bundle-failed", missing: ["a", "b"] })).toMatchObject({
     outcome: "bundle-failed",

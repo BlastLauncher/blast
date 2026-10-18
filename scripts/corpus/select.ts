@@ -24,6 +24,7 @@ import {
   manifestRejections,
   KEPT_CURATED,
   offlineQuotasMet,
+  PICK_STRATA,
   rank,
   renderPin,
   SCAN_BATCH,
@@ -121,8 +122,11 @@ function main(): void {
 
   const stats = { scanned: analyzed.length, eligible: analyzed.filter(eligible).length };
   writeFileSync(join(root, "compat/corpus.json"), renderPin(pin, selection, stats));
+  const counts = PICK_STRATA.map((stratum) => `${stratum} ${selection.picks[stratum].length}`).join(
+    ", ",
+  );
   console.log(
-    `corpus:select: ${selection.curated.length} curated extensions (${stats.scanned} scanned, ${stats.eligible} eligible); form ${selection.picks.form.length}, detail ${selection.picks.detail.length}, utils ${selection.picks.utils.length}`,
+    `corpus:select: ${selection.curated.length} curated extensions (${stats.scanned} scanned, ${stats.eligible} eligible); ${counts}`,
   );
 
   // The kept set is fixed and never re-selected; this only records how the

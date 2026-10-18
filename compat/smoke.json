@@ -1,14 +1,14 @@
 {
   "commit": "3b812d1e153a1862df29bc8ec34e170c728512ea",
   "totals": {
-    "rendered": 62,
+    "rendered": 143,
     "completed": 1,
-    "capability-denied": 2,
+    "capability-denied": 4,
     "bundle-failed": 0,
     "crashed": 0,
-    "timeout": 1,
+    "timeout": 0,
     "unsupported-mode": 0,
-    "unsupported-api": 0
+    "unsupported-api": 1
   },
   "results": [
     {
@@ -25,6 +25,14 @@
       "mode": "view",
       "outcome": "rendered",
       "nodes": 273,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "appgrid",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 17,
       "rootType": "Navigation"
     },
     {
@@ -60,6 +68,14 @@
       "rootType": "Navigation"
     },
     {
+      "extension": "cangjie",
+      "command": "cangjie",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 8,
+      "rootType": "Navigation"
+    },
+    {
       "extension": "chakra-ui-docs",
       "command": "components",
       "mode": "view",
@@ -92,11 +108,75 @@
       "rootType": "Navigation"
     },
     {
+      "extension": "clocky-time-tracker",
+      "command": "clock-in",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 6,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "clocky-time-tracker",
+      "command": "clock-out",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 6,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "clocky-time-tracker",
+      "command": "history",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 7,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "clocky-time-tracker",
+      "command": "status",
+      "mode": "menu-bar",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "MenuBarExtra"
+    },
+    {
+      "extension": "clocky-time-tracker",
+      "command": "today",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 10,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "clocky-time-tracker",
+      "command": "toggle-pause",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 6,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "clocky-time-tracker",
+      "command": "week",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 49,
+      "rootType": "Navigation"
+    },
+    {
       "extension": "code-review-emojis",
       "command": "index",
       "mode": "view",
       "outcome": "rendered",
       "nodes": 88,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "color-studio-picker",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 716,
       "rootType": "Navigation"
     },
     {
@@ -113,6 +193,38 @@
       "mode": "view",
       "outcome": "rendered",
       "nodes": 47,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "convert-px-to-vw-vh",
+      "command": "height",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "convert-px-to-vw-vh",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 27,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "convert-px-to-vw-vh",
+      "command": "menu-bar",
+      "mode": "menu-bar",
+      "outcome": "rendered",
+      "nodes": 5,
+      "rootType": "MenuBarExtra"
+    },
+    {
+      "extension": "convert-px-to-vw-vh",
+      "command": "width",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 3,
       "rootType": "Navigation"
     },
     {
@@ -188,6 +300,22 @@
       "rootType": "Navigation"
     },
     {
+      "extension": "fix-helper",
+      "command": "fix-parser",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 9,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "fix-helper",
+      "command": "fix-search-tags",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3253,
+      "rootType": "Navigation"
+    },
+    {
       "extension": "google-cloud-run",
       "command": "index",
       "mode": "view",
@@ -227,6 +355,22 @@
       "rootType": "Navigation"
     },
     {
+      "extension": "input-source-switcher",
+      "command": "form",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 17,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "input-source-switcher",
+      "command": "index",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
       "extension": "invisible-text-detector",
       "command": "analyze-clipboard-invisible-characters",
       "mode": "no-view",
@@ -259,11 +403,75 @@
       "rootType": "Navigation"
     },
     {
+      "extension": "leap-new",
+      "command": "generate-app",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 29,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "leap-new",
+      "command": "menu-bar",
+      "mode": "menu-bar",
+      "outcome": "rendered",
+      "nodes": 5,
+      "rootType": "MenuBarExtra"
+    },
+    {
       "extension": "markdown-reference",
       "command": "markdown-reference",
       "mode": "view",
       "outcome": "rendered",
       "nodes": 63,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "mealie",
+      "command": "add-to-shopping-list",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 7,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "mealie",
+      "command": "import-recipe",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 7,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "mealie",
+      "command": "meal-plan",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 7,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "mealie",
+      "command": "search-recipes",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 7,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "mealie",
+      "command": "shopping-lists",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 7,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "melanite-search",
+      "command": "search-files",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 7,
       "rootType": "Navigation"
     },
     {
@@ -323,6 +531,22 @@
       "rootType": "Navigation"
     },
     {
+      "extension": "multi-ai-chat",
+      "command": "multi-ai-chat",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 36,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "multi-ai-chat",
+      "command": "run-presets",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 7,
+      "rootType": "Navigation"
+    },
+    {
       "extension": "nano-games",
       "command": "play-nano-snake",
       "mode": "view",
@@ -366,8 +590,16 @@
       "extension": "one-thing",
       "command": "show-one-thing",
       "mode": "menu-bar",
-      "outcome": "timeout",
-      "reason": "no scene or exit within 5000 ms"
+      "outcome": "rendered",
+      "empty": true
+    },
+    {
+      "extension": "pbr-assistant",
+      "command": "find-pbr-ior-value",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 672,
+      "rootType": "Navigation"
     },
     {
       "extension": "pinch-svg",
@@ -410,11 +642,35 @@
       "rootType": "Navigation"
     },
     {
+      "extension": "punch-clock",
+      "command": "menu-bar",
+      "mode": "menu-bar",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "MenuBarExtra"
+    },
+    {
+      "extension": "punch-clock",
+      "command": "start-timer",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 11,
+      "rootType": "Navigation"
+    },
+    {
       "extension": "px-to-rem-converter",
       "command": "index",
       "mode": "view",
       "outcome": "rendered",
       "nodes": 13,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "quick-jump",
+      "command": "search",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
       "rootType": "Navigation"
     },
     {
@@ -442,6 +698,22 @@
       "rootType": "Navigation"
     },
     {
+      "extension": "random-color",
+      "command": "random-color",
+      "mode": "no-view",
+      "outcome": "capability-denied",
+      "path": "clipboard.copy",
+      "error": "Capability denied: clipboard.copy"
+    },
+    {
+      "extension": "random-color",
+      "command": "select-color",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 59,
+      "rootType": "Navigation"
+    },
+    {
       "extension": "ratio-calculator",
       "command": "calculate-ratio",
       "mode": "view",
@@ -458,11 +730,355 @@
       "rootType": "Navigation"
     },
     {
+      "extension": "rectangle",
+      "command": "almost-maximize",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "bottom-center-sixth",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "bottom-half",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "bottom-left",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "bottom-left-sixth",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "bottom-right",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "bottom-right-sixth",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "cascade-all",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "center",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "center-half",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "center-third",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "first-fourth",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "first-third",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "first-three-fourths",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "first-two-thirds",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "index",
+      "mode": "view",
+      "outcome": "unsupported-api",
+      "path": "Action.CreateQuicklink",
+      "error": "Unsupported API in Blast: Action.CreateQuicklink"
+    },
+    {
+      "extension": "rectangle",
+      "command": "larger",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "last-fourth",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "last-third",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "last-three-fourths",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "last-two-thirds",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "left-half",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "maximize",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "maximize-height",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "move-down",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "move-left",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "move-right",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "move-up",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "next-display",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "previous-display",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "restore",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "right-half",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "second-fourth",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "smaller",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "specified",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "third-fourth",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "top-center-sixth",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "top-half",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "top-left",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "top-left-sixth",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "top-right",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "top-right-sixth",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
       "extension": "rtl-reader",
       "command": "rtl-text",
       "mode": "view",
       "outcome": "rendered",
       "nodes": 9,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "sf-symbols-search",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 37,
       "rootType": "Navigation"
     },
     {
@@ -503,6 +1119,54 @@
       "mode": "view",
       "outcome": "rendered",
       "nodes": 24,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "text-decorator",
+      "command": "decorate-text",
+      "mode": "no-view",
+      "outcome": "capability-denied",
+      "path": "command.launch",
+      "error": "Capability denied: command.launch"
+    },
+    {
+      "extension": "text-decorator",
+      "command": "decorate-text-with-font",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 143,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "text-decorator",
+      "command": "undecorate-text",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 2,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "timezone-buddy",
+      "command": "timezone-buddy",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 7,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "timezone-buddy",
+      "command": "timezone-buddy-menubar",
+      "mode": "menu-bar",
+      "outcome": "rendered",
+      "nodes": 2,
+      "rootType": "MenuBarExtra"
+    },
+    {
+      "extension": "tiny-tycho",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 867,
       "rootType": "Navigation"
     },
     {
