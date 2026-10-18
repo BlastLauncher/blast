@@ -1,7 +1,7 @@
 ---
 id: "0015"
 title: Generated stubs so every @raycast/api symbol exists and fails clearly
-status: doing
+status: review
 milestone: M3
 depends: []
 ---
@@ -44,14 +44,14 @@ instead of an ESM link error or React's "element type is invalid".
 
 ## Acceptance
 
-- [ ] Tests: missing top-level export, missing nested component, missing
+- [x] Tests: missing top-level export, missing nested component, missing
       function (sync and promise-returning) each produce `UNSUPPORTED_API`
       with the right path; implemented symbols are untouched.
-- [ ] A runtime process test shows the fatal `UNSUPPORTED_API` error.
-- [ ] Re-run `bun run corpus:smoke`, commit the updated `compat/SMOKE.md`
+- [x] A runtime process test shows the fatal `UNSUPPORTED_API` error.
+- [x] Re-run `bun run corpus:smoke`, commit the updated `compat/SMOKE.md`
       / `smoke.json` (run `bun run fmt`), and list the newly named missing
       paths in Handoff.
-- [ ] `bun run verify` passes.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -60,8 +60,13 @@ instead of an ESM link error or React's "element type is invalid".
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/unsupported-api-stubs @ b75c6a01de23a5e2b3051423a80da815c6c3c28c (implementation; handoff committed separately)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 11.4s
 Done:
-Not done / risks:
+- Inventory-driven exports and lazy nested stubs; compat:stubs regenerates them and compat:check detects stale output.
+- Structured UnsupportedApiError becomes fatal UNSUPPORTED_API for render, launch, and sync/async event failures; implemented API behavior remains intact.
+- Generator, API, runtime process and smoke classification tests pass (187 tests total). Coverage regenerated unchanged; no stub coverage tags or new dependencies.
+- Curated smoke regenerated: 2 rendered, 11 unsupported-api, 0 crashes. Newly named paths: Action.OpenInBrowser, Action.Paste, Detail, PasteAction, useNavigation.
+- Deleted .cache/raycast-extensions; extension source was neither edited nor installed.
+Not done / risks: Review pending. Stubbed APIs remain unimplemented (task 0016); promise-declared stubs throw synchronously, as permitted by this task. Smoke observes the first scene only.
 ```
