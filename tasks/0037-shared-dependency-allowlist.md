@@ -1,7 +1,7 @@
 ---
 id: "0037"
 title: Shared dependency allowlist (interim, until v1)
-status: todo
+status: doing
 milestone: M3
 depends: ["0036"]
 ---
@@ -24,8 +24,10 @@ import them bundle instead of failing with `MISSING_DEPENDENCY`.
   `packages/host/src/bundle.ts`. Selection mirrors it in
   `scripts/corpus/selection.ts` (`PROVIDED_DEPENDENCIES`, `PROVIDED_SPECIFIER`)
   — make one exported list in host the single source and use it in both.
-- Pick from `compat/dependencies.json` (task 0036) by `imported`, roughly the
-  top 20–30, with these filters, each reason recorded in the decision or a
+- Pick from `compat/dependencies.json` (task 0036; summary and curve in
+  `compat/DEPENDENCIES.md`: top 30 → 2205/3443 extensions satisfied) by
+  `imported`, roughly the top 20–30. Exclude `run-applescript` and other
+  macOS-automation packages (they cannot work outside macOS; record why), with these filters, each reason recorded in the decision or a
   comment next to the list: pure JavaScript (no native addons, no install
   scripts), reasonable install size (`npm view <pkg> dist.unpackedSize`;
   justify anything over 5 MB; total added to `node_modules` ≤ 60 MB measured
