@@ -12,8 +12,9 @@ Status: accepted 2026-10-18
    one JSON object with a `type` field. Lines have a size cap; an oversize or
    invalid line is a protocol error that terminates the command.
 3. **Protocol version handshake first.** The host sends `init` with the
-   protocol version and the command `mode` (`view | no-view | menu-bar`); the
-   runtime answers `ready` or `error`. Nothing else is accepted before that.
+   protocol version and the command `mode` (`view | no-view | menu-bar`), plus
+   optional manifest `arguments` and `launchContext`; the runtime answers
+   `ready` or `error`. Nothing else is accepted before that.
 4. **Whole-scene snapshots.** After each React commit the runtime sends the
    full serialized tree as `scene { revision, root }`. Functions never cross
    the wire: callback props become handler references, and the host sends
@@ -40,10 +41,9 @@ Status: accepted 2026-10-18
    name the session already carries, so params can never name another
    extension and a command only ever reaches its own namespace. Values are
    strings, numbers or booleans in one JSON file per extension under the host
-   data directory, replaced atomically (temp file + rename) and serialized per
-   session. `open(target, application?)` is two capabilities — `open.url` for
-   URLs (a `file:` URL counts as a file), `open.path` for files — denied unless
-   granted.
+   data directory, replaced atomically and serialized per session.
+   `open(target, application?)` is two capabilities — `open.url` for URLs (a
+   `file:` URL counts as a file), `open.path` for files — denied unless granted.
 
 ## Why
 

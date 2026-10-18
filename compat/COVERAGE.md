@@ -4,16 +4,16 @@ Denominator: the `@raycast/api@2.8.2` declarations. Evidence:
 `// @covers` tags in `packages/**/*.test.ts(x)`. A parent is not implied covered
 by its children. Partial support is reported separately from covered.
 
-**Non-deprecated coverage: 896/1534 covered (58.4%), 63 partial, 575 missing.**
-Deprecated: 27/939 covered (2.9%), 5 partial, 907 missing.
+**Non-deprecated coverage: 913/1534 covered (59.5%), 64 partial, 557 missing.**
+Deprecated: 30/939 covered (3.2%), 5 partial, 904 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 896 | 27 | 923 |
-| partial | 63 | 5 | 68 |
-| missing | 575 | 907 | 1482 |
+| covered | 913 | 30 | 943 |
+| partial | 64 | 5 | 69 |
+| missing | 557 | 904 | 1461 |
 
 ## Totals by kind
 
@@ -21,14 +21,14 @@ Deprecated: 27/939 covered (2.9%), 5 partial, 907 missing.
 | --- | --- | --- | --- | --- |
 | namespace | 3 | 1 | 5 | 9 |
 | component | 24 | 31 | 61 | 116 |
-| function | 21 | 4 | 25 | 50 |
+| function | 23 | 4 | 23 | 50 |
 | const | 1 | 1 | 19 | 21 |
 | class | 2 | 0 | 1 | 3 |
-| enum | 6 | 0 | 7 | 13 |
-| enum-member | 499 | 0 | 192 | 691 |
-| interface | 7 | 1 | 56 | 64 |
-| type | 26 | 3 | 149 | 178 |
-| property | 324 | 27 | 953 | 1304 |
+| enum | 10 | 0 | 3 | 13 |
+| enum-member | 508 | 0 | 183 | 691 |
+| interface | 7 | 2 | 55 | 64 |
+| type | 27 | 3 | 148 | 178 |
+| property | 328 | 27 | 949 | 1304 |
 | method | 10 | 0 | 14 | 24 |
 
 ## Top-level symbols
@@ -97,16 +97,16 @@ Children counts include all descendants, as covered/partial/total.
 | `FormValues` | interface | missing | 0/0/0 | 1 |
 | `Grid` | component | partial | 66/13/87 | 311 |
 | `Icon` | enum | covered | 478/0/478 | 2587 |
-| `Image` | interface | missing | 0/0/21 | 478 |
+| `Image` | interface | partial | 3/0/21 | 478 |
 | `ImageLike` | type | missing | 0/0/5 | 2 |
-| `ImageMask` | enum | missing | 0/0/2 | 8 |
+| `ImageMask` | enum | covered | 2/0/2 | 8 |
 | `ImageSource` | type | missing | 0/0/2 | 0 |
 | `KeyEquivalent` | type | missing | 0/0/0 | 4 |
 | `KeyModifier` | type | missing | 0/0/0 | 0 |
 | `Keyboard` | namespace | covered | 19/0/32 | 790 |
 | `KeyboardShortcut` | type | missing | 0/0/11 | 1 |
-| `LaunchProps` | type | missing | 0/0/5 | 657 |
-| `LaunchType` | enum | missing | 0/0/2 | 454 |
+| `LaunchProps` | type | covered | 3/0/5 | 657 |
+| `LaunchType` | enum | covered | 2/0/2 | 454 |
 | `List` | component | partial | 71/14/122 | 2604 |
 | `ListItem` | component | missing | 0/0/52 | 1 |
 | `ListItemProps` | interface | missing | 0/0/19 | 0 |
@@ -127,7 +127,7 @@ Children counts include all descendants, as covered/partial/total.
 | `OpenWithActionProps` | interface | missing | 0/0/5 | 0 |
 | `PasteAction` | component | partial | 0/0/6 | 2 |
 | `PasteActionProps` | interface | missing | 0/0/5 | 0 |
-| `PopToRootType` | enum | missing | 0/0/3 | 126 |
+| `PopToRootType` | enum | covered | 3/0/3 | 126 |
 | `Preference` | interface | missing | 0/0/10 | 0 |
 | `PreferenceValues` | interface | missing | 0/0/0 | 14 |
 | `Preferences` | type | missing | 0/0/0 | 4 |
@@ -151,10 +151,10 @@ Children counts include all descendants, as covered/partial/total.
 | `clearClipboard` | function | missing | 0/0/0 | 0 |
 | `clearLocalStorage` | function | covered | 0/0/0 | 2 |
 | `clearSearchBar` | function | missing | 0/0/0 | 41 |
-| `closeMainWindow` | function | missing | 0/0/0 | 600 |
+| `closeMainWindow` | function | covered | 0/0/0 | 600 |
 | `confirmAlert` | function | partial | 0/0/0 | 849 |
 | `copyTextToClipboard` | function | missing | 0/0/0 | 3 |
-| `environment` | const | partial | 6/0/17 | 738 |
+| `environment` | const | partial | 7/0/17 | 738 |
 | `getApplications` | function | covered | 0/0/0 | 216 |
 | `getDefaultApplication` | function | missing | 0/0/0 | 20 |
 | `getFrontmostApplication` | function | missing | 0/0/0 | 99 |
@@ -162,7 +162,7 @@ Children counts include all descendants, as covered/partial/total.
 | `getPreferenceValues` | function | partial | 0/0/0 | 2119 |
 | `getSelectedFinderItems` | function | missing | 0/0/0 | 164 |
 | `getSelectedText` | function | missing | 0/0/0 | 249 |
-| `launchCommand` | function | missing | 0/0/0 | 398 |
+| `launchCommand` | function | covered | 0/0/0 | 398 |
 | `open` | function | covered | 0/0/0 | 928 |
 | `openCommandPreferences` | function | covered | 0/0/0 | 187 |
 | `openExtensionPreferences` | function | covered | 0/0/0 | 541 |
@@ -192,12 +192,6 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 
 | Path | Extensions |
 | --- | --- |
-| `LaunchProps` | 657 |
-| `closeMainWindow` | 600 |
-| `Image` | 478 |
-| `LaunchType` | 454 |
-| `LaunchType.UserInitiated` | 408 |
-| `launchCommand` | 398 |
 | `ActionPanel.Submenu` | 284 |
 | `ActionPanel.Submenu.Props.title` | 284 |
 | `Image.ImageLike` | 279 |
@@ -206,7 +200,6 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `getSelectedText` | 249 |
 | `Form.FilePicker.Props.title` | 246 |
 | `Form.FilePicker.Props.allowMultipleSelection` | 238 |
-| `Image.Mask` | 232 |
 | `Action.Open` | 227 |
 | `Action.Open.Props.target` | 226 |
 | `Action.Open.Props.title` | 226 |
@@ -222,7 +215,6 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `Form.TagPicker.Props.title` | 167 |
 | `getSelectedFinderItems` | 164 |
 | `ActionPanel.Submenu.Props.shortcut` | 158 |
-| `Image.Mask.Circle` | 146 |
 | `Action.Open.Props.icon` | 145 |
 | `showInFinder` | 145 |
 | `OAuth` | 135 |
@@ -233,12 +225,20 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `Tool` | 128 |
 | `Tool.Confirmation` | 128 |
 | `Form.FilePicker.Props.canChooseFiles` | 126 |
-| `PopToRootType` | 126 |
-| `LaunchType.Background` | 124 |
 | `AI` | 115 |
 | `Form.FilePicker.Props.onChange` | 112 |
 | `OAuth.RedirectMethod.Web` | 112 |
 | `environment.canAccess` | 107 |
 | `Form.TagPicker.Props.id` | 106 |
 | `updateCommandMetadata` | 105 |
-| `Image.Mask.RoundedRectangle` | 99 |
+| `getFrontmostApplication` | 99 |
+| `Action.CreateQuicklink` | 97 |
+| `Action.CreateQuicklink.Props.quicklink` | 97 |
+| `Form.PasswordField.Props.placeholder` | 93 |
+| `Form.Props.enableDrafts` | 90 |
+| `Action.OpenWith` | 88 |
+| `Action.OpenWith.Props.path` | 87 |
+| `Form.FilePicker.Props.info` | 86 |
+| `Keyboard.KeyEquivalent` | 85 |
+| `Form.FilePicker.Props.value` | 84 |
+| `Action.ShowInFinder.Props.title` | 83 |

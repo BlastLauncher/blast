@@ -490,3 +490,10 @@ export const Icon = {
   TextDocument: "blank-document-16",
   XmarkCircle: "x-mark-circle-16",
 } as const;
+export const Image = { Mask: { Circle: "circle", RoundedRectangle: "roundedRectangle" } } as const;
+export const LaunchType = { UserInitiated: "userInitiated", Background: "background" } as const;
+export const PopToRootType = {
+  Default: "default",
+  Immediate: "immediate",
+  Suspended: "suspended",
+} as const;

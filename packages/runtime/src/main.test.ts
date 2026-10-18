@@ -138,6 +138,29 @@ test("no-view command runs, sees environment and preferences, and exits 0 withou
   expect(runtime.invalid).toEqual([]);
 });
 
+// @covers LaunchProps
+// @covers LaunchProps.arguments
+// @covers LaunchProps.launchType
+// @covers LaunchProps.launchContext
+test("launch props carry manifest arguments and the launch context", async () => {
+  const runtime = start();
+  runtime.init({
+    fixture: "no-view.js",
+    mode: "no-view",
+    arguments: { query: "raycast", option: "one" },
+    launchContext: { from: "launcher", nested: { deep: true } },
+  });
+  expect(await runtime.next("ready")).toEqual({ type: "ready", protocol: 1 });
+  expect(await runtime.next("log")).toEqual({ type: "log", level: "info", message: "raw" });
+  const reported = await runtime.next("log");
+  expect(JSON.parse(reported.message).props).toEqual({
+    arguments: { query: "raycast", option: "one" },
+    launchType: "userInitiated",
+    launchContext: { from: "launcher", nested: { deep: true } },
+  });
+  expect(await runtime.exited).toBe(0);
+});
+
 test("no-view rejection is fatal", async () => {
   const runtime = start();
   runtime.init({ fixture: "no-view-reject.js", mode: "no-view" });

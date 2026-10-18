@@ -9,6 +9,7 @@ import { getPreferenceValues, setPreferenceValues } from "./preferences.ts";
 // @covers environment.assetsPath
 // @covers environment.supportPath
 // @covers environment.isDevelopment
+// @covers environment.launchType
 
 test("environment mirrors init and leaves the members Blast does not set undefined", () => {
   setEnvironment({
@@ -25,6 +26,8 @@ test("environment mirrors init and leaves the members Blast does not set undefin
     assetsPath: "/ext/assets",
     supportPath: "/ext/support",
     isDevelopment: false,
+    // Blast has no background launch yet, so every command is user initiated.
+    launchType: "userInitiated",
   });
   // Only the members above are set, so the rest of Raycast's `Environment`
   // reads as `undefined` and stays `missing` in the coverage report.
@@ -33,6 +36,7 @@ test("environment mirrors init and leaves the members Blast does not set undefin
     "commandName",
     "extensionName",
     "isDevelopment",
+    "launchType",
     "raycastVersion",
     "supportPath",
   ]);

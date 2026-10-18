@@ -17,6 +17,7 @@ import { createElement, type ComponentType } from "react";
 import { setCapabilityRequester } from "./api/capability.ts";
 import { setEnvironment } from "./api/environment.ts";
 import { setFeedbackMount } from "./api/feedback.ts";
+import { LaunchType, type LaunchProps } from "./api/launch.ts";
 import { NavigationProvider } from "./api/navigation.ts";
 import { setPreferenceValues } from "./api/preferences.ts";
 import { UnsupportedApiError } from "./api/unsupported.ts";
@@ -118,13 +119,23 @@ setCapabilityRequester((name, params) => {
   });
 });
 
-/** Launch values every command mode receives; arguments and background launch are out of scope. */
-type LaunchProps = { arguments: Record<string, never>; launchType: "userInitiated" };
-const launchProps: LaunchProps = { arguments: {}, launchType: "userInitiated" };
+/**
+ * Launch props for this command: the manifest arguments the host resolved and,
+ * when another command started it, the `launchCommand` context. Blast only
+ * launches user initiated commands (background launch is out of scope).
+ */
+function launchProps(command: Extract<HostMessage, { type: "init" }>["command"]): LaunchProps {
+  return {
+    arguments: command.arguments ?? {},
+    launchType: LaunchType.UserInitiated,
+    ...(command.launchContext === undefined ? {} : { launchContext: command.launchContext }),
+  };
+}
 
 async function load(message: Extract<HostMessage, { type: "init" }>) {
   setEnvironment(message.environment);
   setPreferenceValues(message.preferences);
+  const props = launchProps(message.command);
   const command = await import(pathToFileURL(message.command.entry).href);
   if (stopping) return;
   if (message.command.mode === "no-view") {
@@ -136,12 +147,12 @@ async function load(message: Extract<HostMessage, { type: "init" }>) {
     });
     // A no-view command runs until it settles, with a scene only for feedback.
     // A rejection is a fatal error through the caller's `.catch`.
-    await (command.default as (props: LaunchProps) => unknown)(launchProps);
+    await (command.default as (props: LaunchProps) => unknown)(props);
     if (stopping) return;
     finish(0);
     return;
   }
-  const element = createElement(command.default as ComponentType<LaunchProps>, launchProps);
+  const element = createElement(command.default as ComponentType<LaunchProps>, props);
   root.render(
     message.command.mode === "menu-bar"
       ? element

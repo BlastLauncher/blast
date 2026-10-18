@@ -15,6 +15,8 @@ const command: InitCommand = {
   name: "history",
   entry: "src/index.tsx",
   mode: "view",
+  arguments: { query: "raycast", option: "one" },
+  launchContext: { from: "test", depth: 2 },
 };
 
 const environment = {
@@ -149,6 +151,34 @@ test("command.mode accepts exactly the three command modes", () => {
   }
 });
 
+test("argument values and launch context are optional and survive the wire", () => {
+  const bare = parseHostMessage({
+    ...init,
+    command: { extension: "ext", name: "cmd", entry: "src/index.tsx", mode: "view" },
+  });
+  expect(bare).toEqual({
+    ok: true,
+    message: {
+      ...init,
+      command: { extension: "ext", name: "cmd", entry: "src/index.tsx", mode: "view" },
+    },
+  });
+  const withValues = parseHostMessage(init);
+  expect(withValues.ok && withValues.message.type === "init" && withValues.message.command).toEqual(
+    {
+      extension: "clipboard-history",
+      name: "history",
+      entry: "src/index.tsx",
+      mode: "view",
+      arguments: { query: "raycast", option: "one" },
+      launchContext: { from: "test", depth: 2 },
+    },
+  );
+  // A missing required argument is the host's error to report, never the wire's.
+  const empty = parseHostMessage({ ...init, command: { ...command, arguments: {} } });
+  expect(empty.ok && empty.message.type === "init" && empty.message.command.arguments).toEqual({});
+});
+
 test("rejections name the failing field path", () => {
   const cases: Array<[string, unknown, string]> = [
     ["undefined", undefined, "expected object"],
@@ -184,6 +214,26 @@ test("rejections name the failing field path", () => {
       "init with an unknown command field",
       { ...init, command: { ...command, path: "x" } },
       "command.path: unexpected field",
+    ],
+    [
+      "init with a non-object argument map",
+      { ...init, command: { ...command, arguments: ["query"] } },
+      "command.arguments: expected object",
+    ],
+    [
+      "init with a non-string argument value",
+      { ...init, command: { ...command, arguments: { query: 7 } } },
+      "command.arguments.query: expected string",
+    ],
+    [
+      "init with an array launch context",
+      { ...init, command: { ...command, launchContext: [1] } },
+      "command.launchContext: expected object",
+    ],
+    [
+      "init with a non-JSON launch context value",
+      { ...init, command: { ...command, launchContext: { nested: Number.POSITIVE_INFINITY } } },
+      "command.launchContext.nested: expected finite number",
     ],
     [
       "init without a command mode",

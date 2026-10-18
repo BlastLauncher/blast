@@ -1,7 +1,7 @@
 ---
 id: "0028"
 title: Launch props, arguments, launchCommand, closeMainWindow, Image enums
-status: doing
+status: review
 milestone: M3
 depends: []
 ---
@@ -39,11 +39,11 @@ the `Image` value surface (478).
 
 ## Acceptance
 
-- [ ] Protocol tests for the new optional init fields; CLI e2e for
+- [x] Protocol tests for the new optional init fields; CLI e2e for
       `--argument` incl. a missing required argument (exit 2).
-- [ ] Runtime tests for launchCommand granted/denied, closeMainWindow scene
+- [x] Runtime tests for launchCommand granted/denied, closeMainWindow scene
       flag, LaunchType/PopToRootType/Image.Mask values.
-- [ ] `bun run verify` passes.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -53,8 +53,39 @@ the `Image` value surface (478).
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/launch-window-protocol @ 827ff25 (tip adds this Handoff note)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 25.4s
 Done:
+- `init.command` gained optional `arguments` (manifest values, strings) and
+  `launchContext` (JSON), validated field by field with rejection tests; the
+  runtime turns them into `LaunchProps` and sets `environment.launchType`.
+- The host reads `commands[].arguments` in `bundleCommand` (name, type,
+  required, placeholder; unknown fields like a dropdown's `data` are ignored)
+  and passes the values through `startCommand`. `blast run --argument
+  name=value` supplies them; a missing required or unknown name exits 2.
+- `launchCommand` requests `command.launch` (name, type, extensionName,
+  ownerOrAuthorName, arguments, context, fallbackText; absent fields stay
+  absent). `closeMainWindow` records `props.closeMainWindow` on the root
+  `Navigation` node and mounts a no-view command's scene through the existing
+  lazily-created scene hook.
+- `Image.Mask`, the deprecated `ImageMask` alias, `LaunchType` and
+  `PopToRootType` are generated from the declarations; the enum generator now
+  reads namespace-scoped enums and a curated path list, and the shim exports
+  `Image` (the one type-kind symbol with runtime members).
+- Reports regenerated: non-deprecated coverage 826/1534 (was 809); smoke 61
+  rendered / 1 completed, with one-thing/remove-one-thing now rendering
+  instead of failing on the closeMainWindow stub.
 Not done / risks:
+- Out of scope as written: nothing starts a second session, background
+  launches, `draftValues`/`fallbackText` props and dropdown `data` validation.
+- `one-thing/set-one-thing --argument oneThing=x` hangs instead of failing:
+  the extension returns a promise from a component and awaits `showToast`,
+  which waits for a commit React never makes while it awaits that promise.
+  Verified pre-existing on the base commit (a probe component that only awaits
+  `showToast` deadlocks there too); Raycast also rejects async components. It
+  is now reachable because the argument path no longer fails early on the
+  `closeMainWindow` stub.
+- `compat/COVERAGE.md`, `compat/raycast-api.json`, `compat/SMOKE.md` and
+  `compat/smoke.json` were regenerated here and may conflict with 0029/0030;
+  `bun run compat:report` plus `bun run corpus:smoke` regenerate them.
 ```

@@ -2,7 +2,8 @@
 import { expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { enumValues } from "../../../../scripts/compat/generate-enums.ts";
-import { Icon, Color } from "./index.ts";
+import { Color, Icon, Image, LaunchType, PopToRootType } from "./index.ts";
+
 // @covers Color
 // @covers Color.Blue
 // @covers Color.Green
@@ -492,13 +493,37 @@ import { Icon, Color } from "./index.ts";
 // @covers Icon.SpeakerSlash
 // @covers Icon.TextDocument
 // @covers Icon.XmarkCircle
-test("every public Icon and Color member matches its declaration", () => {
+// @covers Image.Mask
+// @covers Image.Mask.Circle
+// @covers Image.Mask.RoundedRectangle
+// @covers LaunchType
+// @covers LaunchType.UserInitiated
+// @covers LaunchType.Background
+// @covers PopToRootType
+// @covers PopToRootType.Default
+// @covers PopToRootType.Immediate
+// @covers PopToRootType.Suspended
+test("every generated enum member matches its declaration", () => {
   const expected = enumValues(
     readFileSync(new URL("../../../../compat/raycast-api/index.d.ts", import.meta.url), "utf8"),
   );
-  expect({ Icon, Color } as unknown).toEqual(expected);
-  for (const [name, actual] of Object.entries({ Icon, Color })) {
-    for (const [key, value] of Object.entries(expected[name]!))
-      expect(Reflect.get(actual, key) as unknown).toBe(value);
+  const generated: Record<string, unknown> = {
+    Color,
+    Icon,
+    "Image.Mask": Image.Mask,
+    LaunchType,
+    PopToRootType,
+  };
+  expect(Object.keys(generated).toSorted()).toEqual([
+    "Color",
+    "Icon",
+    "Image.Mask",
+    "LaunchType",
+    "PopToRootType",
+  ]);
+  for (const [path, declared] of Object.entries(expected)) {
+    const members = generated[path] as Record<string, string>;
+    expect(members as unknown).toEqual(declared);
+    for (const [key, value] of Object.entries(declared)) expect(members[key]).toBe(value);
   }
 });

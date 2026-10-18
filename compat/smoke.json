@@ -1,14 +1,14 @@
 {
   "commit": "3b812d1e153a1862df29bc8ec34e170c728512ea",
   "totals": {
-    "rendered": 61,
+    "rendered": 62,
     "completed": 1,
     "capability-denied": 2,
     "bundle-failed": 0,
     "crashed": 0,
     "timeout": 0,
     "unsupported-mode": 0,
-    "unsupported-api": 2
+    "unsupported-api": 1
   },
   "results": [
     {
@@ -144,7 +144,7 @@
       "command": "new-tab",
       "mode": "no-view",
       "outcome": "rendered",
-      "nodes": 4,
+      "nodes": 2,
       "rootType": "Navigation"
     },
     {
@@ -350,9 +350,9 @@
       "extension": "one-thing",
       "command": "remove-one-thing",
       "mode": "no-view",
-      "outcome": "unsupported-api",
-      "path": "closeMainWindow",
-      "error": "Unsupported API in Blast: closeMainWindow"
+      "outcome": "rendered",
+      "nodes": 2,
+      "rootType": "Navigation"
     },
     {
       "extension": "one-thing",

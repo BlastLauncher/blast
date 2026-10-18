@@ -1,5 +1,13 @@
 export * from "./unsupported.generated.ts";
 export { CopyToClipboard } from "./action.ts";
+export { Image } from "./enums.generated.ts";
+export type {
+  LaunchCommandOptions,
+  LaunchContext,
+  LaunchProps,
+  LaunchTypeValue,
+} from "./launch.ts";
+export type { CloseMainWindowOptions, PopToRootTypeValue } from "./window.ts";
 export type { ActionProps, ActionStyle, CopyToClipboardProps } from "./action.ts";
 export type { ActionPanelProps, ActionPanelSectionProps } from "./action-panel.ts";
 export type { ClipboardContent, CopyOptions, ReadContent } from "./clipboard.ts";

@@ -88,6 +88,62 @@ test("bundles deterministic ESM and returns manifest identity and mode", async (
   await expect(bundle("missing")).rejects.toThrow("Unknown extension command");
 });
 
+const launchDir = fileURLToPath(new URL("../../../fixtures/extensions/launch", import.meta.url));
+
+test("manifest arguments are read for the host and invalid ones fail loudly", async () => {
+  const bundled = await bundleCommand({ extensionDir: launchDir, command: "index" });
+  directories.push(join(bundled.entry, ".."));
+  expect(bundled.arguments).toEqual([
+    { name: "query", type: "text", placeholder: "What to search", required: true },
+    { name: "option", type: "dropdown" },
+  ]);
+  const withoutArguments = await bundleCommand({ extensionDir: launchDir, command: "close" });
+  directories.push(join(withoutArguments.entry, ".."));
+  expect(withoutArguments.arguments).toEqual([]);
+  // A malformed declaration is the extension's bug, not a silent no-argument run.
+  const dir = await mkdtemp(join(tmpdir(), "blast-arguments-test-"));
+  directories.push(dir);
+  await cp(launchDir, dir, { recursive: true });
+  for (const [argumentsValue, message] of [
+    [[{ name: "query", type: "number" }], 'Argument "query" has an unknown type "number"'],
+    [[{ type: "text" }], "Argument 1 needs a name"],
+    [
+      [
+        { name: "query", type: "text" },
+        { name: "query", type: "text" },
+      ],
+      "Duplicate argument",
+    ],
+  ] as const) {
+    await writeFile(
+      join(dir, "package.json"),
+      JSON.stringify({
+        name: "launch",
+        commands: [{ name: "index", mode: "view", arguments: argumentsValue }],
+      }),
+    );
+    await expect(bundleCommand({ extensionDir: dir, command: "index" })).rejects.toThrow(message);
+  }
+});
+
+test("argument values and a launch context reach the command's launch props", async () => {
+  const bundled = await bundleCommand({ extensionDir: launchDir, command: "props" });
+  directories.push(join(bundled.entry, ".."));
+  const session = await startCommand({
+    ...bundled,
+    argumentValues: { query: "hello", option: "one" },
+    launchContext: { from: "session", nested: { deep: true } },
+    broker: createBroker(),
+  });
+  sessions.push(session);
+  expect(await session.exited).toEqual({ code: 0, signal: null });
+  expect(JSON.parse(session.logs[0]!.message)).toEqual({
+    args: { query: "hello", option: "one" },
+    launchType: "userInitiated",
+    launchContext: { from: "session", nested: { deep: true } },
+  });
+});
+
 test("shared utils bundles and renders without embedding React or the API", async () => {
   const fixture = fileURLToPath(
     new URL("../../../fixtures/extensions/shared-utils", import.meta.url),

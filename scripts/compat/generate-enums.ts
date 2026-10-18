@@ -1,67 +1,130 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { format } from "oxfmt";
-import { parseSync } from "oxc-parser";
+import { parseSync, type Statement } from "oxc-parser";
 import { VENDOR_TYPES } from "./check-vendor.ts";
 
 export const ENUMS_PATH = "packages/runtime/src/api/enums.generated.ts";
 export const ENUM_TEST_PATH = "packages/runtime/src/api/enums.generated.test.ts";
 
-export function enumValues(source: string): Record<string, Record<string, string>> {
+/**
+ * The value enums the runtime implements, by public API path. All of them come
+ * from the declarations; `Image.Mask` is the one that lives in a namespace, so
+ * the generated `Image` const nests it. A path the declarations drop simply
+ * disappears from the generated file, and `compat:check` reports the staleness.
+ */
+const GENERATED_ENUMS = ["Color", "Icon", "Image.Mask", "LaunchType", "PopToRootType"] as const;
+/** These two must exist in every `@raycast/api` release Blast vendors. */
+const REQUIRED_ENUMS = ["Icon", "Color"] as const;
+
+function members(node: Extract<Statement, { type: "TSEnumDeclaration" }>): Record<string, string> {
+  const values: Record<string, string> = {};
+  for (const member of node.body.members) {
+    if (
+      member.id.type !== "Identifier" ||
+      member.initializer?.type !== "Literal" ||
+      typeof member.initializer.value !== "string"
+    )
+      throw new Error(`Expected string enum member in ${node.id.name}`);
+    values[member.id.name] = member.initializer.value;
+  }
+  return values;
+}
+
+/** Every string enum in the declarations the runtime implements, by public path. */
+export function enumValues(
+  source: string,
+  paths: readonly string[] = GENERATED_ENUMS,
+): Record<string, Record<string, string>> {
   const parsed = parseSync("index.d.ts", source);
   if (parsed.errors.length) throw new Error("Invalid enum declarations");
+  const required = new Set<string>(paths);
   const result: Record<string, Record<string, string>> = {};
-  for (const statement of parsed.program.body) {
-    const node = statement.type === "ExportNamedDeclaration" ? statement.declaration : statement;
-    if (node?.type !== "TSEnumDeclaration" || !["Icon", "Color"].includes(node.id.name)) continue;
-    const values: Record<string, string> = {};
-    for (const member of node.body.members) {
-      if (
-        member.id.type !== "Identifier" ||
-        member.initializer?.type !== "Literal" ||
-        typeof member.initializer.value !== "string"
-      )
-        throw new Error(`Expected string enum member in ${node.id.name}`);
-      values[member.id.name] = member.initializer.value;
+  const collect = (statements: Statement[], scope: string) => {
+    for (const statement of statements) {
+      const node = statement.type === "ExportNamedDeclaration" ? statement.declaration : statement;
+      if (node?.type === "TSModuleDeclaration" && node.id.type === "Identifier") {
+        if (node.body?.type === "TSModuleBlock")
+          collect(node.body.body, scope === "" ? node.id.name : `${scope}.${node.id.name}`);
+        continue;
+      }
+      if (node?.type !== "TSEnumDeclaration") continue;
+      const path = scope === "" ? node.id.name : `${scope}.${node.id.name}`;
+      if (required.has(path)) result[path] = members(node);
     }
-    result[node.id.name] = values;
-  }
-  if (!result.Icon || !result.Color) throw new Error("Missing Icon or Color enum");
+  };
+  collect(parsed.program.body, "");
+  for (const name of REQUIRED_ENUMS) if (!result[name]) throw new Error("Missing Icon or Color");
   return result;
 }
 
+/** A JS object literal; short enough that the formatter lays it out. */
+type Literal = string | { [key: string]: Literal };
+function literal(value: Literal): string {
+  if (typeof value === "string") return JSON.stringify(value);
+  return `{ ${Object.entries(value)
+    .map(([key, item]) => `${JSON.stringify(key)}: ${literal(item)}`)
+    .join(", ")} }`;
+}
+
+/** Groups `Image.Mask` under its `Image` namespace so the const nests. */
+function constants(enums: Record<string, Record<string, string>>): Record<string, Literal> {
+  const code: Record<string, Literal> = {};
+  for (const [path, values] of Object.entries(enums)) {
+    const [head, ...rest] = path.split(".");
+    code[head!] =
+      rest.length === 0
+        ? values
+        : { ...(code[head!] as Record<string, Literal>), [rest.join(".")]: values };
+  }
+  return code;
+}
+
+function generatedTestCode(enums: Record<string, Record<string, string>>): string {
+  const paths = Object.keys(enums);
+  const imports = [...new Set(paths.map((path) => path.split(".")[0]!))].toSorted();
+  return [
+    'import { expect, test } from "bun:test";',
+    'import { readFileSync } from "node:fs";',
+    'import { enumValues } from "../../../../scripts/compat/generate-enums.ts";',
+    `import { ${imports.join(", ")} } from "./index.ts";`,
+    "",
+    ...paths.flatMap((path) => [
+      `// @covers ${path}`,
+      ...Object.keys(enums[path]!).map((key) => `// @covers ${path}.${key}`),
+    ]),
+    'test("every generated enum member matches its declaration", () => {',
+    '  const expected = enumValues(readFileSync(new URL("../../../../compat/raycast-api/index.d.ts", import.meta.url), "utf8"));',
+    `  const generated: Record<string, unknown> = { ${paths
+      .map((path) => (path.includes(".") ? `${JSON.stringify(path)}: ${path}` : path))
+      .join(", ")} };`,
+    `  expect(Object.keys(generated).toSorted()).toEqual(${JSON.stringify([...paths].toSorted())});`,
+    "  for (const [path, declared] of Object.entries(expected)) {",
+    "    const members = generated[path] as Record<string, string>;",
+    "    expect(members as unknown).toEqual(declared);",
+    "    for (const [key, value] of Object.entries(declared)) expect(members[key]).toBe(value);",
+    "  }",
+    "});",
+    "",
+  ].join("\n");
+}
+
 export async function generateEnums(root: string): Promise<Record<string, string>> {
-  const values = enumValues(readFileSync(join(root, VENDOR_TYPES), "utf8"));
+  const declared = enumValues(readFileSync(join(root, VENDOR_TYPES), "utf8"));
+  const enums = Object.fromEntries(
+    GENERATED_ENUMS.filter((path) => declared[path] !== undefined).map((path) => [
+      path,
+      declared[path]!,
+    ]),
+  );
   const header = "// Generated by scripts/compat/generate-enums.ts; do not edit.\n";
   const outputs = {
     [ENUMS_PATH]:
       header +
-      Object.entries(values)
-        .map(
-          ([name, members]) =>
-            `export const ${name} = ${JSON.stringify(members, null, 2)} as const;\n`,
-        )
+      Object.entries(constants(enums))
+        .map(([name, values]) => `export const ${name} = ${literal(values)} as const;\n`)
         .join(""),
-    [ENUM_TEST_PATH]:
-      header +
-      [
-        'import { expect, test } from "bun:test";',
-        'import { readFileSync } from "node:fs";',
-        'import { enumValues } from "../../../../scripts/compat/generate-enums.ts";',
-        'import { Icon, Color } from "./index.ts";',
-        ...Object.entries(values).flatMap(([name, members]) => [
-          `// @covers ${name}`,
-          ...Object.keys(members).map((key) => `// @covers ${name}.${key}`),
-        ]),
-        'test("every public Icon and Color member matches its declaration", () => {',
-        '  const expected = enumValues(readFileSync(new URL("../../../../compat/raycast-api/index.d.ts", import.meta.url), "utf8"));',
-        "  expect({ Icon, Color } as unknown).toEqual(expected);",
-        "  for (const [name, actual] of Object.entries({ Icon, Color })) {",
-        "    for (const [key, value] of Object.entries(expected[name]!)) expect(Reflect.get(actual, key) as unknown).toBe(value);",
-        "  }",
-        "});",
-        "",
-      ].join("\n"),
+    [ENUM_TEST_PATH]: header + generatedTestCode(enums),
   };
   return Object.fromEntries(
     await Promise.all(

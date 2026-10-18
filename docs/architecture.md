@@ -38,9 +38,11 @@ Only the active entry exposes view contents and handlers; covered views stay
 mounted. `Navigation.props.pop` requests back above depth one (decision 0003),
 and `props.popToRoot` records the options of the latest `popToRoot()` call —
 Blast has no client search-bar state, so `clearSearchBar` is a request for
-clients. Feedback children follow the entries: `Toast`, `HUD`, and the first
-queued `Alert`, with action handlers on `Toast.Action` / `Alert.Action` children
-(decision 0004). No-view commands mount this scene only when showing feedback.
+clients. `props.closeMainWindow` records the latest `closeMainWindow()` request
+(its options, or an empty object) the same way. Feedback children follow the
+entries: `Toast`, `HUD`, and the first queued `Alert`, with action handlers on
+`Toast.Action` / `Alert.Action` children (decision 0004). No-view commands mount
+this scene only when showing feedback or closing the window.
 
 Host element `type`s are the public Raycast paths: `List`, `List.Item`,
 `List.Section`, `List.EmptyView`, `ActionPanel`, `ActionPanel.Section`,
@@ -66,8 +68,9 @@ the matching `name`.
 ## Host sessions
 
 `bundleCommand({ extensionDir, command, outDir? })` returns the entry path,
-extension/command names and manifest mode. Pass those to
-`startCommand({ ...bundled, broker: createBroker(handlers) })`. The host resolves
+extension/command names, manifest mode and argument declarations. Pass those to
+`startCommand({ ...bundled, argumentValues, launchContext, broker })`; the values
+reach the command as its launch props. The host resolves
 `@blastlauncher/runtime/main` and spawns an explicit Node binary (`nodePath`,
 default `node`); it never imports runtime source.
 
@@ -114,9 +117,12 @@ without granting file opens.
 `bun run blast run <extensionDir> <command>` bundles a command, runs it in a
 runtime child process, and prints every published scene as a text tree (one
 node per line, handler props as `[onAction]`; `# log` and `# capability` lines
-interleave for logs and capability requests). `--grant <capability>` grants a
-capability — a granted `clipboard.copy` records and prints the copied text
-instead of touching an OS clipboard. A headless run also answers the read-only
+interleave for logs and capability requests). `--argument <name=value>` supplies
+a manifest argument (repeatable; a missing required or unknown name is a usage
+error), and `--grant <capability>` grants a capability — a granted
+`clipboard.copy` records and prints the copied text instead of touching an OS
+clipboard, and a granted `command.launch` records a `launchCommand` request
+without starting a second session. A headless run also answers the read-only
 capabilities the desktop client owns: `applications.list` from `--applications
 <file.json>` (an empty list otherwise), `clipboard.read` from `--clipboard
 <text>` (an empty text otherwise, and nothing at older offsets), and
