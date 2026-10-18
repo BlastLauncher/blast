@@ -36,3 +36,5 @@ export type {
   AlertActionOptions,
   HUDOptions,
 } from "./feedback.ts";
+export type { LocalStorageValue, LocalStorageValues } from "./storage.ts";
+export type { Application } from "./open.ts";

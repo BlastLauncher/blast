@@ -4,30 +4,30 @@ Denominator: the `@raycast/api@2.8.2` declarations. Evidence:
 `// @covers` tags in `packages/**/*.test.ts(x)`. A parent is not implied covered
 by its children. Partial support is reported separately from covered.
 
-**Non-deprecated coverage: 687/1534 covered (44.8%), 29 partial, 818 missing.**
-Deprecated: 17/939 covered (1.8%), 4 partial, 918 missing.
+**Non-deprecated coverage: 696/1534 covered (45.4%), 29 partial, 809 missing.**
+Deprecated: 22/939 covered (2.3%), 4 partial, 913 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 687 | 17 | 704 |
+| covered | 696 | 22 | 718 |
 | partial | 29 | 4 | 33 |
-| missing | 818 | 918 | 1736 |
+| missing | 809 | 913 | 1722 |
 
 ## Totals by kind
 
 | Kind | Covered | Partial | Missing | Total |
 | --- | --- | --- | --- | --- |
-| namespace | 2 | 1 | 6 | 9 |
+| namespace | 3 | 1 | 5 | 9 |
 | component | 16 | 17 | 83 | 116 |
-| function | 3 | 3 | 44 | 50 |
+| function | 14 | 3 | 33 | 50 |
 | const | 1 | 1 | 19 | 21 |
 | class | 1 | 0 | 2 | 3 |
 | enum | 6 | 0 | 7 | 13 |
 | enum-member | 499 | 0 | 192 | 691 |
-| interface | 4 | 1 | 59 | 64 |
-| type | 15 | 1 | 162 | 178 |
+| interface | 5 | 1 | 58 | 64 |
+| type | 16 | 1 | 161 | 178 |
 | property | 154 | 9 | 1141 | 1304 |
 | method | 3 | 0 | 21 | 24 |
 
@@ -113,7 +113,7 @@ Children counts include all descendants, as covered/partial/total.
 | `ListProps` | interface | missing | 0/0/19 | 0 |
 | `ListSection` | component | missing | 0/0/5 | 1 |
 | `ListSectionProps` | interface | missing | 0/0/4 | 0 |
-| `LocalStorage` | namespace | missing | 0/0/7 | 960 |
+| `LocalStorage` | namespace | covered | 7/0/7 | 960 |
 | `LocalStorageValue` | type | missing | 0/0/0 | 0 |
 | `LocalStorageValues` | interface | missing | 0/0/0 | 0 |
 | `MenuBarExtra` | component | missing | 0/0/28 | 342 |
@@ -145,11 +145,11 @@ Children counts include all descendants, as covered/partial/total.
 | `TrashAction` | component | missing | 0/0/6 | 0 |
 | `TrashActionProps` | interface | missing | 0/0/5 | 0 |
 | `WindowManagement` | namespace | missing | 0/0/30 | 2 |
-| `allLocalStorageItems` | function | missing | 0/0/0 | 1 |
+| `allLocalStorageItems` | function | covered | 0/0/0 | 1 |
 | `captureException` | function | missing | 0/0/0 | 41 |
 | `captureMemorySnapshot` | function | missing | 0/0/0 | 0 |
 | `clearClipboard` | function | missing | 0/0/0 | 0 |
-| `clearLocalStorage` | function | missing | 0/0/0 | 2 |
+| `clearLocalStorage` | function | covered | 0/0/0 | 2 |
 | `clearSearchBar` | function | missing | 0/0/0 | 41 |
 | `closeMainWindow` | function | missing | 0/0/0 | 600 |
 | `confirmAlert` | function | partial | 0/0/0 | 849 |
@@ -158,21 +158,21 @@ Children counts include all descendants, as covered/partial/total.
 | `getApplications` | function | missing | 0/0/0 | 216 |
 | `getDefaultApplication` | function | missing | 0/0/0 | 20 |
 | `getFrontmostApplication` | function | missing | 0/0/0 | 99 |
-| `getLocalStorageItem` | function | missing | 0/0/0 | 10 |
+| `getLocalStorageItem` | function | covered | 0/0/0 | 10 |
 | `getPreferenceValues` | function | partial | 0/0/0 | 2119 |
 | `getSelectedFinderItems` | function | missing | 0/0/0 | 164 |
 | `getSelectedText` | function | missing | 0/0/0 | 249 |
 | `launchCommand` | function | missing | 0/0/0 | 398 |
-| `open` | function | missing | 0/0/0 | 928 |
+| `open` | function | covered | 0/0/0 | 928 |
 | `openCommandPreferences` | function | missing | 0/0/0 | 187 |
 | `openExtensionPreferences` | function | missing | 0/0/0 | 541 |
 | `pasteText` | function | missing | 0/0/0 | 3 |
 | `popToRoot` | function | missing | 0/0/0 | 567 |
 | `preferences` | const | missing | 0/0/0 | 6 |
 | `randomId` | const | missing | 0/0/0 | 3 |
-| `removeLocalStorageItem` | function | missing | 0/0/0 | 3 |
+| `removeLocalStorageItem` | function | covered | 0/0/0 | 3 |
 | `render` | const | missing | 0/0/0 | 1 |
-| `setLocalStorageItem` | function | missing | 0/0/0 | 10 |
+| `setLocalStorageItem` | function | covered | 0/0/0 | 10 |
 | `showHUD` | function | partial | 0/0/0 | 931 |
 | `showInFinder` | function | missing | 0/0/0 | 145 |
 | `showToast` | function | covered | 0/0/0 | 2471 |
@@ -200,10 +200,6 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `Form.TextField` | 1102 |
 | `Form.TextField.Props.title` | 1090 |
 | `Form.TextField.Props.placeholder` | 983 |
-| `LocalStorage` | 960 |
-| `LocalStorage.setItem` | 935 |
-| `open` | 928 |
-| `LocalStorage.getItem` | 911 |
 | `Form.Dropdown` | 799 |
 | `Form.Dropdown.Item` | 793 |
 | `Form.Dropdown.Item.Props.title` | 793 |
@@ -233,7 +229,6 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `Form.Checkbox` | 411 |
 | `Form.Checkbox.Props.label` | 411 |
 | `LaunchType.UserInitiated` | 408 |
-| `LocalStorage.removeItem` | 398 |
 | `launchCommand` | 398 |
 | `Form.TextField.Props.info` | 381 |
 | `Form.TextField.Props.value` | 375 |
@@ -242,3 +237,8 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `Cache` | 333 |
 | `MenuBarExtra.Item` | 328 |
 | `MenuBarExtra.Item.Props.title` | 328 |
+| `MenuBarExtra.Item.Props.onAction` | 323 |
+| `MenuBarExtra.Props.icon` | 317 |
+| `Form.Dropdown.Item.Props.icon` | 313 |
+| `Clipboard.readText` | 312 |
+| `Grid` | 311 |
