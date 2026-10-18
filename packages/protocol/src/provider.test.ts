@@ -184,3 +184,21 @@ test("provider requests validate request options and role-specific content", () 
   ])
     expect(parseHostMessage({ ...hosts[1], request: { ...request, ...changes } }).ok).toBe(false);
 });
+
+test("capability progress and cancellation round-trip and reject unknown fields", () => {
+  const progress = { type: "capability.progress", id: "ask", value: "chunk" } as const;
+  const cancel = { type: "capability.cancel", id: "ask" } as const;
+  expect(parseHostMessage(progress)).toEqual({ ok: true, message: progress });
+  expect(parseRuntimeMessage(cancel)).toEqual({ ok: true, message: cancel });
+  expect(parseHostMessage({ ...progress, extra: true }).ok).toBe(false);
+  expect(parseRuntimeMessage({ ...cancel, extra: true }).ok).toBe(false);
+  expect(parseHostMessage(cancel).ok).toBe(false);
+  expect(parseRuntimeMessage(progress).ok).toBe(false);
+  expect(
+    parseRuntimeMessage({
+      type: "provider.models",
+      id: "list",
+      models: [{ ...model, extra: true }],
+    }).ok,
+  ).toBe(false);
+});

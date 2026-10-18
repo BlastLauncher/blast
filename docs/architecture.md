@@ -30,7 +30,7 @@ extension code (unmodified, bundled)
    from the command before importing it)
 2. runtime → `ready`, then `scene` after every commit
 3. host → `event` for user input (handler reference + args)
-4. runtime → `capability.request`; host → `capability.result`
+4. runtime → `capability.request` / `capability.cancel`; host → `capability.progress` / `capability.result`
 5. host → `shutdown`, or the process exits/crashes and the host reports it
 
 ## Scene conventions
@@ -102,7 +102,10 @@ Its `getModels()` returns model metadata; `stream(model, request, { signal? })`
 yields JSON stream parts. Attachment bytes, ArrayBuffers and URLs have explicit
 wire encodings (decision 0006). Abort stops publication and iteration; shutdown
 also terminates producers that do not cooperate. `blast models` and
-`blast complete` expose this API; AI.ask routing is separate.
+`blast complete` expose this API. AI.ask with `{ id }` lazily starts the calling
+extension's provider, reuses it until command exit and streams each text chunk.
+AI.refreshModels re-lists that provider, or does nothing when none is declared.
+Both own-extension operations need no grant (decision 0006).
 
 Startup resolves after the version handshake. `session.scenes(callback)` subscribes
 and replays the latest scene; its return value unsubscribes. `latestScene`, `logs`,
@@ -129,7 +132,9 @@ Callers own bundle output directories (default: a unique directory below
 `ai.ask` returns a supplied full-text answer as one runtime `data` chunk; abort
 stops waiting and suppresses late data. `browser.tabs` / `browser.content` use
 supplied tabs and content. These capabilities are denied by default. The CLI
-opts in with `--ai-answer` / `--browser-tabs`; supplied content is returned as is,
+opts in with `--ai-answer` / `--browser-tabs`. AI.experimental_decide requests
+`ai.decide` (denied by default); `--ai-decide <file.json>` supplies typed answers
+validated by the runtime. Its AbortSignal stops waiting. Supplied browser content is returned as is,
 without format conversion, and CSS selectors are unsupported in the headless host.
 
 ## Local storage

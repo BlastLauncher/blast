@@ -31,12 +31,24 @@ let stopping = false;
 let initialized = false;
 let loaded = false;
 let nextRequest = 1;
-const pending = new Map<string, { resolve(value: JsonValue): void; reject(error: Error): void }>();
+const pending = new Map<
+  string,
+  {
+    resolve(value: JsonValue): void;
+    reject(error: Error): void;
+    progress?(value: JsonValue): void;
+    cleanup(): void;
+  }
+>();
 
 // Protocol output owns the real stdout stream. Extension code that writes to
 // `process.stdout` (or a library doing it for them) must not corrupt the NDJSON
 // framing, so those writes become log messages instead. The protocol keeps its
 // own reference to the original writer.
+process.stdout.on("error", (error: NodeJS.ErrnoException) => {
+  if (error.code === "EPIPE") process.exit(0);
+  throw error;
+});
 const writeToStdout = process.stdout.write.bind(process.stdout);
 process.stdout.write = ((chunk: unknown, encoding?: unknown, callback?: unknown) => {
   const done = typeof encoding === "function" ? encoding : callback;
@@ -115,10 +127,24 @@ const root = createSceneRoot({
   onWarning: (message) => log("warn", [message]),
   onError: fatal,
 });
-setCapabilityRequester((name, params) => {
+setCapabilityRequester((name, params, options = {}) => {
+  if (options.signal?.aborted)
+    return Promise.reject(new DOMException("The operation was aborted", "AbortError"));
   const id = String(nextRequest++);
   return new Promise((resolve, reject) => {
-    pending.set(id, { resolve, reject });
+    const abort = () => {
+      reject(new DOMException("The operation was aborted", "AbortError"));
+      send({ type: "capability.cancel", id });
+    };
+    pending.set(id, {
+      resolve,
+      reject,
+      progress: (value) => {
+        if (!options.signal?.aborted) options.onProgress?.(value);
+      },
+      cleanup: () => options.signal?.removeEventListener("abort", abort),
+    });
+    options.signal?.addEventListener("abort", abort, { once: true });
     send({ type: "capability.request", id, name, params });
   });
 });
@@ -235,10 +261,17 @@ function handle(value: unknown) {
       return fatal("Duplicate init", "PROTOCOL_ERROR");
     case "shutdown":
       return shutdown();
+    case "capability.progress": {
+      const request = pending.get(message.id);
+      if (!request) return fatal(`Unknown capability id: ${message.id}`, "PROTOCOL_ERROR");
+      request.progress?.(message.value);
+      return;
+    }
     case "capability.result": {
       const request = pending.get(message.id);
       if (!request) return fatal(`Unknown capability id: ${message.id}`, "PROTOCOL_ERROR");
       pending.delete(message.id);
+      request.cleanup();
       if (message.ok) request.resolve(message.value);
       else
         request.reject(

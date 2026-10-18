@@ -2,5 +2,11 @@
   "name": "model-provider-fixture",
   "ai": {
     "modelProvider": "models"
-  }
+  },
+  "commands": [
+    {
+      "name": "ask",
+      "mode": "no-view"
+    }
+  ]
 }

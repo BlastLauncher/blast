@@ -1,37 +1,52 @@
 import type { AI } from "@raycast/api";
 
-export const getModels: AI.GetModels = () => [
-  {
-    id: "text",
-    title: "Text Model",
-    isLocal: true,
-    description: "Offline fixture",
-    contextWindow: 4096,
-    sizeInBytes: 123,
-    icon: {
-      source: { light: "light.png", dark: "dark.png" },
-      fallback: "fallback.png",
-      mask: "circle",
-      tintColor: "red",
+let listings = 0;
+export const getModels: AI.GetModels = () => {
+  listings++;
+  return [
+    {
+      providerExtra: "ignored",
+      id: "text",
+      title: "Text Model",
+      isLocal: true,
+      description: "Offline fixture",
+      contextWindow: 4096,
+      sizeInBytes: 123,
+      icon: {
+        source: { light: "light.png", dark: "dark.png" },
+        fallback: "fallback.png",
+        mask: "circle",
+        tintColor: "red",
+      },
+      capabilities: {
+        systemMessage: { supported: true },
+        temperature: { supported: true },
+        vision: { mediaTypes: ["image/png", "image/jpeg", "image/webp", "image/gif"] },
+        tools: { supported: true },
+        streaming: { supported: true },
+        reasoningEffort: { supported: true, options: ["low", "high"], default: "low" },
+      },
     },
-    capabilities: {
-      systemMessage: { supported: true },
-      temperature: { supported: true },
-      vision: { mediaTypes: ["image/png", "image/jpeg", "image/webp", "image/gif"] },
-      tools: { supported: true },
-      streaming: { supported: true },
-      reasoningEffort: { supported: true, options: ["low", "high"], default: "low" },
+    {
+      id: "full",
+      title: "Full Model",
+      icon: { fileIcon: "fixture.txt" },
+      capabilities: { streaming: { supported: true } },
     },
-  },
-  {
-    id: "full",
-    title: "Full Model",
-    icon: { fileIcon: "fixture.txt" },
-    capabilities: { streaming: { supported: true } },
-  },
-];
+  ];
+};
 
 export const streamCompletion: AI.StreamCompletion = (model, request) => {
+  const first = request.messages?.[0];
+  if (
+    first?.role === "user" &&
+    first.content.some((part) => part.type === "text" && part.text === "inspect")
+  )
+    return {
+      textStream: (async function* () {
+        yield JSON.stringify({ ...request, listings });
+      })(),
+    };
   if (request.system === "throw") throw new Error("fixture provider threw");
   if (request.system === "attachments") {
     const message = request.messages?.[0];
@@ -48,7 +63,11 @@ export const streamCompletion: AI.StreamCompletion = (model, request) => {
     )
       throw new Error("attachment types lost");
   }
-  if (request.system === "hang")
+  if (
+    request.system === "hang" ||
+    (request.messages?.[0]?.role === "user" &&
+      request.messages[0].content.some((part) => part.type === "text" && part.text === "hang"))
+  )
     return {
       textStream: (async function* () {
         yield "first";

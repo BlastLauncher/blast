@@ -1011,3 +1011,38 @@ test("models and complete expose the offline provider entrypoint", async () => {
     "blast complete <extensionDir> <modelId> <prompt>",
   );
 });
+
+test("own-provider ask streams, refreshes, aborts and answers headless decisions", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "blast-ai-"));
+  try {
+    const answers = join(dir, "answers.json");
+    await writeFile(answers, JSON.stringify({ urgent: { type: "noul", noul: 0.8 } }));
+    const args = [
+      "run",
+      join(root, "fixtures/extensions/model-provider"),
+      "ask",
+      "--data-dir",
+      dir,
+    ];
+    const valid = await runCli([...args, "--ai-decide", answers]);
+    expect(valid.code, valid.stderr + valid.stdout).toBe(0);
+    for (const text of [
+      "chunk:Hello ",
+      "chunk:world",
+      "answer:Hello world",
+      "Unknown model missing",
+      "abort:AbortError",
+      "decide:0.8",
+    ])
+      expect(valid.stdout).toContain(text);
+    const denied = await runCli([...args, "--grant", "ai.decide"]);
+    expect(denied.code, denied.stderr).toBe(0);
+    expect(denied.stdout).toContain("Capability denied: ai.decide");
+    await writeFile(answers, '{"urgent":{"type":"noul","noul":2}}');
+    const invalid = await runCli([...args, "--ai-decide", answers]);
+    expect(invalid.code, invalid.stderr).toBe(0);
+    expect(invalid.stdout).toContain("invalid answer");
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});

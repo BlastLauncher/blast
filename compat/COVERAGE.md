@@ -4,16 +4,16 @@ Denominator: the `@raycast/api@2.8.2` declarations. Evidence:
 `// @covers` tags in `packages/**/*.test.ts(x)`. A parent is not implied covered
 by its children. Partial support is reported separately from covered.
 
-**Non-deprecated coverage: 1450/1534 covered (94.5%), 63 partial, 21 missing.**
+**Non-deprecated coverage: 1456/1534 covered (94.9%), 59 partial, 19 missing.**
 Deprecated: 182/939 covered (19.4%), 5 partial, 752 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 1450 | 182 | 1632 |
-| partial | 63 | 5 | 68 |
-| missing | 21 | 752 | 773 |
+| covered | 1456 | 182 | 1638 |
+| partial | 59 | 5 | 64 |
+| missing | 19 | 752 | 771 |
 
 ## Totals by kind
 
@@ -21,14 +21,14 @@ Deprecated: 182/939 covered (19.4%), 5 partial, 752 missing.
 | --- | --- | --- | --- | --- |
 | namespace | 9 | 0 | 0 | 9 |
 | component | 56 | 19 | 41 | 116 |
-| function | 40 | 4 | 6 | 50 |
+| function | 43 | 3 | 4 | 50 |
 | const | 5 | 0 | 16 | 21 |
 | class | 3 | 0 | 0 | 3 |
 | enum | 13 | 0 | 0 | 13 |
 | enum-member | 691 | 0 | 0 | 691 |
 | interface | 24 | 1 | 39 | 64 |
-| type | 106 | 8 | 64 | 178 |
-| property | 663 | 36 | 605 | 1304 |
+| type | 107 | 7 | 64 | 178 |
+| property | 665 | 34 | 605 | 1304 |
 | method | 22 | 0 | 2 | 24 |
 
 ## Top-level symbols
@@ -37,7 +37,7 @@ Children counts include all descendants, as covered/partial/total.
 
 | Symbol | Kind | Status | Children | Extensions |
 | --- | --- | --- | --- | --- |
-| `AI` | namespace | covered | 260/4/266 | 115 |
+| `AI` | namespace | covered | 266/0/266 | 115 |
 | `Action` | component | covered | 105/3/110 | 2985 |
 | `ActionPanel` | component | covered | 19/5/129 | 3023 |
 | `ActionPanelChildren` | type | missing | 0/0/0 | 0 |
@@ -208,7 +208,6 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `PushAction.Props.title` | 8 |
 | `OpenInBrowserAction.Props.icon` | 7 |
 | `PushAction.Props.icon` | 7 |
-| `AI.refreshModels` | 6 |
 | `ActionPanel.Item.Props.shortcut` | 6 |
 | `preferences` | 6 |
 | `Form.DropdownItem` | 5 |
@@ -242,3 +241,4 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `KeyboardShortcut` | 1 |
 | `ListItem` | 1 |
 | `ListItem.Props.actions` | 1 |
+| `ListItem.Props.subtitle` | 1 |

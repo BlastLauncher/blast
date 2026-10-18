@@ -1,3 +1,4 @@
+import { experimental_decide } from "./ai-decide.ts";
 import { requestCapability } from "./capability.ts";
 import { AI as enums } from "./enums.generated.ts";
 import type { ActionStyle } from "./action.ts";
@@ -17,6 +18,17 @@ function ask(
   const promise = new Promise<string>((resolve, reject) => {
     const signal = options.signal;
     let settled = false;
+    let streamed = false;
+    const progress = (value: unknown) => {
+      if (settled) return;
+      if (typeof value !== "string") return finish(new Error("AI.ask: expected a text chunk"));
+      streamed = true;
+      try {
+        for (const listener of listeners) listener(value);
+      } catch (error) {
+        finish(error);
+      }
+    };
     const finish = (error: unknown, text?: string) => {
       if (settled) return;
       settled = true;
@@ -24,7 +36,7 @@ function ask(
       if (error) reject(error);
       else {
         try {
-          for (const listener of listeners) listener(text!);
+          if (!streamed) for (const listener of listeners) listener(text!);
           resolve(text!);
         } catch (listenerError) {
           reject(listenerError);
@@ -36,14 +48,12 @@ function ask(
       abort();
       return;
     }
-    if (typeof options.model === "object") {
-      finish(new Error("AI.ask: model providers are not supported yet"));
-      return;
-    }
     signal?.addEventListener("abort", abort, { once: true });
     const params = {
       prompt,
-      ...(options.model === undefined ? {} : { model: options.model }),
+      ...(options.model === undefined
+        ? {}
+        : { model: typeof options.model === "object" ? { id: options.model.id } : options.model }),
       ...(options.creativity === undefined
         ? {}
         : {
@@ -53,7 +63,10 @@ function ask(
                 : options.creativity,
           }),
     };
-    void requestCapability("ai.ask", params).then(
+    void requestCapability("ai.ask", params, {
+      ...(signal ? { signal } : {}),
+      onProgress: progress,
+    }).then(
       (text) =>
         typeof text === "string"
           ? finish(null, text)
@@ -68,7 +81,15 @@ function ask(
   });
 }
 
-export const AI = { [OPTIONAL_API]: "AI", Model: enums.Model, ask };
+export const AI = {
+  [OPTIONAL_API]: "AI",
+  Model: enums.Model,
+  ask,
+  experimental_decide,
+  async refreshModels(): Promise<void> {
+    await requestCapability("ai.models.refresh", {});
+  },
+};
 export const unstable_AI = AI;
 export const useUnstableAI = (): undefined => undefined;
 export type BrowserTab = {

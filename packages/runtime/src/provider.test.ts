@@ -108,3 +108,20 @@ test("abort calls iterator return and suppresses late parts", async () => {
   expect(returned).toBe(true);
   expect(messages).toEqual([]);
 });
+
+test("model listings project declared fields while preserving strict protocol validation", async () => {
+  const message = await new Promise<ProviderResponse>((resolve) => {
+    createModelProvider(
+      {
+        getModels: () => [{ id: "m", title: "Model", providerPrivate: "extra" }],
+        streamCompletion: async function* () {},
+      },
+      resolve,
+    ).handle({ type: "provider.getModels", id: "list" });
+  });
+  expect(message).toEqual({
+    type: "provider.models",
+    id: "list",
+    models: [{ id: "m", title: "Model" }],
+  });
+});

@@ -32,14 +32,14 @@ afterEach(() => {
 });
 
 // @covers AI
-// @covers AI.ask partial
+// @covers AI.ask
 // @covers AI.AskOptions
 // @covers AI.AskOptions.creativity
-// @covers AI.AskOptions.model partial
+// @covers AI.AskOptions.model
 // @covers AI.AskOptions.signal
 // @covers AI.Creativity
-// @covers AI.ModelSelector partial
-// @covers AI.ModelSelector.id partial
+// @covers AI.ModelSelector
+// @covers AI.ModelSelector.id
 // @covers unstable_AI
 // @covers useUnstableAI
 test("AI resolves full text, emits one chunk before resolution, and passes typed options", async () => {
@@ -88,14 +88,12 @@ test("AI aborts before dispatch or while waiting and suppresses late data", asyn
   expect(chunks).toEqual([]);
 });
 
-test("AI propagates denial, rejects provider selectors and malformed host responses", async () => {
+test("AI propagates denial, rejects malformed host responses", async () => {
   setCapabilityRequester(async () => {
     throw new Error("Capability denied: ai.ask");
   });
   await expect(AI.ask("q")).rejects.toThrow("Capability denied");
-  await expect(AI.ask("q", { model: { id: "local" } })).rejects.toThrow(
-    "model providers are not supported yet",
-  );
+
   setCapabilityRequester(async () => null);
   await expect(AI.ask("q")).rejects.toThrow("expected a text answer");
 });
@@ -188,4 +186,100 @@ test("Tool confirmation describes typed side effects or skips confirmation", asy
   });
   expect(await confirmation("")).toBeUndefined();
   expect(Object.keys(Tool)).toEqual([]);
+});
+
+// @covers AI.refreshModels
+test("AI provider selectors receive each chunk once and refresh uses its capability", async () => {
+  setCapabilityRequester(async (name, params, options) => {
+    if (name === "ai.models.refresh") {
+      expect(params).toEqual({});
+      return null;
+    }
+    expect(params.model).toEqual({ id: "local" });
+    await Promise.resolve();
+    options?.onProgress?.("one");
+    options?.onProgress?.("two");
+    return "onetwo";
+  });
+  const chunks: string[] = [];
+  const result = AI.ask("q", { model: { id: "local" } });
+  result.on("data", (chunk) => chunks.push(chunk));
+  expect(await result).toBe("onetwo");
+  expect(chunks).toEqual(["one", "two"]);
+  await AI.refreshModels();
+});
+
+// @covers AI.experimental_decide
+test("decide serializes state, narrows choices and validates all answer types", async () => {
+  const input = {
+    state: { text: "issue" },
+    questions: {
+      urgent: { type: "noul", instructions: "urgent?" },
+      severity: { type: "score", instructions: "severity?", criteria: ["low", "high"] },
+      category: {
+        type: "choice",
+        instructions: "category?",
+        criteria: { bug: "defect", other: null },
+      },
+    },
+  } as const;
+  const answers = {
+    urgent: { type: "noul", noul: 0.8 },
+    severity: {
+      type: "score",
+      score: 0.5,
+      confidence: 0.9,
+      legend: { 0: "low", 1: "high" },
+      probabilities: { 0: 0.5, 1: 0.5 },
+    },
+    category: { type: "choice", choice: "bug", confidence: 1, probabilities: { bug: 1, other: 0 } },
+  };
+  setCapabilityRequester(async (name, params) => {
+    expect(name).toBe("ai.decide");
+    expect(params.state).toBe('{"text":"issue"}');
+    return answers;
+  });
+  const result = await AI.experimental_decide(input);
+  const choice: "bug" | "other" = result.category.choice;
+  expect(choice).toBe("bug");
+  expect(result.urgent.noul).toBe(answers.urgent.noul);
+  for (const bad of [
+    null,
+    {},
+    { ...answers, urgent: { type: "noul", noul: 2 } },
+    { ...answers, severity: { ...answers.severity, score: 2 } },
+    { ...answers, severity: { ...answers.severity, legend: { 0: "wrong", 1: "high" } } },
+    { ...answers, category: { ...answers.category, choice: "unknown" } },
+    { ...answers, category: { ...answers.category, probabilities: { bug: 0.2, other: 0.1 } } },
+    { ...answers, category: { ...answers.category, confidence: -1 } },
+  ]) {
+    setCapabilityRequester(async () => bad);
+    await expect(AI.experimental_decide(input)).rejects.toThrow("invalid answer");
+  }
+  setCapabilityRequester(async () => {
+    throw new Error("Capability denied: ai.decide");
+  });
+  await expect(AI.experimental_decide(input)).rejects.toThrow("denied");
+});
+
+test("decide aborts before dispatch or while waiting, without accepting a late answer", async () => {
+  const input = { state: "s", questions: { q: { type: "noul", instructions: "q?" } } } as const;
+  const controller = new AbortController();
+  let dispatches = 0;
+  let answer!: (value: { q: { type: "noul"; noul: number } }) => void;
+  setCapabilityRequester(() => {
+    dispatches++;
+    return new Promise((resolve) => {
+      answer = resolve;
+    });
+  });
+  const result = AI.experimental_decide(input, { signal: controller.signal });
+  await Promise.resolve();
+  controller.abort();
+  await expect(result).rejects.toMatchObject({ name: "AbortError" });
+  answer({ q: { type: "noul", noul: 1 } });
+  await expect(AI.experimental_decide(input, { signal: controller.signal })).rejects.toMatchObject({
+    name: "AbortError",
+  });
+  expect(dispatches).toBe(1);
 });

@@ -26,7 +26,28 @@ export function createModelProvider(
     try {
       if (message.type === "provider.getModels") {
         const models = await exports.getModels!();
-        if (!state.cancelled) emit({ type: "provider.models", id: message.id, models });
+        if (!state.cancelled)
+          emit({
+            type: "provider.models",
+            id: message.id,
+            models: models.map(
+              (model) =>
+                Object.fromEntries(
+                  [
+                    "id",
+                    "title",
+                    "isLocal",
+                    "icon",
+                    "description",
+                    "capabilities",
+                    "contextWindow",
+                    "sizeInBytes",
+                  ]
+                    .filter((key) => Object.hasOwn(model, key))
+                    .map((key) => [key, model[key as keyof typeof model]]),
+                ) as typeof model,
+            ),
+          });
       } else {
         const result = await exports.streamCompletion!(
           message.model as AI.RegisteredModel,
