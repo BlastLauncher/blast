@@ -67,8 +67,9 @@ diagnostics instead of ESM link errors.
 - [x] 0029 Grid
 - [ ] 0030 Menu-bar commands (MenuBarExtra)
 
-Smoke 2026-10-18 (`compat/SMOKE.md`, 40 extensions): 62/66 render, 1 completed.
-Coverage 59.5% non-deprecated. Order: curated-set failures first, then highest corpus weight. Each
+Smoke 2026-10-18 (`compat/SMOKE.md`, 40 extensions): 62/66 render, 1 completed, 0 unsupported-api
+(remaining: 2 expected capability denials, 1 empty menu-bar timeout).
+Coverage 59.6% non-deprecated. Order: curated-set failures first, then highest corpus weight. Each
 step is a task with `@covers` evidence.
 
 ### M4 — Desktop client
