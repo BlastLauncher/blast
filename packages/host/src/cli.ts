@@ -444,7 +444,11 @@ async function run(options: RunOptions): Promise<number> {
       ...createStorageHandlers({ extensionName: bundled.extensionName, dataDir: options.dataDir }),
     };
     session = await Promise.race([
-      startCommand({ ...bundled, broker: reportingBroker(createBroker(handlers), output) }),
+      startCommand({
+        ...bundled,
+        dataDir: options.dataDir,
+        broker: reportingBroker(createBroker(handlers), output),
+      }),
       deadline,
     ]).catch((error: unknown) => {
       throw new RunError(error instanceof Error ? error.message : String(error));

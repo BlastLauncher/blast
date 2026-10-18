@@ -28,7 +28,10 @@ Status: accepted 2026-10-18
    broker denies by default and answers `capability.result`. The runtime
    process gets no ambient host privileges beyond what Node itself grants and
    only an allowlisted environment (no host tokens or credentials);
-   OS-level sandboxing is a later concern, not a claim made now.
+   Synchronous Cache reads/writes files directly inside its host-assigned
+   support directory (or an explicitly configured cache directory). This is a
+   trust point, not a file-access sandbox: arbitrary Node code retains ambient
+   filesystem access. OS-level sandboxing is a later concern.
 7. **Three packages:** `protocol` (messages, validation, framing; no
    dependencies), `runtime` (reconciler, API shim, child entry), `host`
    (bundling, spawning, sessions, broker, `blast` debug CLI).
