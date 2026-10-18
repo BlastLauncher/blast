@@ -6,7 +6,8 @@ files.
 
 ## Current focus
 
-M2 done. M3 — coverage to 100%: 0017 (navigation), then `List.Item.Detail` and the usage-ranked gaps. Then
+M2 done. M3 — coverage to 100%: 0017 (navigation) and 0018 (detail metadata) in parallel; then the
+usage-ranked gaps. Then
 alternate: curated failures first, else the top of "Top missing by usage" in
 `compat/COVERAGE.md`. Known gap: `List.onSearchTextChange` undeclared.
 
@@ -63,6 +64,7 @@ diagnostics instead of ESM link errors.
 - [x] 0015 Generated `UNSUPPORTED_API` stubs for every inventory symbol
 - [x] 0016 Implement the curated-set blockers (OpenInBrowser, Paste, Detail, Icon, …)
 - [ ] 0017 Navigation stack (`useNavigation`, `Action.Push`)
+- [ ] 0018 `List.Item.Detail` and `Detail.Metadata` components
 
 Smoke 2026-10-18 (`compat/SMOKE.md`): 9/13 render; blockers `useNavigation`
 (0017) and `List.Item.Detail` (×3, radix). Coverage 36.6% non-deprecated. Order: curated-set failures first, then highest corpus weight. Each
