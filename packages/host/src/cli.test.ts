@@ -389,3 +389,21 @@ test("CLI edits controlled and uncontrolled form fields and submits typed values
   expect(help.stdout).toContain("field <id> <value>");
   expect(help.stdout).toContain("Run the first Action.SubmitForm");
 });
+
+test("a reader that closes stdout early does not crash the CLI", async () => {
+  const child = spawn("node", [cliPath, "run", helloList, "index", "--script", "-"], {
+    cwd: root,
+    stdio: ["pipe", "pipe", "pipe"],
+  });
+  let stderr = "";
+  child.stderr.setEncoding("utf8").on("data", (chunk: string) => {
+    stderr += chunk;
+  });
+  // Close our end after the first output, like `| head -1`, while the script
+  // keeps producing scenes.
+  child.stdout.once("data", () => child.stdout.destroy());
+  child.stdin.end("search a\nwait\nsearch b\nwait\nsearch c\nwait\nquit\n");
+  const code = await new Promise<number | null>((resolve) => child.on("close", resolve));
+  expect(stderr).not.toContain("EPIPE");
+  expect(code).toBe(0);
+});

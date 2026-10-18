@@ -68,7 +68,7 @@ diagnostics instead of ESM link errors.
 - [x] 0019 Feedback UI: showToast/Toast, showHUD, confirmAlert
 - [x] 0020 List completeness: accessories, search, dropdown, Action.Style
 - [x] 0021 LocalStorage persistence and open()
-- [ ] 0022 Form fields, values and `Action.SubmitForm`
+- [x] 0022 Form fields, values and `Action.SubmitForm`
 - [ ] 0023 Curated set v2 (~40 commands, script-selected, incl. utils users)
 
 Smoke 2026-10-18 (`compat/SMOKE.md`): 13/13 curated commands render. Coverage

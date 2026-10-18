@@ -393,6 +393,13 @@ for (const signal of ["SIGHUP", "SIGINT", "SIGTERM"] as const) {
     process.exit(128 + SIGNAL_NUMBERS[signal]);
   });
 }
+// A reader that stops early (`blast run … | head`) closes stdout: finish
+// quietly instead of crashing on EPIPE.
+process.stdout.on("error", (error: NodeJS.ErrnoException) => {
+  if (error.code !== "EPIPE") throw error;
+  if (cleanupDirectory !== undefined) rmSync(cleanupDirectory, { force: true, recursive: true });
+  process.exit(EXIT_OK);
+});
 
 async function run(options: RunOptions): Promise<number> {
   const output = createOutput(options.json);
