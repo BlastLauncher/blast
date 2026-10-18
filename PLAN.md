@@ -69,7 +69,7 @@ diagnostics instead of ESM link errors.
 - [ ] 0037 Shared dependency allowlist (interim, until v1)
 - [x] 0038 Form.TagPicker, PasswordField, events and props
 - [x] 0039 List and Grid prop completeness
-- [ ] 0040 Image, Keyboard and environment completeness
+- [x] 0040 Image, Keyboard and environment completeness
 - [x] 0041 OAuth PKCE client
 - [ ] Next: Form refs/storeValue/drafts, AI, Tool, BrowserExtension
 
