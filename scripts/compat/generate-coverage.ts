@@ -11,6 +11,7 @@ import {
 } from "./coverage.ts";
 import { INVENTORY_PATH } from "./generate-inventory.ts";
 import { isRecord } from "./raycast-api.ts";
+import { USAGE_PATH } from "../corpus/usage.ts";
 
 export const REPORT_PATH = "compat/raycast-api.json";
 export const COVERAGE_PATH = "compat/COVERAGE.md";
@@ -67,7 +68,27 @@ export function buildCoverage(root: string): {
   errors: string[];
 } {
   const inventory = readInventory(root);
-  const { report, errors } = buildReport(inventory, collectTags(root));
+  const usageFile = join(root, USAGE_PATH);
+  let weights: Record<string, number> | undefined;
+  if (existsSync(usageFile)) {
+    const usage: unknown = JSON.parse(readFileSync(usageFile, "utf8"));
+    if (
+      !isRecord(usage) ||
+      typeof usage.corpusCommit !== "string" ||
+      !Number.isInteger(usage.extensions) ||
+      (usage.extensions as number) < 0 ||
+      !isRecord(usage.paths) ||
+      Object.values(usage.paths).some(
+        (count) =>
+          !Number.isInteger(count) ||
+          (count as number) < 0 ||
+          (count as number) > (usage.extensions as number),
+      )
+    )
+      throw new Error(`${USAGE_PATH}: invalid usage file`);
+    weights = usage.paths as Record<string, number>;
+  }
+  const { report, errors } = buildReport(inventory, collectTags(root), weights);
   return {
     json: `${JSON.stringify(report, null, 2)}\n`,
     markdown: renderCoverageMd(report, inventory),

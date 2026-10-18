@@ -200,6 +200,63 @@ test("unknown tags fail the check with file:line", () => {
   }
 });
 
+test("saved usage weights rank missing paths, break ties by path and participate in staleness checks", () => {
+  const root = fixtureRoot();
+  try {
+    writeFixture(root);
+    const path = join(root, "compat/raycast-usage.json");
+    const usage = {
+      corpusCommit: "pin",
+      extensions: 20,
+      paths: { "Toast.Style": 10, old: 10, List: 20 },
+    };
+    writeFileSync(path, JSON.stringify(usage));
+    const built = buildCoverage(root);
+    const entries = JSON.parse(built.json).entries as Array<{ path: string; weight: number }>;
+    expect(entries.find((entry) => entry.path === "List")!.weight).toBe(20);
+    expect(entries.find((entry) => entry.path === "List.Item")!.weight).toBe(0);
+    expect(built.markdown).toContain("## Top missing by usage");
+    expect(built.markdown).toContain("| `Toast.Style` | 10 |\n| `old` | 10 |");
+    expect(built.markdown).not.toContain("| `List.Item.Props.title` | 0 |");
+    writeFileSync(join(root, REPORT_PATH), built.json);
+    writeFileSync(join(root, COVERAGE_PATH), built.markdown);
+    expect(checkCoverage(root)).toEqual([]);
+    usage.paths["Toast.Style"] = 11;
+    writeFileSync(path, JSON.stringify(usage));
+    expect(checkCoverage(root)).toHaveLength(2);
+    usage.paths["Toast.Style"] = 21;
+    writeFileSync(path, JSON.stringify(usage));
+    expect(checkCoverage(root)).toEqual(["compat/raycast-usage.json: invalid usage file"]);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("top missing by usage is limited to 50 and excludes covered or partial paths", () => {
+  const many: Inventory = {
+    version: "test",
+    entries: Array.from({ length: 60 }, (_, i) => ({
+      path: `path${i.toString().padStart(2, "0")}`,
+      kind: "function",
+      deprecated: false,
+    })),
+  };
+  const { report } = buildReport(
+    many,
+    [
+      { path: "path00", partial: false, file: "test", line: 1 },
+      { path: "path01", partial: true, file: "test", line: 2 },
+    ],
+    Object.fromEntries(many.entries.map((entry, i) => [entry.path, 60 - i])),
+  );
+  const table = renderCoverageMd(report, many).split("## Top missing by usage")[1]!;
+  expect(table).not.toContain("path00");
+  expect(table).not.toContain("path01");
+  expect(table).toContain("path51");
+  expect(table).not.toContain("path52");
+  expect(table.split("\n").filter((line) => line.startsWith("| `"))).toHaveLength(50);
+});
+
 test("committed report and summary match regeneration from the pinned inventory", () => {
   const built = buildCoverage(process.cwd());
   expect(built.errors).toEqual([]);

@@ -12,7 +12,7 @@ export type Inventory = { version: string; entries: InventoryEntry[] };
 /** One `// @covers` tag, with the location needed to report unknown paths. */
 export type CoverTag = { path: string; partial: boolean; file: string; line: number };
 
-export type ReportEntry = { path: string; status: Status; tests: string[] };
+export type ReportEntry = { path: string; status: Status; tests: string[]; weight?: number };
 export type Totals = { covered: number; partial: number; missing: number; total: number };
 export type CoverageReport = {
   version: string;
@@ -54,6 +54,7 @@ function emptyTotals(): Totals {
 export function buildReport(
   inventory: Inventory,
   tags: CoverTag[],
+  weights?: Record<string, number>,
 ): { report: CoverageReport; errors: string[] } {
   const known = new Set(inventory.entries.map((entry) => entry.path));
   const errors: string[] = [];
@@ -77,6 +78,7 @@ export function buildReport(
       path: entry.path,
       status: hit ? (hit.partial ? "partial" : "covered") : "missing",
       tests: hit ? [...hit.files].toSorted() : [],
+      ...(weights ? { weight: weights[entry.path] ?? 0 } : {}),
     };
   });
 
@@ -137,8 +139,8 @@ export function renderCoverageMd(report: CoverageReport, inventory: Inventory): 
     "",
     "Children counts include all descendants, as covered/partial/total.",
     "",
-    "| Symbol | Kind | Status | Children |",
-    "| --- | --- | --- | --- |",
+    "| Symbol | Kind | Status | Children | Extensions |",
+    "| --- | --- | --- | --- | --- |",
   ];
   // One pass over descendants: every entry bumps each of its ancestors.
   const children = new Map<string, { covered: number; partial: number; total: number }>();
@@ -158,7 +160,26 @@ export function renderCoverageMd(report: CoverageReport, inventory: Inventory): 
     if (entry.path.includes(".")) continue;
     const bucket = children.get(entry.path);
     lines.push(
-      `| \`${entry.path}\` | ${inventory.entries[index]!.kind} | ${entry.status} | ${bucket ? `${bucket.covered}/${bucket.partial}/${bucket.total}` : "0/0/0"} |`,
+      `| \`${entry.path}\` | ${inventory.entries[index]!.kind} | ${entry.status} | ${bucket ? `${bucket.covered}/${bucket.partial}/${bucket.total}` : "0/0/0"} | ${entry.weight ?? "—"} |`,
+    );
+  }
+  if (report.entries.some((entry) => entry.weight !== undefined)) {
+    lines.push(
+      "",
+      "## Top missing by usage",
+      "",
+      "Weight is the number of corpus extensions using the path (static imports, member chains, JSX and explicit props).",
+      "Each extension counts once per path. Dynamic accesses and spread props are not inferred. Source: [raycast-usage.json](raycast-usage.json).",
+      "",
+      "| Path | Extensions |",
+      "| --- | --- |",
+      ...report.entries
+        .filter((entry) => entry.status === "missing" && (entry.weight ?? 0) > 0)
+        .toSorted(
+          (a, b) => b.weight! - a.weight! || (a.path < b.path ? -1 : a.path > b.path ? 1 : 0),
+        )
+        .slice(0, 50)
+        .map((entry) => `| \`${entry.path}\` | ${entry.weight} |`),
     );
   }
   return `${lines.join("\n")}\n`;
