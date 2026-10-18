@@ -15,11 +15,11 @@ extension code (unmodified, bundled)
 
 ## Packages
 
-| Package             | Owns                                             | Depends on      |
-| ------------------- | ------------------------------------------------ | --------------- |
-| `packages/protocol` | message types, validation, NDJSON framing        | nothing         |
-| `packages/runtime`  | reconciler, `@raycast/api` shim, child entry     | protocol, react |
-| `packages/host`     | bundling, process lifecycle, broker, `blast` CLI | protocol        |
+| Package             | Owns                                             | Depends on        |
+| ------------------- | ------------------------------------------------ | ----------------- |
+| `packages/protocol` | message types, validation, NDJSON framing        | nothing           |
+| `packages/runtime`  | reconciler, `@raycast/api` shim, child entry     | protocol, react   |
+| `packages/host`     | bundling, process lifecycle, broker, `blast` CLI | protocol, esbuild |
 
 `host` never imports `runtime` code; it only spawns its entry file.
 
@@ -53,7 +53,29 @@ List
 a stable order. Clients resolve a prop element by taking the `Slot` child with
 the matching `name`.
 
+## Host sessions
+
+`bundleCommand({ extensionDir, command, outDir? })` returns the entry path,
+extension/command names and manifest mode. Pass those to
+`startCommand({ ...bundled, broker: createBroker(handlers) })`. The host resolves
+`@blastlauncher/runtime/main` and spawns an explicit Node binary (`nodePath`,
+default `node`); it never imports runtime source.
+
+Startup resolves after the version handshake. `session.scenes(callback)` subscribes
+and replays the latest scene; its return value unsubscribes. `latestScene`, `logs`,
+`sendEvent(node, handler, args)` and `exited` support headless clients. Runtime
+errors appear in logs; fatal and protocol errors also appear in `exited.error`.
+`shutdown({ timeoutMs })` sends shutdown, then SIGTERM after the timeout, then
+SIGKILL after another timeout. Exit resolves after stdio closes.
+
+Broker grants are explicit; missing handlers return `denied`, thrown handlers
+return `failed`. Preferences and environment can be supplied at startup. The
+default environment uses assets/support paths alongside the bundle; callers
+needing extension assets or persistent support data should supply those paths.
+Callers own bundle output directories (default: a unique directory below
+`os.tmpdir()/blast/builds`) and remove them after sessions exit.
+
 ## Status
 
-M1 in progress: protocol, reconciler, minimal API shim and stdio runtime entry exist;
-host and CLI are next (see `PLAN.md`).
+M1 in progress: protocol, reconciler, minimal API shim, stdio runtime and host sessions
+exist; the debug CLI is next (see `PLAN.md`).

@@ -1,7 +1,7 @@
 ---
 id: "0008"
 title: Host library — bundle, spawn, session, capability broker
-status: doing
+status: review
 milestone: M1
 depends: ["0004", "0007", "0010"]
 ---
@@ -42,14 +42,14 @@ broker — and survive the extension crashing.
 
 ## Acceptance
 
-- [ ] Tests with a real bundled TSX fixture: first scene arrives; event
+- [x] Tests with a real bundled TSX fixture: first scene arrives; event
       changes the scene; granted `clipboard.copy` reaches the handler with
       `{ text }`; ungranted request → extension sees a rejection; extension
       that crashes (throws in an effect or calls `process.exit(3)`) → `exited`
       resolves with the code while the test process keeps running; shutdown
       escalation kills a child that ignores `shutdown`.
-- [ ] Bundle output is deterministic for the same input.
-- [ ] `bun run verify` passes.
+- [x] Bundle output is deterministic for the same input.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -58,8 +58,15 @@ broker — and survive the extension crashing.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/host-sessions-broker @ 73f6e3e24eee41e9286d72851197eb0bd4dc4975
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 6.1s
 Done:
-Not done / risks:
+- Added manifest-driven deterministic TSX bundling and the runtime ./main export.
+- Added typed scene callbacks, logs, events, handshake/exit reporting, and shutdown escalation.
+- Added deny-by-default capability handling with denied/failed responses.
+- Added 13 host tests using real Node 24 children; all 127 repository tests pass.
+- Pinned esbuild 0.28.2 after npm view esbuild version; needed for TSX/ESM bundling.
+Not done / risks: Review pending. Callers own bundle directories and must remove them after exit.
+Default environment assets/support paths are beside the bundle; callers can override environment.
+No Raycast API surface changed, so compat artifacts remain unchanged. CLI is task 0009.
 ```

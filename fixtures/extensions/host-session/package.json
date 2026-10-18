@@ -1,0 +1,21 @@
+{
+  "name": "host-session",
+  "commands": [
+    {
+      "name": "session",
+      "mode": "view"
+    },
+    {
+      "name": "no-view",
+      "mode": "no-view"
+    },
+    {
+      "name": "stubborn",
+      "mode": "no-view"
+    },
+    {
+      "name": "invalid",
+      "mode": "no-view"
+    }
+  ]
+}
