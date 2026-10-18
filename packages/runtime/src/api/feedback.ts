@@ -1,4 +1,8 @@
 import { createElement as h, useLayoutEffect, useSyncExternalStore } from "react";
+// `AlertActionStyle_2` and `ToastStyle_2` are the declarations' names behind the
+// public `Alert.ActionStyle` and `Toast.Style` paths (api-extractor dedupes
+// alias collisions with a numeric suffix).
+import { AlertActionStyle_2, ToastStyle_2 } from "./enums.generated.ts";
 import type { ImageLike, Shortcut } from "./types.ts";
 import type { PopToRootTypeValue } from "./window.ts";
 
@@ -32,9 +36,7 @@ export interface HUDOptions {
   popToRootType?: PopToRootTypeValue;
 }
 
-export const Alert = {
-  ActionStyle: { Default: "default", Cancel: "cancel", Destructive: "destructive" },
-} as const;
+export const Alert = { ActionStyle: AlertActionStyle_2 } as const;
 export const AlertActionStyle = Alert.ActionStyle;
 
 const activeToast: { current: Toast | undefined } = { current: undefined };
@@ -90,7 +92,7 @@ const subscribe = (listener: () => void) => {
 const snapshot = () => revision;
 
 export class Toast {
-  static Style = { Success: "SUCCESS", Failure: "FAILURE", Animated: "ANIMATED" } as const;
+  static Style = ToastStyle_2;
   private options: ToastOptions;
   constructor(props: ToastOptions) {
     this.options = { ...props, style: props.style ?? Toast.Style.Success };

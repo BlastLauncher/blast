@@ -9,6 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { DatePickerType } from "./enums.generated.ts";
 import { slot } from "./slot.ts";
 import type { ImageLike, Shortcut } from "./types.ts";
 
@@ -50,7 +51,8 @@ export interface FormTextAreaProps extends FormTextFieldProps {
 export interface FormCheckboxProps extends FormItemProps<boolean> {
   label: string;
 }
-export const DatePickerType = { Date: "date", DateTime: "date_time" } as const;
+/** `Form.DatePicker.Type`: what a date picker lets the user pick. */
+export { DatePickerType };
 export interface FormDatePickerProps extends FormItemProps<Date | null> {
   type?: (typeof DatePickerType)[keyof typeof DatePickerType];
   min?: Date;

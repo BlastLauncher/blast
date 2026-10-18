@@ -17,20 +17,26 @@ test("enum extraction preserves declared strings and rejects unsupported declara
   expect(() => enumValues("export declare enum Icon {")).toThrow("Invalid enum declarations");
 });
 
-test("enum extraction reads namespaced enums and skips the ones the runtime does not implement", () => {
+test("enum extraction emits every declared enum, including namespaced and non-exported ones", () => {
   const source = [
     'export declare enum Icon { Test = "exact-16" }',
     'export declare enum Color { Red = "raycast-red" }',
     'export declare namespace Image { export enum Mask { Circle = "circle", RoundedRectangle = "roundedRectangle" } }',
-    "declare enum Model { Numeric = 1 }",
+    'export declare namespace AI { export enum Model { "OpenAI_GPT-5.4" = "openai-gpt-5.4" } }',
+    'declare enum ActionStyle { Regular = "regular", Destructive = "destructive" }',
   ].join("\n");
-  // The numeric enum is not one of the generated paths, so its members are
-  // never validated; a nested namespace member is keyed by its public path.
+  // Non-exported enums (alias backs like `ActionStyle`) are emitted too, keyed
+  // by declaration name; string-literal member ids keep their names.
   expect(enumValues(source)).toEqual({
     Icon: { Test: "exact-16" },
     Color: { Red: "raycast-red" },
     "Image.Mask": { Circle: "circle", RoundedRectangle: "roundedRectangle" },
+    "AI.Model": { "OpenAI_GPT-5.4": "openai-gpt-5.4" },
+    ActionStyle: { Regular: "regular", Destructive: "destructive" },
   });
+  expect(() =>
+    enumValues('export declare enum Icon { Test = "x" } declare enum Model { Numeric = 1 }'),
+  ).toThrow("Expected string enum member in Model");
 });
 
 test("enum generation is stable and checks both values and evidence for staleness", async () => {

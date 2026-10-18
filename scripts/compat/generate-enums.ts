@@ -8,12 +8,15 @@ export const ENUMS_PATH = "packages/runtime/src/api/enums.generated.ts";
 export const ENUM_TEST_PATH = "packages/runtime/src/api/enums.generated.test.ts";
 
 /**
- * The value enums the runtime implements, by public API path. All of them come
- * from the declarations; `Image.Mask` is the one that lives in a namespace, so
- * the generated `Image` const nests it. A path the declarations drop simply
- * disappears from the generated file, and `compat:check` reports the staleness.
+ * Every enum in the declarations is generated, top-level or in a namespace and
+ * whether or not it is exported there: aliases like `Toast.Style` are declared
+ * as unexported enums (`ToastStyle_2`) that the runtime imports by declaration
+ * name. These are the paths that are public `@raycast/api` values; they
+ * additionally get `@covers` evidence in the generated test and are checked
+ * against the runtime's public surface, where the stub layer must serve their
+ * real values.
  */
-const GENERATED_ENUMS = ["Color", "Icon", "Image.Mask", "LaunchType", "PopToRootType"] as const;
+const PUBLIC_ENUMS = ["Color", "Icon", "Image.Mask", "LaunchType", "PopToRootType"] as const;
 /** These two must exist in every `@raycast/api` release Blast vendors. */
 const REQUIRED_ENUMS = ["Icon", "Color"] as const;
 
@@ -21,24 +24,21 @@ function members(node: Extract<Statement, { type: "TSEnumDeclaration" }>): Recor
   const values: Record<string, string> = {};
   for (const member of node.body.members) {
     if (
-      member.id.type !== "Identifier" ||
+      (member.id.type !== "Identifier" && member.id.type !== "Literal") ||
       member.initializer?.type !== "Literal" ||
       typeof member.initializer.value !== "string"
     )
       throw new Error(`Expected string enum member in ${node.id.name}`);
-    values[member.id.name] = member.initializer.value;
+    values[member.id.type === "Identifier" ? member.id.name : String(member.id.value)] =
+      member.initializer.value;
   }
   return values;
 }
 
-/** Every string enum in the declarations the runtime implements, by public path. */
-export function enumValues(
-  source: string,
-  paths: readonly string[] = GENERATED_ENUMS,
-): Record<string, Record<string, string>> {
+/** Every string enum in the declarations, keyed by its declaration path. */
+export function enumValues(source: string): Record<string, Record<string, string>> {
   const parsed = parseSync("index.d.ts", source);
   if (parsed.errors.length) throw new Error("Invalid enum declarations");
-  const required = new Set<string>(paths);
   const result: Record<string, Record<string, string>> = {};
   const collect = (statements: Statement[], scope: string) => {
     for (const statement of statements) {
@@ -50,7 +50,7 @@ export function enumValues(
       }
       if (node?.type !== "TSEnumDeclaration") continue;
       const path = scope === "" ? node.id.name : `${scope}.${node.id.name}`;
-      if (required.has(path)) result[path] = members(node);
+      result[path] = members(node);
     }
   };
   collect(parsed.program.body, "");
@@ -81,42 +81,42 @@ function constants(enums: Record<string, Record<string, string>>): Record<string
 }
 
 function generatedTestCode(enums: Record<string, Record<string, string>>): string {
-  const paths = Object.keys(enums);
-  const imports = [...new Set(paths.map((path) => path.split(".")[0]!))].toSorted();
+  const paths = Object.keys(enums).toSorted();
+  const publicPaths = PUBLIC_ENUMS.filter((path) => enums[path] !== undefined);
   return [
     'import { expect, test } from "bun:test";',
     'import { readFileSync } from "node:fs";',
     'import { enumValues } from "../../../../scripts/compat/generate-enums.ts";',
-    `import { ${imports.join(", ")} } from "./index.ts";`,
+    'import * as generated from "./enums.generated.ts";',
+    'import * as api from "./index.ts";',
     "",
-    ...paths.flatMap((path) => [
+    "const at = (object: unknown, path: string) =>",
+    '  path.split(".").reduce((node, key) => (node as Record<string, unknown>)[key], object);',
+    "",
+    ...publicPaths.flatMap((path) => [
       `// @covers ${path}`,
       ...Object.keys(enums[path]!).map((key) => `// @covers ${path}.${key}`),
     ]),
-    'test("every generated enum member matches its declaration", () => {',
+    'test("every declared enum is generated with its declared members", () => {',
     '  const expected = enumValues(readFileSync(new URL("../../../../compat/raycast-api/index.d.ts", import.meta.url), "utf8"));',
-    `  const generated: Record<string, unknown> = { ${paths
-      .map((path) => (path.includes(".") ? `${JSON.stringify(path)}: ${path}` : path))
-      .join(", ")} };`,
-    `  expect(Object.keys(generated).toSorted()).toEqual(${JSON.stringify([...paths].toSorted())});`,
+    `  const paths = ${JSON.stringify(paths)};`,
+    "  expect(Object.keys(expected).toSorted()).toEqual(paths);",
     "  for (const [path, declared] of Object.entries(expected)) {",
-    "    const members = generated[path] as Record<string, string>;",
+    "    const members = at(generated, path) as Record<string, string>;",
     "    expect(members as unknown).toEqual(declared);",
     "    for (const [key, value] of Object.entries(declared)) expect(members[key]).toBe(value);",
     "  }",
+    "});",
+    'test("the public API surface serves the generated enum values", () => {',
+    `  const paths = ${JSON.stringify(publicPaths)};`,
+    "  for (const path of paths) expect(at(api, path)).toEqual(at(generated, path));",
     "});",
     "",
   ].join("\n");
 }
 
 export async function generateEnums(root: string): Promise<Record<string, string>> {
-  const declared = enumValues(readFileSync(join(root, VENDOR_TYPES), "utf8"));
-  const enums = Object.fromEntries(
-    GENERATED_ENUMS.filter((path) => declared[path] !== undefined).map((path) => [
-      path,
-      declared[path]!,
-    ]),
-  );
+  const enums = enumValues(readFileSync(join(root, VENDOR_TYPES), "utf8"));
   const header = "// Generated by scripts/compat/generate-enums.ts; do not edit.\n";
   const outputs = {
     [ENUMS_PATH]:
