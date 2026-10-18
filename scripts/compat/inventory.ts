@@ -24,9 +24,35 @@ export type Kind = (typeof KINDS)[number];
 export type Entry = { path: string; kind: Kind; deprecated: boolean };
 export type Inventory = {
   entries: Entry[];
-  unresolved: Array<{ path: string; reference: string }>;
+  external: string[];
 };
 type Declaration = { node: Node; scope: string; deprecated: boolean };
+// Standard library types are ambient, rather than dependencies of the API file.
+const LIB_GLOBALS = new Set(
+  `Array ReadonlyArray ArrayLike ArrayBuffer ArrayBufferLike ArrayBufferView SharedArrayBuffer
+  DataView Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array
+  Float16Array Float32Array Float64Array BigInt64Array BigUint64Array
+  Promise PromiseLike PromiseConstructorLike Awaited PromiseSettledResult PromiseFulfilledResult
+  PromiseRejectedResult Map ReadonlyMap WeakMap WeakKey WeakKeyTypes Set ReadonlySet WeakSet
+  Iterable IterableIterator Iterator IteratorObject IteratorResult IteratorYieldResult IteratorReturnResult
+  AsyncIterable AsyncIterableIterator AsyncIterator AsyncIteratorObject Generator AsyncGenerator
+  GeneratorFunction AsyncGeneratorFunction AsyncFunction CallableFunction NewableFunction Function
+  Object ObjectConstructor String Number Boolean BigInt Symbol PropertyKey PropertyDescriptor
+  PropertyDescriptorMap ThisType ThisParameterType OmitThisParameter Partial Required Readonly
+  Pick Record Exclude Extract Omit NonNullable Parameters ConstructorParameters ReturnType InstanceType
+  Uppercase Lowercase Capitalize Uncapitalize NoInfer IntrinsicStringManipulationTypes
+  Date RegExp RegExpMatchArray RegExpExecArray Error EvalError RangeError ReferenceError SyntaxError
+  TypeError URIError AggregateError ErrorOptions SuppressedError Disposable AsyncDisposable
+  DisposableStack AsyncDisposableStack WeakRef FinalizationRegistry IArguments TemplateStringsArray
+  ImportMeta ImportCallOptions ImportAssertions ImportAttributes TypedPropertyDescriptor
+  ConcatArray FlatArray Unscopables JSON Math Reflect Proxy Atomics Intl WebAssembly
+  URL URLSearchParams AbortSignal AbortController ReadableStream ReadableStreamDefaultReader
+  ReadableStreamBYOBReader ReadableStreamDefaultController ReadableByteStreamController
+  WritableStream WritableStreamDefaultWriter WritableStreamDefaultController TransformStream
+  TransformStreamDefaultController TextEncoder TextDecoder Blob File FormData Headers Request Response
+  RequestInit ResponseInit BufferSource AllowSharedBufferSource Event EventTarget DOMException
+  Console Crypto SubtleCrypto MessagePort MessageChannel Worker TimerHandler`.split(/\s+/),
+);
 const compare = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
 
 function annotation(node: Node): Node | undefined {
@@ -41,7 +67,7 @@ export function inventory(source: string): Inventory {
   const declarations = new Map<string, Declaration[]>();
   const roots: Array<{ path: string; declaration: Declaration }> = [];
   const entries = new Map<string, Entry>();
-  const unresolved = new Map<string, { path: string; reference: string }>();
+  const external = new Set<string>();
   const deprecated = (node: Node) => {
     const comment = parsed.comments.findLast(
       (candidate) =>
@@ -172,12 +198,7 @@ export function inventory(source: string): Inventory {
     }
     if (node.type === "TSEnumMember") return "enum-member";
     if (node.type === "TSModuleDeclaration") return "namespace";
-    if (
-      node.type === "TSDeclareFunction" ||
-      node.type === "FunctionDeclaration" ||
-      node.type === "TSFunctionType"
-    )
-      return "function";
+    if (node.type === "TSDeclareFunction" || node.type === "FunctionDeclaration") return "function";
     if (node.type === "ClassDeclaration") return "class";
     if (node.type === "TSEnumDeclaration") return "enum";
     if (node.type === "TSInterfaceDeclaration") return "interface";
@@ -187,7 +208,11 @@ export function inventory(source: string): Inventory {
     const type = annotation(node);
     if (type) {
       const kind = classify(type, scope, next);
-      if (kind === "component" || kind === "function" || kind === "enum" || kind === "class")
+      if (
+        kind === "component" ||
+        (node.type === "VariableDeclarator" &&
+          (kind === "enum" || kind === "class" || kind === "function"))
+      )
         return kind;
     }
     if (node.type === "VariableDeclarator") return "const";
@@ -204,14 +229,22 @@ export function inventory(source: string): Inventory {
       deprecated: isDeprecated || old?.deprecated || false,
     });
   }
-  function expand(node: Node, path: string, scope: string, seen: Set<Node>, enumValue = true) {
+  function expand(
+    node: Node,
+    path: string,
+    scope: string,
+    seen: Set<Node>,
+    enumValue = true,
+    followNamed = true,
+    inheritedDeprecated = false,
+  ) {
     if (seen.has(node)) return;
     const next = new Set(seen).add(node);
     if (node.type === "TSModuleDeclaration") return; // Exported namespace children are indexed separately.
     if (node.type === "TSEnumDeclaration") {
       if (!enumValue) return;
       for (const member of node.body.members)
-        add(`${path}.${name(member.id)}`, "enum-member", deprecated(member));
+        add(`${path}.${name(member.id)}`, "enum-member", inheritedDeprecated || deprecated(member));
       return;
     }
     if (
@@ -219,6 +252,7 @@ export function inventory(source: string): Inventory {
       node.type === "TSTypeQuery" ||
       node.type === "TSInterfaceHeritage"
     ) {
+      if (!followNamed) return;
       const reference = name(
         node.type === "TSTypeReference"
           ? node.typeName
@@ -233,20 +267,30 @@ export function inventory(source: string): Inventory {
       ) {
         const props = node.typeArguments?.params[0];
         if (props) {
-          add(`${path}.Props`, "type", false);
-          expand(props, `${path}.Props`, scope, next);
+          add(`${path}.Props`, "type", inheritedDeprecated);
+          expand(props, `${path}.Props`, scope, next, true, true, inheritedDeprecated);
         }
       }
       for (const target of targets)
-        expand(target.node, path, target.scope, next, node.type === "TSTypeQuery");
+        expand(
+          target.node,
+          path,
+          target.scope,
+          next,
+          node.type === "TSTypeQuery",
+          true,
+          inheritedDeprecated || target.deprecated,
+        );
       return;
     }
     if (node.type === "TSIntersectionType" || node.type === "TSUnionType") {
-      for (const type of node.types) expand(type, path, scope, next, enumValue);
+      for (const type of node.types)
+        expand(type, path, scope, next, enumValue, followNamed, inheritedDeprecated);
       return;
     }
     if (node.type === "TSInterfaceDeclaration")
-      for (const base of node.extends) expand(base, path, scope, next);
+      for (const base of node.extends)
+        expand(base, path, scope, next, true, true, inheritedDeprecated);
     const children =
       node.type === "TSInterfaceDeclaration"
         ? node.body.body
@@ -264,15 +308,27 @@ export function inventory(source: string): Inventory {
       )
         continue;
       const childPath = `${path}.${name(child.key)}`;
-      add(childPath, classify(child, scope) ?? "property", deprecated(child));
-      expand(child, childPath, scope, next);
+      const kind = classify(child, scope) ?? "property";
+      const childDeprecated = inheritedDeprecated || deprecated(child);
+      add(childPath, kind, childDeprecated);
+      // Components and typeof values expose runtime members. Ordinary data
+      // properties stop at named types, whose members have their own paths.
+      expand(
+        child,
+        childPath,
+        scope,
+        next,
+        true,
+        kind === "component" || annotation(child)?.type === "TSTypeQuery",
+        childDeprecated,
+      );
     }
     const type = annotation(node);
-    if (type) expand(type, path, scope, next, enumValue);
+    if (type) expand(type, path, scope, next, enumValue, followNamed, inheritedDeprecated);
   }
   // Inspect references in signatures too, without turning return types into members.
   const scanned = new Set<Node>();
-  function references(node: Node, path: string, scope: string, parameters = new Set<string>()) {
+  function references(node: Node, scope: string, parameters = new Set<string>()) {
     if (scanned.has(node)) return;
     scanned.add(node);
     const locals = new Set(parameters);
@@ -293,28 +349,43 @@ export function inventory(source: string): Inventory {
     if (node.type === "TSTypeReference" || node.type === "TSTypeQuery") {
       const reference = name(node.type === "TSTypeReference" ? node.typeName : node.exprName);
       const targets = resolve(reference, scope);
-      if (!locals.has(reference) && !targets.length)
-        unresolved.set(`${path}:${reference}`, { path, reference });
-      for (const target of targets) references(target.node, path, target.scope);
+      if (
+        !locals.has(reference.split(".")[0]!) &&
+        !targets.length &&
+        !LIB_GLOBALS.has(reference.split(".")[0]!)
+      )
+        external.add(reference);
+      for (const target of targets) references(target.node, target.scope);
     }
     for (const key of visitorKeys[node.type] ?? []) {
       const value = (node as unknown as Record<string, unknown>)[key];
       for (const child of Array.isArray(value) ? value : [value])
         if (child && typeof child === "object" && "type" in child)
-          references(child as Node, path, scope, locals);
+          references(child as Node, scope, locals);
     }
   }
   for (const { path, declaration } of roots) {
     add(path, classify(declaration.node, declaration.scope) ?? "const", declaration.deprecated);
-    expand(declaration.node, path, declaration.scope, new Set());
+    expand(
+      declaration.node,
+      path,
+      declaration.scope,
+      new Set(),
+      true,
+      true,
+      declaration.deprecated,
+    );
   }
-  for (const { path, declaration } of roots)
+  for (const { declaration } of roots)
     if (declaration.node.type !== "TSModuleDeclaration")
-      references(declaration.node, path, declaration.scope);
-  return {
-    entries: [...entries.values()].toSorted((a, b) => compare(a.path, b.path)),
-    unresolved: [...unresolved.values()].toSorted(
-      (a, b) => compare(a.path, b.path) || compare(a.reference, b.reference),
-    ),
-  };
+      references(declaration.node, declaration.scope);
+  const sorted = [...entries.values()].toSorted((a, b) => compare(a.path, b.path));
+  // Namespace roots and merged declarations are visited independently, so apply
+  // ancestor deprecation after every declaration has contributed its entries.
+  for (const entry of sorted) {
+    const parts = entry.path.split(".");
+    for (let i = 1; i < parts.length; i++)
+      if (entries.get(parts.slice(0, i).join("."))?.deprecated) entry.deprecated = true;
+  }
+  return { entries: sorted, external: [...external].toSorted(compare) };
 }

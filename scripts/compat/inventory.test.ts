@@ -57,7 +57,7 @@ test("handles cycles, external references, class visibility, overloads and sorti
     result.entries.some((entry) => entry.path === "Box.hidden" || entry.path === "Box.secret"),
   ).toBe(false);
   expect(result.entries.find((entry) => entry.path === "Box.size")?.kind).toBe("property");
-  expect(result.unresolved).toEqual([{ path: "Shape", reference: "External" }]);
+  expect(result.external).toEqual(["External"]);
   expect(result.entries.map((entry) => entry.path)).toEqual(
     result.entries.map((entry) => entry.path).toSorted(),
   );
@@ -72,12 +72,103 @@ test("records enum values without inventing values on enum-typed properties", ()
   expect(result["Props.mode.One"]).toBeUndefined();
 });
 
-test("does not report generic, mapped, or inferred type parameters as unresolved", () => {
+test("does not report generic, mapped, or inferred type parameters as external", () => {
   expect(
     inventory(
       `export type A<T> = { [K in keyof T]: T[K] }; export type B<T> = T extends infer U ? U : T;`,
-    ).unresolved,
+    ).external,
   ).toEqual([]);
+});
+
+test("stops property expansion at named types while expanding inline objects", () => {
+  const result = entries(`
+    export namespace Image { interface ImageLike { tintColor: { dark: string }; } }
+    export namespace Keyboard { interface Shortcut { key: string; } }
+    export namespace List { namespace Item { interface Accessory { text: string; } } }
+    export interface Props {
+      icon: Image.ImageLike;
+      shortcut: Keyboard.Shortcut;
+      accessory: List.Item.Accessory;
+      mixed: Image.ImageLike | { inline: { value: string }; named: Keyboard.Shortcut };
+    }
+  `);
+  for (const path of [
+    "Props.icon",
+    "Props.shortcut",
+    "Props.accessory",
+    "Image.ImageLike.tintColor.dark",
+    "Keyboard.Shortcut.key",
+    "List.Item.Accessory.text",
+    "Props.mixed.inline.value",
+    "Props.mixed.named",
+  ])
+    expect(result[path]?.kind).toBe("property");
+  for (const path of [
+    "Props.icon.tintColor",
+    "Props.shortcut.key",
+    "Props.accessory.text",
+    "Props.mixed.tintColor",
+    "Props.mixed.named.key",
+  ])
+    expect(result[path]).toBeUndefined();
+});
+
+test("classifies callback properties separately from methods and declared functions", () => {
+  const result = entries(`
+    declare function handler(): void;
+    export interface Props {
+      onAction: () => void;
+      onCopy?: (value: string) => Promise<void>;
+      callback: typeof handler;
+      run(): void;
+    }
+    export declare function showToast(): void;
+    export namespace Clipboard { function copy(): void; }
+  `);
+  for (const path of ["Props.onAction", "Props.onCopy", "Props.callback"])
+    expect(result[path]?.kind).toBe("property");
+  expect(result["Props.run"]?.kind).toBe("method");
+  for (const path of ["showToast", "Clipboard.copy"]) expect(result[path]?.kind).toBe("function");
+});
+
+test("inherits deprecation through namespaces, component props, aliases and enum members", () => {
+  const result = entries(`
+    import { FunctionComponent } from "react";
+    interface Props { title: string; nested: { value: string }; }
+    /** @deprecated old */ export const Old: FunctionComponent<Props>;
+    export namespace Old { namespace Child { type Value = { value: string }; } }
+    /** @deprecated old */ export enum Mode { One }
+    /** @deprecated old */ interface Legacy { nested: { value: string }; }
+    export type Alias = Legacy;
+    export interface Current { /** @deprecated old */ nested: { value: string }; ok: string; }
+  `);
+  for (const [path, entry] of Object.entries(result))
+    if (
+      path.startsWith("Old.") ||
+      path.startsWith("Mode.") ||
+      path.startsWith("Alias.") ||
+      path.startsWith("Current.nested")
+    )
+      expect(entry.deprecated).toBe(true);
+  expect(result["Old.Props.nested.value"]?.deprecated).toBe(true);
+  expect(result["Old.Child.Value.value"]?.deprecated).toBe(true);
+  expect(result["Current.ok"]?.deprecated).toBe(false);
+});
+
+test("reports unique sorted external names without standard library globals", () => {
+  const result = inventory(`
+    import { ReactNode, ReactElement } from "react";
+    import { PathLike } from "node:fs";
+    export interface Props {
+      node: ReactNode; again: ReactNode; element: ReactElement;
+      path: PathLike; promise: Promise<Array<Record<string, Extract<string, string>>>>;
+      date: Date; url: URL; bytes: Uint8Array<ArrayBuffer>; signal: AbortSignal;
+      stream: ReadableStream<AsyncIterable<string>>; map: ReadonlyMap<string, unknown>;
+      utility: Partial<Pick<{ a: string }, "a">>;
+    }
+  `);
+  expect(result.external).toEqual(["PathLike", "ReactElement", "ReactNode"]);
+  expect(result).not.toHaveProperty("unresolved");
 });
 
 test("rejects invalid declarations", () => {
@@ -101,4 +192,10 @@ test("inventories the pinned Raycast declarations", () => {
   } as const;
   for (const [path, kind] of Object.entries(expected)) expect(result[path]?.kind).toBe(kind);
   expect(result.ActionPanelItem?.deprecated).toBe(true);
+  for (const entry of Object.values(result))
+    if (entry.path.startsWith("ActionPanel.Item.") || entry.path.startsWith("ActionPanelItem."))
+      expect(entry.deprecated).toBe(true);
+  expect(result["Action.Props.onAction"]?.kind).toBe("property");
+  expect(result["Action.CopyToClipboard.Props.onCopy"]?.kind).toBe("property");
+  expect(result["ActionPanel.Item.CopyToClipboard.Props.icon.tintColor.dark"]).toBeUndefined();
 });

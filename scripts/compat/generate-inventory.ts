@@ -29,6 +29,6 @@ if (import.meta.main) {
   writeFileSync(join(root, INVENTORY_PATH), output);
   const result = JSON.parse(output) as ReturnType<typeof inventory>;
   console.log(
-    `inventory: ${KINDS.map((kind) => `${kind}=${result.entries.filter((entry) => entry.kind === kind).length}`).join(", ")}; unresolved=${result.unresolved.length}`,
+    `inventory: ${KINDS.map((kind) => `${kind}=${result.entries.filter((entry) => entry.kind === kind).length}`).join(", ")}; external=${result.external.length}`,
   );
 }
