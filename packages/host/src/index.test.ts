@@ -1,11 +1,23 @@
 import { afterEach, expect, test } from "bun:test";
 import type { SceneMessage, SceneNode } from "@blastlauncher/protocol";
 import { spawn } from "node:child_process";
-import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import {
+  cp,
+  lstat,
+  mkdir,
+  mkdtemp,
+  open,
+  readdir,
+  readFile,
+  realpath,
+  rm,
+  stat,
+  writeFile,
+} from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { bundleCommand, createBroker, startCommand, type Session } from "./index.ts";
+import { bundleCommand, createBroker, linkAssets, startCommand, type Session } from "./index.ts";
 
 const extensionDir = fileURLToPath(
   new URL("../../../fixtures/extensions/host-session", import.meta.url),
@@ -164,6 +176,54 @@ test("CommonJS globals from the banner work and require is built-ins only", asyn
   await expect(
     bundleCommand({ extensionDir: join(dir, "extension"), command: "index" }),
   ).rejects.toMatchObject({ code: "MISSING_DEPENDENCY", packages: ["left-pad"] });
+});
+
+// Plain file list for "nothing new appeared" assertions; sorted for diffing.
+async function filesOf(dir: string): Promise<string[]> {
+  return (await readdir(dir, { recursive: true, withFileTypes: true }))
+    .filter((entry) => entry.isFile())
+    .map((entry) => join(entry.parentPath, entry.name))
+    .toSorted();
+}
+
+// Deterministic stand-in for platforms where symlink creation is unavailable.
+const noSymlinks = () => Promise.reject(new Error("ENOSYS: symlinks unavailable"));
+
+test("the build dir mirrors Raycast's assets layout and leaves the extension untouched", async () => {
+  const fixture = fileURLToPath(new URL("../../../fixtures/extensions/assets", import.meta.url));
+  const before = await filesOf(fixture);
+  const bundled = await bundleCommand({ extensionDir: fixture, command: "index" });
+  directories.push(join(bundled.entry, ".."));
+  expect(bundled.assetsPath).toBe(join(bundled.entry, "..", "assets"));
+  expect((await lstat(bundled.assetsPath!)).isSymbolicLink()).toBe(true);
+  expect(await realpath(bundled.assetsPath!)).toBe(await realpath(join(fixture, "assets")));
+  const session = await startCommand({ ...bundled, broker: createBroker() });
+  sessions.push(session);
+  const published = await scene(session);
+  const json = JSON.stringify(published.root);
+  // One copy of the file through `environment.assetsPath`, one through
+  // `path.join(__dirname, "assets", …)` — both must be the real content.
+  expect(json).toContain('"title":"from assets"');
+  expect(json).toContain('"subtitle":"from assets"');
+  expect(await filesOf(fixture)).toEqual(before);
+});
+
+test("the assets copy fallback is read-only and enforces the size cap", async () => {
+  const fixture = fileURLToPath(new URL("../../../fixtures/extensions/assets", import.meta.url));
+  const dir = await mkdtemp(join(tmpdir(), "blast-assets-test-"));
+  directories.push(dir);
+  await linkAssets(dir, fixture, noSymlinks);
+  expect(await readFile(join(dir, "assets", "message.txt"), "utf8")).toBe("from assets\n");
+  expect((await stat(join(dir, "assets", "message.txt"))).mode & 0o222).toBe(0);
+  // Sparse file: size counts, disk usage does not.
+  const oversized = join(dir, "huge");
+  await mkdir(join(oversized, "assets"), { recursive: true });
+  const file = await open(join(oversized, "assets", "big.bin"), "w");
+  await file.truncate(64 * 1024 * 1024 + 1);
+  await file.close();
+  await expect(linkAssets(join(oversized, "out"), oversized, noSymlinks)).rejects.toThrow(
+    "caps at",
+  );
 });
 
 test("real Node runtime publishes scenes, routes events, grants clipboard and captures logs", async () => {

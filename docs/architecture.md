@@ -35,9 +35,11 @@ extension code (unmodified, bundled)
 
 View commands have a `Navigation` root with ordered `Navigation.Entry` children.
 Only the active entry exposes view contents and handlers; covered views stay
-mounted. `Navigation.props.pop` requests back above depth one (decision 0003).
-Feedback children follow the entries: `Toast`, `HUD`, and the first queued
-`Alert`, with action handlers on `Toast.Action` / `Alert.Action` children
+mounted. `Navigation.props.pop` requests back above depth one (decision 0003),
+and `props.popToRoot` records the options of the latest `popToRoot()` call —
+Blast has no client search-bar state, so `clearSearchBar` is a request for
+clients. Feedback children follow the entries: `Toast`, `HUD`, and the first
+queued `Alert`, with action handlers on `Toast.Action` / `Alert.Action` children
 (decision 0004). No-view commands mount this scene only when showing feedback.
 
 Host element `type`s are the public Raycast paths: `List`, `List.Item`,
@@ -78,7 +80,11 @@ SIGKILL after another timeout. Exit resolves after stdio closes.
 
 Broker grants are explicit; missing handlers return `denied`, thrown handlers
 return `failed`. Preferences and environment can be supplied at startup. The
-default assets path is alongside the bundle. The host creates a stable support
+build directory mirrors Raycast: `<outDir>/assets` links to
+`<extensionDir>/assets` (a read-only copy where symlinks are unavailable), so
+`environment.assetsPath` and `__dirname`-relative asset paths both resolve, and
+`bundleCommand` returns the link as `assetsPath`. The extension directory is
+never written. The host creates a stable support
 directory at `<dataDir>/support/<escaped-extension>/` before spawning, using the
 same data root as local storage; `--data-dir` applies to both. Callers can also
 supply explicit environment paths. Synchronous `Cache` stores strings under

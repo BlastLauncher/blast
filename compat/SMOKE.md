@@ -51,7 +51,7 @@ part of `bun run verify`).
 | `nano-games/play-nano-snake`                                     | view     | rendered          | 8 nodes, root Navigation                                   |
 | `nterm-calculator/nterm-calculator`                              | view     | rendered          | 39 nodes, root Navigation                                  |
 | `ohmyzsh-git-alias/index`                                        | view     | rendered          | 1632 nodes, root Navigation                                |
-| `one-thing/remove-one-thing`                                     | no-view  | unsupported-api   | popToRoot                                                  |
+| `one-thing/remove-one-thing`                                     | no-view  | unsupported-api   | closeMainWindow                                            |
 | `one-thing/set-one-thing`                                        | view     | rendered          | 7 nodes, root Navigation                                   |
 | `one-thing/show-one-thing`                                       | menu-bar | unsupported-mode  | command mode "menu-bar" is not supported                   |
 | `pinch-svg/custom-rectangle`                                     | view     | rendered          | 2 nodes, root Navigation                                   |
@@ -85,7 +85,7 @@ part of `bun run verify`).
 - `menucloak/toggle` (unsupported-api): getApplications
 - `menucloak/turn-off` (unsupported-api): getApplications
 - `menucloak/turn-on` (unsupported-api): getApplications
-- `one-thing/remove-one-thing` (unsupported-api): popToRoot
+- `one-thing/remove-one-thing` (unsupported-api): closeMainWindow
 - `one-thing/show-one-thing` (unsupported-mode): command mode "menu-bar" is not supported
 - `pinch-svg/grid` (unsupported-api): Grid
 - `storybook-sandboxes/local` (unsupported-api): openExtensionPreferences

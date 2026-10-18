@@ -82,7 +82,7 @@ export async function startCommand(options: StartOptions): Promise<Session> {
     environment: options.environment ?? {
       extensionName: options.extensionName,
       commandName: options.commandName,
-      assetsPath: join(dirname(entry), "assets"),
+      assetsPath: options.assetsPath ?? join(dirname(entry), "assets"),
       supportPath,
       isDevelopment: true,
     },

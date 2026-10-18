@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import { createElement as h, useEffect, useState } from "react";
 import { createSceneRoot, type SceneSnapshot } from "../reconciler/index.ts";
-import { Action, PushAction, useNavigation } from "./index.ts";
+import { Action, popToRoot, PushAction, useNavigation } from "./index.ts";
 import { NavigationProvider, type Navigation } from "./navigation.ts";
 
 function setup(component: ReturnType<typeof h>) {
@@ -155,6 +155,44 @@ test("stacks are isolated, batched pushes/pops compose, and shutdown does not ca
   a.root.unmount();
   b.root.unmount();
   expect(pops).toBe(1);
+});
+
+// @covers popToRoot
+test("popToRoot from depth three pops to the root entry, records clearSearchBar, and runs each onPop", async () => {
+  const events: string[] = [];
+  function Driver() {
+    const navigation = useNavigation();
+    return h(Action, {
+      title: "drive",
+      onAction: () => {
+        navigation.push(h("Detail", { markdown: "two" }), () => events.push("pop two"));
+        navigation.push(h("Detail", { markdown: "three" }), () => events.push("pop three"));
+      },
+    });
+  }
+  const { root, latest, top } = setup(h(Driver));
+  const driver = top().id;
+  root.dispatch(driver, "onAction", []);
+  root.flush();
+  expect(latest().props.depth).toBe(3);
+  await popToRoot({ clearSearchBar: true });
+  root.flush();
+  expect(latest().props).toEqual({ depth: 1, popToRoot: { clearSearchBar: true } });
+  // Topmost onPop first, like successive pops; the root entry is never popped.
+  expect(events).toEqual(["pop three", "pop two"]);
+  expect(top().type).toBe("Action");
+  // The root view keeps its stable ids and its handlers come back.
+  root.dispatch(driver, "onAction", []);
+  root.flush();
+  expect(latest().props.depth).toBe(3);
+  // A bare popToRoot() drops the recorded options.
+  await popToRoot();
+  root.flush();
+  expect(latest().props).toEqual({ depth: 1 });
+  expect(events).toEqual(["pop three", "pop two", "pop three", "pop two"]);
+  root.unmount();
+  // No mounted command: popToRoot resolves without effect.
+  await popToRoot({ clearSearchBar: true });
 });
 
 function MissingProviderCommand() {

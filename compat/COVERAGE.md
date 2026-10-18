@@ -4,16 +4,16 @@ Denominator: the `@raycast/api@2.8.2` declarations. Evidence:
 `// @covers` tags in `packages/**/*.test.ts(x)`. A parent is not implied covered
 by its children. Partial support is reported separately from covered.
 
-**Non-deprecated coverage: 796/1534 covered (51.9%), 44 partial, 694 missing.**
+**Non-deprecated coverage: 797/1534 covered (52.0%), 44 partial, 693 missing.**
 Deprecated: 22/939 covered (2.3%), 5 partial, 912 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 796 | 22 | 818 |
+| covered | 797 | 22 | 819 |
 | partial | 44 | 5 | 49 |
-| missing | 694 | 912 | 1606 |
+| missing | 693 | 912 | 1605 |
 
 ## Totals by kind
 
@@ -21,7 +21,7 @@ Deprecated: 22/939 covered (2.3%), 5 partial, 912 missing.
 | --- | --- | --- | --- | --- |
 | namespace | 3 | 1 | 5 | 9 |
 | component | 20 | 23 | 73 | 116 |
-| function | 14 | 3 | 33 | 50 |
+| function | 15 | 3 | 32 | 50 |
 | const | 1 | 1 | 19 | 21 |
 | class | 2 | 0 | 1 | 3 |
 | enum | 6 | 0 | 7 | 13 |
@@ -167,7 +167,7 @@ Children counts include all descendants, as covered/partial/total.
 | `openCommandPreferences` | function | missing | 0/0/0 | 187 |
 | `openExtensionPreferences` | function | missing | 0/0/0 | 541 |
 | `pasteText` | function | missing | 0/0/0 | 3 |
-| `popToRoot` | function | missing | 0/0/0 | 567 |
+| `popToRoot` | function | covered | 0/0/0 | 567 |
 | `preferences` | const | missing | 0/0/0 | 6 |
 | `randomId` | const | missing | 0/0/0 | 3 |
 | `removeLocalStorageItem` | function | covered | 0/0/0 | 3 |
@@ -194,7 +194,6 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | --- | --- |
 | `LaunchProps` | 657 |
 | `closeMainWindow` | 600 |
-| `popToRoot` | 567 |
 | `openExtensionPreferences` | 541 |
 | `Image` | 478 |
 | `LaunchType` | 454 |
@@ -242,3 +241,4 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `MenuBarExtra.Item.Props.subtitle` | 181 |
 | `Form.FilePicker.Props.canChooseDirectories` | 176 |
 | `Form.TagPicker` | 168 |
+| `Form.TagPicker.Item` | 168 |

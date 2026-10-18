@@ -1,6 +1,18 @@
 import type { CommandMode } from "@blastlauncher/protocol";
 import { build, transform, type Plugin } from "esbuild";
-import { access, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import {
+  access,
+  chmod,
+  copyFile,
+  mkdir,
+  mkdtemp,
+  readFile,
+  readdir,
+  rm,
+  stat,
+  symlink,
+  writeFile,
+} from "node:fs/promises";
 import { isBuiltin } from "node:module";
 import { tmpdir } from "node:os";
 import { dirname, isAbsolute, join, resolve } from "node:path";
@@ -85,7 +97,72 @@ export type BundledCommand = {
   extensionName: string;
   commandName: string;
   mode: CommandMode;
+  /** `<outDir>/assets`, resolving to the extension's real assets when it has any. */
+  assetsPath?: string;
 };
+
+/** Cap for the copy fallback, so a large assets directory cannot fill the disk. */
+const MAX_COPIED_ASSETS_BYTES = 64 * 1024 * 1024;
+
+async function totalAssetsSize(dir: string): Promise<number> {
+  let total = 0;
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    // A link inside assets could point anywhere; the copy fallback reads files only.
+    if (entry.isSymbolicLink()) continue;
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) total += await totalAssetsSize(path);
+    else if (entry.isFile()) total += (await stat(path)).size;
+  }
+  return total;
+}
+
+async function copyAssets(source: string, target: string): Promise<void> {
+  const size = await totalAssetsSize(source);
+  if (size > MAX_COPIED_ASSETS_BYTES) {
+    throw new Error(
+      `Assets are ${size} bytes; the copy fallback caps at ${MAX_COPIED_ASSETS_BYTES}`,
+    );
+  }
+  await mkdir(target, { recursive: true });
+  for (const entry of await readdir(source, { withFileTypes: true })) {
+    if (entry.isSymbolicLink()) continue;
+    const from = join(source, entry.name);
+    const to = join(target, entry.name);
+    if (entry.isDirectory()) await copyAssets(from, to);
+    else if (entry.isFile()) {
+      await copyFile(from, to);
+      // Read-only: the copy stands in for assets the extension owns, not
+      // something the bundled command may rewrite.
+      await chmod(to, 0o444);
+    }
+  }
+}
+
+/**
+ * The build directory mirrors Raycast's layout: `assets/` sits next to the
+ * bundle, so `environment.assetsPath` and `path.join(__dirname, "assets", …)`
+ * both resolve to the extension's real assets. The link is a symlink; where
+ * the platform refuses symlinks, a read-only copy with a size cap is used.
+ * Nothing is ever written to the extension directory.
+ */
+export async function linkAssets(
+  outDir: string,
+  extensionDir: string,
+  link: typeof symlink = symlink,
+): Promise<void> {
+  const assets = join(extensionDir, "assets");
+  const source = await stat(assets).catch(() => undefined);
+  if (!source?.isDirectory()) return;
+  const target = join(outDir, "assets");
+  // `rm` removes a symlink itself, never its target, so re-bundling into a
+  // used output directory cannot touch the extension.
+  await rm(target, { recursive: true, force: true });
+  try {
+    await link(assets, target, "dir");
+  } catch {
+    await copyAssets(assets, target);
+  }
+}
 
 /** The caller owns the output directory and may remove it once the session exits. */
 export async function bundleCommand(options: BundleOptions): Promise<BundledCommand> {
@@ -144,5 +221,12 @@ export async function bundleCommand(options: BundleOptions): Promise<BundledComm
     if (missing.size) throw new MissingDependencyError(missing);
     throw error;
   }
-  return { entry, extensionName: manifest.name, commandName: command.name, mode: command.mode };
+  await linkAssets(outDir, extensionDir);
+  return {
+    entry,
+    extensionName: manifest.name,
+    commandName: command.name,
+    mode: command.mode,
+    assetsPath: join(outDir, "assets"),
+  };
 }
