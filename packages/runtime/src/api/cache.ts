@@ -26,7 +26,9 @@ export class Cache {
   private capacity: number;
 
   constructor(options: CacheOptions = {}) {
-    const parent = options.directory ?? environment.supportPath;
+    // The deprecated `directory` option is ignored: the runtime only writes
+    // inside the support directory the host assigned (decision 0001).
+    const parent = environment.supportPath;
     if (!parent) throw new Error("Cache requires an assigned support directory");
     this.capacity = options.capacity ?? Cache.DEFAULT_CAPACITY;
     if (!Number.isFinite(this.capacity) || this.capacity < 0)

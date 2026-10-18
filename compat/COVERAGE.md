@@ -5,14 +5,14 @@ Denominator: the `@raycast/api@2.8.2` declarations. Evidence:
 by its children. Partial support is reported separately from covered.
 
 **Non-deprecated coverage: 796/1534 covered (51.9%), 44 partial, 694 missing.**
-Deprecated: 23/939 covered (2.4%), 4 partial, 912 missing.
+Deprecated: 22/939 covered (2.3%), 5 partial, 912 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 796 | 23 | 819 |
-| partial | 44 | 4 | 48 |
+| covered | 796 | 22 | 818 |
+| partial | 44 | 5 | 49 |
 | missing | 694 | 912 | 1606 |
 
 ## Totals by kind
@@ -28,7 +28,7 @@ Deprecated: 23/939 covered (2.4%), 4 partial, 912 missing.
 | enum-member | 499 | 0 | 192 | 691 |
 | interface | 6 | 1 | 57 | 64 |
 | type | 18 | 1 | 159 | 178 |
-| property | 240 | 18 | 1046 | 1304 |
+| property | 239 | 19 | 1046 | 1304 |
 | method | 10 | 0 | 14 | 24 |
 
 ## Top-level symbols
@@ -57,7 +57,7 @@ Children counts include all descendants, as covered/partial/total.
 | `Application` | interface | missing | 0/0/5 | 119 |
 | `ArgumentsLaunchProps` | interface | missing | 0/0/1 | 1 |
 | `BrowserExtension` | namespace | missing | 0/0/8 | 62 |
-| `Cache` | class | covered | 17/0/17 | 333 |
+| `Cache` | class | covered | 16/1/17 | 333 |
 | `Clipboard` | namespace | partial | 1/0/16 | 1049 |
 | `Color` | enum | covered | 9/0/22 | 1420 |
 | `ColorLike` | type | missing | 0/0/3 | 0 |

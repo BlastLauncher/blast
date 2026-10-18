@@ -69,11 +69,11 @@ diagnostics instead of ESM link errors.
 - [x] 0021 LocalStorage persistence and open()
 - [x] 0022 Form fields, values and `Action.SubmitForm`
 - [x] 0023 Curated set v2 (~40 commands, script-selected, incl. utils users)
-- [ ] 0024 `Cache` with per-extension support directory
+- [x] 0024 `Cache` with per-extension support directory
 - [ ] 0025 CommonJS globals in bundles; clearer smoke outcomes
 - [ ] 0026 getApplications, openExtensionPreferences, Clipboard read/clear
 
-Smoke 2026-10-18 (`compat/SMOKE.md`, 40 extensions): 41/66 commands render.
+Smoke 2026-10-18 (`compat/SMOKE.md`, 40 extensions): 52/66 commands render.
 Coverage 50.8% non-deprecated. Order: curated-set failures first, then highest corpus weight. Each
 step is a task with `@covers` evidence.
 

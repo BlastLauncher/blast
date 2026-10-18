@@ -104,14 +104,19 @@ test("subscriptions receive set/remove/clear across instances, suppress clear an
   expect(events).toHaveLength(4);
 });
 
-// @covers Cache.Options.directory
-test("deprecated directory option works and invalid/corrupt storage is not overwritten", () => {
-  const directory = setup();
+// @covers Cache.Options.directory partial
+test("deprecated directory option cannot move storage; corrupt storage is not overwritten", () => {
+  const assigned = setup();
+  const elsewhere = setup();
+  environment.supportPath = assigned;
+  // Accepted for compatibility, but storage stays in the assigned directory.
+  const cache = new Cache({ directory: elsewhere });
+  expect(cache.storageDirectory.startsWith(assigned)).toBe(true);
   environment.supportPath = undefined;
   expect(() => new Cache()).toThrow("assigned support directory");
-  const cache = new Cache({ directory });
+  environment.supportPath = assigned;
   for (const capacity of [-1, NaN, Infinity])
-    expect(() => new Cache({ directory, capacity })).toThrow("capacity");
+    expect(() => new Cache({ capacity })).toThrow("capacity");
   const file = join(cache.storageDirectory, "entries.json");
   writeFileSync(file, "{}");
   expect(() => cache.set("key", "data")).toThrow("Invalid Cache entries");
