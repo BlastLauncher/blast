@@ -43,7 +43,7 @@ function run(cwd: string, command: string, args: string[]): void {
   if (result.status !== 0) throw new Error(`${command} ${args[0]} failed (${result.status})`);
 }
 
-function* sources(dir: string): Generator<Source> {
+export function* sources(dir: string): Generator<Source> {
   if (!existsSync(dir)) return;
   for (const entry of readdirSync(dir, { withFileTypes: true }).toSorted((a, b) =>
     a.name.localeCompare(b.name),
