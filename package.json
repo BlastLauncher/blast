@@ -15,7 +15,8 @@
     "test": "bun test",
     "compat:fetch": "bun scripts/compat/fetch-raycast-api.ts",
     "compat:inventory": "bun scripts/compat/generate-inventory.ts",
-    "compat:check": "bun scripts/compat/check-inventory.ts",
+    "compat:report": "bun scripts/compat/generate-coverage.ts",
+    "compat:check": "bun scripts/compat/check.ts",
     "check:workflow": "bun scripts/check-workflow.ts"
   },
   "devDependencies": {
