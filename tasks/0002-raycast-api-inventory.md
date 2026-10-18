@@ -26,8 +26,10 @@ symbol path an extension can use — the denominator for coverage.
   `namespace|component|function|const|class|enum|enum-member|interface|type|
   property|method`, and `deprecated` reflects a JSDoc `@deprecated` tag.
 - Resolve members by following type references and intersections within this
-  one file. Do not resolve into `react` or `node` types; record unresolved
-  references in a top-level `"unresolved"` list rather than failing.
+  one file. Do not resolve into `react` or `node` types; record referenced external
+  names in a sorted, unique top-level `"external"` list, excluding TS library
+  globals. This list is informational. Stop ordinary property expansion at
+  named type references; expand inline anonymous object types.
 - Use a real parser. Recommended: `oxc-parser` as a devDependency (pin exact).
   Check its disk size; keep the install small.
 - Output is sorted by `path`, includes `version` and `sha256` copied from
@@ -49,7 +51,7 @@ symbol path an extension can use — the denominator for coverage.
       enum members, props-following, and deprecation.
 - [x] Running the generator twice yields no diff; verify fails when the JSON is
       edited by hand.
-- [x] Summary printed: total entries per kind and unresolved count; include the
+- [x] Summary printed: total entries per kind and external count; include the
       numbers in Handoff.
 - [x] `bun run verify` passes.
 
@@ -60,13 +62,14 @@ symbol path an extension can use — the denominator for coverage.
 
 ## Handoff
 
-Branch/commit: t3/raycast-api-inventory @ 8035f2ffc56cbe976212bf52f8760730f479e1cd (implementation; handoff committed separately)
-Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 1.1s
+Branch/commit: t3/raycast-api-inventory-fixes @ b95189e68f5da7e9a92c5ab3d253cfc50edb4ae9 (implementation; handoff committed separately)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 0.7s
 Done:
 
-- Added pure oxc-parser inventory generation, local type/member resolution, component props, deprecation, provenance, and deterministic sorting.
-- Generated 4,899 entries: namespace=9, component=116, function=223, const=20, class=3, enum=22, enum-member=736, interface=64, type=178, property=3504, method=24; unresolved=104.
-- Added nine deterministic tests (35 total passing); verified required real API paths, identical hashes across two runs, and full verify failure after editing the generated JSON, then restored it.
-- Added inventory staleness to the compat gate; pinned oxc-parser 0.95.0 (installed parser 1.4 MB + native binding 4.4 MB).
+- Fast-forwarded round 1; stopped ordinary property expansion at named types while preserving component props, runtime members, declaration aliases, inheritance, and inline anonymous objects.
+- Corrected callback property kinds and inherited deprecation through descendants, including all ActionPanel.Item and ActionPanelItem descendants.
+- Regenerated 2,473 entries: namespace=9, component=116, function=50, const=21, class=3, enum=13, enum-member=691, interface=64, type=178, property=1304, method=24. Maximum path depth: 8 segments (legitimate nested component props).
+- Replaced unresolved records with external=7: ForwardRefExoticComponent, FunctionComponent, JSX.Element, PathLike, ReactElement, ReactNode, RefAttributes. TS standard library globals are excluded.
+- Added one fixture for each review rule and real-file regression assertions; all 39 tests pass. Two regenerations matched each other and the committed inventory byte-for-byte; existing staleness tests detect edited JSON.
 
-Not done / risks: No acceptance checks skipped. Unresolved records include external React, Node, and standard-library references; external declarations are intentionally not loaded. Coverage evidence/reporting remains task 0003. No push performed.
+Not done / risks: No requested checks skipped. External declarations remain intentionally unloaded; the standard-library name set may need updates as future declarations introduce new globals. Task remains in review. No push performed.
