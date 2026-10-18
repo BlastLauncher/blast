@@ -148,36 +148,50 @@ export function createSceneRoot({ publish, onWarning = noop, onError }: SceneRoo
   let revision = 0;
   let handlers = new Map<string, Map<string, Handler>>();
   const errors: unknown[] = [];
+  // Errors raised while serializing or publishing a commit. Throwing inside
+  // React's commit phase corrupts the reconciler for every later root in the
+  // process, so they are held here and reported once React has finished.
+  const commitErrors: unknown[] = [];
+  function drainCommitErrors() {
+    for (const error of commitErrors.splice(0)) reportError(error);
+  }
   const container: Container = {
     children: [],
     nextId: 1,
     commit() {
-      const nextHandlers = new Map<string, Map<string, Handler>>();
-      function snapshot(node: Instance): SceneNode {
-        const callbacks = new Map<string, Handler>();
-        const props = serializeProps(node.type, node.props, callbacks, onWarning);
-        nextHandlers.set(node.id, callbacks);
-        return {
-          id: node.id,
-          type: node.type,
-          props,
-          // Covered navigation views remain mounted, but cannot receive client events.
-          children:
-            node.type === "Navigation.Entry" && node.props.active === false
-              ? []
-              : node.children.filter((child) => !child.hidden).map(snapshot),
-        };
+      try {
+        commitSnapshot();
+      } catch (error) {
+        commitErrors.push(error);
+        // Async updates are not followed by flush(); report them on a microtask.
+        queueMicrotask(drainCommitErrors);
       }
-      const children = container.children.filter((child) => !child.hidden).map(snapshot);
-      // A fragment with multiple top-level nodes needs a serializable parent.
-      const root =
-        children.length > 1
-          ? { id: "0", type: "#root", props: {}, children }
-          : (children[0] ?? null);
-      handlers = nextHandlers;
-      publish({ revision: ++revision, root });
     },
   };
+  function commitSnapshot() {
+    const nextHandlers = new Map<string, Map<string, Handler>>();
+    function snapshot(node: Instance): SceneNode {
+      const callbacks = new Map<string, Handler>();
+      const props = serializeProps(node.type, node.props, callbacks, onWarning);
+      nextHandlers.set(node.id, callbacks);
+      return {
+        id: node.id,
+        type: node.type,
+        props,
+        // Covered navigation views remain mounted, but cannot receive client events.
+        children:
+          node.type === "Navigation.Entry" && node.props.active === false
+            ? []
+            : node.children.filter((child) => !child.hidden).map(snapshot),
+      };
+    }
+    const children = container.children.filter((child) => !child.hidden).map(snapshot);
+    // A fragment with multiple top-level nodes needs a serializable parent.
+    const root =
+      children.length > 1 ? { id: "0", type: "#root", props: {}, children } : (children[0] ?? null);
+    handlers = nextHandlers;
+    publish({ revision: ++revision, root });
+  }
   function reportError(error: unknown) {
     if (onError) onError(error);
     else errors.push(error);
@@ -198,6 +212,7 @@ export function createSceneRoot({ publish, onWarning = noop, onError }: SceneRoo
   function flush() {
     renderer.flushSyncWork();
     while (renderer.flushPassiveEffects()) renderer.flushSyncWork();
+    drainCommitErrors();
     if (errors.length) throw errors.shift();
   }
   function render(element: ReactNode) {

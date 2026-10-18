@@ -8,7 +8,9 @@ const steps: Array<[name: string, command: string[]]> = [
   ["typecheck", ["bun", "run", "--silent", "typecheck"]],
   ["compat", ["bun", "run", "--silent", "compat:check"]],
   ["workflow", ["bun", "run", "--silent", "check:workflow"]],
-  ["test", ["bun", "test"]],
+  // Random order catches tests that leak module state into each other; a
+  // failure prints `--seed=N` to reproduce with `bun test --randomize --seed=N`.
+  ["test", ["bun", "test", "--randomize"]],
 ];
 
 const results: string[] = [];

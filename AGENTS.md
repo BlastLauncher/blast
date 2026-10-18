@@ -40,7 +40,8 @@ claimed.
   blobless, sparse clones of `raycast/extensions` into `.cache/`. Never clone
   it fully, never `npm install` inside an extension, never modify extension
   source; incompatibilities are fixed in Blast.
-- Deterministic tests only. Network access is allowed in explicit fetch scripts
+- Deterministic, order-independent tests only (verify randomizes order; reproduce
+  with the printed `--seed`). Never throw from React commit callbacks. Network access is allowed in explicit fetch scripts
   that write to `.cache/`, never in `bun test`.
 
 ## Layout
