@@ -1,14 +1,14 @@
 {
   "commit": "3b812d1e153a1862df29bc8ec34e170c728512ea",
   "totals": {
-    "rendered": 53,
+    "rendered": 60,
     "completed": 1,
     "capability-denied": 2,
     "bundle-failed": 0,
     "crashed": 0,
     "timeout": 0,
     "unsupported-mode": 1,
-    "unsupported-api": 9
+    "unsupported-api": 2
   },
   "results": [
     {
@@ -230,9 +230,9 @@
       "extension": "invisible-text-detector",
       "command": "analyze-clipboard-invisible-characters",
       "mode": "no-view",
-      "outcome": "unsupported-api",
-      "path": "Clipboard.readText",
-      "error": "Unsupported API in Blast: Clipboard.readText"
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
     },
     {
       "extension": "invisible-text-detector",
@@ -270,9 +270,9 @@
       "extension": "menucloak",
       "command": "open-settings",
       "mode": "no-view",
-      "outcome": "unsupported-api",
-      "path": "getApplications",
-      "error": "Unsupported API in Blast: getApplications"
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
     },
     {
       "extension": "menucloak",
@@ -286,25 +286,25 @@
       "extension": "menucloak",
       "command": "toggle",
       "mode": "no-view",
-      "outcome": "unsupported-api",
-      "path": "getApplications",
-      "error": "Unsupported API in Blast: getApplications"
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
     },
     {
       "extension": "menucloak",
       "command": "turn-off",
       "mode": "no-view",
-      "outcome": "unsupported-api",
-      "path": "getApplications",
-      "error": "Unsupported API in Blast: getApplications"
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
     },
     {
       "extension": "menucloak",
       "command": "turn-on",
       "mode": "no-view",
-      "outcome": "unsupported-api",
-      "path": "getApplications",
-      "error": "Unsupported API in Blast: getApplications"
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
     },
     {
       "extension": "mise-window-sets",
@@ -485,17 +485,17 @@
       "extension": "storybook-sandboxes",
       "command": "local",
       "mode": "view",
-      "outcome": "unsupported-api",
-      "path": "openExtensionPreferences",
-      "error": "Unsupported API in Blast: openExtensionPreferences"
+      "outcome": "rendered",
+      "nodes": 538,
+      "rootType": "Navigation"
     },
     {
       "extension": "storybook-sandboxes",
       "command": "online",
       "mode": "view",
-      "outcome": "unsupported-api",
-      "path": "openExtensionPreferences",
-      "error": "Unsupported API in Blast: openExtensionPreferences"
+      "outcome": "rendered",
+      "nodes": 538,
+      "rootType": "Navigation"
     },
     {
       "extension": "tategaki",

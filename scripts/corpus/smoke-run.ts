@@ -1,10 +1,10 @@
 // Entry point for `bun run corpus:smoke`. Fetches the curated extensions with
 // the task-0011 fetch script, then bundles and runs every manifest command of
-// each curated extension through the task-0013 host — deny-all broker,
-// manifest-declared preference defaults — waiting for the first scene, the
-// exit, or a timeout. Writes `compat/smoke.json` and `compat/SMOKE.md`.
-// Failures are the report's data, not errors: nothing here fixes Blast, and
-// extension files are never modified.
+// each curated extension through the task-0013 host — deny-all broker plus the
+// headless read-only defaults (task 0026), manifest-declared preference
+// defaults — waiting for the first scene, the exit, or a timeout. Writes
+// `compat/smoke.json` and `compat/SMOKE.md`. Failures are the report's data,
+// not errors: nothing here fixes Blast, and extension files are never modified.
 import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { readFile, rm, writeFile } from "node:fs/promises";
@@ -13,6 +13,7 @@ import { dirname, join } from "node:path";
 import {
   bundleCommand,
   createBroker,
+  createHeadlessHandlers,
   MissingDependencyError,
   startCommand,
   type BundledCommand,
@@ -130,7 +131,10 @@ async function runOne(
     try {
       session = await startCommand({
         ...bundled,
-        broker: createBroker({}),
+        // Deny-all apart from Blast's headless read-only defaults, so a command
+        // that only reads applications, the clipboard or its preferences still
+        // renders; the report header records the policy.
+        broker: createBroker(createHeadlessHandlers()),
         preferences: extractPreferenceDefaults(manifest, commandName),
       });
     } catch (error) {

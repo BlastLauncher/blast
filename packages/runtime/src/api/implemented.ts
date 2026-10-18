@@ -7,7 +7,12 @@ export {
   type ActionPanelProps,
   type ActionPanelSectionProps,
 } from "./action-panel.ts";
-export { Clipboard, type ClipboardContent, type CopyOptions } from "./clipboard.ts";
+export {
+  Clipboard,
+  type ClipboardContent,
+  type CopyOptions,
+  type ReadContent,
+} from "./clipboard.ts";
 export { environment, type Environment } from "./environment.ts";
 export {
   List,
@@ -20,7 +25,12 @@ export {
   type ListDropdownItemProps,
   type ListDropdownSectionProps,
 } from "./list.ts";
-export { getPreferenceValues, type PreferenceValues } from "./preferences.ts";
+export {
+  getPreferenceValues,
+  openCommandPreferences,
+  openExtensionPreferences,
+  type PreferenceValues,
+} from "./preferences.ts";
 
 export { Icon, Color } from "./enums.generated.ts";
 export { OpenInBrowser, Paste, CopyToClipboardAction, PasteAction } from "./action.ts";
@@ -50,6 +60,7 @@ export {
   type LocalStorageValues,
 } from "./storage.ts";
 export { open, type Application } from "./open.ts";
+export { getApplications } from "./applications.ts";
 
 export { Form, SubmitForm as SubmitFormAction } from "./form.ts";
 

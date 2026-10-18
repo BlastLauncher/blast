@@ -217,7 +217,7 @@ for (const title of ["Unsupported sync", "Unsupported async"]) {
     expect(await runtime.next("error")).toMatchObject({
       fatal: true,
       code: "UNSUPPORTED_API",
-      message: "Unsupported API in Blast: Clipboard.read",
+      message: "Unsupported API in Blast: showInFinder",
     });
     expect(await runtime.exited).toBe(1);
   });

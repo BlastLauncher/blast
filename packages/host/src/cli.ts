@@ -18,9 +18,12 @@ import { parseArgs } from "node:util";
 import {
   bundleCommand,
   createBroker,
+  createHeadlessHandlers,
   createStorageHandlers,
   defaultDataDir,
+  parseApplications,
   startCommand,
+  type Application,
   type Broker,
   type CapabilityHandler,
   type BundledCommand,
@@ -42,6 +45,13 @@ Options:
                         text instead of touching an OS clipboard. LocalStorage
                         is always granted to the command's own extension; use
                         --data-dir to place its data.
+  --applications <file.json>
+                        Answer getApplications with the JSON array of
+                        applications in <file>; the file must hold objects with
+                        "name" and "path". Defaults to an empty list.
+  --clipboard <text>    Answer Clipboard.read/readText with <text> at offset 0
+                        and an empty text at older offsets. Defaults to an
+                        empty text. No real clipboard is touched.
   --data-dir <dir>      Root directory for LocalStorage (default:
                         "$XDG_DATA_HOME/blast"); the command's values are kept
                         in <dir>/storage/<extension>.json.
@@ -51,6 +61,11 @@ Options:
   --json                Emit protocol-shaped NDJSON instead of text trees.
   --timeout <ms>        Abort the run after <ms> milliseconds (exit code 3).
   --help                Show this help.
+
+Read-only capabilities a headless run always answers: applications.list
+(--applications), clipboard.read (--clipboard) and preferences.open (printed
+like any other capability). clipboard.paste and clipboard.clear still need
+--grant.
 
 Script commands (one per line, "#" starts a comment):
   action <title>  Dispatch onAction on the Action node with that title.
@@ -375,6 +390,8 @@ type RunOptions = {
   extensionDir: string;
   command: string;
   grants: string[];
+  applications: Application[] | undefined;
+  clipboard: string | undefined;
   dataDir: string;
   scriptSource: string | undefined;
   json: boolean;
@@ -438,9 +455,15 @@ async function run(options: RunOptions): Promise<number> {
     outDir = dirname(bundled.entry);
     cleanupDirectory = outDir;
     // Local storage is granted to the session's own extension by default and
-    // overrides `--grant storage.*`, so a stale grant cannot disable it.
+    // overrides `--grant storage.*`, so a stale grant cannot disable it. The
+    // read-only headless defaults override a bare `--grant` the same way:
+    // answering them with null would break the extension.
     const handlers: Record<string, CapabilityHandler> = {
       ...grantHandlers(options.grants),
+      ...createHeadlessHandlers({
+        applications: options.applications,
+        clipboard: options.clipboard,
+      }),
       ...createStorageHandlers({ extensionName: bundled.extensionName, dataDir: options.dataDir }),
     };
     session = await Promise.race([
@@ -491,6 +514,8 @@ function parseArguments(argv: string[]) {
       allowPositionals: true,
       options: {
         grant: { type: "string", multiple: true },
+        applications: { type: "string" },
+        clipboard: { type: "string" },
         "data-dir": { type: "string" },
         script: { type: "string" },
         json: { type: "boolean" },
@@ -508,6 +533,25 @@ async function readScript(specifier: string): Promise<string> {
     return specifier === "-" ? await readStdin() : await readFile(specifier, "utf8");
   } catch {
     throw new UsageError(`cannot read script ${JSON.stringify(specifier)}`);
+  }
+}
+
+async function readApplications(specifier: string): Promise<Application[]> {
+  let text: string;
+  try {
+    text = await readFile(specifier, "utf8");
+  } catch (error) {
+    throw new UsageError(`cannot read --applications file ${JSON.stringify(specifier)}`, {
+      cause: error,
+    });
+  }
+  try {
+    return parseApplications(text);
+  } catch (error) {
+    throw new UsageError(
+      `--applications ${JSON.stringify(specifier)}: ${error instanceof Error ? error.message : String(error)}`,
+      { cause: error },
+    );
   }
 }
 
@@ -545,10 +589,14 @@ async function main(argv: string[]): Promise<number> {
   const script = parsed.values.script;
   const dataDir = parsed.values["data-dir"];
   if (dataDir === "") throw new UsageError("--data-dir must not be empty");
+  const applicationsPath = parsed.values.applications;
   return run({
     extensionDir,
     command,
     grants: parsed.values.grant ?? [],
+    applications:
+      applicationsPath === undefined ? undefined : await readApplications(applicationsPath),
+    clipboard: parsed.values.clipboard,
     dataDir: dataDir ?? defaultDataDir(),
     scriptSource: script === undefined ? undefined : await readScript(script),
     json: parsed.values.json === true,

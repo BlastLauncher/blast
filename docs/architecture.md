@@ -110,7 +110,12 @@ runtime child process, and prints every published scene as a text tree (one
 node per line, handler props as `[onAction]`; `# log` and `# capability` lines
 interleave for logs and capability requests). `--grant <capability>` grants a
 capability — a granted `clipboard.copy` records and prints the copied text
-instead of touching an OS clipboard. `--script <file|->` drives the run with
+instead of touching an OS clipboard. A headless run also answers the read-only
+capabilities the desktop client owns: `applications.list` from `--applications
+<file.json>` (an empty list otherwise), `clipboard.read` from `--clipboard
+<text>` (an empty text otherwise, and nothing at older offsets), and
+`preferences.open`, which is printed like any other capability. Everything else,
+including `clipboard.paste` and `clipboard.clear`, still needs `--grant`. `--script <file|->` drives the run with
 one command per line: `action <title>`, `back`, `confirm`, `dismiss`,
 `search <text>`, `dropdown <value>`, `field <id> <value>`, `submit`, `wait`,
 `expect <text>`, `quit`. Form fields expose runtime-owned `value` and `onChange`;

@@ -4,16 +4,16 @@ Denominator: the `@raycast/api@2.8.2` declarations. Evidence:
 `// @covers` tags in `packages/**/*.test.ts(x)`. A parent is not implied covered
 by its children. Partial support is reported separately from covered.
 
-**Non-deprecated coverage: 796/1534 covered (51.9%), 44 partial, 694 missing.**
+**Non-deprecated coverage: 808/1534 covered (52.7%), 46 partial, 680 missing.**
 Deprecated: 22/939 covered (2.3%), 5 partial, 912 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 796 | 22 | 818 |
-| partial | 44 | 5 | 49 |
-| missing | 694 | 912 | 1606 |
+| covered | 808 | 22 | 830 |
+| partial | 46 | 5 | 51 |
+| missing | 680 | 912 | 1592 |
 
 ## Totals by kind
 
@@ -21,14 +21,14 @@ Deprecated: 22/939 covered (2.3%), 5 partial, 912 missing.
 | --- | --- | --- | --- | --- |
 | namespace | 3 | 1 | 5 | 9 |
 | component | 20 | 23 | 73 | 116 |
-| function | 14 | 3 | 33 | 50 |
+| function | 20 | 4 | 26 | 50 |
 | const | 1 | 1 | 19 | 21 |
 | class | 2 | 0 | 1 | 3 |
 | enum | 6 | 0 | 7 | 13 |
 | enum-member | 499 | 0 | 192 | 691 |
-| interface | 6 | 1 | 57 | 64 |
-| type | 18 | 1 | 159 | 178 |
-| property | 239 | 19 | 1046 | 1304 |
+| interface | 7 | 1 | 56 | 64 |
+| type | 19 | 2 | 157 | 178 |
+| property | 243 | 19 | 1042 | 1304 |
 | method | 10 | 0 | 14 | 24 |
 
 ## Top-level symbols
@@ -54,11 +54,11 @@ Children counts include all descendants, as covered/partial/total.
 | `AlertActionOptions` | interface | missing | 0/0/3 | 0 |
 | `AlertActionStyle` | enum | covered | 3/0/3 | 1 |
 | `AlertOptions` | interface | missing | 0/0/6 | 0 |
-| `Application` | interface | missing | 0/0/5 | 119 |
+| `Application` | interface | covered | 0/0/5 | 119 |
 | `ArgumentsLaunchProps` | interface | missing | 0/0/1 | 1 |
 | `BrowserExtension` | namespace | missing | 0/0/8 | 62 |
 | `Cache` | class | covered | 16/1/17 | 333 |
-| `Clipboard` | namespace | partial | 1/0/16 | 1049 |
+| `Clipboard` | namespace | partial | 9/2/16 | 1049 |
 | `Color` | enum | covered | 9/0/22 | 1420 |
 | `ColorLike` | type | missing | 0/0/3 | 0 |
 | `CopyToClipboardAction` | component | partial | 0/0/8 | 23 |
@@ -155,7 +155,7 @@ Children counts include all descendants, as covered/partial/total.
 | `confirmAlert` | function | partial | 0/0/0 | 849 |
 | `copyTextToClipboard` | function | missing | 0/0/0 | 3 |
 | `environment` | const | partial | 6/0/17 | 738 |
-| `getApplications` | function | missing | 0/0/0 | 216 |
+| `getApplications` | function | covered | 0/0/0 | 216 |
 | `getDefaultApplication` | function | missing | 0/0/0 | 20 |
 | `getFrontmostApplication` | function | missing | 0/0/0 | 99 |
 | `getLocalStorageItem` | function | covered | 0/0/0 | 10 |
@@ -164,8 +164,8 @@ Children counts include all descendants, as covered/partial/total.
 | `getSelectedText` | function | missing | 0/0/0 | 249 |
 | `launchCommand` | function | missing | 0/0/0 | 398 |
 | `open` | function | covered | 0/0/0 | 928 |
-| `openCommandPreferences` | function | missing | 0/0/0 | 187 |
-| `openExtensionPreferences` | function | missing | 0/0/0 | 541 |
+| `openCommandPreferences` | function | covered | 0/0/0 | 187 |
+| `openExtensionPreferences` | function | covered | 0/0/0 | 541 |
 | `pasteText` | function | missing | 0/0/0 | 3 |
 | `popToRoot` | function | missing | 0/0/0 | 567 |
 | `preferences` | const | missing | 0/0/0 | 6 |
@@ -195,7 +195,6 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `LaunchProps` | 657 |
 | `closeMainWindow` | 600 |
 | `popToRoot` | 567 |
-| `openExtensionPreferences` | 541 |
 | `Image` | 478 |
 | `LaunchType` | 454 |
 | `LaunchType.UserInitiated` | 408 |
@@ -205,7 +204,6 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `MenuBarExtra.Item.Props.title` | 328 |
 | `MenuBarExtra.Item.Props.onAction` | 323 |
 | `MenuBarExtra.Props.icon` | 317 |
-| `Clipboard.readText` | 312 |
 | `Grid` | 311 |
 | `MenuBarExtra.Props.isLoading` | 308 |
 | `Grid.Item` | 306 |
@@ -231,14 +229,16 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `Action.Open.Props.title` | 226 |
 | `MenuBarExtra.Props.tooltip` | 226 |
 | `MenuBarExtra.Section.Props.title` | 224 |
-| `getApplications` | 216 |
 | `List.Props.pagination` | 206 |
 | `Grid.Props.searchBarPlaceholder` | 201 |
-| `Clipboard.paste` | 193 |
 | `Form.FilePicker.Props.id` | 193 |
 | `Action.ShowInFinder` | 192 |
 | `Action.ShowInFinder.Props.path` | 192 |
-| `openCommandPreferences` | 187 |
 | `MenuBarExtra.Item.Props.subtitle` | 181 |
 | `Form.FilePicker.Props.canChooseDirectories` | 176 |
 | `Form.TagPicker` | 168 |
+| `Form.TagPicker.Item` | 168 |
+| `Form.TagPicker.Item.Props.title` | 168 |
+| `Form.TagPicker.Item.Props.value` | 168 |
+| `Form.TagPicker.Props.title` | 167 |
+| `Grid.Item.Props.subtitle` | 165 |
