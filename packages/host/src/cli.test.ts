@@ -127,6 +127,17 @@ test("a crashing extension exits 3", async () => {
   expect(stderr).toContain("runtime exited with code 3");
 });
 
+test("missing dependencies print package names and exit 3", async () => {
+  const { code, stdout, stderr } = await runCli([
+    "run",
+    join(root, "fixtures/extensions/missing-dependency"),
+    "index",
+  ]);
+  expect(code).toBe(3);
+  expect(stdout).toBe("");
+  expect(stderr).toContain("Missing dependencies: @blast-missing/scoped, blast-unavailable");
+});
+
 test("--json emits protocol-shaped NDJSON scenes", async () => {
   const { code, stdout, stderr } = await runCli(["run", helloList, "index", "--json"]);
   expect(code).toBe(0);
