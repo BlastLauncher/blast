@@ -60,19 +60,9 @@ aliases. First step: export a stub for every inventory symbol that throws a
 structured "unsupported in Blast" error when used, so missing APIs fail with
 diagnostics instead of ESM link errors.
 
-- [x] 0015 Generated `UNSUPPORTED_API` stubs for every inventory symbol
-- [x] 0016 Implement the curated-set blockers (OpenInBrowser, Paste, Detail, Icon, …)
-- [x] 0017 Navigation stack (`useNavigation`, `Action.Push`)
-- [x] 0018 `List.Item.Detail` and `Detail.Metadata` components
-- [x] 0019 Feedback UI: showToast/Toast, showHUD, confirmAlert
-- [x] 0020 List completeness: accessories, search, dropdown, Action.Style
-- [x] 0021 LocalStorage persistence and open()
-- [x] 0022 Form fields, values and `Action.SubmitForm`
-- [x] 0023 Curated set v2 (~40 commands, script-selected, incl. utils users)
-- [x] 0024 `Cache` with per-extension support directory
-- [x] 0025 CommonJS globals in bundles; clearer smoke outcomes
-- [x] 0026 getApplications, openExtensionPreferences, Clipboard read/clear
-- [x] 0027 Raycast-like assets layout; popToRoot
+- [x] 0015–0027 done: stubs, curated blockers, navigation, detail metadata,
+      feedback UI, list completeness, storage/open, Form, curated v2, Cache, CJS
+      globals, host capability APIs, assets layout (see git log).
 - [ ] 0028 Launch props/arguments, launchCommand, closeMainWindow, Image enums
 - [ ] 0029 Grid
 - [ ] 0030 Menu-bar commands (MenuBarExtra)
