@@ -233,12 +233,11 @@ test("renders ActionPanel sections and dispatches plain Action onAction", () => 
 // @covers Action.CopyToClipboard.Props.shortcut
 // @covers Action.CopyToClipboard.Props.concealed
 // @covers Action.CopyToClipboard.Props.content
-test("CopyToClipboard passes props through and defaults its title", () => {
+test("CopyToClipboard passes props through, defaults its title, keeps content private", () => {
   const { root, latest } = setup();
   root.render(h(CopyToClipboard, { content: "#1" }));
   expect(latest().type).toBe("Action.CopyToClipboard");
   expect(latest().props).toEqual({
-    content: "#1",
     title: "Copy to Clipboard",
     onAction: { $handler: "onAction" },
   });
@@ -252,7 +251,6 @@ test("CopyToClipboard passes props through and defaults its title", () => {
     }),
   );
   expect(latest().props).toEqual({
-    content: { text: "secret" },
     title: "Copy token",
     icon: "clipboard.png",
     shortcut: { modifiers: ["shift"], key: "c" },

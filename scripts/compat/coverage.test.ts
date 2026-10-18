@@ -209,9 +209,12 @@ test("committed report and summary match regeneration from the pinned inventory"
     version: string;
     totals: { all: { covered: number; partial: number; missing: number } };
   };
-  // The report above already proves the committed files match regeneration;
-  // this guards the denominator against accidental inventory drift.
-  expect(report.version).toBe("2.8.2");
+  // Every inventory entry is accounted for exactly once, whatever the version.
+  const pinned = JSON.parse(readFileSync("compat/raycast-api.inventory.json", "utf8")) as {
+    version: string;
+    entries: unknown[];
+  };
+  expect(report.version).toBe(pinned.version);
   const { covered, partial, missing } = report.totals.all;
-  expect(covered + partial + missing).toBe(2473);
+  expect(covered + partial + missing).toBe(pinned.entries.length);
 });

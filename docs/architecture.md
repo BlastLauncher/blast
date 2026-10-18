@@ -55,4 +55,5 @@ the matching `name`.
 
 ## Status
 
-M0 tooling only; packages arrive with M1 tasks (see `PLAN.md`).
+M1 in progress: reconciler and minimal API shim exist; process entry, host
+and CLI are next (see `PLAN.md`).

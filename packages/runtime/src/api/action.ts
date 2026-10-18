@@ -39,8 +39,9 @@ export function Action(props: ActionProps) {
 
 export function CopyToClipboard(props: CopyToClipboardProps) {
   const { content, onCopy, title, ...rest } = props;
+  // `content` stays in the runtime: clipboard payloads (possibly concealed
+  // secrets) must not be broadcast to clients in the scene.
   return createElement("Action.CopyToClipboard", {
-    content,
     ...rest,
     title: title ?? "Copy to Clipboard",
     onAction: () => copy(content).then(() => onCopy?.(content)),
