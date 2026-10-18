@@ -18,6 +18,7 @@
     "compat:inventory": "bun scripts/compat/generate-inventory.ts",
     "compat:report": "bun scripts/compat/generate-coverage.ts",
     "compat:check": "bun scripts/compat/check.ts",
+    "corpus:fetch": "bun scripts/corpus/fetch.ts",
     "check:workflow": "bun scripts/check-workflow.ts"
   },
   "devDependencies": {

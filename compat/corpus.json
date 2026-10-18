@@ -1,0 +1,16 @@
+{
+  "repository": "https://github.com/raycast/extensions.git",
+  "commit": "3b812d1e153a1862df29bc8ec34e170c728512ea",
+  "curated": [
+    "fibonacci-sequence",
+    "ohmyzsh-git-alias",
+    "axios-docs",
+    "radix",
+    "px-to-rem-converter",
+    "ratio-calculator",
+    "code-review-emojis",
+    "biaodian",
+    "markdown-reference",
+    "conventional-commits"
+  ]
+}
