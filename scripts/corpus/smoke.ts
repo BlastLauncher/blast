@@ -6,6 +6,8 @@
 
 export const OUTCOMES = [
   "rendered",
+  "completed",
+  "capability-denied",
   "bundle-failed",
   "crashed",
   "timeout",
@@ -36,6 +38,7 @@ export type CommandResult = {
   outcome: Outcome;
   /** Why a command did not render, when the outcome alone is not enough. */
   reason?: string | undefined;
+  /** Unsupported-api: the API path. Capability-denied: the capability name. */
   path?: string | undefined;
   /** Rendered: nodes in the first scene and the root node's type. */
   nodes?: number | undefined;
@@ -201,13 +204,23 @@ export function buildResult(input: BuildInput): CommandResult {
       if (probe.error?.code === "UNSUPPORTED") {
         return set({ outcome: "unsupported-mode", reason: probe.error.message });
       }
+      // The runtime reports a broker denial as a plain crash whose message
+      // names the capability (see createBroker); surface it as its own outcome.
+      const denied = /^Capability denied: (.+)$/.exec(probe.error?.message ?? "");
+      if (denied) {
+        return set({
+          outcome: "capability-denied",
+          path: denied[1]!,
+          error: probe.error?.message,
+        });
+      }
       if (probe.code === 0 && probe.signal === null && probe.error === undefined) {
         // A clean exit without a scene is normal for modes that never render
         // (no-view); for a view command it means the scene never arrived.
         return input.mode === "view"
           ? set({ outcome: "crashed", reason: "exited without publishing a scene" })
           : set({
-              outcome: "unsupported-mode",
+              outcome: "completed",
               reason: `command mode "${input.mode}" completed without rendering a scene`,
             });
       }
@@ -255,9 +268,13 @@ function detail(result: CommandResult): string {
       return `${[result.reason, result.exit, result.error].filter(Boolean).join("; ") || "crashed"}${warnings}`;
     case "unsupported-api":
       return `${result.path}${warnings}`;
+    case "capability-denied":
+      return `denied capability ${result.path}${warnings}`;
     case "timeout":
     case "unsupported-mode":
       return `${result.reason}${warnings}`;
+    case "completed":
+      return `${result.reason ?? "completed without rendering a scene"}${warnings}`;
   }
 }
 
@@ -285,7 +302,9 @@ export function renderMarkdownReport(report: SmokeReport): string {
       `| \`${result.extension}/${result.command}\` | ${result.mode} | ${result.outcome} | ${compactLine(detail(result))} |`,
     );
   }
-  const failures = report.results.filter((result) => result.outcome !== "rendered");
+  const failures = report.results.filter(
+    (result) => result.outcome !== "rendered" && result.outcome !== "completed",
+  );
   if (failures.length > 0 || report.extensionFailures.length > 0) {
     lines.push("", "## Failures", "");
     for (const failure of report.extensionFailures) {

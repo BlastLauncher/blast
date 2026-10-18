@@ -1,0 +1,9 @@
+{
+  "name": "cjs-globals",
+  "commands": [
+    {
+      "name": "index",
+      "mode": "view"
+    }
+  ]
+}

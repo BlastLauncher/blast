@@ -1,7 +1,7 @@
 ---
 id: "0025"
 title: CommonJS globals in bundles; clearer no-view smoke outcomes
-status: doing
+status: review
 milestone: M3
 depends: []
 ---
@@ -45,8 +45,30 @@ successful no-view commands as `unsupported-mode`.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/cjs-globals-smoke-outcomes @ HEAD (single feat(0025) commit)
+Verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 20.4s
 Done:
-Not done / risks:
+- packages/host/src/bundle.ts: esbuild banner defines `__filename`,
+  `__dirname` (from `import.meta.url`) and `require`
+  (`module.createRequire`) in every ESM bundle; static require calls resolve
+  through the existing dependency policy, dynamic requires resolve Node
+  built-ins only and throw a MISSING_DEPENDENCY-style error otherwise.
+- New fixture `fixtures/extensions/cjs-globals` using all three globals;
+  host test covers the rendered scene and the `require("left-pad")`
+  MISSING_DEPENDENCY failure (bundle-time, via the existing policy).
+- scripts/corpus/smoke.ts classification only: new outcomes `completed`
+  (clean no-view exit without a scene, excluded from the failures list) and
+  `capability-denied` (matched from the runtime's "Capability denied: <name>"
+  crash message, carrying the capability name); menu-bar stays
+  unsupported-mode.
+- docs/decisions/0002: records the CJS globals and the built-ins-only
+  require policy.
+- Regenerated compat/smoke.json and compat/SMOKE.md: ego-lite/search-history
+  crashed→rendered, google-maps-search/quickSearchMaps
+  unsupported-mode→completed, travelHome crashed→capability-denied (0
+  crashes, 0 bundle failures remain).
+Not done / risks: __filename/__dirname point at the bundled entry in a
+temporary build directory, not the extension source (recorded in decision
+0002); smoke.ts logic only — smoke-run.ts untouched. .cache/raycast-extensions
+deleted after the run.
 ```

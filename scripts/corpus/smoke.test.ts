@@ -138,15 +138,37 @@ test("a runtime UNSUPPORTED error means the mode is unsupported", () => {
   });
 });
 
-test("a clean exit without a scene is unsupported for no-view, a crash for view", () => {
+test("a clean exit without a scene completes for no-view, crashes for view", () => {
   expect(result({ kind: "exit", code: 0, signal: null }, "no-view")).toMatchObject({
-    outcome: "unsupported-mode",
+    outcome: "completed",
     reason: 'command mode "no-view" completed without rendering a scene',
   });
   expect(result({ kind: "exit", code: 0, signal: null }, "view")).toMatchObject({
     outcome: "crashed",
     reason: "exited without publishing a scene",
   });
+});
+
+test("a broker denial is classified with its capability name in JSON and markdown", () => {
+  const denied = result({
+    kind: "exit",
+    code: 1,
+    signal: null,
+    error: { code: "RUNTIME_ERROR", message: "Capability denied: open.url" },
+  });
+  expect(denied).toMatchObject({ outcome: "capability-denied", path: "open.url" });
+  const report = buildReport("pinned", [denied]);
+  expect(report.totals["capability-denied"]).toBe(1);
+  expect(renderJsonReport(report)).toContain('"path": "open.url"');
+  expect(renderMarkdownReport(report)).toContain(
+    "| capability-denied | denied capability open.url |",
+  );
+  // Denials are failures; a completed no-view command is not.
+  const markdown = renderMarkdownReport(
+    buildReport("pinned", [denied, result({ kind: "exit", code: 0, signal: null }, "no-view")]),
+  );
+  expect(markdown).toContain("`ext/index` (capability-denied)");
+  expect(markdown).not.toContain("`ext/index` (completed)");
 });
 
 test("warnings attach to outcomes that ran a session", () => {
@@ -220,6 +242,8 @@ test("buildReport sorts results and extension failures and totals outcomes", () 
   expect(report.extensionFailures.map((failure) => failure.extension)).toEqual(["c"]);
   expect(report.totals).toEqual({
     rendered: 1,
+    completed: 0,
+    "capability-denied": 0,
     "bundle-failed": 0,
     crashed: 0,
     timeout: 2,
@@ -286,7 +310,7 @@ test("the markdown report renders a sorted table, totals and failure details", (
     "`zeta/index`",
   ]);
   expect(markdown).toContain(
-    "3 commands: rendered 1, bundle-failed 1, crashed 0, timeout 0, unsupported-mode 1",
+    "3 commands: rendered 1, completed 1, capability-denied 0, bundle-failed 1, crashed 0, timeout 0, unsupported-mode 0, unsupported-api 0",
   );
   expect(markdown).toContain("missing left-pad, right-pad");
   expect(markdown).toContain('command mode "no-view" completed without rendering a scene');

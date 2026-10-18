@@ -1,11 +1,13 @@
 {
   "commit": "3b812d1e153a1862df29bc8ec34e170c728512ea",
   "totals": {
-    "rendered": 41,
+    "rendered": 42,
+    "completed": 1,
+    "capability-denied": 1,
     "bundle-failed": 0,
-    "crashed": 2,
+    "crashed": 0,
     "timeout": 0,
-    "unsupported-mode": 2,
+    "unsupported-mode": 1,
     "unsupported-api": 21
   },
   "results": [
@@ -157,12 +159,9 @@
       "extension": "ego-lite",
       "command": "search-history",
       "mode": "view",
-      "outcome": "crashed",
-      "exit": "code 1",
-      "error": "__filename is not defined",
-      "logs": [
-        "RUNTIME_ERROR: __filename is not defined"
-      ]
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
     },
     {
       "extension": "evernote",
@@ -208,19 +207,16 @@
       "extension": "google-maps-search",
       "command": "quickSearchMaps",
       "mode": "no-view",
-      "outcome": "unsupported-mode",
+      "outcome": "completed",
       "reason": "command mode \"no-view\" completed without rendering a scene"
     },
     {
       "extension": "google-maps-search",
       "command": "travelHome",
       "mode": "no-view",
-      "outcome": "crashed",
-      "exit": "code 1",
-      "error": "Capability denied: open.url",
-      "logs": [
-        "RUNTIME_ERROR: Capability denied: open.url"
-      ]
+      "outcome": "capability-denied",
+      "path": "open.url",
+      "error": "Capability denied: open.url"
     },
     {
       "extension": "google-maps-search",

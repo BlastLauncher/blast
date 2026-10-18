@@ -52,6 +52,33 @@ function dependencyPolicy(missing: Set<string>): Plugin {
   };
 }
 
+/**
+ * Raycast bundles extensions as CommonJS, so extensions freely use
+ * `__filename`, `__dirname` and `require`. Blast emits ESM, so the bundle
+ * banner defines the globals instead: paths derive from `import.meta.url` and
+ * `require` is `createRequire` restricted to Node built-ins, matching the
+ * dependency policy in docs/decisions/0002 — anything else is a missing
+ * dependency, not a silent module resolution from the host filesystem.
+ */
+const CJS_GLOBALS_BANNER = `
+import { createRequire as __blastCreateRequire, isBuiltin as __blastIsBuiltin } from "node:module";
+import { dirname as __blastDirname } from "node:path";
+import { fileURLToPath as __blastFileURLToPath } from "node:url";
+const __filename = __blastFileURLToPath(import.meta.url);
+const __dirname = __blastDirname(__blastFileURLToPath(import.meta.url));
+const __blastNodeRequire = __blastCreateRequire(import.meta.url);
+function require(specifier) {
+  if (!__blastIsBuiltin(specifier)) {
+    const error = new Error(
+      'Cannot require "' + specifier + '": Blast only provides Node built-ins to require() (MISSING_DEPENDENCY)',
+    );
+    error.code = "MISSING_DEPENDENCY";
+    throw error;
+  }
+  return __blastNodeRequire(specifier);
+}
+`.trim();
+
 export type BundleOptions = { extensionDir: string; command: string; outDir?: string };
 export type BundledCommand = {
   entry: string;
@@ -99,6 +126,7 @@ export async function bundleCommand(options: BundleOptions): Promise<BundledComm
       platform: "node",
       target: "node24",
       jsx: "automatic",
+      banner: { js: CJS_GLOBALS_BANNER },
       plugins: [dependencyPolicy(missing)],
       logLevel: "silent",
     });

@@ -137,6 +137,35 @@ test("unprovided imports report sorted package names even when locally installed
   });
 });
 
+test("CommonJS globals from the banner work and require is built-ins only", async () => {
+  // Raycast's CommonJS bundles expose __filename, __dirname and require;
+  // the fixture uses all three, so this exercises the ESM banner.
+  const fixture = fileURLToPath(
+    new URL("../../../fixtures/extensions/cjs-globals", import.meta.url),
+  );
+  const session = await startCommand({
+    ...(await bundleCommand({ extensionDir: fixture, command: "index" })),
+    broker: createBroker(),
+  });
+  sessions.push(session);
+  const snapshot = await scene(session);
+  const json = JSON.stringify(snapshot.root);
+  // __filename is the bundled entry, so its basename is stable across runs.
+  expect(json).toContain('"navigationTitle":"index.mjs"');
+  expect(json).toMatch(/"title":"[^"]*[/\\]assets"/);
+  // Non-built-in requires fail clearly even when nothing else can resolve them.
+  const dir = await mkdtemp(join(tmpdir(), "blast-cjs-test-"));
+  directories.push(dir);
+  await cp(fixture, join(dir, "extension"), { recursive: true });
+  await writeFile(
+    join(dir, "extension/src/index.tsx"),
+    'const pkg = require("left-pad");\nexport default function Command() { return null; }\n',
+  );
+  await expect(
+    bundleCommand({ extensionDir: join(dir, "extension"), command: "index" }),
+  ).rejects.toMatchObject({ code: "MISSING_DEPENDENCY", packages: ["left-pad"] });
+});
+
 test("real Node runtime publishes scenes, routes events, grants clipboard and captures logs", async () => {
   const copied: unknown[] = [];
   const session = await start(
