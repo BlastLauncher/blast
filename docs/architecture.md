@@ -116,6 +116,14 @@ IDs (default: provider name) key token sets in `<dataDir>/oauth/storage/<extensi
 writes are atomic, serialized within the host, and mode 0600. CLI capability output
 redacts token payloads. No browser or redirect server runs in the headless host.
 
+Dropdowns use `storage.get|set` with scope `blast:dropdown` and keys prefixed
+`blast:dropdown:` containing command name, component type and dropdown id
+(`default` when omitted). The host stores this scope under `<dataDir>/internal/`,
+separate from extension LocalStorage, so even identical keys cannot collide;
+LocalStorage all/clear do not expose or erase dropdown choices. Controlled
+values take precedence. Restoration validates options declared in children;
+options hidden inside custom components are not yet discoverable.
+
 `open(target, application?)` requests `open.url` for URLs (a `file:` URL counts
 as a file) and `open.path` for files, so a client can grant opening links
 without granting file opens.
@@ -145,8 +153,11 @@ are `selection.text`, `selection.files`, and `applications.frontmost`.
 Everything else, including `clipboard.paste` and `clipboard.clear`, still needs `--grant`. `--script <file|->` drives the run with
 one command per line: `action <title>`, `submenu <title>` (dispatches an
 `ActionPanel.Submenu`'s `onOpen`), `back`, `confirm`, `dismiss`,
-`search <text>`, `dropdown <value>`, `field <id> <value>`, `submit`, `wait`,
+`search <text>`, `more`, `dropdown <value>`, `field <id> <value>`, `submit`, `wait`,
 `expect <text>`, `quit`. Form fields expose runtime-owned `value` and `onChange`;
+`more` dispatches the active List/Grid pagination `onLoadMore` when `hasMore`
+is true; scenes carry `pageSize` and `hasMore`. Quick Look props carry file
+name/path metadata for clients.
 `field` sends strings, or `true`/`false` for checkboxes (dates use ISO strings).
 FilePicker fields accept comma-separated paths; omitting the value clears them.
 Picker options are carried in the scene for clients; no OS dialog opens.

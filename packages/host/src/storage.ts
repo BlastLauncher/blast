@@ -170,11 +170,22 @@ function requireValue(params: JsonValue, api: string): StorageValue {
 /** The `storage.*` capability handlers for one session. */
 export function createStorageHandlers(options: StorageOptions): Record<string, CapabilityHandler> {
   const storage = createStorage(options);
+  // A separate root makes internal keys disjoint from every LocalStorage key.
+  const internal = createStorage({
+    ...options,
+    dataDir: join(options.dataDir ?? defaultDataDir(), "internal"),
+  });
+  const store = (params: JsonValue, api: string) =>
+    readParams(params, api).scope === "blast:dropdown" ? internal : storage;
   return {
     // A missing key is `undefined` in the extension API; the wire says `null`.
-    "storage.get": async (params) => (await storage.get(requireKey(params, "storage.get"))) ?? null,
+    "storage.get": async (params) =>
+      (await store(params, "storage.get").get(requireKey(params, "storage.get"))) ?? null,
     "storage.set": async (params) => {
-      await storage.set(requireKey(params, "storage.set"), requireValue(params, "storage.set"));
+      await store(params, "storage.set").set(
+        requireKey(params, "storage.set"),
+        requireValue(params, "storage.set"),
+      );
     },
     "storage.remove": async (params) => {
       await storage.remove(requireKey(params, "storage.remove"));

@@ -5,9 +5,9 @@ import { setCapabilityRequester } from "./capability.ts";
 import { Action, Clipboard, CopyToClipboard, List, ActionPanel } from "./index.ts";
 
 // @covers List partial
-// @covers List.Item partial
-// @covers List.Section partial
-// @covers List.EmptyView partial
+// @covers List.Item
+// @covers List.Section
+// @covers List.EmptyView
 // @covers ActionPanel partial
 // @covers ActionPanel.Section partial
 // @covers Action partial

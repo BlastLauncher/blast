@@ -1,4 +1,5 @@
 import { createElement, type ReactNode } from "react";
+import { useDropdown } from "./dropdown.ts";
 import { GridFit, GridInset, GridItemSize } from "./enums.generated.ts";
 import { slot } from "./slot.ts";
 import type { ColorLike, ImageLike } from "./types.ts";
@@ -121,7 +122,7 @@ export interface GridEmptyViewProps {
   /** An optional description for why the empty view is shown. */
   description?: string;
   /** An optional icon displayed in the center of the empty view. */
-  icon?: ImageLike;
+  icon?: ImageLike | null;
   /** An ActionPanel; rendered as a `Slot` child named `actions`. */
   actions?: ReactNode;
 }
@@ -154,8 +155,7 @@ export interface GridDropdownProps {
   /** Placeholder text shown in the dropdown search field. */
   placeholder?: string;
   /**
-   * Persist the selected value across runs. Recorded but not persisted, as in
-   * the List dropdown.
+   * Persist the selected value per command and dropdown id across runs.
    */
   storeValue?: boolean;
   /** The current value of the dropdown. */
@@ -184,7 +184,7 @@ const GridDropdownSection = function GridDropdownSection(props: GridDropdownSect
 
 const GridDropdown = Object.assign(
   function GridDropdown(props: GridDropdownProps) {
-    return createElement("Grid.Dropdown", props);
+    return useDropdown("Grid.Dropdown", props);
   },
   { Item: GridDropdownItem, Section: GridDropdownSection },
 );

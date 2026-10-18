@@ -175,3 +175,24 @@ test("storage paths stay inside the data directory and default to the XDG root",
   );
   expect(defaultDataDir({})).toBe(join(homedir(), ".local", "share", "blast"));
 });
+
+test("internal dropdown storage survives sessions and cannot collide with LocalStorage keys", async () => {
+  const dataDir = await tempDir();
+  const options = { extensionName: "hello-list", dataDir };
+  const handlers = createStorageHandlers(options);
+  const key = 'blast:dropdown:["index","List.Dropdown","drink"]';
+  const internal = { scope: "blast:dropdown", key };
+  await handlers["storage.set"]!({ key, value: "local" });
+  await handlers["storage.set"]!({ ...internal, value: "wine" });
+  const next = createStorageHandlers(options);
+  expect(await next["storage.get"]!(internal)).toBe("wine");
+  expect(await next["storage.get"]!({ key })).toBe("local");
+  expect(await next["storage.all"]!({})).toEqual({ [key]: "local" });
+  await next["storage.clear"]!({});
+  expect(await next["storage.get"]!(internal)).toBe("wine");
+  expect(
+    await next["storage.get"]!({ ...internal, key: key.replace("index", "other") }),
+  ).toBeNull();
+  const other = createStorageHandlers({ ...options, extensionName: "other" });
+  expect(await other["storage.get"]!(internal)).toBeNull();
+});

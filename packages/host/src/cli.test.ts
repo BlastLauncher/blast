@@ -803,6 +803,54 @@ test("Action.Open requests open.path only with a grant and the scene never shows
   expect(denied.stdout).not.toContain("opened /tmp/blast-demo");
 });
 
+test("more loads List and Grid pages in the active navigation entry and rejects exhausted views", async () => {
+  const fixture = join(root, "fixtures/extensions/pagination");
+  const result = await runCli(
+    ["run", fixture, "index", "--script", "-"],
+    "more\nwait\nexpect list page 2\naction Open Grid\nwait\nmore\nwait\nexpect grid page 2\nquit\n",
+  );
+  expect(result.code).toBe(0);
+  expect(result.stderr).toBe("");
+  expect(result.stdout).toContain('List.Item "list item 2"');
+  expect(result.stdout).toContain('Grid.Item "grid item 2"');
+  for (const command of ["index", "grid"]) {
+    const exhausted = await runCli(
+      ["run", fixture, command, "--script", "-"],
+      "more\nwait\nmore\n",
+    );
+    expect(exhausted.code).toBe(1);
+    expect(exhausted.stderr).toContain("no List or Grid with more pages to load");
+  }
+  const missing = await runCli(["run", helloList, "index", "--script", "-"], "more\n");
+  expect(missing.code).toBe(1);
+  expect(missing.stderr).toContain("no List or Grid with more pages to load");
+  expect((await runCli(["--help"])).stdout).toContain("more");
+});
+
+test("stored dropdown selections restore through the host storage capability across CLI runs", async () => {
+  const dataDir = await mkdtemp(join(tmpdir(), "blast-dropdown-"));
+  try {
+    const args = [
+      "run",
+      join(root, "fixtures/extensions/pagination"),
+      "dropdown",
+      "--data-dir",
+      dataDir,
+      "--script",
+      "-",
+    ];
+    const first = await runCli(args, "dropdown wine\nwait\nexpect drink wine\nquit\n");
+    expect(first.code).toBe(0);
+    expect(first.stderr).toBe("");
+    const second = await runCli(args, "wait\nwait\nexpect drink wine\nquit\n");
+    expect(second.code).toBe(0);
+    expect(second.stderr).toBe("");
+    expect(second.stdout).toContain('value="wine"');
+  } finally {
+    await rm(dataDir, { recursive: true, force: true });
+  }
+});
+
 test("OAuth CLI answers authorization, persists tokens and redacts token requests in text and JSON", async () => {
   const dataDir = await mkdtemp(join(tmpdir(), "blast-oauth-cli-"));
   const fixture = join(root, "fixtures/extensions/oauth");

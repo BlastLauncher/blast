@@ -4,16 +4,17 @@ import { createSceneRoot, type SceneSnapshot } from "../reconciler/index.ts";
 import { Action, ActionPanel, Grid } from "./index.ts";
 
 // @covers Grid partial
+// @covers Grid.Props partial
 // @covers Grid.Props.navigationTitle
 // @covers Grid.Props.isLoading
 // @covers Grid.Props.searchText
 // @covers Grid.Props.searchBarPlaceholder
-// @covers Grid.Props.filtering
-// @covers Grid.Props.filtering.keepSectionOrder
+// @covers Grid.Props.filtering partial
+// @covers Grid.Props.filtering.keepSectionOrder partial
 // @covers Grid.Props.enableFiltering
 // @covers Grid.Props.throttle
-// @covers Grid.Props.onSearchTextChange partial
-// @covers Grid.Props.onSelectionChange partial
+// @covers Grid.Props.onSearchTextChange
+// @covers Grid.Props.onSelectionChange
 // @covers Grid.Props.selectedItemId
 // @covers Grid.Props.columns
 // @covers Grid.Props.itemSize
@@ -23,7 +24,7 @@ import { Action, ActionPanel, Grid } from "./index.ts";
 // @covers Grid.Props.pagination
 // @covers Grid.Props.pagination.pageSize
 // @covers Grid.Props.pagination.hasMore
-// @covers Grid.Props.pagination.onLoadMore partial
+// @covers Grid.Props.pagination.onLoadMore
 // @covers Grid.Props.children
 // @covers Grid.Props.actions
 // @covers Grid.Props.searchBarAccessory
@@ -114,7 +115,8 @@ test("renders Grid passthrough props, children and element props as trailing Slo
   root.unmount();
 });
 
-// @covers Grid.Item partial
+// @covers Grid.Item
+// @covers Grid.Item.Props
 // @covers Grid.Item.Props.id
 // @covers Grid.Item.Props.title
 // @covers Grid.Item.Props.subtitle
@@ -204,7 +206,8 @@ test("an accessory with only a tooltip passes through as JSON", () => {
   root.unmount();
 });
 
-// @covers Grid.Section partial
+// @covers Grid.Section
+// @covers Grid.Section.Props
 // @covers Grid.Section.Props.children
 // @covers Grid.Section.Props.title
 // @covers Grid.Section.Props.subtitle
@@ -243,7 +246,7 @@ test("renders Grid.Section with layout props above its items", () => {
   root.unmount();
 });
 
-// @covers Grid.EmptyView partial
+// @covers Grid.EmptyView
 // @covers Grid.EmptyView.Props.title
 // @covers Grid.EmptyView.Props.description
 // @covers Grid.EmptyView.Props.icon
@@ -277,19 +280,21 @@ test("renders Grid.EmptyView with its own actions Slot", () => {
 // @covers Grid.Dropdown.Props.value
 // @covers Grid.Dropdown.Props.defaultValue
 // @covers Grid.Dropdown.Props.storeValue partial
-// @covers Grid.Dropdown.Props.onChange partial
+// @covers Grid.Dropdown.Props.onChange
 // @covers Grid.Dropdown.Props.placeholder
 // @covers Grid.Dropdown.Props.id
 // @covers Grid.Dropdown.Props.isLoading
 // @covers Grid.Dropdown.Props.throttle
 // @covers Grid.Dropdown.Props.filtering partial
-// @covers Grid.Dropdown.Props.onSearchTextChange partial
-// @covers Grid.Dropdown.Item partial
+// @covers Grid.Dropdown.Props.onSearchTextChange
+// @covers Grid.Dropdown.Item
+// @covers Grid.Dropdown.Item.Props
 // @covers Grid.Dropdown.Item.Props.value
 // @covers Grid.Dropdown.Item.Props.title
 // @covers Grid.Dropdown.Item.Props.icon
 // @covers Grid.Dropdown.Item.Props.keywords
-// @covers Grid.Dropdown.Section partial
+// @covers Grid.Dropdown.Section
+// @covers Grid.Dropdown.Section.Props
 // @covers Grid.Dropdown.Section.Props.title
 // @covers Grid.Dropdown.Section.Props.children
 test("Grid.Dropdown renders into the searchBarAccessory Slot and dispatches onChange", () => {
@@ -303,7 +308,7 @@ test("Grid.Dropdown renders into the searchBarAccessory Slot and dispatches onCh
           placeholder: "Drink…",
           value: "beer",
           defaultValue: "beer",
-          storeValue: true,
+          storeValue: false,
           throttle: true,
           isLoading: true,
           id: "drink",
@@ -334,7 +339,7 @@ test("Grid.Dropdown renders into the searchBarAccessory Slot and dispatches onCh
     placeholder: "Drink…",
     value: "beer",
     defaultValue: "beer",
-    storeValue: true,
+    storeValue: false,
     throttle: true,
     isLoading: true,
     id: "drink",
