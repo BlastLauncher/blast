@@ -6,7 +6,7 @@ files.
 
 ## Current focus
 
-M0 — workflow foundation. Next: `tasks/0001`.
+M0 — workflow foundation. Next: `tasks/0002`.
 
 ## Milestones
 
@@ -15,7 +15,7 @@ M0 — workflow foundation. Next: `tasks/0001`.
 - [x] Archive prototype; new AGENTS.md, PLAN.md, task format
 - [x] `bun run verify` gate and `check:workflow` guard
 - [x] CI runs verify on push and pull request
-- [ ] 0001 Raycast API inventory generator (`compat/`)
+- [x] 0001 Raycast API inventory generator (`compat/`)
 - [ ] 0002 Coverage evidence join (`@covers` tags → report, staleness check)
 
 ### M1 — Headless vertical slice

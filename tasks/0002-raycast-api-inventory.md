@@ -1,7 +1,7 @@
 ---
 id: "0002"
 title: Generate the Raycast API inventory from vendored declarations
-status: todo
+status: doing
 milestone: M0
 depends: ["0001"]
 ---
