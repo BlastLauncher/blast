@@ -1,7 +1,7 @@
 ---
 id: "0008"
 title: Host library — bundle, spawn, session, capability broker
-status: todo
+status: doing
 milestone: M1
 depends: ["0004", "0007", "0010"]
 ---

@@ -6,7 +6,7 @@ files.
 
 ## Current focus
 
-M1 — headless vertical slice. Next: 0010 → 0008 → 0009.
+M1 — headless vertical slice. Next: 0008 → 0009.
 
 ## Milestones
 
@@ -31,7 +31,7 @@ action, observe the clipboard capability request, survive a crash.
 - [x] 0005 React reconciler publishing whole-scene snapshots
 - [x] 0006 Minimal `@raycast/api` shim (List, ActionPanel, Action, Clipboard)
 - [x] 0007 Runtime child-process entry over stdio
-- [ ] 0010 Runtime hardening: command mode, stdout guard, environment, prefs
+- [x] 0010 Runtime hardening: command mode, stdout guard, environment, prefs
 - [ ] 0008 Host: bundle, spawn, session, capability broker
 - [ ] 0009 `blast` debug CLI + end-to-end fixture test
 
