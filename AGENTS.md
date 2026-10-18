@@ -62,6 +62,9 @@ bun test <path>         # focused tests while iterating
 bun run check:workflow  # AGENTS/PLAN/tasks/docs structure and size limits
 ```
 
+Never gate a commit on `bun run verify | tail` without `set -o pipefail`: the
+pipe hides the failure.
+
 ## Definition of done
 
 A task is done only when all are true:
