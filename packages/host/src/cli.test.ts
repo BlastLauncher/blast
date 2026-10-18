@@ -360,3 +360,32 @@ test("open prints each granted target and grants URLs and files separately", asy
     await rm(dataDir, { recursive: true, force: true });
   }
 });
+
+test("CLI edits controlled and uncontrolled form fields and submits typed values", async () => {
+  const args = [
+    "run",
+    join(root, "fixtures/extensions/form"),
+    "index",
+    "--script",
+    "-",
+    "--timeout",
+    "3000",
+  ];
+  const result = await runCli(
+    args,
+    "field name Ada\nwait\nfield notes Hello world\nwait\nfield drink tea\nwait\nfield agree true\nwait\nfield date 2026-10-18T12:00:00.000Z\nwait\nsubmit\nwait\nquit\n",
+  );
+  expect(result.code, result.stderr).toBe(0);
+  expect(result.stdout).toContain(
+    'navigationTitle="{\\"name\\":\\"Ada\\",\\"notes\\":\\"Hello world\\",\\"drink\\":\\"tea\\",\\"agree\\":true,\\"date\\":\\"2026-10-18T12:00:00.000Z\\"}"',
+  );
+  const invalid = await runCli(args, "field agree yes\n");
+  expect(invalid.code).toBe(1);
+  expect(invalid.stderr).toContain("checkbox field value must be true or false");
+  const missing = await runCli(args, "field missing text\n");
+  expect(missing.code).toBe(1);
+  expect(missing.stderr).toContain("no editable Form field");
+  const help = await runCli(["--help"]);
+  expect(help.stdout).toContain("field <id> <value>");
+  expect(help.stdout).toContain("Run the first Action.SubmitForm");
+});

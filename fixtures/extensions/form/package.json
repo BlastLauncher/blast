@@ -1,0 +1,9 @@
+{
+  "name": "form",
+  "commands": [
+    {
+      "name": "index",
+      "mode": "view"
+    }
+  ]
+}

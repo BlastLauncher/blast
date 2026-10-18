@@ -2,7 +2,7 @@ import { Action, Clipboard, Form, List } from "@raycast/api";
 import { createElement } from "react";
 
 export default function Command() {
-  return createElement(Form.Dropdown.Item);
+  return createElement(Form.FilePicker);
 }
 export function EventCommand() {
   return createElement(

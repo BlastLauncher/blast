@@ -2,6 +2,7 @@ import { createElement, type ReactNode } from "react";
 import { copy, toText, type ClipboardContent } from "./clipboard.ts";
 import { requestCapability } from "./capability.ts";
 import { useNavigation } from "./navigation.ts";
+import { SubmitForm } from "./form.ts";
 import { Icon } from "./enums.generated.ts";
 import type { ImageLike, Shortcut } from "./types.ts";
 
@@ -54,7 +55,7 @@ export const Action = Object.assign(
   function Action(props: ActionProps) {
     return createElement("Action", props);
   },
-  { CopyToClipboard, OpenInBrowser, Paste, Push, Style: ActionStyle },
+  { CopyToClipboard, OpenInBrowser, Paste, Push, SubmitForm, Style: ActionStyle },
 );
 
 export function CopyToClipboard(props: CopyToClipboardProps) {

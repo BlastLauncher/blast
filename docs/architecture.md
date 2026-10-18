@@ -108,7 +108,13 @@ interleave for logs and capability requests). `--grant <capability>` grants a
 capability — a granted `clipboard.copy` records and prints the copied text
 instead of touching an OS clipboard. `--script <file|->` drives the run with
 one command per line: `action <title>`, `back`, `confirm`, `dismiss`,
-`search <text>`, `dropdown <value>`, `wait`, `expect <text>`, `quit`. `--json`
+`search <text>`, `dropdown <value>`, `field <id> <value>`, `submit`, `wait`,
+`expect <text>`, `quit`. Form fields expose runtime-owned `value` and `onChange`;
+`field` sends strings, or `true`/`false` for checkboxes (dates use ISO strings).
+`submit` runs the first `Action.SubmitForm`, which collects the mounted form
+fields by id. Controlled fields follow their supplied value; uncontrolled fields
+retain edits until unmount. Form actions use the `actions` Slot. `storeValue`
+and drafts are recorded only; field refs remain unsupported. `--json`
 emits the protocol messages as NDJSON instead.
 `--timeout <ms>` bounds the run. Exit codes: 0 success, 1 script or
 expectation failure, 2 usage error, 3 extension crash or protocol error.
