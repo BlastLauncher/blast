@@ -1,7 +1,7 @@
 ---
 id: "0046"
 title: AI.ask with extension models, refreshModels, experimental_decide
-status: todo
+status: doing
 milestone: M3
 depends: ["0045"]
 ---
@@ -31,6 +31,8 @@ headless answer. No non-deprecated `AI*` path remains missing.
   `DecisionQuestion`/`DecisionAnswer` and the Noul/Score/Choice types in the
   declarations). Headless: `--ai-decide <file.json>` supplies answers; else
   denied. `environment.canAccess(AI)` semantics stay as in task 0043.
+- Host API from 0045: `packages/host/src/provider.ts` (`startModelProvider`,
+  `getModels`, `stream`); fixture `fixtures/extensions/model-provider`.
 - CLI e2e on the 0045 fixture; docs in `docs/cli.md` and architecture.
 
 ## Acceptance

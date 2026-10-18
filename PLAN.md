@@ -74,7 +74,7 @@ diagnostics instead of ESM link errors.
 - [ ] 0042 Form field refs, storeValue and drafts
 - [x] 0043 AI, BrowserExtension and Tool APIs
 - [ ] 0044 WindowManagement and remaining leftovers
-- [ ] 0045 AI model provider entrypoint (protocol, host, CLI)
+- [x] 0045 AI model provider entrypoint (protocol, host, CLI)
 - [ ] 0046 AI.ask with extension models, refreshModels, decide
 - [ ] Next: deprecated aliases sweep; curated set v4 using provided deps
 
@@ -101,6 +101,7 @@ One line per decision; link a record only when it exists.
 - 2026-10-18: Headless client first; desktop UI deferred to M4.
 - 2026-10-18: Process/protocol/scene model accepted (`docs/decisions/0001`).
 - 2026-10-18: Coverage denominator is the latest `@raycast/api` declarations.
+- 2026-10-18: AI model providers run in their own runtime child (`docs/decisions/0006`).
 - 2026-10-18: Extra npm deps: interim shared pinned allowlist until v1;
   production should reference each extension's own pinned deps via a thin,
   minimal-disk layer instead (0037 records it in `docs/decisions/0002`).
