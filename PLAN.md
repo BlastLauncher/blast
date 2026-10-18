@@ -6,10 +6,8 @@ files.
 
 ## Current focus
 
-M1 done (2026-10-18). Next: break M2 into tasks — sparse corpus fetch,
-usage weights, curated real-command smoke runs. Known gap to schedule:
-`List.onSearchTextChange` works via handler passthrough but is not declared or
-covered in the shim.
+M2 — real extensions. 0011 first; then 0012 and 0013 in parallel; then 0014.
+Known gap: `List.onSearchTextChange` is undeclared/uncovered in the shim.
 
 ## Milestones
 
@@ -40,14 +38,25 @@ action, observe the clipboard capability request, survive a crash.
 
 ### M2 — Real extensions
 
-- [ ] Sparse fetch of pinned `raycast/extensions` commands into `.cache/`
-- [ ] Corpus API usage weights feed `compat/`
-- [ ] Headless smoke run of a curated set of real commands
+Run unmodified commands from `raycast/extensions` headlessly. Corpus pinned
+at commit `3b812d1e` (3,443 extensions). No `npm install`: Blast provides one
+shared copy of `@raycast/utils` for every extension.
 
-### M3 — Coverage expansion
+- [ ] 0011 Corpus fetch tool: pinned shallow sparse checkout + disk guard
+- [ ] 0012 Static API usage scan of the whole corpus → weights in `compat/`
+- [ ] 0013 Shared `@raycast/utils` and dependency policy for bundling
+- [ ] 0014 Curated smoke runner + report for the first 10 commands
 
-Repeat: pick the highest-weight uncovered API, implement with tests, regenerate
-`compat/`. Each step is a task.
+First curated set (List-centric, UI API only, offline, deps ⊆ api/utils):
+fibonacci-sequence, ohmyzsh-git-alias, axios-docs, radix,
+px-to-rem-converter, ratio-calculator, code-review-emojis, biaodian,
+markdown-reference, conventional-commits.
+
+### M3 — Coverage to 100%
+
+Goal: 100% of the non-deprecated `@raycast/api` surface, then deprecated
+aliases. Order: curated-set failures first, then highest corpus weight. Each
+step is a task with `@covers` evidence.
 
 ### M4 — Desktop client
 
