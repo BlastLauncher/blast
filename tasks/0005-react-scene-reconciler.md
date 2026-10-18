@@ -1,7 +1,7 @@
 ---
 id: "0005"
 title: React reconciler that publishes whole-scene snapshots
-status: doing
+status: review
 milestone: M1
 depends: []
 ---
@@ -45,14 +45,14 @@ every commit, and dispatches handler references back to the right callback.
 
 ## Acceptance
 
-- [ ] Tests: initial render snapshot; update of props produces revision 2 with
+- [x] Tests: initial render snapshot; update of props produces revision 2 with
       the same node ids; insert/remove/reorder of keyed children; text nodes;
       handler ref serialization and `dispatch` invoking the latest callback
       after re-render; `useState` update via `dispatch`; dropped
       non-serializable props warn; unmount publishes `root: null`.
-- [ ] Runs under Node 24 too: one test spawns `node` on a tiny script that
+- [x] Runs under Node 24 too: one test spawns `node` on a tiny script that
       imports the reconciler and prints a snapshot as JSON.
-- [ ] `bun run verify` passes.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -62,8 +62,18 @@ every commit, and dispatches handler references back to the right callback.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/react-scene-reconciler @ 7b409108b19e3703ea08674c60b3f150d2c4eb28
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 1.0s
 Done:
-Not done / risks:
+- Added synchronous React scene rendering with stable ids, fresh snapshots,
+  revision tracking, text nodes, keyed mutations, and unmount snapshots.
+- Added recursive prop serialization, warnings, and committed callback dispatch.
+- Added 9 deterministic tests (56 repository tests pass), including Node 24
+  direct TypeScript import; compat:report regenerated with no changes.
+- Pinned npm-confirmed latest react 19.3.1 and react-reconciler 0.34.0 for
+  the renderer; @types/react 19.3.0 and @types/react-reconciler 0.34.0 provide
+  strict development types without a product build step.
+Not done / risks: Protocol imports remain local as requested; packages/protocol
+was untouched. Multiple top-level siblings use synthetic #root (id 0); nested
+callbacks use prop paths with collision suffixes. Fresh reviewer still required.
 ```
