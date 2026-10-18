@@ -10,9 +10,11 @@
     "verify": "bun scripts/verify.ts",
     "fmt": "oxfmt --ignore-path .gitignore --ignore-path .ignore",
     "fmt:check": "oxfmt --check --ignore-path .gitignore --ignore-path .ignore",
-    "lint": "oxlint --deny-warnings --ignore-pattern 'archive/**'",
+    "lint": "oxlint --deny-warnings --ignore-pattern 'archive/**' --ignore-pattern 'compat/raycast-api/**'",
     "typecheck": "tsc --noEmit -p .",
     "test": "bun test",
+    "compat:fetch": "bun scripts/compat/fetch-raycast-api.ts",
+    "compat:check": "bun scripts/compat/check-vendor.ts",
     "check:workflow": "bun scripts/check-workflow.ts"
   },
   "devDependencies": {
