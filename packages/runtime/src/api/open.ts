@@ -28,8 +28,12 @@ export function isUrl(target: string): boolean {
 }
 
 // The host records the application as an identifier: a JSON-safe subset of the
-// object, so nothing unserializable can reach the wire.
-function applicationParam(application: Application | string | undefined): JsonValue | undefined {
+// object, so nothing unserializable can reach the wire. Shared with the
+// actions that also carry an application (`Action.Open`,
+// `Action.CreateQuicklink`).
+export function applicationParam(
+  application: Application | string | undefined,
+): JsonValue | undefined {
   if (application === undefined) return undefined;
   if (typeof application === "string") return application;
   const param: Record<string, JsonValue> = {};

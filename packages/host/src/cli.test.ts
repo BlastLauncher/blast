@@ -702,3 +702,45 @@ test("command metadata is recorded and printed without a grant", async () => {
       "# capability command.metadata {}\n",
   );
 }, 2500);
+
+const actionsVariants = join(root, "fixtures/extensions/actions-variants");
+
+test("submenu dispatches a submenu's onOpen handler and its actions keep working", async () => {
+  const result = await runCli(
+    ["run", actionsVariants, "index", "--script", "-"],
+    "submenu Labels\nwait\nexpect opened Labels\naction Red\nwait\nexpect picked Red\nquit\n",
+  );
+  expect(result.code, result.stderr).toBe(0);
+  expect(result.stdout).toContain('ActionPanel.Submenu "Labels"');
+  const lastScene = result.stdout.slice(result.stdout.lastIndexOf("Navigation depth=1"));
+  expect(lastScene).toContain("opened Labels | picked Red");
+  const unknown = await runCli(
+    ["run", actionsVariants, "index", "--script", "-"],
+    "submenu Nope\n",
+  );
+  expect(unknown.code).toBe(1);
+  expect(unknown.stderr).toContain('no ActionPanel.Submenu with onOpen titled "Nope"');
+  const help = await runCli(["--help"]);
+  expect(help.stdout).toContain("submenu <title>");
+});
+
+test("Action.Open requests open.path only with a grant and the scene never shows the target", async () => {
+  const granted = await runCli(
+    ["run", actionsVariants, "index", "--grant", "open.path", "--script", "-"],
+    "action Open Target\nwait\nquit\n",
+  );
+  expect(granted.code, granted.stderr).toBe(0);
+  expect(granted.stdout).toContain(
+    '# capability open.path {"path":"/tmp/blast-demo","application":"Finder"}',
+  );
+  expect(granted.stdout).toContain("opened /tmp/blast-demo");
+  expect(granted.stdout).not.toContain("target=");
+  expect(granted.stdout).not.toContain('Open Target "/tmp');
+  const denied = await runCli(
+    ["run", actionsVariants, "index", "--script", "-"],
+    "action Open Target\nquit\n",
+  );
+  expect(denied.code).toBe(0);
+  expect(denied.stdout).toContain("# capability open.path denied");
+  expect(denied.stdout).not.toContain("opened /tmp/blast-demo");
+});

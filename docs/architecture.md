@@ -129,7 +129,8 @@ capabilities the desktop client owns: `applications.list` from `--applications
 <text>` (an empty text otherwise, and nothing at older offsets), and
 `preferences.open` and `command.metadata` (subtitle updates), which are printed
 like any other capability. Everything else, including `clipboard.paste` and `clipboard.clear`, still needs `--grant`. `--script <file|->` drives the run with
-one command per line: `action <title>`, `back`, `confirm`, `dismiss`,
+one command per line: `action <title>`, `submenu <title>` (dispatches an
+`ActionPanel.Submenu`'s `onOpen`), `back`, `confirm`, `dismiss`,
 `search <text>`, `dropdown <value>`, `field <id> <value>`, `submit`, `wait`,
 `expect <text>`, `quit`. Form fields expose runtime-owned `value` and `onChange`;
 `field` sends strings, or `true`/`false` for checkboxes (dates use ISO strings).

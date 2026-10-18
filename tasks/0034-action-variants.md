@@ -1,7 +1,7 @@
 ---
 id: "0034"
 title: ActionPanel.Submenu and the remaining Action variants
-status: doing
+status: review
 milestone: M3
 depends: []
 ---
@@ -48,8 +48,44 @@ top-level aliases where declared.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/4af19a47 @ a8cf730 (feat(0034): ActionPanel.Submenu and the remaining Action variants)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 36.8s — 343 tests, 2853 expect() calls
 Done:
+- `Action.Open`, `Action.OpenWith`, `Action.ShowInFinder`, `Action.Trash`,
+  `Action.CreateSnippet`, `Action.CreateQuicklink`, `Action.ToggleQuickLook`,
+  `Action.PickDate` (+ `Type`, `isFullDay`) in
+  `packages/runtime/src/api/action.ts`, attached to `Action`, with declared
+  deprecated aliases `OpenAction`, `OpenWithAction`, `ShowInFinderAction`,
+  `TrashAction`.
+- `ActionPanel.Submenu` (`packages/runtime/src/api/action-panel.ts`) with
+  title/icon/shortcut/autoFocus/filtering/isLoading/throttle/onOpen/
+  onSearchTextChange and actions + sections as children; deprecated alias
+  `ActionPanelSubmenu`.
+- New capabilities, all denied by default: `finder.show` {path},
+  `trash` {paths: string[]}, `snippet.create` {text,name?,keyword?},
+  `quicklink.create` {link,name?,icon?,application?}, `quicklook.toggle` {}.
+  `Action.Open`/`Action.OpenWith` reuse `open()` → existing `open.url` /
+  `open.path` (with application param). Private payloads (target, path, paths,
+  snippet, quicklink, application) stay out of the scene and travel only in
+  capability params; `on*` callbacks run only after the capability succeeds.
+- `Action.PickDate`: ISO strings on the wire (including min/max bounds),
+  `Date` in the callback; no capability (client-owned date picker UI).
+- CLI script command `submenu <title>` dispatches a submenu's `onOpen`
+  (packages/host/src/cli.ts, documented in --help and docs/architecture.md).
+- Fixture `fixtures/extensions/actions-variants`; unit tests in
+  `packages/runtime/src/api/action-variants.test.ts`, CLI e2e in
+  `packages/host/src/cli.test.ts`; `unsupported.test.ts` updated (the two
+  formerly-stub paths are implemented).
+- `bun run compat:report` regenerated compat/ (covered 944 → 989);
+  `bun run corpus:smoke` re-run with unchanged outcomes (62 rendered, 1
+  completed, 2 capability-denied, 1 timeout); `.cache/raycast-extensions`
+  deleted afterwards.
 Not done / risks:
+- `Action.ToggleSidebar` does not exist in `compat/raycast-api/index.d.ts` and
+  was not implemented (the task said to check).
+- CreateSnippet/CreateQuicklink default titles ("Create Snippet"/"Create
+  Quicklink") and icons (Icon.Snippets/Icon.Quicklink) are not documented in
+  the declarations; chosen to mirror Raycast's built-in actions.
+- Real OS effects (desktop client handlers for the new capabilities) remain
+  out of scope per the task.
 ```

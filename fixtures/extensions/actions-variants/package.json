@@ -1,0 +1,9 @@
+{
+  "name": "actions-variants",
+  "commands": [
+    {
+      "name": "index",
+      "mode": "view"
+    }
+  ]
+}

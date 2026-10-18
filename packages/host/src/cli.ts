@@ -74,6 +74,9 @@ command.metadata (printed like any other capability). clipboard.paste and clipbo
 
 Script commands (one per line, "#" starts a comment):
   action <title>  Dispatch an Action or menu item with that title.
+  submenu <title>
+                  Dispatch the onOpen handler of the ActionPanel.Submenu with
+                  that title.
   back            Pop the current navigation view.
   confirm         Confirm the current alert.
   dismiss         Dismiss the current alert.
@@ -182,6 +185,7 @@ function grantHandlers(grants: string[]): Record<string, CapabilityHandler> {
 
 type Step =
   | { op: "action"; title: string }
+  | { op: "submenu"; title: string }
   | { op: "search"; text: string }
   | { op: "confirm" | "dismiss" }
   | { op: "dropdown"; value: string }
@@ -204,6 +208,10 @@ function parseScript(source: string): Step[] {
       case "action":
         if (rest === "") throw new ScriptError(`script line ${index + 1}: action needs a title`);
         steps.push({ op: "action", title: rest });
+        break;
+      case "submenu":
+        if (rest === "") throw new ScriptError(`script line ${index + 1}: submenu needs a title`);
+        steps.push({ op: "submenu", title: rest });
         break;
       case "search":
         if (rest === "") throw new ScriptError(`script line ${index + 1}: search needs text`);
@@ -330,6 +338,24 @@ async function runScript(session: Session, steps: Step[]): Promise<void> {
           handler.$handler,
           node.type === "MenuBarExtra.Item" ? [{ type: "left-click" }] : [],
         );
+        break;
+      }
+      case "submenu": {
+        const scene = await currentScene(session);
+        observed = Math.max(observed, scene.revision);
+        const node = scene.root
+          ? findNode(
+              scene.root,
+              (item) => item.type === "ActionPanel.Submenu" && item.props.title === step.title,
+            )
+          : undefined;
+        const handler = node ? handlerRef(node.props.onOpen) : undefined;
+        if (!node || !handler) {
+          throw new ScriptError(
+            `no ActionPanel.Submenu with onOpen titled ${JSON.stringify(step.title)}`,
+          );
+        }
+        session.sendEvent(node.id, handler.$handler, []);
         break;
       }
       case "field":

@@ -39,8 +39,8 @@ test("top-level, nested and partially implemented component stubs name the exact
   for (const [component, path] of [
     [api.WindowManagement, "WindowManagement"],
     [api.Form.FilePicker!, "Form.FilePicker"],
-    [api.Action.Open!, "Action.Open"],
-    [withUnsupported("ActionPanel", implemented.ActionPanel).Submenu!, "ActionPanel.Submenu"],
+    [api.Action.InstallMCPServer!, "Action.InstallMCPServer"],
+    [withUnsupported("Action", implemented.Action).InstallMCPServer!, "Action.InstallMCPServer"],
   ] as const) {
     const errors: unknown[] = [];
     const root = createSceneRoot({ publish() {}, onError: (error) => errors.push(error) });
