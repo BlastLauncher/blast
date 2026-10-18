@@ -1,7 +1,7 @@
 ---
 id: "0012"
 title: Static Raycast API usage scan of the whole corpus
-status: todo
+status: doing
 milestone: M2
 depends: ["0011"]
 ---
@@ -45,6 +45,10 @@ corpus extensions use it, and the coverage report ranks gaps by that weight.
 - [ ] Real scan over all ~3,443 extensions committed; Handoff lists runtime,
       peak disk, top 20 paths with counts, and parse-failure count.
 - [ ] `compat/COVERAGE.md` shows weights; `bun run verify` passes.
+
+Note: `corpus:fetch` replaces the sparse pattern set on each run (manifests are
+always included); `scripts/corpus/corpus.ts` has the pin and pattern helpers.
+Delete `.cache/raycast-extensions` when finished.
 
 ## Out of scope
 

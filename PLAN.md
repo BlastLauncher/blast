@@ -6,7 +6,7 @@ files.
 
 ## Current focus
 
-M2 — real extensions. 0013 done; 0011 running; then 0012 and 0014.
+M2 — real extensions. 0012 and 0014 run in parallel.
 Known gap: `List.onSearchTextChange` is undeclared/uncovered in the shim.
 
 ## Milestones
@@ -42,7 +42,7 @@ Run unmodified commands from `raycast/extensions` headlessly. Corpus pinned
 at commit `3b812d1e` (3,443 extensions). No `npm install`: Blast provides one
 shared copy of `@raycast/utils` for every extension.
 
-- [ ] 0011 Corpus fetch tool: pinned shallow sparse checkout + disk guard
+- [x] 0011 Corpus fetch tool: pinned shallow sparse checkout + disk guard
 - [ ] 0012 Static API usage scan of the whole corpus → weights in `compat/`
 - [x] 0013 Shared `@raycast/utils` and dependency policy for bundling
 - [ ] 0014 Curated smoke runner + report for the first 10 commands

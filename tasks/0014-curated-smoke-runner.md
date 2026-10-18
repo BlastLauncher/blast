@@ -1,7 +1,7 @@
 ---
 id: "0014"
 title: Curated smoke runner and report for real extension commands
-status: todo
+status: doing
 milestone: M2
 depends: ["0011", "0013"]
 ---
@@ -35,6 +35,10 @@ headlessly through the host, and writes a committed `compat/SMOKE.md` +
       rendered vs failed and the top failure reasons.
 - [ ] Unit tests for classification and rendering; `bun run verify` passes.
 - [ ] Peak `.cache` size reported in Handoff.
+
+Note: `corpus:fetch` replaces the sparse pattern set on each run (manifests are
+always included); `scripts/corpus/corpus.ts` has the pin and pattern helpers.
+Delete `.cache/raycast-extensions` when finished.
 
 ## Out of scope
 
