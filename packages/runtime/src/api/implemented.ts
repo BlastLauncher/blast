@@ -100,7 +100,12 @@ export {
 } from "./launch.ts";
 
 export { PushAction } from "./action.ts";
-export { popToRoot, clearSearchBar, useNavigation, type ClearSearchBarOptions } from "./navigation.ts";
+export {
+  popToRoot,
+  clearSearchBar,
+  useNavigation,
+  type ClearSearchBarOptions,
+} from "./navigation.ts";
 
 export {
   Toast,

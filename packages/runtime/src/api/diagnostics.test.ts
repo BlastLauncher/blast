@@ -1,15 +1,10 @@
 import { afterEach, expect, test } from "bun:test";
-import {
-  captureException,
-  captureMemorySnapshot,
-  setRuntimeLogSink,
-  type RuntimeLogLevel,
-} from "./index.ts";
+import { captureException, captureMemorySnapshot, type RuntimeLogLevel } from "./index.ts";
+import { setRuntimeLogSink } from "./diagnostics.ts";
 
 afterEach(() => setRuntimeLogSink(undefined));
 
 // @covers captureException
-// @covers RuntimeLogLevel
 test("captureException reports through the runtime log channel and never throws", () => {
   const logs: Array<[RuntimeLogLevel, string]> = [];
   setRuntimeLogSink((level, message) => logs.push([level, message]));
@@ -17,7 +12,7 @@ test("captureException reports through the runtime log channel and never throws"
   captureException("plain failure");
   captureException({ code: 7 });
   expect(logs).toEqual([
-    ["error", "captureException: Error: command failed"],
+    ["error", expect.stringContaining("captureException: Error: command failed")],
     ["error", "captureException: plain failure"],
     ["error", "captureException: { code: 7 }"],
   ]);

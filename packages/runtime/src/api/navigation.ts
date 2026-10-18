@@ -74,7 +74,7 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
   // A fresh object per `closeMainWindow()` call, so the snapshot identity
   // changes and `closeMainWindow` props follow the recorded request.
   const closeMainWindow = useSyncExternalStore(subscribeCloseRequest, closeRequest, closeRequest);
-  const clearSearchBar = useSyncExternalStore(
+  const searchBarClear = useSyncExternalStore(
     subscribeClearSearchBar,
     clearSearchBarRequest,
     clearSearchBarRequest,
@@ -124,7 +124,7 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
         depth: stack.length + 1,
         pop: stack.length ? navigation.pop : undefined,
         popToRoot: popToRootOptions,
-        clearSearchBar,
+        clearSearchBar: searchBarClear,
         closeMainWindow,
       },
       createElement("Navigation.Entry", { key: 0, active: stack.length === 0 }, children),
@@ -158,6 +158,7 @@ export async function popToRoot(options?: PopToRootOptions): Promise<void> {
  * records its own request.
  */
 export async function clearSearchBar(options: ClearSearchBarOptions = {}): Promise<void> {
+  if (searchBarListeners.size === 0) return;
   searchBarRequest = { ...options };
   for (const listener of searchBarListeners) listener();
 }

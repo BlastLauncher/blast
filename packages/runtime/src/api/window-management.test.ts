@@ -1,15 +1,17 @@
 import { afterEach, expect, test } from "bun:test";
 import type { JsonValue } from "../reconciler/index.ts";
 import { setCapabilityRequester } from "./capability.ts";
-import { DesktopType, WindowManagement, type SetWindowBoundsOptions } from "./index.ts";
+import { WindowManagement, type SetWindowBoundsOptions } from "./index.ts";
 
 afterEach(() => setCapabilityRequester(undefined));
+
+const DesktopType = WindowManagement.DesktopType;
 
 const desktop = {
   id: "desktop-1",
   screenId: "screen-1",
   active: true,
-  type: "User",
+  type: DesktopType.User,
   size: { width: 1920, height: 1080 },
 };
 
@@ -48,7 +50,12 @@ function recorder(answers: JsonValue[]): Array<{ name: string; params: JsonValue
 // @covers WindowManagement.Desktop.type
 // @covers WindowManagement.getDesktops
 test("getDesktops asks window.desktops and keeps the declared Desktop fields", async () => {
-  const requests = recorder([[{ ...desktop, extra: true }, { ...desktop, id: "desktop-2" }]]);
+  const requests = recorder([
+    [
+      { ...desktop, extra: true },
+      { ...desktop, id: "desktop-2" },
+    ],
+  ]);
   expect(WindowManagement).toBeDefined();
   expect(WindowManagement.DesktopType).toBe(DesktopType);
   expect(Object.values(DesktopType)).toEqual(["User", "FullScreen"]);
@@ -74,7 +81,7 @@ test("getDesktops asks window.desktops and keeps the declared Desktop fields", a
 // @covers WindowManagement.Window.resizable
 // @covers WindowManagement.getWindowsOnActiveDesktop
 test("window reads carry the declared Window fields and a fullscreen bound stays a string", async () => {
-  const fullscreen = { ...window, id: "window-2", bounds: "fullscreen" };
+  const fullscreen = { ...window, id: "window-2", bounds: "fullscreen" as const };
   const requests = recorder([window, [fullscreen], []]);
   expect(await WindowManagement.getActiveWindow()).toEqual(window);
   expect(await WindowManagement.getWindowsOnActiveDesktop()).toEqual([fullscreen]);
@@ -115,7 +122,10 @@ test("setWindowBounds rejects malformed options before anything crosses the wire
   const invalid: Array<[unknown, string]> = [
     [{ id: "", bounds: {} }, "id must be a non-empty string"],
     [{ id: "w", bounds: { position: { x: "left" } } }, "bounds.position.x must be a finite number"],
-    [{ id: "w", bounds: { size: { width: Number.NaN } } }, "bounds.size.width must be a finite number"],
+    [
+      { id: "w", bounds: { size: { width: Number.NaN } } },
+      "bounds.size.width must be a finite number",
+    ],
     [{ id: "w", bounds: 5 }, "bounds must be an object"],
     [{ id: "w", bounds: {}, desktopId: 7 }, "desktopId must be a string"],
   ];
@@ -137,16 +147,26 @@ test("window capabilities reject a denial and a malformed host answer", async ()
     "Capability denied: window.desktops",
   );
   await expect(WindowManagement.getActiveWindow()).rejects.toThrow("Capability denied");
-  await expect(WindowManagement.getWindowsOnActiveDesktop()).rejects.toThrow(
-    "Capability denied",
-  );
+  await expect(WindowManagement.getWindowsOnActiveDesktop()).rejects.toThrow("Capability denied");
   await expect(WindowManagement.setWindowBounds({ id: "w", bounds: {} })).rejects.toThrow(
     "Capability denied",
   );
 
-  recorder([{}, [{ id: 4 }], "not a window", [{ ...desktop, type: "Unknown" }]]);
+  recorder([[{}], [{ id: 4 }], "not a window", [{ ...desktop, type: "Unknown" }]]);
   await expect(WindowManagement.getDesktops()).rejects.toThrow("invalid Desktop");
   await expect(WindowManagement.getWindowsOnActiveDesktop()).rejects.toThrow("invalid Window");
   await expect(WindowManagement.getActiveWindow()).rejects.toThrow("invalid Window");
   await expect(WindowManagement.getDesktops()).rejects.toThrow("invalid Desktop");
+});
+
+// @covers WindowManagement.getActiveWindow
+test("window reads require complete finite bounds while writes accept partial bounds", async () => {
+  for (const bounds of [
+    {},
+    { position: { x: 0, y: 0 } },
+    { position: { x: 0, y: 0 }, size: { width: Infinity, height: 1 } },
+  ]) {
+    recorder([{ ...window, bounds }]);
+    await expect(WindowManagement.getActiveWindow()).rejects.toThrow();
+  }
 });

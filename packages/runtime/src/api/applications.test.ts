@@ -84,7 +84,9 @@ test("getDefaultApplication rejects when no application exists and on a malforme
   await expect(getDefaultApplication("/tmp/report.txt")).rejects.toThrow(
     "No default application for /tmp/report.txt",
   );
-  setCapabilityRequester(() => Promise.reject(new Error("Capability denied: applications.default")));
+  setCapabilityRequester(() =>
+    Promise.reject(new Error("Capability denied: applications.default")),
+  );
   await expect(getDefaultApplication("/tmp/report.txt")).rejects.toThrow(
     "Capability denied: applications.default",
   );

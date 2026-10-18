@@ -4,31 +4,31 @@ Denominator: the `@raycast/api@2.8.2` declarations. Evidence:
 `// @covers` tags in `packages/**/*.test.ts(x)`. A parent is not implied covered
 by its children. Partial support is reported separately from covered.
 
-**Non-deprecated coverage: 1218/1534 covered (79.4%), 71 partial, 245 missing.**
+**Non-deprecated coverage: 1320/1534 covered (86.0%), 58 partial, 156 missing.**
 Deprecated: 39/939 covered (4.2%), 5 partial, 895 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 1218 | 39 | 1257 |
-| partial | 71 | 5 | 76 |
-| missing | 245 | 895 | 1140 |
+| covered | 1320 | 39 | 1359 |
+| partial | 58 | 5 | 63 |
+| missing | 156 | 895 | 1051 |
 
 ## Totals by kind
 
 | Kind | Covered | Partial | Missing | Total |
 | --- | --- | --- | --- | --- |
-| namespace | 4 | 1 | 4 | 9 |
-| component | 41 | 33 | 42 | 116 |
-| function | 29 | 4 | 17 | 50 |
+| namespace | 6 | 0 | 3 | 9 |
+| component | 56 | 19 | 41 | 116 |
+| function | 39 | 2 | 9 | 50 |
 | const | 3 | 0 | 18 | 21 |
 | class | 3 | 0 | 0 | 3 |
-| enum | 11 | 0 | 2 | 13 |
-| enum-member | 512 | 0 | 179 | 691 |
-| interface | 21 | 1 | 42 | 64 |
-| type | 67 | 6 | 105 | 178 |
-| property | 544 | 31 | 729 | 1304 |
+| enum | 12 | 0 | 1 | 13 |
+| enum-member | 514 | 0 | 177 | 691 |
+| interface | 23 | 1 | 40 | 64 |
+| type | 90 | 7 | 81 | 178 |
+| property | 591 | 34 | 679 | 1304 |
 | method | 22 | 0 | 2 | 24 |
 
 ## Top-level symbols
@@ -38,8 +38,8 @@ Children counts include all descendants, as covered/partial/total.
 | Symbol | Kind | Status | Children | Extensions |
 | --- | --- | --- | --- | --- |
 | `AI` | namespace | missing | 0/0/266 | 115 |
-| `Action` | component | partial | 64/14/110 | 2985 |
-| `ActionPanel` | component | partial | 14/3/129 | 3023 |
+| `Action` | component | covered | 105/3/110 | 2985 |
+| `ActionPanel` | component | covered | 19/5/129 | 3023 |
 | `ActionPanelChildren` | type | missing | 0/0/0 | 0 |
 | `ActionPanelItem` | component | partial | 0/0/104 | 1 |
 | `ActionPanelItemProps` | interface | missing | 0/0/7 | 0 |
@@ -50,25 +50,25 @@ Children counts include all descendants, as covered/partial/total.
 | `ActionPanelState` | interface | missing | 0/0/1 | 0 |
 | `ActionPanelSubmenu` | component | covered | 0/0/13 | 0 |
 | `ActionPanelSubmenuProps` | interface | missing | 0/0/12 | 0 |
-| `Alert` | namespace | covered | 13/1/15 | 718 |
+| `Alert` | namespace | covered | 13/2/15 | 718 |
 | `AlertActionOptions` | interface | missing | 0/0/3 | 0 |
 | `AlertActionStyle` | enum | covered | 3/0/3 | 1 |
 | `AlertOptions` | interface | missing | 0/0/6 | 0 |
-| `Application` | interface | covered | 0/0/5 | 119 |
+| `Application` | interface | covered | 5/0/5 | 119 |
 | `ArgumentsLaunchProps` | interface | missing | 0/0/1 | 1 |
 | `BrowserExtension` | namespace | missing | 0/0/8 | 62 |
 | `Cache` | class | covered | 16/1/17 | 333 |
-| `Clipboard` | namespace | partial | 9/2/16 | 1049 |
+| `Clipboard` | namespace | covered | 15/0/16 | 1049 |
 | `Color` | enum | covered | 18/0/22 | 1420 |
 | `ColorLike` | type | missing | 0/0/3 | 0 |
 | `CopyToClipboardAction` | component | partial | 0/0/8 | 23 |
 | `CopyToClipboardActionProps` | interface | missing | 0/0/7 | 0 |
-| `Detail` | component | partial | 32/0/33 | 1310 |
+| `Detail` | component | covered | 33/0/33 | 1310 |
 | `DetailProps` | interface | missing | 0/0/5 | 0 |
 | `DynamicColor` | type | missing | 0/0/3 | 0 |
 | `Environment` | interface | covered | 13/0/17 | 2 |
-| `FileIcon` | interface | missing | 0/0/1 | 1 |
-| `FileSystemItem` | interface | covered | 0/0/1 | 10 |
+| `FileIcon` | interface | covered | 1/0/1 | 1 |
+| `FileSystemItem` | interface | covered | 1/0/1 | 10 |
 | `Form` | component | partial | 156/23/213 | 1362 |
 | `FormCheckbox` | const | missing | 0/0/2 | 0 |
 | `FormCheckboxProps` | interface | missing | 0/0/12 | 0 |
@@ -105,7 +105,7 @@ Children counts include all descendants, as covered/partial/total.
 | `KeyModifier` | type | missing | 0/0/0 | 0 |
 | `Keyboard` | namespace | covered | 29/0/32 | 790 |
 | `KeyboardShortcut` | type | missing | 0/0/11 | 1 |
-| `LaunchProps` | type | covered | 3/0/5 | 657 |
+| `LaunchProps` | type | covered | 3/2/5 | 657 |
 | `LaunchType` | enum | covered | 2/0/2 | 454 |
 | `List` | component | partial | 114/8/122 | 2604 |
 | `ListItem` | component | missing | 0/0/52 | 1 |
@@ -129,7 +129,7 @@ Children counts include all descendants, as covered/partial/total.
 | `PasteActionProps` | interface | missing | 0/0/5 | 0 |
 | `PopToRootType` | enum | covered | 3/0/3 | 126 |
 | `Preference` | interface | missing | 0/0/10 | 0 |
-| `PreferenceValues` | interface | missing | 0/0/0 | 14 |
+| `PreferenceValues` | interface | covered | 0/0/0 | 14 |
 | `Preferences` | type | missing | 0/0/0 | 4 |
 | `PushAction` | component | covered | 0/0/7 | 8 |
 | `PushActionProps` | interface | missing | 0/0/6 | 0 |
@@ -144,22 +144,22 @@ Children counts include all descendants, as covered/partial/total.
 | `Tool` | namespace | missing | 0/0/1 | 128 |
 | `TrashAction` | component | covered | 0/0/6 | 0 |
 | `TrashActionProps` | interface | missing | 0/0/5 | 0 |
-| `WindowManagement` | namespace | missing | 0/0/30 | 2 |
+| `WindowManagement` | namespace | covered | 30/0/30 | 2 |
 | `allLocalStorageItems` | function | covered | 0/0/0 | 1 |
-| `captureException` | function | missing | 0/0/0 | 41 |
-| `captureMemorySnapshot` | function | missing | 0/0/0 | 0 |
+| `captureException` | function | covered | 0/0/0 | 41 |
+| `captureMemorySnapshot` | function | covered | 0/0/0 | 0 |
 | `clearClipboard` | function | missing | 0/0/0 | 0 |
 | `clearLocalStorage` | function | covered | 0/0/0 | 2 |
-| `clearSearchBar` | function | missing | 0/0/0 | 41 |
+| `clearSearchBar` | function | covered | 0/0/0 | 41 |
 | `closeMainWindow` | function | covered | 0/0/0 | 600 |
 | `confirmAlert` | function | partial | 0/0/0 | 849 |
 | `copyTextToClipboard` | function | missing | 0/0/0 | 3 |
 | `environment` | const | covered | 14/0/17 | 738 |
 | `getApplications` | function | covered | 0/0/0 | 216 |
-| `getDefaultApplication` | function | missing | 0/0/0 | 20 |
+| `getDefaultApplication` | function | covered | 0/0/0 | 20 |
 | `getFrontmostApplication` | function | covered | 0/0/0 | 99 |
 | `getLocalStorageItem` | function | covered | 0/0/0 | 10 |
-| `getPreferenceValues` | function | partial | 0/0/0 | 2119 |
+| `getPreferenceValues` | function | covered | 0/0/0 | 2119 |
 | `getSelectedFinderItems` | function | covered | 0/0/0 | 164 |
 | `getSelectedText` | function | covered | 0/0/0 | 249 |
 | `launchCommand` | function | covered | 0/0/0 | 398 |
@@ -196,40 +196,24 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `Tool.Confirmation` | 128 |
 | `AI` | 115 |
 | `AI.ask` | 79 |
-| `Action.ShowInFinder.Props.shortcut` | 68 |
 | `BrowserExtension` | 62 |
 | `BrowserExtension.getTabs` | 60 |
-| `Action.OpenWith.Props.shortcut` | 56 |
-| `Action.CreateQuicklink.Props.shortcut` | 51 |
-| `captureException` | 41 |
-| `clearSearchBar` | 41 |
 | `AI.Model` | 35 |
 | `ActionPanel.Item.Props.onAction` | 30 |
 | `ActionPanel.Item.Props.title` | 30 |
-| `Action.CreateQuicklink.Props.icon` | 29 |
 | `OpenInBrowserAction` | 29 |
 | `OpenInBrowserAction.Props.url` | 29 |
-| `Action.ToggleQuickLook.Props.shortcut` | 26 |
 | `CopyToClipboardAction.Props.content` | 22 |
 | `ActionPanel.Item.Props.icon` | 20 |
-| `getDefaultApplication` | 20 |
-| `Action.Trash.Props.shortcut` | 19 |
 | `BrowserExtension.getContent` | 18 |
-| `Action.ShowInFinder.Props.icon` | 17 |
 | `OpenInBrowserAction.Props.title` | 17 |
 | `CopyToClipboardAction.Props.title` | 16 |
 | `AI.GetModels` | 14 |
 | `AI.StreamCompletion` | 14 |
-| `Action.CreateSnippet.Props.shortcut` | 14 |
-| `PreferenceValues` | 14 |
 | `environment.commandMode` | 14 |
 | `environment.theme` | 14 |
-| `Action.CreateSnippet.Props.icon` | 13 |
 | `AI.Model.OpenAI_GPT4o-mini` | 12 |
 | `AI.RegisteredModel` | 12 |
-| `Action.CopyToClipboard.Props` | 12 |
-| `Action.PickDate.Props.shortcut` | 12 |
-| `Action.Props` | 11 |
 | `SubmitFormAction` | 11 |
 | `AI.ModelToolSet` | 10 |
 | `Color.Brown` | 8 |
@@ -242,3 +226,19 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `BrowserExtension.Tab` | 6 |
 | `preferences` | 6 |
 | `Form.DropdownItem` | 5 |
+| `Form.DropdownItem.Props.title` | 5 |
+| `Form.DropdownItem.Props.value` | 5 |
+| `Form.ItemReference` | 5 |
+| `environment.launchContext` | 5 |
+| `AI.Model.OpenAI_GPT-5_mini` | 4 |
+| `AI.ModelRequest` | 4 |
+| `AI.ModelStreamPart` | 4 |
+| `KeyEquivalent` | 4 |
+| `OpenInBrowserAction.Props.shortcut` | 4 |
+| `Preferences` | 4 |
+| `AI.Model.Anthropic_Claude_4.5_Haiku` | 3 |
+| `AI.Model.OpenAI_GPT-4.1` | 3 |
+| `AI.Model.Perplexity_Sonar` | 3 |
+| `AI.ModelMessage` | 3 |
+| `CopyToClipboardAction.Props.shortcut` | 3 |
+| `OpenAction.Props.target` | 3 |

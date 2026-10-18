@@ -15,6 +15,7 @@ function recorder(answers: JsonValue[]): Array<{ name: string; params: JsonValue
   return requests;
 }
 
+// @covers Clipboard
 // @covers Clipboard.read
 // @covers Clipboard.ReadContent
 // @covers Clipboard.ReadContent.text
@@ -110,7 +111,10 @@ test("Clipboard.paste sends text, file and HTML content", async () => {
     [{ text: "structured" }, { text: "structured" }],
     [{ file: "/tmp/a.pdf" }, { file: "/tmp/a.pdf" }],
     [{ html: "<b>rich</b>" }, { html: "<b>rich</b>" }],
-    [{ html: "<b>rich</b>", text: "rich" }, { html: "<b>rich</b>", text: "rich" }],
+    [
+      { html: "<b>rich</b>", text: "rich" },
+      { html: "<b>rich</b>", text: "rich" },
+    ],
   ] as const) {
     await Clipboard.paste(content);
     expect(requests.at(-1)).toEqual({ name: "clipboard.paste", params });
@@ -137,4 +141,21 @@ test("the clipboard capabilities reject when the host denies them", async () => 
   await expect(Clipboard.readText()).rejects.toThrow("Capability denied");
   await expect(Clipboard.paste("x")).rejects.toThrow("Capability denied");
   await expect(Clipboard.clear()).rejects.toThrow("Capability denied");
+});
+
+// @covers Clipboard.Content.file
+// @covers Clipboard.copy
+// @covers Clipboard.paste
+test("clipboard file content accepts Buffer and URL paths for copying and pasting", async () => {
+  const requests = recorder([]);
+  for (const operation of [Clipboard.copy, Clipboard.paste]) {
+    await operation({ file: Buffer.from("/tmp/a") });
+    await operation({ file: new URL("file:///tmp/b") });
+  }
+  expect(requests).toEqual([
+    { name: "clipboard.copy", params: { file: "/tmp/a" } },
+    { name: "clipboard.copy", params: { file: "file:///tmp/b" } },
+    { name: "clipboard.paste", params: { file: "/tmp/a" } },
+    { name: "clipboard.paste", params: { file: "file:///tmp/b" } },
+  ]);
 });

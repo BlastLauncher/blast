@@ -41,6 +41,7 @@ export type {
   TextSize,
 } from "./environment.ts";
 export type {
+  FileIcon,
   ColorDynamic,
   ColorLike,
   ColorRaw,

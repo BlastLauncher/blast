@@ -114,7 +114,7 @@ export type BundledCommand = {
    * the command's own overriding it). A caller's explicit values win over
    * these when the session starts.
    */
-  preferenceDefaults: Record<string, string | number | boolean>;
+  preferenceDefaults?: Record<string, string | number | boolean>;
   /** `<outDir>/assets`, resolving to the extension's real assets when it has any. */
   assetsPath?: string;
 };

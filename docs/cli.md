@@ -18,25 +18,28 @@ capability requests; token capabilities (`oauth.tokens.*`) are redacted.
 - `--argument <name=value>` — manifest argument (repeatable; a missing
   required or unknown name is a usage error).
 - `--grant <capability>` — grant a capability. A granted `clipboard.copy`
-  records and prints the copied text instead of touching an OS clipboard; a
+  records and prints the copied content instead of touching an OS clipboard; a
   granted `command.launch` records the request without starting a session.
   Everything not answered below, including `clipboard.paste` and
-  `clipboard.clear`, `finder.show` and `trash`, needs `--grant`.
+  `clipboard.clear`, `finder.show`, `trash`, `window.setBounds`, and
+  `mcp.install`, needs `--grant` (records the request only).
 - `--data-dir <dir>` — root for LocalStorage, OAuth tokens, support and
   internal (dropdown) storage. These need no grant.
 - `--timeout <ms>` — bounds the run.
 
 Headless answers for capabilities a desktop client owns:
 
-| Capability                             | Flag                         | Default                                 |
-| -------------------------------------- | ---------------------------- | --------------------------------------- |
-| `applications.list`                    | `--applications <file.json>` | empty list                              |
-| `applications.frontmost`               | `--frontmost <bundleId>`     | `{ name: "Headless", path: "" }`        |
-| `clipboard.read`                       | `--clipboard <text>`         | empty text; nothing at older offsets    |
-| `selection.text`                       | `--selected-text <text>`     | rejects, like Raycast with no selection |
-| `selection.files`                      | `--selected-files <path>`    | empty list (flag repeatable)            |
-| `oauth.authorize`                      | `--oauth-code <code>`        | denied                                  |
-| `preferences.open`, `command.metadata` | —                            | answered and printed                    |
+| Capability                              | Flag                         | Default                                          |
+| --------------------------------------- | ---------------------------- | ------------------------------------------------ |
+| `applications.list`                     | `--applications <file.json>` | empty list                                       |
+| `applications.frontmost`                | `--frontmost <bundleId>`     | `{ name: "Headless", path: "" }`                 |
+| `applications.default`, `window.active` | —                            | rejects: no default application or active window |
+| `window.desktops`, `window.list`        | —                            | one empty desktop; no windows                    |
+| `clipboard.read`                        | `--clipboard <text>`         | empty text; nothing at older offsets             |
+| `selection.text`                        | `--selected-text <text>`     | rejects, like Raycast with no selection          |
+| `selection.files`                       | `--selected-files <path>`    | empty list (flag repeatable)                     |
+| `oauth.authorize`                       | `--oauth-code <code>`        | denied                                           |
+| `preferences.open`, `command.metadata`  | —                            | answered and printed                             |
 
 ## Scripts
 

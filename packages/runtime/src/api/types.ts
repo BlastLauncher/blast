@@ -36,8 +36,11 @@ export type ImageObject = {
   tintColor?: ColorLike | null;
 };
 
+/** `FileIcon`: an icon derived by the client from a file path. */
+export type FileIcon = { fileIcon: string };
+
 /** `Image.ImageLike`: a URL, asset, icon, emoji, file icon or image object. */
-export type ImageLike = ImagePath | { fileIcon: string } | ImageObject;
+export type ImageLike = ImagePath | FileIcon | ImageObject;
 
 /** One platform's `Keyboard.Shortcut`, widened to what reaches the scene. */
 export interface KeyShortcut {

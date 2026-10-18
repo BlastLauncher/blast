@@ -512,3 +512,54 @@ test("host package itself runs under Node 24 without a build step", async () => 
     child.kill("SIGKILL");
   }
 });
+
+// @covers getPreferenceValues
+// @covers PreferenceValues
+test("manifest preference defaults reach the runtime, with command and explicit overrides", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "blast-preferences-test-"));
+  directories.push(dir);
+  await cp(extensionDir, dir, { recursive: true });
+  const manifestPath = join(dir, "package.json");
+  const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+  manifest.preferences = [
+    { name: "text", type: "textfield", default: "extension" },
+    { name: "enabled", type: "checkbox", default: false },
+  ];
+  const command = manifest.commands.find((item: { name: string }) => item.name === "no-view");
+  command.preferences = [{ name: "text", type: "textfield", default: "command" }];
+  await writeFile(manifestPath, JSON.stringify(manifest));
+  const bundled = await bundleCommand({
+    extensionDir: dir,
+    command: "no-view",
+    outDir: join(dir, "build"),
+  });
+  expect(bundled.preferenceDefaults).toEqual({ text: "command", enabled: false });
+  for (const preferences of [undefined, { text: "explicit" }]) {
+    const copied: unknown[] = [];
+    const session = await startCommand({
+      ...bundled,
+      ...(preferences === undefined ? {} : { preferences }),
+      broker: createBroker({
+        "clipboard.copy": (params) => {
+          copied.push(params);
+        },
+      }),
+    });
+    sessions.push(session);
+    expect(await session.exited).toEqual({ code: 0, signal: null });
+    expect(copied).toEqual([{ text: preferences?.text ?? "command" }]);
+  }
+  for (const preferences of [
+    {},
+    [null],
+    [{ type: "textfield" }],
+    [{ name: "x", type: "unknown" }],
+    [{ name: "x", type: "textfield", default: {} }],
+  ]) {
+    manifest.preferences = preferences;
+    await writeFile(manifestPath, JSON.stringify(manifest));
+    await expect(
+      bundleCommand({ extensionDir: dir, command: "no-view", outDir: join(dir, "build") }),
+    ).rejects.toThrow();
+  }
+});

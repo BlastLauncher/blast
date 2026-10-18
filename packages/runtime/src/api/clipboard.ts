@@ -1,12 +1,13 @@
 // Internal module for the clipboard capability; the public surface is the
 // `Clipboard` object re-exported from index.ts.
 import type { JsonValue } from "../reconciler/index.ts";
+import { pathParam, type ApplicationPath } from "./applications.ts";
 import { requestCapability } from "./capability.ts";
 
 /** `Clipboard.Content`: the text, file and HTML forms the declarations define. */
 export type ClipboardContent =
   | { text: string }
-  | { file: string }
+  | { file: ApplicationPath }
   | { html: string; text?: string };
 
 /** `Clipboard.CopyOptions`. */
@@ -45,12 +46,18 @@ export function contentParams(
 ): Record<string, JsonValue> {
   if (typeof content === "string") return { text: content };
   if (typeof content === "number") return { text: String(content) };
-  if ("text" in content && typeof content.text === "string") return { text: content.text };
-  if ("file" in content && typeof content.file === "string") return { file: content.file };
-  if ("html" in content && typeof content.html === "string") {
-    return content.text === undefined
-      ? { html: content.html }
-      : { html: content.html, text: content.text };
+  if (typeof content === "object" && content !== null && !Array.isArray(content)) {
+    if (
+      "file" in content &&
+      (typeof content.file === "string" ||
+        Buffer.isBuffer(content.file) ||
+        content.file instanceof URL)
+    )
+      return { file: pathParam(content.file, api) };
+    if ("html" in content && typeof content.html === "string") {
+      if (content.text === undefined) return { html: content.html };
+      if (typeof content.text === "string") return { html: content.html, text: content.text };
+    } else if ("text" in content && typeof content.text === "string") return { text: content.text };
   }
   throw new TypeError(`${api}: unsupported content in Blast`);
 }

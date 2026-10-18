@@ -41,7 +41,9 @@ export interface Window {
   /** The application that owns the window, when the client can name it. */
   application?: Application;
   /** The bounds of the window, or `"fullscreen"`. */
-  bounds: WindowBounds | "fullscreen";
+  bounds:
+    | { position: { x: number; y: number }; size: { width: number; height: number } }
+    | "fullscreen";
   /** The desktop the window is on. */
   desktopId: string;
   /** Whether the window can be made fullscreen. */
@@ -94,9 +96,22 @@ function boundsWire(bounds: WindowBounds, at: string): Record<string, JsonValue>
 
 // The host is another process: rebuild each value from the declared fields
 // rather than trusting whatever shape arrived on the wire.
-function toBounds(value: JsonValue, at: string): WindowBounds | "fullscreen" {
+function toBounds(value: JsonValue | undefined, at: string): Window["bounds"] {
   if (value === "fullscreen") return value;
-  return boundsWire(value as WindowBounds, at) as WindowBounds;
+  const bounds = boundsWire(value as WindowBounds, at);
+  const { position, size } = bounds as WindowBounds;
+  if (
+    position?.x === undefined ||
+    position.y === undefined ||
+    size?.width === undefined ||
+    size.height === undefined
+  ) {
+    throw new TypeError(`${at}: the host returned incomplete Window bounds`);
+  }
+  return {
+    position: { x: position.x, y: position.y },
+    size: { width: size.width, height: size.height },
+  };
 }
 
 function toWindow(value: JsonValue, api: string): Window {
@@ -146,7 +161,9 @@ function toDesktop(value: JsonValue, api: string): Desktop {
     size === null ||
     Array.isArray(size) ||
     typeof size.width !== "number" ||
-    typeof size.height !== "number"
+    typeof size.height !== "number" ||
+    !Number.isFinite(size.width) ||
+    !Number.isFinite(size.height)
   ) {
     throw new TypeError(`${api}: the host returned an invalid Desktop size`);
   }
@@ -181,10 +198,7 @@ export async function getActiveWindow(): Promise<Window> {
 
 /** Gets the windows on the active desktop. */
 export async function getWindowsOnActiveDesktop(): Promise<Window[]> {
-  return windows(
-    await requestCapability("window.list", {}),
-    "getWindowsOnActiveDesktop",
-  );
+  return windows(await requestCapability("window.list", {}), "getWindowsOnActiveDesktop");
 }
 
 /**
@@ -200,7 +214,8 @@ export async function setWindowBounds(options: SetWindowBoundsOptions): Promise<
   else params["bounds"] = boundsWire(options.bounds, "setWindowBounds");
   const desktopId = "desktopId" in options ? options.desktopId : undefined;
   if (desktopId !== undefined) {
-    if (typeof desktopId !== "string") throw new TypeError("setWindowBounds: desktopId must be a string");
+    if (typeof desktopId !== "string")
+      throw new TypeError("setWindowBounds: desktopId must be a string");
     params["desktopId"] = desktopId;
   }
   await requestCapability("window.setBounds", params);

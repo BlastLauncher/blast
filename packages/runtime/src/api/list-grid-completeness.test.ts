@@ -97,8 +97,8 @@ test("List and Grid empty views preserve a null icon", () => {
   root.unmount();
 });
 
-// @covers List.Dropdown.Props
-// @covers Grid.Dropdown.Props
+// @covers List.Dropdown.Props partial
+// @covers Grid.Dropdown.Props partial
 // @covers List.Dropdown.Props.storeValue partial
 // @covers Grid.Dropdown.Props.storeValue partial
 // @covers List.Dropdown.Props.filtering.keepSectionOrder partial

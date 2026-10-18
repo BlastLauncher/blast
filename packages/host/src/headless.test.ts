@@ -166,6 +166,10 @@ test("window management answers neutrally: one desktop, no windows, no active wi
     error: { code: "failed", message: "No active window" },
   });
   for (const name of ["window.desktops", "window.list", "window.active"]) {
+    expect(await ask(createBroker(), name, {})).toMatchObject({
+      ok: false,
+      error: { code: "denied" },
+    });
     expect(await ask(broker, name, null)).toMatchObject({
       ok: false,
       error: { code: "failed" },
@@ -176,9 +180,9 @@ test("window management answers neutrally: one desktop, no windows, no active wi
 // @covers WindowManagement.setWindowBounds
 test("window.setBounds is an effect and stays denied unless granted", async () => {
   const params = { id: "window-1", bounds: { position: { x: 100 } } };
-  expect(await ask(createBroker(createHeadlessHandlers()), "window.setBounds", params)).toMatchObject(
-    { ok: false, error: { code: "denied" } },
-  );
+  expect(
+    await ask(createBroker(createHeadlessHandlers()), "window.setBounds", params),
+  ).toMatchObject({ ok: false, error: { code: "denied" } });
   const received: JsonValue[] = [];
   const broker = createBroker({
     "window.setBounds": (value) => {
@@ -226,4 +230,19 @@ test("finder and trash effects require explicit grants and pass parameters to th
     expect(await ask(broker, name, params)).toMatchObject({ ok: true, value: null });
     expect(received).toEqual([params]);
   }
+});
+
+test("an applications.default grant returns the client's application", async () => {
+  const requests: JsonValue[] = [];
+  const broker = createBroker({
+    "applications.default": (params) => {
+      requests.push(params);
+      return safari;
+    },
+  });
+  expect(await ask(broker, "applications.default", { path: "/tmp/a" })).toMatchObject({
+    ok: true,
+    value: safari,
+  });
+  expect(requests).toEqual([{ path: "/tmp/a" }]);
 });

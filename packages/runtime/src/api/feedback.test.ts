@@ -124,7 +124,7 @@ test("toast actions receive the original instance and can be changed or removed"
   root.unmount();
 });
 
-// @covers showHUD
+// @covers showHUD partial
 test("HUD resolves after publication and records window options", async () => {
   const { root, node } = setup();
   const shown = showHUD("Copied", { clearRootSearch: true, popToRootType: "immediate" });
@@ -247,7 +247,7 @@ test("feedback and pending alerts survive navigation push/pop without remounting
 // @covers showToast
 // @covers Toast.show
 // @covers Toast.hide
-// @covers showHUD
+// @covers showHUD partial
 // @covers closeMainWindow
 test("feedback promises settle with nothing mounted", async () => {
   const toast = await showToast({ title: "No scene" });

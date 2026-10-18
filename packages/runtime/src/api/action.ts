@@ -164,7 +164,7 @@ export function Paste(props: PasteProps) {
     title: title ?? "Paste in Active App",
     icon: icon ?? Icon.Clipboard,
     onAction: async () => {
-      await paste(content, "Action.Paste");
+      await paste(content);
       onPaste?.(content);
     },
   });
@@ -518,6 +518,8 @@ export function InstallMCPServer(props: InstallMCPServerProps) {
   return createElement("Action.InstallMCPServer", {
     ...rest,
     title: rest.title ?? "Install MCP Server",
-    onAction: () => requestCapability("mcp.install", { server: serverParam(server) }),
+    onAction: async () => {
+      await requestCapability("mcp.install", { server: serverParam(server) });
+    },
   });
 }
