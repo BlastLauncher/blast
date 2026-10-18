@@ -87,3 +87,6 @@ export type {
   MenuBarSubmenuProps,
   MenuBarActionEvent,
 } from "./menu-bar.ts";
+
+export type { FileSystemItem } from "./selection.ts";
+export type { FormFilePickerProps } from "./form.ts";

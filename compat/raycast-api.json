@@ -2,15 +2,15 @@
   "version": "2.8.2",
   "totals": {
     "all": {
-      "covered": 944,
-      "partial": 69,
-      "missing": 1460,
+      "covered": 964,
+      "partial": 71,
+      "missing": 1438,
       "total": 2473
     },
     "nonDeprecated": {
-      "covered": 914,
-      "partial": 64,
-      "missing": 556,
+      "covered": 934,
+      "partial": 66,
+      "missing": 534,
       "total": 1534
     },
     "deprecated": {
@@ -28,14 +28,14 @@
       },
       "component": {
         "covered": 24,
-        "partial": 31,
-        "missing": 61,
+        "partial": 32,
+        "missing": 60,
         "total": 116
       },
       "function": {
-        "covered": 24,
+        "covered": 29,
         "partial": 4,
-        "missing": 22,
+        "missing": 17,
         "total": 50
       },
       "const": {
@@ -63,9 +63,9 @@
         "total": 691
       },
       "interface": {
-        "covered": 7,
+        "covered": 8,
         "partial": 2,
-        "missing": 55,
+        "missing": 54,
         "total": 64
       },
       "type": {
@@ -75,9 +75,9 @@
         "total": 178
       },
       "property": {
-        "covered": 328,
-        "partial": 27,
-        "missing": 949,
+        "covered": 342,
+        "partial": 28,
+        "missing": 934,
         "total": 1304
       },
       "method": {
@@ -5498,8 +5498,10 @@
     },
     {
       "path": "FileSystemItem",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/selection.test.ts"
+      ],
       "weight": 10
     },
     {
@@ -6162,8 +6164,10 @@
     },
     {
       "path": "Form.FilePicker",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 256
     },
     {
@@ -6174,92 +6178,122 @@
     },
     {
       "path": "Form.FilePicker.Props.allowMultipleSelection",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 238
     },
     {
       "path": "Form.FilePicker.Props.autoFocus",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 13
     },
     {
       "path": "Form.FilePicker.Props.canChooseDirectories",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 176
     },
     {
       "path": "Form.FilePicker.Props.canChooseFiles",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 126
     },
     {
       "path": "Form.FilePicker.Props.defaultValue",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 27
     },
     {
       "path": "Form.FilePicker.Props.error",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 47
     },
     {
       "path": "Form.FilePicker.Props.id",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 193
     },
     {
       "path": "Form.FilePicker.Props.info",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 86
     },
     {
       "path": "Form.FilePicker.Props.onBlur",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 9
     },
     {
       "path": "Form.FilePicker.Props.onChange",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 112
     },
     {
       "path": "Form.FilePicker.Props.onFocus",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Form.FilePicker.Props.showHiddenFiles",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 5
     },
     {
       "path": "Form.FilePicker.Props.storeValue",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 7
     },
     {
       "path": "Form.FilePicker.Props.title",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 246
     },
     {
       "path": "Form.FilePicker.Props.value",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 84
     },
     {
@@ -16679,8 +16713,10 @@
     },
     {
       "path": "getFrontmostApplication",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/selection.test.ts"
+      ],
       "weight": 99
     },
     {
@@ -16701,14 +16737,18 @@
     },
     {
       "path": "getSelectedFinderItems",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/selection.test.ts"
+      ],
       "weight": 164
     },
     {
       "path": "getSelectedText",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/selection.test.ts"
+      ],
       "weight": 249
     },
     {
@@ -16801,8 +16841,10 @@
     },
     {
       "path": "showInFinder",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/selection.test.ts"
+      ],
       "weight": 145
     },
     {
@@ -16917,8 +16959,10 @@
     },
     {
       "path": "trash",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/selection.test.ts"
+      ],
       "weight": 43
     },
     {

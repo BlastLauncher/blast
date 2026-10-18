@@ -234,8 +234,8 @@ test("stdin EOF unmounts and exits cleanly", async () => {
 });
 
 for (const [fixture, mode, path] of [
-  ["unsupported.js", "view", "Form.FilePicker"],
-  ["unsupported-reject.js", "no-view", "getSelectedText"],
+  ["unsupported.js", "view", "WindowManagement"],
+  ["unsupported-reject.js", "no-view", "getDefaultApplication"],
 ] as const) {
   test(`unsupported API is fatal: ${fixture}`, async () => {
     const runtime = start();
@@ -258,7 +258,7 @@ for (const title of ["Unsupported sync", "Unsupported async"]) {
     expect(await runtime.next("error")).toMatchObject({
       fatal: true,
       code: "UNSUPPORTED_API",
-      message: "Unsupported API in Blast: showInFinder",
+      message: "Unsupported API in Blast: getDefaultApplication",
     });
     expect(await runtime.exited).toBe(1);
   });

@@ -702,3 +702,61 @@ test("command metadata is recorded and printed without a grant", async () => {
       "# capability command.metadata {}\n",
   );
 }, 2500);
+
+test("selection flags supply read-only values and FilePicker submits comma-separated paths", async () => {
+  const fixture = join(root, "fixtures/extensions/selection");
+  const result = await runCli(
+    [
+      "run",
+      fixture,
+      "index",
+      "--selected-text",
+      "hello selected",
+      "--selected-files",
+      "/tmp/a",
+      "--selected-files",
+      "/tmp/b",
+      "--frontmost",
+      "org.editor",
+      "--script",
+      "-",
+      "--timeout",
+      "5000",
+    ],
+    "action Text\nwait\nexpect hello selected\naction Files\nwait\nexpect /tmp/b\naction Frontmost\nwait\nexpect org.editor\nfield files /tmp/a,/tmp/b\nwait\nsubmit\nwait\nexpect /tmp/a\nquit\n",
+  );
+  expect(result.code, result.stderr + result.stdout).toBe(0);
+  expect(result.stdout).toContain('value=["/tmp/a","/tmp/b"]');
+  expect(result.stdout).toContain('navigationTitle="{\\"files\\":[\\"/tmp/a\\",\\"/tmp/b\\"]}"');
+  const defaults = await runCli(
+    ["run", fixture, "index", "--script", "-"],
+    "action Text\nwait\nexpect No text selected\naction Files\nwait\nexpect []\naction Frontmost\nwait\nexpect Headless\nfield files /tmp/a\nwait\nfield files \nwait\nsubmit\nwait\nexpect []\nquit\n",
+  );
+  expect(defaults.code, defaults.stderr + defaults.stdout).toBe(0);
+  const help = await runCli(["--help"]);
+  for (const flag of [
+    "--selected-text <text>",
+    "--selected-files <path>",
+    "--frontmost <bundleId>",
+    "comma-separated paths",
+  ])
+    expect(help.stdout).toContain(flag);
+});
+
+test("CLI finder and trash effects record grants and report denials", async () => {
+  const args = ["run", join(root, "fixtures/extensions/selection"), "index", "--script", "-"];
+  const denied = await runCli(
+    args,
+    "action Reveal\nwait\nexpect Capability denied\naction Trash\nwait\nexpect Capability denied\nquit\n",
+  );
+  expect(denied.code, denied.stderr).toBe(0);
+  expect(denied.stdout).toContain("# capability finder.show denied");
+  expect(denied.stdout).toContain("# capability trash denied");
+  const granted = await runCli(
+    [...args, "--grant", "finder.show", "--grant", "trash"],
+    "action Reveal\nwait\nexpect revealed\naction Trash\nwait\nexpect trashed\nquit\n",
+  );
+  expect(granted.code, granted.stderr).toBe(0);
+  expect(granted.stdout).toContain('# capability finder.show {"path":"/tmp/a"}');
+  expect(granted.stdout).toContain('# capability trash {"paths":["/tmp/a","/tmp/b"]}');
+});

@@ -362,3 +362,107 @@ test("form instances isolate identical ids and uncontrolled defaults include fal
   ]);
   root.unmount();
 });
+
+// @covers Form.FilePicker partial
+// @covers Form.FilePicker.Props.id
+// @covers Form.FilePicker.Props.title
+// @covers Form.FilePicker.Props.info
+// @covers Form.FilePicker.Props.error
+// @covers Form.FilePicker.Props.storeValue partial
+// @covers Form.FilePicker.Props.autoFocus
+// @covers Form.FilePicker.Props.value
+// @covers Form.FilePicker.Props.defaultValue
+// @covers Form.FilePicker.Props.onChange
+// @covers Form.FilePicker.Props.onBlur
+// @covers Form.FilePicker.Props.onFocus
+// @covers Form.FilePicker.Props.allowMultipleSelection
+// @covers Form.FilePicker.Props.canChooseDirectories
+// @covers Form.FilePicker.Props.canChooseFiles
+// @covers Form.FilePicker.Props.showHiddenFiles
+test("FilePicker retains path arrays, controlled values, options and focus events through submit", () => {
+  const { root, find, change, submit } = setup();
+  let submitted: FormValues = {};
+  const changes: string[][] = [];
+  const events: FormEvent<string[]>[] = [];
+  function Command() {
+    const [files, setFiles] = useState(["/initial"]);
+    return h(
+      Form,
+      {
+        actions: h(Action.SubmitForm, {
+          onSubmit: (values) => {
+            submitted = values;
+          },
+        }),
+      },
+      h(Form.FilePicker, { id: "empty" }),
+      h(Form.FilePicker, { id: "fixed", value: ["/fixed"] }),
+      h(Form.FilePicker, {
+        id: "local",
+        defaultValue: ["/default"],
+        onChange: (value) => changes.push(value),
+      }),
+      h(Form.FilePicker, {
+        id: "controlled",
+        value: files,
+        defaultValue: ["/ignored"],
+        onChange: setFiles,
+        title: "Files",
+        info: "Choose paths",
+        error: "Required",
+        autoFocus: true,
+        storeValue: true,
+        allowMultipleSelection: false,
+        canChooseDirectories: true,
+        canChooseFiles: false,
+        showHiddenFiles: true,
+        onFocus: (event) => events.push(event),
+        onBlur: (event) => events.push(event),
+      }),
+    );
+  }
+  root.render(h(Command));
+  expect(find("empty").props).toMatchObject({
+    value: [],
+    allowMultipleSelection: true,
+    canChooseDirectories: false,
+    canChooseFiles: true,
+    showHiddenFiles: false,
+  });
+  expect(find("controlled").props).toMatchObject({
+    value: ["/initial"],
+    title: "Files",
+    info: "Choose paths",
+    error: "Required",
+    autoFocus: true,
+    storeValue: true,
+    allowMultipleSelection: false,
+    canChooseDirectories: true,
+    canChooseFiles: false,
+    showHiddenFiles: true,
+  });
+  change("local", ["/a", "/b"]);
+  change("controlled", ["/directory"]);
+  change("fixed", ["/ignored"]);
+  root.render(h(Command));
+  root.dispatch(find("controlled").id, "onFocus", []);
+  root.dispatch(find("controlled").id, "onBlur", []);
+  expect(events).toEqual(
+    (["focus", "blur"] as const).map((type) => ({
+      type,
+      target: { id: "controlled", value: ["/directory"] },
+    })),
+  );
+  expect(changes).toEqual([["/a", "/b"]]);
+  submit();
+  expect(submitted).toEqual({
+    empty: [],
+    fixed: ["/fixed"],
+    local: ["/a", "/b"],
+    controlled: ["/directory"],
+  });
+  change("local", []);
+  submit();
+  expect(submitted.local).toEqual([]);
+  root.unmount();
+});

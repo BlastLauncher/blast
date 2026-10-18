@@ -2,8 +2,9 @@
 // read host state or record UI requests: `getApplications` reports the applications the caller supplied
 // (an empty list otherwise), `Clipboard.read` reports the text the caller
 // supplied (empty otherwise, with no history behind it), and opening a
-// preference window or updating command metadata is only recorded. Everything
-// that would change the machine
+// preference window or updating command metadata is only recorded. Selection
+// comes from the supplied text and paths; the frontmost app is supplied or neutral.
+// Everything that would change the machine
 // (`open.*`, `clipboard.paste`, `clipboard.clear`) stays denied unless granted.
 import type { JsonValue } from "@blastlauncher/protocol";
 import type { CapabilityHandler } from "./broker.ts";
@@ -20,6 +21,10 @@ export type Application = {
 export type HeadlessCapabilities = {
   /** Answers `applications.list`; an empty list when omitted. */
   applications?: Application[] | undefined;
+  selectedText?: string | undefined;
+  selectedFiles?: string[] | undefined;
+  /** Bundle identifier; resolves against applications or a synthetic application. */
+  frontmost?: string | undefined;
   /** Answers `clipboard.read` at offset 0; an empty text when omitted. */
   clipboard?: string | undefined;
 };
@@ -85,7 +90,30 @@ export function createHeadlessHandlers(
 ): Record<string, CapabilityHandler> {
   const applications = capabilities.applications ?? [];
   const clipboard = capabilities.clipboard ?? "";
+  const frontmost = capabilities.frontmost;
   return {
+    "selection.text": (params) => {
+      readParams(params, "selection.text");
+      if (!capabilities.selectedText) throw new Error("No text selected");
+      return capabilities.selectedText;
+    },
+    "selection.files": (params) => {
+      readParams(params, "selection.files");
+      return (capabilities.selectedFiles ?? []).map((path) => ({ path }));
+    },
+    "applications.frontmost": (params) => {
+      readParams(params, "applications.frontmost");
+      const application = applications.find(
+        (app) => frontmost !== undefined && app.bundleId === frontmost,
+      );
+      return applicationWire(
+        application ?? {
+          name: frontmost ?? "Headless",
+          path: "",
+          ...(frontmost === undefined ? {} : { bundleId: frontmost }),
+        },
+      );
+    },
     "applications.list": (params) => {
       // The supplied list is the whole answer: a headless run cannot narrow it
       // to the applications that can open one path.

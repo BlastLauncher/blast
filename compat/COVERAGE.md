@@ -4,31 +4,31 @@ Denominator: the `@raycast/api@2.8.2` declarations. Evidence:
 `// @covers` tags in `packages/**/*.test.ts(x)`. A parent is not implied covered
 by its children. Partial support is reported separately from covered.
 
-**Non-deprecated coverage: 914/1534 covered (59.6%), 64 partial, 556 missing.**
+**Non-deprecated coverage: 934/1534 covered (60.9%), 66 partial, 534 missing.**
 Deprecated: 30/939 covered (3.2%), 5 partial, 904 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 914 | 30 | 944 |
-| partial | 64 | 5 | 69 |
-| missing | 556 | 904 | 1460 |
+| covered | 934 | 30 | 964 |
+| partial | 66 | 5 | 71 |
+| missing | 534 | 904 | 1438 |
 
 ## Totals by kind
 
 | Kind | Covered | Partial | Missing | Total |
 | --- | --- | --- | --- | --- |
 | namespace | 3 | 1 | 5 | 9 |
-| component | 24 | 31 | 61 | 116 |
-| function | 24 | 4 | 22 | 50 |
+| component | 24 | 32 | 60 | 116 |
+| function | 29 | 4 | 17 | 50 |
 | const | 1 | 1 | 19 | 21 |
 | class | 2 | 0 | 1 | 3 |
 | enum | 10 | 0 | 3 | 13 |
 | enum-member | 508 | 0 | 183 | 691 |
-| interface | 7 | 2 | 55 | 64 |
+| interface | 8 | 2 | 54 | 64 |
 | type | 27 | 3 | 148 | 178 |
-| property | 328 | 27 | 949 | 1304 |
+| property | 342 | 28 | 934 | 1304 |
 | method | 10 | 0 | 14 | 24 |
 
 ## Top-level symbols
@@ -68,8 +68,8 @@ Children counts include all descendants, as covered/partial/total.
 | `DynamicColor` | type | missing | 0/0/3 | 0 |
 | `Environment` | interface | missing | 0/0/17 | 2 |
 | `FileIcon` | interface | missing | 0/0/1 | 1 |
-| `FileSystemItem` | interface | missing | 0/0/1 | 10 |
-| `Form` | component | partial | 79/12/213 | 1362 |
+| `FileSystemItem` | interface | covered | 0/0/1 | 10 |
+| `Form` | component | partial | 93/14/213 | 1362 |
 | `FormCheckbox` | const | missing | 0/0/2 | 0 |
 | `FormCheckboxProps` | interface | missing | 0/0/12 | 0 |
 | `FormDatePicker` | const | missing | 0/0/2 | 0 |
@@ -157,11 +157,11 @@ Children counts include all descendants, as covered/partial/total.
 | `environment` | const | partial | 7/0/17 | 738 |
 | `getApplications` | function | covered | 0/0/0 | 216 |
 | `getDefaultApplication` | function | missing | 0/0/0 | 20 |
-| `getFrontmostApplication` | function | missing | 0/0/0 | 99 |
+| `getFrontmostApplication` | function | covered | 0/0/0 | 99 |
 | `getLocalStorageItem` | function | covered | 0/0/0 | 10 |
 | `getPreferenceValues` | function | partial | 0/0/0 | 2119 |
-| `getSelectedFinderItems` | function | missing | 0/0/0 | 164 |
-| `getSelectedText` | function | missing | 0/0/0 | 249 |
+| `getSelectedFinderItems` | function | covered | 0/0/0 | 164 |
+| `getSelectedText` | function | covered | 0/0/0 | 249 |
 | `launchCommand` | function | covered | 0/0/0 | 398 |
 | `open` | function | covered | 0/0/0 | 928 |
 | `openCommandPreferences` | function | covered | 0/0/0 | 187 |
@@ -174,10 +174,10 @@ Children counts include all descendants, as covered/partial/total.
 | `render` | const | missing | 0/0/0 | 1 |
 | `setLocalStorageItem` | function | covered | 0/0/0 | 10 |
 | `showHUD` | function | partial | 0/0/0 | 931 |
-| `showInFinder` | function | missing | 0/0/0 | 145 |
+| `showInFinder` | function | covered | 0/0/0 | 145 |
 | `showToast` | function | covered | 0/0/0 | 2471 |
 | `specialKeys` | const | missing | 0/0/16 | 0 |
-| `trash` | function | missing | 0/0/0 | 43 |
+| `trash` | function | covered | 0/0/0 | 43 |
 | `unstable_AI` | const | missing | 0/0/0 | 0 |
 | `updateCommandMetadata` | function | covered | 0/0/0 | 105 |
 | `useActionPanel` | function | missing | 0/0/0 | 0 |
@@ -196,27 +196,19 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `ActionPanel.Submenu.Props.title` | 284 |
 | `Image.ImageLike` | 279 |
 | `ActionPanel.Submenu.Props.icon` | 267 |
-| `Form.FilePicker` | 256 |
-| `getSelectedText` | 249 |
-| `Form.FilePicker.Props.title` | 246 |
-| `Form.FilePicker.Props.allowMultipleSelection` | 238 |
 | `Action.Open` | 227 |
 | `Action.Open.Props.target` | 226 |
 | `Action.Open.Props.title` | 226 |
 | `List.Props.pagination` | 206 |
-| `Form.FilePicker.Props.id` | 193 |
 | `Action.ShowInFinder` | 192 |
 | `Action.ShowInFinder.Props.path` | 192 |
-| `Form.FilePicker.Props.canChooseDirectories` | 176 |
 | `Form.TagPicker` | 168 |
 | `Form.TagPicker.Item` | 168 |
 | `Form.TagPicker.Item.Props.title` | 168 |
 | `Form.TagPicker.Item.Props.value` | 168 |
 | `Form.TagPicker.Props.title` | 167 |
-| `getSelectedFinderItems` | 164 |
 | `ActionPanel.Submenu.Props.shortcut` | 158 |
 | `Action.Open.Props.icon` | 145 |
-| `showInFinder` | 145 |
 | `OAuth` | 135 |
 | `OAuth.PKCEClient` | 134 |
 | `OAuth.RedirectMethod` | 134 |
@@ -224,21 +216,29 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `Form.PasswordField.Props.title` | 131 |
 | `Tool` | 128 |
 | `Tool.Confirmation` | 128 |
-| `Form.FilePicker.Props.canChooseFiles` | 126 |
 | `AI` | 115 |
-| `Form.FilePicker.Props.onChange` | 112 |
 | `OAuth.RedirectMethod.Web` | 112 |
 | `environment.canAccess` | 107 |
 | `Form.TagPicker.Props.id` | 106 |
-| `getFrontmostApplication` | 99 |
 | `Action.CreateQuicklink` | 97 |
 | `Action.CreateQuicklink.Props.quicklink` | 97 |
 | `Form.PasswordField.Props.placeholder` | 93 |
 | `Form.Props.enableDrafts` | 90 |
 | `Action.OpenWith` | 88 |
 | `Action.OpenWith.Props.path` | 87 |
-| `Form.FilePicker.Props.info` | 86 |
 | `Keyboard.KeyEquivalent` | 85 |
-| `Form.FilePicker.Props.value` | 84 |
 | `Action.ShowInFinder.Props.title` | 83 |
 | `environment.appearance` | 82 |
+| `AI.ask` | 79 |
+| `Action.Open.Props.shortcut` | 72 |
+| `Form.PasswordField.Props.id` | 72 |
+| `Action.ShowInFinder.Props.shortcut` | 68 |
+| `Action.CreateQuicklink.Props.title` | 67 |
+| `Form.TagPicker.Item.Props.icon` | 66 |
+| `Form.TagPicker.Props.placeholder` | 66 |
+| `List.Item.Props` | 64 |
+| `BrowserExtension` | 62 |
+| `OAuth.TokenResponse` | 61 |
+| `BrowserExtension.getTabs` | 60 |
+| `Action.Open.Props.application` | 58 |
+| `List.Item.Props.accessoryTitle` | 58 |

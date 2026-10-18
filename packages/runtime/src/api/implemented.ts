@@ -97,3 +97,11 @@ export { Form, SubmitForm as SubmitFormAction } from "./form.ts";
 export { Cache } from "./cache.ts";
 
 export { MenuBarExtra } from "./menu-bar.ts";
+
+export {
+  getSelectedText,
+  getSelectedFinderItems,
+  getFrontmostApplication,
+  showInFinder,
+  trash,
+} from "./selection.ts";

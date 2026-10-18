@@ -128,11 +128,20 @@ capabilities the desktop client owns: `applications.list` from `--applications
 <file.json>` (an empty list otherwise), `clipboard.read` from `--clipboard
 <text>` (an empty text otherwise, and nothing at older offsets), and
 `preferences.open` and `command.metadata` (subtitle updates), which are printed
-like any other capability. Everything else, including `clipboard.paste` and `clipboard.clear`, still needs `--grant`. `--script <file|->` drives the run with
+like any other capability. Selection reads use `--selected-text <text>` (rejects
+when omitted or empty) and repeatable `--selected-files <path>` (empty list
+otherwise). `--frontmost <bundleId>` chooses an application from the supplied
+list or reports that identifier with an empty path; without it, the neutral
+application is `{ name: "Headless", path: "" }`. The corresponding capabilities
+are `selection.text`, `selection.files`, and `applications.frontmost`.
+`showInFinder(path)` and `trash(pathOrPaths)` request `finder.show` and `trash`.
+Everything else, including `clipboard.paste` and `clipboard.clear`, still needs `--grant`. `--script <file|->` drives the run with
 one command per line: `action <title>`, `back`, `confirm`, `dismiss`,
 `search <text>`, `dropdown <value>`, `field <id> <value>`, `submit`, `wait`,
 `expect <text>`, `quit`. Form fields expose runtime-owned `value` and `onChange`;
 `field` sends strings, or `true`/`false` for checkboxes (dates use ISO strings).
+FilePicker fields accept comma-separated paths; omitting the value clears them.
+Picker options are carried in the scene for clients; no OS dialog opens.
 `submit` runs the first `Action.SubmitForm`, which collects the mounted form
 fields by id. Controlled fields follow their supplied value; uncontrolled fields
 retain edits until unmount. Form actions use the `actions` Slot. `storeValue`
