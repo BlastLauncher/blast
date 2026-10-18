@@ -6,7 +6,8 @@ files.
 
 ## Current focus
 
-M0 — workflow foundation. Next: `tasks/0003`.
+M0 done. Next: M1 task breakdown (orchestrator), starting with the protocol
+and scene format decision.
 
 ## Milestones
 
@@ -17,7 +18,7 @@ M0 — workflow foundation. Next: `tasks/0003`.
 - [x] CI runs verify on push and pull request
 - [x] 0001 Vendor latest `@raycast/api` declarations into `compat/`
 - [x] 0002 Raycast API inventory generator
-- [ ] 0003 Coverage evidence join (`@covers` tags → report, staleness check)
+- [x] 0003 Coverage evidence join (`@covers` tags → report, staleness check)
 
 ### M1 — Headless vertical slice
 

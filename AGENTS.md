@@ -149,15 +149,18 @@ fails a task twice, escalate the model rather than loosening the task.
 
 ## Raycast API coverage
 
-- The denominator is every exported declaration (and member) of the latest
-  published `@raycast/api` `types/index.d.ts`, pinned in `compat/`.
-- Evidence comes from tests: a test that exercises an API declares it with a
-  `// @covers <Symbol.path>` comment. The generator joins inventory, evidence
-  and corpus usage weights into `compat/raycast-api.json` and
-  `compat/COVERAGE.md`.
-- `bun run verify` fails if `compat/` is stale. Never hand-edit `compat/`.
-- Tracking the latest API is a regeneration plus a review of the diff, recorded
-  in the commit message.
+- Denominator: every public symbol path in the latest published
+  `@raycast/api` declarations, vendored in `compat/raycast-api/`
+  (`bun run compat:fetch [version]`) and listed by `bun run compat:inventory`.
+- Evidence: a test in `packages/**/*.test.ts(x)` that exercises an API declares
+  it with `// @covers <Symbol.path>` (append ` partial` when incomplete).
+  `bun run compat:report` writes `compat/raycast-api.json` and
+  `compat/COVERAGE.md`; the headline is non-deprecated coverage.
+- `bun run verify` fails if anything in `compat/` is stale or a tag names an
+  unknown path. Never hand-edit `compat/`.
+- Upgrading the API = `compat:fetch` → `compat:inventory` → `compat:report`,
+  then review the inventory diff and record notable changes in the commit.
+- Corpus usage weights join the report in M2.
 
 ## Docs policy
 
