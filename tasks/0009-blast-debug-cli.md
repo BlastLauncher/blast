@@ -1,7 +1,7 @@
 ---
 id: "0009"
 title: blast debug CLI and end-to-end fixture test
-status: todo
+status: doing
 milestone: M1
 depends: ["0008"]
 ---

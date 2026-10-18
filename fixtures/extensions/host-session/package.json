@@ -16,6 +16,10 @@
     {
       "name": "invalid",
       "mode": "no-view"
+    },
+    {
+      "name": "env",
+      "mode": "no-view"
     }
   ]
 }

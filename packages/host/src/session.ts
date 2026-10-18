@@ -22,7 +22,26 @@ export type StartOptions = BundledCommand & {
   environment?: InitEnvironment;
   nodePath?: string;
   handshakeTimeoutMs?: number;
+  /** Child environment; defaults to {@link runtimeEnvironment} (an allowlist, not `process.env`). */
+  env?: Record<string, string>;
+  /** Oldest log entries are dropped beyond this many. */
+  maxLogs?: number;
 };
+
+// Variables a Node program needs to behave normally. Everything else in the
+// host environment (tokens, credentials) is withheld from extension code.
+const INHERITED_ENV = ["PATH", "HOME", "USER", "LANG", "LC_ALL", "TZ", "TMPDIR", "TEMP", "TMP"];
+
+export function runtimeEnvironment(
+  source: NodeJS.ProcessEnv = process.env,
+): Record<string, string> {
+  const env: Record<string, string> = {};
+  for (const name of INHERITED_ENV) {
+    const value = source[name];
+    if (value !== undefined) env[name] = value;
+  }
+  return env;
+}
 export type Exit = { code: number | null; signal: NodeJS.Signals | null; error?: Error };
 export type Session = {
   readonly latestScene: SceneMessage | undefined;
@@ -60,13 +79,18 @@ export async function startCommand(options: StartOptions): Promise<Session> {
   const child = spawn(
     options.nodePath ?? "node",
     [fileURLToPath(import.meta.resolve("@blastlauncher/runtime/main"))],
-    { stdio: ["pipe", "pipe", "pipe"] },
+    { stdio: ["pipe", "pipe", "pipe"], env: options.env ?? runtimeEnvironment() },
   );
   let ready = false;
   let closed = false;
   let failure: Error | undefined;
   let latestScene: SceneMessage | undefined;
   const logs: LogMessage[] = [];
+  const maxLogs = options.maxLogs ?? 1000;
+  function addLog(entry: LogMessage) {
+    logs.push(entry);
+    if (logs.length > maxLogs) logs.splice(0, logs.length - maxLogs);
+  }
   const listeners = new Set<(scene: SceneMessage) => void>();
   const timers = new Set<ReturnType<typeof setTimeout>>();
   let resolveExit: (exit: Exit) => void;
@@ -115,14 +139,10 @@ export async function startCommand(options: StartOptions): Promise<Session> {
           for (const listener of listeners) listener(message);
           break;
         case "log":
-          logs.push(message);
+          addLog(message);
           break;
         case "error":
-          logs.push({
-            type: "log",
-            level: "error",
-            message: `${message.code}: ${message.message}`,
-          });
+          addLog({ type: "log", level: "error", message: `${message.code}: ${message.message}` });
           if (message.fatal)
             failure ??= Object.assign(new Error(message.message), { code: message.code });
           break;
@@ -142,7 +162,7 @@ export async function startCommand(options: StartOptions): Promise<Session> {
   child.stdout.on("end", () => decoder.end());
   child.stderr
     .setEncoding("utf8")
-    .on("data", (message: string) => logs.push({ type: "log", level: "error", message }));
+    .on("data", (message: string) => addLog({ type: "log", level: "error", message }));
   child.stdin.on("error", fail);
   child.on("error", fail);
   child.on("close", (code, signal) => {

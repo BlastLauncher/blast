@@ -26,7 +26,8 @@ Status: accepted 2026-10-18
 6. **Privileged operations are capability requests.** APIs such as
    `Clipboard.copy` send `capability.request { id, name, params }`; the host
    broker denies by default and answers `capability.result`. The runtime
-   process gets no ambient host privileges beyond what Node itself grants;
+   process gets no ambient host privileges beyond what Node itself grants and
+   only an allowlisted environment (no host tokens or credentials);
    OS-level sandboxing is a later concern, not a claim made now.
 7. **Three packages:** `protocol` (messages, validation, framing; no
    dependencies), `runtime` (reconciler, API shim, child entry), `host`

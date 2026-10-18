@@ -141,6 +141,26 @@ test("manifest no-view mode waits for capabilities and exits without a scene", a
   expect(session.latestScene).toBeUndefined();
 });
 
+test("the runtime gets an allowlisted environment and logs are bounded", async () => {
+  process.env.BLAST_TEST_SECRET = "hunter2";
+  try {
+    const session = await startCommand({ ...(await bundle("env")), broker: createBroker() });
+    sessions.push(session);
+    expect(await session.exited).toEqual({ code: 0, signal: null });
+    expect(session.logs[0]?.message).toBe("secret=unset path=set");
+  } finally {
+    delete process.env.BLAST_TEST_SECRET;
+  }
+  const bounded = await startCommand({
+    ...(await bundle("env")),
+    broker: createBroker(),
+    maxLogs: 3,
+  });
+  sessions.push(bounded);
+  await bounded.exited;
+  expect(bounded.logs.map((log) => log.message)).toEqual(["line 2", "line 3", "line 4"]);
+});
+
 test("shutdown escalates through SIGTERM to SIGKILL and is idempotent", async () => {
   let started!: () => void;
   const startup = new Promise<void>((resolve) => {
