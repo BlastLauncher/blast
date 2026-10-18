@@ -1,7 +1,7 @@
 ---
 id: "0016"
 title: Implement the APIs blocking the curated set (Icon, Color, Detail, …)
-status: doing
+status: review
 milestone: M3
 depends: ["0015"]
 ---
@@ -42,10 +42,10 @@ with each newly implemented API covered by tests.
 
 ## Acceptance
 
-- [ ] Tests for every implemented component, enum, alias and capability.
-- [ ] Updated `compat/SMOKE.md` committed; Handoff gives rendered count before
+- [x] Tests for every implemented component, enum, alias and capability.
+- [x] Updated `compat/SMOKE.md` committed; Handoff gives rendered count before
       and after and the remaining blockers.
-- [ ] `bun run verify` passes.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -55,8 +55,25 @@ with each newly implemented API covered by tests.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/curated-api-blockers @ b2440216a556d5032093004639d52b091b5e5bf4
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 11.7s
 Done:
+- Implemented Action.OpenInBrowser (open.url { url }), Action.Paste/PasteAction
+  (clipboard.paste { text }), and CopyToClipboardAction; callbacks follow successful
+  capability responses. Added grant/deny/failure tests; broker remains deny-all.
+- Implemented standalone Detail with actions/metadata Slots and scalar props.
+- Generated all Icon/Color string values and member coverage from the declarations;
+  compat:enums regenerates them and compat:check detects stale values/evidence.
+- Added all 17 documented Keyboard.Shortcut.Common mappings for macOS/Windows,
+  with the public documentation URL cited in code. No new dependencies.
+- 199 tests pass; regenerated coverage and smoke reports. Curated rendering rose
+  from 2/13 to 9/13. Deleted .cache/raycast-extensions after the final smoke run.
 Not done / risks:
+- markdown-reference/markdown-reference still needs useNavigation (task 0017).
+- radix/colors, radix/primitives, and radix/themes still need List.Item.Detail;
+  stopped at the task's listed APIs rather than expanding scope.
+- Paste supports strings, numbers and content with text; file-only and HTML-only
+  payloads reject before requesting a capability and are marked partial.
+- Detail.Metadata components remain unsupported; this task implements standalone
+  Detail and its metadata Slot, with parent coverage marked partial.
 ```
