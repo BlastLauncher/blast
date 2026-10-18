@@ -1,7 +1,7 @@
 ---
 id: "0031"
 title: Generate every runtime enum from the declarations, incl. nested ones
-status: todo
+status: doing
 milestone: M3
 depends: []
 ---
