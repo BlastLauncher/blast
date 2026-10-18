@@ -58,8 +58,8 @@ from data. Output: `compat/dependencies.json` plus `compat/DEPENDENCIES.md`.
 ## Handoff
 
 ```
-Branch/commit: t3/dependency-usage-scan @ 5a8e257 (also 4aa025b)
-Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 32.0s
+Branch/commit: t3/dependency-usage-scan @ e6a62a5 (code at 4aa025b, 5a8e257)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 35.9s
 Done:
 - `scripts/corpus/imports.ts`: shared pure specifier rules (`Source`,
   `unprovidedImports`, `importedPackages`, `packageName`), moved out of
