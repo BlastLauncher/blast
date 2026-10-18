@@ -6,7 +6,7 @@ files.
 
 ## Current focus
 
-M0 — workflow foundation. Next: `tasks/0002`.
+M0 — workflow foundation. Next: `tasks/0003`.
 
 ## Milestones
 
@@ -16,7 +16,7 @@ M0 — workflow foundation. Next: `tasks/0002`.
 - [x] `bun run verify` gate and `check:workflow` guard
 - [x] CI runs verify on push and pull request
 - [x] 0001 Vendor latest `@raycast/api` declarations into `compat/`
-- [ ] 0002 Raycast API inventory generator
+- [x] 0002 Raycast API inventory generator
 - [ ] 0003 Coverage evidence join (`@covers` tags → report, staleness check)
 
 ### M1 — Headless vertical slice

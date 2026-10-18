@@ -1,7 +1,7 @@
 ---
 id: "0003"
 title: Join @covers test evidence into the coverage report
-status: todo
+status: doing
 milestone: M0
 depends: ["0002"]
 ---

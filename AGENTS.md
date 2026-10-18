@@ -34,6 +34,8 @@ claimed.
   parameter properties. Bun is the dev toolchain (install, test, scripts).
 - Prefer the fewest packages that keep boundaries honest. Add a package only
   when a task requires a new runtime boundary.
+- New dependencies: check `npm view <pkg> version` and pin that exact latest
+  version; do not trust remembered versions. Justify each one in Handoff.
 - Deterministic tests only. Network access is allowed in explicit fetch scripts
   that write to `.cache/`, never in `bun test`.
 
