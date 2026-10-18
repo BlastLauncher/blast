@@ -28,7 +28,27 @@ export type {
   ActionPanelSubmenuProps,
 } from "./action-panel.ts";
 export type { ClipboardContent, CopyOptions, ReadContent } from "./clipboard.ts";
-export type { Environment } from "./environment.ts";
+export type {
+  Environment,
+  Appearance,
+  EntryPointMode,
+  EntryPointType,
+  TextSize,
+} from "./environment.ts";
+export type {
+  ColorDynamic,
+  ColorLike,
+  ColorRaw,
+  ImageFallback,
+  ImageLike,
+  ImageObject,
+  ImagePath,
+  ImageSource,
+  ImageThemeSource,
+  KeyShortcut,
+  Shortcut,
+} from "./types.ts";
+export type { KeyEquivalent, KeyModifier } from "./keyboard.ts";
 export type {
   ListProps,
   ListItemProps,

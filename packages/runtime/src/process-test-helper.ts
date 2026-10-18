@@ -17,9 +17,12 @@ const noop = () => {};
 const defaultEnvironment: InitEnvironment = {
   extensionName: "fixture",
   commandName: "command",
+  ownerOrAuthorName: "Blast",
   assetsPath: "",
   supportPath: "",
   isDevelopment: true,
+  appearance: "dark",
+  textSize: "medium",
 };
 
 export type InitOptions = {

@@ -117,9 +117,12 @@ test("no-view command runs, sees environment and preferences, and exits 0 withou
     environment: {
       extensionName: "Clipboard History",
       commandName: "history",
+      ownerOrAuthorName: "Raycast",
       assetsPath: "/ext/assets",
       supportPath: "/ext/support",
       isDevelopment: false,
+      appearance: "light",
+      textSize: "large",
     },
   });
   expect(await runtime.next("ready")).toEqual({ type: "ready", protocol: 1 });

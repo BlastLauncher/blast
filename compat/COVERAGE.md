@@ -4,16 +4,16 @@ Denominator: the `@raycast/api@2.8.2` declarations. Evidence:
 `// @covers` tags in `packages/**/*.test.ts(x)`. A parent is not implied covered
 by its children. Partial support is reported separately from covered.
 
-**Non-deprecated coverage: 974/1534 covered (63.5%), 75 partial, 485 missing.**
+**Non-deprecated coverage: 1034/1534 covered (67.4%), 73 partial, 427 missing.**
 Deprecated: 35/939 covered (3.7%), 5 partial, 899 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 974 | 35 | 1009 |
-| partial | 75 | 5 | 80 |
-| missing | 485 | 899 | 1384 |
+| covered | 1034 | 35 | 1069 |
+| partial | 73 | 5 | 78 |
+| missing | 427 | 899 | 1326 |
 
 ## Totals by kind
 
@@ -22,14 +22,14 @@ Deprecated: 35/939 covered (3.7%), 5 partial, 899 missing.
 | namespace | 3 | 1 | 5 | 9 |
 | component | 29 | 41 | 46 | 116 |
 | function | 29 | 4 | 17 | 50 |
-| const | 1 | 1 | 19 | 21 |
+| const | 2 | 0 | 19 | 21 |
 | class | 2 | 0 | 1 | 3 |
 | enum | 10 | 0 | 3 | 13 |
 | enum-member | 508 | 0 | 183 | 691 |
-| interface | 8 | 2 | 54 | 64 |
-| type | 27 | 3 | 148 | 178 |
-| property | 381 | 28 | 895 | 1304 |
-| method | 11 | 0 | 13 | 24 |
+| interface | 11 | 1 | 52 | 64 |
+| type | 36 | 3 | 139 | 178 |
+| property | 426 | 28 | 850 | 1304 |
+| method | 13 | 0 | 11 | 24 |
 
 ## Top-level symbols
 
@@ -59,14 +59,14 @@ Children counts include all descendants, as covered/partial/total.
 | `BrowserExtension` | namespace | missing | 0/0/8 | 62 |
 | `Cache` | class | covered | 16/1/17 | 333 |
 | `Clipboard` | namespace | partial | 9/2/16 | 1049 |
-| `Color` | enum | covered | 9/0/22 | 1420 |
+| `Color` | enum | covered | 18/0/22 | 1420 |
 | `ColorLike` | type | missing | 0/0/3 | 0 |
 | `CopyToClipboardAction` | component | partial | 0/0/8 | 23 |
 | `CopyToClipboardActionProps` | interface | missing | 0/0/7 | 0 |
 | `Detail` | component | partial | 32/0/33 | 1310 |
 | `DetailProps` | interface | missing | 0/0/5 | 0 |
 | `DynamicColor` | type | missing | 0/0/3 | 0 |
-| `Environment` | interface | missing | 0/0/17 | 2 |
+| `Environment` | interface | covered | 13/0/17 | 2 |
 | `FileIcon` | interface | missing | 0/0/1 | 1 |
 | `FileSystemItem` | interface | covered | 0/0/1 | 10 |
 | `Form` | component | partial | 93/14/213 | 1362 |
@@ -97,13 +97,13 @@ Children counts include all descendants, as covered/partial/total.
 | `FormValues` | interface | missing | 0/0/0 | 1 |
 | `Grid` | component | partial | 66/13/87 | 311 |
 | `Icon` | enum | covered | 478/0/478 | 2587 |
-| `Image` | interface | partial | 3/0/21 | 478 |
+| `Image` | interface | covered | 21/0/21 | 478 |
 | `ImageLike` | type | missing | 0/0/5 | 2 |
 | `ImageMask` | enum | covered | 2/0/2 | 8 |
 | `ImageSource` | type | missing | 0/0/2 | 0 |
 | `KeyEquivalent` | type | missing | 0/0/0 | 4 |
 | `KeyModifier` | type | missing | 0/0/0 | 0 |
-| `Keyboard` | namespace | covered | 19/0/32 | 790 |
+| `Keyboard` | namespace | covered | 29/0/32 | 790 |
 | `KeyboardShortcut` | type | missing | 0/0/11 | 1 |
 | `LaunchProps` | type | covered | 3/0/5 | 657 |
 | `LaunchType` | enum | covered | 2/0/2 | 454 |
@@ -154,7 +154,7 @@ Children counts include all descendants, as covered/partial/total.
 | `closeMainWindow` | function | covered | 0/0/0 | 600 |
 | `confirmAlert` | function | partial | 0/0/0 | 849 |
 | `copyTextToClipboard` | function | missing | 0/0/0 | 3 |
-| `environment` | const | partial | 7/0/17 | 738 |
+| `environment` | const | covered | 14/0/17 | 738 |
 | `getApplications` | function | covered | 0/0/0 | 216 |
 | `getDefaultApplication` | function | missing | 0/0/0 | 20 |
 | `getFrontmostApplication` | function | covered | 0/0/0 | 99 |
@@ -192,7 +192,6 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 
 | Path | Extensions |
 | --- | --- |
-| `Image.ImageLike` | 279 |
 | `List.Props.pagination` | 206 |
 | `Form.TagPicker` | 168 |
 | `Form.TagPicker.Item` | 168 |
@@ -208,12 +207,9 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `Tool.Confirmation` | 128 |
 | `AI` | 115 |
 | `OAuth.RedirectMethod.Web` | 112 |
-| `environment.canAccess` | 107 |
 | `Form.TagPicker.Props.id` | 106 |
 | `Form.PasswordField.Props.placeholder` | 93 |
 | `Form.Props.enableDrafts` | 90 |
-| `Keyboard.KeyEquivalent` | 85 |
-| `environment.appearance` | 82 |
 | `AI.ask` | 79 |
 | `Form.PasswordField.Props.id` | 72 |
 | `Action.ShowInFinder.Props.shortcut` | 68 |
@@ -229,9 +225,7 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `OAuth.AuthorizationRequest` | 53 |
 | `Action.CreateQuicklink.Props.shortcut` | 51 |
 | `Form.TagPicker.Props.value` | 47 |
-| `Color.ColorLike` | 44 |
 | `Form.PasswordField.Props.onChange` | 44 |
-| `Keyboard.KeyModifier` | 44 |
 | `Form.TagPicker.Props.defaultValue` | 41 |
 | `captureException` | 41 |
 | `clearSearchBar` | 41 |
@@ -242,3 +236,9 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `AI.Model` | 35 |
 | `Form.PasswordField.Props.value` | 34 |
 | `Form.Values` | 33 |
+| `List.Props.enableFiltering` | 32 |
+| `Form.TagPicker.Props.info` | 31 |
+| `ActionPanel.Item.Props.onAction` | 30 |
+| `ActionPanel.Item.Props.title` | 30 |
+| `Action.CreateQuicklink.Props.icon` | 29 |
+| `OpenInBrowserAction` | 29 |

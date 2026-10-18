@@ -88,9 +88,13 @@ export async function startCommand(options: StartOptions): Promise<Session> {
     environment: options.environment ?? {
       extensionName: options.extensionName,
       commandName: options.commandName,
+      ownerOrAuthorName: options.ownerOrAuthorName ?? "",
       assetsPath: options.assetsPath ?? join(dirname(entry), "assets"),
       supportPath,
       isDevelopment: true,
+      // A headless host has no UI; the client can send its real theme.
+      appearance: "dark",
+      textSize: "medium",
     },
   };
   const checked = parseHostMessage(init);

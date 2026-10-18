@@ -104,6 +104,8 @@ export type BundledCommand = {
   entry: string;
   extensionName: string;
   commandName: string;
+  /** The manifest's `owner`, else `author`; defaults to `""` for bare entries. */
+  ownerOrAuthorName?: string;
   mode: CommandMode;
   /** The manifest's argument declarations, in declaration order. */
   arguments: CommandArgument[];
@@ -282,6 +284,13 @@ export async function bundleCommand(options: BundleOptions): Promise<BundledComm
     entry,
     extensionName: manifest.name,
     commandName: command.name,
+    // Raycast reports the owner when a manifest has one, else the author.
+    ownerOrAuthorName:
+      typeof manifest.owner === "string"
+        ? manifest.owner
+        : typeof manifest.author === "string"
+          ? manifest.author
+          : "",
     mode: command.mode,
     arguments: commandArguments,
     assetsPath: join(outDir, "assets"),
