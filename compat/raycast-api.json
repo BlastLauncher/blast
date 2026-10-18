@@ -2,15 +2,15 @@
   "version": "2.8.2",
   "totals": {
     "all": {
-      "covered": 801,
-      "partial": 48,
-      "missing": 1624,
+      "covered": 813,
+      "partial": 50,
+      "missing": 1610,
       "total": 2473
     },
     "nonDeprecated": {
-      "covered": 779,
-      "partial": 44,
-      "missing": 711,
+      "covered": 791,
+      "partial": 46,
+      "missing": 697,
       "total": 1534
     },
     "deprecated": {
@@ -33,9 +33,9 @@
         "total": 116
       },
       "function": {
-        "covered": 14,
-        "partial": 3,
-        "missing": 33,
+        "covered": 20,
+        "partial": 4,
+        "missing": 26,
         "total": 50
       },
       "const": {
@@ -63,21 +63,21 @@
         "total": 691
       },
       "interface": {
-        "covered": 5,
+        "covered": 6,
         "partial": 1,
-        "missing": 58,
+        "missing": 57,
         "total": 64
       },
       "type": {
-        "covered": 16,
-        "partial": 1,
-        "missing": 161,
+        "covered": 17,
+        "partial": 2,
+        "missing": 159,
         "total": 178
       },
       "property": {
-        "covered": 233,
+        "covered": 237,
         "partial": 18,
-        "missing": 1053,
+        "missing": 1049,
         "total": 1304
       },
       "method": {
@@ -4385,8 +4385,10 @@
     },
     {
       "path": "Application",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/applications.test.ts"
+      ],
       "weight": 119
     },
     {
@@ -4603,8 +4605,10 @@
     },
     {
       "path": "Clipboard.Content",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/clipboard.test.ts"
+      ],
       "weight": 19
     },
     {
@@ -4621,8 +4625,10 @@
     },
     {
       "path": "Clipboard.Content.text",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/clipboard.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -4645,32 +4651,42 @@
     },
     {
       "path": "Clipboard.ReadContent",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/clipboard.test.ts"
+      ],
       "weight": 7
     },
     {
       "path": "Clipboard.ReadContent.file",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/clipboard.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Clipboard.ReadContent.html",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/clipboard.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Clipboard.ReadContent.text",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/clipboard.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Clipboard.clear",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/clipboard.test.ts"
+      ],
       "weight": 5
     },
     {
@@ -4683,20 +4699,26 @@
     },
     {
       "path": "Clipboard.paste",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/clipboard.test.ts"
+      ],
       "weight": 193
     },
     {
       "path": "Clipboard.read",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/clipboard.test.ts"
+      ],
       "weight": 83
     },
     {
       "path": "Clipboard.readText",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/clipboard.test.ts"
+      ],
       "weight": 312
     },
     {
@@ -16341,8 +16363,10 @@
     },
     {
       "path": "getApplications",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/applications.test.ts"
+      ],
       "weight": 216
     },
     {
@@ -16401,14 +16425,18 @@
     },
     {
       "path": "openCommandPreferences",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/preferences.test.ts"
+      ],
       "weight": 187
     },
     {
       "path": "openExtensionPreferences",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/preferences.test.ts"
+      ],
       "weight": 541
     },
     {

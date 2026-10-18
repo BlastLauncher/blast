@@ -1,11 +1,13 @@
 # Corpus smoke report
 
 Headless run of every command of the curated extensions at corpus commit
-`3b812d1e153a1862df29bc8ec34e170c728512ea`, with a deny-all broker and manifest preference
-defaults. Regenerate with `bun run corpus:smoke` (network required; not
-part of `bun run verify`).
+`3b812d1e153a1862df29bc8ec34e170c728512ea`, with Blast's headless broker — deny-all except the
+read-only defaults `applications.list` (empty), `clipboard.read` (empty)
+and `preferences.open` (recorded) — and manifest preference defaults.
+Regenerate with `bun run corpus:smoke` (network required; not part of
+`bun run verify`).
 
-66 commands: rendered 41, bundle-failed 0, crashed 2, timeout 0, unsupported-mode 2, unsupported-api 21.
+66 commands: rendered 48, bundle-failed 0, crashed 2, timeout 0, unsupported-mode 2, unsupported-api 14.
 
 | Command                                                          | Mode     | Outcome          | Detail                                                     |
 | ---------------------------------------------------------------- | -------- | ---------------- | ---------------------------------------------------------- |
@@ -36,16 +38,16 @@ part of `bun run verify`).
 | `google-maps-search/quickSearchMaps`                             | no-view  | unsupported-mode | command mode "no-view" completed without rendering a scene |
 | `google-maps-search/travelHome`                                  | no-view  | crashed          | code 1; Capability denied: open.url                        |
 | `google-maps-search/travelTo`                                    | view     | rendered         | 18 nodes, root Navigation                                  |
-| `invisible-text-detector/analyze-clipboard-invisible-characters` | no-view  | unsupported-api  | Clipboard.readText                                         |
+| `invisible-text-detector/analyze-clipboard-invisible-characters` | no-view  | rendered         | 3 nodes, root Navigation                                   |
 | `invisible-text-detector/fix-invisible-characters`               | no-view  | rendered         | 3 nodes, root Navigation                                   |
 | `invisible-text-detector/open-invisible-text-detector`           | view     | rendered         | 32 nodes, root Navigation                                  |
 | `laravel-shift/generate-shift`                                   | view     | rendered         | 59 nodes, root Navigation                                  |
 | `markdown-reference/markdown-reference`                          | view     | rendered         | 63 nodes, root Navigation                                  |
-| `menucloak/open-settings`                                        | no-view  | unsupported-api  | getApplications                                            |
+| `menucloak/open-settings`                                        | no-view  | rendered         | 4 nodes, root Navigation                                   |
 | `menucloak/set-focus`                                            | view     | rendered         | 7 nodes, root Navigation                                   |
-| `menucloak/toggle`                                               | no-view  | unsupported-api  | getApplications                                            |
-| `menucloak/turn-off`                                             | no-view  | unsupported-api  | getApplications                                            |
-| `menucloak/turn-on`                                              | no-view  | unsupported-api  | getApplications                                            |
+| `menucloak/toggle`                                               | no-view  | rendered         | 4 nodes, root Navigation                                   |
+| `menucloak/turn-off`                                             | no-view  | rendered         | 4 nodes, root Navigation                                   |
+| `menucloak/turn-on`                                              | no-view  | rendered         | 4 nodes, root Navigation                                   |
 | `mise-window-sets/apply-set`                                     | view     | unsupported-api  | Cache                                                      |
 | `mise-window-sets/reload-sets`                                   | no-view  | rendered         | 3 nodes, root Navigation                                   |
 | `nano-games/play-nano-snake`                                     | view     | unsupported-api  | Cache                                                      |
@@ -68,8 +70,8 @@ part of `bun run verify`).
 | `rtl-reader/rtl-text`                                            | view     | rendered         | 9 nodes, root Navigation                                   |
 | `spacejump/list-spaces`                                          | view     | rendered         | 3 nodes, root Navigation                                   |
 | `spacejump/switch-space`                                         | view     | rendered         | 3 nodes, root Navigation                                   |
-| `storybook-sandboxes/local`                                      | view     | unsupported-api  | openExtensionPreferences                                   |
-| `storybook-sandboxes/online`                                     | view     | unsupported-api  | openExtensionPreferences                                   |
+| `storybook-sandboxes/local`                                      | view     | rendered         | 538 nodes, root Navigation                                 |
+| `storybook-sandboxes/online`                                     | view     | rendered         | 538 nodes, root Navigation                                 |
 | `tategaki/japanese-vertical-text`                                | view     | rendered         | 24 nodes, root Navigation                                  |
 | `url-designer/create-prompt`                                     | view     | rendered         | 6 nodes, root Navigation                                   |
 | `vim-bro/index`                                                  | view     | rendered         | 924 nodes, root Navigation                                 |
@@ -89,11 +91,6 @@ part of `bun run verify`).
 - `google-maps-search/quickSearchMaps` (unsupported-mode): command mode "no-view" completed without rendering a scene
 - `google-maps-search/travelHome` (crashed): code 1; Capability denied: open.url
   - log: RUNTIME_ERROR: Capability denied: open.url
-- `invisible-text-detector/analyze-clipboard-invisible-characters` (unsupported-api): Clipboard.readText
-- `menucloak/open-settings` (unsupported-api): getApplications
-- `menucloak/toggle` (unsupported-api): getApplications
-- `menucloak/turn-off` (unsupported-api): getApplications
-- `menucloak/turn-on` (unsupported-api): getApplications
 - `mise-window-sets/apply-set` (unsupported-api): Cache
 - `nano-games/play-nano-snake` (unsupported-api): Cache
 - `one-thing/remove-one-thing` (unsupported-api): Cache
@@ -102,6 +99,4 @@ part of `bun run verify`).
 - `pinch-svg/grid` (unsupported-api): Grid
 - `portless/list` (unsupported-api): Cache
 - `promptty/search-promptty` (unsupported-api): Cache
-- `storybook-sandboxes/local` (unsupported-api): openExtensionPreferences
-- `storybook-sandboxes/online` (unsupported-api): openExtensionPreferences
 - `windows-domain/my-user` (unsupported-api): Cache

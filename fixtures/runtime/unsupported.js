@@ -1,4 +1,4 @@
-import { Action, Clipboard, Form, List } from "@raycast/api";
+import { Action, Form, List, showInFinder } from "@raycast/api";
 import { createElement } from "react";
 
 export default function Command() {
@@ -8,7 +8,13 @@ export function EventCommand() {
   return createElement(
     List,
     null,
-    createElement(Action, { title: "Unsupported sync", onAction: () => Clipboard.read() }),
-    createElement(Action, { title: "Unsupported async", onAction: async () => Clipboard.read() }),
+    createElement(Action, {
+      title: "Unsupported sync",
+      onAction: () => showInFinder("/tmp/report.pdf"),
+    }),
+    createElement(Action, {
+      title: "Unsupported async",
+      onAction: async () => showInFinder("/tmp/report.pdf"),
+    }),
   );
 }

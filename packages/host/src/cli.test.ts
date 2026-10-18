@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { spawn } from "node:child_process";
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -11,6 +11,7 @@ const cliPath = fileURLToPath(new URL("./cli.ts", import.meta.url));
 const root = fileURLToPath(new URL("../../../", import.meta.url));
 const helloList = join(root, "fixtures/extensions/hello-list");
 const hostSession = join(root, "fixtures/extensions/host-session");
+const hostApis = join(root, "fixtures/extensions/host-apis");
 const listExtras = join(root, "fixtures/extensions/list-extras");
 const storageFixture = join(root, "fixtures/extensions/storage");
 
@@ -356,6 +357,140 @@ test("open prints each granted target and grants URLs and files separately", asy
     expect(both.stdout).toContain(
       '# capability open.path {"path":"/tmp/report.txt","application":"TextEdit"}',
     );
+  } finally {
+    await rm(dataDir, { recursive: true, force: true });
+  }
+});
+
+test("--applications and --clipboard answer the read-only host capabilities", async () => {
+  const dataDir = await mkdtemp(join(tmpdir(), "blast-cli-apis-"));
+  const applicationsFile = join(dataDir, "applications.json");
+  await writeFile(
+    applicationsFile,
+    JSON.stringify([
+      { name: "Safari", path: "/Applications/Safari.app", bundleId: "com.apple.Safari" },
+      { name: "TextEdit", path: "/Applications/TextEdit.app", localizedName: "TextEdit" },
+    ]),
+  );
+  try {
+    const result = await runCli(
+      [
+        "run",
+        hostApis,
+        "index",
+        "--data-dir",
+        dataDir,
+        "--applications",
+        applicationsFile,
+        "--clipboard",
+        "hello",
+        "--script",
+        "-",
+        "--timeout",
+        "5000",
+      ],
+      [
+        "action Applications",
+        "wait",
+        "expect applications Safari,TextEdit",
+        "action Applications For Path",
+        "wait",
+        "expect path applications 2",
+        "action Read",
+        "wait",
+        "expect read hello no-file no-html",
+        "action Read Text",
+        "wait",
+        "expect text hello",
+        "action Read History",
+        "wait",
+        "expect history none",
+        "action Open Extension Preferences",
+        "wait",
+        "expect extension preferences",
+        "action Open Command Preferences",
+        "wait",
+        "expect command preferences",
+        "quit",
+        "",
+      ].join("\n"),
+    );
+    expect(result.code, `${result.stderr}\n${result.stdout}`).toBe(0);
+    expect(result.stderr).toBe("");
+    expect(result.stdout).toContain("# capability applications.list {}");
+    expect(result.stdout).toContain('# capability applications.list {"path":"/tmp/report.txt"}');
+    expect(result.stdout).toContain("# capability clipboard.read {}");
+    expect(result.stdout).toContain('# capability clipboard.read {"offset":1}');
+    expect(result.stdout).toContain('# capability preferences.open {"scope":"extension"}');
+    expect(result.stdout).toContain('# capability preferences.open {"scope":"command"}');
+  } finally {
+    await rm(dataDir, { recursive: true, force: true });
+  }
+});
+
+test("without --applications or --clipboard the read-only defaults are empty", async () => {
+  const result = await runCli(
+    ["run", hostApis, "index", "--script", "-", "--timeout", "5000"],
+    "action Applications\nwait\nexpect applications\naction Read Text\nwait\nexpect text none\nquit\n",
+  );
+  expect(result.code, result.stderr).toBe(0);
+  expect(result.stderr).toBe("");
+  expect(result.stdout).toContain("# capability applications.list {}");
+  expect(result.stdout).toContain("# capability clipboard.read {}");
+});
+
+test("clipboard.paste and clipboard.clear need a grant", async () => {
+  const script = "action Paste\nwait\naction Clear\nwait\nexpect failed Capability denied\nquit\n";
+  const denied = await runCli(
+    ["run", hostApis, "index", "--script", "-", "--timeout", "5000"],
+    script,
+  );
+  expect(denied.code, denied.stderr).toBe(0);
+  expect(denied.stdout).toContain("# capability clipboard.paste denied");
+  expect(denied.stdout).toContain("# capability clipboard.clear denied");
+
+  const granted = await runCli(
+    [
+      "run",
+      hostApis,
+      "index",
+      "--grant",
+      "clipboard.paste",
+      "--grant",
+      "clipboard.clear",
+      "--script",
+      "-",
+      "--timeout",
+      "5000",
+    ],
+    "action Paste\nwait\nexpect pasted\naction Clear\nwait\nexpect cleared\nquit\n",
+  );
+  expect(granted.code, granted.stderr).toBe(0);
+  expect(granted.stdout).toContain('# capability clipboard.paste {"text":"pasted"}');
+  expect(granted.stdout).toContain("# capability clipboard.clear {}");
+});
+
+test("a bad --applications file is a usage error", async () => {
+  const dataDir = await mkdtemp(join(tmpdir(), "blast-cli-apis-"));
+  const invalidFile = join(dataDir, "invalid.json");
+  await writeFile(invalidFile, "{}");
+  try {
+    const missing = await runCli([
+      "run",
+      hostApis,
+      "index",
+      "--applications",
+      join(dataDir, "absent.json"),
+    ]);
+    expect(missing.code).toBe(2);
+    expect(missing.stderr).toContain("cannot read --applications file");
+    const invalid = await runCli(["run", hostApis, "index", "--applications", invalidFile]);
+    expect(invalid.code).toBe(2);
+    expect(invalid.stderr).toContain("must be a JSON array of applications");
+    const help = await runCli(["--help"]);
+    expect(help.stdout).toContain("--applications <file.json>");
+    expect(help.stdout).toContain("--clipboard <text>");
+    expect(help.stdout).toContain("clipboard.paste and clipboard.clear still need");
   } finally {
     await rm(dataDir, { recursive: true, force: true });
   }

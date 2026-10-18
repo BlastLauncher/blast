@@ -1,11 +1,15 @@
 import { expect, test } from "bun:test";
 import { createBroker } from "./broker.ts";
 
-test("open.url, open.path and clipboard.paste capabilities require explicit grants and preserve payloads", async () => {
+test("broker capabilities require explicit grants and preserve payloads", async () => {
   for (const [name, params] of [
     ["open.url", { url: "https://example.com" }],
     ["open.path", { path: "/tmp/report.txt", application: "TextEdit" }],
     ["clipboard.paste", { text: "paste me" }],
+    ["clipboard.clear", {}],
+    ["clipboard.read", { offset: 1 }],
+    ["applications.list", { path: "/tmp/report.txt" }],
+    ["preferences.open", { scope: "extension" }],
   ] as const) {
     const request = { type: "capability.request", id: "action", name, params } as const;
     expect(await createBroker({})(request)).toMatchObject({ ok: false, error: { code: "denied" } });

@@ -1,5 +1,5 @@
 import { createElement, type ReactNode } from "react";
-import { copy, toText, type ClipboardContent } from "./clipboard.ts";
+import { copy, paste, type ClipboardContent } from "./clipboard.ts";
 import { requestCapability } from "./capability.ts";
 import { useNavigation } from "./navigation.ts";
 import { SubmitForm } from "./form.ts";
@@ -105,7 +105,7 @@ export function Paste(props: PasteProps) {
     title: title ?? "Paste in Active App",
     icon: icon ?? Icon.Clipboard,
     onAction: async () => {
-      await requestCapability("clipboard.paste", { text: toText(content, "Action.Paste") });
+      await paste(content, "Action.Paste");
       onPaste?.(content);
     },
   });
