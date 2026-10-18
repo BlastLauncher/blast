@@ -84,11 +84,11 @@ test("stub values used as props fail as unsupported instead of rendering as hand
           {},
           createElement(api.List.Item, {
             title: "x",
-            icon: api.Action.Style!.Destructive as unknown as string,
+            icon: api.Grid.Inset!.Small as unknown as string,
           }),
         ),
       ),
-    "Action.Style.Destructive",
+    "Grid.Inset.Small",
   );
   expect(published).toEqual([]);
   // Implemented exports are not stubs, so their callbacks still become handlers.

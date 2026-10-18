@@ -15,6 +15,10 @@ export {
   type ListItemProps,
   type ListSectionProps,
   type ListEmptyViewProps,
+  type ListAccessory,
+  type ListDropdownProps,
+  type ListDropdownItemProps,
+  type ListDropdownSectionProps,
 } from "./list.ts";
 export { getPreferenceValues, type PreferenceValues } from "./preferences.ts";
 

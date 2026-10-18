@@ -1,7 +1,21 @@
 import { createElement, type ReactNode } from "react";
 import { ListItemDetail } from "./detail.ts";
 import { slot } from "./slot.ts";
-import type { ImageLike } from "./types.ts";
+import type { ColorLike, ImageLike } from "./types.ts";
+
+/** `List.Item.Accessory`: a text, date or tag label with optional icon/tooltip. */
+export interface ListAccessory {
+  /** An optional text label, optionally colored. */
+  text?: string | null | { value: string | null | undefined; color?: string };
+  /** An optional date label (rendered relative to now), optionally colored. */
+  date?: Date | null | { value: Date | null | undefined; color?: string };
+  /** A string or date tag; the color also tints the background. */
+  tag?: string | Date | null | { value: string | Date | null | undefined; color?: ColorLike };
+  /** An optional image shown in front of the label. */
+  icon?: ImageLike | null;
+  /** An optional tooltip shown when the accessory is hovered. */
+  tooltip?: string | null;
+}
 
 export interface ListProps {
   /** List sections or items. */
@@ -18,6 +32,18 @@ export interface ListProps {
   isShowingDetail?: boolean;
   /** Selects the item with the specified id. */
   selectedItemId?: string;
+  /**
+   * Toggles client-side filtering of the items through the search bar; the
+   * client decides how to honor it (see task 0020, "Out of scope").
+   */
+  filtering?: boolean | { keepSectionOrder: boolean };
+  /**
+   * Defines whether the `onSearchTextChange` handler fires on every keystroke
+   * or with a throttling delay.
+   */
+  throttle?: boolean;
+  /** Callback triggered when the search bar text changes. */
+  onSearchTextChange?: (text: string) => void;
   /** Callback triggered when the item selection in the list changes. */
   onSelectionChange?: (id: string | null) => void;
   /** An ActionPanel; rendered as a `Slot` child named `actions`. */
@@ -37,6 +63,8 @@ export interface ListItemProps {
   keywords?: string[];
   /** An optional icon displayed for the item. */
   icon?: ImageLike | { value: ImageLike | null | undefined; tooltip: string };
+  /** Accessory items displayed on the right side of the item. */
+  accessories?: ListAccessory[] | null;
   /** An ActionPanel; rendered as a `Slot` child named `actions`. */
   actions?: ReactNode;
   /** A `List.Item.Detail`; rendered as a `Slot` child named `detail`. */
@@ -62,6 +90,69 @@ export interface ListEmptyViewProps {
   /** An ActionPanel; rendered as a `Slot` child named `actions`. */
   actions?: ReactNode;
 }
+
+export interface ListDropdownItemProps {
+  /** Value of the dropdown item; passed to `onChange` when selected. */
+  value: string;
+  /** The title displayed for the item. */
+  title: string;
+  /** An optional icon displayed for the item. */
+  icon?: ImageLike | null;
+  /** Additional indexable strings for search. */
+  keywords?: string[];
+}
+
+export interface ListDropdownSectionProps {
+  /** The `List.Dropdown.Item` elements of the section. */
+  children?: ReactNode;
+  /** Title displayed above the section. */
+  title?: string;
+}
+
+export interface ListDropdownProps {
+  /** The dropdown sections or items. */
+  children?: ReactNode;
+  /** ID of the dropdown. */
+  id?: string;
+  /** Tooltip displayed when hovering the dropdown. */
+  tooltip: string;
+  /** Placeholder text shown in the dropdown search field. */
+  placeholder?: string;
+  /**
+   * Persist the selected value across runs. Recorded but not persisted: Blast
+   * has no per-dropdown storage yet (localStorage is task 0021).
+   */
+  storeValue?: boolean;
+  /** The current value of the dropdown. */
+  value?: string;
+  /** The default value of the dropdown, configured once per component lifecycle. */
+  defaultValue?: string;
+  /** Toggles client-side filtering of the dropdown items. */
+  filtering?: boolean | { keepSectionOrder: boolean };
+  /** Indicates whether a loading indicator should be shown next to the dropdown. */
+  isLoading?: boolean;
+  /** Defines whether `onSearchTextChange` fires on every keystroke or throttled. */
+  throttle?: boolean;
+  /** Callback triggered when the dropdown search field text changes. */
+  onSearchTextChange?: (text: string) => void;
+  /** Callback triggered when the dropdown selection changes. */
+  onChange?: (newValue: string) => void;
+}
+
+const ListDropdownItem = function ListDropdownItem(props: ListDropdownItemProps) {
+  return createElement("List.Dropdown.Item", props);
+};
+
+const ListDropdownSection = function ListDropdownSection(props: ListDropdownSectionProps) {
+  return createElement("List.Dropdown.Section", props);
+};
+
+const ListDropdown = Object.assign(
+  function ListDropdown(props: ListDropdownProps) {
+    return createElement("List.Dropdown", props);
+  },
+  { Item: ListDropdownItem, Section: ListDropdownSection },
+);
 
 const ListItem = Object.assign(
   function ListItem(props: ListItemProps) {
@@ -91,5 +182,5 @@ export const List = Object.assign(
       slot("searchBarAccessory", searchBarAccessory),
     );
   },
-  { Item: ListItem, Section: ListSection, EmptyView: ListEmptyView },
+  { Item: ListItem, Section: ListSection, EmptyView: ListEmptyView, Dropdown: ListDropdown },
 );
