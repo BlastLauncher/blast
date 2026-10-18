@@ -6,6 +6,7 @@ const steps: Array<[name: string, command: string[]]> = [
   ["format", ["bun", "run", "--silent", "fmt:check"]],
   ["lint", ["bun", "run", "--silent", "lint"]],
   ["typecheck", ["bun", "run", "--silent", "typecheck"]],
+  ["compat", ["bun", "run", "--silent", "compat:check"]],
   ["workflow", ["bun", "run", "--silent", "check:workflow"]],
   ["test", ["bun", "test"]],
 ];

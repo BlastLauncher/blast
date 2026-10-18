@@ -1,5 +1,12 @@
 {
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
   "printWidth": 100,
-  "ignorePatterns": ["archive/**", ".cache/**", "**/dist/**", "compat/*.json", "bun.lock"]
+  "ignorePatterns": [
+    "archive/**",
+    ".cache/**",
+    "**/dist/**",
+    "compat/*.json",
+    "compat/raycast-api/**",
+    "bun.lock"
+  ]
 }
