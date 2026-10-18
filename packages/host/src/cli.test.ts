@@ -802,3 +802,45 @@ test("Action.Open requests open.path only with a grant and the scene never shows
   expect(denied.stdout).toContain("# capability open.path denied");
   expect(denied.stdout).not.toContain("opened /tmp/blast-demo");
 });
+
+test("OAuth CLI answers authorization, persists tokens and redacts token requests in text and JSON", async () => {
+  const dataDir = await mkdtemp(join(tmpdir(), "blast-oauth-cli-"));
+  const fixture = join(root, "fixtures/extensions/oauth");
+  try {
+    const denied = await runCli([
+      "run",
+      fixture,
+      "index",
+      "--data-dir",
+      dataDir,
+      "--grant",
+      "oauth.authorize",
+    ]);
+    expect(denied.code).toBe(3);
+    expect(denied.stdout + denied.stderr).toContain("Capability denied: oauth.authorize");
+    for (const extra of [[], ["--json"]]) {
+      const result = await runCli([
+        "run",
+        fixture,
+        "index",
+        "--data-dir",
+        dataDir,
+        "--oauth-code",
+        "code",
+        ...extra,
+      ]);
+      expect(result.code).toBe(0);
+      expect(result.stderr).toBe("");
+      expect(result.stdout).toContain("oauth.tokens.set");
+      expect(result.stdout).not.toContain("private-access-token");
+      expect(result.stdout).not.toContain("private-refresh-token");
+    }
+    expect(
+      JSON.parse(await readFile(join(dataDir, "oauth/storage/oauth.json"), "utf8")).Fixture
+        .accessToken,
+    ).toBe("private-access-token");
+    expect((await runCli(["--help"])).stdout).toContain("--oauth-code <code>");
+  } finally {
+    await rm(dataDir, { recursive: true, force: true });
+  }
+});

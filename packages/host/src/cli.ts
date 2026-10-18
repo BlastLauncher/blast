@@ -20,6 +20,7 @@ import {
   createBroker,
   createHeadlessHandlers,
   createStorageHandlers,
+  createOAuthHandlers,
   defaultDataDir,
   parseApplications,
   startCommand,
@@ -54,6 +55,7 @@ Options:
                         Answer getApplications with the JSON array of
                         applications in <file>; the file must hold objects with
                         "name" and "path". Defaults to an empty list.
+  --oauth-code <code>   Answer OAuth authorization with this code; denied otherwise.
   --clipboard <text>    Answer Clipboard.read/readText with <text> at offset 0
                         and an empty text at older offsets. Defaults to an
                         empty text. No real clipboard is touched.
@@ -162,6 +164,10 @@ function createOutput(json: boolean) {
       if (scene.root) for (const line of renderTree(scene.root)) write(line);
     },
     capability(request: CapabilityRequestMessage, result: CapabilityResultMessage): void {
+      if (request.name.startsWith("oauth.tokens.")) {
+        const redacted = { ...request, params: {} };
+        return write(json ? JSON.stringify(redacted) : `# capability ${request.name} [redacted]`);
+      }
       if (json) return write(JSON.stringify(request));
       if (result.ok) {
         return write(`# capability ${request.name} ${JSON.stringify(request.params)}`);
@@ -185,7 +191,9 @@ function reportingBroker(inner: Broker, output: Output): Broker {
 // succeeds without touching privileged host state.
 function grantHandlers(grants: string[]): Record<string, CapabilityHandler> {
   const handlers: Record<string, CapabilityHandler> = {};
-  for (const name of grants) handlers[name] = () => null;
+  for (const name of grants) {
+    if (name !== "oauth.authorize") handlers[name] = () => null;
+  }
   return handlers;
 }
 
@@ -456,6 +464,7 @@ type RunOptions = {
   applications: Application[] | undefined;
   clipboard: string | undefined;
   selectedText: string | undefined;
+  oauthCode: string | undefined;
   selectedFiles: string[];
   frontmost: string | undefined;
   dataDir: string;
@@ -565,6 +574,7 @@ async function run(options: RunOptions): Promise<number> {
     const handlers: Record<string, CapabilityHandler> = {
       ...grantHandlers(options.grants),
       ...createHeadlessHandlers({
+        oauthCode: options.oauthCode,
         applications: options.applications,
         clipboard: options.clipboard,
         selectedText: options.selectedText,
@@ -572,6 +582,7 @@ async function run(options: RunOptions): Promise<number> {
         frontmost: options.frontmost,
       }),
       ...createStorageHandlers({ extensionName: bundled.extensionName, dataDir: options.dataDir }),
+      ...createOAuthHandlers({ extensionName: bundled.extensionName, dataDir: options.dataDir }),
     };
     session = await Promise.race([
       startCommand({
@@ -625,6 +636,7 @@ function parseArguments(argv: string[]) {
         grant: { type: "string", multiple: true },
         applications: { type: "string" },
         clipboard: { type: "string" },
+        "oauth-code": { type: "string" },
         "selected-text": { type: "string" },
         "selected-files": { type: "string", multiple: true },
         frontmost: { type: "string" },
@@ -710,6 +722,7 @@ async function main(argv: string[]): Promise<number> {
     applications:
       applicationsPath === undefined ? undefined : await readApplications(applicationsPath),
     clipboard: parsed.values.clipboard,
+    oauthCode: parsed.values["oauth-code"],
     selectedText: parsed.values["selected-text"],
     selectedFiles: parsed.values["selected-files"] ?? [],
     frontmost: parsed.values.frontmost,

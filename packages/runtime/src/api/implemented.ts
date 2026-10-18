@@ -132,3 +132,5 @@ export {
   showInFinder,
   trash,
 } from "./selection.ts";
+
+export { OAuth } from "./oauth.ts";

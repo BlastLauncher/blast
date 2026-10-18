@@ -4,32 +4,32 @@ Denominator: the `@raycast/api@2.8.2` declarations. Evidence:
 `// @covers` tags in `packages/**/*.test.ts(x)`. A parent is not implied covered
 by its children. Partial support is reported separately from covered.
 
-**Non-deprecated coverage: 974/1534 covered (63.5%), 75 partial, 485 missing.**
+**Non-deprecated coverage: 1043/1534 covered (68.0%), 75 partial, 416 missing.**
 Deprecated: 35/939 covered (3.7%), 5 partial, 899 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 974 | 35 | 1009 |
+| covered | 1043 | 35 | 1078 |
 | partial | 75 | 5 | 80 |
-| missing | 485 | 899 | 1384 |
+| missing | 416 | 899 | 1315 |
 
 ## Totals by kind
 
 | Kind | Covered | Partial | Missing | Total |
 | --- | --- | --- | --- | --- |
-| namespace | 3 | 1 | 5 | 9 |
+| namespace | 4 | 1 | 4 | 9 |
 | component | 29 | 41 | 46 | 116 |
 | function | 29 | 4 | 17 | 50 |
-| const | 1 | 1 | 19 | 21 |
-| class | 2 | 0 | 1 | 3 |
-| enum | 10 | 0 | 3 | 13 |
-| enum-member | 508 | 0 | 183 | 691 |
-| interface | 8 | 2 | 54 | 64 |
+| const | 2 | 1 | 18 | 21 |
+| class | 3 | 0 | 0 | 3 |
+| enum | 11 | 0 | 2 | 13 |
+| enum-member | 512 | 0 | 179 | 691 |
+| interface | 18 | 2 | 44 | 64 |
 | type | 27 | 3 | 148 | 178 |
-| property | 381 | 28 | 895 | 1304 |
-| method | 11 | 0 | 13 | 24 |
+| property | 424 | 28 | 852 | 1304 |
+| method | 19 | 0 | 5 | 24 |
 
 ## Top-level symbols
 
@@ -118,7 +118,7 @@ Children counts include all descendants, as covered/partial/total.
 | `LocalStorageValues` | interface | missing | 0/0/0 | 0 |
 | `MenuBarExtra` | component | partial | 26/2/28 | 342 |
 | `Navigation` | interface | covered | 2/0/2 | 5 |
-| `OAuth` | namespace | missing | 0/0/68 | 135 |
+| `OAuth` | namespace | covered | 68/0/68 | 135 |
 | `OpenAction` | component | covered | 0/0/7 | 3 |
 | `OpenActionProps` | interface | missing | 0/0/6 | 0 |
 | `OpenInBrowserAction` | component | missing | 0/0/6 | 29 |
@@ -199,15 +199,11 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `Form.TagPicker.Item.Props.title` | 168 |
 | `Form.TagPicker.Item.Props.value` | 168 |
 | `Form.TagPicker.Props.title` | 167 |
-| `OAuth` | 135 |
-| `OAuth.PKCEClient` | 134 |
-| `OAuth.RedirectMethod` | 134 |
 | `Form.PasswordField` | 132 |
 | `Form.PasswordField.Props.title` | 131 |
 | `Tool` | 128 |
 | `Tool.Confirmation` | 128 |
 | `AI` | 115 |
-| `OAuth.RedirectMethod.Web` | 112 |
 | `environment.canAccess` | 107 |
 | `Form.TagPicker.Props.id` | 106 |
 | `Form.PasswordField.Props.placeholder` | 93 |
@@ -221,12 +217,10 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `Form.TagPicker.Props.placeholder` | 66 |
 | `List.Item.Props` | 64 |
 | `BrowserExtension` | 62 |
-| `OAuth.TokenResponse` | 61 |
 | `BrowserExtension.getTabs` | 60 |
 | `List.Item.Props.accessoryTitle` | 58 |
 | `Action.OpenWith.Props.shortcut` | 56 |
 | `Form.TagPicker.Props.onChange` | 53 |
-| `OAuth.AuthorizationRequest` | 53 |
 | `Action.CreateQuicklink.Props.shortcut` | 51 |
 | `Form.TagPicker.Props.value` | 47 |
 | `Color.ColorLike` | 44 |
@@ -242,3 +236,9 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `AI.Model` | 35 |
 | `Form.PasswordField.Props.value` | 34 |
 | `Form.Values` | 33 |
+| `List.Props.enableFiltering` | 32 |
+| `Form.TagPicker.Props.info` | 31 |
+| `ActionPanel.Item.Props.onAction` | 30 |
+| `ActionPanel.Item.Props.title` | 30 |
+| `Action.CreateQuicklink.Props.icon` | 29 |
+| `OpenInBrowserAction` | 29 |

@@ -2,15 +2,15 @@
   "version": "2.8.2",
   "totals": {
     "all": {
-      "covered": 1009,
+      "covered": 1078,
       "partial": 80,
-      "missing": 1384,
+      "missing": 1315,
       "total": 2473
     },
     "nonDeprecated": {
-      "covered": 974,
+      "covered": 1043,
       "partial": 75,
-      "missing": 485,
+      "missing": 416,
       "total": 1534
     },
     "deprecated": {
@@ -21,9 +21,9 @@
     },
     "kinds": {
       "namespace": {
-        "covered": 3,
+        "covered": 4,
         "partial": 1,
-        "missing": 5,
+        "missing": 4,
         "total": 9
       },
       "component": {
@@ -39,33 +39,33 @@
         "total": 50
       },
       "const": {
-        "covered": 1,
+        "covered": 2,
         "partial": 1,
-        "missing": 19,
+        "missing": 18,
         "total": 21
       },
       "class": {
-        "covered": 2,
+        "covered": 3,
         "partial": 0,
-        "missing": 1,
+        "missing": 0,
         "total": 3
       },
       "enum": {
-        "covered": 10,
+        "covered": 11,
         "partial": 0,
-        "missing": 3,
+        "missing": 2,
         "total": 13
       },
       "enum-member": {
-        "covered": 508,
+        "covered": 512,
         "partial": 0,
-        "missing": 183,
+        "missing": 179,
         "total": 691
       },
       "interface": {
-        "covered": 8,
+        "covered": 18,
         "partial": 2,
-        "missing": 54,
+        "missing": 44,
         "total": 64
       },
       "type": {
@@ -75,15 +75,15 @@
         "total": 178
       },
       "property": {
-        "covered": 381,
+        "covered": 424,
         "partial": 28,
-        "missing": 895,
+        "missing": 852,
         "total": 1304
       },
       "method": {
-        "covered": 11,
+        "covered": 19,
         "partial": 0,
-        "missing": 13,
+        "missing": 5,
         "total": 24
       }
     }
@@ -14988,416 +14988,554 @@
     },
     {
       "path": "OAuth",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 135
     },
     {
       "path": "OAuth.AuthorizationOptions",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.AuthorizationOptions.url",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.AuthorizationRequest",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 53
     },
     {
       "path": "OAuth.AuthorizationRequest.clientId",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.AuthorizationRequest.codeChallenge",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.AuthorizationRequest.codeVerifier",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.AuthorizationRequest.redirectURI",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.AuthorizationRequest.state",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.AuthorizationRequest.toURL",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.AuthorizationRequestOptions",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.AuthorizationRequestOptions.clientId",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.AuthorizationRequestOptions.endpoint",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.AuthorizationRequestOptions.extraParameters",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.AuthorizationRequestOptions.scope",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.AuthorizationRequestURLParams",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.AuthorizationRequestURLParams.clientId",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.AuthorizationRequestURLParams.codeChallenge",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.AuthorizationRequestURLParams.codeVerifier",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.AuthorizationRequestURLParams.redirectURI",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.AuthorizationRequestURLParams.state",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.AuthorizationResponse",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.AuthorizationResponse.authorizationCode",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.ClientIdMetadataDocumentAuthorizationRequestOptions",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.ClientIdMetadataDocumentAuthorizationRequestOptions.clientId",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.PKCEClient",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 134
     },
     {
       "path": "OAuth.PKCEClient.Options",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.PKCEClient.Options.description",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.PKCEClient.Options.providerIcon",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.PKCEClient.Options.providerId",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.PKCEClient.Options.providerName",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.PKCEClient.Options.redirectMethod",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.PKCEClient.authorizationRequest",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.PKCEClient.authorize",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.PKCEClient.constructor",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.PKCEClient.description",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.PKCEClient.getTokens",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.PKCEClient.providerIcon",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.PKCEClient.providerId",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.PKCEClient.providerName",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.PKCEClient.redirectMethod",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.PKCEClient.removeTokens",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.PKCEClient.setTokens",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.RedirectMethod",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 134
     },
     {
       "path": "OAuth.RedirectMethod.App",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 8
     },
     {
       "path": "OAuth.RedirectMethod.AppURI",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 14
     },
     {
       "path": "OAuth.RedirectMethod.ClientIdMetadataDocument",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.RedirectMethod.Web",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 112
     },
     {
       "path": "OAuth.TokenResponse",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 61
     },
     {
       "path": "OAuth.TokenResponse.access_token",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.TokenResponse.expires_in",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.TokenResponse.id_token",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.TokenResponse.refresh_token",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.TokenResponse.scope",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.TokenSet",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 13
     },
     {
       "path": "OAuth.TokenSet.accessToken",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.TokenSet.expiresIn",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.TokenSet.idToken",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.TokenSet.isExpired",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.TokenSet.refreshToken",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.TokenSet.scope",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.TokenSet.updatedAt",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.TokenSetOptions",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "OAuth.TokenSetOptions.accessToken",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.TokenSetOptions.expiresIn",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.TokenSetOptions.idToken",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.TokenSetOptions.refreshToken",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.TokenSetOptions.scope",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "OAuth.clientIdMetadataDocument",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
       "weight": 0
     },
     {

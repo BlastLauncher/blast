@@ -42,15 +42,15 @@ Status: accepted 2026-10-18
    extension and a command only ever reaches its own namespace. Values are
    strings, numbers or booleans in one JSON file per extension under the host
    data directory, replaced atomically and serialized per session.
+   OAuth token capabilities likewise use the session extension scope without grants;
+   provider IDs key atomic, serialized token files; CLI logs omit token payloads.
    `open(target, application?)` is two capabilities — `open.url` for URLs (a
    `file:` URL counts as a file), `open.path` for files — denied unless granted.
 
 ## Why
 
 Extensions are Node programs, so a Node process is the compatibility baseline.
-Stdio NDJSON is the simplest transport that any client or test can drive and
-read. Snapshots are trivially debuggable and avoid patch-ordering bugs that
-consumed much of the previous attempt.
+Stdio NDJSON is easy to drive; whole-scene snapshots avoid patch-ordering bugs.
 
 ## Consequences
 

@@ -1,0 +1,9 @@
+{
+  "name": "oauth",
+  "commands": [
+    {
+      "name": "index",
+      "mode": "no-view"
+    }
+  ]
+}
