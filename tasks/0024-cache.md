@@ -1,7 +1,7 @@
 ---
 id: "0024"
 title: Cache class with per-extension on-disk storage
-status: doing
+status: review
 milestone: M3
 depends: []
 ---
@@ -39,9 +39,9 @@ commands (mostly via `@raycast/utils` hooks such as `useCachedState` and
 
 ## Acceptance
 
-- [ ] Tests: persistence across two runtime processes, namespaces, eviction,
+- [x] Tests: persistence across two runtime processes, namespaces, eviction,
       subscribe, clear; host creates and passes the per-extension directory.
-- [ ] `bun run verify` passes.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -51,8 +51,18 @@ commands (mostly via `@raycast/utils` hooks such as `useCachedState` and
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/cache-api @ 3d1ab6f1ff2029ac131371d489d15c0aa1356f07 (implementation; handoff follows)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 27.4s
 Done:
-Not done / risks:
+- Implemented synchronous persistent Cache, atomic replacement, UTF-8 byte LRU,
+  namespaces, clear/remove, and process-local subscriptions across instances.
+- Host creates stable escaped per-extension support paths; CLI --data-dir applies.
+- Added deterministic Cache and two-runtime-process tests; 269 tests pass.
+- Generated coverage and smoke reports: rendered commands improved from 41/66
+  to 52/66; remaining outcomes: 3 crashed, 2 unsupported-mode, 9 unsupported-api.
+- Documented direct filesystem trust; removed corpus checkout; no new dependencies.
+Not done / risks: Concurrent mutations from separate processes are not serialized
+  and can lose updates. Filesystem access is not sandboxed. The default capacity
+  is 10 * 1024 * 1024 bytes, based on the vendored Cache.Options.capacity docs
+  specifying 10 MB. Other workers' files were avoided; regenerate reports on merge.
 ```
