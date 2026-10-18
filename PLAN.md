@@ -6,8 +6,7 @@ files.
 
 ## Current focus
 
-M1 — headless vertical slice. 0004 and 0005 run in parallel; then 0006 →
-0007 → 0008 → 0009.
+M1 — headless vertical slice. Next: 0007 → 0008 → 0009.
 
 ## Milestones
 
@@ -28,7 +27,7 @@ scene, and is driven by a headless client: snapshot the scene, dispatch an
 action, observe the clipboard capability request, survive a crash.
 
 - [x] Process, protocol and scene model (`docs/decisions/0001`)
-- [ ] 0004 Protocol package: messages, validation, NDJSON framing
+- [x] 0004 Protocol package: messages, validation, NDJSON framing
 - [x] 0005 React reconciler publishing whole-scene snapshots
 - [x] 0006 Minimal `@raycast/api` shim (List, ActionPanel, Action, Clipboard)
 - [ ] 0007 Runtime child-process entry over stdio

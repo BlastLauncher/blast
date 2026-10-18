@@ -1,7 +1,7 @@
 ---
 id: "0007"
 title: Runtime child-process entry speaking the protocol over stdio
-status: todo
+status: doing
 milestone: M1
 depends: ["0004", "0005", "0006"]
 ---
