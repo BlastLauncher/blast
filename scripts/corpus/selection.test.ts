@@ -25,14 +25,13 @@ import {
   strataMembers,
   stratumOf,
   unprovidedDependencies,
-  unprovidedImports,
   usesNetwork,
   UTILS_HOOKS,
   viewCommands,
   type Candidate,
   type Quotas,
 } from "./selection.ts";
-import type { Source } from "./usage.ts";
+import type { Source } from "./imports.ts";
 
 const source = (text: string, file = "src/index.tsx"): Source => ({ file, source: text });
 
@@ -161,36 +160,20 @@ const dir = await readdir(".");`),
   ]);
 });
 
-test("a module Blast cannot provide rejects the candidate", () => {
-  expect(unprovidedImports([source('import gql from "graphql-tag";')])).toEqual(["graphql-tag"]);
-  expect(unprovidedImports([source('const x = require("@components/notes-list");')])).toEqual([
-    "@components/notes-list",
-  ]);
-  expect(unprovidedImports([source('export * from "lodash";')])).toEqual(["lodash"]);
-  expect(unprovidedImports([source('const client = await import("graphql-request");')])).toEqual([
-    "graphql-request",
-  ]);
-  // A test file is never bundled, so its dev-only imports do not count.
-  expect(
-    unprovidedImports([source('import { test } from "vitest";', "src/__tests__/unit.test.ts")]),
-  ).toEqual([]);
-  expect(
-    unprovidedImports([source('import { test } from "vitest";', "src/thing.spec.ts")]),
-  ).toEqual([]);
+test("an unprovided import rejects the candidate", () => {
   expect(exclusionIds([source('import { gql } from "graphql-request";')])).toEqual([
     IMPORT_EXCLUSION,
   ]);
-  // Blast's provided dependencies, relative paths and Node built-ins resolve.
+  // Blast's provided dependencies, relative paths and Node built-ins resolve;
+  // the specifier rules themselves are tested in `imports.test.ts`.
   expect(
-    unprovidedImports([
+    exclusionIds([
       source(`import { List } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
 import { useState } from "react";
 import { readFile } from "node:fs/promises";
-import { join } from "path";
 import { helper } from "./helper";
-export * from "../shared";
-import "./side-effect";`),
+export * from "../shared";`),
     ]),
   ).toEqual([]);
   expect(IMPORT_EXCLUSION).toBe("unprovided-import");

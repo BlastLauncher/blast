@@ -14,12 +14,16 @@ import {
   readPin,
 } from "./corpus.ts";
 import {
-  aggregateUsage,
-  scanExtension,
-  USAGE_PATH,
-  type ExtensionUsage,
-  type Source,
-} from "./usage.ts";
+  aggregateDependencies,
+  DEPENDENCIES_MD_PATH,
+  DEPENDENCIES_PATH,
+  extensionDependencies,
+  renderDependenciesMd,
+  type ExtensionDependencies,
+} from "./dependencies.ts";
+import type { Manifest } from "./selection.ts";
+import type { Source } from "./imports.ts";
+import { aggregateUsage, scanExtension, USAGE_PATH, type ExtensionUsage } from "./usage.ts";
 
 export function sourcePatterns(names: string[]): string[] {
   // Seven pinned directories predate today's publishing rule (case, dot or underscore).
@@ -55,6 +59,16 @@ export function* sources(dir: string): Generator<Source> {
   }
 }
 
+/** A manifest that cannot be read is no reason to abort the whole scan. */
+function readManifest(path: string): Manifest | undefined {
+  try {
+    return JSON.parse(readFileSync(path, "utf8")) as Manifest;
+  } catch (error) {
+    console.error(`manifest: ${path}: ${error instanceof Error ? error.message : error}`);
+    return undefined;
+  }
+}
+
 function main(): void {
   const started = performance.now();
   const root = process.cwd();
@@ -80,15 +94,21 @@ function main(): void {
     .toSorted();
   const known = new Set(readInventory(root).entries.map((entry) => entry.path));
   const results: ExtensionUsage[] = [];
+  const dependencies: ExtensionDependencies[] = [];
   try {
     for (let offset = 0; offset < names.length; offset += 200) {
       const batch = names.slice(offset, offset + 200);
       run(repo, "git", ["sparse-checkout", "set", "--no-cone", ...sourcePatterns(batch)]);
       guard();
       for (const name of batch) {
-        const result = scanExtension(sources(join(repo, "extensions", name, "src")), known);
+        // The usage scan and the dependency scan share one read of the batch:
+        // a second pass would download the same blobs again.
+        const dir = join(repo, "extensions", name);
+        const files = [...sources(join(dir, "src"))];
+        const result = scanExtension(files, known);
         for (const failure of result.failures) console.error(`parse: ${failure}`);
         results.push(result);
+        dependencies.push(extensionDependencies(readManifest(join(dir, "package.json")), files));
       }
       run(repo, "git", ["sparse-checkout", "set", "--no-cone", ...buildPatterns()]);
       guard();
@@ -101,8 +121,14 @@ function main(): void {
     join(root, USAGE_PATH),
     `${JSON.stringify(aggregateUsage(pin.commit, known, results), null, 2)}\n`,
   );
+  const report = aggregateDependencies(pin.commit, dependencies);
+  writeFileSync(join(root, DEPENDENCIES_PATH), `${JSON.stringify(report, null, 2)}\n`);
+  writeFileSync(join(root, DEPENDENCIES_MD_PATH), renderDependenciesMd(report));
   console.log(
     `scan: ${names.length} extensions, utils imports ${results.filter((r) => r.utils).length}, parse failures ${results.reduce((n, r) => n + r.failures.length, 0)}, peak .cache ${megabytes(peak)} MB, ${((performance.now() - started) / 1000).toFixed(1)}s`,
+  );
+  console.log(
+    `scan: dependencies: ${report.providedOnly}/${names.length} extensions need nothing beyond the provided set, ${report.packages.length} packages, curve ${report.curve.map(({ provided, satisfied }) => `${provided}:${satisfied}`).join(", ")}`,
   );
 }
 
