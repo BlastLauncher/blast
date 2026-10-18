@@ -29,7 +29,7 @@ action, observe the clipboard capability request, survive a crash.
 
 - [x] Process, protocol and scene model (`docs/decisions/0001`)
 - [ ] 0004 Protocol package: messages, validation, NDJSON framing
-- [ ] 0005 React reconciler publishing whole-scene snapshots
+- [x] 0005 React reconciler publishing whole-scene snapshots
 - [ ] 0006 Minimal `@raycast/api` shim (List, ActionPanel, Action, Clipboard)
 - [ ] 0007 Runtime child-process entry over stdio
 - [ ] 0008 Host: bundle, spawn, session, capability broker

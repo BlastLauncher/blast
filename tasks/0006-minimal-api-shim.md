@@ -1,7 +1,7 @@
 ---
 id: "0006"
 title: Minimal @raycast/api shim for List, ActionPanel, Action, Clipboard
-status: todo
+status: doing
 milestone: M1
 depends: ["0005"]
 ---

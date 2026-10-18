@@ -32,6 +32,12 @@ capability results, and shuts down cleanly or fails loudly.
   resolves/rejects the matching promise; unknown ids are a protocol error.
 - stdout is reserved for protocol messages: redirect `console.*` to `log`
   messages. Uncaught exceptions/rejections → `error { fatal: true }`, exit 1.
+- Review follow-ups from task 0005 (do these here): add an `onError`
+  option to `createSceneRoot` so errors from asynchronous re-renders (timers,
+  promises calling `setState`) surface immediately instead of waiting for the
+  next `flush()` — the runtime reports them as fatal `error`; and serialize
+  `undefined` array elements as `null` (JSON semantics) instead of dropping
+  them, so indices stay stable.
 - Tests spawn real `node` processes with plain `.js` ESM fixtures under
   `fixtures/runtime/` that import from `@raycast/api` and `react/jsx-runtime`
   (no bundling needed). Put a small test helper that drives a child via
