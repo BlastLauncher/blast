@@ -19,6 +19,7 @@ export type Application = {
 };
 
 export type HeadlessCapabilities = {
+  oauthCode?: string | undefined;
   /** Answers `applications.list`; an empty list when omitted. */
   applications?: Application[] | undefined;
   selectedText?: string | undefined;
@@ -92,6 +93,9 @@ export function createHeadlessHandlers(
   const clipboard = capabilities.clipboard ?? "";
   const frontmost = capabilities.frontmost;
   return {
+    ...(capabilities.oauthCode === undefined
+      ? {}
+      : { "oauth.authorize": () => ({ authorizationCode: capabilities.oauthCode! }) }),
     "selection.text": (params) => {
       readParams(params, "selection.text");
       if (!capabilities.selectedText) throw new Error("No text selected");

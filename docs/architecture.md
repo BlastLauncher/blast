@@ -109,6 +109,13 @@ own extension by default — storage needs no `--grant` — and `--data-dir` mov
 the root. Writes are atomic (temp file + rename) and serialized, and a store the
 host cannot read fails the request rather than overwriting it.
 
+`OAuth.PKCEClient` generates S256 PKCE requests and delegates authorization to
+`oauth.authorize` (denied unless a client answers it; CLI: `--oauth-code <code>`).
+`oauth.tokens.get|set|remove` need no grant within the session extension. Provider
+IDs (default: provider name) key token sets in `<dataDir>/oauth/storage/<extension>.json`;
+writes are atomic, serialized within the host, and mode 0600. CLI capability output
+redacts token payloads. No browser or redirect server runs in the headless host.
+
 `open(target, application?)` requests `open.url` for URLs (a `file:` URL counts
 as a file) and `open.path` for files, so a client can grant opening links
 without granting file opens.
