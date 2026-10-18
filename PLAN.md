@@ -15,8 +15,9 @@ M0 — workflow foundation. Next: `tasks/0002`.
 - [x] Archive prototype; new AGENTS.md, PLAN.md, task format
 - [x] `bun run verify` gate and `check:workflow` guard
 - [x] CI runs verify on push and pull request
-- [x] 0001 Raycast API inventory generator (`compat/`)
-- [ ] 0002 Coverage evidence join (`@covers` tags → report, staleness check)
+- [x] 0001 Vendor latest `@raycast/api` declarations into `compat/`
+- [ ] 0002 Raycast API inventory generator
+- [ ] 0003 Coverage evidence join (`@covers` tags → report, staleness check)
 
 ### M1 — Headless vertical slice
 
