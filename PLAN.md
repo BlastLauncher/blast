@@ -6,8 +6,8 @@ files.
 
 ## Current focus
 
-M2 done. M3 — coverage to 100%: curated set green; next batch from "Top missing by usage" and a larger
-curated set (incl. `@raycast/utils` users). Then
+M2 done. M3 — coverage to 100%: 0019, 0020, 0021 in parallel (usage-ranked). Then Form and a larger curated
+set (incl. `@raycast/utils` users). Then
 alternate: curated failures first, else the top of "Top missing by usage" in
 `compat/COVERAGE.md`. Known gap: `List.onSearchTextChange` undeclared.
 
@@ -65,6 +65,10 @@ diagnostics instead of ESM link errors.
 - [x] 0016 Implement the curated-set blockers (OpenInBrowser, Paste, Detail, Icon, …)
 - [x] 0017 Navigation stack (`useNavigation`, `Action.Push`)
 - [x] 0018 `List.Item.Detail` and `Detail.Metadata` components
+- [ ] 0019 Feedback UI: showToast/Toast, showHUD, confirmAlert
+- [ ] 0020 List completeness: accessories, search, dropdown, Action.Style
+- [ ] 0021 LocalStorage persistence and open()
+- [ ] Next: Form (TextField, Dropdown, SubmitForm); larger curated set
 
 Smoke 2026-10-18 (`compat/SMOKE.md`): 13/13 curated commands render. Coverage
 41.3% non-deprecated. Order: curated-set failures first, then highest corpus weight. Each
