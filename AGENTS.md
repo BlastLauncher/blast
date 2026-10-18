@@ -125,7 +125,9 @@ Loop per task:
 3. Review: delegate a Reviewer on a different model, or review yourself if you
    did not implement it. On findings, send a new worker round including the
    findings.
-4. Merge, delete the task file, tick `PLAN.md`, run verify, push.
+4. Merge (`--no-ff`), delete the task file, tick `PLAN.md`, run verify, push.
+   Then remove the worker worktree and branch (`git worktree remove`) to
+   free disk.
 
 In T3 Code use `delegate_task` with `isolation: "worktree"`, `mode: "async"`,
 a stable `clientRequestId` per round (e.g. `task-0001-r1`), and end the turn
