@@ -33,9 +33,12 @@ export interface CopyToClipboardProps {
   onCopy?: (content: string | number | ClipboardContent) => void;
 }
 
-export function Action(props: ActionProps) {
-  return createElement("Action", props);
-}
+export const Action = Object.assign(
+  function Action(props: ActionProps) {
+    return createElement("Action", props);
+  },
+  { CopyToClipboard },
+);
 
 export function CopyToClipboard(props: CopyToClipboardProps) {
   const { content, onCopy, title, ...rest } = props;

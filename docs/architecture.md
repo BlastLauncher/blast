@@ -55,5 +55,5 @@ the matching `name`.
 
 ## Status
 
-M1 in progress: protocol, reconciler and minimal API shim exist; process entry, host
-and CLI are next (see `PLAN.md`).
+M1 in progress: protocol, reconciler, minimal API shim and stdio runtime entry exist;
+host and CLI are next (see `PLAN.md`).

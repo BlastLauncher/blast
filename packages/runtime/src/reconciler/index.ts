@@ -144,7 +144,7 @@ const config: Config = {
 };
 const renderer = Reconciler(config);
 
-export function createSceneRoot({ publish, onWarning = noop }: SceneRootOptions) {
+export function createSceneRoot({ publish, onWarning = noop, onError }: SceneRootOptions) {
   let revision = 0;
   let handlers = new Map<string, Map<string, Handler>>();
   const errors: unknown[] = [];
@@ -174,6 +174,10 @@ export function createSceneRoot({ publish, onWarning = noop }: SceneRootOptions)
       publish({ revision: ++revision, root });
     },
   };
+  function reportError(error: unknown) {
+    if (onError) onError(error);
+    else errors.push(error);
+  }
   const root = renderer.createContainer(
     container,
     ConcurrentRoot,
@@ -181,13 +185,9 @@ export function createSceneRoot({ publish, onWarning = noop }: SceneRootOptions)
     false,
     null,
     "",
-    (error) => {
-      errors.push(error);
-    },
+    reportError,
     renderer.defaultOnCaughtError,
-    (error) => {
-      errors.push(error);
-    },
+    reportError,
     noop,
     null,
   );

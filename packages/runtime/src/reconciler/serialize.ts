@@ -30,10 +30,7 @@ export function serializeProps(
     ) {
       ancestors.add(value);
       const result = Array.isArray(value)
-        ? value.flatMap((item, index) => {
-            const next = visit(item, `${path}[${index}]`);
-            return next === undefined ? [] : [next];
-          })
+        ? Array.from(value, (item, index) => visit(item, `${path}[${index}]`) ?? null)
         : Object.fromEntries(
             Object.entries(value).flatMap(([key, item]) => {
               const next = visit(item, `${path}.${key}`);
