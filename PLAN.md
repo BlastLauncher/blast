@@ -6,7 +6,7 @@ files.
 
 ## Current focus
 
-M2 — real extensions. 0011 first; then 0012 and 0013 in parallel; then 0014.
+M2 — real extensions. 0013 done; 0011 running; then 0012 and 0014.
 Known gap: `List.onSearchTextChange` is undeclared/uncovered in the shim.
 
 ## Milestones
@@ -44,7 +44,7 @@ shared copy of `@raycast/utils` for every extension.
 
 - [ ] 0011 Corpus fetch tool: pinned shallow sparse checkout + disk guard
 - [ ] 0012 Static API usage scan of the whole corpus → weights in `compat/`
-- [ ] 0013 Shared `@raycast/utils` and dependency policy for bundling
+- [x] 0013 Shared `@raycast/utils` and dependency policy for bundling
 - [ ] 0014 Curated smoke runner + report for the first 10 commands
 
 First curated set (List-centric, UI API only, offline, deps ⊆ api/utils):
@@ -55,7 +55,9 @@ markdown-reference, conventional-commits.
 ### M3 — Coverage to 100%
 
 Goal: 100% of the non-deprecated `@raycast/api` surface, then deprecated
-aliases. Order: curated-set failures first, then highest corpus weight. Each
+aliases. First step: export a stub for every inventory symbol that throws a
+structured "unsupported in Blast" error when used, so missing APIs fail with
+diagnostics instead of ESM link errors. Order: curated-set failures first, then highest corpus weight. Each
 step is a task with `@covers` evidence.
 
 ### M4 — Desktop client

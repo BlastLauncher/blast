@@ -1,6 +1,9 @@
 [install]
 # Exact versions keep the lockfile reviewable and installs reproducible.
 exact = true
+# Never auto-install peers: @raycast/utils would otherwise pull Raycast's real
+# @raycast/api (CLI, second React) into the tree. Blast provides those itself.
+peer = false
 
 [test]
 pathIgnorePatterns = ["archive/**", ".cache/**"]
