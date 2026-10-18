@@ -986,3 +986,25 @@ test("AI and browser flags grant deterministic responses and synchronous availab
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+test("CLI prints a one-line warning for a shared dependency major mismatch", async () => {
+  const fixture = join(root, "fixtures/extensions/shared-dependencies");
+  const result = await runCli(["run", fixture, "default"]);
+  expect(result.code).toBe(0);
+  expect(result.stderr).toBe("");
+  expect(result.stdout).toContain(
+    "# log Shared dependency lodash: declared ^3.0.0, provided 4.18.1 (major mismatch)\n",
+  );
+  const json = await runCli(["run", fixture, "subpath", "--json"]);
+  expect(json.code).toBe(0);
+  expect(
+    json.stdout
+      .split("\n")
+      .filter(Boolean)
+      .map((line) => JSON.parse(line)),
+  ).toContainEqual({
+    type: "log",
+    level: "warn",
+    message: "Shared dependency lodash: declared ^3.0.0, provided 4.18.1 (major mismatch)",
+  });
+});

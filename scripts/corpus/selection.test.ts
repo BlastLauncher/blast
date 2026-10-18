@@ -118,12 +118,16 @@ test("runtime dependencies must be provided by Blast", () => {
   expect(unprovidedDependencies({ dependencies: { "@raycast/api": "^1.0.0" } })).toEqual([]);
   expect(
     unprovidedDependencies({
-      dependencies: { "@raycast/utils": "2.3.2", zod: "^3", "node-fetch": "^2" },
+      dependencies: {
+        "@raycast/utils": "2.3.2",
+        "unprovided-schema": "^3",
+        "unprovided-fetch": "^2",
+      },
     }),
-  ).toEqual(["node-fetch", "zod"]);
-  expect(manifestRejections({ dependencies: { axios: "^1" }, commands: [{ name: "a" }] })).toEqual([
-    "unprovided dependencies: axios",
-  ]);
+  ).toEqual(["unprovided-fetch", "unprovided-schema"]);
+  expect(
+    manifestRejections({ dependencies: { "unprovided-http": "^1" }, commands: [{ name: "a" }] }),
+  ).toEqual(["unprovided dependencies: unprovided-http"]);
 });
 
 test("a candidate needs at least one view command", () => {
@@ -570,4 +574,18 @@ test("the rendered pin is valid JSON with the criteria and the pin intact", () =
   expect(parsed.selection.eligible).toBe(3);
   // readPin must keep accepting the file it writes.
   expect(parsePin(parsed)).toMatchObject({ curated: ["keep-a", "form-0", "grid-0"] });
+});
+
+test("selection accepts shared packages and their subpaths while keeping other exclusions", () => {
+  expect(
+    manifestRejections({ dependencies: { lodash: "^3", axios: "^1" }, commands: [{ name: "a" }] }),
+  ).toEqual([]);
+  expect(exclusionIds([source('import get from "lodash/get"; import { z } from "zod";')])).toEqual(
+    [],
+  );
+  expect(
+    exclusionIds([
+      source('import { exec } from "node:child_process"; import lodash from "lodash";'),
+    ]),
+  ).toContain("child_process");
 });
