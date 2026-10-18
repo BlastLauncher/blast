@@ -35,22 +35,24 @@ function runCli(args: string[], script?: string): Promise<CliResult> {
   });
 }
 
-const FIRST_SCENE = `List navigationTitle="hello-list" searchText="" [onSearchTextChange]
-  List.Item "apple"
-    Slot name="actions"
-      ActionPanel
-        Action.CopyToClipboard "Copy apple" [onAction]
-        Action "Pin apple" [onAction]
-  List.Item "banana"
-    Slot name="actions"
-      ActionPanel
-        Action.CopyToClipboard "Copy banana" [onAction]
-        Action "Pin banana" [onAction]
-  List.Item "cherry"
-    Slot name="actions"
-      ActionPanel
-        Action.CopyToClipboard "Copy cherry" [onAction]
-        Action "Pin cherry" [onAction]
+const FIRST_SCENE = `Navigation depth=1
+  Navigation.Entry active=true
+    List navigationTitle="hello-list" searchText="" [onSearchTextChange]
+      List.Item "apple"
+        Slot name="actions"
+          ActionPanel
+            Action.CopyToClipboard "Copy apple" [onAction]
+            Action "Pin apple" [onAction]
+      List.Item "banana"
+        Slot name="actions"
+          ActionPanel
+            Action.CopyToClipboard "Copy banana" [onAction]
+            Action "Pin banana" [onAction]
+      List.Item "cherry"
+        Slot name="actions"
+          ActionPanel
+            Action.CopyToClipboard "Copy cherry" [onAction]
+            Action "Pin cherry" [onAction]
 `;
 
 test("the first scene prints as a stable text tree and exits 0", async () => {
@@ -148,7 +150,7 @@ test("--json emits protocol-shaped NDJSON scenes", async () => {
     .map((line) => JSON.parse(line) as { type: string; root: { type: string } | null });
   const scenes = messages.filter((message) => message.type === "scene");
   expect(scenes.length).toBeGreaterThanOrEqual(1);
-  expect(scenes[0]?.root?.type).toBe("List");
+  expect(scenes[0]?.root?.type).toBe("Navigation");
 });
 
 test("usage errors exit 2 and print usage", async () => {
@@ -169,4 +171,25 @@ test("--timeout aborts a hanging script with exit 3", async () => {
   );
   expect(code).toBe(3);
   expect(stderr).toContain("timed out after 800ms");
+});
+
+test("Action.Push opens a view and back restores the previous state", async () => {
+  const { code, stdout, stderr } = await runCli(
+    ["run", hostSession, "navigation", "--script", "-"],
+    "action Increment\nwait\nexpect count 1\naction Open details\nwait\nexpect pushed detail\nback\nwait\nexpect count 1\nexpect popped true\nquit\n",
+  );
+  expect(code).toBe(0);
+  expect(stderr).toBe("");
+  expect(stdout).toContain("Navigation depth=2 [pop]");
+  const last = stdout.slice(stdout.lastIndexOf("Navigation depth=1"));
+  expect(last).toContain("count 1 popped true");
+  expect(last).not.toContain("pushed detail");
+});
+
+test("back at the root reports a script error and help documents back", async () => {
+  const result = await runCli(["run", helloList, "index", "--script", "-"], "back\n");
+  expect(result.code).toBe(1);
+  expect(result.stderr).toContain("no navigation view to pop");
+  const help = await runCli(["--help"]);
+  expect(help.stdout).toContain("back            Pop the current navigation view.");
 });

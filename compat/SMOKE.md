@@ -7,25 +7,25 @@ part of `bun run verify`).
 
 13 commands: rendered 9, bundle-failed 0, crashed 0, timeout 0, unsupported-mode 0, unsupported-api 4.
 
-| Command                                         | Mode | Outcome         | Detail                |
-| ----------------------------------------------- | ---- | --------------- | --------------------- |
-| `axios-docs/index`                              | view | rendered        | 74 nodes, root List   |
-| `biaodian/biaodian`                             | view | rendered        | 131 nodes, root List  |
-| `code-review-emojis/index`                      | view | rendered        | 86 nodes, root List   |
-| `conventional-commits/commit-message-structure` | view | rendered        | 1 nodes, root Detail  |
-| `conventional-commits/index`                    | view | rendered        | 45 nodes, root List   |
-| `fibonacci-sequence/index`                      | view | rendered        | 76 nodes, root List   |
-| `markdown-reference/markdown-reference`         | view | unsupported-api | useNavigation         |
-| `ohmyzsh-git-alias/index`                       | view | rendered        | 1630 nodes, root List |
-| `px-to-rem-converter/index`                     | view | rendered        | 11 nodes, root List   |
-| `radix/colors`                                  | view | unsupported-api | List.Item.Detail      |
-| `radix/primitives`                              | view | unsupported-api | List.Item.Detail      |
-| `radix/themes`                                  | view | unsupported-api | List.Item.Detail      |
-| `ratio-calculator/calculate-ratio`              | view | rendered        | 2 nodes, root List    |
+| Command                                         | Mode | Outcome         | Detail                      |
+| ----------------------------------------------- | ---- | --------------- | --------------------------- |
+| `axios-docs/index`                              | view | rendered        | 76 nodes, root Navigation   |
+| `biaodian/biaodian`                             | view | rendered        | 133 nodes, root Navigation  |
+| `code-review-emojis/index`                      | view | rendered        | 88 nodes, root Navigation   |
+| `conventional-commits/commit-message-structure` | view | rendered        | 3 nodes, root Navigation    |
+| `conventional-commits/index`                    | view | rendered        | 47 nodes, root Navigation   |
+| `fibonacci-sequence/index`                      | view | rendered        | 78 nodes, root Navigation   |
+| `markdown-reference/markdown-reference`         | view | unsupported-api | ActionPanel.Item            |
+| `ohmyzsh-git-alias/index`                       | view | rendered        | 1632 nodes, root Navigation |
+| `px-to-rem-converter/index`                     | view | rendered        | 13 nodes, root Navigation   |
+| `radix/colors`                                  | view | unsupported-api | List.Item.Detail            |
+| `radix/primitives`                              | view | unsupported-api | List.Item.Detail            |
+| `radix/themes`                                  | view | unsupported-api | List.Item.Detail            |
+| `ratio-calculator/calculate-ratio`              | view | rendered        | 4 nodes, root Navigation    |
 
 ## Failures
 
-- `markdown-reference/markdown-reference` (unsupported-api): useNavigation
+- `markdown-reference/markdown-reference` (unsupported-api): ActionPanel.Item
 - `radix/colors` (unsupported-api): List.Item.Detail
 - `radix/primitives` (unsupported-api): List.Item.Detail
 - `radix/themes` (unsupported-api): List.Item.Detail

@@ -6,3 +6,6 @@ export type { ClipboardContent, CopyOptions } from "./clipboard.ts";
 export type { Environment } from "./environment.ts";
 export type { ListProps, ListItemProps, ListSectionProps, ListEmptyViewProps } from "./list.ts";
 export type { PreferenceValues } from "./preferences.ts";
+
+export type { PushProps } from "./action.ts";
+export type { Navigation } from "./navigation.ts";

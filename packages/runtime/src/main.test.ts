@@ -34,7 +34,7 @@ test("Node handshake, shared React hooks, events, clipboard results, logs and sh
   runtime.init();
   expect(await runtime.next("ready")).toEqual({ type: "ready", protocol: 1 });
   const first = await runtime.next("scene");
-  expect(first.root!.props.navigationTitle).toBe("0:false");
+  expect(first.root!.children[0]!.children[0]!.props.navigationTitle).toBe("0:false");
   expect(runtime.messages).toContainEqual({
     type: "log",
     level: "info",
@@ -53,14 +53,14 @@ test("Node handshake, shared React hooks, events, clipboard results, logs and sh
   action(runtime, first.root!, "Increment");
   const second = await runtime.next("scene");
   expect(second.revision).toBeGreaterThan(first.revision);
-  expect(second.root!.props.navigationTitle).toBe("1:false");
+  expect(second.root!.children[0]!.children[0]!.props.navigationTitle).toBe("1:false");
   action(runtime, second.root!, "Copy to Clipboard");
   const request = await runtime.next("capability.request");
   expect(request.name).toBe("clipboard.copy");
   expect(request.params).toEqual({ text: "hello" });
   runtime.send({ type: "capability.result", id: request.id, ok: true, value: null });
   const copied = await runtime.next("scene");
-  expect(copied.root!.props.navigationTitle).toBe("1:true");
+  expect(copied.root!.children[0]!.children[0]!.props.navigationTitle).toBe("1:true");
   action(runtime, copied.root!, "Copy to Clipboard");
   const denied = await runtime.next("capability.request");
   expect(denied.id).not.toBe(request.id);
@@ -74,7 +74,9 @@ test("Node handshake, shared React hooks, events, clipboard results, logs and sh
   action(runtime, copied.root!, "Throw");
   expect(await runtime.next("error")).toMatchObject({ fatal: false, message: "handler failed" });
   action(runtime, copied.root!, "Increment");
-  expect((await runtime.next("scene")).root!.props.navigationTitle).toBe("2:true");
+  expect((await runtime.next("scene")).root!.children[0]!.children[0]!.props.navigationTitle).toBe(
+    "2:true",
+  );
   runtime.send({ type: "shutdown" });
   expect(await runtime.exited).toBe(0);
   expect(runtime.messages).toContainEqual({ type: "log", level: "info", message: "unmounted" });

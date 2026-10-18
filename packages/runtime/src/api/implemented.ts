@@ -21,3 +21,6 @@ export { Icon, Color } from "./enums.generated.ts";
 export { OpenInBrowser, Paste, CopyToClipboardAction, PasteAction } from "./action.ts";
 export { Detail, type DetailProps } from "./detail.ts";
 export { Keyboard } from "./keyboard.ts";
+
+export { PushAction } from "./action.ts";
+export { useNavigation } from "./navigation.ts";

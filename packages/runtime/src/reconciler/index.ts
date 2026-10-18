@@ -161,7 +161,11 @@ export function createSceneRoot({ publish, onWarning = noop, onError }: SceneRoo
           id: node.id,
           type: node.type,
           props,
-          children: node.children.filter((child) => !child.hidden).map(snapshot),
+          // Covered navigation views remain mounted, but cannot receive client events.
+          children:
+            node.type === "Navigation.Entry" && node.props.active === false
+              ? []
+              : node.children.filter((child) => !child.hidden).map(snapshot),
         };
       }
       const children = container.children.filter((child) => !child.hidden).map(snapshot);

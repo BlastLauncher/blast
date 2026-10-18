@@ -1,7 +1,7 @@
 // The `blast` debug CLI: bundles and runs one extension command headlessly and
 // prints every published scene — as a readable text tree, or as protocol-shaped
 // NDJSON with `--json`. A `--script` drives the command (action / search /
-// wait / expect / quit), which is how e2e tests interact with extensions. See
+// back / wait / expect / quit), which is how e2e tests interact with extensions. See
 // "Debugging extensions" in docs/architecture.md.
 
 import type {
@@ -47,6 +47,7 @@ Options:
 
 Script commands (one per line, "#" starts a comment):
   action <title>  Dispatch onAction on the Action node with that title.
+  back            Pop the current navigation view.
   search <text>   Dispatch the List onSearchTextChange handler.
   wait            Wait until the next scene is published.
   expect <text>   Fail (exit 1) unless the latest scene tree contains the text.
@@ -148,6 +149,7 @@ function grantHandlers(grants: string[]): Record<string, CapabilityHandler> {
 type Step =
   | { op: "action"; title: string }
   | { op: "search"; text: string }
+  | { op: "back" }
   | { op: "wait" }
   | { op: "expect"; text: string }
   | { op: "quit" };
@@ -168,6 +170,9 @@ function parseScript(source: string): Step[] {
       case "search":
         if (rest === "") throw new ScriptError(`script line ${index + 1}: search needs text`);
         steps.push({ op: "search", text: rest });
+        break;
+      case "back":
+        steps.push({ op: "back" });
         break;
       case "wait":
         steps.push({ op: "wait" });
@@ -226,6 +231,15 @@ async function runScript(session: Session, steps: Step[]): Promise<void> {
   for (const step of steps) {
     if (step.op === "quit") return;
     switch (step.op) {
+      case "back": {
+        const scene = await currentScene(session);
+        observed = Math.max(observed, scene.revision);
+        const node = scene.root?.type === "Navigation" ? scene.root : undefined;
+        const handler = node ? handlerRef(node.props.pop) : undefined;
+        if (!node || !handler) throw new ScriptError("no navigation view to pop");
+        session.sendEvent(node.id, handler.$handler, []);
+        break;
+      }
       case "action": {
         const scene = await currentScene(session);
         observed = Math.max(observed, scene.revision);

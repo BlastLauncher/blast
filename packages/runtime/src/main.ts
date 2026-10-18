@@ -16,6 +16,7 @@ import { format } from "node:util";
 import { createElement, type ComponentType } from "react";
 import { setCapabilityRequester } from "./api/capability.ts";
 import { setEnvironment } from "./api/environment.ts";
+import { NavigationProvider } from "./api/navigation.ts";
 import { setPreferenceValues } from "./api/preferences.ts";
 import { UnsupportedApiError } from "./api/unsupported.ts";
 import { createSceneRoot } from "./reconciler/index.ts";
@@ -136,7 +137,11 @@ async function load(message: Extract<HostMessage, { type: "init" }>) {
     finish(0);
     return;
   }
-  root.render(createElement(command.default as ComponentType<LaunchProps>, launchProps));
+  root.render(
+    createElement(NavigationProvider, {
+      children: createElement(command.default as ComponentType<LaunchProps>, launchProps),
+    }),
+  );
   loaded = true;
 }
 function shutdown() {
