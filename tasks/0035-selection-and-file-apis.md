@@ -1,7 +1,7 @@
 ---
 id: "0035"
 title: Selection and file APIs; Form.FilePicker
-status: doing
+status: review
 milestone: M3
 depends: []
 ---
@@ -34,9 +34,9 @@ depends: []
 
 ## Acceptance
 
-- [ ] Runtime + host tests per API (granted, denied, defaults); FilePicker in
+- [x] Runtime + host tests per API (granted, denied, defaults); FilePicker in
       a form submit; CLI e2e for the new flags.
-- [ ] `bun run verify` passes.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -45,8 +45,13 @@ depends: []
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/selection-file-apis @ 480649b133c66a29ccf8f3371d65e44842ae4f7a (implementation; handoff follows)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 30.8s
 Done:
-Not done / risks:
+- Implemented getSelectedText, getSelectedFinderItems, getFrontmostApplication, showInFinder and trash against vendored declarations, including PathLike inputs and host-response validation.
+- Capabilities: selection.text, selection.files, applications.frontmost, finder.show, trash. Bare brokers deny all; headless handlers answer the three read-only capabilities. Finder/trash remain denied unless granted.
+- Added --selected-text, repeatable --selected-files and --frontmost flags with deterministic defaults, help/docs and CLI e2e coverage.
+- Added Form.FilePicker options and controlled/uncontrolled string[] values, focus/change events, form submit and comma-separated CLI field input (omit value to clear). Added coverage evidence; regenerated compat reports. No dependencies added; action.ts untouched.
+- 334 tests pass with randomized seed 2937715541. Corpus smoke: 62 rendered, 1 completed, 2 capability-denied, 1 timeout, 0 unsupported-api; smoke reports unchanged after formatting. Deleted .cache/raycast-extensions.
+Not done / risks: Real OS selection/dialogs remain out of scope. FilePicker refs and storeValue persistence retain the existing Form limitations (partial coverage). Headless frontmost fallback uses an empty path; synthetic selection does not inspect the real OS.
 ```
