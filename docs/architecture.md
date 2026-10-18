@@ -80,8 +80,9 @@ the extension passed.
 `appearance` (headless default `"dark"`), `textSize` (`"medium"`),
 `ownerOrAuthorName` (`owner` ?? `author`), `entryPointName` /
 `entryPointMode` from the launched command, `entryPointType` always
-`"command"`, and `canAccess(api)` is `false` only for APIs Blast stubs
-(`AI`, `BrowserExtension`).
+`"command"`. `canAccess(AI)` / `canAccess(BrowserExtension)` use the host-supplied
+`init.environment.availableAPIs` list (absent means neither is available); other
+implemented APIs are accessible and stubs are inaccessible.
 
 ## Host sessions
 
@@ -113,6 +114,12 @@ supply explicit environment paths. Synchronous `Cache` stores strings under
 eviction. Subscriptions notify matching cache instances within the process.
 Callers own bundle output directories (default: a unique directory below
 `os.tmpdir()/blast/builds`) and remove them after sessions exit.
+
+`ai.ask` returns a supplied full-text answer as one runtime `data` chunk; abort
+stops waiting and suppresses late data. `browser.tabs` / `browser.content` use
+supplied tabs and content. These capabilities are denied by default. The CLI
+opts in with `--ai-answer` / `--browser-tabs`; supplied content is returned as is,
+without format conversion, and CSS selectors are unsupported in the headless host.
 
 ## Local storage
 

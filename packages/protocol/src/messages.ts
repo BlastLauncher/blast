@@ -42,6 +42,7 @@ export type InitCommand = {
 };
 
 export type InitEnvironment = {
+  availableAPIs?: ("AI" | "BrowserExtension")[];
   extensionName: string;
   commandName: string;
   /** The manifest's `owner`, falling back to `author` (Raycast's `ownerOrAuthorName`). */
@@ -273,6 +274,15 @@ function readCommand(value: unknown, path: string): InitCommand {
   };
 }
 
+function readAvailableAPIs(value: unknown, path: string): ("AI" | "BrowserExtension")[] {
+  if (!Array.isArray(value)) fail(path, "expected array");
+  return value.map((api, index) => {
+    if (api !== "AI" && api !== "BrowserExtension")
+      fail(`${path}[${index}]`, "expected AI or BrowserExtension");
+    return api;
+  });
+}
+
 function readEnvironment(value: unknown, path: string): InitEnvironment {
   const object = readObject(value, path);
   checkKeys(object, path, [
@@ -284,6 +294,7 @@ function readEnvironment(value: unknown, path: string): InitEnvironment {
     "isDevelopment",
     "appearance",
     "textSize",
+    "availableAPIs",
   ]);
   return {
     extensionName: readString(object["extensionName"], keyPath(path, "extensionName")),
@@ -294,6 +305,11 @@ function readEnvironment(value: unknown, path: string): InitEnvironment {
     isDevelopment: readBoolean(object["isDevelopment"], keyPath(path, "isDevelopment")),
     appearance: readAppearance(object["appearance"], keyPath(path, "appearance")),
     textSize: readTextSize(object["textSize"], keyPath(path, "textSize")),
+    ...(object["availableAPIs"] === undefined
+      ? {}
+      : {
+          availableAPIs: readAvailableAPIs(object["availableAPIs"], keyPath(path, "availableAPIs")),
+        }),
   };
 }
 

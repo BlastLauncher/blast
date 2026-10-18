@@ -1,0 +1,10 @@
+{
+  "name": "ai-browser",
+  "commands": [
+    {
+      "name": "index",
+      "title": "AI and browser",
+      "mode": "no-view"
+    }
+  ]
+}

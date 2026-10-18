@@ -481,3 +481,15 @@ function cyclic(): Record<string, unknown> {
   value["self"] = value;
   return value;
 }
+
+test("init validates the optional API availability list", () => {
+  for (const availableAPIs of [[], ["AI"], ["AI", "BrowserExtension"]] as const) {
+    const message = { ...init, environment: { ...environment, availableAPIs: [...availableAPIs] } };
+    expect(parseHostMessage(message)).toEqual({ ok: true, message });
+  }
+  for (const availableAPIs of [null, "AI", ["other"], [7]]) {
+    const parsed = parseHostMessage({ ...init, environment: { ...environment, availableAPIs } });
+    expect(parsed.ok).toBe(false);
+    if (!parsed.ok) expect(parsed.error).toContain("environment.availableAPIs");
+  }
+});

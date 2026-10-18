@@ -2,28 +2,28 @@
   "version": "2.8.2",
   "totals": {
     "all": {
-      "covered": 1257,
-      "partial": 76,
-      "missing": 1140,
+      "covered": 1452,
+      "partial": 81,
+      "missing": 940,
       "total": 2473
     },
     "nonDeprecated": {
-      "covered": 1218,
-      "partial": 71,
-      "missing": 245,
+      "covered": 1270,
+      "partial": 76,
+      "missing": 188,
       "total": 1534
     },
     "deprecated": {
-      "covered": 39,
+      "covered": 182,
       "partial": 5,
-      "missing": 895,
+      "missing": 752,
       "total": 939
     },
     "kinds": {
       "namespace": {
-        "covered": 4,
+        "covered": 7,
         "partial": 1,
-        "missing": 4,
+        "missing": 1,
         "total": 9
       },
       "component": {
@@ -33,15 +33,15 @@
         "total": 116
       },
       "function": {
-        "covered": 29,
-        "partial": 4,
-        "missing": 17,
+        "covered": 30,
+        "partial": 6,
+        "missing": 14,
         "total": 50
       },
       "const": {
-        "covered": 3,
+        "covered": 5,
         "partial": 0,
-        "missing": 18,
+        "missing": 16,
         "total": 21
       },
       "class": {
@@ -51,33 +51,33 @@
         "total": 3
       },
       "enum": {
-        "covered": 11,
+        "covered": 12,
         "partial": 0,
-        "missing": 2,
+        "missing": 1,
         "total": 13
       },
       "enum-member": {
-        "covered": 512,
+        "covered": 689,
         "partial": 0,
-        "missing": 179,
+        "missing": 2,
         "total": 691
       },
       "interface": {
-        "covered": 21,
+        "covered": 22,
         "partial": 1,
-        "missing": 42,
+        "missing": 41,
         "total": 64
       },
       "type": {
-        "covered": 67,
-        "partial": 6,
-        "missing": 105,
+        "covered": 70,
+        "partial": 7,
+        "missing": 101,
         "total": 178
       },
       "property": {
-        "covered": 544,
-        "partial": 31,
-        "missing": 729,
+        "covered": 551,
+        "partial": 33,
+        "missing": 720,
         "total": 1304
       },
       "method": {
@@ -91,38 +91,50 @@
   "entries": [
     {
       "path": "AI",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/ai-browser.test.ts"
+      ],
       "weight": 115
     },
     {
       "path": "AI.AskOptions",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/ai-browser.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "AI.AskOptions.creativity",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/ai-browser.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.AskOptions.model",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/ai-browser.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.AskOptions.signal",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/ai-browser.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Creativity",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/ai-browser.test.ts"
+      ],
       "weight": 1
     },
     {
@@ -133,1070 +145,1426 @@
     },
     {
       "path": "AI.Model",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 35
     },
     {
       "path": "AI.Model.Anthropic_Claude_3.5_Haiku",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Anthropic_Claude_3.7_Sonnet",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Anthropic_Claude_4.1_Opus",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Anthropic_Claude_4.5_Haiku",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 3
     },
     {
       "path": "AI.Model.Anthropic_Claude_4.5_Opus",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "AI.Model.Anthropic_Claude_4.5_Sonnet",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "AI.Model.Anthropic_Claude_4.6_Opus",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "AI.Model.Anthropic_Claude_4.6_Sonnet",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "AI.Model.Anthropic_Claude_4.7_Opus",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Anthropic_Claude_4_Opus",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "AI.Model.Anthropic_Claude_4_Sonnet",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "AI.Model.Anthropic_Claude_Fable_5.1",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Anthropic_Claude_Haiku",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Anthropic_Claude_Haiku_4.5",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Anthropic_Claude_Haiku_5.5",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Anthropic_Claude_Opus",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Anthropic_Claude_Opus_4.6",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Anthropic_Claude_Opus_4.7",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Anthropic_Claude_Opus_4.8",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Anthropic_Claude_Opus_5",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Anthropic_Claude_Opus_5.5",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Anthropic_Claude_Sonnet",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "AI.Model.Anthropic_Claude_Sonnet_3.7",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Anthropic_Claude_Sonnet_4",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Anthropic_Claude_Sonnet_4.5",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Anthropic_Claude_Sonnet_4.6",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Anthropic_Claude_Sonnet_5",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Anthropic_Claude_Sonnet_5.5",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Baseten_DeepSeek_V4_Pro",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Baseten_GLM-5",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Baseten_GLM-5.2",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Baseten_Kimi_K2.5",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Baseten_Kimi_K2.6",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Baseten_Kimi_K2.7_Code",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Baseten_MiniMax_M2.5",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Codellama_70B_instruct",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.DeepSeek_R1",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.DeepSeek_V3",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Gateway_Kimi_K3",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Google_Gemini_1.5_Flash",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Google_Gemini_1.5_Pro",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Google_Gemini_2.0_Flash",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Google_Gemini_2.0_Flash_Lite",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Google_Gemini_2.0_Flash_Thinking",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Google_Gemini_2.5_Flash",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "AI.Model.Google_Gemini_2.5_Flash_Lite",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "AI.Model.Google_Gemini_2.5_Pro",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "AI.Model.Google_Gemini_3.1_Flash_Lite",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "AI.Model.Google_Gemini_3.1_Pro",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "AI.Model.Google_Gemini_3.5_Flash",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Google_Gemini_3.5_Flash_Lite",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "AI.Model.Google_Gemini_3.6_Flash",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "AI.Model.Google_Gemini_3.7_Flash",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Google_Gemini_3.8_Flash",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Google_Gemini_3_Flash",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "AI.Model.Google_Gemini_3_Pro",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Groq_DeepSeek_R1_Distill_Llama_3.3_70B",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Groq_GPT-OSS_120b",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Groq_GPT-OSS_20b",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Groq_Kimi_K2_Instruct",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "AI.Model.Groq_Llama_3.1_8B",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Groq_Llama_3.3_70B",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Groq_Llama_4_Scout",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Groq_Qwen3-32B",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "AI.Model.Groq_Qwen3_235B_A22B_Instruct_2507_tput",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Groq_Qwen3_32B",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Llama2_70B",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Llama3.1_405B",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Llama3.1_70B",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Llama3.1_8B",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Llama3.3_70B",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Llama3_70B",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Llama4_Scout",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Mistral_Codestral",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Mistral_Large",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "AI.Model.Mistral_Large2",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Mistral_Medium",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "AI.Model.Mistral_Nemo",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Mistral_Small",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Mistral_Small_3",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "AI.Model.MixtraL_8x7B",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Mixtral_8x7B",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_GPT-4",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_GPT-4.1",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 3
     },
     {
       "path": "AI.Model.OpenAI_GPT-4.1_mini",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "AI.Model.OpenAI_GPT-4.1_nano",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_GPT-4_Turbo",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_GPT-4o",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "AI.Model.OpenAI_GPT-4o_mini",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "AI.Model.OpenAI_GPT-5",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "AI.Model.OpenAI_GPT-5.1",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "AI.Model.OpenAI_GPT-5.1_Codex",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_GPT-5.1_Instant",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_GPT-5.2",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "AI.Model.OpenAI_GPT-5.2_Instant",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_GPT-5.3_Codex",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_GPT-5.3_Instant",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "AI.Model.OpenAI_GPT-5.4",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "AI.Model.OpenAI_GPT-5.4_mini",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_GPT-5.4_nano",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_GPT-5.5",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_GPT-5.5_Instant",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "AI.Model.OpenAI_GPT-5.6_Luna",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_GPT-5.6_Sol",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_GPT-5.6_Terra",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_GPT-5_Codex",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_GPT-5_mini",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 4
     },
     {
       "path": "AI.Model.OpenAI_GPT-5_nano",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_GPT-6.1_Sol",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_GPT-6_Astra",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_GPT-6_Luna",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "AI.Model.OpenAI_GPT-6_Sol",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_GPT3.5-turbo",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_GPT3.5-turbo-instruct",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_GPT4",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_GPT4-turbo",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_GPT4.1",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_GPT4.1-mini",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_GPT4.1-nano",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_GPT4o",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "AI.Model.OpenAI_GPT4o-mini",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 12
     },
     {
       "path": "AI.Model.OpenAI_GPT5",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_GPT5-mini",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_GPT5-nano",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_GPT_OSS_120b",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_GPT_OSS_20b",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_o1",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_o1-mini",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_o1-preview",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_o3",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_o3-mini",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.OpenAI_o4-mini",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Perplexity_Llama3.1_Sonar_Huge",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Perplexity_Llama3.1_Sonar_Large",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Perplexity_Llama3.1_Sonar_Small",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Perplexity_Llama3_Sonar_Large",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Perplexity_Llama3_Sonar_Small",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Perplexity_Sonar",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 3
     },
     {
       "path": "AI.Model.Perplexity_Sonar_Medium_Online",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Perplexity_Sonar_Pro",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "AI.Model.Perplexity_Sonar_Reasoning",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Perplexity_Sonar_Small_Online",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Qwen_2.5_32B",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Together_AI_DeepSeek-R1",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "AI.Model.Together_AI_DeepSeek-V3",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "AI.Model.Together_AI_Kimi_K2.5",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Together_AI_Llama_3.1_405B",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Together_AI_Qwen3-235B-A22B-Instruct-2507-tput",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Together_DeepSeek_R1",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Vercel_DeepSeek_V4.1_Flash",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Vercel_DeepSeek_V4_Flash",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Vercel_DeepSeek_V4_Pro",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Vercel_GLM-5.2",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Vercel_GLM-5.3",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Vercel_GLM-5.3_Flash",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Vercel_Gemma_4_31B",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Vercel_Inkling",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Vercel_Inkling_Small",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Vercel_Kimi_K2.7_Code",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Vercel_Kimi_K3",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.Vercel_Qwen3.8_Max",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.xAI_Grok-2",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.xAI_Grok-3_Beta",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.xAI_Grok-3_Mini_Beta",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.xAI_Grok-4",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "AI.Model.xAI_Grok-4.1_Fast",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "AI.Model.xAI_Grok-4.20",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.xAI_Grok-4.3",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.xAI_Grok-4.5",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.xAI_Grok-4.6",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.xAI_Grok-4.7",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.xAI_Grok-4_Fast",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.xAI_Grok_2",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.xAI_Grok_3",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.xAI_Grok_3_Mini",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.xAI_Grok_4",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.Model.xAI_Grok_Code_Fast_1",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -1309,14 +1677,18 @@
     },
     {
       "path": "AI.ModelSelector",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/ai-browser.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelSelector.id",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/ai-browser.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -1675,8 +2047,10 @@
     },
     {
       "path": "AI.ask",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/ai-browser.test.ts"
+      ],
       "weight": 79
     },
     {
@@ -4535,56 +4909,74 @@
     },
     {
       "path": "BrowserExtension",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/ai-browser.test.ts"
+      ],
       "weight": 62
     },
     {
       "path": "BrowserExtension.Tab",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/ai-browser.test.ts"
+      ],
       "weight": 6
     },
     {
       "path": "BrowserExtension.Tab.active",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/ai-browser.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "BrowserExtension.Tab.favicon",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/ai-browser.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "BrowserExtension.Tab.id",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/ai-browser.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "BrowserExtension.Tab.title",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/ai-browser.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "BrowserExtension.Tab.url",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/ai-browser.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "BrowserExtension.getContent",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/ai-browser.test.ts"
+      ],
       "weight": 18
     },
     {
       "path": "BrowserExtension.getTabs",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/ai-browser.test.ts"
+      ],
       "weight": 60
     },
     {
@@ -16818,14 +17210,18 @@
     },
     {
       "path": "Tool",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/ai-browser.test.ts"
+      ],
       "weight": 128
     },
     {
       "path": "Tool.Confirmation",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/ai-browser.test.ts"
+      ],
       "weight": 128
     },
     {
@@ -17565,8 +17961,10 @@
     },
     {
       "path": "unstable_AI",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/ai-browser.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -17599,8 +17997,10 @@
     },
     {
       "path": "useUnstableAI",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/ai-browser.test.ts"
+      ],
       "weight": 0
     }
   ]

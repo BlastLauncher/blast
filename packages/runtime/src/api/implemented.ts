@@ -134,3 +134,5 @@ export {
 } from "./selection.ts";
 
 export { OAuth } from "./oauth.ts";
+
+export { AI, BrowserExtension, Tool, unstable_AI, useUnstableAI } from "./ai-browser.ts";

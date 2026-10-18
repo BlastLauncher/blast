@@ -23,6 +23,7 @@ export type StartOptions = BundledCommand & {
   dataDir?: string;
   preferences?: Record<string, JsonValue>;
   environment?: InitEnvironment;
+  availableAPIs?: InitEnvironment["availableAPIs"];
   /** Manifest argument values for this launch, keyed by argument name. */
   argumentValues?: Record<string, string>;
   /** The `launchCommand` context, when another command started this one. */
@@ -95,6 +96,7 @@ export async function startCommand(options: StartOptions): Promise<Session> {
       // A headless host has no UI; the client can send its real theme.
       appearance: "dark",
       textSize: "medium",
+      availableAPIs: options.availableAPIs ?? [],
     },
   };
   const checked = parseHostMessage(init);

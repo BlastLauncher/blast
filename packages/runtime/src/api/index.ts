@@ -131,3 +131,12 @@ export type {
 
 export type { FileSystemItem } from "./selection.ts";
 export type { FormFilePickerProps } from "./form.ts";
+
+export type {
+  AskOptions,
+  Creativity,
+  ModelSelector,
+  BrowserTab,
+  BrowserContentOptions,
+  ToolConfirmation,
+} from "./ai-browser.ts";
