@@ -15,11 +15,17 @@ headless answers.
 
 ## Context
 
-- Gaps: every non-deprecated `AI*`, `BrowserExtension*`, `Tool*`,
-  `unstable_AI`, `useUnstableAI` path in `compat/raycast-api.json` (~140;
-  most are `AI.Model` enum members — check `enums.generated.ts`, task 0031,
-  before hand-writing anything). Read the declarations in
-  `compat/raycast-api/index.d.ts` exactly.
+- Scope (round 2, narrowed after round 1 correctly blocked): `AI` (the
+  namespace value), `AI.ask`, `AI.AskOptions*`, `AI.Creativity`,
+  `AI.ModelSelector*`, `AI.Model` and its members (generated enum, task 0031),
+  every `BrowserExtension*` and `Tool*` path, `unstable_AI`,
+  `useUnstableAI`. Deferred to task 0045, leave missing: `AI.experimental_decide`,
+  `AI.refreshModels`, and the model-provider types (`AI.RegisteredModel*`,
+  `AI.GetModels`, `AI.StreamCompletion`, `AI.Model{Message,MessageContent,Tool,
+  ToolSet,ProviderOptions,Request,TextStream,StreamPart,FullStream,Stream}*`).
+  `AI.ask` with a `{ id }` ModelSelector (extension-provided model) rejects
+  with a clear "model providers are not supported yet" error for now.
+  Read the declarations in `compat/raycast-api/index.d.ts` exactly.
 - `AI.ask(prompt, options)` returns a Promise that is also an event emitter
   (`on("data", chunk)`), and honors `options.signal`. Capability `ai.ask`
   with `{ prompt, model, creativity }`; the host answers with full text.
@@ -46,7 +52,7 @@ headless answers.
 - [ ] Runtime tests: AI.ask resolve/stream/abort/denied; browser tabs and
       content; canAccess reflects host availability.
 - [ ] Protocol tests for the `init.environment` change; CLI e2e for both flags.
-- [ ] No non-deprecated path in scope missing; partials explained in Handoff.
+- [ ] No non-deprecated path in the narrowed scope missing; partials explained in Handoff.
 - [ ] `bun run verify` passes.
 
 ## Out of scope
