@@ -1,25 +1,10 @@
-// Kept local until the protocol package lands (task 0004).
-export type JsonValue =
-  | null
-  | boolean
-  | number
-  | string
-  | JsonValue[]
-  | { [key: string]: JsonValue };
+import type { SceneMessage } from "@blastlauncher/protocol";
+export type { JsonValue, SceneNode } from "@blastlauncher/protocol";
 
-export interface SceneNode {
-  id: string;
-  type: string;
-  props: Record<string, JsonValue>;
-  children: SceneNode[];
-}
-
-export interface SceneSnapshot {
-  revision: number;
-  root: SceneNode | null;
-}
+export type SceneSnapshot = Omit<SceneMessage, "type">;
 
 export interface SceneRootOptions {
   publish(snapshot: SceneSnapshot): void;
   onWarning?(message: string): void;
+  onError?(error: unknown): void;
 }

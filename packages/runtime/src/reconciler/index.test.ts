@@ -130,7 +130,7 @@ test("serializes nested JSON and callbacks, dropping invalid values with useful 
     input: { value: "original" },
     valid: [null, true, 42, "text", { nested: [1, 2] }],
     cycle: {},
-    nested: { callback: { $handler: "nested.callback" }, values: [1, 2] },
+    nested: { callback: { $handler: "nested.callback" }, values: [1, null, null, 2] },
   });
   expect(root.dispatch(latest().id, "nested.callback", [123])).toBe(123);
   for (const prop of [
@@ -216,4 +216,14 @@ test("Node 24 imports TypeScript directly and prints a scene", () => {
     { revision: 1, root: { id: "1", type: "List", props: { title: "Node" }, children: [] } },
     { revision: 2, root: null },
   ]);
+});
+
+test("array omissions preserve indices, including sparse entries and callback paths", () => {
+  const { root, latest } = setup();
+  const values = [undefined, undefined, () => "third", { absent: undefined }];
+  delete values[1];
+  root.render(h("Item", { values }));
+  expect(latest().props.values).toEqual([null, null, { $handler: "values[2]" }, {}]);
+  expect(root.dispatch(latest().id, "values[2]", [])).toBe("third");
+  root.unmount();
 });
