@@ -20,6 +20,7 @@
     "compat:check": "bun scripts/compat/check.ts",
     "corpus:fetch": "bun scripts/corpus/fetch.ts",
     "corpus:scan": "bun scripts/corpus/scan.ts",
+    "corpus:smoke": "bun scripts/corpus/smoke-run.ts",
     "check:workflow": "bun scripts/check-workflow.ts"
   },
   "devDependencies": {
