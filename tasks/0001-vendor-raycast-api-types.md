@@ -1,7 +1,7 @@
 ---
 id: "0001"
 title: Vendor the latest @raycast/api type declarations
-status: todo
+status: doing
 milestone: M0
 depends: []
 ---
