@@ -7,9 +7,8 @@ files.
 ## Current focus
 
 M3 — coverage to 100%. Curated set v3 is clear of API gaps, so the next
-batches come from "Top missing by usage" in `compat/COVERAGE.md`, plus a
-dependency strategy for extensions that need npm packages beyond
-`@raycast/utils` (excluded from the curated set today).
+batches come from "Top missing by usage" in `compat/COVERAGE.md`, plus an
+interim shared-dependency allowlist (0036 → 0037).
 
 ## Milestones
 
@@ -66,6 +65,13 @@ diagnostics instead of ESM link errors.
       CJS globals, host capability APIs, assets layout, launch/window, Grid,
       menu bar, generated enums, no-hang feedback, Action variants, Submenu,
       selection/file APIs (see git log).
+- [ ] 0036 Corpus dependency usage scan
+- [ ] 0037 Shared dependency allowlist (interim, until v1)
+- [ ] 0038 Form.TagPicker, PasswordField, events and props
+- [ ] 0039 List and Grid prop completeness
+- [ ] 0040 Image, Keyboard and environment completeness
+- [ ] 0041 OAuth PKCE client
+- [ ] Next: Form refs/storeValue/drafts, AI, Tool, BrowserExtension
 
 Smoke 2026-10-18 (`compat/SMOKE.md`, 60 extensions): 144/149 commands render,
 1 completed, 4 expected capability denials, 0 unsupported-api. Coverage 63.5%
@@ -90,3 +96,6 @@ One line per decision; link a record only when it exists.
 - 2026-10-18: Headless client first; desktop UI deferred to M4.
 - 2026-10-18: Process/protocol/scene model accepted (`docs/decisions/0001`).
 - 2026-10-18: Coverage denominator is the latest `@raycast/api` declarations.
+- 2026-10-18: Extra npm deps: interim shared pinned allowlist until v1;
+  production should reference each extension's own pinned deps via a thin,
+  minimal-disk layer instead (0037 records it in `docs/decisions/0002`).
