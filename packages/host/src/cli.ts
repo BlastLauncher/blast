@@ -86,6 +86,7 @@ Script commands (one per line, "#" starts a comment):
   confirm         Confirm the current alert.
   dismiss         Dismiss the current alert.
   search <text>   Dispatch the List or Grid onSearchTextChange handler.
+  more            Load the next List/Grid page when hasMore is true.
   dropdown <value>
                   Dispatch the List.Dropdown or Grid.Dropdown onChange handler
                   with the value.
@@ -197,6 +198,7 @@ type Step =
   | { op: "dropdown"; value: string }
   | { op: "field"; id: string; value: string }
   | { op: "submit" }
+  | { op: "more" }
   | { op: "back" }
   | { op: "wait" }
   | { op: "expect"; text: string }
@@ -242,8 +244,9 @@ function parseScript(source: string): Step[] {
         });
         break;
       }
+      case "more":
       case "submit":
-        steps.push({ op: "submit" });
+        steps.push({ op: word });
         break;
       case "back":
         steps.push({ op: "back" });
@@ -403,6 +406,25 @@ async function runScript(session: Session, steps: Step[]): Promise<void> {
           args = [value];
         }
         session.sendEvent(node.id, handler.$handler, args);
+        break;
+      }
+      case "more": {
+        const scene = await currentScene(session);
+        observed = Math.max(observed, scene.revision);
+        const view = scene.root
+          ? findNode(scene.root, (item) => item.type === "List" || item.type === "Grid")
+          : undefined;
+        const pagination = view?.props.pagination;
+        const config =
+          pagination && typeof pagination === "object" && !Array.isArray(pagination)
+            ? pagination
+            : undefined;
+        const handler = handlerRef(
+          config && "onLoadMore" in config ? config.onLoadMore : undefined,
+        );
+        if (!view || !handler || !config || !("hasMore" in config) || config.hasMore !== true)
+          throw new ScriptError("no List or Grid with more pages to load");
+        session.sendEvent(view.id, handler.$handler, []);
         break;
       }
       case "search": {

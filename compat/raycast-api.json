@@ -2,21 +2,21 @@
   "version": "2.8.2",
   "totals": {
     "all": {
-      "covered": 1009,
-      "partial": 80,
-      "missing": 1384,
+      "covered": 1065,
+      "partial": 69,
+      "missing": 1339,
       "total": 2473
     },
     "nonDeprecated": {
-      "covered": 974,
-      "partial": 75,
-      "missing": 485,
+      "covered": 1026,
+      "partial": 64,
+      "missing": 444,
       "total": 1534
     },
     "deprecated": {
-      "covered": 35,
+      "covered": 39,
       "partial": 5,
-      "missing": 899,
+      "missing": 895,
       "total": 939
     },
     "kinds": {
@@ -27,8 +27,8 @@
         "total": 9
       },
       "component": {
-        "covered": 29,
-        "partial": 41,
+        "covered": 39,
+        "partial": 31,
         "missing": 46,
         "total": 116
       },
@@ -69,15 +69,15 @@
         "total": 64
       },
       "type": {
-        "covered": 27,
-        "partial": 3,
-        "missing": 148,
+        "covered": 38,
+        "partial": 6,
+        "missing": 134,
         "total": 178
       },
       "property": {
-        "covered": 381,
-        "partial": 28,
-        "missing": 895,
+        "covered": 416,
+        "partial": 24,
+        "missing": 864,
         "total": 1304
       },
       "method": {
@@ -8018,7 +8018,7 @@
     },
     {
       "path": "Grid.Dropdown.Item",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/grid.test.ts"
       ],
@@ -8026,8 +8026,10 @@
     },
     {
       "path": "Grid.Dropdown.Item.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/grid.test.ts"
+      ],
       "weight": 6
     },
     {
@@ -8064,8 +8066,10 @@
     },
     {
       "path": "Grid.Dropdown.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/list-grid-completeness.test.ts"
+      ],
       "weight": 6
     },
     {
@@ -8094,8 +8098,10 @@
     },
     {
       "path": "Grid.Dropdown.Props.filtering.keepSectionOrder",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/list-grid-completeness.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -8116,7 +8122,7 @@
     },
     {
       "path": "Grid.Dropdown.Props.onChange",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/grid.test.ts"
       ],
@@ -8124,7 +8130,7 @@
     },
     {
       "path": "Grid.Dropdown.Props.onSearchTextChange",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/grid.test.ts"
       ],
@@ -8142,7 +8148,8 @@
       "path": "Grid.Dropdown.Props.storeValue",
       "status": "partial",
       "tests": [
-        "packages/runtime/src/api/grid.test.ts"
+        "packages/runtime/src/api/grid.test.ts",
+        "packages/runtime/src/api/list-grid-completeness.test.ts"
       ],
       "weight": 70
     },
@@ -8172,7 +8179,7 @@
     },
     {
       "path": "Grid.Dropdown.Section",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/grid.test.ts"
       ],
@@ -8180,8 +8187,10 @@
     },
     {
       "path": "Grid.Dropdown.Section.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/grid.test.ts"
+      ],
       "weight": 6
     },
     {
@@ -8202,7 +8211,7 @@
     },
     {
       "path": "Grid.EmptyView",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/grid.test.ts"
       ],
@@ -8210,8 +8219,10 @@
     },
     {
       "path": "Grid.EmptyView.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-grid-completeness.test.ts"
+      ],
       "weight": 7
     },
     {
@@ -8264,7 +8275,7 @@
     },
     {
       "path": "Grid.Item",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/grid.test.ts"
       ],
@@ -8296,8 +8307,10 @@
     },
     {
       "path": "Grid.Item.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/grid.test.ts"
+      ],
       "weight": 9
     },
     {
@@ -8422,8 +8435,10 @@
     },
     {
       "path": "Grid.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/grid.test.ts"
+      ],
       "weight": 8
     },
     {
@@ -8468,7 +8483,7 @@
     },
     {
       "path": "Grid.Props.filtering",
-      "status": "covered",
+      "status": "partial",
       "tests": [
         "packages/runtime/src/api/grid.test.ts"
       ],
@@ -8476,7 +8491,7 @@
     },
     {
       "path": "Grid.Props.filtering.keepSectionOrder",
-      "status": "covered",
+      "status": "partial",
       "tests": [
         "packages/runtime/src/api/grid.test.ts"
       ],
@@ -8524,7 +8539,7 @@
     },
     {
       "path": "Grid.Props.onSearchTextChange",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/grid.test.ts"
       ],
@@ -8532,7 +8547,7 @@
     },
     {
       "path": "Grid.Props.onSelectionChange",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/grid.test.ts"
       ],
@@ -8556,7 +8571,7 @@
     },
     {
       "path": "Grid.Props.pagination.onLoadMore",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/grid.test.ts"
       ],
@@ -8612,7 +8627,7 @@
     },
     {
       "path": "Grid.Section",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/grid.test.ts"
       ],
@@ -8620,8 +8635,10 @@
     },
     {
       "path": "Grid.Section.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/grid.test.ts"
+      ],
       "weight": 7
     },
     {
@@ -13138,7 +13155,7 @@
     },
     {
       "path": "List.Dropdown.Item",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/list-extras.test.ts"
       ],
@@ -13146,8 +13163,10 @@
     },
     {
       "path": "List.Dropdown.Item.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-extras.test.ts"
+      ],
       "weight": 7
     },
     {
@@ -13184,8 +13203,10 @@
     },
     {
       "path": "List.Dropdown.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/list-grid-completeness.test.ts"
+      ],
       "weight": 14
     },
     {
@@ -13214,8 +13235,10 @@
     },
     {
       "path": "List.Dropdown.Props.filtering.keepSectionOrder",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/list-grid-completeness.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -13236,7 +13259,7 @@
     },
     {
       "path": "List.Dropdown.Props.onChange",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/list-extras.test.ts"
       ],
@@ -13244,7 +13267,7 @@
     },
     {
       "path": "List.Dropdown.Props.onSearchTextChange",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/list-extras.test.ts"
       ],
@@ -13262,7 +13285,8 @@
       "path": "List.Dropdown.Props.storeValue",
       "status": "partial",
       "tests": [
-        "packages/runtime/src/api/list-extras.test.ts"
+        "packages/runtime/src/api/list-extras.test.ts",
+        "packages/runtime/src/api/list-grid-completeness.test.ts"
       ],
       "weight": 339
     },
@@ -13292,7 +13316,7 @@
     },
     {
       "path": "List.Dropdown.Section",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/list-extras.test.ts"
       ],
@@ -13300,8 +13324,10 @@
     },
     {
       "path": "List.Dropdown.Section.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-extras.test.ts"
+      ],
       "weight": 6
     },
     {
@@ -13322,7 +13348,7 @@
     },
     {
       "path": "List.EmptyView",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/index.test.ts"
       ],
@@ -13330,8 +13356,10 @@
     },
     {
       "path": "List.EmptyView.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-grid-completeness.test.ts"
+      ],
       "weight": 10
     },
     {
@@ -13368,7 +13396,7 @@
     },
     {
       "path": "List.Item",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/index.test.ts"
       ],
@@ -13376,7 +13404,7 @@
     },
     {
       "path": "List.Item.Accessory",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/list-extras.test.ts"
       ],
@@ -13384,68 +13412,90 @@
     },
     {
       "path": "List.Item.Accessory.date",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-extras.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "List.Item.Accessory.date.color",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-extras.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "List.Item.Accessory.date.value",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-extras.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "List.Item.Accessory.icon",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-extras.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "List.Item.Accessory.tag",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-extras.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "List.Item.Accessory.tag.color",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-extras.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "List.Item.Accessory.tag.value",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-extras.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "List.Item.Accessory.text",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-extras.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "List.Item.Accessory.text.color",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-extras.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "List.Item.Accessory.text.value",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-extras.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "List.Item.Accessory.tooltip",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-extras.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -13706,13 +13756,15 @@
     },
     {
       "path": "List.Item.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-grid-completeness.test.ts"
+      ],
       "weight": 64
     },
     {
       "path": "List.Item.Props.accessories",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/list-extras.test.ts"
       ],
@@ -13720,14 +13772,18 @@
     },
     {
       "path": "List.Item.Props.accessoryIcon",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-grid-completeness.test.ts"
+      ],
       "weight": 14
     },
     {
       "path": "List.Item.Props.accessoryTitle",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-grid-completeness.test.ts"
+      ],
       "weight": 58
     },
     {
@@ -13756,14 +13812,18 @@
     },
     {
       "path": "List.Item.Props.icon.tooltip",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-grid-completeness.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "List.Item.Props.icon.value",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-grid-completeness.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -13784,20 +13844,26 @@
     },
     {
       "path": "List.Item.Props.quickLook",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-grid-completeness.test.ts"
+      ],
       "weight": 28
     },
     {
       "path": "List.Item.Props.quickLook.name",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-grid-completeness.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "List.Item.Props.quickLook.path",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-grid-completeness.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -13810,14 +13876,18 @@
     },
     {
       "path": "List.Item.Props.subtitle.tooltip",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-grid-completeness.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "List.Item.Props.subtitle.value",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-grid-completeness.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -13830,20 +13900,26 @@
     },
     {
       "path": "List.Item.Props.title.tooltip",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-grid-completeness.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "List.Item.Props.title.value",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-grid-completeness.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "List.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/list-extras.test.ts"
+      ],
       "weight": 20
     },
     {
@@ -13864,8 +13940,10 @@
     },
     {
       "path": "List.Props.enableFiltering",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-grid-completeness.test.ts"
+      ],
       "weight": 32
     },
     {
@@ -13878,8 +13956,10 @@
     },
     {
       "path": "List.Props.filtering.keepSectionOrder",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/list-extras.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -13908,7 +13988,7 @@
     },
     {
       "path": "List.Props.onSearchTextChange",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/list-extras.test.ts"
       ],
@@ -13924,26 +14004,34 @@
     },
     {
       "path": "List.Props.pagination",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-grid-completeness.test.ts"
+      ],
       "weight": 206
     },
     {
       "path": "List.Props.pagination.hasMore",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-grid-completeness.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "List.Props.pagination.onLoadMore",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-grid-completeness.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "List.Props.pagination.pageSize",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-grid-completeness.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -13988,7 +14076,7 @@
     },
     {
       "path": "List.Section",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/index.test.ts"
       ],
@@ -13996,8 +14084,10 @@
     },
     {
       "path": "List.Section.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-grid-completeness.test.ts"
+      ],
       "weight": 7
     },
     {
@@ -14010,8 +14100,10 @@
     },
     {
       "path": "List.Section.Props.id",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/list-grid-completeness.test.ts"
+      ],
       "weight": 5
     },
     {

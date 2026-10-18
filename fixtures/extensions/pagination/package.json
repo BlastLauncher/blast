@@ -1,0 +1,17 @@
+{
+  "name": "pagination",
+  "commands": [
+    {
+      "name": "index",
+      "mode": "view"
+    },
+    {
+      "name": "grid",
+      "mode": "view"
+    },
+    {
+      "name": "dropdown",
+      "mode": "view"
+    }
+  ]
+}

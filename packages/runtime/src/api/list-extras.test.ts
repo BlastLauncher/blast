@@ -3,10 +3,23 @@ import { createElement as h } from "react";
 import { createSceneRoot, type SceneSnapshot } from "../reconciler/index.ts";
 import { Action, List } from "./index.ts";
 
-// @covers List.Item.Props.accessories partial
-// @covers List.Item.Accessory partial
-// @covers List.Props.onSearchTextChange partial
+// @covers List.Item.Props.accessories
+// @covers List.Item.Accessory
+// @covers List.Item.Accessory.date
+// @covers List.Item.Accessory.date.color
+// @covers List.Item.Accessory.date.value
+// @covers List.Item.Accessory.icon
+// @covers List.Item.Accessory.tag
+// @covers List.Item.Accessory.tag.color
+// @covers List.Item.Accessory.tag.value
+// @covers List.Item.Accessory.text
+// @covers List.Item.Accessory.text.color
+// @covers List.Item.Accessory.text.value
+// @covers List.Item.Accessory.tooltip
+// @covers List.Props.onSearchTextChange
 // @covers List.Props.throttle
+// @covers List.Props partial
+// @covers List.Props.filtering.keepSectionOrder partial
 // @covers List.Props.filtering partial
 // @covers List.Dropdown partial
 // @covers List.Dropdown.Props.tooltip
@@ -14,19 +27,21 @@ import { Action, List } from "./index.ts";
 // @covers List.Dropdown.Props.value
 // @covers List.Dropdown.Props.defaultValue
 // @covers List.Dropdown.Props.storeValue partial
-// @covers List.Dropdown.Props.onChange partial
+// @covers List.Dropdown.Props.onChange
 // @covers List.Dropdown.Props.placeholder
 // @covers List.Dropdown.Props.id
 // @covers List.Dropdown.Props.isLoading
 // @covers List.Dropdown.Props.throttle
 // @covers List.Dropdown.Props.filtering partial
-// @covers List.Dropdown.Props.onSearchTextChange partial
-// @covers List.Dropdown.Item partial
+// @covers List.Dropdown.Props.onSearchTextChange
+// @covers List.Dropdown.Item
+// @covers List.Dropdown.Item.Props
 // @covers List.Dropdown.Item.Props.value
 // @covers List.Dropdown.Item.Props.title
 // @covers List.Dropdown.Item.Props.icon
 // @covers List.Dropdown.Item.Props.keywords
-// @covers List.Dropdown.Section partial
+// @covers List.Dropdown.Section
+// @covers List.Dropdown.Section.Props
 // @covers List.Dropdown.Section.Props.title
 // @covers List.Dropdown.Section.Props.children
 // @covers Action.Style partial
@@ -74,7 +89,7 @@ test("accessories serialize text, tag, { value, color } forms and icons", () => 
   root.unmount();
 });
 
-// @covers List.Item.Props.accessories partial
+// @covers List.Item.Props.accessories
 test("null and empty accessories pass through as JSON", () => {
   const { root, latest } = setup();
   root.render(h(List.Item, { title: "Plain", accessories: null }));
@@ -83,7 +98,7 @@ test("null and empty accessories pass through as JSON", () => {
   root.unmount();
 });
 
-// @covers List.Props.onSearchTextChange partial
+// @covers List.Props.onSearchTextChange
 // @covers List.Props.throttle
 // @covers List.Props.filtering partial
 test("List declares the search handler with throttle and filtering", () => {
@@ -108,13 +123,13 @@ test("List declares the search handler with throttle and filtering", () => {
 });
 
 // @covers List.Dropdown partial
-// @covers List.Dropdown.Props.onChange partial
+// @covers List.Dropdown.Props.onChange
 // @covers List.Dropdown.Props.storeValue partial
-// @covers List.Dropdown.Props.onSearchTextChange partial
-// @covers List.Dropdown.Item partial
+// @covers List.Dropdown.Props.onSearchTextChange
+// @covers List.Dropdown.Item
 // @covers List.Dropdown.Item.Props.value
 // @covers List.Dropdown.Item.Props.title
-// @covers List.Dropdown.Section partial
+// @covers List.Dropdown.Section
 // @covers List.Dropdown.Section.Props.title
 test("List.Dropdown renders into the searchBarAccessory Slot and dispatches onChange", () => {
   const { root, latest } = setup();
@@ -127,7 +142,7 @@ test("List.Dropdown renders into the searchBarAccessory Slot and dispatches onCh
           placeholder: "Drink…",
           value: "beer",
           defaultValue: "beer",
-          storeValue: true,
+          storeValue: false,
           throttle: true,
           isLoading: true,
           id: "drink",
@@ -158,7 +173,7 @@ test("List.Dropdown renders into the searchBarAccessory Slot and dispatches onCh
     placeholder: "Drink…",
     value: "beer",
     defaultValue: "beer",
-    storeValue: true,
+    storeValue: false,
     throttle: true,
     isLoading: true,
     id: "drink",

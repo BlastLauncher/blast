@@ -1,4 +1,5 @@
 import { createElement, type ReactNode } from "react";
+import { useDropdown } from "./dropdown.ts";
 import { ListItemDetail } from "./detail.ts";
 import { slot } from "./slot.ts";
 import type { ColorLike, ImageLike } from "./types.ts";
@@ -32,6 +33,10 @@ export interface ListProps {
   isShowingDetail?: boolean;
   /** Selects the item with the specified id. */
   selectedItemId?: string;
+  /** Deprecated alias of filtering. */
+  enableFiltering?: boolean;
+  /** Clients request subsequent pages through onLoadMore. */
+  pagination?: { pageSize: number; hasMore: boolean; onLoadMore: () => void };
   /**
    * Toggles client-side filtering of the items through the search bar; the
    * client decides how to honor it (see task 0020, "Out of scope").
@@ -65,6 +70,11 @@ export interface ListItemProps {
   icon?: ImageLike | { value: ImageLike | null | undefined; tooltip: string };
   /** Accessory items displayed on the right side of the item. */
   accessories?: ListAccessory[] | null;
+  /** Deprecated single-accessory props, retained for clients. */
+  accessoryIcon?: ImageLike;
+  accessoryTitle?: string;
+  /** File metadata for client Quick Look previews. */
+  quickLook?: { name?: string | null; path: string };
   /** An ActionPanel; rendered as a `Slot` child named `actions`. */
   actions?: ReactNode;
   /** A `List.Item.Detail`; rendered as a `Slot` child named `detail`. */
@@ -72,6 +82,8 @@ export interface ListItemProps {
 }
 
 export interface ListSectionProps {
+  /** Deprecated internal section identifier. */
+  id?: string;
   /** The `List.Item` elements of the section. */
   children?: ReactNode;
   /** Title displayed above the section. */
@@ -86,7 +98,7 @@ export interface ListEmptyViewProps {
   /** An optional description for why the empty view is shown. */
   description?: string;
   /** An optional icon displayed in the center of the empty view. */
-  icon?: ImageLike;
+  icon?: ImageLike | null;
   /** An ActionPanel; rendered as a `Slot` child named `actions`. */
   actions?: ReactNode;
 }
@@ -119,8 +131,7 @@ export interface ListDropdownProps {
   /** Placeholder text shown in the dropdown search field. */
   placeholder?: string;
   /**
-   * Persist the selected value across runs. Recorded but not persisted: Blast
-   * has no per-dropdown storage yet (localStorage is task 0021).
+   * Persist the selected value per command and dropdown id across runs.
    */
   storeValue?: boolean;
   /** The current value of the dropdown. */
@@ -149,7 +160,7 @@ const ListDropdownSection = function ListDropdownSection(props: ListDropdownSect
 
 const ListDropdown = Object.assign(
   function ListDropdown(props: ListDropdownProps) {
-    return createElement("List.Dropdown", props);
+    return useDropdown("List.Dropdown", props);
   },
   { Item: ListDropdownItem, Section: ListDropdownSection },
 );

@@ -4,31 +4,31 @@ Denominator: the `@raycast/api@2.8.2` declarations. Evidence:
 `// @covers` tags in `packages/**/*.test.ts(x)`. A parent is not implied covered
 by its children. Partial support is reported separately from covered.
 
-**Non-deprecated coverage: 974/1534 covered (63.5%), 75 partial, 485 missing.**
-Deprecated: 35/939 covered (3.7%), 5 partial, 899 missing.
+**Non-deprecated coverage: 1026/1534 covered (66.9%), 64 partial, 444 missing.**
+Deprecated: 39/939 covered (4.2%), 5 partial, 895 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 974 | 35 | 1009 |
-| partial | 75 | 5 | 80 |
-| missing | 485 | 899 | 1384 |
+| covered | 1026 | 39 | 1065 |
+| partial | 64 | 5 | 69 |
+| missing | 444 | 895 | 1339 |
 
 ## Totals by kind
 
 | Kind | Covered | Partial | Missing | Total |
 | --- | --- | --- | --- | --- |
 | namespace | 3 | 1 | 5 | 9 |
-| component | 29 | 41 | 46 | 116 |
+| component | 39 | 31 | 46 | 116 |
 | function | 29 | 4 | 17 | 50 |
 | const | 1 | 1 | 19 | 21 |
 | class | 2 | 0 | 1 | 3 |
 | enum | 10 | 0 | 3 | 13 |
 | enum-member | 508 | 0 | 183 | 691 |
 | interface | 8 | 2 | 54 | 64 |
-| type | 27 | 3 | 148 | 178 |
-| property | 381 | 28 | 895 | 1304 |
+| type | 38 | 6 | 134 | 178 |
+| property | 416 | 24 | 864 | 1304 |
 | method | 11 | 0 | 13 | 24 |
 
 ## Top-level symbols
@@ -95,7 +95,7 @@ Children counts include all descendants, as covered/partial/total.
 | `FormTextFieldProps` | interface | missing | 0/0/12 | 0 |
 | `FormValue` | type | missing | 0/0/0 | 2 |
 | `FormValues` | interface | missing | 0/0/0 | 1 |
-| `Grid` | component | partial | 66/13/87 | 311 |
+| `Grid` | component | partial | 79/8/87 | 311 |
 | `Icon` | enum | covered | 478/0/478 | 2587 |
 | `Image` | interface | partial | 3/0/21 | 478 |
 | `ImageLike` | type | missing | 0/0/5 | 2 |
@@ -107,7 +107,7 @@ Children counts include all descendants, as covered/partial/total.
 | `KeyboardShortcut` | type | missing | 0/0/11 | 1 |
 | `LaunchProps` | type | covered | 3/0/5 | 657 |
 | `LaunchType` | enum | covered | 2/0/2 | 454 |
-| `List` | component | partial | 71/14/122 | 2604 |
+| `List` | component | partial | 114/8/122 | 2604 |
 | `ListItem` | component | missing | 0/0/52 | 1 |
 | `ListItemProps` | interface | missing | 0/0/19 | 0 |
 | `ListProps` | interface | missing | 0/0/19 | 0 |
@@ -193,7 +193,6 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | Path | Extensions |
 | --- | --- |
 | `Image.ImageLike` | 279 |
-| `List.Props.pagination` | 206 |
 | `Form.TagPicker` | 168 |
 | `Form.TagPicker.Item` | 168 |
 | `Form.TagPicker.Item.Props.title` | 168 |
@@ -219,11 +218,9 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `Action.ShowInFinder.Props.shortcut` | 68 |
 | `Form.TagPicker.Item.Props.icon` | 66 |
 | `Form.TagPicker.Props.placeholder` | 66 |
-| `List.Item.Props` | 64 |
 | `BrowserExtension` | 62 |
 | `OAuth.TokenResponse` | 61 |
 | `BrowserExtension.getTabs` | 60 |
-| `List.Item.Props.accessoryTitle` | 58 |
 | `Action.OpenWith.Props.shortcut` | 56 |
 | `Form.TagPicker.Props.onChange` | 53 |
 | `OAuth.AuthorizationRequest` | 53 |
@@ -242,3 +239,6 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `AI.Model` | 35 |
 | `Form.PasswordField.Props.value` | 34 |
 | `Form.Values` | 33 |
+| `Form.TagPicker.Props.info` | 31 |
+| `ActionPanel.Item.Props.onAction` | 30 |
+| `ActionPanel.Item.Props.title` | 30 |
