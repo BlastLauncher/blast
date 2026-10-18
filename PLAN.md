@@ -6,9 +6,9 @@ files.
 
 ## Current focus
 
-M2 — real extensions. 0014 running; then plan M3 from `compat/SMOKE.md` and the usage-ranked gaps
-in `compat/COVERAGE.md`.
-Known gap: `List.onSearchTextChange` is undeclared/uncovered in the shim.
+M2 done. M3 — coverage to 100%: 0015 (stubs) → 0016 (curated blockers). Then
+alternate: curated failures first, else the top of "Top missing by usage" in
+`compat/COVERAGE.md`. Known gap: `List.onSearchTextChange` undeclared.
 
 ## Milestones
 
@@ -46,7 +46,7 @@ shared copy of `@raycast/utils` for every extension.
 - [x] 0011 Corpus fetch tool: pinned shallow sparse checkout + disk guard
 - [x] 0012 Static API usage scan of the whole corpus → weights in `compat/`
 - [x] 0013 Shared `@raycast/utils` and dependency policy for bundling
-- [ ] 0014 Curated smoke runner + report for the first 10 commands
+- [x] 0014 Curated smoke runner + report for the first 10 commands
 
 First curated set (List-centric, UI API only, offline, deps ⊆ api/utils):
 fibonacci-sequence, ohmyzsh-git-alias, axios-docs, radix,
@@ -58,7 +58,12 @@ markdown-reference, conventional-commits.
 Goal: 100% of the non-deprecated `@raycast/api` surface, then deprecated
 aliases. First step: export a stub for every inventory symbol that throws a
 structured "unsupported in Blast" error when used, so missing APIs fail with
-diagnostics instead of ESM link errors. Order: curated-set failures first, then highest corpus weight. Each
+diagnostics instead of ESM link errors.
+
+- [ ] 0015 Generated `UNSUPPORTED_API` stubs for every inventory symbol
+- [ ] 0016 Implement the curated-set blockers (Icon, Color, Detail, …)
+
+Baseline 2026-10-18 (`compat/SMOKE.md`): 1/13 curated commands render. Order: curated-set failures first, then highest corpus weight. Each
 step is a task with `@covers` evidence.
 
 ### M4 — Desktop client
