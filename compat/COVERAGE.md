@@ -5,22 +5,22 @@ Denominator: the `@raycast/api@2.8.2` declarations. Evidence:
 by its children. Partial support is reported separately from covered.
 
 **Non-deprecated coverage: 574/1534 covered (37.4%), 14 partial, 946 missing.**
-Deprecated: 9/939 covered (1.0%), 2 partial, 928 missing.
+Deprecated: 9/939 covered (1.0%), 4 partial, 926 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
 | covered | 574 | 9 | 583 |
-| partial | 14 | 2 | 16 |
-| missing | 946 | 928 | 1874 |
+| partial | 14 | 4 | 18 |
+| missing | 946 | 926 | 1872 |
 
 ## Totals by kind
 
 | Kind | Covered | Partial | Missing | Total |
 | --- | --- | --- | --- | --- |
 | namespace | 1 | 1 | 7 | 9 |
-| component | 3 | 12 | 101 | 116 |
+| component | 3 | 14 | 99 | 116 |
 | function | 2 | 1 | 47 | 50 |
 | const | 1 | 1 | 19 | 21 |
 | class | 0 | 0 | 3 | 3 |
@@ -39,9 +39,9 @@ Children counts include all descendants, as covered/partial/total.
 | --- | --- | --- | --- | --- |
 | `AI` | namespace | missing | 0/0/266 | 115 |
 | `Action` | component | partial | 29/3/110 | 2985 |
-| `ActionPanel` | component | partial | 4/1/129 | 3023 |
+| `ActionPanel` | component | partial | 4/2/129 | 3023 |
 | `ActionPanelChildren` | type | missing | 0/0/0 | 0 |
-| `ActionPanelItem` | component | missing | 0/0/104 | 1 |
+| `ActionPanelItem` | component | partial | 0/0/104 | 1 |
 | `ActionPanelItemProps` | interface | missing | 0/0/7 | 0 |
 | `ActionPanelProps` | interface | missing | 0/0/2 | 0 |
 | `ActionPanelSection` | component | missing | 0/0/3 | 0 |

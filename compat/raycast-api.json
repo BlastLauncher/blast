@@ -3,8 +3,8 @@
   "totals": {
     "all": {
       "covered": 583,
-      "partial": 16,
-      "missing": 1874,
+      "partial": 18,
+      "missing": 1872,
       "total": 2473
     },
     "nonDeprecated": {
@@ -15,8 +15,8 @@
     },
     "deprecated": {
       "covered": 9,
-      "partial": 2,
-      "missing": 928,
+      "partial": 4,
+      "missing": 926,
       "total": 939
     },
     "kinds": {
@@ -28,8 +28,8 @@
       },
       "component": {
         "covered": 3,
-        "partial": 12,
-        "missing": 101,
+        "partial": 14,
+        "missing": 99,
         "total": 116
       },
       "function": {
@@ -2439,8 +2439,10 @@
     },
     {
       "path": "ActionPanel.Item",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/curated.test.ts"
+      ],
       "weight": 30
     },
     {
@@ -3223,8 +3225,10 @@
     },
     {
       "path": "ActionPanelItem",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/curated.test.ts"
+      ],
       "weight": 1
     },
     {

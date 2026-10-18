@@ -1,12 +1,12 @@
 {
   "commit": "3b812d1e153a1862df29bc8ec34e170c728512ea",
   "totals": {
-    "rendered": 9,
+    "rendered": 10,
     "bundle-failed": 0,
     "crashed": 0,
     "timeout": 0,
     "unsupported-mode": 0,
-    "unsupported-api": 4
+    "unsupported-api": 3
   },
   "results": [
     {
@@ -61,9 +61,9 @@
       "extension": "markdown-reference",
       "command": "markdown-reference",
       "mode": "view",
-      "outcome": "unsupported-api",
-      "path": "ActionPanel.Item",
-      "error": "Unsupported API in Blast: ActionPanel.Item"
+      "outcome": "rendered",
+      "nodes": 63,
+      "rootType": "Navigation"
     },
     {
       "extension": "ohmyzsh-git-alias",

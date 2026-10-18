@@ -3,6 +3,7 @@
 export { Action, CopyToClipboard, type ActionProps, type CopyToClipboardProps } from "./action.ts";
 export {
   ActionPanel,
+  ActionPanelItem,
   type ActionPanelProps,
   type ActionPanelSectionProps,
 } from "./action-panel.ts";

@@ -5,7 +5,7 @@ Headless run of every command of the curated extensions at corpus commit
 defaults. Regenerate with `bun run corpus:smoke` (network required; not
 part of `bun run verify`).
 
-13 commands: rendered 9, bundle-failed 0, crashed 0, timeout 0, unsupported-mode 0, unsupported-api 4.
+13 commands: rendered 10, bundle-failed 0, crashed 0, timeout 0, unsupported-mode 0, unsupported-api 3.
 
 | Command                                         | Mode | Outcome         | Detail                      |
 | ----------------------------------------------- | ---- | --------------- | --------------------------- |
@@ -15,7 +15,7 @@ part of `bun run verify`).
 | `conventional-commits/commit-message-structure` | view | rendered        | 3 nodes, root Navigation    |
 | `conventional-commits/index`                    | view | rendered        | 47 nodes, root Navigation   |
 | `fibonacci-sequence/index`                      | view | rendered        | 78 nodes, root Navigation   |
-| `markdown-reference/markdown-reference`         | view | unsupported-api | ActionPanel.Item            |
+| `markdown-reference/markdown-reference`         | view | rendered        | 63 nodes, root Navigation   |
 | `ohmyzsh-git-alias/index`                       | view | rendered        | 1632 nodes, root Navigation |
 | `px-to-rem-converter/index`                     | view | rendered        | 13 nodes, root Navigation   |
 | `radix/colors`                                  | view | unsupported-api | List.Item.Detail            |
@@ -25,7 +25,6 @@ part of `bun run verify`).
 
 ## Failures
 
-- `markdown-reference/markdown-reference` (unsupported-api): ActionPanel.Item
 - `radix/colors` (unsupported-api): List.Item.Detail
 - `radix/primitives` (unsupported-api): List.Item.Detail
 - `radix/themes` (unsupported-api): List.Item.Detail

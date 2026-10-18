@@ -203,3 +203,10 @@ test("Detail serializes scalar props and renders element props in Slots", () => 
   expect(latest().children).toEqual([]);
   root.unmount();
 });
+
+// @covers ActionPanel.Item partial
+// @covers ActionPanelItem partial
+test("ActionPanel.Item and ActionPanelItem are deprecated aliases of Action", () => {
+  expect(implemented.ActionPanel.Item).toBe(implemented.Action);
+  expect(implemented.ActionPanelItem).toBe(implemented.Action);
+});
