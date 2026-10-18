@@ -6,7 +6,7 @@ files.
 
 ## Current focus
 
-M2 done. M3 — coverage to 100%: 0015 (stubs) → 0016 (curated blockers). Then
+M2 done. M3 — coverage to 100%: 0016 (curated blockers) → 0017 (navigation). Then
 alternate: curated failures first, else the top of "Top missing by usage" in
 `compat/COVERAGE.md`. Known gap: `List.onSearchTextChange` undeclared.
 
@@ -60,10 +60,11 @@ aliases. First step: export a stub for every inventory symbol that throws a
 structured "unsupported in Blast" error when used, so missing APIs fail with
 diagnostics instead of ESM link errors.
 
-- [ ] 0015 Generated `UNSUPPORTED_API` stubs for every inventory symbol
-- [ ] 0016 Implement the curated-set blockers (Icon, Color, Detail, …)
+- [x] 0015 Generated `UNSUPPORTED_API` stubs for every inventory symbol
+- [ ] 0016 Implement the curated-set blockers (OpenInBrowser, Paste, Detail, Icon, …)
+- [ ] 0017 Navigation stack (`useNavigation`, `Action.Push`)
 
-Baseline 2026-10-18 (`compat/SMOKE.md`): 1/13 curated commands render. Order: curated-set failures first, then highest corpus weight. Each
+Smoke 2026-10-18 (`compat/SMOKE.md`): 2/13 render; 11 name an unsupported API. Order: curated-set failures first, then highest corpus weight. Each
 step is a task with `@covers` evidence.
 
 ### M4 — Desktop client

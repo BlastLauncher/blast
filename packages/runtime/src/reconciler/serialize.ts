@@ -1,4 +1,5 @@
 import { isValidElement } from "react";
+import { UnsupportedApiError, unsupportedPath } from "../api/unsupported.ts";
 import type { JsonValue } from "./types.ts";
 
 export type Handler = (...args: unknown[]) => unknown;
@@ -14,6 +15,10 @@ export function serializeProps(
     if (value === undefined) return undefined;
     if (value === null || typeof value === "string" || typeof value === "boolean") return value;
     if (typeof value === "number" && Number.isFinite(value)) return value;
+    // An unimplemented API value (e.g. `Icon.Star` before Icon exists) must fail
+    // loudly, not be mistaken for a callback and rendered as a handler.
+    const stubPath = unsupportedPath(value);
+    if (stubPath) throw new UnsupportedApiError(stubPath);
     if (typeof value === "function") {
       let name = path;
       while (handlers.has(name)) name += ":handler";

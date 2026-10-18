@@ -9,6 +9,16 @@ export class UnsupportedApiError extends Error {
   }
 }
 
+/** Present on stubs only: the unsupported path. Lets the serializer reject stub values. */
+export const UNSUPPORTED_PATH: unique symbol = Symbol.for("blast.unsupportedPath");
+
+export function unsupportedPath(value: unknown): string | undefined {
+  if (typeof value !== "function" && (typeof value !== "object" || value === null))
+    return undefined;
+  const path: unknown = Reflect.get(value, UNSUPPORTED_PATH);
+  return typeof path === "string" ? path : undefined;
+}
+
 export type ApiStub = {
   (...args: unknown[]): never;
   new (...args: unknown[]): ApiStub;
@@ -27,8 +37,10 @@ export function withUnsupported<T>(path: string, implemented?: T): T & Record<st
   if ((typeof target !== "object" || target === null) && typeof target !== "function")
     return target as T & Record<string, ApiStub>;
   const children = new Map<string, unknown>();
+  const isStub = implemented === undefined;
   return new Proxy(target, {
     get(value, key, receiver) {
+      if (key === UNSUPPORTED_PATH) return isStub ? path : undefined;
       if (
         typeof key !== "string" ||
         key === "then" ||

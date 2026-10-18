@@ -1,7 +1,7 @@
 ---
 id: "0016"
 title: Implement the APIs blocking the curated set (Icon, Color, Detail, …)
-status: todo
+status: doing
 milestone: M3
 depends: ["0015"]
 ---
@@ -13,10 +13,14 @@ with each newly implemented API covered by tests.
 
 ## Context
 
-- Input: `compat/SMOKE.md` after task 0015 names the exact missing paths.
-  Expected at least: `Icon`, `Color`, `Keyboard.Shortcut.Common`, `Detail`
-  (+ `Detail.Props.markdown`), `Action.OpenInBrowser`, and the legacy aliases
-  `CopyToClipboardAction` and `PasteAction`.
+- Input: `compat/SMOKE.md` (after task 0015) names the first missing path per
+  command: `Action.OpenInBrowser` ×5, `Action.Paste` ×3, `PasteAction`,
+  `Detail`, `useNavigation` (→ task 0017, not here). Once these exist, the
+  next missing paths will surface; extensions also import `Icon`, `Color`,
+  `Keyboard` and `CopyToClipboardAction`, so implement those too.
+- Stub values now fail when used as props (`unsupportedPath` in
+  `packages/runtime/src/api/unsupported.ts`); implemented exports go in
+  `packages/runtime/src/api/implemented.ts` so they replace the stubs.
 - Enums: generate `Icon` and `Color` values from the enum members in
   `compat/raycast-api/index.d.ts` (exact string values, e.g.
   `AddPerson = "add-person-16"`) via a script under `scripts/compat/`; keep the
@@ -45,8 +49,8 @@ with each newly implemented API covered by tests.
 
 ## Out of scope
 
-- Form, Grid, navigation (`useNavigation`, `Action.Push`) unless one of the
-  listed blockers requires it; a real desktop renderer.
+- Navigation (`useNavigation`, `Action.Push`) — task 0017. Form, Grid, a
+  desktop renderer.
 
 ## Handoff
 

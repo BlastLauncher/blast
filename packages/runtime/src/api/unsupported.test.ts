@@ -3,7 +3,11 @@ import { createElement } from "react";
 import inventory from "../../../../compat/raycast-api.inventory.json" with { type: "json" };
 import * as api from "./index.ts";
 import * as implemented from "./implemented.ts";
-import { UnsupportedApiError, withUnsupported } from "./unsupported.ts";
+import {
+  UnsupportedApiError,
+  unsupportedPath as unsupportedPathOf,
+  withUnsupported,
+} from "./unsupported.ts";
 import { createSceneRoot } from "../reconciler/index.ts";
 
 function unsupported(call: () => unknown, path: string) {
@@ -67,4 +71,25 @@ test("implemented calls and values retain their behavior, and probes do not inve
   expect(api.Detail.Metadata).toBe(api.Detail.Metadata);
   expect(Reflect.get(api.Detail, "then")).toBeUndefined();
   expect(Reflect.get(api.List, "$$typeof")).toBeUndefined();
+});
+
+test("stub values used as props fail as unsupported instead of rendering as handlers", () => {
+  const published: unknown[] = [];
+  const root = createSceneRoot({ publish: (scene) => published.push(scene) });
+  // Serialization runs at commit, so the error surfaces from render itself.
+  unsupported(
+    () =>
+      root.render(
+        createElement(
+          api.List,
+          {},
+          createElement(api.List.Item, { title: "x", icon: api.Icon.Star as unknown as string }),
+        ),
+      ),
+    "Icon.Star",
+  );
+  expect(published).toEqual([]);
+  // Implemented exports are not stubs, so their callbacks still become handlers.
+  expect(unsupportedPathOf(api.List)).toBeUndefined();
+  expect(unsupportedPathOf(api.Icon)).toBe("Icon");
 });
