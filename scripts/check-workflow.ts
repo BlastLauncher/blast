@@ -7,6 +7,7 @@ export const LINE_LIMITS: Record<string, number> = {
   "AGENTS.md": 200,
   "PLAN.md": 120,
   "docs/architecture.md": 200,
+  "docs/cli.md": 120,
 };
 export const DECISION_LINE_LIMIT = 60;
 export const TASK_STATUSES = ["todo", "doing", "review"] as const;
@@ -70,7 +71,7 @@ export function checkWorkflow(root: string): string[] {
   for (const [file, limit] of Object.entries(LINE_LIMITS)) {
     const path = join(root, file);
     if (!existsSync(path)) {
-      if (file !== "docs/architecture.md") errors.push(`${file}: missing`);
+      if (!file.startsWith("docs/")) errors.push(`${file}: missing`);
       continue;
     }
     const lines = lineCount(path);

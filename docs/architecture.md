@@ -145,51 +145,23 @@ options hidden inside custom components are not yet discoverable.
 as a file) and `open.path` for files, so a client can grant opening links
 without granting file opens.
 
+## Forms
+
+Form fields expose runtime-owned `value` and `onChange`; `Action.SubmitForm`
+collects the mounted fields by id. Controlled fields follow their supplied
+value; uncontrolled fields retain edits until unmount. Form actions use the
+`actions` Slot. Picker options are carried in the scene; no OS dialog opens.
+PasswordField keeps its value runtime-side: the scene carries a boolean
+`hasValue` (never the value or its length), while `onChange`, focus/blur
+events and submit deliver the raw value to the extension. `storeValue` and
+drafts are recorded only; field refs remain unsupported. List/Grid scenes
+carry pagination `pageSize`/`hasMore`; Quick Look props carry file metadata.
+
 ## Debugging extensions
 
-`bun run blast run <extensionDir> <command>` bundles a command, runs it in a
-runtime child process, and prints every published scene as a text tree (one
-node per line, handler props as `[onAction]`; `# log` and `# capability` lines
-interleave for logs and capability requests). `--argument <name=value>` supplies
-a manifest argument (repeatable; a missing required or unknown name is a usage
-error), and `--grant <capability>` grants a capability — a granted
-`clipboard.copy` records and prints the copied text instead of touching an OS
-clipboard, and a granted `command.launch` records a `launchCommand` request
-without starting a second session. A headless run also answers the
-capabilities the desktop client owns: `applications.list` from `--applications
-<file.json>` (an empty list otherwise), `clipboard.read` from `--clipboard
-<text>` (an empty text otherwise, and nothing at older offsets), and
-`preferences.open` and `command.metadata` (subtitle updates), which are printed
-like any other capability. Selection reads use `--selected-text <text>` (rejects
-when omitted or empty) and repeatable `--selected-files <path>` (empty list
-otherwise). `--frontmost <bundleId>` chooses an application from the supplied
-list or reports that identifier with an empty path; without it, the neutral
-application is `{ name: "Headless", path: "" }`. The corresponding capabilities
-are `selection.text`, `selection.files`, and `applications.frontmost`.
-`showInFinder(path)` and `trash(pathOrPaths)` request `finder.show` and `trash`.
-Everything else, including `clipboard.paste` and `clipboard.clear`, still needs `--grant`. `--script <file|->` drives the run with
-one command per line: `action <title>`, `submenu <title>` (dispatches an
-`ActionPanel.Submenu`'s `onOpen`), `back`, `confirm`, `dismiss`,
-`search <text>`, `more`, `dropdown <value>`, `field <id> <value>`, `submit`, `wait`,
-`expect <text>`, `quit`. Form fields expose runtime-owned `value` and `onChange`;
-`more` dispatches the active List/Grid pagination `onLoadMore` when `hasMore`
-is true; scenes carry `pageSize` and `hasMore`. Quick Look props carry file
-name/path metadata for clients.
-`field` sends strings, or `true`/`false` for checkboxes (dates use ISO strings).
-FilePicker fields accept comma-separated paths; omitting the value clears them.
-TagPicker fields take comma-separated values the same way. PasswordField keeps
-its value runtime-side only: the scene carries a boolean `hasValue` flag (never
-the value or its length), so published scenes, client prints and runtime logs
-stay secret-free, while `onChange`, focus/blur events and
-`Action.SubmitForm` deliver the raw value to extension callbacks.
-Picker options are carried in the scene for clients; no OS dialog opens.
-`submit` runs the first `Action.SubmitForm`, which collects the mounted form
-fields by id. Controlled fields follow their supplied value; uncontrolled fields
-retain edits until unmount. Form actions use the `actions` Slot. `storeValue`
-and drafts are recorded only; field refs remain unsupported. `--json`
-emits the protocol messages as NDJSON instead.
-`--timeout <ms>` bounds the run. Exit codes: 0 success, 1 script or
-expectation failure, 2 usage error, 3 extension crash or protocol error.
+`bun run blast run <extensionDir> <command>` is the headless debug client;
+its flags, headless capability answers, script commands and exit codes are
+in `docs/cli.md`.
 
 ## Status
 
