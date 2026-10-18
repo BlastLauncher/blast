@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { setCapabilityRequester } from "./capability.ts";
-import { launchCommand, LaunchType } from "./launch.ts";
+import { launchCommand, LaunchType, updateCommandMetadata } from "./launch.ts";
 
 type Request = { name: string; params: Record<string, unknown> };
 
@@ -60,6 +60,35 @@ test("launchCommand rejects with the host's denial", async () => {
       "Capability denied: command.launch",
     );
     expect(requests).toHaveLength(1);
+  } finally {
+    setCapabilityRequester(undefined);
+  }
+});
+
+// @covers updateCommandMetadata
+test("updateCommandMetadata sends subtitle updates, null clearing and omitted fields", async () => {
+  const requests = requester(() => null);
+  try {
+    await updateCommandMetadata({ subtitle: "Current thing" });
+    await updateCommandMetadata({ subtitle: null });
+    await updateCommandMetadata({});
+    expect(requests).toEqual([
+      { name: "command.metadata", params: { subtitle: "Current thing" } },
+      { name: "command.metadata", params: { subtitle: null } },
+      { name: "command.metadata", params: {} },
+    ]);
+  } finally {
+    setCapabilityRequester(undefined);
+  }
+});
+
+// @covers updateCommandMetadata
+test("updateCommandMetadata surfaces host rejection", async () => {
+  requester(() => {
+    throw new Error("metadata denied");
+  });
+  try {
+    await expect(updateCommandMetadata({ subtitle: "No" })).rejects.toThrow("metadata denied");
   } finally {
     setCapabilityRequester(undefined);
   }

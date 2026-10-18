@@ -52,3 +52,11 @@ export async function launchCommand(options: LaunchCommandOptions): Promise<void
   if (options.fallbackText != null) params["fallbackText"] = options.fallbackText;
   await requestCapability("command.launch", params);
 }
+
+/** Updates the current command's metadata in the host's own UI. */
+export async function updateCommandMetadata(metadata: { subtitle?: string | null }): Promise<void> {
+  await requestCapability(
+    "command.metadata",
+    metadata.subtitle === undefined ? {} : { subtitle: metadata.subtitle },
+  );
+}

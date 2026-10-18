@@ -30,6 +30,10 @@
     {
       "name": "props",
       "mode": "no-view"
+    },
+    {
+      "name": "metadata",
+      "mode": "no-view"
     }
   ]
 }

@@ -263,3 +263,28 @@ for (const title of ["Unsupported sync", "Unsupported async"]) {
     expect(await runtime.exited).toBe(1);
   });
 }
+
+for (const fixture of ["async-view.js", "thenable-view.js"]) {
+  test(`promise-returning view exits with feedback: ${fixture}`, async () => {
+    const runtime = start();
+    runtime.init({ fixture });
+    expect(await runtime.exited).toBe(0);
+    expect(
+      runtime.messages.filter((m) => m.type === "log" && m.message === "called once"),
+    ).toHaveLength(1);
+    const scenes = runtime.messages.filter((m) => m.type === "scene");
+    expect(scenes.some((m) => m.root?.children.some((node) => node.type === "Toast"))).toBe(true);
+    if (fixture === "async-view.js") {
+      expect(scenes.some((m) => m.root?.children.some((node) => node.type === "HUD"))).toBe(true);
+      expect(scenes.at(-1)?.root?.props.closeMainWindow).toEqual({});
+    }
+    expect(runtime.messages.filter((m) => m.type === "error")).toEqual([]);
+  }, 2000);
+}
+
+test("promise-returning view rejection is fatal", async () => {
+  const runtime = start();
+  runtime.init({ fixture: "no-view-reject.js" });
+  expect(await runtime.next("error")).toMatchObject({ fatal: true, message: "no-view failed" });
+  expect(await runtime.exited).toBe(1);
+}, 2000);

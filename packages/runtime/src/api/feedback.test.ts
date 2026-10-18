@@ -10,6 +10,7 @@ import {
   showToast,
   showHUD,
   confirmAlert,
+  closeMainWindow,
 } from "./index.ts";
 
 function setup() {
@@ -238,3 +239,21 @@ test("feedback and pending alerts survive navigation push/pop without remounting
   expect(await answer).toBe(true);
   root.unmount();
 });
+
+// @covers showToast
+// @covers Toast.show
+// @covers Toast.hide
+// @covers showHUD partial
+// @covers closeMainWindow
+test("feedback promises settle with nothing mounted", async () => {
+  const toast = await showToast({ title: "No scene" });
+  await toast.hide();
+  await toast.show();
+  await toast.hide();
+  await showHUD("No scene");
+  await closeMainWindow();
+  // Mounting later still publishes the recorded feedback.
+  const { root, node } = setup();
+  expect(node().props.title).toBe("No scene");
+  root.unmount();
+}, 500);

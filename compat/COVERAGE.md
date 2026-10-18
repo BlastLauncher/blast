@@ -4,16 +4,16 @@ Denominator: the `@raycast/api@2.8.2` declarations. Evidence:
 `// @covers` tags in `packages/**/*.test.ts(x)`. A parent is not implied covered
 by its children. Partial support is reported separately from covered.
 
-**Non-deprecated coverage: 913/1534 covered (59.5%), 64 partial, 557 missing.**
+**Non-deprecated coverage: 914/1534 covered (59.6%), 64 partial, 556 missing.**
 Deprecated: 30/939 covered (3.2%), 5 partial, 904 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 913 | 30 | 943 |
+| covered | 914 | 30 | 944 |
 | partial | 64 | 5 | 69 |
-| missing | 557 | 904 | 1461 |
+| missing | 556 | 904 | 1460 |
 
 ## Totals by kind
 
@@ -21,7 +21,7 @@ Deprecated: 30/939 covered (3.2%), 5 partial, 904 missing.
 | --- | --- | --- | --- | --- |
 | namespace | 3 | 1 | 5 | 9 |
 | component | 24 | 31 | 61 | 116 |
-| function | 23 | 4 | 23 | 50 |
+| function | 24 | 4 | 22 | 50 |
 | const | 1 | 1 | 19 | 21 |
 | class | 2 | 0 | 1 | 3 |
 | enum | 10 | 0 | 3 | 13 |
@@ -179,7 +179,7 @@ Children counts include all descendants, as covered/partial/total.
 | `specialKeys` | const | missing | 0/0/16 | 0 |
 | `trash` | function | missing | 0/0/0 | 43 |
 | `unstable_AI` | const | missing | 0/0/0 | 0 |
-| `updateCommandMetadata` | function | missing | 0/0/0 | 105 |
+| `updateCommandMetadata` | function | covered | 0/0/0 | 105 |
 | `useActionPanel` | function | missing | 0/0/0 | 0 |
 | `useId` | const | missing | 0/0/0 | 0 |
 | `useNavigation` | function | covered | 0/0/0 | 1048 |
@@ -230,7 +230,6 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `OAuth.RedirectMethod.Web` | 112 |
 | `environment.canAccess` | 107 |
 | `Form.TagPicker.Props.id` | 106 |
-| `updateCommandMetadata` | 105 |
 | `getFrontmostApplication` | 99 |
 | `Action.CreateQuicklink` | 97 |
 | `Action.CreateQuicklink.Props.quicklink` | 97 |
@@ -242,3 +241,4 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `Keyboard.KeyEquivalent` | 85 |
 | `Form.FilePicker.Props.value` | 84 |
 | `Action.ShowInFinder.Props.title` | 83 |
+| `environment.appearance` | 82 |

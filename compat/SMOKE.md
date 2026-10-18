@@ -2,12 +2,12 @@
 
 Headless run of every command of the curated extensions at corpus commit
 `3b812d1e153a1862df29bc8ec34e170c728512ea`, with Blast's headless broker — deny-all except the
-read-only defaults `applications.list` (empty), `clipboard.read` (empty)
-and `preferences.open` (recorded) — and manifest preference defaults.
+headless defaults `applications.list` (empty), `clipboard.read` (empty),
+`preferences.open` and `command.metadata` (recorded) — and manifest preference defaults.
 Regenerate with `bun run corpus:smoke` (network required; not part of
 `bun run verify`).
 
-66 commands: rendered 62, completed 1, capability-denied 2, bundle-failed 0, crashed 0, timeout 0, unsupported-mode 0, unsupported-api 1.
+66 commands: rendered 62, completed 1, capability-denied 2, bundle-failed 0, crashed 0, timeout 1, unsupported-mode 0, unsupported-api 0.
 
 | Command                                                          | Mode     | Outcome           | Detail                                                     |
 | ---------------------------------------------------------------- | -------- | ----------------- | ---------------------------------------------------------- |
@@ -55,7 +55,7 @@ Regenerate with `bun run corpus:smoke` (network required; not part of
 | `ohmyzsh-git-alias/index`                                        | view     | rendered          | 1632 nodes, root Navigation                                |
 | `one-thing/remove-one-thing`                                     | no-view  | rendered          | 2 nodes, root Navigation                                   |
 | `one-thing/set-one-thing`                                        | view     | rendered          | 7 nodes, root Navigation                                   |
-| `one-thing/show-one-thing`                                       | menu-bar | unsupported-api   | updateCommandMetadata                                      |
+| `one-thing/show-one-thing`                                       | menu-bar | timeout           | no scene or exit within 5000 ms                            |
 | `pinch-svg/custom-rectangle`                                     | view     | rendered          | 2 nodes, root Navigation                                   |
 | `pinch-svg/grid`                                                 | view     | rendered          | 8 nodes, root Navigation                                   |
 | `pokemon-tcg-pocket-binder/pokemon-tcg-pocket-binder`            | view     | rendered          | 39 nodes, root Navigation                                  |
@@ -82,4 +82,4 @@ Regenerate with `bun run corpus:smoke` (network required; not part of
 
 - `atomtick/copy-atomic-time` (capability-denied): denied capability clipboard.copy
 - `google-maps-search/travelHome` (capability-denied): denied capability open.url
-- `one-thing/show-one-thing` (unsupported-api): updateCommandMetadata
+- `one-thing/show-one-thing` (timeout): no scene or exit within 5000 ms

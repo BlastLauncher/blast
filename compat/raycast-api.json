@@ -2,15 +2,15 @@
   "version": "2.8.2",
   "totals": {
     "all": {
-      "covered": 943,
+      "covered": 944,
       "partial": 69,
-      "missing": 1461,
+      "missing": 1460,
       "total": 2473
     },
     "nonDeprecated": {
-      "covered": 913,
+      "covered": 914,
       "partial": 64,
-      "missing": 557,
+      "missing": 556,
       "total": 1534
     },
     "deprecated": {
@@ -33,9 +33,9 @@
         "total": 116
       },
       "function": {
-        "covered": 23,
+        "covered": 24,
         "partial": 4,
-        "missing": 23,
+        "missing": 22,
         "total": 50
       },
       "const": {
@@ -16520,6 +16520,7 @@
       "path": "closeMainWindow",
       "status": "covered",
       "tests": [
+        "packages/runtime/src/api/feedback.test.ts",
         "packages/runtime/src/api/window.test.ts"
       ],
       "weight": 600
@@ -16928,8 +16929,10 @@
     },
     {
       "path": "updateCommandMetadata",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/launch.test.ts"
+      ],
       "weight": 105
     },
     {
