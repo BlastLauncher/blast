@@ -1,10 +1,17 @@
-// Pure selection rules for the curated corpus set (task 0023). The selector
-// entry point (`select.ts`) feeds these functions the pinned corpus manifests
-// and candidate sources; every rule here is static and deterministic, and the
-// tests drive it with fixture manifests only, so the same corpus always
-// selects the same extensions. Nothing here runs git, reads files or touches
-// the network.
+// Pure selection rules for the curated corpus set (tasks 0023 and 0033). The
+// selector entry point (`select.ts`) feeds these functions the pinned corpus
+// manifests and candidate sources; every rule here is static and
+// deterministic, and the tests drive it with fixture manifests only, so the
+// same corpus always selects the same extensions. Nothing here runs git, reads
+// files or touches the network.
+//
+// Two kinds of stratum share the pick loop. The exclusive `Stratum` (form,
+// detail, utils, list-only) classifies a whole extension once and keeps the
+// first 40 picks unchanged; the additive `FeatureStratum` (task 0033) tags
+// extensions that use a harder component or API without reclassifying them,
+// so adding the new strata never moves an earlier pick.
 import { createHash } from "node:crypto";
+import { isBuiltin } from "node:module";
 import type { Source } from "./usage.ts";
 
 /** Runtime dependencies the shared Blast dependency policy can provide. */
@@ -45,6 +52,39 @@ export const EXCLUSIONS: ReadonlyArray<{ id: string; pattern: RegExp }> = [
 ];
 
 /**
+ * The exclusion the regex table cannot express: a manifest can declare only
+ * `@raycast/api` and `@raycast/utils` and still import something else (or a
+ * tsconfig path alias), which bundles as a missing dependency. That is a
+ * selection miss, not an API gap, so those candidates are rejected too.
+ */
+export const IMPORT_EXCLUSION = "unprovided-import";
+
+/**
+ * Bare specifiers the bundler resolves: Blast's provided dependencies
+ * (`@raycast/api`, `@raycast/utils` with subpaths, `react`) and Node built-ins.
+ * Mirrors `dependencyPolicy` in `packages/host/src/bundle.ts`.
+ */
+const PROVIDED_SPECIFIER = /^(?:@raycast\/(?:api|utils)(?:\/|$)|react(?:\/|$))/;
+const IMPORT_SPECIFIER = /(?:from\s+|import\s*\(\s*|import\s+|require\s*\(\s*)["']([^"'\s]+)["']/g;
+/** A command never bundles a test file, so a dev-only import there cannot fail it. */
+const TEST_FILE = /(?:^|[\\/])(?:__tests__|__mocks__)[\\/]|\.(?:test|spec)\.[cm]?[jt]sx?$/;
+
+/** Bare module specifiers in `sources` that Blast cannot resolve when bundling. */
+export function unprovidedImports(sources: Iterable<Source>): string[] {
+  const found = new Set<string>();
+  for (const { file, source } of sources) {
+    if (TEST_FILE.test(file)) continue;
+    for (const match of source.matchAll(IMPORT_SPECIFIER)) {
+      const specifier = match[1]!;
+      if (specifier.startsWith(".") || specifier.startsWith("/")) continue;
+      if (PROVIDED_SPECIFIER.test(specifier) || isBuiltin(specifier)) continue;
+      found.add(specifier);
+    }
+  }
+  return [...found].toSorted();
+}
+
+/**
  * Static source rules that mark network access. A match does not reject a
  * candidate — the smoke run is offline either way — it only ranks it after
  * every candidate that never talks to a network.
@@ -64,6 +104,21 @@ const DETAIL_PATTERN = /<Detail[\s/>.]|\bList\.Item\.Detail\b/;
 const LIST_PATTERN = /<List[\s/>.]/;
 const UTILS_IMPORT_PATTERN = /from\s+["']@raycast\/utils["']/;
 const UTILS_HOOK_PATTERN = new RegExp(`\\b(?:${UTILS_HOOKS.join("|")})\\s*[({<]`);
+
+// Feature patterns (task 0033). Each one names a component or API the first 40
+// picks do not reach, so the smoke report keeps finding real gaps.
+const GRID_PATTERN = /<Grid[\s/>.]/;
+const MENU_BAR_PATTERN = /<MenuBarExtra[\s/>.]/;
+/**
+ * `ActionPanel.Submenu`, or an `Action.*` variant the first curated set does
+ * not already exercise: CopyToClipboard, OpenInBrowser, Paste, Push and
+ * SubmitForm are covered (SubmitForm by the Form strata), so the selector looks
+ * past exactly those five.
+ */
+const ACTION_VARIANT_PATTERN =
+  /<ActionPanel\.Submenu[\s/>.]|<Action\.(?!CopyToClipboard\b|OpenInBrowser\b|Paste\b|Push\b|SubmitForm\b)[A-Z]\w*/;
+const SELECTION_API_PATTERN =
+  /\b(?:getSelectedText|getSelectedFinderItems)\s*\(|Form\.FilePicker\b/;
 
 export type ManifestCommand = { name?: string; mode?: string };
 export type Manifest = {
@@ -99,9 +154,11 @@ export function manifestRejections(manifest: Manifest): string[] {
 
 export function exclusionIds(sources: Iterable<Source>): string[] {
   const found = new Set<string>();
-  for (const { source } of sources) {
+  const list = [...sources];
+  for (const { source } of list) {
     for (const { id, pattern } of EXCLUSIONS) if (pattern.test(source)) found.add(id);
   }
+  if (unprovidedImports(list).length > 0) found.add(IMPORT_EXCLUSION);
   return [...found].toSorted();
 }
 
@@ -136,12 +193,32 @@ export function stratumOf(sources: Source[]): Stratum {
   return "none";
 }
 
+/**
+ * The additive strata: extension-level tags for the harder components and APIs
+ * (task 0033). They are matched independently of `Stratum`, in the fixed order
+ * below, and a candidate can carry several.
+ */
+export const FEATURE_STRATA = ["grid", "menu-bar", "action-variants", "selection-apis"] as const;
+export type FeatureStratum = (typeof FEATURE_STRATA)[number];
+
+export function featuresOf(sources: Iterable<Source>): FeatureStratum[] {
+  const text = [...sources].map(({ source }) => source).join("\n");
+  const features: FeatureStratum[] = [];
+  if (GRID_PATTERN.test(text)) features.push("grid");
+  if (MENU_BAR_PATTERN.test(text)) features.push("menu-bar");
+  if (ACTION_VARIANT_PATTERN.test(text)) features.push("action-variants");
+  if (SELECTION_API_PATTERN.test(text)) features.push("selection-apis");
+  return features;
+}
+
 export type Candidate = {
   name: string;
   viewCommands: string[];
   exclusions: string[];
   network: boolean;
   stratum: Stratum;
+  /** Additive strata the extension's sources match, in `FEATURE_STRATA` order. */
+  features: FeatureStratum[];
 };
 
 export function analyzeSources(name: string, views: string[], sources: Source[]): Candidate {
@@ -151,14 +228,15 @@ export function analyzeSources(name: string, views: string[], sources: Source[])
     exclusions: exclusionIds(sources),
     network: usesNetwork(sources),
     stratum: stratumOf(sources),
+    features: featuresOf(sources),
   };
 }
 
 export function eligible(candidate: Candidate): boolean {
   return (
     candidate.exclusions.length === 0 &&
-    candidate.stratum !== "none" &&
-    candidate.viewCommands.length > 0
+    candidate.viewCommands.length > 0 &&
+    (candidate.stratum !== "none" || candidate.features.length > 0)
   );
 }
 
@@ -178,16 +256,53 @@ export function ranked(candidates: Candidate[]): Candidate[] {
 }
 
 export const STRATA = ["form", "detail", "utils", "list-only"] as const;
-/** Every stratum the selector can pick for; `none` never is one. */
-export type PickStratum = (typeof STRATA)[number];
+/** An exclusive stratum name (as opposed to `Stratum`, which also has `none`). */
+export type ExclusiveStratum = Exclude<Stratum, "none">;
+/** Every stratum the selector picks for: the exclusive four, then the additive ones. */
+export const PICK_STRATA = [...STRATA, ...FEATURE_STRATA] as const;
+export type PickStratum = (typeof PICK_STRATA)[number];
 export type Quotas = Record<PickStratum, number>;
 
+export function isFeatureStratum(stratum: PickStratum): stratum is FeatureStratum {
+  return (FEATURE_STRATA as readonly string[]).includes(stratum);
+}
+
+/** Whether a candidate answers a pick stratum: exclusive by view, additive by feature. */
+export function matchesStratum(candidate: Candidate, stratum: PickStratum): boolean {
+  return isFeatureStratum(stratum)
+    ? candidate.features.includes(stratum)
+    : candidate.stratum === stratum;
+}
+
+function emptyCounts<K extends string>(keys: readonly K[]): Record<K, number> {
+  return Object.fromEntries(keys.map((key) => [key, 0])) as Record<K, number>;
+}
+
+function emptyLists<K extends string>(keys: readonly K[]): Record<K, string[]> {
+  return Object.fromEntries(keys.map((key) => [key, [] as string[]])) as Record<K, string[]>;
+}
+
+/** How many picks a stratum still needs; only `list-only` accounts for the kept set. */
+function room(stratum: PickStratum, kept: number, quotas: Quotas): number {
+  return quotas[stratum] - (stratum === "list-only" ? kept : 0);
+}
+
 /**
- * The target mix for the curated set: about 40 extensions. The ten extensions
- * kept from the first curated set are all List-centric, so they already fill
- * the `list-only` quota and only the three new strata have to be picked.
+ * The target mix for the curated set: 40 extensions, then about 20 harder ones
+ * (task 0033), five per additive stratum. The ten extensions kept from the
+ * first curated set are all List-centric, so they already fill the `list-only`
+ * quota.
  */
-export const DEFAULT_QUOTAS: Quotas = { form: 10, detail: 10, utils: 10, "list-only": 10 };
+export const DEFAULT_QUOTAS: Quotas = {
+  form: 10,
+  detail: 10,
+  utils: 10,
+  "list-only": 10,
+  grid: 5,
+  "menu-bar": 5,
+  "action-variants": 5,
+  "selection-apis": 5,
+};
 
 /**
  * The first curated set (task 0014), always first in `curated`. It is
@@ -234,43 +349,61 @@ export function selectCurated(
   candidates: Candidate[],
   quotas: Quotas = DEFAULT_QUOTAS,
 ): Selection {
-  const order = ranked(
-    candidates.filter((candidate) => eligible(candidate) && !kept.includes(candidate.name)),
-  );
-  const picks: Record<PickStratum, string[]> = { form: [], detail: [], utils: [], "list-only": [] };
-  const missing: Record<PickStratum, number> = { form: 0, detail: 0, utils: 0, "list-only": 0 };
-  for (const stratum of STRATA) {
-    const room = quotas[stratum] - (stratum === "list-only" ? kept.length : 0);
+  const order = ranked(candidates.filter(eligible));
+  const picks = emptyLists(PICK_STRATA);
+  const missing = emptyCounts(PICK_STRATA);
+  // The exclusive strata are disjoint, so excluding earlier picks leaves their
+  // selection exactly as it was before the additive strata existed.
+  const taken = new Set(kept);
+  for (const stratum of PICK_STRATA) {
+    const needed = room(stratum, kept.length, quotas);
     for (const candidate of order) {
-      if (picks[stratum].length >= room) break;
-      if (candidate.stratum === stratum) picks[stratum].push(candidate.name);
+      if (picks[stratum].length >= needed) break;
+      if (taken.has(candidate.name) || !matchesStratum(candidate, stratum)) continue;
+      picks[stratum].push(candidate.name);
+      taken.add(candidate.name);
     }
-    missing[stratum] = Math.max(0, room - picks[stratum].length);
+    missing[stratum] = Math.max(0, needed - picks[stratum].length);
   }
   return {
     kept,
     picks,
-    curated: [...kept, ...STRATA.flatMap((stratum) => picks[stratum])],
+    curated: [...kept, ...PICK_STRATA.flatMap((stratum) => picks[stratum])],
     missing,
   };
 }
 
 /** Every member of each stratum, including the kept extensions. */
 export function strataMembers(selection: Selection): Record<PickStratum, string[]> {
-  return {
-    form: [...selection.picks.form],
-    detail: [...selection.picks.detail],
-    utils: [...selection.picks.utils],
-    "list-only": [...selection.kept, ...selection.picks["list-only"]],
-  };
+  const members = emptyLists(PICK_STRATA);
+  for (const stratum of STRATA) members[stratum] = [...selection.picks[stratum]];
+  members["list-only"] = [...selection.kept, ...selection.picks["list-only"]];
+  for (const stratum of FEATURE_STRATA) members[stratum] = [...selection.picks[stratum]];
+  return members;
 }
 
-/** Eligible candidates per stratum, split by whether they reach a network. */
-export function capacity(candidates: Candidate[], network: boolean): Record<PickStratum, number> {
-  const counts: Record<PickStratum, number> = { form: 0, detail: 0, utils: 0, "list-only": 0 };
+/** Eligible candidates per exclusive stratum, split by whether they reach a network. */
+export function capacity(
+  candidates: Candidate[],
+  network: boolean,
+): Record<ExclusiveStratum, number> {
+  const counts = emptyCounts(STRATA);
   for (const candidate of candidates) {
     if (candidate.stratum === "none" || candidate.network !== network) continue;
     if (eligible(candidate)) counts[candidate.stratum] += 1;
+  }
+  return counts;
+}
+
+/** Eligible candidates per additive stratum, split by whether they reach a network. */
+export function featureCapacity(
+  candidates: Candidate[],
+  network: boolean,
+): Record<FeatureStratum, number> {
+  const counts = emptyCounts(FEATURE_STRATA);
+  for (const candidate of candidates) {
+    if (candidate.network !== network || !eligible(candidate)) continue;
+    for (const feature of candidate.features) counts[feature] += 1;
   }
   return counts;
 }
@@ -281,9 +414,12 @@ export function offlineQuotasMet(
   candidates: Candidate[],
   quotas: Quotas = DEFAULT_QUOTAS,
 ): boolean {
-  const offline = capacity(candidates, false);
-  return STRATA.every(
-    (stratum) => offline[stratum] >= quotas[stratum] - (stratum === "list-only" ? kept.length : 0),
+  const exclusive = capacity(candidates, false);
+  const features = featureCapacity(candidates, false);
+  return PICK_STRATA.every((stratum) =>
+    isFeatureStratum(stratum)
+      ? features[stratum] >= room(stratum, kept.length, quotas)
+      : exclusive[stratum] >= room(stratum, kept.length, quotas),
   );
 }
 
@@ -292,12 +428,19 @@ export const SELECTION_CRITERIA = {
   script: "scripts/corpus/select.ts",
   dependencies: [...PROVIDED_DEPENDENCIES],
   minViewCommands: 1,
-  excludedSources: EXCLUSIONS.map(({ id }) => id),
+  excludedSources: [...EXCLUSIONS.map(({ id }) => id), IMPORT_EXCLUSION],
   preferred: "no network access (fetch, axios, http(s), useFetch, useStreamJSON)",
   order: "sha256(name) ascending; candidates without network access are picked first",
   quotas: DEFAULT_QUOTAS,
+  featureStrata: {
+    grid: "<Grid",
+    "menu-bar": "<MenuBarExtra",
+    "action-variants":
+      "ActionPanel.Submenu, or an Action.* variant beyond CopyToClipboard/OpenInBrowser/Paste/Push",
+    "selection-apis": "Form.FilePicker, getSelectedText or getSelectedFinderItems",
+  },
   scan: { batch: SCAN_BATCH, cap: SCAN_CAP },
-  note: "the list-only quota is already met by the extensions kept from the first curated set",
+  note: "the list-only quota is already met by the extensions kept from the first curated set; the first four strata keep the first 40 picks unchanged",
 };
 
 export type PinStats = { scanned: number; eligible: number };
