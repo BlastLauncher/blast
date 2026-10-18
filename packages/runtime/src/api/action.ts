@@ -1,6 +1,7 @@
-import { createElement } from "react";
+import { createElement, type ReactNode } from "react";
 import { copy, toText, type ClipboardContent } from "./clipboard.ts";
 import { requestCapability } from "./capability.ts";
+import { useNavigation } from "./navigation.ts";
 import { Icon } from "./enums.generated.ts";
 import type { ImageLike, Shortcut } from "./types.ts";
 
@@ -39,7 +40,7 @@ export const Action = Object.assign(
   function Action(props: ActionProps) {
     return createElement("Action", props);
   },
-  { CopyToClipboard, OpenInBrowser, Paste },
+  { CopyToClipboard, OpenInBrowser, Paste, Push },
 );
 
 export function CopyToClipboard(props: CopyToClipboardProps) {
@@ -96,3 +97,25 @@ export function Paste(props: PasteProps) {
 }
 
 export { CopyToClipboard as CopyToClipboardAction, Paste as PasteAction };
+
+export interface PushProps {
+  title: string;
+  target: ReactNode;
+  icon?: ImageLike;
+  shortcut?: Shortcut;
+  onPush?: () => void;
+  onPop?: () => void;
+}
+
+export function Push({ target, onPush, onPop, ...props }: PushProps) {
+  const { push } = useNavigation();
+  return createElement("Action.Push", {
+    ...props,
+    onAction: () => {
+      push(target, onPop);
+      onPush?.();
+    },
+  });
+}
+
+export { Push as PushAction };

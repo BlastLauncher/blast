@@ -14,72 +14,72 @@
       "command": "index",
       "mode": "view",
       "outcome": "rendered",
-      "nodes": 74,
-      "rootType": "List"
+      "nodes": 76,
+      "rootType": "Navigation"
     },
     {
       "extension": "biaodian",
       "command": "biaodian",
       "mode": "view",
       "outcome": "rendered",
-      "nodes": 131,
-      "rootType": "List"
+      "nodes": 133,
+      "rootType": "Navigation"
     },
     {
       "extension": "code-review-emojis",
       "command": "index",
       "mode": "view",
       "outcome": "rendered",
-      "nodes": 86,
-      "rootType": "List"
+      "nodes": 88,
+      "rootType": "Navigation"
     },
     {
       "extension": "conventional-commits",
       "command": "commit-message-structure",
       "mode": "view",
       "outcome": "rendered",
-      "nodes": 1,
-      "rootType": "Detail"
+      "nodes": 3,
+      "rootType": "Navigation"
     },
     {
       "extension": "conventional-commits",
       "command": "index",
       "mode": "view",
       "outcome": "rendered",
-      "nodes": 45,
-      "rootType": "List"
+      "nodes": 47,
+      "rootType": "Navigation"
     },
     {
       "extension": "fibonacci-sequence",
       "command": "index",
       "mode": "view",
       "outcome": "rendered",
-      "nodes": 76,
-      "rootType": "List"
+      "nodes": 78,
+      "rootType": "Navigation"
     },
     {
       "extension": "markdown-reference",
       "command": "markdown-reference",
       "mode": "view",
       "outcome": "unsupported-api",
-      "path": "useNavigation",
-      "error": "Unsupported API in Blast: useNavigation"
+      "path": "ActionPanel.Item",
+      "error": "Unsupported API in Blast: ActionPanel.Item"
     },
     {
       "extension": "ohmyzsh-git-alias",
       "command": "index",
       "mode": "view",
       "outcome": "rendered",
-      "nodes": 1630,
-      "rootType": "List"
+      "nodes": 1632,
+      "rootType": "Navigation"
     },
     {
       "extension": "px-to-rem-converter",
       "command": "index",
       "mode": "view",
       "outcome": "rendered",
-      "nodes": 11,
-      "rootType": "List"
+      "nodes": 13,
+      "rootType": "Navigation"
     },
     {
       "extension": "radix",
@@ -110,8 +110,8 @@
       "command": "calculate-ratio",
       "mode": "view",
       "outcome": "rendered",
-      "nodes": 2,
-      "rootType": "List"
+      "nodes": 4,
+      "rootType": "Navigation"
     }
   ],
   "extensionFailures": []

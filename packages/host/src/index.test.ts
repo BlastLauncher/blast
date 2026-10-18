@@ -29,13 +29,18 @@ async function start(command = "session", broker = createBroker()) {
 function scene(session: Session, title?: string): Promise<SceneMessage> {
   if (
     session.latestScene?.root &&
-    (title === undefined || session.latestScene.root.props.navigationTitle === title)
+    (title === undefined ||
+      session.latestScene.root.children[0]!.children[0]!.props.navigationTitle === title)
   )
     return Promise.resolve(session.latestScene);
   return new Promise((resolve, reject) => {
     let unsubscribe: () => void;
     const accept = (snapshot: SceneMessage) => {
-      if (snapshot.root && (title === undefined || snapshot.root.props.navigationTitle === title)) {
+      if (
+        snapshot.root &&
+        (title === undefined ||
+          snapshot.root.children[0]!.children[0]!.props.navigationTitle === title)
+      ) {
         resolve(snapshot);
         unsubscribe?.();
       }
@@ -143,7 +148,7 @@ test("real Node runtime publishes scenes, routes events, grants clipboard and ca
     }),
   );
   const first = await scene(session);
-  expect(first.root!.props.navigationTitle).toBe("initial");
+  expect(first.root!.children[0]!.children[0]!.props.navigationTitle).toBe("initial");
   expect(session.logs).toContainEqual({
     type: "log",
     level: "info",
@@ -155,7 +160,7 @@ test("real Node runtime publishes scenes, routes events, grants clipboard and ca
   action(session, updated, "Copy");
   await scene(session, "copied");
   expect(copied).toEqual([{ text: "hello" }]);
-  expect(session.latestScene!.root!.props.navigationTitle).toBe("copied");
+  expect(session.latestScene!.root!.children[0]!.children[0]!.props.navigationTitle).toBe("copied");
   expect(await session.shutdown()).toMatchObject({ code: 0, signal: null });
 });
 
@@ -173,7 +178,9 @@ for (const [title, broker] of [
   test(`extension sees ${title} capability rejection`, async () => {
     const session = await start("session", broker);
     action(session, await scene(session), "Copy");
-    expect((await scene(session, title)).root!.props.navigationTitle).toBe(title);
+    expect(
+      (await scene(session, title)).root!.children[0]!.children[0]!.props.navigationTitle,
+    ).toBe(title);
   });
 }
 

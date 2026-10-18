@@ -2,6 +2,10 @@
   "name": "host-session",
   "commands": [
     {
+      "name": "navigation",
+      "mode": "view"
+    },
+    {
       "name": "session",
       "mode": "view"
     },

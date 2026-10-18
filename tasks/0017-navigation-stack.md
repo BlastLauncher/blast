@@ -1,7 +1,7 @@
 ---
 id: "0017"
 title: Navigation stack — useNavigation, Action.Push, pop
-status: doing
+status: review
 milestone: M3
 depends: ["0016"]
 ---
@@ -32,9 +32,9 @@ and clients see the navigation stack in the scene and can request a pop.
 
 ## Acceptance
 
-- [ ] Reconciler/API tests: push, pop, state preserved, callbacks.
-- [ ] CLI e2e test: `action <push title>` → new view; `back` → previous view.
-- [ ] Decision recorded; `bun run verify` passes.
+- [x] Reconciler/API tests: push, pop, state preserved, callbacks.
+- [x] CLI e2e test: `action <push title>` → new view; `back` → previous view.
+- [x] Decision recorded; `bun run verify` passes.
 
 ## Out of scope
 
@@ -43,8 +43,12 @@ and clients see the navigation stack in the scene and can request a pop.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/navigation-stack-scene @ a65100192bea442eb843f1c780388f8358bb24cd (implementation)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 12.7s
 Done:
-Not done / risks:
+- Implemented per-command useNavigation push/pop and Action.Push/PushAction with callbacks, stable state and ids, and inactive handler exclusion.
+- Recorded Navigation/Navigation.Entry scene conventions in decision 0003; retained the event protocol.
+- Added CLI back/help, API/reconciler coverage and Node CLI e2e tests; 205 tests pass.
+- Regenerated compatibility and smoke reports; corpus smoke renders 9/13 commands, with no crashes or timeouts. Deleted .cache/raycast-extensions.
+Not done / risks: Scene consumers must traverse the Navigation wrapper. markdown-reference now reaches the next blocker, ActionPanel.Item; radix still needs List.Item.Detail (parallel task). onPush runs after scheduling the push, before React commits. No dependencies added; list.ts untouched.
 ```

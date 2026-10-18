@@ -4,31 +4,31 @@ Denominator: the `@raycast/api@2.8.2` declarations. Evidence:
 `// @covers` tags in `packages/**/*.test.ts(x)`. A parent is not implied covered
 by its children. Partial support is reported separately from covered.
 
-**Non-deprecated coverage: 562/1534 covered (36.6%), 14 partial, 958 missing.**
-Deprecated: 8/939 covered (0.9%), 2 partial, 929 missing.
+**Non-deprecated coverage: 574/1534 covered (37.4%), 14 partial, 946 missing.**
+Deprecated: 9/939 covered (1.0%), 2 partial, 928 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 562 | 8 | 570 |
+| covered | 574 | 9 | 583 |
 | partial | 14 | 2 | 16 |
-| missing | 958 | 929 | 1887 |
+| missing | 946 | 928 | 1874 |
 
 ## Totals by kind
 
 | Kind | Covered | Partial | Missing | Total |
 | --- | --- | --- | --- | --- |
 | namespace | 1 | 1 | 7 | 9 |
-| component | 1 | 12 | 103 | 116 |
-| function | 1 | 1 | 48 | 50 |
+| component | 3 | 12 | 101 | 116 |
+| function | 2 | 1 | 47 | 50 |
 | const | 1 | 1 | 19 | 21 |
 | class | 0 | 0 | 3 | 3 |
 | enum | 2 | 0 | 11 | 13 |
 | enum-member | 487 | 0 | 204 | 691 |
-| interface | 0 | 0 | 64 | 64 |
-| type | 1 | 0 | 177 | 178 |
-| property | 76 | 1 | 1227 | 1304 |
+| interface | 1 | 0 | 63 | 64 |
+| type | 2 | 0 | 176 | 178 |
+| property | 84 | 1 | 1219 | 1304 |
 | method | 0 | 0 | 24 | 24 |
 
 ## Top-level symbols
@@ -38,7 +38,7 @@ Children counts include all descendants, as covered/partial/total.
 | Symbol | Kind | Status | Children | Extensions |
 | --- | --- | --- | --- | --- |
 | `AI` | namespace | missing | 0/0/266 | 115 |
-| `Action` | component | partial | 21/3/110 | 2985 |
+| `Action` | component | partial | 29/3/110 | 2985 |
 | `ActionPanel` | component | partial | 4/1/129 | 3023 |
 | `ActionPanelChildren` | type | missing | 0/0/0 | 0 |
 | `ActionPanelItem` | component | missing | 0/0/104 | 1 |
@@ -117,7 +117,7 @@ Children counts include all descendants, as covered/partial/total.
 | `LocalStorageValue` | type | missing | 0/0/0 | 0 |
 | `LocalStorageValues` | interface | missing | 0/0/0 | 0 |
 | `MenuBarExtra` | component | missing | 0/0/28 | 342 |
-| `Navigation` | interface | missing | 0/0/2 | 5 |
+| `Navigation` | interface | covered | 2/0/2 | 5 |
 | `OAuth` | namespace | missing | 0/0/68 | 135 |
 | `OpenAction` | component | missing | 0/0/7 | 3 |
 | `OpenActionProps` | interface | missing | 0/0/6 | 0 |
@@ -131,7 +131,7 @@ Children counts include all descendants, as covered/partial/total.
 | `Preference` | interface | missing | 0/0/10 | 0 |
 | `PreferenceValues` | interface | missing | 0/0/0 | 14 |
 | `Preferences` | type | missing | 0/0/0 | 4 |
-| `PushAction` | component | missing | 0/0/7 | 8 |
+| `PushAction` | component | covered | 0/0/7 | 8 |
 | `PushActionProps` | interface | missing | 0/0/6 | 0 |
 | `ShowInFinderAction` | component | missing | 0/0/6 | 0 |
 | `ShowInFinderActionProps` | interface | missing | 0/0/5 | 0 |
@@ -182,7 +182,7 @@ Children counts include all descendants, as covered/partial/total.
 | `updateCommandMetadata` | function | missing | 0/0/0 | 105 |
 | `useActionPanel` | function | missing | 0/0/0 | 0 |
 | `useId` | const | missing | 0/0/0 | 0 |
-| `useNavigation` | function | missing | 0/0/0 | 1048 |
+| `useNavigation` | function | covered | 0/0/0 | 1048 |
 | `useUnstableAI` | const | missing | 0/0/0 | 0 |
 
 ## Top missing by usage
@@ -202,16 +202,11 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `Form.Props.actions` | 1356 |
 | `Action.SubmitForm` | 1267 |
 | `Action.SubmitForm.Props.onSubmit` | 1267 |
-| `Action.Push` | 1233 |
-| `Action.Push.Props.target` | 1233 |
-| `Action.Push.Props.title` | 1232 |
 | `Toast.Style.Animated` | 1208 |
 | `Action.SubmitForm.Props.title` | 1181 |
 | `List.Props.onSearchTextChange` | 1174 |
-| `Action.Push.Props.icon` | 1107 |
 | `Form.TextField` | 1102 |
 | `Form.TextField.Props.title` | 1090 |
-| `useNavigation` | 1048 |
 | `List.Item.Detail` | 993 |
 | `Form.TextField.Props.placeholder` | 983 |
 | `LocalStorage` | 960 |
@@ -242,3 +237,8 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `List.Item.Detail.Props.metadata` | 688 |
 | `Alert.ActionStyle` | 686 |
 | `Form.TextArea` | 678 |
+| `Action.SubmitForm.Props.icon` | 675 |
+| `List.Item.Detail.Metadata` | 671 |
+| `Form.TextArea.Props.title` | 665 |
+| `LaunchProps` | 657 |
+| `Alert.ActionStyle.Destructive` | 656 |
