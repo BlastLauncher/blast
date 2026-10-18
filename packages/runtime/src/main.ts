@@ -17,6 +17,7 @@ import { createElement, type ComponentType } from "react";
 import { setCapabilityRequester } from "./api/capability.ts";
 import { setEnvironment } from "./api/environment.ts";
 import { setPreferenceValues } from "./api/preferences.ts";
+import { UnsupportedApiError } from "./api/unsupported.ts";
 import { createSceneRoot } from "./reconciler/index.ts";
 
 let stopping = false;
@@ -53,7 +54,12 @@ function finish(code: number) {
   process.stdout.end(() => process.exit(code));
 }
 function fatal(error: unknown, code = "RUNTIME_ERROR") {
-  send({ type: "error", code, message: errorMessage(error), fatal: true });
+  send({
+    type: "error",
+    code: error instanceof UnsupportedApiError ? error.code : code,
+    message: errorMessage(error),
+    fatal: true,
+  });
   finish(1);
 }
 function log(level: LogLevel, args: unknown[]) {
@@ -174,8 +180,11 @@ function handle(value: unknown) {
     }
     case "event": {
       if (!loaded) return fatal("Event before command loaded", "PROTOCOL_ERROR");
-      const failed = (error: unknown) =>
-        send({ type: "error", code: "EVENT_ERROR", message: errorMessage(error), fatal: false });
+      const failed = (error: unknown) => {
+        if (error instanceof UnsupportedApiError) fatal(error);
+        else
+          send({ type: "error", code: "EVENT_ERROR", message: errorMessage(error), fatal: false });
+      };
       try {
         // Do not await: a handler can be waiting for a capability.result on stdin.
         void Promise.resolve(root.dispatch(message.node, message.handler, message.args)).catch(

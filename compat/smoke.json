@@ -1,100 +1,77 @@
 {
   "commit": "3b812d1e153a1862df29bc8ec34e170c728512ea",
   "totals": {
-    "rendered": 1,
+    "rendered": 2,
     "bundle-failed": 0,
-    "crashed": 12,
+    "crashed": 0,
     "timeout": 0,
-    "unsupported-mode": 0
+    "unsupported-mode": 0,
+    "unsupported-api": 11
   },
   "results": [
     {
       "extension": "axios-docs",
       "command": "index",
       "mode": "view",
-      "outcome": "crashed",
-      "exit": "code 1",
-      "error": "Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n\nCheck the render method of `Command`.",
-      "logs": [
-        "RUNTIME_ERROR: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You like…"
-      ]
+      "outcome": "unsupported-api",
+      "path": "Action.OpenInBrowser",
+      "error": "Unsupported API in Blast: Action.OpenInBrowser"
     },
     {
       "extension": "biaodian",
       "command": "biaodian",
       "mode": "view",
-      "outcome": "crashed",
-      "exit": "code 1",
-      "error": "The requested module '@raycast/api' does not provide an export named 'CopyToClipboardAction'",
-      "logs": [
-        "RUNTIME_ERROR: The requested module '@raycast/api' does not provide an export named 'CopyToClipboardAction'"
-      ]
+      "outcome": "unsupported-api",
+      "path": "PasteAction",
+      "error": "Unsupported API in Blast: PasteAction"
     },
     {
       "extension": "code-review-emojis",
       "command": "index",
       "mode": "view",
-      "outcome": "crashed",
-      "exit": "code 1",
-      "error": "The requested module '@raycast/api' does not provide an export named 'Keyboard'",
-      "logs": [
-        "RUNTIME_ERROR: The requested module '@raycast/api' does not provide an export named 'Keyboard'"
-      ]
+      "outcome": "unsupported-api",
+      "path": "Action.OpenInBrowser",
+      "error": "Unsupported API in Blast: Action.OpenInBrowser"
     },
     {
       "extension": "conventional-commits",
       "command": "commit-message-structure",
       "mode": "view",
-      "outcome": "crashed",
-      "exit": "code 1",
-      "error": "The requested module '@raycast/api' does not provide an export named 'Detail'",
-      "logs": [
-        "RUNTIME_ERROR: The requested module '@raycast/api' does not provide an export named 'Detail'"
-      ]
+      "outcome": "unsupported-api",
+      "path": "Detail",
+      "error": "Unsupported API in Blast: Detail"
     },
     {
       "extension": "conventional-commits",
       "command": "index",
       "mode": "view",
-      "outcome": "crashed",
-      "exit": "code 1",
-      "error": "The requested module '@raycast/api' does not provide an export named 'Color'",
-      "logs": [
-        "RUNTIME_ERROR: The requested module '@raycast/api' does not provide an export named 'Color'"
-      ]
+      "outcome": "unsupported-api",
+      "path": "Action.Paste",
+      "error": "Unsupported API in Blast: Action.Paste"
     },
     {
       "extension": "fibonacci-sequence",
       "command": "index",
       "mode": "view",
-      "outcome": "crashed",
-      "exit": "code 1",
-      "error": "Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n\nCheck the render method of `Command`.",
-      "logs": [
-        "RUNTIME_ERROR: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You like…"
-      ]
+      "outcome": "unsupported-api",
+      "path": "Action.Paste",
+      "error": "Unsupported API in Blast: Action.Paste"
     },
     {
       "extension": "markdown-reference",
       "command": "markdown-reference",
       "mode": "view",
-      "outcome": "crashed",
-      "exit": "code 1",
-      "error": "The requested module '@raycast/api' does not provide an export named 'Detail'",
-      "logs": [
-        "RUNTIME_ERROR: The requested module '@raycast/api' does not provide an export named 'Detail'"
-      ]
+      "outcome": "unsupported-api",
+      "path": "useNavigation",
+      "error": "Unsupported API in Blast: useNavigation"
     },
     {
       "extension": "ohmyzsh-git-alias",
       "command": "index",
       "mode": "view",
-      "outcome": "crashed",
-      "exit": "code 1",
-      "error": "Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n\nCheck the render method of `Command`.",
-      "logs": [
-        "RUNTIME_ERROR: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You like…"
-      ]
+      "outcome": "unsupported-api",
+      "path": "Action.Paste",
+      "error": "Unsupported API in Blast: Action.Paste"
     },
     {
       "extension": "px-to-rem-converter",
@@ -108,45 +85,33 @@
       "extension": "radix",
       "command": "colors",
       "mode": "view",
-      "outcome": "crashed",
-      "exit": "code 1",
-      "error": "Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n\nCheck the render method of `ColorsCommand`.",
-      "logs": [
-        "RUNTIME_ERROR: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You like…"
-      ]
+      "outcome": "unsupported-api",
+      "path": "Action.OpenInBrowser",
+      "error": "Unsupported API in Blast: Action.OpenInBrowser"
     },
     {
       "extension": "radix",
       "command": "primitives",
       "mode": "view",
-      "outcome": "crashed",
-      "exit": "code 1",
-      "error": "Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n\nCheck the render method of `Command`.",
-      "logs": [
-        "RUNTIME_ERROR: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You like…"
-      ]
+      "outcome": "unsupported-api",
+      "path": "Action.OpenInBrowser",
+      "error": "Unsupported API in Blast: Action.OpenInBrowser"
     },
     {
       "extension": "radix",
       "command": "themes",
       "mode": "view",
-      "outcome": "crashed",
-      "exit": "code 1",
-      "error": "Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n\nCheck the render method of `ThemesCommand`.",
-      "logs": [
-        "RUNTIME_ERROR: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You like…"
-      ]
+      "outcome": "unsupported-api",
+      "path": "Action.OpenInBrowser",
+      "error": "Unsupported API in Blast: Action.OpenInBrowser"
     },
     {
       "extension": "ratio-calculator",
       "command": "calculate-ratio",
       "mode": "view",
-      "outcome": "crashed",
-      "exit": "code 1",
-      "error": "The requested module '@raycast/api' does not provide an export named 'Icon'",
-      "logs": [
-        "RUNTIME_ERROR: The requested module '@raycast/api' does not provide an export named 'Icon'"
-      ]
+      "outcome": "rendered",
+      "nodes": 2,
+      "rootType": "List"
     }
   ],
   "extensionFailures": []

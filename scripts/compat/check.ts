@@ -1,11 +1,15 @@
-// The `compat:check` verify step: the inventory and the coverage report must
-// both regenerate byte-identical, and every `@covers` tag must name a path the
-// inventory knows, reported with file:line.
+// Generated inventory, coverage and stubs must regenerate byte-identical.
+// Every `@covers` tag must name a known inventory path, reported with file:line.
 import { checkInventory } from "./generate-inventory.ts";
 import { checkCoverage } from "./generate-coverage.ts";
+import { checkStubs } from "./generate-stubs.ts";
 
 try {
-  const errors = [...checkInventory(process.cwd()), ...checkCoverage(process.cwd())];
+  const errors = [
+    ...checkInventory(process.cwd()),
+    ...checkCoverage(process.cwd()),
+    ...checkStubs(process.cwd()),
+  ];
   for (const error of errors) console.error(`compat: ${error}`);
   if (errors.length) process.exit(1);
   console.log("compat: ok");

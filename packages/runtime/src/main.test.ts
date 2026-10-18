@@ -189,3 +189,34 @@ test("stdin EOF unmounts and exits cleanly", async () => {
     root: null,
   });
 });
+
+for (const [fixture, mode, path] of [
+  ["unsupported.js", "view", "Detail.Metadata.Label"],
+  ["unsupported-reject.js", "no-view", "getSelectedText"],
+] as const) {
+  test(`unsupported API is fatal: ${fixture}`, async () => {
+    const runtime = start();
+    runtime.init({ fixture, mode });
+    expect(await runtime.next("error")).toMatchObject({
+      fatal: true,
+      code: "UNSUPPORTED_API",
+      message: `Unsupported API in Blast: ${path}`,
+    });
+    expect(await runtime.exited).toBe(1);
+  });
+}
+
+for (const title of ["Unsupported sync", "Unsupported async"]) {
+  test(`${title} event errors are fatal`, async () => {
+    const runtime = start();
+    runtime.init({ fixture: "unsupported-event.js" });
+    const scene = await runtime.next("scene");
+    action(runtime, scene.root!, title);
+    expect(await runtime.next("error")).toMatchObject({
+      fatal: true,
+      code: "UNSUPPORTED_API",
+      message: "Unsupported API in Blast: Clipboard.read",
+    });
+    expect(await runtime.exited).toBe(1);
+  });
+}

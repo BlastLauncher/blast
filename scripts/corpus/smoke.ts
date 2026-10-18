@@ -10,6 +10,7 @@ export const OUTCOMES = [
   "crashed",
   "timeout",
   "unsupported-mode",
+  "unsupported-api",
 ] as const;
 export type Outcome = (typeof OUTCOMES)[number];
 
@@ -35,6 +36,7 @@ export type CommandResult = {
   outcome: Outcome;
   /** Why a command did not render, when the outcome alone is not enough. */
   reason?: string | undefined;
+  path?: string | undefined;
   /** Rendered: nodes in the first scene and the root node's type. */
   nodes?: number | undefined;
   rootType?: string | undefined;
@@ -189,6 +191,13 @@ export function buildResult(input: BuildInput): CommandResult {
     case "unsupported-mode":
       return set({ outcome: "unsupported-mode", reason: probe.reason });
     case "exit": {
+      if (probe.error?.code === "UNSUPPORTED_API") {
+        return set({
+          outcome: "unsupported-api",
+          path: probe.error.message.replace(/^Unsupported API in Blast: /, ""),
+          error: probe.error.message,
+        });
+      }
       if (probe.error?.code === "UNSUPPORTED") {
         return set({ outcome: "unsupported-mode", reason: probe.error.message });
       }
@@ -244,6 +253,8 @@ function detail(result: CommandResult): string {
       return `${result.missing ? `missing ${result.missing.join(", ")}` : result.error}${warnings}`;
     case "crashed":
       return `${[result.reason, result.exit, result.error].filter(Boolean).join("; ") || "crashed"}${warnings}`;
+    case "unsupported-api":
+      return `${result.path}${warnings}`;
     case "timeout":
     case "unsupported-mode":
       return `${result.reason}${warnings}`;

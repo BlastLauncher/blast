@@ -224,6 +224,7 @@ test("buildReport sorts results and extension failures and totals outcomes", () 
     crashed: 0,
     timeout: 2,
     "unsupported-mode": 0,
+    "unsupported-api": 0,
   });
 });
 
@@ -290,4 +291,18 @@ test("the markdown report renders a sorted table, totals and failure details", (
   expect(markdown).toContain("missing left-pad, right-pad");
   expect(markdown).toContain('command mode "no-view" completed without rendering a scene');
   expect(markdown).toContain("12 nodes, root List; 2 warning(s)");
+});
+
+test("UNSUPPORTED_API is classified with its path in JSON and markdown", () => {
+  const missing = result({
+    kind: "exit",
+    code: 1,
+    signal: null,
+    error: { code: "UNSUPPORTED_API", message: "Unsupported API in Blast: Action.OpenInBrowser" },
+  });
+  expect(missing).toMatchObject({ outcome: "unsupported-api", path: "Action.OpenInBrowser" });
+  const report = buildReport("pinned", [missing]);
+  expect(report.totals["unsupported-api"]).toBe(1);
+  expect(renderJsonReport(report)).toContain('"path": "Action.OpenInBrowser"');
+  expect(renderMarkdownReport(report)).toContain("| unsupported-api | Action.OpenInBrowser |");
 });
