@@ -1,5 +1,7 @@
 import { createElement } from "react";
-import { copy, type ClipboardContent } from "./clipboard.ts";
+import { copy, toText, type ClipboardContent } from "./clipboard.ts";
+import { requestCapability } from "./capability.ts";
+import { Icon } from "./enums.generated.ts";
 import type { ImageLike, Shortcut } from "./types.ts";
 
 export interface ActionProps {
@@ -37,7 +39,7 @@ export const Action = Object.assign(
   function Action(props: ActionProps) {
     return createElement("Action", props);
   },
-  { CopyToClipboard },
+  { CopyToClipboard, OpenInBrowser, Paste },
 );
 
 export function CopyToClipboard(props: CopyToClipboardProps) {
@@ -50,3 +52,47 @@ export function CopyToClipboard(props: CopyToClipboardProps) {
     onAction: () => copy(content).then(() => onCopy?.(content)),
   });
 }
+
+export interface OpenInBrowserProps {
+  url: string;
+  title?: string;
+  icon?: ImageLike;
+  shortcut?: Shortcut;
+  onOpen?: (url: string) => void;
+}
+
+export interface PasteProps {
+  content: string | number | ClipboardContent;
+  title?: string;
+  icon?: ImageLike;
+  shortcut?: Shortcut;
+  onPaste?: (content: string | number | ClipboardContent) => void;
+}
+
+export function OpenInBrowser(props: OpenInBrowserProps) {
+  const { url, onOpen, title, icon, ...rest } = props;
+  return createElement("Action.OpenInBrowser", {
+    ...rest,
+    title: title ?? "Open in Browser",
+    icon: icon ?? Icon.Globe,
+    onAction: async () => {
+      await requestCapability("open.url", { url });
+      onOpen?.(url);
+    },
+  });
+}
+
+export function Paste(props: PasteProps) {
+  const { content, onPaste, title, icon, ...rest } = props;
+  return createElement("Action.Paste", {
+    ...rest,
+    title: title ?? "Paste in Active App",
+    icon: icon ?? Icon.Clipboard,
+    onAction: async () => {
+      await requestCapability("clipboard.paste", { text: toText(content, "Action.Paste") });
+      onPaste?.(content);
+    },
+  });
+}
+
+export { CopyToClipboard as CopyToClipboardAction, Paste as PasteAction };

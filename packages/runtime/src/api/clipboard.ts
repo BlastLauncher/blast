@@ -23,12 +23,15 @@ export async function copy(
   await requestCapability("clipboard.copy", { text });
 }
 
-function toText(content: string | number | ClipboardContent): string {
+export function toText(
+  content: string | number | ClipboardContent,
+  api = "Clipboard.copy",
+): string {
   if (typeof content === "string") return content;
   if (typeof content === "number") return String(content);
   if ("text" in content && typeof content.text === "string") return content.text;
   throw new TypeError(
-    `Clipboard.copy: unsupported content in Blast; only string, number and { text } content can be copied`,
+    `${api}: unsupported content in Blast; only string, number and { text } content can be copied`,
   );
 }
 

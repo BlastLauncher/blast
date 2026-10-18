@@ -15,7 +15,10 @@ export type ImageLike =
     };
 
 /** `Keyboard.Shortcut`, widened to its structural minimum. */
-export interface Shortcut {
-  modifiers?: string[];
+export interface KeyShortcut {
+  modifiers: string[];
   key: string;
 }
+export type Shortcut =
+  | KeyShortcut
+  | { macOS: KeyShortcut; Windows: KeyShortcut; windows?: KeyShortcut };
