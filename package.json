@@ -13,6 +13,7 @@
     "lint": "oxlint --deny-warnings --ignore-pattern 'archive/**' --ignore-pattern 'compat/raycast-api/**'",
     "typecheck": "tsc --noEmit -p .",
     "test": "bun test",
+    "blast": "node packages/host/src/cli.ts",
     "compat:fetch": "bun scripts/compat/fetch-raycast-api.ts",
     "compat:inventory": "bun scripts/compat/generate-inventory.ts",
     "compat:report": "bun scripts/compat/generate-coverage.ts",

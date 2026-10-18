@@ -75,7 +75,21 @@ needing extension assets or persistent support data should supply those paths.
 Callers own bundle output directories (default: a unique directory below
 `os.tmpdir()/blast/builds`) and remove them after sessions exit.
 
+## Debugging extensions
+
+`bun run blast run <extensionDir> <command>` bundles a command, runs it in a
+runtime child process, and prints every published scene as a text tree (one
+node per line, handler props as `[onAction]`; `# log` and `# capability` lines
+interleave for logs and capability requests). `--grant <capability>` grants a
+capability — a granted `clipboard.copy` records and prints the copied text
+instead of touching an OS clipboard. `--script <file|->` drives the run with
+one command per line: `action <title>`, `search <text>`, `wait`, `expect
+<text>`, `quit`. `--json` emits the protocol messages as NDJSON instead.
+`--timeout <ms>` bounds the run. Exit codes: 0 success, 1 script or
+expectation failure, 2 usage error, 3 extension crash or protocol error.
+
 ## Status
 
-M1 in progress: protocol, reconciler, minimal API shim, stdio runtime and host sessions
-exist; the debug CLI is next (see `PLAN.md`).
+M1 in progress: protocol, reconciler, minimal API shim, stdio runtime, host
+sessions and the `blast` debug CLI exist; real extensions come next (see
+`PLAN.md`).
