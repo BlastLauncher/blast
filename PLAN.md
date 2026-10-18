@@ -6,7 +6,10 @@ files.
 
 ## Current focus
 
-M1 — headless vertical slice. Next: 0009, the last M1 task.
+M1 done (2026-10-18). Next: break M2 into tasks — sparse corpus fetch,
+usage weights, curated real-command smoke runs. Known gap to schedule:
+`List.onSearchTextChange` works via handler passthrough but is not declared or
+covered in the shim.
 
 ## Milestones
 
@@ -33,7 +36,7 @@ action, observe the clipboard capability request, survive a crash.
 - [x] 0007 Runtime child-process entry over stdio
 - [x] 0010 Runtime hardening: command mode, stdout guard, environment, prefs
 - [x] 0008 Host: bundle, spawn, session, capability broker
-- [ ] 0009 `blast` debug CLI + end-to-end fixture test
+- [x] 0009 `blast` debug CLI + end-to-end fixture test
 
 ### M2 — Real extensions
 

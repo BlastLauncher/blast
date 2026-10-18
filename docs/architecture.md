@@ -90,6 +90,5 @@ expectation failure, 2 usage error, 3 extension crash or protocol error.
 
 ## Status
 
-M1 in progress: protocol, reconciler, minimal API shim, stdio runtime, host
-sessions and the `blast` debug CLI exist; real extensions come next (see
-`PLAN.md`).
+M1 complete: a bundled extension command runs headlessly end to end via
+`bun run blast run <dir> <command>`. Next milestones are in `PLAN.md`.
