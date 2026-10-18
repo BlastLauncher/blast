@@ -123,8 +123,10 @@ Loop per task:
    "Follow AGENTS.md. You are the Worker for `tasks/NNNN-*.md`." plus anything
    not already in the task file.
 3. Review: delegate a Reviewer on a different model, or review yourself if you
-   did not implement it. On findings, send a new worker round including the
-   findings.
+   did not implement it. Check generated artifacts, not only verify. On
+   findings, remove the old worktree (keep its branch) and send a new round
+   with the original brief plus numbered findings; the new worker starts with
+   `git merge --ff-only <previous-branch>`.
 4. Merge (`--no-ff`), delete the task file, tick `PLAN.md`, run verify, push.
    Then remove the worker worktree and branch (`git worktree remove`) to
    free disk.
