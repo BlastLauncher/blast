@@ -49,11 +49,11 @@ headless answers.
 
 ## Acceptance
 
-- [ ] Runtime tests: AI.ask resolve/stream/abort/denied; browser tabs and
+- [x] Runtime tests: AI.ask resolve/stream/abort/denied; browser tabs and
       content; canAccess reflects host availability.
-- [ ] Protocol tests for the `init.environment` change; CLI e2e for both flags.
-- [ ] No non-deprecated path in the narrowed scope missing; partials explained in Handoff.
-- [ ] `bun run verify` passes.
+- [x] Protocol tests for the `init.environment` change; CLI e2e for both flags.
+- [x] No non-deprecated path in the narrowed scope missing; partials explained in Handoff.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -62,8 +62,15 @@ headless answers.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/ai-browser-tools @ 7713f382c1b7e30c4a96b6bf3ed0854b8fd1aa3a (implementation; handoff follows)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 40.3s
 Done:
+- Implemented AI.ask Promise/data streaming, abort handling, generated Model values, aliases and typed option evidence.
+- Implemented BrowserExtension capability clients and typed Tool confirmation evidence.
+- Added validated optional API availability to init.environment and synchronous canAccess grants.
+- Added --ai-answer / validated --browser-tabs, Node CLI e2e coverage, protocol/runtime/host tests and docs; regenerated compat evidence with no missing non-deprecated paths in scope. 394 tests pass. No dependencies added.
 Not done / risks:
+- AI.ask, AskOptions.model, ModelSelector and ModelSelector.id remain partial because extension-provided { id } models explicitly reject; provider APIs, experimental_decide and refreshModels remain deferred to 0045.
+- BrowserExtension.getContent is partial: the runtime forwards options, but headless supplied content has no format conversion and rejects CSS selectors. Without tabId, the first active supplied tab stands in for the focused window.
+- Abort stops waiting and suppresses late data; it does not cancel work already submitted to the host.
 ```
