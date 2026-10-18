@@ -142,6 +142,11 @@ one command per line: `action <title>`, `submenu <title>` (dispatches an
 `expect <text>`, `quit`. Form fields expose runtime-owned `value` and `onChange`;
 `field` sends strings, or `true`/`false` for checkboxes (dates use ISO strings).
 FilePicker fields accept comma-separated paths; omitting the value clears them.
+TagPicker fields take comma-separated values the same way. PasswordField keeps
+its value runtime-side only: the scene carries a boolean `hasValue` flag (never
+the value or its length), so published scenes, client prints and runtime logs
+stay secret-free, while `onChange`, focus/blur events and
+`Action.SubmitForm` deliver the raw value to extension callbacks.
 Picker options are carried in the scene for clients; no OS dialog opens.
 `submit` runs the first `Action.SubmitForm`, which collects the mounted form
 fields by id. Controlled fields follow their supplied value; uncontrolled fields

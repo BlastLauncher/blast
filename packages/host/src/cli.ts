@@ -92,7 +92,8 @@ Script commands (one per line, "#" starts a comment):
   wait            Wait until the next scene is published.
   expect <text>   Fail (exit 1) unless the latest scene tree contains the text.
   field <id> <value>  Edit a Form field (checkbox values: true/false; dates: ISO;
-                     file pickers: comma-separated paths; omit value to clear).
+                     file pickers and tag pickers: comma-separated values; omit
+                     value to clear).
   submit          Run the first Action.SubmitForm.
   quit            Shut down and finish with exit code 0.
 
@@ -393,7 +394,7 @@ async function runScript(session: Session, steps: Step[]): Promise<void> {
           if (node.type === "Form.Checkbox" && !["true", "false"].includes(step.value))
             throw new ScriptError("checkbox field value must be true or false");
           const value =
-            node.type === "Form.FilePicker"
+            node.type === "Form.FilePicker" || node.type === "Form.TagPicker"
               ? step.value === ""
                 ? []
                 : step.value.split(",")

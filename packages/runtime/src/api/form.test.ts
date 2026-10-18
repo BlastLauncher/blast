@@ -93,9 +93,82 @@ import type { FormEvent, FormValue, FormValues } from "./form.ts";
 // @covers Form.Dropdown.Section.Props.children
 // @covers Form.Checkbox.Props.label
 // @covers Form.Description
+// @covers Form.Description.Props
 // @covers Form.Description.Props.title
 // @covers Form.Description.Props.text
 // @covers Form.Separator
+// @covers Form.Separator.Props
+// @covers Form.ItemProps
+// @covers Form.ItemProps.id
+// @covers Form.ItemProps.title
+// @covers Form.ItemProps.info
+// @covers Form.ItemProps.error
+// @covers Form.ItemProps.storeValue partial
+// @covers Form.ItemProps.autoFocus
+// @covers Form.ItemProps.value
+// @covers Form.ItemProps.defaultValue
+// @covers Form.ItemProps.onChange
+// @covers Form.ItemProps.onBlur
+// @covers Form.ItemProps.onFocus
+// @covers Form.Value
+// @covers Form.Values
+// @covers Form.Event
+// @covers Form.Event.Type
+// @covers Form.Event.target
+// @covers Form.Event.target.id
+// @covers Form.Event.target.value
+// @covers Form.Event.type
+// @covers Form.Props
+// @covers Form.Props.enableDrafts partial
+// @covers Form.TextField.Props
+// @covers Form.TextArea.Props
+// @covers Form.Checkbox.Props
+// @covers Form.DatePicker.Props
+// @covers Form.DatePicker.isFullDay
+// @covers Form.Dropdown.Props
+// @covers Form.Dropdown.Props.filtering.keepSectionOrder partial
+// @covers Form.Dropdown.Item.Props
+// @covers Form.Dropdown.Section.Props
+// @covers Form.FilePicker.Props
+// @covers Form.Description.Props
+// @covers Form.TagPicker partial
+// @covers Form.TagPicker.Props
+// @covers Form.TagPicker.Props.id
+// @covers Form.TagPicker.Props.title
+// @covers Form.TagPicker.Props.info
+// @covers Form.TagPicker.Props.error
+// @covers Form.TagPicker.Props.storeValue partial
+// @covers Form.TagPicker.Props.autoFocus
+// @covers Form.TagPicker.Props.value
+// @covers Form.TagPicker.Props.defaultValue
+// @covers Form.TagPicker.Props.onChange
+// @covers Form.TagPicker.Props.onBlur
+// @covers Form.TagPicker.Props.onFocus
+// @covers Form.TagPicker.Props.children
+// @covers Form.TagPicker.Props.placeholder
+// @covers Form.TagPicker.Item
+// @covers Form.TagPicker.Item.Props
+// @covers Form.TagPicker.Item.Props.value
+// @covers Form.TagPicker.Item.Props.title
+// @covers Form.TagPicker.Item.Props.icon
+// @covers Form.PasswordField partial
+// @covers Form.PasswordField.Props
+// @covers Form.PasswordField.Props.id
+// @covers Form.PasswordField.Props.title
+// @covers Form.PasswordField.Props.info
+// @covers Form.PasswordField.Props.error
+// @covers Form.PasswordField.Props.storeValue partial
+// @covers Form.PasswordField.Props.autoFocus
+// @covers Form.PasswordField.Props.value partial
+// @covers Form.PasswordField.Props.defaultValue partial
+// @covers Form.PasswordField.Props.onChange
+// @covers Form.PasswordField.Props.onBlur
+// @covers Form.PasswordField.Props.onFocus
+// @covers Form.PasswordField.Props.placeholder
+// @covers Form.LinkAccessory
+// @covers Form.LinkAccessory.Props
+// @covers Form.LinkAccessory.Props.target
+// @covers Form.LinkAccessory.Props.text
 // @covers Action.SubmitForm partial
 // @covers Action.SubmitForm.Props.title
 // @covers Action.SubmitForm.Props.icon
@@ -464,5 +537,218 @@ test("FilePicker retains path arrays, controlled values, options and focus event
   change("local", []);
   submit();
   expect(submitted.local).toEqual([]);
+  root.unmount();
+});
+
+// @covers Form.DatePicker.isFullDay
+// @covers Form.Dropdown.Props.filtering.keepSectionOrder partial
+test("DatePicker.isFullDay detects midnight values and Dropdown records keepSectionOrder", () => {
+  expect(Form.DatePicker.isFullDay(new Date(2026, 9, 18))).toBe(true);
+  expect(Form.DatePicker.isFullDay(new Date(2026, 9, 18, 12, 30))).toBe(false);
+  expect(Form.DatePicker.isFullDay(new Date(2026, 9, 18, 0, 0, 0, 1))).toBe(false);
+  expect(Form.DatePicker.isFullDay(null)).toBe(false);
+  expect(Form.DatePicker.isFullDay()).toBe(false);
+  const { root, find } = setup();
+  root.render(
+    h(
+      Form,
+      null,
+      h(
+        Form.Dropdown,
+        { id: "drop", filtering: { keepSectionOrder: true } },
+        h(Form.Dropdown.Item, { value: "one", title: "One" }),
+      ),
+    ),
+  );
+  expect(find("drop").props.filtering).toEqual({ keepSectionOrder: true });
+  root.unmount();
+});
+
+// @covers Form.TagPicker partial
+// @covers Form.LinkAccessory
+// @covers Form.Props.enableDrafts partial
+test("TagPicker retains value arrays, controlled values, options and focus events through submit", () => {
+  const { root, find, change, submit, nodes } = setup();
+  let submitted: FormValues = {};
+  const changes: string[][] = [];
+  const events: FormEvent<string[]>[] = [];
+  function Command() {
+    const [tags, setTags] = useState(["green"]);
+    return h(
+      Form,
+      {
+        enableDrafts: true,
+        searchBarAccessory: h(Form.LinkAccessory, {
+          target: "https://developers.raycast.com",
+          text: "Docs",
+        }),
+        actions: h(Action.SubmitForm, {
+          onSubmit: (values) => {
+            submitted = values;
+          },
+        }),
+      },
+      h(Form.TagPicker, { id: "empty" }),
+      h(Form.TagPicker, { id: "fixed", value: ["red"] }),
+      h(
+        Form.TagPicker,
+        {
+          id: "local",
+          defaultValue: ["green"],
+          onChange: (value) => changes.push(value),
+        },
+        h(Form.TagPicker.Item, { value: "red", title: "Red" }),
+        h(Form.TagPicker.Item, { value: "green", title: "Green", icon: "🔵" }),
+      ),
+      h(
+        Form.TagPicker,
+        {
+          id: "controlled",
+          value: tags,
+          defaultValue: ["/ignored"],
+          onChange: setTags,
+          title: "Tags",
+          info: "Pick colors",
+          error: "Required",
+          autoFocus: true,
+          storeValue: true,
+          placeholder: "Add tag",
+          onFocus: (event) => events.push(event),
+          onBlur: (event) => events.push(event),
+        },
+        h(Form.TagPicker.Item, { value: "blue", title: "Blue" }),
+      ),
+    );
+  }
+  root.render(h(Command));
+  expect(find("empty").props).toMatchObject({ value: [] });
+  expect(find("controlled").props).toMatchObject({
+    value: ["green"],
+    title: "Tags",
+    info: "Pick colors",
+    error: "Required",
+    autoFocus: true,
+    storeValue: true,
+    placeholder: "Add tag",
+  });
+  const items = nodes().filter((node) => node.type === "Form.TagPicker.Item");
+  expect(items).toEqual([
+    expect.objectContaining({ props: { value: "red", title: "Red" } }),
+    expect.objectContaining({ props: { value: "green", title: "Green", icon: "🔵" } }),
+    expect.objectContaining({ props: { value: "blue", title: "Blue" } }),
+  ]);
+  expect(nodes().find((node) => node.type === "Form.LinkAccessory")?.props).toEqual({
+    target: "https://developers.raycast.com",
+    text: "Docs",
+  });
+  expect(nodes().some((node) => node.type === "Form" && node.props.enableDrafts === true)).toBe(
+    true,
+  );
+  change("local", ["green", "red"]);
+  change("controlled", ["blue"]);
+  change("fixed", ["ignored"]);
+  root.render(h(Command));
+  root.dispatch(find("controlled").id, "onFocus", []);
+  root.dispatch(find("controlled").id, "onBlur", []);
+  expect(events).toEqual(
+    (["focus", "blur"] as const).map((type) => ({
+      type,
+      target: { id: "controlled", value: ["blue"] },
+    })),
+  );
+  expect(changes).toEqual([["green", "red"]]);
+  submit();
+  expect(submitted).toEqual({
+    empty: [],
+    fixed: ["red"],
+    local: ["green", "red"],
+    controlled: ["blue"],
+  });
+  change("local", []);
+  submit();
+  expect(submitted.local).toEqual([]);
+  root.unmount();
+});
+
+// @covers Form.PasswordField partial
+test("PasswordField submits its value while every published scene stays secret-free", () => {
+  // Every published snapshot is kept, so the earlier scenes can be checked too.
+  const scenes: SceneSnapshot[] = [];
+  const root = createSceneRoot({ publish: (next) => scenes.push(next) });
+  const secret = "correct horse battery staple";
+  function nodes(node: SceneNode = scenes.at(-1)!.root!): SceneNode[] {
+    return [node, ...node.children.flatMap((child) => nodes(child))];
+  }
+  function find(id: string) {
+    return nodes().find((item) => item.props.id === id)!;
+  }
+  let submitted: FormValues = {};
+  function Command() {
+    const [password, setPassword] = useState("");
+    return h(
+      Form,
+      {
+        actions: h(Action.SubmitForm, {
+          onSubmit: (values) => {
+            submitted = values;
+          },
+        }),
+      },
+      h(Form.PasswordField, { id: "empty", placeholder: "Empty" }),
+      h(Form.PasswordField, { id: "defaulted", defaultValue: "default-secret" }),
+      h(Form.PasswordField, {
+        id: "controlled",
+        value: password,
+        onChange: setPassword,
+        title: "Password",
+        info: "Account password",
+        error: "Required",
+        autoFocus: true,
+        storeValue: true,
+        placeholder: "Type it",
+        onFocus: (event) => {
+          // Event payloads reaching the extension's own callbacks carry the
+          // value; the published scene must not.
+          expect(event.target.value).toBe(password);
+        },
+        onBlur: (event) => expect(event.target.value).toBe(password),
+      }),
+    );
+  }
+  root.render(h(Command));
+  const assertSecretFree = () => {
+    for (const scene of scenes) {
+      expect(JSON.stringify(scene)).not.toContain(secret);
+      expect(JSON.stringify(scene)).not.toContain("default-secret");
+      const field = JSON.stringify(find("controlled").props);
+      expect(field).not.toContain("value");
+      expect(field).toContain('"hasValue"');
+    }
+  };
+  expect(find("controlled").props).toMatchObject({
+    title: "Password",
+    info: "Account password",
+    error: "Required",
+    autoFocus: true,
+    storeValue: true,
+    placeholder: "Type it",
+    hasValue: false,
+  });
+  expect(find("defaulted").props.hasValue).toBe(true);
+  root.dispatch(find("controlled").id, "onChange", [secret]);
+  root.flush();
+  root.render(h(Command));
+  expect(find("controlled").props.hasValue).toBe(true);
+  root.dispatch(find("controlled").id, "onFocus", []);
+  root.dispatch(find("controlled").id, "onBlur", []);
+  assertSecretFree();
+  const submitNode = nodes().find((node) => node.type === "Action.SubmitForm")!;
+  expect(root.dispatch(submitNode.id, "onAction", [])).toBeUndefined();
+  expect(submitted).toEqual({ empty: "", defaulted: "default-secret", controlled: secret });
+  // Clearing the field drops the flag without a length hint.
+  root.dispatch(find("controlled").id, "onChange", [""]);
+  root.flush();
+  expect(find("controlled").props.hasValue).toBe(false);
+  assertSecretFree();
   root.unmount();
 });

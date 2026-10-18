@@ -4,32 +4,32 @@ Denominator: the `@raycast/api@2.8.2` declarations. Evidence:
 `// @covers` tags in `packages/**/*.test.ts(x)`. A parent is not implied covered
 by its children. Partial support is reported separately from covered.
 
-**Non-deprecated coverage: 974/1534 covered (63.5%), 75 partial, 485 missing.**
+**Non-deprecated coverage: 1037/1534 covered (67.6%), 84 partial, 413 missing.**
 Deprecated: 35/939 covered (3.7%), 5 partial, 899 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 974 | 35 | 1009 |
-| partial | 75 | 5 | 80 |
-| missing | 485 | 899 | 1384 |
+| covered | 1037 | 35 | 1072 |
+| partial | 84 | 5 | 89 |
+| missing | 413 | 899 | 1312 |
 
 ## Totals by kind
 
 | Kind | Covered | Partial | Missing | Total |
 | --- | --- | --- | --- | --- |
 | namespace | 3 | 1 | 5 | 9 |
-| component | 29 | 41 | 46 | 116 |
+| component | 31 | 43 | 42 | 116 |
 | function | 29 | 4 | 17 | 50 |
 | const | 1 | 1 | 19 | 21 |
 | class | 2 | 0 | 1 | 3 |
 | enum | 10 | 0 | 3 | 13 |
 | enum-member | 508 | 0 | 183 | 691 |
 | interface | 8 | 2 | 54 | 64 |
-| type | 27 | 3 | 148 | 178 |
-| property | 381 | 28 | 895 | 1304 |
-| method | 11 | 0 | 13 | 24 |
+| type | 47 | 3 | 128 | 178 |
+| property | 421 | 35 | 848 | 1304 |
+| method | 12 | 0 | 12 | 24 |
 
 ## Top-level symbols
 
@@ -69,7 +69,7 @@ Children counts include all descendants, as covered/partial/total.
 | `Environment` | interface | missing | 0/0/17 | 2 |
 | `FileIcon` | interface | missing | 0/0/1 | 1 |
 | `FileSystemItem` | interface | covered | 0/0/1 | 10 |
-| `Form` | component | partial | 93/14/213 | 1362 |
+| `Form` | component | partial | 156/23/213 | 1362 |
 | `FormCheckbox` | const | missing | 0/0/2 | 0 |
 | `FormCheckboxProps` | interface | missing | 0/0/12 | 0 |
 | `FormDatePicker` | const | missing | 0/0/2 | 0 |
@@ -194,51 +194,51 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | --- | --- |
 | `Image.ImageLike` | 279 |
 | `List.Props.pagination` | 206 |
-| `Form.TagPicker` | 168 |
-| `Form.TagPicker.Item` | 168 |
-| `Form.TagPicker.Item.Props.title` | 168 |
-| `Form.TagPicker.Item.Props.value` | 168 |
-| `Form.TagPicker.Props.title` | 167 |
 | `OAuth` | 135 |
 | `OAuth.PKCEClient` | 134 |
 | `OAuth.RedirectMethod` | 134 |
-| `Form.PasswordField` | 132 |
-| `Form.PasswordField.Props.title` | 131 |
 | `Tool` | 128 |
 | `Tool.Confirmation` | 128 |
 | `AI` | 115 |
 | `OAuth.RedirectMethod.Web` | 112 |
 | `environment.canAccess` | 107 |
-| `Form.TagPicker.Props.id` | 106 |
-| `Form.PasswordField.Props.placeholder` | 93 |
-| `Form.Props.enableDrafts` | 90 |
 | `Keyboard.KeyEquivalent` | 85 |
 | `environment.appearance` | 82 |
 | `AI.ask` | 79 |
-| `Form.PasswordField.Props.id` | 72 |
 | `Action.ShowInFinder.Props.shortcut` | 68 |
-| `Form.TagPicker.Item.Props.icon` | 66 |
-| `Form.TagPicker.Props.placeholder` | 66 |
 | `List.Item.Props` | 64 |
 | `BrowserExtension` | 62 |
 | `OAuth.TokenResponse` | 61 |
 | `BrowserExtension.getTabs` | 60 |
 | `List.Item.Props.accessoryTitle` | 58 |
 | `Action.OpenWith.Props.shortcut` | 56 |
-| `Form.TagPicker.Props.onChange` | 53 |
 | `OAuth.AuthorizationRequest` | 53 |
 | `Action.CreateQuicklink.Props.shortcut` | 51 |
-| `Form.TagPicker.Props.value` | 47 |
 | `Color.ColorLike` | 44 |
-| `Form.PasswordField.Props.onChange` | 44 |
 | `Keyboard.KeyModifier` | 44 |
-| `Form.TagPicker.Props.defaultValue` | 41 |
 | `captureException` | 41 |
 | `clearSearchBar` | 41 |
-| `Form.LinkAccessory` | 38 |
-| `Form.LinkAccessory.Props.target` | 38 |
-| `Form.LinkAccessory.Props.text` | 38 |
-| `Form.PasswordField.Props.info` | 36 |
 | `AI.Model` | 35 |
-| `Form.PasswordField.Props.value` | 34 |
-| `Form.Values` | 33 |
+| `List.Props.enableFiltering` | 32 |
+| `ActionPanel.Item.Props.onAction` | 30 |
+| `ActionPanel.Item.Props.title` | 30 |
+| `Action.CreateQuicklink.Props.icon` | 29 |
+| `OpenInBrowserAction` | 29 |
+| `OpenInBrowserAction.Props.url` | 29 |
+| `List.Item.Props.quickLook` | 28 |
+| `Action.ToggleQuickLook.Props.shortcut` | 26 |
+| `CopyToClipboardAction.Props.content` | 22 |
+| `Image.Source` | 21 |
+| `ActionPanel.Item.Props.icon` | 20 |
+| `List.Props` | 20 |
+| `getDefaultApplication` | 20 |
+| `Action.Trash.Props.shortcut` | 19 |
+| `BrowserExtension.getContent` | 18 |
+| `Action.ShowInFinder.Props.icon` | 17 |
+| `OpenInBrowserAction.Props.title` | 17 |
+| `CopyToClipboardAction.Props.title` | 16 |
+| `AI.GetModels` | 14 |
+| `AI.StreamCompletion` | 14 |
+| `Action.CreateSnippet.Props.shortcut` | 14 |
+| `List.Dropdown.Props` | 14 |
+| `List.Item.Props.accessoryIcon` | 14 |
