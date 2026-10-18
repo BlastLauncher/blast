@@ -8,6 +8,7 @@
     "compat/*.json",
     "compat/raycast-api/**",
     "compat/COVERAGE.md",
+    "compat/DEPENDENCIES.md",
     "bun.lock"
   ]
 }

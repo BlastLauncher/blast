@@ -41,11 +41,21 @@ export function packageName(specifier: string): string {
 }
 
 /**
+ * A name npm would accept: lowercase, optionally scoped. Import scanning is
+ * syntactic, so it also reads text that merely looks like an import — a
+ * generated Swift script (`from "AppKit"`) or a Node subpath import
+ * (`#imports`) — and those are not packages Blast could pin. A scope-shaped
+ * tsconfig alias (`@lib/utils`) is indistinguishable from a package here and
+ * stays, exactly as `unprovidedImports` counts it for bundling.
+ */
+const NPM_PACKAGE = /^(?:@[a-z0-9][a-z0-9-._~]*\/)?[a-z0-9][a-z0-9-._~]*$/;
+
+/**
  * npm packages imported by non-test sources. `unprovidedImports` keeps
  * specifiers because the bundler reports those; this keeps packages because
  * the dependency report sums a package's whole import surface. Relative paths,
- * the provided packages and non-npm specifiers (`node:`, `swift:` and other
- * URL-like schemes) are never packages Blast could pin.
+ * the provided packages, non-npm specifiers (`node:`, `swift:`) and names npm
+ * would not accept are left out.
  */
 export function importedPackages(sources: Iterable<Source>): string[] {
   const found = new Set<string>();
@@ -56,7 +66,8 @@ export function importedPackages(sources: Iterable<Source>): string[] {
       if (specifier.startsWith(".") || specifier.startsWith("/")) continue;
       if (specifier.includes(":") || PROVIDED_SPECIFIER.test(specifier)) continue;
       if (isBuiltin(specifier)) continue;
-      found.add(packageName(specifier));
+      const name = packageName(specifier);
+      if (NPM_PACKAGE.test(name)) found.add(name);
     }
   }
   return [...found].toSorted();

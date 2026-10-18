@@ -1,0 +1,11123 @@
+{
+  "corpusCommit": "3b812d1e153a1862df29bc8ec34e170c728512ea",
+  "extensions": 3443,
+  "providedOnly": 1573,
+  "curve": [
+    {
+      "provided": 10,
+      "satisfied": 1986
+    },
+    {
+      "provided": 20,
+      "satisfied": 2139
+    },
+    {
+      "provided": 30,
+      "satisfied": 2205
+    },
+    {
+      "provided": 50,
+      "satisfied": 2306
+    }
+  ],
+  "packages": [
+    {
+      "name": "node-fetch",
+      "declared": 366,
+      "imported": 331,
+      "majors": {
+        "2": 20,
+        "3": 346
+      }
+    },
+    {
+      "name": "axios",
+      "declared": 211,
+      "imported": 200,
+      "majors": {
+        "0": 27,
+        "1": 184
+      }
+    },
+    {
+      "name": "date-fns",
+      "declared": 141,
+      "imported": 135,
+      "majors": {
+        "2": 42,
+        "3": 24,
+        "4": 75
+      }
+    },
+    {
+      "name": "run-applescript",
+      "declared": 111,
+      "imported": 96,
+      "majors": {
+        "6": 77,
+        "7": 34
+      }
+    },
+    {
+      "name": "lodash",
+      "declared": 81,
+      "imported": 72,
+      "majors": {
+        "4": 81
+      }
+    },
+    {
+      "name": "zod",
+      "declared": 69,
+      "imported": 64,
+      "majors": {
+        "3": 34,
+        "4": 35
+      }
+    },
+    {
+      "name": "cheerio",
+      "declared": 64,
+      "imported": 62,
+      "majors": {
+        "1": 63,
+        "other": 1
+      }
+    },
+    {
+      "name": "dayjs",
+      "declared": 61,
+      "imported": 59,
+      "majors": {
+        "1": 61
+      }
+    },
+    {
+      "name": "fuse.js",
+      "declared": 51,
+      "imported": 49,
+      "majors": {
+        "6": 17,
+        "7": 34
+      }
+    },
+    {
+      "name": "uuid",
+      "declared": 50,
+      "imported": 49,
+      "majors": {
+        "8": 6,
+        "9": 19,
+        "10": 1,
+        "11": 21,
+        "13": 3
+      }
+    },
+    {
+      "name": "nanoid",
+      "declared": 52,
+      "imported": 48,
+      "majors": {
+        "3": 8,
+        "4": 17,
+        "5": 25,
+        "6": 2
+      }
+    },
+    {
+      "name": "cross-fetch",
+      "declared": 46,
+      "imported": 46,
+      "majors": {
+        "3": 10,
+        "4": 36
+      }
+    },
+    {
+      "name": "moment",
+      "declared": 39,
+      "imported": 36,
+      "majors": {
+        "2": 39
+      }
+    },
+    {
+      "name": "node-html-markdown",
+      "declared": 39,
+      "imported": 36,
+      "majors": {
+        "1": 29,
+        "2": 10
+      }
+    },
+    {
+      "name": "rss-parser",
+      "declared": 35,
+      "imported": 35,
+      "majors": {
+        "3": 35
+      }
+    },
+    {
+      "name": "execa",
+      "declared": 34,
+      "imported": 34,
+      "majors": {
+        "5": 2,
+        "6": 7,
+        "7": 1,
+        "8": 6,
+        "9": 18
+      }
+    },
+    {
+      "name": "got",
+      "declared": 39,
+      "imported": 33,
+      "majors": {
+        "11": 2,
+        "12": 18,
+        "13": 2,
+        "14": 15,
+        "15": 2
+      }
+    },
+    {
+      "name": "turndown",
+      "declared": 34,
+      "imported": 33,
+      "majors": {
+        "7": 34
+      }
+    },
+    {
+      "name": "fs-extra",
+      "declared": 34,
+      "imported": 32,
+      "majors": {
+        "10": 4,
+        "11": 30
+      }
+    },
+    {
+      "name": "openai",
+      "declared": 29,
+      "imported": 29,
+      "majors": {
+        "3": 2,
+        "4": 19,
+        "5": 3,
+        "6": 2,
+        "7": 3
+      }
+    },
+    {
+      "name": "plist",
+      "declared": 22,
+      "imported": 22,
+      "majors": {
+        "3": 21,
+        "5": 1
+      }
+    },
+    {
+      "name": "swr",
+      "declared": 23,
+      "imported": 22,
+      "majors": {
+        "1": 7,
+        "2": 16
+      }
+    },
+    {
+      "name": "raycast-cross-extension",
+      "declared": 23,
+      "imported": 21,
+      "majors": {
+        "0": 23
+      }
+    },
+    {
+      "name": "fast-xml-parser",
+      "declared": 20,
+      "imported": 20,
+      "majors": {
+        "4": 5,
+        "5": 15
+      }
+    },
+    {
+      "name": "form-data",
+      "declared": 26,
+      "imported": 20,
+      "majors": {
+        "4": 26
+      }
+    },
+    {
+      "name": "yaml",
+      "declared": 20,
+      "imported": 20,
+      "majors": {
+        "2": 20
+      }
+    },
+    {
+      "name": "algoliasearch",
+      "declared": 19,
+      "imported": 19,
+      "majors": {
+        "4": 18,
+        "5": 1
+      }
+    },
+    {
+      "name": "ai",
+      "declared": 18,
+      "imported": 18,
+      "majors": {
+        "4": 1,
+        "5": 5,
+        "7": 12
+      }
+    },
+    {
+      "name": "chrono-node",
+      "declared": 18,
+      "imported": 18,
+      "majors": {
+        "2": 18
+      }
+    },
+    {
+      "name": "javascript-time-ago",
+      "declared": 18,
+      "imported": 18,
+      "majors": {
+        "2": 18
+      }
+    },
+    {
+      "name": "js-yaml",
+      "declared": 16,
+      "imported": 18,
+      "majors": {
+        "4": 16
+      }
+    },
+    {
+      "name": "@chrismessina/raycast-logger",
+      "declared": 17,
+      "imported": 17,
+      "majors": {
+        "1": 17
+      }
+    },
+    {
+      "name": "@tanstack/react-query",
+      "declared": 19,
+      "imported": 17,
+      "majors": {
+        "5": 19
+      }
+    },
+    {
+      "name": "filesize",
+      "declared": 17,
+      "imported": 17,
+      "majors": {
+        "10": 3,
+        "11": 14
+      }
+    },
+    {
+      "name": "open",
+      "declared": 23,
+      "imported": 17,
+      "majors": {
+        "8": 18,
+        "9": 1,
+        "10": 3,
+        "11": 1
+      }
+    },
+    {
+      "name": "qrcode",
+      "declared": 16,
+      "imported": 16,
+      "majors": {
+        "1": 16
+      }
+    },
+    {
+      "name": "node-html-parser",
+      "declared": 17,
+      "imported": 14,
+      "majors": {
+        "5": 3,
+        "6": 8,
+        "7": 4,
+        "9": 2
+      }
+    },
+    {
+      "name": "file-type",
+      "declared": 13,
+      "imported": 12,
+      "majors": {
+        "18": 2,
+        "19": 1,
+        "20": 2,
+        "21": 5,
+        "22": 3
+      }
+    },
+    {
+      "name": "jimp",
+      "declared": 14,
+      "imported": 12,
+      "majors": {
+        "0": 3,
+        "1": 11
+      }
+    },
+    {
+      "name": "marked",
+      "declared": 12,
+      "imported": 12,
+      "majors": {
+        "9": 1,
+        "14": 2,
+        "15": 3,
+        "16": 1,
+        "17": 2,
+        "18": 3
+      }
+    },
+    {
+      "name": "tildify",
+      "declared": 12,
+      "imported": 12,
+      "majors": {
+        "3": 12
+      }
+    },
+    {
+      "name": "xml2js",
+      "declared": 13,
+      "imported": 12,
+      "majors": {
+        "0": 13
+      }
+    },
+    {
+      "name": "@supabase/supabase-js",
+      "declared": 11,
+      "imported": 11,
+      "majors": {
+        "2": 11
+      }
+    },
+    {
+      "name": "raycast-toolkit",
+      "declared": 11,
+      "imported": 11,
+      "majors": {
+        "1": 11
+      }
+    },
+    {
+      "name": "fast-glob",
+      "declared": 9,
+      "imported": 10,
+      "majors": {
+        "3": 9
+      }
+    },
+    {
+      "name": "gray-matter",
+      "declared": 10,
+      "imported": 10,
+      "majors": {
+        "4": 10
+      }
+    },
+    {
+      "name": "lodash.groupby",
+      "declared": 10,
+      "imported": 10,
+      "majors": {
+        "4": 10
+      }
+    },
+    {
+      "name": "luxon",
+      "declared": 10,
+      "imported": 10,
+      "majors": {
+        "3": 10
+      }
+    },
+    {
+      "name": "mime-types",
+      "declared": 10,
+      "imported": 10,
+      "majors": {
+        "2": 6,
+        "3": 4
+      }
+    },
+    {
+      "name": "semver",
+      "declared": 10,
+      "imported": 10,
+      "majors": {
+        "7": 10
+      }
+    },
+    {
+      "name": "@ai-sdk/openai-compatible",
+      "declared": 9,
+      "imported": 9,
+      "majors": {
+        "1": 3,
+        "3": 6
+      }
+    },
+    {
+      "name": "@apollo/client",
+      "declared": 9,
+      "imported": 9,
+      "majors": {
+        "3": 9
+      }
+    },
+    {
+      "name": "@modelcontextprotocol/sdk",
+      "declared": 9,
+      "imported": 9,
+      "majors": {
+        "1": 9
+      }
+    },
+    {
+      "name": "csv-parse",
+      "declared": 9,
+      "imported": 9,
+      "majors": {
+        "5": 7,
+        "6": 1,
+        "7": 1
+      }
+    },
+    {
+      "name": "domhandler",
+      "declared": 0,
+      "imported": 9,
+      "majors": {}
+    },
+    {
+      "name": "json2md",
+      "declared": 10,
+      "imported": 9,
+      "majors": {
+        "1": 3,
+        "2": 7
+      }
+    },
+    {
+      "name": "linkedom",
+      "declared": 9,
+      "imported": 9,
+      "majors": {
+        "0": 9
+      }
+    },
+    {
+      "name": "pinyin-pro",
+      "declared": 9,
+      "imported": 9,
+      "majors": {
+        "3": 9
+      }
+    },
+    {
+      "name": "proper-lockfile",
+      "declared": 9,
+      "imported": 9,
+      "majors": {
+        "4": 9
+      }
+    },
+    {
+      "name": "sql.js",
+      "declared": 9,
+      "imported": 9,
+      "majors": {
+        "1": 9
+      }
+    },
+    {
+      "name": "striptags",
+      "declared": 12,
+      "imported": 9,
+      "majors": {
+        "3": 12
+      }
+    },
+    {
+      "name": "zustand",
+      "declared": 9,
+      "imported": 9,
+      "majors": {
+        "3": 1,
+        "4": 2,
+        "5": 6
+      }
+    },
+    {
+      "name": "@chrismessina/raycast-kit",
+      "declared": 8,
+      "imported": 8,
+      "majors": {
+        "0": 8
+      }
+    },
+    {
+      "name": "file-url",
+      "declared": 11,
+      "imported": 8,
+      "majors": {
+        "4": 11
+      }
+    },
+    {
+      "name": "graphql-request",
+      "declared": 7,
+      "imported": 8,
+      "majors": {
+        "6": 5,
+        "7": 2
+      }
+    },
+    {
+      "name": "shell-env",
+      "declared": 9,
+      "imported": 8,
+      "majors": {
+        "4": 9
+      }
+    },
+    {
+      "name": "untildify",
+      "declared": 8,
+      "imported": 8,
+      "majors": {
+        "4": 6,
+        "5": 1,
+        "6": 1
+      }
+    },
+    {
+      "name": "use-debounce",
+      "declared": 8,
+      "imported": 8,
+      "majors": {
+        "9": 4,
+        "10": 4
+      }
+    },
+    {
+      "name": "@ai-sdk/openai",
+      "declared": 7,
+      "imported": 7,
+      "majors": {
+        "1": 1,
+        "2": 2,
+        "4": 4
+      }
+    },
+    {
+      "name": "he",
+      "declared": 8,
+      "imported": 7,
+      "majors": {
+        "1": 8
+      }
+    },
+    {
+      "name": "js-base64",
+      "declared": 9,
+      "imported": 7,
+      "majors": {
+        "3": 9
+      }
+    },
+    {
+      "name": "ofetch",
+      "declared": 7,
+      "imported": 7,
+      "majors": {
+        "1": 7
+      }
+    },
+    {
+      "name": "remove-markdown",
+      "declared": 7,
+      "imported": 7,
+      "majors": {
+        "0": 7
+      }
+    },
+    {
+      "name": "tempy",
+      "declared": 7,
+      "imported": 7,
+      "majors": {
+        "2": 3,
+        "3": 4
+      }
+    },
+    {
+      "name": "@faker-js/faker",
+      "declared": 2,
+      "imported": 6,
+      "majors": {
+        "10": 2
+      }
+    },
+    {
+      "name": "@mozilla/readability",
+      "declared": 6,
+      "imported": 6,
+      "majors": {
+        "0": 6
+      }
+    },
+    {
+      "name": "@nem035/gpt-3-encoder",
+      "declared": 6,
+      "imported": 6,
+      "majors": {
+        "1": 6
+      }
+    },
+    {
+      "name": "@notionhq/client",
+      "declared": 6,
+      "imported": 6,
+      "majors": {
+        "2": 4,
+        "5": 2
+      }
+    },
+    {
+      "name": "change-case",
+      "declared": 7,
+      "imported": 6,
+      "majors": {
+        "4": 1,
+        "5": 6
+      }
+    },
+    {
+      "name": "formdata-node",
+      "declared": 7,
+      "imported": 6,
+      "majors": {
+        "5": 3,
+        "6": 4
+      }
+    },
+    {
+      "name": "graphql-tag",
+      "declared": 3,
+      "imported": 6,
+      "majors": {
+        "2": 3
+      }
+    },
+    {
+      "name": "html-entities",
+      "declared": 7,
+      "imported": 6,
+      "majors": {
+        "2": 7
+      }
+    },
+    {
+      "name": "html-to-text",
+      "declared": 6,
+      "imported": 6,
+      "majors": {
+        "9": 3,
+        "10": 3
+      }
+    },
+    {
+      "name": "iconv-lite",
+      "declared": 8,
+      "imported": 6,
+      "majors": {
+        "0": 8
+      }
+    },
+    {
+      "name": "octokit",
+      "declared": 7,
+      "imported": 6,
+      "majors": {
+        "2": 1,
+        "3": 3,
+        "4": 1,
+        "5": 2
+      }
+    },
+    {
+      "name": "osascript-tag",
+      "declared": 6,
+      "imported": 6,
+      "majors": {
+        "0": 6
+      }
+    },
+    {
+      "name": "parse-git-config",
+      "declared": 6,
+      "imported": 6,
+      "majors": {
+        "3": 6
+      }
+    },
+    {
+      "name": "timeago.js",
+      "declared": 6,
+      "imported": 6,
+      "majors": {
+        "4": 6
+      }
+    },
+    {
+      "name": "ts-pattern",
+      "declared": 7,
+      "imported": 6,
+      "majors": {
+        "4": 3,
+        "5": 4
+      }
+    },
+    {
+      "name": "vitest",
+      "declared": 1,
+      "imported": 6,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@solana/web3.js",
+      "declared": 5,
+      "imported": 5,
+      "majors": {
+        "1": 5
+      }
+    },
+    {
+      "name": "@total-typescript/ts-reset",
+      "declared": 2,
+      "imported": 5,
+      "majors": {
+        "0": 2
+      }
+    },
+    {
+      "name": "adm-zip",
+      "declared": 5,
+      "imported": 5,
+      "majors": {
+        "0": 5
+      }
+    },
+    {
+      "name": "bonjour-service",
+      "declared": 5,
+      "imported": 5,
+      "majors": {
+        "1": 5
+      }
+    },
+    {
+      "name": "bplist-parser",
+      "declared": 6,
+      "imported": 5,
+      "majors": {
+        "0": 6
+      }
+    },
+    {
+      "name": "dedent",
+      "declared": 6,
+      "imported": 5,
+      "majors": {
+        "0": 1,
+        "1": 5
+      }
+    },
+    {
+      "name": "eventsource-parser",
+      "declared": 5,
+      "imported": 5,
+      "majors": {
+        "1": 5
+      }
+    },
+    {
+      "name": "extract-zip",
+      "declared": 5,
+      "imported": 5,
+      "majors": {
+        "2": 5
+      }
+    },
+    {
+      "name": "fuzzysort",
+      "declared": 5,
+      "imported": 5,
+      "majors": {
+        "1": 2,
+        "3": 3
+      }
+    },
+    {
+      "name": "glob",
+      "declared": 5,
+      "imported": 5,
+      "majors": {
+        "7": 1,
+        "10": 2,
+        "11": 2
+      }
+    },
+    {
+      "name": "https-proxy-agent",
+      "declared": 6,
+      "imported": 5,
+      "majors": {
+        "5": 2,
+        "7": 4
+      }
+    },
+    {
+      "name": "image-size",
+      "declared": 6,
+      "imported": 5,
+      "majors": {
+        "1": 3,
+        "2": 3
+      }
+    },
+    {
+      "name": "moment-timezone",
+      "declared": 5,
+      "imported": 5,
+      "majors": {
+        "0": 5
+      }
+    },
+    {
+      "name": "papaparse",
+      "declared": 5,
+      "imported": 5,
+      "majors": {
+        "5": 5
+      }
+    },
+    {
+      "name": "pretty-bytes",
+      "declared": 6,
+      "imported": 5,
+      "majors": {
+        "6": 4,
+        "7": 2
+      }
+    },
+    {
+      "name": "react-use",
+      "declared": 4,
+      "imported": 5,
+      "majors": {
+        "17": 4
+      }
+    },
+    {
+      "name": "slugify",
+      "declared": 6,
+      "imported": 5,
+      "majors": {
+        "1": 6
+      }
+    },
+    {
+      "name": "tldts",
+      "declared": 5,
+      "imported": 5,
+      "majors": {
+        "6": 1,
+        "7": 4
+      }
+    },
+    {
+      "name": "url-join",
+      "declared": 5,
+      "imported": 5,
+      "majors": {
+        "4": 3,
+        "5": 2
+      }
+    },
+    {
+      "name": "validator",
+      "declared": 5,
+      "imported": 5,
+      "majors": {
+        "13": 5
+      }
+    },
+    {
+      "name": "@ai-sdk/anthropic",
+      "declared": 4,
+      "imported": 4,
+      "majors": {
+        "2": 1,
+        "4": 3
+      }
+    },
+    {
+      "name": "@aws-sdk/client-s3",
+      "declared": 4,
+      "imported": 4,
+      "majors": {
+        "3": 4
+      }
+    },
+    {
+      "name": "@iarna/toml",
+      "declared": 4,
+      "imported": 4,
+      "majors": {
+        "2": 3,
+        "3": 1
+      }
+    },
+    {
+      "name": "@lib/utils",
+      "declared": 0,
+      "imported": 4,
+      "majors": {}
+    },
+    {
+      "name": "@octokit/core",
+      "declared": 5,
+      "imported": 4,
+      "majors": {
+        "4": 1,
+        "6": 2,
+        "7": 2
+      }
+    },
+    {
+      "name": "@octokit/rest",
+      "declared": 6,
+      "imported": 4,
+      "majors": {
+        "20": 1,
+        "21": 3,
+        "22": 2
+      }
+    },
+    {
+      "name": "@resvg/resvg-wasm",
+      "declared": 4,
+      "imported": 4,
+      "majors": {
+        "2": 4
+      }
+    },
+    {
+      "name": "@testing-library/jest-dom",
+      "declared": 0,
+      "imported": 4,
+      "majors": {}
+    },
+    {
+      "name": "@web3-storage/parse-link-header",
+      "declared": 4,
+      "imported": 4,
+      "majors": {
+        "3": 4
+      }
+    },
+    {
+      "name": "archiver",
+      "declared": 5,
+      "imported": 4,
+      "majors": {
+        "5": 1,
+        "7": 4
+      }
+    },
+    {
+      "name": "color-hash",
+      "declared": 4,
+      "imported": 4,
+      "majors": {
+        "2": 4
+      }
+    },
+    {
+      "name": "culori",
+      "declared": 4,
+      "imported": 4,
+      "majors": {
+        "3": 1,
+        "4": 3
+      }
+    },
+    {
+      "name": "echarts",
+      "declared": 4,
+      "imported": 4,
+      "majors": {
+        "5": 1,
+        "6": 3
+      }
+    },
+    {
+      "name": "expand-tilde",
+      "declared": 3,
+      "imported": 4,
+      "majors": {
+        "2": 3
+      }
+    },
+    {
+      "name": "fast-fuzzy",
+      "declared": 4,
+      "imported": 4,
+      "majors": {
+        "1": 4
+      }
+    },
+    {
+      "name": "fzf",
+      "declared": 4,
+      "imported": 4,
+      "majors": {
+        "0": 4
+      }
+    },
+    {
+      "name": "ini",
+      "declared": 4,
+      "imported": 4,
+      "majors": {
+        "3": 1,
+        "5": 1,
+        "6": 2
+      }
+    },
+    {
+      "name": "is-url",
+      "declared": 6,
+      "imported": 4,
+      "majors": {
+        "1": 6
+      }
+    },
+    {
+      "name": "json5",
+      "declared": 4,
+      "imported": 4,
+      "majors": {
+        "2": 4
+      }
+    },
+    {
+      "name": "ky",
+      "declared": 6,
+      "imported": 4,
+      "majors": {
+        "1": 4,
+        "2": 2
+      }
+    },
+    {
+      "name": "lodash-es",
+      "declared": 4,
+      "imported": 4,
+      "majors": {
+        "4": 4
+      }
+    },
+    {
+      "name": "lodash.debounce",
+      "declared": 4,
+      "imported": 4,
+      "majors": {
+        "4": 4
+      }
+    },
+    {
+      "name": "mailparser",
+      "declared": 4,
+      "imported": 4,
+      "majors": {
+        "3": 4
+      }
+    },
+    {
+      "name": "mime",
+      "declared": 4,
+      "imported": 4,
+      "majors": {
+        "4": 4
+      }
+    },
+    {
+      "name": "nodemailer",
+      "declared": 4,
+      "imported": 4,
+      "majors": {
+        "10": 4
+      }
+    },
+    {
+      "name": "otpauth",
+      "declared": 4,
+      "imported": 4,
+      "majors": {
+        "9": 4
+      }
+    },
+    {
+      "name": "parse-url",
+      "declared": 5,
+      "imported": 4,
+      "majors": {
+        "6": 1,
+        "9": 2,
+        "10": 1,
+        "11": 1
+      }
+    },
+    {
+      "name": "query-string",
+      "declared": 4,
+      "imported": 4,
+      "majors": {
+        "7": 1,
+        "8": 2,
+        "9": 1
+      }
+    },
+    {
+      "name": "react-dom",
+      "declared": 13,
+      "imported": 4,
+      "majors": {
+        "17": 1,
+        "18": 7,
+        "19": 5
+      }
+    },
+    {
+      "name": "say",
+      "declared": 4,
+      "imported": 4,
+      "majors": {
+        "0": 4
+      }
+    },
+    {
+      "name": "smol-toml",
+      "declared": 4,
+      "imported": 4,
+      "majors": {
+        "1": 4
+      }
+    },
+    {
+      "name": "sound-play",
+      "declared": 4,
+      "imported": 4,
+      "majors": {
+        "1": 4
+      }
+    },
+    {
+      "name": "tar",
+      "declared": 4,
+      "imported": 4,
+      "majors": {
+        "7": 4
+      }
+    },
+    {
+      "name": "tiny-relative-date",
+      "declared": 4,
+      "imported": 4,
+      "majors": {
+        "1": 3,
+        "2": 1
+      }
+    },
+    {
+      "name": "tinycolor2",
+      "declared": 5,
+      "imported": 4,
+      "majors": {
+        "1": 5
+      }
+    },
+    {
+      "name": "tough-cookie",
+      "declared": 4,
+      "imported": 4,
+      "majors": {
+        "4": 1,
+        "5": 1,
+        "6": 2
+      }
+    },
+    {
+      "name": "turndown-plugin-gfm",
+      "declared": 4,
+      "imported": 4,
+      "majors": {
+        "1": 4
+      }
+    },
+    {
+      "name": "weeknumber",
+      "declared": 5,
+      "imported": 4,
+      "majors": {
+        "1": 5
+      }
+    },
+    {
+      "name": "youtube-transcript",
+      "declared": 4,
+      "imported": 4,
+      "majors": {
+        "1": 4
+      }
+    },
+    {
+      "name": "@anthropic-ai/sdk",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "0": 3
+      }
+    },
+    {
+      "name": "@chrismessina/raycast-downloader",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "0": 3
+      }
+    },
+    {
+      "name": "@components/actions",
+      "declared": 0,
+      "imported": 3,
+      "majors": {}
+    },
+    {
+      "name": "@lib/cache",
+      "declared": 0,
+      "imported": 3,
+      "majors": {}
+    },
+    {
+      "name": "@octokit/types",
+      "declared": 2,
+      "imported": 3,
+      "majors": {
+        "7": 1,
+        "16": 1
+      }
+    },
+    {
+      "name": "@slack/web-api",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "6": 1,
+        "7": 2
+      }
+    },
+    {
+      "name": "@src/components",
+      "declared": 0,
+      "imported": 3,
+      "majors": {}
+    },
+    {
+      "name": "@src/hooks",
+      "declared": 0,
+      "imported": 3,
+      "majors": {}
+    },
+    {
+      "name": "@src/types",
+      "declared": 0,
+      "imported": 3,
+      "majors": {}
+    },
+    {
+      "name": "bs58",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "6": 3
+      }
+    },
+    {
+      "name": "calendar",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "0": 3
+      }
+    },
+    {
+      "name": "color-namer",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "1": 3
+      }
+    },
+    {
+      "name": "colord",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "2": 3
+      }
+    },
+    {
+      "name": "country-emoji",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "1": 3
+      }
+    },
+    {
+      "name": "cron-parser",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "5": 3
+      }
+    },
+    {
+      "name": "d3-color",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "3": 3
+      }
+    },
+    {
+      "name": "date-fns-tz",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "3": 3
+      }
+    },
+    {
+      "name": "dateformat",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "5": 3
+      }
+    },
+    {
+      "name": "debounce",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "1": 3
+      }
+    },
+    {
+      "name": "dedent-js",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "1": 3
+      }
+    },
+    {
+      "name": "download",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "8": 3
+      }
+    },
+    {
+      "name": "effect",
+      "declared": 2,
+      "imported": 3,
+      "majors": {
+        "3": 1,
+        "4": 1
+      }
+    },
+    {
+      "name": "ethers",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "6": 3
+      }
+    },
+    {
+      "name": "eventsource",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "2": 2,
+        "4": 1
+      }
+    },
+    {
+      "name": "gpt-tokenizer",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "2": 3
+      }
+    },
+    {
+      "name": "hi-base32",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "0": 3
+      }
+    },
+    {
+      "name": "image-meta",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "0": 3
+      }
+    },
+    {
+      "name": "imapflow",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "1": 3
+      }
+    },
+    {
+      "name": "jose",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "5": 1,
+        "6": 2
+      }
+    },
+    {
+      "name": "jotai",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "1": 1,
+        "2": 1,
+        "3": 1
+      }
+    },
+    {
+      "name": "mdast",
+      "declared": 0,
+      "imported": 3,
+      "majors": {}
+    },
+    {
+      "name": "meilisearch",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "0": 3
+      }
+    },
+    {
+      "name": "node-localstorage",
+      "declared": 4,
+      "imported": 3,
+      "majors": {
+        "2": 2,
+        "3": 2
+      }
+    },
+    {
+      "name": "oazapfts",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "4": 3
+      }
+    },
+    {
+      "name": "openapi-fetch",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "0": 3
+      }
+    },
+    {
+      "name": "otplib",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "12": 3
+      }
+    },
+    {
+      "name": "p-limit",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "4": 1,
+        "5": 1,
+        "6": 1
+      }
+    },
+    {
+      "name": "p-queue",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "8": 2,
+        "9": 1
+      }
+    },
+    {
+      "name": "parse-github-url",
+      "declared": 2,
+      "imported": 3,
+      "majors": {
+        "1": 2
+      }
+    },
+    {
+      "name": "pg",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "8": 3
+      }
+    },
+    {
+      "name": "ping",
+      "declared": 4,
+      "imported": 3,
+      "majors": {
+        "0": 3,
+        "1": 1
+      }
+    },
+    {
+      "name": "pngjs",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "7": 3
+      }
+    },
+    {
+      "name": "protobufjs",
+      "declared": 4,
+      "imported": 3,
+      "majors": {
+        "7": 3,
+        "8": 1
+      }
+    },
+    {
+      "name": "sql-formatter",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "15": 3
+      }
+    },
+    {
+      "name": "svgo",
+      "declared": 2,
+      "imported": 3,
+      "majors": {
+        "3": 1,
+        "4": 1
+      }
+    },
+    {
+      "name": "title",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "3": 3
+      }
+    },
+    {
+      "name": "use-interval",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "1": 3
+      }
+    },
+    {
+      "name": "user-agents",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "1": 3
+      }
+    },
+    {
+      "name": "valibot",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "0": 1,
+        "1": 2
+      }
+    },
+    {
+      "name": "viem",
+      "declared": 4,
+      "imported": 3,
+      "majors": {
+        "2": 4
+      }
+    },
+    {
+      "name": "xml-js",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "1": 3
+      }
+    },
+    {
+      "name": "ytdl-core",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "4": 3
+      }
+    },
+    {
+      "name": "@ai-sdk/google",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "4": 2
+      }
+    },
+    {
+      "name": "@api/oauth",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@aws-sdk/s3-request-presigner",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "3": 2
+      }
+    },
+    {
+      "name": "@components/attributes_all",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@components/automation",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@components/battery",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@components/button",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@components/camera",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@components/climate",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@components/cover",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@components/door",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@components/entity",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@components/fan",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@components/hooks",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@components/input_boolean",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@components/input_button",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@components/input_datetime",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@components/input_number",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@components/input_select",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@components/input_text",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@components/light",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@components/mediaplayer",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@components/menu",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@components/motion",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@components/persistentnotification",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@components/person",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@components/scene",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@components/script",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@components/state",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@components/switch",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@components/timer",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@components/update",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@components/vacuum",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@components/weather",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@components/window",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@components/zone",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@google/genai",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "1": 2
+      }
+    },
+    {
+      "name": "@googleapis/calendar",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "11": 1,
+        "15": 1
+      }
+    },
+    {
+      "name": "@googleapis/gmail",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "1": 1,
+        "16": 1
+      }
+    },
+    {
+      "name": "@graphql-typed-document-node/core",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@hooks/use-workspaces",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@langchain/core",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "0": 2
+      }
+    },
+    {
+      "name": "@langchain/openai",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "0": 2
+      }
+    },
+    {
+      "name": "@lib/color",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@lib/common",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@lib/constants",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@lib/wifi",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@noble/hashes",
+      "declared": 1,
+      "imported": 2,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@priithaamer/dockerode",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "3": 2
+      }
+    },
+    {
+      "name": "@salesforce/core",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "6": 1,
+        "9": 1
+      }
+    },
+    {
+      "name": "@src/constants",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@src/utils",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@tanstack/query-async-storage-persister",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "5": 2
+      }
+    },
+    {
+      "name": "@tanstack/react-query-persist-client",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "5": 2
+      }
+    },
+    {
+      "name": "@tryfabric/martian",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "1": 2
+      }
+    },
+    {
+      "name": "@ts-rest/core",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "3": 2
+      }
+    },
+    {
+      "name": "@utils/clipboard",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@utils/constants",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@utils/env",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "@vitalets/google-translate-api",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "8": 1,
+        "9": 1
+      }
+    },
+    {
+      "name": "@xmldom/xmldom",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "0": 2
+      }
+    },
+    {
+      "name": "@xstate/react",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "6": 2
+      }
+    },
+    {
+      "name": "@zxcvbn-ts/core",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "2": 1,
+        "3": 1
+      }
+    },
+    {
+      "name": "@zxcvbn-ts/language-common",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "2": 1,
+        "3": 1
+      }
+    },
+    {
+      "name": "@zxcvbn-ts/language-en",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "2": 1,
+        "3": 1
+      }
+    },
+    {
+      "name": "ahooks",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "3": 2
+      }
+    },
+    {
+      "name": "ali-oss",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "6": 2
+      }
+    },
+    {
+      "name": "api",
+      "declared": 1,
+      "imported": 2,
+      "majors": {
+        "6": 1
+      }
+    },
+    {
+      "name": "basic-ftp",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "5": 2
+      }
+    },
+    {
+      "name": "bcryptjs",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "2": 1,
+        "3": 1
+      }
+    },
+    {
+      "name": "better-sqlite3-multiple-ciphers",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "11": 2
+      }
+    },
+    {
+      "name": "bignumber.js",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "9": 1,
+        "11": 1
+      }
+    },
+    {
+      "name": "binary-split",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "1": 2
+      }
+    },
+    {
+      "name": "chroma-js",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "2": 1,
+        "3": 1
+      }
+    },
+    {
+      "name": "city-timezones",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "1": 2
+      }
+    },
+    {
+      "name": "cloudconvert",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "2": 1,
+        "3": 1
+      }
+    },
+    {
+      "name": "cloudinary",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "2": 2
+      }
+    },
+    {
+      "name": "color-convert",
+      "declared": 3,
+      "imported": 2,
+      "majors": {
+        "2": 2,
+        "3": 1
+      }
+    },
+    {
+      "name": "colorjs.io",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "0": 2
+      }
+    },
+    {
+      "name": "commonmark",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "0": 2
+      }
+    },
+    {
+      "name": "cronstrue",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "3": 2
+      }
+    },
+    {
+      "name": "crypto-js",
+      "declared": 5,
+      "imported": 2,
+      "majors": {
+        "4": 5
+      }
+    },
+    {
+      "name": "dedupe",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "4": 2
+      }
+    },
+    {
+      "name": "drizzle-orm",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "0": 2
+      }
+    },
+    {
+      "name": "edn-data",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "0": 1,
+        "1": 1
+      }
+    },
+    {
+      "name": "emoji-datasource-apple",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "15": 1,
+        "16": 1
+      }
+    },
+    {
+      "name": "es-toolkit",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "1": 2
+      }
+    },
+    {
+      "name": "escape-string-regexp",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "5": 2
+      }
+    },
+    {
+      "name": "exifr",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "7": 2
+      }
+    },
+    {
+      "name": "file-uri-to-path",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "2": 2
+      }
+    },
+    {
+      "name": "fix-path",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "4": 2
+      }
+    },
+    {
+      "name": "fluent-ffmpeg",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "2": 2
+      }
+    },
+    {
+      "name": "fontverter",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "2": 2
+      }
+    },
+    {
+      "name": "franc-min",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "6": 2
+      }
+    },
+    {
+      "name": "friendly-mimes",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "3": 2
+      }
+    },
+    {
+      "name": "fromnow",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "3": 2
+      }
+    },
+    {
+      "name": "git-url-parse",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "16": 2
+      }
+    },
+    {
+      "name": "globby",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "13": 1,
+        "14": 1
+      }
+    },
+    {
+      "name": "gpt3-tokenizer",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "1": 2
+      }
+    },
+    {
+      "name": "graphql",
+      "declared": 12,
+      "imported": 2,
+      "majors": {
+        "15": 2,
+        "16": 10
+      }
+    },
+    {
+      "name": "handlebars",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "4": 2
+      }
+    },
+    {
+      "name": "highlight.js",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "11": 2
+      }
+    },
+    {
+      "name": "html-to-md",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "0": 2
+      }
+    },
+    {
+      "name": "ignore",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "5": 1,
+        "7": 1
+      }
+    },
+    {
+      "name": "image-type",
+      "declared": 3,
+      "imported": 2,
+      "majors": {
+        "5": 3
+      }
+    },
+    {
+      "name": "ipaddr.js",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "2": 2
+      }
+    },
+    {
+      "name": "is-image",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "3": 1,
+        "4": 1
+      }
+    },
+    {
+      "name": "is-valid-domain",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "0": 2
+      }
+    },
+    {
+      "name": "js-beautify",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "1": 2
+      }
+    },
+    {
+      "name": "json-schema",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "json-ts",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "1": 2
+      }
+    },
+    {
+      "name": "jsonwebtoken",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "9": 2
+      }
+    },
+    {
+      "name": "jsqr",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "1": 2
+      }
+    },
+    {
+      "name": "jwt-decode",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "4": 2
+      }
+    },
+    {
+      "name": "koffi",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "2": 2
+      }
+    },
+    {
+      "name": "libphonenumber-js",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "1": 2
+      }
+    },
+    {
+      "name": "linkify-it",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "4": 1,
+        "5": 1
+      }
+    },
+    {
+      "name": "lodash.startcase",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "4": 2
+      }
+    },
+    {
+      "name": "lodash.unescape",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "4": 2
+      }
+    },
+    {
+      "name": "lucide-react",
+      "declared": 1,
+      "imported": 2,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "manage-wifi",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "2": 2
+      }
+    },
+    {
+      "name": "markdown-it",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "13": 1,
+        "14": 1
+      }
+    },
+    {
+      "name": "marked-highlight",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "2": 2
+      }
+    },
+    {
+      "name": "mathjs",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "15": 2
+      }
+    },
+    {
+      "name": "mdast-util-to-markdown",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "2": 2
+      }
+    },
+    {
+      "name": "minecraft-server-util",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "5": 2
+      }
+    },
+    {
+      "name": "minisearch",
+      "declared": 3,
+      "imported": 2,
+      "majors": {
+        "4": 1,
+        "7": 2
+      }
+    },
+    {
+      "name": "mixpanel",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "0": 2
+      }
+    },
+    {
+      "name": "mongodb",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "6": 1,
+        "7": 1
+      }
+    },
+    {
+      "name": "mqtt",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "5": 2
+      }
+    },
+    {
+      "name": "multicast-dns",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "7": 2
+      }
+    },
+    {
+      "name": "mysql2",
+      "declared": 3,
+      "imported": 2,
+      "majors": {
+        "3": 3
+      }
+    },
+    {
+      "name": "native-say",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "0": 2
+      }
+    },
+    {
+      "name": "natural",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "6": 2
+      }
+    },
+    {
+      "name": "nepali-date-converter",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "3": 2
+      }
+    },
+    {
+      "name": "node-emoji",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "2": 2
+      }
+    },
+    {
+      "name": "node-forge",
+      "declared": 3,
+      "imported": 2,
+      "majors": {
+        "1": 3
+      }
+    },
+    {
+      "name": "numeral",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "2": 2
+      }
+    },
+    {
+      "name": "nzh",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "1": 2
+      }
+    },
+    {
+      "name": "openpgp",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "5": 2
+      }
+    },
+    {
+      "name": "opentype.js",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "1": 2
+      }
+    },
+    {
+      "name": "p-min-delay",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "4": 2
+      }
+    },
+    {
+      "name": "pangu",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "4": 2
+      }
+    },
+    {
+      "name": "phone",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "3": 2
+      }
+    },
+    {
+      "name": "placeholders-toolkit",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "0": 2
+      }
+    },
+    {
+      "name": "play-sound",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "1": 2
+      }
+    },
+    {
+      "name": "pocketbase",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "0": 2
+      }
+    },
+    {
+      "name": "polished",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "4": 2
+      }
+    },
+    {
+      "name": "prettier",
+      "declared": 8,
+      "imported": 2,
+      "majors": {
+        "2": 5,
+        "3": 3
+      }
+    },
+    {
+      "name": "proxy-agent",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "6": 2
+      }
+    },
+    {
+      "name": "quicktype-core",
+      "declared": 1,
+      "imported": 2,
+      "majors": {
+        "6": 1
+      }
+    },
+    {
+      "name": "ramda",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "0": 2
+      }
+    },
+    {
+      "name": "raycast-hooks",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "1": 2
+      }
+    },
+    {
+      "name": "raycast-language-detector",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "0": 2
+      }
+    },
+    {
+      "name": "react-error-boundary",
+      "declared": 1,
+      "imported": 2,
+      "majors": {
+        "6": 1
+      }
+    },
+    {
+      "name": "remark",
+      "declared": 3,
+      "imported": 2,
+      "majors": {
+        "14": 1,
+        "15": 2
+      }
+    },
+    {
+      "name": "run-jxa",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "3": 1,
+        "4": 1
+      }
+    },
+    {
+      "name": "sanitize-html",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "2": 2
+      }
+    },
+    {
+      "name": "satori",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "0": 2
+      }
+    },
+    {
+      "name": "simple-plist",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "1": 2
+      }
+    },
+    {
+      "name": "socket.io-client",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "4": 2
+      }
+    },
+    {
+      "name": "src",
+      "declared": 0,
+      "imported": 2,
+      "majors": {}
+    },
+    {
+      "name": "stream-json",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "1": 1,
+        "3": 1
+      }
+    },
+    {
+      "name": "stripe",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "17": 2
+      }
+    },
+    {
+      "name": "suncalc",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "1": 2
+      }
+    },
+    {
+      "name": "svg64",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "2": 2
+      }
+    },
+    {
+      "name": "svgson",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "5": 2
+      }
+    },
+    {
+      "name": "systeminformation",
+      "declared": 3,
+      "imported": 2,
+      "majors": {
+        "5": 3
+      }
+    },
+    {
+      "name": "tailwindcss",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "3": 1,
+        "4": 1
+      }
+    },
+    {
+      "name": "tar-stream",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "3": 2
+      }
+    },
+    {
+      "name": "through2-map",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "4": 2
+      }
+    },
+    {
+      "name": "tiktoken",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "1": 2
+      }
+    },
+    {
+      "name": "tiny-invariant",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "1": 2
+      }
+    },
+    {
+      "name": "tiny-pinyin",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "1": 2
+      }
+    },
+    {
+      "name": "tlds",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "1": 2
+      }
+    },
+    {
+      "name": "ts-dedent",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "2": 2
+      }
+    },
+    {
+      "name": "ts-fsrs",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "4": 2
+      }
+    },
+    {
+      "name": "ts-md5",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "1": 2
+      }
+    },
+    {
+      "name": "ts-results-es",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "3": 2
+      }
+    },
+    {
+      "name": "tz-lookup",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "6": 2
+      }
+    },
+    {
+      "name": "ulid",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "2": 2
+      }
+    },
+    {
+      "name": "ulidx",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "2": 2
+      }
+    },
+    {
+      "name": "unified",
+      "declared": 1,
+      "imported": 2,
+      "majors": {
+        "11": 1
+      }
+    },
+    {
+      "name": "usehooks-ts",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "2": 1,
+        "3": 1
+      }
+    },
+    {
+      "name": "utf8",
+      "declared": 3,
+      "imported": 2,
+      "majors": {
+        "3": 3
+      }
+    },
+    {
+      "name": "vkbeautify",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "0": 2
+      }
+    },
+    {
+      "name": "which",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "5": 1,
+        "7": 1
+      }
+    },
+    {
+      "name": "xlsx",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "0": 2
+      }
+    },
+    {
+      "name": "xstate",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "5": 2
+      }
+    },
+    {
+      "name": "yauzl",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "3": 2
+      }
+    },
+    {
+      "name": "0",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@adobe/leonardo-contrast-colors",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@ai-sdk/cerebras",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@ai-sdk/gateway",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "@ai-sdk/groq",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "@ai-sdk/react",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "@algolia/client-search",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@alicloud/pop-core",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@angular/core",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@apexinfosysindia/js-websocket",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "9": 1
+      }
+    },
+    {
+      "name": "@api-blueprints/pathmaker",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@api/cal.com",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@api/checker",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@api/fetch",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@api/orders",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@api/positions",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@api/pscale",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "other": 1
+      }
+    },
+    {
+      "name": "@api/zabbix",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@asyncapi/parser",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@atcute/did-plc",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@atcute/identity",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@atcute/identity-resolver",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@atcute/identity-resolver-node",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@atcute/lexicon-resolver",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@atcute/lexicon-resolver-node",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@atcute/lexicons",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@aternus/csv-to-xlsx",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@atproto/api",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@atproto/identity",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@atproto/lexicon",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@atproto/uri",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@aws-sdk/client-amplify",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@aws-sdk/client-api-gateway",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@aws-sdk/client-apigatewayv2",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@aws-sdk/client-appsync",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@aws-sdk/client-cloudformation",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@aws-sdk/client-cloudwatch-logs",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@aws-sdk/client-codepipeline",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@aws-sdk/client-dynamodb",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@aws-sdk/client-ec2",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@aws-sdk/client-ecr",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@aws-sdk/client-ecs",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@aws-sdk/client-glue",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@aws-sdk/client-lambda",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@aws-sdk/client-secrets-manager",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@aws-sdk/client-sfn",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@aws-sdk/client-sqs",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@aws-sdk/client-ssm",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@aws-sdk/shared-ini-file-loader",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@aws-sdk/util-dynamodb",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@babel/core",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "7": 1
+      }
+    },
+    {
+      "name": "@babel/preset-typescript",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "7": 1
+      }
+    },
+    {
+      "name": "@beeper/desktop-api",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "@bgd-labs/toolbox",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@bharper/atv-js",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@blackwell-systems/gcf",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@botpress/client",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@braintree/sanitize-url",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "7": 1
+      }
+    },
+    {
+      "name": "@bsv/sdk",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@capacities/api",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@cashu/cashu-ts",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@catppuccin/palette",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@chrismessina/raycast-faker",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@chyroc/netease-music-controller",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@citation-js/core",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@citation-js/plugin-bibtex",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@citation-js/plugin-csl",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@citation-js/plugin-ris",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@clerk/backend",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@components/accounts",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@components/add-from-finder-action",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@components/area",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@components/budgets",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@components/calendar",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@components/cancel-booking",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@components/charts",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@components/device",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@components/edit-day-hours",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@components/edit-ooo",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@components/edit-override",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@components/edit-timezone",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@components/empty-views",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@components/notes-list",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@components/rename-schedule",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@components/request-reschedule",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@components/schedule-detail",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@components/search-result",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@components/search-using-spotlight-action",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@components/services",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@components/spotlight-results",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@components/sun",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@components/transactions",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@components/volume-actions",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@components/volume-details",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@components/volume-item",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@components/volumes",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@components/workspace-dropdown",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@components/workspace-list",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@contentful/rich-text-from-markdown",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "15": 1
+      }
+    },
+    {
+      "name": "@contentful/rich-text-html-renderer",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "16": 1
+      }
+    },
+    {
+      "name": "@contentful/rich-text-plain-text-renderer",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "16": 1
+      }
+    },
+    {
+      "name": "@cosmicjs/sdk",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@cosmjs/encoding",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@coze/api",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@ctrl/qbittorrent",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "9": 1
+      }
+    },
+    {
+      "name": "@danielxceron/youtube-transcript",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@data/common",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@data/schemas",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@data/types",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@datadog/datadog-api-client",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@date-fns/utc",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@daytona/sdk",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@deeplx/core",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@docuseal/api",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@dopplerhq/node-sdk",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@dust-tt/client",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@e2b/code-interpreter",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@edgestore/server",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@effect/platform",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@effect/platform-node",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@emoji-mart/data",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@ensdomains/address-encoder",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@env-keeper/core",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@ethereumjs/common",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@ethereumjs/evm",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@farcaster/core",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@ftrack/api",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@gerhobbelt/gitignore-parser",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@getalby/lightning-tools",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "@getalby/sdk",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@giphy/js-types",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@glideapps/tables",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@google-cloud/resource-manager",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "@googleapis/people",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "7": 1
+      }
+    },
+    {
+      "name": "@googleapis/youtube",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "33": 1
+      }
+    },
+    {
+      "name": "@groqfmt/wasm",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@hackmd/api",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@heroicons/react",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@hookform/resolvers",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "@hooks/use-domains",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@hooks/use-fzf",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@hooks/use-items",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@hooks/use-note-sections",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@hooks/use-open-target",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@hooks/use-scripts-accessible",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@hooks/use-short-links",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@hooks/use-spotlight",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@hooks/use-tags",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@hooks/use-volume-info",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@hooks/use-volumes",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@hooks/use-zoxide",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@hyzyla/pdfium",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@icon-park/svg",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@ilovepdf/ilovepdf-js-core",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@ilovepdf/ilovepdf-nodejs",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@imgproxy/imgproxy-js-core",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@imgproxy/imgproxy-node",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@immich/sdk",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@infisical/sdk",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "@j3lte/govee-lan-controller",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@jeromefitz/conventional-gitmoji",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "@jest/globals",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@joplin/turndown-plugin-gfm",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@jsonresume/schema",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@jxa/global-type",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@jxa/run",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@kky/ko-date-parse",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@kluai/core",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@kubernetes/client-node",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@kud/qobuz",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@langchain/deepseek",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@leeoniya/ufuzzy",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@lemonsqueezy/lemonsqueezy.js",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "@letta-ai/letta-client",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@lib/ac-menu",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@lib/apexapi",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@lib/api",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@lib/daily-desk",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@lib/entity-overrides",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@lib/entity-quicklink",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@lib/files",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@lib/haapi",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@lib/notes",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@lib/octarine",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@lib/preferences",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@lib/search",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@lib/translation",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@lib/workspaces",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@libsql/client",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@linear/sdk",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "91": 1
+      }
+    },
+    {
+      "name": "@liveblocks/node",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@lobehub/icons",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "@lokalise/node-api",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "15": 1
+      }
+    },
+    {
+      "name": "@lokesh.dhakar/quantize",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@makeplane/plane-node-sdk",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@marceloclp/monzojs",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@markw65/fit-file-writer",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@marp-team/marp-core",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "@mcdays/cloudflare-images-core",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@mem-labs/mem-node",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@memberstack/admin",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@mendable/firecrawl-js",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "@metatypes/typography",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@mihnea.dev/credit-card-generator",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@mirohq/miro-api",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@mistralai/mistralai",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@multiavatar/multiavatar",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@mux/mux-node",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "9": 1
+      }
+    },
+    {
+      "name": "@near-js/accounts",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@near-js/providers",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@near-js/tokens",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@near-js/types",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@neon/sdk",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@neondatabase/api-client",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@nktkas/hyperliquid",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@nozbe/microfuzz",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@nsis/docs",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@octokit/graphql",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@octokit/openapi-types",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@octokit/request",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "8": 1
+      }
+    },
+    {
+      "name": "@octokit/request-error",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@ogma/logger",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@open-qr/sdk",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@openclaw/gateway-client",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2026": 1
+      }
+    },
+    {
+      "name": "@openclaw/gateway-protocol",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2026": 1
+      }
+    },
+    {
+      "name": "@opencode-ai/models",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@opencode-ai/plugin",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@opencode-ai/sdk",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@openrouter/ai-sdk-provider",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@orbs-network/ton-access",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@otplib/core",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "13": 1
+      }
+    },
+    {
+      "name": "@otplib/plugin-base32-scure",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "13": 1
+      }
+    },
+    {
+      "name": "@otplib/plugin-crypto-noble",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "13": 1
+      }
+    },
+    {
+      "name": "@otplib/totp",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "13": 1
+      }
+    },
+    {
+      "name": "@otplib/uri",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "13": 1
+      }
+    },
+    {
+      "name": "@oxvg/wasm",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@p00f/core",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@page-scanner/cli",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@paralleldrive/cuid2",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@paynow-gg/typescript-sdk",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@peculiar/webcrypto",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@peculiar/x509",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@phosphor-icons/core",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@phosphor-icons/react",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@pieces.app/pieces-os-client",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "@plausible-analytics/tracker",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@polar-sh/sdk",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@puppeteer/browsers",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@putdotio/api-client",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "8": 1
+      }
+    },
+    {
+      "name": "@putdotio/utilities",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@raycast-community/ui",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@reatom/framework",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@reatom/npm-react",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@repo/trpc-router",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@root/add",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@root/hooks",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@saasflow/api-client",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "other": 1
+      }
+    },
+    {
+      "name": "@salesforce/kit",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@salesforce/ts-types",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@sanity/client",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "7": 1
+      }
+    },
+    {
+      "name": "@sanity/icons",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@scaleway/configuration-loader",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@scaleway/sdk",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@scaleway/sdk-client",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@scaleway/use-dataloader",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "@scriptin/jmdict-simplified-loader",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@scriptin/jmdict-simplified-types",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@scure/base",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@sentry/node",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@shlinkio/shlink-js-sdk",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@sinclair/typebox",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@sindresorhus/is",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "@sindresorhus/slugify",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@sindresorhus/transliterate",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@slack/bolt",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "@slack/types",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@solana/kit",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@solana/spl-token",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@solana/spl-token-registry",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@sourcegraph/telemetry",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@src/api",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@src/contexts",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@src/customer-payments",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@src/data",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@src/enums",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@src/manage-subscriptions",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@src/util",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@subnoto/api-client",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@suin/esa-api",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "@supabase/realtime-js",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@supernovaio/supernova-sdk",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@svgr/core",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@svgr/plugin-jsx",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@svgr/plugin-svgo",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@svrooij/sonos",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@tabler/icons-react",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@tabstack/sdk",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@tanstack/react-store",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@tanstack/store",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@temporalio/client",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@temporalio/proto",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@terminaldotshop/sdk",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@testing-library/dom",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@testing-library/react",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@textlint/kernel",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@textlint/textlint-plugin-markdown",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@tinymanorg/tinyman-js-sdk",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@tiptap/core",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@tiptap/html",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@tiptap/starter-kit",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@tombatossals/chords-db",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@tomic/react",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@toon-format/toon",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@trpc/client",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "11": 1
+      }
+    },
+    {
+      "name": "@trpc/react-query",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "11": 1
+      }
+    },
+    {
+      "name": "@trpc/server",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "11": 1
+      }
+    },
+    {
+      "name": "@trucky/sii-decrypt-ts",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@ts/constants",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@ts/errors",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@ts/helpers",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@ts/types",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@tuya/tuya-connector-nodejs",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@type/attachments",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@type/notes",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@type/octarine",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@type/workspaces",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@typesafe-ai/sdk",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@u2l/sdk",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@ui/cache",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@ui/components",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@ui/context",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@ui/keyboard",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@ui/localstorage",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@ui/types",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@ui/types.js",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@ui/types.ts",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@uidotdev/usehooks",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@ultirequiem/y2j",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@umami/api-client",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@unkey/api",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@uploadthing/shared",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "7": 1
+      }
+    },
+    {
+      "name": "@upstash/redis",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@use-it/interval",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@uselinkpilot/sdk",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@useshortcut/client",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@utils/display",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@utils/misc",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@utils/months",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@utils/path-helpers",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@utils/schema-utils",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@utils/scrapper",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@utils/str-utils",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@utils/toast",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@vaulted/crypto",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@view/no-error",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@view/result",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@view/server-error",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@visx/axis",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@visx/curve",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@visx/gradient",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@visx/grid",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@visx/group",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@visx/scale",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@visx/shape",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@visx/text",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@wagmi/core",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@walmartlabs/json-to-simple-graphql-schema",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@wcj/html-to-markdown",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@xsai/shared",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@xsai/shared-chat",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@xsai/stream-text",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@xterm/headless",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "6": 1
+      }
+    },
+    {
+      "name": "@yaireo/relative-time",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@yarnpkg/core",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "@yarnpkg/fslib",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@youri-kane/heroku-client",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@yukaii/debank-types",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "@yusifaliyevpro/countries",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "@zed-industries/agent-client-protocol",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@zeitraum/client",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@zip.js/zip.js",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@zodios/core",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "10": 1
+      }
+    },
+    {
+      "name": "abi-coder",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "ajv",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "8": 1
+      }
+    },
+    {
+      "name": "algosdk",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "apca-w3",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "apify-client",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "apollo-link-rest",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "apollo3-cache-persist",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "applescript",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "array-shuffle",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "arxivjs",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "asciichart",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "asciilib",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "asciimath-to-latex",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "async-mutex",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "async-retry",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "async-sema",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "auth0",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "autumn-js",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "aws4",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "axios-cookiejar-support",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "axios-rate-limit",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "bard-ai",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "base-path-converter",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "base64-js",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "base64url",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "beautiful-mermaid",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "beautiful-react-hooks",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "bech32",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "better-auth",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "bettertouchtool",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "bfx-api-node-models",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "binascii",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "bitbucket",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "bitfield",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "bitfinex-api-node",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "blurhash",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "bmw-connected-drive",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "bn.js",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "bonjour",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "browserslist",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "bwip-js",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "cache-func",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "cachedir",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "cally",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "caniuse-api",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "caniuse-lite",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "capitalize",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "chai",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "change-case-all",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "chartjs-to-image",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "cheetah-core",
+      "declared": 2,
+      "imported": 1,
+      "majors": {
+        "1": 2
+      }
+    },
+    {
+      "name": "chordbox",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "chrome-cookie-decrypt",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "citation-js",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "cjk-conv",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "clockodo",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "29": 1
+      }
+    },
+    {
+      "name": "cloudflare",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "clsx",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "color-scheme",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "color-string",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "common",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "components",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "composerize",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "config-ini-parser",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "configstore",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "6": 1
+      }
+    },
+    {
+      "name": "conjugation-fr",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "content-disposition",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "contentful-management",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "11": 1
+      }
+    },
+    {
+      "name": "costflow",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "couldn",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "countries-list",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "country-code-emoji",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "country-data-list",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "country-flag-icons",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "creem",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "cross-spawn",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "7": 1
+      }
+    },
+    {
+      "name": "crossbell",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "cryptgeon",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "css-color-converter",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "css.gg",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "csv-writer",
+      "declared": 2,
+      "imported": 1,
+      "majors": {
+        "1": 2
+      }
+    },
+    {
+      "name": "cuid",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "curl-string",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "currency-codes",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "d3-scale",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "d3-shape",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "d3-time-format",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "decimal.js",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "10": 1
+      }
+    },
+    {
+      "name": "decomposerize",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "decrypt-otpauth-ts",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "default-browser",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "default-browser-id",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "defuddle",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "deta-space-client",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "dictcc",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "diff",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "8": 1
+      }
+    },
+    {
+      "name": "discord.js",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "13": 1
+      }
+    },
+    {
+      "name": "discordjs-docs-parser",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "display-notification",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "dodopayments",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "dompurify",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "dropbox",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "10": 1
+      }
+    },
+    {
+      "name": "dt-sql-parser",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "dub",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "duration-iso-8601",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "email-validator",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "emoji-regex",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "11": 1
+      }
+    },
+    {
+      "name": "emojibase-data",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "17": 1
+      }
+    },
+    {
+      "name": "emojilib",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "empty",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "encoding",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "entities",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "6": 1
+      }
+    },
+    {
+      "name": "enums",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "envato",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "esrever",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "exa-js",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "exif-reader",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "exifreader",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "fast-luhn",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "fast-srp-hap",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "fastest-levenshtein",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "fetch-cookie",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "fetch-readme",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "figlet",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "file-size",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "firestore-export-import",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "flourite",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "follow-redirects",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "fonteditor-core",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "fontkit",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "form-data-encoder",
+      "declared": 3,
+      "imported": 1,
+      "majors": {
+        "2": 1,
+        "3": 1,
+        "4": 1
+      }
+    },
+    {
+      "name": "fp-ts",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "franc",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "6": 1
+      }
+    },
+    {
+      "name": "frecency",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "friendly-truncate",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "front-matter",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "fuel-agent-kit",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "fuzzball",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "fzy.js",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "garmin-connect",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "generate-schema",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "geohash-to-geojson",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "get-installed-browsers",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "get-pixels",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "gifenc",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "gitmojis",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "globalping",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "gofmt.js",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "google-auth-library",
+      "declared": 2,
+      "imported": 1,
+      "majors": {
+        "8": 1,
+        "9": 1
+      }
+    },
+    {
+      "name": "google-libphonenumber",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "google-translate-api-x",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "10": 1
+      }
+    },
+    {
+      "name": "google-tts-api",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "googleapis",
+      "declared": 2,
+      "imported": 1,
+      "majors": {
+        "129": 1,
+        "169": 1
+      }
+    },
+    {
+      "name": "graphemer",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "gravatar",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "grist-js",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "groq-sdk",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "gyazo-api",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "hash-sum",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "hast",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "heartwood-ts",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "heic-convert",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "helpers",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "hex-to-hsl",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "hijri-converter",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "home-assistant-js-websocket",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "8": 1
+      }
+    },
+    {
+      "name": "homey-api",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "hono",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "howlongtobeat",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "hsl-to-hex",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "html-metadata-parser",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "html2pug",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4111": 1
+      }
+    },
+    {
+      "name": "htmlparser2",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "8": 1
+      }
+    },
+    {
+      "name": "htmltojsx",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "http-link-header",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "http-status-codes",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "human-date",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "humanize-duration",
+      "declared": 2,
+      "imported": 1,
+      "majors": {
+        "3": 2
+      }
+    },
+    {
+      "name": "icy",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "image-dimensions",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "image-downloader",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "image-shield",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "imagekit",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "imgbb-uploader",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "imgur",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "inpost",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "interfaces",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "ioreg",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "ip",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "ip-address",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "10": 1
+      }
+    },
+    {
+      "name": "ip-toolkit",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "iptv-playlist-parser",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "is-svg",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "6": 1
+      }
+    },
+    {
+      "name": "is-valid-css-color",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "is-wsl",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "iso-639-1",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "jalali-moment",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "jest-fetch-mock",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "jira2md",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "jpeg-js",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "json-bigint",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "json-stringify-safe",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "json-to-go",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "other": 1
+      }
+    },
+    {
+      "name": "json-to-jsdoc",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "other": 1
+      }
+    },
+    {
+      "name": "json-wasm",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "other": 1
+      }
+    },
+    {
+      "name": "jsonc",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "jsonpath-plus",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "10": 1
+      }
+    },
+    {
+      "name": "jsonschema",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "jsrepo",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "jszip",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "juice",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "9": 1
+      }
+    },
+    {
+      "name": "kafkajs",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "kebab-case",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "kelvin-to-rgb",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "knowyourmeme-js",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "kosher-zmanim",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "lang-detector",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "languagedetect",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "laravel-echo",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "ldapts",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "9": 1
+      }
+    },
+    {
+      "name": "left-pad",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "lemmy-js-client",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "lifx-lan-client",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "lifxjs",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "link-preview-js",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "linkifyjs",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "linux-command",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "local",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "local-devices",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "lodash.isempty",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "lodash.orderby",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "lodash.shuffle",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "lodash.sortby",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "lodash.uniqby",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "lodash.uniqwith",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "lodash.xor",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "lodash.xorby",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "logseq-dateutils",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "long",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "lorem-ipsum",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "lru-cache",
+      "declared": 2,
+      "imported": 1,
+      "majors": {
+        "10": 1,
+        "11": 1
+      }
+    },
+    {
+      "name": "lunar-date-vn",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "lunar-javascript",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "mac-say",
+      "declared": 2,
+      "imported": 1,
+      "majors": {
+        "0": 2
+      }
+    },
+    {
+      "name": "macos-audio-devices",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "macos-release",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "macos-version",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "6": 1
+      }
+    },
+    {
+      "name": "magic-bytes.js",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "magic-home",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "mammoth",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "markdown-escape",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "markdown-it-plain-text",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "markdown-table",
+      "declared": 2,
+      "imported": 1,
+      "majors": {
+        "3": 2
+      }
+    },
+    {
+      "name": "marklassian",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "markmap-lib",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "match-sorter",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "6": 1
+      }
+    },
+    {
+      "name": "math-expression-evaluator",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "md5",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "mdast-util-from-markdown",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "mdast-util-gfm",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "mdfind",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "mdream",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "metaphor-node",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "micromark-extension-gfm",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "microsoft-cognitiveservices-speech-sdk",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "midjourney",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "millify",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "6": 1
+      }
+    },
+    {
+      "name": "minecraft-crafting-info",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "minio",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "8": 1
+      }
+    },
+    {
+      "name": "modern-async",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "module-replacements",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "monet",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "moneylover",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "moviedb-promise",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "ms",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "multipass-control",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "other": 1
+      }
+    },
+    {
+      "name": "music-metadata",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "11": 1
+      }
+    },
+    {
+      "name": "mysql",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "nano-spawn",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "nanostores",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "nature-remo",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "net-snmp",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "ngeohash",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "node-appwrite",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "20": 1
+      }
+    },
+    {
+      "name": "node-binance-api",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "node-cnb",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "node-csfd-api",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "node-fetch-native",
+      "declared": 2,
+      "imported": 1,
+      "majors": {
+        "1": 2
+      }
+    },
+    {
+      "name": "node-ical",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "node-id3",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "node-ipinfo",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "node-pty",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "node-stream-zip",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "node-tesseract-ocr",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "node-vault",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "nostr-tools",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "notdiamond",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "notion-to-md",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "oauth",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "objc",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "obs-websocket-js",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "oci-common",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "oci-core",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "oci-email",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "oci-keymanagement",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "oci-nosql",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "oci-objectstorage",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "oci-secrets",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "oci-vault",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "ohmyfetch",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "ojp-sdk-next",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "opencc-js",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "ordinal",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "os-utils",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "osc-min",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "pac-resolver",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "9": 1
+      }
+    },
+    {
+      "name": "pacote",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "22": 1
+      }
+    },
+    {
+      "name": "pako",
+      "declared": 2,
+      "imported": 1,
+      "majors": {
+        "2": 2
+      }
+    },
+    {
+      "name": "palm-api",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "parse",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "7": 1
+      }
+    },
+    {
+      "name": "parse-ms",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "partial-json",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "pastebin-api",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "pdf-lib",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "pdfkit",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "pele",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "pexels",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "picgo",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "picsum-photos",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "pitchy",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "pixelmatch",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "7": 1
+      }
+    },
+    {
+      "name": "playwright",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "pluralize",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "8": 1
+      }
+    },
+    {
+      "name": "pm2",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "7": 1
+      }
+    },
+    {
+      "name": "png-to-ico",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "postcss",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "8": 1
+      }
+    },
+    {
+      "name": "postcss-js",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "pptx-text-parser",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "pretty",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "prismarine-nbt",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "proj4",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "proper-url-join",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "proxy-from-env",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "psl",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "psn-api",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "public-ip",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "7": 1
+      }
+    },
+    {
+      "name": "pug",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "puppeteer",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "19": 1
+      }
+    },
+    {
+      "name": "puppeteer-core",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "24": 1
+      }
+    },
+    {
+      "name": "pureimage",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "pusher",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "pusher-js",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "qrcode-generator",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "qs",
+      "declared": 3,
+      "imported": 1,
+      "majors": {
+        "6": 3
+      }
+    },
+    {
+      "name": "quickchart-js",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "quickjs-wasi",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "random-ipv6",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "random-phone",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "random-words",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "raycast",
+      "declared": 5,
+      "imported": 1,
+      "majors": {
+        "1": 5
+      }
+    },
+    {
+      "name": "raycast-backend-api",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "raycast-effect",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "raycast-notifier",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "raydoom-core",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "rclone-openapi",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "rclone-sdk",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "rct-state",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "react-hook-form",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "7": 1
+      }
+    },
+    {
+      "name": "react-hooks-global-state",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "react-if",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "react-query",
+      "declared": 2,
+      "imported": 1,
+      "majors": {
+        "3": 2
+      }
+    },
+    {
+      "name": "read-chunk",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "read-last-lines",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "recent",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "recharts",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "recurly",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "recursive-fs",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "redis",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "regexpp",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "rehype-parse",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "9": 1
+      }
+    },
+    {
+      "name": "rehype-remark",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "10": 1
+      }
+    },
+    {
+      "name": "rehype-stringify",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "10": 1
+      }
+    },
+    {
+      "name": "remark-gfm",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "remark-parse",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "11": 1
+      }
+    },
+    {
+      "name": "remark-rehype",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "11": 1
+      }
+    },
+    {
+      "name": "remark-stringify",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "remixicon",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "remove-accents",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "remove.bg",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "request",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "resend",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "6": 1
+      }
+    },
+    {
+      "name": "rickmortyapi",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "sabnzbd-api",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "sanitize-filename",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "schema-dts",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "schoologyapi",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "scrape-it",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "scule",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "seam",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "sensible-api",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "sha256-file",
+      "declared": 2,
+      "imported": 1,
+      "majors": {
+        "1": 2
+      }
+    },
+    {
+      "name": "shell-history",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "shell-quote",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "sherlockjs",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "showdown",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "sii-parse-ts",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "similarity",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "simple-git",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "simple-icons",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "15": 1
+      }
+    },
+    {
+      "name": "simple-keyboard-layouts",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "sjcl",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "snarkdown",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "sncf-api-wrapper",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "soaring-symbols",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "socks-proxy-agent",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "7": 1
+      }
+    },
+    {
+      "name": "solid-js",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "sort-keys",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "south-african-fake-id-generator",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "spiceblow-database",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "spiceflow",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "split-limit",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "sql-template-strings",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "srt-parser-2",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "ssh-config",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "starknet",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "stdlib",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "steamgriddb",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "stream-chain",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "string-dedent",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "string-strip-html",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "13": 1
+      }
+    },
+    {
+      "name": "string-to-color",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "stringify-object",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "6": 1
+      }
+    },
+    {
+      "name": "strings-to-regex",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "strip-ansi",
+      "declared": 2,
+      "imported": 1,
+      "majors": {
+        "7": 2
+      }
+    },
+    {
+      "name": "sudo-prompt",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "9": 1
+      }
+    },
+    {
+      "name": "sugar",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "sunrise-sunset-js",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "supergenpass-lib",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "superjson",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "suspend-react",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "svg-to-jsx",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "swap-case",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "tailwind-merge",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "teak-sdk",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "teleproto",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "tencentcloud-sdk-nodejs-tmt",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "tex2typst",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "textlint-rule-aws-service-name",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "timezone-support",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "tinyexec",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "tiptap-markdown",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "title-case",
+      "declared": 2,
+      "imported": 1,
+      "majors": {
+        "3": 1,
+        "4": 1
+      }
+    },
+    {
+      "name": "tmi.js",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "tmp",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "to-semver",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "to-zalgo",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "toml",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "tonweb",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "totp-generator",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "tp-link-tapo-connect",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "transmission-promise",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "ts-enum-util",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "ts-interface-checker",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "ts-json-api",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "tuyapi",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "7": 1
+      }
+    },
+    {
+      "name": "tweetnacl",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "twitter-api-v2",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "twitter-text",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "type-fest",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "typeid-js",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "types",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "typescript",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "typograf",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "u",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "u301",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "ua-parser-js",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "uhrwerk",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "uk-postcode-validator",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "ultrahtml",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "unicode-emoji",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "unicode-text-decorator",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "unicodeit",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "uniqid",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "uniqolor",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "unique-names-generator",
+      "declared": 2,
+      "imported": 1,
+      "majors": {
+        "4": 2
+      }
+    },
+    {
+      "name": "universal-selection",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "unpdf",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "unzip-stream",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "uploadthing",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "7": 1
+      }
+    },
+    {
+      "name": "url-parse",
+      "declared": 3,
+      "imported": 1,
+      "majors": {
+        "1": 3
+      }
+    },
+    {
+      "name": "url-regex-safe",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "use-async-effect",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "utility-types",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "utils",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "valtio",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "vartiq",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "wanakana",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "wcag-as-json",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "other": 1
+      }
+    },
+    {
+      "name": "web3bio-profile-kit",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "webdav",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "webflow-api",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "websocket-polyfill",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "webuntis",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "wemo-client",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "wezterm",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "whoiser",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "wikijs",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "6": 1
+      }
+    },
+    {
+      "name": "wind-scrape",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "other": 1
+      }
+    },
+    {
+      "name": "wkt-parser-helper",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "wpcom",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "x-post",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "y-prosemirror",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "yahoo-finance2",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "yaml-front-matter",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "yazio",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "yjs",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "13": 1
+      }
+    },
+    {
+      "name": "ynab",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "youtrack-client",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "youversion-suggest",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "yup",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "zenblog",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "zh_tw",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
+      "name": "zhipuai-sdk-nodejs-v4",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "zod-persist",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "zx",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "7": 1
+      }
+    },
+    {
+      "name": "zyntramail-api",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@1password/sdk",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@aws-sdk/client-codeartifact",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@bufbuild/connect",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@bufbuild/connect-node",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@bufbuild/protobuf",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@eslint/config-array",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@eslint/object-schema",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@gibme/timer",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@giphy/js-fetch-api",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "@google/generative-ai",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@graphql-codegen/cli",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "7": 1
+      }
+    },
+    {
+      "name": "@graphql-codegen/typescript",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "6": 1
+      }
+    },
+    {
+      "name": "@graphql-codegen/typescript-graphql-request",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "7": 1
+      }
+    },
+    {
+      "name": "@graphql-codegen/typescript-operations",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "6": 1
+      }
+    },
+    {
+      "name": "@idowei/json-to-json-schema",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@mynaui/icons",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@nanostores/react",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@near-js/utils",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@raycast/eslint-config",
+      "declared": 5,
+      "imported": 0,
+      "majors": {
+        "1": 3,
+        "2": 2
+      }
+    },
+    {
+      "name": "@raycast/eslint-plugin",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "other": 1
+      }
+    },
+    {
+      "name": "@reatom/async",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@reatom/core",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@reatom/devtools",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@reatom/persist",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@reatom/persist-web-storage",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@reatom/timer",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@reatom/url",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@reatom/utils",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "@rushstack/eslint-patch",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@salesforce/plugin-org",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "@spotxyz/macos-audio-devices",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "@tanstack/react-query-devtools",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "@uploadthing/mime-types",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "@visx/mock-data",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "@visx/tooltip",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "ESLint",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "7": 1
+      }
+    },
+    {
+      "name": "add",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "alterschema",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "apollo-link-context",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "axios-retry",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "base32-encode",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "better-sqlite3",
+      "declared": 2,
+      "imported": 0,
+      "majors": {
+        "12": 2
+      }
+    },
+    {
+      "name": "bindings",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "bluebird",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "bootstrap-icons",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "bplist-creator",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "byte-base64",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "bytes",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "ccusage",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "chalk",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "child-process",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "colors",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "copy-paste",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "css",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "danbooru",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "dom-parser",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "dot-object",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "dotenv",
+      "declared": 2,
+      "imported": 0,
+      "majors": {
+        "16": 2
+      }
+    },
+    {
+      "name": "emoji-datasource",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "16": 1
+      }
+    },
+    {
+      "name": "env-cmd",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "10": 1
+      }
+    },
+    {
+      "name": "eslint",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "8": 1
+      }
+    },
+    {
+      "name": "exif-parser",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "fingertip",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "flag-icons",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "6": 1
+      }
+    },
+    {
+      "name": "formidable",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "frontmatter",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "googleapis-common",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "7": 1
+      }
+    },
+    {
+      "name": "got-scraping",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "harfbuzzjs",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "other": 1
+      }
+    },
+    {
+      "name": "html-minifier",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "html-react-parser",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "htmlparser",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "ibankit",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "imgur-uploader",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "immer",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "10": 1
+      }
+    },
+    {
+      "name": "inquirer",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "9": 1
+      }
+    },
+    {
+      "name": "install",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "io-ts",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "iso-639-3-to-1",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "isomorphic-fetch",
+      "declared": 2,
+      "imported": 0,
+      "majors": {
+        "3": 2
+      }
+    },
+    {
+      "name": "jsdom",
+      "declared": 4,
+      "imported": 0,
+      "majors": {
+        "22": 1,
+        "23": 1,
+        "24": 1,
+        "25": 1
+      }
+    },
+    {
+      "name": "json_typegen_wasm",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "leaflet",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "lodash.get",
+      "declared": 3,
+      "imported": 0,
+      "majors": {
+        "4": 3
+      }
+    },
+    {
+      "name": "mac-system-proxy",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "markdown-table-parser",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "mattermost-redux",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "mkdirp",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "moments",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "node-cache",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "node-cron",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "node-fs",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "node-git-current-branch",
+      "declared": 2,
+      "imported": 0,
+      "majors": {
+        "2": 2
+      }
+    },
+    {
+      "name": "node-notifier",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "10": 1
+      }
+    },
+    {
+      "name": "node-spotlight",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "node-telegram-bot-api",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "notion-types",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "6": 1
+      }
+    },
+    {
+      "name": "npm-check",
+      "declared": 2,
+      "imported": 0,
+      "majors": {
+        "6": 2
+      }
+    },
+    {
+      "name": "object-hash",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "oci-sdk",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "patch-package",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "8": 1
+      }
+    },
+    {
+      "name": "prettier-plugin-organize-imports",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "qrcode.react",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "radash",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "12": 1
+      }
+    },
+    {
+      "name": "random-hex-color-generator",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "ray",
+      "declared": 2,
+      "imported": 0,
+      "majors": {
+        "0": 2
+      }
+    },
+    {
+      "name": "react-copy-to-clipboard",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "react-dom-parser",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "react-leaflet",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "react-markdown",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "9": 1
+      }
+    },
+    {
+      "name": "react-native-cheerio",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "react-qr-code",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "react-reconciler",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "remark-html",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "15": 1
+      }
+    },
+    {
+      "name": "rgb-hex",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "sharp",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "sqlite3",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
+      "name": "string-similarity",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "4": 1
+      }
+    },
+    {
+      "name": "tailwindcss-v3",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "text-encoding-utf-8",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "text-search-engine",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "ts-node",
+      "declared": 4,
+      "imported": 0,
+      "majors": {
+        "10": 4
+      }
+    },
+    {
+      "name": "tslib",
+      "declared": 2,
+      "imported": 0,
+      "majors": {
+        "2": 2
+      }
+    },
+    {
+      "name": "ufo",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
+      "name": "url-metadata",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "use-error-boundary",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
+      "name": "xpath",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "yarn",
+      "declared": 1,
+      "imported": 0,
+      "majors": {
+        "1": 1
+      }
+    }
+  ]
+}

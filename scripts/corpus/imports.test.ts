@@ -53,7 +53,8 @@ test("imported packages are counted per package, test files and non-npm specifie
     // Never bundled, so never a dependency.
     source('import { test } from "vitest";', "src/thing.test.ts"),
     source('import { test } from "vitest";', "src/__tests__/unit.ts"),
-    // Provided packages, built-ins, relative paths and native modules resolve.
+    // Provided packages, built-ins, relative paths, native modules and
+    // specifiers npm could not name all resolve or are not packages.
     source('import { List } from "@raycast/api";'),
     source('import { useFetch } from "@raycast/utils";'),
     source('import { useState } from "react";'),
@@ -61,6 +62,9 @@ test("imported packages are counted per package, test files and non-npm specifie
     source('import { join } from "path";'),
     source('import { helper } from "./helper";'),
     source('import { connect } from "swift:../../swift";'),
+    source('import { Thing } from "@/types";'),
+    source('import { Glyph } from "AppKit";'),
+    source('import { local } from "#imports";'),
   ];
   expect(importedPackages(files)).toEqual(["@scope/pkg", "graphql-request", "lodash", "zod"]);
 });
