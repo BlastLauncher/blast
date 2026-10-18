@@ -3,7 +3,7 @@ id: "0008"
 title: Host library — bundle, spawn, session, capability broker
 status: todo
 milestone: M1
-depends: ["0004", "0007"]
+depends: ["0004", "0007", "0010"]
 ---
 
 ## Goal
@@ -21,6 +21,8 @@ broker — and survive the extension crashing.
   that export to the runtime package) and spawns it.
 - Spawn with an explicit Node binary (`nodePath` option, default `"node"`),
   never `process.execPath` (the host may run under Bun).
+- `init.command.mode` (added in task 0010) comes from the manifest command's
+  `mode`; a `no-view` session ends after the command resolves.
 - Bundling: `bundleCommand({ extensionDir, command, outDir })` reads the
   extension `package.json` manifest (`name`, `commands[].name`), resolves
   `src/<command>.{tsx,ts,jsx,js}`, and bundles with esbuild (ESM, platform
