@@ -7,6 +7,7 @@ import {
   type CommandMode,
   type HostMessage,
   type InitCommand,
+  type InitEnvironment,
   type RuntimeMessage,
 } from "./messages.ts";
 
@@ -19,12 +20,15 @@ const command: InitCommand = {
   launchContext: { from: "test", depth: 2 },
 };
 
-const environment = {
+const environment: InitEnvironment = {
   extensionName: "Clipboard History",
   commandName: "history",
+  ownerOrAuthorName: "Raycast",
   assetsPath: "/ext/assets",
   supportPath: "/ext/support",
   isDevelopment: false,
+  appearance: "dark",
+  textSize: "medium",
 };
 
 const init: HostMessage = {
@@ -209,6 +213,21 @@ test("rejections name the failing field path", () => {
       "init with a bad environment field",
       { ...init, environment: { ...environment, isDevelopment: "yes" } },
       "environment.isDevelopment: expected boolean",
+    ],
+    [
+      "init without an owner or author name",
+      { ...init, environment: { ...environment, ownerOrAuthorName: undefined } },
+      "environment.ownerOrAuthorName: expected string",
+    ],
+    [
+      "init with an unknown appearance",
+      { ...init, environment: { ...environment, appearance: "sepia" } },
+      'environment.appearance: expected one of "light" | "dark"',
+    ],
+    [
+      "init with an unknown text size",
+      { ...init, environment: { ...environment, textSize: "small" } },
+      'environment.textSize: expected one of "medium" | "large"',
     ],
     [
       "init with an unknown command field",

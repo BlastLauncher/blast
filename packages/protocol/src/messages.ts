@@ -44,9 +44,14 @@ export type InitCommand = {
 export type InitEnvironment = {
   extensionName: string;
   commandName: string;
+  /** The manifest's `owner`, falling back to `author` (Raycast's `ownerOrAuthorName`). */
+  ownerOrAuthorName: string;
   assetsPath: string;
   supportPath: string;
   isDevelopment: boolean;
+  /** The active theme; a headless host has no UI, so the default is `"dark"`. */
+  appearance: "light" | "dark";
+  textSize: "medium" | "large";
 };
 
 export type InitMessage = {
@@ -235,6 +240,18 @@ function readCommandMode(value: unknown, path: string): CommandMode {
   }
 }
 
+function readAppearance(value: unknown, path: string): "light" | "dark" {
+  const appearance = readString(value, path);
+  if (appearance === "light" || appearance === "dark") return appearance;
+  fail(path, 'expected one of "light" | "dark"');
+}
+
+function readTextSize(value: unknown, path: string): "medium" | "large" {
+  const textSize = readString(value, path);
+  if (textSize === "medium" || textSize === "large") return textSize;
+  fail(path, 'expected one of "medium" | "large"');
+}
+
 function readCommand(value: unknown, path: string): InitCommand {
   const object = readObject(value, path);
   checkKeys(object, path, ["extension", "name", "entry", "mode", "arguments", "launchContext"]);
@@ -261,16 +278,22 @@ function readEnvironment(value: unknown, path: string): InitEnvironment {
   checkKeys(object, path, [
     "extensionName",
     "commandName",
+    "ownerOrAuthorName",
     "assetsPath",
     "supportPath",
     "isDevelopment",
+    "appearance",
+    "textSize",
   ]);
   return {
     extensionName: readString(object["extensionName"], keyPath(path, "extensionName")),
     commandName: readString(object["commandName"], keyPath(path, "commandName")),
+    ownerOrAuthorName: readString(object["ownerOrAuthorName"], keyPath(path, "ownerOrAuthorName")),
     assetsPath: readString(object["assetsPath"], keyPath(path, "assetsPath")),
     supportPath: readString(object["supportPath"], keyPath(path, "supportPath")),
     isDevelopment: readBoolean(object["isDevelopment"], keyPath(path, "isDevelopment")),
+    appearance: readAppearance(object["appearance"], keyPath(path, "appearance")),
+    textSize: readTextSize(object["textSize"], keyPath(path, "textSize")),
   };
 }
 

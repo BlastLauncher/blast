@@ -126,6 +126,33 @@ test("manifest arguments are read for the host and invalid ones fail loudly", as
   }
 });
 
+test("the manifest owner, else author, becomes environment.ownerOrAuthorName", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "blast-owner-test-"));
+  directories.push(dir);
+  await cp(launchDir, dir, { recursive: true });
+  const writeManifest = (identity: Record<string, unknown>) =>
+    writeFile(
+      join(dir, "package.json"),
+      JSON.stringify({
+        name: "launch",
+        commands: [{ name: "index", mode: "view" }],
+        ...identity,
+      }),
+    );
+  await writeManifest({ author: "Ada", owner: "Raycast" });
+  const owned = await bundleCommand({ extensionDir: dir, command: "index" });
+  directories.push(join(owned.entry, ".."));
+  expect(owned.ownerOrAuthorName).toBe("Raycast");
+  await writeManifest({ author: "Ada" });
+  const authored = await bundleCommand({ extensionDir: dir, command: "index" });
+  directories.push(join(authored.entry, ".."));
+  expect(authored.ownerOrAuthorName).toBe("Ada");
+  await writeManifest({});
+  const bare = await bundleCommand({ extensionDir: dir, command: "index" });
+  directories.push(join(bare.entry, ".."));
+  expect(bare.ownerOrAuthorName).toBe("");
+});
+
 test("argument values and a launch context reach the command's launch props", async () => {
   const bundled = await bundleCommand({ extensionDir: launchDir, command: "props" });
   directories.push(join(bundled.entry, ".."));

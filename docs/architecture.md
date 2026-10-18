@@ -25,7 +25,9 @@ extension code (unmodified, bundled)
 
 ## Message flow
 
-1. host → `init` (protocol version, command, preferences)
+1. host → `init` (protocol version, command, preferences, environment: identity,
+   owner/author, paths, appearance, text size; the runtime derives `entryPoint*`
+   from the command before importing it)
 2. runtime → `ready`, then `scene` after every commit
 3. host → `event` for user input (handler reference + args)
 4. runtime → `capability.request`; host → `capability.result`
@@ -65,6 +67,21 @@ List
 `Slot` is Blast-only; regular children come first, then the `Slot` children in
 a stable order. Clients resolve a prop element by taking the `Slot` child with
 the matching `name`.
+
+Image-likes (`Image.ImageLike`), color-likes (`Color.ColorLike`) and shortcuts
+(`Keyboard.Shortcut`) cross the wire exactly as authored: a string stays a
+string, an `Icon` keeps its name, and an object keeps `source` (including the
+`{ light, dark }` pair), `fallback`, `mask`, `tintColor` or `fileIcon` as
+passed, `null` included. The shim never resolves an image or picks a platform,
+so a shortcut keeps whichever of `{ modifiers, key }` or `{ macOS, Windows }`
+the extension passed.
+
+`environment` is fully populated before the extension is imported:
+`appearance` (headless default `"dark"`), `textSize` (`"medium"`),
+`ownerOrAuthorName` (`owner` ?? `author`), `entryPointName` /
+`entryPointMode` from the launched command, `entryPointType` always
+`"command"`, and `canAccess(api)` is `false` only for APIs Blast stubs
+(`AI`, `BrowserExtension`).
 
 ## Host sessions
 

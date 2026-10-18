@@ -51,8 +51,33 @@ mask, tintColor, fileIcon), cross-platform shortcuts, `KeyEquivalent`/
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/image-keyboard-environment @ f7cf7c6
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 32.0s
 Done:
+- Image: every non-deprecated Image.* path covered; image.test.ts pins the
+  serialized shape for a URL/asset string, an Icon, { fileIcon }, an image
+  object ({ source, fallback, mask, tintColor }, light/dark pairs, nulls) and
+  asserts the shape is stable across commits.
+- Color: color.test.ts covers Color.Raw, Color.Dynamic and Color.ColorLike
+  (built-in, literal, light/dark and adjustContrast) crossing the scene as
+  authored.
+- Keyboard: keyboard.ts types Common against Keyboard.KeyModifier and
+  Keyboard.KeyEquivalent and pins the shortcut shapes ({ modifiers, key },
+  { macOS, Windows }, plus the deprecated lowercase windows) in scenes.
+- environment: init environment gains ownerOrAuthorName (manifest owner ??
+  author, host bundle/session), appearance (headless default "dark") and
+  textSize ("medium"); the runtime derives entryPointType/Name/Mode from the
+  launched command; canAccess(api) returns false exactly for stub values (the
+  generated implemented-API list), so AI and BrowserExtension are denied.
+- Protocol init validation rejects a missing ownerOrAuthorName and unknown
+  appearance/textSize; docs/architecture.md documents both shapes.
 Not done / risks:
+- Deprecated aliases stay missing: Color.Brown/DynamicColor/ColorLike
+  (deprecated), ImageLike/ImageSource/ImageMask types, Environment.theme/
+  commandMode/launchContext, top-level KeyEquivalent/KeyModifier and
+  KeyboardShortcut / Keyboard.Shortcut.windows. `environment.commandName` is
+  still set and tagged (deprecated). No partials remain under these prefixes.
+- canAccess is derived from the stub marker rather than an explicit name list;
+  any API Blast stubs is denied, not only AI/BrowserExtension.
+- No real theme detection (out of scope): appearance/textSize are static.
 ```

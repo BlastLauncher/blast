@@ -2,15 +2,15 @@
   "version": "2.8.2",
   "totals": {
     "all": {
-      "covered": 1197,
-      "partial": 78,
-      "missing": 1198,
+      "covered": 1257,
+      "partial": 76,
+      "missing": 1140,
       "total": 2473
     },
     "nonDeprecated": {
-      "covered": 1158,
-      "partial": 73,
-      "missing": 303,
+      "covered": 1218,
+      "partial": 71,
+      "missing": 245,
       "total": 1534
     },
     "deprecated": {
@@ -39,8 +39,8 @@
         "total": 50
       },
       "const": {
-        "covered": 2,
-        "partial": 1,
+        "covered": 3,
+        "partial": 0,
         "missing": 18,
         "total": 21
       },
@@ -63,27 +63,27 @@
         "total": 691
       },
       "interface": {
-        "covered": 18,
-        "partial": 2,
-        "missing": 44,
+        "covered": 21,
+        "partial": 1,
+        "missing": 42,
         "total": 64
       },
       "type": {
-        "covered": 58,
+        "covered": 67,
         "partial": 6,
-        "missing": 114,
+        "missing": 105,
         "total": 178
       },
       "property": {
-        "covered": 499,
+        "covered": 544,
         "partial": 31,
-        "missing": 774,
+        "missing": 729,
         "total": 1304
       },
       "method": {
-        "covered": 20,
+        "covered": 22,
         "partial": 0,
-        "missing": 4,
+        "missing": 2,
         "total": 24
       }
     }
@@ -4902,50 +4902,66 @@
     },
     {
       "path": "Color.ColorLike",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/color.test.ts"
+      ],
       "weight": 44
     },
     {
       "path": "Color.ColorLike.adjustContrast",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/color.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Color.ColorLike.dark",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/color.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Color.ColorLike.light",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/color.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Color.Dynamic",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/color.test.ts"
+      ],
       "weight": 5
     },
     {
       "path": "Color.Dynamic.adjustContrast",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/color.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Color.Dynamic.dark",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/color.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Color.Dynamic.light",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/color.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -4990,8 +5006,10 @@
     },
     {
       "path": "Color.Raw",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/color.test.ts"
+      ],
       "weight": 4
     },
     {
@@ -5478,26 +5496,34 @@
     },
     {
       "path": "Environment",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/environment.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "Environment.appearance",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/environment.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Environment.assetsPath",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/environment.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Environment.canAccess",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/environment.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -5514,32 +5540,42 @@
     },
     {
       "path": "Environment.entryPointMode",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/environment.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Environment.entryPointName",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/environment.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Environment.entryPointType",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/environment.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Environment.extensionName",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/environment.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Environment.isDevelopment",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/environment.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -5550,32 +5586,42 @@
     },
     {
       "path": "Environment.launchType",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/environment.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Environment.ownerOrAuthorName",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/environment.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Environment.raycastVersion",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/environment.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Environment.supportPath",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/environment.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Environment.textSize",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/environment.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -12675,7 +12721,7 @@
     },
     {
       "path": "Image",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/image.test.ts"
       ],
@@ -12683,62 +12729,82 @@
     },
     {
       "path": "Image.Asset",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/image.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "Image.Fallback",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/image.test.ts"
+      ],
       "weight": 4
     },
     {
       "path": "Image.Fallback.dark",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/image.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Image.Fallback.light",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/image.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Image.ImageLike",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/image.test.ts"
+      ],
       "weight": 279
     },
     {
       "path": "Image.ImageLike.fallback",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/image.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Image.ImageLike.fileIcon",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/image.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Image.ImageLike.mask",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/image.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Image.ImageLike.source",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/image.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Image.ImageLike.tintColor",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/image.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -12767,50 +12833,66 @@
     },
     {
       "path": "Image.Source",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/image.test.ts"
+      ],
       "weight": 21
     },
     {
       "path": "Image.Source.dark",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/image.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Image.Source.light",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/image.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Image.URL",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/image.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Image.fallback",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/image.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Image.mask",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/image.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Image.source",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/image.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Image.tintColor",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/image.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -12913,14 +12995,18 @@
     },
     {
       "path": "Keyboard.KeyEquivalent",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
       "weight": 85
     },
     {
       "path": "Keyboard.KeyModifier",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
       "weight": 44
     },
     {
@@ -13077,50 +13163,66 @@
     },
     {
       "path": "Keyboard.Shortcut.Windows",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Keyboard.Shortcut.Windows.key",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Keyboard.Shortcut.Windows.modifiers",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Keyboard.Shortcut.key",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Keyboard.Shortcut.macOS",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Keyboard.Shortcut.macOS.key",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Keyboard.Shortcut.macOS.modifiers",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Keyboard.Shortcut.modifiers",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -17057,7 +17159,7 @@
     },
     {
       "path": "environment",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/environment.test.ts"
       ],
@@ -17065,8 +17167,10 @@
     },
     {
       "path": "environment.appearance",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/environment.test.ts"
+      ],
       "weight": 82
     },
     {
@@ -17079,8 +17183,10 @@
     },
     {
       "path": "environment.canAccess",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/environment.test.ts"
+      ],
       "weight": 107
     },
     {
@@ -17099,20 +17205,26 @@
     },
     {
       "path": "environment.entryPointMode",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/environment.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "environment.entryPointName",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/environment.test.ts"
+      ],
       "weight": 3
     },
     {
       "path": "environment.entryPointType",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/environment.test.ts"
+      ],
       "weight": 2
     },
     {
@@ -17147,8 +17259,10 @@
     },
     {
       "path": "environment.ownerOrAuthorName",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/environment.test.ts"
+      ],
       "weight": 12
     },
     {
@@ -17169,8 +17283,10 @@
     },
     {
       "path": "environment.textSize",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/environment.test.ts"
+      ],
       "weight": 5
     },
     {

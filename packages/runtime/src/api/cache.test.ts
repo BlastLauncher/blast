@@ -112,7 +112,7 @@ test("deprecated directory option cannot move storage; corrupt storage is not ov
   // Accepted for compatibility, but storage stays in the assigned directory.
   const cache = new Cache({ directory: elsewhere });
   expect(cache.storageDirectory.startsWith(assigned)).toBe(true);
-  environment.supportPath = undefined;
+  environment.supportPath = "";
   expect(() => new Cache()).toThrow("assigned support directory");
   environment.supportPath = assigned;
   for (const capacity of [-1, NaN, Infinity])

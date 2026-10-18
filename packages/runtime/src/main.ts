@@ -133,7 +133,7 @@ function launchProps(command: Extract<HostMessage, { type: "init" }>["command"])
 }
 
 async function load(message: Extract<HostMessage, { type: "init" }>) {
-  setEnvironment(message.environment);
+  setEnvironment(message.environment, message.command);
   setPreferenceValues(message.preferences);
   const props = launchProps(message.command);
   const command = await import(pathToFileURL(message.command.entry).href);
