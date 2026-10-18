@@ -145,12 +145,30 @@ test("no-view rejection is fatal", async () => {
   expect(await runtime.exited).toBe(1);
 });
 
-test("menu-bar commands are rejected as unsupported", async () => {
+test("menu-bar renders without Navigation, retains callbacks after loading and shuts down", async () => {
   const runtime = start();
-  runtime.init({ mode: "menu-bar" });
-  expect(await runtime.next("error")).toMatchObject({ fatal: true, code: "UNSUPPORTED" });
-  expect(await runtime.exited).toBe(1);
-  expect(runtime.messages.filter((message) => message.type === "scene")).toEqual([]);
+  runtime.init({ fixture: "menu-bar.js", mode: "menu-bar" });
+  const first = await runtime.next("scene");
+  expect(first.root).toMatchObject({
+    type: "MenuBarExtra",
+    props: { title: "Ready", isLoading: true },
+  });
+  for (const type of ["left-click", "right-click"]) {
+    const node = find(first.root!, "Click")!;
+    const ref = node.props.onAction as { $handler: string };
+    runtime.send({ type: "event", node: node.id, handler: ref.$handler, args: [{ type }] });
+    const next = await runtime.next("scene");
+    expect(next.root?.props).toMatchObject({ title: type, isLoading: false });
+  }
+  action(runtime, first.root!, "Hide");
+  expect((await runtime.next("scene")).root).toBeNull();
+  runtime.send({ type: "shutdown" });
+  expect(await runtime.exited).toBe(0);
+  expect(runtime.messages).toContainEqual({
+    type: "log",
+    level: "info",
+    message: "menu unmounted",
+  });
 });
 
 for (const mode of [

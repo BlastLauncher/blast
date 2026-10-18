@@ -109,10 +109,6 @@ async function runOne(
   const mode = commandMode(manifest, commandName) ?? "view";
   const build = (probe: ProbeResult, warnings?: string[], errorLogs?: string[]): CommandResult =>
     buildResult({ extension, command: commandName, mode, probe, warnings, errorLogs });
-  if (mode !== "view" && mode !== "no-view") {
-    // The runtime rejects menu-bar outright; do not bother bundling.
-    return build({ kind: "unsupported-mode", reason: `command mode "${mode}" is not supported` });
-  }
   let bundled: BundledCommand;
   try {
     bundled = await bundleCommand({ extensionDir, command: commandName });

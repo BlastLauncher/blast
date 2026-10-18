@@ -1,7 +1,7 @@
 ---
 id: "0030"
 title: Menu-bar commands — MenuBarExtra and its items
-status: doing
+status: review
 milestone: M3
 depends: []
 ---
@@ -34,9 +34,9 @@ props `icon`, `title`, `tooltip`, `isLoading`.
 
 ## Acceptance
 
-- [ ] Runtime/process tests for a menu-bar fixture: render, item action with
+- [x] Runtime/process tests for a menu-bar fixture: render, item action with
       click event, isLoading lifecycle as decided.
-- [ ] Decision recorded; `bun run verify` passes.
+- [x] Decision recorded; `bun run verify` passes.
 
 ## Out of scope
 
@@ -46,8 +46,16 @@ props `icon`, `title`, `tooltip`, `isLoading`.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/menu-bar-commands @ HEAD (feat(0030): render menu-bar commands and dispatch menu items)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 26.1s
 Done:
+- Implemented every declared MenuBarExtra prop and child component; alternate Slot and inherited shortcuts.
+- Runtime renders menu-bar roots without Navigation; CLI action sends left-click; both click types tested.
+- Decision 0005 documents loading lifecycle, shutdown, null rendering and client responsibilities.
+- 295 tests pass; coverage regenerated; corpus smoke: 60 rendered, 1 completed, 2 capability-denied, 3 unsupported-api.
+- one-thing/show-one-thing moves from unsupported-mode to unsupported-api (updateCommandMetadata); corpus checkout deleted.
 Not done / risks:
+- Automatic unload awaits menu-open protocol/client state; isLoading lifecycle coverage remains partial.
+- OS menu bar, interval scheduling and menu-bar Navigation feedback are deferred as documented.
+- No dependencies added; no corpus extensions edited or installed; no push.
 ```

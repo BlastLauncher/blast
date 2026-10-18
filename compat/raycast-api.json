@@ -2,21 +2,21 @@
   "version": "2.8.2",
   "totals": {
     "all": {
-      "covered": 831,
-      "partial": 51,
-      "missing": 1591,
+      "covered": 857,
+      "partial": 54,
+      "missing": 1562,
       "total": 2473
     },
     "nonDeprecated": {
-      "covered": 809,
-      "partial": 46,
-      "missing": 679,
+      "covered": 833,
+      "partial": 49,
+      "missing": 652,
       "total": 1534
     },
     "deprecated": {
-      "covered": 22,
+      "covered": 24,
       "partial": 5,
-      "missing": 912,
+      "missing": 910,
       "total": 939
     },
     "kinds": {
@@ -27,9 +27,9 @@
         "total": 9
       },
       "component": {
-        "covered": 20,
-        "partial": 23,
-        "missing": 73,
+        "covered": 24,
+        "partial": 24,
+        "missing": 68,
         "total": 116
       },
       "function": {
@@ -69,15 +69,15 @@
         "total": 64
       },
       "type": {
-        "covered": 19,
-        "partial": 2,
-        "missing": 157,
+        "covered": 24,
+        "partial": 3,
+        "missing": 151,
         "total": 178
       },
       "property": {
-        "covered": 243,
-        "partial": 19,
-        "missing": 1042,
+        "covered": 260,
+        "partial": 20,
+        "missing": 1024,
         "total": 1304
       },
       "method": {
@@ -14410,176 +14410,234 @@
     },
     {
       "path": "MenuBarExtra",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/menu-bar.test.ts"
+      ],
       "weight": 342
     },
     {
       "path": "MenuBarExtra.ActionEvent",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/menu-bar.test.ts"
+      ],
       "weight": 5
     },
     {
       "path": "MenuBarExtra.ActionEvent.type",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/menu-bar.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "MenuBarExtra.Item",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/menu-bar.test.ts"
+      ],
       "weight": 328
     },
     {
       "path": "MenuBarExtra.Item.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/menu-bar.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "MenuBarExtra.Item.Props.alternate",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/menu-bar.test.ts"
+      ],
       "weight": 18
     },
     {
       "path": "MenuBarExtra.Item.Props.icon",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/menu-bar.test.ts"
+      ],
       "weight": 283
     },
     {
       "path": "MenuBarExtra.Item.Props.onAction",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/menu-bar.test.ts"
+      ],
       "weight": 323
     },
     {
       "path": "MenuBarExtra.Item.Props.shortcut",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/menu-bar.test.ts"
+      ],
       "weight": 128
     },
     {
       "path": "MenuBarExtra.Item.Props.subtitle",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/menu-bar.test.ts"
+      ],
       "weight": 181
     },
     {
       "path": "MenuBarExtra.Item.Props.title",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/menu-bar.test.ts"
+      ],
       "weight": 328
     },
     {
       "path": "MenuBarExtra.Item.Props.tooltip",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/menu-bar.test.ts"
+      ],
       "weight": 76
     },
     {
       "path": "MenuBarExtra.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/menu-bar.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "MenuBarExtra.Props.children",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/menu-bar.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "MenuBarExtra.Props.icon",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/menu-bar.test.ts"
+      ],
       "weight": 317
     },
     {
       "path": "MenuBarExtra.Props.isLoading",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/menu-bar.test.ts"
+      ],
       "weight": 308
     },
     {
       "path": "MenuBarExtra.Props.title",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/menu-bar.test.ts"
+      ],
       "weight": 232
     },
     {
       "path": "MenuBarExtra.Props.tooltip",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/menu-bar.test.ts"
+      ],
       "weight": 226
     },
     {
       "path": "MenuBarExtra.Section",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/menu-bar.test.ts"
+      ],
       "weight": 275
     },
     {
       "path": "MenuBarExtra.Section.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/menu-bar.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "MenuBarExtra.Section.Props.children",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/menu-bar.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "MenuBarExtra.Section.Props.title",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/menu-bar.test.ts"
+      ],
       "weight": 224
     },
     {
       "path": "MenuBarExtra.Separator",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/menu-bar.test.ts"
+      ],
       "weight": 33
     },
     {
       "path": "MenuBarExtra.Separator.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/menu-bar.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "MenuBarExtra.Submenu",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/menu-bar.test.ts"
+      ],
       "weight": 74
     },
     {
       "path": "MenuBarExtra.Submenu.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/menu-bar.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "MenuBarExtra.Submenu.Props.children",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/menu-bar.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "MenuBarExtra.Submenu.Props.icon",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/menu-bar.test.ts"
+      ],
       "weight": 70
     },
     {
       "path": "MenuBarExtra.Submenu.Props.title",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/menu-bar.test.ts"
+      ],
       "weight": 74
     },
     {

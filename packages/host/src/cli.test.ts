@@ -542,3 +542,16 @@ test("a reader that closes stdout early does not crash the CLI", async () => {
   expect(stderr).not.toContain("EPIPE");
   expect(code).toBe(0);
 });
+
+test("menu-bar trees print and action dispatches a left-click to nested items", async () => {
+  const result = await runCli(
+    ["run", join(root, "fixtures/extensions/menu-bar"), "index", "--script", "-"],
+    "expect Ready\naction Click\nwait\nexpect left-click\nquit\n",
+  );
+  expect(result.code, result.stderr).toBe(0);
+  expect(result.stdout).toContain('MenuBarExtra "Ready" isLoading=false');
+  expect(result.stdout).toContain('MenuBarExtra.Section "Tools"');
+  expect(result.stdout).toContain('MenuBarExtra.Submenu "More"');
+  expect(result.stdout).toContain('MenuBarExtra.Item "Click" [onAction]');
+  expect(result.stdout).not.toContain("Navigation");
+});
