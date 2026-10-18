@@ -1,14 +1,14 @@
 {
   "commit": "3b812d1e153a1862df29bc8ec34e170c728512ea",
   "totals": {
-    "rendered": 60,
+    "rendered": 61,
     "completed": 1,
     "capability-denied": 2,
     "bundle-failed": 0,
     "crashed": 0,
     "timeout": 0,
     "unsupported-mode": 0,
-    "unsupported-api": 3
+    "unsupported-api": 2
   },
   "results": [
     {
@@ -382,9 +382,9 @@
       "extension": "pinch-svg",
       "command": "grid",
       "mode": "view",
-      "outcome": "unsupported-api",
-      "path": "Grid",
-      "error": "Unsupported API in Blast: Grid"
+      "outcome": "rendered",
+      "nodes": 8,
+      "rootType": "Navigation"
     },
     {
       "extension": "pokemon-tcg-pocket-binder",

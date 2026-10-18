@@ -72,9 +72,10 @@ Script commands (one per line, "#" starts a comment):
   back            Pop the current navigation view.
   confirm         Confirm the current alert.
   dismiss         Dismiss the current alert.
-  search <text>   Dispatch the List onSearchTextChange handler.
+  search <text>   Dispatch the List or Grid onSearchTextChange handler.
   dropdown <value>
-                  Dispatch the List.Dropdown onChange handler with the value.
+                  Dispatch the List.Dropdown or Grid.Dropdown onChange handler
+                  with the value.
   wait            Wait until the next scene is published.
   expect <text>   Fail (exit 1) unless the latest scene tree contains the text.
   field <id> <value>  Edit a Form field (checkbox values: true/false; dates: ISO).
@@ -358,21 +359,27 @@ async function runScript(session: Session, steps: Step[]): Promise<void> {
       case "search": {
         const scene = await currentScene(session);
         observed = Math.max(observed, scene.revision);
-        const list = scene.root ? findNode(scene.root, (item) => item.type === "List") : undefined;
-        const handler = list ? handlerRef(list.props.onSearchTextChange) : undefined;
-        if (!list || !handler) throw new ScriptError("no List with onSearchTextChange to search");
-        session.sendEvent(list.id, handler.$handler, [step.text]);
+        const view = scene.root
+          ? findNode(scene.root, (item) => item.type === "List" || item.type === "Grid")
+          : undefined;
+        const handler = view ? handlerRef(view.props.onSearchTextChange) : undefined;
+        if (!view || !handler)
+          throw new ScriptError("no List or Grid with onSearchTextChange to search");
+        session.sendEvent(view.id, handler.$handler, [step.text]);
         break;
       }
       case "dropdown": {
         const scene = await currentScene(session);
         observed = Math.max(observed, scene.revision);
         const dropdown = scene.root
-          ? findNode(scene.root, (item) => item.type === "List.Dropdown")
+          ? findNode(
+              scene.root,
+              (item) => item.type === "List.Dropdown" || item.type === "Grid.Dropdown",
+            )
           : undefined;
         const handler = dropdown ? handlerRef(dropdown.props.onChange) : undefined;
         if (!dropdown || !handler)
-          throw new ScriptError("no List.Dropdown with onChange to select");
+          throw new ScriptError("no List.Dropdown or Grid.Dropdown with onChange to select");
         session.sendEvent(dropdown.id, handler.$handler, [step.value]);
         break;
       }

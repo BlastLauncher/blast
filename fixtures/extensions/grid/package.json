@@ -1,0 +1,9 @@
+{
+  "name": "grid",
+  "commands": [
+    {
+      "name": "index",
+      "mode": "view"
+    }
+  ]
+}

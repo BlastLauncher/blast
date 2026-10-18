@@ -4,31 +4,31 @@ Denominator: the `@raycast/api@2.8.2` declarations. Evidence:
 `// @covers` tags in `packages/**/*.test.ts(x)`. A parent is not implied covered
 by its children. Partial support is reported separately from covered.
 
-**Non-deprecated coverage: 833/1534 covered (54.3%), 49 partial, 652 missing.**
-Deprecated: 24/939 covered (2.6%), 5 partial, 910 missing.
+**Non-deprecated coverage: 896/1534 covered (58.4%), 63 partial, 575 missing.**
+Deprecated: 27/939 covered (2.9%), 5 partial, 907 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 833 | 24 | 857 |
-| partial | 49 | 5 | 54 |
-| missing | 652 | 910 | 1562 |
+| covered | 896 | 27 | 923 |
+| partial | 63 | 5 | 68 |
+| missing | 575 | 907 | 1482 |
 
 ## Totals by kind
 
 | Kind | Covered | Partial | Missing | Total |
 | --- | --- | --- | --- | --- |
 | namespace | 3 | 1 | 5 | 9 |
-| component | 24 | 24 | 68 | 116 |
+| component | 24 | 31 | 61 | 116 |
 | function | 21 | 4 | 25 | 50 |
 | const | 1 | 1 | 19 | 21 |
 | class | 2 | 0 | 1 | 3 |
 | enum | 6 | 0 | 7 | 13 |
 | enum-member | 499 | 0 | 192 | 691 |
 | interface | 7 | 1 | 56 | 64 |
-| type | 24 | 3 | 151 | 178 |
-| property | 260 | 20 | 1024 | 1304 |
+| type | 26 | 3 | 149 | 178 |
+| property | 324 | 27 | 953 | 1304 |
 | method | 10 | 0 | 14 | 24 |
 
 ## Top-level symbols
@@ -95,7 +95,7 @@ Children counts include all descendants, as covered/partial/total.
 | `FormTextFieldProps` | interface | missing | 0/0/12 | 0 |
 | `FormValue` | type | missing | 0/0/0 | 2 |
 | `FormValues` | interface | missing | 0/0/0 | 1 |
-| `Grid` | component | missing | 0/0/87 | 311 |
+| `Grid` | component | partial | 66/13/87 | 311 |
 | `Icon` | enum | covered | 478/0/478 | 2587 |
 | `Image` | interface | missing | 0/0/21 | 478 |
 | `ImageLike` | type | missing | 0/0/5 | 2 |
@@ -198,27 +198,19 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `LaunchType` | 454 |
 | `LaunchType.UserInitiated` | 408 |
 | `launchCommand` | 398 |
-| `Grid` | 311 |
-| `Grid.Item` | 306 |
-| `Grid.Item.Props.content` | 300 |
-| `Grid.Item.Props.actions` | 296 |
 | `ActionPanel.Submenu` | 284 |
 | `ActionPanel.Submenu.Props.title` | 284 |
 | `Image.ImageLike` | 279 |
 | `ActionPanel.Submenu.Props.icon` | 267 |
-| `Grid.Item.Props.title` | 262 |
 | `Form.FilePicker` | 256 |
-| `Grid.Props.isLoading` | 249 |
 | `getSelectedText` | 249 |
 | `Form.FilePicker.Props.title` | 246 |
 | `Form.FilePicker.Props.allowMultipleSelection` | 238 |
 | `Image.Mask` | 232 |
 | `Action.Open` | 227 |
-| `Grid.Props.columns` | 227 |
 | `Action.Open.Props.target` | 226 |
 | `Action.Open.Props.title` | 226 |
 | `List.Props.pagination` | 206 |
-| `Grid.Props.searchBarPlaceholder` | 201 |
 | `Form.FilePicker.Props.id` | 193 |
 | `Action.ShowInFinder` | 192 |
 | `Action.ShowInFinder.Props.path` | 192 |
@@ -228,17 +220,25 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `Form.TagPicker.Item.Props.title` | 168 |
 | `Form.TagPicker.Item.Props.value` | 168 |
 | `Form.TagPicker.Props.title` | 167 |
-| `Grid.Item.Props.subtitle` | 165 |
-| `Grid.EmptyView` | 164 |
 | `getSelectedFinderItems` | 164 |
 | `ActionPanel.Submenu.Props.shortcut` | 158 |
-| `Grid.EmptyView.Props.title` | 152 |
 | `Image.Mask.Circle` | 146 |
 | `Action.Open.Props.icon` | 145 |
 | `showInFinder` | 145 |
-| `Grid.Props.searchBarAccessory` | 144 |
-| `Grid.Dropdown` | 141 |
-| `Grid.Props.onSearchTextChange` | 141 |
-| `Grid.Section` | 140 |
-| `Grid.Dropdown.Item` | 139 |
-| `Grid.Inset` | 135 |
+| `OAuth` | 135 |
+| `OAuth.PKCEClient` | 134 |
+| `OAuth.RedirectMethod` | 134 |
+| `Form.PasswordField` | 132 |
+| `Form.PasswordField.Props.title` | 131 |
+| `Tool` | 128 |
+| `Tool.Confirmation` | 128 |
+| `Form.FilePicker.Props.canChooseFiles` | 126 |
+| `PopToRootType` | 126 |
+| `LaunchType.Background` | 124 |
+| `AI` | 115 |
+| `Form.FilePicker.Props.onChange` | 112 |
+| `OAuth.RedirectMethod.Web` | 112 |
+| `environment.canAccess` | 107 |
+| `Form.TagPicker.Props.id` | 106 |
+| `updateCommandMetadata` | 105 |
+| `Image.Mask.RoundedRectangle` | 99 |

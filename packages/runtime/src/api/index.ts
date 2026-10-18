@@ -14,6 +14,21 @@ export type {
   ListDropdownItemProps,
   ListDropdownSectionProps,
 } from "./list.ts";
+export type {
+  GridProps,
+  GridItemProps,
+  GridSectionProps,
+  GridEmptyViewProps,
+  GridItemContent,
+  GridItemAccessory,
+  GridAspectRatio,
+  GridInset,
+  GridFit,
+  GridItemSize,
+  GridDropdownProps,
+  GridDropdownItemProps,
+  GridDropdownSectionProps,
+} from "./grid.ts";
 export type { DetailProps, ListItemDetailProps } from "./detail.ts";
 export type {
   MetadataComponents,
