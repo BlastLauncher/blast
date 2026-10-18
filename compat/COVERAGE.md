@@ -4,31 +4,31 @@ Denominator: the `@raycast/api@2.8.2` declarations. Evidence:
 `// @covers` tags in `packages/**/*.test.ts(x)`. A parent is not implied covered
 by its children. Partial support is reported separately from covered.
 
-**Non-deprecated coverage: 809/1534 covered (52.7%), 46 partial, 679 missing.**
-Deprecated: 22/939 covered (2.3%), 5 partial, 912 missing.
+**Non-deprecated coverage: 872/1534 covered (56.8%), 60 partial, 602 missing.**
+Deprecated: 25/939 covered (2.7%), 5 partial, 909 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 809 | 22 | 831 |
-| partial | 46 | 5 | 51 |
-| missing | 679 | 912 | 1591 |
+| covered | 872 | 25 | 897 |
+| partial | 60 | 5 | 65 |
+| missing | 602 | 909 | 1511 |
 
 ## Totals by kind
 
 | Kind | Covered | Partial | Missing | Total |
 | --- | --- | --- | --- | --- |
 | namespace | 3 | 1 | 5 | 9 |
-| component | 20 | 23 | 73 | 116 |
+| component | 20 | 30 | 66 | 116 |
 | function | 21 | 4 | 25 | 50 |
 | const | 1 | 1 | 19 | 21 |
 | class | 2 | 0 | 1 | 3 |
 | enum | 6 | 0 | 7 | 13 |
 | enum-member | 499 | 0 | 192 | 691 |
 | interface | 7 | 1 | 56 | 64 |
-| type | 19 | 2 | 157 | 178 |
-| property | 243 | 19 | 1042 | 1304 |
+| type | 21 | 2 | 155 | 178 |
+| property | 307 | 26 | 971 | 1304 |
 | method | 10 | 0 | 14 | 24 |
 
 ## Top-level symbols
@@ -95,7 +95,7 @@ Children counts include all descendants, as covered/partial/total.
 | `FormTextFieldProps` | interface | missing | 0/0/12 | 0 |
 | `FormValue` | type | missing | 0/0/0 | 2 |
 | `FormValues` | interface | missing | 0/0/0 | 1 |
-| `Grid` | component | missing | 0/0/87 | 311 |
+| `Grid` | component | partial | 66/13/87 | 311 |
 | `Icon` | enum | covered | 478/0/478 | 2587 |
 | `Image` | interface | missing | 0/0/21 | 478 |
 | `ImageLike` | type | missing | 0/0/5 | 2 |
@@ -203,33 +203,25 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `MenuBarExtra.Item.Props.title` | 328 |
 | `MenuBarExtra.Item.Props.onAction` | 323 |
 | `MenuBarExtra.Props.icon` | 317 |
-| `Grid` | 311 |
 | `MenuBarExtra.Props.isLoading` | 308 |
-| `Grid.Item` | 306 |
-| `Grid.Item.Props.content` | 300 |
-| `Grid.Item.Props.actions` | 296 |
 | `ActionPanel.Submenu` | 284 |
 | `ActionPanel.Submenu.Props.title` | 284 |
 | `MenuBarExtra.Item.Props.icon` | 283 |
 | `Image.ImageLike` | 279 |
 | `MenuBarExtra.Section` | 275 |
 | `ActionPanel.Submenu.Props.icon` | 267 |
-| `Grid.Item.Props.title` | 262 |
 | `Form.FilePicker` | 256 |
-| `Grid.Props.isLoading` | 249 |
 | `getSelectedText` | 249 |
 | `Form.FilePicker.Props.title` | 246 |
 | `Form.FilePicker.Props.allowMultipleSelection` | 238 |
 | `Image.Mask` | 232 |
 | `MenuBarExtra.Props.title` | 232 |
 | `Action.Open` | 227 |
-| `Grid.Props.columns` | 227 |
 | `Action.Open.Props.target` | 226 |
 | `Action.Open.Props.title` | 226 |
 | `MenuBarExtra.Props.tooltip` | 226 |
 | `MenuBarExtra.Section.Props.title` | 224 |
 | `List.Props.pagination` | 206 |
-| `Grid.Props.searchBarPlaceholder` | 201 |
 | `Form.FilePicker.Props.id` | 193 |
 | `Action.ShowInFinder` | 192 |
 | `Action.ShowInFinder.Props.path` | 192 |
@@ -240,5 +232,13 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `Form.TagPicker.Item.Props.title` | 168 |
 | `Form.TagPicker.Item.Props.value` | 168 |
 | `Form.TagPicker.Props.title` | 167 |
-| `Grid.Item.Props.subtitle` | 165 |
-| `Grid.EmptyView` | 164 |
+| `getSelectedFinderItems` | 164 |
+| `ActionPanel.Submenu.Props.shortcut` | 158 |
+| `Image.Mask.Circle` | 146 |
+| `Action.Open.Props.icon` | 145 |
+| `showInFinder` | 145 |
+| `OAuth` | 135 |
+| `OAuth.PKCEClient` | 134 |
+| `OAuth.RedirectMethod` | 134 |
+| `Form.PasswordField` | 132 |
+| `Form.PasswordField.Props.title` | 131 |

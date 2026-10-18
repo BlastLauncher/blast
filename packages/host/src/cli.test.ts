@@ -13,6 +13,7 @@ const helloList = join(root, "fixtures/extensions/hello-list");
 const hostSession = join(root, "fixtures/extensions/host-session");
 const hostApis = join(root, "fixtures/extensions/host-apis");
 const listExtras = join(root, "fixtures/extensions/list-extras");
+const gridFixture = join(root, "fixtures/extensions/grid");
 const storageFixture = join(root, "fixtures/extensions/storage");
 
 type CliResult = { code: number; stdout: string; stderr: string };
@@ -278,7 +279,50 @@ test("a dropdown without onChange reports a script error", async () => {
     "dropdown beer\n",
   );
   expect(code).toBe(1);
-  expect(stderr).toContain("no List.Dropdown with onChange to select");
+  expect(stderr).toContain("no List.Dropdown or Grid.Dropdown with onChange to select");
+});
+
+test("grid renders items, sections and a dropdown scene", async () => {
+  const { code, stdout, stderr } = await runCli(["run", gridFixture, "index"]);
+  expect(code).toBe(0);
+  expect(stderr).toBe("");
+  expect(stdout).toContain('Grid navigationTitle="grid"');
+  expect(stdout).toContain('columns=3 aspectRatio="1" fit="contain" inset="sm"');
+  expect(stdout).toContain('Grid.Dropdown tooltip="Drink" defaultValue="water" [onChange]');
+  expect(stdout).toContain('Grid.Dropdown.Section "Drinks"');
+  expect(stdout).toContain('Grid.Dropdown.Item "beer" value="beer"');
+  expect(stdout).toContain('Grid.Item "beer" content={"value":"beer.png","tooltip":"Germany"}');
+  expect(stdout).toContain('accessory={"icon":"star.png"}');
+});
+
+test("a script searches a Grid, selects its dropdown value and runs actions", async () => {
+  const script = [
+    "dropdown wine",
+    "wait",
+    "expect drink wine",
+    "search wa",
+    "wait",
+    "action Delete water",
+    "wait",
+    "expect deleted water",
+    "search z",
+    "wait",
+    "expect Grid.EmptyView",
+    "quit",
+    "",
+  ].join("\n");
+  const { code, stdout, stderr } = await runCli(
+    ["run", gridFixture, "index", "--script", "-"],
+    script,
+  );
+  expect(code, `${stderr}\n${stdout}`).toBe(0);
+  expect(stderr).toBe("");
+  expect(stdout).toContain('Grid navigationTitle="drink wine"');
+  const last = stdout.slice(stdout.lastIndexOf('Grid navigationTitle="drink wine"'));
+  expect(last).toContain('Grid.EmptyView "Nothing"');
+  expect(last).toContain('searchText="z"');
+  const help = await runCli(["--help"]);
+  expect(help.stdout).toContain("Dispatch the List or Grid onSearchTextChange handler.");
 });
 
 test("LocalStorage is granted by default and persists across runs in --data-dir", async () => {

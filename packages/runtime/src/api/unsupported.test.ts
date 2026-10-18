@@ -30,7 +30,7 @@ test("every value-level top-level inventory symbol is exported; types are absent
 
 test("top-level, nested and partially implemented component stubs name the exact path", () => {
   for (const [component, path] of [
-    [api.Grid, "Grid"],
+    [api.WindowManagement, "WindowManagement"],
     [api.Form.FilePicker!, "Form.FilePicker"],
     [api.Action.Open!, "Action.Open"],
     [withUnsupported("ActionPanel", implemented.ActionPanel).Submenu!, "ActionPanel.Submenu"],
@@ -83,11 +83,11 @@ test("stub values used as props fail as unsupported instead of rendering as hand
           {},
           createElement(api.List.Item, {
             title: "x",
-            icon: api.Grid.Inset!.Small as unknown as string,
+            icon: api.Tool as unknown as string,
           }),
         ),
       ),
-    "Grid.Inset.Small",
+    "Tool",
   );
   expect(published).toEqual([]);
   // Implemented exports are not stubs, so their callbacks still become handlers.
