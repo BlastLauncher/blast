@@ -4,16 +4,16 @@ Denominator: the `@raycast/api@2.8.2` declarations. Evidence:
 `// @covers` tags in `packages/**/*.test.ts(x)`. A parent is not implied covered
 by its children. Partial support is reported separately from covered.
 
-**Non-deprecated coverage: 779/1534 covered (50.8%), 44 partial, 711 missing.**
-Deprecated: 22/939 covered (2.3%), 4 partial, 913 missing.
+**Non-deprecated coverage: 796/1534 covered (51.9%), 44 partial, 694 missing.**
+Deprecated: 23/939 covered (2.4%), 4 partial, 912 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 779 | 22 | 801 |
+| covered | 796 | 23 | 819 |
 | partial | 44 | 4 | 48 |
-| missing | 711 | 913 | 1624 |
+| missing | 694 | 912 | 1606 |
 
 ## Totals by kind
 
@@ -23,13 +23,13 @@ Deprecated: 22/939 covered (2.3%), 4 partial, 913 missing.
 | component | 20 | 23 | 73 | 116 |
 | function | 14 | 3 | 33 | 50 |
 | const | 1 | 1 | 19 | 21 |
-| class | 1 | 0 | 2 | 3 |
+| class | 2 | 0 | 1 | 3 |
 | enum | 6 | 0 | 7 | 13 |
 | enum-member | 499 | 0 | 192 | 691 |
-| interface | 5 | 1 | 58 | 64 |
-| type | 16 | 1 | 161 | 178 |
-| property | 233 | 18 | 1053 | 1304 |
-| method | 3 | 0 | 21 | 24 |
+| interface | 6 | 1 | 57 | 64 |
+| type | 18 | 1 | 159 | 178 |
+| property | 240 | 18 | 1046 | 1304 |
+| method | 10 | 0 | 14 | 24 |
 
 ## Top-level symbols
 
@@ -57,7 +57,7 @@ Children counts include all descendants, as covered/partial/total.
 | `Application` | interface | missing | 0/0/5 | 119 |
 | `ArgumentsLaunchProps` | interface | missing | 0/0/1 | 1 |
 | `BrowserExtension` | namespace | missing | 0/0/8 | 62 |
-| `Cache` | class | missing | 0/0/17 | 333 |
+| `Cache` | class | covered | 17/0/17 | 333 |
 | `Clipboard` | namespace | partial | 1/0/16 | 1049 |
 | `Color` | enum | covered | 9/0/22 | 1420 |
 | `ColorLike` | type | missing | 0/0/3 | 0 |
@@ -201,7 +201,6 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `LaunchType.UserInitiated` | 408 |
 | `launchCommand` | 398 |
 | `MenuBarExtra` | 342 |
-| `Cache` | 333 |
 | `MenuBarExtra.Item` | 328 |
 | `MenuBarExtra.Item.Props.title` | 328 |
 | `MenuBarExtra.Item.Props.onAction` | 323 |
@@ -242,3 +241,4 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `openCommandPreferences` | 187 |
 | `MenuBarExtra.Item.Props.subtitle` | 181 |
 | `Form.FilePicker.Props.canChooseDirectories` | 176 |
+| `Form.TagPicker` | 168 |

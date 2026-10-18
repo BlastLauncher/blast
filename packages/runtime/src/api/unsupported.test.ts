@@ -50,7 +50,6 @@ test("sync and promise-returning APIs throw structured errors when called", asyn
     code: "UNSUPPORTED_API",
     path: "getSelectedText",
   });
-  unsupported(() => new api.Cache(), "Cache");
 });
 
 test("implemented calls and values retain their behavior, and probes do not invent APIs", () => {

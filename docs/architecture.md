@@ -78,8 +78,12 @@ SIGKILL after another timeout. Exit resolves after stdio closes.
 
 Broker grants are explicit; missing handlers return `denied`, thrown handlers
 return `failed`. Preferences and environment can be supplied at startup. The
-default environment uses assets/support paths alongside the bundle; callers
-needing extension assets or persistent support data should supply those paths.
+default assets path is alongside the bundle. The host creates a stable support
+directory at `<dataDir>/support/<escaped-extension>/` before spawning, using the
+same data root as local storage; `--data-dir` applies to both. Callers can also
+supply explicit environment paths. Synchronous `Cache` stores strings under
+`<supportPath>/cache/<namespace?>` with atomic replacement and byte-based LRU
+eviction. Subscriptions notify matching cache instances within the process.
 Callers own bundle output directories (default: a unique directory below
 `os.tmpdir()/blast/builds`) and remove them after sessions exit.
 

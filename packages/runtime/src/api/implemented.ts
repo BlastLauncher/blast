@@ -52,3 +52,5 @@ export {
 export { open, type Application } from "./open.ts";
 
 export { Form, SubmitForm as SubmitFormAction } from "./form.ts";
+
+export { Cache } from "./cache.ts";

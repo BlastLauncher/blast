@@ -2,21 +2,21 @@
   "version": "2.8.2",
   "totals": {
     "all": {
-      "covered": 801,
+      "covered": 819,
       "partial": 48,
-      "missing": 1624,
+      "missing": 1606,
       "total": 2473
     },
     "nonDeprecated": {
-      "covered": 779,
+      "covered": 796,
       "partial": 44,
-      "missing": 711,
+      "missing": 694,
       "total": 1534
     },
     "deprecated": {
-      "covered": 22,
+      "covered": 23,
       "partial": 4,
-      "missing": 913,
+      "missing": 912,
       "total": 939
     },
     "kinds": {
@@ -45,9 +45,9 @@
         "total": 21
       },
       "class": {
-        "covered": 1,
+        "covered": 2,
         "partial": 0,
-        "missing": 2,
+        "missing": 1,
         "total": 3
       },
       "enum": {
@@ -63,27 +63,27 @@
         "total": 691
       },
       "interface": {
-        "covered": 5,
+        "covered": 6,
         "partial": 1,
-        "missing": 58,
+        "missing": 57,
         "total": 64
       },
       "type": {
-        "covered": 16,
+        "covered": 18,
         "partial": 1,
-        "missing": 161,
+        "missing": 159,
         "total": 178
       },
       "property": {
-        "covered": 233,
+        "covered": 240,
         "partial": 18,
-        "missing": 1053,
+        "missing": 1046,
         "total": 1304
       },
       "method": {
-        "covered": 3,
+        "covered": 10,
         "partial": 0,
-        "missing": 21,
+        "missing": 14,
         "total": 24
       }
     }
@@ -4487,110 +4487,149 @@
     },
     {
       "path": "Cache",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/cache.test.ts",
+        "packages/runtime/src/api/cache.test.ts"
+      ],
       "weight": 333
     },
     {
       "path": "Cache.DEFAULT_CAPACITY",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/cache.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Cache.Options",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/cache.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Cache.Options.capacity",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/cache.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Cache.Options.directory",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/cache.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Cache.Options.namespace",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/cache.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Cache.STORAGE_DIRECTORY_NAME",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/cache.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Cache.Subscriber",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/cache.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Cache.Subscription",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/cache.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Cache.clear",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/cache.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Cache.constructor",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/cache.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Cache.get",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/cache.test.ts",
+        "packages/runtime/src/api/cache.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Cache.has",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/cache.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Cache.isEmpty",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/cache.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Cache.remove",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/cache.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Cache.set",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/cache.test.ts",
+        "packages/runtime/src/api/cache.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Cache.storageDirectory",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/cache.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Cache.subscribe",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/cache.test.ts"
+      ],
       "weight": 0
     },
     {

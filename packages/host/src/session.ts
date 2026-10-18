@@ -11,13 +11,16 @@ import {
   type SceneMessage,
 } from "@blastlauncher/protocol";
 import { spawn } from "node:child_process";
-import { dirname, join, resolve } from "node:path";
+import { mkdir } from "node:fs/promises";
+import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { Broker } from "./broker.ts";
 import type { BundledCommand } from "./bundle.ts";
+import { defaultDataDir, storageFile } from "./storage.ts";
 
 export type StartOptions = BundledCommand & {
   broker: Broker;
+  dataDir?: string;
   preferences?: Record<string, JsonValue>;
   environment?: InitEnvironment;
   nodePath?: string;
@@ -56,6 +59,16 @@ export type Session = {
 /** Resolves after the version handshake. Startup failures reject only after child cleanup. */
 export async function startCommand(options: StartOptions): Promise<Session> {
   const entry = resolve(options.entry);
+  const supportPath =
+    options.environment?.supportPath ??
+    join(
+      resolve(options.dataDir ?? defaultDataDir()),
+      "support",
+      basename(storageFile("", options.extensionName), ".json").replace(/^\.{1,2}$/, (name) =>
+        name.replaceAll(".", "%2e"),
+      ),
+    );
+  await mkdir(supportPath, { recursive: true });
   const init: HostMessage = {
     type: "init",
     protocol: PROTOCOL_VERSION,
@@ -70,7 +83,7 @@ export async function startCommand(options: StartOptions): Promise<Session> {
       extensionName: options.extensionName,
       commandName: options.commandName,
       assetsPath: join(dirname(entry), "assets"),
-      supportPath: join(dirname(entry), "support"),
+      supportPath,
       isDevelopment: true,
     },
   };
