@@ -13,6 +13,9 @@
         "typescript": "7.0.2",
       },
     },
+    "packages/protocol": {
+      "name": "@blastlauncher/protocol",
+    },
     "packages/runtime": {
       "name": "@blastlauncher/runtime",
       "dependencies": {
@@ -26,6 +29,8 @@
     },
   },
   "packages": {
+    "@blastlauncher/protocol": ["@blastlauncher/protocol@workspace:packages/protocol"],
+
     "@blastlauncher/runtime": ["@blastlauncher/runtime@workspace:packages/runtime"],
 
     "@oxc-parser/binding-android-arm-eabi": ["@oxc-parser/binding-android-arm-eabi@0.154.0", "", { "os": "android", "cpu": "arm" }, "sha512-sDdEtDl7vKdCvf54j72RJbowE3jCmyRz/+oOB6IAwQxAHZ0eI+Dcj4hvVnm0b9Dy31plUkdmfds9C+/Zt895Tg=="],
