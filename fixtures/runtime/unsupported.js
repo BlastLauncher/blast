@@ -1,8 +1,8 @@
-import { Action, Clipboard, Detail, List } from "@raycast/api";
+import { Action, Clipboard, Form, List } from "@raycast/api";
 import { createElement } from "react";
 
 export default function Command() {
-  return createElement(Detail.Metadata.Label);
+  return createElement(Form.Dropdown.Item);
 }
 export function EventCommand() {
   return createElement(

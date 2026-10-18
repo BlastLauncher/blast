@@ -5,4 +5,14 @@ export type { ActionPanelProps, ActionPanelSectionProps } from "./action-panel.t
 export type { ClipboardContent, CopyOptions } from "./clipboard.ts";
 export type { Environment } from "./environment.ts";
 export type { ListProps, ListItemProps, ListSectionProps, ListEmptyViewProps } from "./list.ts";
+export type { DetailProps, ListItemDetailProps } from "./detail.ts";
+export type {
+  MetadataComponents,
+  MetadataLabelProps,
+  MetadataLinkProps,
+  MetadataProps,
+  MetadataSeparatorProps,
+  MetadataTagListItemProps,
+  MetadataTagListProps,
+} from "./metadata.ts";
 export type { PreferenceValues } from "./preferences.ts";

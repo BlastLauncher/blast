@@ -2,15 +2,15 @@
   "version": "2.8.2",
   "totals": {
     "all": {
-      "covered": 570,
+      "covered": 629,
       "partial": 16,
-      "missing": 1887,
+      "missing": 1828,
       "total": 2473
     },
     "nonDeprecated": {
-      "covered": 562,
+      "covered": 621,
       "partial": 14,
-      "missing": 958,
+      "missing": 899,
       "total": 1534
     },
     "deprecated": {
@@ -27,9 +27,9 @@
         "total": 9
       },
       "component": {
-        "covered": 1,
+        "covered": 14,
         "partial": 12,
-        "missing": 103,
+        "missing": 90,
         "total": 116
       },
       "function": {
@@ -69,15 +69,15 @@
         "total": 64
       },
       "type": {
-        "covered": 1,
+        "covered": 14,
         "partial": 0,
-        "missing": 177,
+        "missing": 164,
         "total": 178
       },
       "property": {
-        "covered": 76,
+        "covered": 109,
         "partial": 1,
-        "missing": 1227,
+        "missing": 1194,
         "total": 1304
       },
       "method": {
@@ -4921,164 +4921,218 @@
     },
     {
       "path": "Detail.Metadata",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 608
     },
     {
       "path": "Detail.Metadata.Label",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 578
     },
     {
       "path": "Detail.Metadata.Label.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Detail.Metadata.Label.Props.icon",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 243
     },
     {
       "path": "Detail.Metadata.Label.Props.text",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 575
     },
     {
       "path": "Detail.Metadata.Label.Props.text.color",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Detail.Metadata.Label.Props.text.value",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Detail.Metadata.Label.Props.title",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 576
     },
     {
       "path": "Detail.Metadata.Link",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 267
     },
     {
       "path": "Detail.Metadata.Link.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Detail.Metadata.Link.Props.target",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 267
     },
     {
       "path": "Detail.Metadata.Link.Props.text",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 267
     },
     {
       "path": "Detail.Metadata.Link.Props.title",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 267
     },
     {
       "path": "Detail.Metadata.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Detail.Metadata.Props.children",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Detail.Metadata.Separator",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 404
     },
     {
       "path": "Detail.Metadata.Separator.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Detail.Metadata.TagList",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 379
     },
     {
       "path": "Detail.Metadata.TagList.Item",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 379
     },
     {
       "path": "Detail.Metadata.TagList.Item.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 3
     },
     {
       "path": "Detail.Metadata.TagList.Item.Props.color",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 281
     },
     {
       "path": "Detail.Metadata.TagList.Item.Props.icon",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 56
     },
     {
       "path": "Detail.Metadata.TagList.Item.Props.onAction",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 27
     },
     {
       "path": "Detail.Metadata.TagList.Item.Props.text",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 375
     },
     {
       "path": "Detail.Metadata.TagList.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Detail.Metadata.TagList.Props.children",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Detail.Metadata.TagList.Props.title",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 378
     },
     {
@@ -12711,194 +12765,258 @@
     },
     {
       "path": "List.Item.Detail",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 993
     },
     {
       "path": "List.Item.Detail.Metadata",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 671
     },
     {
       "path": "List.Item.Detail.Metadata.Label",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 652
     },
     {
       "path": "List.Item.Detail.Metadata.Label.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "List.Item.Detail.Metadata.Label.Props.icon",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 291
     },
     {
       "path": "List.Item.Detail.Metadata.Label.Props.text",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 637
     },
     {
       "path": "List.Item.Detail.Metadata.Label.Props.text.color",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "List.Item.Detail.Metadata.Label.Props.text.value",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "List.Item.Detail.Metadata.Label.Props.title",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 650
     },
     {
       "path": "List.Item.Detail.Metadata.Link",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 187
     },
     {
       "path": "List.Item.Detail.Metadata.Link.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "List.Item.Detail.Metadata.Link.Props.target",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 186
     },
     {
       "path": "List.Item.Detail.Metadata.Link.Props.text",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 186
     },
     {
       "path": "List.Item.Detail.Metadata.Link.Props.title",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 186
     },
     {
       "path": "List.Item.Detail.Metadata.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "List.Item.Detail.Metadata.Props.children",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "List.Item.Detail.Metadata.Separator",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 444
     },
     {
       "path": "List.Item.Detail.Metadata.Separator.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "List.Item.Detail.Metadata.TagList",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 337
     },
     {
       "path": "List.Item.Detail.Metadata.TagList.Item",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 335
     },
     {
       "path": "List.Item.Detail.Metadata.TagList.Item.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "List.Item.Detail.Metadata.TagList.Item.Props.color",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 236
     },
     {
       "path": "List.Item.Detail.Metadata.TagList.Item.Props.icon",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 52
     },
     {
       "path": "List.Item.Detail.Metadata.TagList.Item.Props.onAction",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 20
     },
     {
       "path": "List.Item.Detail.Metadata.TagList.Item.Props.text",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 333
     },
     {
       "path": "List.Item.Detail.Metadata.TagList.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "List.Item.Detail.Metadata.TagList.Props.children",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 3
     },
     {
       "path": "List.Item.Detail.Metadata.TagList.Props.title",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 336
     },
     {
       "path": "List.Item.Detail.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "List.Item.Detail.Props.isLoading",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 124
     },
     {
       "path": "List.Item.Detail.Props.markdown",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 776
     },
     {
       "path": "List.Item.Detail.Props.metadata",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/metadata.test.ts"
+      ],
       "weight": 688
     },
     {

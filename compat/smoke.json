@@ -1,12 +1,12 @@
 {
   "commit": "3b812d1e153a1862df29bc8ec34e170c728512ea",
   "totals": {
-    "rendered": 9,
+    "rendered": 12,
     "bundle-failed": 0,
     "crashed": 0,
     "timeout": 0,
     "unsupported-mode": 0,
-    "unsupported-api": 4
+    "unsupported-api": 1
   },
   "results": [
     {
@@ -85,25 +85,25 @@
       "extension": "radix",
       "command": "colors",
       "mode": "view",
-      "outcome": "unsupported-api",
-      "path": "List.Item.Detail",
-      "error": "Unsupported API in Blast: List.Item.Detail"
+      "outcome": "rendered",
+      "nodes": 51,
+      "rootType": "List"
     },
     {
       "extension": "radix",
       "command": "primitives",
       "mode": "view",
-      "outcome": "unsupported-api",
-      "path": "List.Item.Detail",
-      "error": "Unsupported API in Blast: List.Item.Detail"
+      "outcome": "rendered",
+      "nodes": 263,
+      "rootType": "List"
     },
     {
       "extension": "radix",
       "command": "themes",
       "mode": "view",
-      "outcome": "unsupported-api",
-      "path": "List.Item.Detail",
-      "error": "Unsupported API in Blast: List.Item.Detail"
+      "outcome": "rendered",
+      "nodes": 427,
+      "rootType": "List"
     },
     {
       "extension": "ratio-calculator",

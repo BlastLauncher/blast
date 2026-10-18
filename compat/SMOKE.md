@@ -5,7 +5,7 @@ Headless run of every command of the curated extensions at corpus commit
 defaults. Regenerate with `bun run corpus:smoke` (network required; not
 part of `bun run verify`).
 
-13 commands: rendered 9, bundle-failed 0, crashed 0, timeout 0, unsupported-mode 0, unsupported-api 4.
+13 commands: rendered 12, bundle-failed 0, crashed 0, timeout 0, unsupported-mode 0, unsupported-api 1.
 
 | Command                                         | Mode | Outcome         | Detail                |
 | ----------------------------------------------- | ---- | --------------- | --------------------- |
@@ -18,14 +18,11 @@ part of `bun run verify`).
 | `markdown-reference/markdown-reference`         | view | unsupported-api | useNavigation         |
 | `ohmyzsh-git-alias/index`                       | view | rendered        | 1630 nodes, root List |
 | `px-to-rem-converter/index`                     | view | rendered        | 11 nodes, root List   |
-| `radix/colors`                                  | view | unsupported-api | List.Item.Detail      |
-| `radix/primitives`                              | view | unsupported-api | List.Item.Detail      |
-| `radix/themes`                                  | view | unsupported-api | List.Item.Detail      |
+| `radix/colors`                                  | view | rendered        | 51 nodes, root List   |
+| `radix/primitives`                              | view | rendered        | 263 nodes, root List  |
+| `radix/themes`                                  | view | rendered        | 427 nodes, root List  |
 | `ratio-calculator/calculate-ratio`              | view | rendered        | 2 nodes, root List    |
 
 ## Failures
 
 - `markdown-reference/markdown-reference` (unsupported-api): useNavigation
-- `radix/colors` (unsupported-api): List.Item.Detail
-- `radix/primitives` (unsupported-api): List.Item.Detail
-- `radix/themes` (unsupported-api): List.Item.Detail

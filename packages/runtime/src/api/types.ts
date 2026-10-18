@@ -14,6 +14,9 @@ export type ImageLike =
       title?: string;
     };
 
+/** `Color.ColorLike`: a built-in or literal color, or a light/dark pair. */
+export type ColorLike = string | { light: string; dark: string; adjustContrast?: boolean | null };
+
 /** `Keyboard.Shortcut`, widened to its structural minimum. */
 export interface KeyShortcut {
   modifiers: string[];
