@@ -19,6 +19,7 @@
     "compat:report": "bun scripts/compat/generate-coverage.ts",
     "compat:check": "bun scripts/compat/check.ts",
     "corpus:fetch": "bun scripts/corpus/fetch.ts",
+    "corpus:smoke": "bun scripts/corpus/smoke-run.ts",
     "check:workflow": "bun scripts/check-workflow.ts"
   },
   "devDependencies": {

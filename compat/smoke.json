@@ -1,0 +1,153 @@
+{
+  "commit": "3b812d1e153a1862df29bc8ec34e170c728512ea",
+  "totals": {
+    "rendered": 1,
+    "bundle-failed": 0,
+    "crashed": 12,
+    "timeout": 0,
+    "unsupported-mode": 0
+  },
+  "results": [
+    {
+      "extension": "axios-docs",
+      "command": "index",
+      "mode": "view",
+      "outcome": "crashed",
+      "exit": "code 1",
+      "error": "Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n\nCheck the render method of `Command`.",
+      "logs": [
+        "RUNTIME_ERROR: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You like…"
+      ]
+    },
+    {
+      "extension": "biaodian",
+      "command": "biaodian",
+      "mode": "view",
+      "outcome": "crashed",
+      "exit": "code 1",
+      "error": "The requested module '@raycast/api' does not provide an export named 'CopyToClipboardAction'",
+      "logs": [
+        "RUNTIME_ERROR: The requested module '@raycast/api' does not provide an export named 'CopyToClipboardAction'"
+      ]
+    },
+    {
+      "extension": "code-review-emojis",
+      "command": "index",
+      "mode": "view",
+      "outcome": "crashed",
+      "exit": "code 1",
+      "error": "The requested module '@raycast/api' does not provide an export named 'Keyboard'",
+      "logs": [
+        "RUNTIME_ERROR: The requested module '@raycast/api' does not provide an export named 'Keyboard'"
+      ]
+    },
+    {
+      "extension": "conventional-commits",
+      "command": "commit-message-structure",
+      "mode": "view",
+      "outcome": "crashed",
+      "exit": "code 1",
+      "error": "The requested module '@raycast/api' does not provide an export named 'Detail'",
+      "logs": [
+        "RUNTIME_ERROR: The requested module '@raycast/api' does not provide an export named 'Detail'"
+      ]
+    },
+    {
+      "extension": "conventional-commits",
+      "command": "index",
+      "mode": "view",
+      "outcome": "crashed",
+      "exit": "code 1",
+      "error": "The requested module '@raycast/api' does not provide an export named 'Color'",
+      "logs": [
+        "RUNTIME_ERROR: The requested module '@raycast/api' does not provide an export named 'Color'"
+      ]
+    },
+    {
+      "extension": "fibonacci-sequence",
+      "command": "index",
+      "mode": "view",
+      "outcome": "crashed",
+      "exit": "code 1",
+      "error": "Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n\nCheck the render method of `Command`.",
+      "logs": [
+        "RUNTIME_ERROR: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You like…"
+      ]
+    },
+    {
+      "extension": "markdown-reference",
+      "command": "markdown-reference",
+      "mode": "view",
+      "outcome": "crashed",
+      "exit": "code 1",
+      "error": "The requested module '@raycast/api' does not provide an export named 'Detail'",
+      "logs": [
+        "RUNTIME_ERROR: The requested module '@raycast/api' does not provide an export named 'Detail'"
+      ]
+    },
+    {
+      "extension": "ohmyzsh-git-alias",
+      "command": "index",
+      "mode": "view",
+      "outcome": "crashed",
+      "exit": "code 1",
+      "error": "Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n\nCheck the render method of `Command`.",
+      "logs": [
+        "RUNTIME_ERROR: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You like…"
+      ]
+    },
+    {
+      "extension": "px-to-rem-converter",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 11,
+      "rootType": "List"
+    },
+    {
+      "extension": "radix",
+      "command": "colors",
+      "mode": "view",
+      "outcome": "crashed",
+      "exit": "code 1",
+      "error": "Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n\nCheck the render method of `ColorsCommand`.",
+      "logs": [
+        "RUNTIME_ERROR: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You like…"
+      ]
+    },
+    {
+      "extension": "radix",
+      "command": "primitives",
+      "mode": "view",
+      "outcome": "crashed",
+      "exit": "code 1",
+      "error": "Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n\nCheck the render method of `Command`.",
+      "logs": [
+        "RUNTIME_ERROR: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You like…"
+      ]
+    },
+    {
+      "extension": "radix",
+      "command": "themes",
+      "mode": "view",
+      "outcome": "crashed",
+      "exit": "code 1",
+      "error": "Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n\nCheck the render method of `ThemesCommand`.",
+      "logs": [
+        "RUNTIME_ERROR: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You like…"
+      ]
+    },
+    {
+      "extension": "ratio-calculator",
+      "command": "calculate-ratio",
+      "mode": "view",
+      "outcome": "crashed",
+      "exit": "code 1",
+      "error": "The requested module '@raycast/api' does not provide an export named 'Icon'",
+      "logs": [
+        "RUNTIME_ERROR: The requested module '@raycast/api' does not provide an export named 'Icon'"
+      ]
+    }
+  ],
+  "extensionFailures": []
+}
