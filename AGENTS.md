@@ -133,16 +133,20 @@ Loop per task:
    Then remove the worker worktree and branch (`git worktree remove`) to
    free disk.
 
+Independent tasks (no shared package) may run in parallel. Merge them one at
+a time; resolve `bun.lock` conflicts by rerunning `bun install`, never by hand.
+
 In T3 Code use `delegate_task` with `isolation: "worktree"`, `mode: "async"`,
 a stable `clientRequestId` per round (e.g. `task-0001-r1`), and end the turn
 until the completion notification arrives. Model guidance (re-check with
 `orchestrator_capabilities`; names change):
 
-| Use                                 | Provider instance    | Model                                                          |
-| ----------------------------------- | -------------------- | -------------------------------------------------------------- |
-| Well-specified, mechanical tasks    | `opencode_opencode2` | `opencode-go/deepseek-v4.1-flash`, `opencode-go/glm-5.3-flash` |
-| Harder implementation, review       | `codex`              | `gpt-6.1-sol`                                                  |
-| Orchestration, design, final review | `claudeAgent`        | `claude-opus-5-5`                                              |
+| Use                                     | Provider instance    | Model                                                                                         |
+| --------------------------------------- | -------------------- | --------------------------------------------------------------------------------------------- |
+| Well-specified, mechanical tasks        | `opencode_opencode2` | `opencode-go/deepseek-v4.1-flash`, `opencode-go/glm-5.3-flash`, free `opencode/*-free` models |
+| Harder implementation, review           | `codex`              | `gpt-6.1-sol`                                                                                 |
+| Fallback (no quota / model unavailable) | `claudeAgent`        | `claude-sonnet-5`                                                                             |
+| Orchestration, design, final review     | `claudeAgent`        | `claude-opus-5-5`                                                                             |
 
 Cheap models get tasks whose Acceptance is fully mechanical. If a cheap model
 fails a task twice, escalate the model rather than loosening the task.
@@ -174,6 +178,12 @@ fails a task twice, escalate the model rather than loosening the task.
 ## Code conventions
 
 - ESM, TypeScript, strict. Explicit `.ts` extensions in relative imports.
+- A package is `packages/<name>/` with `package.json` name
+  `@blastlauncher/<name>`, `"private": true`, `"type": "module"`, `exports`
+  pointing at `./src/*.ts` (no build step), and internal deps as
+  `"workspace:*"`. Read `docs/architecture.md` and `docs/decisions/` first.
+- Test fixtures that are not product code live under `fixtures/` (excluded
+  from typecheck).
 - Tests sit next to code as `*.test.ts` and use `bun:test`.
 - Comments explain why, not what. Match surrounding style.
 - Commit messages: conventional (`feat:`, `fix:`, `chore:`, `test:`, `docs:`),

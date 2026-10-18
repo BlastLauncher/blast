@@ -6,8 +6,8 @@ files.
 
 ## Current focus
 
-M0 done. Next: M1 task breakdown (orchestrator), starting with the protocol
-and scene format decision.
+M1 — headless vertical slice. 0004 and 0005 run in parallel; then 0006 →
+0007 → 0008 → 0009.
 
 ## Milestones
 
@@ -27,11 +27,13 @@ Node child process, renders through a React reconciler into a serializable
 scene, and is driven by a headless client: snapshot the scene, dispatch an
 action, observe the clipboard capability request, survive a crash.
 
-- [ ] Protocol + scene format (decision record)
-- [ ] Extension runtime: reconciler + minimal `@raycast/api` shim
-- [ ] Host: spawn, session, capability broker (deny by default)
-- [ ] `blast` debug CLI: run a command headlessly, print scene, send events
-- [ ] End-to-end test of the fixture through the CLI
+- [x] Process, protocol and scene model (`docs/decisions/0001`)
+- [ ] 0004 Protocol package: messages, validation, NDJSON framing
+- [ ] 0005 React reconciler publishing whole-scene snapshots
+- [ ] 0006 Minimal `@raycast/api` shim (List, ActionPanel, Action, Clipboard)
+- [ ] 0007 Runtime child-process entry over stdio
+- [ ] 0008 Host: bundle, spawn, session, capability broker
+- [ ] 0009 `blast` debug CLI + end-to-end fixture test
 
 ### M2 — Real extensions
 
@@ -61,4 +63,5 @@ One line per decision; link a record only when it exists.
 
 - 2026-10-18: Bun for dev toolchain; product code stays Node 24-runnable.
 - 2026-10-18: Headless client first; desktop UI deferred to M4.
+- 2026-10-18: Process/protocol/scene model accepted (`docs/decisions/0001`).
 - 2026-10-18: Coverage denominator is the latest `@raycast/api` declarations.
