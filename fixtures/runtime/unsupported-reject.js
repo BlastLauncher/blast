@@ -1,4 +1,4 @@
-import { getDefaultApplication } from "@raycast/api";
+import { randomId } from "@raycast/api";
 export default async function Command() {
-  return getDefaultApplication("/tmp/report.pdf");
+  return randomId();
 }

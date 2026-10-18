@@ -26,6 +26,7 @@ function setup() {
 afterEach(() => setCapabilityRequester(undefined));
 
 // @covers Action.OpenInBrowser
+// @covers Action.OpenInBrowser.Props
 // @covers Action.OpenInBrowser.Props.url
 // @covers Action.OpenInBrowser.Props.title
 // @covers Action.OpenInBrowser.Props.icon
@@ -66,8 +67,9 @@ test("OpenInBrowser keeps URL private, requests open.url, and calls onOpen after
   root.unmount();
 });
 
-// @covers Action.Paste partial
-// @covers Action.Paste.Props.content partial
+// @covers Action.Paste
+// @covers Action.Paste.Props
+// @covers Action.Paste.Props.content
 // @covers Action.Paste.Props.title
 // @covers Action.Paste.Props.icon
 // @covers Action.Paste.Props.shortcut
@@ -79,10 +81,12 @@ test("Paste keeps content private and calls onPaste after clipboard.paste succee
     events.push([name, params]);
     return null;
   });
-  for (const [content, text] of [
-    ["text", "text"],
-    [42, "42"],
-    [{ text: "structured" }, "structured"],
+  for (const [content, params] of [
+    ["text", { text: "text" }],
+    [42, { text: "42" }],
+    [{ text: "structured" }, { text: "structured" }],
+    [{ file: "/tmp/file" }, { file: "/tmp/file" }],
+    [{ html: "<b>rich</b>" }, { html: "<b>rich</b>" }],
   ] as const) {
     root.render(h(Action.Paste, { content, onPaste: (pasted: unknown) => events.push(pasted) }));
     expect(latest().type).toBe("Action.Paste");
@@ -92,7 +96,7 @@ test("Paste keeps content private and calls onPaste after clipboard.paste succee
       onAction: { $handler: "onAction" },
     });
     await root.dispatch(latest().id, "onAction", []);
-    expect(events.splice(0)).toEqual([["clipboard.paste", { text }], content]);
+    expect(events.splice(0)).toEqual([["clipboard.paste", params], content]);
   }
   root.render(
     h(Action.Paste, {
@@ -108,12 +112,6 @@ test("Paste keeps content private and calls onPaste after clipboard.paste succee
     shortcut: Keyboard.Shortcut.Common.Copy,
     onAction: { $handler: "onAction" },
   });
-  for (const content of [{ file: "/tmp/file" }, { html: "<b>rich</b>" }]) {
-    root.render(h(Action.Paste, { content }));
-    await expect(root.dispatch(latest().id, "onAction", [])).rejects.toThrow(
-      "Action.Paste: unsupported content in Blast",
-    );
-  }
   expect(events).toEqual([]);
   root.unmount();
 });
@@ -169,7 +167,8 @@ test("deprecated actions use the same implementations and capability behavior", 
   root.unmount();
 });
 
-// @covers Detail partial
+// @covers Detail
+// @covers Detail.Props
 // @covers Detail.Props.markdown
 // @covers Detail.Props.navigationTitle
 // @covers Detail.Props.isLoading

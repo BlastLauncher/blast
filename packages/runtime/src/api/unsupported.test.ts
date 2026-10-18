@@ -4,6 +4,7 @@ import inventory from "../../../../compat/raycast-api.inventory.json" with { typ
 import * as api from "./index.ts";
 import * as implemented from "./implemented.ts";
 import {
+  type ApiStub,
   UnsupportedApiError,
   unsupportedPath as unsupportedPathOf,
   withUnsupported,
@@ -37,9 +38,9 @@ test("every value-level top-level inventory symbol is exported; types are absent
 
 test("top-level, nested and partially implemented component stubs name the exact path", () => {
   for (const [component, path] of [
-    [api.WindowManagement, "WindowManagement"],
-    [api.Action.InstallMCPServer!, "Action.InstallMCPServer"],
-    [withUnsupported("Action", implemented.Action).InstallMCPServer!, "Action.InstallMCPServer"],
+    [withUnsupported<ApiStub>("Fixture"), "Fixture"],
+    [withUnsupported("Fixture.Child").Child!, "Fixture.Child.Child"],
+    [withUnsupported("Action", implemented.Action).Missing!, "Action.Missing"],
   ] as const) {
     const errors: unknown[] = [];
     const root = createSceneRoot({ publish() {}, onError: (error) => errors.push(error) });
@@ -50,11 +51,10 @@ test("top-level, nested and partially implemented component stubs name the exact
 });
 
 test("sync and promise-returning APIs throw structured errors when called", async () => {
-  unsupported(() => api.getDefaultApplication("/tmp/file"), "getDefaultApplication");
-  unsupported(() => api.clearSearchBar(), "clearSearchBar");
-  await expect((async () => api.getDefaultApplication("/tmp/file"))()).rejects.toMatchObject({
+  unsupported(() => api.randomId(), "randomId");
+  await expect((async () => api.randomId())()).rejects.toMatchObject({
     code: "UNSUPPORTED_API",
-    path: "getDefaultApplication",
+    path: "randomId",
   });
 });
 
@@ -89,11 +89,11 @@ test("stub values used as props fail as unsupported instead of rendering as hand
           {},
           createElement(api.List.Item, {
             title: "x",
-            icon: api.AI.experimental_decide as unknown as string,
+            icon: withUnsupported<ApiStub>("Fixture") as unknown as string,
           }),
         ),
       ),
-    "AI.experimental_decide",
+    "Fixture",
   );
   expect(published).toEqual([]);
   // Implemented exports are not stubs, so their callbacks still become handlers.

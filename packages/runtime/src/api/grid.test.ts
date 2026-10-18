@@ -275,6 +275,7 @@ test("renders Grid.EmptyView with its own actions Slot", () => {
 });
 
 // @covers Grid.Dropdown partial
+// @covers Grid.Dropdown.Props partial
 // @covers Grid.Dropdown.Props.tooltip
 // @covers Grid.Dropdown.Props.children
 // @covers Grid.Dropdown.Props.value

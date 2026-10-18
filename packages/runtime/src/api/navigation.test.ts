@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import { createElement as h, useEffect, useState } from "react";
 import { createSceneRoot, type SceneSnapshot } from "../reconciler/index.ts";
-import { Action, popToRoot, PushAction, useNavigation } from "./index.ts";
+import { Action, clearSearchBar, popToRoot, PushAction, useNavigation } from "./index.ts";
 import { NavigationProvider, type Navigation } from "./navigation.ts";
 
 function setup(component: ReturnType<typeof h>) {
@@ -193,6 +193,28 @@ test("popToRoot from depth three pops to the root entry, records clearSearchBar,
   root.unmount();
   // No mounted command: popToRoot resolves without effect.
   await popToRoot({ clearSearchBar: true });
+});
+
+// @covers clearSearchBar
+test("clearSearchBar records the request on Navigation and drops it with the scene", async () => {
+  const first = setup(h("List"));
+  expect(first.latest().props).toEqual({ depth: 1 });
+  await clearSearchBar();
+  first.root.flush();
+  expect(first.latest().props).toEqual({ depth: 1, clearSearchBar: {} });
+  await clearSearchBar({ forceScrollToTop: false });
+  first.root.flush();
+  expect(first.latest().props).toEqual({ depth: 1, clearSearchBar: { forceScrollToTop: false } });
+  first.root.unmount();
+  // The request belongs to the scene: a later command starts with a clean bar.
+  const second = setup(h("List"));
+  expect(second.latest().props).toEqual({ depth: 1 });
+  second.root.unmount();
+});
+
+// @covers clearSearchBar
+test("clearSearchBar without a mounted view resolves without effect", async () => {
+  await clearSearchBar({ forceScrollToTop: true });
 });
 
 function MissingProviderCommand() {

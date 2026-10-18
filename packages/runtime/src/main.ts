@@ -16,6 +16,7 @@ import { pathToFileURL } from "node:url";
 import { format } from "node:util";
 import { createElement, type ComponentType, type ReactNode } from "react";
 import { setCapabilityRequester } from "./api/capability.ts";
+import { setRuntimeLogSink } from "./api/diagnostics.ts";
 import { setEnvironment } from "./api/environment.ts";
 import { setFeedbackMount } from "./api/feedback.ts";
 import { LaunchType, type LaunchProps } from "./api/launch.ts";
@@ -121,6 +122,9 @@ setCapabilityRequester((name, params) => {
     send({ type: "capability.request", id, name, params });
   });
 });
+// `captureException` and `captureMemorySnapshot` report diagnostics through the
+// protocol's log channel; the runtime owns no other reporter.
+setRuntimeLogSink((level, message) => log(level, [message]));
 
 /**
  * Launch props for this command: the manifest arguments the host resolved and,

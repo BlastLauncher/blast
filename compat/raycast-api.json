@@ -2,15 +2,15 @@
   "version": "2.8.2",
   "totals": {
     "all": {
-      "covered": 1530,
-      "partial": 81,
-      "missing": 862,
+      "covered": 1632,
+      "partial": 68,
+      "missing": 773,
       "total": 2473
     },
     "nonDeprecated": {
-      "covered": 1348,
-      "partial": 76,
-      "missing": 110,
+      "covered": 1450,
+      "partial": 63,
+      "missing": 21,
       "total": 1534
     },
     "deprecated": {
@@ -21,21 +21,21 @@
     },
     "kinds": {
       "namespace": {
-        "covered": 7,
-        "partial": 1,
-        "missing": 1,
+        "covered": 9,
+        "partial": 0,
+        "missing": 0,
         "total": 9
       },
       "component": {
-        "covered": 41,
-        "partial": 33,
-        "missing": 42,
+        "covered": 56,
+        "partial": 19,
+        "missing": 41,
         "total": 116
       },
       "function": {
-        "covered": 30,
-        "partial": 6,
-        "missing": 14,
+        "covered": 40,
+        "partial": 4,
+        "missing": 6,
         "total": 50
       },
       "const": {
@@ -51,33 +51,33 @@
         "total": 3
       },
       "enum": {
-        "covered": 12,
+        "covered": 13,
         "partial": 0,
-        "missing": 1,
+        "missing": 0,
         "total": 13
       },
       "enum-member": {
-        "covered": 689,
+        "covered": 691,
         "partial": 0,
-        "missing": 2,
+        "missing": 0,
         "total": 691
       },
       "interface": {
-        "covered": 22,
+        "covered": 24,
         "partial": 1,
-        "missing": 41,
+        "missing": 39,
         "total": 64
       },
       "type": {
-        "covered": 83,
-        "partial": 7,
-        "missing": 88,
+        "covered": 106,
+        "partial": 8,
+        "missing": 64,
         "total": 178
       },
       "property": {
-        "covered": 616,
-        "partial": 33,
-        "missing": 655,
+        "covered": 663,
+        "partial": 36,
+        "missing": 605,
         "total": 1304
       },
       "method": {
@@ -2223,7 +2223,7 @@
     },
     {
       "path": "Action",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/index.test.ts"
       ],
@@ -2231,7 +2231,7 @@
     },
     {
       "path": "Action.CopyToClipboard",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/index.test.ts"
       ],
@@ -2239,8 +2239,10 @@
     },
     {
       "path": "Action.CopyToClipboard.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ],
       "weight": 12
     },
     {
@@ -2299,7 +2301,7 @@
     },
     {
       "path": "Action.CreateQuicklink",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/action-variants.test.ts"
       ],
@@ -2307,14 +2309,18 @@
     },
     {
       "path": "Action.CreateQuicklink.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "Action.CreateQuicklink.Props.icon",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts"
+      ],
       "weight": 29
     },
     {
@@ -2327,8 +2333,10 @@
     },
     {
       "path": "Action.CreateQuicklink.Props.shortcut",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts"
+      ],
       "weight": 51
     },
     {
@@ -2341,7 +2349,7 @@
     },
     {
       "path": "Action.CreateSnippet",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/action-variants.test.ts"
       ],
@@ -2349,20 +2357,26 @@
     },
     {
       "path": "Action.CreateSnippet.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Action.CreateSnippet.Props.icon",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts"
+      ],
       "weight": 13
     },
     {
       "path": "Action.CreateSnippet.Props.shortcut",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts"
+      ],
       "weight": 14
     },
     {
@@ -2383,43 +2397,55 @@
     },
     {
       "path": "Action.InstallMCPServer",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Action.InstallMCPServer.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Action.InstallMCPServer.Props.icon",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Action.InstallMCPServer.Props.server",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Action.InstallMCPServer.Props.shortcut",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Action.InstallMCPServer.Props.title",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Action.Open",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/action-variants.test.ts"
       ],
@@ -2427,8 +2453,10 @@
     },
     {
       "path": "Action.Open.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts"
+      ],
       "weight": 1
     },
     {
@@ -2489,8 +2517,10 @@
     },
     {
       "path": "Action.OpenInBrowser.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/curated.test.ts"
+      ],
       "weight": 3
     },
     {
@@ -2535,7 +2565,7 @@
     },
     {
       "path": "Action.OpenWith",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/action-variants.test.ts"
       ],
@@ -2543,8 +2573,10 @@
     },
     {
       "path": "Action.OpenWith.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -2573,8 +2605,10 @@
     },
     {
       "path": "Action.OpenWith.Props.shortcut",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts"
+      ],
       "weight": 56
     },
     {
@@ -2587,7 +2621,7 @@
     },
     {
       "path": "Action.Paste",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/curated.test.ts"
       ],
@@ -2595,13 +2629,15 @@
     },
     {
       "path": "Action.Paste.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/curated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Action.Paste.Props.content",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/curated.test.ts"
       ],
@@ -2641,7 +2677,7 @@
     },
     {
       "path": "Action.PickDate",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/action-variants.test.ts"
       ],
@@ -2649,8 +2685,10 @@
     },
     {
       "path": "Action.PickDate.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -2687,8 +2725,10 @@
     },
     {
       "path": "Action.PickDate.Props.shortcut",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts"
+      ],
       "weight": 12
     },
     {
@@ -2725,8 +2765,10 @@
     },
     {
       "path": "Action.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ],
       "weight": 11
     },
     {
@@ -2849,7 +2891,7 @@
     },
     {
       "path": "Action.ShowInFinder",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/action-variants.test.ts"
       ],
@@ -2857,14 +2899,18 @@
     },
     {
       "path": "Action.ShowInFinder.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Action.ShowInFinder.Props.icon",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts"
+      ],
       "weight": 17
     },
     {
@@ -2885,8 +2931,10 @@
     },
     {
       "path": "Action.ShowInFinder.Props.shortcut",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts"
+      ],
       "weight": 68
     },
     {
@@ -2899,7 +2947,7 @@
     },
     {
       "path": "Action.Style",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/list-extras.test.ts"
       ],
@@ -2915,8 +2963,10 @@
     },
     {
       "path": "Action.SubmitForm.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 1
     },
     {
@@ -2961,7 +3011,7 @@
     },
     {
       "path": "Action.ToggleQuickLook",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/action-variants.test.ts"
       ],
@@ -2969,8 +3019,10 @@
     },
     {
       "path": "Action.ToggleQuickLook.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -2983,8 +3035,10 @@
     },
     {
       "path": "Action.ToggleQuickLook.Props.shortcut",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts"
+      ],
       "weight": 26
     },
     {
@@ -2997,7 +3051,7 @@
     },
     {
       "path": "Action.Trash",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/action-variants.test.ts"
       ],
@@ -3005,14 +3059,18 @@
     },
     {
       "path": "Action.Trash.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Action.Trash.Props.icon",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts"
+      ],
       "weight": 3
     },
     {
@@ -3033,8 +3091,10 @@
     },
     {
       "path": "Action.Trash.Props.shortcut",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts"
+      ],
       "weight": 19
     },
     {
@@ -3047,7 +3107,7 @@
     },
     {
       "path": "ActionPanel",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/index.test.ts"
       ],
@@ -3055,8 +3115,10 @@
     },
     {
       "path": "ActionPanel.Children",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ],
       "weight": 4
     },
     {
@@ -3693,8 +3755,10 @@
     },
     {
       "path": "ActionPanel.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ],
       "weight": 2
     },
     {
@@ -3715,7 +3779,7 @@
     },
     {
       "path": "ActionPanel.Section",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/index.test.ts"
       ],
@@ -3723,14 +3787,18 @@
     },
     {
       "path": "ActionPanel.Section.Children",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "ActionPanel.Section.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -3759,14 +3827,18 @@
     },
     {
       "path": "ActionPanel.Submenu.Children",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "ActionPanel.Submenu.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts"
+      ],
       "weight": 2
     },
     {
@@ -3787,7 +3859,7 @@
     },
     {
       "path": "ActionPanel.Submenu.Props.filtering",
-      "status": "covered",
+      "status": "partial",
       "tests": [
         "packages/runtime/src/api/action-variants.test.ts"
       ],
@@ -3795,8 +3867,10 @@
     },
     {
       "path": "ActionPanel.Submenu.Props.filtering.keepSectionOrder",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -4903,8 +4977,10 @@
     },
     {
       "path": "Alert.Options.rememberUserChoice",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -5023,32 +5099,42 @@
     },
     {
       "path": "Application.bundleId",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/applications.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Application.localizedName",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/applications.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Application.name",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/applications.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Application.path",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/applications.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Application.windowsAppId",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/applications.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -5284,15 +5370,15 @@
     },
     {
       "path": "Clipboard",
-      "status": "partial",
+      "status": "covered",
       "tests": [
-        "packages/runtime/src/api/index.test.ts"
+        "packages/runtime/src/api/clipboard.test.ts"
       ],
       "weight": 1049
     },
     {
       "path": "Clipboard.Content",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/clipboard.test.ts"
       ],
@@ -5300,14 +5386,18 @@
     },
     {
       "path": "Clipboard.Content.file",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/clipboard.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Clipboard.Content.html",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/clipboard.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -5320,14 +5410,18 @@
     },
     {
       "path": "Clipboard.CopyOptions",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/clipboard.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Clipboard.CopyOptions.concealed",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/clipboard.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -5380,13 +5474,14 @@
       "path": "Clipboard.copy",
       "status": "covered",
       "tests": [
+        "packages/runtime/src/api/clipboard.test.ts",
         "packages/runtime/src/api/index.test.ts"
       ],
       "weight": 820
     },
     {
       "path": "Clipboard.paste",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/clipboard.test.ts"
       ],
@@ -5714,7 +5809,7 @@
     },
     {
       "path": "Detail",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/curated.test.ts"
       ],
@@ -5938,8 +6033,10 @@
     },
     {
       "path": "Detail.Props",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/curated.test.ts"
+      ],
       "weight": 4
     },
     {
@@ -6180,14 +6277,18 @@
     },
     {
       "path": "FileIcon",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/image.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "FileIcon.fileIcon",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/image.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -6200,8 +6301,10 @@
     },
     {
       "path": "FileSystemItem.path",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/selection.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -8806,6 +8909,7 @@
       "path": "Grid.Dropdown.Props",
       "status": "partial",
       "tests": [
+        "packages/runtime/src/api/grid.test.ts",
         "packages/runtime/src/api/list-grid-completeness.test.ts"
       ],
       "weight": 6
@@ -13881,14 +13985,18 @@
     },
     {
       "path": "LaunchProps.draftValues",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/main.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "LaunchProps.fallbackText",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/main.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -13999,6 +14107,7 @@
       "path": "List.Dropdown.Props",
       "status": "partial",
       "tests": [
+        "packages/runtime/src/api/list-extras.test.ts",
         "packages/runtime/src/api/list-grid-completeness.test.ts"
       ],
       "weight": 14
@@ -14712,6 +14821,7 @@
       "path": "List.Props",
       "status": "partial",
       "tests": [
+        "packages/runtime/src/api/index.test.ts",
         "packages/runtime/src/api/list-extras.test.ts"
       ],
       "weight": 20
@@ -16858,8 +16968,11 @@
     },
     {
       "path": "PreferenceValues",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/index.test.ts",
+        "packages/runtime/src/api/environment.test.ts"
+      ],
       "weight": 14
     },
     {
@@ -17462,188 +17575,254 @@
     },
     {
       "path": "WindowManagement",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/window-management.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "WindowManagement.Desktop",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/window-management.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "WindowManagement.Desktop.active",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/window-management.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "WindowManagement.Desktop.id",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/window-management.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "WindowManagement.Desktop.screenId",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/window-management.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "WindowManagement.Desktop.size",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/window-management.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "WindowManagement.Desktop.size.height",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/window-management.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "WindowManagement.Desktop.size.width",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/window-management.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "WindowManagement.Desktop.type",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/window-management.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "WindowManagement.DesktopType",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/window-management.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "WindowManagement.DesktopType.FullScreen",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/window-management.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "WindowManagement.DesktopType.User",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/window-management.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "WindowManagement.Window",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/window-management.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "WindowManagement.Window.active",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/window-management.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "WindowManagement.Window.application",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/window-management.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "WindowManagement.Window.bounds",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/window-management.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "WindowManagement.Window.bounds.position",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/window-management.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "WindowManagement.Window.bounds.position.x",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/window-management.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "WindowManagement.Window.bounds.position.y",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/window-management.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "WindowManagement.Window.bounds.size",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/window-management.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "WindowManagement.Window.bounds.size.height",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/window-management.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "WindowManagement.Window.bounds.size.width",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/window-management.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "WindowManagement.Window.desktopId",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/window-management.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "WindowManagement.Window.fullScreenSettable",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/window-management.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "WindowManagement.Window.id",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/window-management.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "WindowManagement.Window.positionable",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/window-management.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "WindowManagement.Window.resizable",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/window-management.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "WindowManagement.getActiveWindow",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/headless.test.ts",
+        "packages/runtime/src/api/window-management.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "WindowManagement.getDesktops",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/headless.test.ts",
+        "packages/runtime/src/api/window-management.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "WindowManagement.getWindowsOnActiveDesktop",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/headless.test.ts",
+        "packages/runtime/src/api/window-management.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "WindowManagement.setWindowBounds",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/headless.test.ts",
+        "packages/runtime/src/api/window-management.test.ts"
+      ],
       "weight": 2
     },
     {
@@ -17656,14 +17835,20 @@
     },
     {
       "path": "captureException",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/diagnostics.test.ts",
+        "packages/runtime/src/main.test.ts"
+      ],
       "weight": 41
     },
     {
       "path": "captureMemorySnapshot",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/diagnostics.test.ts",
+        "packages/runtime/src/main.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -17682,8 +17867,10 @@
     },
     {
       "path": "clearSearchBar",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/navigation.test.ts"
+      ],
       "weight": 41
     },
     {
@@ -17857,8 +18044,11 @@
     },
     {
       "path": "getDefaultApplication",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/headless.test.ts",
+        "packages/runtime/src/api/applications.test.ts"
+      ],
       "weight": 20
     },
     {
@@ -17879,8 +18069,9 @@
     },
     {
       "path": "getPreferenceValues",
-      "status": "partial",
+      "status": "covered",
       "tests": [
+        "packages/host/src/index.test.ts",
         "packages/runtime/src/api/environment.test.ts"
       ],
       "weight": 2119

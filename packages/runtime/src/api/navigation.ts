@@ -28,6 +28,12 @@ export interface PopToRootOptions {
   clearSearchBar?: boolean;
 }
 
+/** `clearSearchBar` options from the declarations. */
+export interface ClearSearchBarOptions {
+  /** Forces scrolling to the top of the list; the default is the client's. */
+  forceScrollToTop?: boolean;
+}
+
 interface Entry {
   id: number;
   component: ReactNode;
@@ -41,6 +47,25 @@ const NavigationContext = createContext<Navigation | null>(null);
 // runtime process in production; tests may hold several.
 const stacks = new Set<(options?: PopToRootOptions) => void>();
 
+// Like `closeMainWindow`, a `clearSearchBar()` request is module state: it is
+// rendered by whichever `Navigation` is mounted and dropped with that scene, so
+// a later command starts with a clean search bar.
+let searchBarRequest: ClearSearchBarOptions | undefined;
+const searchBarListeners = new Set<() => void>();
+
+export function subscribeClearSearchBar(listener: () => void): () => void {
+  searchBarListeners.add(listener);
+  return () => {
+    searchBarListeners.delete(listener);
+    if (searchBarListeners.size === 0) searchBarRequest = undefined;
+  };
+}
+
+/** The recorded request, or `undefined` while no clear was asked for. */
+export function clearSearchBarRequest(): ClearSearchBarOptions | undefined {
+  return searchBarRequest;
+}
+
 export function NavigationProvider({ children }: { children: ReactNode }) {
   const entries = useRef<Entry[]>([]);
   const nextId = useRef(1);
@@ -49,6 +74,11 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
   // A fresh object per `closeMainWindow()` call, so the snapshot identity
   // changes and `closeMainWindow` props follow the recorded request.
   const closeMainWindow = useSyncExternalStore(subscribeCloseRequest, closeRequest, closeRequest);
+  const searchBarClear = useSyncExternalStore(
+    subscribeClearSearchBar,
+    clearSearchBarRequest,
+    clearSearchBarRequest,
+  );
   const navigation = useMemo<Navigation>(
     () => ({
       push(component, onPop) {
@@ -94,6 +124,7 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
         depth: stack.length + 1,
         pop: stack.length ? navigation.pop : undefined,
         popToRoot: popToRootOptions,
+        clearSearchBar: searchBarClear,
         closeMainWindow,
       },
       createElement("Navigation.Entry", { key: 0, active: stack.length === 0 }, children),
@@ -118,4 +149,16 @@ export function useNavigation(): Navigation {
 /** `popToRoot` from the declarations: pop the current command's stack to root. */
 export async function popToRoot(options?: PopToRootOptions): Promise<void> {
   [...stacks].at(-1)?.(options);
+}
+
+/**
+ * `clearSearchBar` from the declarations. Blast has no search-bar state, so
+ * the request is recorded on the `Navigation` scene element
+ * (`props.clearSearchBar`) for clients to act on, exactly like `closeMainWindow`
+ * records its own request.
+ */
+export async function clearSearchBar(options: ClearSearchBarOptions = {}): Promise<void> {
+  if (searchBarListeners.size === 0) return;
+  searchBarRequest = { ...options };
+  for (const listener of searchBarListeners) listener();
 }

@@ -1,12 +1,13 @@
 // Internal module for the clipboard capability; the public surface is the
 // `Clipboard` object re-exported from index.ts.
 import type { JsonValue } from "../reconciler/index.ts";
+import { pathParam, type ApplicationPath } from "./applications.ts";
 import { requestCapability } from "./capability.ts";
 
-/** `Clipboard.Content`; Blast M1 only supports the `{ text }` form. */
+/** `Clipboard.Content`: the text, file and HTML forms the declarations define. */
 export type ClipboardContent =
   | { text: string }
-  | { file: string }
+  | { file: ApplicationPath }
   | { html: string; text?: string };
 
 /** `Clipboard.CopyOptions`. */
@@ -34,24 +35,49 @@ export interface ReadContent {
 /** The offsets the declarations allow into the clipboard history. */
 const MAX_OFFSET = 5;
 
+/**
+ * `Clipboard.Content` as capability params: exactly one representation per
+ * request, so a client can tell a file copy from an HTML copy. `concealed` is
+ * a host-side concern (history elision) and travels alongside, never inside.
+ */
+export function contentParams(
+  content: string | number | ClipboardContent,
+  api: string,
+): Record<string, JsonValue> {
+  if (typeof content === "string") return { text: content };
+  if (typeof content === "number") return { text: String(content) };
+  if (typeof content === "object" && content !== null && !Array.isArray(content)) {
+    if (
+      "file" in content &&
+      (typeof content.file === "string" ||
+        Buffer.isBuffer(content.file) ||
+        content.file instanceof URL)
+    )
+      return { file: pathParam(content.file, api) };
+    if ("html" in content && typeof content.html === "string") {
+      if (content.text === undefined) return { html: content.html };
+      if (typeof content.text === "string") return { html: content.html, text: content.text };
+    } else if ("text" in content && typeof content.text === "string") return { text: content.text };
+  }
+  throw new TypeError(`${api}: unsupported content in Blast`);
+}
+
 export async function copy(
   content: string | number | ClipboardContent,
-  // Concealing is a host-side concern; the capability only carries text.
-  _options?: CopyOptions,
+  options?: CopyOptions,
 ): Promise<void> {
-  const text = toText(content);
-  await requestCapability("clipboard.copy", { text });
+  const params = contentParams(content, "Clipboard.copy");
+  // Only a set flag crosses the wire: absent stays absent, like every prop.
+  if (options?.concealed !== undefined) params["concealed"] = options.concealed;
+  await requestCapability("clipboard.copy", params);
 }
 
 export async function clear(): Promise<void> {
   await requestCapability("clipboard.clear", {});
 }
 
-export async function paste(
-  content: string | number | ClipboardContent,
-  api = "Clipboard.paste",
-): Promise<void> {
-  await requestCapability("clipboard.paste", { text: toText(content, api) });
+export async function paste(content: string | number | ClipboardContent): Promise<void> {
+  await requestCapability("clipboard.paste", contentParams(content, "Clipboard.paste"));
 }
 
 function readParams(options: ReadOptions | undefined, api: string): Record<string, JsonValue> {
@@ -81,18 +107,6 @@ export async function readText(options?: ReadOptions): Promise<string | undefine
   // The wire cannot tell "no text" apart from an empty string; Raycast reports
   // the former as undefined, so an empty text maps to that.
   return text === "" ? undefined : text;
-}
-
-export function toText(
-  content: string | number | ClipboardContent,
-  api = "Clipboard.copy",
-): string {
-  if (typeof content === "string") return content;
-  if (typeof content === "number") return String(content);
-  if ("text" in content && typeof content.text === "string") return content.text;
-  throw new TypeError(
-    `${api}: unsupported content in Blast; only string, number and { text } content are supported`,
-  );
 }
 
 /** Members in the order the declarations list them. */

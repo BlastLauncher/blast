@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 import { createElement as h } from "react";
 import { createSceneRoot, type SceneSnapshot, type SceneNode } from "../reconciler/index.ts";
 import { Action, Color, Icon, Image, ImageMask } from "./index.ts";
-import type { ImageLike } from "./index.ts";
+import type { FileIcon, ImageLike } from "./index.ts";
 
 // @covers Image
 // @covers Image.URL
@@ -13,6 +13,8 @@ import type { ImageLike } from "./index.ts";
 // @covers Image.ImageLike.mask
 // @covers Image.ImageLike.tintColor
 // @covers Image.ImageLike.fileIcon
+// @covers FileIcon
+// @covers FileIcon.fileIcon
 // @covers Image.Source
 // @covers Image.Source.light
 // @covers Image.Source.dark
@@ -92,4 +94,12 @@ test("every image-like shape reaches the scene exactly as authored", () => {
     expect(serialized).toEqual(expected);
     expect(serializeIcon(value)).toEqual(serialized);
   }
+});
+
+// @covers FileIcon
+// @covers FileIcon.fileIcon
+test("FileIcon is the declared path object accepted by image props", () => {
+  const icon: FileIcon = { fileIcon: "/tmp/document.pdf" };
+  const image: ImageLike = icon;
+  expect(image).toEqual({ fileIcon: "/tmp/document.pdf" });
 });

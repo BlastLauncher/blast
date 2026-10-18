@@ -78,7 +78,8 @@ test("canAccess denies optional APIs without host availability and allows other 
   expect(environment.canAccess({ arbitrary: true })).toBe(true);
 });
 
-// @covers getPreferenceValues partial
+// @covers getPreferenceValues
+// @covers PreferenceValues
 test("getPreferenceValues returns a fresh copy of the init preferences", () => {
   setPreferenceValues({ maxItems: 20, pinned: true });
   const first = getPreferenceValues();

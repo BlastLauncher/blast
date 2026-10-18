@@ -40,7 +40,9 @@ Only the active entry exposes view contents and handlers; covered views stay
 mounted. `Navigation.props.pop` requests back above depth one (decision 0003),
 and `props.popToRoot` records the options of the latest `popToRoot()` call —
 Blast has no client search-bar state, so `clearSearchBar` is a request for
-clients. `props.closeMainWindow` records the latest `closeMainWindow()` request
+clients. The standalone `clearSearchBar()` similarly records its options in
+`Navigation.props.clearSearchBar`. `props.closeMainWindow` records the latest
+`closeMainWindow()` request
 (its options, or an empty object) the same way. Feedback children follow the
 entries: `Toast`, `HUD`, and the first queued `Alert`, with action handlers on
 `Toast.Action` / `Alert.Action` children (decision 0004). No-view commands mount
@@ -156,6 +158,16 @@ separate from extension LocalStorage, so even identical keys cannot collide;
 LocalStorage all/clear do not expose or erase dropdown choices. Controlled
 values take precedence. Restoration validates options declared in children;
 options hidden inside custom components are not yet discoverable.
+
+`WindowManagement` brokers `window.desktops|list|active|setBounds`. The broker
+requires grants; the headless client installs read handlers returning one empty
+desktop, no windows, and a rejection for no active window. `window.setBounds`
+and `Action.InstallMCPServer` (`mcp.install`) require explicit grants.
+`getDefaultApplication(path)` requests `applications.default`; headless rejects
+because it has no application association database. `captureException` and
+`captureMemorySnapshot` emit runtime error/debug logs without network reporting.
+Manifest preference defaults reach `getPreferenceValues()`, with command defaults
+and then caller-supplied preferences taking precedence.
 
 `open(target, application?)` requests `open.url` for URLs (a `file:` URL counts
 as a file) and `open.path` for files, so a client can grant opening links

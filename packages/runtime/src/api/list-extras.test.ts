@@ -22,6 +22,7 @@ import { Action, List } from "./index.ts";
 // @covers List.Props.filtering.keepSectionOrder partial
 // @covers List.Props.filtering partial
 // @covers List.Dropdown partial
+// @covers List.Dropdown.Props partial
 // @covers List.Dropdown.Props.tooltip
 // @covers List.Dropdown.Props.children
 // @covers List.Dropdown.Props.value
@@ -44,7 +45,7 @@ import { Action, List } from "./index.ts";
 // @covers List.Dropdown.Section.Props
 // @covers List.Dropdown.Section.Props.title
 // @covers List.Dropdown.Section.Props.children
-// @covers Action.Style partial
+// @covers Action.Style
 // @covers Action.Props.style
 
 function setup() {
@@ -123,6 +124,7 @@ test("List declares the search handler with throttle and filtering", () => {
 });
 
 // @covers List.Dropdown partial
+// @covers List.Dropdown.Props partial
 // @covers List.Dropdown.Props.onChange
 // @covers List.Dropdown.Props.storeValue partial
 // @covers List.Dropdown.Props.onSearchTextChange
@@ -199,7 +201,7 @@ test("List.Dropdown renders into the searchBarAccessory Slot and dispatches onCh
   root.unmount();
 });
 
-// @covers Action.Style partial
+// @covers Action.Style
 // @covers Action.Props.style
 test("Action.Style exposes Regular and Destructive, and style serializes", () => {
   const { root, latest } = setup();

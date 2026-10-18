@@ -145,6 +145,8 @@ test("no-view command runs, sees environment and preferences, and exits 0 withou
 // @covers LaunchProps.arguments
 // @covers LaunchProps.launchType
 // @covers LaunchProps.launchContext
+// @covers LaunchProps.fallbackText partial
+// @covers LaunchProps.draftValues partial
 test("launch props carry manifest arguments and the launch context", async () => {
   const runtime = start();
   runtime.init({
@@ -161,6 +163,10 @@ test("launch props carry manifest arguments and the launch context", async () =>
     launchType: "userInitiated",
     launchContext: { from: "launcher", nested: { deep: true } },
   });
+  // Blast never launches a fallback command and has no drafts yet, so neither
+  // prop is invented: both stay absent, exactly as the declarations allow.
+  expect(JSON.parse(reported.message).props).not.toHaveProperty("fallbackText");
+  expect(JSON.parse(reported.message).props).not.toHaveProperty("draftValues");
   expect(await runtime.exited).toBe(0);
 });
 
@@ -237,8 +243,8 @@ test("stdin EOF unmounts and exits cleanly", async () => {
 });
 
 for (const [fixture, mode, path] of [
-  ["unsupported.js", "view", "WindowManagement"],
-  ["unsupported-reject.js", "no-view", "getDefaultApplication"],
+  ["unsupported.js", "view", "FormTextField"],
+  ["unsupported-reject.js", "no-view", "randomId"],
 ] as const) {
   test(`unsupported API is fatal: ${fixture}`, async () => {
     const runtime = start();
@@ -261,7 +267,7 @@ for (const title of ["Unsupported sync", "Unsupported async"]) {
     expect(await runtime.next("error")).toMatchObject({
       fatal: true,
       code: "UNSUPPORTED_API",
-      message: "Unsupported API in Blast: getDefaultApplication",
+      message: "Unsupported API in Blast: randomId",
     });
     expect(await runtime.exited).toBe(1);
   });
@@ -291,3 +297,26 @@ test("promise-returning view rejection is fatal", async () => {
   expect(await runtime.next("error")).toMatchObject({ fatal: true, message: "no-view failed" });
   expect(await runtime.exited).toBe(1);
 }, 2000);
+
+// @covers captureException
+// @covers captureMemorySnapshot
+test("diagnostics use runtime log messages without failing the command", async () => {
+  const runtime = start();
+  runtime.init({ fixture: "diagnostics.js", mode: "no-view" });
+  expect(await runtime.exited).toBe(0);
+  expect(runtime.messages).toContainEqual({
+    type: "log",
+    level: "error",
+    message: expect.stringContaining("captureException: Error: diagnostic fixture"),
+  });
+  expect(runtime.messages).toContainEqual({
+    type: "log",
+    level: "debug",
+    message: expect.stringContaining("captureMemorySnapshot: fixture checkpoint heapUsed="),
+  });
+  expect(
+    runtime.messages.some(
+      (message) => message.type === "capability.request" || message.type === "error",
+    ),
+  ).toBe(false);
+});

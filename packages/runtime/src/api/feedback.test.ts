@@ -151,6 +151,7 @@ test("HUD resolves after publication and records window options", async () => {
 // @covers Alert.Options.icon
 // @covers Alert.Options.primaryAction
 // @covers Alert.Options.dismissAction
+// @covers Alert.Options.rememberUserChoice partial
 // @covers Alert.ActionOptions
 // @covers Alert.ActionOptions.title
 // @covers Alert.ActionOptions.style
@@ -188,6 +189,7 @@ test("alert events confirm/dismiss once, run callbacks, and queue concurrent pro
   });
   const second = confirmAlert({
     title: "Next?",
+    rememberUserChoice: true,
     dismissAction: {
       title: "No",
       onAction: () => {
@@ -206,6 +208,8 @@ test("alert events confirm/dismiss once, run callbacks, and queue concurrent pro
   expect(await first).toBe(true);
   expect(called).toEqual(["primary"]);
   expect(node().props.title).toBe("Next?");
+  // The flag is carried for the client; Blast does not persist the answer yet.
+  expect(node().props.rememberUserChoice).toBe(true);
   expect(() => root.dispatch(original.id, "onAction", [])).toThrow("Unknown scene node");
   expect(node().children[0]!.props).toMatchObject({ title: "OK", style: "default" });
   root.dispatch(node().children[1]!.id, "onAction", []);

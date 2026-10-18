@@ -27,6 +27,11 @@ export {
   type ToggleQuickLookProps,
   type PickDateProps,
   type DatePickerTypeValue,
+  type InstallMCPServerProps,
+  type MCPServer,
+  type StdioMCPServer,
+  type SSEMCPServer,
+  type IconValue,
 } from "./action.ts";
 export {
   ActionPanel,
@@ -95,7 +100,12 @@ export {
 } from "./launch.ts";
 
 export { PushAction } from "./action.ts";
-export { popToRoot, useNavigation } from "./navigation.ts";
+export {
+  popToRoot,
+  clearSearchBar,
+  useNavigation,
+  type ClearSearchBarOptions,
+} from "./navigation.ts";
 
 export {
   Toast,
@@ -117,7 +127,19 @@ export {
   type LocalStorageValues,
 } from "./storage.ts";
 export { open, type Application } from "./open.ts";
-export { getApplications } from "./applications.ts";
+export { getApplications, getDefaultApplication } from "./applications.ts";
+
+export { captureException, captureMemorySnapshot } from "./diagnostics.ts";
+
+export {
+  WindowManagement,
+  DesktopType,
+  type Desktop,
+  type DesktopTypeValue,
+  type Window,
+  type WindowBounds,
+  type SetWindowBoundsOptions,
+} from "./window-management.ts";
 
 export { Form, SubmitForm as SubmitFormAction } from "./form.ts";
 

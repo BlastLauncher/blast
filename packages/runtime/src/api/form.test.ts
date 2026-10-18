@@ -170,6 +170,7 @@ import type { FormEvent, FormValue, FormValues } from "./form.ts";
 // @covers Form.LinkAccessory.Props.target
 // @covers Form.LinkAccessory.Props.text
 // @covers Action.SubmitForm partial
+// @covers Action.SubmitForm.Props partial
 // @covers Action.SubmitForm.Props.title
 // @covers Action.SubmitForm.Props.icon
 // @covers Action.SubmitForm.Props.shortcut
