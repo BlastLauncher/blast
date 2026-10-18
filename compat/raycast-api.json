@@ -2,34 +2,34 @@
   "version": "2.8.2",
   "totals": {
     "all": {
-      "covered": 46,
-      "partial": 11,
-      "missing": 2416,
+      "covered": 570,
+      "partial": 16,
+      "missing": 1887,
       "total": 2473
     },
     "nonDeprecated": {
-      "covered": 45,
-      "partial": 11,
-      "missing": 1478,
+      "covered": 562,
+      "partial": 14,
+      "missing": 958,
       "total": 1534
     },
     "deprecated": {
-      "covered": 1,
-      "partial": 0,
-      "missing": 938,
+      "covered": 8,
+      "partial": 2,
+      "missing": 929,
       "total": 939
     },
     "kinds": {
       "namespace": {
-        "covered": 0,
+        "covered": 1,
         "partial": 1,
-        "missing": 8,
+        "missing": 7,
         "total": 9
       },
       "component": {
-        "covered": 0,
-        "partial": 8,
-        "missing": 108,
+        "covered": 1,
+        "partial": 12,
+        "missing": 103,
         "total": 116
       },
       "function": {
@@ -39,9 +39,9 @@
         "total": 50
       },
       "const": {
-        "covered": 0,
+        "covered": 1,
         "partial": 1,
-        "missing": 20,
+        "missing": 19,
         "total": 21
       },
       "class": {
@@ -51,15 +51,15 @@
         "total": 3
       },
       "enum": {
-        "covered": 0,
+        "covered": 2,
         "partial": 0,
-        "missing": 13,
+        "missing": 11,
         "total": 13
       },
       "enum-member": {
-        "covered": 0,
+        "covered": 487,
         "partial": 0,
-        "missing": 691,
+        "missing": 204,
         "total": 691
       },
       "interface": {
@@ -69,15 +69,15 @@
         "total": 64
       },
       "type": {
-        "covered": 0,
+        "covered": 1,
         "partial": 0,
-        "missing": 178,
+        "missing": 177,
         "total": 178
       },
       "property": {
-        "covered": 45,
-        "partial": 0,
-        "missing": 1259,
+        "covered": 76,
+        "partial": 1,
+        "missing": 1227,
         "total": 1304
       },
       "method": {
@@ -1925,8 +1925,10 @@
     },
     {
       "path": "Action.OpenInBrowser",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/curated.test.ts"
+      ],
       "weight": 1540
     },
     {
@@ -1937,32 +1939,42 @@
     },
     {
       "path": "Action.OpenInBrowser.Props.icon",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/curated.test.ts"
+      ],
       "weight": 526
     },
     {
       "path": "Action.OpenInBrowser.Props.onOpen",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/curated.test.ts"
+      ],
       "weight": 97
     },
     {
       "path": "Action.OpenInBrowser.Props.shortcut",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/curated.test.ts"
+      ],
       "weight": 466
     },
     {
       "path": "Action.OpenInBrowser.Props.title",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/curated.test.ts"
+      ],
       "weight": 1212
     },
     {
       "path": "Action.OpenInBrowser.Props.url",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/curated.test.ts"
+      ],
       "weight": 1540
     },
     {
@@ -2009,8 +2021,10 @@
     },
     {
       "path": "Action.Paste",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/curated.test.ts"
+      ],
       "weight": 219
     },
     {
@@ -2021,32 +2035,42 @@
     },
     {
       "path": "Action.Paste.Props.content",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/curated.test.ts"
+      ],
       "weight": 218
     },
     {
       "path": "Action.Paste.Props.icon",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/curated.test.ts"
+      ],
       "weight": 45
     },
     {
       "path": "Action.Paste.Props.onPaste",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/curated.test.ts"
+      ],
       "weight": 33
     },
     {
       "path": "Action.Paste.Props.shortcut",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/curated.test.ts"
+      ],
       "weight": 74
     },
     {
       "path": "Action.Paste.Props.title",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/curated.test.ts"
+      ],
       "weight": 164
     },
     {
@@ -4603,14 +4627,18 @@
     },
     {
       "path": "Color",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1420
     },
     {
       "path": "Color.Blue",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 691
     },
     {
@@ -4687,32 +4715,42 @@
     },
     {
       "path": "Color.Green",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1006
     },
     {
       "path": "Color.Magenta",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 150
     },
     {
       "path": "Color.Orange",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 582
     },
     {
       "path": "Color.PrimaryText",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 305
     },
     {
       "path": "Color.Purple",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 305
     },
     {
@@ -4723,20 +4761,26 @@
     },
     {
       "path": "Color.Red",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 898
     },
     {
       "path": "Color.SecondaryText",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 661
     },
     {
       "path": "Color.Yellow",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 587
     },
     {
@@ -4765,8 +4809,10 @@
     },
     {
       "path": "CopyToClipboardAction",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/curated.test.ts"
+      ],
       "weight": 23
     },
     {
@@ -4867,8 +4913,10 @@
     },
     {
       "path": "Detail",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/curated.test.ts"
+      ],
       "weight": 1310
     },
     {
@@ -5041,32 +5089,42 @@
     },
     {
       "path": "Detail.Props.actions",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/curated.test.ts"
+      ],
       "weight": 1074
     },
     {
       "path": "Detail.Props.isLoading",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/curated.test.ts"
+      ],
       "weight": 714
     },
     {
       "path": "Detail.Props.markdown",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/curated.test.ts"
+      ],
       "weight": 1284
     },
     {
       "path": "Detail.Props.metadata",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/curated.test.ts"
+      ],
       "weight": 590
     },
     {
       "path": "Detail.Props.navigationTitle",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/curated.test.ts"
+      ],
       "weight": 570
     },
     {
@@ -7957,2876 +8015,3834 @@
     },
     {
       "path": "Icon",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 2587
     },
     {
       "path": "Icon.AddPerson",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 56
     },
     {
       "path": "Icon.Airplane",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 29
     },
     {
       "path": "Icon.AirplaneFilled",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.AirplaneLanding",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "Icon.AirplaneTakeoff",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 8
     },
     {
       "path": "Icon.Airpods",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Alarm",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 11
     },
     {
       "path": "Icon.AlarmRinging",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 10
     },
     {
       "path": "Icon.AlignCentre",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.AlignLeft",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 3
     },
     {
       "path": "Icon.AlignRight",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.AmericanFootball",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Anchor",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 3
     },
     {
       "path": "Icon.AppWindow",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 182
     },
     {
       "path": "Icon.AppWindowGrid2x2",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 42
     },
     {
       "path": "Icon.AppWindowGrid3x3",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 68
     },
     {
       "path": "Icon.AppWindowList",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 81
     },
     {
       "path": "Icon.AppWindowSidebarLeft",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 77
     },
     {
       "path": "Icon.AppWindowSidebarRight",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 51
     },
     {
       "path": "Icon.ArrowClockwise",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 702
     },
     {
       "path": "Icon.ArrowCounterClockwise",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 99
     },
     {
       "path": "Icon.ArrowDown",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 192
     },
     {
       "path": "Icon.ArrowDownCircle",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 34
     },
     {
       "path": "Icon.ArrowDownCircleFilled",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 8
     },
     {
       "path": "Icon.ArrowLeft",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 144
     },
     {
       "path": "Icon.ArrowLeftCircle",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 18
     },
     {
       "path": "Icon.ArrowLeftCircleFilled",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 6
     },
     {
       "path": "Icon.ArrowNe",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 51
     },
     {
       "path": "Icon.ArrowRight",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 322
     },
     {
       "path": "Icon.ArrowRightCircle",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 41
     },
     {
       "path": "Icon.ArrowRightCircleFilled",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 12
     },
     {
       "path": "Icon.ArrowUp",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 192
     },
     {
       "path": "Icon.ArrowUpCircle",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 35
     },
     {
       "path": "Icon.ArrowUpCircleFilled",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 10
     },
     {
       "path": "Icon.ArrowsContract",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 7
     },
     {
       "path": "Icon.ArrowsExpand",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 12
     },
     {
       "path": "Icon.AtSymbol",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 24
     },
     {
       "path": "Icon.BandAid",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 3
     },
     {
       "path": "Icon.BankNote",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 64
     },
     {
       "path": "Icon.BarChart",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 119
     },
     {
       "path": "Icon.BarCode",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 17
     },
     {
       "path": "Icon.BathTub",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Battery",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 17
     },
     {
       "path": "Icon.BatteryCharging",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 13
     },
     {
       "path": "Icon.BatteryDisabled",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 6
     },
     {
       "path": "Icon.Bell",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 40
     },
     {
       "path": "Icon.BellDisabled",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 18
     },
     {
       "path": "Icon.Bike",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 9
     },
     {
       "path": "Icon.Binoculars",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 35
     },
     {
       "path": "Icon.Bird",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 16
     },
     {
       "path": "Icon.BlankDocument",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 47
     },
     {
       "path": "Icon.Bluetooth",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 6
     },
     {
       "path": "Icon.Boat",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 5
     },
     {
       "path": "Icon.Bold",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Bolt",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 117
     },
     {
       "path": "Icon.BoltDisabled",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 12
     },
     {
       "path": "Icon.Book",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 169
     },
     {
       "path": "Icon.Bookmark",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 72
     },
     {
       "path": "Icon.Box",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 152
     },
     {
       "path": "Icon.Brush",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 35
     },
     {
       "path": "Icon.Bubble",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 45
     },
     {
       "path": "Icon.Bug",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 43
     },
     {
       "path": "Icon.Building",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 96
     },
     {
       "path": "Icon.BulletPoints",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 52
     },
     {
       "path": "Icon.BullsEye",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 22
     },
     {
       "path": "Icon.BullsEyeMissed",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 4
     },
     {
       "path": "Icon.Buoy",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Calculator",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 21
     },
     {
       "path": "Icon.Calendar",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 340
     },
     {
       "path": "Icon.Camera",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 26
     },
     {
       "path": "Icon.Car",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 24
     },
     {
       "path": "Icon.Cart",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 25
     },
     {
       "path": "Icon.Cd",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 15
     },
     {
       "path": "Icon.Center",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 6
     },
     {
       "path": "Icon.Check",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 243
     },
     {
       "path": "Icon.CheckCircle",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 557
     },
     {
       "path": "Icon.CheckList",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 27
     },
     {
       "path": "Icon.CheckRosette",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 14
     },
     {
       "path": "Icon.Checkmark",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 297
     },
     {
       "path": "Icon.ChessPiece",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "Icon.ChevronDown",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 44
     },
     {
       "path": "Icon.ChevronDownSmall",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 7
     },
     {
       "path": "Icon.ChevronLeft",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 14
     },
     {
       "path": "Icon.ChevronLeftSmall",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.ChevronRight",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 50
     },
     {
       "path": "Icon.ChevronRightSmall",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 3
     },
     {
       "path": "Icon.ChevronUp",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 47
     },
     {
       "path": "Icon.ChevronUpDown",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 9
     },
     {
       "path": "Icon.ChevronUpSmall",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 6
     },
     {
       "path": "Icon.Circle",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 526
     },
     {
       "path": "Icon.CircleDisabled",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 35
     },
     {
       "path": "Icon.CircleEllipsis",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 14
     },
     {
       "path": "Icon.CircleFilled",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 153
     },
     {
       "path": "Icon.CircleProgress",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 83
     },
     {
       "path": "Icon.CircleProgress100",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 52
     },
     {
       "path": "Icon.CircleProgress25",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 23
     },
     {
       "path": "Icon.CircleProgress50",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 43
     },
     {
       "path": "Icon.CircleProgress75",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 21
     },
     {
       "path": "Icon.ClearFormatting",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 3
     },
     {
       "path": "Icon.Clipboard",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 496
     },
     {
       "path": "Icon.Clock",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 556
     },
     {
       "path": "Icon.Cloud",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 50
     },
     {
       "path": "Icon.CloudLightning",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "Icon.CloudRain",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 4
     },
     {
       "path": "Icon.CloudSnow",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "Icon.CloudSun",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 4
     },
     {
       "path": "Icon.Code",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 207
     },
     {
       "path": "Icon.CodeBlock",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 62
     },
     {
       "path": "Icon.Cog",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 59
     },
     {
       "path": "Icon.Coin",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 40
     },
     {
       "path": "Icon.Coins",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 85
     },
     {
       "path": "Icon.CommandSymbol",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 9
     },
     {
       "path": "Icon.Compass",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 21
     },
     {
       "path": "Icon.ComputerChip",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 70
     },
     {
       "path": "Icon.Contrast",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "Icon.CopyClipboard",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 173
     },
     {
       "path": "Icon.CreditCard",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 42
     },
     {
       "path": "Icon.CricketBall",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 3
     },
     {
       "path": "Icon.Crop",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 3
     },
     {
       "path": "Icon.Crown",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 12
     },
     {
       "path": "Icon.Crypto",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 6
     },
     {
       "path": "Icon.DeleteDocument",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 41
     },
     {
       "path": "Icon.Desktop",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 67
     },
     {
       "path": "Icon.Devices",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 10
     },
     {
       "path": "Icon.Dna",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 7
     },
     {
       "path": "Icon.Document",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 494
     },
     {
       "path": "Icon.Dot",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 211
     },
     {
       "path": "Icon.Download",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 385
     },
     {
       "path": "Icon.Droplets",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 4
     },
     {
       "path": "Icon.Duplicate",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 45
     },
     {
       "path": "Icon.EditShape",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 9
     },
     {
       "path": "Icon.Eject",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 10
     },
     {
       "path": "Icon.Ellipsis",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 39
     },
     {
       "path": "Icon.EllipsisVertical",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 6
     },
     {
       "path": "Icon.Emoji",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 12
     },
     {
       "path": "Icon.EmojiSad",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 3
     },
     {
       "path": "Icon.Envelope",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 123
     },
     {
       "path": "Icon.Eraser",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 24
     },
     {
       "path": "Icon.ExclamationMark",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 490
     },
     {
       "path": "Icon.Exclamationmark",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 14
     },
     {
       "path": "Icon.Exclamationmark2",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 9
     },
     {
       "path": "Icon.Exclamationmark3",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 6
     },
     {
       "path": "Icon.Eye",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 483
     },
     {
       "path": "Icon.EyeDisabled",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 159
     },
     {
       "path": "Icon.EyeDropper",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 15
     },
     {
       "path": "Icon.EyeSlash",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 12
     },
     {
       "path": "Icon.Female",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 13
     },
     {
       "path": "Icon.FilmStrip",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 28
     },
     {
       "path": "Icon.Filter",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 66
     },
     {
       "path": "Icon.Finder",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 93
     },
     {
       "path": "Icon.Fingerprint",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 24
     },
     {
       "path": "Icon.Flag",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 25
     },
     {
       "path": "Icon.Folder",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 314
     },
     {
       "path": "Icon.Footprints",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 16
     },
     {
       "path": "Icon.Forward",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 42
     },
     {
       "path": "Icon.ForwardFilled",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 4
     },
     {
       "path": "Icon.FountainTip",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.FullSignal",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 13
     },
     {
       "path": "Icon.GameController",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 30
     },
     {
       "path": "Icon.Gauge",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 71
     },
     {
       "path": "Icon.Gear",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 586
     },
     {
       "path": "Icon.Geopin",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 11
     },
     {
       "path": "Icon.Germ",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Gift",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 20
     },
     {
       "path": "Icon.Glasses",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 5
     },
     {
       "path": "Icon.Globe",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 662
     },
     {
       "path": "Icon.Goal",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 6
     },
     {
       "path": "Icon.Hammer",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 79
     },
     {
       "path": "Icon.HardDrive",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 103
     },
     {
       "path": "Icon.Hashtag",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 63
     },
     {
       "path": "Icon.Heading",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "Icon.Headphones",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 12
     },
     {
       "path": "Icon.Heart",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 78
     },
     {
       "path": "Icon.HeartDisabled",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 22
     },
     {
       "path": "Icon.Heartbeat",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 36
     },
     {
       "path": "Icon.Highlight",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 11
     },
     {
       "path": "Icon.Hourglass",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 40
     },
     {
       "path": "Icon.House",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 69
     },
     {
       "path": "Icon.Humidity",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "Icon.Image",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 163
     },
     {
       "path": "Icon.Important",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 10
     },
     {
       "path": "Icon.Info",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 199
     },
     {
       "path": "Icon.Italics",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 3
     },
     {
       "path": "Icon.Key",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 171
     },
     {
       "path": "Icon.Keyboard",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 33
     },
     {
       "path": "Icon.Layers",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 63
     },
     {
       "path": "Icon.Leaderboard",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 5
     },
     {
       "path": "Icon.Leaf",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 21
     },
     {
       "path": "Icon.LevelMeter",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 12
     },
     {
       "path": "Icon.LightBulb",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 61
     },
     {
       "path": "Icon.LightBulbOff",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 11
     },
     {
       "path": "Icon.LineChart",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 72
     },
     {
       "path": "Icon.Link",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 355
     },
     {
       "path": "Icon.List",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 442
     },
     {
       "path": "Icon.Livestream",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 27
     },
     {
       "path": "Icon.LivestreamDisabled",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 11
     },
     {
       "path": "Icon.Lock",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 182
     },
     {
       "path": "Icon.LockDisabled",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 12
     },
     {
       "path": "Icon.LockUnlocked",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 67
     },
     {
       "path": "Icon.Logout",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 44
     },
     {
       "path": "Icon.Lorry",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 3
     },
     {
       "path": "Icon.Lowercase",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 10
     },
     {
       "path": "Icon.MagnifyingGlass",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 509
     },
     {
       "path": "Icon.Male",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 13
     },
     {
       "path": "Icon.Map",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 40
     },
     {
       "path": "Icon.Mask",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Maximize",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 19
     },
     {
       "path": "Icon.MedicalSupport",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 4
     },
     {
       "path": "Icon.Megaphone",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 24
     },
     {
       "path": "Icon.MemoryChip",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 39
     },
     {
       "path": "Icon.MemoryStick",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Message",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 116
     },
     {
       "path": "Icon.Microphone",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 40
     },
     {
       "path": "Icon.MicrophoneDisabled",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "Icon.Minimize",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 8
     },
     {
       "path": "Icon.Minus",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 145
     },
     {
       "path": "Icon.MinusCircle",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 75
     },
     {
       "path": "Icon.MinusCircleFilled",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 7
     },
     {
       "path": "Icon.Mobile",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 42
     },
     {
       "path": "Icon.Monitor",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 66
     },
     {
       "path": "Icon.Moon",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 45
     },
     {
       "path": "Icon.MoonDown",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.MoonUp",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Moonrise",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "Icon.Mountain",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 4
     },
     {
       "path": "Icon.Mouse",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 7
     },
     {
       "path": "Icon.Move",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "Icon.Mug",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 6
     },
     {
       "path": "Icon.MugSteam",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 6
     },
     {
       "path": "Icon.Multiply",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 20
     },
     {
       "path": "Icon.Music",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 79
     },
     {
       "path": "Icon.Network",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 81
     },
     {
       "path": "Icon.NewDocument",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 66
     },
     {
       "path": "Icon.NewFolder",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 23
     },
     {
       "path": "Icon.Number00",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 4
     },
     {
       "path": "Icon.Number01",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "Icon.Number02",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "Icon.Number03",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "Icon.Number04",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "Icon.Number05",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "Icon.Number06",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Number07",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Number08",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Number09",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Number10",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Number11",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Number12",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Number13",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Number14",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Number15",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "Icon.Number16",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Number17",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Number18",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Number19",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Number20",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Number21",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Number22",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Number23",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Number24",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Number25",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Number26",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Number27",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Number28",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Number29",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Number30",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "Icon.Number31",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Number32",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number33",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number34",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number35",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number36",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number37",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number38",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number39",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number40",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number41",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number42",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number43",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number44",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number45",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number46",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number47",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number48",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number49",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number50",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number51",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number52",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number53",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number54",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number55",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number56",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number57",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number58",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number59",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number60",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Number61",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number62",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number63",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number64",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number65",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number66",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number67",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number68",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number69",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number70",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number71",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number72",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number73",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number74",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number75",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number76",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number77",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number78",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number79",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number80",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number81",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number82",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number83",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number84",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number85",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number86",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number87",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number88",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number89",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number90",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number91",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number92",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number93",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number94",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number95",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number96",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number97",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number98",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Number99",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.NumberList",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 6
     },
     {
       "path": "Icon.Paperclip",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 39
     },
     {
       "path": "Icon.Paragraph",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 47
     },
     {
       "path": "Icon.Patch",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 5
     },
     {
       "path": "Icon.Pause",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 104
     },
     {
       "path": "Icon.PauseFilled",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 7
     },
     {
       "path": "Icon.Pencil",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 580
     },
     {
       "path": "Icon.Person",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 388
     },
     {
       "path": "Icon.PersonCircle",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 78
     },
     {
       "path": "Icon.PersonLines",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 21
     },
     {
       "path": "Icon.Phone",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 38
     },
     {
       "path": "Icon.PhoneRinging",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 4
     },
     {
       "path": "Icon.PieChart",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 13
     },
     {
       "path": "Icon.Pill",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 6
     },
     {
       "path": "Icon.Pin",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 147
     },
     {
       "path": "Icon.PinDisabled",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 64
     },
     {
       "path": "Icon.Play",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 288
     },
     {
       "path": "Icon.PlayFilled",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 18
     },
     {
       "path": "Icon.Plug",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 80
     },
     {
       "path": "Icon.Plus",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 601
     },
     {
       "path": "Icon.PlusCircle",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 128
     },
     {
       "path": "Icon.PlusCircleFilled",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 8
     },
     {
       "path": "Icon.PlusMinusDivideMultiply",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 10
     },
     {
       "path": "Icon.PlusSquare",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 30
     },
     {
       "path": "Icon.PlusTopRightSquare",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 18
     },
     {
       "path": "Icon.Power",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 37
     },
     {
       "path": "Icon.Print",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 8
     },
     {
       "path": "Icon.QuestionMark",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 167
     },
     {
       "path": "Icon.QuestionMarkCircle",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 77
     },
     {
       "path": "Icon.Quicklink",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.QuotationMarks",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 8
     },
     {
       "path": "Icon.QuoteBlock",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 15
     },
     {
       "path": "Icon.Racket",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Raindrop",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 11
     },
     {
       "path": "Icon.RaycastLogoNeg",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 14
     },
     {
       "path": "Icon.RaycastLogoPos",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 10
     },
     {
       "path": "Icon.Receipt",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 39
     },
     {
       "path": "Icon.Redo",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 31
     },
     {
       "path": "Icon.RemovePerson",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 18
     },
     {
       "path": "Icon.Repeat",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 139
     },
     {
       "path": "Icon.Replace",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 11
     },
     {
       "path": "Icon.ReplaceOne",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Reply",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 20
     },
     {
       "path": "Icon.Rewind",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 23
     },
     {
       "path": "Icon.RewindFilled",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 3
     },
     {
       "path": "Icon.Rocket",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 40
     },
     {
       "path": "Icon.Rosette",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.RotateAntiClockwise",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 65
     },
     {
       "path": "Icon.RotateClockwise",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 133
     },
     {
       "path": "Icon.Rss",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 7
     },
     {
       "path": "Icon.Ruler",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 11
     },
     {
       "path": "Icon.SaveDocument",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 89
     },
     {
       "path": "Icon.Shield",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 56
     },
     {
       "path": "Icon.ShortParagraph",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 9
     },
     {
       "path": "Icon.Shuffle",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 34
     },
     {
       "path": "Icon.Sidebar",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 231
     },
     {
       "path": "Icon.Signal0",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 8
     },
     {
       "path": "Icon.Signal1",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 13
     },
     {
       "path": "Icon.Signal2",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 14
     },
     {
       "path": "Icon.Signal3",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 20
     },
     {
       "path": "Icon.Snippets",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 26
     },
     {
       "path": "Icon.Snowflake",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 13
     },
     {
       "path": "Icon.SoccerBall",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 10
     },
     {
       "path": "Icon.Speaker",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 12
     },
     {
       "path": "Icon.SpeakerArrowDown",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.SpeakerArrowUp",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.SpeakerDown",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 8
     },
     {
       "path": "Icon.SpeakerHigh",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 23
     },
     {
       "path": "Icon.SpeakerLow",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 5
     },
     {
       "path": "Icon.SpeakerOff",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 31
     },
     {
       "path": "Icon.SpeakerOn",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 25
     },
     {
       "path": "Icon.SpeakerSlash",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.SpeakerUp",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 8
     },
     {
       "path": "Icon.SpeechBubble",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 61
     },
     {
       "path": "Icon.SpeechBubbleActive",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 20
     },
     {
       "path": "Icon.SpeechBubbleImportant",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 4
     },
     {
       "path": "Icon.SquareEllipsis",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 3
     },
     {
       "path": "Icon.StackedBars1",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 10
     },
     {
       "path": "Icon.StackedBars2",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 11
     },
     {
       "path": "Icon.StackedBars3",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 11
     },
     {
       "path": "Icon.StackedBars4",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 9
     },
     {
       "path": "Icon.Star",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 395
     },
     {
       "path": "Icon.StarCircle",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 31
     },
     {
       "path": "Icon.StarDisabled",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 142
     },
     {
       "path": "Icon.Stars",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 155
     },
     {
       "path": "Icon.Stop",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 149
     },
     {
       "path": "Icon.StopFilled",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 3
     },
     {
       "path": "Icon.Stopwatch",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 28
     },
     {
       "path": "Icon.Store",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 12
     },
     {
       "path": "Icon.StrikeThrough",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "Icon.Sun",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 39
     },
     {
       "path": "Icon.Sunrise",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 6
     },
     {
       "path": "Icon.Swatch",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 7
     },
     {
       "path": "Icon.Switch",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 99
     },
     {
       "path": "Icon.Syringe",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 3
     },
     {
       "path": "Icon.Tack",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 19
     },
     {
       "path": "Icon.TackDisabled",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 11
     },
     {
       "path": "Icon.Tag",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 181
     },
     {
       "path": "Icon.Temperature",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 28
     },
     {
       "path": "Icon.TennisBall",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "Icon.Terminal",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 206
     },
     {
       "path": "Icon.Text",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 243
     },
     {
       "path": "Icon.TextCursor",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 27
     },
     {
       "path": "Icon.TextDocument",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 29
     },
     {
       "path": "Icon.TextInput",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 22
     },
     {
       "path": "Icon.TextSelection",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 4
     },
     {
       "path": "Icon.ThumbsDown",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 3
     },
     {
       "path": "Icon.ThumbsDownFilled",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.ThumbsUp",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 9
     },
     {
       "path": "Icon.ThumbsUpFilled",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "Icon.Ticket",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 5
     },
     {
       "path": "Icon.Torch",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 3
     },
     {
       "path": "Icon.Train",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 19
     },
     {
       "path": "Icon.Trash",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 918
     },
     {
       "path": "Icon.Tray",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 73
     },
     {
       "path": "Icon.Tree",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 21
     },
     {
       "path": "Icon.Trophy",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 34
     },
     {
       "path": "Icon.TwoArrowsClockwise",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 20
     },
     {
       "path": "Icon.TwoPeople",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 134
     },
     {
       "path": "Icon.Umbrella",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.Underline",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "Icon.Undo",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 33
     },
     {
       "path": "Icon.Upload",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 122
     },
     {
       "path": "Icon.Uppercase",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 6
     },
     {
       "path": "Icon.Video",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 97
     },
     {
       "path": "Icon.VideoDisabled",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "Icon.Wallet",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 30
     },
     {
       "path": "Icon.Wand",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 86
     },
     {
       "path": "Icon.Warning",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 378
     },
     {
       "path": "Icon.Waveform",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 15
     },
     {
       "path": "Icon.Weights",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 10
     },
     {
       "path": "Icon.Wifi",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 28
     },
     {
       "path": "Icon.WifiDisabled",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 28
     },
     {
       "path": "Icon.Wind",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 7
     },
     {
       "path": "Icon.Window",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 92
     },
     {
       "path": "Icon.Windsock",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 2
     },
     {
       "path": "Icon.WrenchScrewdriver",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 29
     },
     {
       "path": "Icon.WristWatch",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Icon.XMarkCircle",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 500
     },
     {
       "path": "Icon.XMarkCircleFilled",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 30
     },
     {
       "path": "Icon.XMarkCircleHalfDash",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 3
     },
     {
       "path": "Icon.XMarkTopRightSquare",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 7
     },
     {
       "path": "Icon.Xmark",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 73
     },
     {
       "path": "Icon.XmarkCircle",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 31
     },
     {
@@ -11047,8 +12063,10 @@
     },
     {
       "path": "Keyboard",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
       "weight": 790
     },
     {
@@ -11065,116 +12083,154 @@
     },
     {
       "path": "Keyboard.Shortcut",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
       "weight": 762
     },
     {
       "path": "Keyboard.Shortcut.Common",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
       "weight": 681
     },
     {
       "path": "Keyboard.Shortcut.Common.Copy",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
       "weight": 303
     },
     {
       "path": "Keyboard.Shortcut.Common.CopyDeeplink",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
       "weight": 12
     },
     {
       "path": "Keyboard.Shortcut.Common.CopyName",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
       "weight": 82
     },
     {
       "path": "Keyboard.Shortcut.Common.CopyPath",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
       "weight": 58
     },
     {
       "path": "Keyboard.Shortcut.Common.Duplicate",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
       "weight": 22
     },
     {
       "path": "Keyboard.Shortcut.Common.Edit",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
       "weight": 130
     },
     {
       "path": "Keyboard.Shortcut.Common.MoveDown",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
       "weight": 28
     },
     {
       "path": "Keyboard.Shortcut.Common.MoveUp",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
       "weight": 28
     },
     {
       "path": "Keyboard.Shortcut.Common.New",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
       "weight": 176
     },
     {
       "path": "Keyboard.Shortcut.Common.Open",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
       "weight": 220
     },
     {
       "path": "Keyboard.Shortcut.Common.OpenWith",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
       "weight": 63
     },
     {
       "path": "Keyboard.Shortcut.Common.Pin",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
       "weight": 73
     },
     {
       "path": "Keyboard.Shortcut.Common.Refresh",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
       "weight": 261
     },
     {
       "path": "Keyboard.Shortcut.Common.Remove",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
       "weight": 270
     },
     {
       "path": "Keyboard.Shortcut.Common.RemoveAll",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
       "weight": 72
     },
     {
       "path": "Keyboard.Shortcut.Common.Save",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
       "weight": 59
     },
     {
       "path": "Keyboard.Shortcut.Common.ToggleQuickLook",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
       "weight": 37
     },
     {
@@ -13701,8 +14757,10 @@
     },
     {
       "path": "PasteAction",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/curated.test.ts"
+      ],
       "weight": 2
     },
     {

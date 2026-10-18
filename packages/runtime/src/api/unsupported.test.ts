@@ -30,9 +30,9 @@ test("every value-level top-level inventory symbol is exported; types are absent
 
 test("top-level, nested and partially implemented component stubs name the exact path", () => {
   for (const [component, path] of [
-    [api.Detail, "Detail"],
+    [api.Form, "Form"],
     [api.Detail.Metadata!.Label!, "Detail.Metadata.Label"],
-    [api.Action.OpenInBrowser!, "Action.OpenInBrowser"],
+    [api.Action.Open!, "Action.Open"],
     [withUnsupported("List.Item", implemented.List.Item).Detail!, "List.Item.Detail"],
   ] as const) {
     const errors: unknown[] = [];
@@ -83,13 +83,16 @@ test("stub values used as props fail as unsupported instead of rendering as hand
         createElement(
           api.List,
           {},
-          createElement(api.List.Item, { title: "x", icon: api.Icon.Star as unknown as string }),
+          createElement(api.List.Item, {
+            title: "x",
+            icon: api.Action.Style!.Destructive as unknown as string,
+          }),
         ),
       ),
-    "Icon.Star",
+    "Action.Style.Destructive",
   );
   expect(published).toEqual([]);
   // Implemented exports are not stubs, so their callbacks still become handlers.
   expect(unsupportedPathOf(api.List)).toBeUndefined();
-  expect(unsupportedPathOf(api.Icon)).toBe("Icon");
+  expect(unsupportedPathOf(api.Icon)).toBeUndefined();
 });

@@ -4,31 +4,31 @@ Denominator: the `@raycast/api@2.8.2` declarations. Evidence:
 `// @covers` tags in `packages/**/*.test.ts(x)`. A parent is not implied covered
 by its children. Partial support is reported separately from covered.
 
-**Non-deprecated coverage: 45/1534 covered (2.9%), 11 partial, 1478 missing.**
-Deprecated: 1/939 covered (0.1%), 0 partial, 938 missing.
+**Non-deprecated coverage: 562/1534 covered (36.6%), 14 partial, 958 missing.**
+Deprecated: 8/939 covered (0.9%), 2 partial, 929 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 45 | 1 | 46 |
-| partial | 11 | 0 | 11 |
-| missing | 1478 | 938 | 2416 |
+| covered | 562 | 8 | 570 |
+| partial | 14 | 2 | 16 |
+| missing | 958 | 929 | 1887 |
 
 ## Totals by kind
 
 | Kind | Covered | Partial | Missing | Total |
 | --- | --- | --- | --- | --- |
-| namespace | 0 | 1 | 8 | 9 |
-| component | 0 | 8 | 108 | 116 |
+| namespace | 1 | 1 | 7 | 9 |
+| component | 1 | 12 | 103 | 116 |
 | function | 1 | 1 | 48 | 50 |
-| const | 0 | 1 | 20 | 21 |
+| const | 1 | 1 | 19 | 21 |
 | class | 0 | 0 | 3 | 3 |
-| enum | 0 | 0 | 13 | 13 |
-| enum-member | 0 | 0 | 691 | 691 |
+| enum | 2 | 0 | 11 | 13 |
+| enum-member | 487 | 0 | 204 | 691 |
 | interface | 0 | 0 | 64 | 64 |
-| type | 0 | 0 | 178 | 178 |
-| property | 45 | 0 | 1259 | 1304 |
+| type | 1 | 0 | 177 | 178 |
+| property | 76 | 1 | 1227 | 1304 |
 | method | 0 | 0 | 24 | 24 |
 
 ## Top-level symbols
@@ -38,7 +38,7 @@ Children counts include all descendants, as covered/partial/total.
 | Symbol | Kind | Status | Children | Extensions |
 | --- | --- | --- | --- | --- |
 | `AI` | namespace | missing | 0/0/266 | 115 |
-| `Action` | component | partial | 11/1/110 | 2985 |
+| `Action` | component | partial | 21/3/110 | 2985 |
 | `ActionPanel` | component | partial | 4/1/129 | 3023 |
 | `ActionPanelChildren` | type | missing | 0/0/0 | 0 |
 | `ActionPanelItem` | component | missing | 0/0/104 | 1 |
@@ -59,11 +59,11 @@ Children counts include all descendants, as covered/partial/total.
 | `BrowserExtension` | namespace | missing | 0/0/8 | 62 |
 | `Cache` | class | missing | 0/0/17 | 333 |
 | `Clipboard` | namespace | partial | 1/0/16 | 1049 |
-| `Color` | enum | missing | 0/0/22 | 1420 |
+| `Color` | enum | covered | 9/0/22 | 1420 |
 | `ColorLike` | type | missing | 0/0/3 | 0 |
-| `CopyToClipboardAction` | component | missing | 0/0/8 | 23 |
+| `CopyToClipboardAction` | component | partial | 0/0/8 | 23 |
 | `CopyToClipboardActionProps` | interface | missing | 0/0/7 | 0 |
-| `Detail` | component | missing | 0/0/33 | 1310 |
+| `Detail` | component | partial | 5/0/33 | 1310 |
 | `DetailProps` | interface | missing | 0/0/5 | 0 |
 | `DynamicColor` | type | missing | 0/0/3 | 0 |
 | `Environment` | interface | missing | 0/0/17 | 2 |
@@ -96,14 +96,14 @@ Children counts include all descendants, as covered/partial/total.
 | `FormValue` | type | missing | 0/0/0 | 2 |
 | `FormValues` | interface | missing | 0/0/0 | 1 |
 | `Grid` | component | missing | 0/0/87 | 311 |
-| `Icon` | enum | missing | 0/0/478 | 2587 |
+| `Icon` | enum | covered | 478/0/478 | 2587 |
 | `Image` | interface | missing | 0/0/21 | 478 |
 | `ImageLike` | type | missing | 0/0/5 | 2 |
 | `ImageMask` | enum | missing | 0/0/2 | 8 |
 | `ImageSource` | type | missing | 0/0/2 | 0 |
 | `KeyEquivalent` | type | missing | 0/0/0 | 4 |
 | `KeyModifier` | type | missing | 0/0/0 | 0 |
-| `Keyboard` | namespace | missing | 0/0/32 | 790 |
+| `Keyboard` | namespace | covered | 19/0/32 | 790 |
 | `KeyboardShortcut` | type | missing | 0/0/11 | 1 |
 | `LaunchProps` | type | missing | 0/0/5 | 657 |
 | `LaunchType` | enum | missing | 0/0/2 | 454 |
@@ -125,7 +125,7 @@ Children counts include all descendants, as covered/partial/total.
 | `OpenInBrowserActionProps` | interface | missing | 0/0/5 | 0 |
 | `OpenWithAction` | component | missing | 0/0/6 | 1 |
 | `OpenWithActionProps` | interface | missing | 0/0/5 | 0 |
-| `PasteAction` | component | missing | 0/0/6 | 2 |
+| `PasteAction` | component | partial | 0/0/6 | 2 |
 | `PasteActionProps` | interface | missing | 0/0/5 | 0 |
 | `PopToRootType` | enum | missing | 0/0/3 | 126 |
 | `Preference` | interface | missing | 0/0/10 | 0 |
@@ -192,35 +192,26 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 
 | Path | Extensions |
 | --- | --- |
-| `Icon` | 2587 |
 | `showToast` | 2471 |
 | `Toast` | 2413 |
 | `Toast.Style` | 2407 |
 | `Toast.Style.Failure` | 2149 |
 | `List.Item.Props.accessories` | 1884 |
 | `Toast.Style.Success` | 1760 |
-| `Action.OpenInBrowser` | 1540 |
-| `Action.OpenInBrowser.Props.url` | 1540 |
-| `Color` | 1420 |
 | `Form` | 1362 |
 | `Form.Props.actions` | 1356 |
-| `Detail` | 1310 |
-| `Detail.Props.markdown` | 1284 |
 | `Action.SubmitForm` | 1267 |
 | `Action.SubmitForm.Props.onSubmit` | 1267 |
 | `Action.Push` | 1233 |
 | `Action.Push.Props.target` | 1233 |
 | `Action.Push.Props.title` | 1232 |
-| `Action.OpenInBrowser.Props.title` | 1212 |
 | `Toast.Style.Animated` | 1208 |
 | `Action.SubmitForm.Props.title` | 1181 |
 | `List.Props.onSearchTextChange` | 1174 |
 | `Action.Push.Props.icon` | 1107 |
 | `Form.TextField` | 1102 |
 | `Form.TextField.Props.title` | 1090 |
-| `Detail.Props.actions` | 1074 |
 | `useNavigation` | 1048 |
-| `Color.Green` | 1006 |
 | `List.Item.Detail` | 993 |
 | `Form.TextField.Props.placeholder` | 983 |
 | `LocalStorage` | 960 |
@@ -229,16 +220,25 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `open` | 928 |
 | `List.Dropdown` | 923 |
 | `List.Dropdown.Item` | 921 |
-| `Icon.Trash` | 918 |
 | `List.Dropdown.Item.Props.title` | 916 |
 | `List.Dropdown.Item.Props.value` | 916 |
 | `List.Dropdown.Props.tooltip` | 915 |
 | `List.Dropdown.Props.onChange` | 912 |
 | `LocalStorage.getItem` | 911 |
-| `Color.Red` | 898 |
 | `Action.Style` | 880 |
 | `Action.Props.style` | 872 |
 | `confirmAlert` | 849 |
 | `Form.Dropdown` | 799 |
 | `Form.Dropdown.Item` | 793 |
 | `Form.Dropdown.Item.Props.title` | 793 |
+| `Form.Dropdown.Item.Props.value` | 793 |
+| `Form.Dropdown.Props.title` | 793 |
+| `List.Item.Detail.Props.markdown` | 776 |
+| `Form.Description` | 765 |
+| `Form.Description.Props.text` | 765 |
+| `Form.TextField.Props.id` | 764 |
+| `List.Props.throttle` | 723 |
+| `Alert` | 718 |
+| `List.Item.Detail.Props.metadata` | 688 |
+| `Alert.ActionStyle` | 686 |
+| `Form.TextArea` | 678 |

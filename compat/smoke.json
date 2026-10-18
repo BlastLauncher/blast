@@ -1,61 +1,61 @@
 {
   "commit": "3b812d1e153a1862df29bc8ec34e170c728512ea",
   "totals": {
-    "rendered": 2,
+    "rendered": 9,
     "bundle-failed": 0,
     "crashed": 0,
     "timeout": 0,
     "unsupported-mode": 0,
-    "unsupported-api": 11
+    "unsupported-api": 4
   },
   "results": [
     {
       "extension": "axios-docs",
       "command": "index",
       "mode": "view",
-      "outcome": "unsupported-api",
-      "path": "Action.OpenInBrowser",
-      "error": "Unsupported API in Blast: Action.OpenInBrowser"
+      "outcome": "rendered",
+      "nodes": 74,
+      "rootType": "List"
     },
     {
       "extension": "biaodian",
       "command": "biaodian",
       "mode": "view",
-      "outcome": "unsupported-api",
-      "path": "PasteAction",
-      "error": "Unsupported API in Blast: PasteAction"
+      "outcome": "rendered",
+      "nodes": 131,
+      "rootType": "List"
     },
     {
       "extension": "code-review-emojis",
       "command": "index",
       "mode": "view",
-      "outcome": "unsupported-api",
-      "path": "Action.OpenInBrowser",
-      "error": "Unsupported API in Blast: Action.OpenInBrowser"
+      "outcome": "rendered",
+      "nodes": 86,
+      "rootType": "List"
     },
     {
       "extension": "conventional-commits",
       "command": "commit-message-structure",
       "mode": "view",
-      "outcome": "unsupported-api",
-      "path": "Detail",
-      "error": "Unsupported API in Blast: Detail"
+      "outcome": "rendered",
+      "nodes": 1,
+      "rootType": "Detail"
     },
     {
       "extension": "conventional-commits",
       "command": "index",
       "mode": "view",
-      "outcome": "unsupported-api",
-      "path": "Action.Paste",
-      "error": "Unsupported API in Blast: Action.Paste"
+      "outcome": "rendered",
+      "nodes": 45,
+      "rootType": "List"
     },
     {
       "extension": "fibonacci-sequence",
       "command": "index",
       "mode": "view",
-      "outcome": "unsupported-api",
-      "path": "Action.Paste",
-      "error": "Unsupported API in Blast: Action.Paste"
+      "outcome": "rendered",
+      "nodes": 76,
+      "rootType": "List"
     },
     {
       "extension": "markdown-reference",
@@ -69,9 +69,9 @@
       "extension": "ohmyzsh-git-alias",
       "command": "index",
       "mode": "view",
-      "outcome": "unsupported-api",
-      "path": "Action.Paste",
-      "error": "Unsupported API in Blast: Action.Paste"
+      "outcome": "rendered",
+      "nodes": 1630,
+      "rootType": "List"
     },
     {
       "extension": "px-to-rem-converter",
@@ -86,24 +86,24 @@
       "command": "colors",
       "mode": "view",
       "outcome": "unsupported-api",
-      "path": "Action.OpenInBrowser",
-      "error": "Unsupported API in Blast: Action.OpenInBrowser"
+      "path": "List.Item.Detail",
+      "error": "Unsupported API in Blast: List.Item.Detail"
     },
     {
       "extension": "radix",
       "command": "primitives",
       "mode": "view",
       "outcome": "unsupported-api",
-      "path": "Action.OpenInBrowser",
-      "error": "Unsupported API in Blast: Action.OpenInBrowser"
+      "path": "List.Item.Detail",
+      "error": "Unsupported API in Blast: List.Item.Detail"
     },
     {
       "extension": "radix",
       "command": "themes",
       "mode": "view",
       "outcome": "unsupported-api",
-      "path": "Action.OpenInBrowser",
-      "error": "Unsupported API in Blast: Action.OpenInBrowser"
+      "path": "List.Item.Detail",
+      "error": "Unsupported API in Blast: List.Item.Detail"
     },
     {
       "extension": "ratio-calculator",
