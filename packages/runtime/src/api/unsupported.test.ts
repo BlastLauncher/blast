@@ -44,7 +44,7 @@ test("top-level, nested and partially implemented component stubs name the exact
 });
 
 test("sync and promise-returning APIs throw structured errors when called", async () => {
-  unsupported(() => api.showHUD("hello"), "showHUD");
+  unsupported(() => api.getSelectedFinderItems(), "getSelectedFinderItems");
   unsupported(() => api.Clipboard.read!(), "Clipboard.read");
   await expect((async () => api.getSelectedText())()).rejects.toMatchObject({
     code: "UNSUPPORTED_API",

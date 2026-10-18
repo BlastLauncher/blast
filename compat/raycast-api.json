@@ -2,28 +2,28 @@
   "version": "2.8.2",
   "totals": {
     "all": {
-      "covered": 642,
-      "partial": 18,
-      "missing": 1813,
+      "covered": 688,
+      "partial": 21,
+      "missing": 1764,
       "total": 2473
     },
     "nonDeprecated": {
-      "covered": 633,
-      "partial": 14,
-      "missing": 887,
+      "covered": 671,
+      "partial": 17,
+      "missing": 846,
       "total": 1534
     },
     "deprecated": {
-      "covered": 9,
+      "covered": 17,
       "partial": 4,
-      "missing": 926,
+      "missing": 918,
       "total": 939
     },
     "kinds": {
       "namespace": {
-        "covered": 1,
+        "covered": 2,
         "partial": 1,
-        "missing": 7,
+        "missing": 6,
         "total": 9
       },
       "component": {
@@ -33,9 +33,9 @@
         "total": 116
       },
       "function": {
-        "covered": 2,
-        "partial": 1,
-        "missing": 47,
+        "covered": 3,
+        "partial": 3,
+        "missing": 44,
         "total": 50
       },
       "const": {
@@ -45,27 +45,27 @@
         "total": 21
       },
       "class": {
-        "covered": 0,
+        "covered": 1,
         "partial": 0,
-        "missing": 3,
+        "missing": 2,
         "total": 3
       },
       "enum": {
-        "covered": 2,
+        "covered": 6,
         "partial": 0,
-        "missing": 11,
+        "missing": 7,
         "total": 13
       },
       "enum-member": {
-        "covered": 487,
+        "covered": 499,
         "partial": 0,
-        "missing": 204,
+        "missing": 192,
         "total": 691
       },
       "interface": {
-        "covered": 1,
-        "partial": 0,
-        "missing": 63,
+        "covered": 4,
+        "partial": 1,
+        "missing": 59,
         "total": 64
       },
       "type": {
@@ -75,15 +75,15 @@
         "total": 178
       },
       "property": {
-        "covered": 117,
+        "covered": 138,
         "partial": 1,
-        "missing": 1186,
+        "missing": 1165,
         "total": 1304
       },
       "method": {
-        "covered": 0,
+        "covered": 3,
         "partial": 0,
-        "missing": 24,
+        "missing": 21,
         "total": 24
       }
     }
@@ -4145,86 +4145,114 @@
     },
     {
       "path": "Alert",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 718
     },
     {
       "path": "Alert.ActionOptions",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Alert.ActionOptions.onAction",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Alert.ActionOptions.style",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Alert.ActionOptions.title",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Alert.ActionStyle",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 686
     },
     {
       "path": "Alert.ActionStyle.Cancel",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 46
     },
     {
       "path": "Alert.ActionStyle.Default",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 72
     },
     {
       "path": "Alert.ActionStyle.Destructive",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 656
     },
     {
       "path": "Alert.Options",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 109
     },
     {
       "path": "Alert.Options.dismissAction",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Alert.Options.icon",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Alert.Options.message",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Alert.Options.primaryAction",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -4235,8 +4263,10 @@
     },
     {
       "path": "Alert.Options.title",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -4265,26 +4295,34 @@
     },
     {
       "path": "AlertActionStyle",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "AlertActionStyle.Cancel",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AlertActionStyle.Default",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AlertActionStyle.Destructive",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 1
     },
     {
@@ -15301,140 +15339,186 @@
     },
     {
       "path": "Toast",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 2413
     },
     {
       "path": "Toast.ActionOptions",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 23
     },
     {
       "path": "Toast.ActionOptions.onAction",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Toast.ActionOptions.shortcut",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Toast.ActionOptions.title",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Toast.Options",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 106
     },
     {
       "path": "Toast.Options.message",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Toast.Options.primaryAction",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Toast.Options.secondaryAction",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Toast.Options.style",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Toast.Options.title",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Toast.Style",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 2407
     },
     {
       "path": "Toast.Style.Animated",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 1208
     },
     {
       "path": "Toast.Style.Failure",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 2149
     },
     {
       "path": "Toast.Style.Success",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 1760
     },
     {
       "path": "Toast.constructor",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Toast.hide",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Toast.message",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Toast.primaryAction",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Toast.secondaryAction",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Toast.show",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Toast.style",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Toast.title",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -15499,26 +15583,34 @@
     },
     {
       "path": "ToastStyle",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 44
     },
     {
       "path": "ToastStyle.Animated",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 5
     },
     {
       "path": "ToastStyle.Failure",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 40
     },
     {
       "path": "ToastStyle.Success",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 13
     },
     {
@@ -15841,8 +15933,10 @@
     },
     {
       "path": "confirmAlert",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 849
     },
     {
@@ -16085,8 +16179,10 @@
     },
     {
       "path": "showHUD",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 931
     },
     {
@@ -16097,8 +16193,10 @@
     },
     {
       "path": "showToast",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/feedback.test.ts"
+      ],
       "weight": 2471
     },
     {

@@ -16,6 +16,7 @@ import { format } from "node:util";
 import { createElement, type ComponentType } from "react";
 import { setCapabilityRequester } from "./api/capability.ts";
 import { setEnvironment } from "./api/environment.ts";
+import { setFeedbackMount } from "./api/feedback.ts";
 import { NavigationProvider } from "./api/navigation.ts";
 import { setPreferenceValues } from "./api/preferences.ts";
 import { UnsupportedApiError } from "./api/unsupported.ts";
@@ -130,8 +131,14 @@ async function load(message: Extract<HostMessage, { type: "init" }>) {
   const command = await import(pathToFileURL(message.command.entry).href);
   if (stopping) return;
   if (message.command.mode === "no-view") {
-    // A no-view command renders nothing: it runs and the process exits when it
-    // settles. A rejection is a fatal error through the caller's `.catch`.
+    setFeedbackMount(() => {
+      if (!loaded) {
+        loaded = true;
+        root.render(createElement(NavigationProvider, { children: null }));
+      }
+    });
+    // A no-view command runs until it settles, with a scene only for feedback.
+    // A rejection is a fatal error through the caller's `.catch`.
     await (command.default as (props: LaunchProps) => unknown)(launchProps);
     if (stopping) return;
     finish(0);

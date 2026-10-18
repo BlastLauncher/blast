@@ -8,6 +8,8 @@ import {
   type ReactNode,
 } from "react";
 
+import { FeedbackScene } from "./feedback.ts";
+
 export interface Navigation {
   push(component: ReactNode, onPop?: () => void): void;
   pop(): void;
@@ -55,6 +57,7 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
           entry.component,
         ),
       ),
+      createElement(FeedbackScene, { key: "feedback" }),
     ),
   );
 }

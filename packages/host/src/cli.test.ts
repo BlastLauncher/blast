@@ -178,7 +178,7 @@ test("Action.Push opens a view and back restores the previous state", async () =
     ["run", hostSession, "navigation", "--script", "-"],
     "action Increment\nwait\nexpect count 1\naction Open details\nwait\nexpect pushed detail\nback\nwait\nexpect count 1\nexpect popped true\nquit\n",
   );
-  expect(code).toBe(0);
+  expect(code, `${stderr}\n${stdout}`).toBe(0);
   expect(stderr).toBe("");
   expect(stdout).toContain("Navigation depth=2 [pop]");
   const last = stdout.slice(stdout.lastIndexOf("Navigation depth=1"));
@@ -192,4 +192,34 @@ test("back at the root reports a script error and help documents back", async ()
   expect(result.stderr).toContain("no navigation view to pop");
   const help = await runCli(["--help"]);
   expect(help.stdout).toContain("back            Pop the current navigation view.");
+});
+
+test("CLI confirms and dismisses no-view alerts and prints toast/HUD feedback", async () => {
+  for (const [answer, title] of [
+    ["confirm", "Confirmed"],
+    ["dismiss", "Dismissed"],
+  ]) {
+    const result = await runCli(
+      [
+        "run",
+        join(root, "fixtures/extensions/feedback"),
+        "index",
+        "--script",
+        "-",
+        "--timeout",
+        "3000",
+      ],
+      `wait\nexpect Continue?\n${answer}\nwait\n`,
+    );
+    expect(result.code).toBe(0);
+    expect(result.stderr).toBe("");
+    expect(result.stdout).toContain(`Toast "${title}"`);
+    expect(result.stdout).toContain('HUD "Finished"');
+  }
+  const missing = await runCli(["run", helloList, "index", "--script", "-"], "confirm\n");
+  expect(missing.code).toBe(1);
+  expect(missing.stderr).toContain("no alert to answer");
+  const help = await runCli(["--help"]);
+  expect(help.stdout).toContain("Confirm the current alert");
+  expect(help.stdout).toContain("Dismiss the current alert");
 });

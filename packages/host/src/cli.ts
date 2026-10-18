@@ -1,7 +1,7 @@
 // The `blast` debug CLI: bundles and runs one extension command headlessly and
 // prints every published scene — as a readable text tree, or as protocol-shaped
 // NDJSON with `--json`. A `--script` drives the command (action / search /
-// back / wait / expect / quit), which is how e2e tests interact with extensions. See
+// back / confirm / dismiss / wait / expect / quit), which is how e2e tests interact with extensions. See
 // "Debugging extensions" in docs/architecture.md.
 
 import type {
@@ -48,6 +48,8 @@ Options:
 Script commands (one per line, "#" starts a comment):
   action <title>  Dispatch onAction on the Action node with that title.
   back            Pop the current navigation view.
+  confirm         Confirm the current alert.
+  dismiss         Dismiss the current alert.
   search <text>   Dispatch the List onSearchTextChange handler.
   wait            Wait until the next scene is published.
   expect <text>   Fail (exit 1) unless the latest scene tree contains the text.
@@ -149,6 +151,7 @@ function grantHandlers(grants: string[]): Record<string, CapabilityHandler> {
 type Step =
   | { op: "action"; title: string }
   | { op: "search"; text: string }
+  | { op: "confirm" | "dismiss" }
   | { op: "back" }
   | { op: "wait" }
   | { op: "expect"; text: string }
@@ -170,6 +173,10 @@ function parseScript(source: string): Step[] {
       case "search":
         if (rest === "") throw new ScriptError(`script line ${index + 1}: search needs text`);
         steps.push({ op: "search", text: rest });
+        break;
+      case "confirm":
+      case "dismiss":
+        steps.push({ op: word });
         break;
       case "back":
         steps.push({ op: "back" });
@@ -231,6 +238,20 @@ async function runScript(session: Session, steps: Step[]): Promise<void> {
   for (const step of steps) {
     if (step.op === "quit") return;
     switch (step.op) {
+      case "confirm":
+      case "dismiss": {
+        const scene = await currentScene(session);
+        observed = Math.max(observed, scene.revision);
+        const alert = scene.root
+          ? findNode(scene.root, (node) => node.type === "Alert")
+          : undefined;
+        const name = step.op === "confirm" ? "primaryAction" : "dismissAction";
+        const node = alert?.children.find((child) => child.props.name === name);
+        const handler = node ? handlerRef(node.props.onAction) : undefined;
+        if (!node || !handler) throw new ScriptError("no alert to answer");
+        session.sendEvent(node.id, handler.$handler, []);
+        break;
+      }
       case "back": {
         const scene = await currentScene(session);
         observed = Math.max(observed, scene.revision);

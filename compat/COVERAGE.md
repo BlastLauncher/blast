@@ -4,32 +4,32 @@ Denominator: the `@raycast/api@2.8.2` declarations. Evidence:
 `// @covers` tags in `packages/**/*.test.ts(x)`. A parent is not implied covered
 by its children. Partial support is reported separately from covered.
 
-**Non-deprecated coverage: 633/1534 covered (41.3%), 14 partial, 887 missing.**
-Deprecated: 9/939 covered (1.0%), 4 partial, 926 missing.
+**Non-deprecated coverage: 671/1534 covered (43.7%), 17 partial, 846 missing.**
+Deprecated: 17/939 covered (1.8%), 4 partial, 918 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 633 | 9 | 642 |
-| partial | 14 | 4 | 18 |
-| missing | 887 | 926 | 1813 |
+| covered | 671 | 17 | 688 |
+| partial | 17 | 4 | 21 |
+| missing | 846 | 918 | 1764 |
 
 ## Totals by kind
 
 | Kind | Covered | Partial | Missing | Total |
 | --- | --- | --- | --- | --- |
-| namespace | 1 | 1 | 7 | 9 |
+| namespace | 2 | 1 | 6 | 9 |
 | component | 16 | 14 | 86 | 116 |
-| function | 2 | 1 | 47 | 50 |
+| function | 3 | 3 | 44 | 50 |
 | const | 1 | 1 | 19 | 21 |
-| class | 0 | 0 | 3 | 3 |
-| enum | 2 | 0 | 11 | 13 |
-| enum-member | 487 | 0 | 204 | 691 |
-| interface | 1 | 0 | 63 | 64 |
+| class | 1 | 0 | 2 | 3 |
+| enum | 6 | 0 | 7 | 13 |
+| enum-member | 499 | 0 | 192 | 691 |
+| interface | 4 | 1 | 59 | 64 |
 | type | 15 | 0 | 163 | 178 |
-| property | 117 | 1 | 1186 | 1304 |
-| method | 0 | 0 | 24 | 24 |
+| property | 138 | 1 | 1165 | 1304 |
+| method | 3 | 0 | 21 | 24 |
 
 ## Top-level symbols
 
@@ -50,9 +50,9 @@ Children counts include all descendants, as covered/partial/total.
 | `ActionPanelState` | interface | missing | 0/0/1 | 0 |
 | `ActionPanelSubmenu` | component | missing | 0/0/13 | 0 |
 | `ActionPanelSubmenuProps` | interface | missing | 0/0/12 | 0 |
-| `Alert` | namespace | missing | 0/0/15 | 718 |
+| `Alert` | namespace | covered | 13/1/15 | 718 |
 | `AlertActionOptions` | interface | missing | 0/0/3 | 0 |
-| `AlertActionStyle` | enum | missing | 0/0/3 | 1 |
+| `AlertActionStyle` | enum | covered | 3/0/3 | 1 |
 | `AlertOptions` | interface | missing | 0/0/6 | 0 |
 | `Application` | interface | missing | 0/0/5 | 119 |
 | `ArgumentsLaunchProps` | interface | missing | 0/0/1 | 1 |
@@ -137,10 +137,10 @@ Children counts include all descendants, as covered/partial/total.
 | `ShowInFinderActionProps` | interface | missing | 0/0/5 | 0 |
 | `SubmitFormAction` | const | missing | 0/0/1 | 11 |
 | `SubmitFormActionProps` | interface | missing | 0/0/5 | 0 |
-| `Toast` | class | missing | 0/0/22 | 2413 |
+| `Toast` | class | covered | 22/0/22 | 2413 |
 | `ToastActionOptions` | interface | missing | 0/0/3 | 0 |
 | `ToastOptions` | interface | missing | 0/0/5 | 0 |
-| `ToastStyle` | enum | missing | 0/0/3 | 44 |
+| `ToastStyle` | enum | covered | 3/0/3 | 44 |
 | `Tool` | namespace | missing | 0/0/1 | 128 |
 | `TrashAction` | component | missing | 0/0/6 | 0 |
 | `TrashActionProps` | interface | missing | 0/0/5 | 0 |
@@ -152,7 +152,7 @@ Children counts include all descendants, as covered/partial/total.
 | `clearLocalStorage` | function | missing | 0/0/0 | 2 |
 | `clearSearchBar` | function | missing | 0/0/0 | 41 |
 | `closeMainWindow` | function | missing | 0/0/0 | 600 |
-| `confirmAlert` | function | missing | 0/0/0 | 849 |
+| `confirmAlert` | function | partial | 0/0/0 | 849 |
 | `copyTextToClipboard` | function | missing | 0/0/0 | 3 |
 | `environment` | const | partial | 6/0/17 | 738 |
 | `getApplications` | function | missing | 0/0/0 | 216 |
@@ -173,9 +173,9 @@ Children counts include all descendants, as covered/partial/total.
 | `removeLocalStorageItem` | function | missing | 0/0/0 | 3 |
 | `render` | const | missing | 0/0/0 | 1 |
 | `setLocalStorageItem` | function | missing | 0/0/0 | 10 |
-| `showHUD` | function | missing | 0/0/0 | 931 |
+| `showHUD` | function | partial | 0/0/0 | 931 |
 | `showInFinder` | function | missing | 0/0/0 | 145 |
-| `showToast` | function | missing | 0/0/0 | 2471 |
+| `showToast` | function | covered | 0/0/0 | 2471 |
 | `specialKeys` | const | missing | 0/0/16 | 0 |
 | `trash` | function | missing | 0/0/0 | 43 |
 | `unstable_AI` | const | missing | 0/0/0 | 0 |
@@ -192,17 +192,11 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 
 | Path | Extensions |
 | --- | --- |
-| `showToast` | 2471 |
-| `Toast` | 2413 |
-| `Toast.Style` | 2407 |
-| `Toast.Style.Failure` | 2149 |
 | `List.Item.Props.accessories` | 1884 |
-| `Toast.Style.Success` | 1760 |
 | `Form` | 1362 |
 | `Form.Props.actions` | 1356 |
 | `Action.SubmitForm` | 1267 |
 | `Action.SubmitForm.Props.onSubmit` | 1267 |
-| `Toast.Style.Animated` | 1208 |
 | `Action.SubmitForm.Props.title` | 1181 |
 | `List.Props.onSearchTextChange` | 1174 |
 | `Form.TextField` | 1102 |
@@ -210,7 +204,6 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `Form.TextField.Props.placeholder` | 983 |
 | `LocalStorage` | 960 |
 | `LocalStorage.setItem` | 935 |
-| `showHUD` | 931 |
 | `open` | 928 |
 | `List.Dropdown` | 923 |
 | `List.Dropdown.Item` | 921 |
@@ -221,7 +214,6 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `LocalStorage.getItem` | 911 |
 | `Action.Style` | 880 |
 | `Action.Props.style` | 872 |
-| `confirmAlert` | 849 |
 | `Form.Dropdown` | 799 |
 | `Form.Dropdown.Item` | 793 |
 | `Form.Dropdown.Item.Props.title` | 793 |
@@ -231,14 +223,22 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `Form.Description.Props.text` | 765 |
 | `Form.TextField.Props.id` | 764 |
 | `List.Props.throttle` | 723 |
-| `Alert` | 718 |
-| `Alert.ActionStyle` | 686 |
 | `Form.TextArea` | 678 |
 | `Action.SubmitForm.Props.icon` | 675 |
 | `Form.TextArea.Props.title` | 665 |
 | `LaunchProps` | 657 |
-| `Alert.ActionStyle.Destructive` | 656 |
 | `Form.Props.isLoading` | 651 |
 | `Form.Dropdown.Props.id` | 605 |
 | `closeMainWindow` | 600 |
 | `Form.TextArea.Props.placeholder` | 590 |
+| `popToRoot` | 567 |
+| `openExtensionPreferences` | 541 |
+| `List.Dropdown.Props.value` | 509 |
+| `Form.TextField.Props.onChange` | 506 |
+| `Form.TextArea.Props.id` | 491 |
+| `Image` | 478 |
+| `LaunchType` | 454 |
+| `Form.Description.Props.title` | 453 |
+| `Form.Props.navigationTitle` | 451 |
+| `Form.Separator` | 443 |
+| `List.Props.filtering` | 428 |
