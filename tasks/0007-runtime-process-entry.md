@@ -26,7 +26,8 @@ capability results, and shuts down cleanly or fails loudly.
   `init` with `protocol === PROTOCOL_VERSION` (else `error` fatal, exit 1) →
   reply `ready` → dynamic-import `command.entry` (file path) → render its
   default export as a component → publish `scene` per commit → `event` →
-  `dispatch` (errors become non-fatal `error` messages) → `shutdown` →
+  `dispatch` (thrown errors and rejected promises returned by handlers, e.g.
+  a denied `Action.CopyToClipboard`, become non-fatal `error` messages) → `shutdown` →
   unmount, exit 0. Stdin EOF also shuts down.
 - `capability.request` ids are unique per process; `capability.result`
   resolves/rejects the matching promise; unknown ids are a protocol error.
