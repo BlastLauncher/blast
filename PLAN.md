@@ -71,7 +71,10 @@ diagnostics instead of ESM link errors.
 - [x] 0039 List and Grid prop completeness
 - [x] 0040 Image, Keyboard and environment completeness
 - [x] 0041 OAuth PKCE client
-- [ ] Next: Form refs/storeValue/drafts, AI, Tool, BrowserExtension
+- [ ] 0042 Form field refs, storeValue and drafts
+- [ ] 0043 AI, BrowserExtension and Tool APIs
+- [ ] 0044 WindowManagement and remaining leftovers
+- [ ] Next: deprecated aliases sweep; curated set v4 using provided deps
 
 Smoke 2026-10-18 (`compat/SMOKE.md`, 60 extensions): 144/149 commands render,
 1 completed, 4 expected capability denials, 0 unsupported-api. Coverage 63.5%
