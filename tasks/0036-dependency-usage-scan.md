@@ -58,8 +58,35 @@ from data. Output: `compat/dependencies.json` plus `compat/DEPENDENCIES.md`.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/dependency-usage-scan @ e6a62a5 (code at 4aa025b, 5a8e257)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 35.9s
 Done:
+- `scripts/corpus/imports.ts`: shared pure specifier rules (`Source`,
+  `unprovidedImports`, `importedPackages`, `packageName`), moved out of
+  `selection.ts`; the selector now imports them instead of its own regex.
+- `scripts/corpus/dependencies.ts`: `majorOf`, `extensionDependencies`,
+  `aggregateDependencies` (imported desc, name asc; cumulative curve) and
+  `renderDependenciesMd`; tests in `dependencies.test.ts` (+`imports.test.ts`).
+- `scripts/corpus/scan.ts` reads each batch once for both scans and writes
+  `compat/dependencies.json` + `compat/DEPENDENCIES.md`.
+- Real scan (pin 3b812d1e, 3443 extensions, peak .cache 95.4 MB):
+  1573/3443 extensions need nothing beyond api/utils/react/built-ins, 1427
+  packages. Curve: 0:1573, 10:1986, 20:2139, 30:2205, 50:2306.
+  Top 15 (imported/declared): node-fetch 331/366, axios 200/211,
+  date-fns 135/141, run-applescript 96/111, lodash 72/81, zod 64/69,
+  cheerio 62/64, dayjs 59/61, fuse.js 49/51, uuid 49/50, nanoid 48/52,
+  cross-fetch 46/46, moment 36/39, node-html-markdown 36/39, rss-parser 35/35.
+- `.oxfmtrc.json` ignores `compat/DEPENDENCIES.md` like `compat/COVERAGE.md`.
 Not done / risks:
+- `compat/raycast-usage.json` is byte-identical after the scan (no diff).
+- Two scans in a row produced identical `dependencies.json`/`DEPENDENCIES.md`.
+- An extension is "satisfied" only when every package it *declares* and every
+  package its non-test sources *import* is provided (the selector's combined
+  rule). The curve is ranked by `imported`, so declared-only need can keep an
+  extension out of the count.
+- Import matching is syntactic: a scope-shaped tsconfig alias (`@lib/utils`,
+  ~239 imported-only names) counts as a package, as `unprovidedImports`
+  already treats it. Specifiers npm could not name (`#imports`, `@/types`,
+  `AppKit` from generated Swift text) are dropped. The top 60 is unaffected.
+- `.cache/raycast-extensions` deleted after the scan.
 ```

@@ -1,7 +1,7 @@
 // Syntactic import-name resolution only: no module loading or extension execution.
 import { parseSync, visitorKeys, type Node } from "oxc-parser";
+import type { Source } from "./imports.ts";
 
-export type Source = { file: string; source: string };
 export type ExtensionUsage = { paths: string[]; utils: boolean; failures: string[] };
 export type Usage = { corpusCommit: string; extensions: number; paths: Record<string, number> };
 export const USAGE_PATH = "compat/raycast-usage.json";

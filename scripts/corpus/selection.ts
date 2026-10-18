@@ -11,8 +11,10 @@
 // extensions that use a harder component or API without reclassifying them,
 // so adding the new strata never moves an earlier pick.
 import { createHash } from "node:crypto";
-import { isBuiltin } from "node:module";
-import type { Source } from "./usage.ts";
+// The specifier rules live in `imports.ts` so the dependency scan reads the
+// same ones rather than a copy of the regex.
+import { unprovidedImports } from "./imports.ts";
+import type { Source } from "./imports.ts";
 
 /** Runtime dependencies the shared Blast dependency policy can provide. */
 export const PROVIDED_DEPENDENCIES = ["@raycast/api", "@raycast/utils"] as const;
@@ -52,37 +54,13 @@ export const EXCLUSIONS: ReadonlyArray<{ id: string; pattern: RegExp }> = [
 ];
 
 /**
- * The exclusion the regex table cannot express: a manifest can declare only
- * `@raycast/api` and `@raycast/utils` and still import something else (or a
- * tsconfig path alias), which bundles as a missing dependency. That is a
- * selection miss, not an API gap, so those candidates are rejected too.
+ * The exclusion the import rules cannot express as a source pattern: a manifest
+ * can declare only `@raycast/api` and `@raycast/utils` and still import
+ * something else (or a tsconfig path alias), which bundles as a missing
+ * dependency. That is a selection miss, not an API gap, so those candidates
+ * are rejected too.
  */
 export const IMPORT_EXCLUSION = "unprovided-import";
-
-/**
- * Bare specifiers the bundler resolves: Blast's provided dependencies
- * (`@raycast/api`, `@raycast/utils` with subpaths, `react`) and Node built-ins.
- * Mirrors `dependencyPolicy` in `packages/host/src/bundle.ts`.
- */
-const PROVIDED_SPECIFIER = /^(?:@raycast\/(?:api|utils)(?:\/|$)|react(?:\/|$))/;
-const IMPORT_SPECIFIER = /(?:from\s+|import\s*\(\s*|import\s+|require\s*\(\s*)["']([^"'\s]+)["']/g;
-/** A command never bundles a test file, so a dev-only import there cannot fail it. */
-const TEST_FILE = /(?:^|[\\/])(?:__tests__|__mocks__)[\\/]|\.(?:test|spec)\.[cm]?[jt]sx?$/;
-
-/** Bare module specifiers in `sources` that Blast cannot resolve when bundling. */
-export function unprovidedImports(sources: Iterable<Source>): string[] {
-  const found = new Set<string>();
-  for (const { file, source } of sources) {
-    if (TEST_FILE.test(file)) continue;
-    for (const match of source.matchAll(IMPORT_SPECIFIER)) {
-      const specifier = match[1]!;
-      if (specifier.startsWith(".") || specifier.startsWith("/")) continue;
-      if (PROVIDED_SPECIFIER.test(specifier) || isBuiltin(specifier)) continue;
-      found.add(specifier);
-    }
-  }
-  return [...found].toSorted();
-}
 
 /**
  * Static source rules that mark network access. A match does not reject a
