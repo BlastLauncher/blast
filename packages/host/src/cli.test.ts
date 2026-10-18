@@ -9,6 +9,7 @@ const cliPath = fileURLToPath(new URL("./cli.ts", import.meta.url));
 const root = fileURLToPath(new URL("../../../", import.meta.url));
 const helloList = join(root, "fixtures/extensions/hello-list");
 const hostSession = join(root, "fixtures/extensions/host-session");
+const listExtras = join(root, "fixtures/extensions/list-extras");
 
 type CliResult = { code: number; stdout: string; stderr: string };
 
@@ -192,4 +193,53 @@ test("back at the root reports a script error and help documents back", async ()
   expect(result.stderr).toContain("no navigation view to pop");
   const help = await runCli(["--help"]);
   expect(help.stdout).toContain("back            Pop the current navigation view.");
+});
+
+test("list-extras renders accessories and a dropdown scene", async () => {
+  const { code, stdout, stderr } = await runCli(["run", listExtras, "index"]);
+  expect(code).toBe(0);
+  expect(stderr).toBe("");
+  expect(stdout).toContain('List.Dropdown tooltip="Drink" defaultValue="water" [onChange]');
+  expect(stdout).toContain('List.Dropdown.Section "Drinks"');
+  expect(stdout).toContain('List.Dropdown.Item "beer" value="beer"');
+  expect(stdout).toContain('subtitle="Germany"');
+  expect(stdout).toContain('accessories=[{"text":"Germany"},{"tag":"1970-01-01T00:00:00.000Z"}]');
+  expect(stdout).toContain('style="destructive"');
+});
+
+test("a script selects a dropdown value, searches and runs styled actions", async () => {
+  const script = [
+    "dropdown wine",
+    "wait",
+    "expect drink wine",
+    "search w",
+    "wait",
+    "action Delete wine",
+    "wait",
+    "expect deleted wine",
+    "quit",
+    "",
+  ].join("\n");
+  const { code, stdout, stderr } = await runCli(
+    ["run", listExtras, "index", "--script", "-"],
+    script,
+  );
+  expect(code).toBe(0);
+  expect(stderr).toBe("");
+  expect(stdout).toContain('List navigationTitle="drink wine"');
+  expect(stdout).toContain('searchText="w"');
+  const last = stdout.slice(stdout.lastIndexOf('List navigationTitle="drink wine"'));
+  expect(last).toContain('searchText="deleted wine"');
+  expect(last).not.toContain("List.Item");
+  const help = await runCli(["--help"]);
+  expect(help.stdout).toContain("dropdown <value>");
+});
+
+test("a dropdown without onChange reports a script error", async () => {
+  const { code, stderr } = await runCli(
+    ["run", helloList, "index", "--script", "-"],
+    "dropdown beer\n",
+  );
+  expect(code).toBe(1);
+  expect(stderr).toContain("no List.Dropdown with onChange to select");
 });

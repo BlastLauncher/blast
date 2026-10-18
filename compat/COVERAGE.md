@@ -4,31 +4,31 @@ Denominator: the `@raycast/api@2.8.2` declarations. Evidence:
 `// @covers` tags in `packages/**/*.test.ts(x)`. A parent is not implied covered
 by its children. Partial support is reported separately from covered.
 
-**Non-deprecated coverage: 633/1534 covered (41.3%), 14 partial, 887 missing.**
+**Non-deprecated coverage: 649/1534 covered (42.3%), 26 partial, 859 missing.**
 Deprecated: 9/939 covered (1.0%), 4 partial, 926 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 633 | 9 | 642 |
-| partial | 14 | 4 | 18 |
-| missing | 887 | 926 | 1813 |
+| covered | 649 | 9 | 658 |
+| partial | 26 | 4 | 30 |
+| missing | 859 | 926 | 1785 |
 
 ## Totals by kind
 
 | Kind | Covered | Partial | Missing | Total |
 | --- | --- | --- | --- | --- |
 | namespace | 1 | 1 | 7 | 9 |
-| component | 16 | 14 | 86 | 116 |
+| component | 16 | 17 | 83 | 116 |
 | function | 2 | 1 | 47 | 50 |
 | const | 1 | 1 | 19 | 21 |
 | class | 0 | 0 | 3 | 3 |
 | enum | 2 | 0 | 11 | 13 |
 | enum-member | 487 | 0 | 204 | 691 |
 | interface | 1 | 0 | 63 | 64 |
-| type | 15 | 0 | 163 | 178 |
-| property | 117 | 1 | 1186 | 1304 |
+| type | 15 | 1 | 162 | 178 |
+| property | 133 | 9 | 1162 | 1304 |
 | method | 0 | 0 | 24 | 24 |
 
 ## Top-level symbols
@@ -38,7 +38,7 @@ Children counts include all descendants, as covered/partial/total.
 | Symbol | Kind | Status | Children | Extensions |
 | --- | --- | --- | --- | --- |
 | `AI` | namespace | missing | 0/0/266 | 115 |
-| `Action` | component | partial | 29/3/110 | 2985 |
+| `Action` | component | partial | 30/4/110 | 2985 |
 | `ActionPanel` | component | partial | 4/2/129 | 3023 |
 | `ActionPanelChildren` | type | missing | 0/0/0 | 0 |
 | `ActionPanelItem` | component | partial | 0/0/104 | 1 |
@@ -107,7 +107,7 @@ Children counts include all descendants, as covered/partial/total.
 | `KeyboardShortcut` | type | missing | 0/0/11 | 1 |
 | `LaunchProps` | type | missing | 0/0/5 | 657 |
 | `LaunchType` | enum | missing | 0/0/2 | 454 |
-| `List` | component | partial | 56/3/122 | 2604 |
+| `List` | component | partial | 71/14/122 | 2604 |
 | `ListItem` | component | missing | 0/0/52 | 1 |
 | `ListItemProps` | interface | missing | 0/0/19 | 0 |
 | `ListProps` | interface | missing | 0/0/19 | 0 |
@@ -196,7 +196,6 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `Toast` | 2413 |
 | `Toast.Style` | 2407 |
 | `Toast.Style.Failure` | 2149 |
-| `List.Item.Props.accessories` | 1884 |
 | `Toast.Style.Success` | 1760 |
 | `Form` | 1362 |
 | `Form.Props.actions` | 1356 |
@@ -204,7 +203,6 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `Action.SubmitForm.Props.onSubmit` | 1267 |
 | `Toast.Style.Animated` | 1208 |
 | `Action.SubmitForm.Props.title` | 1181 |
-| `List.Props.onSearchTextChange` | 1174 |
 | `Form.TextField` | 1102 |
 | `Form.TextField.Props.title` | 1090 |
 | `Form.TextField.Props.placeholder` | 983 |
@@ -212,15 +210,7 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `LocalStorage.setItem` | 935 |
 | `showHUD` | 931 |
 | `open` | 928 |
-| `List.Dropdown` | 923 |
-| `List.Dropdown.Item` | 921 |
-| `List.Dropdown.Item.Props.title` | 916 |
-| `List.Dropdown.Item.Props.value` | 916 |
-| `List.Dropdown.Props.tooltip` | 915 |
-| `List.Dropdown.Props.onChange` | 912 |
 | `LocalStorage.getItem` | 911 |
-| `Action.Style` | 880 |
-| `Action.Props.style` | 872 |
 | `confirmAlert` | 849 |
 | `Form.Dropdown` | 799 |
 | `Form.Dropdown.Item` | 793 |
@@ -230,7 +220,6 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `Form.Description` | 765 |
 | `Form.Description.Props.text` | 765 |
 | `Form.TextField.Props.id` | 764 |
-| `List.Props.throttle` | 723 |
 | `Alert` | 718 |
 | `Alert.ActionStyle` | 686 |
 | `Form.TextArea` | 678 |
@@ -242,3 +231,14 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `Form.Dropdown.Props.id` | 605 |
 | `closeMainWindow` | 600 |
 | `Form.TextArea.Props.placeholder` | 590 |
+| `popToRoot` | 567 |
+| `openExtensionPreferences` | 541 |
+| `Form.TextField.Props.onChange` | 506 |
+| `Form.TextArea.Props.id` | 491 |
+| `Image` | 478 |
+| `LaunchType` | 454 |
+| `Form.Description.Props.title` | 453 |
+| `Form.Props.navigationTitle` | 451 |
+| `Form.Separator` | 443 |
+| `Form.Dropdown.Props.onChange` | 416 |
+| `Form.Checkbox` | 411 |

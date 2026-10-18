@@ -15,6 +15,9 @@ export function serializeProps(
     if (value === undefined) return undefined;
     if (value === null || typeof value === "string" || typeof value === "boolean") return value;
     if (typeof value === "number" && Number.isFinite(value)) return value;
+    // `List.Item.Accessory` carries `Date` labels (also nested in
+    // `{ value, color }` forms); clients get the ISO string instead.
+    if (value instanceof Date) return value.toISOString();
     // An unimplemented API value (e.g. `Icon.Star` before Icon exists) must fail
     // loudly, not be mistaken for a callback and rendered as a handler.
     const stubPath = unsupportedPath(value);

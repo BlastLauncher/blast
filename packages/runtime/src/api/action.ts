@@ -5,11 +5,25 @@ import { useNavigation } from "./navigation.ts";
 import { Icon } from "./enums.generated.ts";
 import type { ImageLike, Shortcut } from "./types.ts";
 
+/**
+ * Mirrors the declarations' `ActionStyle` enum. It lives here rather than in
+ * `enums.generated.ts` because the inventory only tracks the `Action.Style`
+ * path (the enum is not an exported top-level symbol), so the generator cannot
+ * name its members.
+ */
+export const ActionStyle = {
+  Regular: "regular",
+  Destructive: "destructive",
+} as const;
+export type ActionStyle = (typeof ActionStyle)[keyof typeof ActionStyle];
+
 export interface ActionProps {
   /** The title displayed for the Action. */
   title: string;
   /** The icon displayed for the Action. */
   icon?: ImageLike;
+  /** Defines the visual style of the Action. */
+  style?: ActionStyle;
   /** The keyboard shortcut for the Action. */
   shortcut?: Shortcut;
   /**
@@ -40,7 +54,7 @@ export const Action = Object.assign(
   function Action(props: ActionProps) {
     return createElement("Action", props);
   },
-  { CopyToClipboard, OpenInBrowser, Paste, Push },
+  { CopyToClipboard, OpenInBrowser, Paste, Push, Style: ActionStyle },
 );
 
 export function CopyToClipboard(props: CopyToClipboardProps) {

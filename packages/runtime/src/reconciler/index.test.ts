@@ -106,12 +106,14 @@ test("serializes nested JSON and callbacks, dropping invalid values with useful 
   const cycle: Record<string, unknown> = {};
   cycle.self = cycle;
   const input = { value: "original", absent: undefined };
+  const epoch = new Date(0);
   root.render(
     h("Item", {
       input,
       valid: [null, true, 42, "text", { nested: [1, 2] }],
       absent: undefined,
-      date: new Date(0),
+      date: epoch,
+      dates: { at: epoch, list: [epoch] },
       custom: new Custom(),
       symbol: Symbol("x"),
       nan: NaN,
@@ -120,7 +122,7 @@ test("serializes nested JSON and callbacks, dropping invalid values with useful 
       element: h("Other"),
       cycle,
       nested: {
-        bad: new Date(0),
+        bad: new Custom(),
         callback: (value: unknown) => value,
         values: [1, Symbol("bad"), undefined, 2],
       },
@@ -129,12 +131,13 @@ test("serializes nested JSON and callbacks, dropping invalid values with useful 
   expect(latest().props).toEqual({
     input: { value: "original" },
     valid: [null, true, 42, "text", { nested: [1, 2] }],
+    date: "1970-01-01T00:00:00.000Z",
+    dates: { at: "1970-01-01T00:00:00.000Z", list: ["1970-01-01T00:00:00.000Z"] },
     cycle: {},
     nested: { callback: { $handler: "nested.callback" }, values: [1, null, null, 2] },
   });
   expect(root.dispatch(latest().id, "nested.callback", [123])).toBe(123);
   for (const prop of [
-    "date",
     "custom",
     "symbol",
     "nan",
@@ -147,7 +150,7 @@ test("serializes nested JSON and callbacks, dropping invalid values with useful 
   ]) {
     expect(warnings).toContain(`Dropped non-serializable prop Item.${prop}`);
   }
-  expect(warnings).toHaveLength(10);
+  expect(warnings).toHaveLength(9);
   expect(JSON.parse(JSON.stringify(latest()))).toEqual(latest());
   input.value = "mutated";
   expect(latest().props.input).toEqual({ value: "original" });

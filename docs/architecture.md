@@ -88,8 +88,9 @@ node per line, handler props as `[onAction]`; `# log` and `# capability` lines
 interleave for logs and capability requests). `--grant <capability>` grants a
 capability — a granted `clipboard.copy` records and prints the copied text
 instead of touching an OS clipboard. `--script <file|->` drives the run with
-one command per line: `action <title>`, `back`, `search <text>`, `wait`, `expect
-<text>`, `quit`. `--json` emits the protocol messages as NDJSON instead.
+one command per line: `action <title>`, `back`, `search <text>`,
+`dropdown <value>`, `wait`, `expect <text>`, `quit`. `--json` emits the protocol
+messages as NDJSON instead.
 `--timeout <ms>` bounds the run. Exit codes: 0 success, 1 script or
 expectation failure, 2 usage error, 3 extension crash or protocol error.
 

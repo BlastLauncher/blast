@@ -1,8 +1,8 @@
 // The `blast` debug CLI: bundles and runs one extension command headlessly and
 // prints every published scene — as a readable text tree, or as protocol-shaped
 // NDJSON with `--json`. A `--script` drives the command (action / search /
-// back / wait / expect / quit), which is how e2e tests interact with extensions. See
-// "Debugging extensions" in docs/architecture.md.
+// dropdown / back / wait / expect / quit), which is how e2e tests interact with
+// extensions. See "Debugging extensions" in docs/architecture.md.
 
 import type {
   CapabilityRequestMessage,
@@ -49,6 +49,8 @@ Script commands (one per line, "#" starts a comment):
   action <title>  Dispatch onAction on the Action node with that title.
   back            Pop the current navigation view.
   search <text>   Dispatch the List onSearchTextChange handler.
+  dropdown <value>
+                  Dispatch the List.Dropdown onChange handler with the value.
   wait            Wait until the next scene is published.
   expect <text>   Fail (exit 1) unless the latest scene tree contains the text.
   quit            Shut down and finish with exit code 0.
@@ -149,6 +151,7 @@ function grantHandlers(grants: string[]): Record<string, CapabilityHandler> {
 type Step =
   | { op: "action"; title: string }
   | { op: "search"; text: string }
+  | { op: "dropdown"; value: string }
   | { op: "back" }
   | { op: "wait" }
   | { op: "expect"; text: string }
@@ -170,6 +173,10 @@ function parseScript(source: string): Step[] {
       case "search":
         if (rest === "") throw new ScriptError(`script line ${index + 1}: search needs text`);
         steps.push({ op: "search", text: rest });
+        break;
+      case "dropdown":
+        if (rest === "") throw new ScriptError(`script line ${index + 1}: dropdown needs a value`);
+        steps.push({ op: "dropdown", value: rest });
         break;
       case "back":
         steps.push({ op: "back" });
@@ -263,6 +270,18 @@ async function runScript(session: Session, steps: Step[]): Promise<void> {
         const handler = list ? handlerRef(list.props.onSearchTextChange) : undefined;
         if (!list || !handler) throw new ScriptError("no List with onSearchTextChange to search");
         session.sendEvent(list.id, handler.$handler, [step.text]);
+        break;
+      }
+      case "dropdown": {
+        const scene = await currentScene(session);
+        observed = Math.max(observed, scene.revision);
+        const dropdown = scene.root
+          ? findNode(scene.root, (item) => item.type === "List.Dropdown")
+          : undefined;
+        const handler = dropdown ? handlerRef(dropdown.props.onChange) : undefined;
+        if (!dropdown || !handler)
+          throw new ScriptError("no List.Dropdown with onChange to select");
+        session.sendEvent(dropdown.id, handler.$handler, [step.value]);
         break;
       }
       case "wait": {
