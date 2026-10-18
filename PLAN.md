@@ -6,7 +6,7 @@ files.
 
 ## Current focus
 
-M2 done. M3 — coverage to 100%: next batch from the usage ranking plus a harder curated batch. Then
+M2 done. M3 — coverage to 100%: 0033, 0034, 0035 in parallel. Then
 alternate: curated failures first, else the top of "Top missing by usage" in
 `compat/COVERAGE.md`.
 
