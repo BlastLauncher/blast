@@ -1,7 +1,7 @@
 ---
 id: "0002"
 title: Generate the Raycast API inventory from vendored declarations
-status: doing
+status: review
 milestone: M0
 depends: ["0001"]
 ---
@@ -40,18 +40,18 @@ symbol path an extension can use — the denominator for coverage.
 
 ## Acceptance
 
-- [ ] Inventory contains at least: `Clipboard.copy`, `List`, `List.Item`,
+- [x] Inventory contains at least: `Clipboard.copy`, `List`, `List.Item`,
       `List.Item.Props.title`, `Action.CopyToClipboard`, `ActionPanel`,
       `showToast`, `Toast.Style.Success`, `LocalStorage.getItem`,
       `getPreferenceValues`, `environment`.
-- [ ] Deprecated symbols are flagged (assert at least one known example).
-- [ ] Fixture tests cover namespace recursion, const-with-intersection members,
+- [x] Deprecated symbols are flagged (assert at least one known example).
+- [x] Fixture tests cover namespace recursion, const-with-intersection members,
       enum members, props-following, and deprecation.
-- [ ] Running the generator twice yields no diff; verify fails when the JSON is
+- [x] Running the generator twice yields no diff; verify fails when the JSON is
       edited by hand.
-- [ ] Summary printed: total entries per kind and unresolved count; include the
+- [x] Summary printed: total entries per kind and unresolved count; include the
       numbers in Handoff.
-- [ ] `bun run verify` passes.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -60,9 +60,13 @@ symbol path an extension can use — the denominator for coverage.
 
 ## Handoff
 
-```
-Branch/commit:
-Verify:
+Branch/commit: t3/raycast-api-inventory @ 8035f2ffc56cbe976212bf52f8760730f479e1cd (implementation; handoff committed separately)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 1.1s
 Done:
-Not done / risks:
-```
+
+- Added pure oxc-parser inventory generation, local type/member resolution, component props, deprecation, provenance, and deterministic sorting.
+- Generated 4,899 entries: namespace=9, component=116, function=223, const=20, class=3, enum=22, enum-member=736, interface=64, type=178, property=3504, method=24; unresolved=104.
+- Added nine deterministic tests (35 total passing); verified required real API paths, identical hashes across two runs, and full verify failure after editing the generated JSON, then restored it.
+- Added inventory staleness to the compat gate; pinned oxc-parser 0.95.0 (installed parser 1.4 MB + native binding 4.4 MB).
+
+Not done / risks: No acceptance checks skipped. Unresolved records include external React, Node, and standard-library references; external declarations are intentionally not loaded. Coverage evidence/reporting remains task 0003. No push performed.
