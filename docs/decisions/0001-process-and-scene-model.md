@@ -12,8 +12,8 @@ Status: accepted 2026-10-18
    one JSON object with a `type` field. Lines have a size cap; an oversize or
    invalid line is a protocol error that terminates the command.
 3. **Protocol version handshake first.** The host sends `init` with the
-   protocol version it speaks; the runtime answers `ready` or `error`. Nothing
-   else is accepted before that.
+   protocol version and the command `mode` (`view | no-view | menu-bar`); the
+   runtime answers `ready` or `error`. Nothing else is accepted before that.
 4. **Whole-scene snapshots.** After each React commit the runtime sends the
    full serialized tree as `scene { revision, root }`. Functions never cross
    the wire: callback props become handler references, and the host sends

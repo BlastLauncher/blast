@@ -4,11 +4,18 @@ import {
   PROTOCOL_VERSION,
   parseHostMessage,
   parseRuntimeMessage,
+  type CommandMode,
   type HostMessage,
+  type InitCommand,
   type RuntimeMessage,
 } from "./messages.ts";
 
-const command = { extension: "clipboard-history", name: "history", entry: "src/index.tsx" };
+const command: InitCommand = {
+  extension: "clipboard-history",
+  name: "history",
+  entry: "src/index.tsx",
+  mode: "view",
+};
 
 const environment = {
   extensionName: "Clipboard History",
@@ -132,6 +139,16 @@ test("a scene parses without the optional-in-practice parts of a message", () =>
   });
 });
 
+test("command.mode accepts exactly the three command modes", () => {
+  const modes: CommandMode[] = ["view", "no-view", "menu-bar"];
+  for (const mode of modes) {
+    const parsed = parseHostMessage({ ...init, command: { ...command, mode } });
+    const parsedMode =
+      parsed.ok && parsed.message.type === "init" ? parsed.message.command.mode : undefined;
+    expect(parsedMode, mode).toBe(mode);
+  }
+});
+
 test("rejections name the failing field path", () => {
   const cases: Array<[string, unknown, string]> = [
     ["undefined", undefined, "expected object"],
@@ -167,6 +184,16 @@ test("rejections name the failing field path", () => {
       "init with an unknown command field",
       { ...init, command: { ...command, path: "x" } },
       "command.path: unexpected field",
+    ],
+    [
+      "init without a command mode",
+      { ...init, command: { extension: "ext", name: "cmd", entry: "src/index.tsx" } },
+      "command.mode: expected string",
+    ],
+    [
+      "init with an unknown command mode",
+      { ...init, command: { ...command, mode: "widget" } },
+      'command.mode: expected one of "view" | "no-view" | "menu-bar"',
     ],
 
     ["event without args", { type: "event", node: "n", handler: "h" }, "args: expected array"],

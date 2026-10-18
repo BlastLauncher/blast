@@ -5,11 +5,30 @@ import {
   encodeMessage,
   parseRuntimeMessage,
   PROTOCOL_VERSION,
+  type CommandMode,
   type HostMessage,
+  type InitEnvironment,
+  type JsonValue,
   type RuntimeMessage,
 } from "@blastlauncher/protocol";
 
 const noop = () => {};
+
+const defaultEnvironment: InitEnvironment = {
+  extensionName: "fixture",
+  commandName: "command",
+  assetsPath: "",
+  supportPath: "",
+  isDevelopment: true,
+};
+
+export type InitOptions = {
+  fixture?: string;
+  protocol?: number;
+  mode?: CommandMode;
+  preferences?: Record<string, JsonValue>;
+  environment?: InitEnvironment;
+};
 
 export function startRuntime() {
   const child = spawn("node", [fileURLToPath(new URL("./main.ts", import.meta.url))], {
@@ -57,23 +76,23 @@ export function startRuntime() {
     send(message: HostMessage) {
       child.stdin.write(encodeMessage(message));
     },
-    init(fixture = "command.js", protocol = PROTOCOL_VERSION) {
+    init(options: InitOptions = {}) {
       this.send({
         type: "init",
-        protocol,
+        protocol: options.protocol ?? PROTOCOL_VERSION,
         command: {
           extension: "fixture",
           name: "command",
-          entry: fileURLToPath(new URL(`../../../fixtures/runtime/${fixture}`, import.meta.url)),
+          entry: fileURLToPath(
+            new URL(
+              `../../../fixtures/runtime/${options.fixture ?? "command.js"}`,
+              import.meta.url,
+            ),
+          ),
+          mode: options.mode ?? "view",
         },
-        preferences: {},
-        environment: {
-          extensionName: "fixture",
-          commandName: "command",
-          assetsPath: "",
-          supportPath: "",
-          isDevelopment: true,
-        },
+        preferences: options.preferences ?? {},
+        environment: options.environment ?? defaultEnvironment,
       });
     },
     async next<T extends RuntimeMessage["type"]>(

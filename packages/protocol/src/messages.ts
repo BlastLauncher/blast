@@ -27,7 +27,15 @@ export type SceneNode = {
   children: SceneNode[];
 };
 
-export type InitCommand = { extension: string; name: string; entry: string };
+/** How the host expects the command to run. */
+export type CommandMode = "view" | "no-view" | "menu-bar";
+
+export type InitCommand = {
+  extension: string;
+  name: string;
+  entry: string;
+  mode: CommandMode;
+};
 
 export type InitEnvironment = {
   extensionName: string;
@@ -202,13 +210,26 @@ function readErrorInfo(value: unknown, path: string): ErrorInfo {
   };
 }
 
+function readCommandMode(value: unknown, path: string): CommandMode {
+  const mode = readString(value, path);
+  switch (mode) {
+    case "view":
+    case "no-view":
+    case "menu-bar":
+      return mode;
+    default:
+      fail(path, 'expected one of "view" | "no-view" | "menu-bar"');
+  }
+}
+
 function readCommand(value: unknown, path: string): InitCommand {
   const object = readObject(value, path);
-  checkKeys(object, path, ["extension", "name", "entry"]);
+  checkKeys(object, path, ["extension", "name", "entry", "mode"]);
   return {
     extension: readString(object["extension"], keyPath(path, "extension")),
     name: readString(object["name"], keyPath(path, "name")),
     entry: readString(object["entry"], keyPath(path, "entry")),
+    mode: readCommandMode(object["mode"], keyPath(path, "mode")),
   };
 }
 
