@@ -70,7 +70,7 @@ diagnostics instead of ESM link errors.
 - [ ] 0038 Form.TagPicker, PasswordField, events and props
 - [ ] 0039 List and Grid prop completeness
 - [ ] 0040 Image, Keyboard and environment completeness
-- [ ] 0041 OAuth PKCE client
+- [x] 0041 OAuth PKCE client
 - [ ] Next: Form refs/storeValue/drafts, AI, Tool, BrowserExtension
 
 Smoke 2026-10-18 (`compat/SMOKE.md`, 60 extensions): 144/149 commands render,
