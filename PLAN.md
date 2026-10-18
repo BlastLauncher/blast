@@ -64,10 +64,10 @@ diagnostics instead of ESM link errors.
       feedback UI, list completeness, storage/open, Form, curated v2, Cache, CJS
       globals, host capability APIs, assets layout (see git log).
 - [ ] 0028 Launch props/arguments, launchCommand, closeMainWindow, Image enums
-- [ ] 0029 Grid
+- [x] 0029 Grid
 - [ ] 0030 Menu-bar commands (MenuBarExtra)
 
-Smoke 2026-10-18 (`compat/SMOKE.md`, 40 extensions): 60/66 render, 1 completed.
+Smoke 2026-10-18 (`compat/SMOKE.md`, 40 extensions): 61/66 render, 1 completed.
 Coverage 52.7% non-deprecated. Order: curated-set failures first, then highest corpus weight. Each
 step is a task with `@covers` evidence.
 
