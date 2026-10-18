@@ -1,7 +1,7 @@
 ---
 id: "0019"
 title: Feedback UI — showToast/Toast, showHUD, confirmAlert
-status: doing
+status: review
 milestone: M3
 depends: []
 ---
@@ -36,9 +36,9 @@ showHUD 931, confirmAlert 849) stop failing.
 
 ## Acceptance
 
-- [ ] Tests for toast create/update/hide, legacy signature, HUD, alert
+- [x] Tests for toast create/update/hide, legacy signature, HUD, alert
       confirm and dismiss through dispatched events; CLI e2e for an alert.
-- [ ] Decision record added; `bun run verify` passes.
+- [x] Decision record added; `bun run verify` passes.
 
 ## Out of scope
 
@@ -48,8 +48,14 @@ showHUD 931, confirmAlert 849) stop failing.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/feedback-ui @ e624700 (implementation; handoff follows)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok)
 Done:
-Not done / risks:
+- Added mutable Toast, legacy showToast, HUD and queued alert scene nodes/actions.
+- Added CLI confirm/dismiss, no-view feedback, and navigation persistence tests.
+- Added decision 0004 and regenerated coverage (43.7% non-deprecated).
+- 214 tests pass; corpus:smoke remains 13/13; corpus checkout deleted.
+Not done / risks: rememberUserChoice is recorded but not persisted; HUD window
+  behavior and automatic feedback dismissal are deferred (partial coverage).
+  No dependencies added. No push. Review must be performed by another agent.
 ```

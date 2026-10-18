@@ -25,3 +25,13 @@ export { Keyboard } from "./keyboard.ts";
 
 export { PushAction } from "./action.ts";
 export { useNavigation } from "./navigation.ts";
+
+export {
+  Toast,
+  ToastStyle,
+  Alert,
+  AlertActionStyle,
+  showToast,
+  showHUD,
+  confirmAlert,
+} from "./feedback.ts";

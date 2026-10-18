@@ -19,3 +19,11 @@ export type { PreferenceValues } from "./preferences.ts";
 
 export type { PushProps } from "./action.ts";
 export type { Navigation } from "./navigation.ts";
+
+export type {
+  ToastOptions,
+  ToastActionOptions,
+  AlertOptions,
+  AlertActionOptions,
+  HUDOptions,
+} from "./feedback.ts";
