@@ -1,14 +1,5 @@
 {
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
-  "printWidth": 120,
-  "singleQuote": false,
-  "ignorePatterns": [
-    "**/coverage/**",
-    "**/dist/**",
-    "**/node_modules/**",
-    "**/out/**",
-    "**/.webpack/**",
-    "**/test/fixtures/**",
-    "docs/v2/compatibility/runtime-probe*.json"
-  ]
+  "printWidth": 100,
+  "ignorePatterns": ["archive/**", ".cache/**", "**/dist/**", "compat/*.json", "bun.lock"]
 }

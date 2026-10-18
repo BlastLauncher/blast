@@ -1,0 +1,6 @@
+[install]
+# Exact versions keep the lockfile reviewable and installs reproducible.
+exact = true
+
+[test]
+pathIgnorePatterns = ["archive/**", ".cache/**"]

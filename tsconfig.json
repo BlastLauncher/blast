@@ -1,19 +1,22 @@
 {
-  "display": "Node 24",
   "compilerOptions": {
-    "lib": ["es2020"],
-    "module": "CommonJS",
-    "target": "ESNext",
+    "target": "esnext",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "lib": ["esnext"],
+    "types": ["node", "bun"],
     "strict": true,
-    "esModuleInterop": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true,
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "allowSyntheticDefaultImports": true,
-    "jsx": "react-jsx",
-    "moduleResolution": "node",
-    "allowJs": true
+    "jsx": "react-jsx"
   },
-  "ts-node": {
-    "esm": true
-  }
+  "include": ["scripts", "packages"],
+  "exclude": ["archive", "node_modules", "**/dist", ".cache"]
 }

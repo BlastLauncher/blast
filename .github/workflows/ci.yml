@@ -1,56 +1,28 @@
-name: Pull Request CI
+name: CI
 
 on:
+  push:
+    branches: [main, v3/restart]
   pull_request:
-    paths:
-      - ".github/**"
-      - ".nvmrc"
-      - ".oxfmt*"
-      - ".oxlint*"
-      - "package.json"
-      - "pnpm-lock.yaml"
-      - "pnpm-workspace.yaml"
-      - "packages/**"
-      - "apps/**"
 
 permissions:
   contents: read
 
 concurrency:
-  group: pull-request-ci-${{ github.event.pull_request.number }}
+  group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  lint-and-build:
-    name: Test Bundling for Electron Client (${{ matrix.os }} - ${{ matrix.arch }})
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-22.04
-            arch: x64
-          - os: macos-15-intel
-            arch: x64
-          - os: macos-15
-            arch: arm64
-
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-      - uses: ./.github/actions/setup-repo
-
-      - name: Build
-        run: pnpm run build
-
-      - name: Run Tests
-        run: pnpm run test
-
-      - name: Run Lint
-        run: pnpm run lint
-
-      - name: Check Formatting
-        run: pnpm run fmt:check
-
-      - name: Test Bundling
-        run: pnpm run make --arch=${{ matrix.arch }}
-        working-directory: ./apps/electron-client
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.4.2
+      - run: bun install --frozen-lockfile
+      - run: bun run verify

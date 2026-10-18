@@ -1,185 +1,171 @@
-# Blast Launcher Agent Guide
+# Blast — agent guide
 
-## Project overview
+This file is the single source of truth for how work happens in this repository.
+Every agent (any vendor, any model) follows it. Keep it short; it is enforced by
+`bun run check:workflow`.
 
-Blast is an experimental Electron launcher for Raycast-compatible extensions. The
-repository is a pnpm workspace; the related Blast packages live here rather than
-in separate local repositories.
+## Mission
 
-The main data flow is:
+Blast is a small, open, portable host that runs Raycast-compatible extensions
+outside Raycast. The launcher UI is only one client; the core is a headless
+runtime that loads an extension command, renders its React tree into a
+serializable scene, routes user events back, and brokers privileged host
+operations. Compatibility is measured against the latest `@raycast/api`, never
+claimed.
 
-1. `@blastlauncher/api` provides the Raycast API-compatible component surface.
-2. `@blastlauncher/runtime` runs extension code and uses the custom renderer.
-3. `@blastlauncher/renderer` serializes the React element tree.
-4. The Electron client renders the tree and provides the desktop application.
-5. `@blastlauncher/cli` builds and publishes extension packages.
+## Start here (every session)
 
-## Repository layout
+1. Read this file, then `PLAN.md` (current milestone and next tasks).
+2. `ls tasks/` — open the task you were given, or pick the lowest-numbered
+   `status: todo` task whose `depends` are all done.
+3. `bun install --frozen-lockfile && bun run verify` before changing anything.
+   If verify is red on a clean tree, fixing it is the first task.
 
-- `apps/electron-client/` — Electron/React desktop client.
-- `packages/blast-api/` — `@blastlauncher/api` implementation.
-- `packages/blast-cli/` — `@blastlauncher/cli` build and publish tool.
-- `packages/blast-renderer/` — custom React renderer.
-- `packages/blast-runtime/` — extension runtime and backend.
-- `packages/blast-utils/` — shared utilities, including Node runtime helpers.
-- `docs/` — product and application-flow documentation.
+## Ground rules
 
-V2 is being developed alongside the prototype:
+- `archive/` is the frozen V1/V2 prototype. Do not read, search, import, or copy
+  from it unless your task file names a specific path there as reference.
+- The repo is public. Never commit secrets, tokens, personal paths, or
+  extension source you are not licensed to redistribute.
+- Keep disk usage minimal: no global installs, no full clones of large repos;
+  use sparse/shallow fetches into `.cache/` (gitignored).
+- Product code must run on Node.js 24 without a build step (type stripping).
+  Use only erasable TypeScript syntax: no `enum`, `namespace` values, or
+  parameter properties. Bun is the dev toolchain (install, test, scripts).
+- Prefer the fewest packages that keep boundaries honest. Add a package only
+  when a task requires a new runtime boundary.
+- Deterministic tests only. Network access is allowed in explicit fetch scripts
+  that write to `.cache/`, never in `bun test`.
 
-- `packages/blast-protocol/` — transport-independent V2 messages and schemas.
-- `packages/blast-scene/` — semantic scene contract and mutation sink boundary.
-- `packages/blast-capability/` — deny-by-default capability request broker.
-- `packages/blast-extension-contract/` — validated host/runtime lifecycle messages.
-- `packages/blast-transport/` — V2 connection contract and in-memory test transport.
-- `packages/blast-transport-node/` — bounded JSON-lines Node stream transport.
-- `packages/blast-session/` — validated V2 handshake and session state machine.
-- `packages/blast-transport-test-suite/` — reusable tests for every V2 transport.
-- `packages/blast-extension-runtime/` — runtime-side command initialization.
-- `packages/blast-extension-runtime-node/` — Node runtime bootstrap and entrypoint loading.
-- `packages/blast-extension-host/` — V2 transport-neutral lifecycle supervisor.
-- `packages/blast-extension-host-node/` — concrete Node child-process launcher.
-- `packages/blast-core/` — trusted catalog and lifecycle orchestration façade.
-- `packages/blast-core-node/` — Node filesystem manifest catalog.
-- `packages/blast-e2e/` — end-to-end vertical slice fixtures.
-- `packages/blast-compatibility/` — static compatibility scanning and census tooling.
-- `packages/blast-react-renderer/` — React renderer adapter publishing scene transactions.
-- `packages/blast-raycast-compat/` — measured Raycast API compatibility adapter.
-- `docs/v2/` — accepted product direction, architecture, decisions, and migration plan.
+## Layout
 
-V2 packages must not import from the prototype packages' `src/` directories.
-Keep `@blastlauncher/protocol` independent of React, Electron, Node.js runtime
-APIs, and concrete transports.
-
-## Toolchain
-
-- Use Node.js 24.20.0 or newer. `.nvmrc` pins the baseline CI/runtime to
-  Node 24.20.0.
-- Use pnpm 11.24.0 through Corepack. The package manager version is pinned in
-  `package.json` and the lockfile is generated with that version.
-- Install with the lockfile enforced:
-
-  ```bash
-  pnpm install --frozen-lockfile
-  ```
-
-The workspace uses pnpm 11's explicit `allowBuilds` policy for native Electron,
-esbuild, and WebSocket dependencies. `blockExoticSubdeps` is disabled because
-the current Electron Forge graph still consumes `@electron/node-gyp` from git.
-Keep both settings intentional when changing the Electron toolchain.
-
-Some major-version upgrades remain deliberate follow-ups: the runtime still
-emits CommonJS, so `node-fetch` and `tar` stay on their compatible lines;
-Tailwind remains on v3 until its CSS/PostCSS migration is planned; and
-TypeScript remains on 5.9 while the current `ts-jest` and package boundaries
-are modernized further.
-
-## Common commands
-
-Run from the repository root unless noted otherwise:
-
-```bash
-# Build all workspace packages
-pnpm run build
-
-# Run backend/runtime watchers
-pnpm run watch
-
-# In a second terminal, start the Electron client
-pnpm run start:client
-
-# Lint the workspace with Oxlint
-pnpm run lint
-
-# Check or rewrite formatting with Oxfmt
-pnpm run fmt:check
-pnpm run fmt
-
-# Run all available workspace tests serially
-pnpm run test
-
-# Run the faster V2 protocol/lifecycle test loop
-pnpm run test:v2
-
-# Package the Electron application without distro makers
-pnpm --filter blast run package
-
-# Build configured distributables
-pnpm --filter blast run make
+```
+AGENTS.md        workflow (this file)
+PLAN.md          milestones, current focus, decision log (short)
+tasks/           one file per open task; deleted when done
+docs/            current architecture + rare decisions (docs/decisions/)
+compat/          generated Raycast API coverage — never edit by hand
+packages/        product code (Node-runnable TypeScript)
+scripts/         repo automation (verify, workflow checks, generators)
+archive/         frozen prototype, scheduled for deletion
 ```
 
-On Linux, the configured full `make` command includes an RPM target and requires
-`rpmbuild`. A Debian-only build can be run with:
+## Commands
 
 ```bash
-cd apps/electron-client
-pnpm exec electron-forge make --targets @electron-forge/maker-deb
+bun install --frozen-lockfile
+bun run verify          # the only gate: fmt, lint, typecheck, workflow, tests
+bun run fmt             # rewrite formatting
+bun test <path>         # focused tests while iterating
+bun run check:workflow  # AGENTS/PLAN/tasks/docs structure and size limits
 ```
 
-## Testing
+## Definition of done
 
-The root test command runs available package tests serially:
+A task is done only when all are true:
 
-```bash
-pnpm --filter @blastlauncher/api run test
-pnpm --filter @blastlauncher/renderer run test
-pnpm --filter @blastlauncher/utils run test
+1. Every acceptance check in the task file is satisfied and demonstrated.
+2. `bun run verify` passes on the final commit; paste its summary line in the
+   task's Handoff section.
+3. Behaviour changes have tests; API surface changes update `compat/` via its
+   generator.
+4. No stray files: no debug scripts, no `.only`, no commented-out code.
+5. The task's Handoff section is filled in (see below).
+
+## Tasks
+
+File: `tasks/NNNN-short-slug.md`, four-digit id, never reused. Template:
+`tasks/_template.md`. Required frontmatter: `id`, `title`, `status`
+(`todo|doing|review|done`), `milestone`, `depends` (list of ids). Required
+sections: `Goal`, `Context`, `Acceptance`, `Out of scope`, `Handoff`.
+
+- A task fits in one focused session (roughly < 600 changed lines). Split
+  otherwise.
+- Acceptance items are concrete, checkable commands or observable results.
+- When a task is merged, delete its file in the same commit and tick it in
+  `PLAN.md`. Git history is the archive; there is no status ledger.
+
+## Roles and handoff
+
+Work is done by three roles. One agent may hold several roles, but the
+reviewer must never review their own implementation.
+
+- **Orchestrator** — owns `PLAN.md` and `tasks/`, writes task files, delegates,
+  reviews results, merges into the integration branch, and pushes.
+- **Worker** — implements exactly one task on its own branch/worktree.
+  Does not edit `PLAN.md`, other tasks, or `AGENTS.md`; does not push. If the
+  task is wrong or blocked, stop and write why in Handoff instead of
+  improvising scope.
+- **Reviewer** — fresh context. Checks the diff against the task's
+  Acceptance and this file; reruns `bun run verify`; reports concrete findings
+  (file:line, failure scenario). Does not rewrite the work.
+
+Handoff happens through files and commits, never chat history. A worker's
+final message and the task's Handoff section both contain:
+
+```
+Branch/commit: <branch> @ <sha>
+Verify: <summary line of bun run verify>
+Done: <what changed, 1-5 bullets>
+Not done / risks: <anything skipped, assumptions, follow-ups>
 ```
 
-V2 packages use the Node.js test runner against their ESM build output. Every
-new transport must use `@blastlauncher/transport-test-suite` and may add
-transport-specific failure tests. See `docs/v2/testing.md` for the required test
-layers and invariants.
+## Delegation (orchestrator)
 
-Read `docs/v2/status.md` before continuing V2 implementation. Keep its
-executable, missing, and recommended-next sections accurate when completing a
-vertical slice.
+Branches: integration branch is `v3/restart` (later `main`). Workers commit on
+their own branch; the orchestrator merges after review and pushes.
 
-The renderer test configuration ignores generated `dist` files. The utils NRM
-tests use a local compressed archive and mocked HTTPS response, so they do not
-depend on Node.js downloads or network timing. The API package currently has no
-test files but is configured to pass cleanly with no tests. Jest 30 and
-TypeScript 5.9 are shared by the workspace test runners.
+Loop per task:
 
-Oxlint is the linting entry point and Oxfmt is the formatting entry point. Their
-root configuration files are `.oxlintrc.json` and `.oxfmtrc.json`; generated
-artifacts are ignored there rather than through the removed ESLint/Prettier
-ignore files.
+1. Write/refresh the task file, set `status: doing`, **commit it** — worktree
+   children start from the last local commit and do not see uncommitted edits.
+2. Delegate to a worker in an isolated worktree with a prompt that says only:
+   "Follow AGENTS.md. You are the Worker for `tasks/NNNN-*.md`." plus anything
+   not already in the task file.
+3. Review: delegate a Reviewer on a different model, or review yourself if you
+   did not implement it. On findings, send a new worker round including the
+   findings.
+4. Merge, delete the task file, tick `PLAN.md`, run verify, push.
 
-## Change guidelines
+In T3 Code use `delegate_task` with `isolation: "worktree"`, `mode: "async"`,
+a stable `clientRequestId` per round (e.g. `task-0001-r1`), and end the turn
+until the completion notification arrives. Model guidance (re-check with
+`orchestrator_capabilities`; names change):
 
-- Preserve workspace package names and use `workspace:*` for internal package
-  dependencies.
-- Keep source changes under the relevant `src/` directory; do not commit
-  `node_modules`, `dist`, `.webpack`, or Electron `out` artifacts.
-- Make dependency upgrades in small, reviewable groups. Build and test after
-  each group instead of combining upgrades with unrelated behavior changes.
-- Preserve Raycast compatibility deliberately. If the revived product changes
-  the API or extension contract, document the compatibility boundary and add a
-  migration path.
-- Keep Electron/runtime boundaries explicit and review IPC, filesystem, process,
-  and extension-loading changes for security implications.
-- Add or update tests for behavior changes. Prefer deterministic tests over
-  network-dependent tests.
-- Use Changesets for publishable package changes when release work begins.
-- Read the package README and relevant files in `docs/` before changing a
-  package's public behavior.
-- Record new durable V2 boundaries, wire contracts, security decisions, and
-  compatibility policy in `docs/v2/` in the same change that introduces them.
+| Use                                 | Provider instance    | Model                                                          |
+| ----------------------------------- | -------------------- | -------------------------------------------------------------- |
+| Well-specified, mechanical tasks    | `opencode_opencode2` | `opencode-go/deepseek-v4.1-flash`, `opencode-go/glm-5.3-flash` |
+| Harder implementation, review       | `codex`              | `gpt-6.1-sol`                                                  |
+| Orchestration, design, final review | `claudeAgent`        | `claude-opus-5-5`                                              |
 
-## V2 direction
+Cheap models get tasks whose Acceptance is fully mechanical. If a cheap model
+fails a task twice, escalate the model rather than loosening the task.
 
-Blast V2 is a clean-slate implementation within the existing repository. Its
-goal is a small, open runtime for a measured subset of Raycast-compatible
-extensions. The launcher is the first client, not part of the extension runtime
-contract. Read `docs/v2/` before changing V2 public behavior.
+## Raycast API coverage
 
-Recommended implementation order:
+- The denominator is every exported declaration (and member) of the latest
+  published `@raycast/api` `types/index.d.ts`, pinned in `compat/`.
+- Evidence comes from tests: a test that exercises an API declares it with a
+  `// @covers <Symbol.path>` comment. The generator joins inventory, evidence
+  and corpus usage weights into `compat/raycast-api.json` and
+  `compat/COVERAGE.md`.
+- `bun run verify` fails if `compat/` is stale. Never hand-edit `compat/`.
+- Tracking the latest API is a regeneration plus a review of the diff, recorded
+  in the commit message.
 
-1. Establish the versioned, transport-neutral protocol and lifecycle boundary.
-2. Measure API usage in the public extension corpus.
-3. Complete one isolated extension-to-client vertical slice.
-4. Expand compatibility in measured order with deterministic fixtures.
-5. Cut the desktop client over only after the V2 path is proven.
+## Docs policy
 
-Do not couple V2 to V1 internals for short-term reuse, and do not remove V1 until
-the migration criteria in `docs/v2/migration.md` are satisfied.
+- `docs/architecture.md` describes what exists now, not history (≤ 200 lines).
+- `docs/decisions/NNNN-*.md` only for choices that are expensive to reverse
+  (wire protocol, trust boundary, process model). ≤ 60 lines each. Most work
+  needs no decision record.
+- No status ledgers, changelogs of agent sessions, or per-symbol decision
+  files. Progress lives in `PLAN.md` checkboxes and git history.
+
+## Code conventions
+
+- ESM, TypeScript, strict. Explicit `.ts` extensions in relative imports.
+- Tests sit next to code as `*.test.ts` and use `bun:test`.
+- Comments explain why, not what. Match surrounding style.
+- Commit messages: conventional (`feat:`, `fix:`, `chore:`, `test:`, `docs:`),
+  referencing the task id, e.g. `feat(0003): headless scene snapshot`.
