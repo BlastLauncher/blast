@@ -4,6 +4,8 @@
 // dropdown / back / confirm / dismiss / wait / expect / quit), which is how e2e tests interact
 // with extensions. See "Debugging extensions" in docs/architecture.md.
 
+import { bundleModelProvider } from "./bundle.ts";
+import { startModelProvider } from "./provider.ts";
 import { parseBrowserTabs, type BrowserTab } from "./browser.ts";
 import type {
   CapabilityRequestMessage,
@@ -41,6 +43,8 @@ const EXIT_CRASH = 3;
 const USAGE = `Run a Raycast extension command headlessly.
 
 Usage: blast run <extensionDir> <command> [options]
+       blast models <extensionDir>
+       blast complete <extensionDir> <modelId> <prompt>
 
 Options:
   --argument <name=value>
@@ -742,7 +746,46 @@ async function main(argv: string[]): Promise<number> {
     console.log(USAGE);
     return EXIT_OK;
   }
-  const [subcommand, extensionDir, command] = parsed.positionals;
+  const [subcommand, extensionDir, command, prompt] = parsed.positionals;
+  if (subcommand === "models" || subcommand === "complete") {
+    if (!extensionDir || parsed.positionals.length !== (subcommand === "models" ? 2 : 4))
+      throw new UsageError(
+        "expected models <extensionDir> or complete <extensionDir> <modelId> <prompt>",
+      );
+    const bundled = await bundleModelProvider({ extensionDir });
+    cleanupDirectory = dirname(bundled.entry);
+    let provider: Awaited<ReturnType<typeof startModelProvider>> | undefined;
+    try {
+      provider = await startModelProvider({
+        ...bundled,
+        ...(parsed.values["data-dir"] === undefined ? {} : { dataDir: parsed.values["data-dir"] }),
+      });
+      const models = await provider.getModels();
+      if (subcommand === "models") console.log(JSON.stringify(models));
+      else {
+        const model = models.find((item) => item.id === command);
+        if (!model) throw new UsageError(`Unknown model ${command}`);
+        for await (const part of provider.stream(model, {
+          messages: [{ role: "user", content: [{ type: "text", text: prompt! }] }],
+          providerOptions: {
+            raycast: {
+              locale: "en",
+              currentDate: new Date().toISOString(),
+              sessionId: "blast-cli",
+            },
+          },
+        })) {
+          if (part.type === "text-delta") process.stdout.write(part.textDelta ?? part.text ?? "");
+          else if (part.type === "text") process.stdout.write(part.text);
+          else if (part.type === "finish") console.log(`\n${JSON.stringify(part)}`);
+        }
+      }
+      return EXIT_OK;
+    } finally {
+      await provider?.shutdown({ timeoutMs: 250 });
+      await rm(dirname(bundled.entry), { recursive: true, force: true });
+    }
+  }
   if (
     subcommand !== "run" ||
     extensionDir === undefined ||

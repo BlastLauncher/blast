@@ -7,7 +7,7 @@ client (blast CLI today; desktop later)
    │  in-process API
 host ── bundles extension (esbuild), spawns runtime, capability broker
    │  NDJSON over stdio  (packages/protocol)
-runtime (one Node process per command)
+runtime (one Node process per command or provider)
    ├─ React reconciler → scene snapshots
    └─ @raycast/api shim → capability requests for privileged calls
 extension code (unmodified, bundled)
@@ -92,6 +92,15 @@ extension/command names, manifest mode and argument declarations. Pass those to
 reach the command as its launch props. The host resolves
 `@blastlauncher/runtime/main` and spawns an explicit Node binary (`nodePath`,
 default `node`); it never imports runtime source.
+
+`bundleModelProvider({ extensionDir, outDir? })` resolves `ai.modelProvider`
+from the manifest. `startModelProvider({ ...bundled, preferences?, broker? })`
+uses the same runtime lifecycle in `model-provider` mode, without rendering.
+Its `getModels()` returns model metadata; `stream(model, request, { signal? })`
+yields JSON stream parts. Attachment bytes, ArrayBuffers and URLs have explicit
+wire encodings (decision 0006). Abort stops publication and iteration; shutdown
+also terminates producers that do not cooperate. `blast models` and
+`blast complete` expose this API; AI.ask routing is separate.
 
 Startup resolves after the version handshake. `session.scenes(callback)` subscribes
 and replays the latest scene; its return value unsubscribes. `latestScene`, `logs`,

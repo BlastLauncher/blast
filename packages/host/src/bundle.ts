@@ -91,7 +91,11 @@ function require(specifier) {
 }
 `.trim();
 
-export type BundleOptions = { extensionDir: string; command: string; outDir?: string };
+export type BundleOptions = {
+  extensionDir: string;
+  command: string;
+  outDir?: string;
+};
 /** One `commands[].arguments` entry from an extension manifest. */
 export type CommandArgument = {
   name: string;
@@ -222,20 +226,24 @@ export async function linkAssets(
 }
 
 /** The caller owns the output directory and may remove it once the session exits. */
-export async function bundleCommand(options: BundleOptions): Promise<BundledCommand> {
+async function bundleEntry(
+  options: BundleOptions & { modelProvider?: boolean },
+): Promise<BundledCommand> {
   const extensionDir = resolve(options.extensionDir);
   const manifest = JSON.parse(await readFile(join(extensionDir, "package.json"), "utf8"));
-  const command = manifest.commands?.find(
-    (item: { name: string }) => item.name === options.command,
-  );
+  const command = options.modelProvider
+    ? { name: manifest.ai?.modelProvider, mode: "model-provider" }
+    : manifest.commands?.find((item: { name: string }) => item.name === options.command);
   if (typeof manifest.name !== "string" || !command) throw new Error("Unknown extension command");
-  if (!/^[\w-]+$/.test(options.command)) throw new Error("Invalid command name");
-  if (!["view", "no-view", "menu-bar"].includes(command.mode))
+  const entryName = options.modelProvider ? command.name : options.command;
+  if (typeof entryName !== "string" || !/^[\w-]+$/.test(entryName))
+    throw new Error("Invalid command name");
+  if (!options.modelProvider && !["view", "no-view", "menu-bar"].includes(command.mode))
     throw new Error("Invalid command mode");
   const commandArguments = parseCommandArguments(command.arguments);
   let source: string | undefined;
   for (const suffix of ["tsx", "ts", "jsx", "js"]) {
-    const candidate = join(extensionDir, "src", `${options.command}.${suffix}`);
+    const candidate = join(extensionDir, "src", `${entryName}.${suffix}`);
     try {
       await access(candidate);
       source = candidate;
@@ -248,7 +256,7 @@ export async function bundleCommand(options: BundleOptions): Promise<BundledComm
   const base = join(tmpdir(), "blast", "builds");
   if (!options.outDir) await mkdir(base, { recursive: true });
   const outDir = options.outDir ? resolve(options.outDir) : await mkdtemp(join(base, "command-"));
-  const entry = join(outDir, `${options.command}.mjs`);
+  const entry = join(outDir, `${entryName}.mjs`);
   const missing = new Set<string>();
   try {
     const bundled = await build({
@@ -295,4 +303,14 @@ export async function bundleCommand(options: BundleOptions): Promise<BundledComm
     arguments: commandArguments,
     assetsPath: join(outDir, "assets"),
   };
+}
+
+export function bundleModelProvider(
+  options: Omit<BundleOptions, "command">,
+): Promise<BundledCommand> {
+  return bundleEntry({ ...options, command: "model-provider", modelProvider: true });
+}
+
+export function bundleCommand(options: BundleOptions): Promise<BundledCommand> {
+  return bundleEntry(options);
 }

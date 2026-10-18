@@ -4,16 +4,16 @@ Denominator: the `@raycast/api@2.8.2` declarations. Evidence:
 `// @covers` tags in `packages/**/*.test.ts(x)`. A parent is not implied covered
 by its children. Partial support is reported separately from covered.
 
-**Non-deprecated coverage: 1270/1534 covered (82.8%), 76 partial, 188 missing.**
+**Non-deprecated coverage: 1348/1534 covered (87.9%), 76 partial, 110 missing.**
 Deprecated: 182/939 covered (19.4%), 5 partial, 752 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 1270 | 182 | 1452 |
+| covered | 1348 | 182 | 1530 |
 | partial | 76 | 5 | 81 |
-| missing | 188 | 752 | 940 |
+| missing | 110 | 752 | 862 |
 
 ## Totals by kind
 
@@ -27,8 +27,8 @@ Deprecated: 182/939 covered (19.4%), 5 partial, 752 missing.
 | enum | 12 | 0 | 1 | 13 |
 | enum-member | 689 | 0 | 2 | 691 |
 | interface | 22 | 1 | 41 | 64 |
-| type | 70 | 7 | 101 | 178 |
-| property | 551 | 33 | 720 | 1304 |
+| type | 83 | 7 | 88 | 178 |
+| property | 616 | 33 | 655 | 1304 |
 | method | 22 | 0 | 2 | 24 |
 
 ## Top-level symbols
@@ -37,7 +37,7 @@ Children counts include all descendants, as covered/partial/total.
 
 | Symbol | Kind | Status | Children | Extensions |
 | --- | --- | --- | --- | --- |
-| `AI` | namespace | covered | 182/4/266 | 115 |
+| `AI` | namespace | covered | 260/4/266 | 115 |
 | `Action` | component | partial | 64/14/110 | 2985 |
 | `ActionPanel` | component | partial | 14/3/129 | 3023 |
 | `ActionPanelChildren` | type | missing | 0/0/0 | 0 |
@@ -210,19 +210,15 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `Action.ShowInFinder.Props.icon` | 17 |
 | `OpenInBrowserAction.Props.title` | 17 |
 | `CopyToClipboardAction.Props.title` | 16 |
-| `AI.GetModels` | 14 |
-| `AI.StreamCompletion` | 14 |
 | `Action.CreateSnippet.Props.shortcut` | 14 |
 | `PreferenceValues` | 14 |
 | `environment.commandMode` | 14 |
 | `environment.theme` | 14 |
 | `Action.CreateSnippet.Props.icon` | 13 |
-| `AI.RegisteredModel` | 12 |
 | `Action.CopyToClipboard.Props` | 12 |
 | `Action.PickDate.Props.shortcut` | 12 |
 | `Action.Props` | 11 |
 | `SubmitFormAction` | 11 |
-| `AI.ModelToolSet` | 10 |
 | `Color.Brown` | 8 |
 | `PushAction.Props.target` | 8 |
 | `PushAction.Props.title` | 8 |
@@ -236,9 +232,13 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `Form.DropdownItem.Props.value` | 5 |
 | `Form.ItemReference` | 5 |
 | `environment.launchContext` | 5 |
-| `AI.ModelRequest` | 4 |
-| `AI.ModelStreamPart` | 4 |
 | `ActionPanel.Children` | 4 |
 | `Detail.Props` | 4 |
 | `KeyEquivalent` | 4 |
 | `OpenInBrowserAction.Props.shortcut` | 4 |
+| `Preferences` | 4 |
+| `Action.OpenInBrowser.Props` | 3 |
+| `Action.Trash.Props.icon` | 3 |
+| `CopyToClipboardAction.Props.shortcut` | 3 |
+| `OpenAction.Props.target` | 3 |
+| `OpenAction.Props.title` | 3 |

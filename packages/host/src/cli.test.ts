@@ -986,3 +986,28 @@ test("AI and browser flags grant deterministic responses and synchronous availab
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+test("models and complete expose the offline provider entrypoint", async () => {
+  const fixture = join(root, "fixtures/extensions/model-provider");
+  const listing = await runCli(["models", fixture]);
+  expect(listing.code).toBe(0);
+  expect(listing.stderr).toBe("");
+  expect(JSON.parse(listing.stdout).map((model: { id: string }) => model.id)).toEqual([
+    "text",
+    "full",
+  ]);
+  const text = await runCli(["complete", fixture, "text", "hello"]);
+  expect(text).toEqual({ code: 0, stdout: "Hello world", stderr: "" });
+  const full = await runCli(["complete", fixture, "full", "hello"]);
+  expect(full).toEqual({
+    code: 0,
+    stdout:
+      'Hello world\n{"type":"finish","finishReason":"stop","totalUsage":{"inputTokens":1,"outputTokens":2,"totalTokens":3}}\n',
+    stderr: "",
+  });
+  expect((await runCli(["complete", fixture, "missing", "hello"])).code).toBe(2);
+  expect((await runCli(["models"])).code).toBe(2);
+  expect((await runCli(["--help"])).stdout).toContain(
+    "blast complete <extensionDir> <modelId> <prompt>",
+  );
+});

@@ -69,3 +69,20 @@ reject in the headless host. Content is omitted from `getTabs()` results.
 These flags also set synchronous `environment.canAccess` availability; bare
 `--grant` does not enable these APIs. Extension-provided AI model selectors are
 deferred and reject with an explicit error.
+
+## AI model providers
+
+`blast models <extensionDir>` loads the manifest's `ai.modelProvider` entry and
+prints a JSON array with model IDs, titles, capabilities and optional metadata.
+`blast complete <extensionDir> <modelId> <prompt>` streams the selected model's
+text to stdout and prints a JSON finish part when supplied by the provider.
+Both run the named provider exports in a separate runtime process and shut it
+down afterwards. They use the same dependency policy as `run`. For example:
+
+```bash
+bun run blast models fixtures/extensions/model-provider
+bun run blast complete fixtures/extensions/model-provider full "Hello"
+```
+
+The fixture runs offline; real providers may require preferences or credentials
+supplied through the host session API. These subcommands do not route AI.ask.

@@ -8,6 +8,7 @@ import {
   type LogLevel,
   type RuntimeMessage,
 } from "@blastlauncher/protocol";
+import { createModelProvider } from "./provider.ts";
 import { Console } from "node:console";
 import { registerHooks } from "node:module";
 import { Writable } from "node:stream";
@@ -23,6 +24,8 @@ import { setPreferenceValues } from "./api/preferences.ts";
 import { UnsupportedApiError } from "./api/unsupported.ts";
 import { createSceneRoot } from "./reconciler/index.ts";
 
+let provider: ReturnType<typeof createModelProvider> | undefined;
+let providerLoad: Promise<void> | undefined;
 let stopping = false;
 let initialized = false;
 let loaded = false;
@@ -138,6 +141,10 @@ async function load(message: Extract<HostMessage, { type: "init" }>) {
   const props = launchProps(message.command);
   const command = await import(pathToFileURL(message.command.entry).href);
   if (stopping) return;
+  if (message.command.mode === "model-provider") {
+    provider = createModelProvider(command, send);
+    return;
+  }
   if (message.command.mode === "no-view") {
     setFeedbackMount(() => {
       if (!loaded) {
@@ -205,10 +212,21 @@ function handle(value: unknown) {
     }
     initialized = true;
     send({ type: "ready", protocol: PROTOCOL_VERSION });
-    void load(message).catch(fatal);
+    providerLoad = load(message);
+    void providerLoad.catch(fatal);
     return;
   }
   switch (message.type) {
+    case "provider.getModels":
+    case "provider.stream":
+    case "provider.abort":
+      void providerLoad
+        ?.then(() => {
+          if (!provider) return fatal("Provider request in command session", "PROTOCOL_ERROR");
+          provider.handle(message);
+        })
+        .catch(fatal);
+      return;
     case "init":
       return fatal("Duplicate init", "PROTOCOL_ERROR");
     case "shutdown":
