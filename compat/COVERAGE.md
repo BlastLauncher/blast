@@ -4,16 +4,16 @@ Denominator: the `@raycast/api@2.8.2` declarations. Evidence:
 `// @covers` tags in `packages/**/*.test.ts(x)`. A parent is not implied covered
 by its children. Partial support is reported separately from covered.
 
-**Non-deprecated coverage: 40/1534 covered (2.6%), 9 partial, 1485 missing.**
-Deprecated: 0/939 covered (0.0%), 0 partial, 939 missing.
+**Non-deprecated coverage: 45/1534 covered (2.9%), 11 partial, 1478 missing.**
+Deprecated: 1/939 covered (0.1%), 0 partial, 938 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 40 | 0 | 40 |
-| partial | 9 | 0 | 9 |
-| missing | 1485 | 939 | 2424 |
+| covered | 45 | 1 | 46 |
+| partial | 11 | 0 | 11 |
+| missing | 1478 | 938 | 2416 |
 
 ## Totals by kind
 
@@ -21,14 +21,14 @@ Deprecated: 0/939 covered (0.0%), 0 partial, 939 missing.
 | --- | --- | --- | --- | --- |
 | namespace | 0 | 1 | 8 | 9 |
 | component | 0 | 8 | 108 | 116 |
-| function | 1 | 0 | 49 | 50 |
-| const | 0 | 0 | 21 | 21 |
+| function | 1 | 1 | 48 | 50 |
+| const | 0 | 1 | 20 | 21 |
 | class | 0 | 0 | 3 | 3 |
 | enum | 0 | 0 | 13 | 13 |
 | enum-member | 0 | 0 | 691 | 691 |
 | interface | 0 | 0 | 64 | 64 |
 | type | 0 | 0 | 178 | 178 |
-| property | 39 | 0 | 1265 | 1304 |
+| property | 45 | 0 | 1259 | 1304 |
 | method | 0 | 0 | 24 | 24 |
 
 ## Top-level symbols
@@ -154,12 +154,12 @@ Children counts include all descendants, as covered/partial/total.
 | `closeMainWindow` | function | missing | 0/0/0 |
 | `confirmAlert` | function | missing | 0/0/0 |
 | `copyTextToClipboard` | function | missing | 0/0/0 |
-| `environment` | const | missing | 0/0/17 |
+| `environment` | const | partial | 6/0/17 |
 | `getApplications` | function | missing | 0/0/0 |
 | `getDefaultApplication` | function | missing | 0/0/0 |
 | `getFrontmostApplication` | function | missing | 0/0/0 |
 | `getLocalStorageItem` | function | missing | 0/0/0 |
-| `getPreferenceValues` | function | missing | 0/0/0 |
+| `getPreferenceValues` | function | partial | 0/0/0 |
 | `getSelectedFinderItems` | function | missing | 0/0/0 |
 | `getSelectedText` | function | missing | 0/0/0 |
 | `launchCommand` | function | missing | 0/0/0 |

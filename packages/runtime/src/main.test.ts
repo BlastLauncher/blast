@@ -101,9 +101,54 @@ for (const [title, message] of [
 
 test("render failure is fatal", async () => {
   const runtime = start();
-  runtime.init("throw.js");
+  runtime.init({ fixture: "throw.js" });
   expect(await runtime.next("error")).toMatchObject({ fatal: true, message: "render failed" });
   expect(await runtime.exited).toBe(1);
+});
+
+test("no-view command runs, sees environment and preferences, and exits 0 without a scene", async () => {
+  const runtime = start();
+  runtime.init({
+    fixture: "no-view.js",
+    mode: "no-view",
+    preferences: { maxItems: 20, pinned: true },
+    environment: {
+      extensionName: "Clipboard History",
+      commandName: "history",
+      assetsPath: "/ext/assets",
+      supportPath: "/ext/support",
+      isDevelopment: false,
+    },
+  });
+  expect(await runtime.next("ready")).toEqual({ type: "ready", protocol: 1 });
+  // The fixture writes to stdout while it loads; it must arrive as a log, not
+  // as a line that breaks the framing of the protocol stream.
+  expect(await runtime.next("log")).toEqual({ type: "log", level: "info", message: "raw" });
+  const reported = await runtime.next("log");
+  expect(JSON.parse(reported.message)).toEqual({
+    props: { arguments: {}, launchType: "userInitiated" },
+    commandName: "history",
+    extensionName: "Clipboard History",
+    preferences: { maxItems: 20, pinned: true },
+  });
+  expect(await runtime.exited).toBe(0);
+  expect(runtime.messages.filter((message) => message.type === "scene")).toEqual([]);
+  expect(runtime.invalid).toEqual([]);
+});
+
+test("no-view rejection is fatal", async () => {
+  const runtime = start();
+  runtime.init({ fixture: "no-view-reject.js", mode: "no-view" });
+  expect(await runtime.next("error")).toMatchObject({ fatal: true, message: "no-view failed" });
+  expect(await runtime.exited).toBe(1);
+});
+
+test("menu-bar commands are rejected as unsupported", async () => {
+  const runtime = start();
+  runtime.init({ mode: "menu-bar" });
+  expect(await runtime.next("error")).toMatchObject({ fatal: true, code: "UNSUPPORTED" });
+  expect(await runtime.exited).toBe(1);
+  expect(runtime.messages.filter((message) => message.type === "scene")).toEqual([]);
 });
 
 for (const mode of [
@@ -117,7 +162,7 @@ for (const mode of [
 ]) {
   test(`protocol failure: ${mode}`, async () => {
     const runtime = start();
-    if (mode === "version") runtime.init("command.js", 999);
+    if (mode === "version") runtime.init({ protocol: 999 });
     else if (mode === "first message") runtime.send({ type: "shutdown" });
     else if (mode === "invalid JSON") runtime.child.stdin.write("broken\n");
     else if (mode === "partial EOF") runtime.child.stdin.end("{");

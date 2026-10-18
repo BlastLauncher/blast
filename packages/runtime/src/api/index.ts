@@ -7,6 +7,7 @@ export {
   type ActionPanelSectionProps,
 } from "./action-panel.ts";
 export { Clipboard, type ClipboardContent, type CopyOptions } from "./clipboard.ts";
+export { environment, type Environment } from "./environment.ts";
 export {
   List,
   type ListProps,
@@ -14,3 +15,4 @@ export {
   type ListSectionProps,
   type ListEmptyViewProps,
 } from "./list.ts";
+export { getPreferenceValues, type PreferenceValues } from "./preferences.ts";

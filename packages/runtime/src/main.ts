@@ -15,6 +15,8 @@ import { pathToFileURL } from "node:url";
 import { format } from "node:util";
 import { createElement, type ComponentType } from "react";
 import { setCapabilityRequester } from "./api/capability.ts";
+import { setEnvironment } from "./api/environment.ts";
+import { setPreferenceValues } from "./api/preferences.ts";
 import { createSceneRoot } from "./reconciler/index.ts";
 
 let stopping = false;
@@ -23,8 +25,20 @@ let loaded = false;
 let nextRequest = 1;
 const pending = new Map<string, { resolve(value: JsonValue): void; reject(error: Error): void }>();
 
+// Protocol output owns the real stdout stream. Extension code that writes to
+// `process.stdout` (or a library doing it for them) must not corrupt the NDJSON
+// framing, so those writes become log messages instead. The protocol keeps its
+// own reference to the original writer.
+const writeToStdout = process.stdout.write.bind(process.stdout);
+process.stdout.write = ((chunk: unknown, encoding?: unknown, callback?: unknown) => {
+  const done = typeof encoding === "function" ? encoding : callback;
+  log("info", [String(chunk).replace(/\n$/, "")]);
+  if (typeof done === "function") queueMicrotask(done as () => void);
+  return true;
+}) as typeof process.stdout.write;
+
 function send(message: RuntimeMessage) {
-  if (!stopping) process.stdout.write(encodeMessage(message));
+  if (!stopping) writeToStdout(encodeMessage(message));
 }
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
@@ -96,10 +110,27 @@ setCapabilityRequester((name, params) => {
   });
 });
 
+/** Launch values every command mode receives; arguments and background launch are out of scope. */
+type LaunchProps = { arguments: Record<string, never>; launchType: "userInitiated" };
+const launchProps: LaunchProps = { arguments: {}, launchType: "userInitiated" };
+
 async function load(message: Extract<HostMessage, { type: "init" }>) {
+  setEnvironment(message.environment);
+  setPreferenceValues(message.preferences);
+  if (message.command.mode === "menu-bar") {
+    return fatal('Command mode "menu-bar" is not supported', "UNSUPPORTED");
+  }
   const command = await import(pathToFileURL(message.command.entry).href);
   if (stopping) return;
-  root.render(createElement(command.default as ComponentType));
+  if (message.command.mode === "no-view") {
+    // A no-view command renders nothing: it runs and the process exits when it
+    // settles. A rejection is a fatal error through the caller's `.catch`.
+    await (command.default as (props: LaunchProps) => unknown)(launchProps);
+    if (stopping) return;
+    finish(0);
+    return;
+  }
+  root.render(createElement(command.default as ComponentType<LaunchProps>, launchProps));
   loaded = true;
 }
 function shutdown() {

@@ -1,7 +1,7 @@
 ---
 id: "0010"
 title: Runtime hardening — command mode, stdout guard, environment, preferences
-status: doing
+status: review
 milestone: M1
 depends: []
 ---
@@ -38,14 +38,14 @@ stream corrupted by extension writes to stdout, and exposes `environment` and
 
 ## Acceptance
 
-- [ ] Protocol tests cover `command.mode` valid/invalid values.
-- [ ] Runtime process tests (real `node`): no-view command runs and exits 0
+- [x] Protocol tests cover `command.mode` valid/invalid values.
+- [x] Runtime process tests (real `node`): no-view command runs and exits 0
       with no scene; no-view rejection → fatal, exit 1; menu-bar → fatal
       `UNSUPPORTED`; raw `process.stdout.write` arrives as a `log` and stdout
       stays protocol-only; `environment.commandName` and
       `getPreferenceValues()` reflect `init`.
-- [ ] Existing tests updated for the new required field.
-- [ ] `bun run verify` passes.
+- [x] Existing tests updated for the new required field.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -55,8 +55,30 @@ stream corrupted by extension writes to stdout, and exposes `environment` and
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/runtime-protocol-hardening @ e2fd82b
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 4.0s
 Done:
+- protocol: `init.command.mode` is required and validated as
+  `view | no-view | menu-bar`; valid/invalid values and a missing field have
+  tests, decision 0001 records the field.
+- runtime modes: `view` renders as before; `no-view` awaits `default(props)`,
+  sends no scene and exits 0 (rejection -> fatal, exit 1); `menu-bar` -> fatal
+  `UNSUPPORTED` before the extension is imported. Both modes receive
+  `{ arguments: {}, launchType: "userInitiated" }`.
+- stdout guard: the protocol keeps the original writer; `process.stdout.write`
+  becomes an `info` log, so extension output cannot corrupt NDJSON.
+- `environment` (init values + `raycastVersion: "0.0.0-blast"`) and
+  `getPreferenceValues()` (fresh shallow copy of `init.preferences`) are
+  exported from the shim and installed from `init` before import.
+- compat regenerated: 40 -> 46 covered (`environment` partial + 6 members,
+  `getPreferenceValues` partial). New process tests spawn real `node`.
 Not done / risks:
+- `environment` keeps Raycast's `commandName` (deprecated) because that is what
+  `init.environment` carries; `entryPointName`/`entryPointMode` and the other
+  members stay unset (`undefined`, still `missing`) until the protocol sends
+  them.
+- `getPreferenceValues` is tagged partial: Raycast merges declared preference
+  defaults, which stays out of scope here.
+- Host/CLI still build `init` without `mode`; task 0008 adopts the required
+  field.
 ```
