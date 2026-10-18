@@ -209,9 +209,9 @@ test("committed report and summary match regeneration from the pinned inventory"
     version: string;
     totals: { all: { covered: number; partial: number; missing: number } };
   };
-  // No product packages yet: zero coverage is the correct real-run result.
+  // The report above already proves the committed files match regeneration;
+  // this guards the denominator against accidental inventory drift.
   expect(report.version).toBe("2.8.2");
-  expect(report.totals.all.covered).toBe(0);
-  expect(report.totals.all.partial).toBe(0);
-  expect(report.totals.all.missing).toBe(2473);
+  const { covered, partial, missing } = report.totals.all;
+  expect(covered + partial + missing).toBe(2473);
 });

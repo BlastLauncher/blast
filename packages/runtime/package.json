@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./api": "./src/api/index.ts",
     "./reconciler": "./src/reconciler/index.ts"
   },
   "dependencies": {

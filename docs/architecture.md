@@ -31,6 +31,28 @@ extension code (unmodified, bundled)
 4. runtime → `capability.request`; host → `capability.result`
 5. host → `shutdown`, or the process exits/crashes and the host reports it
 
+## Scene conventions
+
+Host element `type`s are the public Raycast paths: `List`, `List.Item`,
+`List.Section`, `List.EmptyView`, `ActionPanel`, `ActionPanel.Section`,
+`Action`, `Action.CopyToClipboard`.
+
+Element-valued props (`actions`, `detail`, …) cannot live inside a node's
+serializable props, so the shim renders each one as a host child of type
+`Slot` with `props: { name: "<propName>" }` wrapping the element:
+
+```
+List
+├─ List.Item
+│  ├─ Slot name="actions"  → ActionPanel → Action…
+│  └─ Slot name="detail"   → List.Item.Detail …
+└─ …
+```
+
+`Slot` is Blast-only; regular children come first, then the `Slot` children in
+a stable order. Clients resolve a prop element by taking the `Slot` child with
+the matching `name`.
+
 ## Status
 
 M0 tooling only; packages arrive with M1 tasks (see `PLAN.md`).

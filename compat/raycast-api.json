@@ -2,15 +2,15 @@
   "version": "2.8.2",
   "totals": {
     "all": {
-      "covered": 0,
-      "partial": 0,
-      "missing": 2473,
+      "covered": 40,
+      "partial": 9,
+      "missing": 2424,
       "total": 2473
     },
     "nonDeprecated": {
-      "covered": 0,
-      "partial": 0,
-      "missing": 1534,
+      "covered": 40,
+      "partial": 9,
+      "missing": 1485,
       "total": 1534
     },
     "deprecated": {
@@ -22,20 +22,20 @@
     "kinds": {
       "namespace": {
         "covered": 0,
-        "partial": 0,
-        "missing": 9,
+        "partial": 1,
+        "missing": 8,
         "total": 9
       },
       "component": {
         "covered": 0,
-        "partial": 0,
-        "missing": 116,
+        "partial": 8,
+        "missing": 108,
         "total": 116
       },
       "function": {
-        "covered": 0,
+        "covered": 1,
         "partial": 0,
-        "missing": 50,
+        "missing": 49,
         "total": 50
       },
       "const": {
@@ -75,9 +75,9 @@
         "total": 178
       },
       "property": {
-        "covered": 0,
+        "covered": 39,
         "partial": 0,
-        "missing": 1304,
+        "missing": 1265,
         "total": 1304
       },
       "method": {
@@ -1426,13 +1426,17 @@
     },
     {
       "path": "Action",
-      "status": "missing",
-      "tests": []
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "Action.CopyToClipboard",
-      "status": "missing",
-      "tests": []
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "Action.CopyToClipboard.Props",
@@ -1441,33 +1445,45 @@
     },
     {
       "path": "Action.CopyToClipboard.Props.concealed",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "Action.CopyToClipboard.Props.content",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "Action.CopyToClipboard.Props.icon",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "Action.CopyToClipboard.Props.onCopy",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "Action.CopyToClipboard.Props.shortcut",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "Action.CopyToClipboard.Props.title",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "Action.CopyToClipboard.Props.transient",
@@ -1771,13 +1787,17 @@
     },
     {
       "path": "Action.Props.autoFocus",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "Action.Props.icon",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "Action.Props.id",
@@ -1786,13 +1806,17 @@
     },
     {
       "path": "Action.Props.onAction",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "Action.Props.shortcut",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "Action.Props.style",
@@ -1801,8 +1825,10 @@
     },
     {
       "path": "Action.Props.title",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "Action.Push",
@@ -1981,8 +2007,10 @@
     },
     {
       "path": "ActionPanel",
-      "status": "missing",
-      "tests": []
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "ActionPanel.Children",
@@ -2521,18 +2549,24 @@
     },
     {
       "path": "ActionPanel.Props.children",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "ActionPanel.Props.title",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "ActionPanel.Section",
-      "status": "missing",
-      "tests": []
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "ActionPanel.Section.Children",
@@ -2546,13 +2580,17 @@
     },
     {
       "path": "ActionPanel.Section.Props.children",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "ActionPanel.Section.Props.title",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "ActionPanel.Submenu",
@@ -3731,8 +3769,10 @@
     },
     {
       "path": "Clipboard",
-      "status": "missing",
-      "tests": []
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "Clipboard.Content",
@@ -3796,8 +3836,10 @@
     },
     {
       "path": "Clipboard.copy",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "Clipboard.paste",
@@ -9456,8 +9498,10 @@
     },
     {
       "path": "List",
-      "status": "missing",
-      "tests": []
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "List.Dropdown",
@@ -9586,8 +9630,10 @@
     },
     {
       "path": "List.EmptyView",
-      "status": "missing",
-      "tests": []
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "List.EmptyView.Props",
@@ -9596,28 +9642,38 @@
     },
     {
       "path": "List.EmptyView.Props.actions",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "List.EmptyView.Props.description",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "List.EmptyView.Props.icon",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "List.EmptyView.Props.title",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "List.Item",
-      "status": "missing",
-      "tests": []
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "List.Item.Accessory",
@@ -9861,18 +9917,24 @@
     },
     {
       "path": "List.Item.Props.actions",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "List.Item.Props.detail",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "List.Item.Props.icon",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "List.Item.Props.icon.tooltip",
@@ -9886,13 +9948,17 @@
     },
     {
       "path": "List.Item.Props.id",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "List.Item.Props.keywords",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "List.Item.Props.quickLook",
@@ -9911,8 +9977,10 @@
     },
     {
       "path": "List.Item.Props.subtitle",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "List.Item.Props.subtitle.tooltip",
@@ -9926,8 +9994,10 @@
     },
     {
       "path": "List.Item.Props.title",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "List.Item.Props.title.tooltip",
@@ -9946,13 +10016,17 @@
     },
     {
       "path": "List.Props.actions",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "List.Props.children",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "List.Props.enableFiltering",
@@ -9971,18 +10045,24 @@
     },
     {
       "path": "List.Props.isLoading",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "List.Props.isShowingDetail",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "List.Props.navigationTitle",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "List.Props.onSearchTextChange",
@@ -9991,8 +10071,10 @@
     },
     {
       "path": "List.Props.onSelectionChange",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "List.Props.pagination",
@@ -10016,23 +10098,31 @@
     },
     {
       "path": "List.Props.searchBarAccessory",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "List.Props.searchBarPlaceholder",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "List.Props.searchText",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "List.Props.selectedItemId",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "List.Props.throttle",
@@ -10041,8 +10131,10 @@
     },
     {
       "path": "List.Section",
-      "status": "missing",
-      "tests": []
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "List.Section.Props",
@@ -10051,8 +10143,10 @@
     },
     {
       "path": "List.Section.Props.children",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "List.Section.Props.id",
@@ -10061,13 +10155,17 @@
     },
     {
       "path": "List.Section.Props.subtitle",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "List.Section.Props.title",
-      "status": "missing",
-      "tests": []
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ]
     },
     {
       "path": "ListItem",

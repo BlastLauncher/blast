@@ -4,31 +4,31 @@ Denominator: the `@raycast/api@2.8.2` declarations. Evidence:
 `// @covers` tags in `packages/**/*.test.ts(x)`. A parent is not implied covered
 by its children. Partial support is reported separately from covered.
 
-**Non-deprecated coverage: 0/1534 covered (0.0%), 0 partial, 1534 missing.**
+**Non-deprecated coverage: 40/1534 covered (2.6%), 9 partial, 1485 missing.**
 Deprecated: 0/939 covered (0.0%), 0 partial, 939 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 0 | 0 | 0 |
-| partial | 0 | 0 | 0 |
-| missing | 1534 | 939 | 2473 |
+| covered | 40 | 0 | 40 |
+| partial | 9 | 0 | 9 |
+| missing | 1485 | 939 | 2424 |
 
 ## Totals by kind
 
 | Kind | Covered | Partial | Missing | Total |
 | --- | --- | --- | --- | --- |
-| namespace | 0 | 0 | 9 | 9 |
-| component | 0 | 0 | 116 | 116 |
-| function | 0 | 0 | 50 | 50 |
+| namespace | 0 | 1 | 8 | 9 |
+| component | 0 | 8 | 108 | 116 |
+| function | 1 | 0 | 49 | 50 |
 | const | 0 | 0 | 21 | 21 |
 | class | 0 | 0 | 3 | 3 |
 | enum | 0 | 0 | 13 | 13 |
 | enum-member | 0 | 0 | 691 | 691 |
 | interface | 0 | 0 | 64 | 64 |
 | type | 0 | 0 | 178 | 178 |
-| property | 0 | 0 | 1304 | 1304 |
+| property | 39 | 0 | 1265 | 1304 |
 | method | 0 | 0 | 24 | 24 |
 
 ## Top-level symbols
@@ -38,8 +38,8 @@ Children counts include all descendants, as covered/partial/total.
 | Symbol | Kind | Status | Children |
 | --- | --- | --- | --- |
 | `AI` | namespace | missing | 0/0/266 |
-| `Action` | component | missing | 0/0/110 |
-| `ActionPanel` | component | missing | 0/0/129 |
+| `Action` | component | partial | 11/1/110 |
+| `ActionPanel` | component | partial | 4/1/129 |
 | `ActionPanelChildren` | type | missing | 0/0/0 |
 | `ActionPanelItem` | component | missing | 0/0/104 |
 | `ActionPanelItemProps` | interface | missing | 0/0/7 |
@@ -58,7 +58,7 @@ Children counts include all descendants, as covered/partial/total.
 | `ArgumentsLaunchProps` | interface | missing | 0/0/1 |
 | `BrowserExtension` | namespace | missing | 0/0/8 |
 | `Cache` | class | missing | 0/0/17 |
-| `Clipboard` | namespace | missing | 0/0/16 |
+| `Clipboard` | namespace | partial | 1/0/16 |
 | `Color` | enum | missing | 0/0/22 |
 | `ColorLike` | type | missing | 0/0/3 |
 | `CopyToClipboardAction` | component | missing | 0/0/8 |
@@ -107,7 +107,7 @@ Children counts include all descendants, as covered/partial/total.
 | `KeyboardShortcut` | type | missing | 0/0/11 |
 | `LaunchProps` | type | missing | 0/0/5 |
 | `LaunchType` | enum | missing | 0/0/2 |
-| `List` | component | missing | 0/0/122 |
+| `List` | component | partial | 24/3/122 |
 | `ListItem` | component | missing | 0/0/52 |
 | `ListItemProps` | interface | missing | 0/0/19 |
 | `ListProps` | interface | missing | 0/0/19 |
