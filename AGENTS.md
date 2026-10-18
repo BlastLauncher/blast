@@ -137,13 +137,12 @@ Loop per task:
    findings, remove the old worktree (keep its branch) and send a new round
    with the original brief plus numbered findings; the new worker starts with
    `git merge --ff-only <previous-branch>`.
-4. Find the worker branch with `git worktree list` (reported names can be
-   wrong). Merge (`--no-ff`), delete the task file, tick `PLAN.md`, run verify, push.
-   Then remove the worker worktree and branch (`git worktree remove`) to
-   free disk.
+4. Find the worker branch with `git worktree list` (names can be wrong).
+   Merge (`--no-ff`), delete the task file, tick `PLAN.md`, verify, push, and
+   **confirm CI is green** (`gh run list`); remove the worker worktree/branch.
 
-Independent tasks (no shared package) may run in parallel. Merge them one at
-a time; resolve `bun.lock` conflicts by rerunning `bun install`, never by hand.
+Independent tasks may run in parallel; merge one at a time. Regenerate
+conflicting `compat/` files and `bun.lock` (`bun install`), never hand-merge.
 
 In T3 Code use `delegate_task` with `isolation: "worktree"`, `mode: "async"`,
 a stable `clientRequestId` per round (e.g. `task-0001-r1`), and end the turn
