@@ -50,7 +50,7 @@ unknown path.
 ## Handoff
 
 ```
-Branch/commit: t3/coverage-report @ 26ff9ea
+Branch/commit: t3/coverage-report @ b0eeb91
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 1.0s
 Done:
 - `scripts/compat/coverage.ts`: pure join logic — `@covers` tag parsing (with
