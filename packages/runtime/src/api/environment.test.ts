@@ -70,9 +70,8 @@ test("environment mirrors init, derives the entry point and answers canAccess", 
 
 // @covers Environment.canAccess
 // @covers environment.canAccess
-test("canAccess denies the APIs Blast stubs and allows the implemented ones", () => {
-  // AI ships as a stub, so the marker makes it inaccessible; installed
-  // exports (and anything unknown to the shim) remain accessible.
+test("canAccess denies optional APIs without host availability and allows other implementations", () => {
+  // No host availability list was supplied.
   expect(environment.canAccess(AI)).toBe(false);
   expect(environment.canAccess(Icon)).toBe(true);
   expect(environment.canAccess(Clipboard)).toBe(true);

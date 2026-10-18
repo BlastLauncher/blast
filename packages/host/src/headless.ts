@@ -6,6 +6,7 @@
 // comes from the supplied text and paths; the frontmost app is supplied or neutral.
 // Everything that would change the machine
 // (`open.*`, `clipboard.paste`, `clipboard.clear`) stays denied unless granted.
+import { createBrowserHandlers, type BrowserTab } from "./browser.ts";
 import type { JsonValue } from "@blastlauncher/protocol";
 import type { CapabilityHandler } from "./broker.ts";
 
@@ -19,6 +20,8 @@ export type Application = {
 };
 
 export type HeadlessCapabilities = {
+  aiAnswer?: string | undefined;
+  browserTabs?: BrowserTab[] | undefined;
   oauthCode?: string | undefined;
   /** Answers `applications.list`; an empty list when omitted. */
   applications?: Application[] | undefined;
@@ -93,6 +96,10 @@ export function createHeadlessHandlers(
   const clipboard = capabilities.clipboard ?? "";
   const frontmost = capabilities.frontmost;
   return {
+    ...(capabilities.aiAnswer === undefined ? {} : { "ai.ask": () => capabilities.aiAnswer! }),
+    ...(capabilities.browserTabs === undefined
+      ? {}
+      : createBrowserHandlers(capabilities.browserTabs)),
     ...(capabilities.oauthCode === undefined
       ? {}
       : { "oauth.authorize": () => ({ authorizationCode: capabilities.oauthCode! }) }),

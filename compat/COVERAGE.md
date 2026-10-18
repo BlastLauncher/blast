@@ -4,31 +4,31 @@ Denominator: the `@raycast/api@2.8.2` declarations. Evidence:
 `// @covers` tags in `packages/**/*.test.ts(x)`. A parent is not implied covered
 by its children. Partial support is reported separately from covered.
 
-**Non-deprecated coverage: 1218/1534 covered (79.4%), 71 partial, 245 missing.**
-Deprecated: 39/939 covered (4.2%), 5 partial, 895 missing.
+**Non-deprecated coverage: 1270/1534 covered (82.8%), 76 partial, 188 missing.**
+Deprecated: 182/939 covered (19.4%), 5 partial, 752 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 1218 | 39 | 1257 |
-| partial | 71 | 5 | 76 |
-| missing | 245 | 895 | 1140 |
+| covered | 1270 | 182 | 1452 |
+| partial | 76 | 5 | 81 |
+| missing | 188 | 752 | 940 |
 
 ## Totals by kind
 
 | Kind | Covered | Partial | Missing | Total |
 | --- | --- | --- | --- | --- |
-| namespace | 4 | 1 | 4 | 9 |
+| namespace | 7 | 1 | 1 | 9 |
 | component | 41 | 33 | 42 | 116 |
-| function | 29 | 4 | 17 | 50 |
-| const | 3 | 0 | 18 | 21 |
+| function | 30 | 6 | 14 | 50 |
+| const | 5 | 0 | 16 | 21 |
 | class | 3 | 0 | 0 | 3 |
-| enum | 11 | 0 | 2 | 13 |
-| enum-member | 512 | 0 | 179 | 691 |
-| interface | 21 | 1 | 42 | 64 |
-| type | 67 | 6 | 105 | 178 |
-| property | 544 | 31 | 729 | 1304 |
+| enum | 12 | 0 | 1 | 13 |
+| enum-member | 689 | 0 | 2 | 691 |
+| interface | 22 | 1 | 41 | 64 |
+| type | 70 | 7 | 101 | 178 |
+| property | 551 | 33 | 720 | 1304 |
 | method | 22 | 0 | 2 | 24 |
 
 ## Top-level symbols
@@ -37,7 +37,7 @@ Children counts include all descendants, as covered/partial/total.
 
 | Symbol | Kind | Status | Children | Extensions |
 | --- | --- | --- | --- | --- |
-| `AI` | namespace | missing | 0/0/266 | 115 |
+| `AI` | namespace | covered | 182/4/266 | 115 |
 | `Action` | component | partial | 64/14/110 | 2985 |
 | `ActionPanel` | component | partial | 14/3/129 | 3023 |
 | `ActionPanelChildren` | type | missing | 0/0/0 | 0 |
@@ -56,7 +56,7 @@ Children counts include all descendants, as covered/partial/total.
 | `AlertOptions` | interface | missing | 0/0/6 | 0 |
 | `Application` | interface | covered | 0/0/5 | 119 |
 | `ArgumentsLaunchProps` | interface | missing | 0/0/1 | 1 |
-| `BrowserExtension` | namespace | missing | 0/0/8 | 62 |
+| `BrowserExtension` | namespace | covered | 7/1/8 | 62 |
 | `Cache` | class | covered | 16/1/17 | 333 |
 | `Clipboard` | namespace | partial | 9/2/16 | 1049 |
 | `Color` | enum | covered | 18/0/22 | 1420 |
@@ -141,7 +141,7 @@ Children counts include all descendants, as covered/partial/total.
 | `ToastActionOptions` | interface | missing | 0/0/3 | 0 |
 | `ToastOptions` | interface | missing | 0/0/5 | 0 |
 | `ToastStyle` | enum | covered | 3/0/3 | 44 |
-| `Tool` | namespace | missing | 0/0/1 | 128 |
+| `Tool` | namespace | covered | 1/0/1 | 128 |
 | `TrashAction` | component | covered | 0/0/6 | 0 |
 | `TrashActionProps` | interface | missing | 0/0/5 | 0 |
 | `WindowManagement` | namespace | missing | 0/0/30 | 2 |
@@ -178,12 +178,12 @@ Children counts include all descendants, as covered/partial/total.
 | `showToast` | function | covered | 0/0/0 | 2471 |
 | `specialKeys` | const | missing | 0/0/16 | 0 |
 | `trash` | function | covered | 0/0/0 | 43 |
-| `unstable_AI` | const | missing | 0/0/0 | 0 |
+| `unstable_AI` | const | covered | 0/0/0 | 0 |
 | `updateCommandMetadata` | function | covered | 0/0/0 | 105 |
 | `useActionPanel` | function | missing | 0/0/0 | 0 |
 | `useId` | const | missing | 0/0/0 | 0 |
 | `useNavigation` | function | covered | 0/0/0 | 1048 |
-| `useUnstableAI` | const | missing | 0/0/0 | 0 |
+| `useUnstableAI` | const | covered | 0/0/0 | 0 |
 
 ## Top missing by usage
 
@@ -192,18 +192,11 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 
 | Path | Extensions |
 | --- | --- |
-| `Tool` | 128 |
-| `Tool.Confirmation` | 128 |
-| `AI` | 115 |
-| `AI.ask` | 79 |
 | `Action.ShowInFinder.Props.shortcut` | 68 |
-| `BrowserExtension` | 62 |
-| `BrowserExtension.getTabs` | 60 |
 | `Action.OpenWith.Props.shortcut` | 56 |
 | `Action.CreateQuicklink.Props.shortcut` | 51 |
 | `captureException` | 41 |
 | `clearSearchBar` | 41 |
-| `AI.Model` | 35 |
 | `ActionPanel.Item.Props.onAction` | 30 |
 | `ActionPanel.Item.Props.title` | 30 |
 | `Action.CreateQuicklink.Props.icon` | 29 |
@@ -214,7 +207,6 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `ActionPanel.Item.Props.icon` | 20 |
 | `getDefaultApplication` | 20 |
 | `Action.Trash.Props.shortcut` | 19 |
-| `BrowserExtension.getContent` | 18 |
 | `Action.ShowInFinder.Props.icon` | 17 |
 | `OpenInBrowserAction.Props.title` | 17 |
 | `CopyToClipboardAction.Props.title` | 16 |
@@ -225,7 +217,6 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `environment.commandMode` | 14 |
 | `environment.theme` | 14 |
 | `Action.CreateSnippet.Props.icon` | 13 |
-| `AI.Model.OpenAI_GPT4o-mini` | 12 |
 | `AI.RegisteredModel` | 12 |
 | `Action.CopyToClipboard.Props` | 12 |
 | `Action.PickDate.Props.shortcut` | 12 |
@@ -239,6 +230,15 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `PushAction.Props.icon` | 7 |
 | `AI.refreshModels` | 6 |
 | `ActionPanel.Item.Props.shortcut` | 6 |
-| `BrowserExtension.Tab` | 6 |
 | `preferences` | 6 |
 | `Form.DropdownItem` | 5 |
+| `Form.DropdownItem.Props.title` | 5 |
+| `Form.DropdownItem.Props.value` | 5 |
+| `Form.ItemReference` | 5 |
+| `environment.launchContext` | 5 |
+| `AI.ModelRequest` | 4 |
+| `AI.ModelStreamPart` | 4 |
+| `ActionPanel.Children` | 4 |
+| `Detail.Props` | 4 |
+| `KeyEquivalent` | 4 |
+| `OpenInBrowserAction.Props.shortcut` | 4 |

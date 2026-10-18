@@ -3,6 +3,7 @@
 // extension is imported, so top-level reads work.
 import type { CommandMode, InitEnvironment } from "@blastlauncher/protocol";
 import { LaunchType, type LaunchTypeValue } from "./launch.ts";
+import { OPTIONAL_API } from "./ai-browser.ts";
 import { unsupportedPath } from "./unsupported.ts";
 
 /** Raycast's `raycastVersion`; Blast is not Raycast, so this is our own value. */
@@ -33,15 +34,15 @@ export type Environment = {
   canAccess(api: unknown): boolean;
 };
 
-/**
- * Raycast hides APIs a user is not entitled to behind `canAccess`. Blast ships
- * a stub for every API it does not implement (the generated list derives from
- * `implemented.ts`), and a stub carries its own path. That marker is exactly
- * "an API Blast does not provide" — `AI` and `BrowserExtension` today — so
- * `canAccess` denies stub values and allows everything real.
- */
+let availableAPIs: readonly string[] = [];
 function canAccess(api: unknown): boolean {
-  return unsupportedPath(api) === undefined;
+  const optional =
+    (typeof api === "object" && api !== null) || typeof api === "function"
+      ? Reflect.get(api, OPTIONAL_API)
+      : undefined;
+  return optional === undefined
+    ? unsupportedPath(api) === undefined
+    : availableAPIs.includes(optional);
 }
 
 /** Mutable in place: extension modules bind this object when they import it. */
@@ -73,6 +74,7 @@ export function setEnvironment(
   values: InitEnvironment,
   command: { name: string; mode: CommandMode },
 ): void {
+  availableAPIs = values.availableAPIs ?? [];
   environment.extensionName = values.extensionName;
   environment.ownerOrAuthorName = values.ownerOrAuthorName;
   environment.entryPointType = "command";

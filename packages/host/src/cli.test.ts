@@ -915,3 +915,74 @@ test("OAuth CLI answers authorization, persists tokens and redacts token request
     await rm(dataDir, { recursive: true, force: true });
   }
 });
+
+test("AI and browser flags grant deterministic responses and synchronous availability", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "blast-ai-browser-"));
+  const fixture = join(root, "fixtures/extensions/ai-browser");
+  const tabs = join(directory, "tabs.json");
+  try {
+    await writeFile(
+      tabs,
+      JSON.stringify([
+        { id: 1, url: "https://example.com", active: true, content: "active content" },
+        {
+          id: 2,
+          url: "https://example.org",
+          title: "Other",
+          active: false,
+          content: "other content",
+        },
+      ]),
+    );
+    const granted = await runCli([
+      "run",
+      fixture,
+      "index",
+      "--ai-answer",
+      "fixed answer",
+      "--browser-tabs",
+      tabs,
+    ]);
+    expect(granted.code).toBe(0);
+    expect(granted.stderr).toBe("");
+    for (const text of [
+      "access:true:true",
+      "chunk:fixed answer",
+      "answer:fixed answer",
+      "active:active content",
+      "specific:other content",
+    ])
+      expect(granted.stdout).toContain(text);
+    expect(granted.stdout).toContain(
+      'tabs:[{"id":1,"url":"https://example.com","active":true},{"id":2,"url":"https://example.org","active":false,"title":"Other"}]',
+    );
+    const denied = await runCli([
+      "run",
+      fixture,
+      "index",
+      "--grant",
+      "ai.ask",
+      "--grant",
+      "browser.tabs",
+    ]);
+    expect(denied.code).toBe(0);
+    for (const text of [
+      "access:false:false",
+      "Capability denied: ai.ask",
+      "Capability denied: browser.tabs",
+    ])
+      expect(denied.stdout).toContain(text);
+    const aiOnly = await runCli(["run", fixture, "index", "--ai-answer", ""]);
+    expect(aiOnly.code).toBe(0);
+    expect(aiOnly.stdout).toContain("access:true:false");
+    const browserOnly = await runCli(["run", fixture, "index", "--browser-tabs", tabs]);
+    expect(browserOnly.code).toBe(0);
+    expect(browserOnly.stdout).toContain("access:false:true");
+    await writeFile(tabs, '[{"id":"bad"}]');
+    const invalid = await runCli(["run", fixture, "index", "--browser-tabs", tabs]);
+    expect(invalid.code).toBe(2);
+    expect(invalid.stderr).toContain("--browser-tabs");
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});

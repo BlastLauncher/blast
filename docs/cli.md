@@ -35,6 +35,8 @@ Headless answers for capabilities a desktop client owns:
 | `clipboard.read`                       | `--clipboard <text>`         | empty text; nothing at older offsets    |
 | `selection.text`                       | `--selected-text <text>`     | rejects, like Raycast with no selection |
 | `selection.files`                      | `--selected-files <path>`    | empty list (flag repeatable)            |
+| `ai.ask`                               | `--ai-answer <text>`         | denied                                  |
+| `browser.tabs`, `browser.content`      | `--browser-tabs <file.json>` | denied                                  |
 | `oauth.authorize`                      | `--oauth-code <code>`        | denied                                  |
 | `preferences.open`, `command.metadata` | —                            | answered and printed                    |
 
@@ -57,3 +59,13 @@ Headless answers for capabilities a desktop client owns:
 
 Exit codes: 0 success, 1 script or expectation failure, 2 usage error,
 3 extension crash, bundle failure (e.g. `MISSING_DEPENDENCY`) or protocol error.
+
+`--browser-tabs` reads a JSON array with integer `id`, string `url`, boolean
+`active`, and optional string `title`, `favicon`, `content`. Tab IDs must be unique.
+Content defaults to the first active tab, or uses the requested `tabId`; missing
+content rejects. Content is returned as supplied for every format. CSS selectors
+reject in the headless host. Content is omitted from `getTabs()` results.
+`--ai-answer` enables AI even for an empty answer; each answer emits one data chunk.
+These flags also set synchronous `environment.canAccess` availability; bare
+`--grant` does not enable these APIs. Extension-provided AI model selectors are
+deferred and reject with an explicit error.

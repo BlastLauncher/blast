@@ -4,6 +4,7 @@
 // dropdown / back / confirm / dismiss / wait / expect / quit), which is how e2e tests interact
 // with extensions. See "Debugging extensions" in docs/architecture.md.
 
+import { parseBrowserTabs, type BrowserTab } from "./browser.ts";
 import type {
   CapabilityRequestMessage,
   CapabilityResultMessage,
@@ -55,6 +56,9 @@ Options:
                         Answer getApplications with the JSON array of
                         applications in <file>; the file must hold objects with
                         "name" and "path". Defaults to an empty list.
+  --ai-answer <text>   Answer AI.ask with this text; denied otherwise.
+  --browser-tabs <file.json>
+                        Supply tabs (id, url, active; optional title, favicon, content).
   --oauth-code <code>   Answer OAuth authorization with this code; denied otherwise.
   --clipboard <text>    Answer Clipboard.read/readText with <text> at offset 0
                         and an empty text at older offsets. Defaults to an
@@ -194,7 +198,8 @@ function reportingBroker(inner: Broker, output: Output): Broker {
 function grantHandlers(grants: string[]): Record<string, CapabilityHandler> {
   const handlers: Record<string, CapabilityHandler> = {};
   for (const name of grants) {
-    if (name !== "oauth.authorize") handlers[name] = () => null;
+    if (!["oauth.authorize", "ai.ask", "browser.tabs", "browser.content"].includes(name))
+      handlers[name] = () => null;
   }
   return handlers;
 }
@@ -487,6 +492,8 @@ type RunOptions = {
   applications: Application[] | undefined;
   clipboard: string | undefined;
   selectedText: string | undefined;
+  aiAnswer: string | undefined;
+  browserTabs: BrowserTab[] | undefined;
   oauthCode: string | undefined;
   selectedFiles: string[];
   frontmost: string | undefined;
@@ -597,6 +604,8 @@ async function run(options: RunOptions): Promise<number> {
     const handlers: Record<string, CapabilityHandler> = {
       ...grantHandlers(options.grants),
       ...createHeadlessHandlers({
+        aiAnswer: options.aiAnswer,
+        browserTabs: options.browserTabs,
         oauthCode: options.oauthCode,
         applications: options.applications,
         clipboard: options.clipboard,
@@ -612,6 +621,10 @@ async function run(options: RunOptions): Promise<number> {
         ...bundled,
         argumentValues,
         dataDir: options.dataDir,
+        availableAPIs: [
+          ...(options.aiAnswer === undefined ? [] : ["AI" as const]),
+          ...(options.browserTabs === undefined ? [] : ["BrowserExtension" as const]),
+        ],
         broker: reportingBroker(createBroker(handlers), output),
       }),
       deadline,
@@ -660,6 +673,8 @@ function parseArguments(argv: string[]) {
         applications: { type: "string" },
         clipboard: { type: "string" },
         "oauth-code": { type: "string" },
+        "ai-answer": { type: "string" },
+        "browser-tabs": { type: "string" },
         "selected-text": { type: "string" },
         "selected-files": { type: "string", multiple: true },
         frontmost: { type: "string" },
@@ -680,6 +695,17 @@ async function readScript(specifier: string): Promise<string> {
     return specifier === "-" ? await readStdin() : await readFile(specifier, "utf8");
   } catch {
     throw new UsageError(`cannot read script ${JSON.stringify(specifier)}`);
+  }
+}
+
+async function readBrowserTabs(specifier: string): Promise<BrowserTab[]> {
+  try {
+    return parseBrowserTabs(await readFile(specifier, "utf8"));
+  } catch (error) {
+    throw new UsageError(
+      `--browser-tabs ${JSON.stringify(specifier)}: ${error instanceof Error ? error.message : String(error)}`,
+      { cause: error },
+    );
   }
 }
 
@@ -745,6 +771,11 @@ async function main(argv: string[]): Promise<number> {
     applications:
       applicationsPath === undefined ? undefined : await readApplications(applicationsPath),
     clipboard: parsed.values.clipboard,
+    aiAnswer: parsed.values["ai-answer"],
+    browserTabs:
+      parsed.values["browser-tabs"] === undefined
+        ? undefined
+        : await readBrowserTabs(parsed.values["browser-tabs"]),
     oauthCode: parsed.values["oauth-code"],
     selectedText: parsed.values["selected-text"],
     selectedFiles: parsed.values["selected-files"] ?? [],

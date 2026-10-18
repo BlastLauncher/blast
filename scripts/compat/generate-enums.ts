@@ -16,7 +16,14 @@ export const ENUM_TEST_PATH = "packages/runtime/src/api/enums.generated.test.ts"
  * against the runtime's public surface, where the stub layer must serve their
  * real values.
  */
-const PUBLIC_ENUMS = ["Color", "Icon", "Image.Mask", "LaunchType", "PopToRootType"] as const;
+const PUBLIC_ENUMS = [
+  "AI.Model",
+  "Color",
+  "Icon",
+  "Image.Mask",
+  "LaunchType",
+  "PopToRootType",
+] as const;
 /** These two must exist in every `@raycast/api` release Blast vendors. */
 const REQUIRED_ENUMS = ["Icon", "Color"] as const;
 
