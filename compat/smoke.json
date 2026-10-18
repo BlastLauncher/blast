@@ -7,8 +7,8 @@
     "bundle-failed": 0,
     "crashed": 0,
     "timeout": 0,
-    "unsupported-mode": 1,
-    "unsupported-api": 2
+    "unsupported-mode": 0,
+    "unsupported-api": 3
   },
   "results": [
     {
@@ -366,8 +366,9 @@
       "extension": "one-thing",
       "command": "show-one-thing",
       "mode": "menu-bar",
-      "outcome": "unsupported-mode",
-      "reason": "command mode \"menu-bar\" is not supported"
+      "outcome": "unsupported-api",
+      "path": "updateCommandMetadata",
+      "error": "Unsupported API in Blast: updateCommandMetadata"
     },
     {
       "extension": "pinch-svg",

@@ -1,0 +1,10 @@
+{
+  "name": "menu-bar",
+  "commands": [
+    {
+      "name": "index",
+      "title": "Menu",
+      "mode": "menu-bar"
+    }
+  ]
+}

@@ -56,3 +56,11 @@ export type {
   FormDescriptionProps,
   SubmitFormProps,
 } from "./form.ts";
+
+export type {
+  MenuBarExtraProps,
+  MenuBarItemProps,
+  MenuBarSectionProps,
+  MenuBarSubmenuProps,
+  MenuBarActionEvent,
+} from "./menu-bar.ts";

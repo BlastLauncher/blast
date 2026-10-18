@@ -68,7 +68,7 @@ like any other capability). clipboard.paste and clipboard.clear still need
 --grant.
 
 Script commands (one per line, "#" starts a comment):
-  action <title>  Dispatch onAction on the Action node with that title.
+  action <title>  Dispatch an Action or menu item with that title.
   back            Pop the current navigation view.
   confirm         Confirm the current alert.
   dismiss         Dismiss the current alert.
@@ -310,14 +310,20 @@ async function runScript(session: Session, steps: Step[]): Promise<void> {
         const node = scene.root
           ? findNode(
               scene.root,
-              (item) => item.type.startsWith("Action") && item.props.title === step.title,
+              (item) =>
+                (item.type.startsWith("Action") || item.type === "MenuBarExtra.Item") &&
+                item.props.title === step.title,
             )
           : undefined;
         const handler = node ? handlerRef(node.props.onAction) : undefined;
         if (!node || !handler) {
           throw new ScriptError(`no Action with onAction titled ${JSON.stringify(step.title)}`);
         }
-        session.sendEvent(node.id, handler.$handler, []);
+        session.sendEvent(
+          node.id,
+          handler.$handler,
+          node.type === "MenuBarExtra.Item" ? [{ type: "left-click" }] : [],
+        );
         break;
       }
       case "field":

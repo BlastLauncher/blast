@@ -65,3 +65,5 @@ export { getApplications } from "./applications.ts";
 export { Form, SubmitForm as SubmitFormAction } from "./form.ts";
 
 export { Cache } from "./cache.ts";
+
+export { MenuBarExtra } from "./menu-bar.ts";

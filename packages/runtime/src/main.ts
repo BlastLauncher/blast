@@ -125,9 +125,6 @@ const launchProps: LaunchProps = { arguments: {}, launchType: "userInitiated" };
 async function load(message: Extract<HostMessage, { type: "init" }>) {
   setEnvironment(message.environment);
   setPreferenceValues(message.preferences);
-  if (message.command.mode === "menu-bar") {
-    return fatal('Command mode "menu-bar" is not supported', "UNSUPPORTED");
-  }
   const command = await import(pathToFileURL(message.command.entry).href);
   if (stopping) return;
   if (message.command.mode === "no-view") {
@@ -144,10 +141,11 @@ async function load(message: Extract<HostMessage, { type: "init" }>) {
     finish(0);
     return;
   }
+  const element = createElement(command.default as ComponentType<LaunchProps>, launchProps);
   root.render(
-    createElement(NavigationProvider, {
-      children: createElement(command.default as ComponentType<LaunchProps>, launchProps),
-    }),
+    message.command.mode === "menu-bar"
+      ? element
+      : createElement(NavigationProvider, { children: element }),
   );
   loaded = true;
 }
