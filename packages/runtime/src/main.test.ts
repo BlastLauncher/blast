@@ -193,7 +193,7 @@ test("stdin EOF unmounts and exits cleanly", async () => {
 });
 
 for (const [fixture, mode, path] of [
-  ["unsupported.js", "view", "Detail.Metadata.Label"],
+  ["unsupported.js", "view", "Form.Dropdown.Item"],
   ["unsupported-reject.js", "no-view", "getSelectedText"],
 ] as const) {
   test(`unsupported API is fatal: ${fixture}`, async () => {

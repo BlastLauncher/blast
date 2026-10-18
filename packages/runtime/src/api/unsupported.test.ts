@@ -31,9 +31,9 @@ test("every value-level top-level inventory symbol is exported; types are absent
 test("top-level, nested and partially implemented component stubs name the exact path", () => {
   for (const [component, path] of [
     [api.Form, "Form"],
-    [api.Detail.Metadata!.Label!, "Detail.Metadata.Label"],
+    [api.Form.Dropdown!.Item!, "Form.Dropdown.Item"],
     [api.Action.Open!, "Action.Open"],
-    [withUnsupported("List.Item", implemented.List.Item).Detail!, "List.Item.Detail"],
+    [withUnsupported("ActionPanel", implemented.ActionPanel).Submenu!, "ActionPanel.Submenu"],
   ] as const) {
     const errors: unknown[] = [];
     const root = createSceneRoot({ publish() {}, onError: (error) => errors.push(error) });

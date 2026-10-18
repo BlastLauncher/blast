@@ -1,4 +1,5 @@
 import { createElement, type ReactNode } from "react";
+import { ListItemDetail } from "./detail.ts";
 import { slot } from "./slot.ts";
 import type { ImageLike } from "./types.ts";
 
@@ -62,10 +63,13 @@ export interface ListEmptyViewProps {
   actions?: ReactNode;
 }
 
-function ListItem(props: ListItemProps) {
-  const { actions, detail, ...rest } = props;
-  return createElement("List.Item", rest, slot("actions", actions), slot("detail", detail));
-}
+const ListItem = Object.assign(
+  function ListItem(props: ListItemProps) {
+    const { actions, detail, ...rest } = props;
+    return createElement("List.Item", rest, slot("actions", actions), slot("detail", detail));
+  },
+  { Detail: ListItemDetail },
+);
 
 function ListSection(props: ListSectionProps) {
   return createElement("List.Section", props);

@@ -4,31 +4,31 @@ Denominator: the `@raycast/api@2.8.2` declarations. Evidence:
 `// @covers` tags in `packages/**/*.test.ts(x)`. A parent is not implied covered
 by its children. Partial support is reported separately from covered.
 
-**Non-deprecated coverage: 574/1534 covered (37.4%), 14 partial, 946 missing.**
+**Non-deprecated coverage: 633/1534 covered (41.3%), 14 partial, 887 missing.**
 Deprecated: 9/939 covered (1.0%), 4 partial, 926 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 574 | 9 | 583 |
+| covered | 633 | 9 | 642 |
 | partial | 14 | 4 | 18 |
-| missing | 946 | 926 | 1872 |
+| missing | 887 | 926 | 1813 |
 
 ## Totals by kind
 
 | Kind | Covered | Partial | Missing | Total |
 | --- | --- | --- | --- | --- |
 | namespace | 1 | 1 | 7 | 9 |
-| component | 3 | 14 | 99 | 116 |
+| component | 16 | 14 | 86 | 116 |
 | function | 2 | 1 | 47 | 50 |
 | const | 1 | 1 | 19 | 21 |
 | class | 0 | 0 | 3 | 3 |
 | enum | 2 | 0 | 11 | 13 |
 | enum-member | 487 | 0 | 204 | 691 |
 | interface | 1 | 0 | 63 | 64 |
-| type | 2 | 0 | 176 | 178 |
-| property | 84 | 1 | 1219 | 1304 |
+| type | 15 | 0 | 163 | 178 |
+| property | 117 | 1 | 1186 | 1304 |
 | method | 0 | 0 | 24 | 24 |
 
 ## Top-level symbols
@@ -63,7 +63,7 @@ Children counts include all descendants, as covered/partial/total.
 | `ColorLike` | type | missing | 0/0/3 | 0 |
 | `CopyToClipboardAction` | component | partial | 0/0/8 | 23 |
 | `CopyToClipboardActionProps` | interface | missing | 0/0/7 | 0 |
-| `Detail` | component | partial | 5/0/33 | 1310 |
+| `Detail` | component | partial | 32/0/33 | 1310 |
 | `DetailProps` | interface | missing | 0/0/5 | 0 |
 | `DynamicColor` | type | missing | 0/0/3 | 0 |
 | `Environment` | interface | missing | 0/0/17 | 2 |
@@ -107,7 +107,7 @@ Children counts include all descendants, as covered/partial/total.
 | `KeyboardShortcut` | type | missing | 0/0/11 | 1 |
 | `LaunchProps` | type | missing | 0/0/5 | 657 |
 | `LaunchType` | enum | missing | 0/0/2 | 454 |
-| `List` | component | partial | 24/3/122 | 2604 |
+| `List` | component | partial | 56/3/122 | 2604 |
 | `ListItem` | component | missing | 0/0/52 | 1 |
 | `ListItemProps` | interface | missing | 0/0/19 | 0 |
 | `ListProps` | interface | missing | 0/0/19 | 0 |
@@ -207,7 +207,6 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `List.Props.onSearchTextChange` | 1174 |
 | `Form.TextField` | 1102 |
 | `Form.TextField.Props.title` | 1090 |
-| `List.Item.Detail` | 993 |
 | `Form.TextField.Props.placeholder` | 983 |
 | `LocalStorage` | 960 |
 | `LocalStorage.setItem` | 935 |
@@ -228,17 +227,18 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `Form.Dropdown.Item.Props.title` | 793 |
 | `Form.Dropdown.Item.Props.value` | 793 |
 | `Form.Dropdown.Props.title` | 793 |
-| `List.Item.Detail.Props.markdown` | 776 |
 | `Form.Description` | 765 |
 | `Form.Description.Props.text` | 765 |
 | `Form.TextField.Props.id` | 764 |
 | `List.Props.throttle` | 723 |
 | `Alert` | 718 |
-| `List.Item.Detail.Props.metadata` | 688 |
 | `Alert.ActionStyle` | 686 |
 | `Form.TextArea` | 678 |
 | `Action.SubmitForm.Props.icon` | 675 |
-| `List.Item.Detail.Metadata` | 671 |
 | `Form.TextArea.Props.title` | 665 |
 | `LaunchProps` | 657 |
 | `Alert.ActionStyle.Destructive` | 656 |
+| `Form.Props.isLoading` | 651 |
+| `Form.Dropdown.Props.id` | 605 |
+| `closeMainWindow` | 600 |
+| `Form.TextArea.Props.placeholder` | 590 |

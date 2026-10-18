@@ -39,7 +39,8 @@ mounted. `Navigation.props.pop` requests back above depth one (decision 0003).
 
 Host element `type`s are the public Raycast paths: `List`, `List.Item`,
 `List.Section`, `List.EmptyView`, `ActionPanel`, `ActionPanel.Section`,
-`Action`, `Action.CopyToClipboard`.
+`Action`, `Action.CopyToClipboard`, `Detail`, and the metadata views
+(`Detail.Metadata.*`, `List.Item.Detail` with its `List.Item.Detail.Metadata.*`).
 
 Element-valued props (`actions`, `detail`, …) cannot live inside a node's
 serializable props, so the shim renders each one as a host child of type
