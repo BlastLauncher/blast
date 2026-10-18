@@ -42,13 +42,13 @@ persist per extension.
 
 ## Acceptance
 
-- [ ] Runtime tests: PKCE values (challenge = base64url(sha256(verifier))),
+- [x] Runtime tests: PKCE values (challenge = base64url(sha256(verifier))),
       `toURL()` per redirect method, authorize granted/denied, token
       set/get/remove/isExpired.
-- [ ] Host tests: token store scoping + atomic writes; CLI e2e with
+- [x] Host tests: token store scoping + atomic writes; CLI e2e with
       `--oauth-code`.
-- [ ] Every non-deprecated `OAuth*` path covered or explained in Handoff.
-- [ ] `bun run verify` passes.
+- [x] Every non-deprecated `OAuth*` path covered or explained in Handoff.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -56,9 +56,28 @@ persist per extension.
 
 ## Handoff
 
-```
-Branch/commit:
-Verify:
+Branch/commit: `t3/implement-oauth` @ `4a79eb6` (implementation; handoff follows).
+
+Verify: `verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 45.4s`
+
 Done:
+
+- S256 PKCE requests, random state, redirect methods, metadata document client ID,
+  URL overrides, and authorization through the default-denied host capability.
+- Extension/provider-scoped token persistence, atomic mode-0600 writes, host-process
+  serialization, standard response normalization, Dates, and expiry checks.
+- CLI `--oauth-code`, token request redaction in text/JSON, and offline bundled
+  `OAuthService` reuse test. Runtime/host/CLI tests pass (366 total).
+- All 69 non-deprecated OAuth paths in the pinned inventory have test evidence
+  (the brief counted 68); regenerated compat reports show 68.0% overall coverage.
+- Updated architecture and decision 0001. No dependencies added.
+
 Not done / risks:
-```
+
+- Browser launching, redirect servers, and a logout preferences UI are outside
+  this headless implementation. Token files are private JSON, not OS keychain storage.
+- Expiry uses a 10-second buffer; the declarations do not specify its exact size.
+  Metadata document redirects use the Web redirect URI because the declarations
+  document no distinct URI for that method.
+- Writes serialize across sessions in one host process; independent host processes
+  do not share a lock (matching the existing storage boundary).
