@@ -1,7 +1,7 @@
 ---
 id: "0009"
 title: blast debug CLI and end-to-end fixture test
-status: doing
+status: review
 milestone: M1
 depends: ["0008"]
 ---
@@ -54,8 +54,31 @@ script — the primary tool for agents to debug compatibility and for e2e tests.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/blast-debug-cli @ 7a8005c
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 9.8s
 Done:
+- `packages/host/src/cli.ts`: `blast run <extensionDir> <command>` under plain
+  Node 24 (no new deps; `node:util` parseArgs). Flags: repeatable `--grant`,
+  `--script <file|->`, `--json` protocol NDJSON, `--timeout <ms>`, `--help`.
+  Text trees print one node per line with handler props as `[onAction]`,
+  `# log` / `# capability` lines for logs and capability requests; script
+  engine implements action/search/wait/expect/quit. Exit codes 0/1/2/3 per
+  the task; temp bundle dirs removed on every path, signal handlers included.
+- Fixture `fixtures/extensions/hello-list/` (List of 3 items, per-item
+  ActionPanel with Action.CopyToClipboard + Pin action, onSearchTextChange).
+- E2E suite `packages/host/src/cli.test.ts` spawns the CLI as a real `node`
+  child process: first-scene snapshot, granted copy prints the capability
+  line, denial reported without `--grant`, failing expect and unknown script
+  command exit 1, crash exits 3, `--json` NDJSON, usage errors exit 2,
+  `--timeout` aborts a hanging script. No leftover processes or temp files.
+- Root script `"blast": "node packages/host/src/cli.ts"`;
+  `bun run blast run fixtures/extensions/hello-list index` works by hand.
+- "Debugging extensions" section added to docs/architecture.md.
 Not done / risks:
+- `--grant` handlers only record and succeed (no OS clipboard), per task scope.
+- An unmount publishes a `{root: null}` scene; the CLI streams it in `--json`
+  mode (honest protocol output) but prints nothing for it in text mode.
+- `List.onSearchTextChange` is not yet declared on the shim's `ListProps`;
+  the CLI dispatches it through the generic handler passthrough, so the
+  fixture's search works without an API-surface change to `@blastlauncher/runtime`.
 ```
