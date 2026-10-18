@@ -72,7 +72,7 @@ diagnostics instead of ESM link errors.
 - [x] 0040 Image, Keyboard and environment completeness
 - [x] 0041 OAuth PKCE client
 - [ ] 0042 Form field refs, storeValue and drafts
-- [ ] 0043 AI, BrowserExtension and Tool APIs
+- [x] 0043 AI, BrowserExtension and Tool APIs
 - [ ] 0044 WindowManagement and remaining leftovers
 - [ ] 0045 AI model providers, experimental_decide, refreshModels
 - [ ] Next: deprecated aliases sweep; curated set v4 using provided deps
