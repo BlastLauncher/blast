@@ -1,7 +1,7 @@
 import { afterEach, expect, test } from "bun:test";
 import type { SceneMessage, SceneNode } from "@blastlauncher/protocol";
 import { spawn } from "node:child_process";
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -69,6 +69,67 @@ test("bundles deterministic ESM and returns manifest identity and mode", async (
   directories.push(join(defaults.entry, ".."));
   expect(defaults.entry.startsWith(join(tmpdir(), "blast", "builds"))).toBe(true);
   await expect(bundle("missing")).rejects.toThrow("Unknown extension command");
+});
+
+test("shared utils bundles and renders without embedding React or the API", async () => {
+  const fixture = fileURLToPath(
+    new URL("../../../fixtures/extensions/shared-utils", import.meta.url),
+  );
+  const dir = await mkdtemp(join(tmpdir(), "blast-utils-test-"));
+  directories.push(dir);
+  const extension = join(dir, "extension");
+  await cp(fixture, extension, { recursive: true });
+  for (const name of ["@raycast/utils", "@raycast/api", "react"]) {
+    const local = join(extension, "node_modules", name);
+    await mkdir(local, { recursive: true });
+    await writeFile(join(local, "package.json"), JSON.stringify({ name, main: "index.js" }));
+    await writeFile(join(local, "index.js"), 'throw new Error("extension-local package loaded");');
+  }
+  const bundled = await bundleCommand({
+    extensionDir: extension,
+    command: "index",
+    outDir: join(dir, "out"),
+  });
+  const source = await readFile(bundled.entry, "utf8");
+  expect(source).toContain("script-commands/");
+  expect(source).toContain('from "@raycast/api"');
+  expect(source).toContain('from "react"');
+  expect(source).toContain('from "react/jsx-runtime"');
+  expect(source).not.toMatch(/node_modules\/(?:react|@raycast\/api)\//);
+  expect(source).not.toContain("extension-local package loaded");
+  // The helper is small; a bundled React implementation would dwarf this output.
+  expect(source.length).toBeLessThan(10_000);
+  const session = await startCommand({ ...bundled, broker: createBroker() });
+  sessions.push(session);
+  expect(
+    find((await scene(session)).root!, "Open raycast://script-commands/shared-utils"),
+  ).toBeDefined();
+});
+
+test("unprovided imports report sorted package names even when locally installed", async () => {
+  const fixture = fileURLToPath(
+    new URL("../../../fixtures/extensions/missing-dependency", import.meta.url),
+  );
+  const dir = await mkdtemp(join(tmpdir(), "blast-missing-test-"));
+  directories.push(dir);
+  await cp(fixture, dir, { recursive: true });
+  const local = join(dir, "node_modules/blast-unavailable");
+  await mkdir(local, { recursive: true });
+  for (const name of ["subpath", "other"]) {
+    await writeFile(join(local, `${name}.js`), "export default (value) => value;");
+  }
+  await expect(bundleCommand({ extensionDir: dir, command: "index" })).rejects.toMatchObject({
+    code: "MISSING_DEPENDENCY",
+    packages: ["@blast-missing/scoped", "blast-unavailable"],
+  });
+  await writeFile(
+    join(dir, "src/index.ts"),
+    'import { dequal } from "dequal/lite"; console.log(dequal);',
+  );
+  await expect(bundleCommand({ extensionDir: dir, command: "index" })).rejects.toMatchObject({
+    code: "MISSING_DEPENDENCY",
+    packages: ["dequal"],
+  });
 });
 
 test("real Node runtime publishes scenes, routes events, grants clipboard and captures logs", async () => {

@@ -1,0 +1,9 @@
+{
+  "name": "shared-utils",
+  "commands": [
+    {
+      "name": "index",
+      "mode": "view"
+    }
+  ]
+}

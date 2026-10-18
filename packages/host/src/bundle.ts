@@ -1,8 +1,56 @@
 import type { CommandMode } from "@blastlauncher/protocol";
-import { build } from "esbuild";
-import { access, mkdir, mkdtemp, readFile, rm } from "node:fs/promises";
+import { build, transform, type Plugin } from "esbuild";
+import { access, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { isBuiltin } from "node:module";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { dirname, isAbsolute, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+export class MissingDependencyError extends Error {
+  readonly code = "MISSING_DEPENDENCY";
+  readonly packages: string[];
+
+  constructor(packages: Iterable<string>) {
+    const names = [...new Set(packages)].toSorted();
+    super(`Missing dependencies: ${names.join(", ")}`);
+    this.name = "MissingDependencyError";
+    this.packages = names;
+  }
+}
+
+function dependencyPolicy(missing: Set<string>): Plugin {
+  const providedFiles = new Set<string>();
+  return {
+    name: "blast-dependencies",
+    setup(builder) {
+      builder.onResolve({ filter: /.*/ }, async (args) => {
+        if (args.pluginData === "blast-resolving") return;
+        const specifier = args.path;
+        if (specifier === "@raycast/api" || /^react(?:\/|$)/.test(specifier))
+          return { path: specifier, external: true };
+        if (isBuiltin(specifier)) return { path: specifier, external: true };
+        const provided = specifier === "@raycast/utils" || specifier.startsWith("@raycast/utils/");
+        // Only Blast's supplied dependency graph gets normal package resolution.
+        if (provided || providedFiles.has(args.importer)) {
+          const result = await builder.resolve(specifier, {
+            resolveDir: provided ? dirname(fileURLToPath(import.meta.url)) : args.resolveDir,
+            kind: args.kind,
+            pluginData: "blast-resolving",
+          });
+          if (result.path && !result.external) providedFiles.add(result.path);
+          return result;
+        }
+        if (args.kind === "entry-point" || specifier.startsWith(".") || isAbsolute(specifier))
+          return;
+        const name = specifier.startsWith("@")
+          ? specifier.split("/").slice(0, 2).join("/")
+          : specifier.split("/")[0]!;
+        missing.add(name);
+        return { errors: [{ text: `Blast does not provide dependency ${name}` }] };
+      });
+    },
+  };
+}
 
 export type BundleOptions = { extensionDir: string; command: string; outDir?: string };
 export type BundledCommand = {
@@ -39,21 +87,33 @@ export async function bundleCommand(options: BundleOptions): Promise<BundledComm
   if (!options.outDir) await mkdir(base, { recursive: true });
   const outDir = options.outDir ? resolve(options.outDir) : await mkdtemp(join(base, "command-"));
   const entry = join(outDir, `${options.command}.mjs`);
+  const missing = new Set<string>();
   try {
-    await build({
+    const bundled = await build({
       absWorkingDir: extensionDir,
       entryPoints: [source],
       outfile: entry,
       bundle: true,
+      write: false,
       format: "esm",
       platform: "node",
       target: "node24",
       jsx: "automatic",
-      external: ["@raycast/api", "react", "react/*"],
+      plugins: [dependencyPolicy(missing)],
       logLevel: "silent",
     });
+    // After tree shaking utils' monolithic entry, remove unused named imports
+    // so Node does not try to link shim symbols the command never uses.
+    const output = await transform(bundled.outputFiles[0]!.text, {
+      format: "esm",
+      target: "node24",
+      minifySyntax: true,
+    });
+    await mkdir(outDir, { recursive: true });
+    await writeFile(entry, output.code);
   } catch (error) {
     if (!options.outDir) await rm(outDir, { recursive: true, force: true });
+    if (missing.size) throw new MissingDependencyError(missing);
     throw error;
   }
   return { entry, extensionName: manifest.name, commandName: command.name, mode: command.mode };
