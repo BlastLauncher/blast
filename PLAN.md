@@ -65,7 +65,7 @@ diagnostics instead of ESM link errors.
 - [x] 0016 Implement the curated-set blockers (OpenInBrowser, Paste, Detail, Icon, …)
 - [x] 0017 Navigation stack (`useNavigation`, `Action.Push`)
 - [x] 0018 `List.Item.Detail` and `Detail.Metadata` components
-- [ ] 0019 Feedback UI: showToast/Toast, showHUD, confirmAlert
+- [x] 0019 Feedback UI: showToast/Toast, showHUD, confirmAlert
 - [ ] 0020 List completeness: accessories, search, dropdown, Action.Style
 - [ ] 0021 LocalStorage persistence and open()
 - [ ] Next: Form (TextField, Dropdown, SubmitForm); larger curated set
