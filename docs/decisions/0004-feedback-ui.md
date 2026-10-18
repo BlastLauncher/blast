@@ -14,7 +14,10 @@ Toast props carry title, message and style. `Toast.Action` children carry name
 handler. Calling the handler passes the original Toast instance to the callback.
 Showing replaces the current toast; hiding an older toast leaves its replacement
 alone. Property mutations publish updates only while that toast is visible.
-Show/hide promises settle after a scene commit. There are no automatic timers.
+Show/hide promises settle after a scene commit, or on a microtask when no
+feedback subscriber is mounted. HUD uses the same settlement rule; window
+close requests already resolve without requiring a commit. There are no
+automatic timers.
 
 HUD props record title, clearRootSearch and popToRootType. Showing replaces the
 previous HUD and resolves after publication. Search clearing, window closing,
@@ -34,3 +37,14 @@ Commands without feedback still publish no scenes. Feedback is discarded on
 unmount; pending alerts resolve false without invoking callbacks. The CLI's
 confirm/dismiss commands dispatch the matching alert action. All feedback is
 printed by the normal tree renderer.
+
+## Promise-returning view exports
+
+[Raycast's lifecycle docs](https://developers.raycast.com/information/lifecycle)
+describe view exports returning React elements and no-view async functions;
+they do not specify a view export returning a promise. Blast treats a view
+export's thenable return as a no-view command body: invoke it once inside
+React context, render null with feedback mounted, exit successfully when it
+settles, and report rejection as fatal. The fulfilled value is ignored. This
+also handles ordinary functions returning thenables, without probing a view
+outside React or invoking it twice (which would break hooks or repeat effects).

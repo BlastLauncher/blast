@@ -58,12 +58,19 @@ export function mountScene(): void {
   mount?.();
 }
 function changed(wait = false): Promise<void> {
-  revision++;
+  const pendingRevision = ++revision;
   const result = wait
-    ? new Promise<void>((resolve) => committed.set(revision, resolve))
+    ? new Promise<void>((resolve) => committed.set(pendingRevision, resolve))
     : Promise.resolve();
   for (const listener of listeners) listener();
   mountScene();
+  // Without a subscriber no React commit can acknowledge this revision.
+  queueMicrotask(() => {
+    if (listeners.size === 0) {
+      committed.get(pendingRevision)?.();
+      committed.delete(pendingRevision);
+    }
+  });
   return result;
 }
 const subscribe = (listener: () => void) => {

@@ -1,8 +1,9 @@
 // The capabilities a headless Blast run answers without a desktop client. They
-// are read-only: `getApplications` reports the applications the caller supplied
+// read host state or record UI requests: `getApplications` reports the applications the caller supplied
 // (an empty list otherwise), `Clipboard.read` reports the text the caller
 // supplied (empty otherwise, with no history behind it), and opening a
-// preference window is only recorded. Everything that would change the machine
+// preference window or updating command metadata is only recorded. Everything
+// that would change the machine
 // (`open.*`, `clipboard.paste`, `clipboard.clear`) stays denied unless granted.
 import type { JsonValue } from "@blastlauncher/protocol";
 import type { CapabilityHandler } from "./broker.ts";
@@ -111,6 +112,12 @@ export function createHeadlessHandlers(
         return { text: offset === 0 ? clipboard : "" };
       }
       return { text: clipboard };
+    },
+    "command.metadata": (params) => {
+      const { subtitle } = readParams(params, "command.metadata");
+      if (subtitle !== undefined && subtitle !== null && typeof subtitle !== "string") {
+        throw new Error('command.metadata: "subtitle" must be a string or null');
+      }
     },
     "preferences.open": (params) => {
       const { scope } = readParams(params, "preferences.open");

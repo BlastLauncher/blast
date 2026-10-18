@@ -58,6 +58,8 @@ test("the headless defaults are empty by default and reject malformed params", a
     ["clipboard.read", { offset: -1 }],
     ["preferences.open", { scope: "workspace" }],
     ["preferences.open", null],
+    ["command.metadata", null],
+    ["command.metadata", { subtitle: 5 }],
   ] as const) {
     expect(await ask(broker, name, params)).toMatchObject({ ok: false, error: { code: "failed" } });
   }
@@ -83,5 +85,12 @@ test("parseApplications reads a JSON array of applications and rejects anything 
     ],
   ] as const) {
     expect(() => parseApplications(text)).toThrow(message);
+  }
+});
+
+test("headless metadata updates are granted by default", async () => {
+  const broker = createBroker(createHeadlessHandlers());
+  for (const params of [{ subtitle: "Current thing" }, { subtitle: null }, {}]) {
+    expect(await ask(broker, "command.metadata", params)).toMatchObject({ ok: true, value: null });
   }
 });

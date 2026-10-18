@@ -42,7 +42,8 @@ clients. `props.closeMainWindow` records the latest `closeMainWindow()` request
 (its options, or an empty object) the same way. Feedback children follow the
 entries: `Toast`, `HUD`, and the first queued `Alert`, with action handlers on
 `Toast.Action` / `Alert.Action` children (decision 0004). No-view commands mount
-this scene only when showing feedback or closing the window.
+this scene only when showing feedback or closing the window. Promise-returning
+view exports run to completion with feedback mounted (decision 0004).
 
 Host element `type`s are the public Raycast paths: `List`, `List.Item`,
 `List.Section`, `List.EmptyView`, `ActionPanel`, `ActionPanel.Section`,
@@ -122,12 +123,12 @@ a manifest argument (repeatable; a missing required or unknown name is a usage
 error), and `--grant <capability>` grants a capability — a granted
 `clipboard.copy` records and prints the copied text instead of touching an OS
 clipboard, and a granted `command.launch` records a `launchCommand` request
-without starting a second session. A headless run also answers the read-only
+without starting a second session. A headless run also answers the
 capabilities the desktop client owns: `applications.list` from `--applications
 <file.json>` (an empty list otherwise), `clipboard.read` from `--clipboard
 <text>` (an empty text otherwise, and nothing at older offsets), and
-`preferences.open`, which is printed like any other capability. Everything else,
-including `clipboard.paste` and `clipboard.clear`, still needs `--grant`. `--script <file|->` drives the run with
+`preferences.open` and `command.metadata` (subtitle updates), which are printed
+like any other capability. Everything else, including `clipboard.paste` and `clipboard.clear`, still needs `--grant`. `--script <file|->` drives the run with
 one command per line: `action <title>`, `back`, `confirm`, `dismiss`,
 `search <text>`, `dropdown <value>`, `field <id> <value>`, `submit`, `wait`,
 `expect <text>`, `quit`. Form fields expose runtime-owned `value` and `onChange`;

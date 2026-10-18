@@ -6,9 +6,9 @@
     "capability-denied": 2,
     "bundle-failed": 0,
     "crashed": 0,
-    "timeout": 0,
+    "timeout": 1,
     "unsupported-mode": 0,
-    "unsupported-api": 1
+    "unsupported-api": 0
   },
   "results": [
     {
@@ -366,9 +366,8 @@
       "extension": "one-thing",
       "command": "show-one-thing",
       "mode": "menu-bar",
-      "outcome": "unsupported-api",
-      "path": "updateCommandMetadata",
-      "error": "Unsupported API in Blast: updateCommandMetadata"
+      "outcome": "timeout",
+      "reason": "no scene or exit within 5000 ms"
     },
     {
       "extension": "pinch-svg",

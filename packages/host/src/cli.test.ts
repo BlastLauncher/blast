@@ -691,3 +691,14 @@ test("menu-bar trees print and action dispatches a left-click to nested items", 
   expect(result.stdout).toContain('MenuBarExtra.Item "Click" [onAction]');
   expect(result.stdout).not.toContain("Navigation");
 });
+
+test("command metadata is recorded and printed without a grant", async () => {
+  const result = await runCli(["run", launchFixture, "metadata", "--timeout", "1500"]);
+  expect(result.code, result.stderr).toBe(0);
+  expect(result.stderr).toBe("");
+  expect(result.stdout).toBe(
+    '# capability command.metadata {"subtitle":"Current thing"}\n' +
+      '# capability command.metadata {"subtitle":null}\n' +
+      "# capability command.metadata {}\n",
+  );
+}, 2500);

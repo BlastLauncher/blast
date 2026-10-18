@@ -13,7 +13,7 @@ import { registerHooks } from "node:module";
 import { Writable } from "node:stream";
 import { pathToFileURL } from "node:url";
 import { format } from "node:util";
-import { createElement, type ComponentType } from "react";
+import { createElement, type ComponentType, type ReactNode } from "react";
 import { setCapabilityRequester } from "./api/capability.ts";
 import { setEnvironment } from "./api/environment.ts";
 import { setFeedbackMount } from "./api/feedback.ts";
@@ -152,7 +152,32 @@ async function load(message: Extract<HostMessage, { type: "init" }>) {
     finish(0);
     return;
   }
-  const element = createElement(command.default as ComponentType<LaunchProps>, props);
+  // Call inside React so ordinary view commands retain hooks and navigation.
+  // A thenable is a command body, never a suspending React component (0004).
+  let running = false;
+  function Command() {
+    if (running) return null;
+    const result: unknown = command.default(props);
+    if (
+      result !== null &&
+      (typeof result === "object" || typeof result === "function") &&
+      "then" in result &&
+      typeof result.then === "function"
+    ) {
+      running = true;
+      void Promise.resolve(result).then(() => finish(0), fatal);
+      return null;
+    }
+    return result as ReactNode;
+  }
+  const wrap =
+    message.command.mode === "view" &&
+    typeof command.default === "function" &&
+    !command.default.prototype?.isReactComponent;
+  const element = createElement(
+    wrap ? Command : (command.default as ComponentType<LaunchProps>),
+    props,
+  );
   root.render(
     message.command.mode === "menu-bar"
       ? element

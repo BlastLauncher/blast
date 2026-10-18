@@ -60,6 +60,7 @@ export { Keyboard } from "./keyboard.ts";
 export { closeMainWindow, type CloseMainWindowOptions } from "./window.ts";
 export {
   launchCommand,
+  updateCommandMetadata,
   type LaunchCommandOptions,
   type LaunchContext,
   type LaunchProps,

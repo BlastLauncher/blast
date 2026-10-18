@@ -67,9 +67,9 @@ Options:
   --timeout <ms>        Abort the run after <ms> milliseconds (exit code 3).
   --help                Show this help.
 
-Read-only capabilities a headless run always answers: applications.list
-(--applications), clipboard.read (--clipboard) and preferences.open (printed
-like any other capability). clipboard.paste and clipboard.clear still need
+Capabilities a headless run always answers: applications.list
+(--applications), clipboard.read (--clipboard), preferences.open and
+command.metadata (printed like any other capability). clipboard.paste and clipboard.clear still need
 --grant.
 
 Script commands (one per line, "#" starts a comment):
