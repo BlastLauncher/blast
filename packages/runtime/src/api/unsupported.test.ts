@@ -38,7 +38,6 @@ test("every value-level top-level inventory symbol is exported; types are absent
 test("top-level, nested and partially implemented component stubs name the exact path", () => {
   for (const [component, path] of [
     [api.WindowManagement, "WindowManagement"],
-    [api.Form.TagPicker!, "Form.TagPicker"],
     [api.Action.InstallMCPServer!, "Action.InstallMCPServer"],
     [withUnsupported("Action", implemented.Action).InstallMCPServer!, "Action.InstallMCPServer"],
   ] as const) {

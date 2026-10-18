@@ -4,6 +4,10 @@
     {
       "name": "index",
       "mode": "view"
+    },
+    {
+      "name": "secret",
+      "mode": "view"
     }
   ]
 }

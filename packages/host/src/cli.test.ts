@@ -661,6 +661,29 @@ test("CLI edits controlled and uncontrolled form fields and submits typed values
   expect(help.stdout).toContain("Run the first Action.SubmitForm");
 });
 
+test("CLI fills TagPicker and PasswordField; the password never reaches a scene", async () => {
+  const password = "s3cret-w0rd";
+  const result = await runCli(
+    ["run", join(root, "fixtures/extensions/form"), "secret", "--script", "-", "--timeout", "3000"],
+    `expect Docs\nfield tags red,green\nwait\nfield password ${password}\nwait\nsubmit\nwait\nquit\n`,
+  );
+  expect(result.code, result.stderr + result.stdout).toBe(0);
+  expect(result.stdout).toContain('value=["red","green"]');
+  expect(result.stdout).toContain('placeholder="Password" hasValue=true');
+  expect(result.stdout).toContain(
+    'navigationTitle="{\\"tags\\":[\\"red\\",\\"green\\"],\\"password\\":\\"<set>\\"}"',
+  );
+  expect(result.stdout).not.toContain(password);
+  // The raw value is the client's input; only submissions published by the
+  // extension would leak it, and the fixture masks them.
+  const cleared = await runCli(
+    ["run", join(root, "fixtures/extensions/form"), "secret", "--script", "-", "--timeout", "3000"],
+    `field password ${password}\nwait\nfield password\nwait\nsubmit\nwait\nquit\n`,
+  );
+  expect(cleared.code, cleared.stderr + cleared.stdout).toBe(0);
+  expect(cleared.stdout).toContain('password\\":\\"<unset>');
+});
+
 test("a reader that closes stdout early does not crash the CLI", async () => {
   const child = spawn("node", [cliPath, "run", helloList, "index", "--script", "-"], {
     cwd: root,
@@ -738,7 +761,7 @@ test("selection flags supply read-only values and FilePicker submits comma-separ
     "--selected-text <text>",
     "--selected-files <path>",
     "--frontmost <bundleId>",
-    "comma-separated paths",
+    "comma-separated values",
   ])
     expect(help.stdout).toContain(flag);
 });

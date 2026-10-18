@@ -94,6 +94,10 @@ export type {
   FormDropdownItemProps,
   FormDropdownSectionProps,
   FormDescriptionProps,
+  FormPasswordFieldProps,
+  FormTagPickerProps,
+  FormTagPickerItemProps,
+  FormLinkAccessoryProps,
   SubmitFormProps,
 } from "./form.ts";
 

@@ -59,6 +59,22 @@ export interface FormFilePickerProps extends FormItemProps<string[]> {
   canChooseFiles?: boolean;
   showHiddenFiles?: boolean;
 }
+export interface FormPasswordFieldProps extends FormItemProps<string> {
+  placeholder?: string;
+}
+export interface FormTagPickerProps extends FormItemProps<string[]> {
+  children?: ReactNode;
+  placeholder?: string;
+}
+export interface FormTagPickerItemProps {
+  value: string;
+  title: string;
+  icon?: ImageLike;
+}
+export interface FormLinkAccessoryProps {
+  target: string;
+  text: string;
+}
 export interface FormDatePickerProps extends FormItemProps<Date | null> {
   type?: (typeof DatePickerType)[keyof typeof DatePickerType];
   min?: Date;
@@ -93,8 +109,9 @@ const FormContext = createContext<Fields | null>(null);
 function Field<T extends string | string[] | boolean | Date | null>({
   kind,
   initial,
+  secret,
   ...props
-}: FormItemProps<T> & { kind: string; initial: T; children?: ReactNode }) {
+}: FormItemProps<T> & { kind: string; initial: T; children?: ReactNode; secret?: boolean }) {
   const fields = useContext(FormContext);
   const [local, setLocal] = useState(props.defaultValue ?? initial);
   const value = props.value !== undefined ? props.value : local;
@@ -108,9 +125,19 @@ function Field<T extends string | string[] | boolean | Date | null>({
       if (fields.get(props.id) === read) fields.delete(props.id);
     };
   }, [fields, props.id]);
+  // Secret fields (PasswordField) keep their value runtime-side only: the scene
+  // carries a boolean `hasValue` instead of `value`/`defaultValue`, so published
+  // scenes and client logs never contain the secret.
+  const scene: Record<string, unknown> = { ...props };
+  if (secret) {
+    delete scene.value;
+    delete scene.defaultValue;
+    scene.hasValue = value !== undefined && value !== null && value !== "";
+  } else {
+    scene.value = value;
+  }
   return createElement(`Form.${kind}`, {
-    ...props,
-    value,
+    ...scene,
     onChange: (input: T | string) => {
       // Dates arrive from clients as ISO strings; extension callbacks see Dates.
       const next = (
@@ -134,6 +161,14 @@ function Field<T extends string | string[] | boolean | Date | null>({
 function TextField(props: FormTextFieldProps) {
   return createElement(Field<string>, { ...props, kind: "TextField", initial: "" });
 }
+function PasswordField(props: FormPasswordFieldProps) {
+  return createElement(Field<string>, {
+    ...props,
+    kind: "PasswordField",
+    initial: "",
+    secret: true,
+  });
+}
 function TextArea(props: FormTextAreaProps) {
   return createElement(Field<string>, { ...props, kind: "TextArea", initial: "" });
 }
@@ -144,7 +179,19 @@ const DatePicker = Object.assign(
   function DatePicker(props: FormDatePickerProps) {
     return createElement(Field<Date | null>, { ...props, kind: "DatePicker", initial: null });
   },
-  { Type: DatePickerType },
+  {
+    Type: DatePickerType,
+    /** Whether the date is a full day: non-null with local time exactly midnight. */
+    isFullDay(date?: Date | null): boolean {
+      return (
+        !!date &&
+        date.getHours() === 0 &&
+        date.getMinutes() === 0 &&
+        date.getSeconds() === 0 &&
+        date.getMilliseconds() === 0
+      );
+    },
+  },
 );
 function FilePicker(props: FormFilePickerProps) {
   return createElement(Field<string[]>, {
@@ -157,6 +204,14 @@ function FilePicker(props: FormFilePickerProps) {
     initial: [],
   });
 }
+const TagPicker = Object.assign(
+  function TagPicker(props: FormTagPickerProps) {
+    return createElement(Field<string[]>, { ...props, kind: "TagPicker", initial: [] });
+  },
+  {
+    Item: (props: FormTagPickerItemProps) => createElement("Form.TagPicker.Item", props),
+  },
+);
 function firstValue(children: ReactNode): string | undefined {
   for (const child of Children.toArray(children)) {
     if (!isValidElement<{ value?: string; children?: ReactNode }>(child)) continue;
@@ -194,11 +249,14 @@ export const Form = Object.assign(
   },
   {
     FilePicker,
+    TagPicker,
+    PasswordField,
     TextField,
     TextArea,
     Checkbox,
     DatePicker,
     Dropdown,
+    LinkAccessory: (props: FormLinkAccessoryProps) => createElement("Form.LinkAccessory", props),
     Description: (props: FormDescriptionProps) => createElement("Form.Description", props),
     Separator: (props: Record<string, never>) => createElement("Form.Separator", props),
   },
