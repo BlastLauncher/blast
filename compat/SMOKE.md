@@ -7,7 +7,7 @@ headless defaults `applications.list` (empty), `clipboard.read` (empty),
 Regenerate with `bun run corpus:smoke` (network required; not part of
 `bun run verify`).
 
-149 commands: rendered 143, completed 1, capability-denied 4, bundle-failed 0, crashed 0, timeout 0, unsupported-mode 0, unsupported-api 1.
+149 commands: rendered 144, completed 1, capability-denied 4, bundle-failed 0, crashed 0, timeout 0, unsupported-mode 0, unsupported-api 0.
 
 | Command                                                          | Mode     | Outcome           | Detail                                                     |
 | ---------------------------------------------------------------- | -------- | ----------------- | ---------------------------------------------------------- |
@@ -116,7 +116,7 @@ Regenerate with `bun run corpus:smoke` (network required; not part of
 | `rectangle/first-third`                                          | no-view  | rendered          | 4 nodes, root Navigation                                   |
 | `rectangle/first-three-fourths`                                  | no-view  | rendered          | 4 nodes, root Navigation                                   |
 | `rectangle/first-two-thirds`                                     | no-view  | rendered          | 4 nodes, root Navigation                                   |
-| `rectangle/index`                                                | view     | unsupported-api   | Action.CreateQuicklink                                     |
+| `rectangle/index`                                                | view     | rendered          | 326 nodes, root Navigation                                 |
 | `rectangle/larger`                                               | no-view  | rendered          | 4 nodes, root Navigation                                   |
 | `rectangle/last-fourth`                                          | no-view  | rendered          | 4 nodes, root Navigation                                   |
 | `rectangle/last-third`                                           | no-view  | rendered          | 4 nodes, root Navigation                                   |
@@ -166,5 +166,4 @@ Regenerate with `bun run corpus:smoke` (network required; not part of
 - `atomtick/copy-atomic-time` (capability-denied): denied capability clipboard.copy
 - `google-maps-search/travelHome` (capability-denied): denied capability open.url
 - `random-color/random-color` (capability-denied): denied capability clipboard.copy
-- `rectangle/index` (unsupported-api): Action.CreateQuicklink
 - `text-decorator/decorate-text` (capability-denied): denied capability command.launch

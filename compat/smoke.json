@@ -1,14 +1,14 @@
 {
   "commit": "3b812d1e153a1862df29bc8ec34e170c728512ea",
   "totals": {
-    "rendered": 143,
+    "rendered": 144,
     "completed": 1,
     "capability-denied": 4,
     "bundle-failed": 0,
     "crashed": 0,
     "timeout": 0,
     "unsupported-mode": 0,
-    "unsupported-api": 1
+    "unsupported-api": 0
   },
   "results": [
     {
@@ -853,9 +853,9 @@
       "extension": "rectangle",
       "command": "index",
       "mode": "view",
-      "outcome": "unsupported-api",
-      "path": "Action.CreateQuicklink",
-      "error": "Unsupported API in Blast: Action.CreateQuicklink"
+      "outcome": "rendered",
+      "nodes": 326,
+      "rootType": "Navigation"
     },
     {
       "extension": "rectangle",
