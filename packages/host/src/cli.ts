@@ -18,6 +18,8 @@ import { parseArgs } from "node:util";
 import {
   bundleCommand,
   createBroker,
+  createStorageHandlers,
+  defaultDataDir,
   startCommand,
   type Broker,
   type CapabilityHandler,
@@ -37,7 +39,12 @@ Usage: blast run <extensionDir> <command> [options]
 Options:
   --grant <capability>  Grant a capability to the command (repeatable). A
                         granted "clipboard.copy" records and prints the copied
-                        text instead of touching an OS clipboard.
+                        text instead of touching an OS clipboard. LocalStorage
+                        is always granted to the command's own extension; use
+                        --data-dir to place its data.
+  --data-dir <dir>      Root directory for LocalStorage (default:
+                        "$XDG_DATA_HOME/blast"); the command's values are kept
+                        in <dir>/storage/<extension>.json.
   --script <file|->     Drive the command with a script of the commands below;
                         "-" reads the script from stdin. Without a script, the
                         first scene is printed and the run ends.
@@ -285,6 +292,7 @@ type RunOptions = {
   extensionDir: string;
   command: string;
   grants: string[];
+  dataDir: string;
   scriptSource: string | undefined;
   json: boolean;
   timeoutMs: number | undefined;
@@ -339,11 +347,14 @@ async function run(options: RunOptions): Promise<number> {
     }
     outDir = dirname(bundled.entry);
     cleanupDirectory = outDir;
+    // Local storage is granted to the session's own extension by default and
+    // overrides `--grant storage.*`, so a stale grant cannot disable it.
+    const handlers: Record<string, CapabilityHandler> = {
+      ...grantHandlers(options.grants),
+      ...createStorageHandlers({ extensionName: bundled.extensionName, dataDir: options.dataDir }),
+    };
     session = await Promise.race([
-      startCommand({
-        ...bundled,
-        broker: reportingBroker(createBroker(grantHandlers(options.grants)), output),
-      }),
+      startCommand({ ...bundled, broker: reportingBroker(createBroker(handlers), output) }),
       deadline,
     ]).catch((error: unknown) => {
       throw new RunError(error instanceof Error ? error.message : String(error));
@@ -386,6 +397,7 @@ function parseArguments(argv: string[]) {
       allowPositionals: true,
       options: {
         grant: { type: "string", multiple: true },
+        "data-dir": { type: "string" },
         script: { type: "string" },
         json: { type: "boolean" },
         timeout: { type: "string" },
@@ -437,10 +449,13 @@ async function main(argv: string[]): Promise<number> {
     timeoutMs = value;
   }
   const script = parsed.values.script;
+  const dataDir = parsed.values["data-dir"];
+  if (dataDir === "") throw new UsageError("--data-dir must not be empty");
   return run({
     extensionDir,
     command,
     grants: parsed.values.grant ?? [],
+    dataDir: dataDir ?? defaultDataDir(),
     scriptSource: script === undefined ? undefined : await readScript(script),
     json: parsed.values.json === true,
     timeoutMs,

@@ -2,28 +2,28 @@
   "version": "2.8.2",
   "totals": {
     "all": {
-      "covered": 642,
+      "covered": 656,
       "partial": 18,
-      "missing": 1813,
+      "missing": 1799,
       "total": 2473
     },
     "nonDeprecated": {
-      "covered": 633,
+      "covered": 642,
       "partial": 14,
-      "missing": 887,
+      "missing": 878,
       "total": 1534
     },
     "deprecated": {
-      "covered": 9,
+      "covered": 14,
       "partial": 4,
-      "missing": 926,
+      "missing": 921,
       "total": 939
     },
     "kinds": {
       "namespace": {
-        "covered": 1,
+        "covered": 2,
         "partial": 1,
-        "missing": 7,
+        "missing": 6,
         "total": 9
       },
       "component": {
@@ -33,9 +33,9 @@
         "total": 116
       },
       "function": {
-        "covered": 2,
+        "covered": 13,
         "partial": 1,
-        "missing": 47,
+        "missing": 36,
         "total": 50
       },
       "const": {
@@ -63,15 +63,15 @@
         "total": 691
       },
       "interface": {
-        "covered": 1,
+        "covered": 2,
         "partial": 0,
-        "missing": 63,
+        "missing": 62,
         "total": 64
       },
       "type": {
-        "covered": 15,
+        "covered": 16,
         "partial": 0,
-        "missing": 163,
+        "missing": 162,
         "total": 178
       },
       "property": {
@@ -13983,50 +13983,66 @@
     },
     {
       "path": "LocalStorage",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/storage.test.ts"
+      ],
       "weight": 960
     },
     {
       "path": "LocalStorage.Value",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/storage.test.ts"
+      ],
       "weight": 9
     },
     {
       "path": "LocalStorage.Values",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/storage.test.ts"
+      ],
       "weight": 9
     },
     {
       "path": "LocalStorage.allItems",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/storage.test.ts"
+      ],
       "weight": 82
     },
     {
       "path": "LocalStorage.clear",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/storage.test.ts"
+      ],
       "weight": 40
     },
     {
       "path": "LocalStorage.getItem",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/storage.test.ts"
+      ],
       "weight": 911
     },
     {
       "path": "LocalStorage.removeItem",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/storage.test.ts"
+      ],
       "weight": 398
     },
     {
       "path": "LocalStorage.setItem",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/storage.test.ts"
+      ],
       "weight": 935
     },
     {
@@ -15799,8 +15815,10 @@
     },
     {
       "path": "allLocalStorageItems",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/storage.test.ts"
+      ],
       "weight": 1
     },
     {
@@ -15823,8 +15841,10 @@
     },
     {
       "path": "clearLocalStorage",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/storage.test.ts"
+      ],
       "weight": 2
     },
     {
@@ -15993,8 +16013,10 @@
     },
     {
       "path": "getLocalStorageItem",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/storage.test.ts"
+      ],
       "weight": 10
     },
     {
@@ -16025,8 +16047,10 @@
     },
     {
       "path": "open",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/open.test.ts"
+      ],
       "weight": 928
     },
     {
@@ -16067,8 +16091,10 @@
     },
     {
       "path": "removeLocalStorageItem",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/storage.test.ts"
+      ],
       "weight": 3
     },
     {
@@ -16079,8 +16105,10 @@
     },
     {
       "path": "setLocalStorageItem",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/storage.test.ts"
+      ],
       "weight": 10
     },
     {

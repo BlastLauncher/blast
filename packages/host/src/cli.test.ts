@@ -1,5 +1,7 @@
 import { expect, test } from "bun:test";
 import { spawn } from "node:child_process";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -9,6 +11,7 @@ const cliPath = fileURLToPath(new URL("./cli.ts", import.meta.url));
 const root = fileURLToPath(new URL("../../../", import.meta.url));
 const helloList = join(root, "fixtures/extensions/hello-list");
 const hostSession = join(root, "fixtures/extensions/host-session");
+const storageFixture = join(root, "fixtures/extensions/storage");
 
 type CliResult = { code: number; stdout: string; stderr: string };
 
@@ -159,6 +162,9 @@ test("usage errors exit 2 and print usage", async () => {
   expect(missing.stderr).toContain("blast run <extensionDir> <command>");
   const flag = await runCli(["run", helloList, "index", "--bogus"]);
   expect(flag.code).toBe(2);
+  const dataDir = await runCli(["run", helloList, "index", "--data-dir", ""]);
+  expect(dataDir.code).toBe(2);
+  expect(dataDir.stderr).toContain("--data-dir must not be empty");
   const command = await runCli(["run", helloList, "nope"]);
   expect(command.code).toBe(2);
   expect(command.stderr).toContain("Unknown extension command");
@@ -192,4 +198,85 @@ test("back at the root reports a script error and help documents back", async ()
   expect(result.stderr).toContain("no navigation view to pop");
   const help = await runCli(["--help"]);
   expect(help.stdout).toContain("back            Pop the current navigation view.");
+});
+
+test("LocalStorage is granted by default and persists across runs in --data-dir", async () => {
+  const dataDir = await mkdtemp(join(tmpdir(), "blast-cli-storage-"));
+  try {
+    const first = await runCli(
+      ["run", storageFixture, "index", "--data-dir", dataDir, "--script", "-"],
+      "action Increment\nwait\nexpect count 1\nquit\n",
+    );
+    expect(first.code).toBe(0);
+    expect(first.stderr).toBe("");
+    expect(first.stdout).toContain('# capability storage.set {"key":"count","value":1}');
+    expect(JSON.parse(await readFile(join(dataDir, "storage", "storage.json"), "utf8"))).toEqual({
+      count: 1,
+    });
+
+    // A second process reads what the first wrote and continues from it.
+    const second = await runCli(
+      ["run", storageFixture, "index", "--data-dir", dataDir, "--script", "-"],
+      "action Increment\nwait\nexpect count 2\naction All\nwait\nexpect all\naction Remove\nwait\nexpect removed\naction Clear\nwait\nexpect cleared\nquit\n",
+    );
+    expect(second.code).toBe(0);
+    expect(second.stderr).toBe("");
+    expect(second.stdout).toContain('# capability storage.get {"key":"count"}');
+    expect(second.stdout).toContain("# capability storage.all {}");
+    expect(second.stdout).toContain('# capability storage.remove {"key":"count"}');
+    expect(JSON.parse(await readFile(join(dataDir, "storage", "storage.json"), "utf8"))).toEqual(
+      {},
+    );
+  } finally {
+    await rm(dataDir, { recursive: true, force: true });
+  }
+});
+
+test("open prints each granted target and grants URLs and files separately", async () => {
+  const dataDir = await mkdtemp(join(tmpdir(), "blast-cli-open-"));
+  try {
+    // Granting URLs must not grant file opens: the path request stays denied.
+    const urlOnly = await runCli(
+      [
+        "run",
+        storageFixture,
+        "index",
+        "--data-dir",
+        dataDir,
+        "--grant",
+        "open.url",
+        "--script",
+        "-",
+      ],
+      "action Open URL\nwait\nexpect opened url\naction Open File\nwait\nexpect failed\nquit\n",
+    );
+    expect(urlOnly.code).toBe(0);
+    expect(urlOnly.stderr).toBe("");
+    expect(urlOnly.stdout).toContain('# capability open.url {"url":"https://example.com/docs"}');
+    expect(urlOnly.stdout).toContain("# capability open.path denied");
+
+    const both = await runCli(
+      [
+        "run",
+        storageFixture,
+        "index",
+        "--data-dir",
+        dataDir,
+        "--grant",
+        "open.url",
+        "--grant",
+        "open.path",
+        "--script",
+        "-",
+      ],
+      "action Open File\nwait\nexpect opened file\nquit\n",
+    );
+    expect(both.code).toBe(0);
+    expect(both.stderr).toBe("");
+    expect(both.stdout).toContain(
+      '# capability open.path {"path":"/tmp/report.txt","application":"TextEdit"}',
+    );
+  } finally {
+    await rm(dataDir, { recursive: true, force: true });
+  }
 });

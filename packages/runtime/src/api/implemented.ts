@@ -25,3 +25,15 @@ export { Keyboard } from "./keyboard.ts";
 
 export { PushAction } from "./action.ts";
 export { useNavigation } from "./navigation.ts";
+
+export {
+  LocalStorage,
+  allLocalStorageItems,
+  clearLocalStorage,
+  getLocalStorageItem,
+  removeLocalStorageItem,
+  setLocalStorageItem,
+  type LocalStorageValue,
+  type LocalStorageValues,
+} from "./storage.ts";
+export { open, type Application } from "./open.ts";

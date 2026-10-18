@@ -80,6 +80,22 @@ needing extension assets or persistent support data should supply those paths.
 Callers own bundle output directories (default: a unique directory below
 `os.tmpdir()/blast/builds`) and remove them after sessions exit.
 
+## Local storage
+
+`LocalStorage` in the runtime is a capability client: `storage.get|set|remove|all|clear`
+carry a key and a value — never an extension name, which the host takes from the
+session. The host answers them with
+`createStorageHandlers({ extensionName, dataDir })`: one JSON file per extension
+at `<dataDir>/storage/<extension>.json` (default `<dataDir>`:
+`$XDG_DATA_HOME/blast`). `blast run` installs those handlers for the session's
+own extension by default — storage needs no `--grant` — and `--data-dir` moves
+the root. Writes are atomic (temp file + rename) and serialized, and a store the
+host cannot read fails the request rather than overwriting it.
+
+`open(target, application?)` requests `open.url` for URLs (a `file:` URL counts
+as a file) and `open.path` for files, so a client can grant opening links
+without granting file opens.
+
 ## Debugging extensions
 
 `bun run blast run <extensionDir> <command>` bundles a command, runs it in a

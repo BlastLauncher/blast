@@ -32,6 +32,15 @@ Status: accepted 2026-10-18
 7. **Three packages:** `protocol` (messages, validation, framing; no
    dependencies), `runtime` (reconciler, API shim, child entry), `host`
    (bundling, spawning, sessions, broker, `blast` debug CLI).
+8. **Local storage is scoped to the session's extension.** `LocalStorage` sends
+   `storage.get|set|remove|all|clear`; the host keys the store by the extension
+   name the session already carries, so params can never name another
+   extension and a command only ever reaches its own namespace. Values are
+   strings, numbers or booleans in one JSON file per extension under the host
+   data directory, replaced atomically (temp file + rename) and serialized per
+   session. `open(target, application?)` is two capabilities — `open.url` for
+   URLs (a `file:` URL counts as a file), `open.path` for files — denied unless
+   granted.
 
 ## Why
 

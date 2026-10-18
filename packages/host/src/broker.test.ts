@@ -1,9 +1,10 @@
 import { expect, test } from "bun:test";
 import { createBroker } from "./broker.ts";
 
-test("open.url and clipboard.paste capabilities require explicit grants and preserve payloads", async () => {
+test("open.url, open.path and clipboard.paste capabilities require explicit grants and preserve payloads", async () => {
   for (const [name, params] of [
     ["open.url", { url: "https://example.com" }],
+    ["open.path", { path: "/tmp/report.txt", application: "TextEdit" }],
     ["clipboard.paste", { text: "paste me" }],
   ] as const) {
     const request = { type: "capability.request", id: "action", name, params } as const;

@@ -1,0 +1,9 @@
+{
+  "name": "storage",
+  "commands": [
+    {
+      "name": "index",
+      "mode": "view"
+    }
+  ]
+}
