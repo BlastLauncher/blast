@@ -1,5 +1,7 @@
 // Implemented `@raycast/api` exports. Element-valued props are
 // rendered as `Slot` children (see docs/architecture.md, "Scene conventions").
+import { Image } from "./enums.generated.ts";
+
 export { Action, CopyToClipboard, type ActionProps, type CopyToClipboardProps } from "./action.ts";
 export {
   ActionPanel,
@@ -32,10 +34,21 @@ export {
   type PreferenceValues,
 } from "./preferences.ts";
 
-export { Icon, Color } from "./enums.generated.ts";
+export { Icon, Color, Image, LaunchType, PopToRootType } from "./enums.generated.ts";
+/** Deprecated alias of `Image.Mask`, exactly as the declarations define it. */
+export const ImageMask = Image.Mask;
 export { OpenInBrowser, Paste, CopyToClipboardAction, PasteAction } from "./action.ts";
 export { Detail, type DetailProps } from "./detail.ts";
 export { Keyboard } from "./keyboard.ts";
+
+export { closeMainWindow, type CloseMainWindowOptions } from "./window.ts";
+export {
+  launchCommand,
+  type LaunchCommandOptions,
+  type LaunchContext,
+  type LaunchProps,
+  type LaunchTypeValue,
+} from "./launch.ts";
 
 export { PushAction } from "./action.ts";
 export { popToRoot, useNavigation } from "./navigation.ts";

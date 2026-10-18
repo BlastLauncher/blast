@@ -28,6 +28,8 @@ export type InitOptions = {
   mode?: CommandMode;
   preferences?: Record<string, JsonValue>;
   environment?: InitEnvironment;
+  arguments?: Record<string, string>;
+  launchContext?: Record<string, JsonValue>;
 };
 
 export function startRuntime() {
@@ -90,6 +92,8 @@ export function startRuntime() {
             ),
           ),
           mode: options.mode ?? "view",
+          ...(options.arguments === undefined ? {} : { arguments: options.arguments }),
+          ...(options.launchContext === undefined ? {} : { launchContext: options.launchContext }),
         },
         preferences: options.preferences ?? {},
         environment: options.environment ?? defaultEnvironment,

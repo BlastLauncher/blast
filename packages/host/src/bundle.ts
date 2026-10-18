@@ -92,14 +92,69 @@ function require(specifier) {
 `.trim();
 
 export type BundleOptions = { extensionDir: string; command: string; outDir?: string };
+/** One `commands[].arguments` entry from an extension manifest. */
+export type CommandArgument = {
+  name: string;
+  type: string;
+  /** A required argument must be supplied before the command starts. */
+  required?: boolean;
+  placeholder?: string;
+};
 export type BundledCommand = {
   entry: string;
   extensionName: string;
   commandName: string;
   mode: CommandMode;
+  /** The manifest's argument declarations, in declaration order. */
+  arguments: CommandArgument[];
   /** `<outDir>/assets`, resolving to the extension's real assets when it has any. */
   assetsPath?: string;
 };
+
+/** The argument types Raycast's manifest schema defines. */
+const ARGUMENT_TYPES = ["text", "password", "dropdown"];
+
+/**
+ * Reads `commands[].arguments`. Unknown per-argument fields (`data` on a
+ * dropdown) are ignored: Raycast's manifest is the extension author's, and new
+ * optional fields must not make an existing extension unloadable.
+ */
+function parseCommandArguments(value: unknown): CommandArgument[] {
+  if (value === undefined) return [];
+  if (!Array.isArray(value)) throw new Error("Command arguments must be an array");
+  const names = new Set<string>();
+  return value.map((item, index) => {
+    if (typeof item !== "object" || item === null || Array.isArray(item)) {
+      throw new Error(`Argument ${index + 1} must be an object`);
+    }
+    const declared = item as Record<string, unknown>;
+    const name = declared["name"];
+    if (typeof name !== "string" || name === "")
+      throw new Error(`Argument ${index + 1} needs a name`);
+    if (names.has(name)) throw new Error(`Duplicate argument name ${JSON.stringify(name)}`);
+    names.add(name);
+    const type = declared["type"];
+    if (typeof type !== "string" || !ARGUMENT_TYPES.includes(type)) {
+      throw new Error(
+        `Argument ${JSON.stringify(name)} has an unknown type ${JSON.stringify(type)}`,
+      );
+    }
+    const argument: CommandArgument = { name, type };
+    const required = declared["required"];
+    if (required !== undefined) {
+      if (typeof required !== "boolean")
+        throw new Error(`Argument ${JSON.stringify(name)} needs a boolean "required"`);
+      argument.required = required;
+    }
+    const placeholder = declared["placeholder"];
+    if (placeholder !== undefined) {
+      if (typeof placeholder !== "string")
+        throw new Error(`Argument ${JSON.stringify(name)} needs a string "placeholder"`);
+      argument.placeholder = placeholder;
+    }
+    return argument;
+  });
+}
 
 /** Cap for the copy fallback, so a large assets directory cannot fill the disk. */
 const MAX_COPIED_ASSETS_BYTES = 64 * 1024 * 1024;
@@ -175,6 +230,7 @@ export async function bundleCommand(options: BundleOptions): Promise<BundledComm
   if (!/^[\w-]+$/.test(options.command)) throw new Error("Invalid command name");
   if (!["view", "no-view", "menu-bar"].includes(command.mode))
     throw new Error("Invalid command mode");
+  const commandArguments = parseCommandArguments(command.arguments);
   let source: string | undefined;
   for (const suffix of ["tsx", "ts", "jsx", "js"]) {
     const candidate = join(extensionDir, "src", `${options.command}.${suffix}`);
@@ -227,6 +283,7 @@ export async function bundleCommand(options: BundleOptions): Promise<BundledComm
     extensionName: manifest.name,
     commandName: command.name,
     mode: command.mode,
+    arguments: commandArguments,
     assetsPath: join(outDir, "assets"),
   };
 }

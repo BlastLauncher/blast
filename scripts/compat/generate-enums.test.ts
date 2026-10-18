@@ -17,6 +17,22 @@ test("enum extraction preserves declared strings and rejects unsupported declara
   expect(() => enumValues("export declare enum Icon {")).toThrow("Invalid enum declarations");
 });
 
+test("enum extraction reads namespaced enums and skips the ones the runtime does not implement", () => {
+  const source = [
+    'export declare enum Icon { Test = "exact-16" }',
+    'export declare enum Color { Red = "raycast-red" }',
+    'export declare namespace Image { export enum Mask { Circle = "circle", RoundedRectangle = "roundedRectangle" } }',
+    "declare enum Model { Numeric = 1 }",
+  ].join("\n");
+  // The numeric enum is not one of the generated paths, so its members are
+  // never validated; a nested namespace member is keyed by its public path.
+  expect(enumValues(source)).toEqual({
+    Icon: { Test: "exact-16" },
+    Color: { Red: "raycast-red" },
+    "Image.Mask": { Circle: "circle", RoundedRectangle: "roundedRectangle" },
+  });
+});
+
 test("enum generation is stable and checks both values and evidence for staleness", async () => {
   const root = mkdtempSync(join(tmpdir(), "blast-enums-"));
   try {

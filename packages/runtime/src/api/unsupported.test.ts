@@ -21,10 +21,17 @@ function unsupported(call: () => unknown, path: string) {
   }
 }
 
+// `Image` is the one type-kind top-level symbol with runtime members: the
+// declarations merge its interface with the `Image.Mask` value namespace, so
+// the shim exports it (the generated enum) alongside the type.
+const RUNTIME_TYPES = new Set(["Image"]);
+
 test("every value-level top-level inventory symbol is exported; types are absent", () => {
   const kinds = new Set(["namespace", "component", "function", "const", "class", "enum"]);
   for (const entry of inventory.entries.filter((candidate) => !candidate.path.includes("."))) {
-    expect(Object.hasOwn(api, entry.path)).toBe(kinds.has(entry.kind));
+    expect(Object.hasOwn(api, entry.path)).toBe(
+      kinds.has(entry.kind) || RUNTIME_TYPES.has(entry.path),
+    );
   }
 });
 

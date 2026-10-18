@@ -14,6 +14,7 @@ const hostSession = join(root, "fixtures/extensions/host-session");
 const hostApis = join(root, "fixtures/extensions/host-apis");
 const listExtras = join(root, "fixtures/extensions/list-extras");
 const storageFixture = join(root, "fixtures/extensions/storage");
+const launchFixture = join(root, "fixtures/extensions/launch");
 
 type CliResult = { code: number; stdout: string; stderr: string };
 
@@ -156,6 +157,97 @@ test("--json emits protocol-shaped NDJSON scenes", async () => {
   const scenes = messages.filter((message) => message.type === "scene");
   expect(scenes.length).toBeGreaterThanOrEqual(1);
   expect(scenes[0]?.root?.type).toBe("Navigation");
+});
+
+test("--argument supplies manifest values and errors on missing or unknown ones", async () => {
+  const provided = await runCli(
+    [
+      "run",
+      launchFixture,
+      "index",
+      "--argument",
+      "query=hello",
+      "--argument",
+      "option=one",
+      "--script",
+      "-",
+    ],
+    "expect hello one userInitiated idle\nquit\n",
+  );
+  expect(provided.code, provided.stderr).toBe(0);
+  expect(provided.stderr).toBe("");
+  // The manifest arguments reach the props, and `Image.Mask` values pass through.
+  expect(provided.stdout).toContain('List navigationTitle="launch hello one userInitiated idle"');
+  expect(provided.stdout).toContain('icon={"source":"avatar.png","mask":"circle"}');
+
+  const missing = await runCli(["run", launchFixture, "index"]);
+  expect(missing.code).toBe(2);
+  expect(missing.stderr).toContain('missing required argument query for "index"');
+  const unknown = await runCli([
+    "run",
+    launchFixture,
+    "index",
+    "--argument",
+    "bogus=1",
+    "--argument",
+    "query=hello",
+  ]);
+  expect(unknown.code).toBe(2);
+  expect(unknown.stderr).toContain('command "index" has no argument "bogus"');
+  const malformed = await runCli(["run", launchFixture, "index", "--argument", "query"]);
+  expect(malformed.code).toBe(2);
+  expect(malformed.stderr).toContain("--argument must be name=value");
+  const help = await runCli(["--help"]);
+  expect(help.stdout).toContain("--argument <name=value>");
+});
+
+test("--grant command.launch accepts the launch and a denial reaches the command", async () => {
+  const granted = await runCli(
+    [
+      "run",
+      launchFixture,
+      "index",
+      "--argument",
+      "query=hello",
+      "--grant",
+      "command.launch",
+      "--script",
+      "-",
+    ],
+    "action Launch\nwait\nexpect launched\nquit\n",
+  );
+  expect(granted.code, granted.stderr).toBe(0);
+  expect(granted.stdout).toContain(
+    '# capability command.launch {"name":"index","type":"userInitiated","arguments":{"query":"nested"},"context":{"from":"launch"}}',
+  );
+  // The launched command does not start a second session yet.
+  expect(granted.stdout).not.toContain("nested none userInitiated idle");
+
+  const denied = await runCli(
+    ["run", launchFixture, "index", "--argument", "query=hello", "--script", "-"],
+    "action Launch\nwait\nexpect failed Capability denied\nquit\n",
+  );
+  expect(denied.code, denied.stderr).toBe(0);
+  expect(denied.stdout).toContain("# capability command.launch denied");
+});
+
+test("closeMainWindow records its request on the Navigation scene node", async () => {
+  const view = await runCli(
+    ["run", launchFixture, "index", "--argument", "query=hello", "--script", "-"],
+    "action Close\nwait\nwait\nexpect closed\nquit\n",
+  );
+  expect(view.code, view.stderr).toBe(0);
+  expect(view.stderr).toBe("");
+  expect(view.stdout).toContain(
+    'Navigation depth=1 closeMainWindow={"clearRootSearch":true,"popToRootType":"immediate"}',
+  );
+  // A no-view command has no scene until the request mounts one.
+  const noView = await runCli(["run", launchFixture, "close"]);
+  expect(noView.code, noView.stderr).toBe(0);
+  expect(noView.stderr).toBe("");
+  expect(noView.stdout).toContain(
+    'closeMainWindow={"clearRootSearch":true,"popToRootType":"suspended"}',
+  );
 });
 
 test("usage errors exit 2 and print usage", async () => {

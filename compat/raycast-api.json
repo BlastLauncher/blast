@@ -2,21 +2,21 @@
   "version": "2.8.2",
   "totals": {
     "all": {
-      "covered": 831,
-      "partial": 51,
-      "missing": 1591,
+      "covered": 851,
+      "partial": 52,
+      "missing": 1570,
       "total": 2473
     },
     "nonDeprecated": {
-      "covered": 809,
-      "partial": 46,
-      "missing": 679,
+      "covered": 826,
+      "partial": 47,
+      "missing": 661,
       "total": 1534
     },
     "deprecated": {
-      "covered": 22,
+      "covered": 25,
       "partial": 5,
-      "missing": 912,
+      "missing": 909,
       "total": 939
     },
     "kinds": {
@@ -33,9 +33,9 @@
         "total": 116
       },
       "function": {
-        "covered": 21,
+        "covered": 23,
         "partial": 4,
-        "missing": 25,
+        "missing": 23,
         "total": 50
       },
       "const": {
@@ -51,33 +51,33 @@
         "total": 3
       },
       "enum": {
-        "covered": 6,
+        "covered": 10,
         "partial": 0,
-        "missing": 7,
+        "missing": 3,
         "total": 13
       },
       "enum-member": {
-        "covered": 499,
+        "covered": 508,
         "partial": 0,
-        "missing": 192,
+        "missing": 183,
         "total": 691
       },
       "interface": {
         "covered": 7,
-        "partial": 1,
-        "missing": 56,
+        "partial": 2,
+        "missing": 55,
         "total": 64
       },
       "type": {
-        "covered": 19,
+        "covered": 20,
         "partial": 2,
-        "missing": 157,
+        "missing": 156,
         "total": 178
       },
       "property": {
-        "covered": 243,
+        "covered": 247,
         "partial": 19,
-        "missing": 1042,
+        "missing": 1038,
         "total": 1304
       },
       "method": {
@@ -12220,8 +12220,10 @@
     },
     {
       "path": "Image",
-      "status": "missing",
-      "tests": [],
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/image.test.ts"
+      ],
       "weight": 478
     },
     {
@@ -12286,20 +12288,26 @@
     },
     {
       "path": "Image.Mask",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 232
     },
     {
       "path": "Image.Mask.Circle",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 146
     },
     {
       "path": "Image.Mask.RoundedRectangle",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 99
     },
     {
@@ -12388,20 +12396,26 @@
     },
     {
       "path": "ImageMask",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/image.test.ts"
+      ],
       "weight": 8
     },
     {
       "path": "ImageMask.Circle",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/image.test.ts"
+      ],
       "weight": 6
     },
     {
       "path": "ImageMask.RoundedRectangle",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/image.test.ts"
+      ],
       "weight": 2
     },
     {
@@ -12746,14 +12760,18 @@
     },
     {
       "path": "LaunchProps",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/main.test.ts"
+      ],
       "weight": 657
     },
     {
       "path": "LaunchProps.arguments",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/main.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -12770,32 +12788,42 @@
     },
     {
       "path": "LaunchProps.launchContext",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/main.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "LaunchProps.launchType",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/main.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "LaunchType",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 454
     },
     {
       "path": "LaunchType.Background",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 124
     },
     {
       "path": "LaunchType.UserInitiated",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
       "weight": 408
     },
     {
@@ -15348,26 +15376,38 @@
     },
     {
       "path": "PopToRootType",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts",
+        "packages/runtime/src/api/window.test.ts"
+      ],
       "weight": 126
     },
     {
       "path": "PopToRootType.Default",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts",
+        "packages/runtime/src/api/window.test.ts"
+      ],
       "weight": 5
     },
     {
       "path": "PopToRootType.Immediate",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts",
+        "packages/runtime/src/api/window.test.ts"
+      ],
       "weight": 99
     },
     {
       "path": "PopToRootType.Suspended",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts",
+        "packages/runtime/src/api/window.test.ts"
+      ],
       "weight": 24
     },
     {
@@ -16260,8 +16300,10 @@
     },
     {
       "path": "closeMainWindow",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/window.test.ts"
+      ],
       "weight": 600
     },
     {
@@ -16362,8 +16404,10 @@
     },
     {
       "path": "environment.launchType",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/environment.test.ts"
+      ],
       "weight": 97
     },
     {
@@ -16450,8 +16494,10 @@
     },
     {
       "path": "launchCommand",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/launch.test.ts"
+      ],
       "weight": 398
     },
     {

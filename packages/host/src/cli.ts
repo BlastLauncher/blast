@@ -27,6 +27,7 @@ import {
   type Broker,
   type CapabilityHandler,
   type BundledCommand,
+  type CommandArgument,
   type Session,
 } from "./index.ts";
 
@@ -40,6 +41,10 @@ const USAGE = `Run a Raycast extension command headlessly.
 Usage: blast run <extensionDir> <command> [options]
 
 Options:
+  --argument <name=value>
+                        Set a manifest argument for this run (repeatable). An
+                        argument the manifest marks "required" must be given,
+                        and an unknown name is a usage error.
   --grant <capability>  Grant a capability to the command (repeatable). A
                         granted "clipboard.copy" records and prints the copied
                         text instead of touching an OS clipboard. LocalStorage
@@ -389,6 +394,7 @@ async function runScript(session: Session, steps: Step[]): Promise<void> {
 type RunOptions = {
   extensionDir: string;
   command: string;
+  argumentSpecs: string[];
   grants: string[];
   applications: Application[] | undefined;
   clipboard: string | undefined;
@@ -397,6 +403,39 @@ type RunOptions = {
   json: boolean;
   timeoutMs: number | undefined;
 };
+
+/** `--argument name=value` values, checked against the manifest's arguments. */
+function parseArgumentValues(
+  specs: readonly string[],
+  declared: readonly CommandArgument[],
+  command: string,
+): Record<string, string> {
+  const values: Record<string, string> = {};
+  for (const spec of specs) {
+    const separator = spec.indexOf("=");
+    if (separator < 1) {
+      throw new UsageError(`--argument must be name=value, got ${JSON.stringify(spec)}`);
+    }
+    const name = spec.slice(0, separator);
+    if (!declared.some((argument) => argument.name === name)) {
+      throw new UsageError(
+        `command ${JSON.stringify(command)} has no argument ${JSON.stringify(name)}`,
+      );
+    }
+    values[name] = spec.slice(separator + 1);
+  }
+  const missing = declared.filter(
+    (argument) => argument.required === true && values[argument.name] === undefined,
+  );
+  if (missing.length) {
+    const names = missing.map((argument) => argument.name).join(", ");
+    throw new UsageError(
+      `missing required ${missing.length === 1 ? "argument" : "arguments"} ${names} for ` +
+        `${JSON.stringify(command)}: pass --argument <name=value>`,
+    );
+  }
+  return values;
+}
 
 // Best-effort temp cleanup when the CLI itself is interrupted; the runtime
 // child exits on its own once the parent's stdin pipe closes.
@@ -454,6 +493,11 @@ async function run(options: RunOptions): Promise<number> {
     }
     outDir = dirname(bundled.entry);
     cleanupDirectory = outDir;
+    const argumentValues = parseArgumentValues(
+      options.argumentSpecs,
+      bundled.arguments,
+      options.command,
+    );
     // Local storage is granted to the session's own extension by default and
     // overrides `--grant storage.*`, so a stale grant cannot disable it. The
     // read-only headless defaults override a bare `--grant` the same way:
@@ -469,6 +513,7 @@ async function run(options: RunOptions): Promise<number> {
     session = await Promise.race([
       startCommand({
         ...bundled,
+        argumentValues,
         dataDir: options.dataDir,
         broker: reportingBroker(createBroker(handlers), output),
       }),
@@ -513,6 +558,7 @@ function parseArguments(argv: string[]) {
       args: argv,
       allowPositionals: true,
       options: {
+        argument: { type: "string", multiple: true },
         grant: { type: "string", multiple: true },
         applications: { type: "string" },
         clipboard: { type: "string" },
@@ -593,6 +639,7 @@ async function main(argv: string[]): Promise<number> {
   return run({
     extensionDir,
     command,
+    argumentSpecs: parsed.values.argument ?? [],
     grants: parsed.values.grant ?? [],
     applications:
       applicationsPath === undefined ? undefined : await readApplications(applicationsPath),

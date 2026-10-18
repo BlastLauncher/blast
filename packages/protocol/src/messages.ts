@@ -35,6 +35,10 @@ export type InitCommand = {
   name: string;
   entry: string;
   mode: CommandMode;
+  /** Manifest argument values, keyed by argument name (decision 0001). */
+  arguments?: Record<string, string>;
+  /** The `launchCommand({ context })` payload of this launch, if any. */
+  launchContext?: Record<string, JsonValue>;
 };
 
 export type InitEnvironment = {
@@ -201,6 +205,15 @@ function readJsonObject(value: unknown, path: string): Record<string, JsonValue>
   return result;
 }
 
+function readStringRecord(value: unknown, path: string): Record<string, string> {
+  const object = readObject(value, path);
+  const result: Record<string, string> = {};
+  for (const [key, item] of Object.entries(object)) {
+    result[key] = readString(item, keyPath(path, key));
+  }
+  return result;
+}
+
 function readErrorInfo(value: unknown, path: string): ErrorInfo {
   const object = readObject(value, path);
   checkKeys(object, path, ["code", "message"]);
@@ -224,12 +237,22 @@ function readCommandMode(value: unknown, path: string): CommandMode {
 
 function readCommand(value: unknown, path: string): InitCommand {
   const object = readObject(value, path);
-  checkKeys(object, path, ["extension", "name", "entry", "mode"]);
+  checkKeys(object, path, ["extension", "name", "entry", "mode", "arguments", "launchContext"]);
+  // Optional fields stay absent and never materialize as `undefined`, so a
+  // parsed message equals the message that was sent.
+  const commandArguments = object["arguments"];
+  const launchContext = object["launchContext"];
   return {
     extension: readString(object["extension"], keyPath(path, "extension")),
     name: readString(object["name"], keyPath(path, "name")),
     entry: readString(object["entry"], keyPath(path, "entry")),
     mode: readCommandMode(object["mode"], keyPath(path, "mode")),
+    ...(commandArguments === undefined
+      ? {}
+      : { arguments: readStringRecord(commandArguments, keyPath(path, "arguments")) }),
+    ...(launchContext === undefined
+      ? {}
+      : { launchContext: readJsonObject(launchContext, keyPath(path, "launchContext")) }),
   };
 }
 

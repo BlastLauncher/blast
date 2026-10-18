@@ -6,10 +6,12 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 
 import { FeedbackScene } from "./feedback.ts";
+import { closeRequest, subscribeCloseRequest } from "./window.ts";
 
 export interface Navigation {
   push(component: ReactNode, onPop?: () => void): void;
@@ -44,6 +46,9 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
   const nextId = useRef(1);
   const [stack, setStack] = useState<Entry[]>([]);
   const [popToRootOptions, setPopToRootOptions] = useState<PopToRootOptions>();
+  // A fresh object per `closeMainWindow()` call, so the snapshot identity
+  // changes and `closeMainWindow` props follow the recorded request.
+  const closeMainWindow = useSyncExternalStore(subscribeCloseRequest, closeRequest, closeRequest);
   const navigation = useMemo<Navigation>(
     () => ({
       push(component, onPop) {
@@ -89,6 +94,7 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
         depth: stack.length + 1,
         pop: stack.length ? navigation.pop : undefined,
         popToRoot: popToRootOptions,
+        closeMainWindow,
       },
       createElement("Navigation.Entry", { key: 0, active: stack.length === 0 }, children),
       ...stack.map((entry, index) =>

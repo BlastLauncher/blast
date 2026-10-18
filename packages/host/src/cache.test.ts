@@ -18,6 +18,7 @@ test("host creates stable escaped support paths and Cache persists across runtim
         extensionName,
         commandName,
         mode: "no-view",
+        arguments: [],
         dataDir,
         broker: createBroker(),
       });

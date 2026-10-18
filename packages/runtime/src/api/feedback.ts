@@ -1,5 +1,6 @@
 import { createElement as h, useLayoutEffect, useSyncExternalStore } from "react";
 import type { ImageLike, Shortcut } from "./types.ts";
+import type { PopToRootTypeValue } from "./window.ts";
 
 export interface ToastActionOptions {
   title: string;
@@ -28,7 +29,7 @@ export interface AlertOptions {
 }
 export interface HUDOptions {
   clearRootSearch?: boolean;
-  popToRootType?: string;
+  popToRootType?: PopToRootTypeValue;
 }
 
 export const Alert = {
@@ -49,13 +50,20 @@ let mount: (() => void) | undefined;
 export function setFeedbackMount(callback: () => void) {
   mount = callback;
 }
+/**
+ * Mounts that lazily created scene, if the command has one. Feedback state and
+ * the window's `closeMainWindow` request both publish through it.
+ */
+export function mountScene(): void {
+  mount?.();
+}
 function changed(wait = false): Promise<void> {
   revision++;
   const result = wait
     ? new Promise<void>((resolve) => committed.set(revision, resolve))
     : Promise.resolve();
   for (const listener of listeners) listener();
-  mount?.();
+  mountScene();
   return result;
 }
 const subscribe = (listener: () => void) => {

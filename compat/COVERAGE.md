@@ -4,16 +4,16 @@ Denominator: the `@raycast/api@2.8.2` declarations. Evidence:
 `// @covers` tags in `packages/**/*.test.ts(x)`. A parent is not implied covered
 by its children. Partial support is reported separately from covered.
 
-**Non-deprecated coverage: 809/1534 covered (52.7%), 46 partial, 679 missing.**
-Deprecated: 22/939 covered (2.3%), 5 partial, 912 missing.
+**Non-deprecated coverage: 826/1534 covered (53.8%), 47 partial, 661 missing.**
+Deprecated: 25/939 covered (2.7%), 5 partial, 909 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 809 | 22 | 831 |
-| partial | 46 | 5 | 51 |
-| missing | 679 | 912 | 1591 |
+| covered | 826 | 25 | 851 |
+| partial | 47 | 5 | 52 |
+| missing | 661 | 909 | 1570 |
 
 ## Totals by kind
 
@@ -21,14 +21,14 @@ Deprecated: 22/939 covered (2.3%), 5 partial, 912 missing.
 | --- | --- | --- | --- | --- |
 | namespace | 3 | 1 | 5 | 9 |
 | component | 20 | 23 | 73 | 116 |
-| function | 21 | 4 | 25 | 50 |
+| function | 23 | 4 | 23 | 50 |
 | const | 1 | 1 | 19 | 21 |
 | class | 2 | 0 | 1 | 3 |
-| enum | 6 | 0 | 7 | 13 |
-| enum-member | 499 | 0 | 192 | 691 |
-| interface | 7 | 1 | 56 | 64 |
-| type | 19 | 2 | 157 | 178 |
-| property | 243 | 19 | 1042 | 1304 |
+| enum | 10 | 0 | 3 | 13 |
+| enum-member | 508 | 0 | 183 | 691 |
+| interface | 7 | 2 | 55 | 64 |
+| type | 20 | 2 | 156 | 178 |
+| property | 247 | 19 | 1038 | 1304 |
 | method | 10 | 0 | 14 | 24 |
 
 ## Top-level symbols
@@ -97,16 +97,16 @@ Children counts include all descendants, as covered/partial/total.
 | `FormValues` | interface | missing | 0/0/0 | 1 |
 | `Grid` | component | missing | 0/0/87 | 311 |
 | `Icon` | enum | covered | 478/0/478 | 2587 |
-| `Image` | interface | missing | 0/0/21 | 478 |
+| `Image` | interface | partial | 3/0/21 | 478 |
 | `ImageLike` | type | missing | 0/0/5 | 2 |
-| `ImageMask` | enum | missing | 0/0/2 | 8 |
+| `ImageMask` | enum | covered | 2/0/2 | 8 |
 | `ImageSource` | type | missing | 0/0/2 | 0 |
 | `KeyEquivalent` | type | missing | 0/0/0 | 4 |
 | `KeyModifier` | type | missing | 0/0/0 | 0 |
 | `Keyboard` | namespace | covered | 19/0/32 | 790 |
 | `KeyboardShortcut` | type | missing | 0/0/11 | 1 |
-| `LaunchProps` | type | missing | 0/0/5 | 657 |
-| `LaunchType` | enum | missing | 0/0/2 | 454 |
+| `LaunchProps` | type | covered | 3/0/5 | 657 |
+| `LaunchType` | enum | covered | 2/0/2 | 454 |
 | `List` | component | partial | 71/14/122 | 2604 |
 | `ListItem` | component | missing | 0/0/52 | 1 |
 | `ListItemProps` | interface | missing | 0/0/19 | 0 |
@@ -127,7 +127,7 @@ Children counts include all descendants, as covered/partial/total.
 | `OpenWithActionProps` | interface | missing | 0/0/5 | 0 |
 | `PasteAction` | component | partial | 0/0/6 | 2 |
 | `PasteActionProps` | interface | missing | 0/0/5 | 0 |
-| `PopToRootType` | enum | missing | 0/0/3 | 126 |
+| `PopToRootType` | enum | covered | 3/0/3 | 126 |
 | `Preference` | interface | missing | 0/0/10 | 0 |
 | `PreferenceValues` | interface | missing | 0/0/0 | 14 |
 | `Preferences` | type | missing | 0/0/0 | 4 |
@@ -151,10 +151,10 @@ Children counts include all descendants, as covered/partial/total.
 | `clearClipboard` | function | missing | 0/0/0 | 0 |
 | `clearLocalStorage` | function | covered | 0/0/0 | 2 |
 | `clearSearchBar` | function | missing | 0/0/0 | 41 |
-| `closeMainWindow` | function | missing | 0/0/0 | 600 |
+| `closeMainWindow` | function | covered | 0/0/0 | 600 |
 | `confirmAlert` | function | partial | 0/0/0 | 849 |
 | `copyTextToClipboard` | function | missing | 0/0/0 | 3 |
-| `environment` | const | partial | 6/0/17 | 738 |
+| `environment` | const | partial | 7/0/17 | 738 |
 | `getApplications` | function | covered | 0/0/0 | 216 |
 | `getDefaultApplication` | function | missing | 0/0/0 | 20 |
 | `getFrontmostApplication` | function | missing | 0/0/0 | 99 |
@@ -162,7 +162,7 @@ Children counts include all descendants, as covered/partial/total.
 | `getPreferenceValues` | function | partial | 0/0/0 | 2119 |
 | `getSelectedFinderItems` | function | missing | 0/0/0 | 164 |
 | `getSelectedText` | function | missing | 0/0/0 | 249 |
-| `launchCommand` | function | missing | 0/0/0 | 398 |
+| `launchCommand` | function | covered | 0/0/0 | 398 |
 | `open` | function | covered | 0/0/0 | 928 |
 | `openCommandPreferences` | function | covered | 0/0/0 | 187 |
 | `openExtensionPreferences` | function | covered | 0/0/0 | 541 |
@@ -192,12 +192,6 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 
 | Path | Extensions |
 | --- | --- |
-| `LaunchProps` | 657 |
-| `closeMainWindow` | 600 |
-| `Image` | 478 |
-| `LaunchType` | 454 |
-| `LaunchType.UserInitiated` | 408 |
-| `launchCommand` | 398 |
 | `MenuBarExtra` | 342 |
 | `MenuBarExtra.Item` | 328 |
 | `MenuBarExtra.Item.Props.title` | 328 |
@@ -220,7 +214,6 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `getSelectedText` | 249 |
 | `Form.FilePicker.Props.title` | 246 |
 | `Form.FilePicker.Props.allowMultipleSelection` | 238 |
-| `Image.Mask` | 232 |
 | `MenuBarExtra.Props.title` | 232 |
 | `Action.Open` | 227 |
 | `Grid.Props.columns` | 227 |
@@ -242,3 +235,10 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `Form.TagPicker.Props.title` | 167 |
 | `Grid.Item.Props.subtitle` | 165 |
 | `Grid.EmptyView` | 164 |
+| `getSelectedFinderItems` | 164 |
+| `ActionPanel.Submenu.Props.shortcut` | 158 |
+| `Grid.EmptyView.Props.title` | 152 |
+| `Action.Open.Props.icon` | 145 |
+| `showInFinder` | 145 |
+| `Grid.Props.searchBarAccessory` | 144 |
+| `Grid.Dropdown` | 141 |

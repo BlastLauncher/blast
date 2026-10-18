@@ -1,0 +1,35 @@
+{
+  "name": "launch",
+  "commands": [
+    {
+      "name": "index",
+      "mode": "view",
+      "arguments": [
+        {
+          "name": "query",
+          "type": "text",
+          "placeholder": "What to search",
+          "required": true
+        },
+        {
+          "name": "option",
+          "type": "dropdown",
+          "data": [
+            {
+              "title": "One",
+              "value": "one"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "close",
+      "mode": "no-view"
+    },
+    {
+      "name": "props",
+      "mode": "no-view"
+    }
+  ]
+}
