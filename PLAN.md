@@ -8,7 +8,7 @@ files.
 
 M2 done. M3 — coverage to 100%: 0031 and 0032 in parallel. Then
 alternate: curated failures first, else the top of "Top missing by usage" in
-`compat/COVERAGE.md`. Known gap: `List.onSearchTextChange` undeclared.
+`compat/COVERAGE.md`.
 
 ## Milestones
 
