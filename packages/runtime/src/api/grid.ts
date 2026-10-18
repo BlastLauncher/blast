@@ -1,21 +1,15 @@
 import { createElement, type ReactNode } from "react";
+import { GridFit, GridInset, GridItemSize } from "./enums.generated.ts";
 import { slot } from "./slot.ts";
 import type { ColorLike, ImageLike } from "./types.ts";
 
-// Hand-written enum values from `compat/raycast-api/index.d.ts` (`GridInset`,
-// `GridFit`, `GridItemSize`), following the `Action.Style` / `Toast.Style`
-// precedent; the generated enum file only carries `Icon` and `Color`.
-
 /** `Grid.ItemSize`: the size of the grid's items; deprecated for `columns`. */
-export const GridItemSize = { Small: "small", Medium: "medium", Large: "large" } as const;
 export type GridItemSize = (typeof GridItemSize)[keyof typeof GridItemSize];
 
 /** `Grid.Inset`: space between an item's content and its borders. */
-export const GridInset = { Zero: "zero", Small: "sm", Medium: "md", Large: "lg" } as const;
 export type GridInset = (typeof GridInset)[keyof typeof GridInset];
 
 /** `Grid.Fit`: how item content fits its cell. */
-export const GridFit = { Contain: "contain", Fill: "fill" } as const;
 export type GridFit = (typeof GridFit)[keyof typeof GridFit];
 
 /** Allowed `aspectRatio` values, widened from the `GridAspectRatio` enum. */

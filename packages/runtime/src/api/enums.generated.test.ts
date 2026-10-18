@@ -2,7 +2,11 @@
 import { expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { enumValues } from "../../../../scripts/compat/generate-enums.ts";
-import { Color, Icon, Image, LaunchType, PopToRootType } from "./index.ts";
+import * as generated from "./enums.generated.ts";
+import * as api from "./index.ts";
+
+const at = (object: unknown, path: string) =>
+  path.split(".").reduce((node, key) => (node as Record<string, unknown>)[key], object);
 
 // @covers Color
 // @covers Color.Blue
@@ -503,27 +507,37 @@ import { Color, Icon, Image, LaunchType, PopToRootType } from "./index.ts";
 // @covers PopToRootType.Default
 // @covers PopToRootType.Immediate
 // @covers PopToRootType.Suspended
-test("every generated enum member matches its declaration", () => {
+test("every declared enum is generated with its declared members", () => {
   const expected = enumValues(
     readFileSync(new URL("../../../../compat/raycast-api/index.d.ts", import.meta.url), "utf8"),
   );
-  const generated: Record<string, unknown> = {
-    Color,
-    Icon,
-    "Image.Mask": Image.Mask,
-    LaunchType,
-    PopToRootType,
-  };
-  expect(Object.keys(generated).toSorted()).toEqual([
+  const paths = [
+    "AI.Model",
+    "ActionStyle",
+    "AlertActionStyle_2",
     "Color",
+    "DatePickerType",
+    "DatePickerType_2",
+    "GridAspectRatio",
+    "GridFit",
+    "GridInset",
+    "GridItemSize",
     "Icon",
     "Image.Mask",
     "LaunchType",
+    "OAuth.RedirectMethod",
     "PopToRootType",
-  ]);
+    "ToastStyle_2",
+    "WindowManagement.DesktopType",
+  ];
+  expect(Object.keys(expected).toSorted()).toEqual(paths);
   for (const [path, declared] of Object.entries(expected)) {
-    const members = generated[path] as Record<string, string>;
+    const members = at(generated, path) as Record<string, string>;
     expect(members as unknown).toEqual(declared);
     for (const [key, value] of Object.entries(declared)) expect(members[key]).toBe(value);
   }
+});
+test("the public API surface serves the generated enum values", () => {
+  const paths = ["Color", "Icon", "Image.Mask", "LaunchType", "PopToRootType"];
+  for (const path of paths) expect(at(api, path)).toEqual(at(generated, path));
 });
