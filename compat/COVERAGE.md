@@ -4,23 +4,23 @@ Denominator: the `@raycast/api@2.8.2` declarations. Evidence:
 `// @covers` tags in `packages/**/*.test.ts(x)`. A parent is not implied covered
 by its children. Partial support is reported separately from covered.
 
-**Non-deprecated coverage: 934/1534 covered (60.9%), 66 partial, 534 missing.**
-Deprecated: 30/939 covered (3.2%), 5 partial, 904 missing.
+**Non-deprecated coverage: 974/1534 covered (63.5%), 75 partial, 485 missing.**
+Deprecated: 35/939 covered (3.7%), 5 partial, 899 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 934 | 30 | 964 |
-| partial | 66 | 5 | 71 |
-| missing | 534 | 904 | 1438 |
+| covered | 974 | 35 | 1009 |
+| partial | 75 | 5 | 80 |
+| missing | 485 | 899 | 1384 |
 
 ## Totals by kind
 
 | Kind | Covered | Partial | Missing | Total |
 | --- | --- | --- | --- | --- |
 | namespace | 3 | 1 | 5 | 9 |
-| component | 24 | 32 | 60 | 116 |
+| component | 29 | 41 | 46 | 116 |
 | function | 29 | 4 | 17 | 50 |
 | const | 1 | 1 | 19 | 21 |
 | class | 2 | 0 | 1 | 3 |
@@ -28,8 +28,8 @@ Deprecated: 30/939 covered (3.2%), 5 partial, 904 missing.
 | enum-member | 508 | 0 | 183 | 691 |
 | interface | 8 | 2 | 54 | 64 |
 | type | 27 | 3 | 148 | 178 |
-| property | 342 | 28 | 934 | 1304 |
-| method | 10 | 0 | 14 | 24 |
+| property | 381 | 28 | 895 | 1304 |
+| method | 11 | 0 | 13 | 24 |
 
 ## Top-level symbols
 
@@ -38,8 +38,8 @@ Children counts include all descendants, as covered/partial/total.
 | Symbol | Kind | Status | Children | Extensions |
 | --- | --- | --- | --- | --- |
 | `AI` | namespace | missing | 0/0/266 | 115 |
-| `Action` | component | partial | 34/6/110 | 2985 |
-| `ActionPanel` | component | partial | 4/2/129 | 3023 |
+| `Action` | component | partial | 64/14/110 | 2985 |
+| `ActionPanel` | component | partial | 14/3/129 | 3023 |
 | `ActionPanelChildren` | type | missing | 0/0/0 | 0 |
 | `ActionPanelItem` | component | partial | 0/0/104 | 1 |
 | `ActionPanelItemProps` | interface | missing | 0/0/7 | 0 |
@@ -48,7 +48,7 @@ Children counts include all descendants, as covered/partial/total.
 | `ActionPanelSectionChildren` | type | missing | 0/0/0 | 0 |
 | `ActionPanelSectionProps` | interface | missing | 0/0/2 | 0 |
 | `ActionPanelState` | interface | missing | 0/0/1 | 0 |
-| `ActionPanelSubmenu` | component | missing | 0/0/13 | 0 |
+| `ActionPanelSubmenu` | component | covered | 0/0/13 | 0 |
 | `ActionPanelSubmenuProps` | interface | missing | 0/0/12 | 0 |
 | `Alert` | namespace | covered | 13/1/15 | 718 |
 | `AlertActionOptions` | interface | missing | 0/0/3 | 0 |
@@ -119,11 +119,11 @@ Children counts include all descendants, as covered/partial/total.
 | `MenuBarExtra` | component | partial | 26/2/28 | 342 |
 | `Navigation` | interface | covered | 2/0/2 | 5 |
 | `OAuth` | namespace | missing | 0/0/68 | 135 |
-| `OpenAction` | component | missing | 0/0/7 | 3 |
+| `OpenAction` | component | covered | 0/0/7 | 3 |
 | `OpenActionProps` | interface | missing | 0/0/6 | 0 |
 | `OpenInBrowserAction` | component | missing | 0/0/6 | 29 |
 | `OpenInBrowserActionProps` | interface | missing | 0/0/5 | 0 |
-| `OpenWithAction` | component | missing | 0/0/6 | 1 |
+| `OpenWithAction` | component | covered | 0/0/6 | 1 |
 | `OpenWithActionProps` | interface | missing | 0/0/5 | 0 |
 | `PasteAction` | component | partial | 0/0/6 | 2 |
 | `PasteActionProps` | interface | missing | 0/0/5 | 0 |
@@ -133,7 +133,7 @@ Children counts include all descendants, as covered/partial/total.
 | `Preferences` | type | missing | 0/0/0 | 4 |
 | `PushAction` | component | covered | 0/0/7 | 8 |
 | `PushActionProps` | interface | missing | 0/0/6 | 0 |
-| `ShowInFinderAction` | component | missing | 0/0/6 | 0 |
+| `ShowInFinderAction` | component | covered | 0/0/6 | 0 |
 | `ShowInFinderActionProps` | interface | missing | 0/0/5 | 0 |
 | `SubmitFormAction` | const | missing | 0/0/1 | 11 |
 | `SubmitFormActionProps` | interface | missing | 0/0/5 | 0 |
@@ -142,7 +142,7 @@ Children counts include all descendants, as covered/partial/total.
 | `ToastOptions` | interface | missing | 0/0/5 | 0 |
 | `ToastStyle` | enum | covered | 3/0/3 | 44 |
 | `Tool` | namespace | missing | 0/0/1 | 128 |
-| `TrashAction` | component | missing | 0/0/6 | 0 |
+| `TrashAction` | component | covered | 0/0/6 | 0 |
 | `TrashActionProps` | interface | missing | 0/0/5 | 0 |
 | `WindowManagement` | namespace | missing | 0/0/30 | 2 |
 | `allLocalStorageItems` | function | covered | 0/0/0 | 1 |
@@ -192,23 +192,13 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 
 | Path | Extensions |
 | --- | --- |
-| `ActionPanel.Submenu` | 284 |
-| `ActionPanel.Submenu.Props.title` | 284 |
 | `Image.ImageLike` | 279 |
-| `ActionPanel.Submenu.Props.icon` | 267 |
-| `Action.Open` | 227 |
-| `Action.Open.Props.target` | 226 |
-| `Action.Open.Props.title` | 226 |
 | `List.Props.pagination` | 206 |
-| `Action.ShowInFinder` | 192 |
-| `Action.ShowInFinder.Props.path` | 192 |
 | `Form.TagPicker` | 168 |
 | `Form.TagPicker.Item` | 168 |
 | `Form.TagPicker.Item.Props.title` | 168 |
 | `Form.TagPicker.Item.Props.value` | 168 |
 | `Form.TagPicker.Props.title` | 167 |
-| `ActionPanel.Submenu.Props.shortcut` | 158 |
-| `Action.Open.Props.icon` | 145 |
 | `OAuth` | 135 |
 | `OAuth.PKCEClient` | 134 |
 | `OAuth.RedirectMethod` | 134 |
@@ -220,25 +210,35 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `OAuth.RedirectMethod.Web` | 112 |
 | `environment.canAccess` | 107 |
 | `Form.TagPicker.Props.id` | 106 |
-| `Action.CreateQuicklink` | 97 |
-| `Action.CreateQuicklink.Props.quicklink` | 97 |
 | `Form.PasswordField.Props.placeholder` | 93 |
 | `Form.Props.enableDrafts` | 90 |
-| `Action.OpenWith` | 88 |
-| `Action.OpenWith.Props.path` | 87 |
 | `Keyboard.KeyEquivalent` | 85 |
-| `Action.ShowInFinder.Props.title` | 83 |
 | `environment.appearance` | 82 |
 | `AI.ask` | 79 |
-| `Action.Open.Props.shortcut` | 72 |
 | `Form.PasswordField.Props.id` | 72 |
 | `Action.ShowInFinder.Props.shortcut` | 68 |
-| `Action.CreateQuicklink.Props.title` | 67 |
 | `Form.TagPicker.Item.Props.icon` | 66 |
 | `Form.TagPicker.Props.placeholder` | 66 |
 | `List.Item.Props` | 64 |
 | `BrowserExtension` | 62 |
 | `OAuth.TokenResponse` | 61 |
 | `BrowserExtension.getTabs` | 60 |
-| `Action.Open.Props.application` | 58 |
 | `List.Item.Props.accessoryTitle` | 58 |
+| `Action.OpenWith.Props.shortcut` | 56 |
+| `Form.TagPicker.Props.onChange` | 53 |
+| `OAuth.AuthorizationRequest` | 53 |
+| `Action.CreateQuicklink.Props.shortcut` | 51 |
+| `Form.TagPicker.Props.value` | 47 |
+| `Color.ColorLike` | 44 |
+| `Form.PasswordField.Props.onChange` | 44 |
+| `Keyboard.KeyModifier` | 44 |
+| `Form.TagPicker.Props.defaultValue` | 41 |
+| `captureException` | 41 |
+| `clearSearchBar` | 41 |
+| `Form.LinkAccessory` | 38 |
+| `Form.LinkAccessory.Props.target` | 38 |
+| `Form.LinkAccessory.Props.text` | 38 |
+| `Form.PasswordField.Props.info` | 36 |
+| `AI.Model` | 35 |
+| `Form.PasswordField.Props.value` | 34 |
+| `Form.Values` | 33 |

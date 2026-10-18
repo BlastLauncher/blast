@@ -136,7 +136,8 @@ application is `{ name: "Headless", path: "" }`. The corresponding capabilities
 are `selection.text`, `selection.files`, and `applications.frontmost`.
 `showInFinder(path)` and `trash(pathOrPaths)` request `finder.show` and `trash`.
 Everything else, including `clipboard.paste` and `clipboard.clear`, still needs `--grant`. `--script <file|->` drives the run with
-one command per line: `action <title>`, `back`, `confirm`, `dismiss`,
+one command per line: `action <title>`, `submenu <title>` (dispatches an
+`ActionPanel.Submenu`'s `onOpen`), `back`, `confirm`, `dismiss`,
 `search <text>`, `dropdown <value>`, `field <id> <value>`, `submit`, `wait`,
 `expect <text>`, `quit`. Form fields expose runtime-owned `value` and `onChange`;
 `field` sends strings, or `true`/`false` for checkboxes (dates use ISO strings).
