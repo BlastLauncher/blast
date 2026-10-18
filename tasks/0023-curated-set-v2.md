@@ -1,7 +1,7 @@
 ---
 id: "0023"
 title: Curated set v2 — 40 commands chosen by script, incl. @raycast/utils
-status: doing
+status: review
 milestone: M3
 depends: []
 ---
@@ -34,11 +34,11 @@ priorities.
 
 ## Acceptance
 
-- [ ] Selection is reproducible: running the script twice yields the same
+- [x] Selection is reproducible: running the script twice yields the same
       list (unit test on the pure selection logic with fixture manifests).
-- [ ] `compat/corpus.json` and smoke reports committed; Handoff has the
+- [x] `compat/corpus.json` and smoke reports committed; Handoff has the
       blocker ranking.
-- [ ] `bun run verify` passes; `.cache/raycast-extensions` deleted.
+- [x] `bun run verify` passes; `.cache/raycast-extensions` deleted.
 
 ## Out of scope
 
@@ -47,8 +47,30 @@ priorities.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: <branch> @ <sha>
+Verify: <summary line>
 Done:
+- scripts/corpus/selection.ts (pure rules: dependency/view-command/static
+  source verdicts, name-hash ranking, strata quotas) + selection.test.ts;
+  scripts/corpus/select.ts + `bun run corpus:select` writes compat/corpus.json.
+- Curated set is now the 10 kept extensions (fixed first, re-checked against
+  the same rules) plus 10 Form, 10 Detail-heavy and 10 @raycast/utils-hook
+  extensions = 40, all of the new picks offline.
+- Smoke run: 66 commands over 40 extensions, 35 rendered.
+- Kept 0012's `sources()` reuse by exporting it from scan.ts; updated the
+  corpus pin test (first ten intact, >= 40 curated).
 Not done / risks:
+- Blocker ranking (commands blocked), from compat/smoke.json: Cache 13,
+  Form 6, getApplications 4, openExtensionPreferences 2, Clipboard.readText 1,
+  Grid 1. Also unsupported-mode 2 (one menu-bar command, one no-view command
+  that never publishes a scene) and crashed 2 (ego-lite `__filename is not
+  defined`; google-maps-search `Capability denied: open.url`, i.e. the
+  deny-all broker of the smoke run, not an API gap).
+- Quota reading: the task's "~40" total and "~10 more List-only" cannot both
+  hold, so quotas are list-only 10 (already met by the ten kept extensions),
+  Form 10, Detail 10, utils 10; all four are recorded in corpus.json.
+- Stratum source rules are regexes (documented in `criteria`), so they are
+  best-effort: they can mislabel a matched extension, never a missing rule.
+- `corpus:select` scans up to SCAN_CAP=768 candidates (~166 MB checkout) so
+  every quota can be filled offline; the task's disk guard applies throughout.
 ```

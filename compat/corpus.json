@@ -11,6 +11,117 @@
     "code-review-emojis",
     "biaodian",
     "markdown-reference",
-    "conventional-commits"
-  ]
+    "conventional-commits",
+    "storybook-sandboxes",
+    "google-maps-search",
+    "devpod",
+    "one-thing",
+    "invisible-text-detector",
+    "spacejump",
+    "rtl-reader",
+    "nterm-calculator",
+    "menucloak",
+    "laravel-shift",
+    "tategaki",
+    "8-divide",
+    "pokemon-tcg-pocket-binder",
+    "dice-tiles",
+    "evernote",
+    "android-versions",
+    "raytyping",
+    "promptty",
+    "atomtick",
+    "donut",
+    "url-designer",
+    "google-cloud-run",
+    "portless",
+    "nano-games",
+    "mise-window-sets",
+    "chakra-ui-docs",
+    "pinch-svg",
+    "vim-bro",
+    "ego-lite",
+    "windows-domain"
+  ],
+  "selection": {
+    "criteria": {
+      "script": "scripts/corpus/select.ts",
+      "dependencies": [
+        "@raycast/api",
+        "@raycast/utils"
+      ],
+      "minViewCommands": 1,
+      "excludedSources": [
+        "child_process",
+        "applescript",
+        "filesystem-write",
+        "native-module"
+      ],
+      "preferred": "no network access (fetch, axios, http(s), useFetch, useStreamJSON)",
+      "order": "sha256(name) ascending; candidates without network access are picked first",
+      "quotas": {
+        "form": 10,
+        "detail": 10,
+        "utils": 10,
+        "list-only": 10
+      },
+      "scan": {
+        "batch": 64,
+        "cap": 768
+      },
+      "note": "the list-only quota is already met by the extensions kept from the first curated set"
+    },
+    "strata": {
+      "form": [
+        "storybook-sandboxes",
+        "google-maps-search",
+        "devpod",
+        "one-thing",
+        "invisible-text-detector",
+        "spacejump",
+        "rtl-reader",
+        "nterm-calculator",
+        "menucloak",
+        "laravel-shift"
+      ],
+      "detail": [
+        "tategaki",
+        "8-divide",
+        "pokemon-tcg-pocket-binder",
+        "dice-tiles",
+        "evernote",
+        "android-versions",
+        "raytyping",
+        "promptty",
+        "atomtick",
+        "donut"
+      ],
+      "utils": [
+        "url-designer",
+        "google-cloud-run",
+        "portless",
+        "nano-games",
+        "mise-window-sets",
+        "chakra-ui-docs",
+        "pinch-svg",
+        "vim-bro",
+        "ego-lite",
+        "windows-domain"
+      ],
+      "list-only": [
+        "fibonacci-sequence",
+        "ohmyzsh-git-alias",
+        "axios-docs",
+        "radix",
+        "px-to-rem-converter",
+        "ratio-calculator",
+        "code-review-emojis",
+        "biaodian",
+        "markdown-reference",
+        "conventional-commits"
+      ]
+    },
+    "scanned": 768,
+    "eligible": 458
+  }
 }

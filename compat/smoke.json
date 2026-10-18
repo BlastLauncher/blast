@@ -1,14 +1,46 @@
 {
   "commit": "3b812d1e153a1862df29bc8ec34e170c728512ea",
   "totals": {
-    "rendered": 13,
+    "rendered": 35,
     "bundle-failed": 0,
-    "crashed": 0,
+    "crashed": 2,
     "timeout": 0,
-    "unsupported-mode": 0,
-    "unsupported-api": 0
+    "unsupported-mode": 2,
+    "unsupported-api": 27
   },
   "results": [
+    {
+      "extension": "8-divide",
+      "command": "divide-by-8",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "android-versions",
+      "command": "search-android-version",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 273,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "atomtick",
+      "command": "analog-clock",
+      "mode": "view",
+      "outcome": "unsupported-api",
+      "path": "Cache",
+      "error": "Unsupported API in Blast: Cache"
+    },
+    {
+      "extension": "atomtick",
+      "command": "copy-atomic-time",
+      "mode": "no-view",
+      "outcome": "unsupported-api",
+      "path": "Cache",
+      "error": "Unsupported API in Blast: Cache"
+    },
     {
       "extension": "axios-docs",
       "command": "index",
@@ -23,6 +55,38 @@
       "mode": "view",
       "outcome": "rendered",
       "nodes": 133,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "chakra-ui-docs",
+      "command": "components",
+      "mode": "view",
+      "outcome": "unsupported-api",
+      "path": "Cache",
+      "error": "Unsupported API in Blast: Cache"
+    },
+    {
+      "extension": "chakra-ui-docs",
+      "command": "get-started",
+      "mode": "view",
+      "outcome": "unsupported-api",
+      "path": "Cache",
+      "error": "Unsupported API in Blast: Cache"
+    },
+    {
+      "extension": "chakra-ui-docs",
+      "command": "hooks",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 103,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "chakra-ui-docs",
+      "command": "styled-system",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 83,
       "rootType": "Navigation"
     },
     {
@@ -50,12 +114,153 @@
       "rootType": "Navigation"
     },
     {
+      "extension": "devpod",
+      "command": "workspaces-manage",
+      "mode": "view",
+      "outcome": "unsupported-api",
+      "path": "Cache",
+      "error": "Unsupported API in Blast: Cache"
+    },
+    {
+      "extension": "dice-tiles",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 19,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "donut",
+      "command": "show-donut",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "ego-lite",
+      "command": "new-tab",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "ego-lite",
+      "command": "search-bookmarks",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "ego-lite",
+      "command": "search-history",
+      "mode": "view",
+      "outcome": "crashed",
+      "exit": "code 1",
+      "error": "__filename is not defined",
+      "logs": [
+        "RUNTIME_ERROR: __filename is not defined"
+      ]
+    },
+    {
+      "extension": "evernote",
+      "command": "search-notes",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "evernote",
+      "command": "search-tasks",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
       "extension": "fibonacci-sequence",
       "command": "index",
       "mode": "view",
       "outcome": "rendered",
       "nodes": 78,
       "rootType": "Navigation"
+    },
+    {
+      "extension": "google-cloud-run",
+      "command": "index",
+      "mode": "view",
+      "outcome": "unsupported-api",
+      "path": "Cache",
+      "error": "Unsupported API in Blast: Cache"
+    },
+    {
+      "extension": "google-maps-search",
+      "command": "find",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "google-maps-search",
+      "command": "quickSearchMaps",
+      "mode": "no-view",
+      "outcome": "unsupported-mode",
+      "reason": "command mode \"no-view\" completed without rendering a scene"
+    },
+    {
+      "extension": "google-maps-search",
+      "command": "travelHome",
+      "mode": "no-view",
+      "outcome": "crashed",
+      "exit": "code 1",
+      "error": "Capability denied: open.url",
+      "logs": [
+        "RUNTIME_ERROR: Capability denied: open.url"
+      ]
+    },
+    {
+      "extension": "google-maps-search",
+      "command": "travelTo",
+      "mode": "view",
+      "outcome": "unsupported-api",
+      "path": "Form",
+      "error": "Unsupported API in Blast: Form"
+    },
+    {
+      "extension": "invisible-text-detector",
+      "command": "analyze-clipboard-invisible-characters",
+      "mode": "no-view",
+      "outcome": "unsupported-api",
+      "path": "Clipboard.readText",
+      "error": "Unsupported API in Blast: Clipboard.readText"
+    },
+    {
+      "extension": "invisible-text-detector",
+      "command": "fix-invisible-characters",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "invisible-text-detector",
+      "command": "open-invisible-text-detector",
+      "mode": "view",
+      "outcome": "unsupported-api",
+      "path": "Form",
+      "error": "Unsupported API in Blast: Form"
+    },
+    {
+      "extension": "laravel-shift",
+      "command": "generate-shift",
+      "mode": "view",
+      "outcome": "unsupported-api",
+      "path": "Form",
+      "error": "Unsupported API in Blast: Form"
     },
     {
       "extension": "markdown-reference",
@@ -66,12 +271,147 @@
       "rootType": "Navigation"
     },
     {
+      "extension": "menucloak",
+      "command": "open-settings",
+      "mode": "no-view",
+      "outcome": "unsupported-api",
+      "path": "getApplications",
+      "error": "Unsupported API in Blast: getApplications"
+    },
+    {
+      "extension": "menucloak",
+      "command": "set-focus",
+      "mode": "view",
+      "outcome": "unsupported-api",
+      "path": "Form",
+      "error": "Unsupported API in Blast: Form"
+    },
+    {
+      "extension": "menucloak",
+      "command": "toggle",
+      "mode": "no-view",
+      "outcome": "unsupported-api",
+      "path": "getApplications",
+      "error": "Unsupported API in Blast: getApplications"
+    },
+    {
+      "extension": "menucloak",
+      "command": "turn-off",
+      "mode": "no-view",
+      "outcome": "unsupported-api",
+      "path": "getApplications",
+      "error": "Unsupported API in Blast: getApplications"
+    },
+    {
+      "extension": "menucloak",
+      "command": "turn-on",
+      "mode": "no-view",
+      "outcome": "unsupported-api",
+      "path": "getApplications",
+      "error": "Unsupported API in Blast: getApplications"
+    },
+    {
+      "extension": "mise-window-sets",
+      "command": "apply-set",
+      "mode": "view",
+      "outcome": "unsupported-api",
+      "path": "Cache",
+      "error": "Unsupported API in Blast: Cache"
+    },
+    {
+      "extension": "mise-window-sets",
+      "command": "reload-sets",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "nano-games",
+      "command": "play-nano-snake",
+      "mode": "view",
+      "outcome": "unsupported-api",
+      "path": "Cache",
+      "error": "Unsupported API in Blast: Cache"
+    },
+    {
+      "extension": "nterm-calculator",
+      "command": "nterm-calculator",
+      "mode": "view",
+      "outcome": "unsupported-api",
+      "path": "Form",
+      "error": "Unsupported API in Blast: Form"
+    },
+    {
       "extension": "ohmyzsh-git-alias",
       "command": "index",
       "mode": "view",
       "outcome": "rendered",
       "nodes": 1632,
       "rootType": "Navigation"
+    },
+    {
+      "extension": "one-thing",
+      "command": "remove-one-thing",
+      "mode": "no-view",
+      "outcome": "unsupported-api",
+      "path": "Cache",
+      "error": "Unsupported API in Blast: Cache"
+    },
+    {
+      "extension": "one-thing",
+      "command": "set-one-thing",
+      "mode": "view",
+      "outcome": "unsupported-api",
+      "path": "Cache",
+      "error": "Unsupported API in Blast: Cache"
+    },
+    {
+      "extension": "one-thing",
+      "command": "show-one-thing",
+      "mode": "menu-bar",
+      "outcome": "unsupported-mode",
+      "reason": "command mode \"menu-bar\" is not supported"
+    },
+    {
+      "extension": "pinch-svg",
+      "command": "custom-rectangle",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 2,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "pinch-svg",
+      "command": "grid",
+      "mode": "view",
+      "outcome": "unsupported-api",
+      "path": "Grid",
+      "error": "Unsupported API in Blast: Grid"
+    },
+    {
+      "extension": "pokemon-tcg-pocket-binder",
+      "command": "pokemon-tcg-pocket-binder",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 39,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "portless",
+      "command": "list",
+      "mode": "view",
+      "outcome": "unsupported-api",
+      "path": "Cache",
+      "error": "Unsupported API in Blast: Cache"
+    },
+    {
+      "extension": "promptty",
+      "command": "search-promptty",
+      "mode": "view",
+      "outcome": "unsupported-api",
+      "path": "Cache",
+      "error": "Unsupported API in Blast: Cache"
     },
     {
       "extension": "px-to-rem-converter",
@@ -108,6 +448,94 @@
     {
       "extension": "ratio-calculator",
       "command": "calculate-ratio",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "raytyping",
+      "command": "raytype",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 15,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rtl-reader",
+      "command": "rtl-text",
+      "mode": "view",
+      "outcome": "unsupported-api",
+      "path": "Form",
+      "error": "Unsupported API in Blast: Form"
+    },
+    {
+      "extension": "spacejump",
+      "command": "list-spaces",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "spacejump",
+      "command": "switch-space",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "storybook-sandboxes",
+      "command": "local",
+      "mode": "view",
+      "outcome": "unsupported-api",
+      "path": "openExtensionPreferences",
+      "error": "Unsupported API in Blast: openExtensionPreferences"
+    },
+    {
+      "extension": "storybook-sandboxes",
+      "command": "online",
+      "mode": "view",
+      "outcome": "unsupported-api",
+      "path": "openExtensionPreferences",
+      "error": "Unsupported API in Blast: openExtensionPreferences"
+    },
+    {
+      "extension": "tategaki",
+      "command": "japanese-vertical-text",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 24,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "url-designer",
+      "command": "create-prompt",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 6,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "vim-bro",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 924,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "windows-domain",
+      "command": "my-user",
+      "mode": "view",
+      "outcome": "unsupported-api",
+      "path": "Cache",
+      "error": "Unsupported API in Blast: Cache"
+    },
+    {
+      "extension": "windows-domain",
+      "command": "search-user",
       "mode": "view",
       "outcome": "rendered",
       "nodes": 4,

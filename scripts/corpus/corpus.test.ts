@@ -17,6 +17,7 @@ import {
   readPin,
   type CorpusPin,
 } from "./corpus.ts";
+import { KEPT_CURATED } from "./selection.ts";
 
 const PIN: CorpusPin = {
   repository: "https://github.com/raycast/extensions.git",
@@ -93,7 +94,9 @@ test("readPin loads the pin committed at compat/corpus.json", () => {
   const pin = readPin(process.cwd());
   expect(pin.repository).toBe("https://github.com/raycast/extensions.git");
   expect(pin.commit).toMatch(/^[0-9a-f]{40}$/);
-  expect(pin.curated).toHaveLength(10);
+  // Task 0023 grew the curated set and kept the first ten first.
+  expect(pin.curated.slice(0, KEPT_CURATED.length)).toEqual(KEPT_CURATED);
+  expect(pin.curated.length).toBeGreaterThanOrEqual(40);
   expect(pin.curated).toContain("radix");
   expect(() => readPin("/nonexistent-root")).toThrow(/compat\/corpus\.json: missing/);
 });
