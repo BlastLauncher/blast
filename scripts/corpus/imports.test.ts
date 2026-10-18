@@ -11,7 +11,9 @@ test("unprovided imports are the bare specifiers Blast cannot resolve", () => {
   expect(unprovidedImports([source('const x = require("@components/notes-list");')])).toEqual([
     "@components/notes-list",
   ]);
-  expect(unprovidedImports([source('export * from "lodash";')])).toEqual(["lodash"]);
+  expect(unprovidedImports([source('export * from "unprovided-pkg";')])).toEqual([
+    "unprovided-pkg",
+  ]);
   expect(unprovidedImports([source('const client = await import("graphql-request");')])).toEqual([
     "graphql-request",
   ]);
@@ -39,17 +41,17 @@ import "./side-effect";`),
 
 test("a bare specifier maps to its npm package name", () => {
   expect(packageName("react")).toBe("react");
-  expect(packageName("lodash/merge.js")).toBe("lodash");
+  expect(packageName("unprovided-pkg/merge.js")).toBe("unprovided-pkg");
   expect(packageName("@scope/pkg/sub/path")).toBe("@scope/pkg");
 });
 
 test("imported packages are counted per package, test files and non-npm specifiers excluded", () => {
   const files: Source[] = [
-    source('import lodash from "lodash";'),
-    source('import merge from "lodash/merge.js";'),
+    source('import provided from "unprovided-pkg";'),
+    source('import merge from "unprovided-pkg/merge.js";'),
     source('const client = await import("graphql-request");'),
     source('const deep = require("@scope/pkg/sub");'),
-    source('export * from "zod";'),
+    source('export * from "unprovided-schema";'),
     // Never bundled, so never a dependency.
     source('import { test } from "vitest";', "src/thing.test.ts"),
     source('import { test } from "vitest";', "src/__tests__/unit.ts"),
@@ -66,5 +68,10 @@ test("imported packages are counted per package, test files and non-npm specifie
     source('import { Glyph } from "AppKit";'),
     source('import { local } from "#imports";'),
   ];
-  expect(importedPackages(files)).toEqual(["@scope/pkg", "graphql-request", "lodash", "zod"]);
+  expect(importedPackages(files)).toEqual([
+    "@scope/pkg",
+    "graphql-request",
+    "unprovided-pkg",
+    "unprovided-schema",
+  ]);
 });

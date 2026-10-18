@@ -17,7 +17,8 @@ import { unprovidedImports } from "./imports.ts";
 import type { Source } from "./imports.ts";
 
 /** Runtime dependencies the shared Blast dependency policy can provide. */
-export const PROVIDED_DEPENDENCIES = ["@raycast/api", "@raycast/utils"] as const;
+export { PROVIDED_PACKAGES as PROVIDED_DEPENDENCIES } from "../../packages/host/src/dependencies.ts";
+import { PROVIDED_PACKAGES as PROVIDED_DEPENDENCIES } from "../../packages/host/src/dependencies.ts";
 
 /** Hooks exported by the pinned `@raycast/utils` (2.3.2) that mark the utils stratum. */
 export const UTILS_HOOKS = [
@@ -55,7 +56,7 @@ export const EXCLUSIONS: ReadonlyArray<{ id: string; pattern: RegExp }> = [
 
 /**
  * The exclusion the import rules cannot express as a source pattern: a manifest
- * can declare only `@raycast/api` and `@raycast/utils` and still import
+ * can declare only provided dependencies and still import
  * something else (or a tsconfig path alias), which bundles as a missing
  * dependency. That is a selection miss, not an API gap, so those candidates
  * are rejected too.

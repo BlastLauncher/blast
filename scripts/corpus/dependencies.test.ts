@@ -27,7 +27,7 @@ test("a declared range maps to its major bucket", () => {
 test("only packages Blast could pin are tracked", () => {
   for (const name of ["@raycast/api", "@raycast/utils", "react", "node:fs", "@types/node"])
     expect(trackedPackage(name)).toBe(false);
-  for (const name of ["axios", "react-dom", "@scope/pkg", "lodash"])
+  for (const name of ["unprovided-http", "react-dom", "@scope/pkg", "unprovided-pkg"])
     expect(trackedPackage(name)).toBe(true);
 });
 
@@ -37,22 +37,24 @@ test("declared dependencies are the runtime ones, beyond the provided packages a
       "@raycast/api": "^1.0.0",
       "@raycast/utils": "2.3.2",
       react: "^18",
-      zod: "^3.22.4",
-      "node-fetch": "^2",
+      "unprovided-schema": "^3.22.4",
+      "unprovided-fetch": "^2",
       "@types/node": "20.x",
     },
     devDependencies: { vitest: "^1" },
   } as Manifest;
-  const deps = extensionDependencies(manifest, [source('import { zod } from "zod";')]);
-  expect(deps.declared).toEqual({ "node-fetch": "2", zod: "3" });
-  expect(deps.imported).toEqual(["zod"]);
+  const deps = extensionDependencies(manifest, [
+    source('import { schema } from "unprovided-schema";'),
+  ]);
+  expect(deps.declared).toEqual({ "unprovided-fetch": "2", "unprovided-schema": "3" });
+  expect(deps.imported).toEqual(["unprovided-schema"]);
   expect(extensionDependencies(undefined, []).declared).toEqual({});
 });
 
 test("imported packages are the npm modules non-test sources import, subpaths folded in", () => {
   const deps = extensionDependencies({}, [
-    source('import lodash from "lodash";'),
-    source('import merge from "lodash/merge.js";'),
+    source('import provided from "unprovided-pkg";'),
+    source('import merge from "unprovided-pkg/merge.js";'),
     source('const client = await import("graphql-request");'),
     source('const deep = require("@scope/pkg/sub");'),
     source('import { test } from "vitest";', "src/thing.test.ts"),
@@ -62,8 +64,8 @@ test("imported packages are the npm modules non-test sources import, subpaths fo
     source('import { connect } from "swift:../../swift";'),
     source('import { helper } from "./helper";'),
   ]);
-  expect(deps.imported).toEqual(["@scope/pkg", "graphql-request", "lodash"]);
-  expect(packageName("lodash/merge.js")).toBe("lodash");
+  expect(deps.imported).toEqual(["@scope/pkg", "graphql-request", "unprovided-pkg"]);
+  expect(packageName("unprovided-pkg/merge.js")).toBe("unprovided-pkg");
 });
 
 /** Two extensions that need nothing, one per package, and one needing two. */
