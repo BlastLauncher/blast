@@ -87,8 +87,8 @@ export async function startCommand(options: StartOptions): Promise<Session> {
   let latestScene: SceneMessage | undefined;
   const logs: LogMessage[] = [];
   const maxLogs = options.maxLogs ?? 1000;
-  function addLog(entry: LogMessage) {
-    logs.push(entry);
+  function addLog(log: LogMessage) {
+    logs.push(log);
     if (logs.length > maxLogs) logs.splice(0, logs.length - maxLogs);
   }
   const listeners = new Set<(scene: SceneMessage) => void>();
