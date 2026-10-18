@@ -4,16 +4,16 @@ Denominator: the `@raycast/api@2.8.2` declarations. Evidence:
 `// @covers` tags in `packages/**/*.test.ts(x)`. A parent is not implied covered
 by its children. Partial support is reported separately from covered.
 
-**Non-deprecated coverage: 808/1534 covered (52.7%), 46 partial, 680 missing.**
+**Non-deprecated coverage: 809/1534 covered (52.7%), 46 partial, 679 missing.**
 Deprecated: 22/939 covered (2.3%), 5 partial, 912 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 808 | 22 | 830 |
+| covered | 809 | 22 | 831 |
 | partial | 46 | 5 | 51 |
-| missing | 680 | 912 | 1592 |
+| missing | 679 | 912 | 1591 |
 
 ## Totals by kind
 
@@ -21,7 +21,7 @@ Deprecated: 22/939 covered (2.3%), 5 partial, 912 missing.
 | --- | --- | --- | --- | --- |
 | namespace | 3 | 1 | 5 | 9 |
 | component | 20 | 23 | 73 | 116 |
-| function | 20 | 4 | 26 | 50 |
+| function | 21 | 4 | 25 | 50 |
 | const | 1 | 1 | 19 | 21 |
 | class | 2 | 0 | 1 | 3 |
 | enum | 6 | 0 | 7 | 13 |
@@ -167,7 +167,7 @@ Children counts include all descendants, as covered/partial/total.
 | `openCommandPreferences` | function | covered | 0/0/0 | 187 |
 | `openExtensionPreferences` | function | covered | 0/0/0 | 541 |
 | `pasteText` | function | missing | 0/0/0 | 3 |
-| `popToRoot` | function | missing | 0/0/0 | 567 |
+| `popToRoot` | function | covered | 0/0/0 | 567 |
 | `preferences` | const | missing | 0/0/0 | 6 |
 | `randomId` | const | missing | 0/0/0 | 3 |
 | `removeLocalStorageItem` | function | covered | 0/0/0 | 3 |
@@ -194,7 +194,6 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | --- | --- |
 | `LaunchProps` | 657 |
 | `closeMainWindow` | 600 |
-| `popToRoot` | 567 |
 | `Image` | 478 |
 | `LaunchType` | 454 |
 | `LaunchType.UserInitiated` | 408 |
@@ -242,3 +241,4 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `Form.TagPicker.Item.Props.value` | 168 |
 | `Form.TagPicker.Props.title` | 167 |
 | `Grid.Item.Props.subtitle` | 165 |
+| `Grid.EmptyView` | 164 |

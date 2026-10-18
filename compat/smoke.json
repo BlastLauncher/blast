@@ -351,8 +351,8 @@
       "command": "remove-one-thing",
       "mode": "no-view",
       "outcome": "unsupported-api",
-      "path": "popToRoot",
-      "error": "Unsupported API in Blast: popToRoot"
+      "path": "closeMainWindow",
+      "error": "Unsupported API in Blast: closeMainWindow"
     },
     {
       "extension": "one-thing",

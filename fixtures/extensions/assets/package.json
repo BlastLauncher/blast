@@ -1,0 +1,9 @@
+{
+  "name": "assets",
+  "commands": [
+    {
+      "name": "index",
+      "mode": "view"
+    }
+  ]
+}

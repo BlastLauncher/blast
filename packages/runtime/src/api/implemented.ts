@@ -38,7 +38,7 @@ export { Detail, type DetailProps } from "./detail.ts";
 export { Keyboard } from "./keyboard.ts";
 
 export { PushAction } from "./action.ts";
-export { useNavigation } from "./navigation.ts";
+export { popToRoot, useNavigation } from "./navigation.ts";
 
 export {
   Toast,

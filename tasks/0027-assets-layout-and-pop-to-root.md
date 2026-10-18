@@ -1,7 +1,7 @@
 ---
 id: "0027"
 title: Raycast-like build layout for assets; popToRoot
-status: doing
+status: review
 milestone: M3
 depends: []
 ---
@@ -35,9 +35,9 @@ the bundle, so `environment.assetsPath` and `path.join(__dirname, "assets",
 
 ## Acceptance
 
-- [ ] Both asset access styles work in a bundled fixture; extension dir is
+- [x] Both asset access styles work in a bundled fixture; extension dir is
       untouched (assert no new files).
-- [ ] popToRoot test; `bun run verify` passes.
+- [x] popToRoot test; `bun run verify` passes.
 
 ## Out of scope
 
@@ -46,8 +46,28 @@ the bundle, so `environment.assetsPath` and `path.join(__dirname, "assets",
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/assets-layout-pop-to-root @ (see last commit)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 20.5s
 Done:
+  - bundleCommand links `<outDir>/assets` -> `<extensionDir>/assets` (symlink;
+    read-only capped copy fallback, injectable for tests) and returns
+    `assetsPath`; session passes it into the default environment
+    (packages/host/src/bundle.ts, session.ts).
+  - `popToRoot({ clearSearchBar? })` implemented in the runtime: pops the
+    current command's stack to the root entry in one step, topmost onPops
+    first, records `clearSearchBar` as `Navigation.props.popToRoot` for
+    clients (no client search-bar state in Blast) — packages/runtime/src/api/navigation.ts.
+  - Fixture `fixtures/extensions/assets` reads an asset via
+    `environment.assetsPath` and `path.join(__dirname, "assets", …)`; host
+    tests assert the layout, untouched extension dir, copy fallback and cap;
+    navigation test asserts popToRoot from depth 3.
+  - compat/ reports regenerated; smoke re-run: 53 rendered + 1 completed
+    (unchanged); one-thing/remove-one-thing advanced past popToRoot to
+    closeMainWindow.
 Not done / risks:
+  - `closeMainWindow` is the next blocker for one-thing/remove-one-thing
+    (window APIs, not this task); `clearSearchBar` is recorded on the scene,
+    not acted on, because clients own search-bar state.
+  - popToRoot targets the most recently mounted provider (one command per
+    runtime process; tests may hold several).
 ```

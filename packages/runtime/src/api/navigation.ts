@@ -2,6 +2,7 @@ import {
   createContext,
   createElement,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -15,6 +16,16 @@ export interface Navigation {
   pop(): void;
 }
 
+/** `popToRoot` options from the declarations. */
+export interface PopToRootOptions {
+  /**
+   * Raycast also clears the root search bar. Blast's headless clients own any
+   * search-bar state, so the request is recorded on the `Navigation` scene
+   * element (`props.popToRoot`) for clients to act on.
+   */
+  clearSearchBar?: boolean;
+}
+
 interface Entry {
   id: number;
   component: ReactNode;
@@ -23,10 +34,16 @@ interface Entry {
 
 const NavigationContext = createContext<Navigation | null>(null);
 
+// `popToRoot()` is a module-level API without React context, so mounted
+// providers register their stack; the most recent one answers. One command per
+// runtime process in production; tests may hold several.
+const stacks = new Set<(options?: PopToRootOptions) => void>();
+
 export function NavigationProvider({ children }: { children: ReactNode }) {
   const entries = useRef<Entry[]>([]);
   const nextId = useRef(1);
   const [stack, setStack] = useState<Entry[]>([]);
+  const [popToRootOptions, setPopToRootOptions] = useState<PopToRootOptions>();
   const navigation = useMemo<Navigation>(
     () => ({
       push(component, onPop) {
@@ -43,12 +60,36 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
     }),
     [],
   );
+  const popToRootStack = useMemo(
+    () => (options?: PopToRootOptions) => {
+      setPopToRootOptions(options);
+      // The root view is the provider's own children, not an entry (decision
+      // 0003), so nothing above it is kept; onPops run topmost first, like
+      // successive `pop()` calls.
+      if (entries.current.length === 0) return;
+      const popped = entries.current.toReversed();
+      entries.current = [];
+      setStack(entries.current);
+      for (const entry of popped) entry.onPop?.();
+    },
+    [],
+  );
+  stacks.add(popToRootStack);
+  useEffect(() => {
+    return () => {
+      stacks.delete(popToRootStack);
+    };
+  }, [popToRootStack]);
   return createElement(
     NavigationContext.Provider,
     { value: navigation },
     createElement(
       "Navigation",
-      { depth: stack.length + 1, pop: stack.length ? navigation.pop : undefined },
+      {
+        depth: stack.length + 1,
+        pop: stack.length ? navigation.pop : undefined,
+        popToRoot: popToRootOptions,
+      },
       createElement("Navigation.Entry", { key: 0, active: stack.length === 0 }, children),
       ...stack.map((entry, index) =>
         createElement(
@@ -66,4 +107,9 @@ export function useNavigation(): Navigation {
   const navigation = useContext(NavigationContext);
   if (!navigation) throw new Error("useNavigation requires a running view command");
   return navigation;
+}
+
+/** `popToRoot` from the declarations: pop the current command's stack to root. */
+export async function popToRoot(options?: PopToRootOptions): Promise<void> {
+  [...stacks].at(-1)?.(options);
 }
