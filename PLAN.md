@@ -6,9 +6,10 @@ files.
 
 ## Current focus
 
-M2 done. M3 — coverage to 100%: 0033, 0034, 0035 in parallel. Then
-alternate: curated failures first, else the top of "Top missing by usage" in
-`compat/COVERAGE.md`.
+M3 — coverage to 100%. Curated set v3 is clear of API gaps, so the next
+batches come from "Top missing by usage" in `compat/COVERAGE.md`, plus a
+dependency strategy for extensions that need npm packages beyond
+`@raycast/utils` (excluded from the curated set today).
 
 ## Milestones
 
@@ -60,17 +61,15 @@ aliases. First step: export a stub for every inventory symbol that throws a
 structured "unsupported in Blast" error when used, so missing APIs fail with
 diagnostics instead of ESM link errors.
 
-- [x] 0015–0027 done: stubs, curated blockers, navigation, detail metadata,
-      feedback UI, list completeness, storage/open, Form, curated v2, Cache, CJS
-      globals, host capability APIs, assets layout (see git log).
-- [x] 0028 Launch props/arguments, launchCommand, closeMainWindow, Image enums
-- [x] 0029 Grid
-- [ ] 0030 Menu-bar commands (MenuBarExtra)
+- [x] 0015–0035 done: stubs, curated blockers, navigation, detail metadata,
+      feedback UI, list completeness, storage/open, Form, curated v2/v3, Cache,
+      CJS globals, host capability APIs, assets layout, launch/window, Grid,
+      menu bar, generated enums, no-hang feedback, Action variants, Submenu,
+      selection/file APIs (see git log).
 
-Smoke 2026-10-18 (`compat/SMOKE.md`, 40 extensions): 62/66 render, 1 completed, 0 unsupported-api
-(remaining: 2 expected capability denials, 1 empty menu-bar timeout).
-Coverage 59.6% non-deprecated. Order: curated-set failures first, then highest corpus weight. Each
-step is a task with `@covers` evidence.
+Smoke 2026-10-18 (`compat/SMOKE.md`, 60 extensions): 144/149 commands render,
+1 completed, 4 expected capability denials, 0 unsupported-api. Coverage 63.5%
+non-deprecated. Each step is a task with `@covers` evidence.
 
 ### M4 — Desktop client
 
