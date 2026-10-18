@@ -140,3 +140,30 @@ export type {
   BrowserContentOptions,
   ToolConfirmation,
 } from "./ai-browser.ts";
+
+// Keep the stub-backed value while exposing the provider's erased type surface.
+import { AI as aiWithStubs } from "./unsupported.generated.ts";
+export const AI = aiWithStubs;
+export namespace AI {
+  export type RegisteredModel = import("@blastlauncher/protocol").RegisteredModel<
+    import("./types.ts").ImageLike
+  >;
+  export type GetModels = import("@blastlauncher/protocol").GetModels<
+    import("./types.ts").ImageLike
+  >;
+  export type StreamCompletion = import("@blastlauncher/protocol").StreamCompletion<
+    import("./types.ts").ImageLike
+  >;
+  export type ModelMessage = import("@blastlauncher/protocol").ModelMessage;
+  export type ModelTool = import("@blastlauncher/protocol").ModelTool;
+  export type ModelToolSet = import("@blastlauncher/protocol").ModelToolSet;
+  export type ModelProviderOptions = import("@blastlauncher/protocol").ModelProviderOptions;
+  export type ModelRequest = import("@blastlauncher/protocol").ModelRequest;
+  export type ModelTextStream = import("@blastlauncher/protocol").ModelTextStream;
+  export type ModelStreamPart = import("@blastlauncher/protocol").ModelStreamPart;
+  export type ModelFullStream = import("@blastlauncher/protocol").ModelFullStream;
+  export type ModelStream = import("@blastlauncher/protocol").ModelStream;
+  export type ModelMessageContent =
+    | import("@blastlauncher/protocol").ModelAssistantMessageContent
+    | import("@blastlauncher/protocol").ModelUserMessageContent;
+}

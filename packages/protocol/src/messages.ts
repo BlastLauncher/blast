@@ -6,6 +6,9 @@
 // Unknown fields are rejected at every level, nested objects included. Adding
 // one is a protocol change, and an ignored typo is worse than an error.
 
+import { decodeModelRequest } from "./provider-codec.ts";
+import type { ModelStreamPart, RegisteredModel } from "./provider.ts";
+
 export const PROTOCOL_VERSION = 1;
 
 /** A value that survives `JSON.stringify` -> `JSON.parse` unchanged. */
@@ -28,7 +31,7 @@ export type SceneNode = {
 };
 
 /** How the host expects the command to run. */
-export type CommandMode = "view" | "no-view" | "menu-bar";
+export type CommandMode = "view" | "no-view" | "menu-bar" | "model-provider";
 
 export type InitCommand = {
   extension: string;
@@ -74,7 +77,26 @@ export type CapabilityResultMessage =
 export type ShutdownMessage = { type: "shutdown" };
 
 /** Messages the host sends to the runtime. */
-export type HostMessage = InitMessage | EventMessage | CapabilityResultMessage | ShutdownMessage;
+export type ProviderRequest =
+  | { type: "provider.getModels"; id: string }
+  | {
+      type: "provider.stream";
+      id: string;
+      model: RegisteredModel;
+      request: Record<string, JsonValue>;
+    }
+  | { type: "provider.abort"; id: string };
+export type ProviderResponse =
+  | { type: "provider.models"; id: string; models: RegisteredModel[] }
+  | { type: "provider.part"; id: string; part: ModelStreamPart }
+  | { type: "provider.end"; id: string }
+  | { type: "provider.error"; id: string; error: ErrorInfo };
+export type HostMessage =
+  | InitMessage
+  | EventMessage
+  | CapabilityResultMessage
+  | ShutdownMessage
+  | ProviderRequest;
 
 export type ReadyMessage = { type: "ready"; protocol: number };
 
@@ -95,6 +117,7 @@ export type ErrorMessage = { type: "error"; code: string; message: string; fatal
 
 /** Messages the runtime sends to the host. */
 export type RuntimeMessage =
+  | ProviderResponse
   | ReadyMessage
   | SceneMessage
   | CapabilityRequestMessage
@@ -235,9 +258,10 @@ function readCommandMode(value: unknown, path: string): CommandMode {
     case "view":
     case "no-view":
     case "menu-bar":
+    case "model-provider":
       return mode;
     default:
-      fail(path, 'expected one of "view" | "no-view" | "menu-bar"');
+      fail(path, 'expected one of "view" | "no-view" | "menu-bar" | "model-provider"');
   }
 }
 
@@ -374,9 +398,230 @@ function readLogLevel(value: unknown, path: string): LogLevel {
   }
 }
 
+function readModel(value: unknown, path: string): RegisteredModel {
+  const model = readJsonObject(value, path);
+  checkKeys(model, path, [
+    "id",
+    "title",
+    "isLocal",
+    "icon",
+    "description",
+    "capabilities",
+    "contextWindow",
+    "sizeInBytes",
+  ]);
+  readString(model["id"], `${path}.id`);
+  readString(model["title"], `${path}.title`);
+  for (const key of ["isLocal"])
+    if (model[key] !== undefined) readBoolean(model[key], `${path}.${key}`);
+  for (const key of ["description"])
+    if (model[key] !== undefined) readString(model[key], `${path}.${key}`);
+  for (const key of ["contextWindow", "sizeInBytes"])
+    if (model[key] !== undefined) readNumber(model[key], `${path}.${key}`);
+  if (model["capabilities"] !== undefined) {
+    const caps = readJsonObject(model["capabilities"], `${path}.capabilities`);
+    checkKeys(caps, `${path}.capabilities`, [
+      "systemMessage",
+      "temperature",
+      "vision",
+      "tools",
+      "streaming",
+      "reasoningEffort",
+    ]);
+    for (const [key, capability] of Object.entries(caps)) {
+      const config = readJsonObject(capability, `${path}.capabilities.${key}`);
+      if (key !== "vision")
+        readBoolean(config["supported"], `${path}.capabilities.${key}.supported`);
+      if (key === "vision" || key === "reasoningEffort") {
+        const list = config[key === "vision" ? "mediaTypes" : "options"];
+        if (!Array.isArray(list) || !list.every((item) => typeof item === "string"))
+          fail(`${path}.capabilities.${key}`, "expected string array");
+        if (key === "reasoningEffort")
+          readString(config["default"], `${path}.capabilities.${key}.default`);
+        else if (
+          !list.every((item) =>
+            ["image/png", "image/jpeg", "image/webp", "image/gif"].includes(String(item)),
+          )
+        )
+          fail(`${path}.capabilities.vision.mediaTypes`, "unknown media type");
+      }
+    }
+  }
+  return model as RegisteredModel;
+}
+
+function readPart(value: unknown): ModelStreamPart {
+  const part = readJsonObject(value, "part");
+  const type = readString(part["type"], "part.type");
+  const required: Record<string, string[]> = {
+    "text-start": ["id"],
+    "text-end": ["id"],
+    text: ["text"],
+    "text-delta": [],
+    "reasoning-start": ["id"],
+    "reasoning-end": ["id"],
+    reasoning: ["text"],
+    "reasoning-delta": [],
+    source: ["id", "sourceType"],
+    file: [],
+    "tool-call-streaming-start": ["toolCallId", "toolName"],
+    "tool-call-delta": ["toolCallId", "toolName", "argsTextDelta"],
+    "tool-input-start": ["id", "toolName"],
+    "tool-input-end": ["id"],
+    "tool-input-delta": ["id", "delta"],
+    "tool-input-error": [],
+    "tool-call": ["toolCallId", "toolName"],
+    "tool-result": ["toolCallId", "toolName"],
+    "tool-error": ["toolCallId", "toolName"],
+    "tool-output-denied": ["toolCallId", "toolName"],
+    "tool-approval-request": ["approvalId"],
+    finish: ["finishReason"],
+    error: [],
+    abort: [],
+    start: [],
+    "stream-start": [],
+    "response-metadata": [],
+    "start-step": [],
+    "finish-step": [],
+    "reasoning-part-finish": [],
+    "step-start": [],
+    raw: [],
+  };
+  if (!Object.hasOwn(required, type)) fail("part.type", "unknown stream part");
+  for (const key of required[type]!) readString(part[key], `part.${key}`);
+  for (const key of ["id", "text", "textDelta", "title", "filename"])
+    if (part[key] !== undefined) readString(part[key], `part.${key}`);
+  const requiredValues: Record<string, string[]> = {
+    file: ["file"],
+    "tool-call": ["input"],
+    "tool-error": ["error"],
+    "tool-approval-request": ["toolCall"],
+    error: ["error"],
+  };
+  for (const key of requiredValues[type] ?? [])
+    if (!(key in part)) fail(`part.${key}`, "required field");
+  if (part["totalUsage"] !== undefined) {
+    const usage = readJsonObject(part["totalUsage"], "part.totalUsage");
+    for (const key of ["inputTokens", "outputTokens", "totalTokens"])
+      if (usage[key] !== undefined) readNumber(usage[key], `part.totalUsage.${key}`);
+  }
+  if (type === "source") {
+    if (part["sourceType"] === "url") readString(part["url"], "part.url");
+    else if (part["sourceType"] === "document") readString(part["mediaType"], "part.mediaType");
+    else fail("part.sourceType", "expected url or document");
+  }
+  if (
+    type === "finish" &&
+    !["stop", "length", "content-filter", "tool-calls", "error", "other", "unknown"].includes(
+      String(part["finishReason"]),
+    )
+  )
+    fail("part.finishReason", "unknown reason");
+  return part as ModelStreamPart;
+}
+
 function buildHostMessage(object: Obj): HostMessage {
   const type = readString(object["type"], "type");
   switch (type) {
+    case "provider.getModels":
+    case "provider.abort":
+      checkKeys(object, "", ["type", "id"]);
+      return { type, id: readString(object["id"], "id") };
+    case "provider.stream": {
+      checkKeys(object, "", ["type", "id", "model", "request"]);
+      const request = readJsonObject(object["request"], "request");
+      checkKeys(request, "request", [
+        "system",
+        "messages",
+        "temperature",
+        "tools",
+        "toolChoice",
+        "providerOptions",
+      ]);
+      if (request["system"] !== undefined) readString(request["system"], "request.system");
+      if (request["temperature"] !== undefined)
+        readNumber(request["temperature"], "request.temperature");
+      if (
+        request["toolChoice"] !== undefined &&
+        request["toolChoice"] !== "auto" &&
+        request["toolChoice"] !== "required"
+      )
+        fail("request.toolChoice", "expected auto or required");
+      if (request["tools"] !== undefined) {
+        const tools = readJsonObject(request["tools"], "request.tools");
+        for (const [name, toolValue] of Object.entries(tools)) {
+          const tool = readJsonObject(toolValue, `request.tools.${name}`);
+          checkKeys(tool, `request.tools.${name}`, ["type", "description", "inputSchema"]);
+          if (tool["type"] !== undefined && tool["type"] !== "function")
+            fail(`request.tools.${name}.type`, "expected function");
+          if (tool["description"] !== undefined)
+            readString(tool["description"], `request.tools.${name}.description`);
+        }
+      }
+      const options = readJsonObject(request["providerOptions"], "request.providerOptions");
+      for (const [name, settings] of Object.entries(options))
+        readJsonObject(settings, `request.providerOptions.${name}`);
+      const raycast = readJsonObject(options["raycast"], "request.providerOptions.raycast");
+      for (const key of ["locale", "currentDate", "sessionId"])
+        readString(raycast[key], `request.providerOptions.raycast.${key}`);
+      if (raycast["reasoningEffort"] !== undefined)
+        readString(raycast["reasoningEffort"], "request.providerOptions.raycast.reasoningEffort");
+      if (request["messages"] !== undefined) {
+        if (!Array.isArray(request["messages"])) fail("request.messages", "expected array");
+        for (const item of request["messages"]) {
+          const message = readJsonObject(item, "request.messages[]");
+          checkKeys(message, "request.messages[]", ["role", "content"]);
+          if (!["system", "user", "assistant", "tool"].includes(String(message["role"])))
+            fail("request.messages[].role", "unknown role");
+          if (message["role"] === "system")
+            readString(message["content"], "request.messages[].content");
+          else if (!Array.isArray(message["content"]))
+            fail("request.messages[].content", "expected array");
+          else
+            for (const content of message["content"]) {
+              const part = readJsonObject(content, "request.messages[].content[]");
+              const kind = readString(part["type"], "request.messages[].content[].type");
+              const allowed =
+                message["role"] === "user"
+                  ? ["text", "file"]
+                  : message["role"] === "assistant"
+                    ? ["text", "file", "reasoning", "tool-call"]
+                    : ["tool-result"];
+              if (!allowed.includes(kind))
+                fail("request.messages[].content[].type", "invalid content for role");
+              if (kind === "text" || kind === "reasoning")
+                readString(part["text"], "request.messages[].content[].text");
+              if (kind === "file")
+                readString(part["mediaType"], "request.messages[].content[].mediaType");
+              if (kind === "tool-call" || kind === "tool-result") {
+                for (const key of ["toolCallId", "toolName"])
+                  readString(part[key], `request.messages[].content[].${key}`);
+                if (kind === "tool-call" && !("input" in part))
+                  fail("request.messages[].content[].input", "required field");
+                if (kind === "tool-result") {
+                  const output = readJsonObject(
+                    part["output"],
+                    "request.messages[].content[].output",
+                  );
+                  if (output["type"] !== "json" || !("value" in output))
+                    fail("request.messages[].content[].output", "expected JSON output");
+                }
+              }
+            }
+        }
+      }
+      try {
+        decodeModelRequest(request);
+      } catch {
+        fail("request", "invalid attachment encoding");
+      }
+      return {
+        type,
+        id: readString(object["id"], "id"),
+        model: readModel(object["model"], "model"),
+        request,
+      };
+    }
     case "init": {
       checkKeys(object, "", ["type", "protocol", "command", "preferences", "environment"]);
       return {
@@ -428,6 +673,29 @@ function buildHostMessage(object: Obj): HostMessage {
 function buildRuntimeMessage(object: Obj): RuntimeMessage {
   const type = readString(object["type"], "type");
   switch (type) {
+    case "provider.models": {
+      checkKeys(object, "", ["type", "id", "models"]);
+      if (!Array.isArray(object["models"])) fail("models", "expected array");
+      return {
+        type,
+        id: readString(object["id"], "id"),
+        models: object["models"].map((model, i) => readModel(model, `models[${i}]`)),
+      };
+    }
+    case "provider.part": {
+      checkKeys(object, "", ["type", "id", "part"]);
+      return { type, id: readString(object["id"], "id"), part: readPart(object["part"]) };
+    }
+    case "provider.end":
+      checkKeys(object, "", ["type", "id"]);
+      return { type, id: readString(object["id"], "id") };
+    case "provider.error":
+      checkKeys(object, "", ["type", "id", "error"]);
+      return {
+        type,
+        id: readString(object["id"], "id"),
+        error: readErrorInfo(object["error"], "error"),
+      };
     case "ready": {
       checkKeys(object, "", ["type", "protocol"]);
       return { type: "ready", protocol: readNumber(object["protocol"], "protocol") };

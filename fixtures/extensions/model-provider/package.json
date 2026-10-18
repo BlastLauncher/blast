@@ -1,0 +1,6 @@
+{
+  "name": "model-provider-fixture",
+  "ai": {
+    "modelProvider": "models"
+  }
+}

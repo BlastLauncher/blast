@@ -5,6 +5,8 @@ import {
   parseRuntimeMessage,
   PROTOCOL_VERSION,
   type HostMessage,
+  type ProviderRequest,
+  type ProviderResponse,
   type InitEnvironment,
   type JsonValue,
   type LogMessage,
@@ -20,6 +22,7 @@ import { defaultDataDir, storageFile } from "./storage.ts";
 
 export type StartOptions = BundledCommand & {
   broker: Broker;
+  providerResponse?: (message: ProviderResponse) => void;
   dataDir?: string;
   preferences?: Record<string, JsonValue>;
   environment?: InitEnvironment;
@@ -56,6 +59,7 @@ export type Session = {
   readonly logs: readonly LogMessage[];
   /** Subscribe to snapshots; immediately replays the latest one if present. */
   scenes(callback: (scene: SceneMessage) => void): () => void;
+  sendProvider(message: ProviderRequest): void;
   sendEvent(node: string, handler: string, args: JsonValue[]): void;
   shutdown(options?: { timeoutMs?: number }): Promise<Exit>;
   exited: Promise<Exit>;
@@ -157,6 +161,14 @@ export async function startCommand(options: StartOptions): Promise<Session> {
         return;
       }
       switch (message.type) {
+        case "provider.models":
+        case "provider.part":
+        case "provider.end":
+        case "provider.error":
+          if (options.mode !== "model-provider")
+            return protocolError("Provider response in command session");
+          options.providerResponse?.(message);
+          break;
         case "ready":
           return protocolError("Duplicate ready handshake");
         case "scene":
@@ -219,6 +231,7 @@ export async function startCommand(options: StartOptions): Promise<Session> {
         listeners.delete(callback);
       };
     },
+    sendProvider: send,
     sendEvent(node, handler, args) {
       send({ type: "event", node, handler, args });
     },

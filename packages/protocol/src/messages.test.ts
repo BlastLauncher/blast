@@ -145,8 +145,8 @@ test("a scene parses without the optional-in-practice parts of a message", () =>
   });
 });
 
-test("command.mode accepts exactly the three command modes", () => {
-  const modes: CommandMode[] = ["view", "no-view", "menu-bar"];
+test("command.mode accepts command modes and the model-provider entry mode", () => {
+  const modes: CommandMode[] = ["view", "no-view", "menu-bar", "model-provider"];
   for (const mode of modes) {
     const parsed = parseHostMessage({ ...init, command: { ...command, mode } });
     const parsedMode =
@@ -262,7 +262,7 @@ test("rejections name the failing field path", () => {
     [
       "init with an unknown command mode",
       { ...init, command: { ...command, mode: "widget" } },
-      'command.mode: expected one of "view" | "no-view" | "menu-bar"',
+      'command.mode: expected one of "view" | "no-view" | "menu-bar" | "model-provider"',
     ],
 
     ["event without args", { type: "event", node: "n", handler: "h" }, "args: expected array"],

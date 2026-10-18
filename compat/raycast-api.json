@@ -2,15 +2,15 @@
   "version": "2.8.2",
   "totals": {
     "all": {
-      "covered": 1452,
+      "covered": 1530,
       "partial": 81,
-      "missing": 940,
+      "missing": 862,
       "total": 2473
     },
     "nonDeprecated": {
-      "covered": 1270,
+      "covered": 1348,
       "partial": 76,
-      "missing": 188,
+      "missing": 110,
       "total": 1534
     },
     "deprecated": {
@@ -69,15 +69,15 @@
         "total": 64
       },
       "type": {
-        "covered": 70,
+        "covered": 83,
         "partial": 7,
-        "missing": 101,
+        "missing": 88,
         "total": 178
       },
       "property": {
-        "covered": 551,
+        "covered": 616,
         "partial": 33,
-        "missing": 720,
+        "missing": 655,
         "total": 1304
       },
       "method": {
@@ -139,8 +139,10 @@
     },
     {
       "path": "AI.GetModels",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/provider.test.ts"
+      ],
       "weight": 14
     },
     {
@@ -1569,110 +1571,146 @@
     },
     {
       "path": "AI.ModelFullStream",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelMessage",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 3
     },
     {
       "path": "AI.ModelMessage.content",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelMessage.role",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelMessageContent",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelProviderOptions",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelProviderOptions.raycast",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelProviderOptions.raycast.currentDate",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelProviderOptions.raycast.locale",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelProviderOptions.raycast.reasoningEffort",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelProviderOptions.raycast.sessionId",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelRequest",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 4
     },
     {
       "path": "AI.ModelRequest.messages",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelRequest.providerOptions",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelRequest.system",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelRequest.temperature",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelRequest.toolChoice",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelRequest.tools",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -1693,356 +1731,474 @@
     },
     {
       "path": "AI.ModelStream",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelStream.fullStream",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelStream.textStream",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelStreamPart",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/protocol/src/provider.test.ts"
+      ],
       "weight": 4
     },
     {
       "path": "AI.ModelStreamPart.approvalId",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/protocol/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelStreamPart.argsTextDelta",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/protocol/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelStreamPart.delta",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/protocol/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelStreamPart.error",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/protocol/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelStreamPart.file",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/protocol/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelStreamPart.filename",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/protocol/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelStreamPart.finishReason",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/protocol/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelStreamPart.id",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/protocol/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelStreamPart.input",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/protocol/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelStreamPart.mediaType",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/protocol/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelStreamPart.output",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/protocol/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelStreamPart.reason",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/protocol/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelStreamPart.sourceType",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/protocol/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelStreamPart.text",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/protocol/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelStreamPart.textDelta",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/protocol/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelStreamPart.title",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/protocol/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelStreamPart.toolCall",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/protocol/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelStreamPart.toolCallId",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/protocol/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelStreamPart.toolName",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/protocol/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelStreamPart.totalUsage",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/protocol/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelStreamPart.totalUsage.inputTokens",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/protocol/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelStreamPart.totalUsage.outputTokens",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/protocol/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelStreamPart.totalUsage.totalTokens",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/protocol/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelStreamPart.type",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/protocol/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelStreamPart.url",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/protocol/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelTextStream",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelTool",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelTool.description",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelTool.inputSchema",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelTool.type",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.ModelToolSet",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 10
     },
     {
       "path": "AI.RegisteredModel",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 12
     },
     {
       "path": "AI.RegisteredModel.capabilities",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.RegisteredModel.capabilities.reasoningEffort",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.RegisteredModel.capabilities.reasoningEffort.default",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.RegisteredModel.capabilities.reasoningEffort.options",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.RegisteredModel.capabilities.reasoningEffort.supported",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.RegisteredModel.capabilities.streaming",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.RegisteredModel.capabilities.streaming.supported",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.RegisteredModel.capabilities.systemMessage",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.RegisteredModel.capabilities.systemMessage.supported",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.RegisteredModel.capabilities.temperature",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.RegisteredModel.capabilities.temperature.supported",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.RegisteredModel.capabilities.tools",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.RegisteredModel.capabilities.tools.supported",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.RegisteredModel.capabilities.vision",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.RegisteredModel.capabilities.vision.mediaTypes",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.RegisteredModel.contextWindow",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.RegisteredModel.description",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.RegisteredModel.icon",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.RegisteredModel.id",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.RegisteredModel.isLocal",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.RegisteredModel.sizeInBytes",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.RegisteredModel.title",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/host/src/provider.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "AI.StreamCompletion",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/provider.test.ts"
+      ],
       "weight": 14
     },
     {

@@ -10,6 +10,8 @@ const API = [
   "createLineDecoder",
   "parseHostMessage",
   "parseRuntimeMessage",
+  "encodeModelRequest",
+  "decodeModelRequest",
 ];
 
 test("index re-exports the documented surface", () => {
@@ -31,7 +33,13 @@ test("the package has no dependencies and its source imports nothing from node",
   const sources = readdirSync(import.meta.dir)
     .filter((name) => name.endsWith(".ts") && !name.endsWith(".test.ts"))
     .toSorted();
-  expect(sources).toEqual(["framing.ts", "index.ts", "messages.ts"]);
+  expect(sources).toEqual([
+    "framing.ts",
+    "index.ts",
+    "messages.ts",
+    "provider-codec.ts",
+    "provider.ts",
+  ]);
   for (const name of sources) {
     const source = readFileSync(join(import.meta.dir, name), "utf8");
     expect(source, name).not.toMatch(/from\s+["']node:/);
