@@ -62,6 +62,8 @@ Script commands (one per line, "#" starts a comment):
                   Dispatch the List.Dropdown onChange handler with the value.
   wait            Wait until the next scene is published.
   expect <text>   Fail (exit 1) unless the latest scene tree contains the text.
+  field <id> <value>  Edit a Form field (checkbox values: true/false; dates: ISO).
+  submit          Run the first Action.SubmitForm.
   quit            Shut down and finish with exit code 0.
 
 Exit codes: 0 success, 1 script or expectation failure, 2 usage error,
@@ -162,6 +164,8 @@ type Step =
   | { op: "search"; text: string }
   | { op: "confirm" | "dismiss" }
   | { op: "dropdown"; value: string }
+  | { op: "field"; id: string; value: string }
+  | { op: "submit" }
   | { op: "back" }
   | { op: "wait" }
   | { op: "expect"; text: string }
@@ -191,6 +195,16 @@ function parseScript(source: string): Step[] {
       case "dropdown":
         if (rest === "") throw new ScriptError(`script line ${index + 1}: dropdown needs a value`);
         steps.push({ op: "dropdown", value: rest });
+        break;
+      case "field": {
+        const split = rest.indexOf(" ");
+        if (split < 1)
+          throw new ScriptError(`script line ${index + 1}: field needs an id and value`);
+        steps.push({ op: "field", id: rest.slice(0, split), value: rest.slice(split + 1) });
+        break;
+      }
+      case "submit":
+        steps.push({ op: "submit" });
         break;
       case "back":
         steps.push({ op: "back" });
@@ -289,6 +303,35 @@ async function runScript(session: Session, steps: Step[]): Promise<void> {
           throw new ScriptError(`no Action with onAction titled ${JSON.stringify(step.title)}`);
         }
         session.sendEvent(node.id, handler.$handler, []);
+        break;
+      }
+      case "field":
+      case "submit": {
+        const scene = await currentScene(session);
+        observed = Math.max(observed, scene.revision);
+        const node = scene.root
+          ? findNode(scene.root, (item) =>
+              step.op === "submit"
+                ? item.type === "Action.SubmitForm"
+                : item.type.startsWith("Form.") && item.props.id === step.id,
+            )
+          : undefined;
+        const handler = node
+          ? handlerRef(node.props[step.op === "submit" ? "onAction" : "onChange"])
+          : undefined;
+        if (!node || !handler)
+          throw new ScriptError(
+            step.op === "submit"
+              ? "no Action.SubmitForm to submit"
+              : `no editable Form field ${JSON.stringify(step.id)}`,
+          );
+        let args: JsonValue[] = [];
+        if (step.op === "field") {
+          if (node.type === "Form.Checkbox" && !["true", "false"].includes(step.value))
+            throw new ScriptError("checkbox field value must be true or false");
+          args = [node.type === "Form.Checkbox" ? step.value === "true" : step.value];
+        }
+        session.sendEvent(node.id, handler.$handler, args);
         break;
       }
       case "search": {

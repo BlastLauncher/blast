@@ -4,23 +4,23 @@ Denominator: the `@raycast/api@2.8.2` declarations. Evidence:
 `// @covers` tags in `packages/**/*.test.ts(x)`. A parent is not implied covered
 by its children. Partial support is reported separately from covered.
 
-**Non-deprecated coverage: 696/1534 covered (45.4%), 29 partial, 809 missing.**
+**Non-deprecated coverage: 779/1534 covered (50.8%), 44 partial, 711 missing.**
 Deprecated: 22/939 covered (2.3%), 4 partial, 913 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 696 | 22 | 718 |
-| partial | 29 | 4 | 33 |
-| missing | 809 | 913 | 1722 |
+| covered | 779 | 22 | 801 |
+| partial | 44 | 4 | 48 |
+| missing | 711 | 913 | 1624 |
 
 ## Totals by kind
 
 | Kind | Covered | Partial | Missing | Total |
 | --- | --- | --- | --- | --- |
 | namespace | 3 | 1 | 5 | 9 |
-| component | 16 | 17 | 83 | 116 |
+| component | 20 | 23 | 73 | 116 |
 | function | 14 | 3 | 33 | 50 |
 | const | 1 | 1 | 19 | 21 |
 | class | 1 | 0 | 2 | 3 |
@@ -28,7 +28,7 @@ Deprecated: 22/939 covered (2.3%), 4 partial, 913 missing.
 | enum-member | 499 | 0 | 192 | 691 |
 | interface | 5 | 1 | 58 | 64 |
 | type | 16 | 1 | 161 | 178 |
-| property | 154 | 9 | 1141 | 1304 |
+| property | 233 | 18 | 1053 | 1304 |
 | method | 3 | 0 | 21 | 24 |
 
 ## Top-level symbols
@@ -38,7 +38,7 @@ Children counts include all descendants, as covered/partial/total.
 | Symbol | Kind | Status | Children | Extensions |
 | --- | --- | --- | --- | --- |
 | `AI` | namespace | missing | 0/0/266 | 115 |
-| `Action` | component | partial | 30/4/110 | 2985 |
+| `Action` | component | partial | 34/6/110 | 2985 |
 | `ActionPanel` | component | partial | 4/2/129 | 3023 |
 | `ActionPanelChildren` | type | missing | 0/0/0 | 0 |
 | `ActionPanelItem` | component | partial | 0/0/104 | 1 |
@@ -69,7 +69,7 @@ Children counts include all descendants, as covered/partial/total.
 | `Environment` | interface | missing | 0/0/17 | 2 |
 | `FileIcon` | interface | missing | 0/0/1 | 1 |
 | `FileSystemItem` | interface | missing | 0/0/1 | 10 |
-| `Form` | component | missing | 0/0/213 | 1362 |
+| `Form` | component | partial | 79/12/213 | 1362 |
 | `FormCheckbox` | const | missing | 0/0/2 | 0 |
 | `FormCheckboxProps` | interface | missing | 0/0/12 | 0 |
 | `FormDatePicker` | const | missing | 0/0/2 | 0 |
@@ -192,53 +192,53 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 
 | Path | Extensions |
 | --- | --- |
-| `Form` | 1362 |
-| `Form.Props.actions` | 1356 |
-| `Action.SubmitForm` | 1267 |
-| `Action.SubmitForm.Props.onSubmit` | 1267 |
-| `Action.SubmitForm.Props.title` | 1181 |
-| `Form.TextField` | 1102 |
-| `Form.TextField.Props.title` | 1090 |
-| `Form.TextField.Props.placeholder` | 983 |
-| `Form.Dropdown` | 799 |
-| `Form.Dropdown.Item` | 793 |
-| `Form.Dropdown.Item.Props.title` | 793 |
-| `Form.Dropdown.Item.Props.value` | 793 |
-| `Form.Dropdown.Props.title` | 793 |
-| `Form.Description` | 765 |
-| `Form.Description.Props.text` | 765 |
-| `Form.TextField.Props.id` | 764 |
-| `Form.TextArea` | 678 |
-| `Action.SubmitForm.Props.icon` | 675 |
-| `Form.TextArea.Props.title` | 665 |
 | `LaunchProps` | 657 |
-| `Form.Props.isLoading` | 651 |
-| `Form.Dropdown.Props.id` | 605 |
 | `closeMainWindow` | 600 |
-| `Form.TextArea.Props.placeholder` | 590 |
 | `popToRoot` | 567 |
 | `openExtensionPreferences` | 541 |
-| `Form.TextField.Props.onChange` | 506 |
-| `Form.TextArea.Props.id` | 491 |
 | `Image` | 478 |
 | `LaunchType` | 454 |
-| `Form.Description.Props.title` | 453 |
-| `Form.Props.navigationTitle` | 451 |
-| `Form.Separator` | 443 |
-| `Form.Dropdown.Props.onChange` | 416 |
-| `Form.Checkbox` | 411 |
-| `Form.Checkbox.Props.label` | 411 |
 | `LaunchType.UserInitiated` | 408 |
 | `launchCommand` | 398 |
-| `Form.TextField.Props.info` | 381 |
-| `Form.TextField.Props.value` | 375 |
 | `MenuBarExtra` | 342 |
-| `Form.Dropdown.Props.value` | 341 |
 | `Cache` | 333 |
 | `MenuBarExtra.Item` | 328 |
 | `MenuBarExtra.Item.Props.title` | 328 |
 | `MenuBarExtra.Item.Props.onAction` | 323 |
 | `MenuBarExtra.Props.icon` | 317 |
-| `Form.Dropdown.Item.Props.icon` | 313 |
 | `Clipboard.readText` | 312 |
 | `Grid` | 311 |
+| `MenuBarExtra.Props.isLoading` | 308 |
+| `Grid.Item` | 306 |
+| `Grid.Item.Props.content` | 300 |
+| `Grid.Item.Props.actions` | 296 |
+| `ActionPanel.Submenu` | 284 |
+| `ActionPanel.Submenu.Props.title` | 284 |
+| `MenuBarExtra.Item.Props.icon` | 283 |
+| `Image.ImageLike` | 279 |
+| `MenuBarExtra.Section` | 275 |
+| `ActionPanel.Submenu.Props.icon` | 267 |
+| `Grid.Item.Props.title` | 262 |
+| `Form.FilePicker` | 256 |
+| `Grid.Props.isLoading` | 249 |
+| `getSelectedText` | 249 |
+| `Form.FilePicker.Props.title` | 246 |
+| `Form.FilePicker.Props.allowMultipleSelection` | 238 |
+| `Image.Mask` | 232 |
+| `MenuBarExtra.Props.title` | 232 |
+| `Action.Open` | 227 |
+| `Grid.Props.columns` | 227 |
+| `Action.Open.Props.target` | 226 |
+| `Action.Open.Props.title` | 226 |
+| `MenuBarExtra.Props.tooltip` | 226 |
+| `MenuBarExtra.Section.Props.title` | 224 |
+| `getApplications` | 216 |
+| `List.Props.pagination` | 206 |
+| `Grid.Props.searchBarPlaceholder` | 201 |
+| `Clipboard.paste` | 193 |
+| `Form.FilePicker.Props.id` | 193 |
+| `Action.ShowInFinder` | 192 |
+| `Action.ShowInFinder.Props.path` | 192 |
+| `openCommandPreferences` | 187 |
+| `MenuBarExtra.Item.Props.subtitle` | 181 |
+| `Form.FilePicker.Props.canChooseDirectories` | 176 |

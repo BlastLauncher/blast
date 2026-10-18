@@ -50,3 +50,5 @@ export {
   type LocalStorageValues,
 } from "./storage.ts";
 export { open, type Application } from "./open.ts";
+
+export { Form, SubmitForm as SubmitFormAction } from "./form.ts";
