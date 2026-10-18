@@ -35,12 +35,12 @@ fields) have `@covers` evidence.
 
 ## Acceptance
 
-- [ ] Runtime tests: TagPicker controlled/uncontrolled + submit; PasswordField
+- [x] Runtime tests: TagPicker controlled/uncontrolled + submit; PasswordField
       submit while its value is absent from every published scene; Form.Event
       on focus/blur.
-- [ ] CLI e2e: a script fills both fields and submits.
-- [ ] Every Form gap in scope is covered or explained in Handoff.
-- [ ] `bun run verify` passes.
+- [x] CLI e2e: a script fills both fields and submits.
+- [x] Every Form gap in scope is covered or explained in Handoff.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -49,8 +49,17 @@ fields) have `@covers` evidence.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/form-tagpicker-password @ 0b93090
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 33.4s (364 tests)
 Done:
+- Form.TagPicker (string[] value like FilePicker, placeholder, Item children with icon), Form.LinkAccessory (target/text), Form.PasswordField, Form.DatePicker.isFullDay in packages/runtime/src/api/form.ts
+- PasswordField secrecy: Field grew an internal `secret` mode — scene props drop value/defaultValue, carry boolean hasValue; value stays runtime-side for onChange, focus/blur events and submit. Documented in docs/architecture.md.
+- CLI `field` accepts comma-separated TagPicker values; fixtures/extensions/form gains a `secret` command whose extension masks the password; new cli.test.ts e2e asserts the secret never appears in printed scenes.
+- Runtime tests in form.test.ts: TagPicker controlled/uncontrolled/submit/focus, PasswordField secret-free (every published scene checked), isFullDay, LinkAccessory, enableDrafts recorded, keepSectionOrder recorded.
+- All 72 in-scope non-deprecated Form paths now covered/partial (compat report regenerated: 63.5% → 67.6% non-deprecated). The remaining in-scope entries were "Props" type aliases of fields already tested — covered with tags on the existing tests.
 Not done / risks:
+- storeValue/drafts/refs remain recorded-only (`partial` tags, next task).
+- PasswordField hasValue collapses to `value !== ""` (length-free) — secrets with only whitespace count as set.
+- Unsupported stub test dropped its Form.TagPicker example (now implemented); other stub cases remain.
+- isFullDay semantic (local time exactly midnight) inferred from docs, not verified against Raycast's binary.
 ```
