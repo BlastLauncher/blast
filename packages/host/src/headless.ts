@@ -4,8 +4,10 @@
 // supplied (empty otherwise, with no history behind it), and opening a
 // preference window or updating command metadata is only recorded. Selection
 // comes from the supplied text and paths; the frontmost app is supplied or neutral.
-// Everything that would change the machine
-// (`open.*`, `clipboard.paste`, `clipboard.clear`) stays denied unless granted.
+// Window management reads are neutral too: one desktop, no windows, and no
+// default application for a path. Everything that would change the machine
+// (`open.*`, `clipboard.paste`, `clipboard.clear`, `window.setBounds`,
+// `mcp.install`) stays denied unless granted.
 import type { JsonValue } from "@blastlauncher/protocol";
 import type { CapabilityHandler } from "./broker.ts";
 
@@ -126,6 +128,38 @@ export function createHeadlessHandlers(
         throw new Error('applications.list: "path" must be a string');
       }
       return applications.map(applicationWire);
+    },
+    "applications.default": (params) => {
+      const { path } = readParams(params, "applications.default");
+      if (typeof path !== "string" || path === "") {
+        throw new Error('applications.default: "path" must be a non-empty string');
+      }
+      // No application database exists, so no path has a default application;
+      // Raycast rejects in exactly that case.
+      throw new Error(`No default application for ${path}`);
+    },
+    // Window management is client state. Without a client there is one empty
+    // desktop, no windows and no active window, so the read-only calls answer
+    // neutrally and `window.setBounds` stays denied.
+    "window.desktops": (params) => {
+      readParams(params, "window.desktops");
+      return [
+        {
+          id: "headless-desktop",
+          screenId: "headless-screen",
+          active: true,
+          type: "User",
+          size: { width: 0, height: 0 },
+        },
+      ];
+    },
+    "window.list": (params) => {
+      readParams(params, "window.list");
+      return [];
+    },
+    "window.active": (params) => {
+      readParams(params, "window.active");
+      throw new Error("No active window");
     },
     "clipboard.read": (params) => {
       const { offset } = readParams(params, "clipboard.read");

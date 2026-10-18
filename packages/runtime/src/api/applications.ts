@@ -49,3 +49,17 @@ export async function getApplications(path?: ApplicationPath): Promise<Applicati
   }
   return value.map((item) => toApplication(item));
 }
+
+/**
+ * `getDefaultApplication(path)`: the application the machine would open the
+ * path with. Rejects when there is none, exactly as the declarations promise
+ * and as a headless host without an application database always does.
+ */
+export async function getDefaultApplication(path: ApplicationPath): Promise<Application> {
+  return toApplication(
+    await requestCapability("applications.default", {
+      path: pathParam(path, "getDefaultApplication"),
+    }),
+    "getDefaultApplication",
+  );
+}

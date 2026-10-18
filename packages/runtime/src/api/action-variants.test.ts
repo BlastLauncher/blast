@@ -21,18 +21,21 @@ import {
   ToggleQuickLook,
   Trash,
   TrashAction,
+  type SSEMCPServer,
 } from "./action.ts";
 import { ActionPanel, ActionPanelSubmenu } from "./action-panel.ts";
 
-// @covers Action.Open partial
-// @covers Action.OpenWith partial
-// @covers Action.ShowInFinder partial
-// @covers Action.Trash partial
-// @covers Action.CreateSnippet partial
-// @covers Action.CreateQuicklink partial
-// @covers Action.ToggleQuickLook partial
-// @covers Action.PickDate partial
-// @covers ActionPanel.Submenu partial
+// @covers Action.Open
+// @covers Action.OpenWith
+// @covers Action.ShowInFinder
+// @covers Action.Trash
+// @covers Action.CreateSnippet
+// @covers Action.CreateQuicklink
+// @covers Action.ToggleQuickLook
+// @covers Action.PickDate
+// @covers ActionPanel.Submenu
+// @covers ActionPanel.Submenu.Props
+// @covers ActionPanel.Submenu.Children
 
 function setup() {
   const scenes: SceneSnapshot[] = [];
@@ -58,6 +61,7 @@ function byTitle(node: SceneNode, type: string): SceneNode {
   return found!;
 }
 
+// @covers Action.Open.Props
 // @covers Action.Open.Props.title
 // @covers Action.Open.Props.icon
 // @covers Action.Open.Props.shortcut
@@ -112,18 +116,27 @@ test("dispatching Action.Open requests open.url or open.path, then calls onOpen"
   root.unmount();
 });
 
+// @covers Action.OpenWith.Props
 // @covers Action.OpenWith.Props.title
 // @covers Action.OpenWith.Props.icon
+// @covers Action.OpenWith.Props.shortcut
 // @covers Action.OpenWith.Props.path
 // @covers Action.OpenWith.Props.onOpen
 test("Action.OpenWith defaults title and icon, keeps path private, opens via open.path", async () => {
   const events: string[] = [];
   const { root, latest } = setup();
-  root.render(h(OpenWith, { path: "/tmp/report.pdf", onOpen: (p) => events.push(p) }));
+  root.render(
+    h(OpenWith, {
+      path: "/tmp/report.pdf",
+      shortcut: { modifiers: ["cmd", "shift"], key: "o" },
+      onOpen: (p) => events.push(p),
+    }),
+  );
   expect(latest().type).toBe("Action.OpenWith");
   expect(latest().props).toEqual({
     title: "Open With",
     icon: "upload-16",
+    shortcut: { modifiers: ["cmd", "shift"], key: "o" },
     onAction: { $handler: "onAction" },
   });
   await root.dispatch(latest().id, "onAction", []);
@@ -132,18 +145,29 @@ test("Action.OpenWith defaults title and icon, keeps path private, opens via ope
   root.unmount();
 });
 
+// @covers Action.ShowInFinder.Props
 // @covers Action.ShowInFinder.Props.path
 // @covers Action.ShowInFinder.Props.title
+// @covers Action.ShowInFinder.Props.icon
+// @covers Action.ShowInFinder.Props.shortcut
 // @covers Action.ShowInFinder.Props.onShow
 test("Action.ShowInFinder reveals through finder.show and passes the PathLike back", async () => {
   const events: unknown[] = [];
   const { root, latest } = setup();
   const path = new URL("file:///tmp/downloads");
-  root.render(h(ShowInFinder, { path, onShow: (p) => events.push(p) }));
+  root.render(
+    h(ShowInFinder, {
+      path,
+      icon: "folder.png",
+      shortcut: { modifiers: ["cmd", "shift"], key: "f" },
+      onShow: (p) => events.push(p),
+    }),
+  );
   expect(latest().type).toBe("Action.ShowInFinder");
   expect(latest().props).toEqual({
     title: "Show in Finder",
-    icon: "finder-16",
+    icon: "folder.png",
+    shortcut: { modifiers: ["cmd", "shift"], key: "f" },
     onAction: { $handler: "onAction" },
   });
   expect(JSON.stringify(latest().props)).not.toContain("downloads");
@@ -153,17 +177,28 @@ test("Action.ShowInFinder reveals through finder.show and passes the PathLike ba
   root.unmount();
 });
 
+// @covers Action.Trash.Props
 // @covers Action.Trash.Props.paths
 // @covers Action.Trash.Props.title
+// @covers Action.Trash.Props.icon
+// @covers Action.Trash.Props.shortcut
 // @covers Action.Trash.Props.onTrash
 test("Action.Trash normalizes single and multiple paths for the trash capability", async () => {
   const events: unknown[] = [];
   const { root, latest } = setup();
-  root.render(h(Trash, { paths: "/tmp/a.txt", onTrash: (p) => events.push(p) }));
+  root.render(
+    h(Trash, {
+      paths: "/tmp/a.txt",
+      icon: "delete.png",
+      shortcut: { modifiers: ["cmd"], key: "backspace" },
+      onTrash: (p) => events.push(p),
+    }),
+  );
   expect(latest().type).toBe("Action.Trash");
   expect(latest().props).toEqual({
     title: "Move to Trash",
-    icon: "trash-16",
+    icon: "delete.png",
+    shortcut: { modifiers: ["cmd"], key: "backspace" },
     onAction: { $handler: "onAction" },
   });
   await root.dispatch(latest().id, "onAction", []);
@@ -185,15 +220,25 @@ test("Action.Trash normalizes single and multiple paths for the trash capability
   root.unmount();
 });
 
+// @covers Action.CreateSnippet.Props
 // @covers Action.CreateSnippet.Props.snippet
 // @covers Action.CreateSnippet.Props.title
+// @covers Action.CreateSnippet.Props.icon
+// @covers Action.CreateSnippet.Props.shortcut
 test("Action.CreateSnippet keeps the snippet contents out of the scene", async () => {
   const { root, latest } = setup();
-  root.render(h(CreateSnippet, { snippet: { text: "DE75512108001245126199", name: "IBAN" } }));
+  root.render(
+    h(CreateSnippet, {
+      snippet: { text: "DE75512108001245126199", name: "IBAN" },
+      icon: "bank.png",
+      shortcut: { modifiers: ["cmd"], key: "s" },
+    }),
+  );
   expect(latest().type).toBe("Action.CreateSnippet");
   expect(latest().props).toEqual({
     title: "Create Snippet",
-    icon: "snippets-16",
+    icon: "bank.png",
+    shortcut: { modifiers: ["cmd"], key: "s" },
     onAction: { $handler: "onAction" },
   });
   await root.dispatch(latest().id, "onAction", []);
@@ -203,8 +248,11 @@ test("Action.CreateSnippet keeps the snippet contents out of the scene", async (
   root.unmount();
 });
 
+// @covers Action.CreateQuicklink.Props
 // @covers Action.CreateQuicklink.Props.quicklink
 // @covers Action.CreateQuicklink.Props.title
+// @covers Action.CreateQuicklink.Props.icon
+// @covers Action.CreateQuicklink.Props.shortcut
 test("Action.CreateQuicklink keeps the quicklink out of the scene and serializes the application", async () => {
   const { root, latest } = setup();
   root.render(
@@ -214,12 +262,15 @@ test("Action.CreateQuicklink keeps the quicklink out of the scene and serializes
         name: "Duck",
         application: { name: "Firefox", path: "/Applications/Firefox.app" },
       },
+      icon: "duck.png",
+      shortcut: { modifiers: ["cmd"], key: "q" },
     }),
   );
   expect(latest().type).toBe("Action.CreateQuicklink");
   expect(latest().props).toEqual({
     title: "Create Quicklink",
-    icon: "quicklink-16",
+    icon: "duck.png",
+    shortcut: { modifiers: ["cmd"], key: "q" },
     onAction: { $handler: "onAction" },
   });
   await root.dispatch(latest().id, "onAction", []);
@@ -236,8 +287,10 @@ test("Action.CreateQuicklink keeps the quicklink out of the scene and serializes
   root.unmount();
 });
 
+// @covers Action.ToggleQuickLook.Props
 // @covers Action.ToggleQuickLook.Props.title
 // @covers Action.ToggleQuickLook.Props.icon
+// @covers Action.ToggleQuickLook.Props.shortcut
 test("Action.ToggleQuickLook defaults its title and requests quicklook.toggle", async () => {
   const { root, latest } = setup();
   root.render(h(ToggleQuickLook, { shortcut: { modifiers: ["cmd"], key: "y" } }));
@@ -253,8 +306,10 @@ test("Action.ToggleQuickLook defaults its title and requests quicklook.toggle", 
   root.unmount();
 });
 
+// @covers Action.PickDate.Props
 // @covers Action.PickDate.Props.title
 // @covers Action.PickDate.Props.icon
+// @covers Action.PickDate.Props.shortcut
 // @covers Action.PickDate.Props.type
 // @covers Action.PickDate.Props.min
 // @covers Action.PickDate.Props.max
@@ -267,6 +322,7 @@ test("Action.PickDate renders bounds as ISO strings and exposes Type", () => {
       type: "date",
       min: new Date("2026-01-01T00:00:00.000Z"),
       max: new Date("2026-12-31T23:59:59.999Z"),
+      shortcut: { modifiers: ["cmd"], key: "d" },
       onChange: () => {},
     }),
   );
@@ -277,6 +333,7 @@ test("Action.PickDate renders bounds as ISO strings and exposes Type", () => {
     type: "date",
     min: "2026-01-01T00:00:00.000Z",
     max: "2026-12-31T23:59:59.999Z",
+    shortcut: { modifiers: ["cmd"], key: "d" },
     onChange: { $handler: "onChange" },
   });
   expect(PickDate.Type).toEqual({ Date: "date", DateTime: "date_time" });
@@ -388,6 +445,90 @@ test("deprecated top-level aliases are the implemented components", () => {
   expect(ShowInFinderAction).toBe(Action.ShowInFinder);
   expect(TrashAction).toBe(Action.Trash);
   expect(ActionPanelSubmenu).toBe(ActionPanel.Submenu);
+});
+
+// @covers Action.InstallMCPServer
+// @covers Action.InstallMCPServer.Props
+// @covers Action.InstallMCPServer.Props.server
+// @covers Action.InstallMCPServer.Props.title
+// @covers Action.InstallMCPServer.Props.icon
+// @covers Action.InstallMCPServer.Props.shortcut
+test("Action.InstallMCPServer keeps the server out of the scene and requests mcp.install", async () => {
+  const { root, latest } = setup();
+  const stdio = {
+    transport: "stdio" as const,
+    name: "Sequential Thinking",
+    description: "Think step by step",
+    icon: "plug-16" as const,
+    command: "npx",
+    args: ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+    env: { LOG_LEVEL: "debug" },
+  };
+  root.render(
+    h(Action.InstallMCPServer, {
+      server: stdio,
+      icon: "download.png",
+      shortcut: { modifiers: ["cmd"], key: "m" },
+    }),
+  );
+  expect(latest().type).toBe("Action.InstallMCPServer");
+  expect(latest().props).toEqual({
+    title: "Install MCP Server",
+    icon: "download.png",
+    shortcut: { modifiers: ["cmd"], key: "m" },
+    onAction: { $handler: "onAction" },
+  });
+  await root.dispatch(latest().id, "onAction", []);
+  root.render(
+    h(Action.InstallMCPServer, {
+      title: "Add server",
+      server: { transport: "sse", name: "Remote", url: "https://mcp.example/sse" },
+    }),
+  );
+  await root.dispatch(latest().id, "onAction", []);
+  expect(requests).toEqual([
+    {
+      name: "mcp.install",
+      params: {
+        server: {
+          name: "Sequential Thinking",
+          transport: "stdio",
+          icon: "plug-16",
+          description: "Think step by step",
+          command: "npx",
+          args: ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+          env: { LOG_LEVEL: "debug" },
+        },
+      },
+    },
+    {
+      name: "mcp.install",
+      params: { server: { name: "Remote", transport: "sse", url: "https://mcp.example/sse" } },
+    },
+  ]);
+  root.unmount();
+});
+
+// @covers Action.InstallMCPServer
+test("Action.InstallMCPServer rejects a malformed server and propagates denial", async () => {
+  const { root, latest } = setup();
+  root.render(
+    h(Action.InstallMCPServer, {
+      server: { transport: "http", name: "Broken" } as unknown as SSEMCPServer,
+    }),
+  );
+  await expect(root.dispatch(latest().id, "onAction", [])).rejects.toThrow(
+    'server.transport must be "stdio" or "sse"',
+  );
+  expect(requests).toEqual([]);
+  setCapabilityRequester(failingRequester);
+  root.render(
+    h(Action.InstallMCPServer, {
+      server: { transport: "sse", name: "Remote", url: "https://mcp.example/sse" },
+    }),
+  );
+  await expect(root.dispatch(latest().id, "onAction", [])).rejects.toThrow("host refused");
+  root.unmount();
 });
 
 // @covers Action.Open.Props.onOpen

@@ -102,6 +102,7 @@ export const Action = Object.assign(
     CopyToClipboard,
     CreateQuicklink,
     CreateSnippet,
+    InstallMCPServer,
     Open,
     OpenInBrowser,
     OpenWith,
@@ -434,5 +435,89 @@ export function ToggleQuickLook(props: ToggleQuickLookProps) {
     icon: props.icon ?? Icon.Eye,
     shortcut: props.shortcut,
     onAction: () => requestCapability("quicklook.toggle", {}),
+  });
+}
+
+/** An `Icon` member, as the declarations type `MCPServer.icon`. */
+export type IconValue = (typeof Icon)[keyof typeof Icon];
+
+/** `MCPServer` from the declarations. */
+export interface MCPServer {
+  /** The icon to display for the MCP server. */
+  icon?: IconValue;
+  /** The name of the MCP server. */
+  name: string;
+  /** The description of the MCP server. */
+  description?: string;
+}
+
+/** `StdioMCPServer`: an MCP server started as a local process. */
+export interface StdioMCPServer extends MCPServer {
+  transport: "stdio";
+  /** The command to run the MCP server. */
+  command: string;
+  /** The arguments to pass to the MCP server. */
+  args?: string[];
+  /** The environment variables to pass to the MCP server. */
+  env?: Record<string, string>;
+}
+
+/** `SSEMCPServer`: an MCP server reached over HTTP. */
+export interface SSEMCPServer extends MCPServer {
+  transport: "sse";
+  /** The URL of the MCP server. */
+  url: string;
+  /** The HTTP headers to use for network requests to the MCP server. */
+  headers?: Record<string, string>;
+}
+
+/** `InstallMCPServerProps` from the declarations (`Action.InstallMCPServer`). */
+export interface InstallMCPServerProps {
+  /** The stdio or SSE server to install. */
+  server: StdioMCPServer | SSEMCPServer;
+  /** The title for the Action. */
+  title?: string;
+  /** The icon displayed for the Action. */
+  icon?: ImageLike;
+  /** The keyboard shortcut for the Action. */
+  shortcut?: Shortcut;
+}
+
+// The server descriptor is the only payload: rebuilt from the declared fields
+// so nothing unserializable or unknown reaches the wire.
+function serverParam(server: StdioMCPServer | SSEMCPServer): Record<string, JsonValue> {
+  if (typeof server !== "object" || server === null || Array.isArray(server)) {
+    throw new TypeError("Action.InstallMCPServer: server must be an object");
+  }
+  if (server.transport !== "stdio" && server.transport !== "sse") {
+    throw new TypeError('Action.InstallMCPServer: server.transport must be "stdio" or "sse"');
+  }
+  const params: Record<string, JsonValue> = {
+    name: server.name,
+    transport: server.transport,
+  };
+  if (server.icon !== undefined) params["icon"] = server.icon;
+  if (server.description !== undefined) params["description"] = server.description;
+  if (server.transport === "stdio") {
+    params["command"] = server.command;
+    if (server.args !== undefined) params["args"] = server.args;
+    if (server.env !== undefined) params["env"] = server.env;
+  } else {
+    params["url"] = server.url;
+    if (server.headers !== undefined) params["headers"] = server.headers;
+  }
+  return params;
+}
+
+/**
+ * Installs an MCP server. Blast runs no MCP client, so this is a capability:
+ * the host decides, and a headless run denies it unless granted.
+ */
+export function InstallMCPServer(props: InstallMCPServerProps) {
+  const { server, ...rest } = props;
+  return createElement("Action.InstallMCPServer", {
+    ...rest,
+    title: rest.title ?? "Install MCP Server",
+    onAction: () => requestCapability("mcp.install", { server: serverParam(server) }),
   });
 }

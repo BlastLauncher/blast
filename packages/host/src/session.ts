@@ -84,7 +84,7 @@ export async function startCommand(options: StartOptions): Promise<Session> {
       ...(options.argumentValues === undefined ? {} : { arguments: options.argumentValues }),
       ...(options.launchContext === undefined ? {} : { launchContext: options.launchContext }),
     },
-    preferences: options.preferences ?? {},
+    preferences: { ...options.preferenceDefaults, ...options.preferences },
     environment: options.environment ?? {
       extensionName: options.extensionName,
       commandName: options.commandName,

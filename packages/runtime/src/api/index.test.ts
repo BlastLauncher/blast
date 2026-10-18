@@ -1,34 +1,23 @@
-import { expect, test, beforeEach } from "bun:test";
+import { expect, test } from "bun:test";
 import { createElement as h } from "react";
-import { createSceneRoot, type JsonValue, type SceneSnapshot } from "../reconciler/index.ts";
+import { createSceneRoot, type SceneSnapshot } from "../reconciler/index.ts";
 import { setCapabilityRequester } from "./capability.ts";
 import { Action, Clipboard, CopyToClipboard, List, ActionPanel } from "./index.ts";
 
-// @covers List partial
+// @covers List
+// @covers List.Props
 // @covers List.Item
 // @covers List.Section
 // @covers List.EmptyView
-// @covers ActionPanel partial
-// @covers ActionPanel.Section partial
-// @covers Action partial
-// @covers Action.CopyToClipboard partial
-// @covers Clipboard partial
+// @covers ActionPanel
+// @covers ActionPanel.Props
+// @covers ActionPanel.Children
 
 function setup() {
   const scenes: SceneSnapshot[] = [];
   const root = createSceneRoot({ publish: (scene) => scenes.push(scene) });
   return { root, latest: () => scenes.at(-1)!.root! };
 }
-
-let requests: Array<{ name: string; params: Record<string, JsonValue> }>;
-
-beforeEach(() => {
-  requests = [];
-  setCapabilityRequester(async (name, params) => {
-    requests.push({ name, params });
-    return null;
-  });
-});
 
 function byType(node: ReturnType<ReturnType<typeof setup>["latest"]>, type: string) {
   const found = node.children.filter((child) => child.type === type);
@@ -183,8 +172,13 @@ test("renders List.EmptyView with its own actions Slot", () => {
 
 // @covers ActionPanel.Props.title
 // @covers ActionPanel.Props.children
+// @covers ActionPanel.Section
+// @covers ActionPanel.Section.Props
 // @covers ActionPanel.Section.Props.title
 // @covers ActionPanel.Section.Props.children
+// @covers ActionPanel.Section.Children
+// @covers Action
+// @covers Action.Props
 // @covers Action.Props.title
 // @covers Action.Props.icon
 // @covers Action.Props.shortcut
@@ -228,6 +222,8 @@ test("renders ActionPanel sections and dispatches plain Action onAction", () => 
   root.unmount();
 });
 
+// @covers Action.CopyToClipboard
+// @covers Action.CopyToClipboard.Props
 // @covers Action.CopyToClipboard.Props.title
 // @covers Action.CopyToClipboard.Props.icon
 // @covers Action.CopyToClipboard.Props.shortcut
@@ -279,34 +275,11 @@ test("dispatching CopyToClipboard requests clipboard.copy, then calls onCopy", a
 });
 
 // @covers Clipboard.copy
-test("Clipboard.copy accepts string, number and { text } content", async () => {
-  for (const [content, text] of [
-    ["plain", "plain"],
-    [42, "42"],
-    [{ text: "structured" }, "structured"],
-  ] as const) {
-    await Clipboard.copy(content);
-    expect(requests.at(-1)).toEqual({ name: "clipboard.copy", params: { text } });
-  }
-});
-
-// @covers Clipboard.copy
 test("Clipboard.copy rejects clearly without a capability requester", async () => {
   setCapabilityRequester(undefined);
   await expect(Clipboard.copy("x")).rejects.toThrow(
     "Cannot request capability 'clipboard.copy': no capability requester is installed",
   );
-});
-
-// @covers Clipboard.copy
-test("Clipboard.copy rejects unsupported content shapes with a Blast message", async () => {
-  await expect(Clipboard.copy({ file: "/tmp/report.pdf" })).rejects.toThrow(
-    "unsupported content in Blast",
-  );
-  await expect(Clipboard.copy({ html: "<b>rich</b>" })).rejects.toThrow(
-    "unsupported content in Blast",
-  );
-  expect(requests).toEqual([]);
 });
 
 // @covers Action.CopyToClipboard.Props.onCopy

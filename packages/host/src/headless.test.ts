@@ -140,6 +140,74 @@ test("selection and frontmost defaults are deterministic and configurable", asyn
   }
 });
 
+// @covers WindowManagement.getDesktops
+// @covers WindowManagement.getActiveWindow
+// @covers WindowManagement.getWindowsOnActiveDesktop
+test("window management answers neutrally: one desktop, no windows, no active window", async () => {
+  const broker = createBroker(createHeadlessHandlers());
+  expect(await ask(broker, "window.desktops", {})).toEqual({
+    type: "capability.result",
+    id: "1",
+    ok: true,
+    value: [
+      {
+        id: "headless-desktop",
+        screenId: "headless-screen",
+        active: true,
+        type: "User",
+        size: { width: 0, height: 0 },
+      },
+    ],
+  });
+  expect(await ask(broker, "window.list", {})).toMatchObject({ ok: true, value: [] });
+  // Raycast rejects when no window is active, which is always the case here.
+  expect(await ask(broker, "window.active", {})).toMatchObject({
+    ok: false,
+    error: { code: "failed", message: "No active window" },
+  });
+  for (const name of ["window.desktops", "window.list", "window.active"]) {
+    expect(await ask(broker, name, null)).toMatchObject({
+      ok: false,
+      error: { code: "failed" },
+    });
+  }
+});
+
+// @covers WindowManagement.setWindowBounds
+test("window.setBounds is an effect and stays denied unless granted", async () => {
+  const params = { id: "window-1", bounds: { position: { x: 100 } } };
+  expect(await ask(createBroker(createHeadlessHandlers()), "window.setBounds", params)).toMatchObject(
+    { ok: false, error: { code: "denied" } },
+  );
+  const received: JsonValue[] = [];
+  const broker = createBroker({
+    "window.setBounds": (value) => {
+      received.push(value);
+    },
+  });
+  expect(await ask(broker, "window.setBounds", params)).toMatchObject({ ok: true, value: null });
+  expect(received).toEqual([params]);
+});
+
+// @covers getDefaultApplication
+test("applications.default rejects like Raycast when no application exists", async () => {
+  const broker = createBroker(createHeadlessHandlers({ applications: [safari] }));
+  expect(await ask(broker, "applications.default", { path: "/tmp/report.txt" })).toMatchObject({
+    ok: false,
+    error: { code: "failed", message: "No default application for /tmp/report.txt" },
+  });
+  for (const params of [{}, { path: "" }, { path: 5 }]) {
+    expect(await ask(broker, "applications.default", params)).toMatchObject({
+      ok: false,
+      error: { code: "failed" },
+    });
+  }
+  // Nothing answers it without the headless handler installed.
+  expect(
+    await ask(createBroker(), "applications.default", { path: "/tmp/report.txt" }),
+  ).toMatchObject({ ok: false, error: { code: "denied" } });
+});
+
 test("finder and trash effects require explicit grants and pass parameters to the handler", async () => {
   for (const [name, params] of [
     ["finder.show", { path: "/tmp/a" }],

@@ -21,6 +21,11 @@ export type {
   ToggleQuickLookProps,
   PickDateProps,
   DatePickerTypeValue,
+  InstallMCPServerProps,
+  MCPServer,
+  StdioMCPServer,
+  SSEMCPServer,
+  IconValue,
 } from "./action.ts";
 export type {
   ActionPanelProps,
@@ -87,8 +92,16 @@ export type {
 export type { PreferenceValues } from "./preferences.ts";
 
 export type { PushProps } from "./action.ts";
-export type { Navigation } from "./navigation.ts";
+export type { Navigation, ClearSearchBarOptions } from "./navigation.ts";
 export type { PopToRootOptions } from "./navigation.ts";
+export type { RuntimeLogLevel } from "./diagnostics.ts";
+export type {
+  Desktop,
+  DesktopTypeValue,
+  Window,
+  WindowBounds,
+  SetWindowBoundsOptions,
+} from "./window-management.ts";
 
 export type {
   ToastOptions,

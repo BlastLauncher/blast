@@ -13,6 +13,8 @@ import type { ImageLike } from "./index.ts";
 // @covers Image.ImageLike.mask
 // @covers Image.ImageLike.tintColor
 // @covers Image.ImageLike.fileIcon
+// @covers FileIcon
+// @covers FileIcon.fileIcon
 // @covers Image.Source
 // @covers Image.Source.light
 // @covers Image.Source.dark

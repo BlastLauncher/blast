@@ -15,6 +15,7 @@ afterEach(() => setCapabilityRequester(undefined));
 // @covers getSelectedFinderItems
 // @covers getFrontmostApplication
 // @covers FileSystemItem
+// @covers FileSystemItem.path
 // @covers showInFinder
 // @covers trash
 test("selection and file APIs request capabilities and preserve declared wire values", async () => {

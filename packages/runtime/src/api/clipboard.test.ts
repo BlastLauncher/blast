@@ -60,25 +60,65 @@ test("Clipboard.readText returns the text, undefined when there is none, and the
   ]);
 });
 
-// @covers Clipboard.paste partial
-// @covers Clipboard.Content partial
-// @covers Clipboard.Content.text
-test("Clipboard.paste sends text for string, number and { text } content", async () => {
+// @covers Clipboard.copy
+// @covers Clipboard.CopyOptions
+// @covers Clipboard.CopyOptions.concealed
+// @covers Clipboard.Content
+// @covers Clipboard.Content.file
+// @covers Clipboard.Content.html
+test("Clipboard.copy carries each declared content form and the concealed flag", async () => {
   const requests = recorder([]);
-  for (const [content, text] of [
-    ["plain", "plain"],
-    [42, "42"],
-    [{ text: "structured" }, "structured"],
+  await Clipboard.copy("plain");
+  await Clipboard.copy(42);
+  await Clipboard.copy({ text: "structured" });
+  await Clipboard.copy({ file: "/tmp/report.pdf" }, { concealed: true });
+  await Clipboard.copy({ html: "<b>rich</b>" });
+  await Clipboard.copy({ html: "<b>rich</b>", text: "rich" });
+  expect(requests).toEqual([
+    { name: "clipboard.copy", params: { text: "plain" } },
+    { name: "clipboard.copy", params: { text: "42" } },
+    { name: "clipboard.copy", params: { text: "structured" } },
+    { name: "clipboard.copy", params: { file: "/tmp/report.pdf", concealed: true } },
+    { name: "clipboard.copy", params: { html: "<b>rich</b>" } },
+    { name: "clipboard.copy", params: { html: "<b>rich</b>", text: "rich" } },
+  ]);
+});
+
+// @covers Clipboard.copy
+// @covers Clipboard.Content
+test("Clipboard.copy rejects content outside the declared union before the wire", async () => {
+  const requests = recorder([]);
+  await expect(Clipboard.copy({} as { text: string })).rejects.toThrow(
+    "Clipboard.copy: unsupported content in Blast",
+  );
+  await expect(Clipboard.copy({ file: 5 } as unknown as { file: string })).rejects.toThrow(
+    "unsupported content in Blast",
+  );
+  expect(requests).toEqual([]);
+});
+
+// @covers Clipboard.paste
+// @covers Clipboard.Content
+// @covers Clipboard.Content.text
+// @covers Clipboard.Content.file
+// @covers Clipboard.Content.html
+test("Clipboard.paste sends text, file and HTML content", async () => {
+  const requests = recorder([]);
+  for (const [content, params] of [
+    ["plain", { text: "plain" }],
+    [42, { text: "42" }],
+    [{ text: "structured" }, { text: "structured" }],
+    [{ file: "/tmp/a.pdf" }, { file: "/tmp/a.pdf" }],
+    [{ html: "<b>rich</b>" }, { html: "<b>rich</b>" }],
+    [{ html: "<b>rich</b>", text: "rich" }, { html: "<b>rich</b>", text: "rich" }],
   ] as const) {
     await Clipboard.paste(content);
-    expect(requests.at(-1)).toEqual({ name: "clipboard.paste", params: { text } });
+    expect(requests.at(-1)).toEqual({ name: "clipboard.paste", params });
   }
-  for (const content of [{ file: "/tmp/a.pdf" }, { html: "<b>rich</b>" }]) {
-    await expect(Clipboard.paste(content)).rejects.toThrow(
-      "Clipboard.paste: unsupported content in Blast",
-    );
-  }
-  expect(requests).toHaveLength(3);
+  await expect(Clipboard.paste({} as { text: string })).rejects.toThrow(
+    "Clipboard.paste: unsupported content in Blast",
+  );
+  expect(requests).toHaveLength(6);
 });
 
 // @covers Clipboard.clear

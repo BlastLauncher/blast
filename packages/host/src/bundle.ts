@@ -109,9 +109,66 @@ export type BundledCommand = {
   mode: CommandMode;
   /** The manifest's argument declarations, in declaration order. */
   arguments: CommandArgument[];
+  /**
+   * The declared default of every manifest preference (extension-wide, then
+   * the command's own overriding it). A caller's explicit values win over
+   * these when the session starts.
+   */
+  preferenceDefaults: Record<string, string | number | boolean>;
   /** `<outDir>/assets`, resolving to the extension's real assets when it has any. */
   assetsPath?: string;
 };
+
+/** The preference types Raycast's manifest schema defines. */
+const PREFERENCE_TYPES = [
+  "appPicker",
+  "checkbox",
+  "dropdown",
+  "password",
+  "textfield",
+  "file",
+  "directory",
+];
+
+/**
+ * Reads a manifest `preferences` array down to the declared defaults.
+ * Presentation fields (`title`, `required`, `data`, …) are ignored: only the
+ * value `getPreferenceValues()` falls back to matters here.
+ */
+function parsePreferenceDefaults(
+  value: unknown,
+  at: string,
+): Record<string, string | number | boolean> {
+  if (value === undefined) return {};
+  if (!Array.isArray(value)) throw new Error(`${at} must be an array`);
+  const defaults: Record<string, string | number | boolean> = {};
+  for (const [index, item] of value.entries()) {
+    if (typeof item !== "object" || item === null || Array.isArray(item)) {
+      throw new Error(`${at} entry ${index + 1} must be an object`);
+    }
+    const declared = item as Record<string, unknown>;
+    const name = declared["name"];
+    if (typeof name !== "string" || name === "")
+      throw new Error(`${at} entry ${index + 1} needs a name`);
+    const type = declared["type"];
+    if (typeof type !== "string" || !PREFERENCE_TYPES.includes(type)) {
+      throw new Error(
+        `Preference ${JSON.stringify(name)} has an unknown type ${JSON.stringify(type)}`,
+      );
+    }
+    const fallback = declared["default"];
+    if (fallback === undefined) continue;
+    if (
+      typeof fallback !== "string" &&
+      typeof fallback !== "boolean" &&
+      !(typeof fallback === "number" && Number.isFinite(fallback))
+    ) {
+      throw new Error(`Preference ${JSON.stringify(name)} needs a scalar "default"`);
+    }
+    defaults[name] = fallback;
+  }
+  return defaults;
+}
 
 /** The argument types Raycast's manifest schema defines. */
 const ARGUMENT_TYPES = ["text", "password", "dropdown"];
@@ -293,6 +350,11 @@ export async function bundleCommand(options: BundleOptions): Promise<BundledComm
           : "",
     mode: command.mode,
     arguments: commandArguments,
+    // Command preferences shadow extension preferences with the same name.
+    preferenceDefaults: {
+      ...parsePreferenceDefaults(manifest.preferences, "Extension preferences"),
+      ...parsePreferenceDefaults(command.preferences, `Command ${command.name} preferences`),
+    },
     assetsPath: join(outDir, "assets"),
   };
 }

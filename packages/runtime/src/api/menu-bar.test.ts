@@ -3,9 +3,9 @@ import { createElement as h } from "react";
 import { createSceneRoot, type SceneSnapshot } from "../reconciler/index.ts";
 import { MenuBarExtra } from "./index.ts";
 
-// @covers MenuBarExtra partial
-// @covers MenuBarExtra.Props partial
-// @covers MenuBarExtra.Props.isLoading partial
+// @covers MenuBarExtra
+// @covers MenuBarExtra.Props
+// @covers MenuBarExtra.Props.isLoading
 // @covers MenuBarExtra.Props.title
 // @covers MenuBarExtra.Props.tooltip
 // @covers MenuBarExtra.Props.icon
