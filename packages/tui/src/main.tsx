@@ -2,13 +2,14 @@
 import { createCliRenderer } from "@opentui/core";
 import { createRoot } from "@opentui/react";
 import { App } from "./app.tsx";
+import { CommandSession } from "./picker.tsx";
 import { openCommand } from "./session.ts";
 
 const [extensionDir, command, ...rest] = process.argv.slice(2);
-if (!extensionDir || !command || rest.length) {
-  console.error("Usage: bun run tui <extensionDir> <command>");
+if (!extensionDir || rest.length) {
+  console.error("Usage: bun run tui <extensionDir> [command]");
   process.exitCode = 2;
-} else {
+} else if (command) {
   const opened = await openCommand(extensionDir, command);
   // Recorded before the user quits, so our own shutdown does not count as a
   // failure; a runtime crash still exits non-zero after the error is shown.
@@ -40,5 +41,34 @@ if (!extensionDir || !command || rest.length) {
     }
   } finally {
     await opened.close();
+  }
+} else {
+  // Picker mode: choose a command from the manifest, launch it, and return.
+  let quit!: () => void;
+  const finished = new Promise<void>((resolve) => {
+    quit = resolve;
+  });
+  const renderer = await createCliRenderer({ exitOnCtrlC: false, onDestroy: quit });
+  const root = createRoot(renderer);
+  const stop = () => quit();
+  process.on("SIGTERM", stop);
+  process.on("SIGINT", stop);
+  try {
+    root.render(
+      <CommandSession
+        extensionDir={extensionDir}
+        onExit={(crashed) => {
+          // Only a crashed last launch makes the whole TUI exit non-zero.
+          if (crashed) process.exitCode = 1;
+          quit();
+        }}
+      />,
+    );
+    await finished;
+  } finally {
+    process.off("SIGTERM", stop);
+    process.off("SIGINT", stop);
+    root.unmount();
+    renderer.destroy();
   }
 }

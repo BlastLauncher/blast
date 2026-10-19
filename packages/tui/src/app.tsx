@@ -26,10 +26,13 @@ import { FormView } from "./form.tsx";
 export function App({
   session,
   onQuit,
+  onExit,
   hudDurationMs = 2500,
 }: {
   session: Session;
   onQuit: () => void;
+  /** Ctrl-C, which quits the whole TUI even when a picker owns the session. */
+  onExit?: () => void;
   hudDurationMs?: number;
 }) {
   const [scene, setScene] = useState<SceneMessage | undefined>(session.latestScene);
@@ -55,6 +58,8 @@ export function App({
   const paginatedFor = useRef(-1);
   const onQuitRef = useRef(onQuit);
   onQuitRef.current = onQuit;
+  const onExitRef = useRef(onExit);
+  onExitRef.current = onExit;
   const requestQuit = () => {
     if (quitRequested.current) return;
     quitRequested.current = true;
@@ -220,7 +225,8 @@ export function App({
       send(event(node, handler(node?.props.onAction) ? "onAction" : "onSubmit"));
     }
     if (key.ctrl && key.name === "c") {
-      requestQuit();
+      if (onExitRef.current) onExitRef.current();
+      else requestQuit();
       return;
     }
     if (failure) {
