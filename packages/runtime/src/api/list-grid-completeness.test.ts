@@ -150,14 +150,14 @@ for (const Dropdown of [List.Dropdown, Grid.Dropdown]) {
     expect(latest().props.value).toBe("controlled");
     expect(changed).toEqual(["wine", "beer", "edit"]);
     expect(requests).toEqual([
-      ["storage.get", { scope: "blast:dropdown", key: expect.stringContaining("drink") }],
+      ["storage.get", { scope: "blast:internal", key: expect.stringContaining("drink") }],
       [
         "storage.set",
-        { scope: "blast:dropdown", key: expect.stringContaining("drink"), value: "beer" },
+        { scope: "blast:internal", key: expect.stringContaining("drink"), value: "beer" },
       ],
       [
         "storage.set",
-        { scope: "blast:dropdown", key: expect.stringContaining("drink"), value: "edit" },
+        { scope: "blast:internal", key: expect.stringContaining("drink"), value: "edit" },
       ],
     ]);
     root.unmount();
