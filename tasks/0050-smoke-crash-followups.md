@@ -40,10 +40,10 @@ are Blast's fault, fixed: `Cannot find package 'undici'`
 
 ## Acceptance
 
-- [ ] Each crash has a root cause in Handoff; Blast bugs fixed with tests.
-- [ ] No runtime "Cannot find package" can occur for bare imports: either
+- [x] Each crash has a root cause in Handoff; Blast bugs fixed with tests.
+- [x] No runtime "Cannot find package" can occur for bare imports: either
       bundled or `MISSING_DEPENDENCY` at bundle time (test).
-- [ ] `bun run verify` passes.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -52,8 +52,42 @@ are Blast's fault, fixed: `Cannot find package 'undici'`
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/smoke-crash-followups @ db284f35167a27e7db7a292e7a056922e683807d
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 82.7s
 Done:
-Not done / risks:
+- Fixed Bun's undici/ws built-in classification leaking npm imports into Node bundles.
+- Checked emitted external imports and added offline Node execution / missing-dependency regressions.
+- Classified missing launch arguments before smoke execution; added tests and regenerated reports.
+Not done / risks: Required-argument commands are not exercised by the default smoke run.
 ```
+
+Root causes and evidence:
+
+- Both `bugmenot/find-login` and `valkey-commands-search/search-valkey-commands`
+  import Cheerio; provided `cheerio@1.2.0` statically imports its private
+  transitive dependency `undici`. Bun's `node:module.isBuiltin("undici")`
+  returns true while Node's returns false. The Bun-driven smoke bundler
+  therefore incorrectly externalized undici. Bundling now uses Node's built-in
+  list, keeps undici private in Cheerio's graph, and checks emitted external
+  imports. No dependency or allowlist additions. The Cheerio fixture bundles
+  under Bun and executes offline in Node; direct static imports, literal dynamic
+  imports and static requires of unprovided Bun built-ins fail at bundle time.
+  Optional requires in provided graphs retain their existing guarded handling.
+- `hyrule-compendium-search/getEntry` declares required `entryName`, but smoke
+  supplied no arguments. Its component calls `fuse.search(undefined)`;
+  standalone `fuse.js@7.5.0` reproduces the exact `$and` error offline and
+  `search("apple")` returns `apple`. Its declared `^7.0.0` accepts that version.
+  This was an invalid smoke invocation, not a Raycast API or Fuse major mismatch.
+  Smoke now reports `missing-arguments` without launching these commands.
+  The CLI already rejects absent entryName with exit 2. Supplying
+  `--argument entryName=apple` reached the Detail loading scene; full completion
+  was not established (a later `directory` error occurred, with the existing
+  shared `@raycast/utils` 1.x/2.x major-mismatch warning). That separate issue
+  was not the reported `$and` crash and remains outside this fix.
+- Focused tests: dependencies 7 pass / 0 fail; smoke classification 21 pass /
+  0 fail. Full verify: 485 pass / 0 fail. Regenerated via
+  `BLAST_CORPUS_MAX_MB=1200 bun run corpus:smoke`: 200 commands, 184 rendered,
+  1 completed, 7 capability-denied, 5 missing-arguments, 3 API-key crashes,
+  0 bundle failures / unsupported APIs. Both former undici crashes render.
+  Removed `.cache/raycast-extensions` afterwards. No extension source changed
+  or redistributed; no push performed.

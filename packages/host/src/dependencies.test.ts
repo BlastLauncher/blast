@@ -62,6 +62,33 @@ test("unprovided packages still fail with MISSING_DEPENDENCY", async () => {
   }
 });
 
+test("Cheerio's undici dependency bundles under Bun and executes offline in Node", async () => {
+  expect(await execute((await bundle("cheerio")).entry)).toBe("Bundled HTML\nfunction\n");
+});
+
+test("Bun-only built-ins and their subpaths cannot escape as Node externals", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "blast-node-builtins-"));
+  directories.push(dir);
+  await mkdir(join(dir, "src"));
+  await writeFile(
+    join(dir, "package.json"),
+    JSON.stringify({ name: "node-builtins", commands: [{ name: "index", mode: "no-view" }] }),
+  );
+  for (const name of ["undici", "ws", "undici/types", "bun:test"]) {
+    for (const source of [
+      `import * as dependency from ${JSON.stringify(name)}; console.log(dependency);`,
+      `export default () => import(${JSON.stringify(name)});`,
+      `export default () => require(${JSON.stringify(name)});`,
+    ]) {
+      await writeFile(join(dir, "src/index.ts"), source);
+      await expect(bundle("index", dir)).rejects.toMatchObject({
+        code: "MISSING_DEPENDENCY",
+        packages: [name.split("/")[0]],
+      });
+    }
+  }
+});
+
 test("warnings respect unions, wildcard and comparison ranges rather than their first number", () => {
   for (const range of ["^4", "^3 || ^4", "*", ">=3", "latest", "workspace:*", ">=4.99 <5"]) {
     expect(dependencyWarnings({ lodash: range })).toEqual([]);

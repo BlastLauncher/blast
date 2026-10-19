@@ -11,7 +11,9 @@ esbuild plugin resolves imports in this order:
 2. `PROVIDED_PACKAGES` in `packages/host/src/dependencies.ts` resolves from the
    host's exact pins, including subpaths; corpus selection uses the same list.
    Transitive graphs are bundled privately, with the same API/React externals.
-3. Node built-ins stay external. Other bare imports fail even if locally installed.
+3. Node built-ins stay external, using Node's list even when Bun bundles.
+   Other bare imports fail even if locally installed. Emitted external imports
+   are checked before writing the bundle; unresolved npm imports fail there too.
 
 Pick greedily by `compat/dependencies.json` imported rank (ties by name), using
 latest exact versions in each most-declared major. Hard filters: non-portable
