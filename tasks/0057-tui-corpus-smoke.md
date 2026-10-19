@@ -1,7 +1,7 @@
 ---
 id: "0057"
 title: TUI corpus smoke run over the curated commands
-status: doing
+status: review
 milestone: M4
 depends: []
 ---
@@ -73,8 +73,57 @@ and which break in client code.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/tui-corpus-smoke (feat bebd077, handoff on top)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 68.7s
 Done:
+- `bun run corpus:tui-smoke` (`scripts/corpus/tui-smoke-run.ts`) renders every manifest
+  command of the 80 curated extensions in the TUI `App` through OpenTUI's test renderer at
+  100x30, on the headless smoke's deny-all broker and manifest preference defaults, then
+  presses ↓, Ctrl-K and Esc with the frame captured after each key. One run takes ~2 min and
+  leaves `.cache` manifest-only (peak 450 MB at `BLAST_CORPUS_MAX_MB=600`).
+- `scripts/corpus/tui-smoke.ts` (pure) classifies the scene's frame as `rendered`,
+  `placeholder` (recording the node types), `client-error` (React's caught error or
+  OpenTUI's `[KeyHandler]` log, read back out of `console.error`) or `empty`, and delegates a
+  command without a frame to the headless rules; it renders `compat/tui-smoke.json` and
+  `compat/TUI-SMOKE.md` (totals first, then the `compat/SMOKE.md`-format table, then every
+  non-rendered command with a ≤3-line sanitized frame excerpt).
+- Shared helpers extracted instead of copied: `scripts/corpus/batch.ts` (the batching both
+  smoke runners use) and `smoke.ts`'s `exitProbe`; `smoke-run.ts` now imports both.
+- Committed reports: 200 commands — rendered 184, completed 1, capability-denied 7,
+  crashed 3, missing-arguments 5. Every command's outcome, node count and root type matches
+  `compat/SMOKE.md` exactly, so the TUI addition changes nothing in the host taxonomy.
+- 13 offline unit tests (`scripts/corpus/tui-smoke.test.ts`) cover the classification
+  precedence, placeholder extraction, frame lines/excerpts, the `console.error` rule, totals
+  and both renderers. The run itself needs the network and stays out of `verify`.
+- Reproducible: two full runs write byte-identical reports. The markdown goes through
+  `oxfmt` before it is written (like `scripts/compat/generate-enums.ts`), so regenerating
+  leaves the working tree clean.
 Not done / risks:
+- Nothing landed in `client-error`, `placeholder` or `empty`, so there is no follow-up task
+  to hand over, and the buckets are not dead code:
+  - `placeholder` needs a scene node the TUI cannot render. The curated set is List-centric
+    and `view.ts` never visits `List.Item` children (accessories are invisible), so none of
+    the 184 frames printed `[Unsupported: …]`. Checked out of band: a scene with a
+    `List.ItemAccessory` child does print the placeholder and the detector extracts it; a
+    Form/Grid-heavy curated set would exercise the path.
+  - `client-error` needs a throw in TUI code; the only throws are `session.ts`'s client
+    handlers, which the headless broker never calls.
+  - `empty` needs a scene whose frame has no text, which the App's own chrome (title, search
+    box, footer) prevents; it stays a defensive outcome, unit-tested only.
+- The outcome comes from the first scene with a root, exactly as the headless smoke: a
+  command that draws a scene and then dies (`chakra-ui-docs/components`) is `rendered`, with
+  the runtime's error box in its later frames. `humaans/holidays`, `humaans/people` and
+  `parcel/my-deliveries` die before any root-ful scene and are `crashed` with the runtime's
+  message and log line, matching `compat/SMOKE.md`.
+- Root `devDependencies` gained `@opentui/core` 0.6.6, `@opentui/react` 0.6.6, `react`
+  19.3.1 and `@types/react` 19.3.0: exactly the versions `packages/tui` already pins, so
+  `bun` links the single existing `.bun/` copies — `packages/tui/node_modules/*` still
+  resolve to the same directories, one React instance. They are needed because the corpus
+  script reaches the test renderer from `scripts/`, which resolves `node_modules` outside
+  `packages/tui`.
+- `bun test --randomize` is flaky for the TUI slice under CPU load: with two busy processes
+  the *unmodified* `f7d5b17` fails the same "Timed out waiting for frame predicate after 20
+  passes" tests, so the failures seen while building this happened when the sibling
+  worktrees were running `bun test` too. On a quiet machine `bun run verify` passes; worth a
+  separate task if verify keeps flaking under load.
 ```
