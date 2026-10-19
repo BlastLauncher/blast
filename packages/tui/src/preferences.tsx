@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useKeyboard } from "@opentui/react";
 import { type Preference, type StorageItems } from "@blastlauncher/host";
 
-export function PreferencesForm({
+function usePreferenceFormState({
   fields,
   initial,
   onSave,
@@ -27,8 +27,12 @@ export function PreferencesForm({
   const [index, setIndex] = useState(0);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
-  const change = (name: string, value: string | boolean) =>
+
+  const change = (name: string, value: string | boolean | number) => {
     setValues((v) => ({ ...v, [name]: value }));
+    setError("");
+  };
+
   useKeyboard((key) => {
     if (saving) return;
     const field = fields[index];
@@ -79,31 +83,141 @@ export function PreferencesForm({
       }
     }
   });
+
+  return { values, index, error, saving, change };
+}
+
+function PreferenceFieldItem({
+  field,
+  focused,
+  value,
+  onChange,
+  showDescription = false,
+}: {
+  field: Preference;
+  focused: boolean;
+  value: string | number | boolean | undefined;
+  onChange: (value: string | number | boolean) => void;
+  showDescription?: boolean;
+}) {
+  return (
+    <box flexDirection="column" flexShrink={0}>
+      <text height={1}>
+        {focused ? "› " : "  "}
+        {field.title}
+        {field.required ? " *" : ""}
+      </text>
+      {field.type === "password" ? (
+        <text height={1}>{value ? "••••••••" : "(empty)"}</text>
+      ) : field.type === "checkbox" ? (
+        <text height={1}>{value ? "[x]" : "[ ]"}</text>
+      ) : field.type === "dropdown" ? (
+        <text height={1}>‹ {field.data.find((o) => o.value === value)?.title ?? ""} ›</text>
+      ) : (
+        <input focused={focused} value={String(value ?? "")} onInput={(v) => onChange(v)} />
+      )}
+      {showDescription && focused && field.description ? (
+        <text height={1}>{field.description}</text>
+      ) : null}
+    </box>
+  );
+}
+
+export function LaunchGate({
+  commandTitle,
+  fields,
+  initial,
+  onSave,
+  onCancel,
+}: {
+  commandTitle: string;
+  fields: Preference[];
+  initial: StorageItems;
+  onSave: (values: StorageItems) => Promise<void>;
+  onCancel: () => void;
+}) {
+  const { values, index, error, change } = usePreferenceFormState({
+    fields,
+    initial,
+    onSave,
+    onCancel,
+  });
+
   return (
     <box flexDirection="column" flexGrow={1}>
-      <text height={1}>Preferences</text>
+      <text height={1}>Set up {commandTitle}</text>
+      <text height={1}>These values are required before the command can run.</text>
       {fields.map((p, i) => (
-        <box key={p.name} flexDirection="column" flexShrink={0}>
-          <text height={1}>
-            {i === index ? "› " : "  "}
-            {p.title}
-            {p.required ? " *" : ""}
-          </text>
-          {p.type === "password" ? (
-            <text height={1}>{values[p.name] ? "••••••••" : "(empty)"}</text>
-          ) : p.type === "checkbox" ? (
-            <text height={1}>{values[p.name] ? "[x]" : "[ ]"}</text>
-          ) : p.type === "dropdown" ? (
-            <text height={1}>
-              ‹ {p.data.find((o) => o.value === values[p.name])?.title ?? ""} ›
-            </text>
-          ) : (
-            <input
-              focused={i === index}
-              value={String(values[p.name] ?? "")}
-              onInput={(v) => change(p.name, v)}
-            />
-          )}
+        <PreferenceFieldItem
+          key={p.name}
+          field={p}
+          focused={i === index}
+          value={values[p.name]}
+          onChange={(v) => change(p.name, v)}
+        />
+      ))}
+      {error && <text height={1}>{error}</text>}
+      <text height={1}>
+        Tab/↑↓ Fields · ←→ Options · Space Toggle · Enter Save & Launch · Esc Cancel
+      </text>
+    </box>
+  );
+}
+
+export function PreferencesView({
+  extensionTitle,
+  commandTitle,
+  extensionFields,
+  commandFields,
+  scope,
+  initial,
+  onSave,
+  onCancel,
+}: {
+  extensionTitle: string;
+  commandTitle: string;
+  extensionFields: Preference[];
+  commandFields: Preference[];
+  scope?: "extension" | "command" | undefined;
+  initial: StorageItems;
+  onSave: (values: StorageItems) => Promise<void>;
+  onCancel: () => void;
+}) {
+  const showExtension = extensionFields.length > 0;
+  const showCommand = scope !== "extension" && commandFields.length > 0;
+
+  const sections: { title: string; fields: Preference[] }[] = [];
+  if (showExtension) sections.push({ title: "Extension", fields: extensionFields });
+  if (showCommand) sections.push({ title: commandTitle, fields: commandFields });
+
+  const allFields = sections.flatMap((s) => s.fields);
+
+  const { values, index, error, change } = usePreferenceFormState({
+    fields: allFields,
+    initial,
+    onSave,
+    onCancel,
+  });
+
+  return (
+    <box flexDirection="column" flexGrow={1}>
+      <text height={1}>Preferences — {extensionTitle}</text>
+      {sections.map((section) => (
+        <box key={section.title} flexDirection="column" flexShrink={0}>
+          <text height={1}>{section.title}</text>
+          {section.fields.map((p) => {
+            const i = allFields.indexOf(p);
+            return (
+              <PreferenceFieldItem
+                key={p.name}
+                field={p}
+                focused={i === index}
+                value={values[p.name]}
+                onChange={(v) => change(p.name, v)}
+                showDescription={true}
+              />
+            );
+          })}
         </box>
       ))}
       {error && <text height={1}>{error}</text>}
@@ -111,3 +225,5 @@ export function PreferencesForm({
     </box>
   );
 }
+
+export { PreferencesView as PreferencesForm };

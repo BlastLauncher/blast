@@ -204,6 +204,7 @@ export type Preference = {
   name: string;
   type: string;
   title: string;
+  description?: string;
   required: boolean;
   data: { title: string; value: string }[];
   default?: string | number | boolean;
@@ -216,7 +217,7 @@ export function parsePreferences(value: unknown, at = "Preferences"): Preference
   return value.map((item, index) => {
     if (typeof item !== "object" || item === null || Array.isArray(item))
       throw new Error(`${at} entry ${index + 1} must be an object`);
-    const { name, type, default: fallback } = item;
+    const { name, type, default: fallback, description } = item;
     if (typeof name !== "string" || !name) throw new Error(`${at} entry ${index + 1} needs a name`);
     if (typeof type !== "string" || !PREFERENCE_TYPES.includes(type))
       throw new Error(
@@ -229,6 +230,8 @@ export function parsePreferences(value: unknown, at = "Preferences"): Preference
       !(typeof fallback === "number" && Number.isFinite(fallback))
     )
       throw new Error(`Preference ${JSON.stringify(name)} needs a scalar "default"`);
+    if (description !== undefined && typeof description !== "string")
+      throw new Error(`Preference ${JSON.stringify(name)} needs a string "description"`);
     return {
       name,
       type,
@@ -240,6 +243,7 @@ export function parsePreferences(value: unknown, at = "Preferences"): Preference
               typeof option.value === "string" && typeof option.title === "string",
           )
         : [],
+      ...(typeof description === "string" ? { description } : {}),
       ...(fallback === undefined ? {} : { default: fallback }),
     };
   });
