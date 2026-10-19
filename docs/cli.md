@@ -108,3 +108,12 @@ API call. Without this flag decisions are denied, even with `--grant ai.decide`.
 ```bash
 bun run blast run fixtures/extensions/model-provider ask --ai-decide answers.json
 ```
+
+## Terminal client
+
+`bun run tui <extensionDir> <command>` (Bun required). Type to search, ↑/↓ selects,
+Enter runs the first item/List action, Esc/Ctrl-C quits and shuts down the child.
+Client filtering matches title/subtitle/keywords by case-insensitive substring,
+preserving order even with `keepSectionOrder: false`; `filtering: false` disables it.
+Search handlers own filtering; `throttle` coalesces input with a 200 ms trailing delay.
+Host storage and read-only defaults apply; effects stay denied (no grants yet).

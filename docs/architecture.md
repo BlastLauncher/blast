@@ -3,7 +3,7 @@
 Current shape only; history lives in git. Decisions: `docs/decisions/`.
 
 ```
-client (blast CLI today; desktop later)
+client (headless CLI or OpenTUI terminal; desktop later)
    │  in-process API
 host ── bundles extension (esbuild), spawns runtime, capability broker
    │  NDJSON over stdio  (packages/protocol)
@@ -17,6 +17,7 @@ extension code (unmodified, bundled)
 
 | Package             | Owns                                             | Depends on        |
 | ------------------- | ------------------------------------------------ | ----------------- |
+| `packages/tui`      | Bun terminal client, List rendering and input    | host, protocol    |
 | `packages/protocol` | message types, validation, NDJSON framing        | nothing           |
 | `packages/runtime`  | reconciler, `@raycast/api` shim, child entry     | protocol, react   |
 | `packages/host`     | bundling, process lifecycle, broker, `blast` CLI | protocol, esbuild |
