@@ -127,7 +127,11 @@ async function runOne(
   if (names.length) return build({ kind: "missing-arguments", names });
   let bundled: BundledCommand;
   try {
-    bundled = await bundleCommand({ extensionDir, command: commandName });
+    bundled = await bundleCommand({
+      extensionDir,
+      command: commandName,
+      installedDependencies: false,
+    });
   } catch (error) {
     if (error instanceof MissingDependencyError) {
       return build({ kind: "bundle-failed", missing: error.packages });

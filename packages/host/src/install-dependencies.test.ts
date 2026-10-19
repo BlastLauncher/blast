@@ -77,10 +77,11 @@ test("install keys are stable, strip runtime packages, honor npm flags and repla
     ]);
     expect(request.cwd).toBe(initial.directory);
     const manifest = JSON.parse(await readFile(join(request.cwd, "package.json"), "utf8"));
-    expect(manifest.dependencies).toEqual({ example: "^1" });
+    // react-dom is not supplied by the runtime; it bundles against the runtime's react.
+    expect(manifest.dependencies).toEqual({ "react-dom": "19", example: "^1" });
     expect(manifest.devDependencies).toBeUndefined();
     const copied = JSON.parse(await readFile(join(request.cwd, "package-lock.json"), "utf8"));
-    expect(copied.packages[""].dependencies).toEqual({ example: "^1" });
+    expect(copied.packages[""].dependencies).toEqual({ "react-dom": "19", example: "^1" });
     expect(copied.packages["node_modules/example"].version).toBe(
       lock.packages["node_modules/example"].version,
     );
@@ -160,6 +161,18 @@ test("matching installed utils override the shared version; stale installs fall 
   });
   expect(await readFile(bundle.entry, "utf8")).toContain("installed-utils");
   expect(bundle.dependencyWarnings).toEqual([]);
+  // Corpus reports opt out and keep the shared allowlist (decision 0008).
+  await writeFile(
+    join(options.extensionDir, "src/index.ts"),
+    'import { useCachedState } from "@raycast/utils"; console.log(useCachedState);',
+  );
+  const shared = await bundleCommand({
+    ...options,
+    command: "index",
+    outDir: join(options.root, "shared"),
+    installedDependencies: false,
+  });
+  expect(await readFile(shared.entry, "utf8")).not.toContain("installed-utils");
   await writeFile(join(options.extensionDir, "src/index.ts"), 'import "not-installed";');
   await expect(bundleCommand({ ...options, command: "index" })).rejects.toBeInstanceOf(
     MissingDependencyError,

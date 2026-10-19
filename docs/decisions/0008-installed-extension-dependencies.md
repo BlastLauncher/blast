@@ -16,9 +16,10 @@ Status: accepted 2026-10-19; extends 0002 (the shared allowlist stays as fallbac
    change replaces the directory, so each extension keeps at most one install.
    Extension source is never written, matching AGENTS.md.
 3. **Runtime-supplied packages are stripped before install.** `@raycast/api`,
-   `react`, `react-dom`, `react/*` and `@types/*` are removed from the copied
-   manifest (the real `@raycast/api` is ~30 MB plus esbuild/oclif). They stay
-   external at bundle time exactly as today.
+   `react`, `react/*` and `@types/*` are removed from the copied manifest (the
+   real `@raycast/api` is ~30 MB plus esbuild/oclif). They stay external at
+   bundle time exactly as today. `react-dom` is installed and bundled against
+   the runtime's `react`.
 4. **Installer:** `npm install --omit=dev --ignore-scripts --no-audit --no-fund`
    in that directory, using the copied lockfile so pinned versions win. npm
    ships with Node 24, so the host stays Node-runnable. Install hooks never run;
@@ -30,7 +31,8 @@ Status: accepted 2026-10-19; extends 0002 (the shared allowlist stays as fallbac
    dependency is not installed. Installed packages bundle with the same
    externals and Node built-in rules as provided ones.
 6. **Corpus tooling does not install.** `corpus:smoke` and the TUI smoke stay
-   allowlist-only and offline after fetch, so reports remain comparable and
+   allowlist-only (`bundleCommand({ installedDependencies: false })`) and offline
+   after fetch, so reports remain comparable and
    disk-bounded.
 
 ## Why

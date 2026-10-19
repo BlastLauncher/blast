@@ -31,12 +31,7 @@ export const npmDependencyInstaller: DependencyInstaller = ({ command, args, cwd
   });
 
 function supplied(name: string): boolean {
-  return (
-    name === "@raycast/api" ||
-    name === "react-dom" ||
-    /^react(?:\/|$)/.test(name) ||
-    name.startsWith("@types/")
-  );
+  return name === "@raycast/api" || /^react(?:\/|$)/.test(name) || name.startsWith("@types/");
 }
 
 async function optionalFile(path: string): Promise<string | undefined> {

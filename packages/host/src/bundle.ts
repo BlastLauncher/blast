@@ -67,7 +67,7 @@ function dependencyPolicy(
       builder.onResolve({ filter: /.*/ }, async (args) => {
         if (args.pluginData === "blast-resolving") return;
         const specifier = args.path;
-        if (specifier === "@raycast/api" || /^(?:react|react-dom)(?:\/|$)/.test(specifier))
+        if (specifier === "@raycast/api" || /^react(?:\/|$)/.test(specifier))
           return { path: specifier, external: true };
         if (isNodeBuiltin(specifier)) return { path: specifier, external: true };
         const bare = !specifier.startsWith(".") && !isAbsolute(specifier);
@@ -154,6 +154,8 @@ export type BundleOptions = {
   command: string;
   outDir?: string;
   dataDir?: string;
+  /** `false` keeps resolution allowlist-only, as corpus reports need (decision 0008). */
+  installedDependencies?: boolean;
 };
 /** One `commands[].arguments` entry from an extension manifest. */
 export type CommandArgument = {
@@ -372,7 +374,8 @@ async function bundleEntry(
     }
   }
   if (!source) throw new Error(`Missing source for ${options.command}`);
-  const install = await checkExtensionDependencies(options);
+  const install =
+    options.installedDependencies === false ? undefined : await checkExtensionDependencies(options);
   const base = join(tmpdir(), "blast", "builds");
   if (!options.outDir) await mkdir(base, { recursive: true });
   const outDir = options.outDir ? resolve(options.outDir) : await mkdtemp(join(base, "command-"));
@@ -395,7 +398,7 @@ async function bundleEntry(
       plugins: [
         dependencyPolicy(
           missing,
-          install.needed ? undefined : install.directory,
+          install && !install.needed ? install.directory : undefined,
           installedPackages,
         ),
       ],
@@ -409,7 +412,7 @@ async function bundleEntry(
           imported.external &&
           imported.kind !== "require-call" &&
           imported.path !== "@raycast/api" &&
-          !/^(?:react|react-dom)(?:\/|$)/.test(imported.path) &&
+          !/^react(?:\/|$)/.test(imported.path) &&
           !isNodeBuiltin(imported.path)
         ) {
           missing.add(
