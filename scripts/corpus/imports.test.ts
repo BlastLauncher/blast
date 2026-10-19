@@ -2,7 +2,14 @@
 // selector and the dependency scan both read. Fixture sources only: `bun test`
 // must never read the corpus checkout or the network.
 import { expect, test } from "bun:test";
-import { importedPackages, packageName, unprovidedImports, type Source } from "./imports.ts";
+import {
+  BASE_PACKAGES,
+  importedPackages,
+  packageName,
+  SHARED_DEPENDENCY_PACKAGES,
+  unprovidedImports,
+  type Source,
+} from "./imports.ts";
 
 const source = (text: string, file = "src/index.tsx"): Source => ({ file, source: text });
 
@@ -69,4 +76,12 @@ test("imported packages are counted per package, test files and non-npm specifie
     source('import { local } from "#imports";'),
   ];
   expect(importedPackages(files)).toEqual(["@scope/pkg", "graphql-request", "lodash", "zod"]);
+});
+
+test("shared dependency packages are the allowlist minus the baseline", () => {
+  for (const name of BASE_PACKAGES) expect(SHARED_DEPENDENCY_PACKAGES).not.toContain(name);
+  expect(SHARED_DEPENDENCY_PACKAGES).toContain("node-fetch");
+  expect(SHARED_DEPENDENCY_PACKAGES).toContain("axios");
+  expect(SHARED_DEPENDENCY_PACKAGES).toContain("zod");
+  expect(new Set(SHARED_DEPENDENCY_PACKAGES).size).toBe(SHARED_DEPENDENCY_PACKAGES.length);
 });

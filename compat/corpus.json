@@ -23,15 +23,15 @@
     "menucloak",
     "laravel-shift",
     "tategaki",
+    "superwhisper",
     "8-divide",
+    "xiaohe-query",
     "pokemon-tcg-pocket-binder",
     "dice-tiles",
     "evernote",
     "android-versions",
     "raytyping",
     "promptty",
-    "atomtick",
-    "donut",
     "url-designer",
     "google-cloud-run",
     "portless",
@@ -40,8 +40,8 @@
     "chakra-ui-docs",
     "pinch-svg",
     "vim-bro",
-    "ego-lite",
-    "windows-domain",
+    "amazon-search",
+    "icloud-global-pricing-comparison",
     "pbr-assistant",
     "random-color",
     "tiny-tycho",
@@ -49,26 +49,60 @@
     "rectangle",
     "timezone-buddy",
     "convert-px-to-vw-vh",
+    "codex-reset-forecast",
     "leap-new",
-    "clocky-time-tracker",
-    "punch-clock",
+    "tinkerer-club",
+    "advanced-replace",
     "quick-jump",
     "multi-ai-chat",
     "mealie",
-    "appgrid",
-    "melanite-search",
+    "leetcode",
     "color-studio-picker",
     "fix-helper",
     "text-decorator",
+    "codepen",
     "cangjie",
-    "input-source-switcher"
+    "keeper-security",
+    "bugmenot",
+    "ring-intercom",
+    "hevy",
+    "kaalam",
+    "laravel-artisan",
+    "humaans",
+    "time-until-i-do",
+    "saved-items",
+    "uk-bank-holidays",
+    "workflowy-inbox",
+    "flighty",
+    "vocab-search",
+    "valkey-commands-search",
+    "duan-raycast-extension",
+    "parcel",
+    "keygen",
+    "hyrule-compendium-search",
+    "stockholm-public-transport",
+    "kagi-search"
   ],
   "selection": {
     "criteria": {
       "script": "scripts/corpus/select.ts",
       "dependencies": [
         "@raycast/api",
-        "@raycast/utils"
+        "react",
+        "@raycast/utils",
+        "node-fetch",
+        "axios",
+        "date-fns",
+        "lodash",
+        "zod",
+        "cheerio",
+        "dayjs",
+        "fuse.js",
+        "uuid",
+        "nanoid",
+        "cross-fetch",
+        "moment",
+        "node-html-markdown"
       ],
       "minViewCommands": 1,
       "excludedSources": [
@@ -88,13 +122,15 @@
         "grid": 5,
         "menu-bar": 5,
         "action-variants": 5,
-        "selection-apis": 5
+        "selection-apis": 5,
+        "shared-deps": 20
       },
       "featureStrata": {
         "grid": "<Grid",
         "menu-bar": "<MenuBarExtra",
         "action-variants": "ActionPanel.Submenu, or an Action.* variant beyond CopyToClipboard/OpenInBrowser/Paste/Push",
-        "selection-apis": "Form.FilePicker, getSelectedText or getSelectedFinderItems"
+        "selection-apis": "Form.FilePicker, getSelectedText or getSelectedFinderItems",
+        "shared-deps": "imports at least one of node-fetch, axios, date-fns, lodash, zod, cheerio, dayjs, fuse.js, uuid, nanoid, cross-fetch, moment, node-html-markdown; picks round-robin across packages (first shared package imported, in that order) and prefer a declared major that matches the version Blast provides"
       },
       "scan": {
         "batch": 64,
@@ -117,15 +153,15 @@
       ],
       "detail": [
         "tategaki",
+        "superwhisper",
         "8-divide",
+        "xiaohe-query",
         "pokemon-tcg-pocket-binder",
         "dice-tiles",
         "evernote",
         "android-versions",
         "raytyping",
-        "promptty",
-        "atomtick",
-        "donut"
+        "promptty"
       ],
       "utils": [
         "url-designer",
@@ -136,8 +172,8 @@
         "chakra-ui-docs",
         "pinch-svg",
         "vim-bro",
-        "ego-lite",
-        "windows-domain"
+        "amazon-search",
+        "icloud-global-pricing-comparison"
       ],
       "list-only": [
         "fibonacci-sequence",
@@ -161,26 +197,48 @@
       "menu-bar": [
         "timezone-buddy",
         "convert-px-to-vw-vh",
+        "codex-reset-forecast",
         "leap-new",
-        "clocky-time-tracker",
-        "punch-clock"
+        "tinkerer-club"
       ],
       "action-variants": [
+        "advanced-replace",
         "quick-jump",
         "multi-ai-chat",
         "mealie",
-        "appgrid",
-        "melanite-search"
+        "leetcode"
       ],
       "selection-apis": [
         "color-studio-picker",
         "fix-helper",
         "text-decorator",
-        "cangjie",
-        "input-source-switcher"
+        "codepen",
+        "cangjie"
+      ],
+      "shared-deps": [
+        "keeper-security",
+        "bugmenot",
+        "ring-intercom",
+        "hevy",
+        "kaalam",
+        "laravel-artisan",
+        "humaans",
+        "time-until-i-do",
+        "saved-items",
+        "uk-bank-holidays",
+        "workflowy-inbox",
+        "flighty",
+        "vocab-search",
+        "valkey-commands-search",
+        "duan-raycast-extension",
+        "parcel",
+        "keygen",
+        "hyrule-compendium-search",
+        "stockholm-public-transport",
+        "kagi-search"
       ]
     },
     "scanned": 768,
-    "eligible": 441
+    "eligible": 496
   }
 }

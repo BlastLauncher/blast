@@ -73,7 +73,11 @@ function main(): void {
       `compat/corpus.json must start with the first curated set, got ${head.join(", ")}`,
     );
 
-  const manifests: Array<{ name: string; viewCommands: string[] }> = [];
+  const manifests: Array<{
+    name: string;
+    viewCommands: string[];
+    dependencies: Record<string, unknown>;
+  }> = [];
   for (const name of [...present].toSorted()) {
     const manifestPath = join(extensionsDir, name, "package.json");
     if (!existsSync(manifestPath)) continue;
@@ -86,7 +90,11 @@ function main(): void {
       continue;
     }
     if (manifestRejections(manifest).length > 0) continue;
-    manifests.push({ name, viewCommands: viewCommands(manifest) });
+    manifests.push({
+      name,
+      viewCommands: viewCommands(manifest),
+      dependencies: manifest.dependencies ?? {},
+    });
   }
   const ordered = manifests.toSorted(
     (a, b) => rank(a.name).localeCompare(rank(b.name)) || a.name.localeCompare(b.name),
@@ -99,8 +107,10 @@ function main(): void {
     const batch = ordered.slice(offset, offset + SCAN_BATCH);
     git(repo, ["sparse-checkout", "set", "--no-cone", ...sourcePatterns(batch.map((c) => c.name))]);
     guard("sources");
-    for (const { name, viewCommands: views } of batch) {
-      analyzed.push(analyzeSources(name, views, [...sources(join(extensionsDir, name, "src"))]));
+    for (const { name, viewCommands: views, dependencies } of batch) {
+      analyzed.push(
+        analyzeSources(name, views, [...sources(join(extensionsDir, name, "src"))], dependencies),
+      );
     }
     // Keep reading while any quota would have to fall back on a network user:
     // the fingerprints of the extensions that need one are the report's data.
