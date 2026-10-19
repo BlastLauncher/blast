@@ -86,6 +86,7 @@ navigation, feedback UI, menu-bar menus.
 - [x] 0059 TUI command picker with live manifest and launch arguments
 - [x] 0060 TUI builds dependencies before launch; required preferences prompt
 - [x] 0061 TUI launch gate for missing required preferences; Preferences view
+- [x] 0062 TUI command-palette look: theme, framed layout, segmented rows, footer
 
 ### M5 — Native desktop client (MyGo)
 
