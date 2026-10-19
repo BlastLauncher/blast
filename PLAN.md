@@ -81,6 +81,10 @@ navigation, feedback UI, menu-bar menus.
 - [x] 0054 TUI Form: fields, focus, SubmitForm, drafts
 - [x] 0055 TUI Grid and search-bar dropdown accessory
 - [x] 0056 TUI menu-bar commands, no-view commands, pagination
+- [ ] 0057 TUI corpus smoke run over the curated commands
+- [ ] 0058 Install an extension's own dependencies (`docs/decisions/0008`)
+- [ ] 0059 TUI command picker with live manifest and launch arguments
+- [ ] 0060 TUI builds dependencies before launch; required preferences prompt
 
 ### M5 — Native desktop client (MyGo)
 
@@ -107,3 +111,5 @@ One line per decision; link a record only when it exists.
 - 2026-10-18: Extra npm deps: interim shared pinned allowlist until v1;
   production should reference each extension's own pinned deps via a thin,
   minimal-disk layer instead (0037 records it in `docs/decisions/0002`).
+- 2026-10-19: Extensions' own lockfile deps install outside the extension via
+  an explicit build step; allowlist stays the fallback (`docs/decisions/0008`).
