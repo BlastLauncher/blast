@@ -37,10 +37,10 @@ headless answer. No non-deprecated `AI*` path remains missing.
 
 ## Acceptance
 
-- [ ] Runtime/host tests: own-provider ask (chunks, abort, unknown id),
+- [x] Runtime/host tests: own-provider ask (chunks, abort, unknown id),
       refreshModels, decide (valid, invalid answer, denied).
-- [ ] CLI e2e; no non-deprecated `AI*` path missing.
-- [ ] `bun run verify` passes.
+- [x] CLI e2e; no non-deprecated `AI*` path missing.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -49,8 +49,23 @@ headless answer. No non-deprecated `AI*` path remains missing.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/fix-ai-ask-routing @ 9d4cb9e (implementation; handoff follows)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 63.9s
 Done:
+- Routed own-extension AI.ask through a lazy, reused provider child; streamed text,
+  propagated aborts, refreshed models and shut the provider down with the command.
+- Implemented typed experimental_decide with state serialization, question/answer
+  validation, abort handling and deny-by-default --ai-decide JSON answers.
+- Fixed readonly score criteria serialization without any; projected provider
+  models before serialization, including non-JSON private metadata, while keeping
+  host validation strict. Added rejection coverage for malformed declared fields.
+- Runtime/host/protocol focused checks: 20 pass; CLI ask/decide and pagination
+  checks: 2 pass. Full verify: 448 pass, 0 fail. Regenerated compat: no missing
+  non-deprecated AI paths; documented protocol, creativity mapping and CLI usage.
 Not done / risks:
+- Fast-forward from round 2 was impossible because this worktree already included
+  task 0044. Cherry-picked 57b94b6 and 526eab4, preserved 0044, and regenerated
+  conflicting compat files. Trimmed redundant architecture status text to meet
+  its line limit. No integration merge, push or new dependencies.
+- Real hosted models and other extensions' providers remain out of scope.
 ```
