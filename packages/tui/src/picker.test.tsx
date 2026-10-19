@@ -40,12 +40,21 @@ async function settle(
 }
 
 const press = async (
-  terminal: { mockInput: { pressEnter(): void; pressEscape(): void; pressCtrlC(): void } },
-  key: "enter" | "escape" | "ctrl-c",
+  terminal: {
+    mockInput: {
+      pressEnter(): void;
+      pressEscape(): void;
+      pressCtrlC(): void;
+      pressArrow(dir: "down" | "up" | "left" | "right"): void;
+    };
+  },
+  key: "enter" | "escape" | "ctrl-c" | "down" | "up",
 ) => {
   await act(async () => {
     if (key === "enter") terminal.mockInput.pressEnter();
     else if (key === "escape") terminal.mockInput.pressEscape();
+    else if (key === "down") terminal.mockInput.pressArrow("down");
+    else if (key === "up") terminal.mockInput.pressArrow("up");
     else terminal.mockInput.pressCtrlC();
   });
 };
@@ -407,6 +416,7 @@ test("required preferences block launch, persist, reach the runtime and Ctrl-E e
   try {
     await settle(terminal, (f) => f.includes("Search commands"));
     await press(terminal, "enter");
+    await settle(terminal, (f) => f.includes("Set up navigation"));
     await settle(terminal, (f) => f.includes("API key *"));
     await press(terminal, "enter");
     await settle(terminal, (f) => f.includes("Required: API key"));
@@ -419,12 +429,14 @@ test("required preferences block launch, persist, reach the runtime and Ctrl-E e
     expect((await stat(preferenceFile(dataDir, "preferences-fixture"))).mode & 0o777).toBe(0o600);
     // The extension's capability returns to the picker and opens the form.
     await press(terminal, "enter");
+    await settle(terminal, (f) => f.includes("Preferences — preferences-fixture"));
     await settle(terminal, (f) => f.includes("API key *"));
     await press(terminal, "escape");
     await settle(terminal, (f) => f.includes("Search commands"));
     await act(async () => {
       terminal.mockInput.pressKey("e", { ctrl: true });
     });
+    await settle(terminal, (f) => f.includes("Preferences — preferences-fixture"));
     await settle(terminal, (f) => f.includes("API key *"));
     await type(terminal, "2");
     await press(terminal, "enter");
@@ -434,6 +446,259 @@ test("required preferences block launch, persist, reach the runtime and Ctrl-E e
     await settle(terminal, (f) => f.includes("Search commands"));
     await press(terminal, "enter");
     await settle(terminal, (f) => f.includes('"token":"secret2"'));
+  } finally {
+    await act(async () => terminal.dispose());
+    await rm(join(dir, ".."), { recursive: true, force: true });
+  }
+});
+
+test("manifest with missing required preference shows Set up launch gate with only missing fields, launches after entry", async () => {
+  const dir = await copyFixture("host-session");
+  const dataDir = join(dir, "../data");
+  const file = join(dir, "package.json");
+  await writeFile(
+    file,
+    JSON.stringify({
+      name: "preferences-gate-fixture",
+      title: "Gate Fixture",
+      preferences: [
+        {
+          name: "token",
+          title: "API key",
+          type: "password",
+          required: true,
+          description: "Your API token",
+        },
+        { name: "opt", title: "Optional note", type: "textfield", required: false },
+      ],
+      commands: [
+        {
+          name: "navigation",
+          title: "Navigate",
+          mode: "view",
+          preferences: [
+            {
+              name: "reqCmd",
+              title: "Command secret",
+              type: "textfield",
+              required: true,
+            },
+          ],
+        },
+      ],
+    }),
+  );
+  // Pre-store the required command preference
+  const { createPreferenceStore } = await import("@blastlauncher/host");
+  const store = createPreferenceStore({ extensionName: "preferences-gate-fixture", dataDir });
+  await store.save({}, "navigation", { reqCmd: "stored-cmd-val" });
+
+  await writeFile(
+    join(dir, "src/navigation.tsx"),
+    `import { List, getPreferenceValues } from "@raycast/api";
+    export default function Command() { const p = getPreferenceValues(); return <List><List.Item title={JSON.stringify(p)} /></List>; }`,
+  );
+  const terminal = await testRender(<CommandSession extensionDir={dir} dataDir={dataDir} />, {
+    width: 120,
+    height: 25,
+    exitOnCtrlC: false,
+  });
+  try {
+    await settle(terminal, (f) => f.includes("Search commands"));
+    await press(terminal, "enter");
+    // Should show launch gate: "Set up Navigate", "These values are required before the command can run."
+    const gateFrame = await settle(terminal, (f) => f.includes("Set up Navigate"));
+    expect(gateFrame).toContain("These values are required before the command can run.");
+    expect(gateFrame).toContain("API key *");
+    // Optional extension pref and already stored command pref should NOT be in the launch gate
+    expect(gateFrame).not.toContain("Optional note");
+    expect(gateFrame).not.toContain("Command secret");
+    // Launch gate does not show field description
+    expect(gateFrame).not.toContain("Your API token");
+
+    await type(terminal, "my-secret-token");
+    await press(terminal, "enter");
+    // Launches and runtime receives both values
+    await settle(
+      terminal,
+      (f) => f.includes('"token":"my-secret-token"') && f.includes('"reqCmd":"stored-cmd-val"'),
+    );
+  } finally {
+    await act(async () => terminal.dispose());
+    await rm(join(dir, ".."), { recursive: true, force: true });
+  }
+});
+
+test("Ctrl-E opens Preferences view with both section headers, all fields, focused description, saves and returns on Enter or Esc without launch", async () => {
+  const dir = await copyFixture("host-session");
+  const dataDir = join(dir, "../data");
+  const file = join(dir, "package.json");
+  await writeFile(
+    file,
+    JSON.stringify({
+      name: "preferences-view-fixture",
+      title: "View Fixture",
+      preferences: [
+        {
+          name: "token",
+          title: "API key",
+          type: "password",
+          required: true,
+          description: "Your API token",
+        },
+        {
+          name: "opt",
+          title: "Optional note",
+          type: "textfield",
+          required: false,
+          description: "An optional note",
+        },
+      ],
+      commands: [
+        {
+          name: "navigation",
+          title: "Navigate",
+          mode: "view",
+          preferences: [
+            {
+              name: "reqCmd",
+              title: "Command secret",
+              type: "textfield",
+              required: true,
+              description: "Command specific secret",
+            },
+          ],
+        },
+      ],
+    }),
+  );
+  await writeFile(
+    join(dir, "src/navigation.tsx"),
+    `import { List, getPreferenceValues } from "@raycast/api";
+    export default function Command() { const p = getPreferenceValues(); return <List><List.Item title={JSON.stringify(p)} /></List>; }`,
+  );
+  const terminal = await testRender(<CommandSession extensionDir={dir} dataDir={dataDir} />, {
+    width: 120,
+    height: 25,
+    exitOnCtrlC: false,
+  });
+  try {
+    await settle(terminal, (f) => f.includes("Search commands"));
+    // Press Ctrl-E to open preferences view
+    await act(async () => {
+      terminal.mockInput.pressKey("e", { ctrl: true });
+    });
+    // Header format: Preferences — <extension title>
+    const prefFrame = await settle(terminal, (f) => f.includes("Preferences — View Fixture"));
+    // Both section headers
+    expect(prefFrame).toContain("Extension");
+    expect(prefFrame).toContain("Navigate");
+    // All fields, including required marker and optional field
+    expect(prefFrame).toContain("API key *");
+    expect(prefFrame).toContain("Optional note");
+    expect(prefFrame).toContain("Command secret *");
+    // First field is focused, so its description is shown
+    expect(prefFrame).toContain("Your API token");
+    // Second field description not shown yet
+    expect(prefFrame).not.toContain("An optional note");
+
+    // Move to next field (Down)
+    await press(terminal, "down");
+    const nextFrame = await settle(terminal, (f) => f.includes("An optional note"));
+    expect(nextFrame).not.toContain("Your API token");
+
+    // Press Esc - cancels and returns to picker without launching
+    await press(terminal, "escape");
+    await settle(terminal, (f) => f.includes("Search commands"));
+    expect(terminal.captureCharFrame()).not.toContain("Preferences — View Fixture");
+
+    // Open again with Ctrl-E, edit a field, and press Enter to save
+    await act(async () => {
+      terminal.mockInput.pressKey("e", { ctrl: true });
+    });
+    await settle(terminal, (f) => f.includes("Preferences — View Fixture"));
+    // token is focused
+    await type(terminal, "saved-token");
+    // Navigate to reqCmd
+    await press(terminal, "down"); // opt
+    await press(terminal, "down"); // reqCmd
+    await type(terminal, "saved-cmd-secret");
+    await press(terminal, "enter");
+
+    // Returns to picker, no launch
+    await settle(terminal, (f) => f.includes("Search commands"));
+    expect(terminal.captureCharFrame()).not.toContain('"token":"saved-token"');
+
+    // Now press Enter on command row to launch - since required preferences are set, launches immediately
+    await press(terminal, "enter");
+    await settle(
+      terminal,
+      (f) => f.includes('"token":"saved-token"') && f.includes('"reqCmd":"saved-cmd-secret"'),
+    );
+  } finally {
+    await act(async () => terminal.dispose());
+    await rm(join(dir, ".."), { recursive: true, force: true });
+  }
+});
+
+test("preferences.open with scope extension shows only Extension section", async () => {
+  const dir = await copyFixture("host-session");
+  const dataDir = join(dir, "../data");
+  const file = join(dir, "package.json");
+  await writeFile(
+    file,
+    JSON.stringify({
+      name: "preferences-scope-fixture",
+      title: "Scope Fixture",
+      preferences: [{ name: "token", title: "API key", type: "password", required: true }],
+      commands: [
+        {
+          name: "navigation",
+          title: "Navigate",
+          mode: "view",
+          preferences: [
+            {
+              name: "choice",
+              title: "Choice",
+              type: "textfield",
+              default: "default-val",
+            },
+          ],
+        },
+      ],
+    }),
+  );
+  // Pre-store token so command can launch without gate
+  const { createPreferenceStore } = await import("@blastlauncher/host");
+  const store = createPreferenceStore({ extensionName: "preferences-scope-fixture", dataDir });
+  await store.save({ token: "initial-token" }, "navigation", {});
+
+  await writeFile(
+    join(dir, "src/navigation.tsx"),
+    `import { List, Action, ActionPanel, openExtensionPreferences } from "@raycast/api";
+    export default function Command() { return <List><List.Item title="Item" actions={<ActionPanel><Action title="Open Ext Prefs" onAction={openExtensionPreferences} /></ActionPanel>} /></List>; }`,
+  );
+  const terminal = await testRender(<CommandSession extensionDir={dir} dataDir={dataDir} />, {
+    width: 120,
+    height: 25,
+    exitOnCtrlC: false,
+  });
+  try {
+    await settle(terminal, (f) => f.includes("Search commands"));
+    await press(terminal, "enter");
+    await settle(terminal, (f) => f.includes("Item"));
+    // Trigger openExtensionPreferences
+    await press(terminal, "enter");
+    // Should open preferences view with scope: "extension"
+    const frame = await settle(terminal, (f) => f.includes("Preferences — Scope Fixture"));
+    expect(frame).toContain("Extension");
+    expect(frame).toContain("API key *");
+    // Command section and command fields should NOT be shown
+    expect(frame).not.toContain("Navigate");
+    expect(frame).not.toContain("Choice");
+
+    await press(terminal, "escape");
+    await settle(terminal, (f) => f.includes("Search commands"));
   } finally {
     await act(async () => terminal.dispose());
     await rm(join(dir, ".."), { recursive: true, force: true });

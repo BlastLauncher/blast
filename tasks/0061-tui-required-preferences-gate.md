@@ -44,22 +44,22 @@ separate Preferences view, like Raycast's extension settings.
 
 ## Acceptance
 
-- [ ] Test in `packages/tui/src/picker.test.tsx`: a manifest with one
+- [x] Test in `packages/tui/src/picker.test.tsx`: a manifest with one
       required-without-default extension preference, one optional extension
       preference and one required command preference that is already stored.
       Enter on the command shows a frame containing `Set up` and the missing
       field's title only (optional and stored ones absent). After typing a
       value + Enter, the command launches and receives the value.
-- [ ] Test: Ctrl-E opens a frame containing `Preferences —`, both section
+- [x] Test: Ctrl-E opens a frame containing `Preferences —`, both section
       headers and all fields, including optional ones and the focused field's
       description. Enter saves, Esc returns to the picker, and no launch happens.
-- [ ] Test: `preferences.open` with scope `extension` shows only the
+- [x] Test: `preferences.open` with scope `extension` shows only the
       Extension section.
-- [ ] The existing test "required preferences block launch, persist, reach the
+- [x] The existing test "required preferences block launch, persist, reach the
       runtime and Ctrl-E edits them" is updated or replaced, not deleted
       without equivalent coverage.
-- [ ] `docs/tui.md` Picker section describes the gate and the view.
-- [ ] `bun run verify` passes.
+- [x] `docs/tui.md` Picker section describes the gate and the view.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -71,8 +71,12 @@ separate Preferences view, like Raycast's extension settings.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/tui-required-preferences-gate @ 3f0304c
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 83.4s
 Done:
-Not done / risks:
+- Added `description?: string` to Preference type and parser in `packages/host/src/bundle.ts` with validation and tests.
+- Replaced single preferences modal with focused `LaunchGate` (shows only missing required fields, launches on Enter) and full `PreferencesView` (shows all fields grouped by `Extension` and `<command title>` sections with `*` marker on required fields and focused field description rendered beneath the control).
+- Handled `preferences.open` with `extension` scope to display only the extension section.
+- Added comprehensive unit tests in `packages/tui/src/picker.test.tsx` and updated `docs/tui.md`.
+Not done / risks: none. Colors and styling deferred to 0062 as planned.
 ```

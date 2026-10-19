@@ -20,9 +20,10 @@ import {
   createPreferenceStore,
   parsePreferences,
   type Preference,
+  type StorageItems,
   type DependencyInstaller,
 } from "@blastlauncher/host";
-import { PreferencesForm } from "./preferences.tsx";
+import { LaunchGate, PreferencesView } from "./preferences.tsx";
 import { App } from "./app.tsx";
 import { openCommand } from "./session.ts";
 
@@ -63,57 +64,86 @@ export function CommandPicker({
   const install = useRef<Promise<void>>(Promise.resolve());
   const [progress, setProgress] = useState<string>();
   const [installError, setInstallError] = useState<string>();
-  const [preferences, setPreferences] = useState<{
-    fields: Preference[];
-    initial: Record<string, string | number | boolean>;
-    extensionFields: Preference[];
+  const [launchGate, setLaunchGate] = useState<{
     command: PickerCommand;
-    arguments?: Record<string, string>;
+    arguments: Record<string, string>;
+    fields: Preference[];
+    extensionFields: Preference[];
+    initial: StorageItems;
+  }>();
+  const [preferencesView, setPreferencesView] = useState<{
+    command: PickerCommand;
+    extensionFields: Preference[];
+    commandFields: Preference[];
+    initial: StorageItems;
+    scope?: "extension" | "command" | undefined;
   }>();
   const [preparing, setPreparing] = useState(false);
-  const prepare = async (command: PickerCommand, args?: Record<string, string>, scope?: string) => {
-    if (!manifest || preparing) return;
-    setPreparing(true);
+
+  const openPreferences = async (
+    command: PickerCommand,
+    scope?: "extension" | "command" | undefined,
+  ) => {
+    if (!manifest) return;
     try {
-      if (args) await install.current;
       const raw = JSON.parse(await readFile(join(extensionDir, "package.json"), "utf8"));
       const extensionFields = parsePreferences(raw.preferences);
       const commandFields = parsePreferences(
         raw.commands.find((c: { name: string }) => c.name === command.name)?.preferences,
       );
-      const fields = [
-        ...new Map(
-          [...extensionFields, ...(scope === "extension" ? [] : commandFields)].map((p) => [
-            p.name,
-            p,
-          ]),
-        ).values(),
-      ];
       const store = createPreferenceStore({ extensionName: manifest.name, dataDir });
       const stored = await store.read();
       const initial =
         scope === "extension"
           ? stored.extension
           : { ...stored.extension, ...stored.commands[command.name] };
-      if (
-        !args ||
-        fields.some(
-          (p) =>
-            p.required &&
-            p.default === undefined &&
-            (initial[p.name] === undefined || initial[p.name] === ""),
-        )
-      )
-        setPreferences({
-          fields,
-          initial,
-          extensionFields: extensionFields.filter(
-            (p) => scope === "extension" || !commandFields.some((c) => c.name === p.name),
-          ),
+      setPreferencesView({
+        command,
+        extensionFields,
+        commandFields,
+        initial,
+        scope,
+      });
+    } catch (error) {
+      setManifestError(String(error));
+    }
+  };
+
+  const prepare = async (command: PickerCommand, args: Record<string, string>) => {
+    if (!manifest || preparing) return;
+    setPreparing(true);
+    try {
+      await install.current;
+      const raw = JSON.parse(await readFile(join(extensionDir, "package.json"), "utf8"));
+      const extensionFields = parsePreferences(raw.preferences);
+      const commandFields = parsePreferences(
+        raw.commands.find((c: { name: string }) => c.name === command.name)?.preferences,
+      );
+      const fields = [
+        ...new Map([...extensionFields, ...commandFields].map((p) => [p.name, p])).values(),
+      ];
+      const store = createPreferenceStore({ extensionName: manifest.name, dataDir });
+      const stored = await store.read();
+      const initial = { ...stored.extension, ...stored.commands[command.name] };
+      const missing = fields.filter(
+        (p) =>
+          p.required &&
+          p.default === undefined &&
+          (initial[p.name] === undefined || initial[p.name] === ""),
+      );
+      if (missing.length > 0) {
+        setLaunchGate({
           command,
-          ...(args ? { arguments: args } : {}),
+          arguments: args,
+          fields: missing,
+          extensionFields: extensionFields.filter(
+            (p) => !commandFields.some((c) => c.name === p.name),
+          ),
+          initial,
         });
-      else onLaunch(command, args);
+      } else {
+        onLaunch(command, args);
+      }
     } catch (error) {
       setManifestError(String(error));
     } finally {
@@ -189,8 +219,7 @@ export function CommandPicker({
   }, [extensionDir, dataDir, installer]);
   useEffect(() => {
     const command = manifest?.commands.find((c) => c.name === editPreferences?.command);
-    if (command)
-      void prepare(command, undefined, editPreferences?.scope).finally(onPreferencesOpened);
+    if (command) void openPreferences(command, editPreferences?.scope).finally(onPreferencesOpened);
   }, [manifest, editPreferences]);
   const rows = filterCommands(manifest?.commands ?? [], query);
   const chosen = rows.find((command) => command.name === selected) ?? rows[0];
@@ -216,7 +245,7 @@ export function CommandPicker({
       onQuit();
       return;
     }
-    if (preferences) return;
+    if (launchGate || preferencesView) return;
     if (form) {
       const args = form.arguments;
       const field = args[Math.min(fieldIndex, args.length - 1)];
@@ -278,7 +307,7 @@ export function CommandPicker({
     }
     if (key.ctrl && key.name === "e" && chosen) {
       key.preventDefault();
-      void prepare(chosen);
+      void openPreferences(chosen);
       return;
     }
     if (key.name === "return" && chosen) {
@@ -294,21 +323,49 @@ export function CommandPicker({
         {manifest?.title ?? extensionDir}
         {manifest ? "" : "  Loading…"}
       </text>
-      {preferences ? (
-        <PreferencesForm
-          fields={preferences.fields}
-          initial={preferences.initial}
-          onCancel={() => setPreferences(undefined)}
+      {preferencesView ? (
+        <PreferencesView
+          extensionTitle={manifest?.title ?? extensionDir}
+          commandTitle={preferencesView.command.title}
+          extensionFields={preferencesView.extensionFields}
+          commandFields={preferencesView.commandFields}
+          scope={preferencesView.scope}
+          initial={preferencesView.initial}
+          onCancel={() => setPreferencesView(undefined)}
           onSave={async (saved) => {
             const isExtension = (name: string) =>
-              preferences.extensionFields.some((p) => p.name === name);
+              preferencesView.scope === "extension"
+                ? true
+                : preferencesView.extensionFields.some((p) => p.name === name) &&
+                  !preferencesView.commandFields.some((c) => c.name === name);
             await createPreferenceStore({ extensionName: manifest!.name, dataDir }).save(
               Object.fromEntries(Object.entries(saved).filter(([name]) => isExtension(name))),
-              preferences.command.name,
+              preferencesView.command.name,
               Object.fromEntries(Object.entries(saved).filter(([name]) => !isExtension(name))),
             );
-            setPreferences(undefined);
-            if (preferences.arguments) onLaunch(preferences.command, preferences.arguments);
+            setPreferencesView(undefined);
+          }}
+        />
+      ) : launchGate ? (
+        <LaunchGate
+          commandTitle={launchGate.command.title}
+          fields={launchGate.fields}
+          initial={launchGate.initial}
+          onCancel={() => {
+            setLaunchGate(undefined);
+            setForm(undefined);
+          }}
+          onSave={async (saved) => {
+            const isExtension = (name: string) =>
+              launchGate.extensionFields.some((p) => p.name === name);
+            await createPreferenceStore({ extensionName: manifest!.name, dataDir }).save(
+              Object.fromEntries(Object.entries(saved).filter(([name]) => isExtension(name))),
+              launchGate.command.name,
+              Object.fromEntries(Object.entries(saved).filter(([name]) => !isExtension(name))),
+            );
+            setLaunchGate(undefined);
+            setForm(undefined);
+            onLaunch(launchGate.command, launchGate.arguments);
           }}
         />
       ) : form ? (
