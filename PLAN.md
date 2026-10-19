@@ -85,6 +85,7 @@ navigation, feedback UI, menu-bar menus.
 - [x] 0058 Install an extension's own dependencies (`docs/decisions/0008`)
 - [x] 0059 TUI command picker with live manifest and launch arguments
 - [x] 0060 TUI builds dependencies before launch; required preferences prompt
+- [x] 0061 TUI launch gate for missing required preferences; Preferences view
 
 ### M5 — Native desktop client (MyGo)
 

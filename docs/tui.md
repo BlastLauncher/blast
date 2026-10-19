@@ -1,18 +1,32 @@
-# TUI Client
+# Terminal client (`packages/tui`)
 
-A native terminal user interface for Raycast extensions. Commands render via
-`@opentui/react` and `@opentui/core`. The TUI runs in two modes:
+```bash
+bun run tui <extensionDir> [command]
+```
 
-- **Direct mode**: `blast run <command-name>` launches the named command
-  directly (the existing path).
-- **Picker mode**: `blast run` (no command argument) starts on the extension's
-  command list, lets the user search and pick a command, provides argument
-  forms and manages the terminal session across commands.
+With a `<command>` this opens that command directly (direct mode); without
+one, the picker lists the manifest's commands.
+
+## Keys
+
+| Key             | Effect                                                                |
+| --------------- | --------------------------------------------------------------------- |
+| typing          | search text (client filtering or the List's search handler)           |
+| ↑ / ↓           | move the selection                                                    |
+| ← / →           | move within a Grid row; open (→) or close (←) a Submenu in a menu bar |
+| Enter           | run the selected item's first action (or the view's own)              |
+| Ctrl-K          | open the action panel; type to filter, Enter runs or opens a submenu  |
+| Ctrl-P          | open the search-bar dropdown accessory; type to filter its options    |
+| Esc             | close dropdown/submenu/panel, else pop the view, else quit at root    |
+| Ctrl-C          | quit (shuts the runtime child down)                                   |
+| Enter / Esc     | confirm / dismiss an open Alert                                       |
+| Ctrl-T / Ctrl-Y | toast primary / secondary action                                      |
+
+Action shortcuts support direct ctrl/shift keys; client keys take priority.
 
 ## Picker
 
-When `blast run` targets an extension directory without a command argument, it
-opens the picker. The terminal switches to an alternate screen buffer. Rows
+`bun run tui <extensionDir>` lists the manifest's commands for the session. Rows
 show each command's `title` (else its name), `subtitle` (else `description`)
 and mode; the header shows the extension's title.
 
@@ -37,18 +51,14 @@ The picker checks dependencies on open and when `package.json` or
 wait for installation. Failures show inline and allow a shared-dependency
 fallback launch. Installs live under `<dataDir>/deps/` (decision 0008).
 
-Required preferences without defaults present a launch gate (`Set up <command title>`)
-showing only the missing required fields; entering values and pressing Enter saves
-and continues launch. Ctrl-E opens the full preferences view (`Preferences — <extension title>`)
-showing all extension and command preferences organized under `Extension` and `<command title>`
-sections (with required fields marked with `*` and the focused field's description rendered
-below the control); Enter saves without launching, and Esc cancels. Extension requests
-to open preferences (`preferences.open`) return to the picker's full preferences view,
-respecting the requested `extension` or `command` scope. Text/file/directory/app fields
-take text, passwords are masked, Space toggles checkboxes and ←/→ cycles dropdowns.
-Values persist in `<dataDir>/preferences/<encoded-name>.json`, a **plaintext, mode 0600**
-file, with command values scoped by command name. The data root is `$XDG_DATA_HOME/blast`
-(else `~/.local/share/blast`).
+Missing required preferences (no default, nothing stored) open **Set up
+<command>** with only those fields before launch. Ctrl-E and the extension's
+`open*Preferences` calls open the full **Preferences — <extension>** view
+(Extension and command sections, `*` required, focused field's description);
+it saves without launching. Passwords are masked, Space toggles checkboxes,
+←/→ cycles dropdowns, Enter saves, Esc cancels. Values persist in
+`<dataDir>/preferences/<encoded-name>.json` (**plaintext, mode 0600**).
+The data root is `$XDG_DATA_HOME/blast` (else `~/.local/share/blast`).
 
 ## Rendering
 
@@ -79,21 +89,31 @@ file, with command values scoped by command name. The data root is `$XDG_DATA_HO
   the error and waits for Esc; direct mode then exits 1.
 - `List`/`Grid` pagination: when the selection reaches the last loaded item
   (or the last Grid row) and `pagination.hasMore` is set, the client sends one
-  `onLoadMore` when crossing the threshold.
-- The `Toast` layer renders on top of the active view. A HUD is a Toast with
-  style `HUD` that clears any view and waits 2.5 s before completion.
-- Form controls: `TextField`, `PasswordField`, `TextArea` take text inputs;
-  `Checkbox` toggles on Space/Enter; `Dropdown` selects with `Enter` or arrows;
-  `DatePicker` is a placeholder. Form errors block submit; values are
-  collected on primary action and passed to `onSubmit`.
+  `onLoadMore` per item-count change; `isLoading` shows the loading line.
+- `Detail` shows markdown source as plain text plus metadata lines;
+  `List.Item.Detail` appears beside the list when `isShowingDetail`.
+- Toasts and alerts stay while mounted; a HUD line shows for 2.5 s.
+- Unknown node types render as `[Unsupported: <type>]`.
 
-## Shell & Environment
+## Forms
 
-Commands run in an environment matching the desktop Raycast runtime:
-`PATH` is resolved through the user's login shell via `shell-path`
-(falling back to a default set of standard binary paths including
-`/opt/homebrew/bin`, `/usr/local/bin`, `~/.nvm/versions/node/<v>/bin`),
-so tools installed via Homebrew, fnm, nvm or standard package managers
-are found without requiring Blast to be launched from a configured shell.
-The working directory defaults to `~` (matching Raycast desktop behaviour;
-overridden by extension-level `cwd` if configured).
+Forms show labels, help and errors. Tab / Shift-Tab move through fields; ↑ / ↓
+do the same outside TextArea. Scene focus requests reach the runtime.
+
+- TextField edits one line; TextArea uses Enter for newlines and ↑ / ↓ for
+  its cursor. Ctrl-Enter or Ctrl-S submits from any field.
+- Enter runs the primary action outside TextArea and pickers. Ctrl-K opens
+  the form's action panel; Enter there runs the chosen action.
+- Space toggles Checkbox. In Dropdown / TagPicker, ← / → moves the option
+  cursor and Enter / Space selects; TagPicker toggles multiple values.
+- DatePicker accepts an ISO date or date/time (empty clears); invalid text
+  shows an error and never reaches the extension. FilePicker accepts paths
+  separated by commas; single-selection fields keep the first path.
+- PasswordField always shows a fixed mask when set and never echoes typed
+  characters. Typing replaces an existing runtime-only password because its
+  prior value is unavailable to the client; Backspace edits the new input.
+- Runtime values own field state, including controlled values, stored values
+  and restored drafts. The client sends edits and SubmitForm events; the
+  runtime persists enabled drafts and clears them after successful submission.
+
+Esc goes back/quits. Description, Separator and LinkAccessory render as text.

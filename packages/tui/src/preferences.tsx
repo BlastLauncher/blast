@@ -225,5 +225,3 @@ export function PreferencesView({
     </box>
   );
 }
-
-export { PreferencesView as PreferencesForm };
