@@ -79,12 +79,12 @@ diagnostics instead of ESM link errors.
 - [x] 0047 Deprecated aliases — exports plus alias-aware coverage
 - [x] 0049 Explicit alias map for structural deprecated duplicates
 - [x] 0048 Curated set v4 — extensions using shared dependencies
-- [ ] 0050 Smoke crash follow-ups (undici, hyrule-compendium)
+- [x] 0050 Smoke crash follow-ups (undici, hyrule-compendium)
 - [ ] 0051 Corpus smoke within the default disk budget
 
-Smoke 2026-10-19 (`compat/SMOKE.md`, 80 extensions): 185/200 commands render,
-2 completed, 7 expected denials, 6 crashed (2 `undici`, 3 missing API keys,
-1 to investigate), 0 unsupported-api. Coverage
+Smoke 2026-10-19 (`compat/SMOKE.md`, 80 extensions): 184/200 commands render,
+1 completed, 7 expected denials, 5 need arguments, 3 need API keys,
+0 bundle failures, 0 unsupported-api. Coverage
 2026-10-19: non-deprecated 1496/1534 covered, 38 partial (client-owned
 filtering, menu-bar/HUD effects), 0 missing. Shared deps satisfy 2009/3443
 corpus extensions. Each step is a task with `@covers` evidence.
