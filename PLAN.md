@@ -75,7 +75,7 @@ diagnostics instead of ESM link errors.
 - [x] 0043 AI, BrowserExtension and Tool APIs
 - [x] 0044 WindowManagement and remaining leftovers
 - [x] 0045 AI model provider entrypoint (protocol, host, CLI)
-- [ ] 0046 AI.ask with extension models, refreshModels, decide
+- [x] 0046 AI.ask with extension models, refreshModels, decide
 - [ ] Next: deprecated aliases sweep; curated set v4 using provided deps
 
 Smoke 2026-10-18 (`compat/SMOKE.md`, 60 extensions): 144/149 commands render,
