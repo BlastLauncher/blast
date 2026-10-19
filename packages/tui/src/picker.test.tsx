@@ -62,7 +62,12 @@ const type = async (
 test("picker lists a manifest's commands with modes and filters by typed text", async () => {
   const dir = await copyFixture("host-session");
   const terminal = await testRender(
-    <CommandPicker extensionDir={dir} onLaunch={() => {}} onQuit={() => {}} />,
+    <CommandPicker
+      extensionDir={dir}
+      dataDir={join(dir, "../data")}
+      onLaunch={() => {}}
+      onQuit={() => {}}
+    />,
     { width: 80, height: 20, exitOnCtrlC: false },
   );
   try {
@@ -86,7 +91,12 @@ test("picker lists a manifest's commands with modes and filters by typed text", 
 test("rewriting the manifest updates the list; invalid JSON keeps the last list", async () => {
   const dir = await copyFixture("feedback");
   const terminal = await testRender(
-    <CommandPicker extensionDir={dir} onLaunch={() => {}} onQuit={() => {}} />,
+    <CommandPicker
+      extensionDir={dir}
+      dataDir={join(dir, "../data")}
+      onLaunch={() => {}}
+      onQuit={() => {}}
+    />,
     { width: 80, height: 20, exitOnCtrlC: false },
   );
   try {
