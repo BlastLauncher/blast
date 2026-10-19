@@ -118,7 +118,7 @@ export class Cache {
     this.write(new Map());
     if (options?.notifySubscribers !== false) this.notify();
   }
-  subscribe(subscriber: CacheSubscriber): CacheSubscription {
+  subscribe = (subscriber: CacheSubscriber): CacheSubscription => {
     let listeners = subscribers.get(this.directory);
     if (!listeners) subscribers.set(this.directory, (listeners = new Set()));
     listeners.add(subscriber);
@@ -126,5 +126,5 @@ export class Cache {
       listeners.delete(subscriber);
       if (!listeners.size) subscribers.delete(this.directory);
     };
-  }
+  };
 }

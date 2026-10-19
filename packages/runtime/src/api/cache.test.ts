@@ -104,6 +104,20 @@ test("subscriptions receive set/remove/clear across instances, suppress clear an
   expect(events).toHaveLength(4);
 });
 
+// @covers Cache.subscribe
+test("subscribe works when called as an unbound method reference", () => {
+  setup();
+  const cache = new Cache();
+  const subscribe = cache.subscribe; // detach `this`, as React's useSyncExternalStore does
+  const events: unknown[] = [];
+  const unsubscribe = subscribe((key, data) => events.push([key, data]));
+  cache.set("key", "value");
+  expect(events).toEqual([["key", "value"]]);
+  unsubscribe();
+  cache.set("key2", "value2");
+  expect(events).toHaveLength(1);
+});
+
 // @covers Cache.Options.directory partial
 test("deprecated directory option cannot move storage; corrupt storage is not overwritten", () => {
   const assigned = setup();
