@@ -274,3 +274,14 @@ test("CLI installs a real file package offline, reuses it and runs without touch
   expect(without.code).toBe(3);
   expect(without.output).toContain("blast deps");
 }, 15000);
+
+test("runtime-only dependencies publish a reusable key without invoking npm", async () => {
+  const options = await setup({ "@raycast/api": "1", react: "19", "@types/node": "24" });
+  await installExtensionDependencies({
+    ...options,
+    installer: async () => {
+      throw new Error("npm must not run");
+    },
+  });
+  expect((await checkExtensionDependencies(options)).needed).toBe(false);
+});

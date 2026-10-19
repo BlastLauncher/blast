@@ -143,12 +143,13 @@ export async function installExtensionDependencies(
       }
       await writeFile(join(input.directory, "package-lock.json"), JSON.stringify(lock, null, 2));
     }
-    await (options.installer ?? npmDependencyInstaller)({
-      command: process.platform === "win32" ? "npm.cmd" : "npm",
-      args: ["install", "--omit=dev", "--ignore-scripts", "--no-audit", "--no-fund"],
-      cwd: input.directory,
-      ...(options.onLog ? { onLog: options.onLog } : {}),
-    });
+    if (Object.keys(dependencies).length)
+      await (options.installer ?? npmDependencyInstaller)({
+        command: process.platform === "win32" ? "npm.cmd" : "npm",
+        args: ["install", "--omit=dev", "--ignore-scripts", "--no-audit", "--no-fund"],
+        cwd: input.directory,
+        ...(options.onLog ? { onLog: options.onLog } : {}),
+      });
     await writeFile(join(input.directory, "key"), input.key);
     return status;
   } catch (error) {

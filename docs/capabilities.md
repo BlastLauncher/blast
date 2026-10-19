@@ -38,7 +38,13 @@ and `Action.InstallMCPServer` (`mcp.install`) require explicit grants.
 because it has no application association database. `captureException` and
 `captureMemorySnapshot` emit runtime error/debug logs without network reporting.
 Manifest preference defaults reach `getPreferenceValues()`, with command defaults
-and then caller-supplied preferences taking precedence.
+and then caller-supplied preferences taking precedence. The TUI loads saved
+extension and command values from `<dataDir>/preferences/<encoded-name>.json`
+(plaintext, mode 0600). Required values without defaults prompt before launch;
+Ctrl-E edits the selected command's preferences. `preferences.open` returns to
+the picker form (extension scope edits extension fields only). The picker
+installs dependencies under `<dataDir>/deps/`, showing npm progress and failures;
+a failed install still permits a shared-dependency fallback launch.
 
 `open(target, application?)` requests `open.url` for URLs (a `file:` URL counts
 as a file) and `open.path` for files, so a client can grant opening links

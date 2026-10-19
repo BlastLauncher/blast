@@ -13,6 +13,16 @@ import {
   type PickerArgument,
   type PickerCommand,
 } from "./picker.ts";
+import {
+  checkExtensionDependencies,
+  installExtensionDependencies,
+  defaultDataDir,
+  createPreferenceStore,
+  parsePreferences,
+  type Preference,
+  type DependencyInstaller,
+} from "@blastlauncher/host";
+import { PreferencesForm } from "./preferences.tsx";
 import { App } from "./app.tsx";
 import { openCommand } from "./session.ts";
 
@@ -32,8 +42,16 @@ export function CommandPicker({
   launchError,
   onLaunch,
   onQuit,
+  dataDir: suppliedDataDir,
+  installer,
+  editPreferences,
+  onPreferencesOpened,
 }: {
   extensionDir: string;
+  dataDir?: string;
+  installer?: DependencyInstaller;
+  editPreferences?: { command: string; scope: "extension" | "command" } | undefined;
+  onPreferencesOpened?: () => void;
   /** Command name to select after returning from a launch. */
   initialSelection?: string | undefined;
   launching?: string | undefined;
@@ -41,6 +59,67 @@ export function CommandPicker({
   onLaunch: (command: PickerCommand, values: Record<string, string>) => void;
   onQuit: () => void;
 }) {
+  const [dataDir] = useState(() => suppliedDataDir ?? defaultDataDir());
+  const install = useRef<Promise<void>>(Promise.resolve());
+  const [progress, setProgress] = useState<string>();
+  const [installError, setInstallError] = useState<string>();
+  const [preferences, setPreferences] = useState<{
+    fields: Preference[];
+    initial: Record<string, string | number | boolean>;
+    extensionFields: Preference[];
+    command: PickerCommand;
+    arguments?: Record<string, string>;
+  }>();
+  const [preparing, setPreparing] = useState(false);
+  const prepare = async (command: PickerCommand, args?: Record<string, string>, scope?: string) => {
+    if (!manifest || preparing) return;
+    setPreparing(true);
+    try {
+      if (args) await install.current;
+      const raw = JSON.parse(await readFile(join(extensionDir, "package.json"), "utf8"));
+      const extensionFields = parsePreferences(raw.preferences);
+      const commandFields = parsePreferences(
+        raw.commands.find((c: { name: string }) => c.name === command.name)?.preferences,
+      );
+      const fields = [
+        ...new Map(
+          [...extensionFields, ...(scope === "extension" ? [] : commandFields)].map((p) => [
+            p.name,
+            p,
+          ]),
+        ).values(),
+      ];
+      const store = createPreferenceStore({ extensionName: manifest.name, dataDir });
+      const stored = await store.read();
+      const initial =
+        scope === "extension"
+          ? stored.extension
+          : { ...stored.extension, ...stored.commands[command.name] };
+      if (
+        !args ||
+        fields.some(
+          (p) =>
+            p.required &&
+            p.default === undefined &&
+            (initial[p.name] === undefined || initial[p.name] === ""),
+        )
+      )
+        setPreferences({
+          fields,
+          initial,
+          extensionFields: extensionFields.filter(
+            (p) => scope === "extension" || !commandFields.some((c) => c.name === p.name),
+          ),
+          command,
+          ...(args ? { arguments: args } : {}),
+        });
+      else onLaunch(command, args);
+    } catch (error) {
+      setManifestError(String(error));
+    } finally {
+      setPreparing(false);
+    }
+  };
   const [manifest, setManifest] = useState<Manifest>();
   const [manifestError, setManifestError] = useState<string>();
   const [query, setQuery] = useState("");
@@ -66,13 +145,38 @@ export function CommandPicker({
         setManifestError(error instanceof Error ? error.message : String(error));
       }
     };
-    void read();
+    const refresh = () => {
+      void read();
+      // Serialize checks/installs: a manifest change during npm gets checked afterwards.
+      install.current = install.current.then(async () => {
+        if (!active) return;
+        try {
+          const options = { extensionDir, dataDir };
+          const status = await checkExtensionDependencies(options);
+          if (!status.needed || !active) return;
+          setInstallError(undefined);
+          setProgress("Installing dependencies…");
+          await installExtensionDependencies({
+            ...options,
+            ...(installer ? { installer } : {}),
+            onLog: (message) => {
+              if (active) setProgress(message.trim().split(/\r?\n/).filter(Boolean).at(-1));
+            },
+          });
+        } catch (error) {
+          if (active) setInstallError(String(error));
+        } finally {
+          if (active) setProgress(undefined);
+        }
+      });
+    };
+    refresh();
     try {
       // Watch the directory: rewrites via rename would strand a file watcher.
       watcher = watch(extensionDir, (_event, file) => {
-        if (file && file !== "package.json") return;
+        if (file && file !== "package.json" && file !== "package-lock.json") return;
         clearTimeout(timer);
-        timer = setTimeout(() => void read(), WATCH_DEBOUNCE_MS);
+        timer = setTimeout(refresh, WATCH_DEBOUNCE_MS);
       });
     } catch {
       // Watching is best-effort; the list just stays as it was.
@@ -82,7 +186,12 @@ export function CommandPicker({
       clearTimeout(timer);
       watcher?.close();
     };
-  }, [extensionDir]);
+  }, [extensionDir, dataDir, installer]);
+  useEffect(() => {
+    const command = manifest?.commands.find((c) => c.name === editPreferences?.command);
+    if (command)
+      void prepare(command, undefined, editPreferences?.scope).finally(onPreferencesOpened);
+  }, [manifest, editPreferences]);
   const rows = filterCommands(manifest?.commands ?? [], query);
   const chosen = rows.find((command) => command.name === selected) ?? rows[0];
   const openForm = (command: PickerCommand) => {
@@ -107,6 +216,7 @@ export function CommandPicker({
       onQuit();
       return;
     }
+    if (preferences) return;
     if (form) {
       const args = form.arguments;
       const field = args[Math.min(fieldIndex, args.length - 1)];
@@ -149,7 +259,7 @@ export function CommandPicker({
           return;
         }
         setForm(undefined);
-        onLaunch(form, values);
+        void prepare(form, values);
       }
       return;
     }
@@ -166,10 +276,15 @@ export function CommandPicker({
       if (next) setSelected(next.name);
       return;
     }
+    if (key.ctrl && key.name === "e" && chosen) {
+      key.preventDefault();
+      void prepare(chosen);
+      return;
+    }
     if (key.name === "return" && chosen) {
       key.preventDefault();
       if (chosen.arguments.length) openForm(chosen);
-      else onLaunch(chosen, {});
+      else void prepare(chosen, {});
     }
   });
   const fieldAt = form ? Math.min(fieldIndex, form.arguments.length - 1) : -1;
@@ -179,7 +294,24 @@ export function CommandPicker({
         {manifest?.title ?? extensionDir}
         {manifest ? "" : "  Loading…"}
       </text>
-      {form ? (
+      {preferences ? (
+        <PreferencesForm
+          fields={preferences.fields}
+          initial={preferences.initial}
+          onCancel={() => setPreferences(undefined)}
+          onSave={async (saved) => {
+            const isExtension = (name: string) =>
+              preferences.extensionFields.some((p) => p.name === name);
+            await createPreferenceStore({ extensionName: manifest!.name, dataDir }).save(
+              Object.fromEntries(Object.entries(saved).filter(([name]) => isExtension(name))),
+              preferences.command.name,
+              Object.fromEntries(Object.entries(saved).filter(([name]) => !isExtension(name))),
+            );
+            setPreferences(undefined);
+            if (preferences.arguments) onLaunch(preferences.command, preferences.arguments);
+          }}
+        />
+      ) : form ? (
         <box flexDirection="column" flexGrow={1} flexShrink={0}>
           <text height={1} flexShrink={0}>
             Launch {form.title}
@@ -228,6 +360,16 @@ export function CommandPicker({
           </box>
         </>
       )}
+      {progress && (
+        <text height={1} flexShrink={0}>
+          Dependencies: {progress}
+        </text>
+      )}
+      {installError && (
+        <text height={1} flexShrink={0}>
+          Install failed: {installError}
+        </text>
+      )}
       {manifestError && (
         <text height={1} flexShrink={0}>
           Manifest: {manifestError}
@@ -246,7 +388,7 @@ export function CommandPicker({
       <text height={1} flexShrink={0}>
         {form
           ? "Tab/↑↓ Fields · ←→ Options · Enter Launch · Esc Cancel"
-          : "↑↓ Select · Enter Launch · Type to Filter · Esc Quit"}
+          : "↑↓ Select · Enter Launch · Type to Filter · Ctrl-E Preferences · Esc Quit"}
       </text>
     </box>
   );
@@ -317,13 +459,20 @@ export function CommandSession({
   extensionDir,
   dataDir,
   hudDurationMs,
+  installer,
   onExit,
 }: {
   extensionDir: string;
   dataDir?: string;
   hudDurationMs?: number;
+  installer?: DependencyInstaller;
   onExit?: (crashed: boolean) => void;
 }) {
+  const [resolvedDataDir] = useState(() => dataDir ?? defaultDataDir());
+  const [editPreferences, setEditPreferences] = useState<{
+    command: string;
+    scope: "extension" | "command";
+  }>();
   const [active, setActive] = useState<{
     command: string;
     opened: OpenedCommand;
@@ -352,7 +501,23 @@ export function CommandSession({
     void (async () => {
       try {
         const opened = await openCommand(extensionDir, command.name, {
-          ...(dataDir === undefined ? {} : { dataDir }),
+          dataDir: resolvedDataDir,
+          handlers: {
+            "preferences.open": (params) => {
+              if (
+                !params ||
+                typeof params !== "object" ||
+                Array.isArray(params) ||
+                (params.scope !== "extension" && params.scope !== "command")
+              )
+                throw new Error("Invalid preferences scope");
+              const scope = params.scope;
+              setTimeout(() => {
+                leave();
+                setEditPreferences({ command: command.name, scope });
+              }, 0);
+            },
+          },
           argumentValues: values,
         });
         if (exiting.current) {
@@ -407,6 +572,10 @@ export function CommandSession({
   return (
     <CommandPicker
       extensionDir={extensionDir}
+      dataDir={resolvedDataDir}
+      {...(installer ? { installer } : {})}
+      editPreferences={editPreferences}
+      onPreferencesOpened={() => setEditPreferences(undefined)}
       initialSelection={lastCommand}
       launching={launching}
       launchError={launchError}

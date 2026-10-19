@@ -35,3 +35,47 @@ test("terminal clipboard and URL handlers stay local and other effects are denie
     }),
   ).toMatchObject({ value: { text: "" } });
 });
+
+test("openCommand resolves a matching installed dependency using its data directory", async () => {
+  const { cp, mkdir, mkdtemp, rm } = await import("node:fs/promises");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const { installExtensionDependencies } = await import("@blastlauncher/host");
+  const { openCommand } = await import("./session.ts");
+  const root = await mkdtemp(join(tmpdir(), "blast-tui-installed-"));
+  const extensionDir = join(root, "extension");
+  const dataDir = join(root, "data");
+  try {
+    await cp(
+      new URL("../../../fixtures/extensions/installed-deps", import.meta.url).pathname,
+      extensionDir,
+      { recursive: true },
+    );
+    await installExtensionDependencies({
+      extensionDir,
+      dataDir,
+      installer: async ({ cwd }) => {
+        await mkdir(join(cwd, "node_modules"), { recursive: true });
+        await cp(
+          new URL("../../../fixtures/packages/blast-offline-dep", import.meta.url).pathname,
+          join(cwd, "node_modules/blast-offline-dep"),
+          { recursive: true },
+        );
+      },
+    });
+    const opened = await openCommand(extensionDir, "index", { dataDir });
+    try {
+      const scene = await new Promise((resolve, reject) => {
+        opened.session.scenes(resolve);
+        void opened.session.exited.then((exit) =>
+          reject(exit.error ?? new Error("Exited before scene")),
+        );
+      });
+      expect(JSON.stringify(scene)).toContain("Installed offline dependency");
+    } finally {
+      await opened.close();
+    }
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});

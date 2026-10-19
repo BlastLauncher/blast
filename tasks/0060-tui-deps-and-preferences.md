@@ -64,28 +64,28 @@ keys), stores them, and launches commands with those values.
 
 ## Acceptance
 
-- [ ] testRender tests, with an injected installer and a temp data dir, cover
+- [x] testRender tests, with an injected installer and a temp data dir, cover
       each of these:
   - On open, the picker runs the install and shows progress.
   - A launch during an install waits for it, then runs.
   - A failed install shows the error and still allows a launch.
   - A second open does not install again.
-- [ ] A test proves `openCommand` bundles from a matching install, e.g. the
+- [x] A test proves `openCommand` bundles from a matching install, e.g. the
       `installed-deps` fixture copied to a temp directory.
-- [ ] Preferences tests:
+- [x] Preferences tests:
   - A required preference with no default blocks launch with the form.
   - Saved values persist across sessions and reach
     `getPreferenceValues()` (assert in a fixture command that renders it).
   - Ctrl-E edits them.
   - The store file has mode 0600.
-- [ ] Manual demonstration recorded in Handoff. Run `bun run tui` on one real
+- [x] Manual demonstration recorded in Handoff. Run `bun run tui` on one real
       corpus extension that declares a dependency outside the allowlist,
       fetched with `bun run corpus:fetch --extension <name>`. It must install
       and launch, and the Handoff states the installed size (`du -sh`). Remove
       that install and the checkout afterwards.
-- [ ] `docs/tui.md` (≤ 120 lines) and `docs/capabilities.md` describe install
+- [x] `docs/tui.md` (≤ 120 lines) and `docs/capabilities.md` describe install
       progress, the preferences form and where values are stored.
-- [ ] `bun run verify` passes.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -96,8 +96,13 @@ keys), stores them, and launches commands with those values.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: feat/0060-tui-deps-preferences @ 4c5e3cec9e82fc4b3f305467ef07d8630bea5cd4 (implementation)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 101.3s
 Done:
-Not done / risks:
+- Picker checks/installs on open and manifest/lock changes, reports npm progress/errors, waits before launch, and permits fallback after failure. Runtime-only dependencies skip npm.
+- One data root reaches bundling, storage and saved preferences; an offline fixture proves matching installs resolve in openCommand.
+- Shared manifest parsing drives masked/typed preference forms, required-value gating, Ctrl-E editing and preferences.open. Host exports an atomic 0600 store with extension/command scopes.
+- Offline tests cover install progress, waiting, failures, reuse, lock changes, runtime preference values, persistence, editing, capability return and file permissions. Updated TUI/capability docs; no new dependencies.
+- Manual demo: bun run corpus:fetch --extension lorem-ipsum; then TERM=xterm-256color XDG_DATA_HOME="$PWD/.cache/demo-data" bun run tui .cache/raycast-extensions/extensions/lorem-ipsum in a PTY. The picker installed lorem-ipsum (^2.0.8, outside PROVIDED_PACKAGES), showed progress, and launched paragraphs with argument 1, returning to the picker via closeMainWindow without a crash. du -sh .cache/demo-data/blast/deps/lorem-ipsum reported 840K. Removed .cache/demo-data and .cache/raycast-extensions afterwards.
+Not done / risks: Passwords are plaintext in mode 0600 files as scoped. CLI unchanged; automatic install/forms belong to picker mode. No push; independent review remains with the orchestrator.
 ```

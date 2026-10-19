@@ -1,5 +1,7 @@
 import {
   bundleCommand,
+  defaultDataDir,
+  createPreferenceStore,
   startCommand,
   createSessionBroker,
   type CapabilityHandler,
@@ -18,16 +20,21 @@ export async function openCommand(
   } = {},
 ) {
   const effects = createClientHandlers();
-  const bundled = await bundleCommand({ extensionDir, command });
+  const dataDir = options.dataDir ?? defaultDataDir();
+  const bundled = await bundleCommand({ extensionDir, command, dataDir });
   const cleanup = () => rm(dirname(bundled.entry), { recursive: true, force: true });
   try {
     const storage = {
       extensionName: bundled.extensionName,
-      ...(options.dataDir === undefined ? {} : { dataDir: options.dataDir }),
+      dataDir,
     };
     const session = await startCommand({
       ...bundled,
-      ...(options.dataDir === undefined ? {} : { dataDir: options.dataDir }),
+      preferences: await createPreferenceStore({
+        extensionName: bundled.extensionName,
+        dataDir,
+      }).values(command),
+      dataDir,
       ...(options.argumentValues === undefined ? {} : { argumentValues: options.argumentValues }),
       broker: createSessionBroker(storage, {
         handlers: { ...effects.handlers, ...options.handlers },
