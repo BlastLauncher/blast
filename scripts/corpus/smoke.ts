@@ -85,6 +85,33 @@ export function countNodes(root: SceneLike): number {
   return 1 + root.children.reduce((total, child) => total + countNodes(child), 0);
 }
 
+/**
+ * The probe for a runtime that exited on its own: how it exited and, when it
+ * failed, the error it reported — including the structured `code` a
+ * `UNSUPPORTED`/`UNSUPPORTED_API` failure carries, which is what the runtime
+ * writes when it exits before its first scene.
+ */
+export function exitProbe(exit: {
+  code: number | null;
+  signal: string | null;
+  error?: Error | undefined;
+}): ProbeResult {
+  const code = (exit.error as { code?: unknown } | undefined)?.code;
+  return {
+    kind: "exit",
+    code: exit.code,
+    signal: exit.signal,
+    ...(exit.error
+      ? {
+          error: {
+            message: exit.error.message,
+            ...(typeof code === "string" ? { code } : {}),
+          },
+        }
+      : {}),
+  };
+}
+
 /** Minimal manifest shapes; anything else the manifest carries is ignored. */
 export type ManifestPreference = { name?: string; type?: string; default?: Json };
 export type ManifestCommand = {

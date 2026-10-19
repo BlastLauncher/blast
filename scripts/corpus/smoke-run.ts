@@ -6,7 +6,6 @@
 // scene, the exit, or a timeout. Writes `compat/smoke.json` and
 // `compat/SMOKE.md`. Failures are the report's data, not errors: nothing
 // here fixes Blast, and extension files are never modified.
-import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -20,14 +19,8 @@ import {
   type BundledCommand,
   type Session,
 } from "../../packages/host/src/index.ts";
-import {
-  batchSize,
-  CORPUS_DIR,
-  directoryBytes,
-  maxMbFromEnv,
-  megabytes,
-  readPin,
-} from "./corpus.ts";
+import { fetchBatch } from "./batch.ts";
+import { batchSize, CORPUS_DIR, maxMbFromEnv, megabytes, readPin } from "./corpus.ts";
 import {
   buildReport,
   buildResult,
@@ -35,6 +28,7 @@ import {
   compactLines,
   commandMode,
   countNodes,
+  exitProbe,
   extractPreferenceDefaults,
   manifestCommands,
   renderJsonReport,
@@ -84,20 +78,7 @@ function firstSceneOrExit(session: Session, timeoutMs: number, mode: string): Pr
       }
     });
     void session.exited.then((exit) => {
-      const code = (exit.error as { code?: unknown } | undefined)?.code;
-      finish({
-        kind: "exit",
-        code: exit.code,
-        signal: exit.signal,
-        ...(exit.error
-          ? {
-              error: {
-                message: exit.error.message,
-                ...(typeof code === "string" ? { code } : {}),
-              },
-            }
-          : {}),
-      });
+      finish(exitProbe(exit));
     });
   });
 }
@@ -177,19 +158,10 @@ async function runOne(
 }
 
 /**
- * Narrow the corpus checkout to exactly these extensions (empty means
- * manifest-only) via `corpus:fetch`, the one script allowed to run git for
- * the corpus. `sparse-checkout set` drops every extension not listed from
- * the working tree, so calling this with the next batch is how the previous
- * batch's checkout gets dropped before it starts.
+ * Run the curated set: fetch one batch of extensions at a time (the empty
+ * final batch leaves the checkout manifest-only), then every command of every
+ * extension in it.
  */
-function fetchBatch(extensions: string[], root: string): number {
-  const args = ["scripts/corpus/fetch.ts", ...extensions.flatMap((name) => ["--extension", name])];
-  const fetch = spawnSync("bun", args, { stdio: "inherit" });
-  if (fetch.status !== 0) throw new Error("corpus fetch failed; see output above");
-  return directoryBytes(join(root, ".cache"));
-}
-
 async function main(): Promise<void> {
   const root = process.cwd();
   const pin = readPin(root);
