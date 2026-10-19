@@ -6,9 +6,9 @@ files.
 
 ## Current focus
 
-M3 — coverage to 100%. Curated set v3 is clear of API gaps, so the next
-batches come from "Top missing by usage" in `compat/COVERAGE.md`, plus an
-interim shared-dependency allowlist (0036 → 0037).
+M4 — terminal client with OpenTUI (decision 0007). M3 is complete:
+non-deprecated API 97.5% covered / 0 missing; the remaining partials are
+client-owned behaviour that the TUI now implements.
 
 ## Milestones
 
@@ -60,27 +60,8 @@ aliases. First step: export a stub for every inventory symbol that throws a
 structured "unsupported in Blast" error when used, so missing APIs fail with
 diagnostics instead of ESM link errors.
 
-- [x] 0015–0035 done: stubs, curated blockers, navigation, detail metadata,
-      feedback UI, list completeness, storage/open, Form, curated v2/v3, Cache,
-      CJS globals, host capability APIs, assets layout, launch/window, Grid,
-      menu bar, generated enums, no-hang feedback, Action variants, Submenu,
-      selection/file APIs (see git log).
-- [x] 0036 Corpus dependency usage scan
-- [x] 0037 Shared dependency allowlist (interim, until v1)
-- [x] 0038 Form.TagPicker, PasswordField, events and props
-- [x] 0039 List and Grid prop completeness
-- [x] 0040 Image, Keyboard and environment completeness
-- [x] 0041 OAuth PKCE client
-- [x] 0042 Form field refs, storeValue and drafts
-- [x] 0043 AI, BrowserExtension and Tool APIs
-- [x] 0044 WindowManagement and remaining leftovers
-- [x] 0045 AI model provider entrypoint (protocol, host, CLI)
-- [x] 0046 AI.ask with extension models, refreshModels, decide
-- [x] 0047 Deprecated aliases — exports plus alias-aware coverage
-- [x] 0049 Explicit alias map for structural deprecated duplicates
-- [x] 0048 Curated set v4 — extensions using shared dependencies
-- [x] 0050 Smoke crash follow-ups (undici, hyrule-compendium)
-- [x] 0051 Corpus smoke within the default disk budget
+- [x] 0015–0051 done: stubs, every API area, shared deps, deprecated aliases,
+      curated sets v1–v4, smoke tooling (see git log).
 
 Smoke 2026-10-19 (`compat/SMOKE.md`, 80 extensions): 184/200 commands render,
 1 completed, 7 expected denials, 5 need arguments, 3 need API keys,
@@ -89,9 +70,20 @@ Smoke 2026-10-19 (`compat/SMOKE.md`, 80 extensions): 184/200 commands render,
 filtering, menu-bar/HUD effects), 0 missing. Shared deps satisfy 2009/3443
 corpus extensions. Each step is a task with `@covers` evidence.
 
-### M4 — Desktop client
+### M4 — Terminal client (OpenTUI)
 
-Choose client technology (decision record), render scenes, ship a Linux build.
+Interactive TUI over the host API, on Bun (`docs/decisions/0007`). Owns the
+client-side behaviour the headless CLI cannot: filtering, action panel,
+navigation, feedback UI, menu-bar menus.
+
+- [ ] 0052 TUI scaffold: `blast tui`, List rendering, selection, filtering
+- [ ] 0053 TUI action panel, navigation, Detail, feedback UI
+- [ ] 0054 TUI Form and Grid
+
+### M5 — Native desktop client (MyGo)
+
+Decision record for an out-of-process client↔host protocol first, then a
+MyGo client (native UI or webview) and a Linux build.
 
 ## Later (not scheduled)
 
@@ -108,6 +100,7 @@ One line per decision; link a record only when it exists.
 - 2026-10-18: Headless client first; desktop UI deferred to M4.
 - 2026-10-18: Process/protocol/scene model accepted (`docs/decisions/0001`).
 - 2026-10-18: Coverage denominator is the latest `@raycast/api` declarations.
+- 2026-10-19: M4 is an OpenTUI terminal client on Bun; MyGo desktop later (`0007`).
 - 2026-10-18: AI model providers run in their own runtime child (`docs/decisions/0006`).
 - 2026-10-18: Extra npm deps: interim shared pinned allowlist until v1;
   production should reference each extension's own pinned deps via a thin,
