@@ -53,6 +53,15 @@ test("look: 80x24 renders rounded frame, search bar, list row accessories, foote
       expect(selectedLine).toBeDefined();
       expect(selectedLine).toContain("Germany");
 
+      // Verify the look with captureSpans: selected row subtitle has different fg from title
+      const { lines: spanLines } = terminal.captureSpans();
+      const beerLine = spanLines.find((line) => line.spans.some((s) => s.text.includes("beer")));
+      const titleSpan = beerLine?.spans.find((s) => s.text.includes("beer"));
+      const subtitleSpan = beerLine?.spans.find((s) => s.text.includes("Germany"));
+      expect(titleSpan).toBeDefined();
+      expect(subtitleSpan).toBeDefined();
+      expect(subtitleSpan!.fg.toString()).not.toEqual(titleSpan!.fg.toString());
+
       // Footer contains ↵ and ^K
       expect(frame).toContain("↵");
       expect(frame).toContain("^K");

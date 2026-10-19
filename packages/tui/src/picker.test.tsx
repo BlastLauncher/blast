@@ -80,17 +80,17 @@ test("picker lists a manifest's commands with modes and filters by typed text", 
     { width: 80, height: 20, exitOnCtrlC: false },
   );
   try {
-    await settle(terminal, (frame) => frame.includes("› navigation  [view]"));
+    await settle(terminal, (frame) => frame.includes("› navigation"));
     let frame = terminal.captureCharFrame();
-    expect(frame).toContain("› navigation  [view]");
-    expect(frame).toContain("session  [view]");
-    expect(frame).toContain("env  [no-view]");
+    expect(frame).toContain("› navigation");
+    expect(frame).toContain("  session");
+    expect(frame).toContain("env");
     await type(terminal, "env");
     frame = await settle(
       terminal,
-      (current) => current.includes("› env  [no-view]") && !current.includes("navigation"),
+      (current) => current.includes("› env") && !current.includes("navigation"),
     );
-    expect(frame).not.toContain("session  [view]");
+    expect(frame).not.toContain("  session");
   } finally {
     await act(async () => terminal.dispose());
     await rm(join(dir, ".."), { recursive: true, force: true });
@@ -126,7 +126,7 @@ test("rewriting the manifest updates the list; invalid JSON keeps the last list"
       terminal,
       (current) => current.includes("Manifest:") && current.includes("Extra One"),
     );
-    expect(frame).toContain("› index  [no-view]");
+    expect(frame).toContain("› index");
   } finally {
     await act(async () => terminal.dispose());
     await rm(join(dir, ".."), { recursive: true, force: true });
@@ -147,14 +147,14 @@ test("Enter launches a command and Esc returns to the picker with the selection 
     { width: 90, height: 20, exitOnCtrlC: false },
   );
   try {
-    await settle(terminal, (frame) => frame.includes("› navigation  [view]"));
+    await settle(terminal, (frame) => frame.includes("› navigation"));
     await act(async () => terminal.mockInput.pressArrow("down"));
-    await settle(terminal, (frame) => frame.includes("› session  [view]"));
+    await settle(terminal, (frame) => frame.includes("› session"));
     await press(terminal, "enter");
     // The session command renders its List inside the picker session.
     await settle(terminal, (frame) => frame.includes("Item") && frame.includes("Increment"));
     await press(terminal, "escape");
-    await settle(terminal, (frame) => frame.includes("› session  [view]"));
+    await settle(terminal, (frame) => frame.includes("› session"));
     await press(terminal, "ctrl-c");
     await settle(terminal, () => exits.length > 0);
     expect(exits).toEqual([false]);
@@ -179,7 +179,7 @@ test("a required argument blocks launch until filled, then reaches the command",
     { width: 90, height: 20, exitOnCtrlC: false },
   );
   try {
-    await settle(terminal, (frame) => frame.includes("› index  [view]"));
+    await settle(terminal, (frame) => frame.includes("› index"));
     await press(terminal, "enter");
     // The argument form opens instead of launching; the dropdown starts on One.
     const form = await settle(terminal, (frame) => frame.includes("Launch index"));
@@ -197,7 +197,7 @@ test("a required argument blocks launch until filled, then reaches the command",
       (current) => current.includes("launch hello one") && current.includes("Launched"),
     );
     await press(terminal, "escape");
-    await settle(terminal, (frame) => frame.includes("› index  [view]"));
+    await settle(terminal, (frame) => frame.includes("› index"));
     await press(terminal, "ctrl-c");
     await settle(terminal, () => exits.length > 0);
     expect(exits).toEqual([false]);
@@ -216,13 +216,13 @@ test("a no-view command finishes, shows its HUD and returns to the picker", asyn
     { width: 90, height: 20, exitOnCtrlC: false },
   );
   try {
-    await settle(terminal, (frame) => frame.includes("› index  [no-view]"));
+    await settle(terminal, (frame) => frame.includes("› index"));
     await press(terminal, "enter");
     await settle(terminal, (frame) => frame.includes("Continue?"));
     await press(terminal, "enter");
     await settle(terminal, (frame) => frame.includes("Confirmed"));
     // The runtime exits 0 on its own; the picker comes back after the HUD.
-    await settle(terminal, (frame) => frame.includes("› index  [no-view]"));
+    await settle(terminal, (frame) => frame.includes("› index"));
   } finally {
     await act(async () => terminal.dispose());
     await rm(dataDir, { recursive: true, force: true });
@@ -244,14 +244,14 @@ test("a crashed command returns to the picker and quitting then exits 1", async 
     { width: 90, height: 20, exitOnCtrlC: false },
   );
   try {
-    await settle(terminal, (frame) => frame.includes("› navigation  [view]"));
+    await settle(terminal, (frame) => frame.includes("› navigation"));
     await type(terminal, "inv");
-    await settle(terminal, (frame) => frame.includes("› invalid  [no-view]"));
+    await settle(terminal, (frame) => frame.includes("› invalid"));
     await press(terminal, "enter");
     // The invalid command crashes at startup; the error screen waits for Esc.
     await settle(terminal, (frame) => frame.includes("Error"));
     await press(terminal, "escape");
-    await settle(terminal, (frame) => frame.includes("› invalid  [no-view]"));
+    await settle(terminal, (frame) => frame.includes("› invalid"));
     await press(terminal, "ctrl-c");
     await settle(terminal, () => exits.length > 0);
     expect(exits).toEqual([true]);

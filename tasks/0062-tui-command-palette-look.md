@@ -81,29 +81,38 @@ styling instead of plain text lines.
 ## Handoff
 
 ```
-Branch/commit: t3/tui-command-palette-look
+Branch/commit: t3/tui-command-palette-look-1
 Verify: bun run verify passes (562 tests across 80 files, all 6 checks OK).
 Done:
-- Created packages/tui/src/theme.ts with Catppuccin Mocha semantic palette (bg #181825, panel #1e1e2e, border #313244, accent #89b4fa, selectionBg #313244, text #cdd6f4, textMuted #6c7086, success #a6e3a1, warning #f9e2af, danger #f38ba8) and glyphs (╭, ╰, ╮, ╯, ─, │, ⌕, ›, ↵, ◇). No hex colors outside theme.ts (except in grid test data).
-- Enriched Row in packages/tui/src/view.ts with title, subtitle, accessories, count, icon, shortcut fields.
-- Re-architected command views in packages/tui/src/app.tsx to command palette layout: rounded outer border with title, ⌕ search bar with horizontal rule separator, full-width row selections with › and right-aligned accessories, right-anchored floating action panel with right-aligned shortcuts (↵ by default for primary action), centered error and alert dialogs, and panel-bg footer.
-- Updated packages/tui/src/picker.tsx, packages/tui/src/dropdown.tsx, packages/tui/src/grid.tsx, packages/tui/src/preferences.tsx, and packages/tui/src/menu-bar.tsx to use theme.
-- Added packages/tui/src/look.test.tsx verifying 80×24 layout, 60×20 wrapping avoidance, action panel shortcuts, and failure toast footer styling.
-- Documented "Look" in docs/tui.md, maintaining the ≤ 120 line limit (check:workflow passes).
+- Restored docs/tui.md from 6e14821 and formatted a concise 3-line "Look" paragraph without hex codes, keeping the document at 119 lines (≤ 120 lines required by check:workflow).
+- Segmented row layout:
+  - List rows in packages/tui/src/app.tsx: rendered as horizontal flex boxes with pointer, bold text title when selected, muted truncating subtitle, flex spacer, and muted right-aligned accessories, with full-width selection background on selected rows.
+  - Menu-bar rows in packages/tui/src/menu-bar.tsx: segmented with pointer, bold title when selected, muted subtitle, flex spacer, right-aligned muted shortcut, and right-aligned muted submenu indicator (›).
+  - Action panel rows in packages/tui/src/app.tsx: segmented with pointer, bold title when chosen, flex spacer, right-aligned muted shortcut, and right-aligned muted submenu indicator (›).
+  - Picker rows in packages/tui/src/picker.tsx: segmented matching list rows with pointer, bold title when selected, muted subtitle/description, flex spacer, and right-aligned muted mode label ("Command", "No View", "Menu Bar").
+- Footer styling:
+  - Command view footer: primary action title in text color and key glyphs (↵, ^K) in muted color as separate spans, with toast/HUD on the left side.
+  - Picker footer: single footer bar matching command view footer, with left side showing status (errors in danger color, dependency progress or launching in muted color) and right side showing segmented action spans (Launch ↵, Preferences ^E, Quit esc).
+- Look verification:
+  - Added captureSpans() assertion in packages/tui/src/look.test.tsx verifying the selected list item title span and subtitle span have different foreground colors.
 - Test assertion updates:
-  - packages/tui/src/dropdown.test.tsx: Frame corner assertion updated from ┌─Drink to ╭─Drink.
-  - packages/tui/src/grid.test.tsx: Frame corner assertion updated from ┌─Drink to ╭─Drink, and footer expectation updated from "Enter Delete beer" to "Delete beer ↵".
+  - packages/tui/src/picker.ts & packages/tui/src/picker.test.ts: exported modeLabel() and updated commandRow mode labels from [view] / [no-view] / [menu-bar] to Command / No View / Menu Bar.
+  - packages/tui/src/picker.test.tsx: updated assertions checking for [view] / [no-view] to match Command / No View and segmented rows.
+  - packages/tui/src/menu-bar.test.tsx: updated frame settle predicate from "More ›" to "More" due to right-alignment of the submenu pointer.
 Not done / risks: None.
 
 Captured 80×24 Frames:
 
-Picker (fixtures/extensions/form):
-╭─form─────────────────────────────────────────────────────────────────────────╮
+Picker (fixtures/extensions/host-session):
+╭─host-session─────────────────────────────────────────────────────────────────╮
 │ ⌕ Search commands…                                                           │
 │──────────────────────────────────────────────────────────────────────────────│
-│ › index  [view]                                                              │
-│   persist  [view]                                                            │
-│   secret  [view]                                                             │
+│ › navigation                                                         Command │
+│   session                                                            Command │
+│   no-view                                                            No View │
+│   stubborn                                                           No View │
+│   invalid                                                            No View │
+│   env                                                                No View │
 │                                                                              │
 │                                                                              │
 │                                                                              │
@@ -117,10 +126,7 @@ Picker (fixtures/extensions/form):
 │                                                                              │
 │                                                                              │
 │                                                                              │
-│                                                                              │
-│                                                                              │
-│                                                                              │
-│ ↑↓ Select · Enter Launch · Type to Filter · Ctrl-E Preferences · Esc Quit    │
+│                                           Launch ↵  Preferences ^E  Quit esc │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 
 List (fixtures/extensions/list-extras):

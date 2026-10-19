@@ -26,6 +26,7 @@ export type Row = {
   shortcut?: string;
   icon?: boolean;
   count?: number;
+  isSubmenu?: boolean;
 };
 
 export function firstAction(node: SceneNode | undefined): SceneNode | undefined {
@@ -165,16 +166,18 @@ export function actionRows(node: SceneNode | undefined, query = ""): Row[] {
     node.type === "Action" ||
     node.type.startsWith("Action.")
   ) {
-    const title = `${text(node.props.title)}${node.type === "ActionPanel.Submenu" ? " ›" : ""}`;
+    const isSubmenu = node.type === "ActionPanel.Submenu";
+    const title = text(node.props.title);
     const label = shortcutLabel(node.props.shortcut);
-    return text(node.props.title).toLowerCase().includes(query.toLowerCase())
+    return title.toLowerCase().includes(query.toLowerCase())
       ? [
           {
             node,
             item: true,
             title,
             shortcut: label,
-            text: `${title} ${label}`.trim(),
+            isSubmenu,
+            text: `${title}${isSubmenu ? " ›" : ""} ${label}`.trim(),
           },
         ]
       : [];

@@ -426,7 +426,6 @@ export function App({
     .join(" · ");
   const primaryTitle =
     text(view.primary?.props.title) || (view.list?.type === "Form" ? "Submit" : "Run");
-  const rightFooter = `${primaryTitle} ↵  Actions ^K`;
 
   return (
     <box
@@ -538,31 +537,49 @@ export function App({
                         key={row.node.id}
                         id={row.node.id}
                         flexDirection="row"
-                        justifyContent="space-between"
                         width="100%"
                         height={1}
                         flexShrink={0}
                         {...(isSelected ? { backgroundColor: theme.colors.selectionBg } : {})}
                       >
                         <text
-                          flexGrow={1}
-                          flexShrink={1}
+                          flexShrink={0}
                           wrapMode="none"
-                          fg={isSelected ? theme.colors.selectionFg : theme.colors.text}
+                          fg={theme.colors.accent}
+                          {...(isSelected ? { backgroundColor: theme.colors.selectionBg } : {})}
                         >
-                          {isSelected ? "› " : "  "}
-                          {row.title ?? row.text}
-                          {row.subtitle ? (
-                            <span
-                              fg={isSelected ? theme.colors.selectionFg : theme.colors.textMuted}
-                            >{`  ${row.subtitle}`}</span>
-                          ) : null}
+                          {isSelected ? `${theme.glyphs.pointer} ` : "  "}
                         </text>
+                        <text
+                          flexShrink={0}
+                          wrapMode="none"
+                          fg={theme.colors.text}
+                          {...(isSelected ? { attributes: TextAttributes.BOLD } : {})}
+                          {...(isSelected ? { backgroundColor: theme.colors.selectionBg } : {})}
+                        >
+                          {row.title ?? row.text}
+                        </text>
+                        {row.subtitle ? (
+                          <text
+                            flexShrink={1}
+                            wrapMode="none"
+                            fg={theme.colors.textMuted}
+                            {...(isSelected ? { backgroundColor: theme.colors.selectionBg } : {})}
+                          >
+                            {`  ${row.subtitle}`}
+                          </text>
+                        ) : null}
+                        <box
+                          flexGrow={1}
+                          flexShrink={0}
+                          {...(isSelected ? { backgroundColor: theme.colors.selectionBg } : {})}
+                        />
                         {row.accessories ? (
                           <text
                             flexShrink={0}
                             wrapMode="none"
-                            fg={isSelected ? theme.colors.selectionFg : theme.colors.textMuted}
+                            fg={theme.colors.textMuted}
+                            {...(isSelected ? { backgroundColor: theme.colors.selectionBg } : {})}
                           >
                             {row.accessories}
                           </text>
@@ -629,6 +646,7 @@ export function App({
               }
               const itemIndex = panelItems.findIndex((it) => it.node.id === row.node.id);
               const shortcut = row.shortcut || (itemIndex === 0 ? theme.glyphs.enter : "");
+              const isSubmenu = row.node.type === "ActionPanel.Submenu" || Boolean(row.isSubmenu);
               return (
                 <box
                   key={row.node.id}
@@ -640,21 +658,44 @@ export function App({
                   {...(isChosen ? { backgroundColor: theme.colors.selectionBg } : {})}
                 >
                   <text
-                    flexGrow={1}
-                    flexShrink={1}
+                    flexShrink={0}
                     wrapMode="none"
-                    fg={isChosen ? theme.colors.selectionFg : theme.colors.text}
+                    fg={theme.colors.accent}
+                    {...(isChosen ? { backgroundColor: theme.colors.selectionBg } : {})}
                   >
-                    {isChosen ? "› " : "  "}
+                    {isChosen ? `${theme.glyphs.pointer} ` : "  "}
+                  </text>
+                  <text
+                    flexShrink={0}
+                    wrapMode="none"
+                    fg={theme.colors.text}
+                    {...(isChosen ? { attributes: TextAttributes.BOLD } : {})}
+                    {...(isChosen ? { backgroundColor: theme.colors.selectionBg } : {})}
+                  >
                     {row.title ?? row.text}
                   </text>
-                  {shortcut ? (
+                  <box
+                    flexGrow={1}
+                    flexShrink={0}
+                    {...(isChosen ? { backgroundColor: theme.colors.selectionBg } : {})}
+                  />
+                  {isSubmenu ? (
                     <text
                       flexShrink={0}
                       wrapMode="none"
-                      fg={isChosen ? theme.colors.selectionFg : theme.colors.textMuted}
+                      fg={theme.colors.textMuted}
+                      {...(isChosen ? { backgroundColor: theme.colors.selectionBg } : {})}
                     >
-                      {`  ${shortcut}`}
+                      {shortcut ? `${shortcut}  ${theme.glyphs.pointer}` : theme.glyphs.pointer}
+                    </text>
+                  ) : shortcut ? (
+                    <text
+                      flexShrink={0}
+                      wrapMode="none"
+                      fg={theme.colors.textMuted}
+                      {...(isChosen ? { backgroundColor: theme.colors.selectionBg } : {})}
+                    >
+                      {shortcut}
                     </text>
                   ) : null}
                 </box>
@@ -735,8 +776,11 @@ export function App({
         <text flexGrow={1} flexShrink={1} wrapMode="none" fg={toastColor}>
           {leftFooter}
         </text>
-        <text flexShrink={0} wrapMode="none" fg={theme.colors.textMuted}>
-          {rightFooter}
+        <text flexShrink={0} wrapMode="none">
+          <span fg={theme.colors.text}>{primaryTitle}</span>
+          <span fg={theme.colors.textMuted}>{` ${theme.glyphs.enter}  `}</span>
+          <span fg={theme.colors.text}>Actions</span>
+          <span fg={theme.colors.textMuted}>{` ${theme.glyphs.actionMod}`}</span>
         </text>
       </box>
     </box>

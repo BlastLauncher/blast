@@ -1,12 +1,13 @@
 /** @jsxImportSource @opentui/react */
 import { useEffect, useRef, useState } from "react";
 import { useKeyboard } from "@opentui/react";
+import { TextAttributes } from "@opentui/core";
 import { watch, type FSWatcher } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import {
-  commandRow,
   filterCommands,
+  modeLabel,
   missingRequired,
   parseManifest,
   type Manifest,
@@ -318,6 +319,25 @@ export function CommandPicker({
     }
   });
   const fieldAt = form ? Math.min(fieldIndex, form.arguments.length - 1) : -1;
+  let statusText = "";
+  let statusColor: string = theme.colors.textMuted;
+  if (manifestError) {
+    statusText = `Manifest: ${manifestError}`;
+    statusColor = theme.colors.danger;
+  } else if (installError) {
+    statusText = `Install failed: ${installError}`;
+    statusColor = theme.colors.danger;
+  } else if (launchError) {
+    statusText = `Launch failed: ${launchError}`;
+    statusColor = theme.colors.danger;
+  } else if (progress) {
+    statusText = `Dependencies: ${progress}`;
+    statusColor = theme.colors.textMuted;
+  } else if (launching) {
+    statusText = `Launching ${launching}…`;
+    statusColor = theme.colors.textMuted;
+  }
+
   return (
     <box
       flexDirection="column"
@@ -425,50 +445,68 @@ export function CommandPicker({
           />
           <box flexDirection="row" flexGrow={1} paddingLeft={1} paddingRight={1}>
             <scrollbox flexGrow={1}>
-              {rows.map((row) => (
-                <text
-                  key={row.name}
-                  height={1}
-                  flexShrink={0}
-                  {...(row.name === chosen?.name
-                    ? { backgroundColor: theme.colors.selectionBg, fg: theme.colors.selectionFg }
-                    : { fg: theme.colors.text })}
-                >
-                  {row.name === chosen?.name ? "› " : "  "}
-                  {commandRow(row)}
-                </text>
-              ))}
+              {rows.map((row) => {
+                const isSelected = row.name === chosen?.name;
+                const subtitle = row.subtitle || row.description;
+                return (
+                  <box
+                    key={row.name}
+                    id={row.name}
+                    flexDirection="row"
+                    width="100%"
+                    height={1}
+                    flexShrink={0}
+                    {...(isSelected ? { backgroundColor: theme.colors.selectionBg } : {})}
+                  >
+                    <text
+                      flexShrink={0}
+                      wrapMode="none"
+                      fg={theme.colors.accent}
+                      {...(isSelected ? { backgroundColor: theme.colors.selectionBg } : {})}
+                    >
+                      {isSelected ? `${theme.glyphs.pointer} ` : "  "}
+                    </text>
+                    <text
+                      flexShrink={0}
+                      wrapMode="none"
+                      fg={theme.colors.text}
+                      {...(isSelected ? { attributes: TextAttributes.BOLD } : {})}
+                      {...(isSelected ? { backgroundColor: theme.colors.selectionBg } : {})}
+                    >
+                      {row.title}
+                    </text>
+                    {subtitle ? (
+                      <text
+                        flexShrink={1}
+                        wrapMode="none"
+                        fg={theme.colors.textMuted}
+                        {...(isSelected ? { backgroundColor: theme.colors.selectionBg } : {})}
+                      >
+                        {`  ${subtitle}`}
+                      </text>
+                    ) : null}
+                    <box
+                      flexGrow={1}
+                      flexShrink={0}
+                      {...(isSelected ? { backgroundColor: theme.colors.selectionBg } : {})}
+                    />
+                    <text
+                      flexShrink={0}
+                      wrapMode="none"
+                      fg={theme.colors.textMuted}
+                      {...(isSelected ? { backgroundColor: theme.colors.selectionBg } : {})}
+                    >
+                      {modeLabel(row.mode)}
+                    </text>
+                  </box>
+                );
+              })}
               {manifest && rows.length === 0 && (
                 <text fg={theme.colors.textMuted}>No matching commands</text>
               )}
             </scrollbox>
           </box>
         </>
-      )}
-      {progress && (
-        <text height={1} flexShrink={0} fg={theme.colors.accent}>
-          Dependencies: {progress}
-        </text>
-      )}
-      {installError && (
-        <text height={1} flexShrink={0} fg={theme.colors.danger}>
-          Install failed: {installError}
-        </text>
-      )}
-      {manifestError && (
-        <text height={1} flexShrink={0} fg={theme.colors.danger}>
-          Manifest: {manifestError}
-        </text>
-      )}
-      {launchError && (
-        <text height={1} flexShrink={0} fg={theme.colors.danger}>
-          Launch failed: {launchError}
-        </text>
-      )}
-      {launching && (
-        <text height={1} flexShrink={0} fg={theme.colors.accent}>
-          Launching {launching}…
-        </text>
       )}
       <box
         height={1}
@@ -479,10 +517,16 @@ export function CommandPicker({
         paddingLeft={1}
         paddingRight={1}
       >
-        <text flexGrow={1} flexShrink={1} wrapMode="none" fg={theme.colors.textMuted}>
-          {form
-            ? "Tab/↑↓ Fields · ←→ Options · Enter Launch · Esc Cancel"
-            : "↑↓ Select · Enter Launch · Type to Filter · Ctrl-E Preferences · Esc Quit"}
+        <text flexGrow={1} flexShrink={1} wrapMode="none" fg={statusColor}>
+          {statusText}
+        </text>
+        <text flexShrink={0} wrapMode="none">
+          <span fg={theme.colors.text}>Launch</span>
+          <span fg={theme.colors.textMuted}>{` ${theme.glyphs.enter}  `}</span>
+          <span fg={theme.colors.text}>Preferences</span>
+          <span fg={theme.colors.textMuted}>{` ^E  `}</span>
+          <span fg={theme.colors.text}>Quit</span>
+          <span fg={theme.colors.textMuted}>{` esc`}</span>
         </text>
       </box>
     </box>
