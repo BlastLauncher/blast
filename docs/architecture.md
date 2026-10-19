@@ -3,7 +3,7 @@
 Current shape only; history lives in git. Decisions: `docs/decisions/`.
 
 ```
-client (headless CLI or OpenTUI terminal; desktop later)
+client (embedder UI; reference clients: headless CLI, OpenTUI terminal)
    │  in-process API
 host ── bundles extension (esbuild), spawns runtime, capability broker
    │  NDJSON over stdio  (packages/protocol)

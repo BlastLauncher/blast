@@ -6,20 +6,15 @@ files.
 
 ## Current focus
 
-M4 — terminal client with OpenTUI (decision 0007). M3 is complete:
-non-deprecated API 97.5% covered / 0 missing; the remaining partials are
-client-owned behaviour that the TUI now implements.
+M5 — embeddable engine (`docs/decisions/0009`, proposed). Blast is the
+engine; launchers embed it. The TUI and `blast run` stay reference clients
+and get no new launcher features.
 
 ## Milestones
 
 ### M0 — Workflow foundation
 
-- [x] Archive prototype; new AGENTS.md, PLAN.md, task format
-- [x] `bun run verify` gate and `check:workflow` guard
-- [x] CI runs verify on push and pull request
-- [x] 0001 Vendor latest `@raycast/api` declarations into `compat/`
-- [x] 0002 Raycast API inventory generator
-- [x] 0003 Coverage evidence join (`@covers` tags → report, staleness check)
+- [x] Workflow, verify gate, CI, `compat/` vendoring, inventory, evidence (0001–0003)
 
 ### M1 — Headless vertical slice
 
@@ -28,14 +23,8 @@ Node child process, renders through a React reconciler into a serializable
 scene, and is driven by a headless client: snapshot the scene, dispatch an
 action, observe the clipboard capability request, survive a crash.
 
-- [x] Process, protocol and scene model (`docs/decisions/0001`)
-- [x] 0004 Protocol package: messages, validation, NDJSON framing
-- [x] 0005 React reconciler publishing whole-scene snapshots
-- [x] 0006 Minimal `@raycast/api` shim (List, ActionPanel, Action, Clipboard)
-- [x] 0007 Runtime child-process entry over stdio
-- [x] 0010 Runtime hardening: command mode, stdout guard, environment, prefs
-- [x] 0008 Host: bundle, spawn, session, capability broker
-- [x] 0009 `blast` debug CLI + end-to-end fixture test
+- [x] Process/protocol/scene model (`0001`), protocol, reconciler, shim,
+      runtime entry, host, `blast` CLI (0004–0010)
 
 ### M2 — Real extensions
 
@@ -72,26 +61,32 @@ corpus extensions. Each step is a task with `@covers` evidence.
 
 ### M4 — Terminal client (OpenTUI)
 
-Interactive TUI over the host API, on Bun (`docs/decisions/0007`). Owns the
-client-side behaviour the headless CLI cannot: filtering, action panel,
-navigation, feedback UI, menu-bar menus.
+Interactive TUI over the host API, on Bun (`docs/decisions/0007`): List,
+Grid, Detail, Form, action panel, navigation, feedback, menu bar, command
+picker, dependency install (`0008`), preferences, palette look.
 
-- [x] 0052 TUI scaffold: `blast tui`, List rendering, selection, filtering
-- [x] 0053 TUI action panel, navigation, Detail, feedback UI
-- [x] 0054 TUI Form: fields, focus, SubmitForm, drafts
-- [x] 0055 TUI Grid and search-bar dropdown accessory
-- [x] 0056 TUI menu-bar commands, no-view commands, pagination
-- [x] 0057 TUI corpus smoke run over the curated commands
-- [x] 0058 Install an extension's own dependencies (`docs/decisions/0008`)
-- [x] 0059 TUI command picker with live manifest and launch arguments
-- [x] 0060 TUI builds dependencies before launch; required preferences prompt
-- [x] 0061 TUI launch gate for missing required preferences; Preferences view
-- [x] 0062 TUI command-palette look: theme, framed layout, segmented rows, footer
+- [x] 0052–0062 done (see git log).
 
-### M5 — Native desktop client (MyGo)
+### M5 — Embeddable engine
 
-Decision record for an out-of-process client↔host protocol first, then a
-MyGo client (native UI or webview) and a Linux build.
+Anyone can embed Blast and render Raycast extensions in their own UI: an
+in-process JS API and `blast serve` over stdio for other languages, with
+Raycast client semantics built in so embedders only draw.
+
+- [ ] Accept decision 0009 (engine boundary, two surfaces, distribution)
+- [ ] 0063 `packages/client-core`: move framework-free client behaviour
+      (filtering, selection, actions, shortcuts, grid, dropdown, form model)
+      out of `packages/tui`; the TUI consumes it
+- [ ] 0064 Engine API: extension handle (manifest + live reload, commands,
+      deps, preference schema/store, launch) moved out of the TUI picker
+- [ ] 0065 Close the 38 client-owned partials with `client-core` evidence
+- [ ] 0066 `blast serve`: versioned embedder protocol over stdio,
+      capabilities forwarded to the embedder
+- [ ] 0067 Protocol JSON Schema export + `docs/embedding.md`
+- [ ] 0068 Minimal non-JS embedder example over `blast serve` (Go)
+- [ ] 0069 Release build: emitted JS + `.d.ts`, `npm pack` smoke on Node 24
+- [ ] 0070 Real-world compat: dependency-heavy corpus set with installs
+- [ ] 0071 Deprecated aliases: the 50 missing deprecated symbols
 
 ## Later (not scheduled)
 
@@ -99,6 +94,7 @@ MyGo client (native UI or webview) and a Linux build.
   and opens a PR with the diff.
 - Autonomous orchestrator loop over `tasks/`.
 - Delete `archive/`.
+- Desktop launcher (MyGo) and further TUI launcher polish (out of scope per 0009).
 
 ## Decision log
 
@@ -115,3 +111,5 @@ One line per decision; link a record only when it exists.
   minimal-disk layer instead (0037 records it in `docs/decisions/0002`).
 - 2026-10-19: Extensions' own lockfile deps install outside the extension via
   an explicit build step; allowlist stays the fallback (`docs/decisions/0008`).
+- 2026-10-19: Engine first: Blast is embeddable (in-process + `blast serve`);
+  launcher UI is the embedder's; MyGo deferred (`docs/decisions/0009`, proposed).
