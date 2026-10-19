@@ -1,7 +1,7 @@
 ---
 id: "0054"
 title: "TUI Form: fields, focus, SubmitForm, drafts"
-status: doing
+status: review
 milestone: M4
 depends: ["0053"]
 ---
@@ -42,12 +42,12 @@ so the extension receives the values.
 
 ## Acceptance
 
-- [ ] Test: fill TextField, edit TextArea, choose Dropdown option, toggle
+- [x] Test: fill TextField, edit TextArea, choose Dropdown option, toggle
       Checkbox, enter a date, submit → navigationTitle shows those values.
-- [ ] Test: PasswordField frame never contains the typed secret.
-- [ ] Pure helper tests for focus order and date parsing.
-- [ ] Handoff describes a manual PTY run of the form fixture.
-- [ ] `bun run verify` passes.
+- [x] Test: PasswordField frame never contains the typed secret.
+- [x] Pure helper tests for focus order and date parsing.
+- [x] Handoff describes a manual PTY run of the form fixture.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -56,11 +56,20 @@ so the extension receives the values.
 
 ## Handoff
 
-Filled in by the worker when finishing:
-
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/tui-form-implementation @ 9316fab (implementation)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok)
 Done:
+- Added isolated Form renderer with editable fields, focus events, picker selection,
+  date validation, fixed password masks and the existing action panel/SubmitForm.
+- Added helper and terminal integration tests for submitted values, invalid dates,
+  password privacy and draft restoration/clearing across three launches.
+- Documented form keys and runtime-owned persistence in docs/tui.md.
+- Manual PTY: ran `bun run tui fixtures/extensions/form index`, entered Ada and
+  multiline notes, selected Tea, toggled Agree, entered 2024-02-29, submitted with
+  Ctrl-S and observed JSON navigationTitle; Esc exited cleanly.
 Not done / risks:
+- No new dependencies or runtime/protocol/API changes; compat regeneration unneeded.
+- Password input replaces a pre-existing runtime-only secret, documented in docs/tui.md.
+  File paths use comma separators; no OS picker (as scoped).
 ```

@@ -42,3 +42,28 @@ Same session broker as `blast run` (`createSessionBroker`): storage, OAuth
 tokens and the read-only headless defaults. The client adds session-local
 `clipboard.*` and `open.url` handlers (see `docs/capabilities.md`); every
 other effect stays denied.
+
+## Forms
+
+Forms show labelled fields, help text, errors and placeholders. Tab / Shift-Tab
+move through editable fields; ↑ / ↓ do the same outside TextArea. Scene focus
+requests are honored and focus/blur events go back to the runtime.
+
+- TextField edits one line; TextArea uses Enter for newlines and ↑ / ↓ for
+  its cursor. Ctrl-Enter or Ctrl-S submits from any field.
+- Enter runs the primary action outside TextArea and pickers. Ctrl-K opens
+  the form's action panel; Enter there runs the chosen action.
+- Space toggles Checkbox. In Dropdown / TagPicker, ← / → moves the option
+  cursor and Enter / Space selects; TagPicker toggles multiple values.
+- DatePicker accepts an ISO date or date/time (empty clears); invalid text
+  shows an error and never reaches the extension. FilePicker accepts paths
+  separated by commas; single-selection fields keep the first path.
+- PasswordField always shows a fixed mask when set and never echoes typed
+  characters. Typing replaces an existing runtime-only password because its
+  prior value is unavailable to the client; Backspace edits the new input.
+- Runtime values own field state, including controlled values, stored values
+  and restored drafts. The client sends edits and SubmitForm events; the
+  runtime persists enabled drafts and clears them after successful submission.
+
+Esc keeps its normal back/quit behaviour. Description, Separator and
+LinkAccessory render as text; FilePicker does not open an OS dialog.
