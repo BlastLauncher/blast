@@ -1,11 +1,10 @@
 import { expect, test } from "bun:test";
+import { commandRow, filterCommands } from "./picker.ts";
 import {
-  commandRow,
-  filterCommands,
   missingRequired,
   parseManifest,
-  type PickerCommand,
-} from "./picker.ts";
+  type ExtensionCommand as PickerCommand,
+} from "@blastlauncher/host";
 
 const command = (overrides: Record<string, unknown> = {}): PickerCommand =>
   parseManifest({
@@ -17,6 +16,7 @@ test("parseManifest fills defaults for title, mode and arguments", () => {
   const manifest = parseManifest({
     name: "ext",
     title: "Extension",
+    preferences: [],
     commands: [
       {
         name: "index",
@@ -38,12 +38,14 @@ test("parseManifest fills defaults for title, mode and arguments", () => {
   expect(manifest).toEqual({
     name: "ext",
     title: "Extension",
+    preferences: [],
     commands: [
       {
         name: "index",
         title: "Index",
         subtitle: "Sub",
         description: "",
+        preferences: [],
         mode: "menu-bar",
         arguments: [
           {
