@@ -8,3 +8,4 @@ export * from "./provider.ts";
 export * from "./dependencies.ts";
 export * from "./client.ts";
 export * from "./install-dependencies.ts";
+export * from "./preferences.ts";

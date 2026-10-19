@@ -198,44 +198,60 @@ const PREFERENCE_TYPES = [
   "directory",
 ];
 
-/**
- * Reads a manifest `preferences` array down to the declared defaults.
- * Presentation fields (`title`, `required`, `data`, …) are ignored: only the
- * value `getPreferenceValues()` falls back to matters here.
- */
+export type Preference = {
+  name: string;
+  type: string;
+  title: string;
+  required: boolean;
+  data: { title: string; value: string }[];
+  default?: string | number | boolean;
+};
+
+/** Shared manifest parsing for bundling defaults and client preference forms. */
+export function parsePreferences(value: unknown, at = "Preferences"): Preference[] {
+  if (value === undefined) return [];
+  if (!Array.isArray(value)) throw new Error(`${at} must be an array`);
+  return value.map((item, index) => {
+    if (typeof item !== "object" || item === null || Array.isArray(item))
+      throw new Error(`${at} entry ${index + 1} must be an object`);
+    const { name, type, default: fallback } = item;
+    if (typeof name !== "string" || !name) throw new Error(`${at} entry ${index + 1} needs a name`);
+    if (typeof type !== "string" || !PREFERENCE_TYPES.includes(type))
+      throw new Error(
+        `Preference ${JSON.stringify(name)} has an unknown type ${JSON.stringify(type)}`,
+      );
+    if (
+      fallback !== undefined &&
+      typeof fallback !== "string" &&
+      typeof fallback !== "boolean" &&
+      !(typeof fallback === "number" && Number.isFinite(fallback))
+    )
+      throw new Error(`Preference ${JSON.stringify(name)} needs a scalar "default"`);
+    return {
+      name,
+      type,
+      title: (type === "checkbox" ? item.label : item.title) || name,
+      required: item.required === true,
+      data: Array.isArray(item.data)
+        ? item.data.filter(
+            (option: { value?: unknown; title?: unknown }) =>
+              typeof option.value === "string" && typeof option.title === "string",
+          )
+        : [],
+      ...(fallback === undefined ? {} : { default: fallback }),
+    };
+  });
+}
+
 function parsePreferenceDefaults(
   value: unknown,
   at: string,
 ): Record<string, string | number | boolean> {
-  if (value === undefined) return {};
-  if (!Array.isArray(value)) throw new Error(`${at} must be an array`);
-  const defaults: Record<string, string | number | boolean> = {};
-  for (const [index, item] of value.entries()) {
-    if (typeof item !== "object" || item === null || Array.isArray(item)) {
-      throw new Error(`${at} entry ${index + 1} must be an object`);
-    }
-    const declared = item as Record<string, unknown>;
-    const name = declared["name"];
-    if (typeof name !== "string" || name === "")
-      throw new Error(`${at} entry ${index + 1} needs a name`);
-    const type = declared["type"];
-    if (typeof type !== "string" || !PREFERENCE_TYPES.includes(type)) {
-      throw new Error(
-        `Preference ${JSON.stringify(name)} has an unknown type ${JSON.stringify(type)}`,
-      );
-    }
-    const fallback = declared["default"];
-    if (fallback === undefined) continue;
-    if (
-      typeof fallback !== "string" &&
-      typeof fallback !== "boolean" &&
-      !(typeof fallback === "number" && Number.isFinite(fallback))
-    ) {
-      throw new Error(`Preference ${JSON.stringify(name)} needs a scalar "default"`);
-    }
-    defaults[name] = fallback;
-  }
-  return defaults;
+  return Object.fromEntries(
+    parsePreferences(value, at)
+      .filter((p) => p.default !== undefined)
+      .map((p) => [p.name, p.default!]),
+  );
 }
 
 /** The argument types Raycast's manifest schema defines. */

@@ -1,13 +1,11 @@
 # Terminal client (`packages/tui`)
 
-OpenTUI client over the in-process host API, on Bun (decision 0007).
-
 ```bash
 bun run tui <extensionDir> [command]
 ```
 
 With a `<command>` this opens that command directly (direct mode); without
-one, the picker lists the manifest's commands (see Picker below).
+one, the picker lists the manifest's commands.
 
 ## Keys
 
@@ -24,10 +22,7 @@ one, the picker lists the manifest's commands (see Picker below).
 | Enter / Esc     | confirm / dismiss an open Alert                                       |
 | Ctrl-T / Ctrl-Y | toast primary / secondary action                                      |
 
-Action `shortcut`s map when they are a direct `{ modifiers, key }` using only
-ctrl/shift with a lowercase letter, digit, `enter`, `escape`, `space`,
-`backspace`, `tab` or an arrow key. Platform-specific objects and cmd/opt
-combinations are skipped; the client keys above take priority.
+Action shortcuts support direct ctrl/shift keys; client keys take priority.
 
 ## Picker
 
@@ -50,6 +45,19 @@ and mode; the header shows the extension's title.
   anywhere; a launch failure (bundling) stays on the picker with an error
   line. The process exits 1 only if the last launched command crashed and
   the user then quits.
+
+The picker checks dependencies on open and when `package.json` or
+`package-lock.json` changes. A status line shows the latest npm log; launches
+wait for installation. Failures show inline and allow a shared-dependency
+fallback launch. Installs live under `<dataDir>/deps/` (decision 0008).
+
+Required preferences without defaults open a form before launch. Ctrl-E edits
+all preferences of the selected command; extension requests to open preferences
+return to the picker form. Text/file/directory/app fields take text, passwords
+are masked, Space toggles checkboxes and ←/→ cycles dropdowns. Enter saves,
+Esc cancels. Values persist in `<dataDir>/preferences/<encoded-name>.json`,
+a **plaintext, mode 0600** file, with command values scoped by command name.
+The data root is `$XDG_DATA_HOME/blast` (else `~/.local/share/blast`).
 
 ## Rendering
 
@@ -76,7 +84,7 @@ and mode; the header shows the extension's title.
   `left-click` event, and Items without one render dimmed.
 - `no-view` commands render only their feedback (alert, toast, HUD). When the
   runtime exits 0 on its own, the client quits after the HUD window has shown
-  (2.5 s; a `hudDurationMs` prop shortens it in tests). A failed runtime shows
+  (2.5 s). A failed runtime shows
   the error and waits for Esc; direct mode then exits 1.
 - `List`/`Grid` pagination: when the selection reaches the last loaded item
   (or the last Grid row) and `pagination.hasMore` is set, the client sends one
@@ -86,18 +94,10 @@ and mode; the header shows the extension's title.
 - Toasts and alerts stay while mounted; a HUD line shows for 2.5 s.
 - Unknown node types render as `[Unsupported: <type>]`.
 
-## Capabilities
-
-Same session broker as `blast run` (`createSessionBroker`): storage, OAuth
-tokens and the read-only headless defaults. The client adds session-local
-`clipboard.*` and `open.url` handlers (see `docs/capabilities.md`); every
-other effect stays denied.
-
 ## Forms
 
-Forms show labelled fields, help text, errors and placeholders. Tab / Shift-Tab
-move through editable fields; ↑ / ↓ do the same outside TextArea. Scene focus
-requests are honored and focus/blur events go back to the runtime.
+Forms show labels, help and errors. Tab / Shift-Tab move through fields; ↑ / ↓
+do the same outside TextArea. Scene focus requests reach the runtime.
 
 - TextField edits one line; TextArea uses Enter for newlines and ↑ / ↓ for
   its cursor. Ctrl-Enter or Ctrl-S submits from any field.
@@ -115,5 +115,4 @@ requests are honored and focus/blur events go back to the runtime.
   and restored drafts. The client sends edits and SubmitForm events; the
   runtime persists enabled drafts and clears them after successful submission.
 
-Esc keeps its normal back/quit behaviour. Description, Separator and
-LinkAccessory render as text; FilePicker does not open an OS dialog.
+Esc goes back/quits. Description, Separator and LinkAccessory render as text.
