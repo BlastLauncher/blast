@@ -13,6 +13,8 @@ export async function openCommand(
   options: {
     dataDir?: string;
     handlers?: Record<string, CapabilityHandler>;
+    /** Manifest argument values for this launch, keyed by argument name. */
+    argumentValues?: Record<string, string>;
   } = {},
 ) {
   const effects = createClientHandlers();
@@ -26,6 +28,7 @@ export async function openCommand(
     const session = await startCommand({
       ...bundled,
       ...(options.dataDir === undefined ? {} : { dataDir: options.dataDir }),
+      ...(options.argumentValues === undefined ? {} : { argumentValues: options.argumentValues }),
       broker: createSessionBroker(storage, {
         handlers: { ...effects.handlers, ...options.handlers },
       }),

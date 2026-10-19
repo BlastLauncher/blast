@@ -69,8 +69,35 @@ while it is open, so a whole extension can be explored in one session.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/tui-command-picker @ 9990e0c
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 73.2s
 Done:
+- picker.ts: pure logic — manifest parsing (defaults, validation), row text
+  (title, subtitle/description, mode), case-insensitive filtering on
+  title/subtitle/name, required-argument check.
+- picker.tsx: CommandPicker view (search input, rows, fs.watch on
+  package.json with 100 ms debounce, inline manifest/launch error lines,
+  argument form) and CommandSession shell (openCommand lifecycle, return to
+  picker with selection kept, Ctrl-C exit, exit 1 only after a crashed last
+  launch).
+- session.ts: openCommand gains argumentValues (passed to startCommand like
+  the CLI's --argument).
+- app.tsx: optional onExit prop used by Ctrl-C so picker mode can quit the
+  whole TUI from inside a command; direct mode unchanged.
+- main.tsx: command optional; picker mode renders CommandSession.
+- Tests: picker.test.ts (6 logic tests), picker.test.tsx (7 testRender
+  tests: listing, filtering, launch + Esc return, required argument form,
+  live manifest update + invalid JSON, no-view return, crash return +
+  exit 1, launch failure). Fixtures only via temp copies.
+- docs/tui.md: Picker section (119 lines total).
 Not done / risks:
+- Pre-existing flake in packages/tui app.test.tsx (no-view HUD test timing
+  out at 5 s under load, cascading) reproduced on base f7d5b17; not caused
+  by this change.
+- A password argument's placeholder shows while empty (masked dots once
+  typed); no clipboard paste into the argument form.
+- Dropdown arguments default to their first option (matches the List
+  accessory's behaviour); a manifest dropdown with no data renders "(no
+  options)" and cannot be filled.
 ```
+

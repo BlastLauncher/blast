@@ -3,8 +3,11 @@
 OpenTUI client over the in-process host API, on Bun (decision 0007).
 
 ```bash
-bun run tui <extensionDir> <command>
+bun run tui <extensionDir> [command]
 ```
+
+With a `<command>` this opens that command directly (direct mode); without
+one, the picker lists the manifest's commands (see Picker below).
 
 ## Keys
 
@@ -25,6 +28,28 @@ Action `shortcut`s map when they are a direct `{ modifiers, key }` using only
 ctrl/shift with a lowercase letter, digit, `enter`, `escape`, `space`,
 `backspace`, `tab` or an arrow key. Platform-specific objects and cmd/opt
 combinations are skipped; the client keys above take priority.
+
+## Picker
+
+`bun run tui <extensionDir>` lists the manifest's commands for the session. Rows
+show each command's `title` (else its name), `subtitle` (else `description`)
+and mode; the header shows the extension's title.
+
+- Typing filters case-insensitively on title, subtitle and name; ↑ / ↓ move
+  the selection; Enter launches; Esc / Ctrl-C quit the TUI.
+- The manifest is re-read while the picker is open (debounced `fs.watch` on
+  `package.json`): command edits show up live. Invalid JSON or a missing
+  `commands` array shows an inline error line and keeps the last good list.
+- A command declaring `arguments` opens a small form first: `text` and
+  `password` fields take typing (passwords are masked), `dropdown` cycles its
+  `data` options with ← / →; Tab / ↑ / ↓ move between fields. Enter launches
+  only once every required argument is filled, else an error line names what
+  is missing; values reach the command like the CLI's `--argument`.
+- Esc at a command's root view, a no-view command finishing and the crash
+  error screen all return to the picker, selection kept; Ctrl-C quits from
+  anywhere; a launch failure (bundling) stays on the picker with an error
+  line. The process exits 1 only if the last launched command crashed and
+  the user then quits.
 
 ## Rendering
 
@@ -52,7 +77,7 @@ combinations are skipped; the client keys above take priority.
 - `no-view` commands render only their feedback (alert, toast, HUD). When the
   runtime exits 0 on its own, the client quits after the HUD window has shown
   (2.5 s; a `hudDurationMs` prop shortens it in tests). A failed runtime shows
-  the error and waits for Esc; `bun run tui` then exits 1.
+  the error and waits for Esc; direct mode then exits 1.
 - `List`/`Grid` pagination: when the selection reaches the last loaded item
   (or the last Grid row) and `pagination.hasMore` is set, the client sends one
   `onLoadMore` per item-count change; `isLoading` shows the loading line.
