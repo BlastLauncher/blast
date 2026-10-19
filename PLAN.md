@@ -78,10 +78,11 @@ diagnostics instead of ESM link errors.
 - [x] 0046 AI.ask with extension models, refreshModels, decide
 - [x] 0047 Deprecated aliases — exports plus alias-aware coverage
 - [x] 0049 Explicit alias map for structural deprecated duplicates
-- [ ] 0048 Curated set v4 — extensions using shared dependencies
+- [x] 0048 Curated set v4 — extensions using shared dependencies
 
-Smoke 2026-10-18 (`compat/SMOKE.md`, 60 extensions): 144/149 commands render,
-1 completed, 4 expected capability denials, 0 unsupported-api. Coverage
+Smoke 2026-10-19 (`compat/SMOKE.md`, 80 extensions): 185/200 commands render,
+2 completed, 7 expected denials, 6 crashed (2 `undici`, 3 missing API keys,
+1 to investigate), 0 unsupported-api. Coverage
 2026-10-19: non-deprecated 1496/1534 covered, 38 partial (client-owned
 filtering, menu-bar/HUD effects), 0 missing. Shared deps satisfy 2009/3443
 corpus extensions. Each step is a task with `@covers` evidence.
