@@ -90,8 +90,8 @@ for (const fixture of ["hello-list", "list-extras"]) {
           const changed = waitScene(opened.session, (scene) =>
             JSON.stringify(scene).includes('"title":"beer"'),
           );
-          terminal.mockInput.pressKey("a", { ctrl: true });
-          terminal.mockInput.pressKey("k", { ctrl: true });
+          terminal.mockInput.pressKey("e", { ctrl: true });
+          for (let i = 0; i < "deleted wine".length; i++) terminal.mockInput.pressBackspace();
           await changed;
         });
         await terminal.waitForFrame((frame) => frame.includes("beer"));
@@ -188,6 +188,176 @@ test("search coalesces throttled events, selection notifies, and Ctrl-C quits", 
     ]);
     await act(async () => terminal.mockInput.pressCtrlC());
     expect(quit).toBe(true);
+  } finally {
+    await act(async () => terminal.dispose());
+  }
+});
+
+for (const fixture of ["actions-variants", "host-session", "feedback"]) {
+  test(`terminal overlays and navigation: ${fixture}`, async () => {
+    const dataDir = await mkdtemp(join(tmpdir(), "blast-tui-feedback-"));
+    const opened = await openCommand(
+      new URL(`../../../fixtures/extensions/${fixture}`, import.meta.url).pathname,
+      fixture === "host-session" ? "navigation" : "index",
+      { dataDir },
+    );
+    await waitScene(opened.session, () => true);
+    const terminal = await testRender(<App session={opened.session} onQuit={() => {}} />, {
+      width: 100,
+      height: 30,
+      exitOnCtrlC: false,
+    });
+    const key = async (name: string, ctrl = false) => {
+      await act(async () => {
+        if (name === "return") terminal.mockInput.pressEnter();
+        else if (name === "escape") terminal.mockInput.pressEscape();
+        else terminal.mockInput.pressKey(name, { ctrl });
+      });
+    };
+    try {
+      if (fixture === "feedback") {
+        await terminal.waitForFrame(
+          (frame) => frame.includes("Continue?") && frame.includes("Enter OK"),
+        );
+        await act(async () => {
+          const changed = waitScene(opened.session, (scene) =>
+            JSON.stringify(scene).includes("Finished"),
+          );
+          terminal.mockInput.pressEnter();
+          await changed;
+        });
+        await terminal.waitForFrame(
+          (frame) => frame.includes("Confirmed") && frame.includes("Finished"),
+        );
+      } else {
+        await terminal.waitForFrame((frame) =>
+          frame.includes(fixture === "host-session" ? "Navigation" : "Everything"),
+        );
+        await key("k", true);
+        await terminal.waitForFrame((frame) => frame.includes("Filter actions"));
+        if (fixture === "actions-variants") {
+          await key("return");
+          await terminal.waitForFrame((frame) => frame.includes("Colors") && frame.includes("Red"));
+          await key("escape");
+          await terminal.waitForFrame((frame) => frame.includes("Open Target"));
+          await key("return");
+          await act(async () => terminal.mockInput.typeText("red"));
+          await terminal.waitForFrame((frame) => frame.includes("Red") && !frame.includes("Plain"));
+          await act(async () => {
+            const changed = waitScene(opened.session, (scene) =>
+              JSON.stringify(scene).includes("picked Red"),
+            );
+            terminal.mockInput.pressEnter();
+            await changed;
+          });
+          await terminal.waitForFrame((frame) => frame.includes("picked Red"));
+        } else {
+          await act(async () => terminal.mockInput.typeText("details"));
+          await act(async () => {
+            const changed = waitScene(opened.session, (scene) =>
+              JSON.stringify(scene).includes("pushed detail"),
+            );
+            terminal.mockInput.pressEnter();
+            await changed;
+          });
+          await terminal.waitForFrame(
+            (frame) => frame.includes("pushed detail") && !frame.includes("Navigation"),
+          );
+          await act(async () => {
+            const changed = waitScene(opened.session, (scene) =>
+              JSON.stringify(scene).includes("popped true"),
+            );
+            terminal.mockInput.pressEscape();
+            await changed;
+          });
+          await terminal.waitForFrame((frame) => frame.includes("popped true"));
+        }
+      }
+    } finally {
+      await act(async () => terminal.dispose());
+      await opened.close();
+      await rm(dataDir, { recursive: true, force: true });
+    }
+  });
+}
+
+test("Detail metadata and toast actions render from scene props", async () => {
+  const events: string[] = [];
+  const scene: SceneMessage = {
+    type: "scene",
+    revision: 1,
+    root: {
+      id: "nav",
+      type: "Navigation",
+      props: {},
+      children: [
+        {
+          id: "entry",
+          type: "Navigation.Entry",
+          props: { active: true },
+          children: [
+            {
+              id: "detail",
+              type: "Detail",
+              props: { markdown: "# Notes\nHello" },
+              children: [
+                {
+                  id: "metadata",
+                  type: "Detail.Metadata",
+                  props: {},
+                  children: [
+                    {
+                      id: "author",
+                      type: "Detail.Metadata.Label",
+                      props: { title: "Author", text: "Ada" },
+                      children: [],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          id: "toast",
+          type: "Toast",
+          props: { title: "Saved", message: "Ready", style: "success" },
+          children: [
+            {
+              id: "undo",
+              type: "Toast.Action",
+              props: { name: "primaryAction", title: "Undo", onAction: { $handler: "undo" } },
+              children: [],
+            },
+          ],
+        },
+      ],
+    },
+  };
+  const session = {
+    latestScene: scene,
+    scenes: () => () => {},
+    sendEvent: (_node, name) => {
+      events.push(name);
+    },
+    logs: [],
+    exited: Promise.resolve({ code: 0, signal: null }),
+    sendProvider: () => {},
+    shutdown: async () => ({ code: 0, signal: null }),
+  } satisfies Session;
+  const terminal = await testRender(<App session={session} onQuit={() => {}} />, {
+    width: 80,
+    height: 15,
+  });
+  try {
+    await terminal.waitForFrame(
+      (frame) =>
+        frame.includes("Hello") &&
+        frame.includes("Author: Ada") &&
+        frame.includes("success · Saved · Ready"),
+    );
+    await act(async () => terminal.mockInput.pressKey("t", { ctrl: true }));
+    expect(events).toEqual(["undo"]);
   } finally {
     await act(async () => terminal.dispose());
   }

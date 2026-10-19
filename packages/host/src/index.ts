@@ -6,3 +6,4 @@ export * from "./storage.ts";
 export * from "./oauth.ts";
 export * from "./provider.ts";
 export * from "./dependencies.ts";
+export * from "./client.ts";

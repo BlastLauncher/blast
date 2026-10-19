@@ -1,10 +1,7 @@
 import {
   bundleCommand,
   startCommand,
-  createBroker,
-  createHeadlessHandlers,
-  createStorageHandlers,
-  createOAuthHandlers,
+  createSessionBroker,
   type CapabilityHandler,
 } from "@blastlauncher/host";
 import { dirname } from "node:path";
@@ -18,6 +15,7 @@ export async function openCommand(
     handlers?: Record<string, CapabilityHandler>;
   } = {},
 ) {
+  const effects = createClientHandlers();
   const bundled = await bundleCommand({ extensionDir, command });
   const cleanup = () => rm(dirname(bundled.entry), { recursive: true, force: true });
   try {
@@ -28,16 +26,14 @@ export async function openCommand(
     const session = await startCommand({
       ...bundled,
       ...(options.dataDir === undefined ? {} : { dataDir: options.dataDir }),
-      broker: createBroker({
-        ...createHeadlessHandlers(),
-        ...options.handlers,
-        ...createStorageHandlers(storage),
-        ...createOAuthHandlers(storage),
+      broker: createSessionBroker(storage, {
+        handlers: { ...effects.handlers, ...options.handlers },
       }),
     });
     let closing: Promise<void> | undefined;
     return {
       session,
+      effects,
       close: () =>
         (closing ??= (async () => {
           try {
@@ -51,4 +47,45 @@ export async function openCommand(
     await cleanup();
     throw error;
   }
+}
+
+/** Clipboard and URL effects are local to this terminal session. */
+export function createClientHandlers() {
+  let clipboard: Record<string, import("@blastlauncher/protocol").JsonValue> = { text: "" };
+  const urls: string[] = [];
+  const copy: CapabilityHandler = (params) => {
+    if (!params || typeof params !== "object" || Array.isArray(params))
+      throw new Error("Invalid clipboard content");
+    clipboard = { text: typeof params.text === "string" ? params.text : "" };
+    for (const name of ["file", "html"])
+      if (typeof params[name] === "string") clipboard[name] = params[name];
+  };
+  const handlers: Record<string, CapabilityHandler> = {
+    "clipboard.copy": copy,
+    "clipboard.paste": copy,
+    "clipboard.clear": () => {
+      clipboard = { text: "" };
+    },
+    "clipboard.read": (params) => {
+      const offset =
+        params && typeof params === "object" && !Array.isArray(params) ? params.offset : undefined;
+      if (
+        offset !== undefined &&
+        (typeof offset !== "number" || !Number.isInteger(offset) || offset < 0 || offset > 5)
+      )
+        throw new Error("Invalid clipboard offset");
+      return offset ? { text: "" } : { ...clipboard };
+    },
+    "open.url": (params) => {
+      if (
+        !params ||
+        typeof params !== "object" ||
+        Array.isArray(params) ||
+        typeof params.url !== "string"
+      )
+        throw new Error("Invalid URL");
+      urls.push(params.url);
+    },
+  };
+  return { handlers, urls };
 }

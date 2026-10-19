@@ -43,3 +43,10 @@ and then caller-supplied preferences taking precedence.
 `open(target, application?)` requests `open.url` for URLs (a `file:` URL counts
 as a file) and `open.path` for files, so a client can grant opening links
 without granting file opens.
+
+The terminal client uses the same session broker defaults as `blast run`, with
+client handlers for `clipboard.copy|paste|read|clear` and `open.url`. Clipboard
+content (text, HTML, file path) stays in memory for one session; paste records
+content there, and nonzero history offsets return empty text. Nothing reaches
+the system clipboard or another application. URL opens append to the session's
+`effects.urls` record without launching a browser. Other effects remain denied.
