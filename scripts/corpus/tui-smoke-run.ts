@@ -12,8 +12,6 @@ import { readFile, rm, writeFile } from "node:fs/promises";
 import { homedir, tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { format } from "oxfmt";
-import { act, createElement } from "react";
-import { testRender } from "@opentui/react/test-utils";
 import type { SceneMessage } from "../../packages/protocol/src/index.ts";
 import {
   bundleCommand,
@@ -25,6 +23,7 @@ import {
   type Session,
 } from "../../packages/host/src/index.ts";
 import { App } from "../../packages/tui/src/app.tsx";
+import { act, createElement, testRender } from "../../packages/tui/src/testing.ts";
 import { fetchBatch } from "./batch.ts";
 import { batchSize, CORPUS_DIR, maxMbFromEnv, megabytes, readPin } from "./corpus.ts";
 import {
@@ -171,7 +170,12 @@ async function runOne(
   if (names.length) return build({ kind: "missing-arguments", names });
   let bundled: BundledCommand;
   try {
-    bundled = await bundleCommand({ extensionDir, command: commandName });
+    // Allowlist-only, like corpus:smoke, so reports stay comparable (decision 0008).
+    bundled = await bundleCommand({
+      extensionDir,
+      command: commandName,
+      installedDependencies: false,
+    });
   } catch (error) {
     if (error instanceof MissingDependencyError) {
       return build({ kind: "bundle-failed", missing: error.packages });
