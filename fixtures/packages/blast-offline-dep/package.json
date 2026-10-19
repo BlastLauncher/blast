@@ -1,8 +1,7 @@
 {
   "name": "blast-offline-dep",
   "version": "1.0.0",
-  "type": "module",
-  "exports": "./index.js",
+  "main": "./index.js",
   "scripts": {
     "install": "node -e \"process.exit(99)\""
   }

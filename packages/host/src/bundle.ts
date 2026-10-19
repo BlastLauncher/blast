@@ -126,9 +126,11 @@ function dependencyPolicy(
  * Raycast bundles extensions as CommonJS, so extensions freely use
  * `__filename`, `__dirname` and `require`. Blast emits ESM, so the bundle
  * banner defines the globals instead: paths derive from `import.meta.url` and
- * `require` is `createRequire` restricted to Node built-ins, matching the
- * dependency policy in docs/decisions/0002 — anything else is a missing
- * dependency, not a silent module resolution from the host filesystem.
+ * `require` is `createRequire` restricted to Node built-ins and the
+ * runtime-supplied externals (`@raycast/api`, `react`, `react/*`), which the
+ * runtime's resolve hook maps for require() too: CommonJS packages such as
+ * `@raycast/utils` 1.x require React. Anything else is a missing dependency
+ * (docs/decisions/0002), not a silent resolution from the host filesystem.
  */
 const CJS_GLOBALS_BANNER = `
 import { createRequire as __blastCreateRequire, isBuiltin as __blastIsBuiltin } from "node:module";
@@ -138,7 +140,7 @@ const __filename = __blastFileURLToPath(import.meta.url);
 const __dirname = __blastDirname(__blastFileURLToPath(import.meta.url));
 const __blastNodeRequire = __blastCreateRequire(import.meta.url);
 function require(specifier) {
-  if (!__blastIsBuiltin(specifier)) {
+  if (!__blastIsBuiltin(specifier) && specifier !== "@raycast/api" && !/^react(?:\\/|$)/.test(specifier)) {
     const error = new Error(
       'Cannot require "' + specifier + '": Blast only provides Node built-ins to require() (MISSING_DEPENDENCY)',
     );
