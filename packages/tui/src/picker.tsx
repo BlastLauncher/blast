@@ -324,7 +324,12 @@ export function CommandSession({
   hudDurationMs?: number;
   onExit?: (crashed: boolean) => void;
 }) {
-  const [active, setActive] = useState<{ command: string; opened: OpenedCommand }>();
+  const [active, setActive] = useState<{
+    command: string;
+    opened: OpenedCommand;
+    /** Set before we close the session, so our own shutdown is not a crash. */
+    closing: { value: boolean };
+  }>();
   const [launching, setLaunching] = useState<string>();
   const [launchError, setLaunchError] = useState<string>();
   const [lastCommand, setLastCommand] = useState<string>();
@@ -355,11 +360,12 @@ export function CommandSession({
           return;
         }
         crashed.current = false;
+        const closing = { value: false };
         void opened.session.exited.then((exit) => {
-          if (exit.error || exit.code !== 0) crashed.current = true;
+          if (!closing.value && (exit.error || exit.code !== 0)) crashed.current = true;
         });
         setLaunching(undefined);
-        setActive({ command: command.name, opened });
+        setActive({ command: command.name, opened, closing });
       } catch (error) {
         setLaunching(undefined);
         setLaunchError(error instanceof Error ? error.message : String(error));
@@ -371,6 +377,7 @@ export function CommandSession({
     if (!current) return;
     setLastCommand(current.command);
     setActive(undefined);
+    current.closing.value = true;
     void current.opened.close();
   }
   function quit() {
@@ -379,9 +386,12 @@ export function CommandSession({
     void (async () => {
       const current = latest.current.active;
       setActive(undefined);
-      // close() awaits the runtime's shutdown, by which time a crashed
-      // child's `exited` promise (tracked above) has recorded the crash.
-      if (current) await current.opened.close();
+      // A crash was recorded when the child exited; a runtime that ignores
+      // our shutdown and gets killed is not reported as a crash.
+      if (current) {
+        current.closing.value = true;
+        await current.opened.close();
+      }
       onExit?.(crashed.current);
     })();
   }

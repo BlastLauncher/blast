@@ -83,7 +83,7 @@ navigation, feedback UI, menu-bar menus.
 - [x] 0056 TUI menu-bar commands, no-view commands, pagination
 - [ ] 0057 TUI corpus smoke run over the curated commands
 - [x] 0058 Install an extension's own dependencies (`docs/decisions/0008`)
-- [ ] 0059 TUI command picker with live manifest and launch arguments
+- [x] 0059 TUI command picker with live manifest and launch arguments
 - [ ] 0060 TUI builds dependencies before launch; required preferences prompt
 
 ### M5 — Native desktop client (MyGo)

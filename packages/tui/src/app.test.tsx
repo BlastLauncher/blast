@@ -291,17 +291,12 @@ test("no-view feedback command shows its HUD and the TUI exits 0", async () => {
   );
   await waitScene(opened.session, (scene) => JSON.stringify(scene).includes("Continue?"));
   let closed: Promise<void> | undefined;
-  let quit!: () => void;
-  const quitting = new Promise<void>((resolve) => {
-    quit = resolve;
-  });
   const terminal = await testRender(
     <App
       session={opened.session}
       hudDurationMs={100}
       onQuit={() => {
         closed = opened.close();
-        quit();
       }}
     />,
     { width: 90, height: 15, exitOnCtrlC: false },
@@ -319,9 +314,12 @@ test("no-view feedback command shows its HUD and the TUI exits 0", async () => {
       (frame) => frame.includes("Confirmed") && frame.includes("Finished"),
     );
     // The runtime exits 0 on its own; the TUI quits once the HUD has shown.
-    await act(async () => {
-      await quitting;
-    });
+    // Wait in short act() ticks: one act() awaiting the quit would hold back
+    // the passive effect that arms the quit timer, and never finish.
+    for (let tick = 0; tick < 150; tick++) {
+      if (closed) break;
+      await act(() => new Promise((resolve) => setTimeout(resolve, 20)));
+    }
     expect(closed).toBeDefined();
     await closed;
     expect((await opened.session.exited).code).toBe(0);
