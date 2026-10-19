@@ -51,7 +51,7 @@ they fare, so real breakage from shared majors or missing APIs shows up.
 ## Handoff
 
 ```
-Branch/commit: t3/fca1ba7b @ (see commit that adds this Handoff)
+Branch/commit: t3/curated-set-v4 @ 785468c
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 73.8s
 Done:
 - Added the "shared-deps" `FeatureStratum` (quota 20) to `scripts/corpus/selection.ts`:
