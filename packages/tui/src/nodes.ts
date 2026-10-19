@@ -16,9 +16,30 @@ export function slot(node: SceneNode, name: string): SceneNode | undefined {
 export function selectionId(node: SceneNode | undefined): string | null {
   return node ? text(node.props.id ?? node.id) : null;
 }
-export function event(node: SceneNode | undefined, name: string, args: JsonValue[] = []) {
-  const ref = node?.props[name];
+export type OutboundEvent = { node: string; handler: string; args: JsonValue[] };
+/** An event for `ref`, a handler reference sitting anywhere in the scene. */
+export function handlerEvent(
+  node: SceneNode | undefined,
+  ref: unknown,
+  args: JsonValue[] = [],
+): OutboundEvent | undefined {
   return node && handler(ref) ? { node: node.id, handler: ref.$handler, args } : undefined;
+}
+export function event(
+  node: SceneNode | undefined,
+  name: string,
+  args: JsonValue[] = [],
+): OutboundEvent | undefined {
+  return handlerEvent(node, node?.props[name], args);
+}
+/** `List`/`Grid` pagination props, when the view declares them. */
+export function paginationOf(
+  node: SceneNode | undefined,
+): { pageSize: number; hasMore: boolean; onLoadMore: unknown } | undefined {
+  const value = node?.props.pagination;
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  if (!("pageSize" in value) || !("hasMore" in value) || !("onLoadMore" in value)) return undefined;
+  return value as { pageSize: number; hasMore: boolean; onLoadMore: unknown };
 }
 /** Client-side filtering is on unless the view opts out or owns it. */
 export function isFiltering(node: SceneNode | undefined): boolean {
