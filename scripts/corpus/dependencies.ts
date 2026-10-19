@@ -19,7 +19,7 @@ const TYPES_PACKAGE = /^@types\//;
 
 /**
  * Whether providing this package could matter to a bundled command. The
- * provided packages are excluded because Blast already ships them, Node
+ * baseline packages are excluded to keep the ranking stable, Node
  * built-ins because they are not installed at all.
  */
 export function trackedPackage(name: string): boolean {
@@ -75,7 +75,7 @@ export type DependencyEntry = {
 export type Dependencies = {
   corpusCommit: string;
   extensions: number;
-  /** Extensions that need no package beyond the provided set. */
+  /** Extensions that need no package beyond the baseline API/utils/React set. */
   providedOnly: number;
   /** Exact satisfaction for the host allowlist, including baseline packages. */
   shared: { provided: string[]; satisfied: number };
@@ -148,10 +148,10 @@ export function aggregateDependencies(
       provided: [...new Set(provided)].toSorted(),
       satisfied: needs.filter((need) => [...need].every((name) => provided.includes(name))).length,
     },
-    curve: steps.map((provided) => {
-      const available = new Set(byImports.slice(0, provided));
+    curve: steps.map((count) => {
+      const available = new Set(byImports.slice(0, count));
       return {
-        provided,
+        provided: count,
         satisfied: needs.filter((need) => [...need].every((name) => available.has(name))).length,
       };
     }),
@@ -173,7 +173,7 @@ export function renderDependenciesMd(dependencies: Dependencies): string {
   return `${[
     "# Corpus dependencies",
     "",
-    "What the pinned corpus needs beyond the packages Blast already provides",
+    "What the pinned corpus needs beyond the baseline packages Blast provides",
     `(\`${BASE_PACKAGES.join("`, `")}\`) and Node built-ins. An extension is`,
     "*satisfied* when every package it declares in `dependencies` and every",
     "package its non-test sources import is provided. `devDependencies`, test",
@@ -188,9 +188,9 @@ export function renderDependenciesMd(dependencies: Dependencies): string {
     "",
     "## Summary",
     "",
-    `- ${providedOnly} of ${extensions} extensions need nothing beyond the provided set.`,
+    `- ${providedOnly} of ${extensions} extensions need nothing beyond the baseline set.`,
     `- ${shared.satisfied} of ${extensions} extensions are satisfied by the current shared allowlist`,
-    `  (\`${shared.provided.join("\`, \`")}\`).`,
+    `  (\`${shared.provided.join("`, `")}\`).`,
     `- ${packages.length} packages are declared or imported by at least one extension.`,
     "",
     "## Cumulative curve",

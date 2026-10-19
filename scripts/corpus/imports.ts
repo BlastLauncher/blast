@@ -63,7 +63,8 @@ export function importedPackages(sources: Iterable<Source>): string[] {
       const specifier = match[1]!;
       if (specifier.startsWith(".") || specifier.startsWith("/")) continue;
       if (specifier.includes(":")) continue;
-      if (BASE_PACKAGES.some((name) => specifier === name || specifier.startsWith(`${name}/`))) continue;
+      if (BASE_PACKAGES.some((name) => specifier === name || specifier.startsWith(`${name}/`)))
+        continue;
       if (isBuiltin(specifier)) continue;
       const name = packageName(specifier);
       if (NPM_PACKAGE.test(name)) found.add(name);

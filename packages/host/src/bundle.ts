@@ -44,16 +44,17 @@ function dependencyPolicy(missing: Set<string>): Plugin {
           return { path: specifier, external: true };
         if (isBuiltin(specifier)) return { path: specifier, external: true };
         const provided = isProvidedSpecifier(specifier);
+        const inProvidedGraph = providedFiles.has(args.importer);
         // Only Blast's supplied dependency graph gets normal package resolution.
-        if (provided || providedFiles.has(args.importer)) {
+        if (provided || inProvidedGraph) {
           const result = await builder.resolve(specifier, {
-            resolveDir: provided ? dirname(fileURLToPath(import.meta.url)) : args.resolveDir,
+            resolveDir: inProvidedGraph ? args.resolveDir : dirname(fileURLToPath(import.meta.url)),
             kind: args.kind,
             pluginData: "blast-resolving",
           });
           // Let esbuild handle unresolved optional requires inside try/catch.
           // Returning plugin errors here would make those optional imports fatal.
-          if (result.errors.length && !provided) return;
+          if (result.errors.length && inProvidedGraph) return;
           if (result.path && !result.external) providedFiles.add(result.path);
           return result;
         }

@@ -1,6 +1,6 @@
 # Corpus dependencies
 
-What the pinned corpus needs beyond the packages Blast already provides
+What the pinned corpus needs beyond the baseline packages Blast provides
 (`@raycast/api`, `@raycast/utils`, `react`) and Node built-ins. An extension is
 *satisfied* when every package it declares in `dependencies` and every
 package its non-test sources import is provided. `devDependencies`, test
@@ -15,7 +15,9 @@ Source: [dependencies.json](dependencies.json), from the same scan as
 
 ## Summary
 
-- 1573 of 3443 extensions need nothing beyond the provided set.
+- 1573 of 3443 extensions need nothing beyond the baseline set.
+- 2009 of 3443 extensions are satisfied by the current shared allowlist
+  (`@raycast/api`, `@raycast/utils`, `axios`, `cheerio`, `cross-fetch`, `date-fns`, `dayjs`, `fuse.js`, `lodash`, `moment`, `nanoid`, `node-fetch`, `node-html-markdown`, `react`, `uuid`, `zod`).
 - 1427 packages are declared or imported by at least one extension.
 
 ## Cumulative curve

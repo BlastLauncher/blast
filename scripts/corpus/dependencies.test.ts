@@ -9,6 +9,7 @@ import {
   trackedPackage,
   type ExtensionDependencies,
 } from "./dependencies.ts";
+import { PROVIDED_PACKAGES } from "../../packages/host/src/dependencies.ts";
 import { packageName } from "./imports.ts";
 import type { Manifest } from "./selection.ts";
 
@@ -27,7 +28,7 @@ test("a declared range maps to its major bucket", () => {
 test("only packages Blast could pin are tracked", () => {
   for (const name of ["@raycast/api", "@raycast/utils", "react", "node:fs", "@types/node"])
     expect(trackedPackage(name)).toBe(false);
-  for (const name of ["unprovided-http", "react-dom", "@scope/pkg", "unprovided-pkg"])
+  for (const name of ["axios", "react-dom", "@scope/pkg", "lodash"])
     expect(trackedPackage(name)).toBe(true);
 });
 
@@ -37,24 +38,22 @@ test("declared dependencies are the runtime ones, beyond the provided packages a
       "@raycast/api": "^1.0.0",
       "@raycast/utils": "2.3.2",
       react: "^18",
-      "unprovided-schema": "^3.22.4",
-      "unprovided-fetch": "^2",
+      zod: "^3.22.4",
+      "node-fetch": "^2",
       "@types/node": "20.x",
     },
     devDependencies: { vitest: "^1" },
   } as Manifest;
-  const deps = extensionDependencies(manifest, [
-    source('import { schema } from "unprovided-schema";'),
-  ]);
-  expect(deps.declared).toEqual({ "unprovided-fetch": "2", "unprovided-schema": "3" });
-  expect(deps.imported).toEqual(["unprovided-schema"]);
+  const deps = extensionDependencies(manifest, [source('import { zod } from "zod";')]);
+  expect(deps.declared).toEqual({ "node-fetch": "2", zod: "3" });
+  expect(deps.imported).toEqual(["zod"]);
   expect(extensionDependencies(undefined, []).declared).toEqual({});
 });
 
 test("imported packages are the npm modules non-test sources import, subpaths folded in", () => {
   const deps = extensionDependencies({}, [
-    source('import provided from "unprovided-pkg";'),
-    source('import merge from "unprovided-pkg/merge.js";'),
+    source('import lodash from "lodash";'),
+    source('import merge from "lodash/merge.js";'),
     source('const client = await import("graphql-request");'),
     source('const deep = require("@scope/pkg/sub");'),
     source('import { test } from "vitest";', "src/thing.test.ts"),
@@ -64,8 +63,8 @@ test("imported packages are the npm modules non-test sources import, subpaths fo
     source('import { connect } from "swift:../../swift";'),
     source('import { helper } from "./helper";'),
   ]);
-  expect(deps.imported).toEqual(["@scope/pkg", "graphql-request", "unprovided-pkg"]);
-  expect(packageName("unprovided-pkg/merge.js")).toBe("unprovided-pkg");
+  expect(deps.imported).toEqual(["@scope/pkg", "graphql-request", "lodash"]);
+  expect(packageName("lodash/merge.js")).toBe("lodash");
 });
 
 /** Two extensions that need nothing, one per package, and one needing two. */
@@ -121,7 +120,7 @@ test("the markdown renders the summary, the cumulative curve and at most sixty r
   });
   const markdown = renderDependenciesMd(aggregateDependencies("pin", many, [10, 20]));
   expect(markdown).toStartWith("# Corpus dependencies");
-  expect(markdown).toContain("- 0 of 70 extensions need nothing beyond the provided set.");
+  expect(markdown).toContain("- 0 of 70 extensions need nothing beyond the baseline set.");
   expect(markdown).toContain("- 70 packages are declared or imported by at least one extension.");
   expect(markdown).toContain("| 0 | 0 |");
   expect(markdown).toContain("| 10 | 10 |");
@@ -143,4 +142,24 @@ test("the top major is the most declared one, not the numerically smallest", () 
   ];
   const markdown = renderDependenciesMd(aggregateDependencies("pin", fixtures, []));
   expect(markdown).toContain("| `a` | 3 | 3 | 3 (67%) |");
+});
+
+test("shared satisfaction requires every declared and imported package, independent of ranking", () => {
+  const extensions: ExtensionDependencies[] = [
+    { declared: {}, imported: [] },
+    { declared: { "date-fns": "4" }, imported: ["date-fns", "date-fns"] },
+    { declared: { lodash: "3" }, imported: [] },
+    { declared: { "rss-parser": "3" }, imported: ["date-fns"] },
+    { declared: { lodash: "4" }, imported: ["unprovided-pkg"] },
+  ];
+  const report = aggregateDependencies("pin", extensions);
+  expect(report.shared).toEqual({ provided: [...PROVIDED_PACKAGES].toSorted(), satisfied: 3 });
+  expect(renderDependenciesMd(report)).toContain(
+    "- 3 of 5 extensions are satisfied by the current shared allowlist",
+  );
+  const limited = aggregateDependencies("pin", extensions, undefined, ["date-fns", "date-fns"]);
+  expect(limited.shared).toEqual({ provided: ["date-fns"], satisfied: 2 });
+  expect(limited.packages).toEqual(report.packages);
+  expect(limited.curve).toEqual(report.curve);
+  expect(limited.providedOnly).toBe(report.providedOnly);
 });

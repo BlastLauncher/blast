@@ -8,57 +8,50 @@ Until v1, extensions run without installing their dependencies. The host's
 esbuild plugin resolves imports in this order:
 
 1. `@raycast/api`, `react`, and `react/*` stay external; the runtime supplies them.
-2. Packages in `packages/host/src/dependencies.ts` resolve from the host's exact
-   pins, including subpaths. Their transitive graphs are bundled; the API/React
-   external rules apply throughout. Corpus selection uses the same list.
-3. Node built-ins stay external.
-4. Other bare imports fail, even if installed locally. Relative source imports work.
+2. `PROVIDED_PACKAGES` in `packages/host/src/dependencies.ts` resolves from the
+   host's exact pins, including subpaths; corpus selection uses the same list.
+   Transitive graphs are bundled privately, with the same API/React externals.
+3. Node built-ins stay external. Other bare imports fail even if locally installed.
 
-The allowlist is a strict prefix of corpus `imported` rank
-(`compat/dependencies.json`), gated by: no native addons, install hooks or
-browser/CLI binary; not macOS-only automation; and the running `du`-measured
-`node_modules` total at or under 75 MB (interim, raised from 60 MB to admit
-`date-fns`). Once a pick would cross the budget, every lower-ranked package is
-excluded too, even a smaller one that would fit alone — never drop a
-higher-ranked pick to seat a lower-ranked one.
+Pick greedily by `compat/dependencies.json` imported rank (ties by name), using
+latest exact versions in each most-declared major. Hard filters: non-portable
+macOS automation, native addons, dependency install hooks, browser/CLI binaries,
+or a single installed graph over 15 MB of logical bytes (`du -sb`, including
+transitives). Total added allocated disk space (`du -sk`) must stay ≤ 75 MiB.
+Keep higher-ranked eligible picks before lower ones; on overflow remove the
+lowest-ranked pick. Do not fill leftover space with packages below that cutoff.
 
-13 result, each pinned at its most-declared major (names, versions and sizes
-in `packages/host/src/dependencies.ts` and `compat/DEPENDENCIES.md`).
-`run-applescript` (rank 4) is
-excluded outright as non-portable automation. `date-fns` (rank 3) keeps past
-the 15 MB single-package guard by explicit decision: its real installed graph
-is 28 MB (`du`), not the 10.9 MB registry `dist.unpackedSize` — unpacking
-every function and locale as its own file costs over a third of the whole
-budget, but the third most-imported package outweighs that. Everything else
-ranked below the 13th pick fails no filter; it is excluded solely because the
-next one already crosses the 75 MB cap.
+Ranks 1–14 yield 13 additions through `node-html-markdown`; `run-applescript`
+(rank 4) is excluded as macOS automation. `date-fns@4.4.0` is 10,902,084 bytes
+unpacked, 11,893,316 logical installed graph bytes, but 28,076 KiB allocated due
+to its many small files. It meets the logical graph guard; its allocated cost
+counts fully toward the total. `zod` (6.1 MB unpacked) also earns its size by
+rank (64 importing extensions); both graphs have no native addons/install hooks.
 
-Extensions receive the shared major even when they declare another one; the CLI
-prints a `# log` warning (JSON mode: a warning log record) naming the package,
-declared range and provided version when the range excludes that major entirely
-— tags, URLs and other non-semver declarations are skipped. Failures expose
-`MissingDependencyError`, `code: MISSING_DEPENDENCY`, and sorted, deduplicated
-package names without subpaths; the CLI exits 3. Invalid files or source keep
-esbuild diagnostics, and optional imports in a provided graph retain esbuild's
-normal try/catch handling.
+Adding rank 15 `rss-parser` exceeds the budget (77.01 MiB added). Lower-ranked
+`execa`, `got`, `turndown`, `fs-extra`, `openai`, `plist`, `swr`,
+`raycast-cross-extension`, `fast-xml-parser`, `form-data`, `yaml`, `algoliasearch`,
+`ai`, `chrono-node`, `javascript-time-ago`, and all later ranks are excluded by
+that cutoff, even when individually small enough. Rechecked installed logical
+graphs: `turndown` 8.07 MB, `openai` 11.86 MB, `chrono-node` 3.89 MB; none has
+native addons/install hooks. `javascript-time-ago` also exceeds 15 MB (15.74 MB).
+Exact pins, sizes and before/after allocated totals are in task 0037's Handoff.
 
-Raycast's CommonJS globals are supplied by an ESM banner: `__filename` and
-`__dirname` derive from the bundled `import.meta.url`. Statically analyzable
-`require` calls follow the same policy as imports; dynamic `require` permits
-only Node built-ins and otherwise throws `MISSING_DEPENDENCY`.
+Extensions receive the shared major even when they declare another one. The CLI
+prints a `# log` warning (JSON: warning record) naming package, declared range
+and provided version when the range excludes that major entirely; non-semver
+ranges are skipped. Missing dependencies expose `MissingDependencyError`, code
+`MISSING_DEPENDENCY`, and sorted unique package names; the CLI exits 3. Optional
+imports in provided graphs retain esbuild's normal try/catch handling.
 
-## Why
-
-A shared pinned allowlist avoids thousands of installs while compatibility is
-built. Bundling transitive dependencies does not expose them to extension imports.
-Tree shaking unused utils imports avoids linking shim symbols the command never uses.
+CommonJS globals derive from the bundled `import.meta.url`. Static `require`
+follows import policy; dynamic `require` allows only Node built-ins.
 
 ## Consequences
 
-- This is explicitly an interim strategy until the first release. Production
-  should use a thin layer referencing each extension repo's own pinned
-  dependencies with minimal disk use, rather than shipping every package.
-- No extension-local dependency lookup, source changes, or per-extension installs.
-- Bundle paths point into a temporary build directory; assets need provisioning.
+- Explicitly interim until the first release: production should use a thin layer
+  referencing each extension repo's own pinned dependencies with minimal disk.
+- No extension-local lookup, source changes, or per-extension installs.
+- Tree shaking utils avoids linking unused shim symbols. Assets need provisioning.
 - Bundling policy is not a security sandbox for arbitrary Node code.
-- Package availability does not imply every API or host operation it uses works.
+- Package satisfaction counts names, not major/API/host-capability compatibility.

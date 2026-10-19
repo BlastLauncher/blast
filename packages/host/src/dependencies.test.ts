@@ -43,7 +43,7 @@ async function execute(entry: string): Promise<string> {
 
 test("provided default and subpath imports execute under Node without extension installs", async () => {
   expect(await execute((await bundle("default")).entry)).toBe("sharedDependency\n");
-  expect(await execute((await bundle("subpath")).entry)).toBe("subpath works\n");
+  expect(await execute((await bundle("subpath")).entry)).toBe("2026-01-02\nsubpath works\n");
   expect((await bundle("default")).dependencyWarnings).toEqual([
     "Shared dependency lodash: declared ^3.0.0, provided 4.18.1 (major mismatch)",
   ]);
@@ -90,3 +90,33 @@ test("every pinned provided package bundles its graph without extension-local de
     await bundle("index", dir);
   }
 }, 30_000);
+
+test("provided graphs keep their own transitive versions without exposing them", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "blast-provided-private-"));
+  directories.push(dir);
+  await mkdir(join(dir, "src"));
+  await writeFile(
+    join(dir, "package.json"),
+    JSON.stringify({
+      name: "private-graph",
+      commands: [{ name: "index", mode: "no-view" }],
+    }),
+  );
+  await writeFile(
+    join(dir, "src/index.ts"),
+    `
+    import { Response as cross } from "cross-fetch";
+    import { Response as direct } from "node-fetch";
+    export default function () { console.log(cross === direct); }
+  `,
+  );
+  expect(await execute((await bundle("index", dir)).entry)).toBe("false\n");
+  await writeFile(
+    join(dir, "src/index.ts"),
+    'import FormData from "form-data"; console.log(FormData);',
+  );
+  await expect(bundle("index", dir)).rejects.toMatchObject({
+    code: "MISSING_DEPENDENCY",
+    packages: ["form-data"],
+  });
+});

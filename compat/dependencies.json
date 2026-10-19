@@ -2,6 +2,27 @@
   "corpusCommit": "3b812d1e153a1862df29bc8ec34e170c728512ea",
   "extensions": 3443,
   "providedOnly": 1573,
+  "shared": {
+    "provided": [
+      "@raycast/api",
+      "@raycast/utils",
+      "axios",
+      "cheerio",
+      "cross-fetch",
+      "date-fns",
+      "dayjs",
+      "fuse.js",
+      "lodash",
+      "moment",
+      "nanoid",
+      "node-fetch",
+      "node-html-markdown",
+      "react",
+      "uuid",
+      "zod"
+    ],
+    "satisfied": 2009
+  },
   "curve": [
     {
       "provided": 10,
