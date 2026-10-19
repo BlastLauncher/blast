@@ -151,7 +151,7 @@ IDs (default: provider name) key token sets in `<dataDir>/oauth/storage/<extensi
 writes are atomic, serialized within the host, and mode 0600. CLI capability output
 redacts token payloads. No browser or redirect server runs in the headless host.
 
-Dropdowns use `storage.get|set` with scope `blast:dropdown` and keys prefixed
+Dropdowns use `storage.get|set` with scope `blast:internal` and keys prefixed
 `blast:dropdown:` containing command name, component type and dropdown id
 (`default` when omitted). The host stores this scope under `<dataDir>/internal/`,
 separate from extension LocalStorage, so even identical keys cannot collide;
@@ -181,8 +181,14 @@ value; uncontrolled fields retain edits until unmount. Form actions use the
 `actions` Slot. Picker options are carried in the scene; no OS dialog opens.
 PasswordField keeps its value runtime-side: the scene carries a boolean
 `hasValue` (never the value or its length), while `onChange`, focus/blur
-events and submit deliver the raw value to the extension. `storeValue` and
-drafts are recorded only; field refs remain unsupported. List/Grid scenes
+events and submit deliver the raw value to the extension. Refs expose `focus()` (one `focused` scene field, ordered blur/focus events)
+and `reset()` (default or empty value, with onChange). `storeValue` saves edits in
+`blast:internal` under command/field keys; stored values override defaults,
+controlled values win, and late reads cannot overwrite edits. Root `enableDrafts`
+forms save command drafts, loaded into init before launch, restoring fields and
+`LaunchProps.draftValues` (tagged ISO dates become Dates). Successful SubmitForm
+clears drafts; failed submits retain them. Pushed/nested forms do not draft.
+Shutdown waits for form write acknowledgements. Passwords never persist. List/Grid scenes
 carry pagination `pageSize`/`hasMore`; Quick Look props carry file metadata.
 
 ## Debugging extensions
@@ -190,8 +196,3 @@ carry pagination `pageSize`/`hasMore`; Quick Look props carry file metadata.
 `bun run blast run <extensionDir> <command>` is the headless debug client;
 its flags, headless capability answers, script commands and exit codes are
 in `docs/cli.md`.
-
-## Status
-
-M1 complete: a bundled extension command runs headlessly end to end via
-`bun run blast run <dir> <command>`. Next milestones are in `PLAN.md`.

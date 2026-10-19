@@ -19,6 +19,7 @@ import { setCapabilityRequester } from "./api/capability.ts";
 import { setRuntimeLogSink } from "./api/diagnostics.ts";
 import { setEnvironment } from "./api/environment.ts";
 import { setFeedbackMount } from "./api/feedback.ts";
+import { decodeFormValues, flushFormPersistence, setFormDraftValues } from "./api/form.ts";
 import { LaunchType, type LaunchProps } from "./api/launch.ts";
 import { NavigationProvider } from "./api/navigation.ts";
 import { setPreferenceValues } from "./api/preferences.ts";
@@ -135,6 +136,9 @@ function launchProps(command: Extract<HostMessage, { type: "init" }>["command"])
   return {
     arguments: command.arguments ?? {},
     launchType: LaunchType.UserInitiated,
+    ...(command.draftValues === undefined
+      ? {}
+      : { draftValues: decodeFormValues(command.draftValues) }),
     ...(command.launchContext === undefined ? {} : { launchContext: command.launchContext }),
   };
 }
@@ -143,6 +147,7 @@ async function load(message: Extract<HostMessage, { type: "init" }>) {
   setEnvironment(message.environment, message.command);
   setPreferenceValues(message.preferences);
   const props = launchProps(message.command);
+  setFormDraftValues(props.draftValues);
   const command = await import(pathToFileURL(message.command.entry).href);
   if (stopping) return;
   if (message.command.mode === "model-provider") {
@@ -200,7 +205,7 @@ function shutdown() {
   if (stopping) return;
   try {
     root.unmount();
-    finish(0);
+    void flushFormPersistence().then(() => finish(0), fatal);
   } catch (error) {
     fatal(error);
   }

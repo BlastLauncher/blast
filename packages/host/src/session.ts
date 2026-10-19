@@ -78,7 +78,7 @@ export async function startCommand(options: StartOptions): Promise<Session> {
       ),
     );
   await mkdir(supportPath, { recursive: true });
-  // A stored Form draft is read synchronously here, like preferences, so the
+  // A stored Form draft is read before spawning, like preferences, so the
   // command's first render already has `LaunchProps.draftValues` — the
   // runtime never blocks its first scene on a capability round trip for it.
   let draftValues: Record<string, JsonValue> | undefined;

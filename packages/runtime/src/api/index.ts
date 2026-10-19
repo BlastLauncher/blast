@@ -115,6 +115,7 @@ export type { LocalStorageValue, LocalStorageValues } from "./storage.ts";
 export type { Application } from "./open.ts";
 
 export type {
+  FormItemRef,
   FormProps,
   FormItemProps,
   FormValue,

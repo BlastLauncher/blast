@@ -1010,4 +1010,52 @@ test("models and complete expose the offline provider entrypoint", async () => {
   expect((await runCli(["--help"])).stdout).toContain(
     "blast complete <extensionDir> <modelId> <prompt>",
   );
-});
+}, 15_000);
+
+// @covers LaunchProps.draftValues
+test("Form storeValue and drafts survive CLI launches, submit clears drafts and passwords stay private", async () => {
+  const dataDir = await mkdtemp(join(tmpdir(), "blast-form-persistence-"));
+  const args = [
+    "run",
+    join(root, "fixtures/extensions/form"),
+    "persist",
+    "--data-dir",
+    dataDir,
+    "--script",
+    "-",
+  ];
+  try {
+    const first = await runCli(
+      args,
+      "field stored remembered\nwait\nfield draft unfinished\nwait\nfield controlled typed\nwait\nfield date 2026-01-01T00:00:00.000Z\nwait\nfield password secret-value\nwait\nquit\n",
+    );
+    expect(first.code, first.stdout + first.stderr).toBe(0);
+    expect(first.stderr).toBe("");
+    expect(first.stdout).not.toContain("secret-value");
+    const file = join(dataDir, "internal", "storage", "form.json");
+    const saved = await readFile(file, "utf8");
+    expect(JSON.parse(JSON.parse(saved)["blast:draft:persist"])).toMatchObject({
+      draft: "unfinished",
+      controlled: "typed",
+      date: { $date: "2026-01-01T00:00:00.000Z" },
+    });
+    expect(saved).not.toContain("password");
+    expect(saved).not.toContain("secret-value");
+    expect(JSON.parse(saved)['blast:field:["persist","stored"]']).toBe('"remembered"');
+    const second = await runCli(
+      args,
+      'wait\nexpect launch:unfinished:true\nexpect value="remembered"\nexpect value="typed"\nsubmit\nwait\nexpect submitted\nquit\n',
+    );
+    expect(second.code, second.stdout + second.stderr).toBe(0);
+    expect(second.stderr).toBe("");
+    expect(JSON.parse(await readFile(file, "utf8"))).not.toHaveProperty("blast:draft:persist");
+    const third = await runCli(
+      args,
+      'wait\nwait\nexpect launch:none:false\nexpect value="remembered"\nquit\n',
+    );
+    expect(third.code, third.stdout + third.stderr).toBe(0);
+    expect(third.stderr).toBe("");
+  } finally {
+    await rm(dataDir, { recursive: true, force: true });
+  }
+}, 15_000);

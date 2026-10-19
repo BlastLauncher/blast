@@ -2,15 +2,15 @@
   "version": "2.8.2",
   "totals": {
     "all": {
-      "covered": 1632,
-      "partial": 68,
-      "missing": 773,
+      "covered": 1672,
+      "partial": 47,
+      "missing": 754,
       "total": 2473
     },
     "nonDeprecated": {
-      "covered": 1450,
-      "partial": 63,
-      "missing": 21,
+      "covered": 1490,
+      "partial": 42,
+      "missing": 2,
       "total": 1534
     },
     "deprecated": {
@@ -27,8 +27,8 @@
         "total": 9
       },
       "component": {
-        "covered": 56,
-        "partial": 19,
+        "covered": 64,
+        "partial": 11,
         "missing": 41,
         "total": 116
       },
@@ -69,15 +69,15 @@
         "total": 64
       },
       "type": {
-        "covered": 106,
+        "covered": 107,
         "partial": 8,
-        "missing": 64,
+        "missing": 63,
         "total": 178
       },
       "property": {
-        "covered": 663,
-        "partial": 36,
-        "missing": 605,
+        "covered": 694,
+        "partial": 23,
+        "missing": 587,
         "total": 1304
       },
       "method": {
@@ -6309,7 +6309,7 @@
     },
     {
       "path": "Form",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/form.test.ts"
       ],
@@ -6317,7 +6317,7 @@
     },
     {
       "path": "Form.Checkbox",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/form.test.ts"
       ],
@@ -6405,7 +6405,7 @@
     },
     {
       "path": "Form.Checkbox.Props.storeValue",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/form.test.ts"
       ],
@@ -6429,19 +6429,23 @@
     },
     {
       "path": "Form.Checkbox.focus",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Form.Checkbox.reset",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Form.DatePicker",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/form.test.ts"
       ],
@@ -6537,7 +6541,7 @@
     },
     {
       "path": "Form.DatePicker.Props.storeValue",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/form.test.ts"
       ],
@@ -6577,8 +6581,10 @@
     },
     {
       "path": "Form.DatePicker.focus",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -6591,8 +6597,10 @@
     },
     {
       "path": "Form.DatePicker.reset",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -6805,7 +6813,7 @@
     },
     {
       "path": "Form.Dropdown.Props.storeValue",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/form.test.ts"
       ],
@@ -6869,14 +6877,18 @@
     },
     {
       "path": "Form.Dropdown.focus",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Form.Dropdown.reset",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -6989,7 +7001,7 @@
     },
     {
       "path": "Form.FilePicker",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/form.test.ts"
       ],
@@ -7101,7 +7113,7 @@
     },
     {
       "path": "Form.FilePicker.Props.storeValue",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/form.test.ts"
       ],
@@ -7125,14 +7137,18 @@
     },
     {
       "path": "Form.FilePicker.focus",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Form.FilePicker.reset",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -7209,7 +7225,7 @@
     },
     {
       "path": "Form.ItemProps.storeValue",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/form.test.ts"
       ],
@@ -7233,20 +7249,26 @@
     },
     {
       "path": "Form.ItemReference",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 5
     },
     {
       "path": "Form.ItemReference.focus",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Form.ItemReference.reset",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -7283,7 +7305,7 @@
     },
     {
       "path": "Form.PasswordField",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/form.test.ts"
       ],
@@ -7307,7 +7329,7 @@
     },
     {
       "path": "Form.PasswordField.Props.defaultValue",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/form.test.ts"
       ],
@@ -7371,7 +7393,7 @@
     },
     {
       "path": "Form.PasswordField.Props.storeValue",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/form.test.ts"
       ],
@@ -7387,7 +7409,7 @@
     },
     {
       "path": "Form.PasswordField.Props.value",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/form.test.ts"
       ],
@@ -7395,14 +7417,18 @@
     },
     {
       "path": "Form.PasswordField.focus",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Form.PasswordField.reset",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -7431,7 +7457,7 @@
     },
     {
       "path": "Form.Props.enableDrafts",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/form.test.ts"
       ],
@@ -7479,7 +7505,7 @@
     },
     {
       "path": "Form.TagPicker",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/form.test.ts"
       ],
@@ -7615,7 +7641,7 @@
     },
     {
       "path": "Form.TagPicker.Props.storeValue",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/form.test.ts"
       ],
@@ -7639,14 +7665,18 @@
     },
     {
       "path": "Form.TagPicker.focus",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Form.TagPicker.reset",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -7681,7 +7711,7 @@
     },
     {
       "path": "Form.TextArea",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/form.test.ts"
       ],
@@ -7777,7 +7807,7 @@
     },
     {
       "path": "Form.TextArea.Props.storeValue",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/form.test.ts"
       ],
@@ -7801,19 +7831,23 @@
     },
     {
       "path": "Form.TextArea.focus",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Form.TextArea.reset",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Form.TextField",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/form.test.ts"
       ],
@@ -7901,7 +7935,7 @@
     },
     {
       "path": "Form.TextField.Props.storeValue",
-      "status": "partial",
+      "status": "covered",
       "tests": [
         "packages/runtime/src/api/form.test.ts"
       ],
@@ -7925,14 +7959,18 @@
     },
     {
       "path": "Form.TextField.focus",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Form.TextField.reset",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -13985,9 +14023,9 @@
     },
     {
       "path": "LaunchProps.draftValues",
-      "status": "partial",
+      "status": "covered",
       "tests": [
-        "packages/runtime/src/main.test.ts"
+        "packages/host/src/cli.test.ts"
       ],
       "weight": 0
     },

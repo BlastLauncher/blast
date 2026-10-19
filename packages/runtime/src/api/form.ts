@@ -14,9 +14,11 @@ import {
   type ReactNode,
   type Ref,
 } from "react";
+import type { JsonValue } from "../reconciler/index.ts";
 import { requestCapability } from "./capability.ts";
 import { DatePickerType } from "./enums.generated.ts";
 import { environment } from "./environment.ts";
+import { RootNavigationEntryContext } from "./navigation.ts";
 import { slot } from "./slot.ts";
 import type { ImageLike, Shortcut } from "./types.ts";
 
@@ -113,12 +115,26 @@ export interface FormDescriptionProps {
   text: string;
 }
 
-type Fields = Map<string, { read: () => FormValue; secret: boolean }>;
+type Fields = Map<
+  string,
+  {
+    read: () => FormValue;
+    secret: boolean;
+    event: (type: "focus" | "blur") => void;
+  }
+>;
+let launchDraft: FormValues | undefined;
+/** Installed before importing the command, alongside its launch props. */
+export function setFormDraftValues(values: FormValues | undefined): void {
+  launchDraft = values;
+}
 interface FormContextValue {
   fields: Fields;
   enableDrafts: boolean;
   focusedId: string | null;
-  setFocusedId: (id: string | null) => void;
+  focus: (id: string | null) => void;
+  blur: (id: string) => void;
+  draft: FormValues | undefined;
 }
 const FormContext = createContext<FormContextValue | null>(null);
 
@@ -129,14 +145,32 @@ function encodeValue(value: FormValue): unknown {
 }
 function decodeValue(value: unknown): FormValue {
   if (value && typeof value === "object" && !Array.isArray(value) && "$date" in value) {
-    return new Date((value as { $date: string }).$date);
+    const date = new Date((value as { $date: string }).$date);
+    if (Number.isFinite(date.getTime())) return date;
+    throw new Error("Invalid stored Form date");
   }
-  return value as FormValue;
+  if (
+    value === null ||
+    typeof value === "string" ||
+    typeof value === "boolean" ||
+    (typeof value === "number" && Number.isFinite(value)) ||
+    (Array.isArray(value) &&
+      (value.every((v) => typeof v === "string") ||
+        value.every((v) => typeof v === "number" && Number.isFinite(v))))
+  )
+    return value as FormValue;
+  throw new Error("Invalid stored Form value");
 }
 /** Decodes a stored or wire-carried values object back into typed `FormValue`s. */
 export function decodeFormValues(values: Record<string, unknown>): FormValues {
   const result: FormValues = {};
-  for (const [id, value] of Object.entries(values)) result[id] = decodeValue(value);
+  for (const [id, value] of Object.entries(values)) {
+    try {
+      Object.defineProperty(result, id, { value: decodeValue(value), enumerable: true });
+    } catch {
+      /* Ignore stale or malformed draft entries. */
+    }
+  }
   return result;
 }
 
@@ -146,19 +180,34 @@ function fieldKey(id: string): string {
 function draftKey(): string {
   return `blast:draft:${environment.commandName}`;
 }
-async function saveDraft(fields: Fields): Promise<void> {
+const pendingWrites = new Set<Promise<JsonValue>>();
+function writeStorage(name: string, params: Record<string, JsonValue>): Promise<JsonValue> {
+  const promise = requestCapability(name, params);
+  pendingWrites.add(promise);
+  void promise.then(
+    () => pendingWrites.delete(promise),
+    () => pendingWrites.delete(promise),
+  );
+  return promise;
+}
+/** Graceful shutdown must receive the host's write acknowledgements before exiting. */
+export async function flushFormPersistence(): Promise<void> {
+  await Promise.allSettled(pendingWrites);
+}
+async function saveDraft(fields: Fields, id: string, next: FormValue): Promise<void> {
   const values: Record<string, unknown> = {};
-  for (const [id, entry] of fields) {
-    if (!entry.secret) values[id] = encodeValue(entry.read());
+  for (const [fieldId, entry] of fields) {
+    if (!entry.secret) values[fieldId] = encodeValue(entry.read());
   }
-  await requestCapability("storage.set", {
+  values[id] = encodeValue(next);
+  await writeStorage("storage.set", {
     scope: "blast:internal",
     key: draftKey(),
     value: JSON.stringify(values),
   });
 }
 async function clearDraft(): Promise<void> {
-  await requestCapability("storage.remove", { scope: "blast:internal", key: draftKey() });
+  await writeStorage("storage.remove", { scope: "blast:internal", key: draftKey() });
 }
 
 function Field<T extends string | string[] | boolean | Date | null>({
@@ -175,7 +224,10 @@ function Field<T extends string | string[] | boolean | Date | null>({
   fieldRef?: Ref<FormItemRef>;
 }) {
   const ctx = useContext(FormContext);
-  const [local, setLocal] = useState(props.defaultValue ?? initial);
+  const draft = !secret ? ctx?.draft?.[props.id] : undefined;
+  const [local, setLocal] = useState(
+    (draft !== undefined ? draft : (props.defaultValue ?? initial)) as T,
+  );
   const value = props.value !== undefined ? props.value : local;
   const current = useRef(value);
   current.current = value;
@@ -185,12 +237,20 @@ function Field<T extends string | string[] | boolean | Date | null>({
   // Restoring a stored value behaves like an uncontrolled `defaultValue`
   // update that arrives after mount; a concurrent edit always wins.
   useEffect(() => {
-    if (secret || !props.storeValue || props.value !== undefined) return;
+    if (secret || draft !== undefined || !props.storeValue || props.value !== undefined) return;
     let mounted = true;
     void requestCapability("storage.get", { scope: "blast:internal", key })
       .then((stored) => {
         if (!mounted || edited.current || typeof stored !== "string") return;
         const restored = decodeValue(JSON.parse(stored)) as T;
+        if (
+          kind === "DatePicker"
+            ? restored !== null && !(restored instanceof Date)
+            : Array.isArray(initial)
+              ? !Array.isArray(restored) || !restored.every((v) => typeof v === "string")
+              : typeof restored !== typeof initial
+        )
+          return;
         current.current = restored;
         setLocal(restored);
         props.onChange?.(restored);
@@ -199,44 +259,59 @@ function Field<T extends string | string[] | boolean | Date | null>({
     return () => {
       mounted = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key, secret, props.storeValue, props.value]);
+  }, [key, secret, draft, props.storeValue, props.value]);
 
+  const callbacks = useRef(props);
+  callbacks.current = props;
   useLayoutEffect(() => {
     if (!ctx) return;
     const read = () => current.current;
-    ctx.fields.set(props.id, { read, secret: !!secret });
+    ctx.fields.set(props.id, {
+      read,
+      secret: !!secret,
+      event: (type) => {
+        const callback = type === "focus" ? callbacks.current.onFocus : callbacks.current.onBlur;
+        callback?.({ target: { id: props.id, value: current.current }, type });
+      },
+    });
     return () => {
       if (ctx.fields.get(props.id)?.read === read) ctx.fields.delete(props.id);
     };
-  }, [ctx, props.id, secret]);
+  }, [ctx?.fields, props.id, secret]);
 
-  // The scene only ever marks one field focused at a time; each field fires
-  // its own onFocus/onBlur exactly once as `focusedId` transitions past it.
-  const wasFocused = useRef(false);
   useEffect(() => {
-    const isFocused = ctx?.focusedId === props.id;
-    if (isFocused === wasFocused.current) return;
-    wasFocused.current = isFocused;
-    const callback = isFocused ? props.onFocus : props.onBlur;
-    callback?.({ target: { id: props.id, value: current.current }, type: isFocused ? "focus" : "blur" });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ctx?.focusedId, props.id]);
+    if (props.autoFocus) ctx?.focus(props.id);
+  }, [ctx?.focus, props.id, props.autoFocus]);
+
+  function change(next: T) {
+    edited.current = true;
+    if (props.value === undefined) {
+      current.current = next;
+      setLocal(next);
+    }
+    props.onChange?.(next);
+    if (secret) return;
+    if (props.storeValue) {
+      void writeStorage("storage.set", {
+        scope: "blast:internal",
+        key,
+        value: JSON.stringify(encodeValue(next)),
+      }).catch((error: unknown) => console.error("Form field save failed", error));
+    }
+    if (ctx?.enableDrafts) {
+      void saveDraft(ctx.fields, props.id, next).catch((error: unknown) =>
+        console.error("Form draft save failed", error),
+      );
+    }
+  }
 
   useImperativeHandle(
     fieldRef,
     (): FormItemRef => ({
-      focus: () => ctx?.setFocusedId(props.id),
-      reset: () => {
-        const next = (props.defaultValue ?? initial) as T;
-        edited.current = true;
-        current.current = next;
-        if (props.value === undefined) setLocal(next);
-        props.onChange?.(next);
-      },
+      focus: () => ctx?.focus(props.id),
+      reset: () => change((props.defaultValue ?? initial) as T),
     }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [ctx, props.id, props.defaultValue, initial, props.value],
+    [ctx, props, initial],
   );
 
   const scene: Record<string, unknown> = { ...props };
@@ -258,31 +333,12 @@ function Field<T extends string | string[] | boolean | Date | null>({
       const next = (
         kind === "DatePicker" && typeof input === "string" ? new Date(input) : input
       ) as T;
-      edited.current = true;
-      current.current = next;
-      if (props.value === undefined) setLocal(next);
-      props.onChange?.(next);
-      if (!secret) {
-        if (props.storeValue) {
-          void requestCapability("storage.set", {
-            scope: "blast:internal",
-            key,
-            value: JSON.stringify(encodeValue(next)),
-          }).catch((error: unknown) => console.error("Form field save failed", error));
-        }
-        if (ctx?.enableDrafts) {
-          void saveDraft(ctx.fields).catch((error: unknown) =>
-            console.error("Form draft save failed", error),
-          );
-        }
-      }
+      change(next);
     },
-    onFocus: props.onFocus
-      ? () => props.onFocus?.({ target: { id: props.id, value: current.current }, type: "focus" })
-      : undefined,
-    onBlur: props.onBlur
-      ? () => props.onBlur?.({ target: { id: props.id, value: current.current }, type: "blur" })
-      : undefined,
+    onFocus: () => ctx?.focus(props.id),
+    onBlur: () => {
+      ctx?.blur(props.id);
+    },
   });
 }
 
@@ -302,7 +358,12 @@ function TextArea(props: FormTextAreaProps, ref: Ref<FormItemRef>) {
   return createElement(Field<string>, { ...props, kind: "TextArea", initial: "", fieldRef: ref });
 }
 function Checkbox(props: FormCheckboxProps, ref: Ref<FormItemRef>) {
-  return createElement(Field<boolean>, { ...props, kind: "Checkbox", initial: false, fieldRef: ref });
+  return createElement(Field<boolean>, {
+    ...props,
+    kind: "Checkbox",
+    initial: false,
+    fieldRef: ref,
+  });
 }
 const DatePicker = Object.assign(
   forwardRef(function DatePicker(props: FormDatePickerProps, ref: Ref<FormItemRef>) {
@@ -377,9 +438,35 @@ export const Form = Object.assign(
   function Form({ children, actions, searchBarAccessory, ...props }: FormProps) {
     const [fields] = useState<Fields>(() => new Map());
     const [focusedId, setFocusedId] = useState<string | null>(null);
+    const parent = useContext(FormContext);
+    const rootEntry = useContext(RootNavigationEntryContext);
+    const enableDrafts = rootEntry && !parent && !!props.enableDrafts;
+    const [draft] = useState(() => (enableDrafts ? launchDraft : undefined));
+    const manager = useMemo(() => {
+      let active: string | null = null;
+      const focus = (id: string | null) => {
+        if (id === active) return;
+        if (active !== null) fields.get(active)?.event("blur");
+        active = id;
+        setFocusedId(id);
+        if (id !== null) fields.get(id)?.event("focus");
+      };
+      return {
+        focus,
+        blur: (id: string) => {
+          if (active === id) focus(null);
+        },
+      };
+    }, [fields]);
     const ctx = useMemo<FormContextValue>(
-      () => ({ fields, enableDrafts: !!props.enableDrafts, focusedId, setFocusedId }),
-      [fields, props.enableDrafts, focusedId],
+      () => ({
+        fields,
+        enableDrafts,
+        focusedId,
+        ...manager,
+        draft,
+      }),
+      [fields, enableDrafts, focusedId, manager, draft],
     );
     return createElement(
       FormContext.Provider,
@@ -429,12 +516,15 @@ export function SubmitForm<T extends FormValues>({
         Array.from(ctx?.fields ?? [], ([id, entry]) => [id, entry.read()]),
       ) as T;
       const result = onSubmit?.(values);
-      if (ctx?.enableDrafts) {
-        void clearDraft().catch((error: unknown) =>
-          console.error("Form draft clear failed", error),
-        );
-      }
-      return result;
+      const complete = (success: void | boolean) => {
+        if (ctx?.enableDrafts && success !== false) {
+          void clearDraft().catch((error: unknown) =>
+            console.error("Form draft clear failed", error),
+          );
+        }
+        return success;
+      };
+      return result instanceof Promise ? result.then(complete) : complete(result);
     },
   });
 }
