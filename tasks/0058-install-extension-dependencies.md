@@ -40,24 +40,24 @@ bundles and runs after `blast deps`.
 
 ## Acceptance
 
-- [ ] `blast deps <dir>` installs into `<dataDir>/deps/<name>/`. A second run
+- [x] `blast deps <dir>` installs into `<dataDir>/deps/<name>/`. A second run
       with an unchanged lockfile does not invoke npm and prints that the
       install is up to date. Changing the lockfile replaces the install.
-- [ ] The copied manifest omits `@raycast/api`, `react`, `react-dom`,
+- [x] The copied manifest omits `@raycast/api`, `react`, `react-dom`,
       `react/*` and `@types/*`. Show this with a test.
-- [ ] npm is invoked with `--omit=dev --ignore-scripts --no-audit --no-fund`.
+- [x] npm is invoked with `--omit=dev --ignore-scripts --no-audit --no-fund`.
       Show this with a test using an injected installer.
-- [ ] With a matching install, `bundleCommand` resolves a dependency from it.
+- [x] With a matching install, `bundleCommand` resolves a dependency from it.
       Test both cases: a package outside `PROVIDED_PACKAGES`, and an
       installed `@raycast/utils` taking precedence over the shared one.
       Without an install, behaviour is unchanged.
-- [ ] A declared dependency that is not installed still fails with
+- [x] A declared dependency that is not installed still fails with
       `MissingDependencyError`, and the CLI message suggests `blast deps`.
-- [ ] Extension directory contents are byte-identical before and after
+- [x] Extension directory contents are byte-identical before and after
       `blast deps` (tested).
-- [ ] `docs/cli.md` documents `blast deps`. `docs/architecture.md` mentions
+- [x] `docs/cli.md` documents `blast deps`. `docs/architecture.md` mentions
       the install layer in one or two lines.
-- [ ] `bun run verify` passes.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -69,8 +69,20 @@ bundles and runs after `blast deps`.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/install-extension-dependencies @ 8de3576
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 73.5s
 Done:
+- Added keyed, external production installs with filtered manifests, copied locks,
+  an injectable npm installer and progress logs; failed installs leave no key.
+- Added blast deps and matching-install resolution before shared dependencies,
+  with installed utils precedence and actionable missing-dependency errors.
+- Added offline npm/file-package CLI and Node runtime coverage; all 523 tests pass.
+  Tests cover cache reuse, replacement, flags, stripping and unchanged source bytes.
+- Updated CLI and architecture docs. No new dependencies.
 Not done / risks:
+- Corpus tooling and TUI integration remain untouched, as scoped. The existing
+  smoke runner uses default bundleCommand resolution, so an already matching
+  user install can affect smoke results. Strict allowlist-only corpus isolation
+  requires an explicit opt-out in a follow-up (decision 0008 versus task scope).
+- Native addon build hooks remain disabled by design. Independent review pending.
 ```
