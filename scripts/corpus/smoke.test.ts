@@ -13,6 +13,7 @@ import {
   manifestCommands,
   renderJsonReport,
   renderMarkdownReport,
+  requiredArguments,
   sanitizePath,
   type CommandResult,
   type Manifest,
@@ -69,6 +70,37 @@ test("a first scene renders with node count and root type", () => {
     nodes: 7,
     rootType: "List",
   });
+});
+
+test("required launch arguments are reported before running an invalid smoke invocation", () => {
+  const manifest: Manifest = {
+    commands: [
+      {
+        name: "getEntry",
+        arguments: [
+          { name: "entryName", required: true },
+          { name: "optional", required: false },
+          { name: "alsoOptional" },
+        ],
+      },
+      { name: "broadSearch" },
+    ],
+  };
+  expect(requiredArguments(manifest, "getEntry")).toEqual(["entryName"]);
+  expect(requiredArguments(manifest, "broadSearch")).toEqual([]);
+  expect(requiredArguments(manifest, "unknown")).toEqual([]);
+  const skipped = result({ kind: "missing-arguments", names: ["entryName"] });
+  expect(skipped).toMatchObject({
+    outcome: "missing-arguments",
+    reason: "requires launch arguments: entryName; not run",
+  });
+  const report = buildReport("pinned", [skipped]);
+  expect(report.totals.crashed).toBe(0);
+  expect(report.totals["missing-arguments"]).toBe(1);
+  expect(renderJsonReport(report)).toContain('"outcome": "missing-arguments"');
+  expect(renderMarkdownReport(report)).toContain(
+    "| missing-arguments | requires launch arguments: entryName; not run |",
+  );
 });
 
 test("a menu-bar command that renders an empty scene counts as rendered", () => {
@@ -304,6 +336,7 @@ test("buildReport sorts results and extension failures and totals outcomes", () 
     timeout: 2,
     "unsupported-mode": 0,
     "unsupported-api": 0,
+    "missing-arguments": 0,
   });
 });
 

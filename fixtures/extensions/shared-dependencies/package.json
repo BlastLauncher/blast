@@ -5,6 +5,10 @@
   },
   "commands": [
     {
+      "name": "cheerio",
+      "mode": "no-view"
+    },
+    {
       "name": "default",
       "mode": "no-view"
     },

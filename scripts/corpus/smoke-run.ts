@@ -31,6 +31,7 @@ import {
   manifestCommands,
   renderJsonReport,
   renderMarkdownReport,
+  requiredArguments,
   sanitizePath,
   type CommandResult,
   type Manifest,
@@ -114,6 +115,8 @@ async function runOne(
   const mode = commandMode(manifest, commandName) ?? "view";
   const build = (probe: ProbeResult, warnings?: string[], errorLogs?: string[]): CommandResult =>
     buildResult({ extension, command: commandName, mode, probe, warnings, errorLogs });
+  const names = requiredArguments(manifest, commandName);
+  if (names.length) return build({ kind: "missing-arguments", names });
   let bundled: BundledCommand;
   try {
     bundled = await bundleCommand({ extensionDir, command: commandName });

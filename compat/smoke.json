@@ -1,15 +1,16 @@
 {
   "commit": "3b812d1e153a1862df29bc8ec34e170c728512ea",
   "totals": {
-    "rendered": 185,
-    "completed": 2,
+    "rendered": 184,
+    "completed": 1,
     "capability-denied": 7,
     "bundle-failed": 0,
-    "crashed": 6,
+    "crashed": 3,
     "network": 0,
     "timeout": 0,
     "unsupported-mode": 0,
-    "unsupported-api": 0
+    "unsupported-api": 0,
+    "missing-arguments": 5
   },
   "results": [
     {
@@ -72,12 +73,9 @@
       "extension": "bugmenot",
       "command": "find-login",
       "mode": "view",
-      "outcome": "crashed",
-      "exit": "code 1",
-      "error": "Cannot find package 'undici' imported from /tmp/blast/builds/command-1hbi3I/find-login.mjs",
-      "logs": [
-        "RUNTIME_ERROR: Cannot find package 'undici' imported from <tmp>/blast/builds/command-1hbi3I/find-login.mjs"
-      ]
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
     },
     {
       "extension": "cangjie",
@@ -259,9 +257,8 @@
       "extension": "convert-px-to-vw-vh",
       "command": "height",
       "mode": "no-view",
-      "outcome": "rendered",
-      "nodes": 3,
-      "rootType": "Navigation"
+      "outcome": "missing-arguments",
+      "reason": "requires launch arguments: height, pixels; not run"
     },
     {
       "extension": "convert-px-to-vw-vh",
@@ -283,9 +280,8 @@
       "extension": "convert-px-to-vw-vh",
       "command": "width",
       "mode": "no-view",
-      "outcome": "rendered",
-      "nodes": 3,
-      "rootType": "Navigation"
+      "outcome": "missing-arguments",
+      "reason": "requires launch arguments: pixels, width; not run"
     },
     {
       "extension": "devpod",
@@ -411,8 +407,8 @@
       "extension": "google-maps-search",
       "command": "quickSearchMaps",
       "mode": "no-view",
-      "outcome": "completed",
-      "reason": "command mode \"no-view\" completed without rendering a scene"
+      "outcome": "missing-arguments",
+      "reason": "requires launch arguments: query; not run"
     },
     {
       "extension": "google-maps-search",
@@ -512,12 +508,8 @@
       "extension": "hyrule-compendium-search",
       "command": "getEntry",
       "mode": "view",
-      "outcome": "crashed",
-      "exit": "code 1",
-      "error": "Cannot read properties of undefined (reading '$and')",
-      "logs": [
-        "RUNTIME_ERROR: Cannot read properties of undefined (reading '$and')"
-      ]
+      "outcome": "missing-arguments",
+      "reason": "requires launch arguments: entryName; not run"
     },
     {
       "extension": "input-source-switcher",
@@ -941,9 +933,8 @@
       "extension": "pinch-svg",
       "command": "custom-rectangle",
       "mode": "view",
-      "outcome": "rendered",
-      "nodes": 2,
-      "rootType": "Navigation"
+      "outcome": "missing-arguments",
+      "reason": "requires launch arguments: height, width; not run"
     },
     {
       "extension": "pinch-svg",
@@ -1572,12 +1563,9 @@
       "extension": "valkey-commands-search",
       "command": "search-valkey-commands",
       "mode": "view",
-      "outcome": "crashed",
-      "exit": "code 1",
-      "error": "Cannot find package 'undici' imported from /tmp/blast/builds/command-P83ZQj/search-valkey-commands.mjs",
-      "logs": [
-        "RUNTIME_ERROR: Cannot find package 'undici' imported from <tmp>/blast/builds/command-P83ZQj/search-valkey-commands.mjs"
-      ]
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
     },
     {
       "extension": "vim-bro",

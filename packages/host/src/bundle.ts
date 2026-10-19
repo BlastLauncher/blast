@@ -1,5 +1,6 @@
 import type { CommandMode } from "@blastlauncher/protocol";
 import { build, transform, type Plugin } from "esbuild";
+import { execFileSync } from "node:child_process";
 import {
   access,
   chmod,
@@ -13,12 +14,31 @@ import {
   symlink,
   writeFile,
 } from "node:fs/promises";
-import { isBuiltin } from "node:module";
+import { builtinModules } from "node:module";
 import { tmpdir } from "node:os";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { dependencyWarnings, isProvidedSpecifier } from "./dependencies.ts";
+
+// Bundles run in Node even when Bun runs the host. Bun's built-in list also
+// includes npm packages such as undici and ws, which must be bundled for Node.
+const nodeBuiltins = new Set<string>(
+  process.versions.bun
+    ? JSON.parse(
+        execFileSync("node", ["-p", "JSON.stringify(require('node:module').builtinModules)"], {
+          encoding: "utf8",
+        }),
+      )
+    : builtinModules,
+);
+
+function isNodeBuiltin(specifier: string): boolean {
+  return (
+    nodeBuiltins.has(specifier) ||
+    (specifier.startsWith("node:") && nodeBuiltins.has(specifier.slice(5)))
+  );
+}
 
 export class MissingDependencyError extends Error {
   readonly code = "MISSING_DEPENDENCY";
@@ -42,7 +62,7 @@ function dependencyPolicy(missing: Set<string>): Plugin {
         const specifier = args.path;
         if (specifier === "@raycast/api" || /^react(?:\/|$)/.test(specifier))
           return { path: specifier, external: true };
-        if (isBuiltin(specifier)) return { path: specifier, external: true };
+        if (isNodeBuiltin(specifier)) return { path: specifier, external: true };
         const provided = isProvidedSpecifier(specifier);
         const inProvidedGraph = providedFiles.has(args.importer);
         // Only Blast's supplied dependency graph gets normal package resolution.
@@ -330,6 +350,7 @@ async function bundleEntry(
       entryPoints: [source],
       outfile: entry,
       bundle: true,
+      metafile: true,
       write: false,
       format: "esm",
       platform: "node",
@@ -339,6 +360,26 @@ async function bundleEntry(
       plugins: [dependencyPolicy(missing)],
       logLevel: "silent",
     });
+    // Optional imports in provided graphs can escape esbuild's resolver.
+    // Optional require calls use the banner's MISSING_DEPENDENCY guard instead.
+    for (const output of Object.values(bundled.metafile.outputs)) {
+      for (const imported of output.imports) {
+        if (
+          imported.external &&
+          imported.kind !== "require-call" &&
+          imported.path !== "@raycast/api" &&
+          !/^react(?:\/|$)/.test(imported.path) &&
+          !isNodeBuiltin(imported.path)
+        ) {
+          missing.add(
+            imported.path.startsWith("@")
+              ? imported.path.split("/").slice(0, 2).join("/")
+              : imported.path.split("/")[0]!,
+          );
+        }
+      }
+    }
+    if (missing.size) throw new MissingDependencyError(missing);
     // After tree shaking utils' monolithic entry, remove unused named imports
     // so Node does not try to link shim symbols the command never uses.
     const output = await transform(bundled.outputFiles[0]!.text, {

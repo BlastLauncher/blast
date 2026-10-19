@@ -14,6 +14,7 @@ export const OUTCOMES = [
   "timeout",
   "unsupported-mode",
   "unsupported-api",
+  "missing-arguments",
 ] as const;
 export type Outcome = (typeof OUTCOMES)[number];
 
@@ -41,7 +42,8 @@ export type ProbeResult =
       error?: { message: string; code?: string };
     }
   | { kind: "timeout"; timeoutMs: number }
-  | { kind: "unsupported-mode"; reason: string };
+  | { kind: "unsupported-mode"; reason: string }
+  | { kind: "missing-arguments"; names: string[] };
 
 export type CommandResult = {
   extension: string;
@@ -85,7 +87,12 @@ export function countNodes(root: SceneLike): number {
 
 /** Minimal manifest shapes; anything else the manifest carries is ignored. */
 export type ManifestPreference = { name?: string; type?: string; default?: Json };
-export type ManifestCommand = { name?: string; mode?: string; preferences?: ManifestPreference[] };
+export type ManifestCommand = {
+  name?: string;
+  mode?: string;
+  preferences?: ManifestPreference[];
+  arguments?: { name: string; required?: boolean }[];
+};
 export type Manifest = {
   commands?: ManifestCommand[];
   preferences?: ManifestPreference[];
@@ -113,6 +120,17 @@ function sortedKeys(record: Record<string, Json>): Record<string, Json> {
 export function commandMode(manifest: Manifest, commandName: string): string | undefined {
   const command = manifest.commands?.find((item) => item?.name === commandName);
   return command?.mode;
+}
+
+/** The smoke runner has no user input; required launch arguments need a separate run. */
+export function requiredArguments(manifest: Manifest, commandName: string): string[] {
+  return (
+    manifest.commands
+      ?.find((command) => command.name === commandName)
+      ?.arguments?.filter((argument) => argument.required)
+      .map((argument) => argument.name)
+      .toSorted() ?? []
+  );
 }
 
 /**
@@ -211,6 +229,11 @@ export function buildResult(input: BuildInput): CommandResult {
       return set({ outcome: "timeout", reason: `no scene or exit within ${probe.timeoutMs} ms` });
     case "unsupported-mode":
       return set({ outcome: "unsupported-mode", reason: probe.reason });
+    case "missing-arguments":
+      return set({
+        outcome: "missing-arguments",
+        reason: `requires launch arguments: ${probe.names.join(", ")}; not run`,
+      });
     case "exit": {
       if (probe.error?.code === "UNSUPPORTED_API") {
         return set({
@@ -302,6 +325,7 @@ function detail(result: CommandResult): string {
       return `denied capability ${result.path}${warnings}`;
     case "timeout":
     case "unsupported-mode":
+    case "missing-arguments":
       return `${result.reason}${warnings}`;
     case "completed":
       return `${result.reason ?? "completed without rendering a scene"}${warnings}`;
@@ -321,6 +345,7 @@ export function renderMarkdownReport(report: SmokeReport): string {
     `\`${report.commit}\`, with Blast's headless broker — deny-all except the`,
     "headless defaults `applications.list` (empty), `clipboard.read` (empty),",
     "`preferences.open` and `command.metadata` (recorded) — and manifest preference defaults.",
+    "Commands requiring launch arguments are reported as `missing-arguments` without running.",
     "Regenerate with `bun run corpus:smoke` (network required; not part of",
     "`bun run verify`).",
     "",
