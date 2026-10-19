@@ -14,27 +14,33 @@ esbuild plugin resolves imports in this order:
 3. Node built-ins stay external.
 4. Other bare imports fail, even if installed locally. Relative source imports work.
 
-The allowlist selects 20 packages from the top 30 by corpus imports, pinning the
-latest version of each most-declared major. All are JavaScript, with no native
-addons, install hooks or bundled browser/CLI binaries. Exclusions:
+The allowlist is a strict prefix of corpus `imported` rank
+(`compat/dependencies.json`), gated by: no native addons, install hooks or
+browser/CLI binary; not macOS-only automation; and the running `du`-measured
+`node_modules` total at or under 75 MB (interim, raised from 60 MB to admit
+`date-fns`). Once a pick would cross the budget, every lower-ranked package is
+excluded too, even a smaller one that would fit alone — never drop a
+higher-ranked pick to seat a lower-ranked one.
 
-- `run-applescript`: macOS automation; `raycast-cross-extension`: Raycast-specific
-  cross-extension integration, outside the portable shared-dependency policy.
-- `date-fns`, `openai`, `turndown`, `chrono-node`, `plist`, `algoliasearch`:
-  their installed graphs exhaust the 60 MB budget when combined with higher
-  ranked picks. `ai` and `javascript-time-ago` also exceed 5 MB unpacked.
-- Zod exceeds 5 MB unpacked (6.15 MB); sixth by imports, it justifies its size.
-  Installed graph growth for the final set must remain below 60 MB.
+13 result, each pinned at its most-declared major (names, versions and sizes
+in `packages/host/src/dependencies.ts` and `compat/DEPENDENCIES.md`).
+`run-applescript` (rank 4) is
+excluded outright as non-portable automation. `date-fns` (rank 3) keeps past
+the 15 MB single-package guard by explicit decision: its real installed graph
+is 28 MB (`du`), not the 10.9 MB registry `dist.unpackedSize` — unpacking
+every function and locale as its own file costs over a third of the whole
+budget, but the third most-imported package outweighs that. Everything else
+ranked below the 13th pick fails no filter; it is excluded solely because the
+next one already crosses the 75 MB cap.
 
-Extensions receive the shared major even when they declare another one. The CLI
-prints a `# log` warning with package, declared range and provided version if the
-range excludes that entire major; JSON mode emits a warning log record. Tags,
-URLs and other non-semver declarations cannot establish a mismatch and are skipped.
-
-Failures expose `MissingDependencyError`, `code: MISSING_DEPENDENCY`, and sorted,
-deduplicated package names without subpaths. The CLI exits 3. Invalid files or
-source keep esbuild diagnostics. Optional imports in a provided graph retain
-esbuild's normal try/catch handling.
+Extensions receive the shared major even when they declare another one; the CLI
+prints a `# log` warning (JSON mode: a warning log record) naming the package,
+declared range and provided version when the range excludes that major entirely
+— tags, URLs and other non-semver declarations are skipped. Failures expose
+`MissingDependencyError`, `code: MISSING_DEPENDENCY`, and sorted, deduplicated
+package names without subpaths; the CLI exits 3. Invalid files or source keep
+esbuild diagnostics, and optional imports in a provided graph retain esbuild's
+normal try/catch handling.
 
 Raycast's CommonJS globals are supplied by an ESM banner: `__filename` and
 `__dirname` derive from the bundled `import.meta.url`. Statically analyzable
