@@ -37,10 +37,7 @@ shared copy of `@raycast/utils` for every extension.
 - [x] 0013 Shared `@raycast/utils` and dependency policy for bundling
 - [x] 0014 Curated smoke runner + report for the first 10 commands
 
-First curated set (List-centric, UI API only, offline, deps ⊆ api/utils):
-fibonacci-sequence, ohmyzsh-git-alias, axios-docs, radix,
-px-to-rem-converter, ratio-calculator, code-review-emojis, biaodian,
-markdown-reference, conventional-commits.
+First curated set: 10 List-centric, offline extensions (see git log 0014).
 
 ### M3 — Coverage to 100%
 
@@ -73,7 +70,8 @@ Anyone can embed Blast and render Raycast extensions in their own UI: an
 in-process JS API and `blast serve` over stdio for other languages, with
 Raycast client semantics built in so embedders only draw.
 
-- [x] Decision 0009 accepted (engine boundary, two surfaces, distribution)
+- [x] Decisions 0009 (engine boundary, two surfaces, distribution) and 0010
+      (platform-free core, capability registry + catalog, optional native)
 - [ ] 0063 `packages/client-core`: move framework-free client behaviour
       (filtering, selection, actions, shortcuts, grid, dropdown, form model)
       out of `packages/tui`; the TUI consumes it
@@ -87,13 +85,15 @@ Raycast client semantics built in so embedders only draw.
 - [ ] 0069 Release build: emitted JS + `.d.ts`, `npm pack` smoke on Node 24
 - [ ] 0070 Real-world compat: dependency-heavy corpus set with installs
 - [ ] 0071 Deprecated aliases: the 50 missing deprecated symbols
+- [ ] 0072 Capability catalog in `protocol` (names, shapes, scope, API users)
+- [ ] 0073 Engine handler registry; `blast` CLI + headless answers → `packages/cli`
+- [ ] 0074 `@blastlauncher/native` I: clipboard, open, file manager, trash
+- [ ] 0075 `@blastlauncher/native` II: applications, selection, windows
 
 ## Later (not scheduled)
 
-- Scheduled job that regenerates `compat/` against the newest `@raycast/api`
-  and opens a PR with the diff.
-- Autonomous orchestrator loop over `tasks/`.
-- Delete `archive/`.
+- Scheduled job regenerating `compat/` for the newest `@raycast/api` (PR).
+- Autonomous orchestrator loop over `tasks/`; delete `archive/`.
 - Desktop launcher (MyGo) and further TUI launcher polish (out of scope per 0009).
 
 ## Decision log
@@ -113,3 +113,5 @@ One line per decision; link a record only when it exists.
   an explicit build step; allowlist stays the fallback (`docs/decisions/0008`).
 - 2026-10-19: Engine first: Blast is embeddable (in-process + `blast serve`);
   launcher UI is the embedder's; MyGo deferred (`docs/decisions/0009`).
+- 2026-10-19: Engine core is platform-free; native capabilities are registered
+  by embedders, with optional `@blastlauncher/native` (`docs/decisions/0010`).
