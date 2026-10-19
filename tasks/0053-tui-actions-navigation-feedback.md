@@ -51,13 +51,13 @@ effects are answered by the TUI instead of being denied.
 
 ## Acceptance
 
-- [ ] Test-renderer tests: Ctrl-K panel lists sections/actions, filter + Enter
+- [x] Test-renderer tests: Ctrl-K panel lists sections/actions, filter + Enter
       runs an action; submenu open/close; push then Esc pops; Detail frame
       shows markdown text and metadata; toast/HUD/alert render and an
       `Alert.Action` dispatches.
-- [ ] `blast run` uses the shared helper; existing host/cli tests unchanged and green.
-- [ ] Handoff describes a manual PTY run of an `actions-variants` command.
-- [ ] `bun run verify` passes.
+- [x] `blast run` uses the shared helper; existing host/cli tests unchanged and green.
+- [x] Handoff describes a manual PTY run of an `actions-variants` command.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -66,11 +66,14 @@ effects are answered by the TUI instead of being denied.
 
 ## Handoff
 
-Filled in by the worker when finishing:
-
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/tui-actions-navigation-feedback @ 95ac2cbbfe3aac0f11ff7714d2ba1603f0da31db (implementation)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 63.7s
 Done:
-Not done / risks:
+- Added filterable action panels, sections, submenus, terminal shortcut labels/dispatch and keyboard navigation.
+- Added push/pop, search/window requests, plain markdown and metadata, item detail panes, toast/HUD/alert UI and actions.
+- Shared session broker setup between blast run and TUI; added session-local clipboard and recorded URL effects. No dependencies added.
+- Added fixture-driven OpenTUI tests and pure/effect checks; all 498 tests pass, including unchanged host/cli tests.
+- Manual PTY: bun run tui fixtures/extensions/actions-variants index; Ctrl-K listed actions, Enter opened Labels/Colors, typed red filtered to Red, Enter recorded picked Red, root Esc exited 0.
+Not done / risks: No known blockers. Markdown stays plain text; only documented terminal shortcuts map; clipboard/URL effects remain session-local as scoped.
 ```
