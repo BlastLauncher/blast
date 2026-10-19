@@ -9,6 +9,7 @@ import {
   trackedPackage,
   type ExtensionDependencies,
 } from "./dependencies.ts";
+import { PROVIDED_PACKAGES } from "../../packages/host/src/dependencies.ts";
 import { packageName } from "./imports.ts";
 import type { Manifest } from "./selection.ts";
 
@@ -119,7 +120,7 @@ test("the markdown renders the summary, the cumulative curve and at most sixty r
   });
   const markdown = renderDependenciesMd(aggregateDependencies("pin", many, [10, 20]));
   expect(markdown).toStartWith("# Corpus dependencies");
-  expect(markdown).toContain("- 0 of 70 extensions need nothing beyond the provided set.");
+  expect(markdown).toContain("- 0 of 70 extensions need nothing beyond the baseline set.");
   expect(markdown).toContain("- 70 packages are declared or imported by at least one extension.");
   expect(markdown).toContain("| 0 | 0 |");
   expect(markdown).toContain("| 10 | 10 |");
@@ -141,4 +142,24 @@ test("the top major is the most declared one, not the numerically smallest", () 
   ];
   const markdown = renderDependenciesMd(aggregateDependencies("pin", fixtures, []));
   expect(markdown).toContain("| `a` | 3 | 3 | 3 (67%) |");
+});
+
+test("shared satisfaction requires every declared and imported package, independent of ranking", () => {
+  const extensions: ExtensionDependencies[] = [
+    { declared: {}, imported: [] },
+    { declared: { "date-fns": "4" }, imported: ["date-fns", "date-fns"] },
+    { declared: { lodash: "3" }, imported: [] },
+    { declared: { "rss-parser": "3" }, imported: ["date-fns"] },
+    { declared: { lodash: "4" }, imported: ["unprovided-pkg"] },
+  ];
+  const report = aggregateDependencies("pin", extensions);
+  expect(report.shared).toEqual({ provided: [...PROVIDED_PACKAGES].toSorted(), satisfied: 3 });
+  expect(renderDependenciesMd(report)).toContain(
+    "- 3 of 5 extensions are satisfied by the current shared allowlist",
+  );
+  const limited = aggregateDependencies("pin", extensions, undefined, ["date-fns", "date-fns"]);
+  expect(limited.shared).toEqual({ provided: ["date-fns"], satisfied: 2 });
+  expect(limited.packages).toEqual(report.packages);
+  expect(limited.curve).toEqual(report.curve);
+  expect(limited.providedOnly).toBe(report.providedOnly);
 });

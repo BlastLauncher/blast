@@ -598,6 +598,11 @@ async function run(options: RunOptions): Promise<number> {
       }
       throw new RunError(message);
     }
+    for (const message of bundled.dependencyWarnings ?? []) {
+      write(
+        options.json ? JSON.stringify({ type: "log", level: "warn", message }) : `# log ${message}`,
+      );
+    }
     outDir = dirname(bundled.entry);
     cleanupDirectory = outDir;
     const argumentValues = parseArgumentValues(

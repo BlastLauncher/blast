@@ -3,16 +3,14 @@
 // packages extensions import) read the same rules here, so the two cannot
 // drift. Nothing here reads files, runs git or touches the network.
 import { isBuiltin } from "node:module";
+import { isProvidedSpecifier, PROVIDED_PACKAGES } from "../../packages/host/src/dependencies.ts";
+export { PROVIDED_PACKAGES };
+
+// Stable baseline keeps the usage ranking comparable as the shared set grows.
+export const BASE_PACKAGES = ["@raycast/api", "@raycast/utils", "react"] as const;
 
 /** One source file of an extension, as read from the pinned checkout. */
 export type Source = { file: string; source: string };
-
-/** Packages the bundler resolves for every extension; only subpaths vary. */
-export const PROVIDED_PACKAGES = ["@raycast/api", "@raycast/utils", "react"] as const;
-
-const escaped = PROVIDED_PACKAGES.map((name) => name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
-/** A bare specifier naming a provided package, subpaths included. */
-const PROVIDED_SPECIFIER = new RegExp(`^(?:${escaped.join("|")})(?:/|$)`);
 
 export const IMPORT_SPECIFIER =
   /(?:from\s+|import\s*\(\s*|import\s+|require\s*\(\s*)["']([^"'\s]+)["']/g;
@@ -27,7 +25,7 @@ export function unprovidedImports(sources: Iterable<Source>): string[] {
     for (const match of source.matchAll(IMPORT_SPECIFIER)) {
       const specifier = match[1]!;
       if (specifier.startsWith(".") || specifier.startsWith("/")) continue;
-      if (PROVIDED_SPECIFIER.test(specifier) || isBuiltin(specifier)) continue;
+      if (isProvidedSpecifier(specifier) || isBuiltin(specifier)) continue;
       found.add(specifier);
     }
   }
@@ -54,7 +52,7 @@ const NPM_PACKAGE = /^(?:@[a-z0-9][a-z0-9-._~]*\/)?[a-z0-9][a-z0-9-._~]*$/;
  * npm packages imported by non-test sources. `unprovidedImports` keeps
  * specifiers because the bundler reports those; this keeps packages because
  * the dependency report sums a package's whole import surface. Relative paths,
- * the provided packages, non-npm specifiers (`node:`, `swift:`) and names npm
+ * the baseline packages, non-npm specifiers (`node:`, `swift:`) and names npm
  * would not accept are left out.
  */
 export function importedPackages(sources: Iterable<Source>): string[] {
@@ -64,7 +62,9 @@ export function importedPackages(sources: Iterable<Source>): string[] {
     for (const match of source.matchAll(IMPORT_SPECIFIER)) {
       const specifier = match[1]!;
       if (specifier.startsWith(".") || specifier.startsWith("/")) continue;
-      if (specifier.includes(":") || PROVIDED_SPECIFIER.test(specifier)) continue;
+      if (specifier.includes(":")) continue;
+      if (BASE_PACKAGES.some((name) => specifier === name || specifier.startsWith(`${name}/`)))
+        continue;
       if (isBuiltin(specifier)) continue;
       const name = packageName(specifier);
       if (NPM_PACKAGE.test(name)) found.add(name);

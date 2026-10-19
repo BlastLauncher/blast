@@ -11,7 +11,9 @@ test("unprovided imports are the bare specifiers Blast cannot resolve", () => {
   expect(unprovidedImports([source('const x = require("@components/notes-list");')])).toEqual([
     "@components/notes-list",
   ]);
-  expect(unprovidedImports([source('export * from "lodash";')])).toEqual(["lodash"]);
+  expect(unprovidedImports([source('export * from "unprovided-pkg";')])).toEqual([
+    "unprovided-pkg",
+  ]);
   expect(unprovidedImports([source('const client = await import("graphql-request");')])).toEqual([
     "graphql-request",
   ]);

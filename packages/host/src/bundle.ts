@@ -18,6 +18,8 @@ import { tmpdir } from "node:os";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { dependencyWarnings, isProvidedSpecifier } from "./dependencies.ts";
+
 export class MissingDependencyError extends Error {
   readonly code = "MISSING_DEPENDENCY";
   readonly packages: string[];
@@ -41,14 +43,18 @@ function dependencyPolicy(missing: Set<string>): Plugin {
         if (specifier === "@raycast/api" || /^react(?:\/|$)/.test(specifier))
           return { path: specifier, external: true };
         if (isBuiltin(specifier)) return { path: specifier, external: true };
-        const provided = specifier === "@raycast/utils" || specifier.startsWith("@raycast/utils/");
+        const provided = isProvidedSpecifier(specifier);
+        const inProvidedGraph = providedFiles.has(args.importer);
         // Only Blast's supplied dependency graph gets normal package resolution.
-        if (provided || providedFiles.has(args.importer)) {
+        if (provided || inProvidedGraph) {
           const result = await builder.resolve(specifier, {
-            resolveDir: provided ? dirname(fileURLToPath(import.meta.url)) : args.resolveDir,
+            resolveDir: inProvidedGraph ? args.resolveDir : dirname(fileURLToPath(import.meta.url)),
             kind: args.kind,
             pluginData: "blast-resolving",
           });
+          // Let esbuild handle unresolved optional requires inside try/catch.
+          // Returning plugin errors here would make those optional imports fatal.
+          if (result.errors.length && inProvidedGraph) return;
           if (result.path && !result.external) providedFiles.add(result.path);
           return result;
         }
@@ -122,6 +128,8 @@ export type BundledCommand = {
   preferenceDefaults?: Record<string, string | number | boolean>;
   /** `<outDir>/assets`, resolving to the extension's real assets when it has any. */
   assetsPath?: string;
+  /** Shared packages whose supplied major disagrees with the manifest. */
+  dependencyWarnings?: string[];
 };
 
 /** The preference types Raycast's manifest schema defines. */
@@ -348,6 +356,7 @@ async function bundleEntry(
   await linkAssets(outDir, extensionDir);
   return {
     entry,
+    dependencyWarnings: dependencyWarnings(manifest.dependencies),
     extensionName: manifest.name,
     commandName: command.name,
     // Raycast reports the owner when a manifest has one, else the author.

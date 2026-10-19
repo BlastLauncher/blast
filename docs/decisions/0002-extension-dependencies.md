@@ -1,51 +1,57 @@
 # 0002 — Extension dependency resolution
 
-Status: accepted 2026-10-18
+Status: accepted 2026-10-18; amended by task 0037 (interim allowlist)
 
 ## Decision
 
-Extensions run without installing their dependencies. The host's esbuild plugin
-resolves extension imports in this order:
+Until v1, extensions run without installing their dependencies. The host's
+esbuild plugin resolves imports in this order:
 
-1. `@raycast/api`, `react`, and `react/*` stay external. The runtime supplies
-   the shim and its single React instance.
-2. `@raycast/utils` resolves from the host's pinned dependency, never from the
-   extension. Its implementation and transitive dependencies are bundled;
-   the same API/React external rules apply throughout this dependency graph.
-3. Node built-ins stay external.
-4. Any other bare package import fails, even if installed in the extension or
-   elsewhere in the workspace. Relative extension source imports still work.
+1. `@raycast/api`, `react`, and `react/*` stay external; the runtime supplies them.
+2. `PROVIDED_PACKAGES` in `packages/host/src/dependencies.ts` resolves from the
+   host's exact pins, including subpaths; corpus selection uses the same list.
+   Transitive graphs are bundled privately, with the same API/React externals.
+3. Node built-ins stay external. Other bare imports fail even if locally installed.
 
-Failures expose `MissingDependencyError` with `code: MISSING_DEPENDENCY` and a
-sorted, deduplicated `packages` array of package names (without subpaths).
-The CLI prints the names and exits 3. Missing files and invalid source retain
-esbuild's diagnostics instead of being classified as missing packages.
+Pick greedily by `compat/dependencies.json` imported rank (ties by name), using
+latest exact versions in each most-declared major. Hard filters: non-portable
+macOS automation, native addons, dependency install hooks, browser/CLI binaries,
+or a single installed graph over 15 MB of logical bytes (`du -sb`, including
+transitives). Total added allocated disk space (`du -sk`) must stay ≤ 75 MiB.
+Keep higher-ranked eligible picks before lower ones; on overflow remove the
+lowest-ranked pick. Do not fill leftover space with packages below that cutoff.
 
-Raycast bundles extensions as CommonJS, so extensions also rely on the
-CommonJS globals `__filename`, `__dirname` and `require`. Blast emits ESM and
-defines the globals in a bundle banner: `__filename` and `__dirname` derive
-from `import.meta.url` (the bundled entry, not the extension source), and
-`require` is `createRequire` over `import.meta.url`. `require` follows the
-same policy as static imports: esbuild resolves statically analyzable calls
-through the rules above; any dynamic require resolves Node built-ins only and
-throws a `MISSING_DEPENDENCY`-style error for everything else.
+Ranks 1–14 yield 13 additions through `node-html-markdown`; `run-applescript`
+(rank 4) is excluded as macOS automation. `date-fns@4.4.0` is 10,902,084 bytes
+unpacked, 11,893,316 logical installed graph bytes, but 28,076 KiB allocated due
+to its many small files. It meets the logical graph guard; its allocated cost
+counts fully toward the total. `zod` (6.1 MB unpacked) also earns its size by
+rank (64 importing extensions); both graphs have no native addons/install hooks.
 
-## Why
+Adding rank 15 `rss-parser` exceeds the budget (77.01 MiB added). Lower-ranked
+`execa`, `got`, `turndown`, `fs-extra`, `openai`, `plist`, `swr`,
+`raycast-cross-extension`, `fast-xml-parser`, `form-data`, `yaml`, `algoliasearch`,
+`ai`, `chrono-node`, `javascript-time-ago`, and all later ranks are excluded by
+that cutoff, even when individually small enough. Rechecked installed logical
+graphs: `turndown` 8.07 MB, `openai` 11.86 MB, `chrono-node` 3.89 MB; none has
+native addons/install hooks. `javascript-time-ago` also exceeds 15 MB (15.74 MB).
+Exact pins, sizes and before/after allocated totals are in task 0037's Handoff.
 
-One centrally pinned utils version avoids thousands of dependency installs and
-keeps resolution reproducible. Bundling its dependency graph permits internal
-implementation dependencies without making them available to extensions.
-Syntax minimization drops unused named shim imports from utils' monolithic
-entry; used APIs still require implementations in the runtime.
+Extensions receive the shared major even when they declare another one. The CLI
+prints a `# log` warning (JSON: warning record) naming package, declared range
+and provided version when the range excludes that major entirely; non-semver
+ranges are skipped. Missing dependencies expose `MissingDependencyError`, code
+`MISSING_DEPENDENCY`, and sorted unique package names; the CLI exits 3. Optional
+imports in provided graphs retain esbuild's normal try/catch handling.
+
+CommonJS globals derive from the bundled `import.meta.url`. Static `require`
+follows import policy; dynamic `require` allows only Node built-ins.
 
 ## Consequences
 
-- No extension-local `node_modules` lookup for bare imports. Adding another
-  provided package requires an explicit policy change. The banner's `require`
-  cannot reach the extension's own directory either: built-ins only.
-- `__filename` and `__dirname` point at the bundled entry in a temporary
-  build directory, not at the extension's source files. Extensions that read
-  sibling files by relative path need those files inlined or provided.
-- This is a bundling policy, not a security sandbox for arbitrary Node code.
-- Utils availability does not imply its entire API works: helpers needing
-  unimplemented Raycast symbols remain compatibility work.
+- Explicitly interim until the first release: production should use a thin layer
+  referencing each extension repo's own pinned dependencies with minimal disk.
+- No extension-local lookup, source changes, or per-extension installs.
+- Tree shaking utils avoids linking unused shim symbols. Assets need provisioning.
+- Bundling policy is not a security sandbox for arbitrary Node code.
+- Package satisfaction counts names, not major/API/host-capability compatibility.
