@@ -40,7 +40,7 @@ minimal as the curated set grows.
 ## Handoff
 
 ```
-Branch/commit: t3/smoke-disk-budget @ (see commit after this file)
+Branch/commit: t3/smoke-disk-budget @ 2fe6253
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 59.9s
 Done:
 - Added `batchSize(maxMb)` to `scripts/corpus/corpus.ts` (+ MIN/MAX/
