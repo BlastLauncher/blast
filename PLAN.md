@@ -6,7 +6,7 @@ files.
 
 ## Current focus
 
-M5 — embeddable engine (`docs/decisions/0009`, proposed). Blast is the
+M5 — embeddable engine (`docs/decisions/0009`). Blast is the
 engine; launchers embed it. The TUI and `blast run` stay reference clients
 and get no new launcher features.
 
@@ -73,7 +73,7 @@ Anyone can embed Blast and render Raycast extensions in their own UI: an
 in-process JS API and `blast serve` over stdio for other languages, with
 Raycast client semantics built in so embedders only draw.
 
-- [ ] Accept decision 0009 (engine boundary, two surfaces, distribution)
+- [x] Decision 0009 accepted (engine boundary, two surfaces, distribution)
 - [ ] 0063 `packages/client-core`: move framework-free client behaviour
       (filtering, selection, actions, shortcuts, grid, dropdown, form model)
       out of `packages/tui`; the TUI consumes it
@@ -112,4 +112,4 @@ One line per decision; link a record only when it exists.
 - 2026-10-19: Extensions' own lockfile deps install outside the extension via
   an explicit build step; allowlist stays the fallback (`docs/decisions/0008`).
 - 2026-10-19: Engine first: Blast is embeddable (in-process + `blast serve`);
-  launcher UI is the embedder's; MyGo deferred (`docs/decisions/0009`, proposed).
+  launcher UI is the embedder's; MyGo deferred (`docs/decisions/0009`).

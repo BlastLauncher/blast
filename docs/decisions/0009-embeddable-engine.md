@@ -1,6 +1,6 @@
 # 0009 — Blast is an embeddable engine; launchers are its clients
 
-Status: proposed 2026-10-19; supersedes the M5 desktop-client plan in 0007 (7)
+Status: accepted 2026-10-19; supersedes the M5 desktop-client plan in 0007 (7)
 
 ## Decision
 
