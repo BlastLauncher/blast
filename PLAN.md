@@ -77,7 +77,7 @@ diagnostics instead of ESM link errors.
 - [x] 0045 AI model provider entrypoint (protocol, host, CLI)
 - [x] 0046 AI.ask with extension models, refreshModels, decide
 - [x] 0047 Deprecated aliases — exports plus alias-aware coverage
-- [ ] 0049 Explicit alias map for structural deprecated duplicates
+- [x] 0049 Explicit alias map for structural deprecated duplicates
 - [ ] 0048 Curated set v4 — extensions using shared dependencies
 
 Smoke 2026-10-18 (`compat/SMOKE.md`, 60 extensions): 144/149 commands render,
