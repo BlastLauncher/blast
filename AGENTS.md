@@ -51,7 +51,7 @@ claimed.
 AGENTS.md        workflow (this file)
 PLAN.md          milestones, current focus, decision log (short)
 tasks/           one file per open task; deleted when done
-docs/            architecture, capabilities, CLI, rare decisions/
+docs/            architecture, capabilities, CLI, TUI, rare decisions/
 compat/          generated Raycast API coverage — never edit by hand
 packages/        product code (Node-runnable TypeScript)
 scripts/         repo automation (verify, workflow checks, generators)

@@ -1,5 +1,8 @@
 # `blast` debug CLI
 
+Reference for the headless client agents use to run and drive extensions.
+`bun run blast --help` is authoritative; keep this file in sync with it.
+
 ```bash
 bun run blast run <extensionDir> <command> [options]
 ```
@@ -101,18 +104,8 @@ carry `score`, `confidence`, `legend`, and `probabilities`. Probabilities must
 cover the declared options/levels and sum to one. Invalid answers reject the
 API call. Without this flag decisions are denied, even with `--grant ai.decide`.
 
-Example: `bun run blast run fixtures/extensions/model-provider ask --ai-decide answers.json`.
+```bash
+bun run blast run fixtures/extensions/model-provider ask --ai-decide answers.json
+```
 
-## Terminal client
-
-`bun run tui <extensionDir> <command>` (Bun required). Type to search, ↑/↓ selects,
-Enter runs the first action; Ctrl-K opens actions (type to filter, Enter runs or
-opens submenus). Esc closes panels/submenus, pops views, then quits at root;
-Ctrl-C quits. Filtering matches title/subtitle/keywords, preserving section order;
-`filtering: false` disables it, handlers own filtering, `throttle` delays 200 ms.
-Detail shows markdown source and metadata; item details appear beside the list. Alert
-Enter/Esc confirms/dismisses; toast actions use Ctrl-T/Ctrl-Y; HUD lasts 2.5 s.
-Shortcuts map direct `{ modifiers, key }` with ctrl/shift and lowercase letters,
-digits, enter/escape/space/backspace/tab/arrowUp/arrowDown/arrowLeft/arrowRight.
-Platform objects, cmd/opt and other keys are skipped; client controls take priority.
-Storage/read defaults apply; clipboard and URLs are session-local (capabilities.md).
+The interactive terminal client is documented in `docs/tui.md`.

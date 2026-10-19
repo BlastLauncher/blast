@@ -77,7 +77,7 @@ client-side behaviour the headless CLI cannot: filtering, action panel,
 navigation, feedback UI, menu-bar menus.
 
 - [x] 0052 TUI scaffold: `blast tui`, List rendering, selection, filtering
-- [ ] 0053 TUI action panel, navigation, Detail, feedback UI
+- [x] 0053 TUI action panel, navigation, Detail, feedback UI
 - [ ] 0054 TUI Form and Grid
 
 ### M5 — Native desktop client (MyGo)

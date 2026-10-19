@@ -87,8 +87,9 @@ for (const fixture of ["hello-list", "list-extras"]) {
       // Start a fresh query through the focused input, not a synthetic scene event.
       if (fixture === "list-extras") {
         await act(async () => {
+          // The dropdown accessory always lists "beer"; wait for the cleared query.
           const changed = waitScene(opened.session, (scene) =>
-            JSON.stringify(scene).includes('"title":"beer"'),
+            JSON.stringify(scene).includes('"searchText":""'),
           );
           terminal.mockInput.pressKey("e", { ctrl: true });
           for (let i = 0; i < "deleted wine".length; i++) terminal.mockInput.pressBackspace();
