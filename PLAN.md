@@ -79,7 +79,7 @@ navigation, feedback UI, menu-bar menus.
 - [x] 0052 TUI scaffold: `blast tui`, List rendering, selection, filtering
 - [x] 0053 TUI action panel, navigation, Detail, feedback UI
 - [x] 0054 TUI Form: fields, focus, SubmitForm, drafts
-- [ ] 0055 TUI Grid and search-bar dropdown accessory
+- [x] 0055 TUI Grid and search-bar dropdown accessory
 
 ### M5 — Native desktop client (MyGo)
 
