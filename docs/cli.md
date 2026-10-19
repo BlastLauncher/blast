@@ -1,8 +1,5 @@
 # `blast` debug CLI
 
-Reference for the headless client agents use to run and drive extensions.
-`bun run blast --help` is authoritative; keep this file in sync with it.
-
 ```bash
 bun run blast run <extensionDir> <command> [options]
 ```
@@ -83,8 +80,7 @@ deferred and reject with an explicit error.
 prints a JSON array with model IDs, titles, capabilities and optional metadata.
 `blast complete <extensionDir> <modelId> <prompt>` streams the selected model's
 text to stdout and prints a JSON finish part when supplied by the provider.
-Both run the named provider exports in a separate runtime process and shut it
-down afterwards. They use the same dependency policy as `run`. For example:
+Both run provider exports in a separate runtime process and shut it down afterwards. They use the same dependency policy as `run`. For example:
 
 ```bash
 bun run blast models fixtures/extensions/model-provider
@@ -105,15 +101,18 @@ carry `score`, `confidence`, `legend`, and `probabilities`. Probabilities must
 cover the declared options/levels and sum to one. Invalid answers reject the
 API call. Without this flag decisions are denied, even with `--grant ai.decide`.
 
-```bash
-bun run blast run fixtures/extensions/model-provider ask --ai-decide answers.json
-```
+Example: `bun run blast run fixtures/extensions/model-provider ask --ai-decide answers.json`.
 
 ## Terminal client
 
 `bun run tui <extensionDir> <command>` (Bun required). Type to search, ↑/↓ selects,
-Enter runs the first item/List action, Esc/Ctrl-C quits and shuts down the child.
-Client filtering matches title/subtitle/keywords by case-insensitive substring,
-preserving order even with `keepSectionOrder: false`; `filtering: false` disables it.
-Search handlers own filtering; `throttle` coalesces input with a 200 ms trailing delay.
-Host storage and read-only defaults apply; effects stay denied (no grants yet).
+Enter runs the first action; Ctrl-K opens actions (type to filter, Enter runs or
+opens submenus). Esc closes panels/submenus, pops views, then quits at root;
+Ctrl-C quits. Filtering matches title/subtitle/keywords, preserving section order;
+`filtering: false` disables it, handlers own filtering, `throttle` delays 200 ms.
+Detail shows markdown source and metadata; item details appear beside the list. Alert
+Enter/Esc confirms/dismisses; toast actions use Ctrl-T/Ctrl-Y; HUD lasts 2.5 s.
+Shortcuts map direct `{ modifiers, key }` with ctrl/shift and lowercase letters,
+digits, enter/escape/space/backspace/tab/arrowUp/arrowDown/arrowLeft/arrowRight.
+Platform objects, cmd/opt and other keys are skipped; client controls take priority.
+Storage/read defaults apply; clipboard and URLs are session-local (capabilities.md).

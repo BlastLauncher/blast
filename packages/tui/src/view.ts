@@ -73,13 +73,24 @@ export function sceneToView(scene: SceneMessage | undefined, state: UIState) {
     }
   }
   if (list?.type === "List") list.children.forEach(visit);
-  else if (list) rows.push({ node: list, text: `[Unsupported: ${list.type}]`, item: false });
+  else if (list && list.type !== "Detail")
+    rows.push({ node: list, text: `[Unsupported: ${list.type}]`, item: false });
   const items = rows.filter((row) => row.item).map((row) => row.node);
   const desired = list?.props.selectedItemId ?? state.selectedId;
   const selected = items.find((item) => (item.props.id ?? item.id) === desired) ?? items[0];
   const empty = list?.children.find((node) => node.type === "List.EmptyView");
   return {
     list,
+    navigation: scene?.root?.type === "Navigation" ? scene.root : undefined,
+    actions:
+      (selected ? slot(selected, "actions") : undefined) ??
+      (list ? slot(list, "actions") : undefined),
+    detail:
+      list?.type === "Detail"
+        ? detailText(list)
+        : list?.props.isShowingDetail
+          ? detailText(selected ? slot(selected, "detail") : undefined)
+          : "",
     rows,
     items,
     selected,
@@ -101,4 +112,91 @@ export function selectionId(node: SceneNode | undefined): string | null {
 export function event(node: SceneNode | undefined, name: string, args: JsonValue[] = []) {
   const ref = node?.props[name];
   return node && handler(ref) ? { node: node.id, handler: ref.$handler, args } : undefined;
+}
+
+export function actionRows(node: SceneNode | undefined, query = ""): Row[] {
+  if (!node) return [];
+  if (
+    node.type === "ActionPanel.Submenu" ||
+    node.type === "Action" ||
+    node.type.startsWith("Action.")
+  )
+    return text(node.props.title).toLowerCase().includes(query.toLowerCase())
+      ? [
+          {
+            node,
+            item: true,
+            text: `${text(node.props.title)}${node.type === "ActionPanel.Submenu" ? " ›" : ""} ${shortcutLabel(node.props.shortcut)}`,
+          },
+        ]
+      : [];
+  const children = node.children.flatMap((child) => actionRows(child, query));
+  return children.length && node.type === "ActionPanel.Section"
+    ? [{ node, item: false, text: text(node.props.title) }, ...children]
+    : children;
+}
+
+type TerminalKey = {
+  name: string;
+  ctrl?: boolean;
+  meta?: boolean;
+  shift?: boolean;
+  option?: boolean;
+  super?: boolean;
+};
+function shortcut(value: unknown): { key: string; modifiers: string[] } | undefined {
+  if (!value || typeof value !== "object" || !("key" in value) || !("modifiers" in value)) return;
+  const { key, modifiers } = value;
+  if (
+    typeof key !== "string" ||
+    !Array.isArray(modifiers) ||
+    !modifiers.every((m) => m === "ctrl" || m === "shift")
+  )
+    return;
+  const names: Record<string, string> = {
+    enter: "return",
+    escape: "escape",
+    space: "space",
+    backspace: "backspace",
+    tab: "tab",
+    arrowUp: "up",
+    arrowDown: "down",
+    arrowLeft: "left",
+    arrowRight: "right",
+  };
+  const name = names[key] ?? (/^[a-z0-9]$/.test(key) ? key : undefined);
+  return name ? { key: name, modifiers } : undefined;
+}
+export function shortcutLabel(value: unknown): string {
+  const mapped = shortcut(value);
+  return mapped ? [...mapped.modifiers, mapped.key].join("+") : "";
+}
+export function matchesShortcut(value: unknown, key: TerminalKey): boolean {
+  const mapped = shortcut(value);
+  return (
+    !!mapped &&
+    mapped.key === key.name &&
+    !!key.ctrl === mapped.modifiers.includes("ctrl") &&
+    !!key.shift === mapped.modifiers.includes("shift") &&
+    !key.meta &&
+    !key.option &&
+    !key.super
+  );
+}
+
+export function detailText(node: SceneNode | undefined): string {
+  if (!node) return "";
+  const lines = [text(node.props.markdown)];
+  function visit(child: SceneNode) {
+    if (child.type === "Slot" && child.props.name === "actions") return;
+    if (typeof child.props.markdown === "string") lines.push(child.props.markdown);
+    const value = [text(child.props.text), text(child.props.value), text(child.props.target)]
+      .filter(Boolean)
+      .join(" ");
+    const label = text(child.props.title ?? child.props.label);
+    if (label || value) lines.push([label, value].filter(Boolean).join(": "));
+    child.children.forEach(visit);
+  }
+  node.children.forEach(visit);
+  return lines.filter(Boolean).join("\n");
 }

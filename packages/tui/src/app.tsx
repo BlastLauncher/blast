@@ -3,19 +3,53 @@ import { useEffect, useRef, useState } from "react";
 import { useKeyboard } from "@opentui/react";
 import type { ScrollBoxRenderable } from "@opentui/core";
 import type { Session } from "@blastlauncher/host";
-import type { SceneMessage } from "@blastlauncher/protocol";
-import { event, handler, sceneToView, selectionId, text } from "./view.ts";
+import type { SceneMessage, SceneNode } from "@blastlauncher/protocol";
+import {
+  event,
+  handler,
+  sceneToView,
+  selectionId,
+  text,
+  actionRows,
+  matchesShortcut,
+} from "./view.ts";
 
 export function App({ session, onQuit }: { session: Session; onQuit: () => void }) {
   const [scene, setScene] = useState<SceneMessage | undefined>(session.latestScene);
+  const [panel, setPanel] = useState<string[] | null>(null);
+  const [query, setQuery] = useState("");
+  const [actionIndex, setActionIndex] = useState(0);
+  const [hudVisible, setHudVisible] = useState(false);
   const [searchText, setSearch] = useState("");
   const currentSearch = useRef("");
   const [selectedId, setSelected] = useState<string | null>(null);
   const scroll = useRef<ScrollBoxRenderable>(null);
+  const actionScroll = useRef<ScrollBoxRenderable>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const pendingSearch = useRef<string | undefined>(undefined);
   const previous = useRef<string | null | undefined>(undefined);
   const view = sceneToView(scene, { searchText, selectedId });
+  let panelNode = view.actions;
+  for (const id of panel ?? [])
+    panelNode = (
+      panelNode?.type === "ActionPanel.Submenu"
+        ? panelNode.children.flatMap((child) => actionRows(child))
+        : actionRows(panelNode)
+    ).find((row) => row.node.id === id)?.node;
+  const panelRows =
+    panelNode?.type === "ActionPanel.Submenu"
+      ? panelNode.children.flatMap((child) => actionRows(child, query))
+      : actionRows(panelNode, query);
+  const panelItems = panelRows.filter((row) => row.item);
+  const chosen = panelItems[Math.min(actionIndex, panelItems.length - 1)]?.node;
+  useEffect(() => {
+    actionScroll.current?.scrollChildIntoView(chosen?.id ?? "");
+  }, [chosen?.id]);
+  const feedback = view.navigation?.children ?? [];
+  const alert = feedback.find((node) => node.type === "Alert");
+  const toast = feedback.find((node) => node.type === "Toast");
+  const hud = feedback.find((node) => node.type === "HUD");
+  const request = useRef({ clear: "", pop: "" });
   const send = (value: ReturnType<typeof event>) => {
     if (value) session.sendEvent(value.node, value.handler, value.args);
   };
@@ -35,6 +69,45 @@ export function App({ session, onQuit }: { session: Session; onQuit: () => void 
     }
   }, [view.list?.props.searchText]);
   useEffect(() => () => clearTimeout(timer.current), []);
+  useEffect(() => {
+    setPanel(null);
+    setSelected(null);
+    const initial = text(view.list?.props.searchText);
+    currentSearch.current = initial;
+    pendingSearch.current = undefined;
+    setSearch(initial);
+    clearTimeout(timer.current);
+  }, [view.list?.id]);
+  useEffect(() => {
+    const props = view.navigation?.props;
+    if (!props) return;
+    const clear = JSON.stringify(props.clearSearchBar) ?? "";
+    const pop = JSON.stringify(props.popToRoot) ?? "";
+    const options = props.popToRoot;
+    if (
+      (clear && clear !== request.current.clear) ||
+      (pop !== request.current.pop &&
+        options &&
+        typeof options === "object" &&
+        !Array.isArray(options) &&
+        "clearSearchBar" in options &&
+        options.clearSearchBar)
+    ) {
+      currentSearch.current = "";
+      pendingSearch.current = undefined;
+      clearTimeout(timer.current);
+      setSearch("");
+      send(event(view.list, "onSearchTextChange", [""]));
+    }
+    request.current = { clear, pop };
+    if (props.closeMainWindow) onQuit();
+  }, [scene?.revision]);
+  useEffect(() => {
+    setHudVisible(!!hud);
+    if (!hud) return;
+    const timeout = setTimeout(() => setHudVisible(false), 2500);
+    return () => clearTimeout(timeout);
+  }, [hud?.id, hud?.props.title]);
   const id = selectionId(view.selected);
   useEffect(() => {
     setSelected(id);
@@ -58,8 +131,81 @@ export function App({ session, onQuit }: { session: Session; onQuit: () => void 
     else dispatch();
   }
   useKeyboard((key) => {
-    if (key.name === "escape" || (key.ctrl && key.name === "c")) {
+    function run(node: SceneNode | undefined) {
+      send(event(node, handler(node?.props.onAction) ? "onAction" : "onSubmit"));
+    }
+    if (key.ctrl && key.name === "c") {
       onQuit();
+      return;
+    }
+    if (alert) {
+      key.preventDefault();
+      const name =
+        key.name === "return" ? "primaryAction" : key.name === "escape" ? "dismissAction" : "";
+      run(alert.children.find((node) => node.props.name === name));
+      return;
+    }
+    if (panel !== null) {
+      if (key.name === "escape") {
+        key.preventDefault();
+        setPanel(panel.length ? panel.slice(0, -1) : null);
+        setQuery("");
+        setActionIndex(0);
+      } else if (key.name === "up" || key.name === "down") {
+        key.preventDefault();
+        setActionIndex(
+          Math.max(
+            0,
+            Math.min(panelItems.length - 1, actionIndex + (key.name === "down" ? 1 : -1)),
+          ),
+        );
+      } else if (key.name === "return") {
+        key.preventDefault();
+        if (chosen?.type === "ActionPanel.Submenu") {
+          send(event(chosen, "onOpen"));
+          setPanel([...panel, chosen.id]);
+          setQuery("");
+          setActionIndex(0);
+        } else {
+          run(chosen);
+          setPanel(null);
+        }
+      }
+      return;
+    }
+    if (key.ctrl && key.name === "k") {
+      key.preventDefault();
+      setPanel([]);
+      setQuery("");
+      setActionIndex(0);
+      return;
+    }
+    if (key.name === "escape") {
+      if (handler(view.navigation?.props.pop)) send(event(view.navigation, "pop"));
+      else onQuit();
+      return;
+    }
+    const toastAction = toast?.children.find(
+      (node, index) =>
+        (key.ctrl && key.name === (index === 0 ? "t" : "y")) ||
+        matchesShortcut(node.props.shortcut, key),
+    );
+    if (toastAction) {
+      key.preventDefault();
+      run(toastAction);
+      return;
+    }
+    const shortcut = actionRows(view.actions).find(
+      (row) => row.item && matchesShortcut(row.node.props.shortcut, key),
+    );
+    if (shortcut) {
+      key.preventDefault();
+      if (shortcut.node.type === "ActionPanel.Submenu") {
+        send(event(shortcut.node, "onOpen"));
+        setPanel([shortcut.node.id]);
+        setQuery("");
+        setActionIndex(0);
+      } else run(shortcut.node);
       return;
     }
     if (key.name === "up" || key.name === "down") {
@@ -86,28 +232,104 @@ export function App({ session, onQuit }: { session: Session; onQuit: () => void 
         {view.loading ? "  Loading…" : ""}
       </text>
       <input
-        focused
+        focused={panel === null && !alert}
         value={searchText}
         placeholder={text(view.list?.props.searchBarPlaceholder) || "Search…"}
         onInput={search}
       />
-      <scrollbox ref={scroll} flexGrow={1}>
-        {view.rows.map((row) => (
-          <text
-            key={row.node.id}
-            id={row.node.id}
-            height={1}
-            flexShrink={0}
-            {...(row.node.id === view.selected?.id ? { bg: "#234567" } : {})}
-          >
-            {row.item ? (row.node.id === view.selected?.id ? "› " : "  ") : ""}
-            {row.text}
+      <box flexDirection="row" flexGrow={1}>
+        <scrollbox
+          ref={scroll}
+          flexGrow={1}
+          width={view.list?.type === "Detail" ? 0 : view.detail ? "50%" : "100%"}
+        >
+          {view.rows.map((row) => (
+            <text
+              key={row.node.id}
+              id={row.node.id}
+              height={1}
+              flexShrink={0}
+              {...(row.node.id === view.selected?.id ? { bg: "#234567" } : {})}
+            >
+              {row.item ? (row.node.id === view.selected?.id ? "› " : "  ") : ""}
+              {row.text}
+            </text>
+          ))}
+          {view.list?.type !== "Detail" && view.rows.length === 0 && <text>{view.emptyText}</text>}
+        </scrollbox>
+        {view.detail && (
+          <scrollbox flexGrow={1} width={view.list?.type === "Detail" ? "100%" : "50%"}>
+            <text height={view.detail.split("\n").length} flexShrink={0}>
+              {view.detail}
+            </text>
+          </scrollbox>
+        )}
+      </box>
+      {panel !== null && (
+        <box
+          flexDirection="column"
+          border
+          flexShrink={0}
+          height={Math.min(panelRows.length + 3, 14)}
+          title={text(panelNode?.props.title) || "Actions"}
+        >
+          <input
+            focused={!alert}
+            value={query}
+            placeholder="Filter actions…"
+            onInput={(value) => {
+              setQuery(value);
+              setActionIndex(0);
+              send(event(panelNode, "onSearchTextChange", [value]));
+            }}
+          />
+          <scrollbox ref={actionScroll} flexGrow={1}>
+            {panelRows.map((row) => (
+              <text id={row.node.id} height={1} flexShrink={0} key={row.node.id}>
+                {row.node.id === chosen?.id ? "› " : "  "}
+                {row.text}
+              </text>
+            ))}
+          </scrollbox>
+        </box>
+      )}
+      {toast && (
+        <text height={1} flexShrink={0}>
+          {[
+            text(toast.props.style),
+            text(toast.props.title),
+            text(toast.props.message),
+            ...toast.children.map(
+              (node, index) => `Ctrl-${index === 0 ? "T" : "Y"} ${text(node.props.title)}`,
+            ),
+          ]
+            .filter(Boolean)
+            .join(" · ")}
+        </text>
+      )}
+      {hudVisible && hud && (
+        <text height={1} flexShrink={0}>
+          {text(hud.props.title)}
+        </text>
+      )}
+      {alert && (
+        <box border flexDirection="column" height={4} flexShrink={0} title="Alert">
+          <text height={1} flexShrink={0}>
+            {text(alert.props.title)} {text(alert.props.message)}
           </text>
-        ))}
-        {view.rows.length === 0 && <text>{view.emptyText}</text>}
-      </scrollbox>
+          <text height={1} flexShrink={0}>
+            {alert.children
+              .map(
+                (node) =>
+                  `${node.props.name === "primaryAction" ? "Enter" : "Esc"} ${text(node.props.title)}`,
+              )
+              .join(" · ")}
+          </text>
+        </box>
+      )}
       <text height={1} flexShrink={0}>
-        ↑↓ Select · Enter {text(view.primary?.props.title) || "Run"} · Esc / Ctrl-C Quit
+        ↑↓ Select · Enter {text(view.primary?.props.title) || "Run"} · Ctrl-K Actions · Esc Back /
+        Quit
       </text>
     </box>
   );

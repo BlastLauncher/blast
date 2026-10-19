@@ -20,10 +20,7 @@ import { dirname } from "node:path";
 import { parseArgs } from "node:util";
 import {
   bundleCommand,
-  createBroker,
-  createHeadlessHandlers,
-  createStorageHandlers,
-  createOAuthHandlers,
+  createSessionBroker,
   defaultDataDir,
   parseApplications,
   startCommand,
@@ -614,22 +611,23 @@ async function run(options: RunOptions): Promise<number> {
     // overrides `--grant storage.*`, so a stale grant cannot disable it. The
     // read-only headless defaults override a bare `--grant` the same way:
     // answering them with null would break the extension.
-    const handlers: Record<string, CapabilityHandler> = {
-      ...grantHandlers(options.grants),
-      ...createHeadlessHandlers({
-        aiAnswer: options.aiAnswer,
-        browserTabs: options.browserTabs,
-        oauthCode: options.oauthCode,
-        applications: options.applications,
-        clipboard: options.clipboard,
-        selectedText: options.selectedText,
-        selectedFiles: options.selectedFiles,
-        frontmost: options.frontmost,
-      }),
-      ...(options.aiDecide === undefined ? {} : { "ai.decide": () => options.aiDecide! }),
-      ...createStorageHandlers({ extensionName: bundled.extensionName, dataDir: options.dataDir }),
-      ...createOAuthHandlers({ extensionName: bundled.extensionName, dataDir: options.dataDir }),
-    };
+    const broker = createSessionBroker(
+      { extensionName: bundled.extensionName, dataDir: options.dataDir },
+      {
+        grants: grantHandlers(options.grants),
+        defaults: {
+          aiAnswer: options.aiAnswer,
+          browserTabs: options.browserTabs,
+          oauthCode: options.oauthCode,
+          applications: options.applications,
+          clipboard: options.clipboard,
+          selectedText: options.selectedText,
+          selectedFiles: options.selectedFiles,
+          frontmost: options.frontmost,
+        },
+        handlers: options.aiDecide === undefined ? {} : { "ai.decide": () => options.aiDecide! },
+      },
+    );
     session = await Promise.race([
       startCommand({
         ...bundled,
@@ -639,7 +637,7 @@ async function run(options: RunOptions): Promise<number> {
           ...(options.aiAnswer === undefined ? [] : ["AI" as const]),
           ...(options.browserTabs === undefined ? [] : ["BrowserExtension" as const]),
         ],
-        broker: reportingBroker(createBroker(handlers), output),
+        broker: reportingBroker(broker, output),
       }),
       deadline,
     ]).catch((error: unknown) => {
