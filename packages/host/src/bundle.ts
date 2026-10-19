@@ -19,6 +19,7 @@ import { tmpdir } from "node:os";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { checkExtensionDependencies } from "./install-dependencies.ts";
 import { dependencyWarnings, isProvidedSpecifier } from "./dependencies.ts";
 
 // Bundles run in Node even when Bun runs the host. Bun's built-in list also
@@ -46,36 +47,67 @@ export class MissingDependencyError extends Error {
 
   constructor(packages: Iterable<string>) {
     const names = [...new Set(packages)].toSorted();
-    super(`Missing dependencies: ${names.join(", ")}`);
+    super(
+      `Missing dependencies: ${names.join(", ")}. Run blast deps <extensionDir> to install declared dependencies.`,
+    );
     this.name = "MissingDependencyError";
     this.packages = names;
   }
 }
 
-function dependencyPolicy(missing: Set<string>): Plugin {
-  const providedFiles = new Set<string>();
+function dependencyPolicy(
+  missing: Set<string>,
+  installed?: string,
+  installedPackages = new Set<string>(),
+): Plugin {
+  const dependencyFiles = new Set<string>();
   return {
     name: "blast-dependencies",
     setup(builder) {
       builder.onResolve({ filter: /.*/ }, async (args) => {
         if (args.pluginData === "blast-resolving") return;
         const specifier = args.path;
-        if (specifier === "@raycast/api" || /^react(?:\/|$)/.test(specifier))
+        if (specifier === "@raycast/api" || /^(?:react|react-dom)(?:\/|$)/.test(specifier))
           return { path: specifier, external: true };
         if (isNodeBuiltin(specifier)) return { path: specifier, external: true };
+        const bare = !specifier.startsWith(".") && !isAbsolute(specifier);
+        const inDependencyGraph = dependencyFiles.has(args.importer);
+        if (installed && bare && !inDependencyGraph && args.kind !== "entry-point") {
+          const name = specifier.startsWith("@")
+            ? specifier.split("/").slice(0, 2).join("/")
+            : specifier.split("/")[0]!;
+          // Do not let esbuild walk up into unrelated ancestor node_modules.
+          const present = await access(join(installed, "node_modules", name)).then(
+            () => true,
+            () => false,
+          );
+          if (present) {
+            const result = await builder.resolve(specifier, {
+              resolveDir: installed,
+              kind: args.kind,
+              pluginData: "blast-resolving",
+            });
+            if (!result.errors.length && result.path) {
+              if (!result.external) dependencyFiles.add(result.path);
+              installedPackages.add(name);
+              return result;
+            }
+          }
+        }
         const provided = isProvidedSpecifier(specifier);
-        const inProvidedGraph = providedFiles.has(args.importer);
-        // Only Blast's supplied dependency graph gets normal package resolution.
-        if (provided || inProvidedGraph) {
+        // Installed and shared dependency graphs get normal transitive resolution.
+        if (provided || inDependencyGraph) {
           const result = await builder.resolve(specifier, {
-            resolveDir: inProvidedGraph ? args.resolveDir : dirname(fileURLToPath(import.meta.url)),
+            resolveDir: inDependencyGraph
+              ? args.resolveDir
+              : dirname(fileURLToPath(import.meta.url)),
             kind: args.kind,
             pluginData: "blast-resolving",
           });
           // Let esbuild handle unresolved optional requires inside try/catch.
           // Returning plugin errors here would make those optional imports fatal.
-          if (result.errors.length && inProvidedGraph) return;
-          if (result.path && !result.external) providedFiles.add(result.path);
+          if (result.errors.length && inDependencyGraph) return;
+          if (result.path && !result.external) dependencyFiles.add(result.path);
           return result;
         }
         if (args.kind === "entry-point" || specifier.startsWith(".") || isAbsolute(specifier))
@@ -121,6 +153,7 @@ export type BundleOptions = {
   extensionDir: string;
   command: string;
   outDir?: string;
+  dataDir?: string;
 };
 /** One `commands[].arguments` entry from an extension manifest. */
 export type CommandArgument = {
@@ -339,11 +372,13 @@ async function bundleEntry(
     }
   }
   if (!source) throw new Error(`Missing source for ${options.command}`);
+  const install = await checkExtensionDependencies(options);
   const base = join(tmpdir(), "blast", "builds");
   if (!options.outDir) await mkdir(base, { recursive: true });
   const outDir = options.outDir ? resolve(options.outDir) : await mkdtemp(join(base, "command-"));
   const entry = join(outDir, `${entryName}.mjs`);
   const missing = new Set<string>();
+  const installedPackages = new Set<string>();
   try {
     const bundled = await build({
       absWorkingDir: extensionDir,
@@ -357,7 +392,13 @@ async function bundleEntry(
       target: "node24",
       jsx: "automatic",
       banner: { js: CJS_GLOBALS_BANNER },
-      plugins: [dependencyPolicy(missing)],
+      plugins: [
+        dependencyPolicy(
+          missing,
+          install.needed ? undefined : install.directory,
+          installedPackages,
+        ),
+      ],
       logLevel: "silent",
     });
     // Optional imports in provided graphs can escape esbuild's resolver.
@@ -368,7 +409,7 @@ async function bundleEntry(
           imported.external &&
           imported.kind !== "require-call" &&
           imported.path !== "@raycast/api" &&
-          !/^react(?:\/|$)/.test(imported.path) &&
+          !/^(?:react|react-dom)(?:\/|$)/.test(imported.path) &&
           !isNodeBuiltin(imported.path)
         ) {
           missing.add(
@@ -397,7 +438,13 @@ async function bundleEntry(
   await linkAssets(outDir, extensionDir);
   return {
     entry,
-    dependencyWarnings: dependencyWarnings(manifest.dependencies),
+    dependencyWarnings: dependencyWarnings(
+      Object.fromEntries(
+        Object.entries(manifest.dependencies ?? {}).filter(
+          ([name]) => !installedPackages.has(name),
+        ),
+      ),
+    ),
     extensionName: manifest.name,
     commandName: command.name,
     // Raycast reports the owner when a manifest has one, else the author.

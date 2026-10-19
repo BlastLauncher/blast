@@ -89,7 +89,10 @@ implemented APIs are accessible and stubs are inaccessible.
 
 ## Host sessions
 
-`bundleCommand({ extensionDir, command, outDir? })` returns the entry path,
+`blast deps` keeps keyed production installs outside extensions under `<dataDir>/deps/`;
+bundling resolves matching installs before the shared dependency allowlist.
+
+`bundleCommand({ extensionDir, command, outDir?, dataDir? })` returns the entry path,
 extension/command names, manifest mode and argument declarations. Pass those to
 `startCommand({ ...bundled, argumentValues, launchContext, broker })`; the values
 reach the command as its launch props. The host resolves

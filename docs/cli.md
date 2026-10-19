@@ -13,6 +13,14 @@ published scene as a text tree (one node per line, handler props as
 capability requests; token capabilities (`oauth.tokens.*`) are redacted.
 `--json` emits the protocol messages as NDJSON instead.
 
+## Extension dependencies
+
+`blast deps <extensionDir> [--data-dir <dir>]` installs production dependencies
+outside the extension, under `<dataDir>/deps/<encoded-name>/`. It uses the npm
+lockfile, skips install scripts, and reuses unchanged installs. Without a lockfile
+it warns that versions are unpinned. Run it before `blast run` when dependencies
+are missing; matching installs take precedence over Blast's shared packages.
+
 ## Options
 
 - `--argument <name=value>` — manifest argument (repeatable; a missing
