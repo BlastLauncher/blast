@@ -57,8 +57,36 @@ which the user can open and change.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: 0055-tui-grid-dropdown @ 9f01c54
+Verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) — 506 tests, 0 fail
 Done:
+- Shared scene primitives extracted into `nodes.ts` (view.ts re-exports them)
+  so List and Grid reuse selection/filtering/event helpers.
+- `grid.ts` pure scene→cells layout (columns default 5, per-section override,
+  client filtering, empty sections dropped) + `gridMove` 2-D movement
+  (←/→ within a row, ↑/↓ by column across rows and sections, clamped into
+  shorter rows); `grid.tsx` renders cells (content glyph/source name or color
+  above title/subtitle). aspectRatio/fit/inset ignored as instructed.
+- Dropdown accessory (`List.Dropdown`/`Grid.Dropdown`): current value's title
+  next to the search bar; Ctrl-P opens a filterable option panel (sections
+  included), Enter sends `onChange`, Esc closes; runtime owns the value via
+  the scene's `value` prop. List and Grid both dispatch on the active root's
+  type; app.tsx kept to dispatch + rendering + key handling.
+- Tests: `grid.test.ts` (pure layout/movement), `grid.test.tsx` (grid fixture:
+  3 cells one row, → then Enter runs second cell's action, empty view on
+  filtering to nothing, dropdown changes navigationTitle), `dropdown.test.tsx`
+  (list-extras: Ctrl-P open, filter, Esc close, pick changes navigationTitle).
+  All TUI tests stable across 5 random seeds.
+- docs/tui.md: ←/→ and Ctrl-P rows in the keys table; Grid + dropdown notes.
 Not done / risks:
+- Fixture `grid` picked "water" (filtered) rather than the literal "beer"
+  sequence in one dropdown path; acceptance's "choose beer" is covered by the
+  keyboard-alone pick in both dropdown tests.
+- Note for reviewers: `act(async () => { press(); await sleep() })` (sleeping
+  inside act) can drop the OpenTUI paint under the test harness even though
+  React state is correct; the new tests settle outside act() instead.
+- Task 0054 (Form) edits `app.tsx`/`view.ts` in parallel: my view.ts diff only
+  swaps primitives for the nodes.ts import and adds Grid/empty/accessory
+  handling; app.tsx adds dropdown state, Ctrl-P, 2-D movement and the grid
+  render branch. Merge conflicts should be small.
 ```

@@ -12,9 +12,11 @@ bun run tui <extensionDir> <command>
 | --------------- | -------------------------------------------------------------------- |
 | typing          | search text (client filtering or the List's search handler)          |
 | ↑ / ↓           | move the selection                                                   |
+| ← / →           | move within a Grid row (Grid only)                                   |
 | Enter           | run the selected item's first action (or the view's own)             |
 | Ctrl-K          | open the action panel; type to filter, Enter runs or opens a submenu |
-| Esc             | close submenu/panel, else pop the view, else quit at root            |
+| Ctrl-P          | open the search-bar dropdown accessory; type to filter its options   |
+| Esc             | close dropdown/submenu/panel, else pop the view, else quit at root   |
 | Ctrl-C          | quit (shuts the runtime child down)                                  |
 | Enter / Esc     | confirm / dismiss an open Alert                                      |
 | Ctrl-T / Ctrl-Y | toast primary / secondary action                                     |
@@ -29,6 +31,17 @@ combinations are skipped; the client keys above take priority.
 - Client filtering matches title, subtitle and keywords by case-insensitive
   substring and keeps section order; `filtering: false` disables it, a search
   handler owns filtering, and `throttle` delays the event by 200 ms.
+- `List` and `Grid` share selection, filtering and primary-action handling;
+  the active view's root type picks the renderer. Grid lays items out in rows
+  of `columns` (default 5; a section's own `columns` overrides it) with a
+  header line per section; a cell shows its `content` as short text (image
+  source name or a color) above title/subtitle, `aspectRatio`, `fit` and
+  `inset` are ignored. ↑/↓ keep the column when crossing rows and sections,
+  clamping into shorter rows.
+- A `searchBarAccessory` dropdown (`List.Dropdown` / `Grid.Dropdown`) shows the
+  current value's title next to the search bar; Ctrl-P opens its options
+  (sections included) in a filterable panel, Enter sends `onChange` with the
+  chosen value and Esc closes. The runtime owns the dropdown value.
 - Only the active `Navigation.Entry` renders. `popToRoot({ clearSearchBar })`
   and `clearSearchBar()` clear the input; `closeMainWindow()` quits.
 - `Detail` shows markdown source as plain text plus metadata lines;
