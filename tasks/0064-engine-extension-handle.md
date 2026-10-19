@@ -1,7 +1,7 @@
 ---
 id: "0064"
 title: Engine API — extension handle (manifest, live reload, deps, preferences, launch)
-status: doing
+status: review
 milestone: M5
 depends: []
 ---
@@ -60,7 +60,7 @@ picker uses this API instead of its own logic.
 
 ## Acceptance
 
-- [ ] `packages/host/src/extension.test.ts` covers:
+- [x] `packages/host/src/extension.test.ts` covers:
   - manifest parse and invalid-manifest error;
   - watch reload after rewriting `package.json` (and unsubscribe);
   - serialized install with an injected installer;
@@ -68,10 +68,10 @@ picker uses this API instead of its own logic.
   - `launch` refusing on missing required preferences/arguments;
   - `launch` rendering a fixture scene, then `close()` removing the bundle
     directory.
-- [ ] `rg -n "fs.watch|watch\\(|checkExtensionDependencies|parsePreferences|bundleCommand" packages/tui/src --glob '!*.test.*'`
+- [x] `rg -n "fs.watch|watch\\(|checkExtensionDependencies|parsePreferences|bundleCommand" packages/tui/src --glob '!*.test.*'`
       shows no direct use. The TUI goes through `openExtension`.
-- [ ] All existing `packages/tui` tests pass.
-- [ ] `bun run verify` passes.
+- [x] All existing `packages/tui` tests pass.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -80,11 +80,13 @@ picker uses this API instead of its own logic.
 
 ## Handoff
 
-Filled in by the worker when finishing:
-
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/engine-extension-handle @ ef12fd810d9d94ed178dd55dfd4f359611de4db0 (implementation; handoff committed separately)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 104.0s
 Done:
-Not done / risks:
+- Added the host extension handle with validated manifests, debounced reloads, serialized dependencies, scoped preferences and typed launch validation.
+- Moved launch/session cleanup into the host; the TUI shares one handle across picker and command transitions.
+- Added six host tests and an owned fixture; all 571 tests pass, including existing TUI tests.
+- Confirmed the acceptance source scan has no matches; documented the handle in 12 architecture lines.
+Not done / risks: None skipped. No new dependencies. Task 0063 files were not modified. Install serialization is per handle; close waits for an active installer to finish. No push performed.
 ```
