@@ -147,3 +147,15 @@ test("provided graphs keep their own transitive versions without exposing them",
     packages: ["form-data"],
   });
 });
+
+test("a manifest-only checkout fails with a message naming the missing source", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "blast-manifest-only-"));
+  directories.push(dir);
+  await writeFile(
+    join(dir, "package.json"),
+    JSON.stringify({ name: "manifest-only", commands: [{ name: "view-history", mode: "view" }] }),
+  );
+  await expect(bundle("view-history", dir)).rejects.toThrow(
+    /Missing source for view-history: no src\/view-history\.\{tsx,ts,jsx,js\} in .*manifest-only/,
+  );
+});

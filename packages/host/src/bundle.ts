@@ -395,7 +395,11 @@ async function bundleEntry(
       // Try the next supported source extension.
     }
   }
-  if (!source) throw new Error(`Missing source for ${options.command}`);
+  if (!source)
+    throw new Error(
+      `Missing source for ${entryName}: no src/${entryName}.{tsx,ts,jsx,js} in ${extensionDir}` +
+        " (a sparse checkout that only has package.json? fetch the whole extension directory)",
+    );
   const install =
     options.installedDependencies === false ? undefined : await checkExtensionDependencies(options);
   const base = join(tmpdir(), "blast", "builds");
