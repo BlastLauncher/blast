@@ -1,18 +1,24 @@
 // Joins `// @covers` evidence from test files with the inventory into a
 // coverage report. Pure logic: no filesystem access here, so fixtures in tests
 // can drive every rule.
-import { KINDS, type Kind } from "./inventory.ts";
+import { KINDS, type Kind, type Entry } from "./inventory.ts";
 
 export const STATUS = ["covered", "partial", "missing"] as const;
 export type Status = (typeof STATUS)[number];
 
-export type InventoryEntry = { path: string; kind: Kind; deprecated: boolean };
+export type InventoryEntry = Entry;
 export type Inventory = { version: string; entries: InventoryEntry[] };
 
 /** One `// @covers` tag, with the location needed to report unknown paths. */
 export type CoverTag = { path: string; partial: boolean; file: string; line: number };
 
-export type ReportEntry = { path: string; status: Status; tests: string[]; weight?: number };
+export type ReportEntry = {
+  path: string;
+  status: Status;
+  tests: string[];
+  weight?: number;
+  via?: string;
+};
 export type Totals = { covered: number; partial: number; missing: number; total: number };
 export type CoverageReport = {
   version: string;
@@ -82,6 +88,28 @@ export function buildReport(
     };
   });
 
+  const byPath = new Map(entries.map((entry) => [entry.path, entry]));
+  const aliases = inventory.entries.filter(
+    (entry) => entry.aliasTarget && evidence.has(entry.path),
+  );
+  function inherit(entry: ReportEntry, seen = new Set<string>()): void {
+    if (evidence.has(entry.path) || seen.has(entry.path)) return;
+    const next = new Set(seen).add(entry.path);
+    // The closest proven alias owns the mapping; direct evidence always wins.
+    const alias = aliases
+      .filter((candidate) => entry.path.startsWith(`${candidate.path}.`))
+      .toSorted((a, b) => b.path.length - a.path.length)[0];
+    if (!alias) return;
+    const target = byPath.get(alias.aliasTarget + entry.path.slice(alias.path.length));
+    if (!target || next.has(target.path)) return;
+    inherit(target, next);
+    if (target.status === "missing") return;
+    entry.status = evidence.get(alias.path)!.partial ? "partial" : target.status;
+    entry.tests = [...new Set([...target.tests, ...evidence.get(alias.path)!.files])].toSorted();
+    entry.via = alias.aliasTarget!;
+  }
+  for (const entry of entries) inherit(entry);
+
   const totals = {
     all: emptyTotals(),
     nonDeprecated: emptyTotals(),
@@ -114,6 +142,7 @@ export function renderCoverageMd(report: CoverageReport, inventory: Inventory): 
     `Denominator: the \`@raycast/api@${report.version}\` declarations. Evidence:`,
     "`// @covers` tags in `packages/**/*.test.ts(x)`. A parent is not implied covered",
     "by its children. Partial support is reported separately from covered.",
+    "Proven aliases inherit descendant evidence from their targets (`via` in JSON).",
     "",
     `**Non-deprecated coverage: ${totals.nonDeprecated.covered}/${totals.nonDeprecated.total} covered (${percent(totals.nonDeprecated)}), ${totals.nonDeprecated.partial} partial, ${totals.nonDeprecated.missing} missing.**`,
     `Deprecated: ${totals.deprecated.covered}/${totals.deprecated.total} covered (${percent(totals.deprecated)}), ${totals.deprecated.partial} partial, ${totals.deprecated.missing} missing.`,

@@ -21,7 +21,7 @@ export const KINDS = [
   "method",
 ] as const;
 export type Kind = (typeof KINDS)[number];
-export type Entry = { path: string; kind: Kind; deprecated: boolean };
+export type Entry = { path: string; kind: Kind; deprecated: boolean; aliasTarget?: string };
 export type Inventory = {
   entries: Entry[];
   external: string[];
@@ -68,6 +68,7 @@ export function inventory(source: string): Inventory {
   const roots: Array<{ path: string; declaration: Declaration }> = [];
   const entries = new Map<string, Entry>();
   const external = new Set<string>();
+  const memberAliases: Array<{ path: string; reference: string; scope: string }> = [];
   const deprecated = (node: Node) => {
     const comment = parsed.comments.findLast(
       (candidate) =>
@@ -311,6 +312,13 @@ export function inventory(source: string): Inventory {
       const kind = classify(child, scope) ?? "property";
       const childDeprecated = inheritedDeprecated || deprecated(child);
       add(childPath, kind, childDeprecated);
+      const childAnnotation = annotation(child);
+      const childType =
+        childAnnotation?.type === "TSTypeAnnotation"
+          ? childAnnotation.typeAnnotation
+          : childAnnotation;
+      if (childType?.type === "TSTypeQuery")
+        memberAliases.push({ path: childPath, reference: name(childType.exprName), scope });
       // Components and typeof values expose runtime members. Ordinary data
       // properties stop at named types, whose members have their own paths.
       expand(
@@ -380,8 +388,43 @@ export function inventory(source: string): Inventory {
     if (declaration.node.type !== "TSModuleDeclaration")
       references(declaration.node, declaration.scope);
   const sorted = [...entries.values()].toSorted((a, b) => compare(a.path, b.path));
-  // Namespace roots and merged declarations are visited independently, so apply
-  // ancestor deprecation after every declaration has contributed its entries.
+  for (const {
+    path,
+    declaration: { node, scope },
+  } of roots) {
+    const type =
+      node.type === "TSInterfaceDeclaration"
+        ? node.body.body.length === 0 && node.extends.length === 1
+          ? node.extends[0]
+          : undefined
+        : annotation(node);
+    if (node.type === "VariableDeclarator" && type?.type !== "TSTypeQuery") continue;
+    const reference =
+      type?.type === "TSTypeQuery"
+        ? name(type.exprName)
+        : type?.type === "TSTypeReference"
+          ? name(type.typeName)
+          : type?.type === "TSInterfaceHeritage"
+            ? name(type.expression)
+            : undefined;
+    if (!reference) continue;
+    memberAliases.push({ path, reference, scope });
+  }
+  for (const { path, reference, scope } of memberAliases) {
+    for (
+      let current = scope;
+      ;
+      current = current.includes(".") ? current.slice(0, current.lastIndexOf(".")) : ""
+    ) {
+      const target = current ? `${current}.${reference}` : reference;
+      if ((entries.has(target) || declarations.has(target)) && target !== path) {
+        entries.get(path)!.aliasTarget = target;
+        break;
+      }
+      if (!current) break;
+    }
+  }
+  // Namespace roots and merged declarations contribute deprecation independently.
   for (const entry of sorted) {
     const parts = entry.path.split(".");
     for (let i = 1; i < parts.length; i++)

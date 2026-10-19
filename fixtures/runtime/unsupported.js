@@ -1,8 +1,8 @@
-import { Action, List, FormTextField, randomId } from "@raycast/api";
+import { Action, List, render, randomId } from "@raycast/api";
 import { createElement } from "react";
 
 export default function Command() {
-  return createElement(FormTextField);
+  return createElement(render);
 }
 export function EventCommand() {
   return createElement(

@@ -199,3 +199,32 @@ test("inventories the pinned Raycast declarations", () => {
   expect(result["Action.CopyToClipboard.Props.onCopy"]?.kind).toBe("property");
   expect(result["ActionPanel.Item.CopyToClipboard.Props.icon.tintColor.dark"]).toBeUndefined();
 });
+
+test("records public alias targets with lexical scope and excludes structural duplicates", () => {
+  const result = entries(`
+    export namespace Current { interface Props { title: string } const Item: { run(): void }; }
+    export const OldItem: typeof Current.Item;
+    export const Container: { Old: typeof Current.Item };
+    interface Internal { value: string }
+    export type InternalAlias = Internal;
+    export type OldProps = Current.Props;
+    export interface LegacyProps extends Current.Props {}
+    export interface Extended extends Current.Props { own: string }
+    export interface Duplicate { title: string }
+    export const data: Current.Props;
+    export namespace Nested {
+      interface Props { value: string }
+      type Alias = Props;
+      type Outer = Current.Props;
+    }
+  `);
+  expect(result["Container.Old"]?.aliasTarget).toBe("Current.Item");
+  expect(result.InternalAlias?.aliasTarget).toBe("Internal");
+  expect(result.OldItem?.aliasTarget).toBe("Current.Item");
+  expect(result.OldProps?.aliasTarget).toBe("Current.Props");
+  expect(result.LegacyProps?.aliasTarget).toBe("Current.Props");
+  expect(result["Nested.Alias"]?.aliasTarget).toBe("Nested.Props");
+  expect(result["Nested.Outer"]?.aliasTarget).toBe("Current.Props");
+  for (const path of ["Extended", "Duplicate", "data", "OldItem.run"])
+    expect(result[path]?.aliasTarget).toBeUndefined();
+});

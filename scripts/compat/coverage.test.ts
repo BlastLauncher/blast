@@ -275,3 +275,64 @@ test("committed report and summary match regeneration from the pinned inventory"
   const { covered, partial, missing } = report.totals.all;
   expect(covered + partial + missing).toBe(pinned.entries.length);
 });
+
+test("alias descendants require identity evidence, inherit partial status and retain provenance", () => {
+  const fixture: Inventory = {
+    version: "test",
+    entries: [
+      { path: "Target", kind: "interface", deprecated: false },
+      { path: "Target.title", kind: "property", deprecated: false },
+      { path: "Target.value", kind: "property", deprecated: false },
+      { path: "Alias", kind: "interface", deprecated: true, aliasTarget: "Target" },
+      { path: "Alias.title", kind: "property", deprecated: true },
+      { path: "Alias.value", kind: "property", deprecated: true },
+      { path: "Alias.unknown", kind: "property", deprecated: true },
+      { path: "Chain", kind: "interface", deprecated: true, aliasTarget: "Alias" },
+      { path: "Chain.title", kind: "property", deprecated: true },
+    ],
+  };
+  const targets = parseCovers(
+    "// @covers Target.title\n// @covers Target.value partial",
+    "target.test.ts",
+  );
+  expect(
+    buildReport(fixture, targets).report.entries.find((e) => e.path === "Alias.title")?.status,
+  ).toBe("missing");
+  const { report } = buildReport(fixture, [
+    ...targets,
+    ...parseCovers("// @covers Alias\n// @covers Chain", "identity.test.ts"),
+  ]);
+  const entries = Object.fromEntries(report.entries.map((entry) => [entry.path, entry]));
+  expect(entries["Alias.title"]).toEqual({
+    path: "Alias.title",
+    status: "covered",
+    tests: ["identity.test.ts", "target.test.ts"],
+    via: "Target",
+  });
+  expect(entries["Alias.value"]?.status).toBe("partial");
+  expect(entries["Alias.unknown"]?.status).toBe("missing");
+  expect(entries["Chain.title"]?.via).toBe("Alias");
+  expect(entries["Chain.title"]?.status).toBe("covered");
+  const direct = buildReport(fixture, [
+    ...targets,
+    ...parseCovers("// @covers Alias partial\n// @covers Alias.title", "direct.test.ts"),
+  ]).report.entries;
+  expect(direct.find((e) => e.path === "Alias.title")?.via).toBeUndefined();
+  expect(direct.find((e) => e.path === "Alias.value")?.status).toBe("partial");
+});
+
+test("cyclic alias metadata terminates without inventing descendant evidence", () => {
+  const fixture: Inventory = {
+    version: "test",
+    entries: [
+      { path: "A", kind: "type", deprecated: true, aliasTarget: "B" },
+      { path: "B", kind: "type", deprecated: true, aliasTarget: "A" },
+      { path: "A.value", kind: "property", deprecated: true },
+      { path: "B.value", kind: "property", deprecated: true },
+    ],
+  };
+  const { report } = buildReport(fixture, parseCovers("// @covers A\n// @covers B", "test.ts"));
+  expect(
+    report.entries.filter((entry) => entry.path.endsWith(".value")).map((entry) => entry.status),
+  ).toEqual(["missing", "missing"]);
+});

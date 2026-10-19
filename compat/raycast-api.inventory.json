@@ -35,7 +35,8 @@
     {
       "path": "AI.GetModels",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "ExtensionGetModels"
     },
     {
       "path": "AI.Model",
@@ -930,12 +931,14 @@
     {
       "path": "AI.ModelFullStream",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "ExtensionModelFullStream"
     },
     {
       "path": "AI.ModelMessage",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "ExtensionModelMessage"
     },
     {
       "path": "AI.ModelMessage.content",
@@ -955,7 +958,8 @@
     {
       "path": "AI.ModelProviderOptions",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "ExtensionModelProviderOptions"
     },
     {
       "path": "AI.ModelProviderOptions.raycast",
@@ -985,7 +989,8 @@
     {
       "path": "AI.ModelRequest",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "ExtensionModelRequest"
     },
     {
       "path": "AI.ModelRequest.messages",
@@ -1030,7 +1035,8 @@
     {
       "path": "AI.ModelStream",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "ExtensionModelStream"
     },
     {
       "path": "AI.ModelStream.fullStream",
@@ -1045,7 +1051,8 @@
     {
       "path": "AI.ModelStreamPart",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "ExtensionModelStreamPart"
     },
     {
       "path": "AI.ModelStreamPart.approvalId",
@@ -1175,12 +1182,14 @@
     {
       "path": "AI.ModelTextStream",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "ExtensionModelTextStream"
     },
     {
       "path": "AI.ModelTool",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "ExtensionModelTool"
     },
     {
       "path": "AI.ModelTool.description",
@@ -1200,12 +1209,14 @@
     {
       "path": "AI.ModelToolSet",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "ExtensionModelToolSet"
     },
     {
       "path": "AI.RegisteredModel",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "ExtensionModel"
     },
     {
       "path": "AI.RegisteredModel.capabilities",
@@ -1320,7 +1331,8 @@
     {
       "path": "AI.StreamCompletion",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "ExtensionStreamCompletion"
     },
     {
       "path": "AI.ask",
@@ -1345,12 +1357,14 @@
     {
       "path": "Action.CopyToClipboard",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "CopyToClipboard"
     },
     {
       "path": "Action.CopyToClipboard.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "CopyToClipboardProps"
     },
     {
       "path": "Action.CopyToClipboard.Props.concealed",
@@ -1390,12 +1404,14 @@
     {
       "path": "Action.CreateQuicklink",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "CreateQuicklink"
     },
     {
       "path": "Action.CreateQuicklink.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "CreateQuicklinkProps"
     },
     {
       "path": "Action.CreateQuicklink.Props.icon",
@@ -1420,12 +1436,14 @@
     {
       "path": "Action.CreateSnippet",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "CreateSnippet"
     },
     {
       "path": "Action.CreateSnippet.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "CreateSnippetProps"
     },
     {
       "path": "Action.CreateSnippet.Props.icon",
@@ -1450,12 +1468,14 @@
     {
       "path": "Action.InstallMCPServer",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "InstallMCPServer"
     },
     {
       "path": "Action.InstallMCPServer.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "InstallMCPServerProps"
     },
     {
       "path": "Action.InstallMCPServer.Props.icon",
@@ -1480,12 +1500,14 @@
     {
       "path": "Action.Open",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "Open"
     },
     {
       "path": "Action.Open.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "OpenProps"
     },
     {
       "path": "Action.Open.Props.application",
@@ -1520,12 +1542,14 @@
     {
       "path": "Action.OpenInBrowser",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "OpenInBrowser"
     },
     {
       "path": "Action.OpenInBrowser.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "OpenInBrowserProps"
     },
     {
       "path": "Action.OpenInBrowser.Props.icon",
@@ -1555,12 +1579,14 @@
     {
       "path": "Action.OpenWith",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "OpenWith"
     },
     {
       "path": "Action.OpenWith.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "OpenWithProps"
     },
     {
       "path": "Action.OpenWith.Props.icon",
@@ -1590,12 +1616,14 @@
     {
       "path": "Action.Paste",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "Paste"
     },
     {
       "path": "Action.Paste.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "PasteProps"
     },
     {
       "path": "Action.Paste.Props.content",
@@ -1625,12 +1653,14 @@
     {
       "path": "Action.PickDate",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "PickDate"
     },
     {
       "path": "Action.PickDate.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "PickDateProps"
     },
     {
       "path": "Action.PickDate.Props.icon",
@@ -1670,7 +1700,8 @@
     {
       "path": "Action.PickDate.Type",
       "kind": "property",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "DatePickerType_2"
     },
     {
       "path": "Action.PickDate.isFullDay",
@@ -1680,7 +1711,8 @@
     {
       "path": "Action.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "ActionProps"
     },
     {
       "path": "Action.Props.autoFocus",
@@ -1720,12 +1752,14 @@
     {
       "path": "Action.Push",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "Push"
     },
     {
       "path": "Action.Push.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "PushProps"
     },
     {
       "path": "Action.Push.Props.icon",
@@ -1760,12 +1794,14 @@
     {
       "path": "Action.ShowInFinder",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "ShowInFinder"
     },
     {
       "path": "Action.ShowInFinder.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "ShowInFinderProps"
     },
     {
       "path": "Action.ShowInFinder.Props.icon",
@@ -1795,17 +1831,20 @@
     {
       "path": "Action.Style",
       "kind": "property",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "ActionStyle"
     },
     {
       "path": "Action.SubmitForm",
       "kind": "property",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "SubmitForm"
     },
     {
       "path": "Action.SubmitForm.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "SubmitFormProps"
     },
     {
       "path": "Action.SubmitForm.Props.icon",
@@ -1835,12 +1874,14 @@
     {
       "path": "Action.ToggleQuickLook",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "ToggleQuickLook"
     },
     {
       "path": "Action.ToggleQuickLook.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "ToggleQuickLookProps"
     },
     {
       "path": "Action.ToggleQuickLook.Props.icon",
@@ -1860,12 +1901,14 @@
     {
       "path": "Action.Trash",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "Trash"
     },
     {
       "path": "Action.Trash.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "TrashProps"
     },
     {
       "path": "Action.Trash.Props.icon",
@@ -1900,17 +1943,20 @@
     {
       "path": "ActionPanel.Children",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "ActionPanelChildren_2"
     },
     {
       "path": "ActionPanel.Item",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Action"
     },
     {
       "path": "ActionPanel.Item.CopyToClipboard",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "CopyToClipboard"
     },
     {
       "path": "ActionPanel.Item.CopyToClipboard.Props",
@@ -1955,7 +2001,8 @@
     {
       "path": "ActionPanel.Item.CreateQuicklink",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "CreateQuicklink"
     },
     {
       "path": "ActionPanel.Item.CreateQuicklink.Props",
@@ -1985,7 +2032,8 @@
     {
       "path": "ActionPanel.Item.CreateSnippet",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "CreateSnippet"
     },
     {
       "path": "ActionPanel.Item.CreateSnippet.Props",
@@ -2015,7 +2063,8 @@
     {
       "path": "ActionPanel.Item.InstallMCPServer",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "InstallMCPServer"
     },
     {
       "path": "ActionPanel.Item.InstallMCPServer.Props",
@@ -2045,7 +2094,8 @@
     {
       "path": "ActionPanel.Item.Open",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Open"
     },
     {
       "path": "ActionPanel.Item.Open.Props",
@@ -2085,7 +2135,8 @@
     {
       "path": "ActionPanel.Item.OpenInBrowser",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "OpenInBrowser"
     },
     {
       "path": "ActionPanel.Item.OpenInBrowser.Props",
@@ -2120,7 +2171,8 @@
     {
       "path": "ActionPanel.Item.OpenWith",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "OpenWith"
     },
     {
       "path": "ActionPanel.Item.OpenWith.Props",
@@ -2155,7 +2207,8 @@
     {
       "path": "ActionPanel.Item.Paste",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Paste"
     },
     {
       "path": "ActionPanel.Item.Paste.Props",
@@ -2190,7 +2243,8 @@
     {
       "path": "ActionPanel.Item.PickDate",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "PickDate"
     },
     {
       "path": "ActionPanel.Item.PickDate.Props",
@@ -2235,7 +2289,8 @@
     {
       "path": "ActionPanel.Item.PickDate.Type",
       "kind": "property",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "DatePickerType_2"
     },
     {
       "path": "ActionPanel.Item.PickDate.isFullDay",
@@ -2285,7 +2340,8 @@
     {
       "path": "ActionPanel.Item.Push",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Push"
     },
     {
       "path": "ActionPanel.Item.Push.Props",
@@ -2325,7 +2381,8 @@
     {
       "path": "ActionPanel.Item.ShowInFinder",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "ShowInFinder"
     },
     {
       "path": "ActionPanel.Item.ShowInFinder.Props",
@@ -2360,17 +2417,20 @@
     {
       "path": "ActionPanel.Item.Style",
       "kind": "property",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "ActionStyle"
     },
     {
       "path": "ActionPanel.Item.SubmitForm",
       "kind": "property",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "SubmitForm"
     },
     {
       "path": "ActionPanel.Item.ToggleQuickLook",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "ToggleQuickLook"
     },
     {
       "path": "ActionPanel.Item.ToggleQuickLook.Props",
@@ -2395,7 +2455,8 @@
     {
       "path": "ActionPanel.Item.Trash",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Trash"
     },
     {
       "path": "ActionPanel.Item.Trash.Props",
@@ -2430,7 +2491,8 @@
     {
       "path": "ActionPanel.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "ActionPanelProps_2"
     },
     {
       "path": "ActionPanel.Props.children",
@@ -2445,17 +2507,20 @@
     {
       "path": "ActionPanel.Section",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "Section"
     },
     {
       "path": "ActionPanel.Section.Children",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "SectionChildren"
     },
     {
       "path": "ActionPanel.Section.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "SectionProps"
     },
     {
       "path": "ActionPanel.Section.Props.children",
@@ -2470,17 +2535,20 @@
     {
       "path": "ActionPanel.Submenu",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "Submenu"
     },
     {
       "path": "ActionPanel.Submenu.Children",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "SubmenuChildren"
     },
     {
       "path": "ActionPanel.Submenu.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "SubmenuProps"
     },
     {
       "path": "ActionPanel.Submenu.Props.autoFocus",
@@ -2545,7 +2613,8 @@
     {
       "path": "ActionPanelChildren",
       "kind": "type",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "ActionPanel.Children"
     },
     {
       "path": "ActionPanelItem",
@@ -2555,7 +2624,8 @@
     {
       "path": "ActionPanelItem.CopyToClipboard",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "CopyToClipboard"
     },
     {
       "path": "ActionPanelItem.CopyToClipboard.Props",
@@ -2600,7 +2670,8 @@
     {
       "path": "ActionPanelItem.CreateQuicklink",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "CreateQuicklink"
     },
     {
       "path": "ActionPanelItem.CreateQuicklink.Props",
@@ -2630,7 +2701,8 @@
     {
       "path": "ActionPanelItem.CreateSnippet",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "CreateSnippet"
     },
     {
       "path": "ActionPanelItem.CreateSnippet.Props",
@@ -2660,7 +2732,8 @@
     {
       "path": "ActionPanelItem.InstallMCPServer",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "InstallMCPServer"
     },
     {
       "path": "ActionPanelItem.InstallMCPServer.Props",
@@ -2690,7 +2763,8 @@
     {
       "path": "ActionPanelItem.Open",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Open"
     },
     {
       "path": "ActionPanelItem.Open.Props",
@@ -2730,7 +2804,8 @@
     {
       "path": "ActionPanelItem.OpenInBrowser",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "OpenInBrowser"
     },
     {
       "path": "ActionPanelItem.OpenInBrowser.Props",
@@ -2765,7 +2840,8 @@
     {
       "path": "ActionPanelItem.OpenWith",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "OpenWith"
     },
     {
       "path": "ActionPanelItem.OpenWith.Props",
@@ -2800,7 +2876,8 @@
     {
       "path": "ActionPanelItem.Paste",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Paste"
     },
     {
       "path": "ActionPanelItem.Paste.Props",
@@ -2835,7 +2912,8 @@
     {
       "path": "ActionPanelItem.PickDate",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "PickDate"
     },
     {
       "path": "ActionPanelItem.PickDate.Props",
@@ -2880,7 +2958,8 @@
     {
       "path": "ActionPanelItem.PickDate.Type",
       "kind": "property",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "DatePickerType_2"
     },
     {
       "path": "ActionPanelItem.PickDate.isFullDay",
@@ -2930,7 +3009,8 @@
     {
       "path": "ActionPanelItem.Push",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Push"
     },
     {
       "path": "ActionPanelItem.Push.Props",
@@ -2970,7 +3050,8 @@
     {
       "path": "ActionPanelItem.ShowInFinder",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "ShowInFinder"
     },
     {
       "path": "ActionPanelItem.ShowInFinder.Props",
@@ -3010,12 +3091,14 @@
     {
       "path": "ActionPanelItem.SubmitForm",
       "kind": "property",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "SubmitForm"
     },
     {
       "path": "ActionPanelItem.ToggleQuickLook",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "ToggleQuickLook"
     },
     {
       "path": "ActionPanelItem.ToggleQuickLook.Props",
@@ -3040,7 +3123,8 @@
     {
       "path": "ActionPanelItem.Trash",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Trash"
     },
     {
       "path": "ActionPanelItem.Trash.Props",
@@ -3075,7 +3159,8 @@
     {
       "path": "ActionPanelItemProps",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Action.Props"
     },
     {
       "path": "ActionPanelItemProps.autoFocus",
@@ -3115,7 +3200,8 @@
     {
       "path": "ActionPanelProps",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "ActionPanel.Props"
     },
     {
       "path": "ActionPanelProps.children",
@@ -3130,7 +3216,8 @@
     {
       "path": "ActionPanelSection",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "ActionPanel.Section"
     },
     {
       "path": "ActionPanelSection.Props",
@@ -3150,12 +3237,14 @@
     {
       "path": "ActionPanelSectionChildren",
       "kind": "type",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "ActionPanel.Section.Children"
     },
     {
       "path": "ActionPanelSectionProps",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "ActionPanel.Section.Props"
     },
     {
       "path": "ActionPanelSectionProps.children",
@@ -3180,7 +3269,8 @@
     {
       "path": "ActionPanelSubmenu",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "ActionPanel.Submenu"
     },
     {
       "path": "ActionPanelSubmenu.Props",
@@ -3250,7 +3340,8 @@
     {
       "path": "ActionPanelSubmenuProps",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "ActionPanel.Submenu.Props"
     },
     {
       "path": "ActionPanelSubmenuProps.autoFocus",
@@ -3340,7 +3431,8 @@
     {
       "path": "Alert.ActionStyle",
       "kind": "enum",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "AlertActionStyle_2"
     },
     {
       "path": "Alert.ActionStyle.Cancel",
@@ -3395,7 +3487,8 @@
     {
       "path": "AlertActionOptions",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Alert.ActionOptions"
     },
     {
       "path": "AlertActionOptions.onAction",
@@ -3415,7 +3508,8 @@
     {
       "path": "AlertActionStyle",
       "kind": "enum",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Alert.ActionStyle"
     },
     {
       "path": "AlertActionStyle.Cancel",
@@ -3435,7 +3529,8 @@
     {
       "path": "AlertOptions",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Alert.Options"
     },
     {
       "path": "AlertOptions.dismissAction",
@@ -3845,7 +3940,8 @@
     {
       "path": "ColorLike",
       "kind": "type",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Color.ColorLike"
     },
     {
       "path": "ColorLike.adjustContrast",
@@ -3910,7 +4006,8 @@
     {
       "path": "CopyToClipboardActionProps",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Action.CopyToClipboard.Props"
     },
     {
       "path": "CopyToClipboardActionProps.concealed",
@@ -3955,17 +4052,20 @@
     {
       "path": "Detail.Metadata",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "Metadata"
     },
     {
       "path": "Detail.Metadata.Label",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "Label"
     },
     {
       "path": "Detail.Metadata.Label.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "LabelProps"
     },
     {
       "path": "Detail.Metadata.Label.Props.icon",
@@ -3995,12 +4095,14 @@
     {
       "path": "Detail.Metadata.Link",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "Link"
     },
     {
       "path": "Detail.Metadata.Link.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "LinkProps"
     },
     {
       "path": "Detail.Metadata.Link.Props.target",
@@ -4020,7 +4122,8 @@
     {
       "path": "Detail.Metadata.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "MetadataProps"
     },
     {
       "path": "Detail.Metadata.Props.children",
@@ -4030,27 +4133,32 @@
     {
       "path": "Detail.Metadata.Separator",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "Separator_2"
     },
     {
       "path": "Detail.Metadata.Separator.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "SeparatorProps_2"
     },
     {
       "path": "Detail.Metadata.TagList",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "TagList"
     },
     {
       "path": "Detail.Metadata.TagList.Item",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "TagListItem"
     },
     {
       "path": "Detail.Metadata.TagList.Item.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "TagListItemProps"
     },
     {
       "path": "Detail.Metadata.TagList.Item.Props.color",
@@ -4075,7 +4183,8 @@
     {
       "path": "Detail.Metadata.TagList.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "TagListProps"
     },
     {
       "path": "Detail.Metadata.TagList.Props.children",
@@ -4090,7 +4199,8 @@
     {
       "path": "Detail.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "DetailProps_2"
     },
     {
       "path": "Detail.Props.actions",
@@ -4120,7 +4230,8 @@
     {
       "path": "DetailProps",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Detail.Props"
     },
     {
       "path": "DetailProps.actions",
@@ -4150,7 +4261,8 @@
     {
       "path": "DynamicColor",
       "kind": "type",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Color.Dynamic"
     },
     {
       "path": "DynamicColor.adjustContrast",
@@ -4285,12 +4397,14 @@
     {
       "path": "Form.Checkbox",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "CheckboxRef"
     },
     {
       "path": "Form.Checkbox.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "CheckboxProps"
     },
     {
       "path": "Form.Checkbox.Props.autoFocus",
@@ -4365,12 +4479,14 @@
     {
       "path": "Form.DatePicker",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "DatePickerRef"
     },
     {
       "path": "Form.DatePicker.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "DatePickerProps"
     },
     {
       "path": "Form.DatePicker.Props.autoFocus",
@@ -4445,7 +4561,8 @@
     {
       "path": "Form.DatePicker.Type",
       "kind": "property",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "DatePickerType"
     },
     {
       "path": "Form.DatePicker.focus",
@@ -4465,12 +4582,14 @@
     {
       "path": "Form.Description",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "Description"
     },
     {
       "path": "Form.Description.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "DescriptionProps"
     },
     {
       "path": "Form.Description.Props.text",
@@ -4485,17 +4604,20 @@
     {
       "path": "Form.Dropdown",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "DropdownRef"
     },
     {
       "path": "Form.Dropdown.Item",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "DropdownItem"
     },
     {
       "path": "Form.Dropdown.Item.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "DropdownItemProps"
     },
     {
       "path": "Form.Dropdown.Item.Props.icon",
@@ -4520,7 +4642,8 @@
     {
       "path": "Form.Dropdown.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "DropdownProps"
     },
     {
       "path": "Form.Dropdown.Props.autoFocus",
@@ -4615,12 +4738,14 @@
     {
       "path": "Form.Dropdown.Section",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "DropdownSection"
     },
     {
       "path": "Form.Dropdown.Section.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "DropdownSectionProps"
     },
     {
       "path": "Form.Dropdown.Section.Props.children",
@@ -4645,7 +4770,8 @@
     {
       "path": "Form.DropdownItem",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "DropdownItem"
     },
     {
       "path": "Form.DropdownItem.Props",
@@ -4675,7 +4801,8 @@
     {
       "path": "Form.DropdownSection",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "DropdownSection"
     },
     {
       "path": "Form.DropdownSection.Props",
@@ -4695,12 +4822,14 @@
     {
       "path": "Form.Event",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "FormEvent"
     },
     {
       "path": "Form.Event.Type",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "FormEventType"
     },
     {
       "path": "Form.Event.target",
@@ -4725,12 +4854,14 @@
     {
       "path": "Form.FilePicker",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "FilePickerRef"
     },
     {
       "path": "Form.FilePicker.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "FilePickerProps"
     },
     {
       "path": "Form.FilePicker.Props.allowMultipleSelection",
@@ -4820,7 +4951,8 @@
     {
       "path": "Form.ItemProps",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "FormItemProps_2"
     },
     {
       "path": "Form.ItemProps.autoFocus",
@@ -4880,7 +5012,8 @@
     {
       "path": "Form.ItemReference",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "FormItemRef"
     },
     {
       "path": "Form.ItemReference.focus",
@@ -4895,12 +5028,14 @@
     {
       "path": "Form.LinkAccessory",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "LinkAccessory"
     },
     {
       "path": "Form.LinkAccessory.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "LinkAccessoryProps"
     },
     {
       "path": "Form.LinkAccessory.Props.target",
@@ -4915,12 +5050,14 @@
     {
       "path": "Form.PasswordField",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "PasswordFieldRef"
     },
     {
       "path": "Form.PasswordField.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "PasswordFieldProps"
     },
     {
       "path": "Form.PasswordField.Props.autoFocus",
@@ -4995,7 +5132,8 @@
     {
       "path": "Form.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "FormProps_2"
     },
     {
       "path": "Form.Props.actions",
@@ -5030,27 +5168,32 @@
     {
       "path": "Form.Separator",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "Separator"
     },
     {
       "path": "Form.Separator.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "SeparatorProps"
     },
     {
       "path": "Form.TagPicker",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "TagPickerRef"
     },
     {
       "path": "Form.TagPicker.Item",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "TagPickerItem"
     },
     {
       "path": "Form.TagPicker.Item.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "TagPickerItemProps"
     },
     {
       "path": "Form.TagPicker.Item.Props.icon",
@@ -5070,7 +5213,8 @@
     {
       "path": "Form.TagPicker.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "TagPickerProps"
     },
     {
       "path": "Form.TagPicker.Props.autoFocus",
@@ -5150,7 +5294,8 @@
     {
       "path": "Form.TagPickerItem",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "TagPickerItem"
     },
     {
       "path": "Form.TagPickerItem.Props",
@@ -5175,12 +5320,14 @@
     {
       "path": "Form.TextArea",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "TextAreaRef"
     },
     {
       "path": "Form.TextArea.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "TextAreaProps"
     },
     {
       "path": "Form.TextArea.Props.autoFocus",
@@ -5260,12 +5407,14 @@
     {
       "path": "Form.TextField",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "TextFieldRef"
     },
     {
       "path": "Form.TextField.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "TextFieldProps"
     },
     {
       "path": "Form.TextField.Props.autoFocus",
@@ -5340,17 +5489,20 @@
     {
       "path": "Form.Value",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "FormValue_2"
     },
     {
       "path": "Form.Values",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "FormValues_2"
     },
     {
       "path": "FormCheckbox",
       "kind": "const",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Form.Checkbox"
     },
     {
       "path": "FormCheckbox.focus",
@@ -5365,7 +5517,8 @@
     {
       "path": "FormCheckboxProps",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Form.Checkbox.Props"
     },
     {
       "path": "FormCheckboxProps.autoFocus",
@@ -5430,7 +5583,8 @@
     {
       "path": "FormDatePicker",
       "kind": "const",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Form.DatePicker"
     },
     {
       "path": "FormDatePicker.focus",
@@ -5445,7 +5599,8 @@
     {
       "path": "FormDatePickerProps",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Form.DatePicker.Props"
     },
     {
       "path": "FormDatePickerProps.autoFocus",
@@ -5520,7 +5675,8 @@
     {
       "path": "FormDropdown",
       "kind": "const",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Form.Dropdown"
     },
     {
       "path": "FormDropdown.focus",
@@ -5535,12 +5691,14 @@
     {
       "path": "FormDropdownItem",
       "kind": "const",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Form.Dropdown.Item"
     },
     {
       "path": "FormDropdownItemProps",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Form.Dropdown.Item.Props"
     },
     {
       "path": "FormDropdownItemProps.icon",
@@ -5565,7 +5723,8 @@
     {
       "path": "FormDropdownProps",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Form.Dropdown.Props"
     },
     {
       "path": "FormDropdownProps.autoFocus",
@@ -5660,12 +5819,14 @@
     {
       "path": "FormDropdownSection",
       "kind": "const",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Form.Dropdown.Section"
     },
     {
       "path": "FormDropdownSectionProps",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Form.Dropdown.Section.Props"
     },
     {
       "path": "FormDropdownSectionProps.children",
@@ -5680,7 +5841,8 @@
     {
       "path": "FormItemProps",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Form.ItemProps"
     },
     {
       "path": "FormItemProps.autoFocus",
@@ -5750,7 +5912,8 @@
     {
       "path": "FormProps",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Form.Props"
     },
     {
       "path": "FormProps.actions",
@@ -5785,7 +5948,8 @@
     {
       "path": "FormSeparator",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Form.Separator"
     },
     {
       "path": "FormSeparator.Props",
@@ -5795,12 +5959,14 @@
     {
       "path": "FormSeparatorProps",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Form.Separator.Props"
     },
     {
       "path": "FormTagPicker",
       "kind": "const",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Form.TagPicker"
     },
     {
       "path": "FormTagPicker.focus",
@@ -5815,12 +5981,14 @@
     {
       "path": "FormTagPickerItem",
       "kind": "const",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Form.TagPicker.Item"
     },
     {
       "path": "FormTagPickerItemProps",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Form.TagPicker.Item.Props"
     },
     {
       "path": "FormTagPickerItemProps.icon",
@@ -5840,7 +6008,8 @@
     {
       "path": "FormTagPickerProps",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Form.TagPicker.Props"
     },
     {
       "path": "FormTagPickerProps.autoFocus",
@@ -5910,7 +6079,8 @@
     {
       "path": "FormTextArea",
       "kind": "const",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Form.TextArea"
     },
     {
       "path": "FormTextArea.focus",
@@ -5925,7 +6095,8 @@
     {
       "path": "FormTextAreaProps",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Form.TextArea.Props"
     },
     {
       "path": "FormTextAreaProps.autoFocus",
@@ -5995,7 +6166,8 @@
     {
       "path": "FormTextField",
       "kind": "const",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Form.TextField"
     },
     {
       "path": "FormTextField.focus",
@@ -6010,7 +6182,8 @@
     {
       "path": "FormTextFieldProps",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Form.TextField.Props"
     },
     {
       "path": "FormTextFieldProps.autoFocus",
@@ -6075,12 +6248,14 @@
     {
       "path": "FormValue",
       "kind": "type",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Form.Value"
     },
     {
       "path": "FormValues",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Form.Values"
     },
     {
       "path": "Grid",
@@ -6095,17 +6270,20 @@
     {
       "path": "Grid.Dropdown",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "Dropdown_2"
     },
     {
       "path": "Grid.Dropdown.Item",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "DropdownItem_2"
     },
     {
       "path": "Grid.Dropdown.Item.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "DropdownItemProps_2"
     },
     {
       "path": "Grid.Dropdown.Item.Props.icon",
@@ -6130,7 +6308,8 @@
     {
       "path": "Grid.Dropdown.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "DropdownProps_2"
     },
     {
       "path": "Grid.Dropdown.Props.children",
@@ -6200,12 +6379,14 @@
     {
       "path": "Grid.Dropdown.Section",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "DropdownSection_2"
     },
     {
       "path": "Grid.Dropdown.Section.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "DropdownSectionProps_2"
     },
     {
       "path": "Grid.Dropdown.Section.Props.children",
@@ -6220,12 +6401,14 @@
     {
       "path": "Grid.EmptyView",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "EmptyView"
     },
     {
       "path": "Grid.EmptyView.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "EmptyViewProps"
     },
     {
       "path": "Grid.EmptyView.Props.actions",
@@ -6250,22 +6433,26 @@
     {
       "path": "Grid.Fit",
       "kind": "property",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "GridFit"
     },
     {
       "path": "Grid.Inset",
       "kind": "property",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "GridInset"
     },
     {
       "path": "Grid.Item",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "Item_2"
     },
     {
       "path": "Grid.Item.Accessory",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "ItemAccessory_2"
     },
     {
       "path": "Grid.Item.Accessory.icon",
@@ -6280,7 +6467,8 @@
     {
       "path": "Grid.Item.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "ItemProps_2"
     },
     {
       "path": "Grid.Item.Props.accessory",
@@ -6355,12 +6543,14 @@
     {
       "path": "Grid.ItemSize",
       "kind": "property",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "GridItemSize"
     },
     {
       "path": "Grid.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "GridProps"
     },
     {
       "path": "Grid.Props.actions",
@@ -6480,12 +6670,14 @@
     {
       "path": "Grid.Section",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "Section_3"
     },
     {
       "path": "Grid.Section.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "SectionProps_3"
     },
     {
       "path": "Grid.Section.Props.aspectRatio",
@@ -9030,7 +9222,8 @@
     {
       "path": "ImageLike",
       "kind": "type",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Image.ImageLike"
     },
     {
       "path": "ImageLike.fallback",
@@ -9060,7 +9253,8 @@
     {
       "path": "ImageMask",
       "kind": "enum",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Image.Mask"
     },
     {
       "path": "ImageMask.Circle",
@@ -9075,7 +9269,8 @@
     {
       "path": "ImageSource",
       "kind": "type",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Image.Source"
     },
     {
       "path": "ImageSource.dark",
@@ -9090,12 +9285,14 @@
     {
       "path": "KeyEquivalent",
       "kind": "type",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Keyboard.KeyEquivalent"
     },
     {
       "path": "KeyModifier",
       "kind": "type",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Keyboard.KeyModifier"
     },
     {
       "path": "Keyboard",
@@ -9265,7 +9462,8 @@
     {
       "path": "KeyboardShortcut",
       "kind": "type",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Keyboard.Shortcut"
     },
     {
       "path": "KeyboardShortcut.Windows",
@@ -9375,17 +9573,20 @@
     {
       "path": "List.Dropdown",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "Dropdown_2"
     },
     {
       "path": "List.Dropdown.Item",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "DropdownItem_2"
     },
     {
       "path": "List.Dropdown.Item.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "DropdownItemProps_2"
     },
     {
       "path": "List.Dropdown.Item.Props.icon",
@@ -9410,7 +9611,8 @@
     {
       "path": "List.Dropdown.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "DropdownProps_2"
     },
     {
       "path": "List.Dropdown.Props.children",
@@ -9480,12 +9682,14 @@
     {
       "path": "List.Dropdown.Section",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "DropdownSection_2"
     },
     {
       "path": "List.Dropdown.Section.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "DropdownSectionProps_2"
     },
     {
       "path": "List.Dropdown.Section.Props.children",
@@ -9500,12 +9704,14 @@
     {
       "path": "List.EmptyView",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "EmptyView"
     },
     {
       "path": "List.EmptyView.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "EmptyViewProps"
     },
     {
       "path": "List.EmptyView.Props.actions",
@@ -9530,12 +9736,14 @@
     {
       "path": "List.Item",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "Item"
     },
     {
       "path": "List.Item.Accessory",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "ItemAccessory"
     },
     {
       "path": "List.Item.Accessory.date",
@@ -9595,22 +9803,26 @@
     {
       "path": "List.Item.Detail",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "Detail_2"
     },
     {
       "path": "List.Item.Detail.Metadata",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "Metadata"
     },
     {
       "path": "List.Item.Detail.Metadata.Label",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "Label"
     },
     {
       "path": "List.Item.Detail.Metadata.Label.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "LabelProps"
     },
     {
       "path": "List.Item.Detail.Metadata.Label.Props.icon",
@@ -9640,12 +9852,14 @@
     {
       "path": "List.Item.Detail.Metadata.Link",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "Link"
     },
     {
       "path": "List.Item.Detail.Metadata.Link.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "LinkProps"
     },
     {
       "path": "List.Item.Detail.Metadata.Link.Props.target",
@@ -9665,7 +9879,8 @@
     {
       "path": "List.Item.Detail.Metadata.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "MetadataProps"
     },
     {
       "path": "List.Item.Detail.Metadata.Props.children",
@@ -9675,27 +9890,32 @@
     {
       "path": "List.Item.Detail.Metadata.Separator",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "Separator_2"
     },
     {
       "path": "List.Item.Detail.Metadata.Separator.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "SeparatorProps_2"
     },
     {
       "path": "List.Item.Detail.Metadata.TagList",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "TagList"
     },
     {
       "path": "List.Item.Detail.Metadata.TagList.Item",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "TagListItem"
     },
     {
       "path": "List.Item.Detail.Metadata.TagList.Item.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "TagListItemProps"
     },
     {
       "path": "List.Item.Detail.Metadata.TagList.Item.Props.color",
@@ -9720,7 +9940,8 @@
     {
       "path": "List.Item.Detail.Metadata.TagList.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "TagListProps"
     },
     {
       "path": "List.Item.Detail.Metadata.TagList.Props.children",
@@ -9735,7 +9956,8 @@
     {
       "path": "List.Item.Detail.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "DetailProps_3"
     },
     {
       "path": "List.Item.Detail.Props.isLoading",
@@ -9755,7 +9977,8 @@
     {
       "path": "List.Item.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "ItemProps"
     },
     {
       "path": "List.Item.Props.accessories",
@@ -9855,7 +10078,8 @@
     {
       "path": "List.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "ListProps_2"
     },
     {
       "path": "List.Props.actions",
@@ -9955,12 +10179,14 @@
     {
       "path": "List.Section",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "Section_2"
     },
     {
       "path": "List.Section.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "SectionProps_2"
     },
     {
       "path": "List.Section.Props.children",
@@ -9985,22 +10211,26 @@
     {
       "path": "ListItem",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "List.Item"
     },
     {
       "path": "ListItem.Detail",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Detail_2"
     },
     {
       "path": "ListItem.Detail.Metadata",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Metadata"
     },
     {
       "path": "ListItem.Detail.Metadata.Label",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Label"
     },
     {
       "path": "ListItem.Detail.Metadata.Label.Props",
@@ -10035,7 +10265,8 @@
     {
       "path": "ListItem.Detail.Metadata.Link",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Link"
     },
     {
       "path": "ListItem.Detail.Metadata.Link.Props",
@@ -10070,7 +10301,8 @@
     {
       "path": "ListItem.Detail.Metadata.Separator",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Separator_2"
     },
     {
       "path": "ListItem.Detail.Metadata.Separator.Props",
@@ -10080,12 +10312,14 @@
     {
       "path": "ListItem.Detail.Metadata.TagList",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "TagList"
     },
     {
       "path": "ListItem.Detail.Metadata.TagList.Item",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "TagListItem"
     },
     {
       "path": "ListItem.Detail.Metadata.TagList.Item.Props",
@@ -10250,7 +10484,8 @@
     {
       "path": "ListItemProps",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "List.Item.Props"
     },
     {
       "path": "ListItemProps.accessories",
@@ -10350,7 +10585,8 @@
     {
       "path": "ListProps",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "List.Props"
     },
     {
       "path": "ListProps.actions",
@@ -10450,7 +10686,8 @@
     {
       "path": "ListSection",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "List.Section"
     },
     {
       "path": "ListSection.Props",
@@ -10480,7 +10717,8 @@
     {
       "path": "ListSectionProps",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "List.Section.Props"
     },
     {
       "path": "ListSectionProps.children",
@@ -10545,12 +10783,14 @@
     {
       "path": "LocalStorageValue",
       "kind": "type",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "LocalStorage.Value"
     },
     {
       "path": "LocalStorageValues",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "LocalStorage.Values"
     },
     {
       "path": "MenuBarExtra",
@@ -10560,7 +10800,8 @@
     {
       "path": "MenuBarExtra.ActionEvent",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "ItemActionEvent"
     },
     {
       "path": "MenuBarExtra.ActionEvent.type",
@@ -10570,12 +10811,14 @@
     {
       "path": "MenuBarExtra.Item",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "Item_3"
     },
     {
       "path": "MenuBarExtra.Item.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "ItemProps_3"
     },
     {
       "path": "MenuBarExtra.Item.Props.alternate",
@@ -10615,7 +10858,8 @@
     {
       "path": "MenuBarExtra.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "MenuBarExtraProps"
     },
     {
       "path": "MenuBarExtra.Props.children",
@@ -10645,12 +10889,14 @@
     {
       "path": "MenuBarExtra.Section",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "Section_4"
     },
     {
       "path": "MenuBarExtra.Section.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "SectionProps_4"
     },
     {
       "path": "MenuBarExtra.Section.Props.children",
@@ -10665,7 +10911,8 @@
     {
       "path": "MenuBarExtra.Separator",
       "kind": "component",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Separator_3"
     },
     {
       "path": "MenuBarExtra.Separator.Props",
@@ -10675,12 +10922,14 @@
     {
       "path": "MenuBarExtra.Submenu",
       "kind": "component",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "Submenu_2"
     },
     {
       "path": "MenuBarExtra.Submenu.Props",
       "kind": "type",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "SubmenuProps_2"
     },
     {
       "path": "MenuBarExtra.Submenu.Props.children",
@@ -11100,7 +11349,8 @@
     {
       "path": "OpenActionProps",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Action.Open.Props"
     },
     {
       "path": "OpenActionProps.application",
@@ -11170,7 +11420,8 @@
     {
       "path": "OpenInBrowserActionProps",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Action.OpenInBrowser.Props"
     },
     {
       "path": "OpenInBrowserActionProps.icon",
@@ -11235,7 +11486,8 @@
     {
       "path": "OpenWithActionProps",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Action.OpenWith.Props"
     },
     {
       "path": "OpenWithActionProps.icon",
@@ -11300,7 +11552,8 @@
     {
       "path": "PasteActionProps",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Action.Paste.Props"
     },
     {
       "path": "PasteActionProps.content",
@@ -11350,7 +11603,8 @@
     {
       "path": "Preference",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Preference_2"
     },
     {
       "path": "Preference.data",
@@ -11410,7 +11664,8 @@
     {
       "path": "Preferences",
       "kind": "type",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Preferences_2"
     },
     {
       "path": "PushAction",
@@ -11455,7 +11710,8 @@
     {
       "path": "PushActionProps",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Action.Push.Props"
     },
     {
       "path": "PushActionProps.icon",
@@ -11525,7 +11781,8 @@
     {
       "path": "ShowInFinderActionProps",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Action.ShowInFinder.Props"
     },
     {
       "path": "ShowInFinderActionProps.icon",
@@ -11565,7 +11822,8 @@
     {
       "path": "SubmitFormActionProps",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Action.SubmitForm.Props"
     },
     {
       "path": "SubmitFormActionProps.icon",
@@ -11650,7 +11908,8 @@
     {
       "path": "Toast.Style",
       "kind": "enum",
-      "deprecated": false
+      "deprecated": false,
+      "aliasTarget": "ToastStyle_2"
     },
     {
       "path": "Toast.Style.Animated",
@@ -11710,7 +11969,8 @@
     {
       "path": "ToastActionOptions",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Toast.ActionOptions"
     },
     {
       "path": "ToastActionOptions.onAction",
@@ -11730,7 +11990,8 @@
     {
       "path": "ToastOptions",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Toast.Options"
     },
     {
       "path": "ToastOptions.message",
@@ -11760,7 +12021,8 @@
     {
       "path": "ToastStyle",
       "kind": "enum",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Toast.Style"
     },
     {
       "path": "ToastStyle.Animated",
@@ -11825,7 +12087,8 @@
     {
       "path": "TrashActionProps",
       "kind": "interface",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Action.Trash.Props"
     },
     {
       "path": "TrashActionProps.icon",
@@ -12010,7 +12273,8 @@
     {
       "path": "allLocalStorageItems",
       "kind": "function",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "LocalStorage.allItems"
     },
     {
       "path": "captureException",
@@ -12025,12 +12289,14 @@
     {
       "path": "clearClipboard",
       "kind": "function",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Clipboard.clear"
     },
     {
       "path": "clearLocalStorage",
       "kind": "function",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "LocalStorage.clear"
     },
     {
       "path": "clearSearchBar",
@@ -12050,7 +12316,8 @@
     {
       "path": "copyTextToClipboard",
       "kind": "function",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Clipboard.copy"
     },
     {
       "path": "environment",
@@ -12160,7 +12427,8 @@
     {
       "path": "getLocalStorageItem",
       "kind": "function",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "LocalStorage.getItem"
     },
     {
       "path": "getPreferenceValues",
@@ -12200,7 +12468,8 @@
     {
       "path": "pasteText",
       "kind": "function",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "Clipboard.paste"
     },
     {
       "path": "popToRoot",
@@ -12220,7 +12489,8 @@
     {
       "path": "removeLocalStorageItem",
       "kind": "function",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "LocalStorage.removeItem"
     },
     {
       "path": "render",
@@ -12230,7 +12500,8 @@
     {
       "path": "setLocalStorageItem",
       "kind": "function",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "LocalStorage.setItem"
     },
     {
       "path": "showHUD",
@@ -12340,7 +12611,8 @@
     {
       "path": "unstable_AI",
       "kind": "const",
-      "deprecated": true
+      "deprecated": true,
+      "aliasTarget": "AI"
     },
     {
       "path": "updateCommandMetadata",
