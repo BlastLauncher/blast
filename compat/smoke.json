@@ -74,9 +74,9 @@
       "mode": "view",
       "outcome": "crashed",
       "exit": "code 1",
-      "error": "Cannot find package 'undici' imported from /tmp/blast/builds/command-1hbi3I/find-login.mjs",
+      "error": "Cannot find package 'undici' imported from /tmp/blast/builds/command-9JeFrw/find-login.mjs",
       "logs": [
-        "RUNTIME_ERROR: Cannot find package 'undici' imported from <tmp>/blast/builds/command-1hbi3I/find-login.mjs"
+        "RUNTIME_ERROR: Cannot find package 'undici' imported from <tmp>/blast/builds/command-9JeFrw/find-login.mjs"
       ]
     },
     {
@@ -1574,9 +1574,9 @@
       "mode": "view",
       "outcome": "crashed",
       "exit": "code 1",
-      "error": "Cannot find package 'undici' imported from /tmp/blast/builds/command-P83ZQj/search-valkey-commands.mjs",
+      "error": "Cannot find package 'undici' imported from /tmp/blast/builds/command-ZePPNc/search-valkey-commands.mjs",
       "logs": [
-        "RUNTIME_ERROR: Cannot find package 'undici' imported from <tmp>/blast/builds/command-P83ZQj/search-valkey-commands.mjs"
+        "RUNTIME_ERROR: Cannot find package 'undici' imported from <tmp>/blast/builds/command-ZePPNc/search-valkey-commands.mjs"
       ]
     },
     {

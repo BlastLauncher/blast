@@ -95,6 +95,30 @@ export function checkDiskBudget(bytes: number, maxMb: number): string | undefine
   return `${megabytes(bytes)} MB is above ${MAX_MB_ENV}=${maxMb} MB; delete ${CORPUS_DIR} or raise the budget`;
 }
 
+/** Batches smaller than this lose most of the benefit to script overhead. */
+export const MIN_BATCH_SIZE = 5;
+/** Batches larger than this approach checking everything out at once. */
+export const MAX_BATCH_SIZE = 20;
+/**
+ * Extensions a checkout this heavy might plausibly need; curated extensions
+ * with assets run well under this, so sizing against it is conservative.
+ */
+export const ASSUMED_MB_PER_EXTENSION = 15;
+
+/**
+ * How many extensions one sparse-checkout batch should hold. Narrowing
+ * `sparse-checkout` between batches drops a batch's files from the working
+ * tree, but not the blobs `.git` already fetched for them — by the final
+ * batch, the budget has to cover every blob fetched across every batch, so
+ * only a batch's own working tree is free to size down. A smaller budget
+ * gets a smaller batch, leaving more of it for what earlier batches left
+ * behind in `.git`.
+ */
+export function batchSize(maxMb: number): number {
+  const bySize = Math.floor(maxMb / ASSUMED_MB_PER_EXTENSION);
+  return Math.min(MAX_BATCH_SIZE, Math.max(MIN_BATCH_SIZE, bySize));
+}
+
 export function maxMbFromEnv(env: Record<string, string | undefined>): number {
   const raw = env[MAX_MB_ENV];
   if (raw === undefined || raw.trim() === "") return DEFAULT_MAX_MB;

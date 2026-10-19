@@ -18,7 +18,7 @@ Regenerate with `bun run corpus:smoke` (network required; not part of
 | `atomtick/copy-atomic-time`                                      | no-view  | capability-denied | denied capability clipboard.copy                                                                               |
 | `axios-docs/index`                                               | view     | rendered          | 76 nodes, root Navigation                                                                                      |
 | `biaodian/biaodian`                                              | view     | rendered          | 133 nodes, root Navigation                                                                                     |
-| `bugmenot/find-login`                                            | view     | crashed           | code 1; Cannot find package 'undici' imported from /tmp/blast/builds/command-1hbi3I/find-login.mjs             |
+| `bugmenot/find-login`                                            | view     | crashed           | code 1; Cannot find package 'undici' imported from /tmp/blast/builds/command-9JeFrw/find-login.mjs             |
 | `cangjie/cangjie`                                                | view     | rendered          | 8 nodes, root Navigation                                                                                       |
 | `chakra-ui-docs/components`                                      | view     | rendered          | 616 nodes, root Navigation                                                                                     |
 | `chakra-ui-docs/get-started`                                     | view     | rendered          | 43 nodes, root Navigation                                                                                      |
@@ -204,7 +204,7 @@ Regenerate with `bun run corpus:smoke` (network required; not part of
 | `uk-bank-holidays/index`                                         | view     | rendered          | 3 nodes, root Navigation                                                                                       |
 | `uk-bank-holidays/next-holiday`                                  | no-view  | completed         | command mode "no-view" completed without rendering a scene                                                     |
 | `url-designer/create-prompt`                                     | view     | rendered          | 6 nodes, root Navigation                                                                                       |
-| `valkey-commands-search/search-valkey-commands`                  | view     | crashed           | code 1; Cannot find package 'undici' imported from /tmp/blast/builds/command-P83ZQj/search-valkey-commands.mjs |
+| `valkey-commands-search/search-valkey-commands`                  | view     | crashed           | code 1; Cannot find package 'undici' imported from /tmp/blast/builds/command-ZePPNc/search-valkey-commands.mjs |
 | `vim-bro/index`                                                  | view     | rendered          | 924 nodes, root Navigation                                                                                     |
 | `vocab-search/vocab`                                             | view     | rendered          | 3 nodes, root Navigation                                                                                       |
 | `windows-domain/my-user`                                         | view     | rendered          | 5 nodes, root Navigation                                                                                       |
@@ -215,8 +215,8 @@ Regenerate with `bun run corpus:smoke` (network required; not part of
 ## Failures
 
 - `atomtick/copy-atomic-time` (capability-denied): denied capability clipboard.copy
-- `bugmenot/find-login` (crashed): code 1; Cannot find package 'undici' imported from /tmp/blast/builds/command-1hbi3I/find-login.mjs
-  - log: RUNTIME_ERROR: Cannot find package 'undici' imported from <tmp>/blast/builds/command-1hbi3I/find-login.mjs
+- `bugmenot/find-login` (crashed): code 1; Cannot find package 'undici' imported from /tmp/blast/builds/command-9JeFrw/find-login.mjs
+  - log: RUNTIME_ERROR: Cannot find package 'undici' imported from <tmp>/blast/builds/command-9JeFrw/find-login.mjs
 - `google-maps-search/travelHome` (capability-denied): denied capability open.url
 - `humaans/book-time` (capability-denied): denied capability open.url
 - `humaans/holidays` (crashed): code 1; api key missing
@@ -231,5 +231,5 @@ Regenerate with `bun run corpus:smoke` (network required; not part of
   - log: RUNTIME_ERROR: API key not found. Please add your Parcel API key in extension preferences.
 - `random-color/random-color` (capability-denied): denied capability clipboard.copy
 - `text-decorator/decorate-text` (capability-denied): denied capability command.launch
-- `valkey-commands-search/search-valkey-commands` (crashed): code 1; Cannot find package 'undici' imported from /tmp/blast/builds/command-P83ZQj/search-valkey-commands.mjs
-  - log: RUNTIME_ERROR: Cannot find package 'undici' imported from <tmp>/blast/builds/command-P83ZQj/search-valkey-commands.mjs
+- `valkey-commands-search/search-valkey-commands` (crashed): code 1; Cannot find package 'undici' imported from /tmp/blast/builds/command-ZePPNc/search-valkey-commands.mjs
+  - log: RUNTIME_ERROR: Cannot find package 'undici' imported from <tmp>/blast/builds/command-ZePPNc/search-valkey-commands.mjs

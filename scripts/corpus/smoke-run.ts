@@ -1,10 +1,11 @@
-// Entry point for `bun run corpus:smoke`. Fetches the curated extensions with
-// the task-0011 fetch script, then bundles and runs every manifest command of
-// each curated extension through the task-0013 host — deny-all broker plus the
-// headless read-only defaults (task 0026), manifest-declared preference
-// defaults — waiting for the first scene, the exit, or a timeout. Writes
-// `compat/smoke.json` and `compat/SMOKE.md`. Failures are the report's data,
-// not errors: nothing here fixes Blast, and extension files are never modified.
+// Entry point for `bun run corpus:smoke`. Fetches the curated extensions in
+// budget-sized batches with the task-0011 fetch script (task 0051), then
+// bundles and runs every manifest command of each curated extension through
+// the task-0013 host — deny-all broker plus the headless read-only defaults
+// (task 0026), manifest-declared preference defaults — waiting for the first
+// scene, the exit, or a timeout. Writes `compat/smoke.json` and
+// `compat/SMOKE.md`. Failures are the report's data, not errors: nothing
+// here fixes Blast, and extension files are never modified.
 import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { readFile, rm, writeFile } from "node:fs/promises";
@@ -19,7 +20,14 @@ import {
   type BundledCommand,
   type Session,
 } from "../../packages/host/src/index.ts";
-import { CORPUS_DIR, directoryBytes, megabytes, readPin } from "./corpus.ts";
+import {
+  batchSize,
+  CORPUS_DIR,
+  directoryBytes,
+  maxMbFromEnv,
+  megabytes,
+  readPin,
+} from "./corpus.ts";
 import {
   buildReport,
   buildResult,
@@ -165,13 +173,27 @@ async function runOne(
   }
 }
 
+/**
+ * Narrow the corpus checkout to exactly these extensions (empty means
+ * manifest-only) via `corpus:fetch`, the one script allowed to run git for
+ * the corpus. `sparse-checkout set` drops every extension not listed from
+ * the working tree, so calling this with the next batch is how the previous
+ * batch's checkout gets dropped before it starts.
+ */
+function fetchBatch(extensions: string[], root: string): number {
+  const args = ["scripts/corpus/fetch.ts", ...extensions.flatMap((name) => ["--extension", name])];
+  const fetch = spawnSync("bun", args, { stdio: "inherit" });
+  if (fetch.status !== 0) throw new Error("corpus fetch failed; see output above");
+  return directoryBytes(join(root, ".cache"));
+}
+
 async function main(): Promise<void> {
   const root = process.cwd();
   const pin = readPin(root);
-  const fetch = spawnSync("bun", ["scripts/corpus/fetch.ts", "--curated"], { stdio: "inherit" });
-  if (fetch.status !== 0) throw new Error("curated fetch failed; see output above");
-  const cacheMb = megabytes(directoryBytes(join(root, ".cache")));
-  console.log(`corpus:smoke: .cache is ${cacheMb} MB after fetch`);
+  const maxMb = maxMbFromEnv(process.env);
+  const size = batchSize(maxMb);
+  const curated = [...pin.curated].toSorted();
+  console.log(`corpus:smoke: ${curated.length} curated extensions in batches of ${size}`);
 
   // Path prefixes that must never appear in a committed report.
   const clean = (text: string): string =>
@@ -183,34 +205,46 @@ async function main(): Promise<void> {
     );
   const results: CommandResult[] = [];
   const extensionFailures: { extension: string; error: string }[] = [];
-  for (const extension of [...pin.curated].toSorted()) {
-    const extensionDir = join(root, CORPUS_DIR, "extensions", extension);
-    const manifestPath = join(extensionDir, "package.json");
-    if (!existsSync(manifestPath)) {
-      extensionFailures.push({ extension, error: "manifest missing from the checkout" });
-      continue;
+  let peakBytes = 0;
+  try {
+    for (let offset = 0; offset < curated.length; offset += size) {
+      const batch = curated.slice(offset, offset + size);
+      peakBytes = Math.max(peakBytes, fetchBatch(batch, root));
+      console.log(`corpus:smoke: batch .cache is ${megabytes(peakBytes)} MB (peak so far)`);
+      for (const extension of batch) {
+        const extensionDir = join(root, CORPUS_DIR, "extensions", extension);
+        const manifestPath = join(extensionDir, "package.json");
+        if (!existsSync(manifestPath)) {
+          extensionFailures.push({ extension, error: "manifest missing from the checkout" });
+          continue;
+        }
+        let manifest: Manifest;
+        try {
+          manifest = JSON.parse(await readFile(manifestPath, "utf8")) as Manifest;
+        } catch (error) {
+          extensionFailures.push({
+            extension,
+            error: clean(error instanceof Error ? error.message : String(error)),
+          });
+          continue;
+        }
+        const commands = manifestCommands(manifest);
+        if (commands.length === 0) {
+          extensionFailures.push({ extension, error: "manifest declares no commands" });
+          continue;
+        }
+        for (const commandName of commands) {
+          process.stdout.write(`corpus:smoke: ${extension}/${commandName}: `);
+          const result = await runOne(extension, extensionDir, manifest, commandName, clean);
+          console.log(result.outcome);
+          results.push(result);
+        }
+      }
     }
-    let manifest: Manifest;
-    try {
-      manifest = JSON.parse(await readFile(manifestPath, "utf8")) as Manifest;
-    } catch (error) {
-      extensionFailures.push({
-        extension,
-        error: clean(error instanceof Error ? error.message : String(error)),
-      });
-      continue;
-    }
-    const commands = manifestCommands(manifest);
-    if (commands.length === 0) {
-      extensionFailures.push({ extension, error: "manifest declares no commands" });
-      continue;
-    }
-    for (const commandName of commands) {
-      process.stdout.write(`corpus:smoke: ${extension}/${commandName}: `);
-      const result = await runOne(extension, extensionDir, manifest, commandName, clean);
-      console.log(result.outcome);
-      results.push(result);
-    }
+  } finally {
+    // Leave the checkout minimal: every extension dropped from the sparse
+    // set once its batch is done.
+    fetchBatch([], root);
   }
 
   const report = buildReport(pin.commit, results, extensionFailures);
@@ -219,7 +253,9 @@ async function main(): Promise<void> {
   const totals = Object.entries(report.totals)
     .map(([outcome, count]) => `${outcome} ${count}`)
     .join(", ");
-  console.log(`corpus:smoke: wrote compat/smoke.json and compat/SMOKE.md (${totals})`);
+  console.log(
+    `corpus:smoke: wrote compat/smoke.json and compat/SMOKE.md (${totals}), peak .cache ${megabytes(peakBytes)} MB`,
+  );
 }
 
 try {

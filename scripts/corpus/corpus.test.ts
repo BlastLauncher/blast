@@ -5,13 +5,16 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
+  batchSize,
   buildPatterns,
   checkDiskBudget,
   DEFAULT_MAX_MB,
   directoryBytes,
   EXTENSION_NAME,
   isValidExtensionName,
+  MAX_BATCH_SIZE,
   maxMbFromEnv,
+  MIN_BATCH_SIZE,
   parseArgs,
   parsePin,
   readPin,
@@ -108,6 +111,22 @@ test("disk budget passes at the limit and aborts above it", () => {
     /600 MB is above BLAST_CORPUS_MAX_MB=600 MB; delete \.cache\/raycast-extensions/,
   );
   expect(checkDiskBudget(700 * 1024 * 1024, 600)).toMatch(/^700 MB is above/);
+});
+
+test("batch size grows with the budget between its floor and ceiling", () => {
+  expect(batchSize(1)).toBe(MIN_BATCH_SIZE);
+  expect(batchSize(60)).toBe(MIN_BATCH_SIZE);
+  expect(batchSize(600)).toBe(MAX_BATCH_SIZE);
+  expect(batchSize(1200)).toBe(MAX_BATCH_SIZE);
+  // Strictly increasing in between, never above the ceiling.
+  const sizes = [1, 75, 90, 150, 300, 450].map(batchSize);
+  for (let i = 1; i < sizes.length; i += 1) {
+    expect(sizes[i]).toBeGreaterThanOrEqual(sizes[i - 1]!);
+  }
+  for (const size of sizes) {
+    expect(size).toBeGreaterThanOrEqual(MIN_BATCH_SIZE);
+    expect(size).toBeLessThanOrEqual(MAX_BATCH_SIZE);
+  }
 });
 
 test("the budget comes from BLAST_CORPUS_MAX_MB", () => {
