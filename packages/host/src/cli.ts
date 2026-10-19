@@ -20,6 +20,7 @@ import { dirname } from "node:path";
 import { parseArgs } from "node:util";
 import {
   bundleCommand,
+  installExtensionDependencies,
   createSessionBroker,
   defaultDataDir,
   parseApplications,
@@ -40,6 +41,7 @@ const EXIT_CRASH = 3;
 const USAGE = `Run a Raycast extension command headlessly.
 
 Usage: blast run <extensionDir> <command> [options]
+       blast deps <extensionDir> [--data-dir <dir>]
        blast models <extensionDir>
        blast complete <extensionDir> <modelId> <prompt>
 
@@ -69,7 +71,7 @@ Options:
   --selected-files <path> Answer getSelectedFinderItems (repeatable; default: []).
   --frontmost <bundleId> Answer getFrontmostApplication from --applications,
                         or with that identifier and an empty path (default: Headless).
-  --data-dir <dir>      Root directory for LocalStorage (default:
+  --data-dir <dir>      Root directory for storage and dependencies (default:
                         "$XDG_DATA_HOME/blast"); the command's values are kept
                         in <dir>/storage/<extension>.json.
   --script <file|->     Drive the command with a script of the commands below;
@@ -582,7 +584,11 @@ async function run(options: RunOptions): Promise<number> {
     let bundled: BundledCommand;
     try {
       bundled = await Promise.race([
-        bundleCommand({ extensionDir: options.extensionDir, command: options.command }),
+        bundleCommand({
+          extensionDir: options.extensionDir,
+          command: options.command,
+          dataDir: options.dataDir,
+        }),
         deadline,
       ]);
     } catch (error) {
@@ -773,12 +779,26 @@ async function main(argv: string[]): Promise<number> {
     return EXIT_OK;
   }
   const [subcommand, extensionDir, command, prompt] = parsed.positionals;
+  if (subcommand === "deps") {
+    if (!extensionDir || parsed.positionals.length !== 2)
+      throw new UsageError("expected deps <extensionDir>");
+    if (parsed.values["data-dir"] === "") throw new UsageError("--data-dir must not be empty");
+    await installExtensionDependencies({
+      extensionDir,
+      dataDir: parsed.values["data-dir"] ?? defaultDataDir(),
+      onLog: (message) => console.log(message.trimEnd()),
+    });
+    return EXIT_OK;
+  }
   if (subcommand === "models" || subcommand === "complete") {
     if (!extensionDir || parsed.positionals.length !== (subcommand === "models" ? 2 : 4))
       throw new UsageError(
         "expected models <extensionDir> or complete <extensionDir> <modelId> <prompt>",
       );
-    const bundled = await bundleModelProvider({ extensionDir });
+    const bundled = await bundleModelProvider({
+      extensionDir,
+      dataDir: parsed.values["data-dir"] ?? defaultDataDir(),
+    });
     cleanupDirectory = dirname(bundled.entry);
     let provider: Awaited<ReturnType<typeof startModelProvider>> | undefined;
     try {

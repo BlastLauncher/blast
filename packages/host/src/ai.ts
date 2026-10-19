@@ -15,7 +15,10 @@ export function createAIRouter(options: StartOptions) {
   let models: RegisteredModel[] | undefined;
   const provider = () =>
     (loading ??= (async () => {
-      const bundled = await bundleModelProvider({ extensionDir: options.modelProviderDir! });
+      const bundled = await bundleModelProvider({
+        extensionDir: options.modelProviderDir!,
+        ...(options.dataDir === undefined ? {} : { dataDir: options.dataDir }),
+      });
       directory = dirname(bundled.entry);
       const { environment: _environment, ...inherited } = options;
       return startModelProvider({
