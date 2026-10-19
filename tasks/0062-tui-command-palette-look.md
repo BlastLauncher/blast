@@ -1,7 +1,7 @@
 ---
 id: "0062"
 title: TUI looks like a command palette (Raycast-style theme and layout)
-status: todo
+status: doing
 milestone: M4
 depends: ["0061"]
 ---
