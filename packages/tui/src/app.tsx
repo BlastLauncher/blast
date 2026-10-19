@@ -14,6 +14,8 @@ import {
   matchesShortcut,
 } from "./view.ts";
 
+import { FormView } from "./form.tsx";
+
 export function App({ session, onQuit }: { session: Session; onQuit: () => void }) {
   const [scene, setScene] = useState<SceneMessage | undefined>(session.latestScene);
   const [panel, setPanel] = useState<string[] | null>(null);
@@ -208,6 +210,7 @@ export function App({ session, onQuit }: { session: Session; onQuit: () => void 
       } else run(shortcut.node);
       return;
     }
+    if (view.list?.type === "Form") return;
     if (key.name === "up" || key.name === "down") {
       key.preventDefault();
       const index = view.items.findIndex((item) => item.id === view.selected?.id);
@@ -231,40 +234,58 @@ export function App({ session, onQuit }: { session: Session; onQuit: () => void 
         {view.title}
         {view.loading ? "  Loading…" : ""}
       </text>
-      <input
-        focused={panel === null && !alert}
-        value={searchText}
-        placeholder={text(view.list?.props.searchBarPlaceholder) || "Search…"}
-        onInput={search}
-      />
-      <box flexDirection="row" flexGrow={1}>
-        <scrollbox
-          ref={scroll}
-          flexGrow={1}
-          width={view.list?.type === "Detail" ? 0 : view.detail ? "50%" : "100%"}
-        >
-          {view.rows.map((row) => (
-            <text
-              key={row.node.id}
-              id={row.node.id}
-              height={1}
-              flexShrink={0}
-              {...(row.node.id === view.selected?.id ? { bg: "#234567" } : {})}
+      {view.list?.type === "Form" ? (
+        <FormView
+          key={view.list.id}
+          form={view.list}
+          enabled={panel === null && !alert}
+          send={send}
+          submit={() =>
+            send(
+              event(view.primary, handler(view.primary?.props.onAction) ? "onAction" : "onSubmit"),
+            )
+          }
+        />
+      ) : (
+        <>
+          <input
+            focused={panel === null && !alert}
+            value={searchText}
+            placeholder={text(view.list?.props.searchBarPlaceholder) || "Search…"}
+            onInput={search}
+          />
+          <box flexDirection="row" flexGrow={1}>
+            <scrollbox
+              ref={scroll}
+              flexGrow={1}
+              width={view.list?.type === "Detail" ? 0 : view.detail ? "50%" : "100%"}
             >
-              {row.item ? (row.node.id === view.selected?.id ? "› " : "  ") : ""}
-              {row.text}
-            </text>
-          ))}
-          {view.list?.type !== "Detail" && view.rows.length === 0 && <text>{view.emptyText}</text>}
-        </scrollbox>
-        {view.detail && (
-          <scrollbox flexGrow={1} width={view.list?.type === "Detail" ? "100%" : "50%"}>
-            <text height={view.detail.split("\n").length} flexShrink={0}>
-              {view.detail}
-            </text>
-          </scrollbox>
-        )}
-      </box>
+              {view.rows.map((row) => (
+                <text
+                  key={row.node.id}
+                  id={row.node.id}
+                  height={1}
+                  flexShrink={0}
+                  {...(row.node.id === view.selected?.id ? { bg: "#234567" } : {})}
+                >
+                  {row.item ? (row.node.id === view.selected?.id ? "› " : "  ") : ""}
+                  {row.text}
+                </text>
+              ))}
+              {view.list?.type !== "Detail" && view.rows.length === 0 && (
+                <text>{view.emptyText}</text>
+              )}
+            </scrollbox>
+            {view.detail && (
+              <scrollbox flexGrow={1} width={view.list?.type === "Detail" ? "100%" : "50%"}>
+                <text height={view.detail.split("\n").length} flexShrink={0}>
+                  {view.detail}
+                </text>
+              </scrollbox>
+            )}
+          </box>
+        </>
+      )}
       {panel !== null && (
         <box
           flexDirection="column"
@@ -328,8 +349,10 @@ export function App({ session, onQuit }: { session: Session; onQuit: () => void 
         </box>
       )}
       <text height={1} flexShrink={0}>
-        ↑↓ Select · Enter {text(view.primary?.props.title) || "Run"} · Ctrl-K Actions · Esc Back /
-        Quit
+        {view.list?.type === "Form"
+          ? "Tab/Shift-Tab Fields · ←→ Options · Ctrl-S Submit · "
+          : "↑↓ Select · "}
+        Enter {text(view.primary?.props.title) || "Run"} · Ctrl-K Actions · Esc Back / Quit
       </text>
     </box>
   );
