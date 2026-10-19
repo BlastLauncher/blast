@@ -195,8 +195,3 @@ carry pagination `pageSize`/`hasMore`; Quick Look props carry file metadata.
 `bun run blast run <extensionDir> <command>` is the headless debug client;
 its flags, headless capability answers, script commands and exit codes are
 in `docs/cli.md`.
-
-## Status
-
-M1 complete: a bundled extension command runs headlessly end to end via
-`bun run blast run <dir> <command>`. Next milestones are in `PLAN.md`.
