@@ -262,6 +262,30 @@ test("decide serializes state, narrows choices and validates all answer types", 
   await expect(AI.experimental_decide(input)).rejects.toThrow("denied");
 });
 
+test("decide rejects malformed questions and unserializable state before dispatching", async () => {
+  let dispatched = false;
+  setCapabilityRequester(async () => {
+    dispatched = true;
+    return {};
+  });
+  for (const questions of [
+    { q: { type: "score", instructions: "s?", criteria: ["one"] } },
+    { q: { type: "score", instructions: "s?", criteria: Array.from({ length: 11 }, String) } },
+    { q: { type: "choice", instructions: "c?", criteria: {} } },
+    { q: { type: "noul" } },
+  ])
+    await expect(AI.experimental_decide({ state: "s", questions } as never)).rejects.toThrow(
+      "invalid question",
+    );
+  await expect(
+    AI.experimental_decide({
+      state: undefined,
+      questions: { q: { type: "noul", instructions: "q?" } },
+    } as never),
+  ).rejects.toThrow("JSON-serializable");
+  expect(dispatched).toBe(false);
+});
+
 test("decide aborts before dispatch or while waiting, without accepting a late answer", async () => {
   const input = { state: "s", questions: { q: { type: "noul", instructions: "q?" } } } as const;
   const controller = new AbortController();

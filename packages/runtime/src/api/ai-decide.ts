@@ -4,6 +4,14 @@ export type DecisionQuestion =
   | { type: "noul"; instructions: string }
   | { type: "score"; instructions: string; criteria: readonly string[] }
   | { type: "choice"; instructions: string; criteria: Record<string, string | null> };
+type JsonDecisionQuestion =
+  | { type: "noul"; instructions: string }
+  | { type: "score"; instructions: string; criteria: string[] }
+  | { type: "choice"; instructions: string; criteria: Record<string, string | null> };
+const toJsonQuestion = (question: DecisionQuestion): JsonDecisionQuestion =>
+  question.type === "score"
+    ? { type: "score", instructions: question.instructions, criteria: [...question.criteria] }
+    : question;
 type Answer<Q extends DecisionQuestion> = Q extends { type: "choice"; criteria: infer C }
   ? { type: "choice"; choice: keyof C; confidence: number; probabilities: Record<keyof C, number> }
   : Q extends { type: "score" }
@@ -50,7 +58,14 @@ export async function experimental_decide<const Q extends Record<string, Decisio
     )
       throw new Error("AI.experimental_decide: invalid question");
   }
-  const answers = await requestCapability("ai.decide", { state, questions }, options);
+  const jsonQuestions: Record<string, JsonDecisionQuestion> = Object.fromEntries(
+    Object.entries(questions).map(([key, question]) => [key, toJsonQuestion(question)]),
+  );
+  const answers = await requestCapability(
+    "ai.decide",
+    { state, questions: jsonQuestions },
+    options,
+  );
   if (!object(answers) || !keysMatch(answers, Object.keys(questions))) throw invalid();
   for (const [key, question] of Object.entries(questions)) {
     const answer = answers[key];
