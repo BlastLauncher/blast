@@ -37,11 +37,11 @@ unsupported legacy APIs only.
 
 ## Acceptance
 
-- [ ] Map + structural compatibility check with unit tests (a mismatching
+- [x] Map + structural compatibility check with unit tests (a mismatching
       fixture fails generation).
-- [ ] Identity tests per mapped alias; regenerated compat.
-- [ ] Handoff: deprecated before/after and the remaining gaps with reasons.
-- [ ] `bun run verify` passes.
+- [x] Identity tests per mapped alias; regenerated compat.
+- [x] Handoff: deprecated before/after and the remaining gaps with reasons.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -50,8 +50,49 @@ unsupported legacy APIs only.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/structural-alias-map @ fa10c13e409e24b5f61a15afa985574c7e6ce1d4
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 68.8s
 Done:
+- Added 14 explicit structural aliases; generation checks both roots and every
+  descendant path/kind, reports all mismatches, and fails before applying the map.
+- Added structural drift/unit fixtures, a generation rejection fixture, and
+  assignability evidence for erased ArgumentsLaunchProps/FormLaunchProps exports.
+  Existing identity tests exercise every mapped component.
+- Regenerated inventory/report: deprecated 601 covered / 119 partial / 219 missing
+  became 655 covered / 234 partial / 50 missing (939 total). Non-deprecated stays
+  1496 covered / 38 partial / 0 missing (1534 total). No new dependencies.
 Not done / risks:
+- No imperative legacy implementations or additional runtime behaviors added.
+- The check validates inventoried member paths/kinds, not arbitrary TypeScript
+  signature equivalence; reviewed mappings and runtime/type tests supply evidence.
+- Verification hit one intermittent existing CLI persistence shutdown failure
+  (seed 1911741933, runtime SIGTERM). The isolated test passed with that seed;
+  it also passed in the initial full gate. No persistence code was changed.
 ```
+
+Remaining deprecated gaps (50 entries, grouped; no coverage fabricated):
+
+- `Preference` and its 10 fields, `Preferences`, `preferences`: old preference
+  schema/global APIs have no implementation/evidence (13 entries).
+- `ActionPanelState`, `ActionPanelState.update`, `useActionPanel`, `render`,
+  `randomId`, `useId`: unsupported legacy state/render/hooks/helpers (6 entries).
+- `Color.Brown` and `adjustContrast`/`dark`/`light`: legacy color object has no
+  implemented/tested replacement (4 entries).
+- `Environment.commandMode`, `commandName`, `launchContext`, `theme` and
+  `environment.commandMode`, `launchContext`, `theme`: no alias identity/type
+  evidence for these legacy fields; commandName already exists on the runtime
+  value, but its deprecated type path lacks coverage (7 entries).
+- `Keyboard.Shortcut.windows` and `KeyboardShortcut.windows`, each with
+  `key`/`modifiers`: lowercase Windows properties have no explicit coverage;
+  their values can differ from `Windows`, so no identity is inferred (6 entries).
+- `Action.Props.id`, `ActionPanel.Item.Props.id`, `ActionPanel.Submenu.Props.id`,
+  `ActionPanelItem.Props.id`, `ActionPanelItemProps.id`,
+  `ActionPanelSubmenu.Props.id`, `ActionPanelSubmenuProps.id`: deprecated action
+  IDs have no modern tested semantics to inherit (7 entries).
+- `Action.CopyToClipboard.Props.transient`,
+  `ActionPanel.Item.CopyToClipboard.Props.transient`,
+  `ActionPanelItem.CopyToClipboard.Props.transient`, `Clipboard.CopyOptions.transient`,
+  `CopyToClipboardAction.Props.transient`, `CopyToClipboardActionProps.transient`:
+  legacy transient clipboard behavior has no coverage (6 entries).
+- `SubmitFormAction.displayName`: alias-only declaration member absent from
+  `Action.SubmitForm`; deliberately excluded from the structural map (1 entry).

@@ -2,9 +2,9 @@
   "version": "2.8.2",
   "totals": {
     "all": {
-      "covered": 2097,
-      "partial": 157,
-      "missing": 219,
+      "covered": 2151,
+      "partial": 272,
+      "missing": 50,
       "total": 2473
     },
     "nonDeprecated": {
@@ -14,9 +14,9 @@
       "total": 1534
     },
     "deprecated": {
-      "covered": 601,
-      "partial": 119,
-      "missing": 219,
+      "covered": 655,
+      "partial": 234,
+      "missing": 50,
       "total": 939
     },
     "kinds": {
@@ -28,8 +28,8 @@
       },
       "component": {
         "covered": 79,
-        "partial": 24,
-        "missing": 13,
+        "partial": 37,
+        "missing": 0,
         "total": 116
       },
       "function": {
@@ -63,27 +63,27 @@
         "total": 691
       },
       "interface": {
-        "covered": 59,
+        "covered": 61,
         "partial": 1,
-        "missing": 4,
+        "missing": 2,
         "total": 64
       },
       "type": {
-        "covered": 130,
-        "partial": 22,
-        "missing": 26,
+        "covered": 139,
+        "partial": 38,
+        "missing": 1,
         "total": 178
       },
       "property": {
-        "covered": 1029,
-        "partial": 106,
-        "missing": 169,
+        "covered": 1072,
+        "partial": 191,
+        "missing": 41,
         "total": 1304
       },
       "method": {
         "covered": 22,
-        "partial": 1,
-        "missing": 1,
+        "partial": 2,
+        "missing": 0,
         "total": 24
       }
     }
@@ -4455,51 +4455,91 @@
     },
     {
       "path": "ActionPanelItem.CopyToClipboard",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/index.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.CopyToClipboard.Props",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/index.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.CopyToClipboard.Props.concealed",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/index.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.CopyToClipboard.Props.content",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/index.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.CopyToClipboard.Props.icon",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/index.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.CopyToClipboard.Props.onCopy",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/index.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.CopyToClipboard.Props.shortcut",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/index.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.CopyToClipboard.Props.title",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/index.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.CopyToClipboard.Props.transient",
@@ -4509,369 +4549,660 @@
     },
     {
       "path": "ActionPanelItem.CreateQuicklink",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.CreateQuicklink.Props",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.CreateQuicklink.Props.icon",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.CreateQuicklink.Props.quicklink",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.CreateQuicklink.Props.shortcut",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.CreateQuicklink.Props.title",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.CreateSnippet",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.CreateSnippet.Props",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.CreateSnippet.Props.icon",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.CreateSnippet.Props.shortcut",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.CreateSnippet.Props.snippet",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.CreateSnippet.Props.title",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.InstallMCPServer",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.InstallMCPServer.Props",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.InstallMCPServer.Props.icon",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.InstallMCPServer.Props.server",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.InstallMCPServer.Props.shortcut",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.InstallMCPServer.Props.title",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Open",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Open.Props",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Open.Props.application",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Open.Props.icon",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Open.Props.onOpen",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Open.Props.shortcut",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Open.Props.target",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Open.Props.title",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.OpenInBrowser",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.OpenInBrowser.Props",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.OpenInBrowser.Props.icon",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.OpenInBrowser.Props.onOpen",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.OpenInBrowser.Props.shortcut",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.OpenInBrowser.Props.title",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.OpenInBrowser.Props.url",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.OpenWith",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.OpenWith.Props",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.OpenWith.Props.icon",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.OpenWith.Props.onOpen",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.OpenWith.Props.path",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.OpenWith.Props.shortcut",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.OpenWith.Props.title",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Paste",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Paste.Props",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Paste.Props.content",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Paste.Props.icon",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Paste.Props.onPaste",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Paste.Props.shortcut",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Paste.Props.title",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.PickDate",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.PickDate.Props",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.PickDate.Props.icon",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.PickDate.Props.max",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.PickDate.Props.min",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.PickDate.Props.onChange",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.PickDate.Props.shortcut",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.PickDate.Props.title",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.PickDate.Props.type",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.PickDate.Type",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.PickDate.isFullDay",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Props",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/index.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Props.autoFocus",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/index.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Props.icon",
-      "status": "missing",
-      "tests": [],
-      "weight": 1
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/index.test.ts"
+      ],
+      "weight": 1,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Props.id",
@@ -4881,201 +5212,366 @@
     },
     {
       "path": "ActionPanelItem.Props.onAction",
-      "status": "missing",
-      "tests": [],
-      "weight": 1
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/index.test.ts"
+      ],
+      "weight": 1,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Props.shortcut",
-      "status": "missing",
-      "tests": [],
-      "weight": 1
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/index.test.ts"
+      ],
+      "weight": 1,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Props.style",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/list-extras.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Props.title",
-      "status": "missing",
-      "tests": [],
-      "weight": 1
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/index.test.ts"
+      ],
+      "weight": 1,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Push",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/navigation.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Push.Props",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/navigation.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Push.Props.icon",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/navigation.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Push.Props.onPop",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/navigation.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Push.Props.onPush",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/navigation.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Push.Props.shortcut",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/navigation.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Push.Props.target",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/navigation.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Push.Props.title",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/navigation.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.ShowInFinder",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.ShowInFinder.Props",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.ShowInFinder.Props.icon",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.ShowInFinder.Props.onShow",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.ShowInFinder.Props.path",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.ShowInFinder.Props.shortcut",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.ShowInFinder.Props.title",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Style",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/list-extras.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.SubmitForm",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/form.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.ToggleQuickLook",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.ToggleQuickLook.Props",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.ToggleQuickLook.Props.icon",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.ToggleQuickLook.Props.shortcut",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.ToggleQuickLook.Props.title",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Trash",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Trash.Props",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Trash.Props.icon",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Trash.Props.onTrash",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Trash.Props.paths",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Trash.Props.shortcut",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Trash.Props.title",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItemProps",
@@ -5841,15 +6337,21 @@
     },
     {
       "path": "ArgumentsLaunchProps",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts"
+      ],
       "weight": 1
     },
     {
       "path": "ArgumentsLaunchProps.arguments",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/main.test.ts"
+      ],
+      "weight": 0,
+      "via": "LaunchProps"
     },
     {
       "path": "BrowserExtension",
@@ -6430,45 +6932,80 @@
     },
     {
       "path": "CopyToClipboardAction.Props",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/index.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action.CopyToClipboard"
     },
     {
       "path": "CopyToClipboardAction.Props.concealed",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/index.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action.CopyToClipboard"
     },
     {
       "path": "CopyToClipboardAction.Props.content",
-      "status": "missing",
-      "tests": [],
-      "weight": 22
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/index.test.ts"
+      ],
+      "weight": 22,
+      "via": "Action.CopyToClipboard"
     },
     {
       "path": "CopyToClipboardAction.Props.icon",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/index.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action.CopyToClipboard"
     },
     {
       "path": "CopyToClipboardAction.Props.onCopy",
-      "status": "missing",
-      "tests": [],
-      "weight": 1
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/index.test.ts"
+      ],
+      "weight": 1,
+      "via": "Action.CopyToClipboard"
     },
     {
       "path": "CopyToClipboardAction.Props.shortcut",
-      "status": "missing",
-      "tests": [],
-      "weight": 3
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/index.test.ts"
+      ],
+      "weight": 3,
+      "via": "Action.CopyToClipboard"
     },
     {
       "path": "CopyToClipboardAction.Props.title",
-      "status": "missing",
-      "tests": [],
-      "weight": 16
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/index.test.ts"
+      ],
+      "weight": 16,
+      "via": "Action.CopyToClipboard"
     },
     {
       "path": "CopyToClipboardAction.Props.transient",
@@ -7680,33 +8217,53 @@
     },
     {
       "path": "Form.DropdownItem.Props",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/form.test.ts"
+      ],
+      "weight": 0,
+      "via": "Form.Dropdown.Item"
     },
     {
       "path": "Form.DropdownItem.Props.icon",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/form.test.ts"
+      ],
+      "weight": 0,
+      "via": "Form.Dropdown.Item"
     },
     {
       "path": "Form.DropdownItem.Props.keywords",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/form.test.ts"
+      ],
+      "weight": 0,
+      "via": "Form.Dropdown.Item"
     },
     {
       "path": "Form.DropdownItem.Props.title",
-      "status": "missing",
-      "tests": [],
-      "weight": 5
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/form.test.ts"
+      ],
+      "weight": 5,
+      "via": "Form.Dropdown.Item"
     },
     {
       "path": "Form.DropdownItem.Props.value",
-      "status": "missing",
-      "tests": [],
-      "weight": 5
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/form.test.ts"
+      ],
+      "weight": 5,
+      "via": "Form.Dropdown.Item"
     },
     {
       "path": "Form.DropdownSection",
@@ -7718,21 +8275,33 @@
     },
     {
       "path": "Form.DropdownSection.Props",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/form.test.ts"
+      ],
+      "weight": 0,
+      "via": "Form.Dropdown.Section"
     },
     {
       "path": "Form.DropdownSection.Props.children",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/form.test.ts"
+      ],
+      "weight": 0,
+      "via": "Form.Dropdown.Section"
     },
     {
       "path": "Form.DropdownSection.Props.title",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/form.test.ts"
+      ],
+      "weight": 0,
+      "via": "Form.Dropdown.Section"
     },
     {
       "path": "Form.Event",
@@ -8472,27 +9041,43 @@
     },
     {
       "path": "Form.TagPickerItem.Props",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/form.test.ts"
+      ],
+      "weight": 0,
+      "via": "Form.TagPicker.Item"
     },
     {
       "path": "Form.TagPickerItem.Props.icon",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/form.test.ts"
+      ],
+      "weight": 0,
+      "via": "Form.TagPicker.Item"
     },
     {
       "path": "Form.TagPickerItem.Props.title",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/form.test.ts"
+      ],
+      "weight": 0,
+      "via": "Form.TagPicker.Item"
     },
     {
       "path": "Form.TagPickerItem.Props.value",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/form.test.ts"
+      ],
+      "weight": 0,
+      "via": "Form.TagPicker.Item"
     },
     {
       "path": "Form.TextArea",
@@ -9534,15 +10119,21 @@
     },
     {
       "path": "FormLaunchProps",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "FormLaunchProps.draftValues",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/host/src/cli.test.ts",
+        "packages/runtime/src/api/aliases.test.ts"
+      ],
+      "weight": 0,
+      "via": "LaunchProps"
     },
     {
       "path": "FormProps",
@@ -18381,45 +18972,73 @@
     },
     {
       "path": "OpenAction.Props",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action.Open"
     },
     {
       "path": "OpenAction.Props.application",
-      "status": "missing",
-      "tests": [],
-      "weight": 2
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts"
+      ],
+      "weight": 2,
+      "via": "Action.Open"
     },
     {
       "path": "OpenAction.Props.icon",
-      "status": "missing",
-      "tests": [],
-      "weight": 2
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts"
+      ],
+      "weight": 2,
+      "via": "Action.Open"
     },
     {
       "path": "OpenAction.Props.onOpen",
-      "status": "missing",
-      "tests": [],
-      "weight": 1
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts"
+      ],
+      "weight": 1,
+      "via": "Action.Open"
     },
     {
       "path": "OpenAction.Props.shortcut",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action.Open"
     },
     {
       "path": "OpenAction.Props.target",
-      "status": "missing",
-      "tests": [],
-      "weight": 3
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts"
+      ],
+      "weight": 3,
+      "via": "Action.Open"
     },
     {
       "path": "OpenAction.Props.title",
-      "status": "missing",
-      "tests": [],
-      "weight": 3
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts"
+      ],
+      "weight": 3,
+      "via": "Action.Open"
     },
     {
       "path": "OpenActionProps",
@@ -18499,39 +19118,63 @@
     },
     {
       "path": "OpenInBrowserAction.Props",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action.OpenInBrowser"
     },
     {
       "path": "OpenInBrowserAction.Props.icon",
-      "status": "missing",
-      "tests": [],
-      "weight": 7
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 7,
+      "via": "Action.OpenInBrowser"
     },
     {
       "path": "OpenInBrowserAction.Props.onOpen",
-      "status": "missing",
-      "tests": [],
-      "weight": 3
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 3,
+      "via": "Action.OpenInBrowser"
     },
     {
       "path": "OpenInBrowserAction.Props.shortcut",
-      "status": "missing",
-      "tests": [],
-      "weight": 4
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 4,
+      "via": "Action.OpenInBrowser"
     },
     {
       "path": "OpenInBrowserAction.Props.title",
-      "status": "missing",
-      "tests": [],
-      "weight": 17
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 17,
+      "via": "Action.OpenInBrowser"
     },
     {
       "path": "OpenInBrowserAction.Props.url",
-      "status": "missing",
-      "tests": [],
-      "weight": 29
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 29,
+      "via": "Action.OpenInBrowser"
     },
     {
       "path": "OpenInBrowserActionProps",
@@ -18602,39 +19245,63 @@
     },
     {
       "path": "OpenWithAction.Props",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action.OpenWith"
     },
     {
       "path": "OpenWithAction.Props.icon",
-      "status": "missing",
-      "tests": [],
-      "weight": 1
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts"
+      ],
+      "weight": 1,
+      "via": "Action.OpenWith"
     },
     {
       "path": "OpenWithAction.Props.onOpen",
-      "status": "missing",
-      "tests": [],
-      "weight": 1
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts"
+      ],
+      "weight": 1,
+      "via": "Action.OpenWith"
     },
     {
       "path": "OpenWithAction.Props.path",
-      "status": "missing",
-      "tests": [],
-      "weight": 1
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts"
+      ],
+      "weight": 1,
+      "via": "Action.OpenWith"
     },
     {
       "path": "OpenWithAction.Props.shortcut",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action.OpenWith"
     },
     {
       "path": "OpenWithAction.Props.title",
-      "status": "missing",
-      "tests": [],
-      "weight": 1
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts"
+      ],
+      "weight": 1,
+      "via": "Action.OpenWith"
     },
     {
       "path": "OpenWithActionProps",
@@ -18705,39 +19372,63 @@
     },
     {
       "path": "PasteAction.Props",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action.Paste"
     },
     {
       "path": "PasteAction.Props.content",
-      "status": "missing",
-      "tests": [],
-      "weight": 2
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 2,
+      "via": "Action.Paste"
     },
     {
       "path": "PasteAction.Props.icon",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action.Paste"
     },
     {
       "path": "PasteAction.Props.onPaste",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action.Paste"
     },
     {
       "path": "PasteAction.Props.shortcut",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action.Paste"
     },
     {
       "path": "PasteAction.Props.title",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "partial",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action.Paste"
     },
     {
       "path": "PasteActionProps",
@@ -18925,45 +19616,73 @@
     },
     {
       "path": "PushAction.Props",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/navigation.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action.Push"
     },
     {
       "path": "PushAction.Props.icon",
-      "status": "missing",
-      "tests": [],
-      "weight": 7
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/navigation.test.ts"
+      ],
+      "weight": 7,
+      "via": "Action.Push"
     },
     {
       "path": "PushAction.Props.onPop",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/navigation.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action.Push"
     },
     {
       "path": "PushAction.Props.onPush",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/navigation.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action.Push"
     },
     {
       "path": "PushAction.Props.shortcut",
-      "status": "missing",
-      "tests": [],
-      "weight": 1
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/navigation.test.ts"
+      ],
+      "weight": 1,
+      "via": "Action.Push"
     },
     {
       "path": "PushAction.Props.target",
-      "status": "missing",
-      "tests": [],
-      "weight": 8
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/navigation.test.ts"
+      ],
+      "weight": 8,
+      "via": "Action.Push"
     },
     {
       "path": "PushAction.Props.title",
-      "status": "missing",
-      "tests": [],
-      "weight": 8
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/navigation.test.ts"
+      ],
+      "weight": 8,
+      "via": "Action.Push"
     },
     {
       "path": "PushActionProps",
@@ -19044,39 +19763,63 @@
     },
     {
       "path": "ShowInFinderAction.Props",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action.ShowInFinder"
     },
     {
       "path": "ShowInFinderAction.Props.icon",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action.ShowInFinder"
     },
     {
       "path": "ShowInFinderAction.Props.onShow",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action.ShowInFinder"
     },
     {
       "path": "ShowInFinderAction.Props.path",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action.ShowInFinder"
     },
     {
       "path": "ShowInFinderAction.Props.shortcut",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action.ShowInFinder"
     },
     {
       "path": "ShowInFinderAction.Props.title",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action.ShowInFinder"
     },
     {
       "path": "ShowInFinderActionProps",
@@ -19548,39 +20291,63 @@
     },
     {
       "path": "TrashAction.Props",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action.Trash"
     },
     {
       "path": "TrashAction.Props.icon",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action.Trash"
     },
     {
       "path": "TrashAction.Props.onTrash",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action.Trash"
     },
     {
       "path": "TrashAction.Props.paths",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action.Trash"
     },
     {
       "path": "TrashAction.Props.shortcut",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action.Trash"
     },
     {
       "path": "TrashAction.Props.title",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action.Trash"
     },
     {
       "path": "TrashActionProps",
