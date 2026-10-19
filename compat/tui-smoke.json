@@ -1,0 +1,1624 @@
+{
+  "commit": "3b812d1e153a1862df29bc8ec34e170c728512ea",
+  "width": 100,
+  "height": 30,
+  "totals": {
+    "rendered": 184,
+    "placeholder": 0,
+    "client-error": 0,
+    "empty": 0,
+    "completed": 1,
+    "capability-denied": 7,
+    "bundle-failed": 0,
+    "crashed": 3,
+    "network": 0,
+    "timeout": 0,
+    "unsupported-mode": 0,
+    "unsupported-api": 0,
+    "missing-arguments": 5
+  },
+  "results": [
+    {
+      "extension": "8-divide",
+      "command": "divide-by-8",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "android-versions",
+      "command": "search-android-version",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 273,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "appgrid",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 17,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "atomtick",
+      "command": "analog-clock",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 12,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "atomtick",
+      "command": "copy-atomic-time",
+      "mode": "no-view",
+      "outcome": "capability-denied",
+      "path": "clipboard.copy",
+      "error": "Capability denied: clipboard.copy"
+    },
+    {
+      "extension": "axios-docs",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 76,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "biaodian",
+      "command": "biaodian",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 133,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "bugmenot",
+      "command": "find-login",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "cangjie",
+      "command": "cangjie",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 8,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "chakra-ui-docs",
+      "command": "components",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 616,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "chakra-ui-docs",
+      "command": "get-started",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 43,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "chakra-ui-docs",
+      "command": "hooks",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 103,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "chakra-ui-docs",
+      "command": "styled-system",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 83,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "clocky-time-tracker",
+      "command": "clock-in",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 6,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "clocky-time-tracker",
+      "command": "clock-out",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 6,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "clocky-time-tracker",
+      "command": "history",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 7,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "clocky-time-tracker",
+      "command": "status",
+      "mode": "menu-bar",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "MenuBarExtra"
+    },
+    {
+      "extension": "clocky-time-tracker",
+      "command": "today",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 10,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "clocky-time-tracker",
+      "command": "toggle-pause",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 6,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "clocky-time-tracker",
+      "command": "week",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 49,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "code-review-emojis",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 88,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "codepen",
+      "command": "create-collection",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 12,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "codepen",
+      "command": "create-pen",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 19,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "codepen",
+      "command": "search-assets",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 11,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "codepen",
+      "command": "search-collections",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 11,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "codepen",
+      "command": "search-pens",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 23,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "codepen",
+      "command": "upload-asset",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 9,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "color-studio-picker",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 716,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "conventional-commits",
+      "command": "commit-message-structure",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "conventional-commits",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 47,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "convert-px-to-vw-vh",
+      "command": "height",
+      "mode": "no-view",
+      "outcome": "missing-arguments",
+      "reason": "requires launch arguments: height, pixels; not run"
+    },
+    {
+      "extension": "convert-px-to-vw-vh",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 27,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "convert-px-to-vw-vh",
+      "command": "menu-bar",
+      "mode": "menu-bar",
+      "outcome": "rendered",
+      "nodes": 5,
+      "rootType": "MenuBarExtra"
+    },
+    {
+      "extension": "convert-px-to-vw-vh",
+      "command": "width",
+      "mode": "no-view",
+      "outcome": "missing-arguments",
+      "reason": "requires launch arguments: pixels, width; not run"
+    },
+    {
+      "extension": "devpod",
+      "command": "workspaces-manage",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 7,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "dice-tiles",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 19,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "donut",
+      "command": "show-donut",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "duan-raycast-extension",
+      "command": "list-links",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 9,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "duan-raycast-extension",
+      "command": "shorten-link",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 10,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "ego-lite",
+      "command": "new-tab",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 2,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "ego-lite",
+      "command": "search-bookmarks",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "ego-lite",
+      "command": "search-history",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "evernote",
+      "command": "search-notes",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "evernote",
+      "command": "search-tasks",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "fibonacci-sequence",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 78,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "fix-helper",
+      "command": "fix-parser",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 9,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "fix-helper",
+      "command": "fix-search-tags",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3253,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "google-cloud-run",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 6,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "google-maps-search",
+      "command": "find",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "google-maps-search",
+      "command": "quickSearchMaps",
+      "mode": "no-view",
+      "outcome": "missing-arguments",
+      "reason": "requires launch arguments: query; not run"
+    },
+    {
+      "extension": "google-maps-search",
+      "command": "travelHome",
+      "mode": "no-view",
+      "outcome": "capability-denied",
+      "path": "open.url",
+      "error": "Capability denied: open.url"
+    },
+    {
+      "extension": "google-maps-search",
+      "command": "travelTo",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 18,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "hevy",
+      "command": "search-routines",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "hevy",
+      "command": "search-workouts",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "humaans",
+      "command": "book-time",
+      "mode": "no-view",
+      "outcome": "capability-denied",
+      "path": "open.url",
+      "error": "Capability denied: open.url"
+    },
+    {
+      "extension": "humaans",
+      "command": "clock-in",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 2,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "humaans",
+      "command": "clock-out",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 2,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "humaans",
+      "command": "holidays",
+      "mode": "view",
+      "outcome": "crashed",
+      "error": "api key missing",
+      "exit": "code 1",
+      "logs": [
+        "RUNTIME_ERROR: api key missing"
+      ]
+    },
+    {
+      "extension": "humaans",
+      "command": "me-time-away",
+      "mode": "no-view",
+      "outcome": "capability-denied",
+      "path": "open.url",
+      "error": "Capability denied: open.url"
+    },
+    {
+      "extension": "humaans",
+      "command": "people",
+      "mode": "view",
+      "outcome": "crashed",
+      "error": "api key missing",
+      "exit": "code 1",
+      "logs": [
+        "RUNTIME_ERROR: api key missing"
+      ]
+    },
+    {
+      "extension": "hyrule-compendium-search",
+      "command": "broadSearch",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 1559,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "hyrule-compendium-search",
+      "command": "getEntry",
+      "mode": "view",
+      "outcome": "missing-arguments",
+      "reason": "requires launch arguments: entryName; not run"
+    },
+    {
+      "extension": "input-source-switcher",
+      "command": "form",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 17,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "input-source-switcher",
+      "command": "index",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "invisible-text-detector",
+      "command": "analyze-clipboard-invisible-characters",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "invisible-text-detector",
+      "command": "fix-invisible-characters",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "invisible-text-detector",
+      "command": "open-invisible-text-detector",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 32,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "kaalam",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 107,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "kaalam",
+      "command": "now",
+      "mode": "no-view",
+      "outcome": "capability-denied",
+      "path": "clipboard.paste",
+      "error": "Capability denied: clipboard.paste"
+    },
+    {
+      "extension": "keeper-security",
+      "command": "generate-passphrase",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 9,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "keeper-security",
+      "command": "generate-password",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 14,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "keeper-security",
+      "command": "generate-password-quick",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 2,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "keeper-security",
+      "command": "my-vault",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 31,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "keygen",
+      "command": "api-tokens",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "keygen",
+      "command": "api-usage",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "keygen",
+      "command": "environments",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "keygen",
+      "command": "licenses",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "keygen",
+      "command": "policies",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "keygen",
+      "command": "products",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "keygen",
+      "command": "users",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "laravel-artisan",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 6,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "laravel-shift",
+      "command": "generate-shift",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 59,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "leap-new",
+      "command": "generate-app",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 29,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "leap-new",
+      "command": "menu-bar",
+      "mode": "menu-bar",
+      "outcome": "rendered",
+      "nodes": 5,
+      "rootType": "MenuBarExtra"
+    },
+    {
+      "extension": "leetcode",
+      "command": "daily-challenge",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 8,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "leetcode",
+      "command": "potd-menu-bar",
+      "mode": "menu-bar",
+      "outcome": "rendered",
+      "nodes": 7,
+      "rootType": "MenuBarExtra"
+    },
+    {
+      "extension": "leetcode",
+      "command": "problem-search",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 13,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "leetcode",
+      "command": "random-problem",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 45,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "leetcode",
+      "command": "user-profile",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "markdown-reference",
+      "command": "markdown-reference",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 63,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "mealie",
+      "command": "add-to-shopping-list",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 7,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "mealie",
+      "command": "import-recipe",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 7,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "mealie",
+      "command": "meal-plan",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 7,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "mealie",
+      "command": "search-recipes",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 7,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "mealie",
+      "command": "shopping-lists",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 7,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "melanite-search",
+      "command": "search-files",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 7,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "menucloak",
+      "command": "open-settings",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "menucloak",
+      "command": "set-focus",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 7,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "menucloak",
+      "command": "toggle",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "menucloak",
+      "command": "turn-off",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "menucloak",
+      "command": "turn-on",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "mise-window-sets",
+      "command": "apply-set",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "mise-window-sets",
+      "command": "reload-sets",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "multi-ai-chat",
+      "command": "multi-ai-chat",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 36,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "multi-ai-chat",
+      "command": "run-presets",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 7,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "nano-games",
+      "command": "play-nano-snake",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 8,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "nterm-calculator",
+      "command": "nterm-calculator",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 39,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "ohmyzsh-git-alias",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 1632,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "one-thing",
+      "command": "remove-one-thing",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 2,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "one-thing",
+      "command": "set-one-thing",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 7,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "one-thing",
+      "command": "show-one-thing",
+      "mode": "menu-bar",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "parcel",
+      "command": "add-delivery",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 11,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "parcel",
+      "command": "my-deliveries",
+      "mode": "view",
+      "outcome": "crashed",
+      "error": "API key not found. Please add your Parcel API key in extension preferences.",
+      "exit": "code 1",
+      "logs": [
+        "RUNTIME_ERROR: API key not found. Please add your Parcel API key in extension preferences."
+      ]
+    },
+    {
+      "extension": "pbr-assistant",
+      "command": "find-pbr-ior-value",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 672,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "pinch-svg",
+      "command": "custom-rectangle",
+      "mode": "view",
+      "outcome": "missing-arguments",
+      "reason": "requires launch arguments: height, width; not run"
+    },
+    {
+      "extension": "pinch-svg",
+      "command": "grid",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 8,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "pokemon-tcg-pocket-binder",
+      "command": "pokemon-tcg-pocket-binder",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 39,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "portless",
+      "command": "list",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "promptty",
+      "command": "search-promptty",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "punch-clock",
+      "command": "menu-bar",
+      "mode": "menu-bar",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "MenuBarExtra"
+    },
+    {
+      "extension": "punch-clock",
+      "command": "start-timer",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 11,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "px-to-rem-converter",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 13,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "quick-jump",
+      "command": "search",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "radix",
+      "command": "colors",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 53,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "radix",
+      "command": "primitives",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 265,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "radix",
+      "command": "themes",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 429,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "random-color",
+      "command": "random-color",
+      "mode": "no-view",
+      "outcome": "capability-denied",
+      "path": "clipboard.copy",
+      "error": "Capability denied: clipboard.copy"
+    },
+    {
+      "extension": "random-color",
+      "command": "select-color",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 59,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "ratio-calculator",
+      "command": "calculate-ratio",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "raytyping",
+      "command": "raytype",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 15,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "almost-maximize",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "bottom-center-sixth",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "bottom-half",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "bottom-left",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "bottom-left-sixth",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "bottom-right",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "bottom-right-sixth",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "cascade-all",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "center",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "center-half",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "center-third",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "first-fourth",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "first-third",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "first-three-fourths",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "first-two-thirds",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 326,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "larger",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "last-fourth",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "last-third",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "last-three-fourths",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "last-two-thirds",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "left-half",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "maximize",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "maximize-height",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "move-down",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "move-left",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "move-right",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "move-up",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "next-display",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "previous-display",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "restore",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "right-half",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "second-fourth",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "smaller",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "specified",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "third-fourth",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "top-center-sixth",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "top-half",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "top-left",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "top-left-sixth",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "top-right",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rectangle",
+      "command": "top-right-sixth",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "ring-intercom",
+      "command": "authenticate",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 6,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "ring-intercom",
+      "command": "unlock",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "rtl-reader",
+      "command": "rtl-text",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 9,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "saved-items",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 7,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "sf-symbols-search",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 37,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "spacejump",
+      "command": "list-spaces",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "spacejump",
+      "command": "switch-space",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "stockholm-public-transport",
+      "command": "departures",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 5,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "storybook-sandboxes",
+      "command": "local",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 538,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "storybook-sandboxes",
+      "command": "online",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 538,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "tategaki",
+      "command": "japanese-vertical-text",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 24,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "text-decorator",
+      "command": "decorate-text",
+      "mode": "no-view",
+      "outcome": "capability-denied",
+      "path": "command.launch",
+      "error": "Capability denied: command.launch"
+    },
+    {
+      "extension": "text-decorator",
+      "command": "decorate-text-with-font",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 143,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "text-decorator",
+      "command": "undecorate-text",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 2,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "time-until-i-do",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 6,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "timezone-buddy",
+      "command": "timezone-buddy",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 7,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "timezone-buddy",
+      "command": "timezone-buddy-menubar",
+      "mode": "menu-bar",
+      "outcome": "rendered",
+      "nodes": 2,
+      "rootType": "MenuBarExtra"
+    },
+    {
+      "extension": "tiny-tycho",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 867,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "uk-bank-holidays",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "uk-bank-holidays",
+      "command": "next-holiday",
+      "mode": "no-view",
+      "outcome": "completed",
+      "reason": "command mode \"no-view\" completed without rendering a scene"
+    },
+    {
+      "extension": "url-designer",
+      "command": "create-prompt",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 6,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "valkey-commands-search",
+      "command": "search-valkey-commands",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "vim-bro",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 924,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "vocab-search",
+      "command": "vocab",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "windows-domain",
+      "command": "my-user",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 5,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "windows-domain",
+      "command": "search-user",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "workflowy-inbox",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 12,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "workflowy-inbox",
+      "command": "view",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 6,
+      "rootType": "Navigation"
+    }
+  ],
+  "extensionFailures": []
+}
