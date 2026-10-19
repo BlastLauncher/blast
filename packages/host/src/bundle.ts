@@ -105,6 +105,7 @@ export type CommandArgument = {
   placeholder?: string;
 };
 export type BundledCommand = {
+  modelProviderDir?: string;
   entry: string;
   extensionName: string;
   commandName: string;
@@ -364,6 +365,9 @@ async function bundleEntry(
       ...parsePreferenceDefaults(command.preferences, `Command ${command.name} preferences`),
     },
     assetsPath: join(outDir, "assets"),
+    ...(manifest.ai?.modelProvider && !options.modelProvider
+      ? { modelProviderDir: extensionDir }
+      : {}),
   };
 }
 

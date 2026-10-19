@@ -16,6 +16,7 @@ import { spawn } from "node:child_process";
 import { mkdir } from "node:fs/promises";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createAIRouter } from "./ai.ts";
 import type { Broker } from "./broker.ts";
 import type { BundledCommand } from "./bundle.ts";
 import { defaultDataDir, storageFile } from "./storage.ts";
@@ -67,6 +68,8 @@ export type Session = {
 
 /** Resolves after the version handshake. Startup failures reject only after child cleanup. */
 export async function startCommand(options: StartOptions): Promise<Session> {
+  const ai = options.mode === "model-provider" ? undefined : createAIRouter(options);
+  const capabilities = new Map<string, AbortController>();
   const entry = resolve(options.entry);
   const supportPath =
     options.environment?.supportPath ??
@@ -183,11 +186,24 @@ export async function startCommand(options: StartOptions): Promise<Session> {
           if (message.fatal)
             failure ??= Object.assign(new Error(message.message), { code: message.code });
           break;
-        case "capability.request":
-          void options
-            .broker(message)
+        case "capability.cancel":
+          capabilities.get(message.id)?.abort();
+          break;
+        case "capability.request": {
+          const controller = new AbortController();
+          capabilities.set(message.id, controller);
+          void (ai?.broker ?? options.broker)(message, {
+            signal: controller.signal,
+            progress: (chunk) => {
+              if (!controller.signal.aborted)
+                send({ type: "capability.progress", id: message.id, value: chunk });
+            },
+          })
             .then(send)
-            .catch((error) => fail(error instanceof Error ? error : new Error(String(error))));
+            .catch((error) => fail(error instanceof Error ? error : new Error(String(error))))
+            .finally(() => capabilities.delete(message.id));
+          break;
+        }
       }
     },
   });
@@ -202,11 +218,13 @@ export async function startCommand(options: StartOptions): Promise<Session> {
     .on("data", (message: string) => addLog({ type: "log", level: "error", message }));
   child.stdin.on("error", fail);
   child.on("error", fail);
-  child.on("close", (code, signal) => {
+  child.on("close", async (code, signal) => {
     closed = true;
     clearTimeout(handshakeTimer);
     for (const timer of timers) clearTimeout(timer);
     listeners.clear();
+    for (const controller of capabilities.values()) controller.abort();
+    await ai?.shutdown();
     resolveExit({ code, signal, ...(failure ? { error: failure } : {}) });
   });
   send(init);

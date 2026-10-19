@@ -95,6 +95,7 @@ export type HostMessage =
   | InitMessage
   | EventMessage
   | CapabilityResultMessage
+  | { type: "capability.progress"; id: string; value: JsonValue }
   | ShutdownMessage
   | ProviderRequest;
 
@@ -121,6 +122,7 @@ export type RuntimeMessage =
   | ReadyMessage
   | SceneMessage
   | CapabilityRequestMessage
+  | { type: "capability.cancel"; id: string }
   | LogMessage
   | ErrorMessage;
 
@@ -641,6 +643,14 @@ function buildHostMessage(object: Obj): HostMessage {
         args: readJsonArray(object["args"], "args"),
       };
     }
+    case "capability.progress": {
+      checkKeys(object, "", ["type", "id", "value"]);
+      return {
+        type: "capability.progress",
+        id: readString(object["id"], "id"),
+        value: readJsonValue(object["value"], "value", new WeakSet<object>()),
+      };
+    }
     case "capability.result": {
       const id = readString(object["id"], "id");
       const ok = readBoolean(object["ok"], "ok");
@@ -708,6 +718,10 @@ function buildRuntimeMessage(object: Obj): RuntimeMessage {
         revision: readNonNegativeInteger(object["revision"], "revision"),
         root: root === null ? null : readSceneNode(root, "root", new WeakSet<object>()),
       };
+    }
+    case "capability.cancel": {
+      checkKeys(object, "", ["type", "id"]);
+      return { type: "capability.cancel", id: readString(object["id"], "id") };
     }
     case "capability.request": {
       checkKeys(object, "", ["type", "id", "name", "params"]);

@@ -108,3 +108,37 @@ test("abort calls iterator return and suppresses late parts", async () => {
   expect(returned).toBe(true);
   expect(messages).toEqual([]);
 });
+
+test("model listings project declared fields while preserving strict protocol validation", async () => {
+  const message = await new Promise<ProviderResponse>((resolve) => {
+    createModelProvider(
+      {
+        getModels: () => [{ id: "m", title: "Model", providerPrivate: 1n }],
+        streamCompletion: async function* () {},
+      },
+      resolve,
+    ).handle({ type: "provider.getModels", id: "list" });
+  });
+  expect(message).toEqual({
+    type: "provider.models",
+    id: "list",
+    models: [{ id: "m", title: "Model" }],
+  });
+});
+
+test("projected model listings still reject malformed declared fields", async () => {
+  const message = await new Promise<ProviderResponse>((resolve) => {
+    createModelProvider(
+      {
+        getModels: () => [{ id: "m", title: "Model", contextWindow: "large" }] as never,
+        streamCompletion: async function* () {},
+      },
+      resolve,
+    ).handle({ type: "provider.getModels", id: "invalid" });
+  });
+  expect(message).toMatchObject({
+    type: "provider.error",
+    id: "invalid",
+    error: { code: "PROVIDER_ERROR" },
+  });
+});

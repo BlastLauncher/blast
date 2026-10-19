@@ -13,6 +13,17 @@ export function createModelProvider(
 ) {
   if (typeof exports.getModels !== "function" || typeof exports.streamCompletion !== "function")
     throw new Error("Model provider requires named getModels and streamCompletion exports");
+  // Providers may attach private metadata; only the public model crosses the wire.
+  const modelFields = [
+    "id",
+    "title",
+    "isLocal",
+    "icon",
+    "description",
+    "capabilities",
+    "contextWindow",
+    "sizeInBytes",
+  ] as const satisfies readonly (keyof AI.RegisteredModel)[];
   const active = new Map<string, { cancelled: boolean; iterator?: AsyncIterator<unknown> }>();
   function emit(message: ProviderResponse) {
     const parsed = parseRuntimeMessage(JSON.parse(JSON.stringify(message)));
@@ -26,7 +37,19 @@ export function createModelProvider(
     try {
       if (message.type === "provider.getModels") {
         const models = await exports.getModels!();
-        if (!state.cancelled) emit({ type: "provider.models", id: message.id, models });
+        if (!state.cancelled)
+          emit({
+            type: "provider.models",
+            id: message.id,
+            models: models.map(
+              (model) =>
+                Object.fromEntries(
+                  modelFields
+                    .filter((key) => Object.hasOwn(model, key))
+                    .map((key) => [key, model[key]]),
+                ) as typeof model,
+            ),
+          });
       } else {
         const result = await exports.streamCompletion!(
           message.model as AI.RegisteredModel,

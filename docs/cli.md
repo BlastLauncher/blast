@@ -38,6 +38,7 @@ Headless answers for capabilities a desktop client owns:
 | `clipboard.read`                        | `--clipboard <text>`         | empty text; nothing at older offsets             |
 | `selection.text`                        | `--selected-text <text>`     | rejects, like Raycast with no selection          |
 | `selection.files`                       | `--selected-files <path>`    | empty list (flag repeatable)                     |
+| `ai.decide`                             | `--ai-decide <file.json>`    | denied                                           |
 | `ai.ask`                                | `--ai-answer <text>`         | denied                                           |
 | `browser.tabs`, `browser.content`       | `--browser-tabs <file.json>` | denied                                           |
 | `oauth.authorize`                       | `--oauth-code <code>`        | denied                                           |
@@ -88,4 +89,19 @@ bun run blast complete fixtures/extensions/model-provider full "Hello"
 ```
 
 The fixture runs offline; real providers may require preferences or credentials
-supplied through the host session API. These subcommands do not route AI.ask.
+supplied through the host session API. During `blast run`, AI.ask with a model
+`{ id }` uses the extension's own provider without a grant, streams text deltas,
+and shuts the provider down with the command. AI.refreshModels re-reads its
+model list (no-op without a provider). Named creativity levels map to temperature
+0/0.5/1/1.5/2; numeric values clamp to [0, 2].
+
+`--ai-decide <file.json>` supplies an object keyed by the submitted question IDs.
+Answers must match their question types: `{ "type": "noul", "noul": 0.8 }`;
+choice answers carry `choice`, `confidence`, and `probabilities`; score answers
+carry `score`, `confidence`, `legend`, and `probabilities`. Probabilities must
+cover the declared options/levels and sum to one. Invalid answers reject the
+API call. Without this flag decisions are denied, even with `--grant ai.decide`.
+
+```bash
+bun run blast run fixtures/extensions/model-provider ask --ai-decide answers.json
+```

@@ -2,18 +2,16 @@
 
 Status: accepted 2026-10-18
 
-## Decision
-
-A provider uses its own Node runtime child with `init.command.mode` set to
-`model-provider`. It imports the bundle without rendering a React scene.
+A provider uses its own Node runtime child (`init.command.mode: model-provider`),
+importing the bundle without rendering a React scene.
 The existing handshake, logging, capabilities, environment and shutdown apply.
 The host bundles the manifest's `ai.modelProvider` basename from `src/` using
 the command dependency policy and assets layout.
 
 At corpus pin `3b812d1e`, Groq and LM Studio declare
 `"ai": { "modelProvider": "models" }`. Both `src/models.ts` entries export
-named `getModels: AI.GetModels` and `streamCompletion: AI.StreamCompletion`;
-there is no required default export. No corpus source is redistributed.
+named `getModels: AI.GetModels` and `streamCompletion: AI.StreamCompletion`.
+No default export is required. No corpus source is redistributed.
 
 Host → runtime messages:
 
@@ -37,9 +35,9 @@ request shape (no AbortSignal field); a blocked producer may continue until
 shutdown, which has the existing bounded kill escalation.
 
 Streams may be direct AsyncIterables/ReadableStreams or wrapped in textStream
-or fullStream. String chunks become text-delta parts with textDelta. Other
-parts retain the declared JSON union. End is transport completion; text-only
-streams do not invent model usage or a finish reason. Icons stay authored
+or fullStream. Strings become text-delta parts with textDelta; other parts retain
+the declared union. End completes transport without inventing usage or a finish
+reason. Icons stay authored
 image-like JSON, including source/fallback/theme/mask/tintColor/fileIcon.
 
 Only message attachment file.data needs non-JSON encoding. Each such value
@@ -48,8 +46,13 @@ hold byte arrays. Runtime decoding restores string, URL, Uint8Array or
 ArrayBuffer respectively. Tagging strings too avoids ambiguity. Other request
 fields and stream parts must be JSON; the NDJSON size limit still applies.
 
-## Consequences
-
-The host API exposes listing and async iteration independently of AI.ask.
-Callers own bundle output cleanup after shutdown. No provider registration,
-network access grant, desktop picker or AI.ask routing is added here.
+AI.ask with `{ id }` lazily starts and reuses the calling extension's provider;
+ai.models.refresh re-lists it (no provider means no-op). Both need no grant.
+capability.progress { id, value } carries text chunks before the final result;
+capability.cancel { id } aborts host iteration. Command exit stops its provider
+and removes its bundle. Other callers own bundle cleanup after shutdown.
+User prompts become one user message containing a text part. Creativity maps
+to temperature: none/low/medium/high/maximum → 0/0.5/1/1.5/2; numeric values
+clamp to [0, 2], omission leaves it unset. Provider metadata is projected onto
+RegisteredModel fields before strict wire validation. ai.decide is denied by
+default; runtime validates supplied answers against the submitted questions.

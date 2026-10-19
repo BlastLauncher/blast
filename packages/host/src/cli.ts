@@ -60,6 +60,7 @@ Options:
                         Answer getApplications with the JSON array of
                         applications in <file>; the file must hold objects with
                         "name" and "path". Defaults to an empty list.
+  --ai-decide <file.json> Supply AI.experimental_decide answers; denied otherwise.
   --ai-answer <text>   Answer AI.ask with this text; denied otherwise.
   --browser-tabs <file.json>
                         Supply tabs (id, url, active; optional title, favicon, content).
@@ -190,8 +191,8 @@ function createOutput(json: boolean) {
 type Output = ReturnType<typeof createOutput>;
 
 function reportingBroker(inner: Broker, output: Output): Broker {
-  return async (request) => {
-    const result = await inner(request);
+  return async (request, context) => {
+    const result = await inner(request, context);
     output.capability(request, result);
     return result;
   };
@@ -202,7 +203,9 @@ function reportingBroker(inner: Broker, output: Output): Broker {
 function grantHandlers(grants: string[]): Record<string, CapabilityHandler> {
   const handlers: Record<string, CapabilityHandler> = {};
   for (const name of grants) {
-    if (!["oauth.authorize", "ai.ask", "browser.tabs", "browser.content"].includes(name))
+    if (
+      !["oauth.authorize", "ai.ask", "ai.decide", "browser.tabs", "browser.content"].includes(name)
+    )
       handlers[name] = () => null;
   }
   return handlers;
@@ -497,6 +500,7 @@ type RunOptions = {
   clipboard: string | undefined;
   selectedText: string | undefined;
   aiAnswer: string | undefined;
+  aiDecide: JsonValue | undefined;
   browserTabs: BrowserTab[] | undefined;
   oauthCode: string | undefined;
   selectedFiles: string[];
@@ -617,6 +621,7 @@ async function run(options: RunOptions): Promise<number> {
         selectedFiles: options.selectedFiles,
         frontmost: options.frontmost,
       }),
+      ...(options.aiDecide === undefined ? {} : { "ai.decide": () => options.aiDecide! }),
       ...createStorageHandlers({ extensionName: bundled.extensionName, dataDir: options.dataDir }),
       ...createOAuthHandlers({ extensionName: bundled.extensionName, dataDir: options.dataDir }),
     };
@@ -678,6 +683,7 @@ function parseArguments(argv: string[]) {
         clipboard: { type: "string" },
         "oauth-code": { type: "string" },
         "ai-answer": { type: "string" },
+        "ai-decide": { type: "string" },
         "browser-tabs": { type: "string" },
         "selected-text": { type: "string" },
         "selected-files": { type: "string", multiple: true },
@@ -699,6 +705,14 @@ async function readScript(specifier: string): Promise<string> {
     return specifier === "-" ? await readStdin() : await readFile(specifier, "utf8");
   } catch {
     throw new UsageError(`cannot read script ${JSON.stringify(specifier)}`);
+  }
+}
+
+async function readDecisions(path: string): Promise<JsonValue> {
+  try {
+    return JSON.parse(await readFile(path, "utf8"));
+  } catch {
+    throw new UsageError(`cannot read --ai-decide JSON file ${JSON.stringify(path)}`);
   }
 }
 
@@ -815,6 +829,10 @@ async function main(argv: string[]): Promise<number> {
       applicationsPath === undefined ? undefined : await readApplications(applicationsPath),
     clipboard: parsed.values.clipboard,
     aiAnswer: parsed.values["ai-answer"],
+    aiDecide:
+      parsed.values["ai-decide"] === undefined
+        ? undefined
+        : await readDecisions(parsed.values["ai-decide"]),
     browserTabs:
       parsed.values["browser-tabs"] === undefined
         ? undefined
