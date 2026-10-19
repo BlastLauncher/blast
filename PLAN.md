@@ -76,7 +76,8 @@ diagnostics instead of ESM link errors.
 - [x] 0044 WindowManagement and remaining leftovers
 - [x] 0045 AI model provider entrypoint (protocol, host, CLI)
 - [x] 0046 AI.ask with extension models, refreshModels, decide
-- [ ] Next: deprecated aliases sweep; curated set v4 using provided deps
+- [ ] 0047 Deprecated aliases — exports plus alias-aware coverage
+- [ ] 0048 Curated set v4 — extensions using shared dependencies
 
 Smoke 2026-10-18 (`compat/SMOKE.md`, 60 extensions): 144/149 commands render,
 1 completed, 4 expected capability denials, 0 unsupported-api. Coverage 63.5%
