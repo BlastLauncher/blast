@@ -101,12 +101,12 @@ test("filterCommands matches title, subtitle and name case-insensitively", () =>
 });
 
 test("commandRow shows title, subtitle else description, and mode", () => {
-  expect(commandRow(command({ name: "index", title: "Index" }))).toBe("Index  [view]");
+  expect(commandRow(command({ name: "index", title: "Index" }))).toBe("Index  Command");
   expect(commandRow(command({ name: "close", subtitle: "Bye", mode: "no-view" }))).toBe(
-    "close  Bye  [no-view]",
+    "close  Bye  No View",
   );
   expect(commandRow(command({ name: "meta", description: "Metadata", mode: "menu-bar" }))).toBe(
-    "meta  Metadata  [menu-bar]",
+    "meta  Metadata  Menu Bar",
   );
 });
 

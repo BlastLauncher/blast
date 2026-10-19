@@ -96,7 +96,7 @@ test("terminal drives menu-bar: open the Submenu, run the item's onAction", asyn
     await terminal.waitForFrame((frame) => frame.includes("› More"));
     // → opens the Submenu level; its Items are selectable.
     await act(async () => terminal.mockInput.pressArrow("right"));
-    await terminal.waitForFrame((frame) => frame.includes("Click") && !frame.includes("More ›"));
+    await terminal.waitForFrame((frame) => frame.includes("Click") && !frame.includes("More"));
     // Enter runs onAction with the event argument; the action renames the title.
     await act(async () => {
       const changed = waitScene(opened.session, (scene) =>
@@ -108,9 +108,7 @@ test("terminal drives menu-bar: open the Submenu, run the item's onAction", asyn
     await terminal.waitForFrame((frame) => frame.includes("left-click"));
     // ← closes the level again; Esc then quits the TUI.
     await act(async () => terminal.mockInput.pressArrow("left"));
-    await terminal.waitForFrame(
-      (frame) => frame.includes("More ›") && frame.includes("left-click"),
-    );
+    await terminal.waitForFrame((frame) => frame.includes("More") && frame.includes("left-click"));
     await act(async () => {
       terminal.mockInput.pressEscape();
       await quitting;

@@ -71,7 +71,7 @@ test("terminal drives grid: one row of cells, 2-D movement, empty view and dropd
       ),
     );
     // The selected cell's action shows in the footer (cells highlight, no marker).
-    expect(terminal.captureCharFrame()).toContain("Enter Delete beer");
+    expect(terminal.captureCharFrame()).toContain("Delete beer ↵");
     // The dropdown accessory shows the runtime-owned value next to the search bar.
     await terminal.waitForFrame((frame) => frame.includes("▾ water"));
     // Ctrl-P opens the filterable option list; pick "water" by filtering.
@@ -92,10 +92,10 @@ test("terminal drives grid: one row of cells, 2-D movement, empty view and dropd
     await frameEventually(terminal, (frame) => frame.includes("drink water"));
     // Esc closes the dropdown without picking a new value.
     await act(async () => terminal.mockInput.pressEscape());
-    await frameEventually(terminal, (frame) => !frame.includes("┌─Drink"));
+    await frameEventually(terminal, (frame) => !frame.includes("╭─Drink"));
     // → moves to the second cell; Enter runs its action.
     await act(async () => terminal.mockInput.pressArrow("right"));
-    await frameEventually(terminal, (frame) => frame.includes("Enter Delete wine"));
+    await frameEventually(terminal, (frame) => frame.includes("Delete wine ↵"));
     await act(async () => {
       const changed = waitScene(opened.session, (scene) =>
         JSON.stringify(scene).includes("deleted wine"),

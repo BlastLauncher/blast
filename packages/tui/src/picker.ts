@@ -107,9 +107,20 @@ export function filterCommands(commands: PickerCommand[], query: string): Picker
   );
 }
 
+export function modeLabel(mode: PickerMode): string {
+  switch (mode) {
+    case "view":
+      return "Command";
+    case "no-view":
+      return "No View";
+    case "menu-bar":
+      return "Menu Bar";
+  }
+}
+
 /** One picker row: title, then subtitle (else description), then the mode. */
 export function commandRow(command: PickerCommand): string {
-  return [command.title, command.subtitle || command.description, `[${command.mode}]`]
+  return [command.title, command.subtitle || command.description, modeLabel(command.mode)]
     .filter(Boolean)
     .join("  ");
 }

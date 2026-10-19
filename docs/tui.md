@@ -7,6 +7,12 @@ bun run tui <extensionDir> [command]
 With a `<command>` this opens that command directly (direct mode); without
 one, the picker lists the manifest's commands.
 
+## Look
+
+Command palette styling features rounded frames, a search bar with a glyph,
+list rows with pointer markers and right-aligned accessories, floating action
+panels and dropdowns, and segmented footers with shortcut hints.
+
 ## Keys
 
 | Key             | Effect                                                                |
@@ -26,9 +32,8 @@ Action shortcuts support direct ctrl/shift keys; client keys take priority.
 
 ## Picker
 
-`bun run tui <extensionDir>` lists the manifest's commands for the session. Rows
-show each command's `title` (else its name), `subtitle` (else `description`)
-and mode; the header shows the extension's title.
+`bun run tui <extensionDir>` lists manifest commands. Rows show each command's
+`title` (else name), `subtitle` (else `description`), mode; header shows title.
 
 - Typing filters case-insensitively on title, subtitle and name; ↑ / ↓ move
   the selection; Enter launches; Esc / Ctrl-C quit the TUI.
@@ -46,19 +51,16 @@ and mode; the header shows the extension's title.
   line. The process exits 1 only if the last launched command crashed and
   the user then quits.
 
-The picker checks dependencies on open and when `package.json` or
-`package-lock.json` changes. A status line shows the latest npm log; launches
-wait for installation. Failures show inline and allow a shared-dependency
-fallback launch. Installs live under `<dataDir>/deps/` (decision 0008).
+The picker checks dependencies on open and on manifest changes. A status line
+shows npm progress; launches wait for install. Failures show inline and allow
+shared-dep fallback. Installs live under `<dataDir>/deps/` (decision 0008).
 
-Missing required preferences (no default, nothing stored) open **Set up
-<command>** with only those fields before launch. Ctrl-E and the extension's
-`open*Preferences` calls open the full **Preferences — <extension>** view
-(Extension and command sections, `*` required, focused field's description);
-it saves without launching. Passwords are masked, Space toggles checkboxes,
-←/→ cycles dropdowns, Enter saves, Esc cancels. Values persist in
-`<dataDir>/preferences/<encoded-name>.json` (**plaintext, mode 0600**).
-The data root is `$XDG_DATA_HOME/blast` (else `~/.local/share/blast`).
+Missing required preferences open **Set up <command>** before launch. Ctrl-E
+and `open*Preferences` open full **Preferences — <extension>** view (Extension
+and command sections, `*` required, field description); saves without launch.
+Passwords masked, Space toggles checkboxes, ←/→ cycles dropdowns, Enter saves,
+Esc cancels. Values persist in `<dataDir>/preferences/<encoded-name>.json`
+(**plaintext, mode 0600**). Data root: `$XDG_DATA_HOME/blast` (or `~/.local/share/blast`).
 
 ## Rendering
 
@@ -83,10 +85,8 @@ The data root is `$XDG_DATA_HOME/blast` (else `~/.local/share/blast`).
   subtitle, shortcut label) are selectable with ↑/↓. → / Enter opens a
   Submenu and ← / Esc closes it; Enter on an Item runs its `onAction` with a
   `left-click` event, and Items without one render dimmed.
-- `no-view` commands render only their feedback (alert, toast, HUD). When the
-  runtime exits 0 on its own, the client quits after the HUD window has shown
-  (2.5 s). A failed runtime shows
-  the error and waits for Esc; direct mode then exits 1.
+- `no-view` commands render only feedback (alert, toast, HUD). When runtime
+  exits 0, client quits after HUD (2.5 s). Errors wait for Esc; direct exits 1.
 - `List`/`Grid` pagination: when the selection reaches the last loaded item
   (or the last Grid row) and `pagination.hasMore` is set, the client sends one
   `onLoadMore` per item-count change; `isLoading` shows the loading line.

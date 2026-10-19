@@ -1,7 +1,7 @@
 ---
 id: "0062"
 title: TUI looks like a command palette (Raycast-style theme and layout)
-status: doing
+status: review
 milestone: M4
 depends: ["0061"]
 ---
@@ -60,24 +60,18 @@ styling instead of plain text lines.
 
 ## Acceptance
 
-- [ ] `packages/tui/src/theme.ts` exists. `rg -n '#[0-9a-fA-F]{6}'
-      packages/tui/src --glob '!theme.ts'` finds nothing outside tests.
-- [ ] New test (`packages/tui/src/look.test.tsx`) renders a fixture List
-      at 80×24 and at 60×20 and asserts:
+- [x] `packages/tui/src/theme.ts` exists. `rg -n '#[0-9a-fA-F]{6}' packages/tui/src --glob '!theme.ts'` finds nothing outside tests.
+- [x] New test (`packages/tui/src/look.test.tsx`) renders a fixture List at 80×24 and at 60×20 and asserts:
   - the frame's corner glyph `╭`;
   - the selected row's title and right-aligned accessory are on the same line;
   - the footer contains `↵` and `^K`;
   - no line is wider than the terminal.
-- [ ] Opening the action panel shows a bordered box whose rows include the
-      shortcut text right-aligned (test).
-- [ ] Toast with `Toast.Style.Failure` renders in the footer (test may assert
-      text only).
-- [ ] All existing tui tests pass, with changed expectations listed in Handoff.
-- [ ] `bun run tui fixtures/...` manual check is not required. Instead, paste
-      one 80×24 captured frame of the picker and one of a List command into
-      Handoff.
-- [ ] `docs/tui.md` gets a short "Look" paragraph.
-- [ ] `bun run verify` passes.
+- [x] Opening the action panel shows a bordered box whose rows include the shortcut text right-aligned (test).
+- [x] Toast with `Toast.Style.Failure` renders in the footer (test may assert text only).
+- [x] All existing tui tests pass, with changed expectations listed in Handoff.
+- [x] `bun run tui fixtures/...` manual check is not required. Instead, paste one 80×24 captured frame of the picker and one of a List command into Handoff.
+- [x] `docs/tui.md` gets a short "Look" paragraph.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -86,11 +80,78 @@ styling instead of plain text lines.
 
 ## Handoff
 
-Filled in by the worker when finishing:
-
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/tui-command-palette-look-1
+Verify: bun run verify passes (562 tests across 80 files, all 6 checks OK).
 Done:
-Not done / risks:
+- Restored docs/tui.md from 6e14821 and formatted a concise 3-line "Look" paragraph without hex codes, keeping the document at 119 lines (≤ 120 lines required by check:workflow).
+- Segmented row layout:
+  - List rows in packages/tui/src/app.tsx: rendered as horizontal flex boxes with pointer, bold text title when selected, muted truncating subtitle, flex spacer, and muted right-aligned accessories, with full-width selection background on selected rows.
+  - Menu-bar rows in packages/tui/src/menu-bar.tsx: segmented with pointer, bold title when selected, muted subtitle, flex spacer, right-aligned muted shortcut, and right-aligned muted submenu indicator (›).
+  - Action panel rows in packages/tui/src/app.tsx: segmented with pointer, bold title when chosen, flex spacer, right-aligned muted shortcut, and right-aligned muted submenu indicator (›).
+  - Picker rows in packages/tui/src/picker.tsx: segmented matching list rows with pointer, bold title when selected, muted subtitle/description, flex spacer, and right-aligned muted mode label ("Command", "No View", "Menu Bar").
+- Footer styling:
+  - Command view footer: primary action title in text color and key glyphs (↵, ^K) in muted color as separate spans, with toast/HUD on the left side.
+  - Picker footer: single footer bar matching command view footer, with left side showing status (errors in danger color, dependency progress or launching in muted color) and right side showing segmented action spans (Launch ↵, Preferences ^E, Quit esc).
+- Look verification:
+  - Added captureSpans() assertion in packages/tui/src/look.test.tsx verifying the selected list item title span and subtitle span have different foreground colors.
+- Test assertion updates:
+  - packages/tui/src/picker.ts & packages/tui/src/picker.test.ts: exported modeLabel() and updated commandRow mode labels from [view] / [no-view] / [menu-bar] to Command / No View / Menu Bar.
+  - packages/tui/src/picker.test.tsx: updated assertions checking for [view] / [no-view] to match Command / No View and segmented rows.
+  - packages/tui/src/menu-bar.test.tsx: updated frame settle predicate from "More ›" to "More" due to right-alignment of the submenu pointer.
+Not done / risks: None.
+
+Captured 80×24 Frames:
+
+Picker (fixtures/extensions/host-session):
+╭─host-session─────────────────────────────────────────────────────────────────╮
+│ ⌕ Search commands…                                                           │
+│──────────────────────────────────────────────────────────────────────────────│
+│ › navigation                                                         Command │
+│   session                                                            Command │
+│   no-view                                                            No View │
+│   stubborn                                                           No View │
+│   invalid                                                            No View │
+│   env                                                                No View │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                           Launch ↵  Preferences ^E  Quit esc │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+List (fixtures/extensions/list-extras):
+╭─list-extras──────────────────────────────────────────────────────────────────╮
+│ ⌕ Search…                                                            ▾ water │
+│──────────────────────────────────────────────────────────────────────────────│
+│ › beer  Germany                            Germany  1970-01-01T00:00:00.000Z │
+│   wine  France                              France  1970-01-01T00:00:00.000Z │
+│   water  Norway                             Norway  1970-01-01T00:00:00.000Z │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                    Delete beer ↵  Actions ^K │
+╰──────────────────────────────────────────────────────────────────────────────╯
 ```

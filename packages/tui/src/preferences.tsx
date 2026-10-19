@@ -1,7 +1,9 @@
 /** @jsxImportSource @opentui/react */
 import { useState } from "react";
 import { useKeyboard } from "@opentui/react";
+import { TextAttributes } from "@opentui/core";
 import { type Preference, type StorageItems } from "@blastlauncher/host";
+import { theme } from "./theme.ts";
 
 function usePreferenceFormState({
   fields,
@@ -101,23 +103,58 @@ function PreferenceFieldItem({
   showDescription?: boolean;
 }) {
   return (
-    <box flexDirection="column" flexShrink={0}>
-      <text height={1}>
-        {focused ? "› " : "  "}
-        {field.title}
-        {field.required ? " *" : ""}
-      </text>
-      {field.type === "password" ? (
-        <text height={1}>{value ? "••••••••" : "(empty)"}</text>
-      ) : field.type === "checkbox" ? (
-        <text height={1}>{value ? "[x]" : "[ ]"}</text>
-      ) : field.type === "dropdown" ? (
-        <text height={1}>‹ {field.data.find((o) => o.value === value)?.title ?? ""} ›</text>
-      ) : (
-        <input focused={focused} value={String(value ?? "")} onInput={(v) => onChange(v)} />
-      )}
+    <box
+      flexDirection="column"
+      flexShrink={0}
+      {...(focused ? { backgroundColor: theme.colors.selectionBg } : {})}
+    >
+      <box flexDirection="row" width="100%" height={1} flexShrink={0}>
+        <text
+          width={22}
+          height={1}
+          flexShrink={0}
+          textAlign="right"
+          fg={theme.colors.textMuted}
+          wrapMode="none"
+        >
+          {focused ? "› " : "  "}
+          {field.title}
+          {field.required ? " *" : ""}
+          {"  "}
+        </text>
+        <box flexGrow={1} flexShrink={1}>
+          {field.type === "password" ? (
+            <text height={1} fg={focused ? theme.colors.selectionFg : theme.colors.text}>
+              {value ? "••••••••" : "(empty)"}
+            </text>
+          ) : field.type === "checkbox" ? (
+            <text height={1} fg={focused ? theme.colors.selectionFg : theme.colors.text}>
+              {value ? "[x]" : "[ ]"}
+            </text>
+          ) : field.type === "dropdown" ? (
+            <text height={1} fg={focused ? theme.colors.selectionFg : theme.colors.text}>
+              ‹ {field.data.find((o) => o.value === value)?.title ?? ""} ›
+            </text>
+          ) : (
+            <input
+              focused={focused}
+              value={String(value ?? "")}
+              textColor={focused ? theme.colors.selectionFg : theme.colors.text}
+              placeholderColor={theme.colors.textMuted}
+              backgroundColor="transparent"
+              focusedBackgroundColor="transparent"
+              onInput={(v) => onChange(v)}
+            />
+          )}
+        </box>
+      </box>
       {showDescription && focused && field.description ? (
-        <text height={1}>{field.description}</text>
+        <box flexDirection="row" width="100%" height={1} flexShrink={0}>
+          <text width={22} height={1} flexShrink={0} />
+          <text height={1} fg={theme.colors.textMuted} wrapMode="none">
+            {field.description}
+          </text>
+        </box>
       ) : null}
     </box>
   );
@@ -144,22 +181,52 @@ export function LaunchGate({
   });
 
   return (
-    <box flexDirection="column" flexGrow={1}>
-      <text height={1}>Set up {commandTitle}</text>
-      <text height={1}>These values are required before the command can run.</text>
-      {fields.map((p, i) => (
-        <PreferenceFieldItem
-          key={p.name}
-          field={p}
-          focused={i === index}
-          value={values[p.name]}
-          onChange={(v) => change(p.name, v)}
+    <box
+      flexDirection="column"
+      flexGrow={1}
+      borderStyle="rounded"
+      borderColor={theme.colors.border}
+      title={`Set up ${commandTitle}`}
+      backgroundColor={theme.colors.background}
+    >
+      <box flexDirection="column" flexGrow={1} paddingLeft={1} paddingRight={1}>
+        <text height={1} fg={theme.colors.textMuted}>
+          These values are required before the command can run.
+        </text>
+        <box
+          height={1}
+          flexShrink={0}
+          border={["top"]}
+          borderStyle="single"
+          borderColor={theme.colors.border}
         />
-      ))}
-      {error && <text height={1}>{error}</text>}
-      <text height={1}>
-        Tab/↑↓ Fields · ←→ Options · Space Toggle · Enter Save & Launch · Esc Cancel
-      </text>
+        {fields.map((p, i) => (
+          <PreferenceFieldItem
+            key={p.name}
+            field={p}
+            focused={i === index}
+            value={values[p.name]}
+            onChange={(v) => change(p.name, v)}
+          />
+        ))}
+        {error && (
+          <text height={1} fg={theme.colors.danger}>
+            {error}
+          </text>
+        )}
+      </box>
+      <box
+        height={1}
+        flexShrink={0}
+        backgroundColor={theme.colors.panel}
+        flexDirection="row"
+        justifyContent="space-between"
+        paddingLeft={1}
+        paddingRight={1}
+      >
+        <text fg={theme.colors.textMuted}>Save & Launch ↵</text>
+        <text fg={theme.colors.textMuted}>Cancel Esc</text>
+      </box>
     </box>
   );
 }
@@ -200,28 +267,60 @@ export function PreferencesView({
   });
 
   return (
-    <box flexDirection="column" flexGrow={1}>
-      <text height={1}>Preferences — {extensionTitle}</text>
-      {sections.map((section) => (
-        <box key={section.title} flexDirection="column" flexShrink={0}>
-          <text height={1}>{section.title}</text>
-          {section.fields.map((p) => {
-            const i = allFields.indexOf(p);
-            return (
-              <PreferenceFieldItem
-                key={p.name}
-                field={p}
-                focused={i === index}
-                value={values[p.name]}
-                onChange={(v) => change(p.name, v)}
-                showDescription={true}
-              />
-            );
-          })}
-        </box>
-      ))}
-      {error && <text height={1}>{error}</text>}
-      <text height={1}>Tab/↑↓ Fields · ←→ Options · Space Toggle · Enter Save · Esc Cancel</text>
+    <box
+      flexDirection="column"
+      flexGrow={1}
+      borderStyle="rounded"
+      borderColor={theme.colors.border}
+      title={`Preferences — ${extensionTitle}`}
+      backgroundColor={theme.colors.background}
+    >
+      <box flexDirection="column" flexGrow={1} paddingLeft={1} paddingRight={1}>
+        {sections.map((section) => (
+          <box key={section.title} flexDirection="column" flexShrink={0}>
+            <text height={1} fg={theme.colors.textMuted} attributes={TextAttributes.BOLD}>
+              {section.title}
+            </text>
+            <box
+              height={1}
+              flexShrink={0}
+              border={["top"]}
+              borderStyle="single"
+              borderColor={theme.colors.border}
+            />
+            {section.fields.map((p) => {
+              const i = allFields.indexOf(p);
+              return (
+                <PreferenceFieldItem
+                  key={p.name}
+                  field={p}
+                  focused={i === index}
+                  value={values[p.name]}
+                  onChange={(v) => change(p.name, v)}
+                  showDescription={true}
+                />
+              );
+            })}
+          </box>
+        ))}
+        {error && (
+          <text height={1} fg={theme.colors.danger}>
+            {error}
+          </text>
+        )}
+      </box>
+      <box
+        height={1}
+        flexShrink={0}
+        backgroundColor={theme.colors.panel}
+        flexDirection="row"
+        justifyContent="space-between"
+        paddingLeft={1}
+        paddingRight={1}
+      >
+        <text fg={theme.colors.textMuted}>Save ↵</text>
+        <text fg={theme.colors.textMuted}>Cancel Esc</text>
+      </box>
     </box>
   );
 }
