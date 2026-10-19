@@ -3,7 +3,17 @@ import { isFiltering, matchesQuery, slot, text } from "./nodes.ts";
 import { gridLayout } from "./grid.ts";
 import { searchBarDropdown } from "./dropdown.ts";
 
-export { event, handler, isFiltering, matchesQuery, selectionId, slot, text } from "./nodes.ts";
+export {
+  event,
+  handler,
+  handlerEvent,
+  isFiltering,
+  matchesQuery,
+  paginationOf,
+  selectionId,
+  slot,
+  text,
+} from "./nodes.ts";
 
 export type UIState = { searchText: string; selectedId: string | null };
 export type Row = { node: SceneNode; text: string; item: boolean };
@@ -87,7 +97,12 @@ export function sceneToView(scene: SceneMessage | undefined, state: UIState) {
     rows,
     items,
     selected,
-    title: text(list?.props.navigationTitle) || "Blast",
+    title:
+      text(list?.props.navigationTitle) ||
+      (list?.type === "MenuBarExtra"
+        ? [text(list.props.title), text(list.props.tooltip)].filter(Boolean).join(" — ")
+        : "") ||
+      "Blast",
     loading: list?.props.isLoading === true || !scene,
     emptyText: empty
       ? [empty.props.icon ? "◇" : "", text(empty.props.title), text(empty.props.description)]

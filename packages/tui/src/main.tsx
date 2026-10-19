@@ -21,14 +21,10 @@ if (!extensionDir || !command || rest.length) {
     process.on("SIGTERM", stop);
     process.on("SIGINT", stop);
     try {
+      // The App reacts to the runtime exiting: no-view commands quit after
+      // their HUD, failures show the error and wait for Esc (docs/tui.md).
       root.render(<App session={opened.session} onQuit={quit} />);
-      await Promise.race([
-        finished,
-        opened.session.exited.then((exit) => {
-          if (exit.error || exit.code !== 0)
-            throw exit.error ?? new Error(`Runtime exited: ${exit.code ?? exit.signal}`);
-        }),
-      ]);
+      await finished;
     } finally {
       process.off("SIGTERM", stop);
       process.off("SIGINT", stop);

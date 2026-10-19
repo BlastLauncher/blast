@@ -42,11 +42,11 @@ pagination loads more items when the selection reaches the end.
 
 ## Acceptance
 
-- [ ] Menu-bar test: open Submenu, Enter on "Click" changes the header title.
-- [ ] No-view test: a feedback command shows its toast/HUD and the TUI exits 0.
-- [ ] Pagination tests: moving to the end of the List and of the Grid loads
+- [x] Menu-bar test: open Submenu, Enter on "Click" changes the header title.
+- [x] No-view test: a feedback command shows its toast/HUD and the TUI exits 0.
+- [x] Pagination tests: moving to the end of the List and of the Grid loads
       the next page exactly once per page.
-- [ ] `bun run verify` passes.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -57,8 +57,25 @@ pagination loads more items when the selection reaches the end.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/menu-bar-no-view-pagination @ <filled in below>
+Verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok)
 Done:
-Not done / risks:
+- packages/tui/src/menu-bar.tsx: pure `menuRows(node, path)` + `MenuBarView`;
+  MenuBarExtra title/tooltip heads the window, Sections are headers, Items
+  (title/subtitle/shortcut) selectable, → / Enter opens a Submenu, ← / Esc
+  closes it, Enter runs `onAction` with `{ type: "left-click" }`, no-handler
+  Items render dimmed.
+- app.tsx: no-view commands quit after the HUD window once the runtime exits 0
+  (2.5 s rule, `hudDurationMs` prop shortens it in tests); a failed runtime
+  shows an Error box and waits for Esc; main.tsx no longer races `exited` so
+  the App owns exit handling. Pagination: one `onLoadMore` per item-count
+  change when the selection is at the last loaded item / last Grid row.
+- nodes.ts: `handlerEvent` (handler refs not stored as direct props) and
+  `paginationOf`; view.ts derives the menu-bar title.
+- Tests: menu-bar.test.tsx (helper + fixture), pagination.test.tsx (synthetic
+  exact-once for List and Grid + fixture round trip), app.test.tsx no-view
+  exit-0 and failure-path tests; docs/tui.md keys and shape notes updated.
+Not done / risks: real system menu bar, images and runtime/protocol changes
+out of scope (per task); a failed runtime now exits the TUI process with 0
+after Esc instead of propagating the crash exit code.
 ```

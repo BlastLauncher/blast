@@ -8,18 +8,18 @@ bun run tui <extensionDir> <command>
 
 ## Keys
 
-| Key             | Effect                                                               |
-| --------------- | -------------------------------------------------------------------- |
-| typing          | search text (client filtering or the List's search handler)          |
-| ↑ / ↓           | move the selection                                                   |
-| ← / →           | move within a Grid row (Grid only)                                   |
-| Enter           | run the selected item's first action (or the view's own)             |
-| Ctrl-K          | open the action panel; type to filter, Enter runs or opens a submenu |
-| Ctrl-P          | open the search-bar dropdown accessory; type to filter its options   |
-| Esc             | close dropdown/submenu/panel, else pop the view, else quit at root   |
-| Ctrl-C          | quit (shuts the runtime child down)                                  |
-| Enter / Esc     | confirm / dismiss an open Alert                                      |
-| Ctrl-T / Ctrl-Y | toast primary / secondary action                                     |
+| Key             | Effect                                                                |
+| --------------- | --------------------------------------------------------------------- |
+| typing          | search text (client filtering or the List's search handler)           |
+| ↑ / ↓           | move the selection                                                    |
+| ← / →           | move within a Grid row; open (→) or close (←) a Submenu in a menu bar |
+| Enter           | run the selected item's first action (or the view's own)              |
+| Ctrl-K          | open the action panel; type to filter, Enter runs or opens a submenu  |
+| Ctrl-P          | open the search-bar dropdown accessory; type to filter its options    |
+| Esc             | close dropdown/submenu/panel, else pop the view, else quit at root    |
+| Ctrl-C          | quit (shuts the runtime child down)                                   |
+| Enter / Esc     | confirm / dismiss an open Alert                                       |
+| Ctrl-T / Ctrl-Y | toast primary / secondary action                                      |
 
 Action `shortcut`s map when they are a direct `{ modifiers, key }` using only
 ctrl/shift with a lowercase letter, digit, `enter`, `escape`, `space`,
@@ -44,6 +44,18 @@ combinations are skipped; the client keys above take priority.
   chosen value and Esc closes. The runtime owns the dropdown value.
 - Only the active `Navigation.Entry` renders. `popToRoot({ clearSearchBar })`
   and `clearSearchBar()` clear the input; `closeMainWindow()` quits.
+- `menu-bar` commands render their `MenuBarExtra` as a navigable menu: the
+  `title`/`tooltip` head the window, Sections are headers, and Items (title,
+  subtitle, shortcut label) are selectable with ↑/↓. → / Enter opens a
+  Submenu and ← / Esc closes it; Enter on an Item runs its `onAction` with a
+  `left-click` event, and Items without one render dimmed.
+- `no-view` commands render only their feedback (alert, toast, HUD). When the
+  runtime exits 0 on its own, the client quits after the HUD window has shown
+  (2.5 s; a `hudDurationMs` prop shortens it in tests). A failed runtime shows
+  the error and waits for Esc.
+- `List`/`Grid` pagination: when the selection reaches the last loaded item
+  (or the last Grid row) and `pagination.hasMore` is set, the client sends one
+  `onLoadMore` per item-count change; `isLoading` shows the loading line.
 - `Detail` shows markdown source as plain text plus metadata lines;
   `List.Item.Detail` appears beside the list when `isShowingDetail`.
 - Toasts and alerts stay while mounted; a HUD line shows for 2.5 s.

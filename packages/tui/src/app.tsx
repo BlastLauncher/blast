@@ -7,6 +7,8 @@ import type { SceneMessage, SceneNode } from "@blastlauncher/protocol";
 import {
   event,
   handler,
+  handlerEvent,
+  paginationOf,
   sceneToView,
   selectionId,
   text,
@@ -17,10 +19,19 @@ import { gridMove } from "./grid.ts";
 import { GridView } from "./grid.tsx";
 import { dropdownLabel, dropdownOptions, filterOptions } from "./dropdown.ts";
 import { DropdownPanel } from "./dropdown.tsx";
+import { menuRows, MenuBarView } from "./menu-bar.tsx";
 
 import { FormView } from "./form.tsx";
 
-export function App({ session, onQuit }: { session: Session; onQuit: () => void }) {
+export function App({
+  session,
+  onQuit,
+  hudDurationMs = 2500,
+}: {
+  session: Session;
+  onQuit: () => void;
+  hudDurationMs?: number;
+}) {
   const [scene, setScene] = useState<SceneMessage | undefined>(session.latestScene);
   const [panel, setPanel] = useState<string[] | null>(null);
   const [query, setQuery] = useState("");
@@ -29,6 +40,9 @@ export function App({ session, onQuit }: { session: Session; onQuit: () => void 
   const [searchText, setSearch] = useState("");
   const currentSearch = useRef("");
   const [selectedId, setSelected] = useState<string | null>(null);
+  const [menuPath, setMenuPath] = useState<string[]>([]);
+  const [failure, setFailure] = useState<string | undefined>(undefined);
+  const [settled, setSettled] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [dropdownQuery, setDropdownQuery] = useState("");
   const [dropdownIndex, setDropdownIndex] = useState(0);
@@ -37,7 +51,21 @@ export function App({ session, onQuit }: { session: Session; onQuit: () => void 
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const pendingSearch = useRef<string | undefined>(undefined);
   const previous = useRef<string | null | undefined>(undefined);
+  const quitRequested = useRef(false);
+  const paginatedFor = useRef(-1);
+  const onQuitRef = useRef(onQuit);
+  onQuitRef.current = onQuit;
+  const requestQuit = () => {
+    if (quitRequested.current) return;
+    quitRequested.current = true;
+    onQuitRef.current();
+  };
   const view = sceneToView(scene, { searchText, selectedId });
+  const isMenu = view.list?.type === "MenuBarExtra";
+  const menu = isMenu ? menuRows(view.list, menuPath) : [];
+  const menuItems = menu.filter((row) => row.item);
+  const menuChoice = menuItems.find((row) => selectionId(row.node) === selectedId) ?? menuItems[0];
+  const pagination = paginationOf(view.list);
   const dropdown = view.accessory;
   const dropdownChoices = filterOptions(dropdownOptions(dropdown), dropdownQuery);
   const dropdownChoice = dropdownChoices[Math.min(dropdownIndex, dropdownChoices.length - 1)];
@@ -89,9 +117,11 @@ export function App({ session, onQuit }: { session: Session; onQuit: () => void 
   useEffect(() => {
     setPanel(null);
     setSelected(null);
+    setMenuPath([]);
     setDropdownOpen(false);
     setDropdownQuery("");
     setDropdownIndex(0);
+    paginatedFor.current = -1;
     const initial = text(view.list?.props.searchText);
     currentSearch.current = initial;
     pendingSearch.current = undefined;
@@ -120,22 +150,57 @@ export function App({ session, onQuit }: { session: Session; onQuit: () => void 
       send(event(view.list, "onSearchTextChange", [""]));
     }
     request.current = { clear, pop };
-    if (props.closeMainWindow) onQuit();
+    if (props.closeMainWindow) requestQuit();
   }, [scene?.revision]);
   useEffect(() => {
     setHudVisible(!!hud);
     if (!hud) return;
-    const timeout = setTimeout(() => setHudVisible(false), 2500);
+    const timeout = setTimeout(() => setHudVisible(false), hudDurationMs);
     return () => clearTimeout(timeout);
-  }, [hud?.id, hud?.props.title]);
+  }, [hud?.id, hud?.props.title, hudDurationMs]);
+  // A runtime that exits on its own is a no-view command: quit once the HUD
+  // window has passed. A failed runtime shows the error and waits for Esc.
+  useEffect(() => {
+    let active = true;
+    void session.exited.then((exit) => {
+      if (!active) return;
+      if (exit.error || exit.code !== 0)
+        setFailure(exit.error ? String(exit.error) : `Runtime exited: ${exit.code ?? exit.signal}`);
+      else if (!quitRequested.current) setSettled(true);
+    });
+    return () => {
+      active = false;
+    };
+  }, [session]);
+  useEffect(() => {
+    if (!settled) return;
+    const timeout = setTimeout(requestQuit, hud ? hudDurationMs : 0);
+    return () => clearTimeout(timeout);
+  }, [settled, hud, hudDurationMs]);
   const id = selectionId(view.selected);
   useEffect(() => {
+    // A menu-bar command has no list selection; its own state drives rows.
+    if (id === null) return;
     setSelected(id);
     scroll.current?.scrollChildIntoView(view.selected?.id ?? "");
     if (previous.current !== id) {
       previous.current = id;
       send(event(view.list, "onSelectionChange", [id]));
     }
+  }, [id, scene?.revision]);
+  useEffect(() => {
+    if (!isMenu) return;
+    scroll.current?.scrollChildIntoView(menuChoice?.node.id ?? "");
+  }, [menuChoice?.node.id]);
+  // Pagination: reaching the last loaded item (or last Grid row) loads the
+  // next page once per item count, until `hasMore` turns false.
+  useEffect(() => {
+    if (!pagination || !handler(pagination.onLoadMore) || pagination.hasMore !== true) return;
+    const last = view.items.at(-1);
+    if (!last || selectionId(last) !== id) return;
+    if (paginatedFor.current === view.items.length) return;
+    paginatedFor.current = view.items.length;
+    send(handlerEvent(view.list, pagination.onLoadMore));
   }, [id, scene?.revision]);
   function search(value: string) {
     if (currentSearch.current === value) return;
@@ -155,7 +220,15 @@ export function App({ session, onQuit }: { session: Session; onQuit: () => void 
       send(event(node, handler(node?.props.onAction) ? "onAction" : "onSubmit"));
     }
     if (key.ctrl && key.name === "c") {
-      onQuit();
+      requestQuit();
+      return;
+    }
+    if (failure) {
+      // A failed runtime only waits for Esc to quit.
+      if (key.name === "escape") {
+        key.preventDefault();
+        requestQuit();
+      }
       return;
     }
     if (alert) {
@@ -163,6 +236,47 @@ export function App({ session, onQuit }: { session: Session; onQuit: () => void 
       const name =
         key.name === "return" ? "primaryAction" : key.name === "escape" ? "dismissAction" : "";
       run(alert.children.find((node) => node.props.name === name));
+      return;
+    }
+    if (isMenu) {
+      if (key.name === "escape" || key.name === "left") {
+        key.preventDefault();
+        if (menuPath.length) {
+          setMenuPath(menuPath.slice(0, -1));
+          setSelected(null);
+        } else if (key.name === "escape") {
+          if (handler(view.navigation?.props.pop)) send(event(view.navigation, "pop"));
+          else requestQuit();
+        }
+        return;
+      }
+      if (key.name === "up" || key.name === "down") {
+        key.preventDefault();
+        const at = menuItems.findIndex((row) => row.node === menuChoice?.node);
+        const next =
+          menuItems[
+            Math.max(0, Math.min(menuItems.length - 1, at + (key.name === "down" ? 1 : -1)))
+          ];
+        const nextId = next ? selectionId(next.node) : null;
+        if (next && nextId !== selectionId(menuChoice?.node)) {
+          previous.current = nextId;
+          setSelected(nextId);
+          send(event(view.list, "onSelectionChange", [nextId]));
+        }
+        return;
+      }
+      if (key.name === "return" || key.name === "right") {
+        key.preventDefault();
+        if (menuChoice?.node.type === "MenuBarExtra.Submenu") {
+          setMenuPath([...menuPath, menuChoice.node.id]);
+          setSelected(null);
+        } else if (menuChoice && !menuChoice.disabled) {
+          send(
+            handlerEvent(menuChoice.node, menuChoice.node.props.onAction, [{ type: "left-click" }]),
+          );
+        }
+        return;
+      }
       return;
     }
     if (dropdownOpen) {
@@ -228,7 +342,7 @@ export function App({ session, onQuit }: { session: Session; onQuit: () => void 
     }
     if (key.name === "escape") {
       if (handler(view.navigation?.props.pop)) send(event(view.navigation, "pop"));
-      else onQuit();
+      else requestQuit();
       return;
     }
     const toastAction = toast?.children.find(
@@ -296,6 +410,15 @@ export function App({ session, onQuit }: { session: Session; onQuit: () => void 
             )
           }
         />
+      ) : isMenu ? (
+        <box flexDirection="row" flexGrow={1}>
+          <scrollbox ref={scroll} flexGrow={1}>
+            <MenuBarView
+              rows={menu}
+              selectedId={menuChoice ? selectionId(menuChoice.node) : null}
+            />
+          </scrollbox>
+        </box>
       ) : (
         <>
           <box flexDirection="row" flexShrink={0}>
@@ -407,6 +530,16 @@ export function App({ session, onQuit }: { session: Session; onQuit: () => void 
         <text height={1} flexShrink={0}>
           {text(hud.props.title)}
         </text>
+      )}
+      {failure && (
+        <box border flexDirection="column" height={4} flexShrink={0} title="Error">
+          <text height={1} flexShrink={0}>
+            {failure}
+          </text>
+          <text height={1} flexShrink={0}>
+            Esc Quit
+          </text>
+        </box>
       )}
       {alert && (
         <box border flexDirection="column" height={4} flexShrink={0} title="Alert">

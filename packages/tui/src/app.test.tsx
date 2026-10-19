@@ -282,6 +282,107 @@ for (const fixture of ["actions-variants", "host-session", "feedback"]) {
   });
 }
 
+test("no-view feedback command shows its HUD and the TUI exits 0", async () => {
+  const dataDir = await mkdtemp(join(tmpdir(), "blast-tui-noview-"));
+  const opened = await openCommand(
+    new URL("../../../fixtures/extensions/feedback", import.meta.url).pathname,
+    "index",
+    { dataDir },
+  );
+  await waitScene(opened.session, (scene) => JSON.stringify(scene).includes("Continue?"));
+  let closed: Promise<void> | undefined;
+  let quit!: () => void;
+  const quitting = new Promise<void>((resolve) => {
+    quit = resolve;
+  });
+  const terminal = await testRender(
+    <App
+      session={opened.session}
+      hudDurationMs={100}
+      onQuit={() => {
+        closed = opened.close();
+        quit();
+      }}
+    />,
+    { width: 90, height: 15, exitOnCtrlC: false },
+  );
+  try {
+    await terminal.waitForFrame((frame) => frame.includes("Continue?"));
+    await act(async () => {
+      const changed = waitScene(opened.session, (scene) =>
+        JSON.stringify(scene).includes("Finished"),
+      );
+      terminal.mockInput.pressEnter();
+      await changed;
+    });
+    await terminal.waitForFrame(
+      (frame) => frame.includes("Confirmed") && frame.includes("Finished"),
+    );
+    // The runtime exits 0 on its own; the TUI quits once the HUD has shown.
+    await act(async () => {
+      await quitting;
+    });
+    expect(closed).toBeDefined();
+    await closed;
+    expect((await opened.session.exited).code).toBe(0);
+  } finally {
+    await act(async () => {
+      await terminal.dispose();
+    });
+    await opened.close();
+    await rm(dataDir, { recursive: true, force: true });
+  }
+});
+
+test("a failed runtime shows the error and waits for Esc", async () => {
+  let quit!: () => void;
+  const quitting = new Promise<void>((resolve) => {
+    quit = resolve;
+  });
+  let quitCount = 0;
+  const session = {
+    latestScene: {
+      type: "scene",
+      revision: 1,
+      root: {
+        type: "List",
+        id: "list",
+        props: {},
+        children: [{ type: "List.Item", id: "a", props: { id: "a", title: "a" }, children: [] }],
+      },
+    } satisfies SceneMessage,
+    logs: [],
+    exited: Promise.resolve({ code: 1, signal: null }),
+    scenes: () => () => {},
+    sendProvider: () => {},
+    shutdown: async () => ({ code: 1, signal: null }),
+    sendEvent: () => {},
+  } satisfies Session;
+  const terminal = await testRender(
+    <App
+      session={session}
+      onQuit={() => {
+        quitCount++;
+        quit();
+      }}
+    />,
+    { width: 70, height: 10, exitOnCtrlC: false },
+  );
+  try {
+    await terminal.waitForFrame((frame) => frame.includes("Runtime exited: 1"));
+    // Other keys wait; only Esc (or Ctrl-C) quits.
+    await act(async () => terminal.mockInput.pressArrow("down"));
+    expect(quitCount).toBe(0);
+    await act(async () => {
+      terminal.mockInput.pressEscape();
+      await quitting;
+    });
+    expect(quitCount).toBe(1);
+  } finally {
+    await act(async () => terminal.dispose());
+  }
+});
+
 test("Detail metadata and toast actions render from scene props", async () => {
   const events: string[] = [];
   const scene: SceneMessage = {

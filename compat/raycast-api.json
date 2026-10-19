@@ -11345,7 +11345,8 @@
       "path": "Grid.Props.pagination",
       "status": "covered",
       "tests": [
-        "packages/runtime/src/api/grid.test.ts"
+        "packages/runtime/src/api/grid.test.ts",
+        "packages/tui/src/pagination.test.tsx"
       ],
       "weight": 42
     },
@@ -11353,7 +11354,8 @@
       "path": "Grid.Props.pagination.hasMore",
       "status": "covered",
       "tests": [
-        "packages/runtime/src/api/grid.test.ts"
+        "packages/runtime/src/api/grid.test.ts",
+        "packages/tui/src/pagination.test.tsx"
       ],
       "weight": 0
     },
@@ -11361,7 +11363,8 @@
       "path": "Grid.Props.pagination.onLoadMore",
       "status": "covered",
       "tests": [
-        "packages/runtime/src/api/grid.test.ts"
+        "packages/runtime/src/api/grid.test.ts",
+        "packages/tui/src/pagination.test.tsx"
       ],
       "weight": 0
     },
@@ -11369,7 +11372,8 @@
       "path": "Grid.Props.pagination.pageSize",
       "status": "covered",
       "tests": [
-        "packages/runtime/src/api/grid.test.ts"
+        "packages/runtime/src/api/grid.test.ts",
+        "packages/tui/src/pagination.test.tsx"
       ],
       "weight": 0
     },
@@ -16927,7 +16931,8 @@
       "path": "List.Props.pagination",
       "status": "covered",
       "tests": [
-        "packages/runtime/src/api/list-grid-completeness.test.ts"
+        "packages/runtime/src/api/list-grid-completeness.test.ts",
+        "packages/tui/src/pagination.test.tsx"
       ],
       "weight": 206
     },
@@ -16935,7 +16940,8 @@
       "path": "List.Props.pagination.hasMore",
       "status": "covered",
       "tests": [
-        "packages/runtime/src/api/list-grid-completeness.test.ts"
+        "packages/runtime/src/api/list-grid-completeness.test.ts",
+        "packages/tui/src/pagination.test.tsx"
       ],
       "weight": 0
     },
@@ -16943,7 +16949,8 @@
       "path": "List.Props.pagination.onLoadMore",
       "status": "covered",
       "tests": [
-        "packages/runtime/src/api/list-grid-completeness.test.ts"
+        "packages/runtime/src/api/list-grid-completeness.test.ts",
+        "packages/tui/src/pagination.test.tsx"
       ],
       "weight": 0
     },
@@ -16951,7 +16958,8 @@
       "path": "List.Props.pagination.pageSize",
       "status": "covered",
       "tests": [
-        "packages/runtime/src/api/list-grid-completeness.test.ts"
+        "packages/runtime/src/api/list-grid-completeness.test.ts",
+        "packages/tui/src/pagination.test.tsx"
       ],
       "weight": 0
     },
@@ -17882,7 +17890,8 @@
       "status": "covered",
       "tests": [
         "packages/runtime/src/api/aliases.test.ts",
-        "packages/runtime/src/api/list-grid-completeness.test.ts"
+        "packages/runtime/src/api/list-grid-completeness.test.ts",
+        "packages/tui/src/pagination.test.tsx"
       ],
       "weight": 0,
       "via": "List.Props"
@@ -17892,7 +17901,8 @@
       "status": "covered",
       "tests": [
         "packages/runtime/src/api/aliases.test.ts",
-        "packages/runtime/src/api/list-grid-completeness.test.ts"
+        "packages/runtime/src/api/list-grid-completeness.test.ts",
+        "packages/tui/src/pagination.test.tsx"
       ],
       "weight": 0,
       "via": "List.Props"
@@ -17902,7 +17912,8 @@
       "status": "covered",
       "tests": [
         "packages/runtime/src/api/aliases.test.ts",
-        "packages/runtime/src/api/list-grid-completeness.test.ts"
+        "packages/runtime/src/api/list-grid-completeness.test.ts",
+        "packages/tui/src/pagination.test.tsx"
       ],
       "weight": 0,
       "via": "List.Props"
@@ -17912,7 +17923,8 @@
       "status": "covered",
       "tests": [
         "packages/runtime/src/api/aliases.test.ts",
-        "packages/runtime/src/api/list-grid-completeness.test.ts"
+        "packages/runtime/src/api/list-grid-completeness.test.ts",
+        "packages/tui/src/pagination.test.tsx"
       ],
       "weight": 0,
       "via": "List.Props"
@@ -18165,7 +18177,8 @@
       "path": "MenuBarExtra.ActionEvent",
       "status": "covered",
       "tests": [
-        "packages/runtime/src/api/menu-bar.test.ts"
+        "packages/runtime/src/api/menu-bar.test.ts",
+        "packages/tui/src/menu-bar.test.tsx"
       ],
       "weight": 5
     },
@@ -18173,7 +18186,8 @@
       "path": "MenuBarExtra.ActionEvent.type",
       "status": "covered",
       "tests": [
-        "packages/runtime/src/api/menu-bar.test.ts"
+        "packages/runtime/src/api/menu-bar.test.ts",
+        "packages/tui/src/menu-bar.test.tsx"
       ],
       "weight": 0
     },
@@ -18213,7 +18227,8 @@
       "path": "MenuBarExtra.Item.Props.onAction",
       "status": "covered",
       "tests": [
-        "packages/runtime/src/api/menu-bar.test.ts"
+        "packages/runtime/src/api/menu-bar.test.ts",
+        "packages/tui/src/menu-bar.test.tsx"
       ],
       "weight": 323
     },
@@ -18221,7 +18236,8 @@
       "path": "MenuBarExtra.Item.Props.shortcut",
       "status": "covered",
       "tests": [
-        "packages/runtime/src/api/menu-bar.test.ts"
+        "packages/runtime/src/api/menu-bar.test.ts",
+        "packages/tui/src/menu-bar.test.tsx"
       ],
       "weight": 128
     },
@@ -18277,7 +18293,8 @@
       "path": "MenuBarExtra.Props.isLoading",
       "status": "partial",
       "tests": [
-        "packages/runtime/src/api/menu-bar.test.ts"
+        "packages/runtime/src/api/menu-bar.test.ts",
+        "packages/tui/src/menu-bar.test.tsx"
       ],
       "weight": 308
     },
@@ -18285,7 +18302,8 @@
       "path": "MenuBarExtra.Props.title",
       "status": "covered",
       "tests": [
-        "packages/runtime/src/api/menu-bar.test.ts"
+        "packages/runtime/src/api/menu-bar.test.ts",
+        "packages/tui/src/menu-bar.test.tsx"
       ],
       "weight": 232
     },
@@ -18293,7 +18311,8 @@
       "path": "MenuBarExtra.Props.tooltip",
       "status": "covered",
       "tests": [
-        "packages/runtime/src/api/menu-bar.test.ts"
+        "packages/runtime/src/api/menu-bar.test.ts",
+        "packages/tui/src/menu-bar.test.tsx"
       ],
       "weight": 226
     },
@@ -18325,7 +18344,8 @@
       "path": "MenuBarExtra.Section.Props.title",
       "status": "covered",
       "tests": [
-        "packages/runtime/src/api/menu-bar.test.ts"
+        "packages/runtime/src/api/menu-bar.test.ts",
+        "packages/tui/src/menu-bar.test.tsx"
       ],
       "weight": 224
     },
@@ -18381,7 +18401,8 @@
       "path": "MenuBarExtra.Submenu.Props.title",
       "status": "covered",
       "tests": [
-        "packages/runtime/src/api/menu-bar.test.ts"
+        "packages/runtime/src/api/menu-bar.test.ts",
+        "packages/tui/src/menu-bar.test.tsx"
       ],
       "weight": 74
     },
