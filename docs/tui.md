@@ -52,7 +52,7 @@ combinations are skipped; the client keys above take priority.
 - `no-view` commands render only their feedback (alert, toast, HUD). When the
   runtime exits 0 on its own, the client quits after the HUD window has shown
   (2.5 s; a `hudDurationMs` prop shortens it in tests). A failed runtime shows
-  the error and waits for Esc.
+  the error and waits for Esc; `bun run tui` then exits 1.
 - `List`/`Grid` pagination: when the selection reaches the last loaded item
   (or the last Grid row) and `pagination.hasMore` is set, the client sends one
   `onLoadMore` per item-count change; `isLoading` shows the loading line.

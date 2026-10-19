@@ -80,7 +80,7 @@ navigation, feedback UI, menu-bar menus.
 - [x] 0053 TUI action panel, navigation, Detail, feedback UI
 - [x] 0054 TUI Form: fields, focus, SubmitForm, drafts
 - [x] 0055 TUI Grid and search-bar dropdown accessory
-- [ ] 0056 TUI menu-bar commands, no-view commands, pagination
+- [x] 0056 TUI menu-bar commands, no-view commands, pagination
 
 ### M5 — Native desktop client (MyGo)
 

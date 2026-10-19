@@ -10,6 +10,12 @@ if (!extensionDir || !command || rest.length) {
   process.exitCode = 2;
 } else {
   const opened = await openCommand(extensionDir, command);
+  // Recorded before the user quits, so our own shutdown does not count as a
+  // failure; a runtime crash still exits non-zero after the error is shown.
+  let crashed = false;
+  void opened.session.exited.then((exit) => {
+    crashed = !!exit.error || exit.code !== 0;
+  });
   let quit!: () => void;
   const finished = new Promise<void>((resolve) => {
     quit = resolve;
@@ -25,6 +31,7 @@ if (!extensionDir || !command || rest.length) {
       // their HUD, failures show the error and wait for Esc (docs/tui.md).
       root.render(<App session={opened.session} onQuit={quit} />);
       await finished;
+      if (crashed) process.exitCode = 1;
     } finally {
       process.off("SIGTERM", stop);
       process.off("SIGINT", stop);
