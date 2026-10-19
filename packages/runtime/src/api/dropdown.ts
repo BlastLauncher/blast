@@ -13,7 +13,7 @@ export function useDropdown(type: string, props: ListDropdownProps) {
   useEffect(() => {
     if (!props.storeValue || props.value !== undefined) return;
     let mounted = true;
-    void requestCapability("storage.get", { scope: "blast:dropdown", key })
+    void requestCapability("storage.get", { scope: "blast:internal", key })
       .then((value) => {
         if (!mounted || edited.current || typeof value !== "string") return;
         const contains = (children: ListDropdownProps["children"]): boolean =>
@@ -38,7 +38,7 @@ export function useDropdown(type: string, props: ListDropdownProps) {
     edited.current = true;
     if (props.value === undefined) setSelection(value);
     if (props.storeValue) {
-      void requestCapability("storage.set", { scope: "blast:dropdown", key, value }).catch(
+      void requestCapability("storage.set", { scope: "blast:internal", key, value }).catch(
         (error: unknown) => console.error("Dropdown save failed", error),
       );
     }

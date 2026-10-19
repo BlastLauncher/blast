@@ -4,31 +4,31 @@ Denominator: the `@raycast/api@2.8.2` declarations. Evidence:
 `// @covers` tags in `packages/**/*.test.ts(x)`. A parent is not implied covered
 by its children. Partial support is reported separately from covered.
 
-**Non-deprecated coverage: 1456/1534 covered (94.9%), 59 partial, 19 missing.**
+**Non-deprecated coverage: 1496/1534 covered (97.5%), 38 partial, 0 missing.**
 Deprecated: 182/939 covered (19.4%), 5 partial, 752 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 1456 | 182 | 1638 |
-| partial | 59 | 5 | 64 |
-| missing | 19 | 752 | 771 |
+| covered | 1496 | 182 | 1678 |
+| partial | 38 | 5 | 43 |
+| missing | 0 | 752 | 752 |
 
 ## Totals by kind
 
 | Kind | Covered | Partial | Missing | Total |
 | --- | --- | --- | --- | --- |
 | namespace | 9 | 0 | 0 | 9 |
-| component | 56 | 19 | 41 | 116 |
+| component | 64 | 11 | 41 | 116 |
 | function | 43 | 3 | 4 | 50 |
 | const | 5 | 0 | 16 | 21 |
 | class | 3 | 0 | 0 | 3 |
 | enum | 13 | 0 | 0 | 13 |
 | enum-member | 691 | 0 | 0 | 691 |
 | interface | 24 | 1 | 39 | 64 |
-| type | 107 | 7 | 64 | 178 |
-| property | 665 | 34 | 605 | 1304 |
+| type | 108 | 7 | 63 | 178 |
+| property | 696 | 21 | 587 | 1304 |
 | method | 22 | 0 | 2 | 24 |
 
 ## Top-level symbols
@@ -69,7 +69,7 @@ Children counts include all descendants, as covered/partial/total.
 | `Environment` | interface | covered | 13/0/17 | 2 |
 | `FileIcon` | interface | covered | 1/0/1 | 1 |
 | `FileSystemItem` | interface | covered | 1/0/1 | 10 |
-| `Form` | component | partial | 156/23/213 | 1362 |
+| `Form` | component | covered | 194/4/213 | 1362 |
 | `FormCheckbox` | const | missing | 0/0/2 | 0 |
 | `FormCheckboxProps` | interface | missing | 0/0/12 | 0 |
 | `FormDatePicker` | const | missing | 0/0/2 | 0 |
@@ -105,7 +105,7 @@ Children counts include all descendants, as covered/partial/total.
 | `KeyModifier` | type | missing | 0/0/0 | 0 |
 | `Keyboard` | namespace | covered | 29/0/32 | 790 |
 | `KeyboardShortcut` | type | missing | 0/0/11 | 1 |
-| `LaunchProps` | type | covered | 3/2/5 | 657 |
+| `LaunchProps` | type | covered | 4/1/5 | 657 |
 | `LaunchType` | enum | covered | 2/0/2 | 454 |
 | `List` | component | partial | 114/8/122 | 2604 |
 | `ListItem` | component | missing | 0/0/52 | 1 |
@@ -213,7 +213,6 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `Form.DropdownItem` | 5 |
 | `Form.DropdownItem.Props.title` | 5 |
 | `Form.DropdownItem.Props.value` | 5 |
-| `Form.ItemReference` | 5 |
 | `environment.launchContext` | 5 |
 | `KeyEquivalent` | 4 |
 | `OpenInBrowserAction.Props.shortcut` | 4 |
@@ -242,3 +241,4 @@ Each extension counts once per path. Dynamic accesses and spread props are not i
 | `ListItem` | 1 |
 | `ListItem.Props.actions` | 1 |
 | `ListItem.Props.subtitle` | 1 |
+| `ListItem.Props.title` | 1 |

@@ -1,7 +1,7 @@
 ---
 id: "0042"
 title: Form field refs, storeValue and drafts
-status: doing
+status: review
 milestone: M3
 depends: []
 ---
@@ -43,11 +43,11 @@ persistence and `Form.Props.enableDrafts` drafts work, so the remaining
 
 ## Acceptance
 
-- [ ] Runtime tests: ref focus/reset per field kind, storeValue restore,
+- [x] Runtime tests: ref focus/reset per field kind, storeValue restore,
       draft save/restore/clear-on-submit, PasswordField never persisted.
-- [ ] CLI e2e for storeValue and drafts across two runs.
-- [ ] No non-deprecated `Form*` path missing; partials explained in Handoff.
-- [ ] `bun run verify` passes.
+- [x] CLI e2e for storeValue and drafts across two runs.
+- [x] No non-deprecated `Form*` path missing; partials explained in Handoff.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -56,8 +56,16 @@ persistence and `Form.Props.enableDrafts` drafts work, so the remaining
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/form-refs-draft-values @ 1edccc89b9d398d24f0bffa39d6a63119a495ff3
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 45.5s
 Done:
+- All eight field refs focus/reset; focus is exclusive with ordered blur/focus events.
+- Internal storeValue storage preserves typed values; controlled values win over stored values, which override defaults. Late reads never replace edits/resets.
+- Root drafts restore fields and typed LaunchProps.draftValues through init; successful submit clears drafts, failed submits retain them, and shutdown waits for write acknowledgements. Passwords never persist.
+- Runtime tests and three-launch CLI e2e cover restoration, password privacy, submit clearing, and retained storeValue; regenerated compat has zero missing non-deprecated Form paths. Docs updated; no dependencies added.
+- Baseline CLI provider test exceeded its 5s budget for six processes; raised only that test to 15s. Fast-forward of round-2 WIP was impossible after 0044 integration, so cherry-picked 60ad346 as 2d20adb instead.
 Not done / risks:
+- Four existing partials remain: Form.Dropdown, Form.Dropdown.Props.filtering, Form.Dropdown.Props.filtering.keepSectionOrder, Form.Dropdown.Props.onSearchTextChange. Scene props/callbacks work; actual option filtering, section ordering and search throttling await a UI client.
+- Real keyboard focus is out of scope. Pushed/nested forms do not draft, matching declaration limitations. Persistence is best effort on a crash or forced termination.
+- Worker did not push or merge integration. Ready for independent review.
 ```

@@ -6,6 +6,10 @@
       "mode": "view"
     },
     {
+      "name": "persist",
+      "mode": "view"
+    },
+    {
       "name": "secret",
       "mode": "view"
     }

@@ -57,9 +57,12 @@ Headless answers for capabilities a desktop client owns:
 - `field <id> <value>` — edit a Form field: strings; `true`/`false` for
   checkboxes; ISO strings for dates; comma-separated values for FilePicker and
   TagPicker (omit the value to clear).
-- `submit` — run the first `Action.SubmitForm`.
+- `submit` — run the first `Action.SubmitForm`; successful submission clears its draft.
 - `wait` — wait for the next scene; `expect <text>` — fail unless the latest
   scene tree contains the text; `quit` — shut down with exit code 0.
+
+Form `storeValue` choices and root `enableDrafts` edits survive launches with the
+same `--data-dir` in its separate `internal/` store. Password fields never persist.
 
 Exit codes: 0 success, 1 script or expectation failure, 2 usage error,
 3 extension crash, bundle failure (e.g. `MISSING_DEPENDENCY`) or protocol error.

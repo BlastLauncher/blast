@@ -146,7 +146,6 @@ test("no-view command runs, sees environment and preferences, and exits 0 withou
 // @covers LaunchProps.launchType
 // @covers LaunchProps.launchContext
 // @covers LaunchProps.fallbackText partial
-// @covers LaunchProps.draftValues partial
 test("launch props carry manifest arguments and the launch context", async () => {
   const runtime = start();
   runtime.init({
@@ -163,8 +162,7 @@ test("launch props carry manifest arguments and the launch context", async () =>
     launchType: "userInitiated",
     launchContext: { from: "launcher", nested: { deep: true } },
   });
-  // Blast never launches a fallback command and has no drafts yet, so neither
-  // prop is invented: both stay absent, exactly as the declarations allow.
+  // Optional launch props stay absent when the host supplied neither.
   expect(JSON.parse(reported.message).props).not.toHaveProperty("fallbackText");
   expect(JSON.parse(reported.message).props).not.toHaveProperty("draftValues");
   expect(await runtime.exited).toBe(0);

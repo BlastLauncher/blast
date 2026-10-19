@@ -1,51 +1,67 @@
-import { expect, test } from "bun:test";
-import { createElement as h, useState } from "react";
+import { afterEach, beforeEach, expect, test } from "bun:test";
+import { createElement as h, createRef, useState } from "react";
 import { createSceneRoot, type SceneNode, type SceneSnapshot } from "../reconciler/index.ts";
 import { Action, ActionPanel, Form } from "./index.ts";
-import type { FormEvent, FormValue, FormValues } from "./form.ts";
+import {
+  decodeFormValues,
+  flushFormPersistence,
+  setFormDraftValues,
+  type FormEvent,
+  type FormItemRef,
+  type FormValue,
+  type FormValues,
+} from "./form.ts";
+import { setCapabilityRequester } from "./capability.ts";
+import { NavigationProvider, useNavigation } from "./navigation.ts";
 
-// @covers Form.TextField partial
+beforeEach(() => setCapabilityRequester(async () => null));
+afterEach(() => {
+  setCapabilityRequester(undefined);
+  setFormDraftValues(undefined);
+});
+
+// @covers Form.TextField
 // @covers Form.TextField.Props.id
 // @covers Form.TextField.Props.title
 // @covers Form.TextField.Props.info
 // @covers Form.TextField.Props.error
-// @covers Form.TextField.Props.storeValue partial
+// @covers Form.TextField.Props.storeValue
 // @covers Form.TextField.Props.autoFocus
 // @covers Form.TextField.Props.value
 // @covers Form.TextField.Props.defaultValue
 // @covers Form.TextField.Props.onChange
 // @covers Form.TextField.Props.onBlur
 // @covers Form.TextField.Props.onFocus
-// @covers Form.TextArea partial
+// @covers Form.TextArea
 // @covers Form.TextArea.Props.id
 // @covers Form.TextArea.Props.title
 // @covers Form.TextArea.Props.info
 // @covers Form.TextArea.Props.error
-// @covers Form.TextArea.Props.storeValue partial
+// @covers Form.TextArea.Props.storeValue
 // @covers Form.TextArea.Props.autoFocus
 // @covers Form.TextArea.Props.value
 // @covers Form.TextArea.Props.defaultValue
 // @covers Form.TextArea.Props.onChange
 // @covers Form.TextArea.Props.onBlur
 // @covers Form.TextArea.Props.onFocus
-// @covers Form.Checkbox partial
+// @covers Form.Checkbox
 // @covers Form.Checkbox.Props.id
 // @covers Form.Checkbox.Props.title
 // @covers Form.Checkbox.Props.info
 // @covers Form.Checkbox.Props.error
-// @covers Form.Checkbox.Props.storeValue partial
+// @covers Form.Checkbox.Props.storeValue
 // @covers Form.Checkbox.Props.autoFocus
 // @covers Form.Checkbox.Props.value
 // @covers Form.Checkbox.Props.defaultValue
 // @covers Form.Checkbox.Props.onChange
 // @covers Form.Checkbox.Props.onBlur
 // @covers Form.Checkbox.Props.onFocus
-// @covers Form.DatePicker partial
+// @covers Form.DatePicker
 // @covers Form.DatePicker.Props.id
 // @covers Form.DatePicker.Props.title
 // @covers Form.DatePicker.Props.info
 // @covers Form.DatePicker.Props.error
-// @covers Form.DatePicker.Props.storeValue partial
+// @covers Form.DatePicker.Props.storeValue
 // @covers Form.DatePicker.Props.autoFocus
 // @covers Form.DatePicker.Props.value
 // @covers Form.DatePicker.Props.defaultValue
@@ -57,14 +73,14 @@ import type { FormEvent, FormValue, FormValues } from "./form.ts";
 // @covers Form.Dropdown.Props.title
 // @covers Form.Dropdown.Props.info
 // @covers Form.Dropdown.Props.error
-// @covers Form.Dropdown.Props.storeValue partial
+// @covers Form.Dropdown.Props.storeValue
 // @covers Form.Dropdown.Props.autoFocus
 // @covers Form.Dropdown.Props.value
 // @covers Form.Dropdown.Props.defaultValue
 // @covers Form.Dropdown.Props.onChange
 // @covers Form.Dropdown.Props.onBlur
 // @covers Form.Dropdown.Props.onFocus
-// @covers Form partial
+// @covers Form
 // @covers Form.Props.actions
 // @covers Form.Props.children
 // @covers Form.Props.navigationTitle
@@ -103,7 +119,7 @@ import type { FormEvent, FormValue, FormValues } from "./form.ts";
 // @covers Form.ItemProps.title
 // @covers Form.ItemProps.info
 // @covers Form.ItemProps.error
-// @covers Form.ItemProps.storeValue partial
+// @covers Form.ItemProps.storeValue
 // @covers Form.ItemProps.autoFocus
 // @covers Form.ItemProps.value
 // @covers Form.ItemProps.defaultValue
@@ -119,7 +135,7 @@ import type { FormEvent, FormValue, FormValues } from "./form.ts";
 // @covers Form.Event.target.value
 // @covers Form.Event.type
 // @covers Form.Props
-// @covers Form.Props.enableDrafts partial
+// @covers Form.Props.enableDrafts
 // @covers Form.TextField.Props
 // @covers Form.TextArea.Props
 // @covers Form.Checkbox.Props
@@ -131,13 +147,13 @@ import type { FormEvent, FormValue, FormValues } from "./form.ts";
 // @covers Form.Dropdown.Section.Props
 // @covers Form.FilePicker.Props
 // @covers Form.Description.Props
-// @covers Form.TagPicker partial
+// @covers Form.TagPicker
 // @covers Form.TagPicker.Props
 // @covers Form.TagPicker.Props.id
 // @covers Form.TagPicker.Props.title
 // @covers Form.TagPicker.Props.info
 // @covers Form.TagPicker.Props.error
-// @covers Form.TagPicker.Props.storeValue partial
+// @covers Form.TagPicker.Props.storeValue
 // @covers Form.TagPicker.Props.autoFocus
 // @covers Form.TagPicker.Props.value
 // @covers Form.TagPicker.Props.defaultValue
@@ -151,16 +167,16 @@ import type { FormEvent, FormValue, FormValues } from "./form.ts";
 // @covers Form.TagPicker.Item.Props.value
 // @covers Form.TagPicker.Item.Props.title
 // @covers Form.TagPicker.Item.Props.icon
-// @covers Form.PasswordField partial
+// @covers Form.PasswordField
 // @covers Form.PasswordField.Props
 // @covers Form.PasswordField.Props.id
 // @covers Form.PasswordField.Props.title
 // @covers Form.PasswordField.Props.info
 // @covers Form.PasswordField.Props.error
-// @covers Form.PasswordField.Props.storeValue partial
+// @covers Form.PasswordField.Props.storeValue
 // @covers Form.PasswordField.Props.autoFocus
-// @covers Form.PasswordField.Props.value partial
-// @covers Form.PasswordField.Props.defaultValue partial
+// @covers Form.PasswordField.Props.value
+// @covers Form.PasswordField.Props.defaultValue
 // @covers Form.PasswordField.Props.onChange
 // @covers Form.PasswordField.Props.onBlur
 // @covers Form.PasswordField.Props.onFocus
@@ -437,12 +453,12 @@ test("form instances isolate identical ids and uncontrolled defaults include fal
   root.unmount();
 });
 
-// @covers Form.FilePicker partial
+// @covers Form.FilePicker
 // @covers Form.FilePicker.Props.id
 // @covers Form.FilePicker.Props.title
 // @covers Form.FilePicker.Props.info
 // @covers Form.FilePicker.Props.error
-// @covers Form.FilePicker.Props.storeValue partial
+// @covers Form.FilePicker.Props.storeValue
 // @covers Form.FilePicker.Props.autoFocus
 // @covers Form.FilePicker.Props.value
 // @covers Form.FilePicker.Props.defaultValue
@@ -515,6 +531,8 @@ test("FilePicker retains path arrays, controlled values, options and focus event
     canChooseFiles: false,
     showHiddenFiles: true,
   });
+  root.dispatch(find("controlled").id, "onBlur", []);
+  events.length = 0;
   change("local", ["/a", "/b"]);
   change("controlled", ["/directory"]);
   change("fixed", ["/ignored"]);
@@ -565,9 +583,9 @@ test("DatePicker.isFullDay detects midnight values and Dropdown records keepSect
   root.unmount();
 });
 
-// @covers Form.TagPicker partial
+// @covers Form.TagPicker
 // @covers Form.LinkAccessory
-// @covers Form.Props.enableDrafts partial
+// @covers Form.Props.enableDrafts
 test("TagPicker retains value arrays, controlled values, options and focus events through submit", () => {
   const { root, find, change, submit, nodes } = setup();
   let submitted: FormValues = {};
@@ -645,6 +663,8 @@ test("TagPicker retains value arrays, controlled values, options and focus event
   expect(nodes().some((node) => node.type === "Form" && node.props.enableDrafts === true)).toBe(
     true,
   );
+  root.dispatch(find("controlled").id, "onBlur", []);
+  events.length = 0;
   change("local", ["green", "red"]);
   change("controlled", ["blue"]);
   change("fixed", ["ignored"]);
@@ -671,7 +691,7 @@ test("TagPicker retains value arrays, controlled values, options and focus event
   root.unmount();
 });
 
-// @covers Form.PasswordField partial
+// @covers Form.PasswordField
 test("PasswordField submits its value while every published scene stays secret-free", () => {
   // Every published snapshot is kept, so the earlier scenes can be checked too.
   const scenes: SceneSnapshot[] = [];
@@ -751,5 +771,306 @@ test("PasswordField submits its value while every published scene stays secret-f
   root.flush();
   expect(find("controlled").props.hasValue).toBe(false);
   assertSecretFree();
+  root.unmount();
+});
+
+// @covers Form.ItemReference
+// @covers Form.ItemReference.focus
+// @covers Form.ItemReference.reset
+// @covers Form.TextField.focus
+// @covers Form.TextField.reset
+// @covers Form.TextArea.focus
+// @covers Form.TextArea.reset
+// @covers Form.Checkbox.focus
+// @covers Form.Checkbox.reset
+// @covers Form.DatePicker.focus
+// @covers Form.DatePicker.reset
+// @covers Form.Dropdown.focus
+// @covers Form.Dropdown.reset
+// @covers Form.FilePicker.focus
+// @covers Form.FilePicker.reset
+// @covers Form.TagPicker.focus
+// @covers Form.TagPicker.reset
+// @covers Form.PasswordField.focus
+// @covers Form.PasswordField.reset
+test("every field ref focuses exclusively, emits ordered events and resets through onChange", () => {
+  const { root, nodes, find, change } = setup();
+  const ids = ["text", "area", "check", "date", "drop", "files", "tags", "password"];
+  const refs = ids.map(() => createRef<FormItemRef>());
+  const events: string[] = [];
+  const changes: FormValue[] = [];
+  const common = (index: number) => ({
+    id: ids[index]!,
+    ref: refs[index],
+    onFocus: (e: FormEvent<FormValue>) => events.push(`focus:${e.target.id}`),
+    onBlur: (e: FormEvent<FormValue>) => events.push(`blur:${e.target.id}`),
+    onChange: (v: FormValue) => changes.push(v),
+  });
+  root.render(
+    h(
+      Form,
+      null,
+      h(Form.TextField, { ...common(0), defaultValue: "default" }),
+      h(Form.TextArea, common(1)),
+      h(Form.Checkbox, { ...common(2), label: "Check" }),
+      h(Form.DatePicker, common(3)),
+      h(Form.Dropdown, common(4), h(Form.Dropdown.Item, { value: "one", title: "One" })),
+      h(Form.FilePicker, common(5)),
+      h(Form.TagPicker, common(6)),
+      h(Form.PasswordField, common(7)),
+    ),
+  );
+  const next = ["edit", "edit", true, "2026-01-01T00:00:00.000Z", "two", ["/a"], ["tag"], "secret"];
+  const defaults: Array<string | boolean | null | string[]> = [
+    "default",
+    "",
+    false,
+    null,
+    "one",
+    [],
+    [],
+    "",
+  ];
+  for (const [index, id] of ids.entries()) {
+    refs[index]!.current!.focus();
+    root.flush();
+    expect(
+      nodes()
+        .filter((n) => n.props.focused)
+        .map((n) => n.props.id),
+    ).toEqual([id]);
+    refs[index]!.current!.focus();
+    change(id, next[index]);
+    refs[index]!.current!.reset();
+    root.flush();
+    expect(changes.at(-1)).toEqual(defaults[index]);
+    expect(id === "password" ? find(id).props.hasValue : find(id).props.value).toEqual(
+      id === "password" ? false : defaults[index],
+    );
+  }
+  expect(events).toEqual(
+    ids.flatMap((id, index) =>
+      index ? [`blur:${ids[index - 1]}`, `focus:${id}`] : [`focus:${id}`],
+    ),
+  );
+  root.unmount();
+  expect(refs.every((ref) => ref.current === null)).toBe(true);
+});
+
+test("storeValue round-trips field types, overrides defaults, respects controlled values and never stores passwords", async () => {
+  const store = new Map<string, string>();
+  setCapabilityRequester(async (name, params) => {
+    expect(params.scope).toBe("blast:internal");
+    const key = String(params.key);
+    if (name === "storage.set") store.set(key, String(params.value));
+    return name === "storage.get" ? (store.get(key) ?? null) : null;
+  });
+  // eslint-disable-next-line unicorn/consistent-function-scoping
+  const render = (controlled?: string) =>
+    h(
+      Form,
+      null,
+      h(Form.TextField, {
+        id: "text",
+        storeValue: true,
+        defaultValue: "default",
+        ...(controlled === undefined ? {} : { value: controlled }),
+      }),
+      h(Form.TextArea, { id: "area", storeValue: true }),
+      h(Form.Checkbox, { id: "check", label: "Check", storeValue: true }),
+      h(Form.DatePicker, { id: "date", storeValue: true }),
+      h(Form.Dropdown, { id: "drop", storeValue: true }),
+      h(Form.FilePicker, { id: "files", storeValue: true }),
+      h(Form.TagPicker, { id: "tags", storeValue: true }),
+      h(Form.PasswordField, { id: "password", storeValue: true }),
+    );
+  const first = setup();
+  first.root.render(render());
+  const values = {
+    text: "remember",
+    area: "notes",
+    check: true,
+    date: "2026-01-01T00:00:00.000Z",
+    drop: "two",
+    files: ["/a"],
+    tags: ["tag"],
+    password: "secret",
+  };
+  for (const [id, value] of Object.entries(values)) first.change(id, value);
+  await Promise.resolve();
+  first.root.unmount();
+  const second = setup();
+  second.root.render(render());
+  await Promise.resolve();
+  second.root.flush();
+  for (const [id, value] of Object.entries(values)) {
+    expect(
+      id === "password" ? second.find(id).props.hasValue : second.find(id).props.value,
+    ).toEqual(id === "password" ? false : value);
+  }
+  expect(JSON.stringify([...store])).not.toContain("secret");
+  second.root.unmount();
+  const third = setup();
+  third.root.render(render("controlled"));
+  await Promise.resolve();
+  third.root.flush();
+  expect(third.find("text").props.value).toBe("controlled");
+  third.root.unmount();
+});
+
+test("drafts restore typed values, skip passwords, save changes and clear only their internal key on submit", async () => {
+  const store = new Map<string, string>();
+  setCapabilityRequester(async (name, params) => {
+    const key = String(params.key);
+    if (name === "storage.set") store.set(key, String(params.value));
+    if (name === "storage.remove") store.delete(key);
+    return null;
+  });
+  // eslint-disable-next-line unicorn/consistent-function-scoping
+  const render = () =>
+    h(
+      Form,
+      { enableDrafts: true, actions: h(Action.SubmitForm) },
+      h(Form.TextField, { id: "text", defaultValue: "default" }),
+      h(Form.DatePicker, { id: "date" }),
+      h(Form.PasswordField, { id: "password", storeValue: true }),
+    );
+  const first = setup();
+  first.root.render(render());
+  first.change("text", "draft");
+  first.change("date", "2026-01-01T00:00:00.000Z");
+  first.change("password", "secret");
+  first.root.unmount();
+  const saved = [...store.values()][0]!;
+  expect(saved).not.toContain("password");
+  expect(saved).not.toContain("secret");
+  const draft = decodeFormValues(JSON.parse(saved));
+  expect(draft.date).toEqual(new Date("2026-01-01T00:00:00.000Z"));
+  setFormDraftValues(draft);
+  const second = setup();
+  second.root.render(render());
+  expect(second.find("text").props.value).toBe("draft");
+  expect(second.find("date").props.value).toBe("2026-01-01T00:00:00.000Z");
+  expect(second.find("password").props.hasValue).toBe(false);
+  second.submit();
+  expect(store.size).toBe(0);
+  second.root.unmount();
+});
+
+test("a late storeValue read cannot overwrite an edit or a reset", async () => {
+  let restore!: (value: string) => void;
+  setCapabilityRequester((name) =>
+    name === "storage.get"
+      ? new Promise((resolve) => {
+          restore = resolve;
+        })
+      : Promise.resolve(null),
+  );
+  for (const reset of [false, true]) {
+    const { root, find, change } = setup();
+    const ref = createRef<FormItemRef>();
+    root.render(
+      h(
+        Form,
+        null,
+        h(Form.TextField, { id: "text", ref, storeValue: true, defaultValue: "default" }),
+      ),
+    );
+    if (reset) ref.current!.reset();
+    else change("text", "edit");
+    restore(JSON.stringify("stale"));
+    await Promise.resolve();
+    root.flush();
+    expect(find("text").props.value).toBe(reset ? "default" : "edit");
+    root.unmount();
+  }
+});
+
+test("graceful persistence flush waits for host acknowledgements", async () => {
+  let acknowledge!: (value: null) => void;
+  setCapabilityRequester(
+    () =>
+      new Promise((resolve) => {
+        acknowledge = resolve;
+      }),
+  );
+  const { root, change } = setup();
+  root.render(h(Form, { enableDrafts: true }, h(Form.TextField, { id: "text" })));
+  change("text", "draft");
+  let settled = false;
+  const flush = flushFormPersistence().then(() => {
+    settled = true;
+  });
+  await Promise.resolve();
+  expect(settled).toBe(false);
+  acknowledge(null);
+  await flush;
+  expect(settled).toBe(true);
+  root.unmount();
+});
+
+test("failed submissions retain a draft and successful async submissions clear it", async () => {
+  const removed: unknown[] = [];
+  setCapabilityRequester(async (name, params) => {
+    if (name === "storage.remove") removed.push(params.key);
+    return null;
+  });
+  for (const result of [
+    false,
+    Promise.resolve(false),
+    Promise.reject(new Error("invalid")),
+    Promise.resolve(true),
+  ]) {
+    // Rejections are observed immediately by submit below.
+    const { root, change, submit } = setup();
+    root.render(
+      h(
+        Form,
+        { enableDrafts: true, actions: h(Action.SubmitForm, { onSubmit: () => result }) },
+        h(Form.TextField, { id: "text" }),
+      ),
+    );
+    change("text", "draft");
+    try {
+      await submit();
+    } catch (error) {
+      expect(String(error)).toContain("invalid");
+    }
+    root.unmount();
+  }
+  expect(removed).toHaveLength(1);
+});
+
+test("pushed forms neither restore nor overwrite the root command draft", () => {
+  const writes: unknown[] = [];
+  setCapabilityRequester(async (name, params) => {
+    if (name === "storage.set") writes.push(params);
+    return null;
+  });
+  setFormDraftValues({ text: "root draft" });
+  const { root, find, nodes, change } = setup();
+  const field = h(Form.TextField, { id: "text" });
+  function Command() {
+    const { push } = useNavigation();
+    return h(
+      Form,
+      {
+        enableDrafts: true,
+        actions: h(Action, {
+          title: "Push",
+          onAction: () => push(h(Form, { enableDrafts: true }, field)),
+        }),
+      },
+      h(Form.TextField, { id: "text" }),
+    );
+  }
+  root.render(h(NavigationProvider, { children: h(Command) }));
+  expect(find("text").props.value).toBe("root draft");
+  const action = nodes().find((node) => node.props.title === "Push")!;
+  root.dispatch(action.id, "onAction", []);
+  root.flush();
+  expect(find("text").props.value).toBe("");
+  change("text", "nested");
+  expect(writes).toEqual([]);
   root.unmount();
 });

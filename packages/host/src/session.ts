@@ -19,7 +19,7 @@ import { fileURLToPath } from "node:url";
 import { createAIRouter } from "./ai.ts";
 import type { Broker } from "./broker.ts";
 import type { BundledCommand } from "./bundle.ts";
-import { defaultDataDir, storageFile } from "./storage.ts";
+import { createStorage, defaultDataDir, storageFile } from "./storage.ts";
 
 export type StartOptions = BundledCommand & {
   broker: Broker;
@@ -81,6 +81,27 @@ export async function startCommand(options: StartOptions): Promise<Session> {
       ),
     );
   await mkdir(supportPath, { recursive: true });
+  // A stored Form draft is read before spawning, like preferences, so the
+  // command's first render already has `LaunchProps.draftValues` — the
+  // runtime never blocks its first scene on a capability round trip for it.
+  let draftValues: Record<string, JsonValue> | undefined;
+  if (options.mode === "view") {
+    const internal = createStorage({
+      extensionName: options.extensionName,
+      dataDir: join(options.dataDir ?? defaultDataDir(), "internal"),
+    });
+    const stored = await internal.get(`blast:draft:${options.commandName}`);
+    if (typeof stored === "string") {
+      try {
+        const parsed: unknown = JSON.parse(stored);
+        if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
+          draftValues = parsed as Record<string, JsonValue>;
+        }
+      } catch {
+        // A corrupt draft must not block the launch; it is best-effort recall.
+      }
+    }
+  }
   const init: HostMessage = {
     type: "init",
     protocol: PROTOCOL_VERSION,
@@ -91,6 +112,7 @@ export async function startCommand(options: StartOptions): Promise<Session> {
       mode: options.mode,
       ...(options.argumentValues === undefined ? {} : { arguments: options.argumentValues }),
       ...(options.launchContext === undefined ? {} : { launchContext: options.launchContext }),
+      ...(draftValues === undefined ? {} : { draftValues }),
     },
     preferences: { ...options.preferenceDefaults, ...options.preferences },
     environment: options.environment ?? {

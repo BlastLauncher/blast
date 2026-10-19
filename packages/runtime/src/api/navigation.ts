@@ -40,6 +40,8 @@ interface Entry {
   onPop: (() => void) | undefined;
 }
 
+export const RootNavigationEntryContext = createContext(true);
+
 const NavigationContext = createContext<Navigation | null>(null);
 
 // `popToRoot()` is a module-level API without React context, so mounted
@@ -132,7 +134,7 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
         createElement(
           "Navigation.Entry",
           { key: entry.id, active: index === stack.length - 1 },
-          entry.component,
+          createElement(RootNavigationEntryContext.Provider, { value: false }, entry.component),
         ),
       ),
       createElement(FeedbackScene, { key: "feedback" }),

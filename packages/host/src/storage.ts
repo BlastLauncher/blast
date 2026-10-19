@@ -176,7 +176,7 @@ export function createStorageHandlers(options: StorageOptions): Record<string, C
     dataDir: join(options.dataDir ?? defaultDataDir(), "internal"),
   });
   const store = (params: JsonValue, api: string) =>
-    readParams(params, api).scope === "blast:dropdown" ? internal : storage;
+    readParams(params, api).scope === "blast:internal" ? internal : storage;
   return {
     // A missing key is `undefined` in the extension API; the wire says `null`.
     "storage.get": async (params) =>
@@ -188,7 +188,7 @@ export function createStorageHandlers(options: StorageOptions): Record<string, C
       );
     },
     "storage.remove": async (params) => {
-      await storage.remove(requireKey(params, "storage.remove"));
+      await store(params, "storage.remove").remove(requireKey(params, "storage.remove"));
     },
     "storage.all": () => storage.all(),
     "storage.clear": () => storage.clear(),

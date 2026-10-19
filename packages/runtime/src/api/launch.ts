@@ -1,6 +1,7 @@
 // `launchCommand` and the props a command receives on launch. The declarations
 // are `LaunchProps`, `LaunchOptions` and `LaunchType`; Blast always launches
 // user initiated (background scheduling is out of scope, task 0028).
+import type { FormValues } from "./form.ts";
 import type { JsonValue } from "../reconciler/index.ts";
 import { requestCapability } from "./capability.ts";
 import { LaunchType } from "./enums.generated.ts";
@@ -20,6 +21,7 @@ export type LaunchProps = {
   launchType: LaunchTypeValue;
   /** Only present when the command was started by `launchCommand`. */
   launchContext?: LaunchContext;
+  draftValues?: FormValues;
 };
 
 /**

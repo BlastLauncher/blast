@@ -18,6 +18,7 @@ const command: InitCommand = {
   mode: "view",
   arguments: { query: "raycast", option: "one" },
   launchContext: { from: "test", depth: 2 },
+  draftValues: { name: "Ada", tags: ["work"] },
 };
 
 const environment: InitEnvironment = {
@@ -176,6 +177,7 @@ test("argument values and launch context are optional and survive the wire", () 
       mode: "view",
       arguments: { query: "raycast", option: "one" },
       launchContext: { from: "test", depth: 2 },
+      draftValues: { name: "Ada", tags: ["work"] },
     },
   );
   // A missing required argument is the host's error to report, never the wire's.
@@ -253,6 +255,16 @@ test("rejections name the failing field path", () => {
       "init with a non-JSON launch context value",
       { ...init, command: { ...command, launchContext: { nested: Number.POSITIVE_INFINITY } } },
       "command.launchContext.nested: expected finite number",
+    ],
+    [
+      "init with an array draft values",
+      { ...init, command: { ...command, draftValues: [1] } },
+      "command.draftValues: expected object",
+    ],
+    [
+      "init with a non-JSON draft value",
+      { ...init, command: { ...command, draftValues: { nested: Number.POSITIVE_INFINITY } } },
+      "command.draftValues.nested: expected finite number",
     ],
     [
       "init without a command mode",

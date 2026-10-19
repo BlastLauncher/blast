@@ -42,6 +42,8 @@ export type InitCommand = {
   arguments?: Record<string, string>;
   /** The `launchCommand({ context })` payload of this launch, if any. */
   launchContext?: Record<string, JsonValue>;
+  /** A stored `Form` draft for this command, read by the host before launch. */
+  draftValues?: Record<string, JsonValue>;
 };
 
 export type InitEnvironment = {
@@ -281,11 +283,20 @@ function readTextSize(value: unknown, path: string): "medium" | "large" {
 
 function readCommand(value: unknown, path: string): InitCommand {
   const object = readObject(value, path);
-  checkKeys(object, path, ["extension", "name", "entry", "mode", "arguments", "launchContext"]);
+  checkKeys(object, path, [
+    "extension",
+    "name",
+    "entry",
+    "mode",
+    "arguments",
+    "launchContext",
+    "draftValues",
+  ]);
   // Optional fields stay absent and never materialize as `undefined`, so a
   // parsed message equals the message that was sent.
   const commandArguments = object["arguments"];
   const launchContext = object["launchContext"];
+  const draftValues = object["draftValues"];
   return {
     extension: readString(object["extension"], keyPath(path, "extension")),
     name: readString(object["name"], keyPath(path, "name")),
@@ -297,6 +308,9 @@ function readCommand(value: unknown, path: string): InitCommand {
     ...(launchContext === undefined
       ? {}
       : { launchContext: readJsonObject(launchContext, keyPath(path, "launchContext")) }),
+    ...(draftValues === undefined
+      ? {}
+      : { draftValues: readJsonObject(draftValues, keyPath(path, "draftValues")) }),
   };
 }
 
