@@ -22,6 +22,7 @@ import {
   renderPin,
   selectCurated,
   SELECTION_CRITERIA,
+  STICKY_QUOTAS,
   strataMembers,
   stratumOf,
   unprovidedDependencies,
@@ -456,6 +457,26 @@ test("a kept extension is never picked twice", () => {
     quotasFor({ form: 2, "list-only": 1 }),
   );
   expect(selection.picks.form).toEqual(["form-1"]);
+});
+
+test("sticky quotas keep a previous pick that fresh competition would rank out", () => {
+  // "old-pick" is not even in the candidate pool (its own source scan is
+  // never re-run once an extension is kept), so a fresh selection has no way
+  // to include it; a competing pool fills the single form slot instead.
+  const pool = Array.from({ length: 5 }, (_, index) => candidate({ name: `form-${index}` }));
+  const fresh = selectCurated([], pool, quotasFor({ form: 1 }));
+  expect(fresh.curated).not.toContain("old-pick");
+  expect(fresh.picks.form).toHaveLength(1);
+
+  // The pool has no shared-deps candidate, so that stratum alone is short;
+  // STICKY_QUOTAS is exercised with its own quota (20) to match a real run.
+  const sticky = selectCurated(["old-pick"], pool, STICKY_QUOTAS);
+  expect(sticky.curated).toContain("old-pick");
+  // Sticky quotas freeze every stratum but shared-deps at zero: five eligible
+  // form candidates sit in the pool, but none of them get picked just because
+  // room exists for them.
+  expect(sticky.picks.form).toEqual([]);
+  expect(sticky.missing).toEqual(quotasFor({ "shared-deps": 20 }));
 });
 
 test("repeated selection over the same pool is identical", () => {

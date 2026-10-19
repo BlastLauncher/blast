@@ -322,6 +322,19 @@ export const DEFAULT_QUOTAS: Quotas = {
 };
 
 /**
+ * Quotas for a run where `kept` is the full previously curated set, read back
+ * from the currently committed `compat/corpus.json` (task 0048 round 2):
+ * every one of those extensions passes straight through regardless of how the
+ * candidate pool or the provided-dependency list has changed since, so every
+ * stratum but the net-new one is frozen at zero and only `shared-deps` still
+ * draws fresh picks.
+ */
+export const STICKY_QUOTAS: Quotas = {
+  ...(Object.fromEntries(PICK_STRATA.map((stratum) => [stratum, 0])) as Quotas),
+  "shared-deps": DEFAULT_QUOTAS["shared-deps"],
+};
+
+/**
  * The first curated set (task 0014), always first in `curated`. It is
  * List-centric, so it already fills the `list-only` quota, and it is fixed
  * here rather than read back from `compat/corpus.json` so the selection stays
@@ -516,7 +529,7 @@ export const SELECTION_CRITERIA = {
     "shared-deps": `imports at least one of ${SHARED_DEPENDENCY_PACKAGES.join(", ")}; picks round-robin across packages (first shared package imported, in that order) and prefer a declared major that matches the version Blast provides`,
   },
   scan: { batch: SCAN_BATCH, cap: SCAN_CAP },
-  note: "the list-only quota is already met by the extensions kept from the first curated set; the first four strata keep the first 40 picks unchanged",
+  note: "every previously curated extension is kept unconditionally (read back from the currently committed compat/corpus.json); only shared-deps (0048 round 2) still draws fresh picks",
 };
 
 export type PinStats = { scanned: number; eligible: number };

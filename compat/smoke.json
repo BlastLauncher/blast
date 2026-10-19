@@ -1,9 +1,9 @@
 {
   "commit": "3b812d1e153a1862df29bc8ec34e170c728512ea",
   "totals": {
-    "rendered": 187,
+    "rendered": 185,
     "completed": 2,
-    "capability-denied": 12,
+    "capability-denied": 7,
     "bundle-failed": 0,
     "crashed": 6,
     "network": 0,
@@ -21,76 +21,36 @@
       "rootType": "Navigation"
     },
     {
-      "extension": "advanced-replace",
-      "command": "advanced-replace",
-      "mode": "view",
-      "outcome": "rendered",
-      "nodes": 11,
-      "rootType": "Navigation"
-    },
-    {
-      "extension": "advanced-replace",
-      "command": "quick-slot-1",
-      "mode": "no-view",
-      "outcome": "capability-denied",
-      "path": "storage.get",
-      "error": "Capability denied: storage.get"
-    },
-    {
-      "extension": "advanced-replace",
-      "command": "quick-slot-2",
-      "mode": "no-view",
-      "outcome": "capability-denied",
-      "path": "storage.get",
-      "error": "Capability denied: storage.get"
-    },
-    {
-      "extension": "advanced-replace",
-      "command": "quick-slot-3",
-      "mode": "no-view",
-      "outcome": "capability-denied",
-      "path": "storage.get",
-      "error": "Capability denied: storage.get"
-    },
-    {
-      "extension": "advanced-replace",
-      "command": "quick-slot-4",
-      "mode": "no-view",
-      "outcome": "capability-denied",
-      "path": "storage.get",
-      "error": "Capability denied: storage.get"
-    },
-    {
-      "extension": "advanced-replace",
-      "command": "quick-slot-5",
-      "mode": "no-view",
-      "outcome": "capability-denied",
-      "path": "storage.get",
-      "error": "Capability denied: storage.get"
-    },
-    {
-      "extension": "advanced-replace",
-      "command": "quick-slot-6",
-      "mode": "no-view",
-      "outcome": "capability-denied",
-      "path": "storage.get",
-      "error": "Capability denied: storage.get"
-    },
-    {
-      "extension": "amazon-search",
-      "command": "index",
-      "mode": "view",
-      "outcome": "rendered",
-      "nodes": 5,
-      "rootType": "Navigation"
-    },
-    {
       "extension": "android-versions",
       "command": "search-android-version",
       "mode": "view",
       "outcome": "rendered",
       "nodes": 273,
       "rootType": "Navigation"
+    },
+    {
+      "extension": "appgrid",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 17,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "atomtick",
+      "command": "analog-clock",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 12,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "atomtick",
+      "command": "copy-atomic-time",
+      "mode": "no-view",
+      "outcome": "capability-denied",
+      "path": "clipboard.copy",
+      "error": "Capability denied: clipboard.copy"
     },
     {
       "extension": "axios-docs",
@@ -114,9 +74,9 @@
       "mode": "view",
       "outcome": "crashed",
       "exit": "code 1",
-      "error": "Cannot find package 'undici' imported from /tmp/blast/builds/command-eN8Xcg/find-login.mjs",
+      "error": "Cannot find package 'undici' imported from /tmp/blast/builds/command-1hbi3I/find-login.mjs",
       "logs": [
-        "RUNTIME_ERROR: Cannot find package 'undici' imported from <tmp>/blast/builds/command-eN8Xcg/find-login.mjs"
+        "RUNTIME_ERROR: Cannot find package 'undici' imported from <tmp>/blast/builds/command-1hbi3I/find-login.mjs"
       ]
     },
     {
@@ -157,6 +117,62 @@
       "mode": "view",
       "outcome": "rendered",
       "nodes": 83,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "clocky-time-tracker",
+      "command": "clock-in",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 6,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "clocky-time-tracker",
+      "command": "clock-out",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 6,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "clocky-time-tracker",
+      "command": "history",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 7,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "clocky-time-tracker",
+      "command": "status",
+      "mode": "menu-bar",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "MenuBarExtra"
+    },
+    {
+      "extension": "clocky-time-tracker",
+      "command": "today",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 10,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "clocky-time-tracker",
+      "command": "toggle-pause",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 6,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "clocky-time-tracker",
+      "command": "week",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 49,
       "rootType": "Navigation"
     },
     {
@@ -214,30 +230,6 @@
       "outcome": "rendered",
       "nodes": 9,
       "rootType": "Navigation"
-    },
-    {
-      "extension": "codex-reset-forecast",
-      "command": "check-reset-forecast",
-      "mode": "view",
-      "outcome": "rendered",
-      "nodes": 11,
-      "rootType": "Navigation"
-    },
-    {
-      "extension": "codex-reset-forecast",
-      "command": "reset-history-calendar",
-      "mode": "view",
-      "outcome": "rendered",
-      "nodes": 17,
-      "rootType": "Navigation"
-    },
-    {
-      "extension": "codex-reset-forecast",
-      "command": "toggle-reset-forecast-menu-bar",
-      "mode": "menu-bar",
-      "outcome": "rendered",
-      "nodes": 1,
-      "rootType": "MenuBarExtra"
     },
     {
       "extension": "color-studio-picker",
@@ -312,6 +304,14 @@
       "rootType": "Navigation"
     },
     {
+      "extension": "donut",
+      "command": "show-donut",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
       "extension": "duan-raycast-extension",
       "command": "list-links",
       "mode": "view",
@@ -325,6 +325,30 @@
       "mode": "view",
       "outcome": "rendered",
       "nodes": 10,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "ego-lite",
+      "command": "new-tab",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 2,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "ego-lite",
+      "command": "search-bookmarks",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "ego-lite",
+      "command": "search-history",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 4,
       "rootType": "Navigation"
     },
     {
@@ -365,14 +389,6 @@
       "mode": "view",
       "outcome": "rendered",
       "nodes": 3253,
-      "rootType": "Navigation"
-    },
-    {
-      "extension": "flighty",
-      "command": "view-flights",
-      "mode": "view",
-      "outcome": "rendered",
-      "nodes": 10,
       "rootType": "Navigation"
     },
     {
@@ -504,11 +520,19 @@
       ]
     },
     {
-      "extension": "icloud-global-pricing-comparison",
-      "command": "index",
+      "extension": "input-source-switcher",
+      "command": "form",
       "mode": "view",
       "outcome": "rendered",
-      "nodes": 11,
+      "nodes": 17,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "input-source-switcher",
+      "command": "index",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 3,
       "rootType": "Navigation"
     },
     {
@@ -550,14 +574,6 @@
       "outcome": "capability-denied",
       "path": "clipboard.paste",
       "error": "Capability denied: clipboard.paste"
-    },
-    {
-      "extension": "kagi-search",
-      "command": "index",
-      "mode": "view",
-      "outcome": "rendered",
-      "nodes": 4,
-      "rootType": "Navigation"
     },
     {
       "extension": "keeper-security",
@@ -768,6 +784,14 @@
       "rootType": "Navigation"
     },
     {
+      "extension": "melanite-search",
+      "command": "search-files",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 7,
+      "rootType": "Navigation"
+    },
+    {
       "extension": "menucloak",
       "command": "open-settings",
       "mode": "no-view",
@@ -951,6 +975,22 @@
       "mode": "view",
       "outcome": "rendered",
       "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "punch-clock",
+      "command": "menu-bar",
+      "mode": "menu-bar",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "MenuBarExtra"
+    },
+    {
+      "extension": "punch-clock",
+      "command": "start-timer",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 11,
       "rootType": "Navigation"
     },
     {
@@ -1442,54 +1482,6 @@
       "rootType": "Navigation"
     },
     {
-      "extension": "superwhisper",
-      "command": "copy-last-history",
-      "mode": "no-view",
-      "outcome": "rendered",
-      "nodes": 4,
-      "rootType": "Navigation"
-    },
-    {
-      "extension": "superwhisper",
-      "command": "open-settings",
-      "mode": "no-view",
-      "outcome": "rendered",
-      "nodes": 4,
-      "rootType": "Navigation"
-    },
-    {
-      "extension": "superwhisper",
-      "command": "paste-last-history",
-      "mode": "no-view",
-      "outcome": "rendered",
-      "nodes": 4,
-      "rootType": "Navigation"
-    },
-    {
-      "extension": "superwhisper",
-      "command": "search-history",
-      "mode": "view",
-      "outcome": "rendered",
-      "nodes": 3,
-      "rootType": "Navigation"
-    },
-    {
-      "extension": "superwhisper",
-      "command": "select-mode",
-      "mode": "view",
-      "outcome": "rendered",
-      "nodes": 3,
-      "rootType": "Navigation"
-    },
-    {
-      "extension": "superwhisper",
-      "command": "toggle-record",
-      "mode": "no-view",
-      "outcome": "rendered",
-      "nodes": 4,
-      "rootType": "Navigation"
-    },
-    {
       "extension": "tategaki",
       "command": "japanese-vertical-text",
       "mode": "view",
@@ -1546,62 +1538,6 @@
       "rootType": "MenuBarExtra"
     },
     {
-      "extension": "tinkerer-club",
-      "command": "browse-api",
-      "mode": "view",
-      "outcome": "rendered",
-      "nodes": 8,
-      "rootType": "Navigation"
-    },
-    {
-      "extension": "tinkerer-club",
-      "command": "browse-articles",
-      "mode": "view",
-      "outcome": "rendered",
-      "nodes": 8,
-      "rootType": "Navigation"
-    },
-    {
-      "extension": "tinkerer-club",
-      "command": "browse-feed",
-      "mode": "view",
-      "outcome": "rendered",
-      "nodes": 10,
-      "rootType": "Navigation"
-    },
-    {
-      "extension": "tinkerer-club",
-      "command": "browse-prompts",
-      "mode": "view",
-      "outcome": "rendered",
-      "nodes": 8,
-      "rootType": "Navigation"
-    },
-    {
-      "extension": "tinkerer-club",
-      "command": "menu-bar",
-      "mode": "menu-bar",
-      "outcome": "rendered",
-      "nodes": 13,
-      "rootType": "MenuBarExtra"
-    },
-    {
-      "extension": "tinkerer-club",
-      "command": "quick-post",
-      "mode": "view",
-      "outcome": "rendered",
-      "nodes": 15,
-      "rootType": "Navigation"
-    },
-    {
-      "extension": "tinkerer-club",
-      "command": "search-tinkerer",
-      "mode": "view",
-      "outcome": "rendered",
-      "nodes": 8,
-      "rootType": "Navigation"
-    },
-    {
       "extension": "tiny-tycho",
       "command": "index",
       "mode": "view",
@@ -1638,9 +1574,9 @@
       "mode": "view",
       "outcome": "crashed",
       "exit": "code 1",
-      "error": "Cannot find package 'undici' imported from /tmp/blast/builds/command-dc9k88/search-valkey-commands.mjs",
+      "error": "Cannot find package 'undici' imported from /tmp/blast/builds/command-P83ZQj/search-valkey-commands.mjs",
       "logs": [
-        "RUNTIME_ERROR: Cannot find package 'undici' imported from <tmp>/blast/builds/command-dc9k88/search-valkey-commands.mjs"
+        "RUNTIME_ERROR: Cannot find package 'undici' imported from <tmp>/blast/builds/command-P83ZQj/search-valkey-commands.mjs"
       ]
     },
     {
@@ -1660,6 +1596,22 @@
       "rootType": "Navigation"
     },
     {
+      "extension": "windows-domain",
+      "command": "my-user",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 5,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "windows-domain",
+      "command": "search-user",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
       "extension": "workflowy-inbox",
       "command": "index",
       "mode": "view",
@@ -1673,14 +1625,6 @@
       "mode": "view",
       "outcome": "rendered",
       "nodes": 6,
-      "rootType": "Navigation"
-    },
-    {
-      "extension": "xiaohe-query",
-      "command": "main",
-      "mode": "view",
-      "outcome": "rendered",
-      "nodes": 4,
       "rootType": "Navigation"
     }
   ],

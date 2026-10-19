@@ -30,6 +30,7 @@ import {
   SCAN_BATCH,
   SCAN_CAP,
   selectCurated,
+  STICKY_QUOTAS,
   viewCommands,
   type Candidate,
   type Manifest,
@@ -64,14 +65,18 @@ function main(): void {
       .filter((entry) => entry.isDirectory())
       .map((entry) => entry.name),
   );
-  const absent = KEPT_CURATED.filter((name) => !present.has(name));
-  if (absent.length > 0)
-    throw new Error(`curated extensions missing from the pin: ${absent.join(", ")}`);
-  const head = pin.curated.slice(0, KEPT_CURATED.length);
+  // Sticky picks (task 0048 round 2): every extension already curated in the
+  // committed pin stays, regardless of how the candidate pool changed, so it
+  // is the `kept` set for this run rather than the fixed first ten.
+  const previousCurated = pin.curated;
+  const head = previousCurated.slice(0, KEPT_CURATED.length);
   if (head.some((name, index) => name !== KEPT_CURATED[index]))
     throw new Error(
       `compat/corpus.json must start with the first curated set, got ${head.join(", ")}`,
     );
+  const absent = previousCurated.filter((name) => !present.has(name));
+  if (absent.length > 0)
+    throw new Error(`previously curated extensions missing from the pin: ${absent.join(", ")}`);
 
   const manifests: Array<{
     name: string;
@@ -114,13 +119,13 @@ function main(): void {
     }
     // Keep reading while any quota would have to fall back on a network user:
     // the fingerprints of the extensions that need one are the report's data.
-    if (offlineQuotasMet(KEPT_CURATED, analyzed)) break;
+    if (offlineQuotasMet(previousCurated, analyzed, STICKY_QUOTAS)) break;
   }
 
   git(repo, ["sparse-checkout", "set", "--no-cone", ...buildPatterns()]);
   guard("reset");
 
-  const selection = selectCurated(KEPT_CURATED, analyzed);
+  const selection = selectCurated(previousCurated, analyzed, STICKY_QUOTAS);
   const short = Object.entries(selection.missing).filter(([, count]) => count > 0);
   if (short.length > 0) {
     throw new Error(
@@ -144,7 +149,7 @@ function main(): void {
   const notes = analyzed
     .filter(
       (candidate) =>
-        KEPT_CURATED.includes(candidate.name) &&
+        previousCurated.includes(candidate.name) &&
         (candidate.stratum !== "list-only" || candidate.exclusions.length > 0),
     )
     .map(({ name, exclusions, stratum }) => `${name} (${exclusions.join(", ") || stratum})`);

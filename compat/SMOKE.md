@@ -7,28 +7,30 @@ headless defaults `applications.list` (empty), `clipboard.read` (empty),
 Regenerate with `bun run corpus:smoke` (network required; not part of
 `bun run verify`).
 
-207 commands: rendered 187, completed 2, capability-denied 12, bundle-failed 0, crashed 6, network 0, timeout 0, unsupported-mode 0, unsupported-api 0.
+200 commands: rendered 185, completed 2, capability-denied 7, bundle-failed 0, crashed 6, network 0, timeout 0, unsupported-mode 0, unsupported-api 0.
 
 | Command                                                          | Mode     | Outcome           | Detail                                                                                                         |
 | ---------------------------------------------------------------- | -------- | ----------------- | -------------------------------------------------------------------------------------------------------------- |
 | `8-divide/divide-by-8`                                           | view     | rendered          | 3 nodes, root Navigation                                                                                       |
-| `advanced-replace/advanced-replace`                              | view     | rendered          | 11 nodes, root Navigation                                                                                      |
-| `advanced-replace/quick-slot-1`                                  | no-view  | capability-denied | denied capability storage.get                                                                                  |
-| `advanced-replace/quick-slot-2`                                  | no-view  | capability-denied | denied capability storage.get                                                                                  |
-| `advanced-replace/quick-slot-3`                                  | no-view  | capability-denied | denied capability storage.get                                                                                  |
-| `advanced-replace/quick-slot-4`                                  | no-view  | capability-denied | denied capability storage.get                                                                                  |
-| `advanced-replace/quick-slot-5`                                  | no-view  | capability-denied | denied capability storage.get                                                                                  |
-| `advanced-replace/quick-slot-6`                                  | no-view  | capability-denied | denied capability storage.get                                                                                  |
-| `amazon-search/index`                                            | view     | rendered          | 5 nodes, root Navigation                                                                                       |
 | `android-versions/search-android-version`                        | view     | rendered          | 273 nodes, root Navigation                                                                                     |
+| `appgrid/index`                                                  | view     | rendered          | 17 nodes, root Navigation                                                                                      |
+| `atomtick/analog-clock`                                          | view     | rendered          | 12 nodes, root Navigation                                                                                      |
+| `atomtick/copy-atomic-time`                                      | no-view  | capability-denied | denied capability clipboard.copy                                                                               |
 | `axios-docs/index`                                               | view     | rendered          | 76 nodes, root Navigation                                                                                      |
 | `biaodian/biaodian`                                              | view     | rendered          | 133 nodes, root Navigation                                                                                     |
-| `bugmenot/find-login`                                            | view     | crashed           | code 1; Cannot find package 'undici' imported from /tmp/blast/builds/command-eN8Xcg/find-login.mjs             |
+| `bugmenot/find-login`                                            | view     | crashed           | code 1; Cannot find package 'undici' imported from /tmp/blast/builds/command-1hbi3I/find-login.mjs             |
 | `cangjie/cangjie`                                                | view     | rendered          | 8 nodes, root Navigation                                                                                       |
 | `chakra-ui-docs/components`                                      | view     | rendered          | 616 nodes, root Navigation                                                                                     |
 | `chakra-ui-docs/get-started`                                     | view     | rendered          | 43 nodes, root Navigation                                                                                      |
 | `chakra-ui-docs/hooks`                                           | view     | rendered          | 103 nodes, root Navigation                                                                                     |
 | `chakra-ui-docs/styled-system`                                   | view     | rendered          | 83 nodes, root Navigation                                                                                      |
+| `clocky-time-tracker/clock-in`                                   | view     | rendered          | 6 nodes, root Navigation                                                                                       |
+| `clocky-time-tracker/clock-out`                                  | view     | rendered          | 6 nodes, root Navigation                                                                                       |
+| `clocky-time-tracker/history`                                    | view     | rendered          | 7 nodes, root Navigation                                                                                       |
+| `clocky-time-tracker/status`                                     | menu-bar | rendered          | 4 nodes, root MenuBarExtra                                                                                     |
+| `clocky-time-tracker/today`                                      | view     | rendered          | 10 nodes, root Navigation                                                                                      |
+| `clocky-time-tracker/toggle-pause`                               | view     | rendered          | 6 nodes, root Navigation                                                                                       |
+| `clocky-time-tracker/week`                                       | view     | rendered          | 49 nodes, root Navigation                                                                                      |
 | `code-review-emojis/index`                                       | view     | rendered          | 88 nodes, root Navigation                                                                                      |
 | `codepen/create-collection`                                      | view     | rendered          | 12 nodes, root Navigation                                                                                      |
 | `codepen/create-pen`                                             | view     | rendered          | 19 nodes, root Navigation                                                                                      |
@@ -36,9 +38,6 @@ Regenerate with `bun run corpus:smoke` (network required; not part of
 | `codepen/search-collections`                                     | view     | rendered          | 11 nodes, root Navigation                                                                                      |
 | `codepen/search-pens`                                            | view     | rendered          | 23 nodes, root Navigation                                                                                      |
 | `codepen/upload-asset`                                           | view     | rendered          | 9 nodes, root Navigation                                                                                       |
-| `codex-reset-forecast/check-reset-forecast`                      | view     | rendered          | 11 nodes, root Navigation                                                                                      |
-| `codex-reset-forecast/reset-history-calendar`                    | view     | rendered          | 17 nodes, root Navigation                                                                                      |
-| `codex-reset-forecast/toggle-reset-forecast-menu-bar`            | menu-bar | rendered          | 1 nodes, root MenuBarExtra                                                                                     |
 | `color-studio-picker/index`                                      | view     | rendered          | 716 nodes, root Navigation                                                                                     |
 | `conventional-commits/commit-message-structure`                  | view     | rendered          | 3 nodes, root Navigation                                                                                       |
 | `conventional-commits/index`                                     | view     | rendered          | 47 nodes, root Navigation                                                                                      |
@@ -48,14 +47,17 @@ Regenerate with `bun run corpus:smoke` (network required; not part of
 | `convert-px-to-vw-vh/width`                                      | no-view  | rendered          | 3 nodes, root Navigation                                                                                       |
 | `devpod/workspaces-manage`                                       | view     | rendered          | 7 nodes, root Navigation                                                                                       |
 | `dice-tiles/index`                                               | view     | rendered          | 19 nodes, root Navigation                                                                                      |
+| `donut/show-donut`                                               | view     | rendered          | 3 nodes, root Navigation                                                                                       |
 | `duan-raycast-extension/list-links`                              | view     | rendered          | 9 nodes, root Navigation                                                                                       |
 | `duan-raycast-extension/shorten-link`                            | view     | rendered          | 10 nodes, root Navigation                                                                                      |
+| `ego-lite/new-tab`                                               | no-view  | rendered          | 2 nodes, root Navigation                                                                                       |
+| `ego-lite/search-bookmarks`                                      | view     | rendered          | 4 nodes, root Navigation                                                                                       |
+| `ego-lite/search-history`                                        | view     | rendered          | 4 nodes, root Navigation                                                                                       |
 | `evernote/search-notes`                                          | view     | rendered          | 3 nodes, root Navigation                                                                                       |
 | `evernote/search-tasks`                                          | view     | rendered          | 3 nodes, root Navigation                                                                                       |
 | `fibonacci-sequence/index`                                       | view     | rendered          | 78 nodes, root Navigation                                                                                      |
 | `fix-helper/fix-parser`                                          | view     | rendered          | 9 nodes, root Navigation                                                                                       |
 | `fix-helper/fix-search-tags`                                     | view     | rendered          | 3253 nodes, root Navigation                                                                                    |
-| `flighty/view-flights`                                           | view     | rendered          | 10 nodes, root Navigation                                                                                      |
 | `google-cloud-run/index`                                         | view     | rendered          | 6 nodes, root Navigation                                                                                       |
 | `google-maps-search/find`                                        | view     | rendered          | 4 nodes, root Navigation                                                                                       |
 | `google-maps-search/quickSearchMaps`                             | no-view  | completed         | command mode "no-view" completed without rendering a scene                                                     |
@@ -71,13 +73,13 @@ Regenerate with `bun run corpus:smoke` (network required; not part of
 | `humaans/people`                                                 | view     | crashed           | code 1; api key missing                                                                                        |
 | `hyrule-compendium-search/broadSearch`                           | view     | rendered          | 1559 nodes, root Navigation                                                                                    |
 | `hyrule-compendium-search/getEntry`                              | view     | crashed           | code 1; Cannot read properties of undefined (reading '$and')                                                   |
-| `icloud-global-pricing-comparison/index`                         | view     | rendered          | 11 nodes, root Navigation                                                                                      |
+| `input-source-switcher/form`                                     | view     | rendered          | 17 nodes, root Navigation                                                                                      |
+| `input-source-switcher/index`                                    | no-view  | rendered          | 3 nodes, root Navigation                                                                                       |
 | `invisible-text-detector/analyze-clipboard-invisible-characters` | no-view  | rendered          | 3 nodes, root Navigation                                                                                       |
 | `invisible-text-detector/fix-invisible-characters`               | no-view  | rendered          | 3 nodes, root Navigation                                                                                       |
 | `invisible-text-detector/open-invisible-text-detector`           | view     | rendered          | 32 nodes, root Navigation                                                                                      |
 | `kaalam/index`                                                   | view     | rendered          | 107 nodes, root Navigation                                                                                     |
 | `kaalam/now`                                                     | no-view  | capability-denied | denied capability clipboard.paste                                                                              |
-| `kagi-search/index`                                              | view     | rendered          | 4 nodes, root Navigation                                                                                       |
 | `keeper-security/generate-passphrase`                            | view     | rendered          | 9 nodes, root Navigation                                                                                       |
 | `keeper-security/generate-password`                              | view     | rendered          | 14 nodes, root Navigation                                                                                      |
 | `keeper-security/generate-password-quick`                        | view     | rendered          | 2 nodes, root Navigation                                                                                       |
@@ -104,6 +106,7 @@ Regenerate with `bun run corpus:smoke` (network required; not part of
 | `mealie/meal-plan`                                               | view     | rendered          | 7 nodes, root Navigation                                                                                       |
 | `mealie/search-recipes`                                          | view     | rendered          | 7 nodes, root Navigation                                                                                       |
 | `mealie/shopping-lists`                                          | view     | rendered          | 7 nodes, root Navigation                                                                                       |
+| `melanite-search/search-files`                                   | view     | rendered          | 7 nodes, root Navigation                                                                                       |
 | `menucloak/open-settings`                                        | no-view  | rendered          | 4 nodes, root Navigation                                                                                       |
 | `menucloak/set-focus`                                            | view     | rendered          | 7 nodes, root Navigation                                                                                       |
 | `menucloak/toggle`                                               | no-view  | rendered          | 4 nodes, root Navigation                                                                                       |
@@ -127,6 +130,8 @@ Regenerate with `bun run corpus:smoke` (network required; not part of
 | `pokemon-tcg-pocket-binder/pokemon-tcg-pocket-binder`            | view     | rendered          | 39 nodes, root Navigation                                                                                      |
 | `portless/list`                                                  | view     | rendered          | 3 nodes, root Navigation                                                                                       |
 | `promptty/search-promptty`                                       | view     | rendered          | 4 nodes, root Navigation                                                                                       |
+| `punch-clock/menu-bar`                                           | menu-bar | rendered          | 3 nodes, root MenuBarExtra                                                                                     |
+| `punch-clock/start-timer`                                        | view     | rendered          | 11 nodes, root Navigation                                                                                      |
 | `px-to-rem-converter/index`                                      | view     | rendered          | 13 nodes, root Navigation                                                                                      |
 | `quick-jump/search`                                              | view     | rendered          | 3 nodes, root Navigation                                                                                       |
 | `radix/colors`                                                   | view     | rendered          | 53 nodes, root Navigation                                                                                      |
@@ -188,12 +193,6 @@ Regenerate with `bun run corpus:smoke` (network required; not part of
 | `stockholm-public-transport/departures`                          | view     | rendered          | 5 nodes, root Navigation                                                                                       |
 | `storybook-sandboxes/local`                                      | view     | rendered          | 538 nodes, root Navigation                                                                                     |
 | `storybook-sandboxes/online`                                     | view     | rendered          | 538 nodes, root Navigation                                                                                     |
-| `superwhisper/copy-last-history`                                 | no-view  | rendered          | 4 nodes, root Navigation                                                                                       |
-| `superwhisper/open-settings`                                     | no-view  | rendered          | 4 nodes, root Navigation                                                                                       |
-| `superwhisper/paste-last-history`                                | no-view  | rendered          | 4 nodes, root Navigation                                                                                       |
-| `superwhisper/search-history`                                    | view     | rendered          | 3 nodes, root Navigation                                                                                       |
-| `superwhisper/select-mode`                                       | view     | rendered          | 3 nodes, root Navigation                                                                                       |
-| `superwhisper/toggle-record`                                     | no-view  | rendered          | 4 nodes, root Navigation                                                                                       |
 | `tategaki/japanese-vertical-text`                                | view     | rendered          | 24 nodes, root Navigation                                                                                      |
 | `text-decorator/decorate-text`                                   | no-view  | capability-denied | denied capability command.launch                                                                               |
 | `text-decorator/decorate-text-with-font`                         | view     | rendered          | 143 nodes, root Navigation                                                                                     |
@@ -201,34 +200,23 @@ Regenerate with `bun run corpus:smoke` (network required; not part of
 | `time-until-i-do/index`                                          | view     | rendered          | 6 nodes, root Navigation                                                                                       |
 | `timezone-buddy/timezone-buddy`                                  | view     | rendered          | 7 nodes, root Navigation                                                                                       |
 | `timezone-buddy/timezone-buddy-menubar`                          | menu-bar | rendered          | 2 nodes, root MenuBarExtra                                                                                     |
-| `tinkerer-club/browse-api`                                       | view     | rendered          | 8 nodes, root Navigation                                                                                       |
-| `tinkerer-club/browse-articles`                                  | view     | rendered          | 8 nodes, root Navigation                                                                                       |
-| `tinkerer-club/browse-feed`                                      | view     | rendered          | 10 nodes, root Navigation                                                                                      |
-| `tinkerer-club/browse-prompts`                                   | view     | rendered          | 8 nodes, root Navigation                                                                                       |
-| `tinkerer-club/menu-bar`                                         | menu-bar | rendered          | 13 nodes, root MenuBarExtra                                                                                    |
-| `tinkerer-club/quick-post`                                       | view     | rendered          | 15 nodes, root Navigation                                                                                      |
-| `tinkerer-club/search-tinkerer`                                  | view     | rendered          | 8 nodes, root Navigation                                                                                       |
 | `tiny-tycho/index`                                               | view     | rendered          | 867 nodes, root Navigation                                                                                     |
 | `uk-bank-holidays/index`                                         | view     | rendered          | 3 nodes, root Navigation                                                                                       |
 | `uk-bank-holidays/next-holiday`                                  | no-view  | completed         | command mode "no-view" completed without rendering a scene                                                     |
 | `url-designer/create-prompt`                                     | view     | rendered          | 6 nodes, root Navigation                                                                                       |
-| `valkey-commands-search/search-valkey-commands`                  | view     | crashed           | code 1; Cannot find package 'undici' imported from /tmp/blast/builds/command-dc9k88/search-valkey-commands.mjs |
+| `valkey-commands-search/search-valkey-commands`                  | view     | crashed           | code 1; Cannot find package 'undici' imported from /tmp/blast/builds/command-P83ZQj/search-valkey-commands.mjs |
 | `vim-bro/index`                                                  | view     | rendered          | 924 nodes, root Navigation                                                                                     |
 | `vocab-search/vocab`                                             | view     | rendered          | 3 nodes, root Navigation                                                                                       |
+| `windows-domain/my-user`                                         | view     | rendered          | 5 nodes, root Navigation                                                                                       |
+| `windows-domain/search-user`                                     | view     | rendered          | 4 nodes, root Navigation                                                                                       |
 | `workflowy-inbox/index`                                          | view     | rendered          | 12 nodes, root Navigation                                                                                      |
 | `workflowy-inbox/view`                                           | view     | rendered          | 6 nodes, root Navigation                                                                                       |
-| `xiaohe-query/main`                                              | view     | rendered          | 4 nodes, root Navigation                                                                                       |
 
 ## Failures
 
-- `advanced-replace/quick-slot-1` (capability-denied): denied capability storage.get
-- `advanced-replace/quick-slot-2` (capability-denied): denied capability storage.get
-- `advanced-replace/quick-slot-3` (capability-denied): denied capability storage.get
-- `advanced-replace/quick-slot-4` (capability-denied): denied capability storage.get
-- `advanced-replace/quick-slot-5` (capability-denied): denied capability storage.get
-- `advanced-replace/quick-slot-6` (capability-denied): denied capability storage.get
-- `bugmenot/find-login` (crashed): code 1; Cannot find package 'undici' imported from /tmp/blast/builds/command-eN8Xcg/find-login.mjs
-  - log: RUNTIME_ERROR: Cannot find package 'undici' imported from <tmp>/blast/builds/command-eN8Xcg/find-login.mjs
+- `atomtick/copy-atomic-time` (capability-denied): denied capability clipboard.copy
+- `bugmenot/find-login` (crashed): code 1; Cannot find package 'undici' imported from /tmp/blast/builds/command-1hbi3I/find-login.mjs
+  - log: RUNTIME_ERROR: Cannot find package 'undici' imported from <tmp>/blast/builds/command-1hbi3I/find-login.mjs
 - `google-maps-search/travelHome` (capability-denied): denied capability open.url
 - `humaans/book-time` (capability-denied): denied capability open.url
 - `humaans/holidays` (crashed): code 1; api key missing
@@ -243,5 +231,5 @@ Regenerate with `bun run corpus:smoke` (network required; not part of
   - log: RUNTIME_ERROR: API key not found. Please add your Parcel API key in extension preferences.
 - `random-color/random-color` (capability-denied): denied capability clipboard.copy
 - `text-decorator/decorate-text` (capability-denied): denied capability command.launch
-- `valkey-commands-search/search-valkey-commands` (crashed): code 1; Cannot find package 'undici' imported from /tmp/blast/builds/command-dc9k88/search-valkey-commands.mjs
-  - log: RUNTIME_ERROR: Cannot find package 'undici' imported from <tmp>/blast/builds/command-dc9k88/search-valkey-commands.mjs
+- `valkey-commands-search/search-valkey-commands` (crashed): code 1; Cannot find package 'undici' imported from /tmp/blast/builds/command-P83ZQj/search-valkey-commands.mjs
+  - log: RUNTIME_ERROR: Cannot find package 'undici' imported from <tmp>/blast/builds/command-P83ZQj/search-valkey-commands.mjs
