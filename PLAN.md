@@ -71,7 +71,7 @@ diagnostics instead of ESM link errors.
 - [x] 0039 List and Grid prop completeness
 - [x] 0040 Image, Keyboard and environment completeness
 - [x] 0041 OAuth PKCE client
-- [ ] 0042 Form field refs, storeValue and drafts
+- [x] 0042 Form field refs, storeValue and drafts
 - [x] 0043 AI, BrowserExtension and Tool APIs
 - [x] 0044 WindowManagement and remaining leftovers
 - [x] 0045 AI model provider entrypoint (protocol, host, CLI)
