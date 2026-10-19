@@ -655,7 +655,14 @@ async function run(options: RunOptions): Promise<number> {
       deadline,
     ]);
     output.flushLogs(active);
-    const exit = await Promise.race([active.shutdown({ timeoutMs: 250 }), deadline]);
+    // A graceful exit waits for host acknowledgements of pending writes (form
+    // drafts, storeValue). On a loaded machine that can exceed a few hundred ms,
+    // and SIGTERM then loses the data; a hung child is still bounded by
+    // `--timeout` through `deadline`.
+    const exit = await Promise.race([
+      active.shutdown({ timeoutMs: GRACEFUL_SHUTDOWN_MS }),
+      deadline,
+    ]);
     if (exit.error) throw new RunError(exit.error.message);
     if (exit.code !== 0 || exit.signal !== null) {
       throw new RunError(`runtime exited with code ${exit.code ?? exit.signal}`);
@@ -675,6 +682,8 @@ async function run(options: RunOptions): Promise<number> {
     if (outDir !== undefined) await rm(outDir, { recursive: true, force: true });
   }
 }
+
+const GRACEFUL_SHUTDOWN_MS = 5000;
 
 function parseArguments(argv: string[]) {
   try {
