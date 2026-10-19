@@ -51,7 +51,8 @@ export function readInventory(root: string): Inventory {
         !isRecord(entry) ||
         typeof entry.path !== "string" ||
         typeof entry.kind !== "string" ||
-        typeof entry.deprecated !== "boolean",
+        typeof entry.deprecated !== "boolean" ||
+        (entry.aliasTarget !== undefined && typeof entry.aliasTarget !== "string"),
     )
   )
     throw new Error(`${INVENTORY_PATH}: not an inventory file`);

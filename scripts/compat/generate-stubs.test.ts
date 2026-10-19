@@ -21,10 +21,14 @@ test("stub generation is stable, skips types, and detects stale or missing outpu
         ],
       }),
     );
+    writeFileSync(
+      join(root, "packages/runtime/src/api/index.ts"),
+      "export const Z = Modern.Item;\n",
+    );
     const output = generateStubs(root);
     expect(generateStubs(root)).toBe(output);
     expect(output).toContain('export const A = api("A");');
-    expect(output.indexOf("const A")).toBeLessThan(output.indexOf("const Z"));
+    expect(output).not.toContain("export const Z");
     expect(output).not.toMatch(/Props|Alias|Z.Child/);
     expect(checkStubs(root)).toHaveLength(1);
     writeFileSync(join(root, STUBS_PATH), output);

@@ -15,8 +15,19 @@ export const VALUE_KINDS = new Set([
 
 export function generateStubs(root: string): string {
   const inventory = JSON.parse(readFileSync(join(root, INVENTORY_PATH), "utf8")) as Inventory;
+  const indexPath = join(root, "packages/runtime/src/api/index.ts");
+  const aliases = new Set(
+    existsSync(indexPath)
+      ? [
+          ...readFileSync(indexPath, "utf8").matchAll(/export const (\w+) = [A-Z]\w*(?:\.\w+)*;/g),
+        ].map((match) => match[1])
+      : [],
+  );
   const names = inventory.entries
-    .filter((entry) => !entry.path.includes(".") && VALUE_KINDS.has(entry.kind))
+    .filter(
+      (entry) =>
+        !entry.path.includes(".") && VALUE_KINDS.has(entry.kind) && !aliases.has(entry.path),
+    )
     .map((entry) => entry.path)
     .toSorted();
   return [

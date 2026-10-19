@@ -1,6 +1,7 @@
 export * from "./unsupported.generated.ts";
 export { CopyToClipboard } from "./action.ts";
 export { Image } from "./enums.generated.ts";
+import { Image } from "./enums.generated.ts";
 export type {
   LaunchCommandOptions,
   LaunchContext,
@@ -182,3 +183,106 @@ export namespace AI {
     | import("@blastlauncher/protocol").ModelAssistantMessageContent
     | import("@blastlauncher/protocol").ModelUserMessageContent;
 }
+
+// Bind aliases to the public values, which include unsupported-member proxies.
+import {
+  Action,
+  ActionPanel as actionPanelWithStubs,
+  Alert,
+  Clipboard,
+  Form as formWithStubs,
+  List,
+  LocalStorage,
+  Toast,
+} from "./unsupported.generated.ts";
+// Keep aliases on public facades without mutating the underlying implementations.
+export const ActionPanel = new Proxy(actionPanelWithStubs, {
+  get(target, key, receiver) {
+    return key === "Item" ? Action : Reflect.get(target, key, receiver);
+  },
+});
+const formAliases = {
+  DropdownItem: formWithStubs.Dropdown.Item,
+  DropdownSection: formWithStubs.Dropdown.Section,
+  TagPickerItem: formWithStubs.TagPicker.Item,
+};
+export const Form = new Proxy(formWithStubs, {
+  get(target, key, receiver) {
+    return Object.hasOwn(formAliases, key)
+      ? Reflect.get(formAliases, key)
+      : Reflect.get(target, key, receiver);
+  },
+}) as typeof formWithStubs & typeof formAliases;
+export const ActionPanelItem = Action;
+export const ActionPanelSection = ActionPanel.Section;
+export const ActionPanelSubmenu = ActionPanel.Submenu;
+export const AlertActionStyle = Alert.ActionStyle;
+export const CopyToClipboardAction = Action.CopyToClipboard;
+export const FormCheckbox = Form.Checkbox;
+export const FormDatePicker = Form.DatePicker;
+export const FormDropdown = Form.Dropdown;
+export const FormDropdownItem = Form.Dropdown.Item;
+export const FormDropdownSection = Form.Dropdown.Section;
+export const FormSeparator = Form.Separator;
+export const FormTagPicker = Form.TagPicker;
+export const FormTagPickerItem = Form.TagPicker.Item;
+export const FormTextArea = Form.TextArea;
+export const FormTextField = Form.TextField;
+export const ImageMask = Image.Mask;
+export const ListItem = List.Item;
+export const ListSection = List.Section;
+export const OpenAction = Action.Open;
+export const OpenInBrowserAction = Action.OpenInBrowser;
+export const OpenWithAction = Action.OpenWith;
+export const PasteAction = Action.Paste;
+export const PushAction = Action.Push;
+export const ShowInFinderAction = Action.ShowInFinder;
+export const SubmitFormAction = Action.SubmitForm;
+export const ToastStyle = Toast.Style;
+export const TrashAction = Action.Trash;
+export const allLocalStorageItems = LocalStorage.allItems;
+export const clearClipboard = Clipboard.clear;
+export const clearLocalStorage = LocalStorage.clear;
+export const copyTextToClipboard = Clipboard.copy;
+export const getLocalStorageItem = LocalStorage.getItem;
+export const pasteText = Clipboard.paste;
+export const removeLocalStorageItem = LocalStorage.removeItem;
+export const setLocalStorageItem = LocalStorage.setItem;
+export const unstable_AI = AI;
+
+/** @deprecated Use the key string directly. */
+export const specialKeys = Object.fromEntries(
+  [
+    "return",
+    "delete",
+    "deleteForward",
+    "tab",
+    "arrowUp",
+    "arrowDown",
+    "arrowLeft",
+    "arrowRight",
+    "pageUp",
+    "pageDown",
+    "home",
+    "end",
+    "space",
+    "escape",
+    "enter",
+    "backspace",
+  ].map((key) => [key, key]),
+);
+export type ActionPanelItemProps = import("./action.ts").ActionProps;
+export type CopyToClipboardActionProps = import("./action.ts").CopyToClipboardProps;
+export type OpenActionProps = import("./action.ts").OpenProps;
+export type OpenInBrowserActionProps = import("./action.ts").OpenInBrowserProps;
+export type OpenWithActionProps = import("./action.ts").OpenWithProps;
+export type PasteActionProps = import("./action.ts").PasteProps;
+export type PushActionProps = import("./action.ts").PushProps;
+export type ShowInFinderActionProps = import("./action.ts").ShowInFinderProps;
+export type SubmitFormActionProps = import("./form.ts").SubmitFormProps;
+export type TrashActionProps = import("./action.ts").TrashProps;
+export type FormSeparatorProps = Record<string, never>;
+export type DynamicColor = import("./types.ts").ColorDynamic;
+export type KeyboardShortcut = import("./types.ts").Shortcut;
+export type ActionPanelChildren = import("react").ReactNode;
+export type ActionPanelSectionChildren = import("react").ReactNode;
