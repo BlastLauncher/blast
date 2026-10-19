@@ -24,7 +24,8 @@
     "corpus:scan": "bun scripts/corpus/scan.ts",
     "corpus:select": "bun scripts/corpus/select.ts",
     "corpus:smoke": "bun scripts/corpus/smoke-run.ts",
-    "check:workflow": "bun scripts/check-workflow.ts"
+    "check:workflow": "bun scripts/check-workflow.ts",
+    "tui": "bun packages/tui/src/main.tsx"
   },
   "devDependencies": {
     "@types/bun": "1.4.3",

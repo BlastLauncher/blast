@@ -1,7 +1,7 @@
 ---
 id: "0052"
 title: "TUI scaffold: bun run tui, List rendering, selection, filtering"
-status: doing
+status: review
 milestone: M4
 depends: []
 ---
@@ -50,11 +50,11 @@ typing filters, Enter runs the selected item's primary action, Esc/Ctrl-C quits.
 
 ## Acceptance
 
-- [ ] `bun run tui fixtures/extensions/hello-list index` renders and is usable
+- [x] `bun run tui fixtures/extensions/hello-list index` renders and is usable
       (describe what you saw in Handoff).
-- [ ] Unit tests for `sceneToView` filtering/selection; test-renderer tests as
+- [x] Unit tests for `sceneToView` filtering/selection; test-renderer tests as
       above; Bun-only code confined to `packages/tui`.
-- [ ] `bun run verify` passes.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -64,8 +64,16 @@ typing filters, Enter runs the selected item's primary action, Esc/Ctrl-C quits.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/tui-scaffold-list @ 143ef391f5d7365a96b267be77b5ad55248c944c (implementation; handoff follows)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 62.6s
 Done:
+- Added Bun-only OpenTUI package, host-backed session lifecycle, and root tui script.
+- Pure sceneToView resolves active Navigation entries, List sections/items/accessories/empty/loading states, action Slots and unsupported placeholders. Case-insensitive substring filtering covers title/subtitle/keywords and preserves order; extensions with handlers own filtering, with a 200 ms trailing throttle.
+- Selection follows selectedItemId, notifies onSelectionChange, scrolls into view and drives the primary action. Esc/Ctrl-C shuts down the child and removes the bundle.
+- Six new tests cover pure conversion plus real hello-list/list-extras test-renderer frames, typed search, arrow/Enter action dispatch (clipboard broker record), throttling, controlled selection and clean exit. Full gate: 492 pass, 0 fail. CLI/architecture docs updated; no runtime imports or API-surface changes.
+- Real PTY: ran bun run tui fixtures/extensions/hello-list index; saw title, search, three fruits, apple highlighted and key footer. Down highlighted banana; typing cher left cherry highlighted; Esc restored the terminal and exited 0.
 Not done / risks:
+- Action panel, navigation controls, Detail, feedback, Form/Grid and images remain out of scope; privileged effects remain denied by default. Test renderer may emit React act warnings for asynchronous session snapshots; assertions pass.
+- npm view confirmed @opentui/core and @opentui/react at 0.6.6, pinned exactly: native terminal rendering and React binding required by decision 0007. Reused existing React 19.3.1 and @types/react 19.3.0 (types latest confirmed via npm view); host/protocol are workspace dependencies. node_modules grew from 189M to 219M (du -sh). peer=false keeps web-tree-sitter, ws and react-devtools-core uninstalled; real PTY and headless rendering work without them (lockfile contains resolution metadata only).
+- Not pushed; independent review remains with the orchestrator.
 ```
