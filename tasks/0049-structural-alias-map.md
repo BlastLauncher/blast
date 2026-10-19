@@ -65,6 +65,9 @@ Not done / risks:
 - No imperative legacy implementations or additional runtime behaviors added.
 - The check validates inventoried member paths/kinds, not arbitrary TypeScript
   signature equivalence; reviewed mappings and runtime/type tests supply evidence.
+- Verification hit one intermittent existing CLI persistence shutdown failure
+  (seed 1911741933, runtime SIGTERM). The isolated test passed with that seed;
+  it also passed in the initial full gate. No persistence code was changed.
 ```
 
 Remaining deprecated gaps (50 entries, grouped; no coverage fabricated):
