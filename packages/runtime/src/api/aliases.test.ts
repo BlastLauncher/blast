@@ -219,3 +219,19 @@ test("nested deprecated members share public target identities", () => {
   expect(api.Form.DropdownSection).toBe(api.Form.Dropdown.Section);
   expect(api.Form.TagPickerItem).toBe(api.Form.TagPicker.Item);
 });
+
+// @covers ArgumentsLaunchProps
+// @covers FormLaunchProps
+test("legacy launch props accept the modern launch values and preserve their optional subsets", () => {
+  sameType<api.ArgumentsLaunchProps, Partial<Pick<api.LaunchProps, "arguments">>>((value) => value);
+  sameType<api.FormLaunchProps, Pick<api.LaunchProps, "draftValues">>((value) => value);
+  const launch: api.LaunchProps = { arguments: { name: "Blast" }, launchType: "userInitiated" };
+  const args: api.ArgumentsLaunchProps = launch;
+  const form: api.FormLaunchProps = launch;
+  expect(args.arguments).toEqual({ name: "Blast" });
+  expect(form.draftValues).toBeUndefined();
+  const emptyArgs: api.ArgumentsLaunchProps = {};
+  const emptyForm: api.FormLaunchProps = {};
+  expect(emptyArgs.arguments).toBeUndefined();
+  expect(emptyForm.draftValues).toBeUndefined();
+});

@@ -14,16 +14,16 @@ test("generation is byte-stable, includes provenance, and detects missing or edi
     mkdirSync(dirname(join(root, VENDOR_TYPES)), { recursive: true });
     writeFileSync(join(root, VENDOR_TYPES), types);
     writeFileSync(join(root, VENDOR_SOURCE), JSON.stringify({ version: "1.2.3", sha256 }));
-    const output = generateInventory(root);
+    const output = generateInventory(root, {});
     expect(JSON.parse(output)).toMatchObject({ version: "1.2.3", sha256 });
-    expect(generateInventory(root)).toBe(output);
-    expect(checkInventory(root)[0]).toContain("missing or stale");
+    expect(generateInventory(root, {})).toBe(output);
+    expect(checkInventory(root, {})[0]).toContain("missing or stale");
     writeFileSync(join(root, INVENTORY_PATH), output);
-    expect(checkInventory(root)).toEqual([]);
+    expect(checkInventory(root, {})).toEqual([]);
     writeFileSync(join(root, INVENTORY_PATH), `${output} `);
-    expect(checkInventory(root)[0]).toContain("missing or stale");
+    expect(checkInventory(root, {})[0]).toContain("missing or stale");
     writeFileSync(join(root, VENDOR_TYPES), `${types} `);
-    expect(() => generateInventory(root)).toThrow("does not match");
+    expect(() => generateInventory(root, {})).toThrow("does not match");
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -31,4 +31,27 @@ test("generation is byte-stable, includes provenance, and detects missing or edi
 
 test("committed inventory matches regeneration from the pinned declarations", () => {
   expect(generateInventory(process.cwd())).toBe(readFileSync(INVENTORY_PATH, "utf8"));
+});
+
+test("generation fails on a fixture whose mapped alias has unmatched members", () => {
+  const root = mkdtempSync(join(tmpdir(), "blast-alias-mismatch-"));
+  try {
+    const types = `
+      export interface Current { shared: string }
+      /** @deprecated */ export interface Legacy { shared: string; aliasOnly: boolean }
+    `;
+    const sha256 = sha256Hex(new TextEncoder().encode(types));
+    mkdirSync(dirname(join(root, VENDOR_TYPES)), { recursive: true });
+    writeFileSync(join(root, VENDOR_TYPES), types);
+    writeFileSync(join(root, VENDOR_SOURCE), JSON.stringify({ version: "1.2.3", sha256 }));
+    expect(() => generateInventory(root, { Legacy: "Current" })).toThrow(
+      "Legacy.aliasOnly → Current.aliasOnly: missing member",
+    );
+    const result = JSON.parse(generateInventory(root, {}));
+    expect(
+      result.entries.find((entry: { path: string }) => entry.path === "Legacy.aliasOnly"),
+    ).not.toHaveProperty("aliasTarget");
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });

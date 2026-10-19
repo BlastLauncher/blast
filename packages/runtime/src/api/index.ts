@@ -286,3 +286,8 @@ export type DynamicColor = import("./types.ts").ColorDynamic;
 export type KeyboardShortcut = import("./types.ts").Shortcut;
 export type ActionPanelChildren = import("react").ReactNode;
 export type ActionPanelSectionChildren = import("react").ReactNode;
+
+/** @deprecated Use LaunchProps directly. */
+export type ArgumentsLaunchProps = Partial<Pick<import("./launch.ts").LaunchProps, "arguments">>;
+/** @deprecated Use LaunchProps directly. */
+export type FormLaunchProps = Pick<import("./launch.ts").LaunchProps, "draftValues">;
