@@ -66,7 +66,7 @@ diagnostics instead of ESM link errors.
       menu bar, generated enums, no-hang feedback, Action variants, Submenu,
       selection/file APIs (see git log).
 - [x] 0036 Corpus dependency usage scan
-- [ ] 0037 Shared dependency allowlist (interim, until v1)
+- [x] 0037 Shared dependency allowlist (interim, until v1)
 - [x] 0038 Form.TagPicker, PasswordField, events and props
 - [x] 0039 List and Grid prop completeness
 - [x] 0040 Image, Keyboard and environment completeness
