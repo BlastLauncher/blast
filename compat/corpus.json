@@ -61,14 +61,48 @@
     "fix-helper",
     "text-decorator",
     "cangjie",
-    "input-source-switcher"
+    "input-source-switcher",
+    "keeper-security",
+    "bugmenot",
+    "ring-intercom",
+    "hevy",
+    "kaalam",
+    "laravel-artisan",
+    "humaans",
+    "time-until-i-do",
+    "saved-items",
+    "uk-bank-holidays",
+    "leetcode",
+    "workflowy-inbox",
+    "codepen",
+    "vocab-search",
+    "valkey-commands-search",
+    "duan-raycast-extension",
+    "parcel",
+    "keygen",
+    "hyrule-compendium-search",
+    "stockholm-public-transport"
   ],
   "selection": {
     "criteria": {
       "script": "scripts/corpus/select.ts",
       "dependencies": [
         "@raycast/api",
-        "@raycast/utils"
+        "react",
+        "@raycast/utils",
+        "node-fetch",
+        "axios",
+        "date-fns",
+        "lodash",
+        "zod",
+        "cheerio",
+        "dayjs",
+        "fuse.js",
+        "uuid",
+        "nanoid",
+        "cross-fetch",
+        "moment",
+        "node-html-markdown"
       ],
       "minViewCommands": 1,
       "excludedSources": [
@@ -88,57 +122,26 @@
         "grid": 5,
         "menu-bar": 5,
         "action-variants": 5,
-        "selection-apis": 5
+        "selection-apis": 5,
+        "shared-deps": 20
       },
       "featureStrata": {
         "grid": "<Grid",
         "menu-bar": "<MenuBarExtra",
         "action-variants": "ActionPanel.Submenu, or an Action.* variant beyond CopyToClipboard/OpenInBrowser/Paste/Push",
-        "selection-apis": "Form.FilePicker, getSelectedText or getSelectedFinderItems"
+        "selection-apis": "Form.FilePicker, getSelectedText or getSelectedFinderItems",
+        "shared-deps": "imports at least one of node-fetch, axios, date-fns, lodash, zod, cheerio, dayjs, fuse.js, uuid, nanoid, cross-fetch, moment, node-html-markdown; picks round-robin across packages (first shared package imported, in that order) and prefer a declared major that matches the version Blast provides"
       },
       "scan": {
         "batch": 64,
         "cap": 768
       },
-      "note": "the list-only quota is already met by the extensions kept from the first curated set; the first four strata keep the first 40 picks unchanged"
+      "note": "every previously curated extension is kept unconditionally (read back from the currently committed compat/corpus.json); only shared-deps (0048 round 2) still draws fresh picks"
     },
     "strata": {
-      "form": [
-        "storybook-sandboxes",
-        "google-maps-search",
-        "devpod",
-        "one-thing",
-        "invisible-text-detector",
-        "spacejump",
-        "rtl-reader",
-        "nterm-calculator",
-        "menucloak",
-        "laravel-shift"
-      ],
-      "detail": [
-        "tategaki",
-        "8-divide",
-        "pokemon-tcg-pocket-binder",
-        "dice-tiles",
-        "evernote",
-        "android-versions",
-        "raytyping",
-        "promptty",
-        "atomtick",
-        "donut"
-      ],
-      "utils": [
-        "url-designer",
-        "google-cloud-run",
-        "portless",
-        "nano-games",
-        "mise-window-sets",
-        "chakra-ui-docs",
-        "pinch-svg",
-        "vim-bro",
-        "ego-lite",
-        "windows-domain"
-      ],
+      "form": [],
+      "detail": [],
+      "utils": [],
       "list-only": [
         "fibonacci-sequence",
         "ohmyzsh-git-alias",
@@ -149,38 +152,86 @@
         "code-review-emojis",
         "biaodian",
         "markdown-reference",
-        "conventional-commits"
-      ],
-      "grid": [
+        "conventional-commits",
+        "storybook-sandboxes",
+        "google-maps-search",
+        "devpod",
+        "one-thing",
+        "invisible-text-detector",
+        "spacejump",
+        "rtl-reader",
+        "nterm-calculator",
+        "menucloak",
+        "laravel-shift",
+        "tategaki",
+        "8-divide",
+        "pokemon-tcg-pocket-binder",
+        "dice-tiles",
+        "evernote",
+        "android-versions",
+        "raytyping",
+        "promptty",
+        "atomtick",
+        "donut",
+        "url-designer",
+        "google-cloud-run",
+        "portless",
+        "nano-games",
+        "mise-window-sets",
+        "chakra-ui-docs",
+        "pinch-svg",
+        "vim-bro",
+        "ego-lite",
+        "windows-domain",
         "pbr-assistant",
         "random-color",
         "tiny-tycho",
         "sf-symbols-search",
-        "rectangle"
-      ],
-      "menu-bar": [
+        "rectangle",
         "timezone-buddy",
         "convert-px-to-vw-vh",
         "leap-new",
         "clocky-time-tracker",
-        "punch-clock"
-      ],
-      "action-variants": [
+        "punch-clock",
         "quick-jump",
         "multi-ai-chat",
         "mealie",
         "appgrid",
-        "melanite-search"
-      ],
-      "selection-apis": [
+        "melanite-search",
         "color-studio-picker",
         "fix-helper",
         "text-decorator",
         "cangjie",
         "input-source-switcher"
+      ],
+      "grid": [],
+      "menu-bar": [],
+      "action-variants": [],
+      "selection-apis": [],
+      "shared-deps": [
+        "keeper-security",
+        "bugmenot",
+        "ring-intercom",
+        "hevy",
+        "kaalam",
+        "laravel-artisan",
+        "humaans",
+        "time-until-i-do",
+        "saved-items",
+        "uk-bank-holidays",
+        "leetcode",
+        "workflowy-inbox",
+        "codepen",
+        "vocab-search",
+        "valkey-commands-search",
+        "duan-raycast-extension",
+        "parcel",
+        "keygen",
+        "hyrule-compendium-search",
+        "stockholm-public-transport"
       ]
     },
     "scanned": 768,
-    "eligible": 441
+    "eligible": 496
   }
 }

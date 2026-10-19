@@ -9,6 +9,13 @@ export { PROVIDED_PACKAGES };
 // Stable baseline keeps the usage ranking comparable as the shared set grows.
 export const BASE_PACKAGES = ["@raycast/api", "@raycast/utils", "react"] as const;
 
+/** `PROVIDED_PACKAGES` minus the baseline every extension already needs: the
+ * packages task 0037 added to the shared allowlist specifically (node-fetch,
+ * axios, date-fns, …), in declaration order. */
+export const SHARED_DEPENDENCY_PACKAGES: string[] = PROVIDED_PACKAGES.filter(
+  (name): boolean => !(BASE_PACKAGES as readonly string[]).includes(name),
+);
+
 /** One source file of an extension, as read from the pinned checkout. */
 export type Source = { file: string; source: string };
 

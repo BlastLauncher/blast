@@ -1,11 +1,12 @@
 {
   "commit": "3b812d1e153a1862df29bc8ec34e170c728512ea",
   "totals": {
-    "rendered": 144,
-    "completed": 1,
-    "capability-denied": 4,
+    "rendered": 185,
+    "completed": 2,
+    "capability-denied": 7,
     "bundle-failed": 0,
-    "crashed": 0,
+    "crashed": 6,
+    "network": 0,
     "timeout": 0,
     "unsupported-mode": 0,
     "unsupported-api": 0
@@ -66,6 +67,17 @@
       "outcome": "rendered",
       "nodes": 133,
       "rootType": "Navigation"
+    },
+    {
+      "extension": "bugmenot",
+      "command": "find-login",
+      "mode": "view",
+      "outcome": "crashed",
+      "exit": "code 1",
+      "error": "Cannot find package 'undici' imported from /tmp/blast/builds/command-1hbi3I/find-login.mjs",
+      "logs": [
+        "RUNTIME_ERROR: Cannot find package 'undici' imported from <tmp>/blast/builds/command-1hbi3I/find-login.mjs"
+      ]
     },
     {
       "extension": "cangjie",
@@ -172,6 +184,54 @@
       "rootType": "Navigation"
     },
     {
+      "extension": "codepen",
+      "command": "create-collection",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 12,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "codepen",
+      "command": "create-pen",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 19,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "codepen",
+      "command": "search-assets",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 11,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "codepen",
+      "command": "search-collections",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 11,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "codepen",
+      "command": "search-pens",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 23,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "codepen",
+      "command": "upload-asset",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 9,
+      "rootType": "Navigation"
+    },
+    {
       "extension": "color-studio-picker",
       "command": "index",
       "mode": "view",
@@ -249,6 +309,22 @@
       "mode": "view",
       "outcome": "rendered",
       "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "duan-raycast-extension",
+      "command": "list-links",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 9,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "duan-raycast-extension",
+      "command": "shorten-link",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 10,
       "rootType": "Navigation"
     },
     {
@@ -355,6 +431,95 @@
       "rootType": "Navigation"
     },
     {
+      "extension": "hevy",
+      "command": "search-routines",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "hevy",
+      "command": "search-workouts",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "humaans",
+      "command": "book-time",
+      "mode": "no-view",
+      "outcome": "capability-denied",
+      "path": "open.url",
+      "error": "Capability denied: open.url"
+    },
+    {
+      "extension": "humaans",
+      "command": "clock-in",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 2,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "humaans",
+      "command": "clock-out",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 2,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "humaans",
+      "command": "holidays",
+      "mode": "view",
+      "outcome": "crashed",
+      "exit": "code 1",
+      "error": "api key missing",
+      "logs": [
+        "RUNTIME_ERROR: api key missing"
+      ]
+    },
+    {
+      "extension": "humaans",
+      "command": "me-time-away",
+      "mode": "no-view",
+      "outcome": "capability-denied",
+      "path": "open.url",
+      "error": "Capability denied: open.url"
+    },
+    {
+      "extension": "humaans",
+      "command": "people",
+      "mode": "view",
+      "outcome": "crashed",
+      "exit": "code 1",
+      "error": "api key missing",
+      "logs": [
+        "RUNTIME_ERROR: api key missing"
+      ]
+    },
+    {
+      "extension": "hyrule-compendium-search",
+      "command": "broadSearch",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 1559,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "hyrule-compendium-search",
+      "command": "getEntry",
+      "mode": "view",
+      "outcome": "crashed",
+      "exit": "code 1",
+      "error": "Cannot read properties of undefined (reading '$and')",
+      "logs": [
+        "RUNTIME_ERROR: Cannot read properties of undefined (reading '$and')"
+      ]
+    },
+    {
       "extension": "input-source-switcher",
       "command": "form",
       "mode": "view",
@@ -395,6 +560,118 @@
       "rootType": "Navigation"
     },
     {
+      "extension": "kaalam",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 107,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "kaalam",
+      "command": "now",
+      "mode": "no-view",
+      "outcome": "capability-denied",
+      "path": "clipboard.paste",
+      "error": "Capability denied: clipboard.paste"
+    },
+    {
+      "extension": "keeper-security",
+      "command": "generate-passphrase",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 9,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "keeper-security",
+      "command": "generate-password",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 14,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "keeper-security",
+      "command": "generate-password-quick",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 2,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "keeper-security",
+      "command": "my-vault",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 31,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "keygen",
+      "command": "api-tokens",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "keygen",
+      "command": "api-usage",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "keygen",
+      "command": "environments",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "keygen",
+      "command": "licenses",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "keygen",
+      "command": "policies",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "keygen",
+      "command": "products",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "keygen",
+      "command": "users",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "laravel-artisan",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 6,
+      "rootType": "Navigation"
+    },
+    {
       "extension": "laravel-shift",
       "command": "generate-shift",
       "mode": "view",
@@ -417,6 +694,46 @@
       "outcome": "rendered",
       "nodes": 5,
       "rootType": "MenuBarExtra"
+    },
+    {
+      "extension": "leetcode",
+      "command": "daily-challenge",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 8,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "leetcode",
+      "command": "potd-menu-bar",
+      "mode": "menu-bar",
+      "outcome": "rendered",
+      "nodes": 7,
+      "rootType": "MenuBarExtra"
+    },
+    {
+      "extension": "leetcode",
+      "command": "problem-search",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 13,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "leetcode",
+      "command": "random-problem",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 45,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "leetcode",
+      "command": "user-profile",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
     },
     {
       "extension": "markdown-reference",
@@ -592,6 +909,25 @@
       "mode": "menu-bar",
       "outcome": "rendered",
       "empty": true
+    },
+    {
+      "extension": "parcel",
+      "command": "add-delivery",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 11,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "parcel",
+      "command": "my-deliveries",
+      "mode": "view",
+      "outcome": "crashed",
+      "exit": "code 1",
+      "error": "API key not found. Please add your Parcel API key in extension preferences.",
+      "logs": [
+        "RUNTIME_ERROR: API key not found. Please add your Parcel API key in extension preferences."
+      ]
     },
     {
       "extension": "pbr-assistant",
@@ -1066,11 +1402,35 @@
       "rootType": "Navigation"
     },
     {
+      "extension": "ring-intercom",
+      "command": "authenticate",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 6,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "ring-intercom",
+      "command": "unlock",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
       "extension": "rtl-reader",
       "command": "rtl-text",
       "mode": "view",
       "outcome": "rendered",
       "nodes": 9,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "saved-items",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 7,
       "rootType": "Navigation"
     },
     {
@@ -1095,6 +1455,14 @@
       "mode": "view",
       "outcome": "rendered",
       "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "stockholm-public-transport",
+      "command": "departures",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 5,
       "rootType": "Navigation"
     },
     {
@@ -1146,6 +1514,14 @@
       "rootType": "Navigation"
     },
     {
+      "extension": "time-until-i-do",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 6,
+      "rootType": "Navigation"
+    },
+    {
       "extension": "timezone-buddy",
       "command": "timezone-buddy",
       "mode": "view",
@@ -1170,6 +1546,21 @@
       "rootType": "Navigation"
     },
     {
+      "extension": "uk-bank-holidays",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "uk-bank-holidays",
+      "command": "next-holiday",
+      "mode": "no-view",
+      "outcome": "completed",
+      "reason": "command mode \"no-view\" completed without rendering a scene"
+    },
+    {
       "extension": "url-designer",
       "command": "create-prompt",
       "mode": "view",
@@ -1178,11 +1569,30 @@
       "rootType": "Navigation"
     },
     {
+      "extension": "valkey-commands-search",
+      "command": "search-valkey-commands",
+      "mode": "view",
+      "outcome": "crashed",
+      "exit": "code 1",
+      "error": "Cannot find package 'undici' imported from /tmp/blast/builds/command-P83ZQj/search-valkey-commands.mjs",
+      "logs": [
+        "RUNTIME_ERROR: Cannot find package 'undici' imported from <tmp>/blast/builds/command-P83ZQj/search-valkey-commands.mjs"
+      ]
+    },
+    {
       "extension": "vim-bro",
       "command": "index",
       "mode": "view",
       "outcome": "rendered",
       "nodes": 924,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "vocab-search",
+      "command": "vocab",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
       "rootType": "Navigation"
     },
     {
@@ -1199,6 +1609,22 @@
       "mode": "view",
       "outcome": "rendered",
       "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "workflowy-inbox",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 12,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "workflowy-inbox",
+      "command": "view",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 6,
       "rootType": "Navigation"
     }
   ],

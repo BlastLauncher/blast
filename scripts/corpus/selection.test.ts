@@ -22,6 +22,7 @@ import {
   renderPin,
   selectCurated,
   SELECTION_CRITERIA,
+  STICKY_QUOTAS,
   strataMembers,
   stratumOf,
   unprovidedDependencies,
@@ -31,7 +32,7 @@ import {
   type Candidate,
   type Quotas,
 } from "./selection.ts";
-import type { Source } from "./imports.ts";
+import { SHARED_DEPENDENCY_PACKAGES, type Source } from "./imports.ts";
 
 const source = (text: string, file = "src/index.tsx"): Source => ({ file, source: text });
 
@@ -90,6 +91,13 @@ export default function Command() {
 }
 `;
 
+const SHARED_DEPS_SOURCE = `import { List } from "@raycast/api";
+import axios from "axios";
+export default function Command() {
+  return <List><List.Item title="one" /></List>;
+}
+`;
+
 /** The picks only a stratum's own test cares about; the rest stay at zero. */
 const quotasFor = (overrides: Partial<Quotas>): Quotas => ({ ...zeroQuotas(), ...overrides });
 
@@ -102,6 +110,8 @@ const candidate = (overrides: Partial<Candidate> & { name: string }): Candidate 
   network: false,
   stratum: "form",
   features: [],
+  sharedPackages: [],
+  sharedMajorMatch: true,
   ...overrides,
 });
 
@@ -230,6 +240,7 @@ test("featuresOf tags the harder components and APIs additively", () => {
   expect(featuresOf([source(MENU_BAR_SOURCE)])).toEqual(["menu-bar"]);
   expect(featuresOf([source(ACTION_VARIANT_SOURCE)])).toEqual(["action-variants"]);
   expect(featuresOf([source(SELECTION_API_SOURCE)])).toEqual(["selection-apis"]);
+  expect(featuresOf([source(SHARED_DEPS_SOURCE)])).toEqual(["shared-deps"]);
   expect(
     featuresOf([
       source(`import { Action, ActionPanel, Grid } from "@raycast/api";
@@ -249,7 +260,29 @@ const Command = () => (
 );`),
     ]),
   ).toEqual(["grid", "action-variants"]);
-  expect(FEATURE_STRATA).toEqual(["grid", "menu-bar", "action-variants", "selection-apis"]);
+  expect(FEATURE_STRATA).toEqual([
+    "grid",
+    "menu-bar",
+    "action-variants",
+    "selection-apis",
+    "shared-deps",
+  ]);
+});
+
+test("shared-deps tags an extension that imports a shared allowlist package", () => {
+  expect(featuresOf([source(LIST_SOURCE)])).not.toContain("shared-deps");
+  expect(
+    featuresOf([source('import get from "lodash/get"; import { List } from "@raycast/api";')]),
+  ).toEqual(["shared-deps"]);
+  // @raycast/api, @raycast/utils and react are the baseline every extension
+  // already needs, not a shared-deps signal.
+  expect(
+    featuresOf([
+      source(`import { List } from "@raycast/api";
+import { useFetch } from "@raycast/utils";
+import { useState } from "react";`),
+    ]),
+  ).toEqual([]);
 });
 
 test("the covered actions are not action variants", () => {
@@ -292,10 +325,26 @@ test("analyzeSources gathers the verdict for one extension", () => {
     network: false,
     stratum: "form",
     features: [],
+    sharedPackages: [],
+    sharedMajorMatch: true,
   });
   expect(analyzeSources("demo", ["index"], [source(GRID_SOURCE)])).toMatchObject({
     stratum: "none",
     features: ["grid"],
+  });
+  expect(
+    analyzeSources("demo", ["index"], [source(SHARED_DEPS_SOURCE)], { axios: "^1.20.0" }),
+  ).toMatchObject({
+    features: ["shared-deps"],
+    sharedPackages: ["axios"],
+    sharedMajorMatch: true,
+  });
+  // A major mismatch against the version Blast actually provides (1.x) shows
+  // up on the candidate, even though the dependency is still provided.
+  expect(
+    analyzeSources("demo", ["index"], [source(SHARED_DEPS_SOURCE)], { axios: "^0.27.0" }),
+  ).toMatchObject({
+    sharedMajorMatch: false,
   });
 });
 
@@ -368,8 +417,10 @@ test("the default quotas keep the first 40 picks and add about 20 harder ones", 
     "menu-bar": 5,
     "action-variants": 5,
     "selection-apis": 5,
+    "shared-deps": 20,
   });
-  // The exclusive strata stay first, so the first 40 picks cannot move (0033).
+  // The exclusive strata stay first, so the first 40 picks cannot move (0033),
+  // and shared-deps (0048) comes last so it never moves the first 60 either.
   expect(PICK_STRATA).toEqual([
     "form",
     "detail",
@@ -379,6 +430,7 @@ test("the default quotas keep the first 40 picks and add about 20 harder ones", 
     "menu-bar",
     "action-variants",
     "selection-apis",
+    "shared-deps",
   ]);
   expect(KEPT_CURATED).toHaveLength(DEFAULT_QUOTAS["list-only"]);
   expect(new Set(KEPT_CURATED).size).toBe(KEPT_CURATED.length);
@@ -407,6 +459,26 @@ test("a kept extension is never picked twice", () => {
   expect(selection.picks.form).toEqual(["form-1"]);
 });
 
+test("sticky quotas keep a previous pick that fresh competition would rank out", () => {
+  // "old-pick" is not even in the candidate pool (its own source scan is
+  // never re-run once an extension is kept), so a fresh selection has no way
+  // to include it; a competing pool fills the single form slot instead.
+  const pool = Array.from({ length: 5 }, (_, index) => candidate({ name: `form-${index}` }));
+  const fresh = selectCurated([], pool, quotasFor({ form: 1 }));
+  expect(fresh.curated).not.toContain("old-pick");
+  expect(fresh.picks.form).toHaveLength(1);
+
+  // The pool has no shared-deps candidate, so that stratum alone is short;
+  // STICKY_QUOTAS is exercised with its own quota (20) to match a real run.
+  const sticky = selectCurated(["old-pick"], pool, STICKY_QUOTAS);
+  expect(sticky.curated).toContain("old-pick");
+  // Sticky quotas freeze every stratum but shared-deps at zero: five eligible
+  // form candidates sit in the pool, but none of them get picked just because
+  // room exists for them.
+  expect(sticky.picks.form).toEqual([]);
+  expect(sticky.missing).toEqual(quotasFor({ "shared-deps": 20 }));
+});
+
 test("repeated selection over the same pool is identical", () => {
   const pool = [
     ...Array.from({ length: 30 }, (_, index) => candidate({ name: `form-${index}` })),
@@ -417,8 +489,13 @@ test("repeated selection over the same pool is identical", () => {
       candidate({ name: `utils-${index}`, stratum: "utils", network: index % 2 === 0 }),
     ),
     ...FEATURE_STRATA.flatMap((stratum) =>
-      Array.from({ length: 5 }, (_, index) =>
-        candidate({ name: `${stratum}-${index}`, stratum: "none", features: [stratum] }),
+      Array.from({ length: DEFAULT_QUOTAS[stratum] }, (_, index) =>
+        candidate({
+          name: `${stratum}-${index}`,
+          stratum: "none",
+          features: [stratum],
+          sharedPackages: stratum === "shared-deps" ? [SHARED_DEPENDENCY_PACKAGES[index % 3]!] : [],
+        }),
       ),
     ),
   ];
@@ -427,9 +504,9 @@ test("repeated selection over the same pool is identical", () => {
   const second = selectCurated(kept, [...pool].toReversed());
   expect(second).toEqual(first);
   expect(first.missing).toEqual(zeroQuotas());
-  expect(first.curated).toHaveLength(60);
+  expect(first.curated).toHaveLength(80);
   expect(first.curated.slice(0, 10)).toEqual(kept);
-  expect(new Set(first.curated).size).toBe(60);
+  expect(new Set(first.curated).size).toBe(80);
 });
 
 test("the additive strata fill after the exclusive ones and never reuse a pick", () => {
@@ -463,6 +540,53 @@ test("the additive strata fill after the exclusive ones and never reuse a pick",
     "selection-0",
   ]);
   expect(new Set(selection.curated).size).toBe(7);
+});
+
+test("shared-deps round-robins across packages and prefers a matching major within a package", () => {
+  const pool = [
+    // Four candidates on "lodash" but only one on "zod" and one on "dayjs":
+    // a plain rank-order pick would let lodash take the whole quota.
+    ...Array.from({ length: 4 }, (_, index) =>
+      candidate({
+        name: `lodash-${index}`,
+        stratum: "none",
+        features: ["shared-deps"],
+        sharedPackages: ["lodash"],
+        sharedMajorMatch: index === 3, // only the last one matches the provided major
+      }),
+    ),
+    candidate({
+      name: "zod-0",
+      stratum: "none",
+      features: ["shared-deps"],
+      sharedPackages: ["zod"],
+    }),
+    candidate({
+      name: "dayjs-0",
+      stratum: "none",
+      features: ["shared-deps"],
+      sharedPackages: ["dayjs"],
+    }),
+  ];
+  const selection = selectCurated([], pool, quotasFor({ "shared-deps": 3 }));
+  expect(selection.missing["shared-deps"]).toBe(0);
+  // One pick per package before a second lodash pick, and the major-matching
+  // lodash candidate (not the rank-first one) is the package's representative.
+  expect(selection.picks["shared-deps"]).toContain("zod-0");
+  expect(selection.picks["shared-deps"]).toContain("dayjs-0");
+  expect(selection.picks["shared-deps"]).toContain("lodash-3");
+  expect(selection.picks["shared-deps"]).not.toContain("lodash-0");
+  expect(selection.picks["shared-deps"]).toHaveLength(3);
+});
+
+test("shared-deps falls back to a single group when sharedPackages is unset", () => {
+  const pool = [
+    candidate({ name: "shared-0", stratum: "none", features: ["shared-deps"] }),
+    candidate({ name: "shared-1", stratum: "none", features: ["shared-deps"] }),
+  ];
+  const selection = selectCurated([], pool, quotasFor({ "shared-deps": 2 }));
+  expect(selection.picks["shared-deps"]).toHaveLength(2);
+  expect(selection.missing["shared-deps"]).toBe(0);
 });
 
 test("a pick for an exclusive stratum is not picked again for a feature", () => {
@@ -511,12 +635,14 @@ test("feature capacity counts eligible candidates per additive stratum", () => {
     "menu-bar": 0,
     "action-variants": 0,
     "selection-apis": 1,
+    "shared-deps": 0,
   });
   expect(featureCapacity(pool, true)).toEqual({
     grid: 1,
     "menu-bar": 0,
     "action-variants": 0,
     "selection-apis": 0,
+    "shared-deps": 0,
   });
 });
 
@@ -547,6 +673,7 @@ test("strataMembers lists the kept extensions under list-only", () => {
     "menu-bar": [],
     "action-variants": [],
     "selection-apis": [],
+    "shared-deps": [],
   });
 });
 

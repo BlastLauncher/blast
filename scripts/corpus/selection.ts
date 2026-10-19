@@ -13,12 +13,15 @@
 import { createHash } from "node:crypto";
 // The specifier rules live in `imports.ts` so the dependency scan reads the
 // same ones rather than a copy of the regex.
-import { unprovidedImports } from "./imports.ts";
+import { importedPackages, SHARED_DEPENDENCY_PACKAGES, unprovidedImports } from "./imports.ts";
 import type { Source } from "./imports.ts";
 
 /** Runtime dependencies the shared Blast dependency policy can provide. */
 export { PROVIDED_PACKAGES as PROVIDED_DEPENDENCIES } from "../../packages/host/src/dependencies.ts";
-import { PROVIDED_PACKAGES as PROVIDED_DEPENDENCIES } from "../../packages/host/src/dependencies.ts";
+import {
+  dependencyWarnings,
+  PROVIDED_PACKAGES as PROVIDED_DEPENDENCIES,
+} from "../../packages/host/src/dependencies.ts";
 
 /** Hooks exported by the pinned `@raycast/utils` (2.3.2) that mark the utils stratum. */
 export const UTILS_HOOKS = [
@@ -99,6 +102,18 @@ const ACTION_VARIANT_PATTERN =
 const SELECTION_API_PATTERN =
   /\b(?:getSelectedText|getSelectedFinderItems)\s*\(|Form\.FilePicker\b/;
 
+/**
+ * The shared dependency packages (beyond `@raycast/api`, `@raycast/utils` and
+ * `react`) an extension's sources actually import, in `SHARED_DEPENDENCY_PACKAGES`
+ * order. A manifest declaring one of these without importing it (or vice versa,
+ * an unprovided import) is caught by the existing manifest/exclusion checks, so
+ * this only has to read what the sources use.
+ */
+export function sharedPackagesOf(sources: Iterable<Source>): string[] {
+  const used = new Set(importedPackages(sources));
+  return SHARED_DEPENDENCY_PACKAGES.filter((name) => used.has(name));
+}
+
 export type ManifestCommand = { name?: string; mode?: string };
 export type Manifest = {
   commands?: ManifestCommand[];
@@ -177,16 +192,24 @@ export function stratumOf(sources: Source[]): Stratum {
  * (task 0033). They are matched independently of `Stratum`, in the fixed order
  * below, and a candidate can carry several.
  */
-export const FEATURE_STRATA = ["grid", "menu-bar", "action-variants", "selection-apis"] as const;
+export const FEATURE_STRATA = [
+  "grid",
+  "menu-bar",
+  "action-variants",
+  "selection-apis",
+  "shared-deps",
+] as const;
 export type FeatureStratum = (typeof FEATURE_STRATA)[number];
 
 export function featuresOf(sources: Iterable<Source>): FeatureStratum[] {
-  const text = [...sources].map(({ source }) => source).join("\n");
+  const list = [...sources];
+  const text = list.map(({ source }) => source).join("\n");
   const features: FeatureStratum[] = [];
   if (GRID_PATTERN.test(text)) features.push("grid");
   if (MENU_BAR_PATTERN.test(text)) features.push("menu-bar");
   if (ACTION_VARIANT_PATTERN.test(text)) features.push("action-variants");
   if (SELECTION_API_PATTERN.test(text)) features.push("selection-apis");
+  if (sharedPackagesOf(list).length > 0) features.push("shared-deps");
   return features;
 }
 
@@ -198,9 +221,21 @@ export type Candidate = {
   stratum: Stratum;
   /** Additive strata the extension's sources match, in `FEATURE_STRATA` order. */
   features: FeatureStratum[];
+  /** Shared dependency packages the sources import (task 0048); drives the
+   * `shared-deps` pick order. Empty for a candidate that imports none. */
+  sharedPackages: string[];
+  /** Whether the manifest's declared shared-dependency versions intersect the
+   * major Blast actually provides (`dependencyWarnings`); trivially true when
+   * the extension declares none. */
+  sharedMajorMatch: boolean;
 };
 
-export function analyzeSources(name: string, views: string[], sources: Source[]): Candidate {
+export function analyzeSources(
+  name: string,
+  views: string[],
+  sources: Source[],
+  dependencies: Record<string, unknown> = {},
+): Candidate {
   return {
     name,
     viewCommands: views,
@@ -208,6 +243,8 @@ export function analyzeSources(name: string, views: string[], sources: Source[])
     network: usesNetwork(sources),
     stratum: stratumOf(sources),
     features: featuresOf(sources),
+    sharedPackages: sharedPackagesOf(sources),
+    sharedMajorMatch: dependencyWarnings(dependencies).length === 0,
   };
 }
 
@@ -268,9 +305,9 @@ function room(stratum: PickStratum, kept: number, quotas: Quotas): number {
 
 /**
  * The target mix for the curated set: 40 extensions, then about 20 harder ones
- * (task 0033), five per additive stratum. The ten extensions kept from the
- * first curated set are all List-centric, so they already fill the `list-only`
- * quota.
+ * (task 0033, five per additive stratum), then 20 more that import a shared
+ * dependency (task 0048). The ten extensions kept from the first curated set
+ * are all List-centric, so they already fill the `list-only` quota.
  */
 export const DEFAULT_QUOTAS: Quotas = {
   form: 10,
@@ -281,6 +318,20 @@ export const DEFAULT_QUOTAS: Quotas = {
   "menu-bar": 5,
   "action-variants": 5,
   "selection-apis": 5,
+  "shared-deps": 20,
+};
+
+/**
+ * Quotas for a run where `kept` is the full previously curated set, read back
+ * from the currently committed `compat/corpus.json` (task 0048 round 2):
+ * every one of those extensions passes straight through regardless of how the
+ * candidate pool or the provided-dependency list has changed since, so every
+ * stratum but the net-new one is frozen at zero and only `shared-deps` still
+ * draws fresh picks.
+ */
+export const STICKY_QUOTAS: Quotas = {
+  ...(Object.fromEntries(PICK_STRATA.map((stratum) => [stratum, 0])) as Quotas),
+  "shared-deps": DEFAULT_QUOTAS["shared-deps"],
 };
 
 /**
@@ -323,6 +374,62 @@ export type Selection = {
   missing: Record<PickStratum, number>;
 };
 
+/** The plain rank-order pick every stratum but `shared-deps` uses. */
+function pickInRankOrder(
+  order: Candidate[],
+  taken: ReadonlySet<string>,
+  stratum: PickStratum,
+  needed: number,
+): string[] {
+  const picked: string[] = [];
+  for (const candidate of order) {
+    if (picked.length >= needed) break;
+    if (taken.has(candidate.name) || !matchesStratum(candidate, stratum)) continue;
+    picked.push(candidate.name);
+  }
+  return picked;
+}
+
+/**
+ * The `shared-deps` stratum's pick order (task 0048): group eligible
+ * candidates by the first shared package they import (declaration order in
+ * `SHARED_DEPENDENCY_PACKAGES`), prefer a declared major that matches the one
+ * Blast provides within each group (`sharedMajorMatch`), then rank order — and
+ * round-robin across package groups so the quota does not collapse onto
+ * whichever package the most candidates happen to import.
+ */
+function pickSharedDeps(order: Candidate[], taken: ReadonlySet<string>, needed: number): string[] {
+  const groups = new Map<string, Candidate[]>();
+  for (const candidate of order) {
+    if (taken.has(candidate.name) || !matchesStratum(candidate, "shared-deps")) continue;
+    const key = candidate.sharedPackages[0] ?? "";
+    const group = groups.get(key);
+    if (group) group.push(candidate);
+    else groups.set(key, [candidate]);
+  }
+  for (const group of groups.values()) {
+    group.sort(
+      (a, b) =>
+        Number(b.sharedMajorMatch) - Number(a.sharedMajorMatch) ||
+        rank(a.name).localeCompare(rank(b.name)),
+    );
+  }
+  const packages = [...groups.keys()].toSorted();
+  const picked: string[] = [];
+  for (
+    let round = 0;
+    picked.length < needed && packages.some((name) => groups.get(name)!.length > round);
+    round += 1
+  ) {
+    for (const name of packages) {
+      if (picked.length >= needed) break;
+      const candidate = groups.get(name)![round];
+      if (candidate) picked.push(candidate.name);
+    }
+  }
+  return picked;
+}
+
 export function selectCurated(
   kept: string[],
   candidates: Candidate[],
@@ -336,11 +443,13 @@ export function selectCurated(
   const taken = new Set(kept);
   for (const stratum of PICK_STRATA) {
     const needed = room(stratum, kept.length, quotas);
-    for (const candidate of order) {
-      if (picks[stratum].length >= needed) break;
-      if (taken.has(candidate.name) || !matchesStratum(candidate, stratum)) continue;
-      picks[stratum].push(candidate.name);
-      taken.add(candidate.name);
+    const matched =
+      stratum === "shared-deps"
+        ? pickSharedDeps(order, taken, needed)
+        : pickInRankOrder(order, taken, stratum, needed);
+    for (const name of matched) {
+      picks[stratum].push(name);
+      taken.add(name);
     }
     missing[stratum] = Math.max(0, needed - picks[stratum].length);
   }
@@ -417,9 +526,10 @@ export const SELECTION_CRITERIA = {
     "action-variants":
       "ActionPanel.Submenu, or an Action.* variant beyond CopyToClipboard/OpenInBrowser/Paste/Push",
     "selection-apis": "Form.FilePicker, getSelectedText or getSelectedFinderItems",
+    "shared-deps": `imports at least one of ${SHARED_DEPENDENCY_PACKAGES.join(", ")}; picks round-robin across packages (first shared package imported, in that order) and prefer a declared major that matches the version Blast provides`,
   },
   scan: { batch: SCAN_BATCH, cap: SCAN_CAP },
-  note: "the list-only quota is already met by the extensions kept from the first curated set; the first four strata keep the first 40 picks unchanged",
+  note: "every previously curated extension is kept unconditionally (read back from the currently committed compat/corpus.json); only shared-deps (0048 round 2) still draws fresh picks",
 };
 
 export type PinStats = { scanned: number; eligible: number };

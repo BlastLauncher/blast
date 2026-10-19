@@ -138,6 +138,46 @@ test("crashes record the exit and the last error log lines", () => {
   });
 });
 
+test("a DNS or connect failure is a network outcome, not a crash", () => {
+  expect(
+    result({
+      kind: "exit",
+      code: 1,
+      signal: null,
+      error: {
+        message:
+          "FetchError: request to https://api.example.com/ failed, reason: getaddrinfo ENOTFOUND api.example.com",
+      },
+    }),
+  ).toMatchObject({ outcome: "network" });
+  expect(
+    result({
+      kind: "exit",
+      code: 1,
+      signal: null,
+      error: { message: "TypeError: fetch failed" },
+    }),
+  ).toMatchObject({ outcome: "network" });
+  expect(
+    result({
+      kind: "exit",
+      code: 1,
+      signal: null,
+      error: { message: "AxiosError: connect ECONNREFUSED 127.0.0.1:443" },
+    }),
+  ).toMatchObject({ outcome: "network" });
+  // A denial or unsupported-API error still wins over a message that happens
+  // to mention a network-shaped string.
+  expect(
+    result({
+      kind: "exit",
+      code: 1,
+      signal: null,
+      error: { code: "RUNTIME_ERROR", message: "Capability denied: fetch failed" },
+    }),
+  ).toMatchObject({ outcome: "capability-denied" });
+});
+
 test("a runtime UNSUPPORTED error means the mode is unsupported", () => {
   expect(
     result({
@@ -260,6 +300,7 @@ test("buildReport sorts results and extension failures and totals outcomes", () 
     "capability-denied": 0,
     "bundle-failed": 0,
     crashed: 0,
+    network: 0,
     timeout: 2,
     "unsupported-mode": 0,
     "unsupported-api": 0,
@@ -324,7 +365,7 @@ test("the markdown report renders a sorted table, totals and failure details", (
     "`zeta/index`",
   ]);
   expect(markdown).toContain(
-    "3 commands: rendered 1, completed 1, capability-denied 0, bundle-failed 1, crashed 0, timeout 0, unsupported-mode 0, unsupported-api 0",
+    "3 commands: rendered 1, completed 1, capability-denied 0, bundle-failed 1, crashed 0, network 0, timeout 0, unsupported-mode 0, unsupported-api 0",
   );
   expect(markdown).toContain("missing left-pad, right-pad");
   expect(markdown).toContain('command mode "no-view" completed without rendering a scene');

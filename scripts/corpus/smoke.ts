@@ -10,11 +10,22 @@ export const OUTCOMES = [
   "capability-denied",
   "bundle-failed",
   "crashed",
+  "network",
   "timeout",
   "unsupported-mode",
   "unsupported-api",
 ] as const;
 export type Outcome = (typeof OUTCOMES)[number];
+
+/**
+ * Smoke runs offline against a deny-all broker, so a command whose first
+ * render depends on the network fails for a reason that says nothing about
+ * Blast's API coverage. These signatures (Node's `fetch`/`node-fetch`, and
+ * the DNS/connect errors they and `axios` surface) get their own outcome
+ * instead of being counted as a crash (task 0048).
+ */
+const NETWORK_ERROR_PATTERN =
+  /\bENOTFOUND\b|\bECONNREFUSED\b|\bECONNRESET\b|\bEAI_AGAIN\b|\bETIMEDOUT\b|\bgetaddrinfo\b|fetch failed|NetworkError/i;
 
 export type Json = string | number | boolean | null | Json[] | { [key: string]: Json };
 
@@ -231,6 +242,14 @@ export function buildResult(input: BuildInput): CommandResult {
               reason: `command mode "${input.mode}" completed without rendering a scene`,
             });
       }
+      if (NETWORK_ERROR_PATTERN.test(probe.error?.message ?? "")) {
+        return set({
+          outcome: "network",
+          exit: formatExit(probe),
+          error: probe.error?.message,
+          logs: compactLines(input.errorLogs ?? []),
+        });
+      }
       return set({
         outcome: "crashed",
         exit: formatExit(probe),
@@ -275,6 +294,8 @@ function detail(result: CommandResult): string {
       return `${result.missing ? `missing ${result.missing.join(", ")}` : result.error}${warnings}`;
     case "crashed":
       return `${[result.reason, result.exit, result.error].filter(Boolean).join("; ") || "crashed"}${warnings}`;
+    case "network":
+      return `${[result.exit, result.error].filter(Boolean).join("; ") || "network error"}${warnings}`;
     case "unsupported-api":
       return `${result.path}${warnings}`;
     case "capability-denied":
