@@ -1,6 +1,6 @@
 /** @jsxImportSource @opentui/react */
 import { useEffect, useRef, useState } from "react";
-import { useKeyboard } from "@opentui/react";
+import { useKeyboard, usePaste } from "@opentui/react";
 import { TextAttributes } from "@opentui/core";
 import { watch, type FSWatcher } from "node:fs";
 import { readFile } from "node:fs/promises";
@@ -28,6 +28,7 @@ import { LaunchGate, PreferencesView } from "./preferences.tsx";
 import { App } from "./app.tsx";
 import { openCommand } from "./session.ts";
 import { theme } from "./theme.ts";
+import { pastedText } from "./paste.ts";
 
 const WATCH_DEBOUNCE_MS = 100;
 
@@ -242,6 +243,16 @@ export function CommandPicker({
     setValues((current) => ({ ...current, [name]: value }));
     setBlocked(false);
   };
+  usePaste((paste) => {
+    if (launchGate || preferencesView || !form) return;
+    const field = form.arguments[Math.min(fieldIndex, form.arguments.length - 1)];
+    if (field?.type !== "password") return;
+    // Terminals deliver pastes as one bracketed event, not key presses.
+    paste.preventDefault();
+    const text = pastedText(paste);
+    setValues((current) => ({ ...current, [field.name]: (current[field.name] ?? "") + text }));
+    setBlocked(false);
+  });
   useKeyboard((key) => {
     if (key.ctrl && key.name === "c") {
       onQuit();
@@ -268,7 +279,7 @@ export function CommandPicker({
             Math.max(0, Math.min(field.data.length - 1, at + (key.name === "right" ? 1 : -1)))
           ];
         if (next) setValue(field.name, next.value);
-      } else if (field?.type === "password") {
+      } else if (field?.type === "password" && key.name !== "return") {
         if (key.ctrl || key.meta || key.option) return;
         const current = values[field.name] ?? "";
         if (key.name === "backspace") {

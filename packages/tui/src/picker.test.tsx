@@ -68,6 +68,15 @@ const type = async (
   });
 };
 
+const paste = async (
+  terminal: { mockInput: { pasteBracketedText(value: string): Promise<void> } },
+  value: string,
+) => {
+  await act(async () => {
+    await terminal.mockInput.pasteBracketedText(value);
+  });
+};
+
 test("picker lists a manifest's commands with modes and filters by typed text", async () => {
   const dir = await copyFixture("host-session");
   const terminal = await testRender(
@@ -201,6 +210,33 @@ test("a required argument blocks launch until filled, then reaches the command",
     await press(terminal, "ctrl-c");
     await settle(terminal, () => exits.length > 0);
     expect(exits).toEqual([false]);
+  } finally {
+    await act(async () => terminal.dispose());
+    await rm(dataDir, { recursive: true, force: true });
+    await rm(join(dir, ".."), { recursive: true, force: true });
+  }
+});
+
+test("a password argument accepts a bracketed paste without echoing it", async () => {
+  const dir = await copyFixture("launch");
+  const file = join(dir, "package.json");
+  const manifest = JSON.parse(await readFile(file, "utf8"));
+  manifest.commands[0].arguments[0].type = "password";
+  await writeFile(file, JSON.stringify(manifest));
+  const dataDir = await mkdtemp(join(tmpdir(), "blast-tui-picker-paste-"));
+  const terminal = await testRender(<CommandSession extensionDir={dir} dataDir={dataDir} />, {
+    width: 90,
+    height: 20,
+    exitOnCtrlC: false,
+  });
+  try {
+    await settle(terminal, (frame) => frame.includes("› index"));
+    await press(terminal, "enter");
+    await settle(terminal, (frame) => frame.includes("Launch index"));
+    await paste(terminal, "pasted\n");
+    expect(await settle(terminal, (frame) => frame.includes("••••••••"))).not.toContain("pasted");
+    await press(terminal, "enter");
+    await settle(terminal, (current) => current.includes("launch pasted one"));
   } finally {
     await act(async () => terminal.dispose());
     await rm(dataDir, { recursive: true, force: true });
@@ -516,7 +552,10 @@ test("manifest with missing required preference shows Set up launch gate with on
     // Launch gate does not show field description
     expect(gateFrame).not.toContain("Your API token");
 
-    await type(terminal, "my-secret-token");
+    // Typed and pasted (bracketed, trailing newline dropped) secrets combine.
+    await type(terminal, "my-secret");
+    await paste(terminal, "-token\n");
+    expect(await settle(terminal, (f) => f.includes("••••••••"))).not.toContain("token");
     await press(terminal, "enter");
     // Launches and runtime receives both values
     await settle(

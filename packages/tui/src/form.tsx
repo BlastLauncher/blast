@@ -1,9 +1,10 @@
 /** @jsxImportSource @opentui/react */
 import { useEffect, useRef, useState } from "react";
-import { useKeyboard } from "@opentui/react";
+import { useKeyboard, usePaste } from "@opentui/react";
 import type { ScrollBoxRenderable, TextareaRenderable } from "@opentui/core";
 import type { JsonValue, SceneNode } from "@blastlauncher/protocol";
 import { event, text } from "./view.ts";
+import { pastedText } from "./paste.ts";
 import { formFields, formOptions, nextField, parseDate } from "./form-view.ts";
 
 type Send = (value: ReturnType<typeof event>) => void;
@@ -112,6 +113,14 @@ export function FormView({
       key.preventDefault();
       send(event(field, "onChange", [secret.current.value]));
     }
+  });
+  usePaste((paste) => {
+    if (!enabled || field?.type !== "Form.PasswordField") return;
+    // Terminals deliver pastes as one bracketed event, not key presses.
+    if (secret.current.id !== field.id) secret.current = { id: field.id, value: "" };
+    paste.preventDefault();
+    secret.current.value += pastedText(paste);
+    send(event(field, "onChange", [secret.current.value]));
   });
   return (
     <scrollbox ref={scroll} flexGrow={1}>

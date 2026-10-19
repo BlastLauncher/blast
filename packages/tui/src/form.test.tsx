@@ -140,6 +140,14 @@ for (const command of ["index", "secret"]) {
           });
         }
         await terminal.waitForFrame((frame) => frame.includes("••••••••"));
+        // A bracketed paste appends to the secret without echoing it.
+        await act(async () => {
+          await terminal.mockInput.pasteBracketedText("-pasted-part\n");
+        });
+        await terminal.waitForFrame((frame) => {
+          expect(frame).not.toContain("pasted-part");
+          return frame.includes("••••••••");
+        });
         expect(JSON.stringify(opened.session.latestScene)).not.toContain(secret);
         await key("k", true);
         await terminal.waitForFrame((frame) => frame.includes("Filter actions"));

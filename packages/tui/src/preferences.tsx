@@ -1,9 +1,10 @@
 /** @jsxImportSource @opentui/react */
 import { useState } from "react";
-import { useKeyboard } from "@opentui/react";
+import { useKeyboard, usePaste } from "@opentui/react";
 import { TextAttributes } from "@opentui/core";
 import { type Preference, type StorageItems } from "@blastlauncher/host";
 import { theme } from "./theme.ts";
+import { pastedText } from "./paste.ts";
 
 function usePreferenceFormState({
   fields,
@@ -84,6 +85,15 @@ function usePreferenceFormState({
         setValues((v) => ({ ...v, [field.name]: String(v[field.name] ?? "") + typed }));
       }
     }
+  });
+
+  usePaste((paste) => {
+    const field = fields[index];
+    if (saving || field?.type !== "password") return;
+    // Terminals deliver pastes as one bracketed event, not key presses.
+    paste.preventDefault();
+    const text = pastedText(paste);
+    setValues((v) => ({ ...v, [field.name]: String(v[field.name] ?? "") + text }));
   });
 
   return { values, index, error, saving, change };
