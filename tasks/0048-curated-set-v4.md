@@ -51,7 +51,7 @@ they fare, so real breakage from shared majors or missing APIs shows up.
 ## Handoff
 
 ```
-Branch/commit: t3/curated-set-v4-sticky-picks @ (see git log; round 2 fixup)
+Branch/commit: t3/curated-set-v4-sticky-picks @ 3eb298c
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 61.8s
 Done (round 2 — review finding: prior picks were not sticky):
 - Cherry-picked round 1's two commits (785468c, 04f4948 — the shared-deps
