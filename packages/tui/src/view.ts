@@ -1,18 +1,12 @@
-import type { HandlerRef, JsonValue, SceneMessage, SceneNode } from "@blastlauncher/protocol";
+import type { SceneMessage, SceneNode } from "@blastlauncher/protocol";
+import { isFiltering, matchesQuery, slot, text } from "./nodes.ts";
+import { gridLayout } from "./grid.ts";
+import { searchBarDropdown } from "./dropdown.ts";
+
+export { event, handler, isFiltering, matchesQuery, selectionId, slot, text } from "./nodes.ts";
 
 export type UIState = { searchText: string; selectedId: string | null };
 export type Row = { node: SceneNode; text: string; item: boolean };
-export function handler(value: unknown): value is HandlerRef {
-  return value !== null && typeof value === "object" && "$handler" in value;
-}
-export function text(value: unknown): string {
-  if (typeof value === "string" || typeof value === "number") return String(value);
-  if (value && typeof value === "object" && "value" in value) return text(value.value);
-  return "";
-}
-export function slot(node: SceneNode, name: string): SceneNode | undefined {
-  return node.children.find((child) => child.type === "Slot" && child.props.name === name);
-}
 export function firstAction(node: SceneNode | undefined): SceneNode | undefined {
   if (!node) return;
   if (node.type === "Action" || node.type.startsWith("Action.")) return node;
@@ -47,17 +41,12 @@ export function sceneToView(scene: SceneMessage | undefined, state: UIState) {
   const list = active(scene?.root);
   const rows: Row[] = [];
   const query = state.searchText.toLowerCase();
-  const filtering = list?.props.filtering !== false && !handler(list?.props.onSearchTextChange);
+  const filtering = isFiltering(list);
+  const grid = list?.type === "Grid" ? gridLayout(list, query, filtering) : undefined;
   function visit(node: SceneNode) {
     if (node.type === "Slot") return;
     if (node.type === "List.Item") {
-      const keywords = Array.isArray(node.props.keywords) ? node.props.keywords.map(text) : [];
-      if (
-        !filtering ||
-        [text(node.props.title), text(node.props.subtitle), ...keywords].some((value) =>
-          value.toLowerCase().includes(query),
-        )
-      )
+      if (!filtering || matchesQuery(node, query))
         rows.push({ node, text: itemText(node), item: true });
     } else if (node.type === "List.Section") {
       const start = rows.length;
@@ -73,14 +62,18 @@ export function sceneToView(scene: SceneMessage | undefined, state: UIState) {
     }
   }
   if (list?.type === "List") list.children.forEach(visit);
-  else if (list && list.type !== "Detail")
+  else if (!grid && list && list.type !== "Detail")
     rows.push({ node: list, text: `[Unsupported: ${list.type}]`, item: false });
-  const items = rows.filter((row) => row.item).map((row) => row.node);
+  const items = grid ? grid.cells : rows.filter((row) => row.item).map((row) => row.node);
   const desired = list?.props.selectedItemId ?? state.selectedId;
   const selected = items.find((item) => (item.props.id ?? item.id) === desired) ?? items[0];
-  const empty = list?.children.find((node) => node.type === "List.EmptyView");
+  const empty = list?.children.find(
+    (node) => node.type === "List.EmptyView" || node.type === "Grid.EmptyView",
+  );
   return {
     list,
+    grid,
+    accessory: searchBarDropdown(list),
     navigation: scene?.root?.type === "Navigation" ? scene.root : undefined,
     actions:
       (selected ? slot(selected, "actions") : undefined) ??
@@ -106,14 +99,6 @@ export function sceneToView(scene: SceneMessage | undefined, state: UIState) {
       firstAction(list ? slot(list, "actions") : undefined),
   };
 }
-export function selectionId(node: SceneNode | undefined): string | null {
-  return node ? text(node.props.id ?? node.id) : null;
-}
-export function event(node: SceneNode | undefined, name: string, args: JsonValue[] = []) {
-  const ref = node?.props[name];
-  return node && handler(ref) ? { node: node.id, handler: ref.$handler, args } : undefined;
-}
-
 export function actionRows(node: SceneNode | undefined, query = ""): Row[] {
   if (!node) return [];
   if (

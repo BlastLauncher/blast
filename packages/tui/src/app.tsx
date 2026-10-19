@@ -13,6 +13,10 @@ import {
   actionRows,
   matchesShortcut,
 } from "./view.ts";
+import { gridMove } from "./grid.ts";
+import { GridView } from "./grid.tsx";
+import { dropdownLabel, dropdownOptions, filterOptions } from "./dropdown.ts";
+import { DropdownPanel } from "./dropdown.tsx";
 
 export function App({ session, onQuit }: { session: Session; onQuit: () => void }) {
   const [scene, setScene] = useState<SceneMessage | undefined>(session.latestScene);
@@ -23,12 +27,23 @@ export function App({ session, onQuit }: { session: Session; onQuit: () => void 
   const [searchText, setSearch] = useState("");
   const currentSearch = useRef("");
   const [selectedId, setSelected] = useState<string | null>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [dropdownQuery, setDropdownQuery] = useState("");
+  const [dropdownIndex, setDropdownIndex] = useState(0);
   const scroll = useRef<ScrollBoxRenderable>(null);
   const actionScroll = useRef<ScrollBoxRenderable>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const pendingSearch = useRef<string | undefined>(undefined);
   const previous = useRef<string | null | undefined>(undefined);
   const view = sceneToView(scene, { searchText, selectedId });
+  const dropdown = view.accessory;
+  const dropdownChoices = filterOptions(dropdownOptions(dropdown), dropdownQuery);
+  const dropdownChoice = dropdownChoices[Math.min(dropdownIndex, dropdownChoices.length - 1)];
+  const closeDropdown = () => {
+    setDropdownOpen(false);
+    setDropdownQuery("");
+    setDropdownIndex(0);
+  };
   let panelNode = view.actions;
   for (const id of panel ?? [])
     panelNode = (
@@ -72,6 +87,9 @@ export function App({ session, onQuit }: { session: Session; onQuit: () => void 
   useEffect(() => {
     setPanel(null);
     setSelected(null);
+    setDropdownOpen(false);
+    setDropdownQuery("");
+    setDropdownIndex(0);
     const initial = text(view.list?.props.searchText);
     currentSearch.current = initial;
     pendingSearch.current = undefined;
@@ -145,6 +163,25 @@ export function App({ session, onQuit }: { session: Session; onQuit: () => void 
       run(alert.children.find((node) => node.props.name === name));
       return;
     }
+    if (dropdownOpen) {
+      if (key.name === "escape") {
+        key.preventDefault();
+        closeDropdown();
+      } else if (key.name === "up" || key.name === "down") {
+        key.preventDefault();
+        setDropdownIndex(
+          Math.max(
+            0,
+            Math.min(dropdownChoices.length - 1, dropdownIndex + (key.name === "down" ? 1 : -1)),
+          ),
+        );
+      } else if (key.name === "return" && dropdownChoice) {
+        key.preventDefault();
+        send(event(dropdown, "onChange", [dropdownChoice.value]));
+        closeDropdown();
+      }
+      return;
+    }
     if (panel !== null) {
       if (key.name === "escape") {
         key.preventDefault();
@@ -180,6 +217,13 @@ export function App({ session, onQuit }: { session: Session; onQuit: () => void 
       setActionIndex(0);
       return;
     }
+    if (panel === null && key.ctrl && key.name === "p") {
+      key.preventDefault();
+      setDropdownOpen(true);
+      setDropdownQuery("");
+      setDropdownIndex(0);
+      return;
+    }
     if (key.name === "escape") {
       if (handler(view.navigation?.props.pop)) send(event(view.navigation, "pop"));
       else onQuit();
@@ -208,14 +252,20 @@ export function App({ session, onQuit }: { session: Session; onQuit: () => void 
       } else run(shortcut.node);
       return;
     }
-    if (key.name === "up" || key.name === "down") {
+    if (
+      key.name === "up" ||
+      key.name === "down" ||
+      (view.grid && (key.name === "left" || key.name === "right"))
+    ) {
       key.preventDefault();
       const index = view.items.findIndex((item) => item.id === view.selected?.id);
-      const next =
-        view.items[
-          Math.max(0, Math.min(view.items.length - 1, index + (key.name === "down" ? 1 : -1)))
-        ];
-      const nextId = selectionId(next);
+      const nextId = view.grid
+        ? gridMove(view.grid.rows, id, key.name as "up" | "down" | "left" | "right")
+        : selectionId(
+            view.items[
+              Math.max(0, Math.min(view.items.length - 1, index + (key.name === "down" ? 1 : -1)))
+            ],
+          );
       if (nextId !== id) {
         previous.current = nextId;
         send(event(view.list, "onSelectionChange", [nextId]));
@@ -231,31 +281,45 @@ export function App({ session, onQuit }: { session: Session; onQuit: () => void 
         {view.title}
         {view.loading ? "  Loading…" : ""}
       </text>
-      <input
-        focused={panel === null && !alert}
-        value={searchText}
-        placeholder={text(view.list?.props.searchBarPlaceholder) || "Search…"}
-        onInput={search}
-      />
+      <box flexDirection="row" flexShrink={0}>
+        <input
+          flexGrow={1}
+          focused={panel === null && !alert && !dropdownOpen}
+          value={searchText}
+          placeholder={text(view.list?.props.searchBarPlaceholder) || "Search…"}
+          onInput={search}
+        />
+        {dropdown && (
+          <text flexShrink={0}>{` ▾ ${dropdownLabel(dropdown, dropdownOptions(dropdown))}`}</text>
+        )}
+      </box>
       <box flexDirection="row" flexGrow={1}>
         <scrollbox
           ref={scroll}
           flexGrow={1}
           width={view.list?.type === "Detail" ? 0 : view.detail ? "50%" : "100%"}
         >
-          {view.rows.map((row) => (
-            <text
-              key={row.node.id}
-              id={row.node.id}
-              height={1}
-              flexShrink={0}
-              {...(row.node.id === view.selected?.id ? { bg: "#234567" } : {})}
-            >
-              {row.item ? (row.node.id === view.selected?.id ? "› " : "  ") : ""}
-              {row.text}
-            </text>
-          ))}
-          {view.list?.type !== "Detail" && view.rows.length === 0 && <text>{view.emptyText}</text>}
+          {view.grid ? (
+            <GridView layout={view.grid} selectedId={id} emptyText={view.emptyText} />
+          ) : (
+            <>
+              {view.rows.map((row) => (
+                <text
+                  key={row.node.id}
+                  id={row.node.id}
+                  height={1}
+                  flexShrink={0}
+                  {...(row.node.id === view.selected?.id ? { bg: "#234567" } : {})}
+                >
+                  {row.item ? (row.node.id === view.selected?.id ? "› " : "  ") : ""}
+                  {row.text}
+                </text>
+              ))}
+              {view.list?.type !== "Detail" && view.rows.length === 0 && (
+                <text>{view.emptyText}</text>
+              )}
+            </>
+          )}
         </scrollbox>
         {view.detail && (
           <scrollbox flexGrow={1} width={view.list?.type === "Detail" ? "100%" : "50%"}>
@@ -292,6 +356,17 @@ export function App({ session, onQuit }: { session: Session; onQuit: () => void 
             ))}
           </scrollbox>
         </box>
+      )}
+      {dropdownOpen && dropdown && (
+        <DropdownPanel
+          dropdown={dropdown}
+          query={dropdownQuery}
+          index={dropdownIndex}
+          onQuery={(value) => {
+            setDropdownQuery(value);
+            setDropdownIndex(0);
+          }}
+        />
       )}
       {toast && (
         <text height={1} flexShrink={0}>
