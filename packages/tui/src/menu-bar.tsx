@@ -2,6 +2,7 @@
 import type { SceneNode } from "@blastlauncher/protocol";
 import { handler, text } from "./nodes.ts";
 import { shortcutLabel } from "./view.ts";
+import { theme } from "./theme.ts";
 
 // `MenuBarExtra` as a navigable menu. Sections are headers, Items run their
 // `onAction` with the `left-click` event the runtime dispatches, and Submenus
@@ -65,14 +66,18 @@ export function MenuBarView({ rows, selectedId }: { rows: MenuRow[]; selectedId:
           id={row.node.id}
           height={1}
           flexShrink={0}
-          {...(row.node.id === selectedId ? { bg: "#234567" } : {})}
-          {...(row.item && row.disabled ? { fg: "#777777" } : {})}
+          {...(row.node.id === selectedId ? { bg: theme.colors.selectionBg } : {})}
+          {...(row.item && row.disabled ? { fg: theme.colors.textMuted } : {})}
         >
           {row.item ? (row.node.id === selectedId ? "› " : "  ") : ""}
           {row.text}
         </text>
       ))}
-      {rows.length === 0 && <text flexShrink={0}>No menu items</text>}
+      {rows.length === 0 && (
+        <text flexShrink={0} fg={theme.colors.textMuted}>
+          No menu items
+        </text>
+      )}
     </>
   );
 }

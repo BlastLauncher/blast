@@ -1,7 +1,7 @@
 /** @jsxImportSource @opentui/react */
 import { useEffect, useRef, useState } from "react";
 import { useKeyboard } from "@opentui/react";
-import type { ScrollBoxRenderable } from "@opentui/core";
+import { TextAttributes, type ScrollBoxRenderable } from "@opentui/core";
 import type { Session } from "@blastlauncher/host";
 import type { SceneMessage, SceneNode } from "@blastlauncher/protocol";
 import {
@@ -20,8 +20,8 @@ import { GridView } from "./grid.tsx";
 import { dropdownLabel, dropdownOptions, filterOptions } from "./dropdown.ts";
 import { DropdownPanel } from "./dropdown.tsx";
 import { menuRows, MenuBarView } from "./menu-bar.tsx";
-
 import { FormView } from "./form.tsx";
+import { theme } from "./theme.ts";
 
 export function App({
   session,
@@ -398,26 +398,64 @@ export function App({
     if (key.name === "return")
       send(event(view.primary, handler(view.primary?.props.onAction) ? "onAction" : "onSubmit"));
   });
+
+  let toastColor: string = theme.colors.text;
+  const toastParts = toast
+    ? [
+        text(toast.props.style),
+        text(toast.props.title),
+        text(toast.props.message),
+        ...toast.children.map(
+          (node, index) => `Ctrl-${index === 0 ? "T" : "Y"} ${text(node.props.title)}`,
+        ),
+      ].filter(Boolean)
+    : [];
+  if (toast) {
+    const style = text(toast.props.style);
+    if (style === "failure") toastColor = theme.colors.danger;
+    else if (style === "success") toastColor = theme.colors.success;
+    else if (style === "animated") toastColor = theme.colors.accent;
+  }
+  const hudText = hudVisible && hud ? text(hud.props.title) : "";
+  const leftFooter = [
+    toastParts.join(" · "),
+    hudText,
+    !toastParts.length && !hudText && view.loading ? "Loading…" : "",
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  const primaryTitle =
+    text(view.primary?.props.title) || (view.list?.type === "Form" ? "Submit" : "Run");
+  const rightFooter = `${primaryTitle} ↵  Actions ^K`;
+
   return (
-    <box flexDirection="column" height="100%" padding={1}>
-      <text height={1} flexShrink={0}>
-        {view.title}
-        {view.loading ? "  Loading…" : ""}
-      </text>
+    <box
+      flexDirection="column"
+      height="100%"
+      borderStyle="rounded"
+      borderColor={theme.colors.border}
+      backgroundColor={theme.colors.background}
+      title={view.title}
+    >
       {view.list?.type === "Form" ? (
-        <FormView
-          key={view.list.id}
-          form={view.list}
-          enabled={panel === null && !alert}
-          send={send}
-          submit={() =>
-            send(
-              event(view.primary, handler(view.primary?.props.onAction) ? "onAction" : "onSubmit"),
-            )
-          }
-        />
+        <box flexDirection="column" flexGrow={1} paddingLeft={1} paddingRight={1}>
+          <FormView
+            key={view.list.id}
+            form={view.list}
+            enabled={panel === null && !alert}
+            send={send}
+            submit={() =>
+              send(
+                event(
+                  view.primary,
+                  handler(view.primary?.props.onAction) ? "onAction" : "onSubmit",
+                ),
+              )
+            }
+          />
+        </box>
       ) : isMenu ? (
-        <box flexDirection="row" flexGrow={1}>
+        <box flexDirection="row" flexGrow={1} paddingLeft={1} paddingRight={1}>
           <scrollbox ref={scroll} flexGrow={1}>
             <MenuBarView
               rows={menu}
@@ -427,21 +465,35 @@ export function App({
         </box>
       ) : (
         <>
-          <box flexDirection="row" flexShrink={0}>
+          <box flexDirection="row" flexShrink={0} paddingLeft={1} paddingRight={1}>
+            <text flexShrink={0} fg={theme.colors.accent}>
+              {`${theme.glyphs.search} `}
+            </text>
             <input
               flexGrow={1}
               focused={panel === null && !alert && !dropdownOpen}
               value={searchText}
               placeholder={text(view.list?.props.searchBarPlaceholder) || "Search…"}
+              placeholderColor={theme.colors.textMuted}
+              textColor={theme.colors.text}
               onInput={search}
             />
             {dropdown && (
               <text
                 flexShrink={0}
-              >{` ▾ ${dropdownLabel(dropdown, dropdownOptions(dropdown))}`}</text>
+                wrapMode="none"
+                fg={theme.colors.textMuted}
+              >{`▾ ${dropdownLabel(dropdown, dropdownOptions(dropdown))}`}</text>
             )}
           </box>
-          <box flexDirection="row" flexGrow={1}>
+          <box
+            height={1}
+            flexShrink={0}
+            border={["top"]}
+            borderStyle="single"
+            borderColor={theme.colors.border}
+          />
+          <box flexDirection="row" flexGrow={1} paddingLeft={1} paddingRight={1}>
             <scrollbox
               ref={scroll}
               flexGrow={1}
@@ -451,27 +503,82 @@ export function App({
                 <GridView layout={view.grid} selectedId={id} emptyText={view.emptyText} />
               ) : (
                 <>
-                  {view.rows.map((row) => (
-                    <text
-                      key={row.node.id}
-                      id={row.node.id}
-                      height={1}
-                      flexShrink={0}
-                      {...(row.node.id === view.selected?.id ? { bg: "#234567" } : {})}
-                    >
-                      {row.item ? (row.node.id === view.selected?.id ? "› " : "  ") : ""}
-                      {row.text}
-                    </text>
-                  ))}
+                  {view.rows.map((row) => {
+                    const isSelected = row.node.id === view.selected?.id;
+                    if (!row.item) {
+                      return (
+                        <box
+                          key={row.node.id}
+                          id={row.node.id}
+                          flexDirection="row"
+                          justifyContent="space-between"
+                          height={1}
+                          flexShrink={0}
+                          width="100%"
+                        >
+                          <text
+                            flexGrow={1}
+                            flexShrink={1}
+                            wrapMode="none"
+                            fg={theme.colors.textMuted}
+                            attributes={TextAttributes.BOLD}
+                          >
+                            {row.title ?? row.text}
+                          </text>
+                          {row.count !== undefined ? (
+                            <text flexShrink={0} wrapMode="none" fg={theme.colors.textMuted}>
+                              {row.count}
+                            </text>
+                          ) : null}
+                        </box>
+                      );
+                    }
+                    return (
+                      <box
+                        key={row.node.id}
+                        id={row.node.id}
+                        flexDirection="row"
+                        justifyContent="space-between"
+                        width="100%"
+                        height={1}
+                        flexShrink={0}
+                        {...(isSelected ? { backgroundColor: theme.colors.selectionBg } : {})}
+                      >
+                        <text
+                          flexGrow={1}
+                          flexShrink={1}
+                          wrapMode="none"
+                          fg={isSelected ? theme.colors.selectionFg : theme.colors.text}
+                        >
+                          {isSelected ? "› " : "  "}
+                          {row.title ?? row.text}
+                          {row.subtitle ? (
+                            <span
+                              fg={isSelected ? theme.colors.selectionFg : theme.colors.textMuted}
+                            >{`  ${row.subtitle}`}</span>
+                          ) : null}
+                        </text>
+                        {row.accessories ? (
+                          <text
+                            flexShrink={0}
+                            wrapMode="none"
+                            fg={isSelected ? theme.colors.selectionFg : theme.colors.textMuted}
+                          >
+                            {row.accessories}
+                          </text>
+                        ) : null}
+                      </box>
+                    );
+                  })}
                   {view.list?.type !== "Detail" && view.rows.length === 0 && (
-                    <text>{view.emptyText}</text>
+                    <text fg={theme.colors.textMuted}>{view.emptyText}</text>
                   )}
                 </>
               )}
             </scrollbox>
             {view.detail && (
               <scrollbox flexGrow={1} width={view.list?.type === "Detail" ? "100%" : "50%"}>
-                <text height={view.detail.split("\n").length} flexShrink={0}>
+                <text height={view.detail.split("\n").length} flexShrink={0} fg={theme.colors.text}>
                   {view.detail}
                 </text>
               </scrollbox>
@@ -481,8 +588,15 @@ export function App({
       )}
       {panel !== null && (
         <box
+          position="absolute"
+          bottom={1}
+          right={1}
+          zIndex={10}
+          width={36}
           flexDirection="column"
-          border
+          borderStyle="rounded"
+          borderColor={theme.colors.border}
+          backgroundColor={theme.colors.panel}
           flexShrink={0}
           height={Math.min(panelRows.length + 3, 14)}
           title={text(panelNode?.props.title) || "Actions"}
@@ -491,6 +605,10 @@ export function App({
             focused={!alert}
             value={query}
             placeholder="Filter actions…"
+            placeholderColor={theme.colors.textMuted}
+            textColor={theme.colors.text}
+            backgroundColor={theme.colors.panel}
+            focusedBackgroundColor={theme.colors.panel}
             onInput={(value) => {
               setQuery(value);
               setActionIndex(0);
@@ -498,12 +616,50 @@ export function App({
             }}
           />
           <scrollbox ref={actionScroll} flexGrow={1}>
-            {panelRows.map((row) => (
-              <text id={row.node.id} height={1} flexShrink={0} key={row.node.id}>
-                {row.node.id === chosen?.id ? "› " : "  "}
-                {row.text}
-              </text>
-            ))}
+            {panelRows.map((row) => {
+              const isChosen = row.node.id === chosen?.id;
+              if (!row.item) {
+                return (
+                  <box key={row.node.id} id={row.node.id} height={1} flexShrink={0} width="100%">
+                    <text flexGrow={1} fg={theme.colors.textMuted} attributes={TextAttributes.BOLD}>
+                      {row.title ?? row.text}
+                    </text>
+                  </box>
+                );
+              }
+              const itemIndex = panelItems.findIndex((it) => it.node.id === row.node.id);
+              const shortcut = row.shortcut || (itemIndex === 0 ? theme.glyphs.enter : "");
+              return (
+                <box
+                  key={row.node.id}
+                  id={row.node.id}
+                  flexDirection="row"
+                  width="100%"
+                  height={1}
+                  flexShrink={0}
+                  {...(isChosen ? { backgroundColor: theme.colors.selectionBg } : {})}
+                >
+                  <text
+                    flexGrow={1}
+                    flexShrink={1}
+                    wrapMode="none"
+                    fg={isChosen ? theme.colors.selectionFg : theme.colors.text}
+                  >
+                    {isChosen ? "› " : "  "}
+                    {row.title ?? row.text}
+                  </text>
+                  {shortcut ? (
+                    <text
+                      flexShrink={0}
+                      wrapMode="none"
+                      fg={isChosen ? theme.colors.selectionFg : theme.colors.textMuted}
+                    >
+                      {`  ${shortcut}`}
+                    </text>
+                  ) : null}
+                </box>
+              );
+            })}
           </scrollbox>
         </box>
       )}
@@ -518,41 +674,46 @@ export function App({
           }}
         />
       )}
-      {toast && (
-        <text height={1} flexShrink={0}>
-          {[
-            text(toast.props.style),
-            text(toast.props.title),
-            text(toast.props.message),
-            ...toast.children.map(
-              (node, index) => `Ctrl-${index === 0 ? "T" : "Y"} ${text(node.props.title)}`,
-            ),
-          ]
-            .filter(Boolean)
-            .join(" · ")}
-        </text>
-      )}
-      {hudVisible && hud && (
-        <text height={1} flexShrink={0}>
-          {text(hud.props.title)}
-        </text>
-      )}
       {failure && (
-        <box border flexDirection="column" height={4} flexShrink={0} title="Error">
-          <text height={1} flexShrink={0}>
+        <box
+          position="absolute"
+          top="25%"
+          left="15%"
+          width="70%"
+          zIndex={50}
+          borderStyle="rounded"
+          borderColor={theme.colors.danger}
+          backgroundColor={theme.colors.panel}
+          flexDirection="column"
+          padding={1}
+          title="Error"
+        >
+          <text fg={theme.colors.text} height={1} flexShrink={0}>
             {failure}
           </text>
-          <text height={1} flexShrink={0}>
+          <text fg={theme.colors.textMuted} height={1} flexShrink={0}>
             Esc Quit
           </text>
         </box>
       )}
       {alert && (
-        <box border flexDirection="column" height={4} flexShrink={0} title="Alert">
-          <text height={1} flexShrink={0}>
+        <box
+          position="absolute"
+          top="25%"
+          left="15%"
+          width="70%"
+          zIndex={50}
+          borderStyle="rounded"
+          borderColor={theme.colors.warning}
+          backgroundColor={theme.colors.panel}
+          flexDirection="column"
+          padding={1}
+          title="Alert"
+        >
+          <text fg={theme.colors.text} height={1} flexShrink={0}>
             {text(alert.props.title)} {text(alert.props.message)}
           </text>
-          <text height={1} flexShrink={0}>
+          <text fg={theme.colors.textMuted} height={1} flexShrink={0}>
             {alert.children
               .map(
                 (node) =>
@@ -562,12 +723,22 @@ export function App({
           </text>
         </box>
       )}
-      <text height={1} flexShrink={0}>
-        {view.list?.type === "Form"
-          ? "Tab/Shift-Tab Fields · ←→ Options · Ctrl-S Submit · "
-          : "↑↓ Select · "}
-        Enter {text(view.primary?.props.title) || "Run"} · Ctrl-K Actions · Esc Back / Quit
-      </text>
+      <box
+        height={1}
+        flexShrink={0}
+        backgroundColor={theme.colors.panel}
+        flexDirection="row"
+        justifyContent="space-between"
+        paddingLeft={1}
+        paddingRight={1}
+      >
+        <text flexGrow={1} flexShrink={1} wrapMode="none" fg={toastColor}>
+          {leftFooter}
+        </text>
+        <text flexShrink={0} wrapMode="none" fg={theme.colors.textMuted}>
+          {rightFooter}
+        </text>
+      </box>
     </box>
   );
 }

@@ -1,7 +1,7 @@
 ---
 id: "0062"
 title: TUI looks like a command palette (Raycast-style theme and layout)
-status: doing
+status: review
 milestone: M4
 depends: ["0061"]
 ---
@@ -60,24 +60,18 @@ styling instead of plain text lines.
 
 ## Acceptance
 
-- [ ] `packages/tui/src/theme.ts` exists. `rg -n '#[0-9a-fA-F]{6}'
-      packages/tui/src --glob '!theme.ts'` finds nothing outside tests.
-- [ ] New test (`packages/tui/src/look.test.tsx`) renders a fixture List
-      at 80×24 and at 60×20 and asserts:
+- [x] `packages/tui/src/theme.ts` exists. `rg -n '#[0-9a-fA-F]{6}' packages/tui/src --glob '!theme.ts'` finds nothing outside tests.
+- [x] New test (`packages/tui/src/look.test.tsx`) renders a fixture List at 80×24 and at 60×20 and asserts:
   - the frame's corner glyph `╭`;
   - the selected row's title and right-aligned accessory are on the same line;
   - the footer contains `↵` and `^K`;
   - no line is wider than the terminal.
-- [ ] Opening the action panel shows a bordered box whose rows include the
-      shortcut text right-aligned (test).
-- [ ] Toast with `Toast.Style.Failure` renders in the footer (test may assert
-      text only).
-- [ ] All existing tui tests pass, with changed expectations listed in Handoff.
-- [ ] `bun run tui fixtures/...` manual check is not required. Instead, paste
-      one 80×24 captured frame of the picker and one of a List command into
-      Handoff.
-- [ ] `docs/tui.md` gets a short "Look" paragraph.
-- [ ] `bun run verify` passes.
+- [x] Opening the action panel shows a bordered box whose rows include the shortcut text right-aligned (test).
+- [x] Toast with `Toast.Style.Failure` renders in the footer (test may assert text only).
+- [x] All existing tui tests pass, with changed expectations listed in Handoff.
+- [x] `bun run tui fixtures/...` manual check is not required. Instead, paste one 80×24 captured frame of the picker and one of a List command into Handoff.
+- [x] `docs/tui.md` gets a short "Look" paragraph.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -86,11 +80,72 @@ styling instead of plain text lines.
 
 ## Handoff
 
-Filled in by the worker when finishing:
-
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/tui-command-palette-look
+Verify: bun run verify passes (562 tests across 80 files, all 6 checks OK).
 Done:
-Not done / risks:
+- Created packages/tui/src/theme.ts with Catppuccin Mocha semantic palette (bg #181825, panel #1e1e2e, border #313244, accent #89b4fa, selectionBg #313244, text #cdd6f4, textMuted #6c7086, success #a6e3a1, warning #f9e2af, danger #f38ba8) and glyphs (╭, ╰, ╮, ╯, ─, │, ⌕, ›, ↵, ◇). No hex colors outside theme.ts (except in grid test data).
+- Enriched Row in packages/tui/src/view.ts with title, subtitle, accessories, count, icon, shortcut fields.
+- Re-architected command views in packages/tui/src/app.tsx to command palette layout: rounded outer border with title, ⌕ search bar with horizontal rule separator, full-width row selections with › and right-aligned accessories, right-anchored floating action panel with right-aligned shortcuts (↵ by default for primary action), centered error and alert dialogs, and panel-bg footer.
+- Updated packages/tui/src/picker.tsx, packages/tui/src/dropdown.tsx, packages/tui/src/grid.tsx, packages/tui/src/preferences.tsx, and packages/tui/src/menu-bar.tsx to use theme.
+- Added packages/tui/src/look.test.tsx verifying 80×24 layout, 60×20 wrapping avoidance, action panel shortcuts, and failure toast footer styling.
+- Documented "Look" in docs/tui.md, maintaining the ≤ 120 line limit (check:workflow passes).
+- Test assertion updates:
+  - packages/tui/src/dropdown.test.tsx: Frame corner assertion updated from ┌─Drink to ╭─Drink.
+  - packages/tui/src/grid.test.tsx: Frame corner assertion updated from ┌─Drink to ╭─Drink, and footer expectation updated from "Enter Delete beer" to "Delete beer ↵".
+Not done / risks: None.
+
+Captured 80×24 Frames:
+
+Picker (fixtures/extensions/form):
+╭─form─────────────────────────────────────────────────────────────────────────╮
+│ ⌕ Search commands…                                                           │
+│──────────────────────────────────────────────────────────────────────────────│
+│ › index  [view]                                                              │
+│   persist  [view]                                                            │
+│   secret  [view]                                                             │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│ ↑↓ Select · Enter Launch · Type to Filter · Ctrl-E Preferences · Esc Quit    │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+List (fixtures/extensions/list-extras):
+╭─list-extras──────────────────────────────────────────────────────────────────╮
+│ ⌕ Search…                                                            ▾ water │
+│──────────────────────────────────────────────────────────────────────────────│
+│ › beer  Germany                            Germany  1970-01-01T00:00:00.000Z │
+│   wine  France                              France  1970-01-01T00:00:00.000Z │
+│   water  Norway                             Norway  1970-01-01T00:00:00.000Z │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                    Delete beer ↵  Actions ^K │
+╰──────────────────────────────────────────────────────────────────────────────╯
 ```

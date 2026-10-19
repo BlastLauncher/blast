@@ -26,6 +26,7 @@ import {
 import { LaunchGate, PreferencesView } from "./preferences.tsx";
 import { App } from "./app.tsx";
 import { openCommand } from "./session.ts";
+import { theme } from "./theme.ts";
 
 const WATCH_DEBOUNCE_MS = 100;
 
@@ -38,15 +39,15 @@ const WATCH_DEBOUNCE_MS = 100;
  */
 export function CommandPicker({
   extensionDir,
+  dataDir: suppliedDataDir,
+  installer,
+  editPreferences,
+  onPreferencesOpened,
   initialSelection,
   launching,
   launchError,
   onLaunch,
   onQuit,
-  dataDir: suppliedDataDir,
-  installer,
-  editPreferences,
-  onPreferencesOpened,
 }: {
   extensionDir: string;
   dataDir?: string;
@@ -318,11 +319,15 @@ export function CommandPicker({
   });
   const fieldAt = form ? Math.min(fieldIndex, form.arguments.length - 1) : -1;
   return (
-    <box flexDirection="column" height="100%" padding={1}>
-      <text height={1} flexShrink={0}>
-        {manifest?.title ?? extensionDir}
-        {manifest ? "" : "  Loading…"}
-      </text>
+    <box
+      flexDirection="column"
+      height="100%"
+      width="100%"
+      borderStyle="rounded"
+      borderColor={theme.colors.border}
+      title={manifest?.title ?? extensionDir}
+      backgroundColor={theme.colors.background}
+    >
       {preferencesView ? (
         <PreferencesView
           extensionTitle={manifest?.title ?? extensionDir}
@@ -369,10 +374,17 @@ export function CommandPicker({
           }}
         />
       ) : form ? (
-        <box flexDirection="column" flexGrow={1} flexShrink={0}>
-          <text height={1} flexShrink={0}>
+        <box flexDirection="column" flexGrow={1} flexShrink={0} paddingLeft={1} paddingRight={1}>
+          <text height={1} flexShrink={0} fg={theme.colors.textMuted}>
             Launch {form.title}
           </text>
+          <box
+            height={1}
+            flexShrink={0}
+            border={["top"]}
+            borderStyle="single"
+            borderColor={theme.colors.border}
+          />
           {form.arguments.map((argument, index) => (
             <ArgumentField
               key={argument.name}
@@ -383,70 +395,96 @@ export function CommandPicker({
             />
           ))}
           {blocked && (
-            <text height={1} flexShrink={0}>
+            <text height={1} flexShrink={0} fg={theme.colors.danger}>
               Required: {missingRequired(form.arguments, values).join(", ")}
             </text>
           )}
         </box>
       ) : (
         <>
-          <box flexDirection="row" flexShrink={0}>
+          <box flexDirection="row" height={1} flexShrink={0} paddingLeft={1} paddingRight={1}>
+            <text flexShrink={0} fg={theme.colors.accent}>
+              {theme.glyphs.search}{" "}
+            </text>
             <input
               flexGrow={1}
               focused
               value={query}
               placeholder="Search commands…"
+              placeholderColor={theme.colors.textMuted}
+              textColor={theme.colors.text}
               onInput={(value) => setQuery(value)}
             />
           </box>
-          <box flexDirection="row" flexGrow={1}>
+          <box
+            height={1}
+            flexShrink={0}
+            border={["top"]}
+            borderStyle="single"
+            borderColor={theme.colors.border}
+          />
+          <box flexDirection="row" flexGrow={1} paddingLeft={1} paddingRight={1}>
             <scrollbox flexGrow={1}>
               {rows.map((row) => (
                 <text
                   key={row.name}
                   height={1}
                   flexShrink={0}
-                  {...(row.name === chosen?.name ? { bg: "#234567" } : {})}
+                  {...(row.name === chosen?.name
+                    ? { backgroundColor: theme.colors.selectionBg, fg: theme.colors.selectionFg }
+                    : { fg: theme.colors.text })}
                 >
                   {row.name === chosen?.name ? "› " : "  "}
                   {commandRow(row)}
                 </text>
               ))}
-              {manifest && rows.length === 0 && <text>No matching commands</text>}
+              {manifest && rows.length === 0 && (
+                <text fg={theme.colors.textMuted}>No matching commands</text>
+              )}
             </scrollbox>
           </box>
         </>
       )}
       {progress && (
-        <text height={1} flexShrink={0}>
+        <text height={1} flexShrink={0} fg={theme.colors.accent}>
           Dependencies: {progress}
         </text>
       )}
       {installError && (
-        <text height={1} flexShrink={0}>
+        <text height={1} flexShrink={0} fg={theme.colors.danger}>
           Install failed: {installError}
         </text>
       )}
       {manifestError && (
-        <text height={1} flexShrink={0}>
+        <text height={1} flexShrink={0} fg={theme.colors.danger}>
           Manifest: {manifestError}
         </text>
       )}
       {launchError && (
-        <text height={1} flexShrink={0}>
+        <text height={1} flexShrink={0} fg={theme.colors.danger}>
           Launch failed: {launchError}
         </text>
       )}
       {launching && (
-        <text height={1} flexShrink={0}>
+        <text height={1} flexShrink={0} fg={theme.colors.accent}>
           Launching {launching}…
         </text>
       )}
-      <text height={1} flexShrink={0}>
-        {form
-          ? "Tab/↑↓ Fields · ←→ Options · Enter Launch · Esc Cancel"
-          : "↑↓ Select · Enter Launch · Type to Filter · Ctrl-E Preferences · Esc Quit"}
-      </text>
+      <box
+        height={1}
+        flexShrink={0}
+        backgroundColor={theme.colors.panel}
+        flexDirection="row"
+        justifyContent="space-between"
+        paddingLeft={1}
+        paddingRight={1}
+      >
+        <text flexGrow={1} flexShrink={1} wrapMode="none" fg={theme.colors.textMuted}>
+          {form
+            ? "Tab/↑↓ Fields · ←→ Options · Enter Launch · Esc Cancel"
+            : "↑↓ Select · Enter Launch · Type to Filter · Ctrl-E Preferences · Esc Quit"}
+        </text>
+      </box>
     </box>
   );
 }
@@ -467,38 +505,93 @@ function ArgumentField({
   if (argument.type === "dropdown") {
     const current = argument.data.find((option) => option.value === value) ?? argument.data[0];
     return (
-      <text height={1} flexShrink={0}>
-        {marker}
-        {label} {current ? `‹ ${current.title} ›` : "(no options)"}
-      </text>
+      <box
+        flexDirection="row"
+        width="100%"
+        height={1}
+        flexShrink={0}
+        {...(active ? { backgroundColor: theme.colors.selectionBg } : {})}
+      >
+        <text
+          width={18}
+          height={1}
+          flexShrink={0}
+          textAlign="right"
+          fg={theme.colors.textMuted}
+          wrapMode="none"
+        >
+          {marker}
+          {label}{" "}
+        </text>
+        <text height={1} fg={active ? theme.colors.selectionFg : theme.colors.text}>
+          {current ? `‹ ${current.title} ›` : "(no options)"}
+        </text>
+      </box>
     );
   }
   if (argument.type === "password") {
     return (
-      <text height={1} flexShrink={0}>
-        {marker}
-        {label} {value ? "••••••••" : argument.placeholder}
-      </text>
+      <box
+        flexDirection="row"
+        width="100%"
+        height={1}
+        flexShrink={0}
+        {...(active ? { backgroundColor: theme.colors.selectionBg } : {})}
+      >
+        <text
+          width={18}
+          height={1}
+          flexShrink={0}
+          textAlign="right"
+          fg={theme.colors.textMuted}
+          wrapMode="none"
+        >
+          {marker}
+          {label}{" "}
+        </text>
+        <text height={1} fg={active ? theme.colors.selectionFg : theme.colors.text}>
+          {value ? "••••••••" : argument.placeholder || "(empty)"}
+        </text>
+      </box>
     );
   }
   return (
-    <box flexDirection="column" flexShrink={0}>
-      <text height={1} flexShrink={0}>
+    <box
+      flexDirection="row"
+      width="100%"
+      height={1}
+      flexShrink={0}
+      {...(active ? { backgroundColor: theme.colors.selectionBg } : {})}
+    >
+      <text
+        width={18}
+        height={1}
+        flexShrink={0}
+        textAlign="right"
+        fg={theme.colors.textMuted}
+        wrapMode="none"
+      >
         {marker}
-        {label}
+        {label}{" "}
       </text>
-      {active ? (
-        <input
-          focused
-          value={value}
-          placeholder={argument.placeholder || argument.name}
-          onInput={onInput}
-        />
-      ) : (
-        <text height={1} flexShrink={0}>
-          {value || argument.placeholder || argument.name}
-        </text>
-      )}
+      <box flexGrow={1} flexShrink={1}>
+        {active ? (
+          <input
+            focused
+            value={value}
+            placeholder={argument.placeholder || argument.name}
+            placeholderColor={theme.colors.textMuted}
+            textColor={theme.colors.selectionFg}
+            backgroundColor="transparent"
+            focusedBackgroundColor="transparent"
+            onInput={onInput}
+          />
+        ) : (
+          <text height={1} fg={theme.colors.text}>
+            {value || argument.placeholder || argument.name}
+          </text>
+        )}
+      </box>
     </box>
   );
 }

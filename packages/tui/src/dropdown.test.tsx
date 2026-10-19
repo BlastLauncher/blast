@@ -77,7 +77,7 @@ test("terminal List dropdown accessory: open, filter, choose, Esc", async () => 
     // Esc closes the open dropdown without picking a new value.
     await new Promise((resolve) => setTimeout(resolve, 100));
     await act(async () => terminal.mockInput.pressEscape());
-    await frameEventually(terminal, (frame) => !frame.includes("┌─Drink"));
+    await frameEventually(terminal, (frame) => !frame.includes("╭─Drink"));
     expect(terminal.captureCharFrame()).toContain("▾ water");
     // Reopen and pick the first option (beer) with the keyboard alone.
     await act(async () => terminal.mockInput.pressKey("p", { ctrl: true }));
