@@ -68,8 +68,8 @@ demo of the controller (decision 0009, consequences).
 ## Handoff
 
 ```
-Branch/commit: task-0079-tui-controller @ SHA
-Verify: VERIFY
+Branch/commit: task-0079-tui-controller @ (this commit; see git log)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 100.6s
 Done:
 - app.tsx drives one `createController` per session: OpenTUI keys map to
   ControllerInput, events go to the session, `schedule` effects run on
