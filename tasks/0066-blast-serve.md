@@ -87,14 +87,14 @@ engine over stdin/stdout:
 
 ## Acceptance
 
-- [ ] `docs/decisions/0011-embedder-protocol.md` exists and matches the code.
-- [ ] Child-process tests above pass deterministically. No network; temp
+- [x] `docs/decisions/0011-embedder-protocol.md` exists and matches the code.
+- [x] Child-process tests above pass deterministically. No network; temp
       dirs only.
-- [ ] `node packages/serve/src/main.ts` runs on Node 24 directly. Show a
+- [x] `node packages/serve/src/main.ts` runs on Node 24 directly. Show a
       transcript in Handoff: hello → open → launch → first scene, via a
       heredoc piped into `node`.
-- [ ] `packages/protocol` stays dependency-free.
-- [ ] `bun run verify` passes.
+- [x] `packages/protocol` stays dependency-free.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -103,11 +103,47 @@ engine over stdin/stdout:
 
 ## Handoff
 
-Filled in by the worker when finishing:
-
-```
-Branch/commit:
-Verify:
+```text
+Branch/commit: t3/blast-serve @ 227accb (implementation; Handoff committed separately)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok)
 Done:
+- Recorded decision 0011; exported dependency-free embedder message types and validation.
+- Added the Node 24 serve package and blast:serve script for engine operations,
+  sessions, watches, logs, capability forwarding/progress/cancellation and --native.
+- Added five deterministic child-process tests, including malformed/oversize/UTF-8
+  recovery, version mismatch, preferences, missing_values, native override and EOF.
+- Demonstrated the Node 24 heredoc transcript below; updated architecture briefly.
+- No external dependencies added; workspace dependencies connect the new boundary.
 Not done / risks:
+- Welcome advertises unreleased engine version 0.0.0; release metadata is task 0069.
+- Logs drain the host's bounded log list every 10 ms; bursts exceeding its retained
+  history between drains can lose entries. Session-owned handlers keep engine precedence.
+```
+
+Node v24.20.0, from the repository root (delays let open/launch finish; real
+clients await responses). The server exited 0 after EOF:
+
+```bash
+{
+  cat <<'EOF'
+{"type":"hello","protocol":1,"capabilities":[]}
+{"type":"request","id":"open","method":"extension.open","params":{"dir":"fixtures/extensions/hello-list"}}
+EOF
+  sleep 1
+  cat <<'EOF'
+{"type":"request","id":"launch","method":"extension.launch","params":{"extension":"1","command":"index"}}
+EOF
+  sleep 1
+} | node packages/serve/src/main.ts
+```
+
+Output excerpt (catalog and scene contents abbreviated):
+
+```json
+{"type":"welcome","protocol":1,"engine":{"version":"0.0.0"},"catalog":"<CAPABILITIES omitted>"}
+{"type":"response","id":"open","ok":true,"result":{"extension":"1"}}
+{"type":"response","id":"launch","ok":true,"result":{"session":"2"}}
+{"type":"event","event":"session.scene","session":"2","scene":{"type":"scene","revision":1,"root":"Navigation"}}
+{"type":"event","event":"session.scene","session":"2","scene":{"type":"scene","revision":2,"root":null}}
+{"type":"event","event":"session.exited","session":"2","code":0}
 ```
