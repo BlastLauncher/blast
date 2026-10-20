@@ -1,7 +1,7 @@
 ---
 id: "0075"
 title: "@blastlauncher/native II: applications, frontmost app, selection, windows"
-status: doing
+status: review
 milestone: M5
 depends: ["0074"]
 ---
@@ -56,12 +56,12 @@ on macOS, Windows and Linux, so extensions using `getApplications`,
 
 ## Acceptance
 
-- [ ] Fake-runner tests per platform for every capability above, including
+- [x] Fake-runner tests per platform for every capability above, including
       the unsupported/Wayland error paths and `.desktop` parsing (fixtures
       under the test's temp dir).
-- [ ] `rg -n "exec\\(|shell: true" packages/native/src` prints nothing.
-- [ ] Handoff lists what was manually smoke-tested on this Linux host.
-- [ ] `bun run verify` passes.
+- [x] `rg -n "exec\\(|shell: true" packages/native/src` prints nothing.
+- [x] Handoff lists what was manually smoke-tested on this Linux host.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -69,11 +69,29 @@ on macOS, Windows and Linux, so extensions using `getApplications`,
 
 ## Handoff
 
-Filled in by the worker when finishing:
-
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/native-desktop-capabilities @ d0720f8f9ddd457ec414d74a05a8f169d951b4e7
+  (implementation; the following handoff commit is on the same branch)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 130.7s
 Done:
+- Added all nine desktop handlers with injectable tools: AppKit/JXA, PowerShell,
+  XDG desktop entries, X11 tools and yabai for macOS Space/window identities.
+- Added 13 desktop tests (27 native tests total), including platform argument
+  arrays, MIME/default handlers, partial bounds, unsupported paths and queueing.
+- Documented prerequisites, explicit unsupported combinations and clipboard
+  round-trip limitations. No new dependencies or generated API changes.
+- Manually smoke-tested on Node 24.20.0/Linux: discovered 10 real applications;
+  confirmed missing xdg-mime, no-display and unsupported-file-selection errors.
+  The requested exec/shell search has no matches (rg exit 1).
 Not done / risks:
+- This host has no display or desktop tools, so live X11/Wayland, macOS and
+  Windows effects were not smoke-tested; platform scripts need OS review.
+- macOS windows require installed/running yabai and its permissions; Space
+  indices must be refreshed after rearrangement. Numeric bounds on a native
+  fullscreen window require leaving fullscreen first.
+- Windows desktop enumeration/generic fullscreen, Linux file selection and
+  Wayland window/frontmost inspection reject explicitly. Clipboard selection
+  has the documented focus, clipboard-manager and delayed-provider caveats.
+- The requested cross-platform implementation plus tests exceeds the roughly
+  600-line task sizing guideline (~1,000 added lines); only native/docs changed.
 ```

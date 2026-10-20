@@ -88,7 +88,7 @@ Missing executables fail with the required tool and capability name.
   virtual desktops; these failures propagate.
 - Linux: application discovery reads XDG `.desktop` entries in precedence order,
   honoring hidden overrides and MIME associations. Application paths are desktop
-  files (opening with one uses `gio launch`); `Exec` templates are never executed.
+  files (opening with one uses `gio launch`); gio handles `Exec` templates.
   `xdg-mime` resolves MIME types/default handlers. X11 frontmost lookup uses
   `xdotool` and `/proc`; windows use `wmctrl`, `xdotool`, and `xprop` with an EWMH
   window manager. Desktops span the X screen, identified by `DISPLAY`. Text reads
