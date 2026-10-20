@@ -1,0 +1,146 @@
+{
+  "type": "scene",
+  "revision": 1,
+  "root": {
+    "id": "18",
+    "type": "Navigation",
+    "props": { "depth": 1 },
+    "children": [
+      {
+        "id": "17",
+        "type": "Navigation.Entry",
+        "props": { "active": true },
+        "children": [
+          {
+            "id": "16",
+            "type": "List",
+            "props": {
+              "navigationTitle": "hello-list",
+              "searchText": "",
+              "onSearchTextChange": { "$handler": "onSearchTextChange" }
+            },
+            "children": [
+              {
+                "id": "5",
+                "type": "List.Item",
+                "props": { "title": "apple" },
+                "children": [
+                  {
+                    "id": "4",
+                    "type": "Slot",
+                    "props": { "name": "actions" },
+                    "children": [
+                      {
+                        "id": "3",
+                        "type": "ActionPanel",
+                        "props": {},
+                        "children": [
+                          {
+                            "id": "1",
+                            "type": "Action.CopyToClipboard",
+                            "props": {
+                              "title": "Copy apple",
+                              "onAction": { "$handler": "onAction" }
+                            },
+                            "children": []
+                          },
+                          {
+                            "id": "2",
+                            "type": "Action",
+                            "props": {
+                              "title": "Pin apple",
+                              "onAction": { "$handler": "onAction" }
+                            },
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "10",
+                "type": "List.Item",
+                "props": { "title": "banana" },
+                "children": [
+                  {
+                    "id": "9",
+                    "type": "Slot",
+                    "props": { "name": "actions" },
+                    "children": [
+                      {
+                        "id": "8",
+                        "type": "ActionPanel",
+                        "props": {},
+                        "children": [
+                          {
+                            "id": "6",
+                            "type": "Action.CopyToClipboard",
+                            "props": {
+                              "title": "Copy banana",
+                              "onAction": { "$handler": "onAction" }
+                            },
+                            "children": []
+                          },
+                          {
+                            "id": "7",
+                            "type": "Action",
+                            "props": {
+                              "title": "Pin banana",
+                              "onAction": { "$handler": "onAction" }
+                            },
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "15",
+                "type": "List.Item",
+                "props": { "title": "cherry" },
+                "children": [
+                  {
+                    "id": "14",
+                    "type": "Slot",
+                    "props": { "name": "actions" },
+                    "children": [
+                      {
+                        "id": "13",
+                        "type": "ActionPanel",
+                        "props": {},
+                        "children": [
+                          {
+                            "id": "11",
+                            "type": "Action.CopyToClipboard",
+                            "props": {
+                              "title": "Copy cherry",
+                              "onAction": { "$handler": "onAction" }
+                            },
+                            "children": []
+                          },
+                          {
+                            "id": "12",
+                            "type": "Action",
+                            "props": {
+                              "title": "Pin cherry",
+                              "onAction": { "$handler": "onAction" }
+                            },
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

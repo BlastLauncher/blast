@@ -75,6 +75,9 @@ const shapes: Record<keyof EmbedderParams, string[]> = {
   "session.close": ["session"],
   "engine.shutdown": [],
 };
+/** Every request method name, in wire-table order; the schema generator and
+ * its test enumerate this instead of re-listing the methods. */
+export const EMBEDDER_METHODS = Object.keys(shapes) as (keyof EmbedderParams & string)[];
 function fields(
   v: Record<string, unknown>,
   names: string[],

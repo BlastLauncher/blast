@@ -6,6 +6,8 @@ import * as protocol from "./index.ts";
 const API = [
   "PROTOCOL_VERSION",
   "EMBEDDER_PROTOCOL_VERSION",
+  "EMBEDDER_PROTOCOL_SCHEMA",
+  "EMBEDDER_METHODS",
   "parseEmbedderMessage",
   "DEFAULT_MAX_LINE_BYTES",
   "CAPABILITIES",
@@ -39,6 +41,7 @@ test("the package has no dependencies and its source imports nothing from node",
     .toSorted();
   expect(sources).toEqual([
     "capabilities.ts",
+    "embedder-schema.ts",
     "embedder.ts",
     "framing.ts",
     "index.ts",
