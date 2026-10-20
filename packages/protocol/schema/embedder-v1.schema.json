@@ -1,0 +1,3445 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blastlauncher.dev/schema/embedder-v1.schema.json",
+  "title": "Blast embedder protocol v1",
+  "description": "NDJSON messages of `blast serve` (decision 0011). Each validated instance is one line: an embedder -> server or a server -> embedder message.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/embedderMessages"
+    },
+    {
+      "$ref": "#/$defs/serverMessages"
+    }
+  ],
+  "$defs": {
+    "jsonValue": {
+      "type": [
+        "string",
+        "number",
+        "boolean",
+        "null",
+        "array",
+        "object"
+      ],
+      "items": {
+        "$ref": "#/$defs/jsonValue"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/jsonValue"
+      }
+    },
+    "handlerRef": {
+      "type": "object",
+      "properties": {
+        "$handler": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "$handler"
+      ],
+      "additionalProperties": false
+    },
+    "embedderError": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/$defs/jsonValue"
+        }
+      },
+      "required": [
+        "code",
+        "message"
+      ],
+      "additionalProperties": false
+    },
+    "sceneNode": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "props": {
+          "type": "object",
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/handlerRef"
+              },
+              {
+                "$ref": "#/$defs/jsonValue"
+              }
+            ]
+          }
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/sceneNode"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "props",
+        "children"
+      ],
+      "additionalProperties": false
+    },
+    "sceneMessage": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "scene"
+        },
+        "revision": {
+          "type": "integer"
+        },
+        "root": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/sceneNode"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "revision",
+        "root"
+      ],
+      "additionalProperties": false
+    },
+    "logMessage": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "log"
+        },
+        "level": {
+          "type": "string",
+          "enum": [
+            "debug",
+            "info",
+            "warn",
+            "error"
+          ]
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "level",
+        "message"
+      ],
+      "additionalProperties": false
+    },
+    "request.extension.open": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "request"
+        },
+        "id": {
+          "type": "string"
+        },
+        "method": {
+          "const": "extension.open"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "dir": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "dir"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "method"
+      ],
+      "additionalProperties": false
+    },
+    "result.extension.open": {
+      "type": "object",
+      "properties": {
+        "extension": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "extension"
+      ],
+      "additionalProperties": false
+    },
+    "request.extension.manifest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "request"
+        },
+        "id": {
+          "type": "string"
+        },
+        "method": {
+          "const": "extension.manifest"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "extension": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "extension"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "method"
+      ],
+      "additionalProperties": false
+    },
+    "result.extension.manifest": {
+      "$ref": "#/$defs/jsonValue"
+    },
+    "request.extension.watch": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "request"
+        },
+        "id": {
+          "type": "string"
+        },
+        "method": {
+          "const": "extension.watch"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "extension": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "extension"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "method"
+      ],
+      "additionalProperties": false
+    },
+    "result.extension.watch": {
+      "type": "null"
+    },
+    "request.extension.unwatch": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "request"
+        },
+        "id": {
+          "type": "string"
+        },
+        "method": {
+          "const": "extension.unwatch"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "extension": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "extension"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "method"
+      ],
+      "additionalProperties": false
+    },
+    "result.extension.unwatch": {
+      "type": "null"
+    },
+    "request.extension.close": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "request"
+        },
+        "id": {
+          "type": "string"
+        },
+        "method": {
+          "const": "extension.close"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "extension": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "extension"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "method"
+      ],
+      "additionalProperties": false
+    },
+    "result.extension.close": {
+      "type": "null"
+    },
+    "request.extension.dependencies.check": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "request"
+        },
+        "id": {
+          "type": "string"
+        },
+        "method": {
+          "const": "extension.dependencies.check"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "extension": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "extension"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "method"
+      ],
+      "additionalProperties": false
+    },
+    "result.extension.dependencies.check": {
+      "$ref": "#/$defs/jsonValue"
+    },
+    "request.extension.dependencies.install": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "request"
+        },
+        "id": {
+          "type": "string"
+        },
+        "method": {
+          "const": "extension.dependencies.install"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "extension": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "extension"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "method"
+      ],
+      "additionalProperties": false
+    },
+    "result.extension.dependencies.install": {
+      "$ref": "#/$defs/jsonValue"
+    },
+    "request.extension.preferences": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "request"
+        },
+        "id": {
+          "type": "string"
+        },
+        "method": {
+          "const": "extension.preferences"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "extension": {
+              "type": "string"
+            },
+            "command": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "extension",
+            "command"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "method"
+      ],
+      "additionalProperties": false
+    },
+    "result.extension.preferences": {
+      "$ref": "#/$defs/jsonValue"
+    },
+    "request.extension.savePreferences": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "request"
+        },
+        "id": {
+          "type": "string"
+        },
+        "method": {
+          "const": "extension.savePreferences"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "extension": {
+              "type": "string"
+            },
+            "command": {
+              "type": "string"
+            },
+            "values": {
+              "type": "object",
+              "additionalProperties": {
+                "type": [
+                  "string",
+                  "number",
+                  "boolean"
+                ]
+              }
+            }
+          },
+          "required": [
+            "extension",
+            "command",
+            "values"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "method"
+      ],
+      "additionalProperties": false
+    },
+    "result.extension.savePreferences": {
+      "type": "null"
+    },
+    "request.extension.launch": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "request"
+        },
+        "id": {
+          "type": "string"
+        },
+        "method": {
+          "const": "extension.launch"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "extension": {
+              "type": "string"
+            },
+            "command": {
+              "type": "string"
+            },
+            "argumentValues": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "launchContext": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/$defs/jsonValue"
+              }
+            }
+          },
+          "required": [
+            "extension",
+            "command"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "method"
+      ],
+      "additionalProperties": false
+    },
+    "result.extension.launch": {
+      "type": "object",
+      "properties": {
+        "session": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "session"
+      ],
+      "additionalProperties": false
+    },
+    "request.session.event": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "request"
+        },
+        "id": {
+          "type": "string"
+        },
+        "method": {
+          "const": "session.event"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "session": {
+              "type": "string"
+            },
+            "node": {
+              "type": "string"
+            },
+            "handler": {
+              "type": "string"
+            },
+            "args": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/jsonValue"
+              }
+            }
+          },
+          "required": [
+            "session",
+            "node",
+            "handler",
+            "args"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "method"
+      ],
+      "additionalProperties": false
+    },
+    "result.session.event": {
+      "type": "null"
+    },
+    "request.session.close": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "request"
+        },
+        "id": {
+          "type": "string"
+        },
+        "method": {
+          "const": "session.close"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "session": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "session"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "method"
+      ],
+      "additionalProperties": false
+    },
+    "result.session.close": {
+      "type": "null"
+    },
+    "request.engine.shutdown": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "request"
+        },
+        "id": {
+          "type": "string"
+        },
+        "method": {
+          "const": "engine.shutdown"
+        },
+        "params": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "method"
+      ],
+      "additionalProperties": false
+    },
+    "result.engine.shutdown": {
+      "type": "null"
+    },
+    "request": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/request.extension.open"
+        },
+        {
+          "$ref": "#/$defs/request.extension.manifest"
+        },
+        {
+          "$ref": "#/$defs/request.extension.watch"
+        },
+        {
+          "$ref": "#/$defs/request.extension.unwatch"
+        },
+        {
+          "$ref": "#/$defs/request.extension.close"
+        },
+        {
+          "$ref": "#/$defs/request.extension.dependencies.check"
+        },
+        {
+          "$ref": "#/$defs/request.extension.dependencies.install"
+        },
+        {
+          "$ref": "#/$defs/request.extension.preferences"
+        },
+        {
+          "$ref": "#/$defs/request.extension.savePreferences"
+        },
+        {
+          "$ref": "#/$defs/request.extension.launch"
+        },
+        {
+          "$ref": "#/$defs/request.session.event"
+        },
+        {
+          "$ref": "#/$defs/request.session.close"
+        },
+        {
+          "$ref": "#/$defs/request.engine.shutdown"
+        }
+      ]
+    },
+    "embedder.capability.result": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.result"
+            },
+            "id": {
+              "type": "string"
+            },
+            "ok": {
+              "const": true
+            },
+            "value": {
+              "$ref": "#/$defs/jsonValue"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "ok",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.result"
+            },
+            "id": {
+              "type": "string"
+            },
+            "ok": {
+              "const": false
+            },
+            "error": {
+              "$ref": "#/$defs/embedderError"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "ok",
+            "error"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "embedder.capability.progress": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "capability.progress"
+        },
+        "id": {
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/$defs/jsonValue"
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "embedder.hello": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "hello"
+        },
+        "protocol": {
+          "type": "integer"
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "protocol",
+        "capabilities"
+      ],
+      "additionalProperties": false
+    },
+    "embedderMessages": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/embedder.hello"
+        },
+        {
+          "$ref": "#/$defs/request"
+        },
+        {
+          "$ref": "#/$defs/embedder.capability.result"
+        },
+        {
+          "$ref": "#/$defs/embedder.capability.progress"
+        }
+      ]
+    },
+    "server.welcome": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "welcome"
+        },
+        "protocol": {
+          "type": "integer"
+        },
+        "engine": {
+          "type": "object",
+          "properties": {
+            "version": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "version"
+          ],
+          "additionalProperties": false
+        },
+        "catalog": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/jsonValue"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "protocol",
+        "engine",
+        "catalog"
+      ],
+      "additionalProperties": false
+    },
+    "server.error": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "error"
+        },
+        "error": {
+          "$ref": "#/$defs/embedderError"
+        }
+      },
+      "required": [
+        "type",
+        "error"
+      ],
+      "additionalProperties": false
+    },
+    "response": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "response"
+            },
+            "id": {
+              "type": "string"
+            },
+            "ok": {
+              "const": true
+            },
+            "result": {
+              "$ref": "#/$defs/jsonValue"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "ok",
+            "result"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "response"
+            },
+            "id": {
+              "type": "string"
+            },
+            "ok": {
+              "const": false
+            },
+            "error": {
+              "$ref": "#/$defs/embedderError"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "ok",
+            "error"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "server.event": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "event"
+            },
+            "event": {
+              "const": "manifest.changed"
+            },
+            "extension": {
+              "type": "string"
+            },
+            "manifest": {
+              "$ref": "#/$defs/jsonValue"
+            }
+          },
+          "required": [
+            "type",
+            "event"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "event"
+            },
+            "event": {
+              "const": "manifest.error"
+            },
+            "extension": {
+              "type": "string"
+            },
+            "error": {
+              "$ref": "#/$defs/embedderError"
+            }
+          },
+          "required": [
+            "type",
+            "event"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "event"
+            },
+            "event": {
+              "const": "dependencies.log"
+            },
+            "extension": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "event"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "event"
+            },
+            "event": {
+              "const": "session.scene"
+            },
+            "session": {
+              "type": "string"
+            },
+            "scene": {
+              "$ref": "#/$defs/sceneMessage"
+            }
+          },
+          "required": [
+            "type",
+            "event"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "event"
+            },
+            "event": {
+              "const": "session.log"
+            },
+            "session": {
+              "type": "string"
+            },
+            "log": {
+              "$ref": "#/$defs/logMessage"
+            }
+          },
+          "required": [
+            "type",
+            "event"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "event"
+            },
+            "event": {
+              "const": "session.exited"
+            },
+            "session": {
+              "type": "string"
+            },
+            "code": {
+              "type": "integer"
+            },
+            "error": {
+              "$ref": "#/$defs/embedderError"
+            }
+          },
+          "required": [
+            "type",
+            "event"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "server.capability.request": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "storage.get"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.storage.get/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "storage.set"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.storage.set/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "storage.remove"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.storage.remove/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "storage.all"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.storage.all/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "storage.clear"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.storage.clear/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "oauth.tokens.get"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.oauth.tokens.get/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "oauth.tokens.set"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.oauth.tokens.set/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "oauth.tokens.remove"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.oauth.tokens.remove/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "oauth.authorize"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.oauth.authorize/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "ai.ask"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.ai.ask/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "ai.models.refresh"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.ai.models.refresh/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "ai.decide"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.ai.decide/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "browser.tabs"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.browser.tabs/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "browser.content"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.browser.content/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "clipboard.copy"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.clipboard.copy/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "clipboard.clear"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.clipboard.clear/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "clipboard.paste"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.clipboard.paste/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "clipboard.read"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.clipboard.read/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "open.url"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.open.url/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "open.path"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.open.path/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "selection.text"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.selection.text/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "selection.files"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.selection.files/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "applications.frontmost"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.applications.frontmost/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "applications.list"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.applications.list/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "applications.default"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.applications.default/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "finder.show"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.finder.show/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "trash"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.trash/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "window.desktops"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.window.desktops/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "window.active"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.window.active/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "window.list"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.window.list/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "window.setBounds"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.window.setBounds/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "preferences.open"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.preferences.open/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "command.launch"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.command.launch/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "command.metadata"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.command.metadata/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "snippet.create"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.snippet.create/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "quicklink.create"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.quicklink.create/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "quicklook.toggle"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.quicklook.toggle/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "capability.request"
+            },
+            "id": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            },
+            "name": {
+              "const": "mcp.install"
+            },
+            "params": {
+              "$ref": "#/$defs/capabilities.mcp.install/params"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "session",
+            "name"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "server.capability.cancel": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "capability.cancel"
+        },
+        "id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "id"
+      ],
+      "additionalProperties": false
+    },
+    "serverMessages": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/server.welcome"
+        },
+        {
+          "$ref": "#/$defs/server.error"
+        },
+        {
+          "$ref": "#/$defs/response"
+        },
+        {
+          "$ref": "#/$defs/server.event"
+        },
+        {
+          "$ref": "#/$defs/server.capability.request"
+        },
+        {
+          "$ref": "#/$defs/server.capability.cancel"
+        }
+      ]
+    },
+    "capabilities.storage.get": {
+      "scope": "session",
+      "summary": "Reads a LocalStorage or internal storage key.",
+      "params": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "blast:internal"
+            ]
+          }
+        },
+        "required": [
+          "key"
+        ]
+      },
+      "result": {
+        "type": [
+          "string",
+          "number",
+          "boolean",
+          "null"
+        ]
+      },
+      "api": [
+        "LocalStorage.getItem",
+        "getLocalStorageItem",
+        "Form.TextField.Props.storeValue",
+        "Form.Dropdown.Props.storeValue",
+        "List.Dropdown.Props.storeValue",
+        "Grid.Dropdown.Props.storeValue"
+      ]
+    },
+    "capabilities.storage.set": {
+      "scope": "session",
+      "summary": "Writes a LocalStorage or internal storage key.",
+      "params": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "value": {
+            "type": [
+              "string",
+              "number",
+              "boolean"
+            ]
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "blast:internal"
+            ]
+          }
+        },
+        "required": [
+          "key",
+          "value"
+        ]
+      },
+      "result": {
+        "type": "null"
+      },
+      "api": [
+        "LocalStorage.setItem",
+        "setLocalStorageItem",
+        "Form.TextField.Props.storeValue",
+        "Form.Dropdown.Props.storeValue",
+        "List.Dropdown.Props.storeValue",
+        "Grid.Dropdown.Props.storeValue"
+      ]
+    },
+    "capabilities.storage.remove": {
+      "scope": "session",
+      "summary": "Removes a LocalStorage, internal storage or form draft key.",
+      "params": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "blast:internal"
+            ]
+          }
+        },
+        "required": [
+          "key"
+        ]
+      },
+      "result": {
+        "type": "null"
+      },
+      "api": [
+        "LocalStorage.removeItem",
+        "removeLocalStorageItem",
+        "Form.TextField.Props.storeValue",
+        "Form.Dropdown.Props.storeValue",
+        "List.Dropdown.Props.storeValue",
+        "Grid.Dropdown.Props.storeValue"
+      ]
+    },
+    "capabilities.storage.all": {
+      "scope": "session",
+      "summary": "Reads every LocalStorage entry for the extension.",
+      "params": {
+        "type": "object",
+        "properties": {}
+      },
+      "result": {
+        "type": "object"
+      },
+      "api": [
+        "LocalStorage.allItems",
+        "allLocalStorageItems"
+      ]
+    },
+    "capabilities.storage.clear": {
+      "scope": "session",
+      "summary": "Clears every LocalStorage entry for the extension.",
+      "params": {
+        "type": "object",
+        "properties": {}
+      },
+      "result": {
+        "type": "null"
+      },
+      "api": [
+        "LocalStorage.clear",
+        "clearLocalStorage"
+      ]
+    },
+    "capabilities.oauth.tokens.get": {
+      "scope": "session",
+      "summary": "Reads the stored OAuth token set for a provider.",
+      "params": {
+        "type": "object",
+        "properties": {
+          "providerId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "providerId"
+        ]
+      },
+      "result": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          },
+          "idToken": {
+            "type": "string"
+          },
+          "expiresIn": {
+            "type": "number"
+          },
+          "scope": {
+            "type": [
+              "string",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "api": [
+        "OAuth.PKCEClient.getTokens"
+      ]
+    },
+    "capabilities.oauth.tokens.set": {
+      "scope": "session",
+      "summary": "Stores an OAuth token set for a provider.",
+      "params": {
+        "type": "object",
+        "properties": {
+          "providerId": {
+            "type": "string"
+          },
+          "tokens": {
+            "type": "object",
+            "properties": {
+              "accessToken": {
+                "type": "string"
+              },
+              "refreshToken": {
+                "type": "string"
+              },
+              "idToken": {
+                "type": "string"
+              },
+              "expiresIn": {
+                "type": "number"
+              },
+              "scope": {
+                "type": [
+                  "string",
+                  "array"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "accessToken"
+            ]
+          }
+        },
+        "required": [
+          "providerId",
+          "tokens"
+        ]
+      },
+      "result": {
+        "type": "null"
+      },
+      "api": [
+        "OAuth.PKCEClient.setTokens"
+      ]
+    },
+    "capabilities.oauth.tokens.remove": {
+      "scope": "session",
+      "summary": "Removes the stored OAuth token set for a provider.",
+      "params": {
+        "type": "object",
+        "properties": {
+          "providerId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "providerId"
+        ]
+      },
+      "result": {
+        "type": "null"
+      },
+      "api": [
+        "OAuth.PKCEClient.removeTokens"
+      ]
+    },
+    "capabilities.oauth.authorize": {
+      "scope": "grant",
+      "summary": "Asks the client to run an OAuth authorization flow and return a code.",
+      "params": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "providerName": {
+            "type": "string"
+          },
+          "providerId": {
+            "type": "string"
+          },
+          "redirectMethod": {
+            "type": "string"
+          },
+          "providerIcon": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "url",
+          "providerName",
+          "providerId",
+          "redirectMethod"
+        ]
+      },
+      "result": {
+        "type": "object",
+        "properties": {
+          "authorizationCode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "authorizationCode"
+        ]
+      },
+      "api": [
+        "OAuth.PKCEClient.authorize"
+      ]
+    },
+    "capabilities.ai.ask": {
+      "scope": "grant",
+      "summary": "Asks an AI model for text; own-provider `{ id }` models are answered by the engine.",
+      "params": {
+        "type": "object",
+        "properties": {
+          "prompt": {
+            "type": "string"
+          },
+          "model": {
+            "type": [
+              "string",
+              "object"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            }
+          },
+          "creativity": {
+            "type": [
+              "string",
+              "number"
+            ]
+          }
+        },
+        "required": [
+          "prompt"
+        ]
+      },
+      "result": {
+        "type": "string"
+      },
+      "api": [
+        "AI.ask"
+      ]
+    },
+    "capabilities.ai.models.refresh": {
+      "scope": "session",
+      "summary": "Re-lists the extension's own AI provider models.",
+      "params": {
+        "type": "object",
+        "properties": {}
+      },
+      "result": {
+        "type": "null"
+      },
+      "api": [
+        "AI.refreshModels"
+      ]
+    },
+    "capabilities.ai.decide": {
+      "scope": "grant",
+      "summary": "Asks a client for typed answers to experimental decision questions.",
+      "params": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string"
+          },
+          "questions": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "noul",
+                  "score",
+                  "choice"
+                ]
+              },
+              "instructions": {
+                "type": "string"
+              },
+              "criteria": {
+                "type": [
+                  "array",
+                  "object"
+                ]
+              }
+            },
+            "required": [
+              "type",
+              "instructions"
+            ]
+          }
+        },
+        "required": [
+          "state",
+          "questions"
+        ]
+      },
+      "result": {
+        "type": "object"
+      },
+      "api": [
+        "AI.experimental_decide"
+      ]
+    },
+    "capabilities.browser.tabs": {
+      "scope": "grant",
+      "summary": "Lists the browser tabs a client chooses to expose.",
+      "params": {
+        "type": "object",
+        "properties": {}
+      },
+      "result": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "number"
+            },
+            "url": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "favicon": {
+              "type": "string"
+            },
+            "active": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "id",
+            "url",
+            "active"
+          ]
+        }
+      },
+      "api": [
+        "BrowserExtension.getTabs"
+      ]
+    },
+    "capabilities.browser.content": {
+      "scope": "grant",
+      "summary": "Returns the content of a browser tab.",
+      "params": {
+        "type": "object",
+        "properties": {
+          "cssSelector": {
+            "type": "string"
+          },
+          "tabId": {
+            "type": "number"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "html",
+              "text",
+              "markdown"
+            ]
+          }
+        }
+      },
+      "result": {
+        "type": "string"
+      },
+      "api": [
+        "BrowserExtension.getContent"
+      ]
+    },
+    "capabilities.clipboard.copy": {
+      "scope": "grant",
+      "summary": "Copies text, HTML or a file path to the clipboard.",
+      "params": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "file": {
+            "type": "string"
+          },
+          "html": {
+            "type": "string"
+          },
+          "concealed": {
+            "type": "boolean"
+          }
+        }
+      },
+      "result": {
+        "type": "null"
+      },
+      "api": [
+        "Clipboard.copy",
+        "Action.CopyToClipboard",
+        "ActionPanel.Item.CopyToClipboard"
+      ]
+    },
+    "capabilities.clipboard.clear": {
+      "scope": "grant",
+      "summary": "Clears the clipboard.",
+      "params": {
+        "type": "object",
+        "properties": {}
+      },
+      "result": {
+        "type": "null"
+      },
+      "api": [
+        "Clipboard.clear"
+      ]
+    },
+    "capabilities.clipboard.paste": {
+      "scope": "grant",
+      "summary": "Pastes text, HTML or a file path into the frontmost application.",
+      "params": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "file": {
+            "type": "string"
+          },
+          "html": {
+            "type": "string"
+          },
+          "concealed": {
+            "type": "boolean"
+          }
+        }
+      },
+      "result": {
+        "type": "null"
+      },
+      "api": [
+        "Clipboard.paste",
+        "Action.Paste",
+        "ActionPanel.Item.Paste"
+      ]
+    },
+    "capabilities.clipboard.read": {
+      "scope": "grant",
+      "summary": "Reads the clipboard, optionally at a history offset.",
+      "params": {
+        "type": "object",
+        "properties": {
+          "offset": {
+            "type": "integer",
+            "enum": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ]
+          }
+        }
+      },
+      "result": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "file": {
+            "type": "string"
+          },
+          "html": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text"
+        ]
+      },
+      "api": [
+        "Clipboard.read",
+        "Clipboard.readText"
+      ]
+    },
+    "capabilities.open.url": {
+      "scope": "grant",
+      "summary": "Opens an HTTP(S) URL, optionally with a named application.",
+      "params": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "application": {
+            "type": [
+              "string",
+              "object"
+            ]
+          }
+        },
+        "required": [
+          "url"
+        ]
+      },
+      "result": {
+        "type": "null"
+      },
+      "api": [
+        "open",
+        "Action.Open",
+        "Action.OpenWith",
+        "Action.OpenInBrowser"
+      ]
+    },
+    "capabilities.open.path": {
+      "scope": "grant",
+      "summary": "Opens a file or folder, optionally with a named application.",
+      "params": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "application": {
+            "type": [
+              "string",
+              "object"
+            ]
+          }
+        },
+        "required": [
+          "path"
+        ]
+      },
+      "result": {
+        "type": "null"
+      },
+      "api": [
+        "open",
+        "Action.Open",
+        "Action.OpenWith"
+      ]
+    },
+    "capabilities.selection.text": {
+      "scope": "grant",
+      "summary": "Returns the selected text; an empty string means nothing is selected.",
+      "params": {
+        "type": "object",
+        "properties": {}
+      },
+      "result": {
+        "type": "string"
+      },
+      "api": [
+        "getSelectedText"
+      ]
+    },
+    "capabilities.selection.files": {
+      "scope": "grant",
+      "summary": "Returns the selected file-system items.",
+      "params": {
+        "type": "object",
+        "properties": {}
+      },
+      "result": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "api": [
+        "getSelectedFinderItems"
+      ]
+    },
+    "capabilities.applications.frontmost": {
+      "scope": "grant",
+      "summary": "Returns the frontmost application.",
+      "params": {
+        "type": "object",
+        "properties": {}
+      },
+      "result": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "localizedName": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "bundleId": {
+            "type": "string"
+          },
+          "windowsAppId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "path"
+        ]
+      },
+      "api": [
+        "getFrontmostApplication"
+      ]
+    },
+    "capabilities.applications.list": {
+      "scope": "grant",
+      "summary": "Lists installed applications, optionally filtered by path.",
+      "params": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          }
+        }
+      },
+      "result": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "localizedName": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "bundleId": {
+              "type": "string"
+            },
+            "windowsAppId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "path"
+          ]
+        }
+      },
+      "api": [
+        "getApplications"
+      ]
+    },
+    "capabilities.applications.default": {
+      "scope": "grant",
+      "summary": "Returns the application the machine would open a path with.",
+      "params": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "path"
+        ]
+      },
+      "result": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "localizedName": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "bundleId": {
+            "type": "string"
+          },
+          "windowsAppId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "path"
+        ]
+      },
+      "api": [
+        "getDefaultApplication"
+      ]
+    },
+    "capabilities.finder.show": {
+      "scope": "grant",
+      "summary": "Reveals a file or folder in the file manager.",
+      "params": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "path"
+        ]
+      },
+      "result": {
+        "type": "null"
+      },
+      "api": [
+        "showInFinder",
+        "Action.ShowInFinder"
+      ]
+    },
+    "capabilities.trash": {
+      "scope": "grant",
+      "summary": "Moves files or folders to the trash.",
+      "params": {
+        "type": "object",
+        "properties": {
+          "paths": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "paths"
+        ]
+      },
+      "result": {
+        "type": "null"
+      },
+      "api": [
+        "trash",
+        "Action.Trash"
+      ]
+    },
+    "capabilities.window.desktops": {
+      "scope": "grant",
+      "summary": "Lists desktops across all screens.",
+      "params": {
+        "type": "object",
+        "properties": {}
+      },
+      "result": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "size": {
+              "type": "object",
+              "properties": {
+                "width": {
+                  "type": "number"
+                },
+                "height": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "width",
+                "height"
+              ]
+            },
+            "id": {
+              "type": "string"
+            },
+            "screenId": {
+              "type": "string"
+            },
+            "active": {
+              "type": "boolean"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "User",
+                "FullScreen"
+              ]
+            }
+          },
+          "required": [
+            "size",
+            "id",
+            "screenId",
+            "active",
+            "type"
+          ]
+        }
+      },
+      "api": [
+        "WindowManagement.getDesktops"
+      ]
+    },
+    "capabilities.window.active": {
+      "scope": "grant",
+      "summary": "Returns the active window.",
+      "params": {
+        "type": "object",
+        "properties": {}
+      },
+      "result": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "application": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "localizedName": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string"
+              },
+              "bundleId": {
+                "type": "string"
+              },
+              "windowsAppId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "path"
+            ]
+          },
+          "bounds": {
+            "type": [
+              "object",
+              "string"
+            ]
+          },
+          "desktopId": {
+            "type": "string"
+          },
+          "fullScreenSettable": {
+            "type": "boolean"
+          },
+          "resizable": {
+            "type": "boolean"
+          },
+          "positionable": {
+            "type": "boolean"
+          },
+          "active": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "bounds",
+          "desktopId",
+          "fullScreenSettable",
+          "resizable",
+          "positionable",
+          "active"
+        ]
+      },
+      "api": [
+        "WindowManagement.getActiveWindow"
+      ]
+    },
+    "capabilities.window.list": {
+      "scope": "grant",
+      "summary": "Lists the windows on the active desktop.",
+      "params": {
+        "type": "object",
+        "properties": {}
+      },
+      "result": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "application": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "localizedName": {
+                  "type": "string"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "bundleId": {
+                  "type": "string"
+                },
+                "windowsAppId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "path"
+              ]
+            },
+            "bounds": {
+              "type": [
+                "object",
+                "string"
+              ]
+            },
+            "desktopId": {
+              "type": "string"
+            },
+            "fullScreenSettable": {
+              "type": "boolean"
+            },
+            "resizable": {
+              "type": "boolean"
+            },
+            "positionable": {
+              "type": "boolean"
+            },
+            "active": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "id",
+            "bounds",
+            "desktopId",
+            "fullScreenSettable",
+            "resizable",
+            "positionable",
+            "active"
+          ]
+        }
+      },
+      "api": [
+        "WindowManagement.getWindowsOnActiveDesktop"
+      ]
+    },
+    "capabilities.window.setBounds": {
+      "scope": "grant",
+      "summary": "Moves, resizes or makes a window fullscreen.",
+      "params": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "bounds": {
+            "type": [
+              "object",
+              "string"
+            ]
+          },
+          "desktopId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "bounds"
+        ]
+      },
+      "result": {
+        "type": "null"
+      },
+      "api": [
+        "WindowManagement.setWindowBounds"
+      ]
+    },
+    "capabilities.preferences.open": {
+      "scope": "grant",
+      "summary": "Asks the client to open extension or command preferences.",
+      "params": {
+        "type": "object",
+        "properties": {
+          "scope": {
+            "type": "string",
+            "enum": [
+              "extension",
+              "command"
+            ]
+          }
+        },
+        "required": [
+          "scope"
+        ]
+      },
+      "result": {
+        "type": "null"
+      },
+      "api": [
+        "openExtensionPreferences",
+        "openCommandPreferences"
+      ]
+    },
+    "capabilities.command.launch": {
+      "scope": "grant",
+      "summary": "Launches another command, passing arguments and launch context.",
+      "params": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "userInitiated",
+              "background"
+            ]
+          },
+          "extensionName": {
+            "type": "string"
+          },
+          "ownerOrAuthorName": {
+            "type": "string"
+          },
+          "arguments": {
+            "type": "object"
+          },
+          "context": {
+            "type": "object"
+          },
+          "fallbackText": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "type"
+        ]
+      },
+      "result": {
+        "type": "null"
+      },
+      "api": [
+        "launchCommand"
+      ]
+    },
+    "capabilities.command.metadata": {
+      "scope": "grant",
+      "summary": "Updates the command's subtitle in the client.",
+      "params": {
+        "type": "object",
+        "properties": {
+          "subtitle": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "result": {
+        "type": "null"
+      },
+      "api": [
+        "updateCommandMetadata"
+      ]
+    },
+    "capabilities.snippet.create": {
+      "scope": "grant",
+      "summary": "Creates a snippet from text, a name and a keyword.",
+      "params": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "keyword": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text"
+        ]
+      },
+      "result": {
+        "type": "null"
+      },
+      "api": [
+        "Action.CreateSnippet"
+      ]
+    },
+    "capabilities.quicklink.create": {
+      "scope": "grant",
+      "summary": "Creates a quicklink from a link and optional metadata.",
+      "params": {
+        "type": "object",
+        "properties": {
+          "link": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "application": {
+            "type": [
+              "string",
+              "object"
+            ]
+          }
+        },
+        "required": [
+          "link"
+        ]
+      },
+      "result": {
+        "type": "null"
+      },
+      "api": [
+        "Action.CreateQuicklink"
+      ]
+    },
+    "capabilities.quicklook.toggle": {
+      "scope": "grant",
+      "summary": "Toggles Quick Look for the client's selected item.",
+      "params": {
+        "type": "object",
+        "properties": {}
+      },
+      "result": {
+        "type": "null"
+      },
+      "api": [
+        "Action.ToggleQuickLook"
+      ]
+    },
+    "capabilities.mcp.install": {
+      "scope": "grant",
+      "summary": "Installs an MCP server descriptor.",
+      "params": {
+        "type": "object",
+        "properties": {
+          "server": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "transport": {
+                "type": "string",
+                "enum": [
+                  "stdio",
+                  "sse"
+                ]
+              },
+              "icon": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "command": {
+                "type": "string"
+              },
+              "args": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "env": {
+                "type": "object"
+              },
+              "url": {
+                "type": "string"
+              },
+              "headers": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "name",
+              "transport"
+            ]
+          }
+        },
+        "required": [
+          "server"
+        ]
+      },
+      "result": {
+        "type": "null"
+      },
+      "api": [
+        "Action.InstallMCPServer"
+      ]
+    }
+  }
+}

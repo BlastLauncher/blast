@@ -5,3 +5,4 @@ export * from "./messages.ts";
 export * from "./provider.ts";
 export * from "./provider-codec.ts";
 export * from "./embedder.ts";
+export * from "./embedder-schema.ts";
