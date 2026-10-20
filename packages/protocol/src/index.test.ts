@@ -6,6 +6,8 @@ import * as protocol from "./index.ts";
 const API = [
   "PROTOCOL_VERSION",
   "DEFAULT_MAX_LINE_BYTES",
+  "CAPABILITIES",
+  "isCapabilityName",
   "encodeMessage",
   "createLineDecoder",
   "parseHostMessage",
@@ -34,6 +36,7 @@ test("the package has no dependencies and its source imports nothing from node",
     .filter((name) => name.endsWith(".ts") && !name.endsWith(".test.ts"))
     .toSorted();
   expect(sources).toEqual([
+    "capabilities.ts",
     "framing.ts",
     "index.ts",
     "messages.ts",
