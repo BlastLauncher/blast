@@ -1,7 +1,7 @@
 ---
 id: "0069"
 title: Release build — emitted JS + d.ts packages, npm pack smoke on Node 24
-status: doing
+status: review
 milestone: M5
 depends: []
 ---
@@ -62,13 +62,13 @@ through `blast serve`. Nothing is published.
 
 ## Acceptance
 
-- [ ] `bun run release:build` creates 7 tarballs under
+- [x] `bun run release:build` creates 7 tarballs under
       `.cache/release/tarballs/`. `tar -tzf` on the engine tarball shows
       `dist/index.js` and `dist/index.d.ts`, and no `.ts` sources other than
       `.d.ts`.
-- [ ] `bun run release:smoke` passes on Node 24. Paste its output (first
+- [x] `bun run release:smoke` passes on Node 24. Paste its output (first
       item title, serve scene event, sizes) in Handoff.
-- [ ] Repo direct-source mode is unchanged: `bun run verify` passes and
+- [x] Repo direct-source mode is unchanged: `bun run verify` passes and
       `bun run blast run fixtures/extensions/hello-list index` works.
 
 ## Out of scope
@@ -78,11 +78,39 @@ through `blast serve`. Nothing is published.
 
 ## Handoff
 
-Filled in by the worker when finishing:
-
-```
-Branch/commit:
-Verify:
+```text
+Branch/commit: t3/release-build @ 2699f2879f5d98ea027f07f4cc188ec81b5f0dfc
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 99.0s
 Done:
-Not done / risks:
+- Added release:build: tsc ESM JS + declarations, engine rename/import rewrites,
+  versioned manifests, executable bins, license/README, protocol schema and 7 tarballs.
+- Added Node 24 release:smoke covering the installed engine, blast-serve transcript
+  and blast CLI; always removes smoke node_modules and reports install/tarball sizes.
+- Fixed runtime package-export resolution and two declaration-emission blockers
+  (OPTIONAL_API symbol annotation and exported FormContextValue); no runtime semantics changed.
+- Added manifest checks and Installing docs. Verified tarball contents (engine
+  index.js + index.d.ts; no TS sources or tests) and direct-source blast run.
+Not done / risks: Nothing published or pushed; no new dependencies. Shared allowlist
+  remains bundled in engine dependencies as requested (75.1 MiB exclusive graph;
+  follow-up split is out of scope). Measured on Linux arm64 / Node v24.20.0;
+  installed sizes and transitive versions can vary by platform/registry state.
+```
+
+`bun run release:smoke` output (Node v24.20.0):
+
+```text
+added 165 packages in 5s
+In-process first item: apple
+Serve event: session.scene (first item: apple)
+CLI bin: blast run (apple)
+Installed: 131M node_modules
+Shared allowlist exclusive graph: 75.1 MiB allocated
+Tarball: blastlauncher-cli-0.0.0-dev.tgz 13166 bytes
+Tarball: blastlauncher-client-core-0.0.0-dev.tgz 15790 bytes
+Tarball: blastlauncher-engine-0.0.0-dev.tgz 23367 bytes
+Tarball: blastlauncher-native-0.0.0-dev.tgz 15936 bytes
+Tarball: blastlauncher-protocol-0.0.0-dev.tgz 26321 bytes
+Tarball: blastlauncher-runtime-0.0.0-dev.tgz 83596 bytes
+Tarball: blastlauncher-serve-0.0.0-dev.tgz 4000 bytes
+Removed smoke node_modules
 ```
