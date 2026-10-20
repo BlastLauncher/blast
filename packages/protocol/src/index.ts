@@ -4,3 +4,4 @@ export * from "./framing.ts";
 export * from "./messages.ts";
 export * from "./provider.ts";
 export * from "./provider-codec.ts";
+export * from "./embedder.ts";

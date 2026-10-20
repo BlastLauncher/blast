@@ -1,11 +1,10 @@
 # Architecture
 
 Current shape only; history lives in git. Decisions: `docs/decisions/`.
-
 ```
 client (embedder UI; reference clients: headless CLI, OpenTUI terminal)
    │  scene → view model, events, timing rules  (packages/client-core)
-   │  in-process API
+   │  in-process API or NDJSON stdio (packages/serve)
 host ── bundles extension (esbuild), spawns runtime, capability broker
    │  NDJSON over stdio  (packages/protocol)
 runtime (one Node process per command or provider)
@@ -20,6 +19,7 @@ extension code (unmodified, bundled)
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
 | `packages/protocol`    | message types, validation, NDJSON framing                                                                                     | nothing                                  |
 | `packages/runtime`     | reconciler, `@raycast/api` shim, child entry                                                                                  | protocol, react                          |
+| `packages/serve`       | versioned embedder stdio, capability forwarding                                                                               | host, protocol, native                   |
 | `packages/host`        | engine: bundling, process lifecycle, broker, registry                                                                         | protocol, esbuild                        |
 | `packages/client-core` | framework-free Raycast client semantics (view model, filtering, actions, shortcuts, pagination, dropdown, grid, form, timing) | protocol                                 |
 | `packages/native`      | optional OS clipboard, open, file manager, trash                                                                              | protocol                                 |

@@ -73,6 +73,14 @@
         "@types/react-reconciler": "0.34.0",
       },
     },
+    "packages/serve": {
+      "name": "@blastlauncher/serve",
+      "dependencies": {
+        "@blastlauncher/host": "workspace:*",
+        "@blastlauncher/native": "workspace:*",
+        "@blastlauncher/protocol": "workspace:*",
+      },
+    },
     "packages/tui": {
       "name": "@blastlauncher/tui",
       "dependencies": {
@@ -102,6 +110,8 @@
     "@blastlauncher/protocol": ["@blastlauncher/protocol@workspace:packages/protocol"],
 
     "@blastlauncher/runtime": ["@blastlauncher/runtime@workspace:packages/runtime"],
+
+    "@blastlauncher/serve": ["@blastlauncher/serve@workspace:packages/serve"],
 
     "@blastlauncher/tui": ["@blastlauncher/tui@workspace:packages/tui"],
 
