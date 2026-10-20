@@ -58,8 +58,37 @@ commands fail today with "missing common" (`compat/SMOKE-DEPS.md`).
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/bundler-tsconfig-paths @ 41dd35b (Handoff update on top)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 125.3s — 736 pass / 0 fail
 Done:
+- packages/host/src/tsconfig-paths.ts: reads the extension's tsconfig chain
+  (extends followed only inside the extension dir; package presets skipped
+  with a warning; cycles and unparseable files degrade to no aliasing) and
+  resolves bare specifiers through `paths` then `baseUrl`, probing files only
+  inside the extension directory (esbuild's order for extensions/dirs).
+- packages/host/src/bundle.ts: the dependency plugin tries tsconfig aliases
+  before installed/shared/missing, only for bare imports from extension files
+  (never inside dependency graphs), so aliases win over same-named installed
+  packages as tsc does and a never-resolving bare import still fails with
+  MissingDependencyError naming `blast deps`.
+- Fixture fixtures/extensions/tsconfig-paths/ (baseUrl "src" + `@lib/*` paths
+  in an extended base file, one command importing both styles); 7 new tests in
+  packages/host/src/tsconfig-paths.test.ts cover bundle+run of both alias
+  styles, installed-package precedence, the missing-dependency fallback,
+  external extends, paths-without-baseUrl, escape containment and broken JSON.
+- docs/architecture.md: one sentence recording the resolution order.
+- Optional control-d re-run done via a one-off script through the smoke-deps
+  path (`runOne`, installed dependencies on): all 5 commands now render
+  (change-filters, learn-my-ip, list-profiles, modify-profile, status).
 Not done / risks:
+- compat/SMOKE-DEPS.md/json left untouched: the script writes them only from
+  a complete 25-extension run (its per-command data would be lost otherwise),
+  and that run churns install metrics task 0083 is changing in parallel.
+  `corpus:smoke-deps` should be re-run wholesale after 0083 lands; until then
+  the report still shows the pre-fix "5 bundle-failed".
+- Aliasing is lexical (no symlink realpathing), matching esbuild's own
+  tsconfig handling; `paths` targets are honoured per esbuild fall-through
+  semantics (missing target → next candidate/packages), which is more
+  forgiving than tsc's hard error.
+- .cache corpus data deleted after the re-run (34 MB checkout removed).
 ```
