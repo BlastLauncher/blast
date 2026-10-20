@@ -1,0 +1,53 @@
+{
+  "name": "@scope/extension",
+  "version": "1.0.0",
+  "lockfileVersion": 1,
+  "dependencies": {
+    "@raycast/api": {
+      "version": "1.99.4",
+      "dependencies": {
+        "api-private": {
+          "version": "1.0.0"
+        }
+      }
+    },
+    "react": {
+      "version": "19.0.0",
+      "resolved": "https://registry.npmjs.org/react/-/react-19.0.0.tgz"
+    },
+    "@types/node": {
+      "version": "24.0.0"
+    },
+    "react-dom": {
+      "version": "19.0.0"
+    },
+    "example": {
+      "version": "1.2.3",
+      "resolved": "https://registry.npmjs.org/example/-/example-1.2.3.tgz",
+      "integrity": "sha512-pinned",
+      "requires": {
+        "nested": "~2.0.0"
+      },
+      "dependencies": {
+        "react": {
+          "version": "19.0.0",
+          "resolved": "https://registry.npmjs.org/react/-/react-19.0.0.tgz"
+        },
+        "@raycast/api": {
+          "version": "1.99.4"
+        },
+        "nested": {
+          "version": "2.0.1",
+          "dependencies": {
+            "@types/react": {
+              "version": "19.0.0"
+            },
+            "leaf": {
+              "version": "3.0.1"
+            }
+          }
+        }
+      }
+    }
+  }
+}

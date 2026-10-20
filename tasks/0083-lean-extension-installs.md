@@ -1,7 +1,7 @@
 ---
 id: "0083"
 title: Lean per-extension dependency installs (no peer @raycast/api or React pulled in)
-status: doing
+status: review
 milestone: M5
 depends: []
 ---
@@ -50,10 +50,10 @@ installing what the runtime already supplies.
 
 ## Acceptance
 
-- [ ] Handoff shows `du` of a representative real install before and after
+- [x] Handoff shows `du` of a representative real install before and after
       (e.g. `xml2js` or `marked`), with the top dirs.
-- [ ] The installed `@raycast/utils` path still works (test or fixture).
-- [ ] `bun run verify` passes.
+- [x] The installed `@raycast/utils` path still works (test or fixture).
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -61,11 +61,44 @@ installing what the runtime already supplies.
 
 ## Handoff
 
-Filled in by the worker when finishing:
-
-```
-Branch/commit:
-Verify:
+```text
+Branch/commit: t3/lean-extension-installs @ 37ef83676ba99798f36c819c8eec1b3df5562d1c (implementation; handoff commit follows)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 126.9s
 Done:
-Not done / risks:
+- Omit peer-only installs; strip supplied packages and their private graphs from lockfile v1/v2/v3, preserving all other pins.
+- Invalidate older install keys once; unchanged inputs still reuse the lean install.
+- Add offline lock fixtures/fake npm, cache migration and real installed-utils hook tests; existing offline file install passes (734 tests total).
+- Verify npm-installed utils 2.3.1 runs useCachedPromise/useFetch with runtime API/React; update decision 0008. No dependencies added.
+- Measure the pinned caschys-blog install before/after: 88 to 5 packages, 57,684 to 5,020 KiB (91.3% less); delete every reproduction install and corpus checkout.
+Not done / risks: Peer-only packages are intentionally omitted; a needed non-runtime peer must be present as a production dependency. No full corpus rerun. Not pushed.
 ```
+
+Reproduction: `bun run corpus:fetch --extension caschys-blog` at the existing
+corpus pin, then `installExtensionDependencies` with that unmodified extension
+and dataDir `.cache/lean-before` (baseline) / `.cache/lean-after` (implementation),
+on Node 24.20.0 / npm 11.19.0. Baseline's rewritten lock confirms utils peers
+reintroduce API 2.3.1; API brings React, types, esbuild and oclif. After installation
+only utils 2.3.1, dequal 2.0.3, xml2js 0.6.2, xmlbuilder and sax remain.
+
+`du -sk node_modules` and its largest immediate directories (KiB):
+
+```text
+                         Before    After
+node_modules              57684     5020
+@raycast                  33724     1200
+  @raycast/api            32524   absent
+  @raycast/utils           1196     1196
+@esbuild                  10072   absent
+xml2js                     3392     3392
+@inquirer                  1400   absent
+@oclif                     1380   absent
+csstype                    1240   absent
+xmlbuilder                          288
+sax                                  72
+dequal                               60
+```
+
+`du -sb node_modules`: 54,984,348 → 4,935,221 logical bytes. A temporary command
+outside the corpus used the npm-installed utils with the hooks fixture and no
+shared fallback; both hooks rendered their resolved values offline. All temporary
+extension sources, builds, data directories and the sparse corpus were deleted.

@@ -20,10 +20,11 @@ Status: accepted 2026-10-19; extends 0002 (the shared allowlist stays as fallbac
    real `@raycast/api` is ~30 MB plus esbuild/oclif). They stay external at
    bundle time exactly as today. `react-dom` is installed and bundled against
    the runtime's `react`.
-4. **Installer:** `npm install --omit=dev --ignore-scripts --no-audit --no-fund`
+4. **Installer:** `npm install --omit=dev --omit=peer --ignore-scripts --no-audit --no-fund`
    in that directory, using the copied lockfile so pinned versions win. npm
    ships with Node 24, so the host stays Node-runnable. Install hooks never run;
    native addons that need them fail at runtime with their own error.
+   Supplied entries are stripped from all lockfile formats, including nested copies.
 5. **Resolution order at bundle time:** API/React externals → the
    extension's installed `node_modules` (when its key matches the current
    manifest and lockfile) → optional `@blastlauncher/shared-deps` (0002) → missing-dependency

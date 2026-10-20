@@ -1,6 +1,8 @@
 import { afterEach, expect, test } from "bun:test";
 import { spawn } from "node:child_process";
+import { createHash } from "node:crypto";
 import { cp, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -10,6 +12,7 @@ import {
   type DependencyInstaller,
   checkExtensionDependencies,
   installExtensionDependencies,
+  npmDependencyInstaller,
   MissingDependencyError,
   startCommand,
 } from "./index.ts";
@@ -77,6 +80,7 @@ test("install keys are stable, strip runtime packages, honor npm flags and repla
     expect(request.args).toEqual([
       "install",
       "--omit=dev",
+      "--omit=peer",
       "--ignore-scripts",
       "--no-audit",
       "--no-fund",
@@ -111,6 +115,104 @@ test("install keys are stable, strip runtime packages, honor npm flags and repla
   expect(await readdir(initial.directory)).not.toContain("stale");
 });
 
+for (const version of [1, 2, 3]) {
+  test(`lockfile v${version} strips supplied graphs, preserves other pins and reaches npm intact`, async () => {
+    const options = await setup({
+      "@raycast/api": "1",
+      react: "19",
+      "@types/node": "24",
+      "react-dom": "19",
+      example: "^1",
+    });
+    const fixture = fileURLToPath(
+      new URL(`../../../fixtures/host/dependency-locks/v${version}.json`, import.meta.url),
+    );
+    const original = JSON.parse(await readFile(fixture, "utf8"));
+    const lockPath = join(options.extensionDir, "package-lock.json");
+    await cp(fixture, lockPath);
+    const result = await installExtensionDependencies({
+      ...options,
+      installer: (request) => {
+        expect(request.command).toBe(process.platform === "win32" ? "npm.cmd" : "npm");
+        return npmDependencyInstaller({
+          ...request,
+          command: "node",
+          args: [
+            fileURLToPath(new URL("../../../fixtures/host/fake-npm.js", import.meta.url)),
+            ...request.args,
+          ],
+        });
+      },
+    });
+    const captured = JSON.parse(await readFile(join(result.directory, "fake-npm.json"), "utf8"));
+    expect(captured.args).toEqual([
+      "install",
+      "--omit=dev",
+      "--omit=peer",
+      "--ignore-scripts",
+      "--no-audit",
+      "--no-fund",
+    ]);
+    const expected = structuredClone(original);
+    if (version < 3) {
+      const example = original.dependencies.example;
+      expected.dependencies = {
+        "react-dom": original.dependencies["react-dom"],
+        example: {
+          ...example,
+          dependencies: {
+            nested: {
+              ...example.dependencies.nested,
+              dependencies: { leaf: example.dependencies.nested.dependencies.leaf },
+            },
+          },
+        },
+      };
+    }
+    if (version > 1) {
+      expected.packages = {
+        "": {
+          name: options.manifest.name,
+          version: options.manifest.version,
+          dependencies: { "react-dom": "19", example: "^1" },
+        },
+        ...Object.fromEntries(
+          [
+            "node_modules/react-dom",
+            "node_modules/example",
+            "node_modules/example/node_modules/nested",
+            "node_modules/example/node_modules/nested/node_modules/leaf",
+          ].map((path) => [path, original.packages[path]]),
+        ),
+      };
+    }
+    expect(captured.lock).toEqual(expected);
+    expect(JSON.parse(await readFile(lockPath, "utf8"))).toEqual(original);
+  });
+}
+
+test("installs cached before the lean policy are replaced once", async () => {
+  const options = await setup({ example: "^1" });
+  const status = await checkExtensionDependencies(options);
+  const oldKey = createHash("sha256")
+    .update(JSON.stringify(options.manifest.dependencies))
+    .update("\n")
+    .digest("hex");
+  await mkdir(status.directory, { recursive: true });
+  await writeFile(join(status.directory, "key"), oldKey);
+  await writeFile(join(status.directory, "old-install"), "bloated");
+  expect((await checkExtensionDependencies(options)).needed).toBe(true);
+  let calls = 0;
+  const installer: DependencyInstaller = async () => {
+    calls++;
+  };
+  await installExtensionDependencies({ ...options, installer });
+  expect(await readdir(status.directory)).not.toContain("old-install");
+  expect((await checkExtensionDependencies(options)).needed).toBe(false);
+  await installExtensionDependencies({ ...options, installer });
+  expect(calls).toBe(1);
+});
+
 test("unpinned installs warn, manifest changes invalidate, failures never publish a key", async () => {
   const options = await setup({ example: "^1" });
   const logs: string[] = [];
@@ -133,6 +235,64 @@ test("unpinned installs warn, manifest changes invalidate, failures never publis
   ).rejects.toThrow("offline failure");
   expect((await checkExtensionDependencies(options)).needed).toBe(true);
   expect(await readdir(join(options.dataDir, "deps"))).toEqual([]);
+});
+
+test("installed utils hooks run with runtime API and React, without installed peers", async () => {
+  const requireShared = createRequire(new URL("../../shared-deps/package.json", import.meta.url));
+  const utilsEntry = requireShared.resolve("@raycast/utils");
+  const utilsDir = dirname(dirname(utilsEntry));
+  const manifest = JSON.parse(await readFile(join(utilsDir, "package.json"), "utf8"));
+  const options = await setup({ "@raycast/utils": manifest.version });
+  await cp(
+    fileURLToPath(new URL("../../../fixtures/host/installed-utils.tsx", import.meta.url)),
+    join(options.extensionDir, "src/index.tsx"),
+  );
+  const installed = await installExtensionDependencies({
+    ...options,
+    installer: async ({ cwd }) => {
+      // Reuse the dev toolchain's real package bytes offline; no peer copies.
+      await cp(utilsDir, join(cwd, "node_modules/@raycast/utils"), { recursive: true });
+      const dequalDir = dirname(createRequire(utilsEntry).resolve("dequal/package.json"));
+      await cp(dequalDir, join(cwd, "node_modules/dequal"), { recursive: true });
+    },
+  });
+  expect((await readdir(join(installed.directory, "node_modules"))).toSorted()).toEqual([
+    "@raycast",
+    "dequal",
+  ]);
+  expect(await readdir(join(installed.directory, "node_modules/@raycast"))).toEqual(["utils"]);
+  const bundle = await bundleCommand({
+    ...options,
+    sharedDependencies,
+    command: "index",
+    outDir: join(options.root, "build"),
+  });
+  const session = await startCommand({
+    ...bundle,
+    broker: createBroker(),
+    dataDir: options.dataDir,
+  });
+  try {
+    await new Promise<void>((done, reject) => {
+      const timeout = setTimeout(() => reject(new Error("Installed utils did not render")), 5_000);
+      let unsubscribe: (() => void) | undefined;
+      unsubscribe = session.scenes((scene) => {
+        const json = JSON.stringify(scene);
+        if (json.includes("cached promise resolved") && json.includes("fetch resolved offline")) {
+          clearTimeout(timeout);
+          unsubscribe?.();
+          done();
+        }
+      });
+      void session.exited.then((exit) => {
+        clearTimeout(timeout);
+        unsubscribe?.();
+        reject(exit.error ?? new Error("Exited before utils hooks resolved"));
+      });
+    });
+  } finally {
+    await session.shutdown();
+  }
 });
 
 test("matching installed utils override the shared version; stale installs fall back", async () => {
