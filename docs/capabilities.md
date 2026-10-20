@@ -1,5 +1,8 @@
 # Capabilities
 
+The machine-readable source of truth is `CAPABILITIES` in
+`packages/protocol/src/capabilities.ts`; this page is its human view.
+
 Privileged `@raycast/api` calls become `capability.request { name, params }`
 messages (decision 0001). The host broker denies by default; a missing handler
 answers `denied`, a throwing one `failed`. This file lists what each family
