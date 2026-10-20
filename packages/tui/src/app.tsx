@@ -1,28 +1,15 @@
 /** @jsxImportSource @opentui/react */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useKeyboard } from "@opentui/react";
 import { TextAttributes, type ScrollBoxRenderable } from "@opentui/core";
 import type { Session } from "@blastlauncher/host";
-import type { SceneMessage, SceneNode } from "@blastlauncher/protocol";
+import type { SceneMessage } from "@blastlauncher/protocol";
 import {
-  event,
-  handler,
-  sceneToView,
-  selectionId,
-  text,
-  actionRows,
-  matchesShortcut,
-  gridMove,
-  dropdownLabel,
-  dropdownOptions,
-  visibleOptions,
-  panelRows as rowsOfPanel,
-  menuBarView,
-  menuBarStep,
-  feedbackState,
-  loadMoreRequest,
-  searchDispatch,
-  HUD_DURATION_MS,
+  activeNode,
+  createController,
+  type ControllerInput,
+  type ControllerResult,
+  type Platform,
 } from "@blastlauncher/client-core";
 import { GridView } from "./grid.tsx";
 import { DropdownPanel } from "./dropdown.tsx";
@@ -30,11 +17,20 @@ import { MenuBarView } from "./menu-bar.tsx";
 import { FormView } from "./form.tsx";
 import { theme } from "./theme.ts";
 
+const platform: Platform =
+  process.platform === "darwin" ? "macOS" : process.platform === "win32" ? "Windows" : "Linux";
+
+/**
+ * A terminal over the client-core controller: keys become controller inputs,
+ * the controller's events go to the session and its effects run here. Only the
+ * scene (for form field editing, which stays in form.tsx) and the rendered view
+ * are kept besides the controller.
+ */
 export function App({
   session,
   onQuit,
   onExit,
-  hudDurationMs = HUD_DURATION_MS,
+  hudDurationMs,
 }: {
   session: Session;
   onQuit: () => void;
@@ -42,27 +38,18 @@ export function App({
   onExit?: () => void;
   hudDurationMs?: number;
 }) {
-  const [scene, setScene] = useState<SceneMessage | undefined>(session.latestScene);
-  const [panel, setPanel] = useState<string[] | null>(null);
-  const [query, setQuery] = useState("");
-  const [actionIndex, setActionIndex] = useState(0);
-  const [hudVisible, setHudVisible] = useState(false);
-  const [searchText, setSearch] = useState("");
-  const currentSearch = useRef("");
-  const [selectedId, setSelected] = useState<string | null>(null);
-  const [menuPath, setMenuPath] = useState<string[]>([]);
+  const controller = useMemo(
+    () => createController({ platform, ...(hudDurationMs === undefined ? {} : { hudDurationMs }) }),
+    [session, hudDurationMs],
+  );
+  const [view, setView] = useState(() => controller.view());
+  const [scene, setScene] = useState<SceneMessage | undefined>(undefined);
   const [failure, setFailure] = useState<string | undefined>(undefined);
-  const [settled, setSettled] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [dropdownQuery, setDropdownQuery] = useState("");
-  const [dropdownIndex, setDropdownIndex] = useState(0);
   const scroll = useRef<ScrollBoxRenderable>(null);
   const actionScroll = useRef<ScrollBoxRenderable>(null);
-  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const pendingSearch = useRef<string | undefined>(undefined);
-  const previous = useRef<string | null | undefined>(undefined);
+  const timers = useRef(new Set<ReturnType<typeof setTimeout>>());
   const quitRequested = useRef(false);
-  const paginatedFor = useRef(-1);
+  const settled = useRef(false);
   const onQuitRef = useRef(onQuit);
   onQuitRef.current = onQuit;
   const onExitRef = useRef(onExit);
@@ -72,154 +59,74 @@ export function App({
     quitRequested.current = true;
     onQuitRef.current();
   };
-  const view = sceneToView(scene, { searchText, selectedId });
-  const isMenu = view.list?.type === "MenuBarExtra";
-  const bar = menuBarView(scene, { path: menuPath, selectedId });
-  const menu = bar.rows;
-  const menuChoice = bar.selected;
-  const dropdown = view.accessory;
-  const dropdownChoices = visibleOptions(dropdown, dropdownQuery);
-  const dropdownChoice = dropdownChoices[Math.min(dropdownIndex, dropdownChoices.length - 1)];
-  const closeDropdown = () => {
-    setDropdownOpen(false);
-    setDropdownQuery("");
-    setDropdownIndex(0);
+  // A runtime that exits on its own is a no-view command: quit once its HUD
+  // (if any) has gone. A failed runtime shows the error and waits for Esc.
+  const quitIfSettled = () => {
+    if (settled.current && !controller.view().feedback.hud) requestQuit();
   };
-  let panelNode = view.actions;
-  for (const id of panel ?? [])
-    panelNode = rowsOfPanel(panelNode).find((row) => row.node.id === id)?.node;
-  const panelRows = rowsOfPanel(panelNode, query);
-  const panelItems = panelRows.filter((row) => row.item);
-  const chosen = panelItems[Math.min(actionIndex, panelItems.length - 1)]?.node;
-  useEffect(() => {
-    actionScroll.current?.scrollChildIntoView(chosen?.id ?? "");
-  }, [chosen?.id]);
-  const { alert, toast, hud } = feedbackState(scene);
-  const request = useRef({ clear: "", pop: "" });
-  const send = (value: ReturnType<typeof event>) => {
-    if (value) session.sendEvent(value.node, value.handler, value.args);
+  const dispatch = (result: ControllerResult) => {
+    for (const out of result.events) session.sendEvent(out.node, out.handler, out.args);
+    for (const effect of result.effects) {
+      if (effect.type === "quit") requestQuit();
+      else {
+        const timer = setTimeout(() => {
+          timers.current.delete(timer);
+          dispatch(controller.tick(effect.token));
+        }, effect.ms);
+        timers.current.add(timer);
+      }
+    }
+    quitIfSettled();
   };
-  useEffect(
-    () =>
-      session.scenes((next) => {
-        setScene(next);
-      }),
-    [session],
-  );
+  const input = (action: ControllerInput) => dispatch(controller.input(action));
   useEffect(() => {
-    const value = view.list?.props.searchText;
-    if (value === pendingSearch.current) pendingSearch.current = undefined;
-    if (typeof value === "string" && pendingSearch.current === undefined) {
-      currentSearch.current = value;
-      setSearch(value);
-    }
-  }, [view.list?.props.searchText]);
-  useEffect(() => () => clearTimeout(timer.current), []);
-  useEffect(() => {
-    setPanel(null);
-    setSelected(null);
-    setMenuPath([]);
-    setDropdownOpen(false);
-    setDropdownQuery("");
-    setDropdownIndex(0);
-    paginatedFor.current = -1;
-    const initial = text(view.list?.props.searchText);
-    currentSearch.current = initial;
-    pendingSearch.current = undefined;
-    setSearch(initial);
-    clearTimeout(timer.current);
-  }, [view.list?.id]);
-  useEffect(() => {
-    const props = view.navigation?.props;
-    if (!props) return;
-    const clear = JSON.stringify(props.clearSearchBar) ?? "";
-    const pop = JSON.stringify(props.popToRoot) ?? "";
-    const options = props.popToRoot;
-    if (
-      (clear && clear !== request.current.clear) ||
-      (pop !== request.current.pop &&
-        options &&
-        typeof options === "object" &&
-        !Array.isArray(options) &&
-        "clearSearchBar" in options &&
-        options.clearSearchBar)
-    ) {
-      currentSearch.current = "";
-      pendingSearch.current = undefined;
-      clearTimeout(timer.current);
-      setSearch("");
-      send(event(view.list, "onSearchTextChange", [""]));
-    }
-    request.current = { clear, pop };
-    if (props.closeMainWindow) requestQuit();
-  }, [scene?.revision]);
-  useEffect(() => {
-    setHudVisible(!!hud);
-    if (!hud) return;
-    const timeout = setTimeout(() => setHudVisible(false), hudDurationMs);
-    return () => clearTimeout(timeout);
-  }, [hud?.node.id, hud?.title, hudDurationMs]);
-  // A runtime that exits on its own is a no-view command: quit once the HUD
-  // window has passed. A failed runtime shows the error and waits for Esc.
+    setView(controller.view());
+    const stop = controller.subscribe(setView);
+    // A session replays its latest scene on subscribe; a stand-in that does not
+    // is still seeded from `latestScene`.
+    let applied: SceneMessage | undefined;
+    const apply = (next: SceneMessage) => {
+      if (next === applied) return;
+      applied = next;
+      setScene(next);
+      dispatch(controller.scene(next));
+    };
+    if (session.latestScene) apply(session.latestScene);
+    const stopScenes = session.scenes(apply);
+    return () => {
+      stopScenes();
+      stop();
+      for (const timer of timers.current) clearTimeout(timer);
+      timers.current.clear();
+    };
+  }, [session, controller]);
   useEffect(() => {
     let active = true;
     void session.exited.then((exit) => {
       if (!active) return;
       if (exit.error || exit.code !== 0)
         setFailure(exit.error ? String(exit.error) : `Runtime exited: ${exit.code ?? exit.signal}`);
-      else if (!quitRequested.current) setSettled(true);
+      else if (!quitRequested.current) {
+        settled.current = true;
+        quitIfSettled();
+      }
     });
     return () => {
       active = false;
     };
-  }, [session]);
+  }, [session, controller]);
+  const selectedRow = view.rows.find((row) => row.selected)?.id;
+  const selectedCell = view.grid?.flatMap((row) => row.cells).find((cell) => cell.selected)?.id;
+  const selectedMenu = view.menuBar?.rows.find((row) => row.selected)?.id;
   useEffect(() => {
-    if (!settled) return;
-    const timeout = setTimeout(requestQuit, hud ? hudDurationMs : 0);
-    return () => clearTimeout(timeout);
-  }, [settled, hud, hudDurationMs]);
-  const id = selectionId(view.selected);
+    scroll.current?.scrollChildIntoView(selectedRow ?? selectedCell ?? selectedMenu ?? "");
+  }, [selectedRow, selectedCell, selectedMenu]);
+  const chosenAction = view.actions.rows.find((row) => row.selected)?.id;
   useEffect(() => {
-    // A menu-bar command has no list selection; its own state drives rows.
-    if (id === null) return;
-    setSelected(id);
-    scroll.current?.scrollChildIntoView(view.selected?.id ?? "");
-    if (previous.current !== id) {
-      previous.current = id;
-      send(event(view.list, "onSelectionChange", [id]));
-    }
-  }, [id, scene?.revision]);
-  useEffect(() => {
-    if (!isMenu) return;
-    scroll.current?.scrollChildIntoView(menuChoice?.node.id ?? "");
-  }, [menuChoice?.node.id]);
-  // Pagination: reaching the last loaded item (or last Grid row) loads the
-  // next page once per item count, until `hasMore` turns false. client-core
-  // decides what and when; the send stays here.
-  useEffect(() => {
-    const load = loadMoreRequest(view.list, view.items, id, paginatedFor.current);
-    if (!load) return;
-    paginatedFor.current = load.count;
-    send(load.event);
-  }, [id, scene?.revision]);
-  function search(value: string) {
-    if (currentSearch.current === value) return;
-    currentSearch.current = value;
-    setSearch(value);
-    clearTimeout(timer.current);
-    // client-core decides what is forwarded and how long to wait; the timer
-    // stays here.
-    const forward = searchDispatch(view.list, value);
-    if (!forward) return;
-    pendingSearch.current = value;
-    const dispatch = () => send(forward.event);
-    if (forward.delayMs) timer.current = setTimeout(dispatch, forward.delayMs);
-    else dispatch();
-  }
+    actionScroll.current?.scrollChildIntoView(chosenAction ?? "");
+  }, [chosenAction]);
+  const { alert, toast, hud } = view.feedback;
   useKeyboard((key) => {
-    function run(node: SceneNode | undefined) {
-      send(event(node, handler(node?.props.onAction) ? "onAction" : "onSubmit"));
-    }
     if (key.ctrl && key.name === "c") {
       if (onExitRef.current) onExitRef.current();
       else requestQuit();
@@ -233,151 +140,59 @@ export function App({
       }
       return;
     }
-    if (alert) {
+    const now = controller.view();
+    const press = (action: ControllerInput) => {
       key.preventDefault();
-      const name =
-        key.name === "return" ? "primaryAction" : key.name === "escape" ? "dismissAction" : "";
-      run((name === "primaryAction" ? alert.primary : name ? alert.dismiss : undefined)?.node);
-      return;
-    }
-    if (isMenu) {
-      const action =
-        key.name === "escape" || key.name === "left"
-          ? ({ type: "back", escape: key.name === "escape" } as const)
-          : key.name === "up" || key.name === "down"
-            ? ({ type: "move", delta: key.name === "down" ? 1 : -1 } as const)
-            : key.name === "return" || key.name === "right"
-              ? ({ type: "activate" } as const)
-              : undefined;
-      if (!action) return;
+      input(action);
+    };
+    if (now.feedback.alert) {
       key.preventDefault();
-      const step = menuBarStep(scene, { path: menuPath, selectedId }, action);
-      if (step.leave) {
-        if (handler(view.navigation?.props.pop)) send(event(view.navigation, "pop"));
-        else requestQuit();
-      }
-      if (step.state.path !== menuPath) setMenuPath(step.state.path);
-      if (step.state.selectedId !== selectedId) {
-        if (step.state.selectedId !== null) previous.current = step.state.selectedId;
-        setSelected(step.state.selectedId);
-      }
-      for (const out of step.events) send(out);
+      if (key.name === "return") input({ type: "alert", confirm: true });
+      else if (key.name === "escape") input({ type: "alert", confirm: false });
       return;
     }
-    if (dropdownOpen) {
-      if (key.name === "escape") {
-        key.preventDefault();
-        closeDropdown();
-      } else if (key.name === "up" || key.name === "down") {
-        key.preventDefault();
-        setDropdownIndex(
-          Math.max(
-            0,
-            Math.min(dropdownChoices.length - 1, dropdownIndex + (key.name === "down" ? 1 : -1)),
-          ),
-        );
-      } else if (key.name === "return" && dropdownChoice) {
-        key.preventDefault();
-        send(event(dropdown, "onChange", [dropdownChoice.value]));
-        closeDropdown();
-      }
+    const direction = ({ up: "up", down: "down", left: "left", right: "right" } as const)[
+      key.name as "up"
+    ];
+    const menu = now.kind === "menu-bar";
+    // The menu bar, the dropdown and the action panel own the arrows, Enter
+    // and Esc while they are open.
+    if (menu || now.dropdown?.open || now.actions.open) {
+      if (key.name === "escape") press({ type: "back" });
+      else if (direction && (menu || direction === "up" || direction === "down"))
+        press({ type: "move", direction });
+      else if (key.name === "return") press({ type: "primary" });
       return;
     }
-    if (panel !== null) {
-      if (key.name === "escape") {
-        key.preventDefault();
-        setPanel(panel.length ? panel.slice(0, -1) : null);
-        setQuery("");
-        setActionIndex(0);
-      } else if (key.name === "up" || key.name === "down") {
-        key.preventDefault();
-        setActionIndex(
-          Math.max(
-            0,
-            Math.min(panelItems.length - 1, actionIndex + (key.name === "down" ? 1 : -1)),
-          ),
-        );
-      } else if (key.name === "return") {
-        key.preventDefault();
-        if (chosen?.type === "ActionPanel.Submenu") {
-          send(event(chosen, "onOpen"));
-          setPanel([...panel, chosen.id]);
-          setQuery("");
-          setActionIndex(0);
-        } else {
-          run(chosen);
-          setPanel(null);
-        }
-      }
-      return;
-    }
-    if (key.ctrl && key.name === "k") {
+    if (key.ctrl && key.name === "k") return press({ type: "openActions" });
+    if (key.ctrl && key.name === "p") return press({ type: "openDropdown" });
+    if (key.name === "escape") return input({ type: "back" });
+    const toastIndex = key.ctrl ? ["t", "y"].indexOf(key.name) : -1;
+    if (toastIndex >= 0 && now.feedback.toast?.actions[toastIndex])
+      return press({ type: "toastAction", index: toastIndex });
+    const result = controller.input({
+      type: "key",
+      key: {
+        name: key.name,
+        ctrl: key.ctrl,
+        meta: key.meta,
+        shift: key.shift,
+        option: key.option,
+        super: key.super === true,
+      },
+    });
+    dispatch(result);
+    if (result.handled) return key.preventDefault();
+    if (now.kind === "form") return;
+    if (direction === "up" || direction === "down" || (now.grid && direction)) {
       key.preventDefault();
-      setPanel([]);
-      setQuery("");
-      setActionIndex(0);
-      return;
+      input({ type: "move", direction });
     }
-    if (panel === null && key.ctrl && key.name === "p") {
-      key.preventDefault();
-      setDropdownOpen(true);
-      setDropdownQuery("");
-      setDropdownIndex(0);
-      return;
-    }
-    if (key.name === "escape") {
-      if (handler(view.navigation?.props.pop)) send(event(view.navigation, "pop"));
-      else requestQuit();
-      return;
-    }
-    const toastAction = toast?.actions.find(
-      (action, index) =>
-        (key.ctrl && key.name === (index === 0 ? "t" : "y")) ||
-        matchesShortcut(action.shortcut, key),
-    );
-    if (toastAction) {
-      key.preventDefault();
-      run(toastAction.node);
-      return;
-    }
-    const shortcut = actionRows(view.actions).find(
-      (row) => row.item && matchesShortcut(row.node.props.shortcut, key),
-    );
-    if (shortcut) {
-      key.preventDefault();
-      if (shortcut.node.type === "ActionPanel.Submenu") {
-        send(event(shortcut.node, "onOpen"));
-        setPanel([shortcut.node.id]);
-        setQuery("");
-        setActionIndex(0);
-      } else run(shortcut.node);
-      return;
-    }
-    if (view.list?.type === "Form") return;
-    if (
-      key.name === "up" ||
-      key.name === "down" ||
-      (view.grid && (key.name === "left" || key.name === "right"))
-    ) {
-      key.preventDefault();
-      const index = view.items.findIndex((item) => item.id === view.selected?.id);
-      const nextId = view.grid
-        ? gridMove(view.grid.rows, id, key.name as "up" | "down" | "left" | "right")
-        : selectionId(
-            view.items[
-              Math.max(0, Math.min(view.items.length - 1, index + (key.name === "down" ? 1 : -1)))
-            ],
-          );
-      if (nextId !== id) {
-        previous.current = nextId;
-        send(event(view.list, "onSelectionChange", [nextId]));
-        setSelected(nextId);
-      }
-    }
-    if (key.name === "return")
-      send(event(view.primary, handler(view.primary?.props.onAction) ? "onAction" : "onSubmit"));
+    if (key.name === "return") input({ type: "primary" });
   });
 
+  const form = view.kind === "form" ? activeNode(scene?.root) : undefined;
+  const dropdown = view.dropdown;
   let toastColor: string = theme.colors.text;
   const toastParts = toast
     ? [
@@ -392,7 +207,7 @@ export function App({
     else if (toast.style === "success") toastColor = theme.colors.success;
     else if (toast.style === "animated") toastColor = theme.colors.accent;
   }
-  const hudText = hudVisible && hud ? hud.title : "";
+  const hudText = hud ? hud.title : "";
   const leftFooter = [
     toastParts.join(" · "),
     hudText,
@@ -400,8 +215,7 @@ export function App({
   ]
     .filter(Boolean)
     .join(" · ");
-  const primaryTitle =
-    text(view.primary?.props.title) || (view.list?.type === "Form" ? "Submit" : "Run");
+  const primaryTitle = view.primary.title;
 
   return (
     <box
@@ -412,30 +226,20 @@ export function App({
       backgroundColor={theme.colors.background}
       title={view.title}
     >
-      {view.list?.type === "Form" ? (
+      {form ? (
         <box flexDirection="column" flexGrow={1} paddingLeft={1} paddingRight={1}>
           <FormView
-            key={view.list.id}
-            form={view.list}
-            enabled={panel === null && !alert}
-            send={send}
-            submit={() =>
-              send(
-                event(
-                  view.primary,
-                  handler(view.primary?.props.onAction) ? "onAction" : "onSubmit",
-                ),
-              )
-            }
+            key={form.id}
+            form={form}
+            enabled={!view.actions.open && !alert}
+            send={(value) => value && session.sendEvent(value.node, value.handler, value.args)}
+            submit={() => input({ type: "primary" })}
           />
         </box>
-      ) : isMenu ? (
+      ) : view.menuBar ? (
         <box flexDirection="row" flexGrow={1} paddingLeft={1} paddingRight={1}>
           <scrollbox ref={scroll} flexGrow={1}>
-            <MenuBarView
-              rows={menu}
-              selectedId={menuChoice ? selectionId(menuChoice.node) : null}
-            />
+            <MenuBarView rows={view.menuBar.rows} />
           </scrollbox>
         </box>
       ) : (
@@ -446,19 +250,19 @@ export function App({
             </text>
             <input
               flexGrow={1}
-              focused={panel === null && !alert && !dropdownOpen}
-              value={searchText}
-              placeholder={text(view.list?.props.searchBarPlaceholder) || "Search…"}
+              focused={!view.actions.open && !alert && !dropdown?.open}
+              value={view.search.text}
+              placeholder={view.search.placeholder}
               placeholderColor={theme.colors.textMuted}
               textColor={theme.colors.text}
-              onInput={search}
+              onInput={(value) => input({ type: "search", text: value })}
             />
             {dropdown && (
               <text
                 flexShrink={0}
                 wrapMode="none"
                 fg={theme.colors.textMuted}
-              >{`▾ ${dropdownLabel(dropdown, dropdownOptions(dropdown))}`}</text>
+              >{`▾ ${dropdown.label}`}</text>
             )}
           </box>
           <box
@@ -472,19 +276,19 @@ export function App({
             <scrollbox
               ref={scroll}
               flexGrow={1}
-              width={view.list?.type === "Detail" ? 0 : view.detail ? "50%" : "100%"}
+              width={view.kind === "detail" ? 0 : view.detail ? "50%" : "100%"}
             >
               {view.grid ? (
-                <GridView layout={view.grid} selectedId={id} emptyText={view.emptyText} />
+                <GridView rows={view.grid} emptyText={view.emptyText} />
               ) : (
                 <>
                   {view.rows.map((row) => {
-                    const isSelected = row.node.id === view.selected?.id;
-                    if (!row.item) {
+                    const isSelected = row.selected;
+                    if (row.kind !== "item") {
                       return (
                         <box
-                          key={row.node.id}
-                          id={row.node.id}
+                          key={row.id}
+                          id={row.id}
                           flexDirection="row"
                           justifyContent="space-between"
                           height={1}
@@ -498,9 +302,9 @@ export function App({
                             fg={theme.colors.textMuted}
                             attributes={TextAttributes.BOLD}
                           >
-                            {row.title ?? row.text}
+                            {row.title}
                           </text>
-                          {row.count !== undefined ? (
+                          {row.count !== null ? (
                             <text flexShrink={0} wrapMode="none" fg={theme.colors.textMuted}>
                               {row.count}
                             </text>
@@ -510,8 +314,8 @@ export function App({
                     }
                     return (
                       <box
-                        key={row.node.id}
-                        id={row.node.id}
+                        key={row.id}
+                        id={row.id}
                         flexDirection="row"
                         width="100%"
                         height={1}
@@ -533,7 +337,7 @@ export function App({
                           {...(isSelected ? { attributes: TextAttributes.BOLD } : {})}
                           {...(isSelected ? { backgroundColor: theme.colors.selectionBg } : {})}
                         >
-                          {row.title ?? row.text}
+                          {row.title}
                         </text>
                         {row.subtitle ? (
                           <text
@@ -563,14 +367,14 @@ export function App({
                       </box>
                     );
                   })}
-                  {view.list?.type !== "Detail" && view.rows.length === 0 && (
+                  {view.kind !== "detail" && view.rows.length === 0 && (
                     <text fg={theme.colors.textMuted}>{view.emptyText}</text>
                   )}
                 </>
               )}
             </scrollbox>
             {view.detail && (
-              <scrollbox flexGrow={1} width={view.list?.type === "Detail" ? "100%" : "50%"}>
+              <scrollbox flexGrow={1} width={view.kind === "detail" ? "100%" : "50%"}>
                 <text height={view.detail.split("\n").length} flexShrink={0} fg={theme.colors.text}>
                   {view.detail}
                 </text>
@@ -579,7 +383,7 @@ export function App({
           </box>
         </>
       )}
-      {panel !== null && (
+      {view.actions.open && (
         <box
           position="absolute"
           bottom={1}
@@ -591,42 +395,38 @@ export function App({
           borderColor={theme.colors.border}
           backgroundColor={theme.colors.panel}
           flexShrink={0}
-          height={Math.min(panelRows.length + 3, 14)}
-          title={text(panelNode?.props.title) || "Actions"}
+          height={Math.min(view.actions.rows.length + 3, 14)}
+          title={view.actions.title}
         >
           <input
             focused={!alert}
-            value={query}
+            value={view.actions.query}
             placeholder="Filter actions…"
             placeholderColor={theme.colors.textMuted}
             textColor={theme.colors.text}
             backgroundColor={theme.colors.panel}
             focusedBackgroundColor={theme.colors.panel}
-            onInput={(value) => {
-              setQuery(value);
-              setActionIndex(0);
-              send(event(panelNode, "onSearchTextChange", [value]));
-            }}
+            onInput={(value) => input({ type: "actionsQuery", text: value })}
           />
           <scrollbox ref={actionScroll} flexGrow={1}>
-            {panelRows.map((row) => {
-              const isChosen = row.node.id === chosen?.id;
-              if (!row.item) {
+            {view.actions.rows.map((row, rowIndex) => {
+              const isChosen = row.selected;
+              if (row.kind === "section") {
                 return (
-                  <box key={row.node.id} id={row.node.id} height={1} flexShrink={0} width="100%">
+                  <box key={row.id} id={row.id} height={1} flexShrink={0} width="100%">
                     <text flexGrow={1} fg={theme.colors.textMuted} attributes={TextAttributes.BOLD}>
-                      {row.title ?? row.text}
+                      {row.title}
                     </text>
                   </box>
                 );
               }
-              const itemIndex = panelItems.findIndex((it) => it.node.id === row.node.id);
-              const shortcut = row.shortcut || (itemIndex === 0 ? theme.glyphs.enter : "");
-              const isSubmenu = row.node.type === "ActionPanel.Submenu" || Boolean(row.isSubmenu);
+              const first = view.actions.rows.findIndex((it) => it.kind !== "section") === rowIndex;
+              const shortcut = row.shortcut || (first ? theme.glyphs.enter : "");
+              const isSubmenu = row.kind === "submenu";
               return (
                 <box
-                  key={row.node.id}
-                  id={row.node.id}
+                  key={row.id}
+                  id={row.id}
                   flexDirection="row"
                   width="100%"
                   height={1}
@@ -648,7 +448,7 @@ export function App({
                     {...(isChosen ? { attributes: TextAttributes.BOLD } : {})}
                     {...(isChosen ? { backgroundColor: theme.colors.selectionBg } : {})}
                   >
-                    {row.title ?? row.text}
+                    {row.title}
                   </text>
                   <box
                     flexGrow={1}
@@ -680,15 +480,10 @@ export function App({
           </scrollbox>
         </box>
       )}
-      {dropdownOpen && dropdown && (
+      {dropdown?.open && (
         <DropdownPanel
           dropdown={dropdown}
-          query={dropdownQuery}
-          index={dropdownIndex}
-          onQuery={(value) => {
-            setDropdownQuery(value);
-            setDropdownIndex(0);
-          }}
+          onQuery={(value) => input({ type: "dropdownQuery", text: value })}
         />
       )}
       {failure && (

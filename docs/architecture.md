@@ -16,17 +16,17 @@ extension code (unmodified, bundled)
 
 ## Packages
 
-| Package                | Owns                                                                                                                          | Depends on                               |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
-| `packages/protocol`    | message types, validation, NDJSON framing                                                                                     | nothing                                  |
-| `packages/runtime`     | reconciler, `@raycast/api` shim, child entry                                                                                  | protocol, react                          |
-| `packages/serve`       | versioned embedder stdio, capability forwarding                                                                               | host, protocol, native                   |
-| `packages/shared-deps` | optional shared extension libraries and resolver                                                                              | pinned portable npm libraries            |
-| `packages/host`        | engine: bundling, process lifecycle, broker, registry                                                                         | protocol, esbuild                        |
-| `packages/client-core` | framework-free Raycast client semantics (view model, filtering, actions, shortcuts, pagination, dropdown, grid, form, timing) | protocol                                 |
-| `packages/native`      | optional OS clipboard, open, file manager, trash                                                                              | protocol                                 |
-| `packages/cli`         | `blast` debug CLI and headless capability answers                                                                             | host, protocol                           |
-| `packages/tui`         | Bun terminal client (reference embedder)                                                                                      | client-core, cli, host, protocol, native |
+| Package                | Owns                                                                                                                           | Depends on                               |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------- |
+| `packages/protocol`    | message types, validation, NDJSON framing                                                                                      | nothing                                  |
+| `packages/runtime`     | reconciler, `@raycast/api` shim, child entry                                                                                   | protocol, react                          |
+| `packages/serve`       | versioned embedder stdio, capability forwarding                                                                                | host, protocol, native                   |
+| `packages/shared-deps` | optional shared extension libraries and resolver                                                                               | pinned portable npm libraries            |
+| `packages/host`        | engine: bundling, process lifecycle, broker, registry                                                                          | protocol, esbuild                        |
+| `packages/client-core` | framework-free Raycast client controller (view model, filtering, actions, shortcuts, pagination, dropdown, grid, form, timing) | protocol                                 |
+| `packages/native`      | optional OS clipboard, open, file manager, trash                                                                               | protocol                                 |
+| `packages/cli`         | `blast` debug CLI and headless capability answers                                                                              | host, protocol                           |
+| `packages/tui`         | Bun terminal client: keys → controller, view → OpenTUI                                                                         | client-core, cli, host, protocol, native |
 
 `host` only spawns `runtime`, never imports it. See `docs/capabilities.md` for capabilities/storage and `docs/embedding.md` for embedding; `examples/go-embedder` is a minimal non-JS embedder.
 

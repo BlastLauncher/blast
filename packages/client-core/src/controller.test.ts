@@ -159,6 +159,15 @@ test("primary runs the selected item's first action; shortcuts match per platfor
   expect(mac.view().primary.shortcut).toBe("↵");
 });
 
+test("a key input reports whether it matched a shortcut", () => {
+  const controller = ready("Linux");
+  expect(controller.input({ type: "key", key: { name: "o", ctrl: true } }).handled).toBe(true);
+  const miss = controller.input({ type: "key", key: { name: "o", meta: true } });
+  expect(miss.handled).toBeUndefined();
+  expect("handled" in miss).toBe(false);
+  expect("handled" in controller.input({ type: "primary" })).toBe(false);
+});
+
 test("the action panel filters, opens a submenu with a breadcrumb, runs, and goes back", () => {
   const actions = [
     act("first"),
@@ -227,18 +236,27 @@ test("the action panel filters, opens a submenu with a breadcrumb, runs, and goe
 });
 
 test("the dropdown filters options and choosing one sends onChange", () => {
-  const dropdown = node("List.Dropdown", "dd", { value: "all", onChange: h("changed") }, [
-    node("List.Dropdown.Item", "d1", { title: "Everything", value: "all" }),
-    node("List.Dropdown.Section", "ds", { title: "Kinds" }, [
-      node("List.Dropdown.Item", "d2", { title: "Fruit", value: "fruit" }),
-      node("List.Dropdown.Item", "d3", { title: "Veg", value: "veg" }),
-    ]),
-  ]);
+  const dropdown = node(
+    "List.Dropdown",
+    "dd",
+    { value: "all", tooltip: "Pick a kind", onChange: h("changed") },
+    [
+      node("List.Dropdown.Item", "d1", { title: "Everything", value: "all" }),
+      node("List.Dropdown.Section", "ds", { title: "Kinds" }, [
+        node("List.Dropdown.Item", "d2", { title: "Fruit", value: "fruit" }),
+        node("List.Dropdown.Item", "d3", { title: "Veg", value: "veg" }),
+      ]),
+    ],
+  );
   const controller = ready(
     "Linux",
     scene(list({}, slot("searchBarAccessory", dropdown), item("apple"))),
   );
-  expect(controller.view().dropdown).toMatchObject({ label: "Everything", open: false });
+  expect(controller.view().dropdown).toMatchObject({
+    label: "Everything",
+    tooltip: "Pick a kind",
+    open: false,
+  });
   controller.input({ type: "openDropdown" });
   expect(controller.view().dropdown?.options.map((o) => o.value)).toEqual(["all", "fruit", "veg"]);
   controller.input({ type: "dropdownQuery", text: "veg" });
@@ -251,6 +269,26 @@ test("the dropdown filters options and choosing one sends onChange", () => {
   expect(controller.view().dropdown?.selectedIndex).toBe(1);
   controller.input({ type: "back" });
   expect(controller.view().dropdown?.open).toBe(false);
+});
+
+const controlled = (selectedItemId: string) =>
+  scene(list({ selectedItemId, onSelectionChange: h("sel") }, item("a"), item("b"), item("c")));
+
+test("an extension-controlled selection reports the request and waits for the echo", () => {
+  const controller = createController({ platform: "Linux" });
+  expect(names(controller.scene(controlled("a")))).toEqual(["sel"]);
+  const moved = controller.input({ type: "move", direction: "down" });
+  expect(moved.events).toEqual([{ node: "list", handler: "sel", args: ["b"] }]);
+  // The prop still says "a", so the view stays put and nothing more is sent.
+  expect(controller.view().selectedId).toBe("a");
+  expect(controller.input({ type: "search", text: "" }).events).toEqual([]);
+  // The echo settles it without reporting "b" a second time.
+  expect(controller.scene(controlled("b")).events).toEqual([]);
+  expect(controller.view().selectedId).toBe("b");
+  // A request the extension overrides is reported as what it chose instead.
+  controller.input({ type: "select", id: "c" });
+  expect(names(controller.scene(controlled("a")))).toEqual(["sel"]);
+  expect(controller.view().selectedId).toBe("a");
 });
 
 test("pagination asks for the next page once per item count", () => {
