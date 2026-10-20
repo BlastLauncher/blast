@@ -486,6 +486,8 @@ test("launch forwards bundleTimeoutMs and the server remains usable after a time
     bundleTimeoutMs: 1,
   });
   expect(failed.ok).toBe(false);
+  expect(failed.error.code).toBe("BUNDLE_TIMEOUT");
+  expect(failed.error.data).toMatchObject({ command: "index", timeoutMs: 1 });
   expect(failed.error.message).toContain("timed out after 1 ms");
   const launched = await c.request("extension.launch", {
     extension,
