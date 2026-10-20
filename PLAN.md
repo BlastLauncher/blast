@@ -81,7 +81,8 @@ Raycast client semantics built in so embedders only draw.
 - [x] 0069 Release build: emitted JS + `.d.ts`, `npm pack` smoke on Node 24
 - [x] 0077 Slim engine: shared-dependency allowlist out of the engine install
 - [x] 0078 client-core controller (UI state machine)
-- [ ] 0079 TUI on the controller; 0080 views over `blast serve`; 0081 flaky tests
+- [ ] 0079 TUI on the controller; 0080 views over `blast serve`
+- [x] 0081 flaky tests under load (event waits, explicit budgets)
 - [ ] 0070 Real-world compat: dependency-heavy corpus set with installs
 - [x] 0071 Deprecated: 939/939 (2026-10-20: non-deprecated 1533/1534, only
       embedder-owned `BrowserExtension.getContent` partial)

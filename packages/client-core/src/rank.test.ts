@@ -148,6 +148,12 @@ test("filtering: false and onSearchTextChange disable client filtering", () => {
     keepSectionOrder: true,
   });
   expect(filteringOf(undefined)).toEqual({ enabled: true, keepSectionOrder: false });
+  // An explicit `filtering` still filters alongside onSearchTextChange.
+  const owned = { onSearchTextChange: { $handler: "h" } };
+  expect(ids("a", node("List", "l", { ...owned, filtering: true }, children))).toEqual(["a"]);
+  expect(
+    filteringOf(node("List", "l", { ...owned, filtering: { keepSectionOrder: true } })),
+  ).toEqual({ enabled: true, keepSectionOrder: true });
 });
 
 const cell = (id: string) => node("Grid.Item", id, { title: id, content: "x.png" });

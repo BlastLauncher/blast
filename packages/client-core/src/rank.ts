@@ -72,7 +72,12 @@ export type FilteringOptions = { enabled: boolean; keepSectionOrder: boolean };
  */
 export function filteringOf(node: SceneNode | undefined): FilteringOptions {
   const value = node?.props.filtering;
-  const enabled = value !== false && !handler(node?.props.onSearchTextChange);
+  // Raycast: defaults to false when the view handles onSearchTextChange, but an
+  // explicit `filtering` (true or an options object) still filters client-side.
+  const enabled =
+    value === undefined || value === null
+      ? !handler(node?.props.onSearchTextChange)
+      : value !== false;
   const keepSectionOrder =
     !!value &&
     typeof value === "object" &&

@@ -43,5 +43,8 @@ export function paginationOf(
 }
 /** Client-side filtering is on unless the view opts out or owns it. */
 export function isFiltering(node: SceneNode | undefined): boolean {
-  return node?.props.filtering !== false && !handler(node?.props.onSearchTextChange);
+  const value = node?.props.filtering;
+  return value === undefined || value === null
+    ? !handler(node?.props.onSearchTextChange)
+    : value !== false;
 }
