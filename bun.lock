@@ -60,6 +60,7 @@
     "packages/serve": {
       "name": "@blastlauncher/serve",
       "dependencies": {
+        "@blastlauncher/client-core": "workspace:*",
         "@blastlauncher/host": "workspace:*",
         "@blastlauncher/native": "workspace:*",
         "@blastlauncher/protocol": "workspace:*",
