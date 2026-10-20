@@ -41,6 +41,15 @@ function supplied(name: string): boolean {
   return name === "@raycast/api" || /^react(?:\/|$)/.test(name) || name.startsWith("@types/");
 }
 
+type LockedDependency = { dependencies?: Record<string, LockedDependency> };
+
+function stripSuppliedDependencies(dependencies: Record<string, LockedDependency>): void {
+  for (const [name, dependency] of Object.entries(dependencies)) {
+    if (supplied(name)) delete dependencies[name];
+    else if (dependency.dependencies) stripSuppliedDependencies(dependency.dependencies);
+  }
+}
+
 async function optionalFile(path: string): Promise<string | undefined> {
   try {
     return await readFile(path, "utf8");
@@ -63,6 +72,8 @@ async function inputs(options: DependencyInstallOptions) {
     ),
   );
   const key = createHash("sha256")
+    // Rebuild installs made before supplied packages and peers were omitted.
+    .update("lean-install-v1\n")
     .update(JSON.stringify(dependencies))
     .update("\n")
     .update(lock ?? "")
@@ -158,17 +169,32 @@ export async function installExtensionDependencies(
           dependencies,
         };
       }
-      if (lock.dependencies) {
-        for (const name of Object.keys(lock.dependencies)) {
-          if (supplied(name)) delete lock.dependencies[name];
+      if (lock.packages) {
+        for (const path of Object.keys(lock.packages)) {
+          // Drop supplied packages and their private graphs at any nesting depth.
+          if (
+            path
+              .split(/(?:^|\/)node_modules\//)
+              .slice(1)
+              .some(supplied)
+          )
+            delete lock.packages[path];
         }
       }
+      if (lock.dependencies) stripSuppliedDependencies(lock.dependencies);
       await writeFile(join(input.directory, "package-lock.json"), JSON.stringify(lock, null, 2));
     }
     if (Object.keys(dependencies).length)
       await (options.installer ?? npmDependencyInstaller)({
         command: process.platform === "win32" ? "npm.cmd" : "npm",
-        args: ["install", "--omit=dev", "--ignore-scripts", "--no-audit", "--no-fund"],
+        args: [
+          "install",
+          "--omit=dev",
+          "--omit=peer",
+          "--ignore-scripts",
+          "--no-audit",
+          "--no-fund",
+        ],
         cwd: input.directory,
         ...(options.onLog ? { onLog: options.onLog } : {}),
       });
