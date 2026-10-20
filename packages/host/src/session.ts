@@ -21,7 +21,7 @@ import type { Broker } from "./broker.ts";
 import type { BundledCommand } from "./bundle.ts";
 import { createStorage, defaultDataDir, storageFile } from "./storage.ts";
 
-export type StartOptions = BundledCommand & {
+export type StartOptions = Omit<BundledCommand, "bundleMs"> & {
   broker: Broker;
   providerResponse?: (message: ProviderResponse) => void;
   dataDir?: string;

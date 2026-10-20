@@ -472,3 +472,29 @@ test("serve views edit and submit forms without raw events", async () => {
   await c.request("engine.shutdown");
   expect(await c.exited).toBe(0);
 }, 20_000);
+
+test("launch forwards bundleTimeoutMs and the server remains usable after a timeout", async () => {
+  const c = await client();
+  await c.hello([]);
+  const opened = await c.request("extension.open", {
+    dir: resolve("fixtures/extensions/hello-list"),
+  });
+  const extension = opened.result.extension;
+  const failed = await c.request("extension.launch", {
+    extension,
+    command: "index",
+    bundleTimeoutMs: 1,
+  });
+  expect(failed.ok).toBe(false);
+  expect(failed.error.code).toBe("BUNDLE_TIMEOUT");
+  expect(failed.error.data).toMatchObject({ command: "index", timeoutMs: 1 });
+  expect(failed.error.message).toContain("timed out after 1 ms");
+  const launched = await c.request("extension.launch", {
+    extension,
+    command: "index",
+    bundleTimeoutMs: 0,
+  });
+  expect(launched.ok).toBe(true);
+  await c.request("engine.shutdown");
+  expect(await c.exited).toBe(0);
+}, 15000);

@@ -78,6 +78,7 @@ Options:
                         "-" reads the script from stdin. Without a script, the
                         first scene is printed and the run ends.
   --json                Emit protocol-shaped NDJSON instead of text trees.
+  --bundle-timeout <ms> Bundling limit (default: 60000; 0 disables).
   --timeout <ms>        Abort the run after <ms> milliseconds (exit code 3).
   --help                Show this help.
 
@@ -508,6 +509,7 @@ type RunOptions = {
   dataDir: string;
   scriptSource: string | undefined;
   json: boolean;
+  bundleTimeoutMs: number | undefined;
   timeoutMs: number | undefined;
 };
 
@@ -588,6 +590,7 @@ async function run(options: RunOptions): Promise<number> {
         bundleCommand({
           extensionDir: options.extensionDir,
           command: options.command,
+          ...(options.bundleTimeoutMs === undefined ? {} : { timeoutMs: options.bundleTimeoutMs }),
           dataDir: options.dataDir,
         }),
         deadline,
@@ -715,6 +718,7 @@ function parseArguments(argv: string[]) {
         script: { type: "string" },
         json: { type: "boolean" },
         timeout: { type: "string" },
+        "bundle-timeout": { type: "string" },
         help: { type: "boolean" },
       },
     });
@@ -853,6 +857,20 @@ async function main(argv: string[]): Promise<number> {
     }
     timeoutMs = value;
   }
+  let bundleTimeoutMs: number | undefined;
+  if (parsed.values["bundle-timeout"] !== undefined) {
+    const value = Number(parsed.values["bundle-timeout"]);
+    if (
+      parsed.values["bundle-timeout"].trim() === "" ||
+      !Number.isSafeInteger(value) ||
+      value < 0 ||
+      value > 2_147_483_647
+    )
+      throw new UsageError(
+        "--bundle-timeout must be an integer between 0 and 2147483647 milliseconds",
+      );
+    bundleTimeoutMs = value;
+  }
   const script = parsed.values.script;
   const dataDir = parsed.values["data-dir"];
   if (dataDir === "") throw new UsageError("--data-dir must not be empty");
@@ -883,6 +901,7 @@ async function main(argv: string[]): Promise<number> {
     scriptSource: script === undefined ? undefined : await readScript(script),
     json: parsed.values.json === true,
     timeoutMs,
+    bundleTimeoutMs,
   });
 }
 

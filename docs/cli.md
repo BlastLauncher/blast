@@ -33,7 +33,7 @@ are missing; matching installs take precedence over Blast's shared packages.
   `mcp.install`, needs `--grant` (records the request only).
 - `--data-dir <dir>` — root for LocalStorage, OAuth tokens, support and
   internal (dropdown) storage. These need no grant.
-- `--timeout <ms>` — bounds the run.
+- `--timeout <ms>` bounds the run; `--bundle-timeout <ms>` limits bundling (default 60000; 0 disables); `blast serve` launch accepts `bundleTimeoutMs`.
 
 Headless answers for capabilities a desktop client owns:
 

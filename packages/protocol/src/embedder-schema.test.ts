@@ -79,6 +79,12 @@ function validate(root: Schema, schema: Schema, value: unknown, at: string): str
   const types = typeof schema.type === "string" ? [schema.type] : (schema.type as string[]);
   if (types !== undefined && !types.some((type) => matchesType(value, type)))
     return fail(`expected type ${types.join(" | ")}`);
+  if (typeof value === "number") {
+    if (typeof schema.minimum === "number" && value < schema.minimum)
+      return fail(`below minimum ${schema.minimum}`);
+    if (typeof schema.maximum === "number" && value > schema.maximum)
+      return fail(`above maximum ${schema.maximum}`);
+  }
   if (Array.isArray(value)) {
     if ("items" in schema) {
       for (const [index, item] of value.entries()) {
@@ -473,4 +479,22 @@ test("session.view requires a session and opaque JSON object view", () => {
   for (const view of [null, [], "list"]) expect(schemaOf({ ...message, view })).not.toBeNull();
   expect(schemaOf({ type: "event", event: "session.view", session: "2" })).not.toBeNull();
   expect(schemaOf({ type: "event", event: "session.view", view: {} })).not.toBeNull();
+});
+
+test("launch bundleTimeoutMs agrees between the validator and schema", () => {
+  for (const bundleTimeoutMs of [0, 1, 60000, 2147483647, -1, 0.5, 2147483648, "1", null]) {
+    const message = {
+      type: "request",
+      id: "1",
+      method: "extension.launch",
+      params: { extension: "1", command: "index", bundleTimeoutMs },
+    };
+    const valid =
+      typeof bundleTimeoutMs === "number" &&
+      Number.isInteger(bundleTimeoutMs) &&
+      bundleTimeoutMs >= 0 &&
+      bundleTimeoutMs <= 2147483647;
+    expect(parseEmbedderMessage(message).ok).toBe(valid);
+    expect(schemaOf(message) === null).toBe(valid);
+  }
 });

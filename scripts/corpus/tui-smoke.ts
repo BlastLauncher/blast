@@ -259,6 +259,7 @@ function detail(result: TuiResult): string {
     case "client-error":
       return `${result.error}${warnings}`;
     case "empty":
+    case "bundle-timeout":
     case "timeout":
     case "unsupported-mode":
     case "missing-arguments":

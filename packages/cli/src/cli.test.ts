@@ -1149,3 +1149,19 @@ test("--fallback-text reaches a fallback command, including an empty string", as
     expect(result.stdout).toContain(`"title":${JSON.stringify(text)}`);
   }
 }, 30_000);
+
+test("--bundle-timeout accepts zero and a limit, and rejects invalid milliseconds", async () => {
+  const timedOut = await runCli(["run", helloList, "index", "--bundle-timeout", "1"]);
+  expect(timedOut.code).toBe(3);
+  expect(timedOut.stderr).toContain("timed out after 1 ms");
+  for (const value of ["0", "60000"]) {
+    const result = await runCli(["run", helloList, "index", "--bundle-timeout", value]);
+    expect(result.code).toBe(0);
+    expect(result.stdout).toBe(FIRST_SCENE);
+  }
+  for (const value of ["-1", "1.5", "NaN", "", "2147483648"]) {
+    const result = await runCli(["run", helloList, "index", `--bundle-timeout=${value}`]);
+    expect(result.code).toBe(2);
+    expect(result.stderr).toContain("--bundle-timeout must be an integer");
+  }
+}, 15_000);

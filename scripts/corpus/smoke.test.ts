@@ -99,7 +99,7 @@ test("required launch arguments are reported before running an invalid smoke inv
   expect(report.totals["missing-arguments"]).toBe(1);
   expect(renderJsonReport(report)).toContain('"outcome": "missing-arguments"');
   expect(renderMarkdownReport(report)).toContain(
-    "| missing-arguments | requires launch arguments: entryName; not run |",
+    "| missing-arguments | — | requires launch arguments: entryName; not run |",
   );
 });
 
@@ -111,7 +111,7 @@ test("a menu-bar command that renders an empty scene counts as rendered", () => 
   expect(report.totals.timeout).toBe(0);
   expect(renderJsonReport(report)).toContain('"empty": true');
   expect(renderMarkdownReport(report)).toContain(
-    "| `ext/index` | menu-bar | rendered | empty menu bar |",
+    "| `ext/index` | menu-bar | rendered | — | empty menu bar |",
   );
   // It is a success, so the report has no failure section for it.
   expect(renderMarkdownReport(report)).not.toContain("## Failures");
@@ -247,7 +247,7 @@ test("a broker denial is classified with its capability name in JSON and markdow
   expect(report.totals["capability-denied"]).toBe(1);
   expect(renderJsonReport(report)).toContain('"path": "open.url"');
   expect(renderMarkdownReport(report)).toContain(
-    "| capability-denied | denied capability open.url |",
+    "| capability-denied | — | denied capability open.url |",
   );
   // Denials are failures; a completed no-view command is not.
   const markdown = renderMarkdownReport(
@@ -331,6 +331,7 @@ test("buildReport sorts results and extension failures and totals outcomes", () 
     completed: 0,
     "capability-denied": 0,
     "bundle-failed": 0,
+    "bundle-timeout": 0,
     crashed: 0,
     network: 0,
     timeout: 2,
@@ -398,7 +399,7 @@ test("the markdown report renders a sorted table, totals and failure details", (
     "`zeta/index`",
   ]);
   expect(markdown).toContain(
-    "3 commands: rendered 1, completed 1, capability-denied 0, bundle-failed 1, crashed 0, network 0, timeout 0, unsupported-mode 0, unsupported-api 0",
+    "3 commands: rendered 1, completed 1, capability-denied 0, bundle-failed 1, bundle-timeout 0, crashed 0, network 0, timeout 0, unsupported-mode 0, unsupported-api 0",
   );
   expect(markdown).toContain("missing left-pad, right-pad");
   expect(markdown).toContain('command mode "no-view" completed without rendering a scene');
@@ -416,5 +417,29 @@ test("UNSUPPORTED_API is classified with its path in JSON and markdown", () => {
   const report = buildReport("pinned", [missing]);
   expect(report.totals["unsupported-api"]).toBe(1);
   expect(renderJsonReport(report)).toContain('"path": "Action.OpenInBrowser"');
-  expect(renderMarkdownReport(report)).toContain("| unsupported-api | Action.OpenInBrowser |");
+  expect(renderMarkdownReport(report)).toContain("| unsupported-api | — | Action.OpenInBrowser |");
+});
+
+test("bundle deadlines are distinct from scene timeouts and carry timing into reports", () => {
+  const timedOut = result({ kind: "bundle-timeout", timeoutMs: 10, bundleMs: 12.4 });
+  expect(timedOut).toMatchObject({
+    outcome: "bundle-timeout",
+    bundleMs: 12.4,
+    reason: "bundling exceeded 10 ms",
+  });
+  const report = buildReport("pinned", [timedOut]);
+  expect(report.totals["bundle-timeout"]).toBe(1);
+  expect(report.totals.timeout).toBe(0);
+  expect(renderJsonReport(report)).toContain('"bundleMs": 12.4');
+  expect(renderMarkdownReport(report)).toContain(
+    "| bundle-timeout | 12 | bundling exceeded 10 ms |",
+  );
+  const rendered = buildResult({
+    extension: "ext",
+    command: "index",
+    mode: "view",
+    bundleMs: 3.5,
+    probe: { kind: "scene", nodeCount: 1, rootType: "List" },
+  });
+  expect(rendered.bundleMs).toBe(3.5);
 });

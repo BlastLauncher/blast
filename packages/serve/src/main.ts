@@ -1,5 +1,6 @@
 import {
   createEngine,
+  BundleTimeoutError,
   MissingLaunchValuesError,
   type CapabilityHandler,
   type ExtensionHandle,
@@ -64,8 +65,17 @@ const send = (message: EmbedderServerMessage) => {
   process.stdout.write(`${JSON.stringify(message)}\n`);
 };
 const errorInfo = (error: unknown) => ({
-  code: "failed",
+  code: error instanceof BundleTimeoutError ? error.code : "failed",
   message: error instanceof Error ? error.message : String(error),
+  ...(error instanceof BundleTimeoutError
+    ? {
+        data: json({
+          extension: error.extension,
+          command: error.command,
+          timeoutMs: error.timeoutMs,
+        }),
+      }
+    : {}),
 });
 const protocolError = (message: string, code = "invalid_message") =>
   send({ type: "error", error: { code, message } });
@@ -195,6 +205,9 @@ async function request(message: EmbedderRequest): Promise<JsonValue> {
       const key = id();
       const opened = await extension.launch(message.params.command, {
         ...message.params,
+        ...(message.params.bundleTimeoutMs === undefined
+          ? {}
+          : { timeoutMs: message.params.bundleTimeoutMs }),
         handlers: forwarding(key),
       });
       sessions.set(key, opened);

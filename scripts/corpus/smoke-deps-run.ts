@@ -295,7 +295,7 @@ async function runCommand(
   }
   const gate = async (result: DepsResult): Promise<DepsResult> => {
     await rm(dirname(bundle.bundled.entry), { recursive: true, force: true });
-    return result;
+    return { ...result, bundleMs: bundle.bundled.bundleMs };
   };
   const args = requiredArguments(manifest, commandName);
   if (args.length > 0) {

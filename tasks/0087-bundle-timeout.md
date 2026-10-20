@@ -1,7 +1,7 @@
 ---
 id: "0087"
 title: Bundling has a time limit and reports its duration
-status: doing
+status: review
 milestone: M5
 depends: []
 ---
@@ -49,9 +49,9 @@ reports how long bundling took. The corpus smokes record bundle time and a
 
 ## Acceptance
 
-- [ ] Tests above pass deterministically, with no real 60 s waits.
-- [ ] `bun run protocol:check` is clean.
-- [ ] `bun run verify` passes.
+- [x] Tests above pass deterministically, with no real 60 s waits.
+- [x] `bun run protocol:check` is clean.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -59,11 +59,20 @@ reports how long bundling took. The corpus smokes record bundle time and a
 
 ## Handoff
 
-Filled in by the worker when finishing:
-
-```
-Branch/commit:
-Verify:
+Branch/commit: t3/bundle-timeout @ 9b17b41 (implementation; handoff commit follows)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 100.1s
 Done:
-Not done / risks:
-```
+
+- Added a 60,000 ms default bundling deadline (0 disables), AbortSignal support,
+  typed BundleTimeoutError and bundleMs; esbuild contexts cancel and dispose.
+- Threaded deadlines through engine/extension defaults and launch options,
+  --bundle-timeout, and serve bundleTimeoutMs with typed wire errors.
+- Regenerated the protocol schema; smoke JSON/markdown record bundle duration
+  and distinguish bundle-timeout from scene timeouts, including gated deps runs.
+- Added generated-graph cancellation, abort, timing, option inheritance, CLI,
+  serve recovery, schema and report tests (761 tests pass); updated docs.
+  Not done / risks:
+- Full network corpus smokes were not rerun; existing committed reports remain
+  historical snapshots. No new dependencies.
+- Task 0086 launch-value call sites were left unchanged. Minimal session option
+  typing and TUI outcome exhaustiveness updates were required by the new fields.
