@@ -4,8 +4,8 @@
 // exit. The runners differ only in how dependencies resolve, so that is a
 // parameter; classification stays in `smoke.ts`.
 import { createHeadlessHandlers } from "../../packages/cli/src/index.ts";
-import { rm } from "node:fs/promises";
-import { dirname } from "node:path";
+import { mkdir, rm } from "node:fs/promises";
+import { dirname, join } from "node:path";
 import {
   bundleCommand,
   createBroker,
@@ -20,8 +20,7 @@ import {
   commandMode,
   countNodes,
   exitProbe,
-  extractPreferenceDefaults,
-  requiredArguments,
+  launchInputs,
   type CommandResult,
   type Manifest,
   type ProbeResult,
@@ -128,11 +127,23 @@ export async function launchOne(
   clean: (text: string) => string,
 ): Promise<CommandResult> {
   const mode = commandMode(manifest, commandName) ?? "view";
-  const build = (probe: ProbeResult, warnings?: string[], errorLogs?: string[]): CommandResult =>
-    buildResult({ extension, command: commandName, mode, probe, warnings, errorLogs });
   const outDir = dirname(bundled.entry);
+  // Under the build output, which is removed below, so nothing outlives the run.
+  const inputs = launchInputs(manifest, commandName, join(outDir, "placeholders"));
+  const build = (probe: ProbeResult, warnings?: string[], errorLogs?: string[]): CommandResult =>
+    buildResult({
+      extension,
+      command: commandName,
+      mode,
+      probe,
+      warnings,
+      errorLogs,
+      placeholders: inputs.placeholders,
+    });
   let session: Session | undefined;
   try {
+    if (inputs.unsupplied.length > 0) return build({ kind: "missing-arguments", names: inputs.unsupplied });
+    for (const directory of inputs.directories) await mkdir(directory, { recursive: true });
     try {
       session = await startCommand({
         ...bundled,
@@ -140,7 +151,10 @@ export async function launchOne(
         // that only reads applications, the clipboard or its preferences still
         // renders; the report header records the policy.
         broker: createBroker(createHeadlessHandlers()),
-        preferences: extractPreferenceDefaults(manifest, commandName),
+        preferences: inputs.preferences,
+        ...(Object.keys(inputs.argumentValues).length > 0
+          ? { argumentValues: inputs.argumentValues }
+          : {}),
       });
     } catch (error) {
       // Startup failures (handshake, exit before ready) are crashes too.
@@ -179,11 +193,7 @@ export async function runOne(
   dependencies: DependencyMode = { installedDependencies: false },
 ): Promise<CommandResult> {
   const mode = commandMode(manifest, commandName) ?? "view";
-  const build = (probe: ProbeResult): CommandResult =>
-    buildResult({ extension, command: commandName, mode, probe });
-  const names = requiredArguments(manifest, commandName);
-  if (names.length) return build({ kind: "missing-arguments", names });
   const bundle = await bundleOne(extensionDir, commandName, dependencies, clean);
-  if (!bundle.ok) return build(bundle.probe);
+  if (!bundle.ok) return buildResult({ extension, command: commandName, mode, probe: bundle.probe });
   return launchOne(extension, manifest, commandName, bundle.bundled, clean);
 }

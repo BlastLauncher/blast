@@ -3,6 +3,7 @@
 // the deterministic JSON/markdown reports. Nothing here spawns processes,
 // touches the network or reads the corpus checkout, so every rule is
 // unit-testable offline; the real run needs network and is not part of verify.
+import { join } from "node:path";
 
 export const OUTCOMES = [
   "rendered",
@@ -69,6 +70,8 @@ export type CommandResult = {
   logs?: string[] | undefined;
   /** Runtime warnings such as dropped non-serializable props. */
   warnings?: string[] | undefined;
+  /** The launch used placeholder values for required arguments and/or preferences. */
+  placeholders?: PlaceholderKind | undefined;
 };
 
 export type SmokeReport = {
@@ -113,17 +116,19 @@ export function exitProbe(exit: {
 }
 
 /** Minimal manifest shapes; anything else the manifest carries is ignored. */
+export type ManifestOption = { title?: string; value?: string };
 export type ManifestPreference = {
   name?: string;
   type?: string;
   required?: boolean;
   default?: Json;
+  data?: ManifestOption[];
 };
 export type ManifestCommand = {
   name?: string;
   mode?: string;
   preferences?: ManifestPreference[];
-  arguments?: { name: string; required?: boolean }[];
+  arguments?: { name: string; type?: string; required?: boolean; data?: ManifestOption[] }[];
 };
 export type Manifest = {
   commands?: ManifestCommand[];
@@ -154,7 +159,7 @@ export function commandMode(manifest: Manifest, commandName: string): string | u
   return command?.mode;
 }
 
-/** The smoke runner has no user input; required launch arguments need a separate run. */
+/** Required launch arguments, sorted; the TUI smoke still reports these as not run. */
 export function requiredArguments(manifest: Manifest, commandName: string): string[] {
   return (
     manifest.commands
@@ -179,6 +184,129 @@ export function extractPreferenceDefaults(
   const command = manifest.commands?.find((item) => item?.name === commandName);
   withDefaults(command?.preferences, defaults);
   return sortedKeys(defaults);
+}
+
+/** Required preferences with no manifest default: only a placeholder can supply them. */
+export function requiredPreferences(manifest: Manifest, commandName: string): ManifestPreference[] {
+  const command = manifest.commands?.find((item) => item?.name === commandName);
+  // A command preference shadows the extension one of the same name.
+  const declared = new Map<string, ManifestPreference>();
+  for (const preference of [...(manifest.preferences ?? []), ...(command?.preferences ?? [])]) {
+    if (typeof preference?.name === "string") declared.set(preference.name, preference);
+  }
+  const defaults = extractPreferenceDefaults(manifest, commandName);
+  return [...declared.values()]
+    .filter(
+      (preference) => preference.required === true && !((preference.name as string) in defaults),
+    )
+    .toSorted((a, b) => (a.name as string).localeCompare(b.name as string));
+}
+
+export type PlaceholderKind = "arguments" | "preferences" | "both";
+
+/** What a command is launched with, and which part of it is invented. */
+export type LaunchInputs = {
+  argumentValues: Record<string, string>;
+  /** Manifest defaults plus placeholders for required preferences without one. */
+  preferences: Record<string, Json>;
+  placeholders?: PlaceholderKind;
+  /** Directories the placeholder `file`/`directory` preferences point at; create before launch. */
+  directories: string[];
+  /** Required arguments no placeholder can stand in for (a dropdown with no options). */
+  unsupplied: string[];
+};
+
+/**
+ * Deterministic, offline stand-ins so a command that needs input still runs
+ * and reports what it does (task 0086): text and password arguments are
+ * `"blast"`, dropdowns take their first option; preferences are `"blast-smoke"`
+ * for textfield/password, `false` for checkbox, the first option for dropdown,
+ * `""` for appPicker, and a directory under `scratchDir` for file/directory.
+ * Only required values without a manifest default are invented.
+ */
+export function launchInputs(
+  manifest: Manifest,
+  commandName: string,
+  scratchDir: string,
+): LaunchInputs {
+  const command = manifest.commands?.find((item) => item?.name === commandName);
+  const argumentValues: Record<string, string> = {};
+  const unsupplied: string[] = [];
+  for (const argument of (command?.arguments ?? [])
+    .filter((item) => item.required)
+    .toSorted((a, b) => a.name.localeCompare(b.name))) {
+    if (argument.type === "dropdown") {
+      const first = argument.data?.find((option) => typeof option?.value === "string")?.value;
+      if (first === undefined) unsupplied.push(argument.name);
+      else argumentValues[argument.name] = first;
+    } else {
+      argumentValues[argument.name] = "blast";
+    }
+  }
+  const preferences: Record<string, Json> = extractPreferenceDefaults(manifest, commandName);
+  const directories: string[] = [];
+  const invented = requiredPreferences(manifest, commandName);
+  for (const preference of invented) {
+    const name = preference.name as string;
+    switch (preference.type) {
+      case "checkbox":
+        preferences[name] = false;
+        break;
+      case "dropdown":
+        preferences[name] =
+          preference.data?.find((option) => typeof option?.value === "string")?.value ?? "";
+        break;
+      case "appPicker":
+        preferences[name] = "";
+        break;
+      case "file":
+      case "directory": {
+        const directory = join(scratchDir, name);
+        directories.push(directory);
+        preferences[name] = directory;
+        break;
+      }
+      default:
+        preferences[name] = "blast-smoke";
+    }
+  }
+  const usedArguments = Object.keys(argumentValues).length > 0;
+  const usedPreferences = invented.length > 0;
+  return {
+    argumentValues,
+    preferences: sortedKeys(preferences),
+    ...(usedArguments || usedPreferences
+      ? {
+          placeholders:
+            usedArguments && usedPreferences
+              ? ("both" as const)
+              : usedArguments
+                ? ("arguments" as const)
+                : ("preferences" as const),
+        }
+      : {}),
+    directories,
+    unsupplied,
+  };
+}
+
+/** Report header lines shared by the smoke reports: the placeholder rules. */
+export const PLACEHOLDER_NOTE = [
+  "Required launch arguments and preferences without a default get deterministic",
+  "placeholders, so the outcome is what the command really does with them (the `Inputs`",
+  "column): text/password arguments `blast`, dropdown arguments their first option;",
+  "textfield/password preferences `blast-smoke`, checkbox `false`, dropdown the first",
+  "option, appPicker empty, file/directory a scratch directory.",
+];
+
+/** `N commands ran with placeholder inputs (...)`, or an empty string when none did. */
+export function placeholderSummary(results: readonly { placeholders?: PlaceholderKind | undefined }[]): string {
+  const count = (kind: PlaceholderKind): number =>
+    results.filter((result) => result.placeholders === kind).length;
+  const total = results.filter((result) => result.placeholders !== undefined).length;
+  return total === 0
+    ? ""
+    : `${total} ran with placeholder inputs (arguments ${count("arguments")}, preferences ${count("preferences")}, both ${count("both")}).`;
 }
 
 /** Every command name the manifest declares, sorted for a stable run order. */
@@ -222,6 +350,7 @@ export type BuildInput = {
   warnings?: string[] | undefined;
   /** Error-level log lines, already sanitized and capped to the last ones. */
   errorLogs?: string[] | undefined;
+  placeholders?: PlaceholderKind | undefined;
 };
 
 function formatExit(probe: Extract<ProbeResult, { kind: "exit" }>): string {
@@ -243,6 +372,7 @@ export function buildResult(input: BuildInput): CommandResult {
     return base;
   };
   if (input.warnings?.length) set({ warnings: input.warnings });
+  set({ placeholders: input.placeholders });
   const probe = input.probe;
   switch (probe.kind) {
     case "scene":
@@ -377,18 +507,19 @@ export function renderMarkdownReport(report: SmokeReport): string {
     `\`${report.commit}\`, with Blast's headless broker — deny-all except the`,
     "headless defaults `applications.list` (empty), `clipboard.read` (empty),",
     "`preferences.open` and `command.metadata` (recorded) — and manifest preference defaults.",
-    "Commands requiring launch arguments are reported as `missing-arguments` without running.",
+    ...PLACEHOLDER_NOTE,
     "Regenerate with `bun run corpus:smoke` (network required; not part of",
     "`bun run verify`).",
     "",
     `${report.results.length} commands: ${OUTCOMES.map((outcome) => `${outcome} ${count(outcome)}`).join(", ")}.`,
+    ...(placeholderSummary(report.results) === "" ? [] : [placeholderSummary(report.results)]),
     "",
-    "| Command | Mode | Outcome | Detail |",
-    "| --- | --- | --- | --- |",
+    "| Command | Mode | Outcome | Inputs | Detail |",
+    "| --- | --- | --- | --- | --- |",
   ];
   for (const result of report.results) {
     lines.push(
-      `| \`${result.extension}/${result.command}\` | ${result.mode} | ${result.outcome} | ${compactLine(detail(result))} |`,
+      `| \`${result.extension}/${result.command}\` | ${result.mode} | ${result.outcome} | ${result.placeholders ?? ""} | ${compactLine(detail(result))} |`,
     );
   }
   const failures = report.results.filter(
@@ -401,7 +532,9 @@ export function renderMarkdownReport(report: SmokeReport): string {
     }
     for (const result of failures) {
       lines.push(
-        `- \`${result.extension}/${result.command}\` (${result.outcome}): ${compactLine(detail(result))}`,
+        `- \`${result.extension}/${result.command}\` (${result.outcome}${
+          result.placeholders === undefined ? "" : `, placeholder ${result.placeholders}`
+        }): ${compactLine(detail(result))}`,
       );
       for (const log of result.logs ?? []) lines.push(`  - log: ${log}`);
       for (const warning of result.warnings ?? []) lines.push(`  - warning: ${warning}`);

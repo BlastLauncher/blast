@@ -30,10 +30,8 @@ import {
   classifyInstallFailure,
   installErrorExcerpt,
   installFailedResult,
-  needsPreferencesResult,
   renderDepsJsonReport,
   renderDepsMarkdownReport,
-  requiredPreferences,
   toDepsResult,
   type DepsResult,
   type InstallRecord,
@@ -43,7 +41,6 @@ import {
   commandMode,
   compactLine,
   manifestCommands,
-  requiredArguments,
   sanitizePath,
   type Manifest,
 } from "./smoke.ts";
@@ -269,9 +266,8 @@ async function main(): Promise<void> {
 }
 
 /**
- * Bundle against the installed dependencies, then run the command unless it
- * needs launch arguments or preferences nothing can supply here. Bundling
- * first keeps those commands in the dependency signal.
+ * Bundle against the installed dependencies, then run the command with
+ * placeholder arguments and preferences where it requires them (task 0086).
  */
 async function runCommand(
   extensionDir: string,
@@ -291,29 +287,6 @@ async function runCommand(
   if (!bundle.ok) {
     return toDepsResult(
       buildResult({ extension, command: commandName, mode, probe: bundle.probe }),
-    );
-  }
-  const gate = async (result: DepsResult): Promise<DepsResult> => {
-    await rm(dirname(bundle.bundled.entry), { recursive: true, force: true });
-    return result;
-  };
-  const args = requiredArguments(manifest, commandName);
-  if (args.length > 0) {
-    return gate(
-      toDepsResult(
-        buildResult({
-          extension,
-          command: commandName,
-          mode,
-          probe: { kind: "missing-arguments", names: args },
-        }),
-      ),
-    );
-  }
-  const preferences = requiredPreferences(manifest, commandName);
-  if (preferences.length > 0) {
-    return gate(
-      needsPreferencesResult({ extension, command: commandName, mode, names: preferences }),
     );
   }
   return toDepsResult(await launchOne(extension, manifest, commandName, bundle.bundled, clean));
