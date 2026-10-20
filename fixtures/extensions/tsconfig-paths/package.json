@@ -1,0 +1,9 @@
+{
+  "name": "tsconfig-paths",
+  "commands": [
+    {
+      "name": "index",
+      "mode": "view"
+    }
+  ]
+}

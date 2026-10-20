@@ -111,7 +111,8 @@ for installs, rejects missing values with `MissingLaunchValuesError` and returns
 `{ session, close }`. `close()` ends watchers and all owned sessions.
 
 `blast deps` keeps keyed production installs outside extensions under `<dataDir>/deps/`;
-bundling resolves matching installs before the optional `@blastlauncher/shared-deps` allowlist.
+bundling resolves the extension's tsconfig `baseUrl`/`paths` aliases first (read only
+inside the extension directory), then matching installs, then the optional `@blastlauncher/shared-deps` allowlist.
 
 `bundleCommand({ extensionDir, command, outDir?, dataDir? })` returns the entry path,
 extension/command names, manifest mode and argument declarations. Pass those to
@@ -136,8 +137,7 @@ Startup resolves after the version handshake. `session.scenes(callback)` subscri
 and replays the latest scene; its return value unsubscribes. `latestScene`, `logs`,
 `sendEvent(node, handler, args)` and `exited` support headless clients. Runtime
 errors appear in logs; fatal and protocol errors also appear in `exited.error`.
-`shutdown({ timeoutMs })` sends shutdown, then SIGTERM after the timeout, then
-SIGKILL after another timeout. Exit resolves after stdio closes.
+`shutdown({ timeoutMs })` sends shutdown, then SIGTERM after the timeout, then SIGKILL after another timeout. Exit resolves after stdio closes.
 
 Broker grants are explicit; missing handlers return `denied`, thrown handlers
 return `failed`. Preferences and environment can be supplied at startup. The
@@ -145,8 +145,8 @@ build directory mirrors Raycast: `<outDir>/assets` links to
 `<extensionDir>/assets` (a read-only copy where symlinks are unavailable), so
 `environment.assetsPath` and `__dirname`-relative asset paths both resolve, and
 `bundleCommand` returns the link as `assetsPath`. The extension directory is
-never written. The host creates a stable support
-directory at `<dataDir>/support/<escaped-extension>/` before spawning, using the
+never written. The host creates a stable support directory at
+`<dataDir>/support/<escaped-extension>/` before spawning, using the
 same data root as local storage; `--data-dir` applies to both. Callers can also
 supply explicit environment paths. Synchronous `Cache` stores strings under
 `<supportPath>/cache/<namespace?>` with atomic replacement and byte-based LRU
@@ -158,8 +158,8 @@ Callers own bundle output directories (default: a unique directory below
 
 `LocalStorage` in the runtime is a capability client: `storage.get|set|remove|all|clear`
 carry a key and a value — never an extension name, which the host takes from the
-session. The host answers them with
-`createStorageHandlers({ extensionName, dataDir })`: one JSON file per extension
+session. The host answers them with `createStorageHandlers({ extensionName, dataDir })`:
+one JSON file per extension
 at `<dataDir>/storage/<extension>.json` (default `<dataDir>`:
 `$XDG_DATA_HOME/blast`). `blast run` installs those handlers for the session's
 own extension by default — storage needs no `--grant` — and `--data-dir` moves
