@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { createBroker } from "./broker.ts";
+import { createBroker } from "@blastlauncher/host";
 import { parseBrowserTabs } from "./browser.ts";
 import { createHeadlessHandlers } from "./headless.ts";
 

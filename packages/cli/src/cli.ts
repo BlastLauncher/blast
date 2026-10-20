@@ -4,8 +4,6 @@
 // dropdown / back / confirm / dismiss / wait / expect / quit), which is how e2e tests interact
 // with extensions. See "Debugging extensions" in docs/architecture.md.
 
-import { bundleModelProvider } from "./bundle.ts";
-import { startModelProvider } from "./provider.ts";
 import { parseBrowserTabs, type BrowserTab } from "./browser.ts";
 import type {
   CapabilityRequestMessage,
@@ -23,15 +21,16 @@ import {
   installExtensionDependencies,
   createSessionBroker,
   defaultDataDir,
-  parseApplications,
+  bundleModelProvider,
+  startModelProvider,
   startCommand,
-  type Application,
   type Broker,
   type CapabilityHandler,
   type BundledCommand,
   type CommandArgument,
   type Session,
-} from "./index.ts";
+} from "@blastlauncher/host";
+import { createHeadlessHandlers, parseApplications, type Application } from "./headless.ts";
 
 const EXIT_OK = 0;
 const EXIT_FAILURE = 1;
@@ -620,18 +619,20 @@ async function run(options: RunOptions): Promise<number> {
     const broker = createSessionBroker(
       { extensionName: bundled.extensionName, dataDir: options.dataDir },
       {
-        grants: grantHandlers(options.grants),
-        defaults: {
-          aiAnswer: options.aiAnswer,
-          browserTabs: options.browserTabs,
-          oauthCode: options.oauthCode,
-          applications: options.applications,
-          clipboard: options.clipboard,
-          selectedText: options.selectedText,
-          selectedFiles: options.selectedFiles,
-          frontmost: options.frontmost,
+        handlers: {
+          ...grantHandlers(options.grants),
+          ...createHeadlessHandlers({
+            aiAnswer: options.aiAnswer,
+            browserTabs: options.browserTabs,
+            oauthCode: options.oauthCode,
+            applications: options.applications,
+            clipboard: options.clipboard,
+            selectedText: options.selectedText,
+            selectedFiles: options.selectedFiles,
+            frontmost: options.frontmost,
+          }),
+          ...(options.aiDecide === undefined ? {} : { "ai.decide": () => options.aiDecide! }),
         },
-        handlers: options.aiDecide === undefined ? {} : { "ai.decide": () => options.aiDecide! },
       },
     );
     session = await Promise.race([

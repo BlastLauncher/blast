@@ -1,3 +1,4 @@
+import { createHeadlessHandlers } from "@blastlauncher/cli";
 import { openExtension, type CapabilityHandler, type ExtensionHandle } from "@blastlauncher/host";
 
 export async function openCommand(
@@ -20,7 +21,7 @@ export async function openCommand(
   try {
     const opened = await extension.launch(command, {
       ...(options.argumentValues === undefined ? {} : { argumentValues: options.argumentValues }),
-      handlers: { ...effects.handlers, ...options.handlers },
+      handlers: { ...createHeadlessHandlers(), ...effects.handlers, ...options.handlers },
     });
     return {
       ...opened,

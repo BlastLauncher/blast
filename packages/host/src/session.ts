@@ -122,7 +122,7 @@ export async function startCommand(options: StartOptions): Promise<Session> {
       assetsPath: options.assetsPath ?? join(dirname(entry), "assets"),
       supportPath,
       isDevelopment: true,
-      // A headless host has no UI; the client can send its real theme.
+      // The client can supply its UI theme.
       appearance: "dark",
       textSize: "medium",
       availableAPIs: options.availableAPIs ?? [],

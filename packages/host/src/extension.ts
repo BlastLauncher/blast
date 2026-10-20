@@ -30,12 +30,23 @@ export class MissingLaunchValuesError extends Error {
   }
 }
 
-/** Opens an extension without starting a command or installing dependencies. */
-export function openExtension(options: {
+export type OpenExtensionOptions = {
   extensionDir: string;
   dataDir?: string;
   installer?: DependencyInstaller;
-}) {
+  handlers?: Record<string, CapabilityHandler>;
+};
+
+/** Opens an extension without starting a command or installing dependencies. */
+export function openExtension(options: OpenExtensionOptions) {
+  return createExtensionHandle(options);
+}
+
+/** Internal constructor shared with the engine's live handler registry. */
+export function createExtensionHandle(
+  options: OpenExtensionOptions,
+  engineHandlers: () => Record<string, CapabilityHandler> = () => ({}),
+) {
   const extensionDir = resolve(options.extensionDir);
   const dataDir = options.dataDir ?? defaultDataDir();
   const dependencyOptions = { extensionDir, dataDir };
@@ -126,7 +137,7 @@ export function openExtension(options: {
           : { launchContext: launchOptions.launchContext }),
         broker: createSessionBroker(
           { extensionName: bundled.extensionName, dataDir },
-          launchOptions,
+          { handlers: { ...engineHandlers(), ...options.handlers, ...launchOptions.handlers } },
         ),
       });
       let stopping: Promise<void> | undefined;
@@ -229,4 +240,4 @@ export function openExtension(options: {
   };
 }
 
-export type ExtensionHandle = ReturnType<typeof openExtension>;
+export type ExtensionHandle = ReturnType<typeof createExtensionHandle>;

@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import type { CapabilityResultMessage, JsonValue } from "@blastlauncher/protocol";
-import { createBroker, type Broker } from "./broker.ts";
+import { createBroker, type Broker } from "@blastlauncher/host";
 import { createHeadlessHandlers, parseApplications } from "./headless.ts";
 
 const safari = { name: "Safari", path: "/Applications/Safari.app", bundleId: "com.apple.Safari" };

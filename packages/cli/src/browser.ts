@@ -1,5 +1,5 @@
 import type { JsonValue } from "@blastlauncher/protocol";
-import type { CapabilityHandler } from "./broker.ts";
+import type { CapabilityHandler } from "@blastlauncher/host";
 
 export type BrowserTab = {
   id: number;

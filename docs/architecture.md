@@ -16,14 +16,15 @@ extension code (unmodified, bundled)
 
 ## Packages
 
-| Package                | Owns                                                                                                                          | Depends on                          |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
-| `packages/client-core` | framework-free Raycast client semantics (view model, filtering, actions, shortcuts, pagination, dropdown, grid, form, timing) | protocol                            |
-| `packages/native`      | optional OS clipboard, open, file manager, trash                                                                              | protocol                            |
-| `packages/tui`         | Bun terminal client, List rendering and input                                                                                 | client-core, host, protocol, native |
-| `packages/protocol`    | message types, validation, NDJSON framing                                                                                     | nothing                             |
-| `packages/runtime`     | reconciler, `@raycast/api` shim, child entry                                                                                  | protocol, react                     |
-| `packages/host`        | bundling, process lifecycle, broker, `blast` CLI                                                                              | protocol, esbuild                   |
+| Package                | Owns                                                                                                                          | Depends on                               |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| `packages/protocol`    | message types, validation, NDJSON framing                                                                                     | nothing                                  |
+| `packages/runtime`     | reconciler, `@raycast/api` shim, child entry                                                                                  | protocol, react                          |
+| `packages/host`        | engine: bundling, process lifecycle, broker, registry                                                                         | protocol, esbuild                        |
+| `packages/client-core` | framework-free Raycast client semantics (view model, filtering, actions, shortcuts, pagination, dropdown, grid, form, timing) | protocol                                 |
+| `packages/native`      | optional OS clipboard, open, file manager, trash                                                                              | protocol                                 |
+| `packages/cli`         | `blast` debug CLI and headless capability answers                                                                             | host, protocol                           |
+| `packages/tui`         | Bun terminal client (reference embedder)                                                                                      | client-core, cli, host, protocol, native |
 
 `host` never imports `runtime` code; it only spawns its entry file.
 
@@ -92,17 +93,20 @@ implemented APIs are accessible and stubs are inaccessible.
 
 ## Host sessions
 
-`openExtension({ extensionDir, dataDir?, installer? })` returns a reusable handle.
-`manifest()` reads validated commands, arguments and preference schemas;
-`watch(listener)` reports debounced manifest updates or errors and returns an unsubscribe.
-`dependencies.check()` / `install({ onLog })` serialize dependency operations.
-`preferences(command)` returns schemas, stored values and missing required fields;
-`savePreferences(command, values)` splits extension and command scope (command wins).
-Both accept an optional scope for extension-only preference editing.
-`launch(command, { argumentValues?, handlers?, launchContext? })` waits for installs,
-rejects missing values with `MissingLaunchValuesError`, and returns `{ session, close }`.
-Session close shuts down the runtime and removes its bundle; handle `close()` also
-closes watchers and all owned sessions, including launches still in progress.
+`createEngine({ dataDir?, installer?, handlers? })` groups extension handles:
+`register(handlers)` returns unregister (later wins, future launches), and
+`engine.openExtension` inherits its options; standalone `openExtension` works too.
+Handlers resolve engine → extension → launch, then session storage, OAuth tokens
+and own-provider AI win. Unregistered capabilities are denied (decision 0010).
+
+`openExtension({ extensionDir, dataDir?, installer?, handlers? })` returns a handle:
+`manifest()` (validated commands, arguments, preference schemas), `watch(listener)`
+(debounced updates or errors; returns unsubscribe), serialized
+`dependencies.check()` / `install({ onLog })`, `preferences(command)` (schemas,
+values, missing required) and `savePreferences(command, values)` (scope split),
+and `launch(command, { argumentValues?, handlers?, launchContext? })`, which waits
+for installs, rejects missing values with `MissingLaunchValuesError` and returns
+`{ session, close }`. `close()` ends watchers and all owned sessions.
 
 `blast deps` keeps keyed production installs outside extensions under `<dataDir>/deps/`;
 bundling resolves matching installs before the shared dependency allowlist.
@@ -148,8 +152,7 @@ eviction. Subscriptions notify matching cache instances within the process.
 Callers own bundle output directories (default: a unique directory below
 `os.tmpdir()/blast/builds`) and remove them after sessions exit.
 
-Per-capability semantics (names, grants, headless answers, storage locations)
-are in `docs/capabilities.md`.
+Capability semantics and storage locations are in `docs/capabilities.md`.
 
 ## Local storage
 
