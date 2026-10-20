@@ -37,8 +37,10 @@ export {
   ActionPanel,
   ActionPanelItem,
   ActionPanelSubmenu,
+  useActionPanel,
   type ActionPanelProps,
   type ActionPanelSectionProps,
+  type ActionPanelState,
   type ActionPanelSubmenuProps,
 } from "./action-panel.ts";
 export {
@@ -79,10 +81,23 @@ export {
   getPreferenceValues,
   openCommandPreferences,
   openExtensionPreferences,
+  preferences,
+  type Preference,
+  type Preferences,
+  type PreferenceType,
   type PreferenceValues,
 } from "./preferences.ts";
 
-export { Icon, Color, Image, LaunchType, PopToRootType } from "./enums.generated.ts";
+import { Color as ColorValues } from "./enums.generated.ts";
+export { Icon, Image, LaunchType, PopToRootType } from "./enums.generated.ts";
+/**
+ * The declared enum values plus the deprecated `Color.Brown`. The declarations
+ * carry no value for it, so it uses Apple's documented system brown pair.
+ */
+export const Color = {
+  ...ColorValues,
+  Brown: { light: "#A2845E", dark: "#AC8E68" },
+};
 /** Deprecated alias of `Image.Mask`, exactly as the declarations define it. */
 export const ImageMask = Image.Mask;
 export { OpenInBrowser, Paste, CopyToClipboardAction, PasteAction } from "./action.ts";
@@ -106,6 +121,8 @@ export {
   useNavigation,
   type ClearSearchBarOptions,
 } from "./navigation.ts";
+
+export { randomId, render, useId } from "./legacy.ts";
 
 export {
   Toast,

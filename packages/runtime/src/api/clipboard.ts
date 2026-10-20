@@ -12,6 +12,8 @@ export type ClipboardContent =
 
 /** `Clipboard.CopyOptions`. */
 export interface CopyOptions {
+  /** @deprecated Use `concealed` instead. */
+  transient?: boolean;
   /** Indicates whether the content should be treated as confidential. */
   concealed?: boolean;
 }
@@ -69,6 +71,9 @@ export async function copy(
   const params = contentParams(content, "Clipboard.copy");
   // Only a set flag crosses the wire: absent stays absent, like every prop.
   if (options?.concealed !== undefined) params["concealed"] = options.concealed;
+  // `transient` is the deprecated name of `concealed`; hosts that still know the
+  // old flag receive it as authored rather than silently dropped.
+  if (options?.transient !== undefined) params["transient"] = options.transient;
   await requestCapability("clipboard.copy", params);
 }
 

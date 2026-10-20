@@ -242,8 +242,8 @@ test("stdin EOF unmounts and exits cleanly", async () => {
 });
 
 for (const [fixture, mode, path] of [
-  ["unsupported.js", "view", "render"],
-  ["unsupported-reject.js", "no-view", "randomId"],
+  ["unsupported.js", "view", "Clipboard.readImage"],
+  ["unsupported-reject.js", "no-view", "Clipboard.readImage"],
 ] as const) {
   test(`unsupported API is fatal: ${fixture}`, async () => {
     const runtime = start();
@@ -266,7 +266,7 @@ for (const title of ["Unsupported sync", "Unsupported async"]) {
     expect(await runtime.next("error")).toMatchObject({
       fatal: true,
       code: "UNSUPPORTED_API",
-      message: "Unsupported API in Blast: randomId",
+      message: "Unsupported API in Blast: Clipboard.readImage",
     });
     expect(await runtime.exited).toBe(1);
   });
@@ -318,4 +318,16 @@ test("diagnostics use runtime log messages without failing the command", async (
       (message) => message.type === "capability.request" || message.type === "error",
     ),
   ).toBe(false);
+});
+
+// @covers render
+test("a legacy command that calls render mounts its element as the command root", async () => {
+  const runtime = start();
+  runtime.init({ fixture: "render.js" });
+  const scene = await runtime.next("scene");
+  // The rendered element is wrapped in navigation like any view command.
+  expect(scene.root!.children[0]!.children[0]!.props.navigationTitle).toBe("legacy render");
+  runtime.send({ type: "shutdown" });
+  expect(await runtime.exited).toBe(0);
+  expect(runtime.invalid).toEqual([]);
 });

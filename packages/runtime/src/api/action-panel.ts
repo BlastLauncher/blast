@@ -1,4 +1,4 @@
-import { createElement, type ReactNode } from "react";
+import { createElement, useMemo, type ReactNode } from "react";
 import { Action } from "./action.ts";
 import type { ImageLike, Shortcut } from "./types.ts";
 
@@ -18,6 +18,8 @@ export interface ActionPanelSectionProps {
 
 /** `SubmenuProps` from the declarations (`ActionPanel.Submenu`). */
 export interface ActionPanelSubmenuProps {
+  /** @deprecated Internal prop; kept so legacy scenes round-trip their ids. */
+  id?: string;
   /** The title displayed for the submenu. */
   title: string;
   /** The icon displayed for the submenu. */
@@ -70,3 +72,31 @@ export const ActionPanelItem = Action;
 
 /** Deprecated top-level alias of `ActionPanel.Submenu`. */
 export const ActionPanelSubmenu = Submenu;
+
+/** `ActionPanelState`: what the deprecated `useActionPanel` returns. */
+export interface ActionPanelState {
+  /** @deprecated No alternative :( */
+  update: (actionPanel: ReactNode) => void;
+}
+
+// Raycast's legacy hook kept one action panel per view; Blast keeps the last
+// panel a command installed so `update` (and any code reading it back) is not
+// silently discarded. Views pick their panel from props in the scene model.
+let legacyActionPanel: ReactNode = null;
+
+/** The last panel installed through `useActionPanel().update`. */
+export function currentActionPanel(): ReactNode {
+  return legacyActionPanel;
+}
+
+/** @deprecated No alternative :( */
+export function useActionPanel(): ActionPanelState {
+  return useMemo(
+    () => ({
+      update: (actionPanel: ReactNode) => {
+        legacyActionPanel = actionPanel;
+      },
+    }),
+    [],
+  );
+}

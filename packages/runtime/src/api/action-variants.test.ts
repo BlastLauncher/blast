@@ -362,6 +362,7 @@ test("PickDate.isFullDay is true only for midnight dates", () => {
   expect(PickDate.isFullDay()).toBe(false);
 });
 
+// @covers ActionPanel.Submenu.Props.id
 // @covers ActionPanel.Submenu.Props.title
 // @covers ActionPanel.Submenu.Props.icon
 // @covers ActionPanel.Submenu.Props.shortcut
@@ -380,6 +381,7 @@ test("ActionPanel.Submenu renders its search-bar props, handlers and children", 
       h(
         ActionPanel.Submenu,
         {
+          id: "labels",
           title: "Add Label",
           icon: "label.png",
           shortcut: { modifiers: ["cmd"], key: "l" },
@@ -396,6 +398,7 @@ test("ActionPanel.Submenu renders its search-bar props, handlers and children", 
   );
   const submenu = byTitle(latest(), "ActionPanel.Submenu");
   expect(submenu.props).toEqual({
+    id: "labels",
     title: "Add Label",
     icon: "label.png",
     shortcut: { modifiers: ["cmd"], key: "l" },

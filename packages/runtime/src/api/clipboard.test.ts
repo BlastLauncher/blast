@@ -64,6 +64,7 @@ test("Clipboard.readText returns the text, undefined when there is none, and the
 // @covers Clipboard.copy
 // @covers Clipboard.CopyOptions
 // @covers Clipboard.CopyOptions.concealed
+// @covers Clipboard.CopyOptions.transient
 // @covers Clipboard.Content
 // @covers Clipboard.Content.file
 // @covers Clipboard.Content.html
@@ -75,6 +76,9 @@ test("Clipboard.copy carries each declared content form and the concealed flag",
   await Clipboard.copy({ file: "/tmp/report.pdf" }, { concealed: true });
   await Clipboard.copy({ html: "<b>rich</b>" });
   await Clipboard.copy({ html: "<b>rich</b>", text: "rich" });
+  // The deprecated flag reaches hosts that still read it, unset stays absent.
+  await Clipboard.copy("temporary", { transient: true });
+  await Clipboard.copy("kept", { transient: false });
   expect(requests).toEqual([
     { name: "clipboard.copy", params: { text: "plain" } },
     { name: "clipboard.copy", params: { text: "42" } },
@@ -82,6 +86,8 @@ test("Clipboard.copy carries each declared content form and the concealed flag",
     { name: "clipboard.copy", params: { file: "/tmp/report.pdf", concealed: true } },
     { name: "clipboard.copy", params: { html: "<b>rich</b>" } },
     { name: "clipboard.copy", params: { html: "<b>rich</b>", text: "rich" } },
+    { name: "clipboard.copy", params: { text: "temporary", transient: true } },
+    { name: "clipboard.copy", params: { text: "kept", transient: false } },
   ]);
 });
 

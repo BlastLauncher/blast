@@ -2,9 +2,9 @@
   "version": "2.8.2",
   "totals": {
     "all": {
-      "covered": 2422,
+      "covered": 2472,
       "partial": 1,
-      "missing": 50,
+      "missing": 0,
       "total": 2473
     },
     "nonDeprecated": {
@@ -14,9 +14,9 @@
       "total": 1534
     },
     "deprecated": {
-      "covered": 889,
+      "covered": 939,
       "partial": 0,
-      "missing": 50,
+      "missing": 0,
       "total": 939
     },
     "kinds": {
@@ -33,15 +33,15 @@
         "total": 116
       },
       "function": {
-        "covered": 48,
+        "covered": 49,
         "partial": 1,
-        "missing": 1,
+        "missing": 0,
         "total": 50
       },
       "const": {
-        "covered": 16,
+        "covered": 21,
         "partial": 0,
-        "missing": 5,
+        "missing": 0,
         "total": 21
       },
       "class": {
@@ -63,21 +63,21 @@
         "total": 691
       },
       "interface": {
-        "covered": 62,
+        "covered": 64,
         "partial": 0,
-        "missing": 2,
+        "missing": 0,
         "total": 64
       },
       "type": {
-        "covered": 177,
+        "covered": 178,
         "partial": 0,
-        "missing": 1,
+        "missing": 0,
         "total": 178
       },
       "property": {
-        "covered": 1263,
+        "covered": 1304,
         "partial": 0,
-        "missing": 41,
+        "missing": 0,
         "total": 1304
       },
       "method": {
@@ -2299,8 +2299,10 @@
     },
     {
       "path": "Action.CopyToClipboard.Props.transient",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -2793,8 +2795,10 @@
     },
     {
       "path": "Action.Props.id",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/index.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -3224,9 +3228,14 @@
     },
     {
       "path": "ActionPanel.Item.CopyToClipboard.Props.transient",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/index.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanel.Item.CreateQuicklink",
@@ -3887,9 +3896,14 @@
     },
     {
       "path": "ActionPanel.Item.Props.id",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/index.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanel.Item.Props.onAction",
@@ -4388,8 +4402,10 @@
     },
     {
       "path": "ActionPanel.Submenu.Props.id",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -4547,9 +4563,14 @@
     },
     {
       "path": "ActionPanelItem.CopyToClipboard.Props.transient",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/index.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.CreateQuicklink",
@@ -5210,9 +5231,14 @@
     },
     {
       "path": "ActionPanelItem.Props.id",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/index.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action"
     },
     {
       "path": "ActionPanelItem.Props.onAction",
@@ -5607,9 +5633,13 @@
     },
     {
       "path": "ActionPanelItemProps.id",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/index.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action.Props"
     },
     {
       "path": "ActionPanelItemProps.onAction",
@@ -5755,14 +5785,18 @@
     },
     {
       "path": "ActionPanelState",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/legacy.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "ActionPanelState.update",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/legacy.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -5839,9 +5873,13 @@
     },
     {
       "path": "ActionPanelSubmenu.Props.id",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts"
+      ],
+      "weight": 0,
+      "via": "ActionPanel.Submenu"
     },
     {
       "path": "ActionPanelSubmenu.Props.isLoading",
@@ -5965,9 +6003,13 @@
     },
     {
       "path": "ActionPanelSubmenuProps.id",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/action-variants.test.ts",
+        "packages/runtime/src/api/aliases.test.ts"
+      ],
+      "weight": 0,
+      "via": "ActionPanel.Submenu.Props"
     },
     {
       "path": "ActionPanelSubmenuProps.isLoading",
@@ -6639,8 +6681,10 @@
     },
     {
       "path": "Clipboard.CopyOptions.transient",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/clipboard.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -6734,26 +6778,34 @@
     },
     {
       "path": "Color.Brown",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/color.test.ts"
+      ],
       "weight": 8
     },
     {
       "path": "Color.Brown.adjustContrast",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/color.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Color.Brown.dark",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/color.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Color.Brown.light",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/color.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -7018,9 +7070,14 @@
     },
     {
       "path": "CopyToClipboardAction.Props.transient",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/curated.test.ts",
+        "packages/runtime/src/api/index.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action.CopyToClipboard"
     },
     {
       "path": "CopyToClipboardActionProps",
@@ -7092,9 +7149,13 @@
     },
     {
       "path": "CopyToClipboardActionProps.transient",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/index.test.ts"
+      ],
+      "weight": 0,
+      "via": "Action.CopyToClipboard.Props"
     },
     {
       "path": "Detail",
@@ -7498,14 +7559,18 @@
     },
     {
       "path": "Environment.commandMode",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/environment.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Environment.commandName",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/environment.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -7550,8 +7615,10 @@
     },
     {
       "path": "Environment.launchContext",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/environment.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -7596,8 +7663,10 @@
     },
     {
       "path": "Environment.theme",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/environment.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -15894,20 +15963,26 @@
     },
     {
       "path": "Keyboard.Shortcut.windows",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Keyboard.Shortcut.windows.key",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Keyboard.Shortcut.windows.modifiers",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -16000,21 +16075,33 @@
     },
     {
       "path": "KeyboardShortcut.windows",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
+      "weight": 0,
+      "via": "Keyboard.Shortcut"
     },
     {
       "path": "KeyboardShortcut.windows.key",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
+      "weight": 0,
+      "via": "Keyboard.Shortcut"
     },
     {
       "path": "KeyboardShortcut.windows.modifiers",
-      "status": "missing",
-      "tests": [],
-      "weight": 0
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/keyboard.test.ts"
+      ],
+      "weight": 0,
+      "via": "Keyboard.Shortcut"
     },
     {
       "path": "LaunchProps",
@@ -19588,68 +19675,90 @@
     },
     {
       "path": "Preference",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/preferences.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Preference.data",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/preferences.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Preference.default",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/preferences.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Preference.description",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/preferences.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Preference.label",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/preferences.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Preference.name",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/preferences.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Preference.placeholder",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/preferences.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Preference.required",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/preferences.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Preference.title",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/preferences.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Preference.type",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/preferences.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "Preference.value",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/preferences.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -19663,8 +19772,10 @@
     },
     {
       "path": "Preferences",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/preferences.test.ts"
+      ],
       "weight": 4
     },
     {
@@ -19945,14 +20056,17 @@
       "path": "SubmitFormAction",
       "status": "covered",
       "tests": [
-        "packages/runtime/src/api/aliases.test.ts"
+        "packages/runtime/src/api/aliases.test.ts",
+        "packages/runtime/src/api/form.test.ts"
       ],
       "weight": 11
     },
     {
       "path": "SubmitFormAction.displayName",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/form.test.ts"
+      ],
       "weight": 0
     },
     {
@@ -20833,8 +20947,10 @@
     },
     {
       "path": "environment.commandMode",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/environment.test.ts"
+      ],
       "weight": 14
     },
     {
@@ -20887,8 +21003,10 @@
     },
     {
       "path": "environment.launchContext",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/environment.test.ts"
+      ],
       "weight": 5
     },
     {
@@ -20933,8 +21051,10 @@
     },
     {
       "path": "environment.theme",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/environment.test.ts"
+      ],
       "weight": 14
     },
     {
@@ -21046,14 +21166,18 @@
     },
     {
       "path": "preferences",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/preferences.test.ts"
+      ],
       "weight": 6
     },
     {
       "path": "randomId",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/legacy.test.ts"
+      ],
       "weight": 3
     },
     {
@@ -21067,8 +21191,11 @@
     },
     {
       "path": "render",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/legacy.test.ts",
+        "packages/runtime/src/main.test.ts"
+      ],
       "weight": 1
     },
     {
@@ -21268,14 +21395,18 @@
     },
     {
       "path": "useActionPanel",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/legacy.test.ts"
+      ],
       "weight": 0
     },
     {
       "path": "useId",
-      "status": "missing",
-      "tests": [],
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/legacy.test.ts"
+      ],
       "weight": 0
     },
     {

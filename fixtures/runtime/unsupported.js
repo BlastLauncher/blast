@@ -1,20 +1,7 @@
-import { Action, List, render, randomId } from "@raycast/api";
-import { createElement } from "react";
+import { Clipboard } from "@raycast/api";
 
+// An API from a future @raycast/api release: the stub must fail loudly.
 export default function Command() {
-  return createElement(render);
-}
-export function EventCommand() {
-  return createElement(
-    List,
-    null,
-    createElement(Action, {
-      title: "Unsupported sync",
-      onAction: () => randomId(),
-    }),
-    createElement(Action, {
-      title: "Unsupported async",
-      onAction: async () => randomId(),
-    }),
-  );
+  Clipboard.readImage();
+  return null;
 }

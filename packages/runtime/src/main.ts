@@ -23,6 +23,7 @@ import { decodeFormValues, flushFormPersistence, setFormDraftValues } from "./ap
 import { LaunchType, type LaunchProps } from "./api/launch.ts";
 import { NavigationProvider } from "./api/navigation.ts";
 import { setPreferenceValues } from "./api/preferences.ts";
+import { setRenderMount } from "./api/legacy.ts";
 import { UnsupportedApiError } from "./api/unsupported.ts";
 import { createSceneRoot } from "./reconciler/index.ts";
 
@@ -175,8 +176,23 @@ async function load(message: Extract<HostMessage, { type: "init" }>) {
   setPreferenceValues(message.preferences);
   const props = launchProps(message.command);
   setFormDraftValues(props.draftValues);
+  // Legacy commands call `render(element)` while the module is being imported;
+  // that element becomes the command root instead of a default export.
+  let rendered = false;
+  setRenderMount((element) => {
+    if (rendered) return;
+    rendered = true;
+    root.render(
+      message.command.mode === "menu-bar"
+        ? element
+        : createElement(NavigationProvider, { children: element }),
+    );
+    loaded = true;
+  });
   const command = await import(pathToFileURL(message.command.entry).href);
+  setRenderMount(undefined);
   if (stopping) return;
+  if (rendered) return;
   if (message.command.mode === "model-provider") {
     provider = createModelProvider(command, send);
     return;

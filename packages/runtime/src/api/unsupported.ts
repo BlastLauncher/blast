@@ -36,7 +36,7 @@ export function withUnsupported<T>(path: string, implemented?: T): T & Record<st
     };
   if ((typeof target !== "object" || target === null) && typeof target !== "function")
     return target as T & Record<string, ApiStub>;
-  const children = new Map<string, unknown>();
+  const children = new Map<string, { source: unknown; wrapper: unknown }>();
   const isStub = implemented === undefined;
   return new Proxy(target, {
     get(value, key, receiver) {
@@ -64,10 +64,12 @@ export function withUnsupported<T>(path: string, implemented?: T): T & Record<st
         (child === null || (typeof child !== "object" && typeof child !== "function"))
       )
         return child;
-      if (!children.has(key)) {
-        children.set(key, withUnsupported(`${path}.${key}`, child));
-      }
-      return children.get(key);
+      // A replaced or deleted member must not keep serving its old wrapper.
+      const cached = children.get(key);
+      if (cached && cached.source === child) return cached.wrapper;
+      const wrapper = withUnsupported(`${path}.${key}`, child);
+      children.set(key, { source: child, wrapper });
+      return wrapper;
     },
   }) as T & Record<string, ApiStub>;
 }

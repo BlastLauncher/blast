@@ -717,5 +717,13 @@ test("every declared enum is generated with its declared members", () => {
 });
 test("the public API surface serves the generated enum values", () => {
   const paths = ["AI.Model", "Color", "Icon", "Image.Mask", "LaunchType", "PopToRootType"];
-  for (const path of paths) expect(at(api, path)).toEqual(at(generated, path));
+  const extraMembers = { Color: ["Brown"] };
+  for (const path of paths) {
+    const expected = at(generated, path) as Record<string, string>;
+    const actual = at(api, path) as Record<string, unknown>;
+    for (const [key, value] of Object.entries(expected)) expect(actual[key]).toBe(value);
+    // Only the documented deprecated extras may sit beside the enum members.
+    const extra = Object.keys(actual).filter((key) => !Object.hasOwn(expected, key));
+    expect(extra).toEqual((extraMembers as Record<string, string[] | undefined>)[path] ?? []);
+  }
 });

@@ -98,9 +98,22 @@ const WINDOW: CapabilitySchema = {
   ],
 };
 
+const CLIPBOARD_PROPERTIES = {
+  text: STRING,
+  file: STRING,
+  html: STRING,
+  concealed: BOOLEAN,
+} as const;
+
 const CLIPBOARD_CONTENT: CapabilitySchema = {
   type: "object",
-  properties: { text: STRING, file: STRING, html: STRING, concealed: BOOLEAN },
+  properties: CLIPBOARD_PROPERTIES,
+};
+
+/** `Clipboard.copy` alone accepts the deprecated `transient` flag. */
+const CLIPBOARD_COPY_CONTENT: CapabilitySchema = {
+  type: "object",
+  properties: { ...CLIPBOARD_PROPERTIES, transient: BOOLEAN },
 };
 
 const TOKEN_PROPERTIES = {
@@ -347,7 +360,7 @@ export const CAPABILITIES = {
   "clipboard.copy": {
     scope: "grant",
     summary: "Copies text, HTML or a file path to the clipboard.",
-    params: CLIPBOARD_CONTENT,
+    params: CLIPBOARD_COPY_CONTENT,
     result: NULL,
     api: ["Clipboard.copy", "Action.CopyToClipboard", "ActionPanel.Item.CopyToClipboard"],
   },
