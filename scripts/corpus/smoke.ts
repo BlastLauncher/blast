@@ -113,7 +113,12 @@ export function exitProbe(exit: {
 }
 
 /** Minimal manifest shapes; anything else the manifest carries is ignored. */
-export type ManifestPreference = { name?: string; type?: string; default?: Json };
+export type ManifestPreference = {
+  name?: string;
+  type?: string;
+  required?: boolean;
+  default?: Json;
+};
 export type ManifestCommand = {
   name?: string;
   mode?: string;
