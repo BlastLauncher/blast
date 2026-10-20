@@ -26,7 +26,7 @@ const { session, close } = await extension.launch("index", {
 });
 session.scenes((scene) => draw(scene));                    // replays the latest scene
 session.sendEvent(nodeId, handlerName, args);              // after an event
-await session.exited;                                      // { code, error? }
+await session.exited;                                      // { code, signal, error? }
 await extension.close();                                   // ends its sessions
 ```
 
@@ -86,7 +86,7 @@ Rules: unique `id`s while outstanding; responses may return out of order;
 await `extension.open`/`extension.launch` before using their opaque keys;
 void results are `null`; events can precede their response (including
 manifest change and dependency-install logs). Malformed lines get
-`{"type":"error","error":{"code,message}}` and the stream recovers at the next
+`{"type":"error","error":{"code":…,"message":…}}` and the stream recovers at the next
 newline; a version mismatch ends the process with exit code 2. `engine.shutdown`
 finishes pending operations, cancels forwarded work and exits 0; EOF does the
 same. Line cap: 8 MiB.
@@ -96,7 +96,7 @@ Capability forwarding: every grant you declared comes back as
 `capability.result` (`ok:true,value` / `ok:false,error`) and stream
 `capability.progress` as needed. Runtime abort sends `capability.cancel`; late
 answers are ignored. Storage, OAuth tokens and own-provider AI are answered by
-the engine itself unless your handlers replace them (decision 0010).
+the engine itself and cannot be shadowed by embedder handlers (decision 0010).
 
 ## Capability catalog
 
