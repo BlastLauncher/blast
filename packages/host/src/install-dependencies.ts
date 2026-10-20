@@ -2,14 +2,21 @@ import { spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
+import { loadSharedDependencies, type SharedDependencyLoader } from "./dependencies.ts";
 import { defaultDataDir } from "./storage.ts";
 
-export type DependencyInstallOptions = { extensionDir: string; dataDir?: string };
+export type DependencyInstallOptions = {
+  extensionDir: string;
+  dataDir?: string;
+  sharedDependencies?: SharedDependencyLoader;
+};
 export type DependencyInstallStatus = {
   directory: string;
   key: string;
   needed: boolean;
   pinned: boolean;
+  /** Declared packages unavailable from a matching install or shared fallback. */
+  unresolved: string[];
 };
 export type DependencyInstaller = (request: {
   command: string;
@@ -69,11 +76,25 @@ async function inputs(options: DependencyInstallOptions) {
 export async function checkExtensionDependencies(
   options: DependencyInstallOptions,
 ): Promise<DependencyInstallStatus> {
-  const { directory, key, lock } = await inputs(options);
+  const { directory, key, lock, dependencies } = await inputs(options);
+  const needed = (await optionalFile(join(directory, "key"))) !== key;
+  const shared = await loadSharedDependencies(options.sharedDependencies);
+  const unresolved: string[] = [];
+  for (const name of Object.keys(dependencies)) {
+    if (supplied(name)) continue;
+    if (
+      !needed &&
+      (await optionalFile(join(directory, "node_modules", name, "package.json"))) !== undefined
+    )
+      continue;
+    if (shared?.resolveShared(name)) continue;
+    unresolved.push(name);
+  }
   return {
     directory,
     key,
-    needed: (await optionalFile(join(directory, "key"))) !== key,
+    needed,
+    unresolved,
     pinned: lock !== undefined,
   };
 }
@@ -91,6 +112,7 @@ export async function installExtensionDependencies(
     key: input.key,
     needed: false,
     pinned: input.lock !== undefined,
+    unresolved: [],
   };
   if ((await optionalFile(join(input.directory, "key"))) === input.key) {
     options.onLog?.("Dependencies are up to date.");

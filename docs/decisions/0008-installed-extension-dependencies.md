@@ -26,9 +26,10 @@ Status: accepted 2026-10-19; extends 0002 (the shared allowlist stays as fallbac
    native addons that need them fail at runtime with their own error.
 5. **Resolution order at bundle time:** API/React externals → the
    extension's installed `node_modules` (when its key matches the current
-   manifest and lockfile) → `PROVIDED_PACKAGES` (0002) → missing-dependency
+   manifest and lockfile) → optional `@blastlauncher/shared-deps` (0002) → missing-dependency
    error. That error now names `blast deps` as the fix when a declared
-   dependency is not installed. Installed packages bundle with the same
+   dependency is not installed, or `@blastlauncher/shared-deps` for the fallback.
+   Installed packages bundle with the same
    externals and Node built-in rules as provided ones.
 6. **Corpus tooling does not install.** `corpus:smoke` and the TUI smoke stay
    allowlist-only (`bundleCommand({ installedDependencies: false })`) and offline

@@ -9,7 +9,8 @@ const timeout = setTimeout(() => {
   process.exit(1);
 }, 20_000);
 const engine = createEngine({ dataDir: resolve("data") });
-const extensionDir = resolve("hello-list");
+const extensionDir = resolve(process.argv[2] ?? "hello-list");
+const expectedTitle = process.argv[3] ?? "apple";
 function firstItem(node) {
   if (node?.type === "List.Item") return node.props.title;
   for (const child of node?.children ?? []) {
@@ -27,10 +28,15 @@ try {
     });
     void session.exited.then((exit) => reject(new Error(JSON.stringify(exit))));
   });
-  assert.equal(title, "apple");
+  assert.equal(title, expectedTitle);
   console.log(`In-process first item: ${title}`);
 } finally {
   await engine.close();
+}
+
+if (process.argv[4] === "--engine-only") {
+  clearTimeout(timeout);
+  process.exit(0);
 }
 
 const serve = spawn("npx", ["--no-install", "blast-serve"], {

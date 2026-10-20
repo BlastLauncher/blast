@@ -17,11 +17,11 @@ import { importedPackages, SHARED_DEPENDENCY_PACKAGES, unprovidedImports } from 
 import type { Source } from "./imports.ts";
 
 /** Runtime dependencies the shared Blast dependency policy can provide. */
-export { PROVIDED_PACKAGES as PROVIDED_DEPENDENCIES } from "../../packages/host/src/dependencies.ts";
+export { PROVIDED_PACKAGES as PROVIDED_DEPENDENCIES } from "@blastlauncher/shared-deps";
 import {
   dependencyWarnings,
   PROVIDED_PACKAGES as PROVIDED_DEPENDENCIES,
-} from "../../packages/host/src/dependencies.ts";
+} from "@blastlauncher/shared-deps";
 
 /** Hooks exported by the pinned `@raycast/utils` (2.3.2) that mark the utils stratum. */
 export const UTILS_HOOKS = [

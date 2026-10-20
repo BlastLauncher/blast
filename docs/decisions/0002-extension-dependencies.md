@@ -4,12 +4,11 @@ Status: accepted 2026-10-18; amended by task 0037 (interim allowlist)
 
 ## Decision
 
-Until v1, extensions run without installing their dependencies. The host's
-esbuild plugin resolves imports in this order:
+Until v1, the host's esbuild plugin resolves extension imports in this order:
 
 1. `@raycast/api`, `react`, and `react/*` stay external; the runtime supplies them.
-2. `PROVIDED_PACKAGES` in `packages/host/src/dependencies.ts` resolves from the
-   host's exact pins, including subpaths; corpus selection uses the same list.
+2. `PROVIDED_PACKAGES` in optional `@blastlauncher/shared-deps` resolves its exact pins,
+   including subpaths; corpus selection uses the same list.
    Transitive graphs are bundled privately, with the same API/React externals.
 3. Node built-ins stay external, using Node's list even when Bun bundles.
    Other bare imports fail even if locally installed. Emitted external imports
@@ -51,8 +50,8 @@ follows import policy; dynamic `require` allows only Node built-ins.
 
 ## Consequences
 
-- Explicitly interim until the first release: production should use a thin layer
-  referencing each extension repo's own pinned dependencies with minimal disk.
+- The engine excludes shared libraries; install `@blastlauncher/shared-deps` for the fallback (0077).
+- Interim until v1: production should reference each extension's pinned dependencies with minimal disk.
 - No extension-local lookup, source changes, or per-extension installs.
 - Tree shaking utils avoids linking unused shim symbols. Assets need provisioning.
 - Bundling policy is not a security sandbox for arbitrary Node code.

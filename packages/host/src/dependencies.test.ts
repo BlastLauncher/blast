@@ -4,9 +4,11 @@ import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import manifest from "../package.json" with { type: "json" };
+import manifest from "../../shared-deps/package.json" with { type: "json" };
+import { loadSharedDependencies } from "./dependencies.ts";
+import { checkExtensionDependencies } from "./install-dependencies.ts";
 import { bundleCommand, MissingDependencyError } from "./bundle.ts";
-import { dependencyWarnings, PROVIDED_PACKAGES } from "./dependencies.ts";
+import { dependencyWarnings, PROVIDED_PACKAGES } from "@blastlauncher/shared-deps";
 
 const fixture = fileURLToPath(
   new URL("../../../fixtures/extensions/shared-dependencies", import.meta.url),
@@ -38,6 +40,12 @@ async function execute(entry: string): Promise<string> {
     });
     child.on("error", reject);
     child.on("close", (code) => (code === 0 ? resolve(stdout) : reject(new Error(stderr))));
+  });
+}
+
+async function sharedDependencies(): Promise<never> {
+  throw Object.assign(new Error("Cannot find package '@blastlauncher/shared-deps'"), {
+    code: "ERR_MODULE_NOT_FOUND",
   });
 }
 
@@ -158,4 +166,44 @@ test("a manifest-only checkout fails with a message naming the missing source", 
   await expect(bundle("view-history", dir)).rejects.toThrow(
     /Missing source for view-history: no src\/view-history\.\{tsx,ts,jsx,js\} in .*manifest-only/,
   );
+});
+
+test("without the optional shared package, declared dependencies need an install", async () => {
+  const outDir = await mkdtemp(join(tmpdir(), "blast-no-shared-"));
+  directories.push(outDir);
+  const options = {
+    extensionDir: fixture,
+    command: "default",
+    outDir,
+    dataDir: outDir,
+    sharedDependencies,
+  };
+  await expect(bundleCommand(options)).rejects.toMatchObject({
+    code: "MISSING_DEPENDENCY",
+    packages: ["lodash"],
+    message: expect.stringMatching(/blast deps.*@blastlauncher\/shared-deps/),
+  });
+  expect((await checkExtensionDependencies(options)).unresolved).toContain("lodash");
+  expect(
+    (
+      await checkExtensionDependencies({
+        ...options,
+        sharedDependencies: () => import("@blastlauncher/shared-deps"),
+      })
+    ).unresolved,
+  ).not.toContain("lodash");
+});
+
+test("broken shared-package installations propagate their import error", async () => {
+  const error = Object.assign(
+    new Error(
+      "Cannot find package 'semver' imported from /node_modules/@blastlauncher/shared-deps/dist/index.js",
+    ),
+    { code: "ERR_MODULE_NOT_FOUND" },
+  );
+  await expect(
+    loadSharedDependencies(async () => {
+      throw error;
+    }),
+  ).rejects.toBe(error);
 });

@@ -34,6 +34,7 @@
     "release:smoke": "bun scripts/release/smoke.ts"
   },
   "devDependencies": {
+    "@blastlauncher/shared-deps": "workspace:*",
     "@types/bun": "1.4.3",
     "@types/node": "^24",
     "oxc-parser": "0.154.0",
