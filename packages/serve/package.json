@@ -6,6 +6,7 @@
     ".": "./src/main.ts"
   },
   "dependencies": {
+    "@blastlauncher/client-core": "workspace:*",
     "@blastlauncher/host": "workspace:*",
     "@blastlauncher/native": "workspace:*",
     "@blastlauncher/protocol": "workspace:*",

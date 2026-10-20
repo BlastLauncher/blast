@@ -5,6 +5,7 @@ import {
   type ExtensionHandle,
 } from "@blastlauncher/host";
 import { createNativeHandlers } from "@blastlauncher/native";
+import { createController, type ControllerResult } from "@blastlauncher/client-core";
 import {
   CAPABILITIES,
   DEFAULT_MAX_LINE_BYTES,
@@ -21,6 +22,33 @@ const engine = createEngine({
 const extensions = new Map<string, ExtensionHandle>();
 const watches = new Map<string, () => void>();
 const sessions = new Map<string, { close(): Promise<void> }>();
+const extensionSessions = new Map<string, Set<string>>();
+const controllers = new Map<string, ReturnType<typeof createController>>();
+const sessionTimers = new Map<string, Set<ReturnType<typeof setTimeout>>>();
+function clearTimers(key: string) {
+  for (const timer of sessionTimers.get(key) ?? []) clearTimeout(timer);
+  sessionTimers.delete(key);
+  controllers.delete(key);
+}
+function apply(key: string, result: ControllerResult) {
+  if (stopping || !controllers.has(key)) return;
+  for (const value of result.events)
+    get(liveSessions, key).sendEvent(value.node, value.handler, value.args);
+  for (const effect of result.effects) {
+    if (effect.type === "quit") {
+      clearTimers(key);
+      void get(sessions, key).close();
+      break;
+    }
+    const timers = get(sessionTimers, key);
+    const timer = setTimeout(() => {
+      timers.delete(timer);
+      const controller = controllers.get(key);
+      if (controller) apply(key, controller.tick(effect.token));
+    }, effect.ms);
+    timers.add(timer);
+  }
+}
 const pending = new Map<
   string,
   { resolve(value: JsonValue): void; reject(error: Error): void; progress(value: JsonValue): void }
@@ -46,6 +74,7 @@ const event = (eventName: string, values: Record<string, JsonValue>) =>
 async function stop(code = 0) {
   if (stopping) return;
   stopping = true;
+  for (const key of controllers.keys()) clearTimers(key);
   process.stdin.pause();
   for (const [key, operation] of pending) {
     send({ type: "capability.cancel", id: key });
@@ -112,6 +141,7 @@ async function request(message: EmbedderRequest): Promise<JsonValue> {
     return { extension: key };
   }
   if (message.method === "session.close") {
+    clearTimers(message.params.session);
     await get(sessions, message.params.session).close();
     return null;
   }
@@ -119,6 +149,11 @@ async function request(message: EmbedderRequest): Promise<JsonValue> {
     const { session, node, handler, args } = message.params;
     get(sessions, session);
     get(liveSessions, session).sendEvent(node, handler, args);
+    return null;
+  }
+  if (message.method === "session.input") {
+    const { session, input } = message.params;
+    apply(session, get(controllers, session).input(input));
     return null;
   }
   if (!("extension" in p)) throw new Error("Missing extension");
@@ -163,10 +198,21 @@ async function request(message: EmbedderRequest): Promise<JsonValue> {
         handlers: forwarding(key),
       });
       sessions.set(key, opened);
+      if (!extensionSessions.has(p.extension)) extensionSessions.set(p.extension, new Set());
+      extensionSessions.get(p.extension)!.add(key);
       liveSessions.set(key, opened.session);
-      const unsubscribe = opened.session.scenes((scene) =>
-        event("session.scene", { session: key, scene: json(scene) }),
+      const controller = message.params.views ? createController(message.params.views) : undefined;
+      if (controller) {
+        controllers.set(key, controller);
+        sessionTimers.set(key, new Set());
+      }
+      const stopViews = controller?.subscribe((view) =>
+        event("session.view", { session: key, view: json(view) }),
       );
+      const unsubscribe = opened.session.scenes((scene) => {
+        event("session.scene", { session: key, scene: json(scene) });
+        if (controller && controllers.has(key)) apply(key, controller.scene(scene));
+      });
       // Logs that arrived during startup are replayed once, then streamed.
       for (const log of opened.session.logs) event("session.log", { session: key, log: json(log) });
       const stopLogs = opened.session.onLog((log) =>
@@ -175,6 +221,8 @@ async function request(message: EmbedderRequest): Promise<JsonValue> {
       void opened.session.exited.then(async (exit) => {
         stopLogs();
         unsubscribe();
+        stopViews?.();
+        clearTimers(key);
         event("session.exited", {
           session: key,
           code: exit.code,
@@ -183,11 +231,16 @@ async function request(message: EmbedderRequest): Promise<JsonValue> {
         await opened.close();
         sessions.delete(key);
         liveSessions.delete(key);
+        extensionSessions.get(p.extension)?.delete(key);
       });
       return { session: key };
     }
     case "extension.close":
+      // Stop timer input before the extension begins shutting down its runtimes.
+      // Sessions from other extensions retain their controllers.
+      for (const key of extensionSessions.get(p.extension) ?? []) clearTimers(key);
       await extension.close();
+      extensionSessions.delete(p.extension);
       extensions.delete(p.extension);
       watches.delete(p.extension);
       return null;
