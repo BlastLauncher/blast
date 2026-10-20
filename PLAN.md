@@ -89,11 +89,12 @@ Raycast client semantics built in so embedders only draw.
 - [x] 0072 Capability catalog in `protocol` (names, shapes, scope, API users)
 - [x] 0073 Engine handler registry; `blast` CLI + headless answers → `packages/cli`
 - [x] 0074 `@blastlauncher/native` I: clipboard, open, file manager, trash
-- [ ] 0075 `@blastlauncher/native` II: applications, selection, windows
+- [x] 0075 `@blastlauncher/native` II: applications, selection, windows
 
 ## Later (not scheduled)
 
 - Scheduled job regenerating `compat/` for the newest `@raycast/api` (PR).
+- native: macOS window ops without yabai (System Events for list/active/bounds).
 - Autonomous orchestrator loop over `tasks/`; delete `archive/`.
 - Desktop launcher (MyGo) and further TUI launcher polish (out of scope per 0009).
 
