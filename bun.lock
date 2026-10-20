@@ -8,6 +8,7 @@
         "@blastlauncher/shared-deps": "workspace:*",
         "@types/bun": "1.4.3",
         "@types/node": "^24",
+        "@types/semver": "7.8.0",
         "oxc-parser": "0.154.0",
         "oxfmt": "0.73.0",
         "oxlint": "1.88.0",
@@ -34,6 +35,7 @@
         "@blastlauncher/protocol": "workspace:*",
         "@blastlauncher/runtime": "workspace:*",
         "esbuild": "0.28.2",
+        "semver": "7.8.5",
       },
     },
     "packages/native": {

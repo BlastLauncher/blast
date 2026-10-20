@@ -464,3 +464,147 @@ test("runtime-only dependencies publish a reusable key without invoking npm", as
   });
   expect((await checkExtensionDependencies(options)).needed).toBe(false);
 });
+
+async function writeInstalled(cwd: string, name: string, fields: Record<string, unknown>) {
+  const directory = join(cwd, "node_modules", name);
+  await mkdir(directory, { recursive: true });
+  await writeFile(
+    join(directory, "package.json"),
+    JSON.stringify({ name, version: "1.0.0", ...fields }),
+  );
+}
+
+for (const lockfileVersion of [1, 2, 3]) {
+  test(`required peers use v${lockfileVersion} lock pins, skip optional/supplied peers and reuse cache`, async () => {
+    const options = await setup({ example: "1" });
+    const lock = {
+      lockfileVersion,
+      ...(lockfileVersion > 1
+        ? { packages: { "node_modules/zod": { version: "4.1.2", peer: true } } }
+        : {}),
+      ...(lockfileVersion < 3 ? { dependencies: { zod: { version: "4.1.2", peer: true } } } : {}),
+    };
+    await writeFile(join(options.extensionDir, "package-lock.json"), JSON.stringify(lock));
+    let calls = 0;
+    const installer: DependencyInstaller = async ({ cwd }) => {
+      calls++;
+      const pkg = JSON.parse(await readFile(join(cwd, "package.json"), "utf8"));
+      await writeInstalled(cwd, "example", {
+        peerDependencies: {
+          zod: "^3.25 || ^4",
+          optional: "*",
+          "@raycast/api": "*",
+          react: "*",
+          "react/jsx-runtime": "*",
+          "@types/node": "*",
+          satisfied: "^1",
+        },
+        peerDependenciesMeta: { optional: { optional: true } },
+      });
+      await writeInstalled(cwd, "satisfied", {});
+      if (calls === 2) {
+        expect(pkg.dependencies).toEqual({ example: "1", zod: "4.1.2" });
+        await writeInstalled(cwd, "zod", { version: pkg.dependencies.zod });
+      }
+    };
+    const before = await checkExtensionDependencies(options);
+    const installed = await installExtensionDependencies({ ...options, installer });
+    expect(calls).toBe(2);
+    expect(installed.key).not.toBe(before.key);
+    expect((await checkExtensionDependencies(options)).key).toBe(installed.key);
+    expect((await checkExtensionDependencies(options)).needed).toBe(false);
+    await installExtensionDependencies({ ...options, installer });
+    expect(calls).toBe(2);
+    await writeFile(join(installed.directory, "peer-additions.json"), "{}");
+    expect((await checkExtensionDependencies(options)).needed).toBe(true);
+  });
+}
+
+test("peer ranges intersect unions and a second pass discovers peers of peers", async () => {
+  const options = await setup({ example: "1" });
+  let calls = 0;
+  await installExtensionDependencies({
+    ...options,
+    installer: async ({ cwd }) => {
+      calls++;
+      await writeInstalled(cwd, "example", { peerDependencies: { peer: "^1 || ^2" } });
+      await writeInstalled(cwd, "@scope/other", { peerDependencies: { peer: ">=2.1 <3" } });
+      const pkg = JSON.parse(await readFile(join(cwd, "package.json"), "utf8"));
+      if (calls >= 2) {
+        expect(pkg.dependencies.peer).toContain(">=2.1.0");
+        await writeInstalled(cwd, "peer", { version: "2.2.0", peerDependencies: { leaf: "^3" } });
+      }
+      if (calls === 3) {
+        expect(pkg.dependencies.leaf).toContain(">=3.0.0");
+        await writeInstalled(cwd, "leaf", { version: "3.0.0" });
+      }
+    },
+  });
+  expect(calls).toBe(3);
+});
+
+test("conflicting and failed peer repairs warn without failing the production install", async () => {
+  for (const conflict of [true, false]) {
+    const options = await setup({ example: "1" });
+    const logs: string[] = [];
+    let calls = 0;
+    await installExtensionDependencies({
+      ...options,
+      onLog: (message) => logs.push(message),
+      installer: async ({ cwd }) => {
+        if (++calls > 1) throw new Error("peer resolution failed");
+        await writeInstalled(cwd, "example", { peerDependencies: { peer: "^1" } });
+        if (conflict) await writeInstalled(cwd, "other", { peerDependencies: { peer: "^2" } });
+      },
+    });
+    expect(calls).toBe(conflict ? 1 : 2);
+    expect(logs.join("\n")).toContain(
+      conflict ? "cannot resolve required peer" : "peer installation failed",
+    );
+    expect((await checkExtensionDependencies(options)).needed).toBe(false);
+  }
+});
+
+test("incompatible installed peers are repaired but declared dependencies are preserved", async () => {
+  const options = await setup({ example: "1", declared: "1" });
+  let calls = 0;
+  const logs: string[] = [];
+  await installExtensionDependencies({
+    ...options,
+    onLog: (message) => logs.push(message),
+    installer: async ({ cwd }) => {
+      calls++;
+      await writeInstalled(cwd, "example", { peerDependencies: { peer: "^2", declared: "^2" } });
+      const pkg = JSON.parse(await readFile(join(cwd, "package.json"), "utf8"));
+      expect(pkg.dependencies.declared).toBe("1");
+      await writeInstalled(cwd, "declared", {});
+      await writeInstalled(cwd, "peer", { version: calls === 1 ? "1.0.0" : "2.0.0" });
+    },
+  });
+  expect(calls).toBe(2);
+  expect(logs.join("\n")).toContain("unresolved required peer declared");
+});
+
+test("nested consumers resolve their nearby peer and repairs stop after two passes", async () => {
+  const options = await setup({ example: "1" });
+  let calls = 0;
+  const logs: string[] = [];
+  await installExtensionDependencies({
+    ...options,
+    onLog: (message) => logs.push(message),
+    installer: async ({ cwd }) => {
+      calls++;
+      await writeInstalled(cwd, "example", { peerDependencies: { first: "1" } });
+      const nested = join(cwd, "node_modules/example");
+      await writeInstalled(nested, "consumer", { peerDependencies: { nearby: "^2" } });
+      await writeInstalled(nested, "nearby", { version: "2.0.0" });
+      if (calls >= 2) await writeInstalled(cwd, "first", { peerDependencies: { second: "1" } });
+      if (calls === 3) await writeInstalled(cwd, "second", { peerDependencies: { third: "1" } });
+      const pkg = JSON.parse(await readFile(join(cwd, "package.json"), "utf8"));
+      expect(pkg.dependencies.nearby).toBeUndefined();
+      expect(pkg.dependencies.third).toBeUndefined();
+    },
+  });
+  expect(calls).toBe(3);
+  expect(logs.join("\n")).toContain("unresolved required peer third");
+});

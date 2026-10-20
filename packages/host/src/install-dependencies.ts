@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { loadSharedDependencies, type SharedDependencyLoader } from "./dependencies.ts";
+import { requiredPeerAdditions, supplied } from "./install-peers.ts";
 import { defaultDataDir } from "./storage.ts";
 
 export type DependencyInstallOptions = {
@@ -37,10 +38,6 @@ export const npmDependencyInstaller: DependencyInstaller = ({ command, args, cwd
     });
   });
 
-function supplied(name: string): boolean {
-  return name === "@raycast/api" || /^react(?:\/|$)/.test(name) || name.startsWith("@types/");
-}
-
 type LockedDependency = { dependencies?: Record<string, LockedDependency> };
 
 function stripSuppliedDependencies(dependencies: Record<string, LockedDependency>): void {
@@ -71,16 +68,27 @@ async function inputs(options: DependencyInstallOptions) {
       a < b ? -1 : a > b ? 1 : 0,
     ),
   );
-  const key = createHash("sha256")
-    // Rebuild installs made before supplied packages and peers were omitted.
-    .update("lean-install-v1\n")
+  const baseKey = createHash("sha256")
+    // Rebuild installs made before required peers were repaired.
+    .update("lean-install-v2\n")
     .update(JSON.stringify(dependencies))
     .update("\n")
     .update(lock ?? "")
     .digest("hex");
   const encoded = encodeURIComponent(manifest.name).replace(/\./g, "%2E");
   const directory = resolve(options.dataDir ?? defaultDataDir(), "deps", encoded);
-  return { manifest, dependencies, extensionDir, lock, key, directory };
+  const additions = JSON.parse(
+    (await optionalFile(join(directory, "peer-additions.json"))) ?? "{}",
+  );
+  const key = installKey(baseKey, additions);
+  return { manifest, dependencies, extensionDir, lock, key, baseKey, directory };
+}
+
+function installKey(baseKey: string, additions: Record<string, string>): string {
+  return createHash("sha256")
+    .update(baseKey)
+    .update(JSON.stringify(Object.entries(additions).toSorted(([a], [b]) => a.localeCompare(b))))
+    .digest("hex");
 }
 
 /** Cheap disk-only check; a key is published only after a successful install. */
@@ -184,8 +192,8 @@ export async function installExtensionDependencies(
       if (lock.dependencies) stripSuppliedDependencies(lock.dependencies);
       await writeFile(join(input.directory, "package-lock.json"), JSON.stringify(lock, null, 2));
     }
-    if (Object.keys(dependencies).length)
-      await (options.installer ?? npmDependencyInstaller)({
+    const install = () =>
+      (options.installer ?? npmDependencyInstaller)({
         command: process.platform === "win32" ? "npm.cmd" : "npm",
         args: [
           "install",
@@ -198,7 +206,37 @@ export async function installExtensionDependencies(
         cwd: input.directory,
         ...(options.onLog ? { onLog: options.onLog } : {}),
       });
-    await writeFile(join(input.directory, "key"), input.key);
+    if (Object.keys(dependencies).length) await install();
+    const additions: Record<string, string> = {};
+    for (let pass = 0; pass < 2; pass++) {
+      const peers = await requiredPeerAdditions(input.directory, input.lock, options.onLog);
+      let changed = false;
+      for (const [name, range] of Object.entries(peers)) {
+        if (name in input.dependencies || additions[name] === range) {
+          options.onLog?.(`Warning: unresolved required peer ${name} (${range}).`);
+          continue;
+        }
+        dependencies[name] = additions[name] = range;
+        changed = true;
+      }
+      if (!changed) break;
+      const path = join(input.directory, "package.json");
+      const manifest = JSON.parse(await readFile(path, "utf8"));
+      await writeFile(path, JSON.stringify({ ...manifest, dependencies }, null, 2));
+      try {
+        await install();
+      } catch (error) {
+        options.onLog?.(`Warning: required peer installation failed: ${String(error)}`);
+        break;
+      }
+    }
+    for (const [name, range] of Object.entries(
+      await requiredPeerAdditions(input.directory, input.lock),
+    ))
+      options.onLog?.(`Warning: unresolved required peer ${name} (${range}).`);
+    status.key = installKey(input.baseKey, additions);
+    await writeFile(join(input.directory, "peer-additions.json"), JSON.stringify(additions));
+    await writeFile(join(input.directory, "key"), status.key);
     return status;
   } catch (error) {
     await rm(input.directory, { recursive: true, force: true });

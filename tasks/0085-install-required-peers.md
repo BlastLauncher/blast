@@ -53,10 +53,10 @@ lean size win from 0083 stays.
 
 ## Acceptance
 
-- [ ] Unit tests above pass.
-- [ ] `corpus:smoke-deps` rerun: `commandcode-ai` commands are no longer
+- [x] Unit tests above pass.
+- [x] `corpus:smoke-deps` rerun: `commandcode-ai` commands are no longer
       bundle-failed. Totals before → after are in Handoff.
-- [ ] `bun run verify` passes; `.cache` is back under 20 MB after cleanup.
+- [x] `bun run verify` passes; `.cache` is back under 20 MB after cleanup.
 
 ## Out of scope
 
@@ -65,11 +65,14 @@ lean size win from 0083 stays.
 
 ## Handoff
 
-Filled in by the worker when finishing:
-
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/install-required-peers @ 7fd42a5a00c426de7388ba38b639b1703b6cd1d5 (implementation; Handoff follows)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 118.8s
 Done:
-Not done / risks:
+- Added two bounded required-peer repair passes, compatible v1-v3 lock pins, range intersections, optional/supplied-peer exclusion, conflict warnings and peer additions in cache keys.
+- Added offline tests covering required, optional, supplied, satisfied/nested and conflicting peers, pins, cache reuse, failed repairs and the pass limit; 17 focused tests pass, 752 total tests pass.
+- Regenerated smoke reports: 25/25 installs; rendered 33 -> 35, bundle-failed 2 -> 0; both commandcode-ai commands render. Other totals unchanged: completed/install-failed/crashed/network/timeout/unsupported-api/unsupported-mode 0, needs-arguments 6, needs-preferences 14, capability-denied 1.
+- Install sizes: caschys-blog 4.7 MiB (4,934,385 bytes), commandcode-ai 22.2 MiB (23,265,885 bytes). Removed corpus checkout and smoke data/cache; .cache is empty (4 KiB directory allocation).
+- Pinned semver 7.8.5 for correct npm range satisfaction/intersection and @types/semver 7.8.0 for typechecking; both latest versions checked with npm view. Updated install docs.
+Not done / risks: No task acceptance skipped. Unresolvable peers warn and remain unavailable after two repair passes; declared direct dependencies are preserved. No push; independent review remains the orchestrator's step.
 ```

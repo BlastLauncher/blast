@@ -12,7 +12,7 @@ Status: accepted 2026-10-19; extends 0002 (the shared allowlist stays as fallbac
 2. **Never inside the extension.** Installs go to
    `<dataDir>/deps/<encoded extension name>/` (dataDir as in storage), holding
    copies of `package.json`/`package-lock.json`, `node_modules/` and a `key`
-   file. The key is a SHA-256 of the dependency fields and the lockfile; a key
+   file. The key hashes dependency fields, lockfile and computed peer additions; a key
    change replaces the directory, so each extension keeps at most one install.
    Extension source is never written, matching AGENTS.md.
 3. **Runtime-supplied packages are stripped before install.** `@raycast/api`,
@@ -22,8 +22,8 @@ Status: accepted 2026-10-19; extends 0002 (the shared allowlist stays as fallbac
    the runtime's `react`.
 4. **Installer:** `npm install --omit=dev --omit=peer --ignore-scripts --no-audit --no-fund`
    in that directory, using the copied lockfile so pinned versions win. npm
-   ships with Node 24, so the host stays Node-runnable. Install hooks never run;
-   native addons that need them fail at runtime with their own error.
+   ships with Node 24, so the host stays Node-runnable. Install hooks never run.
+   Required non-supplied peers get two repair passes; conflicts warn. Native addons needing hooks fail at runtime.
    Supplied entries are stripped from all lockfile formats, including nested copies.
 5. **Resolution order at bundle time:** API/React externals → the
    extension's installed `node_modules` (when its key matches the current
