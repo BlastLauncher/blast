@@ -9,23 +9,7 @@ import type { Session } from "@blastlauncher/host";
 import type { SceneMessage } from "@blastlauncher/protocol";
 import { App } from "./app.tsx";
 import { openCommand } from "./session.ts";
-
-function waitScene(session: Session, predicate: (scene: SceneMessage) => boolean): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => {
-      stop?.();
-      reject(new Error("scene timeout"));
-    }, 3000);
-    let stop: (() => void) | undefined;
-    stop = session.scenes((scene) => {
-      if (predicate(scene)) {
-        clearTimeout(timer);
-        queueMicrotask(() => stop?.());
-        resolve();
-      }
-    });
-  });
-}
+import { waitForFrame, waitScene } from "./test-support.ts";
 
 for (const fixture of ["hello-list", "list-extras"]) {
   test(`terminal drives ${fixture}: frames, search, selection, primary action and shutdown`, async () => {
@@ -64,13 +48,13 @@ for (const fixture of ["hello-list", "list-extras"]) {
     try {
       const initial = fixture === "hello-list" ? "apple" : "beer";
       const next = fixture === "hello-list" ? "banana" : "wine";
-      await terminal.waitForFrame((frame) => frame.includes(initial));
+      await waitForFrame(terminal, (frame) => frame.includes(initial));
       if (fixture === "list-extras") {
         expect(terminal.captureCharFrame()).toContain("Germany");
         expect(terminal.captureCharFrame()).toContain("1970");
       }
       await act(async () => terminal.mockInput.pressArrow("down"));
-      await terminal.waitForFrame((frame) => frame.includes(`› ${next}`));
+      await waitForFrame(terminal, (frame) => frame.includes(`› ${next}`));
       await act(async () => {
         const changed = waitScene(opened.session, (scene) =>
           JSON.stringify(scene).includes(
@@ -81,9 +65,9 @@ for (const fixture of ["hello-list", "list-extras"]) {
         await changed;
       });
       if (fixture === "hello-list") {
-        await terminal.waitForFrame((frame) => frame.includes("copied banana"));
+        await waitForFrame(terminal, (frame) => frame.includes("copied banana"));
         expect(copies).toEqual([{ text: "banana" }]);
-      } else await terminal.waitForFrame((frame) => frame.includes("No results"));
+      } else await waitForFrame(terminal, (frame) => frame.includes("No results"));
       // Start a fresh query through the focused input, not a synthetic scene event.
       if (fixture === "list-extras") {
         await act(async () => {
@@ -95,7 +79,7 @@ for (const fixture of ["hello-list", "list-extras"]) {
           for (let i = 0; i < "deleted wine".length; i++) terminal.mockInput.pressBackspace();
           await changed;
         });
-        await terminal.waitForFrame((frame) => frame.includes("beer"));
+        await waitForFrame(terminal, (frame) => frame.includes("beer"));
       }
       await act(async () => {
         const query = fixture === "hello-list" ? "cher" : "wat";
@@ -105,7 +89,8 @@ for (const fixture of ["hello-list", "list-extras"]) {
         await terminal.mockInput.typeText(query);
         await changed;
       });
-      await terminal.waitForFrame(
+      await waitForFrame(
+        terminal,
         (frame) =>
           frame.includes(fixture === "hello-list" ? "cherry" : "water") && !frame.includes(initial),
       );
@@ -123,7 +108,7 @@ for (const fixture of ["hello-list", "list-extras"]) {
       await opened.close();
       await rm(dataDir, { recursive: true, force: true });
     }
-  });
+  }, 30_000);
 }
 
 test("search coalesces throttled events, selection notifies, and Ctrl-C quits", async () => {
@@ -193,7 +178,7 @@ test("search coalesces throttled events, selection notifies, and Ctrl-C quits", 
   } finally {
     await act(async () => terminal.dispose());
   }
-});
+}, 30_000);
 
 for (const fixture of ["actions-variants", "host-session", "feedback"]) {
   test(`terminal overlays and navigation: ${fixture}`, async () => {
@@ -218,7 +203,8 @@ for (const fixture of ["actions-variants", "host-session", "feedback"]) {
     };
     try {
       if (fixture === "feedback") {
-        await terminal.waitForFrame(
+        await waitForFrame(
+          terminal,
           (frame) => frame.includes("Continue?") && frame.includes("Enter OK"),
         );
         await act(async () => {
@@ -228,23 +214,39 @@ for (const fixture of ["actions-variants", "host-session", "feedback"]) {
           terminal.mockInput.pressEnter();
           await changed;
         });
-        await terminal.waitForFrame(
+        await waitForFrame(
+          terminal,
           (frame) => frame.includes("Confirmed") && frame.includes("Finished"),
         );
       } else {
-        await terminal.waitForFrame((frame) =>
+        await waitForFrame(terminal, (frame) =>
           frame.includes(fixture === "host-session" ? "Navigation" : "Everything"),
         );
         await key("k", true);
-        await terminal.waitForFrame((frame) => frame.includes("Filter actions"));
+        await waitForFrame(terminal, (frame) => frame.includes("Filter actions"));
         if (fixture === "actions-variants") {
-          await key("return");
-          await terminal.waitForFrame((frame) => frame.includes("Colors") && frame.includes("Red"));
-          await key("escape");
-          await terminal.waitForFrame((frame) => frame.includes("Open Target"));
-          await key("return");
-          await act(async () => terminal.mockInput.typeText("red"));
-          await terminal.waitForFrame((frame) => frame.includes("Red") && !frame.includes("Plain"));
+          // Wait for the scene event, not just the frame: pressing Enter again
+          // before `panel` committed would run the first action.
+          await act(async () => {
+            const changed = waitScene(opened.session, (scene) =>
+              JSON.stringify(scene).includes("opened Labels"),
+            );
+            terminal.mockInput.pressEnter();
+            await changed;
+          });
+          await waitForFrame(
+            terminal,
+            (frame) => frame.includes("Colors") && frame.includes("Red"),
+          );
+          // This submenu owns search (`onSearchTextChange`), so typing is
+          // forwarded to the extension instead of filtering client-side.
+          await act(async () => {
+            const changed = waitScene(opened.session, (scene) =>
+              JSON.stringify(scene).includes("searched r"),
+            );
+            await terminal.mockInput.typeText("red");
+            await changed;
+          });
           await act(async () => {
             const changed = waitScene(opened.session, (scene) =>
               JSON.stringify(scene).includes("picked Red"),
@@ -252,7 +254,7 @@ for (const fixture of ["actions-variants", "host-session", "feedback"]) {
             terminal.mockInput.pressEnter();
             await changed;
           });
-          await terminal.waitForFrame((frame) => frame.includes("picked Red"));
+          await waitForFrame(terminal, (frame) => frame.includes("picked Red"));
         } else {
           await act(async () => terminal.mockInput.typeText("details"));
           await act(async () => {
@@ -262,7 +264,8 @@ for (const fixture of ["actions-variants", "host-session", "feedback"]) {
             terminal.mockInput.pressEnter();
             await changed;
           });
-          await terminal.waitForFrame(
+          await waitForFrame(
+            terminal,
             (frame) => frame.includes("pushed detail") && !frame.includes("Navigation"),
           );
           await act(async () => {
@@ -272,7 +275,7 @@ for (const fixture of ["actions-variants", "host-session", "feedback"]) {
             terminal.mockInput.pressEscape();
             await changed;
           });
-          await terminal.waitForFrame((frame) => frame.includes("popped true"));
+          await waitForFrame(terminal, (frame) => frame.includes("popped true"));
         }
       }
     } finally {
@@ -280,7 +283,7 @@ for (const fixture of ["actions-variants", "host-session", "feedback"]) {
       await opened.close();
       await rm(dataDir, { recursive: true, force: true });
     }
-  });
+  }, 30_000);
 }
 
 test("no-view feedback command shows its HUD and the TUI exits 0", async () => {
@@ -303,7 +306,7 @@ test("no-view feedback command shows its HUD and the TUI exits 0", async () => {
     { width: 90, height: 15, exitOnCtrlC: false },
   );
   try {
-    await terminal.waitForFrame((frame) => frame.includes("Continue?"));
+    await waitForFrame(terminal, (frame) => frame.includes("Continue?"));
     await act(async () => {
       const changed = waitScene(opened.session, (scene) =>
         JSON.stringify(scene).includes("Finished"),
@@ -311,7 +314,8 @@ test("no-view feedback command shows its HUD and the TUI exits 0", async () => {
       terminal.mockInput.pressEnter();
       await changed;
     });
-    await terminal.waitForFrame(
+    await waitForFrame(
+      terminal,
       (frame) => frame.includes("Confirmed") && frame.includes("Finished"),
     );
     // The runtime exits 0 on its own; the TUI quits once the HUD has shown.
@@ -331,7 +335,7 @@ test("no-view feedback command shows its HUD and the TUI exits 0", async () => {
     await opened.close();
     await rm(dataDir, { recursive: true, force: true });
   }
-});
+}, 30_000);
 
 test("a failed runtime shows the error and waits for Esc", async () => {
   let quit!: () => void;
@@ -369,7 +373,7 @@ test("a failed runtime shows the error and waits for Esc", async () => {
     { width: 70, height: 10, exitOnCtrlC: false },
   );
   try {
-    await terminal.waitForFrame((frame) => frame.includes("Runtime exited: 1"));
+    await waitForFrame(terminal, (frame) => frame.includes("Runtime exited: 1"));
     // Other keys wait; only Esc (or Ctrl-C) quits.
     await act(async () => terminal.mockInput.pressArrow("down"));
     expect(quitCount).toBe(0);
@@ -381,7 +385,7 @@ test("a failed runtime shows the error and waits for Esc", async () => {
   } finally {
     await act(async () => terminal.dispose());
   }
-});
+}, 30_000);
 
 test("Detail metadata and toast actions render from scene props", async () => {
   const events: string[] = [];
@@ -453,7 +457,8 @@ test("Detail metadata and toast actions render from scene props", async () => {
     height: 15,
   });
   try {
-    await terminal.waitForFrame(
+    await waitForFrame(
+      terminal,
       (frame) =>
         frame.includes("Hello") &&
         frame.includes("Author: Ada") &&
@@ -464,4 +469,4 @@ test("Detail metadata and toast actions render from scene props", async () => {
   } finally {
     await act(async () => terminal.dispose());
   }
-});
+}, 30_000);

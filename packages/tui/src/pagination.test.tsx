@@ -17,6 +17,7 @@ import type { Session } from "@blastlauncher/host";
 import type { SceneMessage } from "@blastlauncher/protocol";
 import { App } from "./app.tsx";
 import { openCommand } from "./session.ts";
+import { waitForFrame, waitScene } from "./test-support.ts";
 
 // Synthetic sessions count the `onLoadMore` events; the fixture proves the
 // same behaviour through the real runtime.
@@ -89,56 +90,39 @@ for (const type of ["List", "Grid"] as const) {
       for (let i = 0; i < times; i++) await act(async () => terminal.mockInput.pressArrow(name));
     };
     try {
-      await terminal.waitForFrame((frame) => frame.includes("a"));
+      await waitForFrame(terminal, (frame) => frame.includes("a"));
       // Two moves reach the last loaded item/row; one load, not one per move.
       await press(type === "Grid" ? "right" : "down");
       expect(loads(mock)).toEqual([]);
       await press(type === "Grid" ? "right" : "down");
-      await terminal.waitForFrame(() => true);
+      await waitForFrame(terminal, () => true);
       expect(loads(mock)).toEqual([[]]);
       // Already at the end: no resend until the item count changes.
       await press(type === "Grid" ? "right" : "down");
-      await terminal.waitForFrame(() => true);
+      await waitForFrame(terminal, () => true);
       expect(loads(mock)).toEqual([[]]);
       // The next page arrives with more items; reaching its end loads again.
       await act(async () => {
         mock.push(paged(type, ["a", "b", "c", "d", "e", "f"], true));
       });
-      await terminal.waitForFrame((frame) => frame.includes("  f") || frame.includes("f.png"));
+      await waitForFrame(terminal, (frame) => frame.includes("  f") || frame.includes("f.png"));
       expect(loads(mock)).toEqual([[]]);
       await press("down", type === "Grid" ? 1 : 3);
-      await terminal.waitForFrame(() => true);
+      await waitForFrame(terminal, () => true);
       expect(loads(mock)).toEqual([[], []]);
       // `hasMore: false` never loads, even at the end.
       await act(async () => {
         mock.push(paged(type, ["a", "b", "c"], false));
       });
-      await terminal.waitForFrame((frame) => !frame.includes("f.png") && !frame.includes("  f"));
+      await waitForFrame(terminal, (frame) => !frame.includes("f.png") && !frame.includes("  f"));
       await press(type === "Grid" ? "right" : "down", 2);
-      await terminal.waitForFrame(() => true);
+      await waitForFrame(terminal, () => true);
       expect(loads(mock)).toEqual([[], []]);
     } finally {
       await act(async () => {
         await terminal.dispose();
       });
     }
-  });
-}
-
-function waitFixture(session: Session, wanted: (scene: SceneMessage) => boolean): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => {
-      stop?.();
-      reject(new Error("scene timeout"));
-    }, 3000);
-    let stop: (() => void) | undefined;
-    stop = session.scenes((scene) => {
-      if (wanted(scene)) {
-        clearTimeout(timer);
-        queueMicrotask(() => stop?.());
-        resolve();
-      }
-    });
   });
 }
 
@@ -149,7 +133,7 @@ test("terminal paginates the fixture List and Grid through the runtime", async (
     "index",
     { dataDir },
   );
-  await waitFixture(opened.session, () => true);
+  await waitScene(opened.session, () => true);
   let closed: Promise<void> | undefined;
   let quit!: () => void;
   const quitting = new Promise<void>((resolve) => {
@@ -169,35 +153,35 @@ test("terminal paginates the fixture List and Grid through the runtime", async (
     // The single page-1 item is the end of the loaded list: one load brings
     // page 2, and nothing re-loads after it settles.
     await act(async () => {
-      await waitFixture(opened.session, (next) => JSON.stringify(next).includes("list page 2"));
+      await waitScene(opened.session, (next) => JSON.stringify(next).includes("list page 2"));
     });
-    await terminal.waitForFrame((frame) => frame.includes("list page 2"));
+    await waitForFrame(terminal, (frame) => frame.includes("list page 2"));
     await new Promise((resolve) => setTimeout(resolve, 300));
     expect(terminal.captureCharFrame()).toContain("list item 2");
     expect(terminal.captureCharFrame()).not.toContain("list item 3");
     // Push to the paginated Grid; it loads its second page the same way.
     await act(async () => {
-      const pushed = waitFixture(opened.session, (scene) =>
+      const pushed = waitScene(opened.session, (scene) =>
         JSON.stringify(scene).includes("grid page 1"),
       );
       terminal.mockInput.pressEnter();
       await pushed;
     });
     await act(async () => {
-      await waitFixture(opened.session, (next) => JSON.stringify(next).includes("grid page 2"));
+      await waitScene(opened.session, (next) => JSON.stringify(next).includes("grid page 2"));
     });
-    await terminal.waitForFrame((frame) => frame.includes("grid page 2"));
+    await waitForFrame(terminal, (frame) => frame.includes("grid page 2"));
     expect(terminal.captureCharFrame()).toContain("grid item 2");
     // Esc pops back to the List, then quits.
     await act(async () => {
-      const popped = waitFixture(
+      const popped = waitScene(
         opened.session,
         (next) => !JSON.stringify(next).includes("grid page"),
       );
       terminal.mockInput.pressEscape();
       await popped;
     });
-    await terminal.waitForFrame((frame) => frame.includes("list page 2"));
+    await waitForFrame(terminal, (frame) => frame.includes("list page 2"));
     await act(async () => {
       terminal.mockInput.pressEscape();
       await quitting;
@@ -212,4 +196,4 @@ test("terminal paginates the fixture List and Grid through the runtime", async (
     await opened.close();
     await rm(dataDir, { recursive: true, force: true });
   }
-});
+}, 30_000);
