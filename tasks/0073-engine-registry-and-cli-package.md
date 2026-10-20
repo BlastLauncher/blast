@@ -1,7 +1,7 @@
 ---
 id: "0073"
 title: Engine handler registry; move blast CLI and headless answers to packages/cli
-status: doing
+status: review
 milestone: M5
 depends: ["0064"]
 ---
@@ -58,19 +58,19 @@ registers handlers like any embedder.
 
 ## Acceptance
 
-- [ ] Host test: with no registered handlers, `applications.list`,
+- [x] Host test: with no registered handlers, `applications.list`,
       `selection.text`, `window.list` and `clipboard.read` answer `denied`.
       Storage, LocalStorage and OAuth tokens still work.
-- [ ] Host test: precedence engine → extension → launch is honoured, and a
+- [x] Host test: precedence engine → extension → launch is honoured, and a
       registered `storage.get` cannot shadow the session-scoped one.
-- [ ] `rg -n "headless|browser.ts" packages/host/src --glob '!*.test.ts'` prints
+- [x] `rg -n "headless|browser.ts" packages/host/src --glob '!*.test.ts'` prints
       nothing.
-- [ ] All CLI tests pass from `packages/cli` with unchanged expectations.
+- [x] All CLI tests pass from `packages/cli` with unchanged expectations.
       `bun run blast run fixtures/extensions/hello-list index` output is
       unchanged.
-- [ ] `bun run corpus:smoke --help` (or its equivalent dry check) still
+- [x] `bun run corpus:smoke --help` (or its equivalent dry check) still
       resolves imports.
-- [ ] `bun run verify` passes.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -79,11 +79,24 @@ registers handlers like any embedder.
 
 ## Handoff
 
-Filled in by the worker when finishing:
+Branch/commit: `t3/engine-registry-cli` @ `8f21ed6` (implementation; handoff committed separately)
 
-```
-Branch/commit:
-Verify:
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 136.1s
+
 Done:
-Not done / risks:
-```
+
+- Added `createEngine` with live registration/unregistration, extension defaults,
+  launch precedence and owned-handle shutdown; session storage/OAuth retain priority.
+- Moved CLI, browser and headless handlers/tests to `@blastlauncher/cli`; TUI and
+  corpus clients now register headless handlers explicitly. No external dependencies added.
+- Updated workspace wiring, docs and generated compatibility evidence paths.
+- Acceptance evidence: 575 tests pass (including unchanged CLI expectations),
+  hello-list stdout matches the baseline byte-for-byte (`cmp`), and both corpus
+  smoke entrypoints bundle with `bun build --target=bun --packages=external`.
+  The host source `rg` acceptance check prints nothing.
+
+Not done / risks: No implementation work skipped. Fresh review and merge belong
+to the orchestrator. Parallel merges may require regenerating `bun.lock` and
+`compat/` and reconciling the deliberately small TUI/docs edits. An earlier
+overlapping CLI-only run hit existing five-second test deadlines; the full clean
+gate passes without changing test expectations or timeouts.
