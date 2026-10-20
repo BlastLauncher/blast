@@ -107,6 +107,22 @@ Capability forwarding: every grant you declared comes back as
 answers are ignored. Storage, OAuth tokens and own-provider AI are answered by
 the engine itself and cannot be shadowed by embedder handlers (decision 0010).
 
+### Views
+
+Opt into client-core view models; the server owns ranking, selection, actions,
+shortcuts, pagination and timers. Draw `view` and forward semantic inputs:
+
+```json
+{"type":"request","id":"4","method":"extension.launch","params":{"extension":"1","command":"index","views":{"platform":"macOS"}}}
+{"type":"event","event":"session.view","session":"3","view":{"kind":"list","rows":["..."],"...":"..."}}
+{"type":"request","id":"5","method":"session.input","params":{"session":"3","input":{"type":"search","text":"apple"}}}
+{"type":"request","id":"6","method":"session.input","params":{"session":"3","input":{"type":"primary"}}}
+```
+
+View objects follow `ControllerView` in `packages/client-core/src/controller.ts`
+(abbreviated above). Events are deduplicated by JSON. Scenes still flow;
+without `views`, use raw scenes/events. `back` at the root closes the session.
+
 ## Capability catalog
 
 `packages/protocol/src/capabilities.ts` (`CAPABILITIES`) is the catalog: wire

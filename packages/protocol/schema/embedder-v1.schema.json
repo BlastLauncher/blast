@@ -12,6 +12,249 @@
     }
   ],
   "$defs": {
+    "controllerInput": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "search"
+            },
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "text"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "actionsQuery"
+            },
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "text"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "dropdownQuery"
+            },
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "text"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "move"
+            },
+            "direction": {
+              "enum": [
+                "up",
+                "down",
+                "left",
+                "right"
+              ]
+            }
+          },
+          "required": [
+            "type",
+            "direction"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "select"
+            },
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "id"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "primary"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "openActions"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "closeActions"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "back"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "openDropdown"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "chooseDropdown"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "key"
+            },
+            "key": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "ctrl": {
+                  "type": "boolean"
+                },
+                "meta": {
+                  "type": "boolean"
+                },
+                "shift": {
+                  "type": "boolean"
+                },
+                "option": {
+                  "type": "boolean"
+                },
+                "super": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "name"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "type",
+            "key"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "toastAction"
+            },
+            "index": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "type",
+            "index"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "alert"
+            },
+            "confirm": {
+              "type": "boolean"
+            },
+            "remember": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "type",
+            "confirm"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "controllerView": {
+      "$comment": "Opaque JSON view model: packages/client-core/src/controller.ts ControllerView.",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/jsonValue"
+      }
+    },
     "jsonValue": {
       "type": [
         "string",
@@ -524,6 +767,22 @@
               "additionalProperties": {
                 "$ref": "#/$defs/jsonValue"
               }
+            },
+            "views": {
+              "type": "object",
+              "properties": {
+                "platform": {
+                  "enum": [
+                    "macOS",
+                    "Windows",
+                    "Linux"
+                  ]
+                }
+              },
+              "required": [
+                "platform"
+              ],
+              "additionalProperties": false
             }
           },
           "required": [
@@ -551,6 +810,45 @@
         "session"
       ],
       "additionalProperties": false
+    },
+    "request.session.input": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "request"
+        },
+        "id": {
+          "type": "string"
+        },
+        "method": {
+          "const": "session.input"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "session": {
+              "type": "string"
+            },
+            "input": {
+              "$ref": "#/$defs/controllerInput"
+            }
+          },
+          "required": [
+            "session",
+            "input"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "method"
+      ],
+      "additionalProperties": false
+    },
+    "result.session.input": {
+      "type": "null"
     },
     "request.session.event": {
       "type": "object",
@@ -697,6 +995,9 @@
         },
         {
           "$ref": "#/$defs/request.extension.launch"
+        },
+        {
+          "$ref": "#/$defs/request.session.input"
         },
         {
           "$ref": "#/$defs/request.session.event"
@@ -1011,6 +1312,30 @@
           "required": [
             "type",
             "event"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "event"
+            },
+            "event": {
+              "const": "session.view"
+            },
+            "session": {
+              "type": "string"
+            },
+            "view": {
+              "$ref": "#/$defs/controllerView"
+            }
+          },
+          "required": [
+            "type",
+            "event",
+            "session",
+            "view"
           ],
           "additionalProperties": false
         },

@@ -48,13 +48,14 @@ const RESULTS: Record<keyof EmbedderParams, Schema> = {
   "extension.unwatch": nullResult,
   "extension.close": nullResult,
   "session.event": nullResult,
+  "session.input": nullResult,
   "session.close": nullResult,
   "engine.shutdown": nullResult,
 };
 
 /** Optional params per method, mirroring the `?` markers of the wire shapes. */
 const OPTIONAL_KEYS: Partial<Record<keyof EmbedderParams, readonly string[]>> = {
-  "extension.launch": ["argumentValues", "launchContext"],
+  "extension.launch": ["argumentValues", "launchContext", "views"],
 };
 
 const PARAMS: Record<keyof EmbedderParams, Schema> = {
@@ -76,7 +77,9 @@ const PARAMS: Record<keyof EmbedderParams, Schema> = {
     command: string,
     argumentValues: stringRecord(string),
     launchContext: stringRecord(json),
+    views: envelope(["platform"], { platform: { enum: ["macOS", "Windows", "Linux"] } }),
   },
+  "session.input": { session: string, input: ref("controllerInput") },
   "session.event": {
     session: string,
     node: string,
@@ -115,12 +118,13 @@ const EVENT_PROPERTIES: Record<string, Schema> = {
   "manifest.error": { extension: string, error: embedderError },
   "dependencies.log": { extension: string, message: string },
   "session.scene": { session: string, scene: ref("sceneMessage") },
+  "session.view": { session: string, view: ref("controllerView") },
   "session.log": { session: string, log: ref("logMessage") },
   "session.exited": { session: string, code: integer, error: embedderError },
 };
 
 const eventVariants: Schema[] = Object.entries(EVENT_PROPERTIES).map(([name, props]) =>
-  envelope(["type", "event"], {
+  envelope(["type", "event", ...(name === "session.view" ? ["session", "view"] : [])], {
     type: { const: "event" },
     event: { const: name },
     ...props,
@@ -176,6 +180,41 @@ export const EMBEDDER_PROTOCOL_SCHEMA: Schema = {
     "is one line: an embedder -> server or a server -> embedder message.",
   oneOf: [ref("embedderMessages"), ref("serverMessages")],
   $defs: {
+    controllerInput: {
+      oneOf: [
+        ...["search", "actionsQuery", "dropdownQuery"].map((type) =>
+          envelope(["type", "text"], { type: { const: type }, text: string }),
+        ),
+        envelope(["type", "direction"], {
+          type: { const: "move" },
+          direction: { enum: ["up", "down", "left", "right"] },
+        }),
+        envelope(["type", "id"], { type: { const: "select" }, id: string }),
+        ...["primary", "openActions", "closeActions", "back", "openDropdown", "chooseDropdown"].map(
+          (type) => envelope(["type"], { type: { const: type } }),
+        ),
+        envelope(["type", "key"], {
+          type: { const: "key" },
+          key: envelope(["name"], {
+            name: string,
+            ...Object.fromEntries(
+              ["ctrl", "meta", "shift", "option", "super"].map((key) => [key, { type: "boolean" }]),
+            ),
+          }),
+        }),
+        envelope(["type", "index"], { type: { const: "toastAction" }, index: { type: "number" } }),
+        envelope(["type", "confirm"], {
+          type: { const: "alert" },
+          confirm: { type: "boolean" },
+          remember: { type: "boolean" },
+        }),
+      ],
+    },
+    controllerView: {
+      $comment: "Opaque JSON view model: packages/client-core/src/controller.ts ControllerView.",
+      type: "object",
+      additionalProperties: json,
+    },
     jsonValue: {
       type: ["string", "number", "boolean", "null", "array", "object"],
       items: json,

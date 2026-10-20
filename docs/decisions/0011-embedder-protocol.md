@@ -42,8 +42,16 @@ Status: accepted 2026-10-20
    events. Unknown handles produce request errors; invalid methods or params
    are malformed messages.
 
+9. **Views (optional, additive in v1).** Launch with
+   `views:{platform:"macOS"|"Windows"|"Linux"}` to create a session controller.
+   `session.input {session,input}` accepts client-core semantic inputs and
+   returns null. The server forwards controller events, schedules its timer
+   effects, and closes on quit. Deduplicated `session.view {session,view}`
+   events carry the JSON view model alongside unchanged `session.scene`
+   events. Without `views`, sessions retain raw scene/event behaviour.
+
 ## Consequences
 
 The dependency-free protocol package owns types and input validation. The
-serve package only adapts the engine; client view models and schema export
-remain separate work.
+serve package adapts the engine and optional client-core controller; the
+generated JSON Schema describes the wire contract.

@@ -2,6 +2,27 @@ import type { JsonValue } from "./messages.ts";
 
 export const EMBEDDER_PROTOCOL_VERSION = 1;
 export type EmbedderError = { code: string; message: string; data?: JsonValue };
+/** Structural wire counterpart of client-core's ControllerInput; no runtime dependency. */
+export type EmbedderControllerInput =
+  | { type: "search" | "actionsQuery" | "dropdownQuery"; text: string }
+  | { type: "move"; direction: "up" | "down" | "left" | "right" }
+  | { type: "select"; id: string }
+  | {
+      type: "primary" | "openActions" | "closeActions" | "back" | "openDropdown" | "chooseDropdown";
+    }
+  | {
+      type: "key";
+      key: {
+        name: string;
+        ctrl?: boolean;
+        meta?: boolean;
+        shift?: boolean;
+        option?: boolean;
+        super?: boolean;
+      };
+    }
+  | { type: "toastAction"; index: number }
+  | { type: "alert"; confirm: boolean; remember?: boolean };
 export type EmbedderParams = {
   "extension.open": { dir: string };
   "extension.manifest": { extension: string };
@@ -21,7 +42,9 @@ export type EmbedderParams = {
     command: string;
     argumentValues?: Record<string, string>;
     launchContext?: Record<string, JsonValue>;
+    views?: { platform: "macOS" | "Windows" | "Linux" };
   };
+  "session.input": { session: string; input: EmbedderControllerInput };
   "session.event": { session: string; node: string; handler: string; args: JsonValue[] };
   "session.close": { session: string };
   "engine.shutdown": Record<string, never>;
@@ -70,7 +93,8 @@ const shapes: Record<keyof EmbedderParams, string[]> = {
   "extension.dependencies.install": ["extension"],
   "extension.preferences": ["extension", "command"],
   "extension.savePreferences": ["extension", "command", "values"],
-  "extension.launch": ["extension", "command", "argumentValues?", "launchContext?"],
+  "extension.launch": ["extension", "command", "argumentValues?", "launchContext?", "views?"],
+  "session.input": ["session", "input"],
   "session.event": ["session", "node", "handler", "args"],
   "session.close": ["session"],
   "engine.shutdown": [],
@@ -125,6 +149,12 @@ function valid(v: unknown): boolean {
           if (key === "args") return Array.isArray(y) && y.every(json);
           if (key === "argumentValues") return record(y, string);
           if (key === "launchContext") return record(y, json);
+          if (key === "views")
+            return (
+              object(y) &&
+              fields(y, ["platform"], (_, z) => ["macOS", "Windows", "Linux"].includes(z as string))
+            );
+          if (key === "input") return controllerInput(y);
           if (key === "values")
             return record(
               y,
@@ -135,6 +165,47 @@ function valid(v: unknown): boolean {
             );
           return string(y);
         }),
+  );
+}
+function controllerInput(v: unknown): boolean {
+  if (!object(v)) return false;
+  const shape = ["search", "actionsQuery", "dropdownQuery"].includes(v.type as string)
+    ? ["type", "text"]
+    : v.type === "move"
+      ? ["type", "direction"]
+      : v.type === "select"
+        ? ["type", "id"]
+        : v.type === "key"
+          ? ["type", "key"]
+          : v.type === "toastAction"
+            ? ["type", "index"]
+            : v.type === "alert"
+              ? ["type", "confirm", "remember?"]
+              : [
+                    "primary",
+                    "openActions",
+                    "closeActions",
+                    "back",
+                    "openDropdown",
+                    "chooseDropdown",
+                  ].includes(v.type as string)
+                ? ["type"]
+                : undefined;
+  return (
+    !!shape &&
+    fields(v, shape, (key, value) => {
+      if (key === "direction") return ["up", "down", "left", "right"].includes(value as string);
+      if (key === "index") return typeof value === "number" && Number.isFinite(value);
+      if (key === "confirm" || key === "remember") return typeof value === "boolean";
+      if (key === "key")
+        return (
+          object(value) &&
+          fields(value, ["name", "ctrl?", "meta?", "shift?", "option?", "super?"], (name, x) =>
+            name === "name" ? string(x) : typeof x === "boolean",
+          )
+        );
+      return string(value);
+    })
   );
 }
 /** Total boundary validator; unknown fields and methods are rejected. */

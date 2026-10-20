@@ -6,7 +6,7 @@
 import { readFileSync } from "node:fs";
 import { test, expect } from "bun:test";
 import { CAPABILITIES } from "./capabilities.ts";
-import { EMBEDDER_METHODS, EMBEDDER_PROTOCOL_VERSION } from "./embedder.ts";
+import { EMBEDDER_METHODS, EMBEDDER_PROTOCOL_VERSION, parseEmbedderMessage } from "./embedder.ts";
 import { EMBEDDER_PROTOCOL_SCHEMA } from "./embedder-schema.ts";
 import type { JsonValue } from "./messages.ts";
 
@@ -135,6 +135,7 @@ const SAMPLE_PARAMS: Record<string, JsonValue> = {
   "extension.savePreferences": { extension: "1", command: "index", values: { name: "x" } },
   "extension.launch": { extension: "1", command: "index", argumentValues: { query: "a" } },
   "session.event": { session: "2", node: "n1", handler: "onAction", args: [["a", 1, null]] },
+  "session.input": { session: "2", input: { type: "primary" } },
   "session.close": { session: "2" },
   "engine.shutdown": {},
 };
@@ -360,6 +361,7 @@ test("every method has a request and a result schema entry", () => {
         "extension.close",
         "extension.savePreferences",
         "session.event",
+        "session.input",
         "session.close",
         "engine.shutdown",
       ].includes(method)
@@ -381,4 +383,83 @@ test("every method has a request and a result schema entry", () => {
       });
     }
   }
+});
+
+test("views launch options and every semantic input agree with boundary validation", () => {
+  const request = (input: unknown) => ({
+    type: "request",
+    id: "1",
+    method: "session.input",
+    params: { session: "2", input },
+  });
+  const good = [
+    ...["search", "actionsQuery", "dropdownQuery"].map((type) => ({ type, text: "a" })),
+    ...["up", "down", "left", "right"].map((direction) => ({ type: "move", direction })),
+    { type: "select", id: "item" },
+    ...["primary", "openActions", "closeActions", "back", "openDropdown", "chooseDropdown"].map(
+      (type) => ({ type }),
+    ),
+    {
+      type: "key",
+      key: { name: "k", ctrl: true, meta: false, shift: true, option: false, super: false },
+    },
+    { type: "toastAction", index: 0 },
+    { type: "alert", confirm: true },
+    { type: "alert", confirm: false, remember: true },
+  ];
+  for (const input of good) {
+    expect(parseEmbedderMessage(request(input)).ok).toBe(true);
+    expect(schemaOf(request(input))).toBeNull();
+  }
+  for (const input of [
+    null,
+    [],
+    { type: "quit" },
+    { type: "search" },
+    { type: "search", text: 1 },
+    { type: "primary", extra: true },
+    { type: "move", direction: "diagonal" },
+    { type: "key", key: { name: "k", ctrl: "yes" } },
+    { type: "key", key: {} },
+    { type: "toastAction", index: "0" },
+    { type: "alert", confirm: true, remember: 1 },
+  ]) {
+    expect(parseEmbedderMessage(request(input)).ok).toBe(false);
+    expect(schemaOf(request(input))).not.toBeNull();
+  }
+  for (const views of [
+    { platform: "macOS" },
+    { platform: "Windows" },
+    { platform: "Linux" },
+    { platform: "other" },
+    { platform: "Linux", extra: true },
+    {},
+    null,
+  ]) {
+    const message = {
+      type: "request",
+      id: "1",
+      method: "extension.launch",
+      params: { extension: "1", command: "index", views },
+    };
+    const valid =
+      views !== null &&
+      Object.keys(views).length === 1 &&
+      ["macOS", "Windows", "Linux"].includes(views.platform!);
+    expect(parseEmbedderMessage(message).ok).toBe(valid);
+    expect(schemaOf(message) === null).toBe(valid);
+  }
+});
+
+test("session.view requires a session and opaque JSON object view", () => {
+  const message = {
+    type: "event",
+    event: "session.view",
+    session: "2",
+    view: { kind: "list", rows: [{ title: "apple", selected: true }] },
+  };
+  expect(schemaOf(message)).toBeNull();
+  for (const view of [null, [], "list"]) expect(schemaOf({ ...message, view })).not.toBeNull();
+  expect(schemaOf({ type: "event", event: "session.view", session: "2" })).not.toBeNull();
+  expect(schemaOf({ type: "event", event: "session.view", view: {} })).not.toBeNull();
 });

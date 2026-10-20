@@ -286,3 +286,141 @@ test("capability progress and abort, late results, and session close", async () 
   c.child.stdin.end();
   expect(await c.exited).toBe(0);
 });
+
+async function viewExtension(c: Awaited<ReturnType<typeof client>>, source: string) {
+  const dir = join(c.dir, "views");
+  await cp(resolve("fixtures/extensions/engine-handle"), dir, { recursive: true });
+  await writeFile(join(dir, "src/index.tsx"), source);
+  const {
+    result: { extension },
+  } = await c.request("extension.open", { dir });
+  return extension as string;
+}
+
+test("views opt-in ranks rows, dispatches primary and closes on the quit effect", async () => {
+  const c = await client();
+  await c.hello();
+  const extension = await viewExtension(
+    c,
+    `
+    import { Action, ActionPanel, List } from "@raycast/api";
+    import { useState } from "react";
+    export default function Command() {
+      const [title, setTitle] = useState("fruits");
+      return <List navigationTitle={title}>{["pineapple", "apple", "banana"].map(fruit =>
+        <List.Item key={fruit} id={fruit} title={fruit} actions={<ActionPanel>
+          <Action title="Pin" onAction={() => setTitle("pinned " + fruit)} />
+        </ActionPanel>} />
+      )}</List>;
+    }
+  `,
+  );
+  const {
+    result: { session },
+  } = await c.request("extension.launch", {
+    extension,
+    command: "index",
+    views: { platform: "macOS" },
+  });
+  const first = await c.wait((v) => v.event === "session.view" && v.session === session);
+  expect(first.view.rows.map((row: any) => row.title)).toEqual(["pineapple", "apple", "banana"]);
+  expect(first.view.primary.shortcut).toBe("↵");
+  expect(
+    (await c.request("session.input", { session, input: { type: "search", text: "apple" } }))
+      .result,
+  ).toBeNull();
+  const ranked = await c.wait((v) => v.event === "session.view" && v.view.search.text === "apple");
+  expect(ranked.view.rows.map((row: any) => row.title)).toEqual(["apple", "pineapple"]);
+  c.send({
+    type: "request",
+    id: "repeat",
+    method: "session.input",
+    params: { session, input: { type: "search", text: "apple" } },
+  });
+  const repeat = await c.wait(
+    (v) => v.event === "session.view" || (v.type === "response" && v.id === "repeat"),
+  );
+  expect(repeat.type).toBe("response");
+  expect(repeat.result).toBeNull();
+  expect(
+    (await c.request("session.input", { session, input: { type: "select", id: "apple" } })).ok,
+  ).toBe(true);
+  await c.request("session.input", { session, input: { type: "primary" } });
+  await c.wait(
+    (v) =>
+      v.event === "session.scene" &&
+      !!find(v.scene.root, (n) => n.props.navigationTitle === "pinned apple"),
+  );
+  const updated = await c.wait(
+    (v) => v.event === "session.view" && v.view.title === "pinned apple",
+  );
+  expect(updated.session).toBe(session);
+  await c.request("session.input", { session, input: { type: "back" } });
+  await c.wait((v) => v.event === "session.exited" && v.session === session);
+  expect((await c.request("session.input", { session, input: { type: "primary" } })).ok).toBe(
+    false,
+  );
+  const plain = await c.request("extension.launch", { extension, command: "index" });
+  expect(
+    (
+      await c.request("session.input", {
+        session: plain.result.session,
+        input: { type: "primary" },
+      })
+    ).ok,
+  ).toBe(false);
+  await c.request("engine.shutdown");
+  expect(await c.exited).toBe(0);
+}, 20_000);
+
+test("view search timers forward only the latest throttled text once", async () => {
+  const c = await client();
+  await c.hello();
+  const extension = await viewExtension(
+    c,
+    `
+    import { Action, ActionPanel, List } from "@raycast/api";
+    import { useState } from "react";
+    const calls = [];
+    export default function Command() {
+      const [title, setTitle] = useState("waiting");
+      return <List navigationTitle={title} throttle onSearchTextChange={text => {
+        calls.push(text); setTitle(text + ":" + calls.length);
+      }}><List.Item title="item" actions={<ActionPanel>
+        <Action title="Check" onAction={() => setTimeout(() => console.log(JSON.stringify(calls)), 400)} />
+      </ActionPanel>} /></List>;
+    }
+  `,
+  );
+  const {
+    result: { session },
+  } = await c.request("extension.launch", {
+    extension,
+    command: "index",
+    views: { platform: "Linux" },
+  });
+  await c.wait((v) => v.event === "session.view");
+  const started = performance.now();
+  for (const [id, text] of [
+    ["search-a", "a"],
+    ["search-ap", "ap"],
+  ])
+    c.send({
+      type: "request",
+      id,
+      method: "session.input",
+      params: { session, input: { type: "search", text } },
+    });
+  const updated = await c.wait((v) => v.event === "session.view" && v.view.title === "ap:1");
+  expect(updated.view.search.text).toBe("ap");
+  expect(performance.now() - started).toBeGreaterThanOrEqual(200);
+  await c.request("session.input", { session, input: { type: "primary" } });
+  const log = await c.wait((v) => v.event === "session.log");
+  expect(log.log.message).toBe('["ap"]');
+  // Closing with another deferred input must discard the pending timer.
+  await c.request("session.input", { session, input: { type: "search", text: "pending" } });
+  await c.request("session.close", { session });
+  await c.wait((v) => v.event === "session.exited" && v.session === session);
+  await c.request("engine.shutdown");
+  expect(await c.exited).toBe(0);
+}, 20_000);
