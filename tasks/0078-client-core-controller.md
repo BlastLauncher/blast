@@ -97,11 +97,17 @@ Embedders that are not React, and `blast serve` later (task 0080), only draw.
 
 ## Handoff
 
-Filled in by the worker when finishing:
-
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/d9043bd6 @ (this commit)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 92.6s
 Done:
+- packages/client-core/src/controller.ts: createController({ platform, hudDurationMs? }) with scene/input/tick/view/subscribe; ControllerView and input/effect types exported from client-core.
+- controller.test.ts (17 tests): search with/without throttle, ranking + selection, shortcuts per platform, action panel submenu/breadcrumb/back, dropdown, pagination once per count, HUD tick, alert remember, toast actions, menu bar, clearSearch/pop/closeMainWindow, grid, form/detail, subscribe; view round-trips through JSON.
+- TUI untouched.
 Not done / risks:
+- Options differ from the task text: no `now` (nothing needs a clock) and no `schedule` callback (delays come back only as effects); added optional `hudDurationMs`.
+- Added input `{ type: "select", id }` for pointer embedders (not in the task list).
+- view().requests.clearSearch is true only for the scene that triggered the clear; quit is sticky.
+- Selection tracking resets on list change (TUI kept the previous id); Form focus is read from the scene (`focused`), no controller-side focus movement; dropdown query is also forwarded via searchDispatch (TUI filtered locally only).
+- Under heavy machine load (parallel task 0077) packages/cli tests with 5s timeouts failed, also on a tree without this change; verify passes once load drops.
 ```
