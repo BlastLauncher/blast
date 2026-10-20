@@ -2621,6 +2621,9 @@
           },
           "concealed": {
             "type": "boolean"
+          },
+          "transient": {
+            "type": "boolean"
           }
         }
       },

@@ -84,7 +84,7 @@ Raycast client semantics built in so embedders only draw.
 - [x] 0069 Release build: emitted JS + `.d.ts`, `npm pack` smoke on Node 24
 - [ ] 0077 Slim engine: shared-dependency allowlist out of the engine install
 - [ ] 0070 Real-world compat: dependency-heavy corpus set with installs
-- [ ] 0071 Deprecated: 50 missing (2026-10-20: non-deprecated 1533/1534, only
+- [x] 0071 Deprecated: 939/939 (2026-10-20: non-deprecated 1533/1534, only
       embedder-owned `BrowserExtension.getContent` partial)
 - [x] 0072 Capability catalog in `protocol` (names, shapes, scope, API users)
 - [x] 0073 Engine handler registry; `blast` CLI + headless answers → `packages/cli`
