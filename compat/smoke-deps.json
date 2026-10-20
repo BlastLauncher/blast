@@ -1,13 +1,13 @@
 {
   "commit": "3b812d1e153a1862df29bc8ec34e170c728512ea",
   "totals": {
-    "rendered": 35,
+    "rendered": 33,
     "completed": 0,
     "install-failed": 0,
-    "bundle-failed": 5,
+    "bundle-failed": 2,
     "crashed": 0,
     "needs-arguments": 6,
-    "needs-preferences": 9,
+    "needs-preferences": 14,
     "capability-denied": 1,
     "network": 0,
     "timeout": 0,
@@ -21,7 +21,7 @@
         "execa"
       ],
       "status": "installed",
-      "ms": 722.633143,
+      "ms": 717.544903,
       "bytes": 230234
     },
     {
@@ -30,8 +30,8 @@
         "@tanstack/react-query"
       ],
       "status": "installed",
-      "ms": 2106.065526999999,
-      "bytes": 47186758
+      "ms": 3361.8052959999986,
+      "bytes": 4539193
     },
     {
       "extension": "bed-time-calculator",
@@ -39,7 +39,7 @@
         "chrono-node"
       ],
       "status": "installed",
-      "ms": 1230.4775990000016,
+      "ms": 1238.4161299999978,
       "bytes": 3158586
     },
     {
@@ -48,8 +48,8 @@
         "xml2js"
       ],
       "status": "installed",
-      "ms": 2002.4489670000003,
-      "bytes": 53914361
+      "ms": 1374.2509800000007,
+      "bytes": 4934383
     },
     {
       "extension": "ccfddl",
@@ -57,8 +57,8 @@
         "js-yaml"
       ],
       "status": "installed",
-      "ms": 2109.018143999998,
-      "bytes": 43366504
+      "ms": 2747.241349,
+      "bytes": 2901707
     },
     {
       "extension": "colorify",
@@ -70,8 +70,8 @@
         "jimp"
       ],
       "status": "installed",
-      "ms": 2486.726036,
-      "bytes": 30841901
+      "ms": 2582.053791000002,
+      "bytes": 30841859
     },
     {
       "extension": "commandcode-ai",
@@ -81,8 +81,8 @@
         "ai"
       ],
       "status": "installed",
-      "ms": 2558.9888009999995,
-      "bytes": 72705920
+      "ms": 1824.6740789999967,
+      "bytes": 17125183
     },
     {
       "extension": "control-d",
@@ -90,7 +90,7 @@
         "form-data"
       ],
       "status": "installed",
-      "ms": 949.2918609999979,
+      "ms": 938.7918060000011,
       "bytes": 2432319
     },
     {
@@ -99,7 +99,7 @@
         "qrcode"
       ],
       "status": "installed",
-      "ms": 1315.7348439999987,
+      "ms": 1341.5872090000048,
       "bytes": 8452782
     },
     {
@@ -108,8 +108,8 @@
         "openai"
       ],
       "status": "installed",
-      "ms": 2689.5493260000003,
-      "bytes": 58321209
+      "ms": 3796.5551110000015,
+      "bytes": 20439570
     },
     {
       "extension": "esa-search",
@@ -118,8 +118,8 @@
         "swr"
       ],
       "status": "installed",
-      "ms": 2391.6002059999955,
-      "bytes": 50282172
+      "ms": 3562.0109559999983,
+      "bytes": 6831722
     },
     {
       "extension": "featurebase",
@@ -127,8 +127,8 @@
         "turndown"
       ],
       "status": "installed",
-      "ms": 2233.8081510000047,
-      "bytes": 51708574
+      "ms": 3307.309236000001,
+      "bytes": 9121145
     },
     {
       "extension": "image-diff-checker",
@@ -137,8 +137,8 @@
         "pixelmatch"
       ],
       "status": "installed",
-      "ms": 3057.347673999997,
-      "bytes": 69105813
+      "ms": 4308.6517840000015,
+      "bytes": 28529727
     },
     {
       "extension": "irish-rail",
@@ -146,7 +146,7 @@
         "fast-xml-parser"
       ],
       "status": "installed",
-      "ms": 1025.0409680000012,
+      "ms": 1010.8137290000013,
       "bytes": 3562177
     },
     {
@@ -155,7 +155,7 @@
         "open"
       ],
       "status": "installed",
-      "ms": 581.5514299999995,
+      "ms": 578.0546190000023,
       "bytes": 61339
     },
     {
@@ -164,8 +164,8 @@
         "marked"
       ],
       "status": "installed",
-      "ms": 1908.069779000005,
-      "bytes": 44973033
+      "ms": 3119.207086999988,
+      "bytes": 2697514
     },
     {
       "extension": "monorepo-manager",
@@ -175,8 +175,8 @@
         "parse-git-config"
       ],
       "status": "installed",
-      "ms": 2463.3541659999973,
-      "bytes": 16249897
+      "ms": 3333.2334649999975,
+      "bytes": 15347858
     },
     {
       "extension": "oci",
@@ -185,8 +185,8 @@
         "oci-sdk"
       ],
       "status": "installed",
-      "ms": 22810.330942999994,
-      "bytes": 266790567
+      "ms": 25063.258319,
+      "bytes": 226850472
     },
     {
       "extension": "owl",
@@ -195,8 +195,8 @@
         "raycast-cross-extension"
       ],
       "status": "installed",
-      "ms": 2413.995333999992,
-      "bytes": 45674319
+      "ms": 2676.379679000005,
+      "bytes": 2535494
     },
     {
       "extension": "screen-sharing-recents",
@@ -204,7 +204,7 @@
         "plist"
       ],
       "status": "installed",
-      "ms": 865.6449410000059,
+      "ms": 794.293520999985,
       "bytes": 9079447
     },
     {
@@ -213,8 +213,8 @@
         "algoliasearch"
       ],
       "status": "installed",
-      "ms": 2285.4122590000043,
-      "bytes": 42904105
+      "ms": 3088.5912050000043,
+      "bytes": 2334028
     },
     {
       "extension": "search-regexp",
@@ -222,8 +222,8 @@
         "got"
       ],
       "status": "installed",
-      "ms": 910.4916170000215,
-      "bytes": 742524
+      "ms": 988.5901720000256,
+      "bytes": 745166
     },
     {
       "extension": "shopify-developer-changelog",
@@ -231,7 +231,7 @@
         "rss-parser"
       ],
       "status": "installed",
-      "ms": 702.5109339999908,
+      "ms": 720.3384969999897,
       "bytes": 2206494
     },
     {
@@ -240,8 +240,8 @@
         "node-html-parser"
       ],
       "status": "installed",
-      "ms": 2183.7137909999874,
-      "bytes": 45617167
+      "ms": 3567.768312,
+      "bytes": 3137350
     },
     {
       "extension": "youtube",
@@ -252,8 +252,8 @@
         "javascript-time-ago"
       ],
       "status": "installed",
-      "ms": 4186.902307000011,
-      "bytes": 71358024
+      "ms": 4296.297093000001,
+      "bytes": 27977774
     }
   ],
   "results": [
@@ -355,62 +355,50 @@
       "extension": "commandcode-ai",
       "command": "ask-commandcode-ai",
       "mode": "view",
-      "nodes": 8,
-      "rootType": "Navigation",
-      "outcome": "rendered"
+      "error": "Build failed with 8 errors: ../../../smoke-deps-data/deps/commandcode-ai/node_modules/@ai-sdk/anthropic/dist/index.js:4:18: ERROR: Could not resolve \"zod/v4\" .…",
+      "outcome": "bundle-failed"
     },
     {
       "extension": "commandcode-ai",
       "command": "refresh-models",
       "mode": "no-view",
-      "nodes": 4,
-      "rootType": "Navigation",
-      "outcome": "rendered"
+      "error": "Build failed with 8 errors: ../../../smoke-deps-data/deps/commandcode-ai/node_modules/@ai-sdk/anthropic/dist/index.js:4:18: ERROR: Could not resolve \"zod/v4\" .…",
+      "outcome": "bundle-failed"
     },
     {
       "extension": "control-d",
       "command": "change-filters",
       "mode": "view",
-      "missing": [
-        "common"
-      ],
-      "outcome": "bundle-failed"
+      "outcome": "needs-preferences",
+      "reason": "requires preferences without a default: api-key; bundled, not run"
     },
     {
       "extension": "control-d",
       "command": "learn-my-ip",
       "mode": "view",
-      "missing": [
-        "common"
-      ],
-      "outcome": "bundle-failed"
+      "outcome": "needs-preferences",
+      "reason": "requires preferences without a default: api-key; bundled, not run"
     },
     {
       "extension": "control-d",
       "command": "list-profiles",
       "mode": "view",
-      "missing": [
-        "common"
-      ],
-      "outcome": "bundle-failed"
+      "outcome": "needs-preferences",
+      "reason": "requires preferences without a default: api-key; bundled, not run"
     },
     {
       "extension": "control-d",
       "command": "modify-profile",
       "mode": "view",
-      "missing": [
-        "common"
-      ],
-      "outcome": "bundle-failed"
+      "outcome": "needs-preferences",
+      "reason": "requires preferences without a default: api-key; bundled, not run"
     },
     {
       "extension": "control-d",
       "command": "status",
       "mode": "view",
-      "missing": [
-        "common"
-      ],
-      "outcome": "bundle-failed"
+      "outcome": "needs-preferences",
+      "reason": "requires preferences without a default: api-key; bundled, not run"
     },
     {
       "extension": "defichain-lottery",
@@ -697,6 +685,6 @@
     }
   ],
   "extensionFailures": [],
-  "peakBytes": 489048337,
-  "wallMs": 150050.605434
+  "peakBytes": 476683668,
+  "wallMs": 162424.391676
 }

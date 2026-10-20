@@ -74,9 +74,11 @@ Raycast client semantics built in so embedders only draw.
       Coverage 2026-10-20: non-deprecated 1533/1534 (embedder-owned
       `BrowserExtension.getContent`), deprecated 939/939.
 - [x] 0080 Views over `blast serve` (client-core controller per session)
-- [x] 0070 Deps-heavy corpus (`compat/SMOKE-DEPS.md`): 25/25 installs, 35/56 render,
-      5 bundle fails (tsconfig `paths`), 15 need args/prefs, 1 denied, 0 crashes
+- [x] 0070 Deps-heavy corpus (`compat/SMOKE-DEPS.md`, rerun after 0082/0083):
+      25/25 installs, 33/56 render, 2 bundle fails (peer `zod` omitted, 0085),
+      20 need args/prefs, 1 denied, 0 crashes
 - [x] 0082 tsconfig `baseUrl`/`paths`; 0083 lean installs (−91%); 0084 form editing in the controller
+- [ ] 0085 Lean installs keep required non-runtime peers (`zod` for `@ai-sdk/*`)
 
 ## Later (not scheduled)
 
