@@ -30,6 +30,11 @@ opts in with `--ai-answer` / `--browser-tabs`. AI.experimental_decide requests
 `ai.decide` (denied by default); `--ai-decide <file.json>` supplies typed answers
 validated by the runtime. Its AbortSignal stops waiting. Supplied browser content is returned as is,
 without format conversion, and CSS selectors are unsupported in the headless host.
+Embedders answering `browser.content` must select `tabId` (the active tab when
+omitted), apply `cssSelector` for HTML/text, and convert to the requested
+`format` (default markdown). The runtime forwards those options and returns the
+handler's string unchanged; markdown with a selector is rejected before dispatch.
+BrowserExtension.getContent remains partial until an embedder supplies this.
 
 `OAuth.PKCEClient` generates S256 PKCE requests and delegates authorization to
 `oauth.authorize` (denied unless a client answers it; CLI: `--oauth-code <code>`).
@@ -103,3 +108,15 @@ accessibility permission and an app that handles Copy. It can briefly expose
 selected text on the clipboard; clipboard managers, delayed providers, concurrent
 clipboard writes and focus changes can interfere. Selection reads are serialized
 within one handler registry. An empty selection returns an empty string.
+
+Alerts with `rememberUserChoice` expose a `rememberChoice` checkbox value and
+`onRememberUserChoiceChange(boolean)` handler. Clients draw the checkbox and
+dispatch its changes before the Alert.Action event. Checked answers persist in
+`blast:internal` under `blast:alert:` keys scoped to command and alert text/actions;
+subsequent calls return the saved answer and run its callback without a scene.
+LocalStorage cannot read or clear these choices. Embedders can reset them by
+removing the command's `blast:alert:` keys from internal storage.
+
+Action.SubmitForm exposes `submissionFailureCount`, incremented on each sync or
+async `false` result. Embedders observe changes to show failure feedback and
+honor their user's Reduce Motion setting. Drafts remain intact on failure.

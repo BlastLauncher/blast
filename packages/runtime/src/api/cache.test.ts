@@ -118,14 +118,17 @@ test("subscribe works when called as an unbound method reference", () => {
   expect(events).toHaveLength(1);
 });
 
-// @covers Cache.Options.directory partial
-test("deprecated directory option cannot move storage; corrupt storage is not overwritten", () => {
+// @covers Cache.Options.directory
+test("custom parent directories isolate storage; corrupt storage is not overwritten", () => {
   const assigned = setup();
   const elsewhere = setup();
   environment.supportPath = assigned;
-  // Accepted for compatibility, but storage stays in the assigned directory.
   const cache = new Cache({ directory: elsewhere });
-  expect(cache.storageDirectory.startsWith(assigned)).toBe(true);
+  expect(cache.storageDirectory).toBe(join(elsewhere, "cache"));
+  cache.set("key", "custom");
+  expect(new Cache({ directory: elsewhere }).get("key")).toBe("custom");
+  expect(new Cache().has("key")).toBe(false);
+  expect(new Cache({ directory: elsewhere, namespace: "nested" }).isEmpty).toBe(true);
   environment.supportPath = "";
   expect(() => new Cache()).toThrow("assigned support directory");
   environment.supportPath = assigned;

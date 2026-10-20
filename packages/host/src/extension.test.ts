@@ -224,6 +224,7 @@ test("extension launch renders props and preferences, and session/handle close r
       const opened = await f.handle.launch("index", {
         argumentValues: { query: "hello" },
         launchContext: { source: "embedder" },
+        fallbackText: "fallback query",
       });
       const scene = await new Promise<SceneMessage>((resolve, reject) => {
         opened.session.scenes(resolve);
@@ -236,7 +237,11 @@ test("extension launch renders props and preferences, and session/handle close r
       const list = scene.root!.children[0]!.children[0]!;
       const content = JSON.parse(String(list.children[0]!.props.title));
       expect(content).toMatchObject({
-        props: { arguments: { query: "hello" }, launchContext: { source: "embedder" } },
+        props: {
+          arguments: { query: "hello" },
+          launchContext: { source: "embedder" },
+          fallbackText: "fallback query",
+        },
         preferences: { token: "saved" },
       });
       const bundle = dirname(content.assetsPath);

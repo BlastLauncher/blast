@@ -508,7 +508,9 @@ export function SubmitForm<T extends FormValues>({
   ...props
 }: SubmitFormProps<T>) {
   const ctx = useContext(FormContext);
+  const [submissionFailureCount, setSubmissionFailureCount] = useState(0);
   return createElement("Action.SubmitForm", {
+    submissionFailureCount,
     ...props,
     title: title ?? "Submit Form",
     onAction: () => {
@@ -517,6 +519,7 @@ export function SubmitForm<T extends FormValues>({
       ) as T;
       const result = onSubmit?.(values);
       const complete = (success: void | boolean) => {
+        if (success === false) setSubmissionFailureCount((count) => count + 1);
         if (ctx?.enableDrafts && success !== false) {
           void clearDraft().catch((error: unknown) =>
             console.error("Form draft clear failed", error),

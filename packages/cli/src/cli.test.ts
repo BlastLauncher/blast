@@ -1116,3 +1116,20 @@ test("Form storeValue and drafts survive CLI launches, submit clears drafts and 
     await rm(dataDir, { recursive: true, force: true });
   }
 }, 15_000);
+
+test("--fallback-text reaches a fallback command, including an empty string", async () => {
+  for (const text of ["unmatched query", ""]) {
+    const result = await runCli([
+      "run",
+      launchFixture,
+      "index",
+      "--argument",
+      "query=hello",
+      "--fallback-text",
+      text,
+      "--json",
+    ]);
+    expect(result.code, result.stderr).toBe(0);
+    expect(result.stdout).toContain(`"title":${JSON.stringify(text)}`);
+  }
+});

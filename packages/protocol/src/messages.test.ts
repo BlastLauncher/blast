@@ -505,3 +505,16 @@ test("init validates the optional API availability list", () => {
     if (!parsed.ok) expect(parsed.error).toContain("environment.availableAPIs");
   }
 });
+
+test("fallback text is optional, preserves empty strings and rejects non-string input", () => {
+  for (const fallbackText of ["fallback", ""]) {
+    const message = { ...init, command: { ...command, fallbackText } };
+    expect(parseHostMessage(message)).toEqual({ ok: true, message });
+  }
+  for (const fallbackText of [null, 42, {}]) {
+    expect(parseHostMessage({ ...init, command: { ...command, fallbackText } })).toEqual({
+      ok: false,
+      error: "command.fallbackText: expected string",
+    });
+  }
+});

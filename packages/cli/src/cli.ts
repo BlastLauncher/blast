@@ -49,6 +49,7 @@ Options:
                         Set a manifest argument for this run (repeatable). An
                         argument the manifest marks "required" must be given,
                         and an unknown name is a usage error.
+  --fallback-text <text> Search text for a fallback command.
   --grant <capability>  Grant a capability to the command (repeatable). A
                         granted "clipboard.copy" records and prints the copied
                         text instead of touching an OS clipboard. LocalStorage
@@ -493,6 +494,7 @@ type RunOptions = {
   extensionDir: string;
   command: string;
   argumentSpecs: string[];
+  fallbackText: string | undefined;
   grants: string[];
   applications: Application[] | undefined;
   clipboard: string | undefined;
@@ -639,6 +641,7 @@ async function run(options: RunOptions): Promise<number> {
       startCommand({
         ...bundled,
         argumentValues,
+        ...(options.fallbackText === undefined ? {} : { fallbackText: options.fallbackText }),
         dataDir: options.dataDir,
         availableAPIs: [
           ...(options.aiAnswer === undefined ? [] : ["AI" as const]),
@@ -708,6 +711,7 @@ function parseArguments(argv: string[]) {
         "selected-files": { type: "string", multiple: true },
         frontmost: { type: "string" },
         "data-dir": { type: "string" },
+        "fallback-text": { type: "string" },
         script: { type: "string" },
         json: { type: "boolean" },
         timeout: { type: "string" },
@@ -857,6 +861,7 @@ async function main(argv: string[]): Promise<number> {
     extensionDir,
     command,
     argumentSpecs: parsed.values.argument ?? [],
+    fallbackText: parsed.values["fallback-text"],
     grants: parsed.values.grant ?? [],
     applications:
       applicationsPath === undefined ? undefined : await readApplications(applicationsPath),

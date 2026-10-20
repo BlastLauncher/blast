@@ -3,6 +3,8 @@ import { createElement as h, useLayoutEffect, useSyncExternalStore } from "react
 // public `Alert.ActionStyle` and `Toast.Style` paths (api-extractor dedupes
 // alias collisions with a numeric suffix).
 import { AlertActionStyle_2, ToastStyle_2 } from "./enums.generated.ts";
+import { requestCapability } from "./capability.ts";
+import { environment } from "./environment.ts";
 import type { ImageLike, Shortcut } from "./types.ts";
 import type { PopToRootTypeValue } from "./window.ts";
 
@@ -45,7 +47,12 @@ let revision = 0;
 const listeners = new Set<() => void>();
 const committed = new Map<number, () => void>();
 let nextAlert = 0;
-const alerts: { id: number; options: AlertOptions; resolve(value: boolean): void }[] = [];
+const alerts: {
+  id: number;
+  options: AlertOptions;
+  remember: boolean;
+  resolve(value: boolean): void;
+}[] = [];
 let mount: (() => void) | undefined;
 
 // No-view commands mount a scene lazily, retaining their scene-free fast path.
@@ -82,7 +89,10 @@ const subscribe = (listener: () => void) => {
     if (listeners.size === 0) {
       activeToast.current = undefined;
       hud = undefined;
-      for (const alert of alerts.splice(0)) alert.resolve(false);
+      for (const alert of alerts.splice(0)) {
+        alert.remember = false;
+        alert.resolve(false);
+      }
       for (const resolve of committed.values()) resolve();
       committed.clear();
       revision++;
@@ -160,11 +170,34 @@ export function showHUD(title: string, options: HUDOptions = {}): Promise<void> 
   hud = { title, ...options };
   return changed(true);
 }
-export function confirmAlert(options: AlertOptions): Promise<boolean> {
-  return new Promise((resolve) => {
-    alerts.push({ id: ++nextAlert, options, resolve });
+export async function confirmAlert(options: AlertOptions): Promise<boolean> {
+  // Host storage supplies extension isolation; the key separates commands and
+  // alert text/actions without depending on function identity or queue order.
+  const key = `blast:alert:${JSON.stringify([
+    environment.commandName,
+    options.title,
+    options.message ?? null,
+    options.primaryAction?.title ?? "OK",
+    options.primaryAction?.style ?? Alert.ActionStyle.Default,
+    options.dismissAction?.title ?? "Cancel",
+    options.dismissAction?.style ?? Alert.ActionStyle.Cancel,
+  ])}`;
+  if (options.rememberUserChoice) {
+    const answer = await requestCapability("storage.get", { scope: "blast:internal", key });
+    if (typeof answer === "boolean") {
+      (answer ? options.primaryAction : options.dismissAction)?.onAction?.();
+      return answer;
+    }
+  }
+  const alert = { id: ++nextAlert, options, remember: false, resolve: (_value: boolean) => {} };
+  const answer = await new Promise<boolean>((resolve) => {
+    alert.resolve = resolve;
+    alerts.push(alert);
     void changed();
   });
+  if (options.rememberUserChoice && alert.remember)
+    await requestCapability("storage.set", { scope: "blast:internal", key, value: answer });
+  return answer;
 }
 
 export function FeedbackScene() {
@@ -219,6 +252,16 @@ export function FeedbackScene() {
           message: alert.options.message,
           icon: alert.options.icon,
           rememberUserChoice: alert.options.rememberUserChoice,
+          ...(alert.options.rememberUserChoice
+            ? {
+                rememberChoice: alert.remember,
+                onRememberUserChoiceChange: (checked: boolean) => {
+                  if (alerts[0] !== alert) return;
+                  alert.remember = checked === true;
+                  void changed();
+                },
+              }
+            : {}),
         },
         h("Alert.Action", {
           name: "primaryAction",

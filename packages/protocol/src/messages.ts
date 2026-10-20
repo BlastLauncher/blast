@@ -42,6 +42,8 @@ export type InitCommand = {
   arguments?: Record<string, string>;
   /** The `launchCommand({ context })` payload of this launch, if any. */
   launchContext?: Record<string, JsonValue>;
+  /** Search text supplied when invoking a fallback command. */
+  fallbackText?: string;
   /** A stored `Form` draft for this command, read by the host before launch. */
   draftValues?: Record<string, JsonValue>;
 };
@@ -290,6 +292,7 @@ function readCommand(value: unknown, path: string): InitCommand {
     "mode",
     "arguments",
     "launchContext",
+    "fallbackText",
     "draftValues",
   ]);
   // Optional fields stay absent and never materialize as `undefined`, so a
@@ -308,6 +311,9 @@ function readCommand(value: unknown, path: string): InitCommand {
     ...(launchContext === undefined
       ? {}
       : { launchContext: readJsonObject(launchContext, keyPath(path, "launchContext")) }),
+    ...(object["fallbackText"] === undefined
+      ? {}
+      : { fallbackText: readString(object["fallbackText"], keyPath(path, "fallbackText")) }),
     ...(draftValues === undefined
       ? {}
       : { draftValues: readJsonObject(draftValues, keyPath(path, "draftValues")) }),

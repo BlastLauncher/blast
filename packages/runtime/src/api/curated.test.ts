@@ -143,8 +143,8 @@ test("denied or failed capabilities reject without invoking action callbacks", a
   root.unmount();
 });
 
-// @covers CopyToClipboardAction partial
-// @covers PasteAction partial
+// @covers CopyToClipboardAction
+// @covers PasteAction
 test("deprecated actions use the same implementations and capability behavior", async () => {
   expect(implemented.CopyToClipboardAction).toBe(implemented.Action.CopyToClipboard);
   expect(implemented.PasteAction).toBe(implemented.Action.Paste);
@@ -203,8 +203,8 @@ test("Detail serializes scalar props and renders element props in Slots", () => 
   root.unmount();
 });
 
-// @covers ActionPanel.Item partial
-// @covers ActionPanelItem partial
+// @covers ActionPanel.Item
+// @covers ActionPanelItem
 test("ActionPanel.Item and ActionPanelItem are deprecated aliases of Action", () => {
   expect(implemented.ActionPanel.Item).toBe(implemented.Action);
   expect(implemented.ActionPanelItem).toBe(implemented.Action);

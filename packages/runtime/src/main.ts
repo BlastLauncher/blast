@@ -165,6 +165,7 @@ function launchProps(command: Extract<HostMessage, { type: "init" }>["command"])
     ...(command.draftValues === undefined
       ? {}
       : { draftValues: decodeFormValues(command.draftValues) }),
+    ...(command.fallbackText === undefined ? {} : { fallbackText: command.fallbackText }),
     ...(command.launchContext === undefined ? {} : { launchContext: command.launchContext }),
   };
 }

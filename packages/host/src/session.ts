@@ -32,6 +32,7 @@ export type StartOptions = BundledCommand & {
   argumentValues?: Record<string, string>;
   /** The `launchCommand` context, when another command started this one. */
   launchContext?: Record<string, JsonValue>;
+  fallbackText?: string;
   nodePath?: string;
   handshakeTimeoutMs?: number;
   /** Child environment; defaults to {@link runtimeEnvironment} (an allowlist, not `process.env`). */
@@ -113,6 +114,7 @@ export async function startCommand(options: StartOptions): Promise<Session> {
       name: options.commandName,
       mode: options.mode,
       ...(options.argumentValues === undefined ? {} : { arguments: options.argumentValues }),
+      ...(options.fallbackText === undefined ? {} : { fallbackText: options.fallbackText }),
       ...(options.launchContext === undefined ? {} : { launchContext: options.launchContext }),
       ...(draftValues === undefined ? {} : { draftValues }),
     },
