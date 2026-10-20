@@ -488,7 +488,7 @@ test("a form exposes its fields and the focused one; detail exposes text", () =>
   const controller = createController({ platform: "Linux" });
   controller.scene(scene(form));
   expect(controller.view().kind).toBe("form");
-  expect(controller.view().form).toEqual({
+  expect(controller.view().form).toMatchObject({
     fields: [
       { id: "name", type: "Form.TextField", title: "Name", value: "x" },
       { id: "ok", type: "Form.Checkbox", title: "OK", value: null },
@@ -513,4 +513,166 @@ test("subscribers hear view changes only, and can unsubscribe", () => {
   stop();
   controller.input({ type: "move", direction: "up" });
   expect(seen).toHaveLength(2);
+});
+
+test("controller edits every form field, validates dates, hides passwords and submits", () => {
+  const kinds = [
+    "TextField",
+    "TextArea",
+    "PasswordField",
+    "Checkbox",
+    "Dropdown",
+    "TagPicker",
+    "DatePicker",
+    "FilePicker",
+  ];
+  const fields = kinds.map((kind) =>
+    node(
+      `Form.${kind}`,
+      kind,
+      {
+        title: kind,
+        info: "Help",
+        placeholder: "Enter",
+        onChange: h(kind),
+        onFocus: h(`focus-${kind}`),
+        onBlur: h(`blur-${kind}`),
+        value: kind === "TagPicker" ? ["a"] : kind === "Checkbox" ? false : "",
+      },
+      ["Dropdown", "TagPicker"].includes(kind)
+        ? [
+            node(`Form.${kind}.Item`, `${kind}-a`, { value: "a", title: "Apple" }),
+            node(`Form.${kind}.Item`, `${kind}-b`, { value: "b", title: "Banana" }),
+          ]
+        : [],
+    ),
+  );
+  const form = node("Form", "form", {}, [
+    ...fields,
+    slot(
+      "actions",
+      node("ActionPanel", "actions", {}, [
+        node("Action.SubmitForm", "submit", { onSubmit: h("submit") }),
+      ]),
+    ),
+  ]);
+  const controller = createController({ platform: "Linux" });
+  expect(names(controller.scene(scene(form)))).toEqual(["focus-TextField"]);
+  const input = controller.input;
+  const display = (id: string) => controller.view().form!.fields.find((field) => field.id === id)!;
+  expect(display("TextField")).toMatchObject({
+    title: "TextField",
+    info: "Help",
+    placeholder: "Enter",
+    focused: true,
+  });
+  for (const [id, value] of [
+    ["TextField", "Ada"],
+    ["TextArea", "one\ntwo"],
+    ["PasswordField", "never-expose-this"],
+  ]) {
+    expect(input({ type: "setValue", id: id!, value: value! }).events[0]?.args).toEqual([value!]);
+  }
+  expect(JSON.stringify(controller.view())).not.toContain("never-expose-this");
+  fields[2]!.props.hasValue = true;
+  controller.scene(scene(form));
+  expect(display("PasswordField")).toMatchObject({ value: null, text: "", hasValue: true });
+  expect(input({ type: "toggle", id: "Checkbox" }).events[0]?.args).toEqual([true]);
+  expect(input({ type: "focus", id: "Dropdown" }).events.map((e) => e.handler)).toEqual([
+    "blur-TextField",
+    "focus-Dropdown",
+  ]);
+  input({ type: "optionMove", delta: 1 });
+  expect(display("Dropdown").optionIndex).toBe(1);
+  expect(input({ type: "optionChoose" }).events[0]?.args).toEqual(["b"]);
+  input({ type: "setValue", id: "Dropdown", value: "ban" });
+  expect(display("Dropdown").options).toEqual([{ value: "b", title: "Banana" }]);
+  expect(display("Dropdown").query).toBe("ban");
+  fields[4]!.props.onSearchTextChange = h("query");
+  controller.scene(scene(form));
+  expect(input({ type: "setValue", id: "Dropdown", value: "app" }).events[0]?.handler).toBe(
+    "query",
+  );
+  expect(display("Dropdown").options).toHaveLength(2);
+
+  input({ type: "focus", id: "TagPicker" });
+  expect(display("TagPicker").selected).toEqual([{ value: "a", title: "Apple" }]);
+  expect(input({ type: "optionChoose" }).events[0]?.args).toEqual([[]]);
+  input({ type: "optionMove", delta: 1 });
+  expect(input({ type: "optionChoose" }).events[0]?.args).toEqual([["a", "b"]]);
+  expect(input({ type: "setValue", id: "DatePicker", value: "2024-02-30" }).events).toEqual([]);
+  expect(display("DatePicker")).toMatchObject({
+    text: "2024-02-30",
+    error: "Enter a valid ISO date or date/time",
+  });
+  expect(
+    input({ type: "setValue", id: "DatePicker", value: "2024-02-29" }).events[0]?.args,
+  ).toEqual(["2024-02-29T00:00:00.000Z"]);
+  fields[6]!.props.value = "2024-02-29T00:00:00.000Z";
+  controller.scene(scene(form));
+  expect(display("DatePicker")).toMatchObject({ text: "2024-02-29", error: "" });
+  expect(input({ type: "setValue", id: "DatePicker", value: "" }).events[0]?.args).toEqual([null]);
+  expect(
+    input({ type: "setValue", id: "FilePicker", value: " /one, /two, " }).events[0]?.args,
+  ).toEqual([["/one", "/two"]]);
+  fields[7]!.props.allowMultipleSelection = false;
+  expect(input({ type: "setValue", id: "FilePicker", value: "/one,/two" }).events[0]?.args).toEqual(
+    [["/one"]],
+  );
+  expect(names(input({ type: "submit" }))).toEqual(["submit"]);
+  expect(names(input({ type: "openActions" }))).toEqual(["blur-TagPicker"]);
+  expect(input({ type: "setValue", id: "TextField", value: "blocked" }).events).toEqual([]);
+  expect(input({ type: "submit" }).events).toEqual([]);
+  expect(names(input({ type: "closeActions" }))).toEqual(["focus-TagPicker"]);
+});
+
+test("form focus wraps, ignores stale acknowledgements, and follows scene requests", () => {
+  const fields = ["a", "b", "c"].map((id) =>
+    node("Form.TextField", id, { onFocus: h(`focus-${id}`), onBlur: h(`blur-${id}`) }),
+  );
+  const form = node("Form", "form", {}, fields);
+  const controller = ready("Linux", scene(form));
+  expect(names(controller.input({ type: "focusPrev" }))).toEqual(["blur-a", "focus-c"]);
+  controller.input({ type: "focusNext" });
+  controller.input({ type: "focusNext" });
+  fields[2]!.props.focused = true;
+  controller.scene(scene(form));
+  expect(controller.view().form?.focusId).toBe("b");
+  fields[2]!.props.focused = false;
+  fields[1]!.props.focused = true;
+  controller.scene(scene(form));
+  fields[1]!.props.focused = false;
+  fields[2]!.props.focused = true;
+  expect(controller.scene(scene(form)).events).toEqual([]);
+  expect(controller.view().form?.focusId).toBe("c");
+  expect(controller.input({ type: "focus", id: "missing" }).events).toEqual([]);
+  controller.scene(scene(node("Form", "other", {}, [])));
+  expect(controller.view().form).toEqual({ fields: [], focusId: null });
+});
+
+test("form scenes control text values, preserve date syntax on acknowledgement, and clear removed fields", () => {
+  const controller = createController({ platform: "Linux" });
+  const show = (name: string, date: string | null = null) =>
+    scene(
+      node("Form", "form", {}, [
+        node("Form.TextField", "name", { value: name, onChange: h("name"), error: "Required" }),
+        node("Form.DatePicker", "date", {
+          value: date,
+          defaultValue: "2020-01-01",
+          onChange: h("date"),
+        }),
+      ]),
+    );
+  controller.scene(show("original"));
+  expect(controller.view().form?.fields[1]?.value).toBeNull();
+  controller.input({ type: "setValue", id: "name", value: "rejected" });
+  controller.scene(show("original"));
+  expect(controller.view().form?.fields[0]).toMatchObject({ text: "original", error: "Required" });
+  controller.input({ type: "setValue", id: "date", value: "2024-02-29" });
+  controller.scene(show("changed", "2024-02-29T00:00:00.000Z"));
+  expect(controller.view().form?.fields[1]?.text).toBe("2024-02-29");
+  controller.scene(show("changed", "2025-01-01T00:00:00.000Z"));
+  expect(controller.view().form?.fields[1]?.text).toBe("2025-01-01T00:00:00.000Z");
+  controller.scene(scene(node("Form", "form")));
+  expect(controller.view().form).toEqual({ fields: [], focusId: null });
 });

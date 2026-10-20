@@ -6,9 +6,21 @@ export type EmbedderError = { code: string; message: string; data?: JsonValue };
 export type EmbedderControllerInput =
   | { type: "search" | "actionsQuery" | "dropdownQuery"; text: string }
   | { type: "move"; direction: "up" | "down" | "left" | "right" }
-  | { type: "select"; id: string }
+  | { type: "select" | "focus" | "toggle"; id: string }
+  | { type: "setValue"; id: string; value: string }
+  | { type: "optionMove"; delta: number }
   | {
-      type: "primary" | "openActions" | "closeActions" | "back" | "openDropdown" | "chooseDropdown";
+      type:
+        | "primary"
+        | "openActions"
+        | "closeActions"
+        | "back"
+        | "openDropdown"
+        | "chooseDropdown"
+        | "focusNext"
+        | "focusPrev"
+        | "optionChoose"
+        | "submit";
     }
   | {
       type: "key";
@@ -173,28 +185,37 @@ function controllerInput(v: unknown): boolean {
     ? ["type", "text"]
     : v.type === "move"
       ? ["type", "direction"]
-      : v.type === "select"
-        ? ["type", "id"]
-        : v.type === "key"
-          ? ["type", "key"]
-          : v.type === "toastAction"
-            ? ["type", "index"]
-            : v.type === "alert"
-              ? ["type", "confirm", "remember?"]
-              : [
-                    "primary",
-                    "openActions",
-                    "closeActions",
-                    "back",
-                    "openDropdown",
-                    "chooseDropdown",
-                  ].includes(v.type as string)
-                ? ["type"]
-                : undefined;
+      : v.type === "setValue"
+        ? ["type", "id", "value"]
+        : v.type === "optionMove"
+          ? ["type", "delta"]
+          : ["select", "focus", "toggle"].includes(v.type as string)
+            ? ["type", "id"]
+            : v.type === "key"
+              ? ["type", "key"]
+              : v.type === "toastAction"
+                ? ["type", "index"]
+                : v.type === "alert"
+                  ? ["type", "confirm", "remember?"]
+                  : [
+                        "focusNext",
+                        "focusPrev",
+                        "optionChoose",
+                        "submit",
+                        "primary",
+                        "openActions",
+                        "closeActions",
+                        "back",
+                        "openDropdown",
+                        "chooseDropdown",
+                      ].includes(v.type as string)
+                    ? ["type"]
+                    : undefined;
   return (
     !!shape &&
     fields(v, shape, (key, value) => {
       if (key === "direction") return ["up", "down", "left", "right"].includes(value as string);
+      if (key === "delta") return typeof value === "number" && Number.isFinite(value);
       if (key === "index") return typeof value === "number" && Number.isFinite(value);
       if (key === "confirm" || key === "remember") return typeof value === "boolean";
       if (key === "key")
