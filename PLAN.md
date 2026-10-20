@@ -77,7 +77,7 @@ Raycast client semantics built in so embedders only draw.
       out of `packages/tui`; the TUI consumes it
 - [x] 0064 Engine API: extension handle (manifest + live reload, commands,
       deps, preference schema/store, launch) moved out of the TUI picker
-- [ ] 0065 client-core: ranking, keepSectionOrder, platform shortcuts, feedback/menu model
+- [x] 0065 client-core: ranking, keepSectionOrder, platform shortcuts, feedback/menu model
 - [ ] 0076 Engine-side partials (rememberUserChoice, fallbackText, Cache dir, …)
 - [x] 0066 `blast serve`: versioned embedder protocol over stdio,
       capabilities forwarded to the embedder
