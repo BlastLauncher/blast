@@ -32,10 +32,10 @@ The non-deprecated `partial` entries that belong to the engine and runtime
 
 ## Acceptance
 
-- [ ] Each entry above is `covered` or has a documented embedder-only reason.
-- [ ] `bun run compat:report` leaves no diff; Handoff lists the counts
+- [x] Each entry above is `covered` or has a documented embedder-only reason.
+- [x] `bun run compat:report` leaves no diff; Handoff lists the counts
       before → after.
-- [ ] `bun run verify` passes.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -43,11 +43,16 @@ The non-deprecated `partial` entries that belong to the engine and runtime
 
 ## Handoff
 
-Filled in by the worker when finishing:
-
-```
-Branch/commit:
-Verify:
+Branch/commit: t3/engine-side-partials @ 29ba7ed1c57094061fa61d9c60864578e3bc8b7f (implementation; subsequent commit records this handoff).
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok)
 Done:
-Not done / risks:
-```
+
+- Cache honors a custom parent directory; fallback text reaches runtime through extension.launch and CLI (including empty strings), with strict wire validation.
+- Alerts expose checkbox state/events and persist only opted-in answers in command/alert-scoped internal storage; shutdown does not persist unanswered alerts.
+- SubmitForm publishes a failure counter for synchronous/asynchronous false results; documented embedder feedback and Reduce Motion handling.
+- Deprecated clipboard/paste/action aliases now inherit their fully covered implementations. Generated non-deprecated counts: covered 1527 → 1533, partial 7 → 1, missing 0 → 0; deprecated: covered 665 → 889, partial 224 → 0, missing 50 → 50.
+- Regression tests cover cache isolation, fallback transport, alert restoration/isolation and submit failure signaling. No dependencies added; compat:report regeneration is clean.
+  Not done / risks:
+- BrowserExtension.getContent remains partial: tab access, CSS selection and HTML/text/markdown conversion require embedder browser access; documented in docs/capabilities.md. Runtime already validates/forwards options and passes the returned string through.
+- Embedders must render the alert checkbox and submit-failure feedback; reset remembered choices via internal storage. Reference launcher UI additions are outside engine scope.
+- Task 0067 must regenerate its schema after merging the new optional InitCommand.fallbackText field. Its schema/docs files were not touched; the serve launch request remains unchanged.
