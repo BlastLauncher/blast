@@ -29,7 +29,8 @@
     "corpus:tui-smoke": "bun scripts/corpus/tui-smoke-run.ts",
     "check:workflow": "bun scripts/check-workflow.ts",
     "tui": "bun packages/tui/src/main.tsx",
-    "blast:serve": "node packages/serve/src/main.ts"
+    "blast:serve": "node packages/serve/src/main.ts",
+    "example:go": "cd examples/go-embedder && go test ./..."
   },
   "devDependencies": {
     "@types/bun": "1.4.3",

@@ -28,7 +28,7 @@ extension code (unmodified, bundled)
 | `packages/tui`         | Bun terminal client (reference embedder)                                                                                      | client-core, cli, host, protocol, native |
 
 `host` never imports `runtime` code; it only spawns its entry file. Capability semantics and storage locations are in `docs/capabilities.md`;
-embedding (in process or over `blast serve`) is in `docs/embedding.md`.
+embedding (in process or over `blast serve`) is in `docs/embedding.md`. `examples/go-embedder` is a minimal non-JS embedder over `blast serve`.
 
 ## Message flow
 

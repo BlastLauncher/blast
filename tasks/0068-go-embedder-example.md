@@ -59,8 +59,34 @@ primary action from stdin, and answers `clipboard.copy` by printing the text.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/go-embedder-example @ (this commit)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 144.9s — 667 pass, 0 fail
 Done:
+  - examples/go-embedder: dependency-free Go embedder (main.go, main_test.go,
+    README.md ≤30 lines, go.mod module
+    github.com/blastlauncher/blast/examples/go-embedder, no go.sum). It spawns
+    `node packages/serve/src/main.ts` (`-serve` flag), handshakes
+    hello/welcome v1 declaring clipboard.copy, opens + launches the command,
+    prints every session.scene as an indented type+title tree marking the
+    first List.Item with ` *`, dispatches the first Action's onAction via
+    session.event on Enter, prints `capability.request clipboard.copy "…"` /
+    `capability.result ok`, and exits on session.exited or stdin EOF. Message
+    structs are hand-written against embedder-v1.schema.json.
+  - main_test.go drives the real server against fixtures/extensions/hello-list
+    (XDG_DATA_HOME pointed at a temp dir) and asserts the handshake, the
+    printed tree, and the clipboard round trip; race-clean (`go test -race
+    -count=2` passes).
+  - `bun run example:go` runs `cd examples/go-embedder && go test ./...`
+    (output: `ok github.com/blastlauncher/blast/examples/go-embedder 0.471s`).
+  - docs/architecture.md lists examples/go-embedder. The file is at its
+    200-line workflow cap, so the mention is a sentence appended to the
+    existing embedding-pointer paragraph instead of a new line.
+  - .gitignore ignores the build output `examples/go-embedder/go-embedder`.
+  - oxlint/typecheck needed no excludes: tsc includes only scripts+packages;
+    oxlint and oxfmt skip .go files (README.md is oxfmt-formatted and clean).
 Not done / risks:
+  - `go vet ./...` clean on Go 1.27.2; not run in CI (no Go there), per task.
+  - One unrelated flake in the first verify run (packages/cli/src/cli.test.ts
+    "browser tabs" child exited -1 under load); the file passes in isolation
+    and a full verify rerun was green. No product code was touched.
 ```
