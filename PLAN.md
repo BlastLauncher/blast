@@ -72,7 +72,7 @@ Raycast client semantics built in so embedders only draw.
 
 - [x] Decisions 0009 (engine boundary, two surfaces, distribution) and 0010
       (platform-free core, capability registry + catalog, optional native)
-- [ ] 0063 `packages/client-core`: move framework-free client behaviour
+- [x] 0063 `packages/client-core`: move framework-free client behaviour
       (filtering, selection, actions, shortcuts, grid, dropdown, form model)
       out of `packages/tui`; the TUI consumes it
 - [x] 0064 Engine API: extension handle (manifest + live reload, commands,
