@@ -1,7 +1,7 @@
 ---
 id: "0084"
 title: Form editing in the client-core controller (and over blast serve views)
-status: doing
+status: review
 milestone: M5
 depends: []
 ---
@@ -63,12 +63,12 @@ form. Non-JS embedders get the full Raycast form behaviour.
 
 ## Acceptance
 
-- [ ] Controller form tests cover every field kind above, focus events,
+- [x] Controller form tests cover every field kind above, focus events,
       validation, password non-exposure (`JSON.stringify(view())` never
       contains the typed password), and submit.
-- [ ] The TUI form runs on the controller; `bun test packages/tui` passes.
-- [ ] Serve form round-trip test passes; `bun run protocol:check` is clean.
-- [ ] `bun run verify` passes.
+- [x] The TUI form runs on the controller; `bun test packages/tui` passes.
+- [x] Serve form round-trip test passes; `bun run protocol:check` is clean.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -76,11 +76,16 @@ form. Non-JS embedders get the full Raycast form behaviour.
 
 ## Handoff
 
-Filled in by the worker when finishing:
-
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/controller-form-editing @ 5ea7df5 (implementation; handoff follows)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 138.0s
 Done:
-Not done / risks:
+- Added controller editing for all eight field kinds, focus/blur and modal focus,
+  validation, ranked dropdown queries, option cursors, safe password views and submit.
+- Migrated TUI form inputs to the controller; all 44 TUI tests pass unchanged.
+  The existing controller form assertion now allows the added view metadata.
+- Extended input validation and regenerated the protocol schema; added controller
+  coverage, protocol validation cases and a serve child-process form round trip.
+- Full verify: 733 tests pass, seed 344745402; protocol:check is clean.
+Not done / risks: Independent review remains with the orchestrator. No new dependencies.
 ```
