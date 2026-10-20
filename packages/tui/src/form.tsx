@@ -1,108 +1,62 @@
 /** @jsxImportSource @opentui/react */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useKeyboard, usePaste } from "@opentui/react";
 import type { ScrollBoxRenderable, TextareaRenderable } from "@opentui/core";
-import type { JsonValue, SceneNode } from "@blastlauncher/protocol";
+import type { SceneNode } from "@blastlauncher/protocol";
 import {
-  event,
-  formFields,
-  formOptions,
-  nextField,
-  parseDate,
   text,
+  type ControllerInput,
+  type ControllerView,
+  type FormFieldView,
 } from "@blastlauncher/client-core";
 import { pastedText } from "./paste.ts";
 
-type Send = (value: ReturnType<typeof event>) => void;
 export function FormView({
   form,
+  view,
   enabled,
-  send,
-  submit,
+  input,
 }: {
   form: SceneNode;
+  view: NonNullable<ControllerView["form"]>;
   enabled: boolean;
-  send: Send;
-  submit: () => void;
+  input: (action: ControllerInput) => void;
 }) {
-  const fields = formFields(form);
-  const [focus, setFocus] = useState<string | undefined>(
-    () => (fields.find((node) => node.props.focused) ?? fields[0])?.id,
-  );
-  const field = fields.find((node) => node.id === focus) ?? fields[0];
-  const reported = fields.find((node) => node.props.focused)?.id;
-  const previous = useRef(reported);
-  const pendingFocus = useRef<string[]>([]);
+  const field = view.fields.find((candidate) => candidate.focused);
   const scroll = useRef<ScrollBoxRenderable>(null);
-  const [option, setOption] = useState(0);
   useEffect(() => {
-    if (reported !== previous.current && reported) {
-      const acknowledged = pendingFocus.current.indexOf(reported);
-      if (acknowledged >= 0) pendingFocus.current.splice(0, acknowledged + 1);
-      else setFocus(reported);
-    }
-    previous.current = reported;
-  }, [reported]);
-  useEffect(() => {
-    scroll.current?.scrollChildIntoView(field?.id ?? "");
-    if (enabled && field) {
-      if (pendingFocus.current.at(-1) !== field.id) pendingFocus.current.push(field.id);
-      send(event(field, "onFocus"));
-    }
-    return () => {
-      if (enabled && field) send(event(field, "onBlur"));
-    };
-  }, [field?.id, enabled]);
-  function move(delta: number) {
-    const next = nextField(fields, field?.id, delta)?.id;
-    if (next) pendingFocus.current.push(next);
-    setFocus(next);
-    setOption(0);
-  }
+    scroll.current?.scrollChildIntoView(view.focusId ?? "");
+  }, [view.focusId]);
   const secret = useRef({ id: "", value: "" });
   useKeyboard((key) => {
     if (!enabled || key.defaultPrevented) return;
     if (key.name === "tab") {
       key.preventDefault();
-      move(key.shift ? -1 : 1);
+      input({ type: key.shift ? "focusPrev" : "focusNext" });
     } else if (key.ctrl && (key.name === "s" || key.name === "return")) {
       key.preventDefault();
-      submit();
+      input({ type: "submit" });
     } else if (
       field &&
       (key.name === "up" || key.name === "down") &&
       field.type !== "Form.TextArea"
     ) {
       key.preventDefault();
-      move(key.name === "down" ? 1 : -1);
+      input({ type: key.name === "down" ? "focusNext" : "focusPrev" });
     } else if (field && ["Form.Dropdown", "Form.TagPicker"].includes(field.type)) {
-      const options = formOptions(field);
       if (key.name === "left" || key.name === "right") {
         key.preventDefault();
-        setOption(
-          Math.max(0, Math.min(options.length - 1, option + (key.name === "right" ? 1 : -1))),
-        );
+        input({ type: "optionMove", delta: key.name === "right" ? 1 : -1 });
       } else if (key.name === "return" || key.name === "space") {
         key.preventDefault();
-        const value = options[option]?.props.value;
-        if (typeof value !== "string") return;
-        const values = Array.isArray(field.props.value) ? field.props.value : [];
-        send(
-          event(field, "onChange", [
-            field.type === "Form.Dropdown"
-              ? value
-              : values.includes(value)
-                ? values.filter((item) => item !== value)
-                : [...values, value],
-          ]),
-        );
+        input({ type: "optionChoose" });
       }
     } else if (key.name === "space" && field?.type === "Form.Checkbox") {
       key.preventDefault();
-      send(event(field, "onChange", [!field.props.value]));
+      input({ type: "toggle", id: field.id });
     } else if (key.name === "return" && field?.type !== "Form.TextArea") {
       key.preventDefault();
-      submit();
+      input({ type: "submit" });
     } else if (field?.type === "Form.PasswordField") {
       // No terminal input widget ever receives the secret, even for one frame.
       if (secret.current.id !== field.id) secret.current = { id: field.id, value: "" };
@@ -117,7 +71,7 @@ export function FormView({
         secret.current.value += key.sequence;
       else return;
       key.preventDefault();
-      send(event(field, "onChange", [secret.current.value]));
+      input({ type: "setValue", id: field.id, value: secret.current.value });
     }
   });
   usePaste((paste) => {
@@ -126,40 +80,43 @@ export function FormView({
     if (secret.current.id !== field.id) secret.current = { id: field.id, value: "" };
     paste.preventDefault();
     secret.current.value += pastedText(paste);
-    send(event(field, "onChange", [secret.current.value]));
+    input({ type: "setValue", id: field.id, value: secret.current.value });
   });
   return (
     <scrollbox ref={scroll} flexGrow={1}>
       {form.children
         .filter((node) => node.type !== "Slot")
         .map((node) => {
-          const selected = node.id === field?.id;
-          const options = formOptions(node);
+          const display = view.fields.find((candidate) => candidate.id === node.id);
+          const selected = display?.focused === true;
+          const options = display?.options ?? [];
           const kind = node.type.slice(5);
           return (
             <box key={node.id} id={node.id} flexDirection="column" flexShrink={0}>
               <text height={1}>
                 {selected ? "› " : "  "}
-                {text(node.props.title ?? node.props.id)}
-                {node.props.info ? ` · ${text(node.props.info)}` : ""}
+                {display?.title ?? text(node.props.title ?? node.props.id)}
+                {(display?.info ?? text(node.props.info))
+                  ? ` · ${display?.info ?? text(node.props.info)}`
+                  : ""}
               </text>
               {["TextField", "TextArea", "DatePicker", "FilePicker"].includes(kind) ? (
-                <FieldInput node={node} enabled={enabled && selected} send={send} />
+                <FieldInput field={display!} enabled={enabled && selected} input={input} />
               ) : (
                 <text height={Math.max(1, options.length)}>
                   {kind === "PasswordField"
-                    ? node.props.hasValue
+                    ? display?.hasValue
                       ? "••••••••"
                       : text(node.props.placeholder)
                     : kind === "Checkbox"
-                      ? `[${node.props.value ? "x" : " "}] ${text(node.props.label)}`
+                      ? `[${display?.checked ? "x" : " "}] ${display?.label}`
                       : options.length
                         ? options
                             .map((item, index) => {
-                              const checked = Array.isArray(node.props.value)
-                                ? node.props.value.includes(item.props.value ?? null)
-                                : node.props.value === item.props.value;
-                              return `${selected && index === option ? "›" : " "} [${checked ? "x" : " "}] ${text(item.props.title)}`;
+                              const checked = display?.selected.some(
+                                (choice) => choice.value === item.value,
+                              );
+                              return `${selected && index === display?.optionIndex ? "›" : " "} [${checked ? "x" : " "}] ${item.title}`;
                             })
                             .join("\n")
                         : kind === "Separator"
@@ -171,7 +128,7 @@ export function FormView({
                               : `[Unsupported: ${node.type}]`}
                 </text>
               )}
-              {!!node.props.error && <text height={1}>{text(node.props.error)}</text>}
+              {!!display?.error && <text height={1}>{display.error}</text>}
             </box>
           );
         })}
@@ -189,71 +146,37 @@ export function FormView({
   );
 }
 
-function FieldInput({ node, enabled, send }: { node: SceneNode; enabled: boolean; send: Send }) {
+function FieldInput({
+  field,
+  enabled,
+  input,
+}: {
+  field: FormFieldView;
+  enabled: boolean;
+  input: (action: ControllerInput) => void;
+}) {
   const area = useRef<TextareaRenderable>(null);
-  const value = Array.isArray(node.props.value)
-    ? node.props.value.map(text).join(", ")
-    : text(node.props.value);
-  const [draft, setDraft] = useState(value);
-  const [error, setError] = useState("");
   const syncing = useRef(false);
-  const sent = useRef<string | undefined>(undefined);
-  const applied = useRef(value);
   useEffect(() => {
-    if (node.type !== "Form.TextField" && applied.current === value) return;
-    applied.current = value;
-    // Keep typed date/path syntax when the runtime acknowledges its normalized value.
-    if (sent.current === value && ["Form.DatePicker", "Form.FilePicker"].includes(node.type))
-      return;
-    setDraft(value);
-    setError("");
-  }, [node]);
-  useEffect(() => {
-    if (area.current && area.current.plainText !== value) {
+    if (area.current && area.current.plainText !== field.text) {
       syncing.current = true;
-      area.current.setText(value);
+      area.current.setText(field.text);
       syncing.current = false;
     }
-  }, [value]);
-  function change(input: string) {
-    if (syncing.current) return;
-    setDraft(input);
-    let next: JsonValue = input;
-    if (node.type === "Form.DatePicker") {
-      const date = parseDate(input);
-      setError(date === undefined ? "Enter a valid ISO date or date/time" : "");
-      if (date === undefined) return;
-      next = date;
-    } else if (node.type === "Form.FilePicker") {
-      const paths = input
-        .split(",")
-        .map((path) => path.trim())
-        .filter(Boolean);
-      next = node.props.allowMultipleSelection === false ? paths.slice(0, 1) : paths;
-    }
-    sent.current = Array.isArray(next) ? next.map(text).join(", ") : text(next);
-    send(event(node, "onChange", [next]));
-  }
-  return (
-    <box flexDirection="column" flexShrink={0}>
-      {node.type === "Form.TextArea" ? (
-        <textarea
-          ref={area}
-          focused={enabled}
-          height={4}
-          initialValue={value}
-          placeholder={text(node.props.placeholder)}
-          onContentChange={() => change(area.current?.plainText ?? "")}
-        />
-      ) : (
-        <input
-          focused={enabled}
-          value={draft}
-          placeholder={text(node.props.placeholder)}
-          onInput={change}
-        />
-      )}
-      {!!error && <text height={1}>{error}</text>}
-    </box>
+  }, [field.text]);
+  const change = (value: string) => {
+    if (!syncing.current) input({ type: "setValue", id: field.id, value });
+  };
+  return field.type === "Form.TextArea" ? (
+    <textarea
+      ref={area}
+      focused={enabled}
+      height={4}
+      initialValue={field.text}
+      placeholder={field.placeholder}
+      onContentChange={() => change(area.current?.plainText ?? "")}
+    />
+  ) : (
+    <input focused={enabled} value={field.text} placeholder={field.placeholder} onInput={change} />
   );
 }

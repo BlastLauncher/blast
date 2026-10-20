@@ -398,7 +398,10 @@ test("views launch options and every semantic input agree with boundary validati
   const good = [
     ...["search", "actionsQuery", "dropdownQuery"].map((type) => ({ type, text: "a" })),
     ...["up", "down", "left", "right"].map((direction) => ({ type: "move", direction })),
-    { type: "select", id: "item" },
+    ...["select", "focus", "toggle"].map((type) => ({ type, id: "item" })),
+    { type: "setValue", id: "item", value: "text" },
+    { type: "optionMove", delta: -1 },
+    ...["focusNext", "focusPrev", "optionChoose", "submit"].map((type) => ({ type })),
     ...["primary", "openActions", "closeActions", "back", "openDropdown", "chooseDropdown"].map(
       (type) => ({ type }),
     ),
@@ -418,6 +421,11 @@ test("views launch options and every semantic input agree with boundary validati
     null,
     [],
     { type: "quit" },
+    { type: "focus", id: 1 },
+    { type: "toggle" },
+    { type: "setValue", id: "item", value: [] },
+    { type: "optionMove", delta: "1" },
+    { type: "submit", id: "item" },
     { type: "search" },
     { type: "search", text: 1 },
     { type: "primary", extra: true },

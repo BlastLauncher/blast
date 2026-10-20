@@ -189,10 +189,27 @@ export const EMBEDDER_PROTOCOL_SCHEMA: Schema = {
           type: { const: "move" },
           direction: { enum: ["up", "down", "left", "right"] },
         }),
-        envelope(["type", "id"], { type: { const: "select" }, id: string }),
-        ...["primary", "openActions", "closeActions", "back", "openDropdown", "chooseDropdown"].map(
-          (type) => envelope(["type"], { type: { const: type } }),
+        ...["select", "focus", "toggle"].map((type) =>
+          envelope(["type", "id"], { type: { const: type }, id: string }),
         ),
+        envelope(["type", "id", "value"], {
+          type: { const: "setValue" },
+          id: string,
+          value: string,
+        }),
+        envelope(["type", "delta"], { type: { const: "optionMove" }, delta: { type: "number" } }),
+        ...[
+          "primary",
+          "openActions",
+          "closeActions",
+          "back",
+          "openDropdown",
+          "chooseDropdown",
+          "focusNext",
+          "focusPrev",
+          "optionChoose",
+          "submit",
+        ].map((type) => envelope(["type"], { type: { const: type } })),
         envelope(["type", "key"], {
           type: { const: "key" },
           key: envelope(["name"], {

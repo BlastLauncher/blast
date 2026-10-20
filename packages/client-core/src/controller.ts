@@ -1,9 +1,10 @@
-import type { JsonValue, SceneMessage, SceneNode } from "@blastlauncher/protocol";
+import type { SceneMessage, SceneNode } from "@blastlauncher/protocol";
 import { event, handler, selectionId, text, type OutboundEvent } from "./nodes.ts";
 import { activeNode, actionRows, panelRows, sceneToView } from "./view.ts";
 import { contentGlyph, gridMove } from "./grid.ts";
 import { dropdownLabel, dropdownOptions, visibleOptions } from "./dropdown.ts";
-import { formFields } from "./form-view.ts";
+import { createFormController, type FormInput, type FormFieldView } from "./form-view.ts";
+export type { FormFieldView } from "./form-view.ts";
 import { loadMoreRequest } from "./pagination.ts";
 import { searchDispatch } from "./search.ts";
 import { feedbackState } from "./feedback.ts";
@@ -17,6 +18,7 @@ import { matchesShortcut, shortcutLabel, type KeyInput, type Platform } from "./
 // back as `schedule` effects and return through `tick(token)`.
 
 export type ControllerInput =
+  | FormInput
   | { type: "search"; text: string }
   | { type: "move"; direction: "up" | "down" | "left" | "right" }
   /** Pointer selection of a list item or grid cell by its view id. */
@@ -87,12 +89,6 @@ export type MenuRowView = {
   shortcut: string;
   disabled: boolean;
   selected: boolean;
-};
-export type FormFieldView = {
-  id: string;
-  type: string;
-  title: string;
-  value: JsonValue | null;
 };
 
 export type ControllerView = {
@@ -186,6 +182,7 @@ const runName = (node: SceneNode | undefined) =>
 export function createController(options: ControllerOptions): Controller {
   const { platform } = options;
   let current: SceneMessage | undefined;
+  const form = createFormController();
   let searchText = "";
   let selectedId: string | null = null;
   let previousSelection: string | null | undefined;
@@ -304,6 +301,7 @@ export function createController(options: ControllerOptions): Controller {
   // once, and pagination asks for the next page once per item count.
   function reconcile(out: ControllerResult) {
     const view = base();
+    form.active(mode(view, !!feedbackState(current).alert) === "base", out.events);
     if (dropdownOpen && !view.accessory) closeDropdown();
     const id = selectionId(view.selected);
     if (pendingSelection !== undefined && id === pendingSelection) pendingSelection = undefined;
@@ -336,6 +334,11 @@ export function createController(options: ControllerOptions): Controller {
     selectionProp = controlled;
 
     const view = base();
+    form.scene(
+      list?.type === "Form" ? list : undefined,
+      out.events,
+      mode(view, !!feedbackState(current).alert) === "base",
+    );
     clearSearchRequested = false;
     const props = view.navigation?.props;
     if (props) {
@@ -508,6 +511,18 @@ export function createController(options: ControllerOptions): Controller {
     const feedback = feedbackState(current);
     const level = mode(view, !!feedback.alert);
     switch (action.type) {
+      case "focus":
+      case "focusNext":
+      case "focusPrev":
+      case "setValue":
+      case "toggle":
+      case "optionMove":
+      case "optionChoose":
+        if (level === "base" && view.list?.type === "Form") form.input(action, out.events);
+        return;
+      case "submit":
+        if (level === "base" && view.list?.type === "Form") run(out, view.primary);
+        return;
       case "search": {
         if (level !== "base" || isMenu(view) || searchText === action.text) return;
         searchText = action.text;
@@ -616,7 +631,6 @@ export function createController(options: ControllerOptions): Controller {
     const actions = panelState(list);
     const dropdown = dropdownState(list);
     const bar = menuBarView(current, { path: menuPath, selectedId }, platform);
-    const fields = list.list?.type === "Form" ? formFields(list.list) : [];
     const primaryNode = list.primary;
     let breadcrumb: string[] = [];
     if (panel?.length) {
@@ -734,18 +748,7 @@ export function createController(options: ControllerOptions): Controller {
             })),
           }
         : null,
-      form:
-        kind === "form"
-          ? {
-              fields: fields.map((field) => ({
-                id: field.id,
-                type: field.type,
-                title: text(field.props.title),
-                value: (field.props.value ?? field.props.defaultValue ?? null) as JsonValue,
-              })),
-              focusId: (fields.find((field) => field.props.focused) ?? fields[0])?.id ?? null,
-            }
-          : null,
+      form: kind === "form" ? form.view() : null,
       requests: { quit: quitRequested, clearSearch: clearSearchRequested },
     };
   }

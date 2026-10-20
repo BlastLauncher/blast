@@ -424,3 +424,51 @@ test("view search timers forward only the latest throttled text once", async () 
   await c.request("engine.shutdown");
   expect(await c.exited).toBe(0);
 }, 20_000);
+
+test("serve views edit and submit forms without raw events", async () => {
+  const c = await client();
+  await c.hello();
+  const extension = await viewExtension(
+    c,
+    `
+    import { Action, ActionPanel, Form } from "@raycast/api";
+    import { useState } from "react";
+    export default function Command() {
+      const [title, setTitle] = useState("Edit form");
+      return <Form navigationTitle={title} actions={<ActionPanel>
+        <Action.SubmitForm onSubmit={values => setTitle(JSON.stringify({...values, secret: values.secret ? "<set>" : "<unset>"}))} />
+      </ActionPanel>}>
+        <Form.TextField id="name" />
+        <Form.PasswordField id="secret" />
+        <Form.Checkbox id="agree" label="Agree" />
+      </Form>;
+    }
+  `,
+  );
+  const {
+    result: { session },
+  } = await c.request("extension.launch", {
+    extension,
+    command: "index",
+    views: { platform: "Linux" },
+  });
+  const first = await c.wait((v) => v.event === "session.view" && v.view.form);
+  const [name, secret, agree] = first.view.form.fields;
+  const input = async (action: unknown) =>
+    expect((await c.request("session.input", { session, input: action })).ok).toBe(true);
+  await input({ type: "setValue", id: name.id, value: "Ada" });
+  await c.wait((v) => v.event === "session.view" && v.view.form?.fields[0].value === "Ada");
+  await input({ type: "focusNext" });
+  await input({ type: "setValue", id: secret.id, value: "hidden-password" });
+  const masked = await c.wait((v) => v.event === "session.view" && v.view.form?.fields[1].hasValue);
+  expect(JSON.stringify(masked)).not.toContain("hidden-password");
+  await input({ type: "toggle", id: agree.id });
+  await c.wait((v) => v.event === "session.view" && v.view.form?.fields[2].checked);
+  await input({ type: "submit" });
+  const submitted = await c.wait(
+    (v) => v.event === "session.view" && v.view.title.includes('"name":"Ada"'),
+  );
+  expect(JSON.parse(submitted.view.title)).toEqual({ name: "Ada", secret: "<set>", agree: true });
+  await c.request("engine.shutdown");
+  expect(await c.exited).toBe(0);
+}, 20_000);

@@ -23,7 +23,7 @@ const platform: Platform =
 /**
  * A terminal over the client-core controller: keys become controller inputs,
  * the controller's events go to the session and its effects run here. Only the
- * scene (for form field editing, which stays in form.tsx) and the rendered view
+ * scene (for decorative form children) and the rendered view
  * are kept besides the controller.
  */
 export function App({
@@ -231,9 +231,9 @@ export function App({
           <FormView
             key={form.id}
             form={form}
+            view={view.form!}
             enabled={!view.actions.open && !alert}
-            send={(value) => value && session.sendEvent(value.node, value.handler, value.args)}
-            submit={() => input({ type: "primary" })}
+            input={input}
           />
         </box>
       ) : view.menuBar ? (
