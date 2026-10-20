@@ -73,7 +73,7 @@ Raycast client semantics built in so embedders only draw.
       build, slim engine (13 MiB), CLI package, TUI on the controller.
       Coverage 2026-10-20: non-deprecated 1533/1534 (embedder-owned
       `BrowserExtension.getContent`), deprecated 939/939.
-- [ ] 0080 Views over `blast serve` (client-core controller per session)
+- [x] 0080 Views over `blast serve` (client-core controller per session)
 - [ ] 0070 Real-world compat: dependency-heavy corpus set with installs
 
 ## Later (not scheduled)
