@@ -5,6 +5,7 @@
   "exports": "./src/index.ts",
   "dependencies": {
     "@blastlauncher/host": "workspace:*",
-    "@blastlauncher/protocol": "workspace:*"
+    "@blastlauncher/protocol": "workspace:*",
+    "@blastlauncher/shared-deps": "workspace:*"
   }
 }

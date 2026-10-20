@@ -35,6 +35,12 @@ async function setup(dependencies: Record<string, string> = {}) {
   return { root, extensionDir, dataDir, manifest };
 }
 
+async function sharedDependencies(): Promise<never> {
+  throw Object.assign(new Error("Cannot find package '@blastlauncher/shared-deps'"), {
+    code: "ERR_MODULE_NOT_FOUND",
+  });
+}
+
 test("install keys are stable, strip runtime packages, honor npm flags and replace on lock changes", async () => {
   const options = await setup({
     "@raycast/api": "1",
@@ -161,6 +167,15 @@ test("matching installed utils override the shared version; stale installs fall 
   });
   expect(await readFile(bundle.entry, "utf8")).toContain("installed-utils");
   expect(bundle.dependencyWarnings).toEqual([]);
+  const slimOptions = { ...options, sharedDependencies };
+  const slim = await bundleCommand({
+    ...slimOptions,
+    command: "index",
+    outDir: join(options.root, "slim"),
+  });
+  expect(await readFile(slim.entry, "utf8")).toContain("installed-utils");
+  expect((await checkExtensionDependencies(slimOptions)).unresolved).toEqual(["not-installed"]);
+
   // Corpus reports opt out and keep the shared allowlist (decision 0008).
   await writeFile(
     join(options.extensionDir, "src/index.ts"),

@@ -79,7 +79,7 @@ Raycast client semantics built in so embedders only draw.
 - [x] 0067 Protocol JSON Schema export + `docs/embedding.md`
 - [x] 0068 Minimal non-JS embedder example over `blast serve` (Go)
 - [x] 0069 Release build: emitted JS + `.d.ts`, `npm pack` smoke on Node 24
-- [ ] 0077 Slim engine: shared-dependency allowlist out of the engine install
+- [x] 0077 Slim engine: shared-dependency allowlist out of the engine install
 - [ ] 0078 client-core controller (UI state machine); 0079 TUI on it; 0080 views
       over `blast serve` so non-JS embedders only draw
 - [ ] 0070 Real-world compat: dependency-heavy corpus set with installs

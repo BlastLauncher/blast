@@ -9,7 +9,7 @@ import {
   trackedPackage,
   type ExtensionDependencies,
 } from "./dependencies.ts";
-import { PROVIDED_PACKAGES } from "../../packages/host/src/dependencies.ts";
+import { PROVIDED_PACKAGES } from "@blastlauncher/shared-deps";
 import { packageName } from "./imports.ts";
 import type { Manifest } from "./selection.ts";
 

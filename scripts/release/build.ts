@@ -6,7 +6,16 @@ import { parseArgs } from "node:util";
 
 export const root = fileURLToPath(new URL("../../", import.meta.url));
 export const output = join(root, ".cache/release");
-export const packages = ["protocol", "runtime", "host", "client-core", "native", "serve", "cli"];
+export const packages = [
+  "protocol",
+  "runtime",
+  "host",
+  "client-core",
+  "native",
+  "serve",
+  "cli",
+  "shared-deps",
+];
 
 export function run(command: string, args: string[], cwd = root): string {
   const result = spawnSync(command, args, { cwd, encoding: "utf8", timeout: 180_000 });

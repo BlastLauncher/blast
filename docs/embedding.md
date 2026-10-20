@@ -12,8 +12,11 @@ same message shapes; only transport differs. The types and validators live in
 
 ## Installing
 
-`bun run release:build [--version 0.0.0-dev]` emits seven npm tarballs in `.cache/release/tarballs/`.
-Install them together with `npm install .cache/release/tarballs/*.tgz`; published host imports use `@blastlauncher/engine`.
+`bun run release:build [--version 0.0.0-dev]` emits eight npm tarballs in `.cache/release/tarballs/`.
+The engine alone installs with `npm install @blastlauncher/engine`; extension dependencies must be installed through `dependencies.install()` or `blast deps`.
+Add `@blastlauncher/shared-deps` for the optional shared-library fallback; CLI and serve include it.
+`dependencies.check().unresolved` lists declared packages unavailable from a matching install or that fallback.
+Install all local tarballs together with `npm install .cache/release/tarballs/*.tgz`; published host imports use `@blastlauncher/engine`.
 `bun run release:smoke` checks the emitted JS on Node 24 (API, `blast-serve`, `blast`), reports sizes and removes smoke `node_modules`.
 
 ## In-process (JS/TS)

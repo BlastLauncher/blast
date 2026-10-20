@@ -16,11 +16,14 @@ import {
 } from "node:fs/promises";
 import { builtinModules } from "node:module";
 import { tmpdir } from "node:os";
-import { dirname, isAbsolute, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { isAbsolute, join, resolve } from "node:path";
 
 import { checkExtensionDependencies } from "./install-dependencies.ts";
-import { dependencyWarnings, isProvidedSpecifier } from "./dependencies.ts";
+import {
+  loadSharedDependencies,
+  type SharedDependencies,
+  type SharedDependencyLoader,
+} from "./dependencies.ts";
 
 // Bundles run in Node even when Bun runs the host. Bun's built-in list also
 // includes npm packages such as undici and ws, which must be bundled for Node.
@@ -48,7 +51,7 @@ export class MissingDependencyError extends Error {
   constructor(packages: Iterable<string>) {
     const names = [...new Set(packages)].toSorted();
     super(
-      `Missing dependencies: ${names.join(", ")}. Run blast deps <extensionDir> to install declared dependencies.`,
+      `Missing dependencies: ${names.join(", ")}. Run blast deps <extensionDir> to install declared dependencies, or install @blastlauncher/shared-deps for the shared fallback.`,
     );
     this.name = "MissingDependencyError";
     this.packages = names;
@@ -57,6 +60,7 @@ export class MissingDependencyError extends Error {
 
 function dependencyPolicy(
   missing: Set<string>,
+  shared: SharedDependencies | undefined,
   installed?: string,
   installedPackages = new Set<string>(),
 ): Plugin {
@@ -94,13 +98,19 @@ function dependencyPolicy(
             }
           }
         }
-        const provided = isProvidedSpecifier(specifier);
+        const provided =
+          !inDependencyGraph && bare
+            ? shared?.resolveShared(
+                specifier,
+                args.kind === "require-call" || args.kind === "require-resolve"
+                  ? "require"
+                  : "import",
+              )
+            : undefined;
         // Installed and shared dependency graphs get normal transitive resolution.
         if (provided || inDependencyGraph) {
-          const result = await builder.resolve(specifier, {
-            resolveDir: inDependencyGraph
-              ? args.resolveDir
-              : dirname(fileURLToPath(import.meta.url)),
+          const result = await builder.resolve(provided ?? specifier, {
+            resolveDir: args.resolveDir,
             kind: args.kind,
             pluginData: "blast-resolving",
           });
@@ -154,6 +164,8 @@ function require(specifier) {
 export type BundleOptions = {
   extensionDir: string;
   command: string;
+  /** Override optional-package loading, e.g. for an isolated embedder. */
+  sharedDependencies?: SharedDependencyLoader;
   outDir?: string;
   dataDir?: string;
   /** `false` keeps resolution allowlist-only, as corpus reports need (decision 0008). */
@@ -400,6 +412,7 @@ async function bundleEntry(
       `Missing source for ${entryName}: no src/${entryName}.{tsx,ts,jsx,js} in ${extensionDir}` +
         " (a sparse checkout that only has package.json? fetch the whole extension directory)",
     );
+  const shared = await loadSharedDependencies(options.sharedDependencies);
   const install =
     options.installedDependencies === false ? undefined : await checkExtensionDependencies(options);
   const base = join(tmpdir(), "blast", "builds");
@@ -424,6 +437,7 @@ async function bundleEntry(
       plugins: [
         dependencyPolicy(
           missing,
+          shared,
           install && !install.needed ? install.directory : undefined,
           installedPackages,
         ),
@@ -467,13 +481,14 @@ async function bundleEntry(
   await linkAssets(outDir, extensionDir);
   return {
     entry,
-    dependencyWarnings: dependencyWarnings(
-      Object.fromEntries(
-        Object.entries(manifest.dependencies ?? {}).filter(
-          ([name]) => !installedPackages.has(name),
+    dependencyWarnings:
+      shared?.dependencyWarnings(
+        Object.fromEntries(
+          Object.entries(manifest.dependencies ?? {}).filter(
+            ([name]) => !installedPackages.has(name),
+          ),
         ),
-      ),
-    ),
+      ) ?? [],
     extensionName: manifest.name,
     commandName: command.name,
     // Raycast reports the owner when a manifest has one, else the author.

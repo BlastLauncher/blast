@@ -3,7 +3,7 @@
 // packages extensions import) read the same rules here, so the two cannot
 // drift. Nothing here reads files, runs git or touches the network.
 import { isBuiltin } from "node:module";
-import { isProvidedSpecifier, PROVIDED_PACKAGES } from "../../packages/host/src/dependencies.ts";
+import { isProvidedSpecifier, PROVIDED_PACKAGES } from "@blastlauncher/shared-deps";
 export { PROVIDED_PACKAGES };
 
 // Stable baseline keeps the usage ranking comparable as the shared set grows.

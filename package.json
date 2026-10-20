@@ -35,6 +35,7 @@
     "example:go": "cd examples/go-embedder && go test ./..."
   },
   "devDependencies": {
+    "@blastlauncher/shared-deps": "workspace:*",
     "@types/bun": "1.4.3",
     "@types/node": "^24",
     "oxc-parser": "0.154.0",

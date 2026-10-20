@@ -21,14 +21,14 @@ extension code (unmodified, bundled)
 | `packages/protocol`    | message types, validation, NDJSON framing                                                                                     | nothing                                  |
 | `packages/runtime`     | reconciler, `@raycast/api` shim, child entry                                                                                  | protocol, react                          |
 | `packages/serve`       | versioned embedder stdio, capability forwarding                                                                               | host, protocol, native                   |
+| `packages/shared-deps` | optional shared extension libraries and resolver                                                                              | pinned portable npm libraries            |
 | `packages/host`        | engine: bundling, process lifecycle, broker, registry                                                                         | protocol, esbuild                        |
 | `packages/client-core` | framework-free Raycast client semantics (view model, filtering, actions, shortcuts, pagination, dropdown, grid, form, timing) | protocol                                 |
 | `packages/native`      | optional OS clipboard, open, file manager, trash                                                                              | protocol                                 |
 | `packages/cli`         | `blast` debug CLI and headless capability answers                                                                             | host, protocol                           |
 | `packages/tui`         | Bun terminal client (reference embedder)                                                                                      | client-core, cli, host, protocol, native |
 
-`host` never imports `runtime` code; it only spawns its entry file. Capability semantics and storage locations are in `docs/capabilities.md`;
-embedding (in process or over `blast serve`) is in `docs/embedding.md`. `examples/go-embedder` is a minimal non-JS embedder over `blast serve`.
+`host` only spawns `runtime`, never imports it. See `docs/capabilities.md` for capabilities/storage and `docs/embedding.md` for embedding; `examples/go-embedder` is a minimal non-JS embedder.
 
 ## Message flow
 
@@ -111,7 +111,7 @@ for installs, rejects missing values with `MissingLaunchValuesError` and returns
 `{ session, close }`. `close()` ends watchers and all owned sessions.
 
 `blast deps` keeps keyed production installs outside extensions under `<dataDir>/deps/`;
-bundling resolves matching installs before the shared dependency allowlist.
+bundling resolves matching installs before the optional `@blastlauncher/shared-deps` allowlist.
 
 `bundleCommand({ extensionDir, command, outDir?, dataDir? })` returns the entry path,
 extension/command names, manifest mode and argument declarations. Pass those to
