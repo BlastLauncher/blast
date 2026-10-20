@@ -31,7 +31,8 @@
     "tui": "bun packages/tui/src/main.tsx",
     "blast:serve": "node packages/serve/src/main.ts",
     "release:build": "bun scripts/release/build.ts",
-    "release:smoke": "bun scripts/release/smoke.ts"
+    "release:smoke": "bun scripts/release/smoke.ts",
+    "example:go": "cd examples/go-embedder && go test ./..."
   },
   "devDependencies": {
     "@types/bun": "1.4.3",

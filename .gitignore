@@ -7,3 +7,4 @@ coverage/
 .DS_Store
 .env
 .env.*
+/examples/go-embedder/go-embedder
