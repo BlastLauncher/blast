@@ -65,8 +65,13 @@ that use it. A test keeps the list complete.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/c0077608 @ 85382b7 (this handoff follows in a doc-only commit)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 122.6s
 Done:
-Not done / risks:
+- Added CAPABILITIES in packages/protocol/src/capabilities.ts: 38 entries covering every requestCapability name, each with scope, summary, minimal params/result schemas and @raycast/api trigger paths; plus isCapabilityName() and CapabilityName.
+- Exported the catalog from the protocol index and updated the package-surface test.
+- Added packages/runtime/src/api/capabilities.test.ts: scans the first argument of every requestCapability(...) call (ternaries included) and fails with missing/extra names; demonstrated drift by deleting clipboard.clear (test reported `missing: ["clipboard.clear"]`) then restoring it.
+- Added packages/protocol/src/capabilities.test.ts: every api path exists in compat/raycast-api.json and every schema is well-formed (allowed keys/types, required names existing, array items, unique primitive enums).
+- Pointed docs/capabilities.md at the catalog as the source of truth; no dependencies added to packages/protocol.
+Not done / risks: ai.ask is marked "session" because the engine answers the extension's own provider; an embedder-supplied AI handler is still possible at runtime. The api lists name the primary triggering paths, not every deprecated alias. No capability names or runtime behaviour changed.
 ```
