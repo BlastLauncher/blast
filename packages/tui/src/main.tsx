@@ -1,16 +1,20 @@
 /** @jsxImportSource @opentui/react */
 import { createCliRenderer } from "@opentui/core";
 import { createRoot } from "@opentui/react";
+import { createNativeHandlers } from "@blastlauncher/native";
 import { App } from "./app.tsx";
 import { CommandSession } from "./picker.tsx";
 import { openCommand } from "./session.ts";
 
-const [extensionDir, command, ...rest] = process.argv.slice(2);
+const args = process.argv.slice(2);
+const native = args.includes("--native");
+const [extensionDir, command, ...rest] = args.filter((arg) => arg !== "--native");
+const handlers = native ? createNativeHandlers() : {};
 if (!extensionDir || rest.length) {
-  console.error("Usage: bun run tui <extensionDir> [command]");
+  console.error("Usage: bun run tui <extensionDir> [command] [--native]");
   process.exitCode = 2;
 } else if (command) {
-  const opened = await openCommand(extensionDir, command);
+  const opened = await openCommand(extensionDir, command, { handlers });
   // Recorded before the user quits, so our own shutdown does not count as a
   // failure; a runtime crash still exits non-zero after the error is shown.
   let crashed = false;
@@ -57,6 +61,7 @@ if (!extensionDir || rest.length) {
     root.render(
       <CommandSession
         extensionDir={extensionDir}
+        handlers={handlers}
         onExit={(crashed) => {
           // Only a crashed last launch makes the whole TUI exit non-zero.
           if (crashed) process.exitCode = 1;

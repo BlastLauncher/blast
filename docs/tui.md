@@ -1,11 +1,11 @@
 # Terminal client (`packages/tui`)
 
 ```bash
-bun run tui <extensionDir> [command]
+bun run tui <extensionDir> [command] [--native]
 ```
 
-With a `<command>` this opens that command directly (direct mode); without
-one, the picker lists the manifest's commands.
+A `[command]` opens it directly; otherwise the picker lists commands. `--native`
+enables system clipboard/paste, URL/file opens, file-manager reveal and trash.
 
 ## Look
 

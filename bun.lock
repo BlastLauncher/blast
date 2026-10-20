@@ -39,6 +39,12 @@
         "@types/semver": "7.8.0",
       },
     },
+    "packages/native": {
+      "name": "@blastlauncher/native",
+      "dependencies": {
+        "@blastlauncher/protocol": "workspace:*",
+      },
+    },
     "packages/protocol": {
       "name": "@blastlauncher/protocol",
     },
@@ -58,6 +64,7 @@
       "name": "@blastlauncher/tui",
       "dependencies": {
         "@blastlauncher/host": "workspace:*",
+        "@blastlauncher/native": "workspace:*",
         "@blastlauncher/protocol": "workspace:*",
         "@opentui/core": "0.6.6",
         "@opentui/react": "0.6.6",
@@ -70,6 +77,8 @@
   },
   "packages": {
     "@blastlauncher/host": ["@blastlauncher/host@workspace:packages/host"],
+
+    "@blastlauncher/native": ["@blastlauncher/native@workspace:packages/native"],
 
     "@blastlauncher/protocol": ["@blastlauncher/protocol@workspace:packages/protocol"],
 

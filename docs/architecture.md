@@ -15,12 +15,13 @@ extension code (unmodified, bundled)
 
 ## Packages
 
-| Package             | Owns                                             | Depends on        |
-| ------------------- | ------------------------------------------------ | ----------------- |
-| `packages/tui`      | Bun terminal client, List rendering and input    | host, protocol    |
-| `packages/protocol` | message types, validation, NDJSON framing        | nothing           |
-| `packages/runtime`  | reconciler, `@raycast/api` shim, child entry     | protocol, react   |
-| `packages/host`     | bundling, process lifecycle, broker, `blast` CLI | protocol, esbuild |
+| Package             | Owns                                             | Depends on             |
+| ------------------- | ------------------------------------------------ | ---------------------- |
+| `packages/tui`      | Bun terminal client, List rendering and input    | host, protocol, native |
+| `packages/native`   | optional OS clipboard, open, file manager, trash | protocol               |
+| `packages/protocol` | message types, validation, NDJSON framing        | nothing                |
+| `packages/runtime`  | reconciler, `@raycast/api` shim, child entry     | protocol, react        |
+| `packages/host`     | bundling, process lifecycle, broker, `blast` CLI | protocol, esbuild      |
 
 `host` never imports `runtime` code; it only spawns its entry file.
 

@@ -5,6 +5,7 @@
   "exports": "./src/app.tsx",
   "dependencies": {
     "@blastlauncher/host": "workspace:*",
+    "@blastlauncher/native": "workspace:*",
     "@blastlauncher/protocol": "workspace:*",
     "@opentui/core": "0.6.6",
     "@opentui/react": "0.6.6",

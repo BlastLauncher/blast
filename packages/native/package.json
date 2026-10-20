@@ -1,0 +1,9 @@
+{
+  "name": "@blastlauncher/native",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts",
+  "dependencies": {
+    "@blastlauncher/protocol": "workspace:*"
+  }
+}
