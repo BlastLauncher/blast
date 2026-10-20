@@ -385,13 +385,16 @@ test("every method has a request and a result schema entry", () => {
   }
 });
 
-test("views launch options and every semantic input agree with boundary validation", () => {
-  const request = (input: unknown) => ({
+function sessionInputRequest(input: unknown) {
+  return {
     type: "request",
     id: "1",
     method: "session.input",
     params: { session: "2", input },
-  });
+  };
+}
+
+test("views launch options and every semantic input agree with boundary validation", () => {
   const good = [
     ...["search", "actionsQuery", "dropdownQuery"].map((type) => ({ type, text: "a" })),
     ...["up", "down", "left", "right"].map((direction) => ({ type: "move", direction })),
@@ -408,8 +411,8 @@ test("views launch options and every semantic input agree with boundary validati
     { type: "alert", confirm: false, remember: true },
   ];
   for (const input of good) {
-    expect(parseEmbedderMessage(request(input)).ok).toBe(true);
-    expect(schemaOf(request(input))).toBeNull();
+    expect(parseEmbedderMessage(sessionInputRequest(input)).ok).toBe(true);
+    expect(schemaOf(sessionInputRequest(input))).toBeNull();
   }
   for (const input of [
     null,
@@ -424,8 +427,8 @@ test("views launch options and every semantic input agree with boundary validati
     { type: "toastAction", index: "0" },
     { type: "alert", confirm: true, remember: 1 },
   ]) {
-    expect(parseEmbedderMessage(request(input)).ok).toBe(false);
-    expect(schemaOf(request(input))).not.toBeNull();
+    expect(parseEmbedderMessage(sessionInputRequest(input)).ok).toBe(false);
+    expect(schemaOf(sessionInputRequest(input))).not.toBeNull();
   }
   for (const views of [
     { platform: "macOS" },

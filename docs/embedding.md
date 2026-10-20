@@ -12,10 +12,8 @@ same message shapes; only transport differs. The types and validators live in
 
 ## Installing
 
-`bun run release:build [--version 0.0.0-dev]` emits eight npm tarballs in `.cache/release/tarballs/`.
-The engine alone installs with `npm install @blastlauncher/engine`; extension dependencies must be installed through `dependencies.install()` or `blast deps`.
-Add `@blastlauncher/shared-deps` for the optional shared-library fallback; CLI and serve include it.
-`dependencies.check().unresolved` lists declared packages unavailable from a matching install or that fallback.
+`bun run release:build [--version 0.0.0-dev]` emits eight npm tarballs in `.cache/release/tarballs/`. The engine alone installs with `npm install @blastlauncher/engine`; extension dependencies must be installed through `dependencies.install()` or `blast deps`.
+Add `@blastlauncher/shared-deps` for the optional shared-library fallback (CLI and serve include it); `dependencies.check().unresolved` lists declared packages unavailable from a matching install or that fallback.
 Install all local tarballs together with `npm install .cache/release/tarballs/*.tgz`; published host imports use `@blastlauncher/engine`.
 `bun run release:smoke` checks the emitted JS on Node 24 (API, `blast-serve`, `blast`), reports sizes and removes smoke `node_modules`.
 
@@ -109,19 +107,15 @@ the engine itself and cannot be shadowed by embedder handlers (decision 0010).
 
 ### Views
 
-Opt into client-core view models; the server owns ranking, selection, actions,
-shortcuts, pagination and timers. Draw `view` and forward semantic inputs:
+Opt into client-core view models — the server owns ranking, selection, actions, shortcuts, pagination and timers; draw `view` and forward semantic inputs:
 
 ```json
 {"type":"request","id":"4","method":"extension.launch","params":{"extension":"1","command":"index","views":{"platform":"macOS"}}}
 {"type":"event","event":"session.view","session":"3","view":{"kind":"list","rows":["..."],"...":"..."}}
 {"type":"request","id":"5","method":"session.input","params":{"session":"3","input":{"type":"search","text":"apple"}}}
-{"type":"request","id":"6","method":"session.input","params":{"session":"3","input":{"type":"primary"}}}
 ```
 
-View objects follow `ControllerView` in `packages/client-core/src/controller.ts`
-(abbreviated above). Events are deduplicated by JSON. Scenes still flow;
-without `views`, use raw scenes/events. `back` at the root closes the session.
+`ControllerView` (`packages/client-core/src/controller.ts`) is deduplicated by JSON; scenes still flow without `views`, and `back` at the root closes the session.
 
 ## Capability catalog
 
