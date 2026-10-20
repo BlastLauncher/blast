@@ -2,6 +2,7 @@ import { execFile } from "node:child_process";
 import { posix, win32 } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import type { JsonValue } from "@blastlauncher/protocol";
+import { desktopHandlers } from "./desktop.ts";
 import {
   macCopy,
   macRead,
@@ -305,6 +306,8 @@ export function createNativeHandlers({
               }
             : {}),
         });
+      else if (application?.endsWith(".desktop"))
+        await command(name, "gio", ["launch", application, target]);
       else await command(name, application ?? "xdg-open", [target]);
     };
   if (platform !== "darwin" && platform !== "win32" && platform !== "linux") {
@@ -313,7 +316,7 @@ export function createNativeHandlers({
         throw new Error(`Unsupported native platform: ${platform}`);
       };
   }
-  return handlers;
+  return { ...handlers, ...desktopHandlers({ platform, env, command, ps, jxa }) };
 }
 
 function missing(error: unknown): boolean {
