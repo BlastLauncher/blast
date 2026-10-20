@@ -1,7 +1,7 @@
 ---
 id: "0077"
 title: Slim engine — move the shared-dependency allowlist into optional @blastlauncher/shared-deps
-status: doing
+status: review
 milestone: M5
 depends: ["0069"]
 ---
@@ -56,16 +56,16 @@ Without it, extensions resolve only their own installed dependencies
 
 ## Acceptance
 
-- [ ] `packages/host/package.json` lists no shared-allowlist package.
+- [x] `packages/host/package.json` lists no shared-allowlist package.
       `rg -n "\"(axios|cheerio|lodash|moment|@raycast/utils)\"" packages/host/package.json`
       prints nothing.
-- [ ] Host test: with shared-deps unavailable (inject a resolver that fails),
+- [x] Host test: with shared-deps unavailable (inject a resolver that fails),
       bundling an extension that imports `lodash` without an install fails
       with a message naming `blast deps` and `@blastlauncher/shared-deps`.
       With it available, bundling succeeds as today.
-- [ ] `bun run release:smoke` passes and reports the slim engine install
+- [x] `bun run release:smoke` passes and reports the slim engine install
       size vs with shared-deps (paste in Handoff).
-- [ ] `bun run verify` passes; corpus selection/smoke unit tests unchanged.
+- [x] `bun run verify` passes; corpus selection/smoke unit tests unchanged.
 
 ## Out of scope
 
@@ -73,11 +73,16 @@ Without it, extensions resolve only their own installed dependencies
 
 ## Handoff
 
-Filled in by the worker when finishing:
-
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/slim-engine-shared-deps @ 666068d75b79d4dadbb40f93cff6e32f919bcb79 (implementation)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 112.6s
 Done:
+- Moved the allowlist, resolver and version warnings into optional @blastlauncher/shared-deps; retained every existing exact third-party pin. Semver moved with its sole consumer, the warning code; no new third-party dependencies.
+- Engine resolves installed dependencies first, loads the fallback dynamically, reports unresolved declarations, and names blast deps / @blastlauncher/shared-deps in missing-dependency errors. Tests cover absence, installed-only resolution and broken optional imports.
+- CLI, TUI, serve and corpus tooling use shared-deps. Existing corpus assertions remain unchanged. Import/require entry selection, utils tree shaking and Bun's node-fetch alias are preserved.
+- Built eight tarballs. Node 24 release:smoke passed API/React-only launch without shared-deps, lodash launch with it, serve and CLI. Allocated installs: slim engine 13,576 KiB (13.3 MiB); with shared-deps 133,332 KiB (130.2 MiB). Smoke node_modules removed after every run.
+- Updated installation, architecture and dependency decisions documentation.
 Not done / risks:
+- Full network corpus fetch/smoke was not rerun, as allowed by the task; corpus unit tests pass.
+- One concurrent verification hit the existing TUI actions-variants frame timeout (seed 2509153097). Its focused seeded rerun and the full isolated gate passed; TUI test code is unchanged.
 ```
