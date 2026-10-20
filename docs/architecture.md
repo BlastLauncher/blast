@@ -1,6 +1,7 @@
 # Architecture
 
 Current shape only; history lives in git. Decisions: `docs/decisions/`.
+
 ```
 client (embedder UI; reference clients: headless CLI, OpenTUI terminal)
    │  scene → view model, events, timing rules  (packages/client-core)
@@ -27,6 +28,7 @@ extension code (unmodified, bundled)
 | `packages/tui`         | Bun terminal client (reference embedder)                                                                                      | client-core, cli, host, protocol, native |
 
 `host` never imports `runtime` code; it only spawns its entry file.
+Capability semantics and storage locations are in `docs/capabilities.md`.
 
 ## Message flow
 
@@ -151,8 +153,6 @@ supply explicit environment paths. Synchronous `Cache` stores strings under
 eviction. Subscriptions notify matching cache instances within the process.
 Callers own bundle output directories (default: a unique directory below
 `os.tmpdir()/blast/builds`) and remove them after sessions exit.
-
-Capability semantics and storage locations are in `docs/capabilities.md`.
 
 ## Local storage
 
