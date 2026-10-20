@@ -1,6 +1,5 @@
 /** @jsxImportSource @opentui/react */
-import { dropdownOptions, filterOptions } from "./dropdown.ts";
-import { text } from "./nodes.ts";
+import { dropdownOptions, filterOptions, text } from "@blastlauncher/client-core";
 import type { SceneNode } from "@blastlauncher/protocol";
 import { theme } from "./theme.ts";
 import { TextAttributes } from "@opentui/core";

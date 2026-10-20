@@ -4,6 +4,7 @@ Current shape only; history lives in git. Decisions: `docs/decisions/`.
 
 ```
 client (embedder UI; reference clients: headless CLI, OpenTUI terminal)
+   │  scene → view model, events, timing rules  (packages/client-core)
    │  in-process API
 host ── bundles extension (esbuild), spawns runtime, capability broker
    │  NDJSON over stdio  (packages/protocol)
@@ -15,12 +16,13 @@ extension code (unmodified, bundled)
 
 ## Packages
 
-| Package             | Owns                                             | Depends on        |
-| ------------------- | ------------------------------------------------ | ----------------- |
-| `packages/tui`      | Bun terminal client, List rendering and input    | host, protocol    |
-| `packages/protocol` | message types, validation, NDJSON framing        | nothing           |
-| `packages/runtime`  | reconciler, `@raycast/api` shim, child entry     | protocol, react   |
-| `packages/host`     | bundling, process lifecycle, broker, `blast` CLI | protocol, esbuild |
+| Package                | Owns                                                                                                                                            | Depends on                  |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- |
+| `packages/client-core` | framework-free Raycast client semantics: view model, filtering, actions, shortcuts, pagination, dropdown, grid, form model, throttle/HUD timing | protocol                    |
+| `packages/tui`         | Bun terminal client, List rendering and input                                                                                                   | client-core, host, protocol |
+| `packages/protocol`    | message types, validation, NDJSON framing                                                                                                       | nothing                     |
+| `packages/runtime`     | reconciler, `@raycast/api` shim, child entry                                                                                                    | protocol, react             |
+| `packages/host`        | bundling, process lifecycle, broker, `blast` CLI                                                                                                | protocol, esbuild           |
 
 `host` never imports `runtime` code; it only spawns its entry file.
 

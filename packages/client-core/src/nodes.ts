@@ -1,7 +1,7 @@
 import type { HandlerRef, JsonValue, SceneNode } from "@blastlauncher/protocol";
 
 // Primitives shared by every view module (List, Grid, dropdown); view.ts
-// re-exports these so existing imports keep working.
+// re-exports these as part of its surface.
 export function handler(value: unknown): value is HandlerRef {
   return value !== null && typeof value === "object" && "$handler" in value;
 }
@@ -45,7 +45,7 @@ export function paginationOf(
 export function isFiltering(node: SceneNode | undefined): boolean {
   return node?.props.filtering !== false && !handler(node?.props.onSearchTextChange);
 }
-/** Case-insensitive substring match over title, subtitle and keywords. */
+/** Case-insensitive substring match over title, subtitle and keywords; pass the query lowercased, as `sceneToView` does. */
 export function matchesQuery(node: SceneNode, query: string): boolean {
   const keywords = Array.isArray(node.props.keywords) ? node.props.keywords.map(text) : [];
   return [text(node.props.title), text(node.props.subtitle), ...keywords].some((value) =>

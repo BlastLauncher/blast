@@ -4,6 +4,7 @@
   "type": "module",
   "exports": "./src/app.tsx",
   "dependencies": {
+    "@blastlauncher/client-core": "workspace:*",
     "@blastlauncher/host": "workspace:*",
     "@blastlauncher/protocol": "workspace:*",
     "@opentui/core": "0.6.6",

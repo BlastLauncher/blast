@@ -9,7 +9,7 @@ import type { SceneMessage } from "@blastlauncher/protocol";
 import type { Session } from "@blastlauncher/host";
 import { App } from "./app.tsx";
 import { openCommand } from "./session.ts";
-import { sceneToView } from "./view.ts";
+import { sceneToView } from "@blastlauncher/client-core";
 
 function waitScene(session: Session, predicate: (scene: SceneMessage) => boolean): Promise<void> {
   return new Promise((resolve, reject) => {

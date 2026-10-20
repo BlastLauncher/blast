@@ -3,9 +3,15 @@ import { useEffect, useRef, useState } from "react";
 import { useKeyboard, usePaste } from "@opentui/react";
 import type { ScrollBoxRenderable, TextareaRenderable } from "@opentui/core";
 import type { JsonValue, SceneNode } from "@blastlauncher/protocol";
-import { event, text } from "./view.ts";
+import {
+  event,
+  formFields,
+  formOptions,
+  nextField,
+  parseDate,
+  text,
+} from "@blastlauncher/client-core";
 import { pastedText } from "./paste.ts";
-import { formFields, formOptions, nextField, parseDate } from "./form-view.ts";
 
 type Send = (value: ReturnType<typeof event>) => void;
 export function FormView({
