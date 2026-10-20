@@ -743,3 +743,31 @@ test("preferences.open with scope extension shows only Extension section", async
     await rm(join(dir, ".."), { recursive: true, force: true });
   }
 });
+
+test("picker passes custom capability handlers to launched commands", async () => {
+  const dir = await copyFixture("hello-list");
+  const copied: unknown[] = [];
+  const terminal = await testRender(
+    <CommandSession
+      extensionDir={dir}
+      dataDir={join(dir, ".data")}
+      handlers={{
+        "clipboard.copy": (params) => {
+          copied.push(params);
+        },
+      }}
+    />,
+    { width: 90, height: 25, exitOnCtrlC: false },
+  );
+  try {
+    await settle(terminal, (frame) => frame.includes("Search commands"));
+    await press(terminal, "enter");
+    await settle(terminal, (frame) => frame.includes("Copy"));
+    await press(terminal, "enter");
+    await settle(terminal, () => copied.length > 0);
+    expect(copied).toEqual([{ text: "apple" }]);
+  } finally {
+    await act(async () => terminal.dispose());
+    await rm(join(dir, ".."), { recursive: true, force: true });
+  }
+});

@@ -16,13 +16,14 @@ extension code (unmodified, bundled)
 
 ## Packages
 
-| Package                | Owns                                                                                                                                            | Depends on                  |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- |
-| `packages/client-core` | framework-free Raycast client semantics: view model, filtering, actions, shortcuts, pagination, dropdown, grid, form model, throttle/HUD timing | protocol                    |
-| `packages/tui`         | Bun terminal client, List rendering and input                                                                                                   | client-core, host, protocol |
-| `packages/protocol`    | message types, validation, NDJSON framing                                                                                                       | nothing                     |
-| `packages/runtime`     | reconciler, `@raycast/api` shim, child entry                                                                                                    | protocol, react             |
-| `packages/host`        | bundling, process lifecycle, broker, `blast` CLI                                                                                                | protocol, esbuild           |
+| Package                | Owns                                                                                                                          | Depends on                          |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| `packages/client-core` | framework-free Raycast client semantics (view model, filtering, actions, shortcuts, pagination, dropdown, grid, form, timing) | protocol                            |
+| `packages/native`      | optional OS clipboard, open, file manager, trash                                                                              | protocol                            |
+| `packages/tui`         | Bun terminal client, List rendering and input                                                                                 | client-core, host, protocol, native |
+| `packages/protocol`    | message types, validation, NDJSON framing                                                                                     | nothing                             |
+| `packages/runtime`     | reconciler, `@raycast/api` shim, child entry                                                                                  | protocol, react                     |
+| `packages/host`        | bundling, process lifecycle, broker, `blast` CLI                                                                              | protocol, esbuild                   |
 
 `host` never imports `runtime` code; it only spawns its entry file.
 

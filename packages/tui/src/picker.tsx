@@ -14,6 +14,7 @@ import {
   type Preference,
   type StorageItems,
   type DependencyInstaller,
+  type CapabilityHandler,
 } from "@blastlauncher/host";
 import { LaunchGate, PreferencesView } from "./preferences.tsx";
 import { App } from "./app.tsx";
@@ -614,12 +615,14 @@ export function CommandSession({
   dataDir,
   hudDurationMs,
   installer,
+  handlers,
   onExit,
 }: {
   extensionDir: string;
   dataDir?: string;
   hudDurationMs?: number;
   installer?: DependencyInstaller;
+  handlers?: Record<string, CapabilityHandler>;
   onExit?: (crashed: boolean) => void;
 }) {
   const [resolvedDataDir] = useState(() => dataDir ?? defaultDataDir());
@@ -662,6 +665,7 @@ export function CommandSession({
           dataDir: resolvedDataDir,
           extension,
           handlers: {
+            ...handlers,
             "preferences.open": (params) => {
               if (
                 !params ||
