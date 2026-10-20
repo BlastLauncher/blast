@@ -9,23 +9,7 @@ import type { Session } from "@blastlauncher/host";
 import type { SceneMessage } from "@blastlauncher/protocol";
 import { App } from "./app.tsx";
 import { openCommand } from "./session.ts";
-
-function waitScene(session: Session, predicate: (scene: SceneMessage) => boolean): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => {
-      stop?.();
-      reject(new Error("scene timeout"));
-    }, 3000);
-    let stop: (() => void) | undefined;
-    stop = session.scenes((scene) => {
-      if (predicate(scene)) {
-        clearTimeout(timer);
-        queueMicrotask(() => stop?.());
-        resolve();
-      }
-    });
-  });
-}
+import { waitForFrame, waitScene } from "./test-support.ts";
 
 test("look: 80x24 renders rounded frame, search bar, list row accessories, footer shortcuts, and action panel", async () => {
   const dataDir = await mkdtemp(join(tmpdir(), "blast-tui-look-80-"));
@@ -41,7 +25,7 @@ test("look: 80x24 renders rounded frame, search bar, list row accessories, foote
     });
 
     try {
-      await terminal.waitForFrame((frame) => frame.includes("beer"));
+      await waitForFrame(terminal, (frame) => frame.includes("beer"));
       const frame = terminal.captureCharFrame();
 
       // Top-left corner glyph ╭ appears in the frame
@@ -70,7 +54,7 @@ test("look: 80x24 renders rounded frame, search bar, list row accessories, foote
       await act(async () => {
         terminal.mockInput.pressKey("k", { ctrl: true });
       });
-      await terminal.waitForFrame((f) => f.includes("Filter actions"));
+      await waitForFrame(terminal, (f) => f.includes("Filter actions"));
       const actionFrame = terminal.captureCharFrame();
       expect(actionFrame).toContain("╭─Actions");
       const actionLines = actionFrame.split("\n");
@@ -84,7 +68,7 @@ test("look: 80x24 renders rounded frame, search bar, list row accessories, foote
     await opened.close();
     await rm(dataDir, { recursive: true, force: true });
   }
-});
+}, 30_000);
 
 test("look: 60x20 renders without line wrapping wider than terminal width", async () => {
   const dataDir = await mkdtemp(join(tmpdir(), "blast-tui-look-60-"));
@@ -100,7 +84,7 @@ test("look: 60x20 renders without line wrapping wider than terminal width", asyn
     });
 
     try {
-      await terminal.waitForFrame((frame) => frame.includes("beer"));
+      await waitForFrame(terminal, (frame) => frame.includes("beer"));
       const frame = terminal.captureCharFrame();
 
       // Assert that no line in the 60x20 frame exceeds 60 columns
@@ -120,7 +104,7 @@ test("look: 60x20 renders without line wrapping wider than terminal width", asyn
     await opened.close();
     await rm(dataDir, { recursive: true, force: true });
   }
-});
+}, 30_000);
 
 test("look: failure toast renders in the footer using danger styling and text", async () => {
   const failureScene: SceneMessage = {
@@ -177,7 +161,7 @@ test("look: failure toast renders in the footer using danger styling and text", 
   });
 
   try {
-    await terminal.waitForFrame((frame) => frame.includes("Sync failed"));
+    await waitForFrame(terminal, (frame) => frame.includes("Sync failed"));
     const frame = terminal.captureCharFrame();
 
     // Footer contains failure toast style and text
@@ -185,4 +169,4 @@ test("look: failure toast renders in the footer using danger styling and text", 
   } finally {
     await act(async () => terminal.dispose());
   }
-});
+}, 30_000);

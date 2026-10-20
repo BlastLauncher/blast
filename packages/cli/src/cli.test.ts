@@ -67,7 +67,7 @@ test("the first scene prints as a stable text tree and exits 0", async () => {
   expect(code).toBe(0);
   expect(stderr).toBe("");
   expect(stdout).toBe(FIRST_SCENE);
-});
+}, 30_000);
 
 test("a script pins, searches, copies with a grant and exits 0", async () => {
   const script = [
@@ -95,7 +95,7 @@ test("a script pins, searches, copies with a grant and exits 0", async () => {
   );
   expect(lastScene).toContain('List.Item "banana"');
   expect(lastScene).not.toContain('List.Item "apple"');
-});
+}, 30_000);
 
 test("without --grant the copy is denied and reported, and the run still exits 0", async () => {
   const { code, stdout } = await runCli(
@@ -105,7 +105,7 @@ test("without --grant the copy is denied and reported, and the run still exits 0
   expect(code).toBe(0);
   expect(stdout).toContain("# capability clipboard.copy denied");
   expect(stdout).not.toContain('{"text":"banana"}');
-});
+}, 30_000);
 
 test("a failing expect reports the miss on stderr and exits 1", async () => {
   const { code, stdout, stderr } = await runCli(
@@ -115,7 +115,7 @@ test("a failing expect reports the miss on stderr and exits 1", async () => {
   expect(code).toBe(1);
   expect(stdout).toBe(FIRST_SCENE);
   expect(stderr).toContain('expected the scene to contain "durian"');
-});
+}, 30_000);
 
 test("an unknown script command exits 1", async () => {
   const { code, stderr } = await runCli(
@@ -124,7 +124,7 @@ test("an unknown script command exits 1", async () => {
   );
   expect(code).toBe(1);
   expect(stderr).toContain('unknown command "kick"');
-});
+}, 30_000);
 
 test("a crashing extension exits 3", async () => {
   const { code, stdout, stderr } = await runCli(
@@ -134,7 +134,7 @@ test("a crashing extension exits 3", async () => {
   expect(code).toBe(3);
   expect(stdout).toContain("# log host fixture loaded");
   expect(stderr).toContain("runtime exited with code 3");
-});
+}, 30_000);
 
 test("missing dependencies print package names and exit 3", async () => {
   const { code, stdout, stderr } = await runCli([
@@ -145,7 +145,7 @@ test("missing dependencies print package names and exit 3", async () => {
   expect(code).toBe(3);
   expect(stdout).toBe("");
   expect(stderr).toContain("Missing dependencies: @blast-missing/scoped, blast-unavailable");
-});
+}, 30_000);
 
 test("--json emits protocol-shaped NDJSON scenes", async () => {
   const { code, stdout, stderr } = await runCli(["run", helloList, "index", "--json"]);
@@ -158,7 +158,7 @@ test("--json emits protocol-shaped NDJSON scenes", async () => {
   const scenes = messages.filter((message) => message.type === "scene");
   expect(scenes.length).toBeGreaterThanOrEqual(1);
   expect(scenes[0]?.root?.type).toBe("Navigation");
-});
+}, 30_000);
 
 test("--argument supplies manifest values and errors on missing or unknown ones", async () => {
   const provided = await runCli(
@@ -200,7 +200,7 @@ test("--argument supplies manifest values and errors on missing or unknown ones"
   expect(malformed.stderr).toContain("--argument must be name=value");
   const help = await runCli(["--help"]);
   expect(help.stdout).toContain("--argument <name=value>");
-});
+}, 30_000);
 
 test("--grant command.launch accepts the launch and a denial reaches the command", async () => {
   const granted = await runCli(
@@ -230,7 +230,7 @@ test("--grant command.launch accepts the launch and a denial reaches the command
   );
   expect(denied.code, denied.stderr).toBe(0);
   expect(denied.stdout).toContain("# capability command.launch denied");
-});
+}, 30_000);
 
 test("closeMainWindow records its request on the Navigation scene node", async () => {
   const view = await runCli(
@@ -249,7 +249,7 @@ test("closeMainWindow records its request on the Navigation scene node", async (
   expect(noView.stdout).toContain(
     'closeMainWindow={"clearRootSearch":true,"popToRootType":"suspended"}',
   );
-});
+}, 30_000);
 
 test("usage errors exit 2 and print usage", async () => {
   const missing = await runCli(["run"]);
@@ -263,7 +263,7 @@ test("usage errors exit 2 and print usage", async () => {
   const command = await runCli(["run", helloList, "nope"]);
   expect(command.code).toBe(2);
   expect(command.stderr).toContain("Unknown extension command");
-});
+}, 30_000);
 
 test("--timeout aborts a hanging script with exit 3", async () => {
   const { code, stderr } = await runCli(
@@ -272,7 +272,7 @@ test("--timeout aborts a hanging script with exit 3", async () => {
   );
   expect(code).toBe(3);
   expect(stderr).toContain("timed out after 800ms");
-});
+}, 30_000);
 
 test("Action.Push opens a view and back restores the previous state", async () => {
   const { code, stdout, stderr } = await runCli(
@@ -285,7 +285,7 @@ test("Action.Push opens a view and back restores the previous state", async () =
   const last = stdout.slice(stdout.lastIndexOf("Navigation depth=1"));
   expect(last).toContain("count 1 popped true");
   expect(last).not.toContain("pushed detail");
-});
+}, 30_000);
 
 test("back at the root reports a script error and help documents back", async () => {
   const result = await runCli(["run", helloList, "index", "--script", "-"], "back\n");
@@ -293,7 +293,7 @@ test("back at the root reports a script error and help documents back", async ()
   expect(result.stderr).toContain("no navigation view to pop");
   const help = await runCli(["--help"]);
   expect(help.stdout).toContain("back            Pop the current navigation view.");
-});
+}, 30_000);
 
 test("CLI confirms and dismisses no-view alerts and prints toast/HUD feedback", async () => {
   for (const [answer, title] of [
@@ -308,7 +308,7 @@ test("CLI confirms and dismisses no-view alerts and prints toast/HUD feedback", 
         "--script",
         "-",
         "--timeout",
-        "3000",
+        "20000",
       ],
       `wait\nexpect Continue?\n${answer}\nwait\n`,
     );
@@ -323,7 +323,7 @@ test("CLI confirms and dismisses no-view alerts and prints toast/HUD feedback", 
   const help = await runCli(["--help"]);
   expect(help.stdout).toContain("Confirm the current alert");
   expect(help.stdout).toContain("Dismiss the current alert");
-});
+}, 30_000);
 
 test("list-extras renders accessories and a dropdown scene", async () => {
   const { code, stdout, stderr } = await runCli(["run", listExtras, "index"]);
@@ -335,7 +335,7 @@ test("list-extras renders accessories and a dropdown scene", async () => {
   expect(stdout).toContain('subtitle="Germany"');
   expect(stdout).toContain('accessories=[{"text":"Germany"},{"tag":"1970-01-01T00:00:00.000Z"}]');
   expect(stdout).toContain('style="destructive"');
-});
+}, 30_000);
 
 test("a script selects a dropdown value, searches and runs styled actions", async () => {
   const script = [
@@ -363,7 +363,7 @@ test("a script selects a dropdown value, searches and runs styled actions", asyn
   expect(last).not.toContain("List.Item");
   const help = await runCli(["--help"]);
   expect(help.stdout).toContain("dropdown <value>");
-});
+}, 30_000);
 
 test("a dropdown without onChange reports a script error", async () => {
   const { code, stderr } = await runCli(
@@ -372,7 +372,7 @@ test("a dropdown without onChange reports a script error", async () => {
   );
   expect(code).toBe(1);
   expect(stderr).toContain("no List.Dropdown or Grid.Dropdown with onChange to select");
-});
+}, 30_000);
 
 test("grid renders items, sections and a dropdown scene", async () => {
   const { code, stdout, stderr } = await runCli(["run", gridFixture, "index"]);
@@ -385,7 +385,7 @@ test("grid renders items, sections and a dropdown scene", async () => {
   expect(stdout).toContain('Grid.Dropdown.Item "beer" value="beer"');
   expect(stdout).toContain('Grid.Item "beer" content={"value":"beer.png","tooltip":"Germany"}');
   expect(stdout).toContain('accessory={"icon":"star.png"}');
-});
+}, 30_000);
 
 test("a script searches a Grid, selects its dropdown value and runs actions", async () => {
   const script = [
@@ -415,7 +415,7 @@ test("a script searches a Grid, selects its dropdown value and runs actions", as
   expect(last).toContain('searchText="z"');
   const help = await runCli(["--help"]);
   expect(help.stdout).toContain("Dispatch the List or Grid onSearchTextChange handler.");
-});
+}, 30_000);
 
 test("LocalStorage is granted by default and persists across runs in --data-dir", async () => {
   const dataDir = await mkdtemp(join(tmpdir(), "blast-cli-storage-"));
@@ -447,7 +447,7 @@ test("LocalStorage is granted by default and persists across runs in --data-dir"
   } finally {
     await rm(dataDir, { recursive: true, force: true });
   }
-});
+}, 30_000);
 
 test("open prints each granted target and grants URLs and files separately", async () => {
   const dataDir = await mkdtemp(join(tmpdir(), "blast-cli-open-"));
@@ -496,7 +496,7 @@ test("open prints each granted target and grants URLs and files separately", asy
   } finally {
     await rm(dataDir, { recursive: true, force: true });
   }
-});
+}, 30_000);
 
 test("--applications and --clipboard answer the read-only host capabilities", async () => {
   const dataDir = await mkdtemp(join(tmpdir(), "blast-cli-apis-"));
@@ -523,7 +523,7 @@ test("--applications and --clipboard answer the read-only host capabilities", as
         "--script",
         "-",
         "--timeout",
-        "5000",
+        "20000",
       ],
       [
         "action Applications",
@@ -562,23 +562,23 @@ test("--applications and --clipboard answer the read-only host capabilities", as
   } finally {
     await rm(dataDir, { recursive: true, force: true });
   }
-});
+}, 30_000);
 
 test("without --applications or --clipboard the read-only defaults are empty", async () => {
   const result = await runCli(
-    ["run", hostApis, "index", "--script", "-", "--timeout", "5000"],
+    ["run", hostApis, "index", "--script", "-", "--timeout", "20000"],
     "action Applications\nwait\nexpect applications\naction Read Text\nwait\nexpect text none\nquit\n",
   );
   expect(result.code, result.stderr).toBe(0);
   expect(result.stderr).toBe("");
   expect(result.stdout).toContain("# capability applications.list {}");
   expect(result.stdout).toContain("# capability clipboard.read {}");
-});
+}, 30_000);
 
 test("clipboard.paste and clipboard.clear need a grant", async () => {
   const script = "action Paste\nwait\naction Clear\nwait\nexpect failed Capability denied\nquit\n";
   const denied = await runCli(
-    ["run", hostApis, "index", "--script", "-", "--timeout", "5000"],
+    ["run", hostApis, "index", "--script", "-", "--timeout", "20000"],
     script,
   );
   expect(denied.code, denied.stderr).toBe(0);
@@ -597,14 +597,14 @@ test("clipboard.paste and clipboard.clear need a grant", async () => {
       "--script",
       "-",
       "--timeout",
-      "5000",
+      "20000",
     ],
     "action Paste\nwait\nexpect pasted\naction Clear\nwait\nexpect cleared\nquit\n",
   );
   expect(granted.code, granted.stderr).toBe(0);
   expect(granted.stdout).toContain('# capability clipboard.paste {"text":"pasted"}');
   expect(granted.stdout).toContain("# capability clipboard.clear {}");
-});
+}, 30_000);
 
 test("a bad --applications file is a usage error", async () => {
   const dataDir = await mkdtemp(join(tmpdir(), "blast-cli-apis-"));
@@ -630,7 +630,7 @@ test("a bad --applications file is a usage error", async () => {
   } finally {
     await rm(dataDir, { recursive: true, force: true });
   }
-});
+}, 30_000);
 
 test("CLI edits controlled and uncontrolled form fields and submits typed values", async () => {
   const args = [
@@ -640,7 +640,7 @@ test("CLI edits controlled and uncontrolled form fields and submits typed values
     "--script",
     "-",
     "--timeout",
-    "3000",
+    "20000",
   ];
   const result = await runCli(
     args,
@@ -659,12 +659,20 @@ test("CLI edits controlled and uncontrolled form fields and submits typed values
   const help = await runCli(["--help"]);
   expect(help.stdout).toContain("field <id> <value>");
   expect(help.stdout).toContain("Run the first Action.SubmitForm");
-});
+}, 30_000);
 
 test("CLI fills TagPicker and PasswordField; the password never reaches a scene", async () => {
   const password = "s3cret-w0rd";
   const result = await runCli(
-    ["run", join(root, "fixtures/extensions/form"), "secret", "--script", "-", "--timeout", "3000"],
+    [
+      "run",
+      join(root, "fixtures/extensions/form"),
+      "secret",
+      "--script",
+      "-",
+      "--timeout",
+      "20000",
+    ],
     `expect Docs\nfield tags red,green\nwait\nfield password ${password}\nwait\nsubmit\nwait\nquit\n`,
   );
   expect(result.code, result.stderr + result.stdout).toBe(0);
@@ -677,12 +685,20 @@ test("CLI fills TagPicker and PasswordField; the password never reaches a scene"
   // The raw value is the client's input; only submissions published by the
   // extension would leak it, and the fixture masks them.
   const cleared = await runCli(
-    ["run", join(root, "fixtures/extensions/form"), "secret", "--script", "-", "--timeout", "3000"],
+    [
+      "run",
+      join(root, "fixtures/extensions/form"),
+      "secret",
+      "--script",
+      "-",
+      "--timeout",
+      "20000",
+    ],
     `field password ${password}\nwait\nfield password\nwait\nsubmit\nwait\nquit\n`,
   );
   expect(cleared.code, cleared.stderr + cleared.stdout).toBe(0);
   expect(cleared.stdout).toContain('password\\":\\"<unset>');
-});
+}, 30_000);
 
 test("a reader that closes stdout early does not crash the CLI", async () => {
   const child = spawn("node", [cliPath, "run", helloList, "index", "--script", "-"], {
@@ -700,7 +716,7 @@ test("a reader that closes stdout early does not crash the CLI", async () => {
   const code = await new Promise<number | null>((resolve) => child.on("close", resolve));
   expect(stderr).not.toContain("EPIPE");
   expect(code).toBe(0);
-});
+}, 30_000);
 
 test("menu-bar trees print and action dispatches a left-click to nested items", async () => {
   const result = await runCli(
@@ -713,10 +729,10 @@ test("menu-bar trees print and action dispatches a left-click to nested items", 
   expect(result.stdout).toContain('MenuBarExtra.Submenu "More"');
   expect(result.stdout).toContain('MenuBarExtra.Item "Click" [onAction]');
   expect(result.stdout).not.toContain("Navigation");
-});
+}, 30_000);
 
 test("command metadata is recorded and printed without a grant", async () => {
-  const result = await runCli(["run", launchFixture, "metadata", "--timeout", "1500"]);
+  const result = await runCli(["run", launchFixture, "metadata", "--timeout", "20000"]);
   expect(result.code, result.stderr).toBe(0);
   expect(result.stderr).toBe("");
   expect(result.stdout).toBe(
@@ -744,7 +760,7 @@ test("selection flags supply read-only values and FilePicker submits comma-separ
       "--script",
       "-",
       "--timeout",
-      "5000",
+      "20000",
     ],
     "action Text\nwait\nexpect hello selected\naction Files\nwait\nexpect /tmp/b\naction Frontmost\nwait\nexpect org.editor\nfield files /tmp/a,/tmp/b\nwait\nsubmit\nwait\nexpect /tmp/a\nquit\n",
   );
@@ -764,7 +780,7 @@ test("selection flags supply read-only values and FilePicker submits comma-separ
     "comma-separated values",
   ])
     expect(help.stdout).toContain(flag);
-});
+}, 30_000);
 
 test("CLI finder and trash effects record grants and report denials", async () => {
   const args = ["run", join(root, "fixtures/extensions/selection"), "index", "--script", "-"];
@@ -782,7 +798,7 @@ test("CLI finder and trash effects record grants and report denials", async () =
   expect(granted.code, granted.stderr).toBe(0);
   expect(granted.stdout).toContain('# capability finder.show {"path":"/tmp/a"}');
   expect(granted.stdout).toContain('# capability trash {"paths":["/tmp/a","/tmp/b"]}');
-});
+}, 30_000);
 
 const actionsVariants = join(root, "fixtures/extensions/actions-variants");
 
@@ -803,7 +819,7 @@ test("submenu dispatches a submenu's onOpen handler and its actions keep working
   expect(unknown.stderr).toContain('no ActionPanel.Submenu with onOpen titled "Nope"');
   const help = await runCli(["--help"]);
   expect(help.stdout).toContain("submenu <title>");
-});
+}, 30_000);
 
 test("Action.Open requests open.path only with a grant and the scene never shows the target", async () => {
   const granted = await runCli(
@@ -824,7 +840,7 @@ test("Action.Open requests open.path only with a grant and the scene never shows
   expect(denied.code).toBe(0);
   expect(denied.stdout).toContain("# capability open.path denied");
   expect(denied.stdout).not.toContain("opened /tmp/blast-demo");
-});
+}, 30_000);
 
 test("more loads List and Grid pages in the active navigation entry and rejects exhausted views", async () => {
   const fixture = join(root, "fixtures/extensions/pagination");
@@ -848,7 +864,7 @@ test("more loads List and Grid pages in the active navigation entry and rejects 
   expect(missing.code).toBe(1);
   expect(missing.stderr).toContain("no List or Grid with more pages to load");
   expect((await runCli(["--help"])).stdout).toContain("more");
-});
+}, 30_000);
 
 test("stored dropdown selections restore through the host storage capability across CLI runs", async () => {
   const dataDir = await mkdtemp(join(tmpdir(), "blast-dropdown-"));
@@ -872,7 +888,7 @@ test("stored dropdown selections restore through the host storage capability acr
   } finally {
     await rm(dataDir, { recursive: true, force: true });
   }
-});
+}, 30_000);
 
 test("OAuth CLI answers authorization, persists tokens and redacts token requests in text and JSON", async () => {
   const dataDir = await mkdtemp(join(tmpdir(), "blast-oauth-cli-"));
@@ -914,7 +930,7 @@ test("OAuth CLI answers authorization, persists tokens and redacts token request
   } finally {
     await rm(dataDir, { recursive: true, force: true });
   }
-});
+}, 30_000);
 
 test("AI and browser flags grant deterministic responses and synchronous availability", async () => {
   const directory = await mkdtemp(join(tmpdir(), "blast-ai-browser-"));
@@ -985,7 +1001,7 @@ test("AI and browser flags grant deterministic responses and synchronous availab
   } finally {
     await rm(directory, { recursive: true, force: true });
   }
-});
+}, 30_000);
 
 test("models and complete expose the offline provider entrypoint", async () => {
   const fixture = join(root, "fixtures/extensions/model-provider");
@@ -1010,7 +1026,7 @@ test("models and complete expose the offline provider entrypoint", async () => {
   expect((await runCli(["--help"])).stdout).toContain(
     "blast complete <extensionDir> <modelId> <prompt>",
   );
-}, 15_000);
+}, 30_000);
 
 test("own-provider ask streams, refreshes, aborts and answers headless decisions", async () => {
   const dir = await mkdtemp(join(tmpdir(), "blast-ai-"));
@@ -1045,7 +1061,7 @@ test("own-provider ask streams, refreshes, aborts and answers headless decisions
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
-});
+}, 30_000);
 
 test("CLI prints a one-line warning for a shared dependency major mismatch", async () => {
   const fixture = join(root, "fixtures/extensions/shared-dependencies");
@@ -1067,7 +1083,7 @@ test("CLI prints a one-line warning for a shared dependency major mismatch", asy
     level: "warn",
     message: "Shared dependency lodash: declared ^3.0.0, provided 4.18.1 (major mismatch)",
   });
-});
+}, 30_000);
 
 // @covers LaunchProps.draftValues
 test("Form storeValue and drafts survive CLI launches, submit clears drafts and passwords stay private", async () => {
@@ -1115,7 +1131,7 @@ test("Form storeValue and drafts survive CLI launches, submit clears drafts and 
   } finally {
     await rm(dataDir, { recursive: true, force: true });
   }
-}, 15_000);
+}, 30_000);
 
 test("--fallback-text reaches a fallback command, including an empty string", async () => {
   for (const text of ["unmatched query", ""]) {
@@ -1132,4 +1148,4 @@ test("--fallback-text reaches a fallback command, including an empty string", as
     expect(result.code, result.stderr).toBe(0);
     expect(result.stdout).toContain(`"title":${JSON.stringify(text)}`);
   }
-});
+}, 30_000);

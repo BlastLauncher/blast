@@ -1,7 +1,7 @@
 ---
 id: "0081"
 title: Make child-process and TUI frame tests robust under load
-status: doing
+status: review
 milestone: M5
 depends: []
 ---
@@ -59,8 +59,44 @@ Several workers saw the same flakes recently; a rerun always passed.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/fix-flaky-tests-under-load @ 7cafb28
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 92.7s
 Done:
+- Reproduced the CLI flakes under load: `packages/cli/src/cli.test.ts` spawns a
+  Node child per case, so several cases exceeded bun's 5 s default; the same
+  cases also raced their own `--timeout 3000/5000` guards. Gave every case an
+  explicit 30_000 ms test budget and raised hang-only CLI guards to 20_000 ms.
+  The `--timeout 800` behaviour test keeps 800 ms and still asserts "timed out
+  after 800ms".
+- Reproduced the "frame timeout" in `packages/tui/src/app.test.tsx`
+  (actions-variants under two competing full runs). OpenTUI's `waitForFrame`
+  stops after 20 passes; wrapped it with `maxPasses: 500` in a shared
+  `test-support.ts` helper (it still stops early when the renderer is idle).
+- Moved the duplicated 3 s `waitScene`/`frameEventually`/`settle` helpers into
+  `packages/tui/src/test-support.ts` with 15 s hang guards, retrying
+  `captureCharFrame` when the native buffer lease reports `OutputBusy`.
+- Made the actions-variants case wait on scene events (submenu `onOpen`, search
+  forwarding) instead of inferring panel state from frames, so a late commit
+  can no longer send the typed text to the list search. Added 30_000 ms test
+  budgets to every TUI case that launches a real command, and raised the
+  install-dependencies child-process case from 15 s to 30 s.
+- Load recipe: six `yes` burners plus two parallel full `bun test --randomize`
+  runs. Five consecutive rounds, all 680/680 pass:
+  3857439134 & 4223802; 3423864777 & 3152931786; 3024503293 & 1375505730;
+  2897258220 & 354465590; 3415073283 & 317822781.
+- Total test time before 109.38 s, after 90.95 s (single unloaded
+  `bun test --randomize`); loaded runs are slower by design.
 Not done / risks:
+- `packages/tui/src/app.test.tsx` previously asserted that the actions-variants
+  submenu client-filters "red" down to Red. The scene has
+  `onSearchTextChange`, and `filteringOf` in `client-core` treats that as
+  extension-owned search, so the client deliberately shows every action; the
+  old assertion only passed by accident once "picked Red" appeared in the
+  title. The test now asserts the real contract instead: the search text is
+  forwarded to the extension. If Raycast semantics are that `filtering` still
+  applies alongside `onSearchTextChange`, that is a product fix outside this
+  task (do not change product behaviour here).
+- `test-support.ts` swallows `OutputBusy` from OpenTUI's native frame capture
+  and retries on the next poll. That is a test-renderer lease race, not Blast
+  code, but it means a frame can be sampled one poll later under heavy load.
 ```

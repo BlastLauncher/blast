@@ -6,27 +6,11 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { SceneMessage } from "@blastlauncher/protocol";
-import type { Session } from "@blastlauncher/host";
 import { App } from "./app.tsx";
 import { openCommand } from "./session.ts";
+import { waitForFrame, waitScene } from "./test-support.ts";
 import { sceneToView } from "@blastlauncher/client-core";
 
-function waitScene(session: Session, predicate: (scene: SceneMessage) => boolean): Promise<void> {
-  return new Promise((resolve, reject) => {
-    let stop: (() => void) | undefined;
-    const timeout = setTimeout(() => {
-      stop?.();
-      reject(new Error(`scene timeout: ${JSON.stringify(session.latestScene)}`));
-    }, 3000);
-    stop = session.scenes((scene) => {
-      if (predicate(scene)) {
-        clearTimeout(timeout);
-        queueMicrotask(() => stop?.());
-        resolve();
-      }
-    });
-  });
-}
 const view = (scene: SceneMessage | undefined) =>
   sceneToView(scene, { searchText: "", selectedId: null });
 
@@ -74,7 +58,7 @@ for (const command of ["index", "secret"]) {
     };
 
     try {
-      await terminal.waitForFrame((frame) =>
+      await waitForFrame(terminal, (frame) =>
         frame.includes(command === "index" ? "Fill form" : "Fill secret form"),
       );
       if (command === "index") {
@@ -83,7 +67,7 @@ for (const command of ["index", "secret"]) {
           (scene) => field(scene, "name")?.props.value === "Ada",
         );
         await key("tab");
-        await terminal.waitForFrame((frame) => frame.includes("› notes"));
+        await waitForFrame(terminal, (frame) => frame.includes("› notes"));
         await key("e", true);
         await key("return");
         await changed(
@@ -103,7 +87,7 @@ for (const command of ["index", "secret"]) {
         );
         await key("tab");
         await type("2024-02-30");
-        await terminal.waitForFrame((frame) => frame.includes("valid ISO date"));
+        await waitForFrame(terminal, (frame) => frame.includes("valid ISO date"));
         expect(field(opened.session.latestScene!, "date")?.props.value).toBeNull();
         await key("backspace");
         await key("backspace");
@@ -134,23 +118,23 @@ for (const command of ["index", "secret"]) {
               (scene) => field(scene, "password")?.props.hasValue === true,
             );
           else await type(char);
-          await terminal.waitForFrame((frame) => {
+          await waitForFrame(terminal, (frame) => {
             expect(frame).not.toContain(secret.slice(0, 5));
             return frame.includes("••••••••");
           });
         }
-        await terminal.waitForFrame((frame) => frame.includes("••••••••"));
+        await waitForFrame(terminal, (frame) => frame.includes("••••••••"));
         // A bracketed paste appends to the secret without echoing it.
         await act(async () => {
           await terminal.mockInput.pasteBracketedText("-pasted-part\n");
         });
-        await terminal.waitForFrame((frame) => {
+        await waitForFrame(terminal, (frame) => {
           expect(frame).not.toContain("pasted-part");
           return frame.includes("••••••••");
         });
         expect(JSON.stringify(opened.session.latestScene)).not.toContain(secret);
         await key("k", true);
-        await terminal.waitForFrame((frame) => frame.includes("Filter actions"));
+        await waitForFrame(terminal, (frame) => frame.includes("Filter actions"));
         await changed(
           () => key("return"),
           (scene) => view(scene).title.includes("<set>"),
@@ -159,7 +143,7 @@ for (const command of ["index", "secret"]) {
           tags: ["green"],
           password: "<set>",
         });
-        await terminal.waitForFrame((frame) => {
+        await waitForFrame(terminal, (frame) => {
           expect(frame).not.toContain(secret);
           return frame.includes("<set>");
         });
@@ -169,7 +153,7 @@ for (const command of ["index", "secret"]) {
       await opened.close();
       await rm(dataDir, { recursive: true, force: true });
     }
-  });
+  }, 30_000);
 }
 
 test("terminal drafts restore after close and successful submission clears them", async () => {
@@ -187,12 +171,12 @@ test("terminal drafts restore after close and successful submission clears them"
         height: 25,
       });
       try {
-        await terminal.waitForFrame((frame) =>
+        await waitForFrame(terminal, (frame) =>
           frame.includes(round === 1 ? "launch:saved:false" : "launch:none:false"),
         );
         if (round === 0) {
           await act(async () => terminal.mockInput.pressTab());
-          await terminal.waitForFrame((frame) => frame.includes("› draft"));
+          await waitForFrame(terminal, (frame) => frame.includes("› draft"));
           await act(async () => {
             const changed = waitScene(
               opened.session,
@@ -217,4 +201,4 @@ test("terminal drafts restore after close and successful submission clears them"
   } finally {
     await rm(dataDir, { recursive: true, force: true });
   }
-});
+}, 30_000);

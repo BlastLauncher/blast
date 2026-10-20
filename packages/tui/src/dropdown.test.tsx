@@ -5,40 +5,9 @@ import { testRender } from "@opentui/react/test-utils";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { Session } from "@blastlauncher/host";
-import type { SceneMessage } from "@blastlauncher/protocol";
 import { App } from "./app.tsx";
 import { openCommand } from "./session.ts";
-
-function waitScene(session: Session, predicate: (scene: SceneMessage) => boolean): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => {
-      stop?.();
-      reject(new Error("scene timeout"));
-    }, 3000);
-    let stop: (() => void) | undefined;
-    stop = session.scenes((scene) => {
-      if (predicate(scene)) {
-        clearTimeout(timer);
-        queueMicrotask(() => stop?.());
-        resolve();
-      }
-    });
-  });
-}
-
-// waitForFrame only sees frames rendered after the call; a state change inside
-// the preceding act() may already have painted. Poll the current frame instead.
-async function frameEventually(
-  terminal: { captureCharFrame(): string },
-  predicate: (frame: string) => boolean,
-): Promise<void> {
-  for (let i = 0; i < 40; i++) {
-    if (predicate(terminal.captureCharFrame())) return;
-    await new Promise((resolve) => setTimeout(resolve, 50));
-  }
-  throw new Error(`frame timeout:\n${terminal.captureCharFrame()}`);
-}
+import { frameEventually, waitForFrame, waitScene } from "./test-support.ts";
 
 test("terminal List dropdown accessory: open, filter, choose, Esc", async () => {
   const dataDir = await mkdtemp(join(tmpdir(), "blast-tui-dropdown-"));
@@ -64,7 +33,7 @@ test("terminal List dropdown accessory: open, filter, choose, Esc", async () => 
     { width: 90, height: 20, exitOnCtrlC: false },
   );
   try {
-    await terminal.waitForFrame((frame) => frame.includes("▾ water"));
+    await waitForFrame(terminal, (frame) => frame.includes("▾ water"));
     // Ctrl-P opens the dropdown's filterable option list.
     await act(async () => terminal.mockInput.pressKey("p", { ctrl: true }));
     await frameEventually(terminal, (frame) => frame.includes("Filter options"));
@@ -121,4 +90,4 @@ test("terminal List dropdown accessory: open, filter, choose, Esc", async () => 
     await opened.close();
     await rm(dataDir, { recursive: true, force: true });
   }
-});
+}, 30_000);

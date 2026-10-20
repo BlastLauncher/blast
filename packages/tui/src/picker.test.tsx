@@ -6,6 +6,7 @@ import { cp, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { CommandPicker, CommandSession } from "./picker.tsx";
+import { settle } from "./test-support.ts";
 
 /** Fixtures are never modified in place: every test drives a temp copy. */
 async function copyFixture(name: string): Promise<string> {
@@ -15,28 +16,6 @@ async function copyFixture(name: string): Promise<string> {
     recursive: true,
   });
   return dir;
-}
-
-/**
- * Manifest reads, fs.watch and bundling run on real timers the test
- * renderer's scheduler does not know about, so polling happens in real time
- * inside act and asserts on captured frames.
- */
-async function settle(
-  terminal: { captureCharFrame(): string },
-  predicate: (frame: string) => boolean,
-  ms = 3000,
-): Promise<string> {
-  const deadline = Date.now() + ms;
-  for (;;) {
-    let frame = "";
-    await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 50));
-      frame = terminal.captureCharFrame();
-    });
-    if (predicate(frame)) return frame;
-    if (Date.now() > deadline) throw new Error(`settle timeout\n${frame}`);
-  }
 }
 
 const press = async (
@@ -104,7 +83,7 @@ test("picker lists a manifest's commands with modes and filters by typed text", 
     await act(async () => terminal.dispose());
     await rm(join(dir, ".."), { recursive: true, force: true });
   }
-});
+}, 30_000);
 
 test("rewriting the manifest updates the list; invalid JSON keeps the last list", async () => {
   const dir = await copyFixture("feedback");
@@ -140,7 +119,7 @@ test("rewriting the manifest updates the list; invalid JSON keeps the last list"
     await act(async () => terminal.dispose());
     await rm(join(dir, ".."), { recursive: true, force: true });
   }
-});
+}, 30_000);
 
 test("Enter launches a command and Esc returns to the picker with the selection kept", async () => {
   const dir = await copyFixture("host-session");
@@ -172,7 +151,7 @@ test("Enter launches a command and Esc returns to the picker with the selection 
     await rm(dataDir, { recursive: true, force: true });
     await rm(join(dir, ".."), { recursive: true, force: true });
   }
-});
+}, 30_000);
 
 test("a required argument blocks launch until filled, then reaches the command", async () => {
   const dir = await copyFixture("launch");
@@ -215,7 +194,7 @@ test("a required argument blocks launch until filled, then reaches the command",
     await rm(dataDir, { recursive: true, force: true });
     await rm(join(dir, ".."), { recursive: true, force: true });
   }
-});
+}, 30_000);
 
 test("a password argument accepts a bracketed paste without echoing it", async () => {
   const dir = await copyFixture("launch");
@@ -242,7 +221,7 @@ test("a password argument accepts a bracketed paste without echoing it", async (
     await rm(dataDir, { recursive: true, force: true });
     await rm(join(dir, ".."), { recursive: true, force: true });
   }
-});
+}, 30_000);
 
 test("a no-view command finishes, shows its HUD and returns to the picker", async () => {
   const dir = await copyFixture("feedback");
@@ -264,7 +243,7 @@ test("a no-view command finishes, shows its HUD and returns to the picker", asyn
     await rm(dataDir, { recursive: true, force: true });
     await rm(join(dir, ".."), { recursive: true, force: true });
   }
-});
+}, 30_000);
 
 test("a crashed command returns to the picker and quitting then exits 1", async () => {
   const dir = await copyFixture("host-session");
@@ -296,7 +275,7 @@ test("a crashed command returns to the picker and quitting then exits 1", async 
     await rm(dataDir, { recursive: true, force: true });
     await rm(join(dir, ".."), { recursive: true, force: true });
   }
-});
+}, 30_000);
 
 test("a launch failure (missing dependency) stays on the picker with an error line", async () => {
   const dir = await copyFixture("missing-dependency");
@@ -325,7 +304,7 @@ test("a launch failure (missing dependency) stays on the picker with an error li
     await rm(dataDir, { recursive: true, force: true });
     await rm(join(dir, ".."), { recursive: true, force: true });
   }
-});
+}, 30_000);
 
 test("picker installs with progress, waits to launch, reuses installs and watches lock changes", async () => {
   const dir = await copyFixture("host-session");
@@ -378,7 +357,7 @@ test("picker installs with progress, waits to launch, reuses installs and watche
     await act(async () => terminal.dispose());
     await rm(join(dir, ".."), { recursive: true, force: true });
   }
-});
+}, 30_000);
 
 test("failed install shows an error and still launches with the shared fallback", async () => {
   const dir = await copyFixture("host-session");
@@ -403,7 +382,7 @@ test("failed install shows an error and still launches with the shared fallback"
     await act(async () => terminal.dispose());
     await rm(join(dir, ".."), { recursive: true, force: true });
   }
-});
+}, 30_000);
 
 test("required preferences block launch, persist, reach the runtime and Ctrl-E edits them", async () => {
   const dir = await copyFixture("host-session");
@@ -486,7 +465,7 @@ test("required preferences block launch, persist, reach the runtime and Ctrl-E e
     await act(async () => terminal.dispose());
     await rm(join(dir, ".."), { recursive: true, force: true });
   }
-});
+}, 30_000);
 
 test("manifest with missing required preference shows Set up launch gate with only missing fields, launches after entry", async () => {
   const dir = await copyFixture("host-session");
@@ -566,7 +545,7 @@ test("manifest with missing required preference shows Set up launch gate with on
     await act(async () => terminal.dispose());
     await rm(join(dir, ".."), { recursive: true, force: true });
   }
-});
+}, 30_000);
 
 test("Ctrl-E opens Preferences view with both section headers, all fields, focused description, saves and returns on Enter or Esc without launch", async () => {
   const dir = await copyFixture("host-session");
@@ -678,7 +657,7 @@ test("Ctrl-E opens Preferences view with both section headers, all fields, focus
     await act(async () => terminal.dispose());
     await rm(join(dir, ".."), { recursive: true, force: true });
   }
-});
+}, 30_000);
 
 test("preferences.open with scope extension shows only Extension section", async () => {
   const dir = await copyFixture("host-session");
@@ -742,7 +721,7 @@ test("preferences.open with scope extension shows only Extension section", async
     await act(async () => terminal.dispose());
     await rm(join(dir, ".."), { recursive: true, force: true });
   }
-});
+}, 30_000);
 
 test("picker passes custom capability handlers to launched commands", async () => {
   const dir = await copyFixture("hello-list");
@@ -770,4 +749,4 @@ test("picker passes custom capability handlers to launched commands", async () =
     await act(async () => terminal.dispose());
     await rm(join(dir, ".."), { recursive: true, force: true });
   }
-});
+}, 30_000);
