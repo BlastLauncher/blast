@@ -78,6 +78,7 @@ Raycast client semantics built in so embedders only draw.
       25/25 installs, 35/56 render, 0 bundle fails, 20 need args/prefs, 1 denied, 0 crashes
 - [x] 0082 tsconfig `baseUrl`/`paths`; 0083 lean installs (−91%); 0084 form editing in the controller
 - [x] 0085 Lean installs keep required non-runtime peers (`zod` for `@ai-sdk/*`)
+- [ ] 0086 smoke placeholder args/prefs; 0087 bundle time limit
 
 ## Later (not scheduled)
 
