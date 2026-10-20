@@ -51,10 +51,8 @@ diagnostics instead of ESM link errors.
 
 Smoke 2026-10-19 (`compat/SMOKE.md`, 80 extensions): 184/200 commands render,
 1 completed, 7 expected denials, 5 need arguments, 3 need API keys,
-0 bundle failures, 0 unsupported-api. Coverage
-2026-10-19: non-deprecated 1496/1534 covered, 38 partial (client-owned
-filtering, menu-bar/HUD effects), 0 missing. Shared deps satisfy 2009/3443
-corpus extensions. Each step is a task with `@covers` evidence.
+0 bundle failures, 0 unsupported-api. Shared deps satisfy 2009/3443 corpus
+extensions. Each step is a task with `@covers` evidence.
 
 ### M4 — Terminal client (OpenTUI)
 
@@ -78,14 +76,15 @@ Raycast client semantics built in so embedders only draw.
 - [x] 0064 Engine API: extension handle (manifest + live reload, commands,
       deps, preference schema/store, launch) moved out of the TUI picker
 - [x] 0065 client-core: ranking, keepSectionOrder, platform shortcuts, feedback/menu model
-- [ ] 0076 Engine-side partials (rememberUserChoice, fallbackText, Cache dir, …)
+- [x] 0076 Engine-side partials (rememberUserChoice, fallbackText, Cache dir, …)
 - [x] 0066 `blast serve`: versioned embedder protocol over stdio,
       capabilities forwarded to the embedder
 - [ ] 0067 Protocol JSON Schema export + `docs/embedding.md`
 - [ ] 0068 Minimal non-JS embedder example over `blast serve` (Go)
 - [ ] 0069 Release build: emitted JS + `.d.ts`, `npm pack` smoke on Node 24
 - [ ] 0070 Real-world compat: dependency-heavy corpus set with installs
-- [ ] 0071 Deprecated aliases: the 50 missing deprecated symbols
+- [ ] 0071 Deprecated: 50 missing (2026-10-20: non-deprecated 1533/1534, only
+      embedder-owned `BrowserExtension.getContent` partial)
 - [x] 0072 Capability catalog in `protocol` (names, shapes, scope, API users)
 - [x] 0073 Engine handler registry; `blast` CLI + headless answers → `packages/cli`
 - [x] 0074 `@blastlauncher/native` I: clipboard, open, file manager, trash
