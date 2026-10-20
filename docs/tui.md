@@ -28,7 +28,7 @@ panels and dropdowns, and segmented footers with shortcut hints.
 | Enter / Esc     | confirm / dismiss an open Alert                                       |
 | Ctrl-T / Ctrl-Y | toast primary / secondary action                                      |
 
-Action shortcuts support direct ctrl/shift keys; client keys take priority.
+Action shortcuts follow the Linux mapping (`cmd` is Ctrl, `opt`/`alt` Alt, `windows` Super, the `Windows` variant of cross-platform shortcuts); client keys take priority.
 
 ## Picker
 
@@ -64,9 +64,11 @@ Esc cancels. Values persist in `<dataDir>/preferences/<encoded-name>.json`
 
 ## Rendering
 
-- Client filtering matches title, subtitle and keywords by case-insensitive
-  substring and keeps section order; `filtering: false` disables it, a search
-  handler owns filtering, and `throttle` delays the event by 200 ms.
+- Client filtering ranks by title, keywords and subtitle (exact, prefix, word
+  prefix, substring; ties keep declaration order) and orders sections by their
+  best item unless `filtering: { keepSectionOrder: true }`; `filtering: false`
+  disables it, a search handler owns filtering, and `throttle` delays the event
+  by 200 ms.
 - `List` and `Grid` share selection, filtering and primary-action handling;
   the active view's root type picks the renderer. Grid lays items out in rows
   of `columns` (default 5; a section's own `columns` overrides it) with a

@@ -1,14 +1,23 @@
 import type { SceneMessage, SceneNode } from "@blastlauncher/protocol";
-import { isFiltering, matchesQuery, slot, text } from "./nodes.ts";
+import { slot, text } from "./nodes.ts";
 import { gridLayout } from "./grid.ts";
 import { searchBarDropdown } from "./dropdown.ts";
+import {
+  filteringOf,
+  groupsOf,
+  rankGroups,
+  score,
+  searchable,
+  type FilteringOptions,
+  type Group,
+} from "./rank.ts";
+import { shortcutLabel, type Platform } from "./shortcut.ts";
 
 export {
   event,
   handler,
   handlerEvent,
   isFiltering,
-  matchesQuery,
   paginationOf,
   selectionId,
   slot,
@@ -40,12 +49,12 @@ export function firstAction(node: SceneNode | undefined): SceneNode | undefined 
   }
 }
 
-function active(node: SceneNode | null | undefined): SceneNode | undefined {
+export function activeNode(node: SceneNode | null | undefined): SceneNode | undefined {
   if (node?.type === "Navigation")
-    return active(
+    return activeNode(
       node.children.find((child) => child.type === "Navigation.Entry" && child.props.active),
     );
-  if (node?.type === "Navigation.Entry") return active(node.children[0]);
+  if (node?.type === "Navigation.Entry") return activeNode(node.children[0]);
   return node ?? undefined;
 }
 
@@ -73,50 +82,51 @@ function itemText(node: SceneNode): string {
     .join("  ");
 }
 
+function itemRow(node: SceneNode): Row {
+  return {
+    node,
+    text: itemText(node),
+    item: true,
+    title: text(node.props.title),
+    subtitle: text(node.props.subtitle),
+    accessories: itemAccessories(node),
+    icon: Boolean(node.props.icon),
+  };
+}
+
+function sectionRow(node: SceneNode): Row {
+  const title = [text(node.props.title), text(node.props.subtitle)].filter(Boolean).join(" — ");
+  return { node, text: title, title, item: false };
+}
+
 export function sceneToView(scene: SceneMessage | undefined, state: UIState) {
-  const list = active(scene?.root);
+  const list = activeNode(scene?.root);
   const rows: Row[] = [];
-  const query = state.searchText.toLowerCase();
-  const filtering = isFiltering(list);
+  const query = state.searchText;
+  const filtering = filteringOf(list);
   const grid = list?.type === "Grid" ? gridLayout(list, query, filtering) : undefined;
-  function visit(node: SceneNode) {
-    if (node.type === "Slot") return;
-    if (node.type === "List.Item") {
-      if (!filtering || matchesQuery(node, query))
-        rows.push({
-          node,
-          text: itemText(node),
-          item: true,
-          title: text(node.props.title),
-          subtitle: text(node.props.subtitle),
-          accessories: itemAccessories(node),
-          icon: Boolean(node.props.icon),
-        });
-    } else if (node.type === "List.Section") {
-      const start = rows.length;
-      const sectionTitle = [text(node.props.title), text(node.props.subtitle)]
-        .filter(Boolean)
-        .join(" — ");
-      rows.push({
-        node,
-        text: sectionTitle,
-        title: sectionTitle,
-        item: false,
-      });
-      node.children.forEach(visit);
-      if (rows.length === start + 1) {
-        rows.splice(start, 1);
-      } else {
-        const count = rows.slice(start + 1).filter((r) => r.item).length;
-        const header = rows[start];
-        if (header) header.count = count;
-      }
-    } else if (node.type !== "List.EmptyView") {
-      rows.push({ node, text: `[Unsupported: ${node.type}]`, item: false });
+  if (list?.type === "List") {
+    const groups = rankGroups(
+      groupsOf(
+        list,
+        (node) => node.type === "List.Item",
+        (node) => node.type === "List.Section",
+      ),
+      query,
+      (node) => score(searchable(node), query),
+      filtering,
+    );
+    for (const group of groups) {
+      const header = group.section ? sectionRow(group.section) : undefined;
+      if (header) rows.push(header);
+      for (const node of group.items) rows.push(itemRow(node));
+      if (header) header.count = group.items.length;
     }
-  }
-  if (list?.type === "List") list.children.forEach(visit);
-  else if (!grid && list && list.type !== "Detail")
+    // Children that are neither items nor sections have no list rendering.
+    for (const node of list.children)
+      if (!["List.Item", "List.Section", "List.EmptyView", "Slot"].includes(node.type))
+        rows.push({ node, text: `[Unsupported: ${node.type}]`, item: false });
+  } else if (!grid && list && list.type !== "Detail")
     rows.push({ node: list, text: `[Unsupported: ${list.type}]`, item: false });
   const items = grid ? grid.cells : rows.filter((row) => row.item).map((row) => row.node);
   const desired = list?.props.selectedItemId ?? state.selectedId;
@@ -159,89 +169,99 @@ export function sceneToView(scene: SceneMessage | undefined, state: UIState) {
   };
 }
 
-export function actionRows(node: SceneNode | undefined, query = ""): Row[] {
+function actionRow(node: SceneNode, platform: Platform): Row {
+  const isSubmenu = node.type === "ActionPanel.Submenu";
+  const title = text(node.props.title);
+  const label = shortcutLabel(node.props.shortcut, platform);
+  return {
+    node,
+    item: true,
+    title,
+    shortcut: label,
+    isSubmenu,
+    text: `${title}${isSubmenu ? " ›" : ""} ${label}`.trim(),
+  };
+}
+
+function isAction(node: SceneNode): boolean {
+  return (
+    node.type === "ActionPanel.Submenu" || node.type === "Action" || node.type.startsWith("Action.")
+  );
+}
+
+// Actions under `node`, grouped by `ActionPanel.Section`; wrappers (the
+// ActionPanel itself, slots) are looked through, a Submenu is one action.
+function actionGroups(
+  node: SceneNode,
+  groups: Group<SceneNode>[],
+  loose: { current?: Group<SceneNode> | undefined },
+) {
+  for (const child of node.children) {
+    if (isAction(child)) {
+      if (!loose.current) groups.push((loose.current = { items: [] }));
+      loose.current.items.push(child);
+    } else if (child.type === "ActionPanel.Section") {
+      loose.current = undefined;
+      const items: SceneNode[] = [];
+      const inner: Group<SceneNode>[] = [];
+      actionGroups(child, inner, {});
+      for (const group of inner) items.push(...group.items);
+      groups.push({ section: child, items });
+    } else actionGroups(child, groups, loose);
+  }
+}
+
+/**
+ * The rows of an action container (ActionPanel, Section, or a Submenu's
+ * contents), filtered and ranked by title for `query` per its `filtering`.
+ * A lone action is its own single row. Pass `platform` for shortcut labels.
+ */
+export function actionRows(
+  node: SceneNode | undefined,
+  query = "",
+  platform: Platform = "Linux",
+  filtering: FilteringOptions = { enabled: true, keepSectionOrder: false },
+): Row[] {
   if (!node) return [];
-  if (
-    node.type === "ActionPanel.Submenu" ||
-    node.type === "Action" ||
-    node.type.startsWith("Action.")
-  ) {
-    const isSubmenu = node.type === "ActionPanel.Submenu";
-    const title = text(node.props.title);
-    const label = shortcutLabel(node.props.shortcut);
-    return title.toLowerCase().includes(query.toLowerCase())
+  if (isAction(node)) {
+    const row = actionRow(node, platform);
+    return score({ title: text(node.props.title) }, query) > 0 ? [row] : [];
+  }
+  const groups: Group<SceneNode>[] = [];
+  actionGroups(node, groups, {});
+  return rankGroups(
+    groups,
+    query,
+    (action) => score({ title: text(action.props.title) }, query),
+    filtering,
+  ).flatMap((group) => {
+    const items = group.items.map((action) => actionRow(action, platform));
+    return group.section
       ? [
           {
-            node,
-            item: true,
-            title,
-            shortcut: label,
-            isSubmenu,
-            text: `${title}${isSubmenu ? " ›" : ""} ${label}`.trim(),
+            node: group.section,
+            item: false,
+            title: text(group.section.props.title),
+            text: text(group.section.props.title),
           },
+          ...items,
         ]
-      : [];
-  }
-  const children = node.children.flatMap((child) => actionRows(child, query));
-  return children.length && node.type === "ActionPanel.Section"
-    ? [
-        { node, item: false, title: text(node.props.title), text: text(node.props.title) },
-        ...children,
-      ]
-    : children;
+      : items;
+  });
 }
 
-// The key shape a client matches against. Named neutrally: any embedder can
-// supply it, not only a terminal (`name` plus the held modifiers).
-export type KeyInput = {
-  name: string;
-  ctrl?: boolean;
-  meta?: boolean;
-  shift?: boolean;
-  option?: boolean;
-  super?: boolean;
-};
-
-function shortcut(value: unknown): { key: string; modifiers: string[] } | undefined {
-  if (!value || typeof value !== "object" || !("key" in value) || !("modifiers" in value)) return;
-  const { key, modifiers } = value;
-  if (
-    typeof key !== "string" ||
-    !Array.isArray(modifiers) ||
-    !modifiers.every((m) => m === "ctrl" || m === "shift")
-  )
-    return;
-  const names: Record<string, string> = {
-    enter: "return",
-    escape: "escape",
-    space: "space",
-    backspace: "backspace",
-    tab: "tab",
-    arrowUp: "up",
-    arrowDown: "down",
-    arrowLeft: "left",
-    arrowRight: "right",
-  };
-  const name = names[key] ?? (/^[a-z0-9]$/.test(key) ? key : undefined);
-  return name ? { key: name, modifiers } : undefined;
-}
-
-export function shortcutLabel(value: unknown): string {
-  const mapped = shortcut(value);
-  return mapped ? [...mapped.modifiers, mapped.key].join("+") : "";
-}
-
-export function matchesShortcut(value: unknown, key: KeyInput): boolean {
-  const mapped = shortcut(value);
-  return (
-    !!mapped &&
-    mapped.key === key.name &&
-    !!key.ctrl === mapped.modifiers.includes("ctrl") &&
-    !!key.shift === mapped.modifiers.includes("shift") &&
-    !key.meta &&
-    !key.option &&
-    !key.super
-  );
+/**
+ * What an opened action panel level lists: a Submenu shows its own contents
+ * under its `filtering`; anything else is the panel (or a Section) itself.
+ */
+export function panelRows(
+  node: SceneNode | undefined,
+  query = "",
+  platform: Platform = "Linux",
+): Row[] {
+  return node?.type === "ActionPanel.Submenu"
+    ? actionRows({ ...node, type: "ActionPanel" }, query, platform, filteringOf(node))
+    : actionRows(node, query, platform);
 }
 
 export function detailText(node: SceneNode | undefined): string {

@@ -45,10 +45,3 @@ export function paginationOf(
 export function isFiltering(node: SceneNode | undefined): boolean {
   return node?.props.filtering !== false && !handler(node?.props.onSearchTextChange);
 }
-/** Case-insensitive substring match over title, subtitle and keywords; pass the query lowercased, as `sceneToView` does. */
-export function matchesQuery(node: SceneNode, query: string): boolean {
-  const keywords = Array.isArray(node.props.keywords) ? node.props.keywords.map(text) : [];
-  return [text(node.props.title), text(node.props.subtitle), ...keywords].some((value) =>
-    value.toLowerCase().includes(query),
-  );
-}

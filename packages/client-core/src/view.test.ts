@@ -99,7 +99,8 @@ test("unknown views and nodes are visible; primary action resolves Slots and fal
 });
 
 test("detail metadata, panel sections and terminal shortcuts", async () => {
-  const { detailText, actionRows, matchesShortcut, shortcutLabel } = await import("./view.ts");
+  const { detailText, actionRows } = await import("./view.ts");
+  const { matchesShortcut, shortcutLabel } = await import("./shortcut.ts");
   const detail = node("Detail", "d", { markdown: "# Heading\nBody" }, [
     node("Detail.Metadata", "m", {}, [
       node("Detail.Metadata.Label", "l", { title: "Author", text: "Ada" }),
@@ -110,10 +111,10 @@ test("detail metadata, panel sections and terminal shortcuts", async () => {
     "# Heading\nBody\nAuthor: Ada",
   );
   const shortcut = { modifiers: ["ctrl"], key: "a" };
-  expect(shortcutLabel(shortcut)).toBe("ctrl+a");
+  expect(shortcutLabel(shortcut)).toBe("Ctrl+A");
   expect(matchesShortcut(shortcut, { name: "a", ctrl: true })).toBe(true);
   expect(matchesShortcut(shortcut, { name: "a", ctrl: true, shift: true })).toBe(false);
-  expect(shortcutLabel({ modifiers: ["cmd"], key: "a" })).toBe("");
+  expect(shortcutLabel({ modifiers: ["bogus"], key: "a" })).toBe("");
   const rows = actionRows(
     node("ActionPanel", "p", {}, [
       node("ActionPanel.Section", "s", { title: "Section" }, [
@@ -122,5 +123,5 @@ test("detail metadata, panel sections and terminal shortcuts", async () => {
     ]),
     "ru",
   );
-  expect(rows.map((row) => row.text.trim())).toEqual(["Section", "Run ctrl+a"]);
+  expect(rows.map((row) => row.text.trim())).toEqual(["Section", "Run Ctrl+A"]);
 });

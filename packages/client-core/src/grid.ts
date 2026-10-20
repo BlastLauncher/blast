@@ -1,5 +1,13 @@
 import type { SceneNode } from "@blastlauncher/protocol";
-import { isFiltering, matchesQuery, selectionId, text } from "./nodes.ts";
+import { selectionId, text } from "./nodes.ts";
+import {
+  filteringOf,
+  groupsOf,
+  rankGroups,
+  score,
+  searchable,
+  type FilteringOptions,
+} from "./rank.ts";
 
 // Pure scene → cells layout: which items land in which row/column, ignoring
 // purely visual Grid props (`aspectRatio`, `fit`, `inset`, `itemSize`).
@@ -28,45 +36,50 @@ export function contentGlyph(node: SceneNode): string {
   return "◇";
 }
 
-/** Lay a Grid scene node out into selectable cells, one row per `columns`. */
+/**
+ * Lay a Grid scene node out into selectable cells, one row per `columns`.
+ * Items are filtered and ranked for `query` per the grid's `filtering`.
+ */
 export function gridLayout(
   grid: SceneNode | undefined,
   query = "",
-  filtering: boolean = isFiltering(grid),
+  filtering: FilteringOptions = filteringOf(grid),
 ): GridLayout {
   const rows: GridRow[] = [];
   const cells: SceneNode[] = [];
   if (grid?.type !== "Grid") return { rows, cells };
   const base = columnsOf(grid, 5);
-  // The row currently accepting cells; a section header or a full row closes it.
-  let open: GridRow | undefined;
-  function addCell(node: SceneNode, columns: number) {
-    if (filtering && !matchesQuery(node, query)) return;
-    if (!open || open.cells.length >= columns) {
-      open = { node: undefined, header: "", cells: [] };
-      rows.push(open);
-    }
-    open.cells.push(node);
-    cells.push(node);
-  }
-  function visit(node: SceneNode, columns: number) {
-    if (node.type === "Grid.Item") addCell(node, columns);
-    else if (node.type === "Grid.Section") {
-      open = undefined;
-      const start = rows.length;
+  const groups = rankGroups(
+    groupsOf(
+      grid,
+      (node) => node.type === "Grid.Item",
+      (node) => node.type === "Grid.Section",
+    ),
+    query,
+    (node) => score(searchable(node), query),
+    filtering,
+  );
+  for (const group of groups) {
+    const columns = group.section ? columnsOf(group.section, base) : base;
+    if (group.section)
       rows.push({
-        node,
-        header: [text(node.props.title), text(node.props.subtitle)].filter(Boolean).join(" — "),
+        node: group.section,
+        header: [text(group.section.props.title), text(group.section.props.subtitle)]
+          .filter(Boolean)
+          .join(" — "),
         cells: [],
       });
-      const own = columnsOf(node, columns);
-      node.children.forEach((child) => visit(child, own));
-      // Drop sections whose items all filtered away, like List does.
-      if (rows.length === start + 1) rows.splice(start, 1);
-      open = undefined;
+    // A section header or a full row closes the row accepting cells.
+    let open: GridRow | undefined;
+    for (const node of group.items) {
+      if (!open || open.cells.length >= columns) {
+        open = { node: undefined, header: "", cells: [] };
+        rows.push(open);
+      }
+      open.cells.push(node);
+      cells.push(node);
     }
   }
-  grid.children.forEach((child) => visit(child, base));
   return { rows, cells };
 }
 

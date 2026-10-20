@@ -33,8 +33,8 @@ import { ActionPanel, ActionPanelSubmenu } from "./action-panel.ts";
 // @covers Action.CreateQuicklink
 // @covers Action.ToggleQuickLook
 // @covers Action.PickDate
-// @covers ActionPanel.Submenu partial
-// @covers ActionPanel.Submenu.Props partial
+// @covers ActionPanel.Submenu
+// @covers ActionPanel.Submenu.Props
 // @covers ActionPanel.Submenu.Children
 
 function setup() {
@@ -366,8 +366,8 @@ test("PickDate.isFullDay is true only for midnight dates", () => {
 // @covers ActionPanel.Submenu.Props.icon
 // @covers ActionPanel.Submenu.Props.shortcut
 // @covers ActionPanel.Submenu.Props.autoFocus
-// @covers ActionPanel.Submenu.Props.filtering partial
-// @covers ActionPanel.Submenu.Props.filtering.keepSectionOrder partial
+// @covers ActionPanel.Submenu.Props.filtering
+// @covers ActionPanel.Submenu.Props.filtering.keepSectionOrder
 // @covers ActionPanel.Submenu.Props.isLoading
 // @covers ActionPanel.Submenu.Props.throttle
 // @covers ActionPanel.Submenu.Props.children

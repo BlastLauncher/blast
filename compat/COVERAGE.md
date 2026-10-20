@@ -5,15 +5,15 @@ Denominator: the `@raycast/api@2.8.2` declarations. Evidence:
 by its children. Partial support is reported separately from covered.
 Proven aliases inherit descendant evidence from their targets (`via` in JSON).
 
-**Non-deprecated coverage: 1496/1534 covered (97.5%), 38 partial, 0 missing.**
-Deprecated: 655/939 covered (69.8%), 234 partial, 50 missing.
+**Non-deprecated coverage: 1527/1534 covered (99.5%), 7 partial, 0 missing.**
+Deprecated: 665/939 covered (70.8%), 224 partial, 50 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 1496 | 655 | 2151 |
-| partial | 38 | 234 | 272 |
+| covered | 1527 | 665 | 2192 |
+| partial | 7 | 224 | 231 |
 | missing | 0 | 50 | 50 |
 
 ## Totals by kind
@@ -21,15 +21,15 @@ Deprecated: 655/939 covered (69.8%), 234 partial, 50 missing.
 | Kind | Covered | Partial | Missing | Total |
 | --- | --- | --- | --- | --- |
 | namespace | 9 | 0 | 0 | 9 |
-| component | 79 | 37 | 0 | 116 |
-| function | 46 | 3 | 1 | 50 |
+| component | 86 | 30 | 0 | 116 |
+| function | 48 | 1 | 1 | 50 |
 | const | 16 | 0 | 5 | 21 |
 | class | 3 | 0 | 0 | 3 |
 | enum | 13 | 0 | 0 | 13 |
 | enum-member | 691 | 0 | 0 | 691 |
 | interface | 61 | 1 | 2 | 64 |
-| type | 139 | 38 | 1 | 178 |
-| property | 1072 | 191 | 41 | 1304 |
+| type | 146 | 31 | 1 | 178 |
+| property | 1097 | 166 | 41 | 1304 |
 | method | 22 | 2 | 0 | 24 |
 
 ## Top-level symbols
@@ -40,7 +40,7 @@ Children counts include all descendants, as covered/partial/total.
 | --- | --- | --- | --- | --- |
 | `AI` | namespace | covered | 266/0/266 | 115 |
 | `Action` | component | covered | 105/3/110 | 2985 |
-| `ActionPanel` | component | covered | 19/107/129 | 3023 |
+| `ActionPanel` | component | covered | 23/103/129 | 3023 |
 | `ActionPanelChildren` | type | covered | 0/0/0 | 0 |
 | `ActionPanelItem` | component | partial | 0/102/104 | 1 |
 | `ActionPanelItemProps` | interface | covered | 6/0/7 | 0 |
@@ -49,8 +49,8 @@ Children counts include all descendants, as covered/partial/total.
 | `ActionPanelSectionChildren` | type | covered | 0/0/0 | 0 |
 | `ActionPanelSectionProps` | interface | covered | 2/0/2 | 0 |
 | `ActionPanelState` | interface | missing | 0/0/1 | 0 |
-| `ActionPanelSubmenu` | component | covered | 9/3/13 | 0 |
-| `ActionPanelSubmenuProps` | interface | covered | 9/2/12 | 0 |
+| `ActionPanelSubmenu` | component | covered | 12/0/13 | 0 |
+| `ActionPanelSubmenuProps` | interface | covered | 11/0/12 | 0 |
 | `Alert` | namespace | covered | 13/2/15 | 718 |
 | `AlertActionOptions` | interface | covered | 3/0/3 | 0 |
 | `AlertActionStyle` | enum | covered | 3/0/3 | 1 |
@@ -70,7 +70,7 @@ Children counts include all descendants, as covered/partial/total.
 | `Environment` | interface | covered | 13/0/17 | 2 |
 | `FileIcon` | interface | covered | 1/0/1 | 1 |
 | `FileSystemItem` | interface | covered | 1/0/1 | 10 |
-| `Form` | component | covered | 209/4/213 | 1362 |
+| `Form` | component | covered | 213/0/213 | 1362 |
 | `FormCheckbox` | const | covered | 2/0/2 | 0 |
 | `FormCheckboxProps` | interface | covered | 12/0/12 | 0 |
 | `FormDatePicker` | const | covered | 2/0/2 | 0 |
@@ -78,7 +78,7 @@ Children counts include all descendants, as covered/partial/total.
 | `FormDropdown` | const | covered | 2/0/2 | 0 |
 | `FormDropdownItem` | const | covered | 0/0/0 | 0 |
 | `FormDropdownItemProps` | interface | covered | 4/0/4 | 0 |
-| `FormDropdownProps` | interface | covered | 15/3/18 | 0 |
+| `FormDropdownProps` | interface | covered | 18/0/18 | 0 |
 | `FormDropdownSection` | const | covered | 0/0/0 | 0 |
 | `FormDropdownSectionProps` | interface | covered | 2/0/2 | 0 |
 | `FormItemProps` | interface | covered | 11/0/11 | 0 |
@@ -96,7 +96,7 @@ Children counts include all descendants, as covered/partial/total.
 | `FormTextFieldProps` | interface | covered | 12/0/12 | 0 |
 | `FormValue` | type | covered | 0/0/0 | 2 |
 | `FormValues` | interface | covered | 0/0/0 | 1 |
-| `Grid` | component | partial | 79/8/87 | 311 |
+| `Grid` | component | covered | 87/0/87 | 311 |
 | `Icon` | enum | covered | 478/0/478 | 2587 |
 | `Image` | interface | covered | 21/0/21 | 478 |
 | `ImageLike` | type | covered | 5/0/5 | 2 |
@@ -108,16 +108,16 @@ Children counts include all descendants, as covered/partial/total.
 | `KeyboardShortcut` | type | covered | 8/0/11 | 1 |
 | `LaunchProps` | type | covered | 4/1/5 | 657 |
 | `LaunchType` | enum | covered | 2/0/2 | 454 |
-| `List` | component | partial | 114/8/122 | 2604 |
+| `List` | component | covered | 122/0/122 | 2604 |
 | `ListItem` | component | covered | 52/0/52 | 1 |
 | `ListItemProps` | interface | covered | 19/0/19 | 0 |
-| `ListProps` | interface | covered | 17/2/19 | 0 |
+| `ListProps` | interface | covered | 19/0/19 | 0 |
 | `ListSection` | component | covered | 5/0/5 | 1 |
 | `ListSectionProps` | interface | covered | 4/0/4 | 0 |
 | `LocalStorage` | namespace | covered | 7/0/7 | 960 |
 | `LocalStorageValue` | type | covered | 0/0/0 | 0 |
 | `LocalStorageValues` | interface | covered | 0/0/0 | 0 |
-| `MenuBarExtra` | component | partial | 26/2/28 | 342 |
+| `MenuBarExtra` | component | covered | 28/0/28 | 342 |
 | `Navigation` | interface | covered | 2/0/2 | 5 |
 | `OAuth` | namespace | covered | 68/0/68 | 135 |
 | `OpenAction` | component | covered | 7/0/7 | 3 |
@@ -153,7 +153,7 @@ Children counts include all descendants, as covered/partial/total.
 | `clearLocalStorage` | function | covered | 0/0/0 | 2 |
 | `clearSearchBar` | function | covered | 0/0/0 | 41 |
 | `closeMainWindow` | function | covered | 0/0/0 | 600 |
-| `confirmAlert` | function | partial | 0/0/0 | 849 |
+| `confirmAlert` | function | covered | 0/0/0 | 849 |
 | `copyTextToClipboard` | function | covered | 0/0/0 | 3 |
 | `environment` | const | covered | 14/0/17 | 738 |
 | `getApplications` | function | covered | 0/0/0 | 216 |
@@ -174,7 +174,7 @@ Children counts include all descendants, as covered/partial/total.
 | `removeLocalStorageItem` | function | covered | 0/0/0 | 3 |
 | `render` | const | missing | 0/0/0 | 1 |
 | `setLocalStorageItem` | function | covered | 0/0/0 | 10 |
-| `showHUD` | function | partial | 0/0/0 | 931 |
+| `showHUD` | function | covered | 0/0/0 | 931 |
 | `showInFinder` | function | covered | 0/0/0 | 145 |
 | `showToast` | function | covered | 0/0/0 | 2471 |
 | `specialKeys` | const | covered | 16/0/16 | 0 |

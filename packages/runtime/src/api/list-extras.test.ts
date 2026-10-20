@@ -18,22 +18,22 @@ import { Action, List } from "./index.ts";
 // @covers List.Item.Accessory.tooltip
 // @covers List.Props.onSearchTextChange
 // @covers List.Props.throttle
-// @covers List.Props partial
-// @covers List.Props.filtering.keepSectionOrder partial
-// @covers List.Props.filtering partial
-// @covers List.Dropdown partial
-// @covers List.Dropdown.Props partial
+// @covers List.Props
+// @covers List.Props.filtering.keepSectionOrder
+// @covers List.Props.filtering
+// @covers List.Dropdown
+// @covers List.Dropdown.Props
 // @covers List.Dropdown.Props.tooltip
 // @covers List.Dropdown.Props.children
 // @covers List.Dropdown.Props.value
 // @covers List.Dropdown.Props.defaultValue
-// @covers List.Dropdown.Props.storeValue partial
+// @covers List.Dropdown.Props.storeValue
 // @covers List.Dropdown.Props.onChange
 // @covers List.Dropdown.Props.placeholder
 // @covers List.Dropdown.Props.id
 // @covers List.Dropdown.Props.isLoading
 // @covers List.Dropdown.Props.throttle
-// @covers List.Dropdown.Props.filtering partial
+// @covers List.Dropdown.Props.filtering
 // @covers List.Dropdown.Props.onSearchTextChange
 // @covers List.Dropdown.Item
 // @covers List.Dropdown.Item.Props
@@ -101,7 +101,7 @@ test("null and empty accessories pass through as JSON", () => {
 
 // @covers List.Props.onSearchTextChange
 // @covers List.Props.throttle
-// @covers List.Props.filtering partial
+// @covers List.Props.filtering
 test("List declares the search handler with throttle and filtering", () => {
   const { root, latest } = setup();
   root.render(
@@ -123,10 +123,10 @@ test("List declares the search handler with throttle and filtering", () => {
   root.unmount();
 });
 
-// @covers List.Dropdown partial
-// @covers List.Dropdown.Props partial
+// @covers List.Dropdown
+// @covers List.Dropdown.Props
 // @covers List.Dropdown.Props.onChange
-// @covers List.Dropdown.Props.storeValue partial
+// @covers List.Dropdown.Props.storeValue
 // @covers List.Dropdown.Props.onSearchTextChange
 // @covers List.Dropdown.Item
 // @covers List.Dropdown.Item.Props.value

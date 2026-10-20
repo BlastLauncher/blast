@@ -3,14 +3,14 @@ import { createElement as h } from "react";
 import { createSceneRoot, type SceneSnapshot } from "../reconciler/index.ts";
 import { Action, ActionPanel, Grid } from "./index.ts";
 
-// @covers Grid partial
-// @covers Grid.Props partial
+// @covers Grid
+// @covers Grid.Props
 // @covers Grid.Props.navigationTitle
 // @covers Grid.Props.isLoading
 // @covers Grid.Props.searchText
 // @covers Grid.Props.searchBarPlaceholder
-// @covers Grid.Props.filtering partial
-// @covers Grid.Props.filtering.keepSectionOrder partial
+// @covers Grid.Props.filtering
+// @covers Grid.Props.filtering.keepSectionOrder
 // @covers Grid.Props.enableFiltering
 // @covers Grid.Props.throttle
 // @covers Grid.Props.onSearchTextChange
@@ -274,19 +274,19 @@ test("renders Grid.EmptyView with its own actions Slot", () => {
   root.unmount();
 });
 
-// @covers Grid.Dropdown partial
-// @covers Grid.Dropdown.Props partial
+// @covers Grid.Dropdown
+// @covers Grid.Dropdown.Props
 // @covers Grid.Dropdown.Props.tooltip
 // @covers Grid.Dropdown.Props.children
 // @covers Grid.Dropdown.Props.value
 // @covers Grid.Dropdown.Props.defaultValue
-// @covers Grid.Dropdown.Props.storeValue partial
+// @covers Grid.Dropdown.Props.storeValue
 // @covers Grid.Dropdown.Props.onChange
 // @covers Grid.Dropdown.Props.placeholder
 // @covers Grid.Dropdown.Props.id
 // @covers Grid.Dropdown.Props.isLoading
 // @covers Grid.Dropdown.Props.throttle
-// @covers Grid.Dropdown.Props.filtering partial
+// @covers Grid.Dropdown.Props.filtering
 // @covers Grid.Dropdown.Props.onSearchTextChange
 // @covers Grid.Dropdown.Item
 // @covers Grid.Dropdown.Item.Props

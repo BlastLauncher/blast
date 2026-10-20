@@ -7,7 +7,6 @@ import type { SceneMessage, SceneNode } from "@blastlauncher/protocol";
 import {
   event,
   handler,
-  handlerEvent,
   sceneToView,
   selectionId,
   text,
@@ -16,14 +15,18 @@ import {
   gridMove,
   dropdownLabel,
   dropdownOptions,
-  filterOptions,
+  visibleOptions,
+  panelRows as rowsOfPanel,
+  menuBarView,
+  menuBarStep,
+  feedbackState,
   loadMoreRequest,
   searchDispatch,
   HUD_DURATION_MS,
 } from "@blastlauncher/client-core";
 import { GridView } from "./grid.tsx";
 import { DropdownPanel } from "./dropdown.tsx";
-import { menuRows, MenuBarView } from "./menu-bar.tsx";
+import { MenuBarView } from "./menu-bar.tsx";
 import { FormView } from "./form.tsx";
 import { theme } from "./theme.ts";
 
@@ -71,11 +74,11 @@ export function App({
   };
   const view = sceneToView(scene, { searchText, selectedId });
   const isMenu = view.list?.type === "MenuBarExtra";
-  const menu = isMenu ? menuRows(view.list, menuPath) : [];
-  const menuItems = menu.filter((row) => row.item);
-  const menuChoice = menuItems.find((row) => selectionId(row.node) === selectedId) ?? menuItems[0];
+  const bar = menuBarView(scene, { path: menuPath, selectedId });
+  const menu = bar.rows;
+  const menuChoice = bar.selected;
   const dropdown = view.accessory;
-  const dropdownChoices = filterOptions(dropdownOptions(dropdown), dropdownQuery);
+  const dropdownChoices = visibleOptions(dropdown, dropdownQuery);
   const dropdownChoice = dropdownChoices[Math.min(dropdownIndex, dropdownChoices.length - 1)];
   const closeDropdown = () => {
     setDropdownOpen(false);
@@ -84,24 +87,14 @@ export function App({
   };
   let panelNode = view.actions;
   for (const id of panel ?? [])
-    panelNode = (
-      panelNode?.type === "ActionPanel.Submenu"
-        ? panelNode.children.flatMap((child) => actionRows(child))
-        : actionRows(panelNode)
-    ).find((row) => row.node.id === id)?.node;
-  const panelRows =
-    panelNode?.type === "ActionPanel.Submenu"
-      ? panelNode.children.flatMap((child) => actionRows(child, query))
-      : actionRows(panelNode, query);
+    panelNode = rowsOfPanel(panelNode).find((row) => row.node.id === id)?.node;
+  const panelRows = rowsOfPanel(panelNode, query);
   const panelItems = panelRows.filter((row) => row.item);
   const chosen = panelItems[Math.min(actionIndex, panelItems.length - 1)]?.node;
   useEffect(() => {
     actionScroll.current?.scrollChildIntoView(chosen?.id ?? "");
   }, [chosen?.id]);
-  const feedback = view.navigation?.children ?? [];
-  const alert = feedback.find((node) => node.type === "Alert");
-  const toast = feedback.find((node) => node.type === "Toast");
-  const hud = feedback.find((node) => node.type === "HUD");
+  const { alert, toast, hud } = feedbackState(scene);
   const request = useRef({ clear: "", pop: "" });
   const send = (value: ReturnType<typeof event>) => {
     if (value) session.sendEvent(value.node, value.handler, value.args);
@@ -165,7 +158,7 @@ export function App({
     if (!hud) return;
     const timeout = setTimeout(() => setHudVisible(false), hudDurationMs);
     return () => clearTimeout(timeout);
-  }, [hud?.id, hud?.props.title, hudDurationMs]);
+  }, [hud?.node.id, hud?.title, hudDurationMs]);
   // A runtime that exits on its own is a no-view command: quit once the HUD
   // window has passed. A failed runtime shows the error and waits for Esc.
   useEffect(() => {
@@ -244,48 +237,31 @@ export function App({
       key.preventDefault();
       const name =
         key.name === "return" ? "primaryAction" : key.name === "escape" ? "dismissAction" : "";
-      run(alert.children.find((node) => node.props.name === name));
+      run((name === "primaryAction" ? alert.primary : name ? alert.dismiss : undefined)?.node);
       return;
     }
     if (isMenu) {
-      if (key.name === "escape" || key.name === "left") {
-        key.preventDefault();
-        if (menuPath.length) {
-          setMenuPath(menuPath.slice(0, -1));
-          setSelected(null);
-        } else if (key.name === "escape") {
-          if (handler(view.navigation?.props.pop)) send(event(view.navigation, "pop"));
-          else requestQuit();
-        }
-        return;
+      const action =
+        key.name === "escape" || key.name === "left"
+          ? ({ type: "back", escape: key.name === "escape" } as const)
+          : key.name === "up" || key.name === "down"
+            ? ({ type: "move", delta: key.name === "down" ? 1 : -1 } as const)
+            : key.name === "return" || key.name === "right"
+              ? ({ type: "activate" } as const)
+              : undefined;
+      if (!action) return;
+      key.preventDefault();
+      const step = menuBarStep(scene, { path: menuPath, selectedId }, action);
+      if (step.leave) {
+        if (handler(view.navigation?.props.pop)) send(event(view.navigation, "pop"));
+        else requestQuit();
       }
-      if (key.name === "up" || key.name === "down") {
-        key.preventDefault();
-        const at = menuItems.findIndex((row) => row.node === menuChoice?.node);
-        const next =
-          menuItems[
-            Math.max(0, Math.min(menuItems.length - 1, at + (key.name === "down" ? 1 : -1)))
-          ];
-        const nextId = next ? selectionId(next.node) : null;
-        if (next && nextId !== selectionId(menuChoice?.node)) {
-          previous.current = nextId;
-          setSelected(nextId);
-          send(event(view.list, "onSelectionChange", [nextId]));
-        }
-        return;
+      if (step.state.path !== menuPath) setMenuPath(step.state.path);
+      if (step.state.selectedId !== selectedId) {
+        if (step.state.selectedId !== null) previous.current = step.state.selectedId;
+        setSelected(step.state.selectedId);
       }
-      if (key.name === "return" || key.name === "right") {
-        key.preventDefault();
-        if (menuChoice?.node.type === "MenuBarExtra.Submenu") {
-          setMenuPath([...menuPath, menuChoice.node.id]);
-          setSelected(null);
-        } else if (menuChoice && !menuChoice.disabled) {
-          send(
-            handlerEvent(menuChoice.node, menuChoice.node.props.onAction, [{ type: "left-click" }]),
-          );
-        }
-        return;
-      }
+      for (const out of step.events) send(out);
       return;
     }
     if (dropdownOpen) {
@@ -354,14 +330,14 @@ export function App({
       else requestQuit();
       return;
     }
-    const toastAction = toast?.children.find(
-      (node, index) =>
+    const toastAction = toast?.actions.find(
+      (action, index) =>
         (key.ctrl && key.name === (index === 0 ? "t" : "y")) ||
-        matchesShortcut(node.props.shortcut, key),
+        matchesShortcut(action.shortcut, key),
     );
     if (toastAction) {
       key.preventDefault();
-      run(toastAction);
+      run(toastAction.node);
       return;
     }
     const shortcut = actionRows(view.actions).find(
@@ -405,21 +381,18 @@ export function App({
   let toastColor: string = theme.colors.text;
   const toastParts = toast
     ? [
-        text(toast.props.style),
-        text(toast.props.title),
-        text(toast.props.message),
-        ...toast.children.map(
-          (node, index) => `Ctrl-${index === 0 ? "T" : "Y"} ${text(node.props.title)}`,
-        ),
+        toast.style,
+        toast.title,
+        toast.message,
+        ...toast.actions.map((action, index) => `Ctrl-${index === 0 ? "T" : "Y"} ${action.title}`),
       ].filter(Boolean)
     : [];
   if (toast) {
-    const style = text(toast.props.style);
-    if (style === "failure") toastColor = theme.colors.danger;
-    else if (style === "success") toastColor = theme.colors.success;
-    else if (style === "animated") toastColor = theme.colors.accent;
+    if (toast.style === "failure") toastColor = theme.colors.danger;
+    else if (toast.style === "success") toastColor = theme.colors.success;
+    else if (toast.style === "animated") toastColor = theme.colors.accent;
   }
-  const hudText = hudVisible && hud ? text(hud.props.title) : "";
+  const hudText = hudVisible && hud ? hud.title : "";
   const leftFooter = [
     toastParts.join(" · "),
     hudText,
@@ -755,14 +728,14 @@ export function App({
           title="Alert"
         >
           <text fg={theme.colors.text} height={1} flexShrink={0}>
-            {text(alert.props.title)} {text(alert.props.message)}
+            {alert.title} {alert.message}
           </text>
           <text fg={theme.colors.textMuted} height={1} flexShrink={0}>
-            {alert.children
-              .map(
-                (node) =>
-                  `${node.props.name === "primaryAction" ? "Enter" : "Esc"} ${text(node.props.title)}`,
-              )
+            {[
+              alert.primary && `Enter ${alert.primary.title}`,
+              alert.dismiss && `Esc ${alert.dismiss.title}`,
+            ]
+              .filter(Boolean)
               .join(" · ")}
           </text>
         </box>
