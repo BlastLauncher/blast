@@ -76,6 +76,7 @@ Raycast client semantics built in so embedders only draw.
 - [x] 0080 Views over `blast serve` (client-core controller per session)
 - [x] 0070 Deps-heavy corpus (`compat/SMOKE-DEPS.md`): 25/25 installs, 35/56 render,
       5 bundle fails (tsconfig `paths`), 15 need args/prefs, 1 denied, 0 crashes
+- [ ] 0082 tsconfig `baseUrl`/`paths`; 0083 lean installs; 0084 form editing in the controller
 
 ## Later (not scheduled)
 
