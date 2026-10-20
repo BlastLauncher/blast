@@ -74,7 +74,8 @@ Raycast client semantics built in so embedders only draw.
       Coverage 2026-10-20: non-deprecated 1533/1534 (embedder-owned
       `BrowserExtension.getContent`), deprecated 939/939.
 - [x] 0080 Views over `blast serve` (client-core controller per session)
-- [x] 0070 Real-world compat: dependency-heavy corpus set with installs
+- [x] 0070 Deps-heavy corpus (`compat/SMOKE-DEPS.md`): 25/25 installs, 35/56 render,
+      5 bundle fails (tsconfig `paths`), 15 need args/prefs, 1 denied, 0 crashes
 
 ## Later (not scheduled)
 
