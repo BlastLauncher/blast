@@ -15,6 +15,7 @@ import { useState } from "react";
 type LaunchProps = {
   arguments: { query: string; option?: string };
   launchType: string;
+  fallbackText?: string;
 };
 
 export default function Command(props: LaunchProps) {
@@ -30,7 +31,7 @@ export default function Command(props: LaunchProps) {
   return (
     <List navigationTitle={`launch ${query} ${option ?? "none"} ${props.launchType} ${status}`}>
       <List.Item
-        title="Launched"
+        title={props.fallbackText ?? "Launched"}
         icon={{ source: "avatar.png", mask: Image.Mask.Circle }}
         actions={
           <ActionPanel>

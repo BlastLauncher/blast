@@ -14,7 +14,10 @@ import { startCommand, type StartOptions } from "./session.ts";
 import { defaultDataDir, type StorageItems } from "./storage.ts";
 import type { CapabilityHandler } from "./broker.ts";
 
-export type ExtensionLaunchOptions = Pick<StartOptions, "argumentValues" | "launchContext"> & {
+export type ExtensionLaunchOptions = Pick<
+  StartOptions,
+  "argumentValues" | "launchContext" | "fallbackText"
+> & {
   handlers?: Record<string, CapabilityHandler>;
 };
 
@@ -132,6 +135,9 @@ export function createExtensionHandle(
         ...(launchOptions.argumentValues === undefined
           ? {}
           : { argumentValues: launchOptions.argumentValues }),
+        ...(launchOptions.fallbackText === undefined
+          ? {}
+          : { fallbackText: launchOptions.fallbackText }),
         ...(launchOptions.launchContext === undefined
           ? {}
           : { launchContext: launchOptions.launchContext }),

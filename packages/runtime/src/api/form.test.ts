@@ -185,13 +185,13 @@ afterEach(() => {
 // @covers Form.LinkAccessory.Props
 // @covers Form.LinkAccessory.Props.target
 // @covers Form.LinkAccessory.Props.text
-// @covers Action.SubmitForm partial
-// @covers Action.SubmitForm.Props partial
+// @covers Action.SubmitForm
+// @covers Action.SubmitForm.Props
 // @covers Action.SubmitForm.Props.title
 // @covers Action.SubmitForm.Props.icon
 // @covers Action.SubmitForm.Props.shortcut
 // @covers Action.SubmitForm.Props.style
-// @covers Action.SubmitForm.Props.onSubmit partial
+// @covers Action.SubmitForm.Props.onSubmit
 
 function setup() {
   let scene: SceneSnapshot;
@@ -1072,5 +1072,25 @@ test("pushed forms neither restore nor overwrite the root command draft", () => 
   expect(find("text").props.value).toBe("");
   change("text", "nested");
   expect(writes).toEqual([]);
+  root.unmount();
+});
+
+test("SubmitForm publishes each sync/async false result for embedder feedback", async () => {
+  const { root, nodes, submit } = setup();
+  let result: void | boolean | Promise<void | boolean>;
+  root.render(h(Form, { actions: h(Action.SubmitForm, { onSubmit: () => result }) }));
+  const failures = () =>
+    nodes().find((node) => node.type === "Action.SubmitForm")!.props.submissionFailureCount;
+  expect(failures()).toBe(0);
+  for (const count of [1, 2]) {
+    result = count === 1 ? false : Promise.resolve(false);
+    expect(await submit()).toBe(false);
+    root.flush();
+    expect(failures()).toBe(count);
+  }
+  result = Promise.resolve(true);
+  expect(await submit()).toBe(true);
+  root.flush();
+  expect(failures()).toBe(2);
   root.unmount();
 });

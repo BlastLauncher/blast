@@ -23,6 +23,7 @@ are missing; matching installs take precedence over Blast's shared packages.
 
 ## Options
 
+- `--fallback-text <text>` — search text passed as `LaunchProps.fallbackText`.
 - `--argument <name=value>` — manifest argument (repeatable; a missing
   required or unknown name is a usage error).
 - `--grant <capability>` — grant a capability. A granted `clipboard.copy`

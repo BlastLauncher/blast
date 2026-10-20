@@ -1,4 +1,6 @@
-import { expect, test } from "bun:test";
+import { afterEach, expect, test } from "bun:test";
+import { setCapabilityRequester } from "./capability.ts";
+import { environment } from "./environment.ts";
 import { createElement as h } from "react";
 import { createSceneRoot, type SceneNode } from "../reconciler/index.ts";
 import { NavigationProvider, useNavigation, type Navigation } from "./navigation.ts";
@@ -12,6 +14,8 @@ import {
   confirmAlert,
   closeMainWindow,
 } from "./index.ts";
+
+afterEach(() => setCapabilityRequester(undefined));
 
 function setup() {
   let scene!: SceneNode;
@@ -145,13 +149,13 @@ test("HUD resolves after publication and records window options", async () => {
 
 // @covers confirmAlert
 // @covers Alert
-// @covers Alert.Options partial
+// @covers Alert.Options
 // @covers Alert.Options.title
 // @covers Alert.Options.message
 // @covers Alert.Options.icon
 // @covers Alert.Options.primaryAction
 // @covers Alert.Options.dismissAction
-// @covers Alert.Options.rememberUserChoice partial
+// @covers Alert.Options.rememberUserChoice
 // @covers Alert.ActionOptions
 // @covers Alert.ActionOptions.title
 // @covers Alert.ActionOptions.style
@@ -189,7 +193,6 @@ test("alert events confirm/dismiss once, run callbacks, and queue concurrent pro
   });
   const second = confirmAlert({
     title: "Next?",
-    rememberUserChoice: true,
     dismissAction: {
       title: "No",
       onAction: () => {
@@ -208,8 +211,6 @@ test("alert events confirm/dismiss once, run callbacks, and queue concurrent pro
   expect(await first).toBe(true);
   expect(called).toEqual(["primary"]);
   expect(node().props.title).toBe("Next?");
-  // The flag is carried for the client; Blast does not persist the answer yet.
-  expect(node().props.rememberUserChoice).toBe(true);
   expect(() => root.dispatch(original.id, "onAction", [])).toThrow("Unknown scene node");
   expect(node().children[0]!.props).toMatchObject({ title: "OK", style: "default" });
   root.dispatch(node().children[1]!.id, "onAction", []);
@@ -261,3 +262,90 @@ test("feedback promises settle with nothing mounted", async () => {
   expect(node().props.title).toBe("No scene");
   root.unmount();
 }, 500);
+
+test("remembered alerts persist only opted-in answers, scoped to command and alert", async () => {
+  const stored = new Map<string, boolean>();
+  setCapabilityRequester(async (name, params) => {
+    expect(params.scope).toBe("blast:internal");
+    const key = String(params.key);
+    if (name === "storage.get") return stored.get(key) ?? null;
+    expect(name).toBe("storage.set");
+    stored.set(key, params.value as boolean);
+    return null;
+  });
+  const originalCommand = environment.commandName;
+  let callbacks = 0;
+  const options = {
+    title: "Remember?",
+    rememberUserChoice: true,
+    primaryAction: {
+      title: "Yes",
+      onAction: () => {
+        callbacks++;
+      },
+    },
+  };
+  try {
+    for (const answer of [false, true]) {
+      const { root, node } = setup();
+      const respond = async (remember: boolean) => {
+        const pending = confirmAlert(options);
+        await Promise.resolve();
+        root.flush();
+        expect(node().props.rememberChoice).toBe(false);
+        if (remember) {
+          root.dispatch(node().id, "onRememberUserChoiceChange", [true]);
+          root.flush();
+          expect(node().props.rememberChoice).toBe(true);
+        }
+        root.dispatch(node().children[answer ? 0 : 1]!.id, "onAction", []);
+        root.flush();
+        expect(await pending).toBe(answer);
+      };
+      await respond(false);
+      expect(stored.size).toBe(0);
+      await respond(true);
+      expect(stored.size).toBe(1);
+      root.unmount();
+      const fresh = setup();
+      expect(await confirmAlert(options)).toBe(answer);
+      fresh.root.flush();
+      expect(fresh.feedback()).toEqual([]);
+      for (const change of ["command", "title"]) {
+        environment.commandName =
+          change === "command" ? originalCommand + "other" : originalCommand;
+        const pending = confirmAlert(
+          change === "title" ? { ...options, title: "Other?" } : options,
+        );
+        await Promise.resolve();
+        fresh.root.flush();
+        expect(fresh.node().type).toBe("Alert");
+        fresh.root.dispatch(fresh.node().children[1]!.id, "onAction", []);
+        fresh.root.flush();
+        expect(await pending).toBe(false);
+      }
+      fresh.root.unmount();
+      stored.clear();
+    }
+    expect(callbacks).toBe(3);
+  } finally {
+    environment.commandName = originalCommand;
+  }
+});
+
+test("unmount cancels an alert without remembering an unanswered checkbox", async () => {
+  const requests: string[] = [];
+  setCapabilityRequester(async (name) => {
+    requests.push(name);
+    return null;
+  });
+  const { root, node } = setup();
+  const pending = confirmAlert({ title: "Cancel on close", rememberUserChoice: true });
+  await Promise.resolve();
+  root.flush();
+  root.dispatch(node().id, "onRememberUserChoiceChange", [true]);
+  root.flush();
+  root.unmount();
+  expect(await pending).toBe(false);
+  expect(requests).toEqual(["storage.get"]);
+});

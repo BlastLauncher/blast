@@ -145,12 +145,13 @@ test("no-view command runs, sees environment and preferences, and exits 0 withou
 // @covers LaunchProps.arguments
 // @covers LaunchProps.launchType
 // @covers LaunchProps.launchContext
-// @covers LaunchProps.fallbackText partial
+// @covers LaunchProps.fallbackText
 test("launch props carry manifest arguments and the launch context", async () => {
   const runtime = start();
   runtime.init({
     fixture: "no-view.js",
     mode: "no-view",
+    fallbackText: "unmatched query",
     arguments: { query: "raycast", option: "one" },
     launchContext: { from: "launcher", nested: { deep: true } },
   });
@@ -158,12 +159,12 @@ test("launch props carry manifest arguments and the launch context", async () =>
   expect(await runtime.next("log")).toEqual({ type: "log", level: "info", message: "raw" });
   const reported = await runtime.next("log");
   expect(JSON.parse(reported.message).props).toEqual({
+    fallbackText: "unmatched query",
     arguments: { query: "raycast", option: "one" },
     launchType: "userInitiated",
     launchContext: { from: "launcher", nested: { deep: true } },
   });
-  // Optional launch props stay absent when the host supplied neither.
-  expect(JSON.parse(reported.message).props).not.toHaveProperty("fallbackText");
+  // Drafts stay absent when no draft was supplied.
   expect(JSON.parse(reported.message).props).not.toHaveProperty("draftValues");
   expect(await runtime.exited).toBe(0);
 });

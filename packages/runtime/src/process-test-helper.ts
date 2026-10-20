@@ -26,6 +26,7 @@ const defaultEnvironment: InitEnvironment = {
 };
 
 export type InitOptions = {
+  fallbackText?: string;
   fixture?: string;
   protocol?: number;
   mode?: CommandMode;
@@ -96,6 +97,7 @@ export function startRuntime() {
           ),
           mode: options.mode ?? "view",
           ...(options.arguments === undefined ? {} : { arguments: options.arguments }),
+          ...(options.fallbackText === undefined ? {} : { fallbackText: options.fallbackText }),
           ...(options.launchContext === undefined ? {} : { launchContext: options.launchContext }),
         },
         preferences: options.preferences ?? {},
