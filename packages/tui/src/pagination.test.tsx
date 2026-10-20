@@ -30,6 +30,7 @@ function mockSession(scene: SceneMessage) {
     session: {
       latestScene: scene,
       logs: [],
+      onLog: () => () => {},
       exited: new Promise(() => {}),
       scenes(callback: (scene: SceneMessage) => void) {
         listeners.add(callback);

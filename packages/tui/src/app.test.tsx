@@ -156,6 +156,7 @@ test("search coalesces throttled events, selection notifies, and Ctrl-C quits", 
   const session = {
     latestScene: scene,
     logs: [],
+    onLog: () => () => {},
     exited: Promise.resolve({ code: 0, signal: null }),
     scenes: () => () => {},
     sendProvider: () => {},
@@ -350,6 +351,7 @@ test("a failed runtime shows the error and waits for Esc", async () => {
       },
     } satisfies SceneMessage,
     logs: [],
+    onLog: () => () => {},
     exited: Promise.resolve({ code: 1, signal: null }),
     scenes: () => () => {},
     sendProvider: () => {},
@@ -441,6 +443,7 @@ test("Detail metadata and toast actions render from scene props", async () => {
       events.push(name);
     },
     logs: [],
+    onLog: () => () => {},
     exited: Promise.resolve({ code: 0, signal: null }),
     sendProvider: () => {},
     shutdown: async () => ({ code: 0, signal: null }),

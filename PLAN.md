@@ -79,7 +79,7 @@ Raycast client semantics built in so embedders only draw.
       deps, preference schema/store, launch) moved out of the TUI picker
 - [ ] 0065 client-core: ranking, keepSectionOrder, platform shortcuts, feedback/menu model
 - [ ] 0076 Engine-side partials (rememberUserChoice, fallbackText, Cache dir, …)
-- [ ] 0066 `blast serve`: versioned embedder protocol over stdio,
+- [x] 0066 `blast serve`: versioned embedder protocol over stdio,
       capabilities forwarded to the embedder
 - [ ] 0067 Protocol JSON Schema export + `docs/embedding.md`
 - [ ] 0068 Minimal non-JS embedder example over `blast serve` (Go)

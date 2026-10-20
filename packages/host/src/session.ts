@@ -58,6 +58,8 @@ export type Exit = { code: number | null; signal: NodeJS.Signals | null; error?:
 export type Session = {
   readonly latestScene: SceneMessage | undefined;
   readonly logs: readonly LogMessage[];
+  /** Subscribe to log lines as they arrive (no replay); returns unsubscribe. */
+  onLog(callback: (log: LogMessage) => void): () => void;
   /** Subscribe to snapshots; immediately replays the latest one if present. */
   scenes(callback: (scene: SceneMessage) => void): () => void;
   sendProvider(message: ProviderRequest): void;
@@ -141,9 +143,11 @@ export async function startCommand(options: StartOptions): Promise<Session> {
   let latestScene: SceneMessage | undefined;
   const logs: LogMessage[] = [];
   const maxLogs = options.maxLogs ?? 1000;
+  const logListeners = new Set<(log: LogMessage) => void>();
   function addLog(log: LogMessage) {
     logs.push(log);
     if (logs.length > maxLogs) logs.splice(0, logs.length - maxLogs);
+    for (const listener of logListeners) listener(log);
   }
   const listeners = new Set<(scene: SceneMessage) => void>();
   const timers = new Set<ReturnType<typeof setTimeout>>();
@@ -263,6 +267,12 @@ export async function startCommand(options: StartOptions): Promise<Session> {
     },
     get logs() {
       return logs;
+    },
+    onLog(callback) {
+      logListeners.add(callback);
+      return () => {
+        logListeners.delete(callback);
+      };
     },
     scenes(callback) {
       if (!closed) listeners.add(callback);

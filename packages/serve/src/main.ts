@@ -167,19 +167,13 @@ async function request(message: EmbedderRequest): Promise<JsonValue> {
       const unsubscribe = opened.session.scenes((scene) =>
         event("session.scene", { session: key, scene: json(scene) }),
       );
-      let lastLog: object | undefined;
-      const logs = () => {
-        const entries = opened.session.logs;
-        const start = lastLog ? entries.indexOf(lastLog as (typeof entries)[number]) + 1 : 0;
-        for (const log of entries.slice(start)) {
-          event("session.log", { session: key, log: json(log) });
-          lastLog = log;
-        }
-      };
-      const timer = setInterval(logs, 10);
+      // Logs that arrived during startup are replayed once, then streamed.
+      for (const log of opened.session.logs) event("session.log", { session: key, log: json(log) });
+      const stopLogs = opened.session.onLog((log) =>
+        event("session.log", { session: key, log: json(log) }),
+      );
       void opened.session.exited.then(async (exit) => {
-        clearInterval(timer);
-        logs();
+        stopLogs();
         unsubscribe();
         event("session.exited", {
           session: key,

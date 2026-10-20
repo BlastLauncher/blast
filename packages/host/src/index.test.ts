@@ -397,8 +397,15 @@ test("the runtime gets an allowlisted environment and logs are bounded", async (
     maxLogs: 3,
   });
   sessions.push(bounded);
+  // onLog streams every later line exactly once, even past the retention bound.
+  const replayed = bounded.logs.map((log) => log.message);
+  const streamed: string[] = [];
+  const stop = bounded.onLog((log) => streamed.push(log.message));
   await bounded.exited;
+  stop();
   expect(bounded.logs.map((log) => log.message)).toEqual(["line 2", "line 3", "line 4"]);
+  expect([...replayed, ...streamed].slice(-3)).toEqual(["line 2", "line 3", "line 4"]);
+  expect(new Set([...replayed, ...streamed]).size).toBe(replayed.length + streamed.length);
 });
 
 test("shutdown escalates through SIGTERM to SIGKILL and is idempotent", async () => {
