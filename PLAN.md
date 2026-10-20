@@ -32,10 +32,7 @@ Run unmodified commands from `raycast/extensions` headlessly. Corpus pinned
 at commit `3b812d1e` (3,443 extensions). No `npm install`: Blast provides one
 shared copy of `@raycast/utils` for every extension.
 
-- [x] 0011 Corpus fetch tool: pinned shallow sparse checkout + disk guard
-- [x] 0012 Static API usage scan of the whole corpus → weights in `compat/`
-- [x] 0013 Shared `@raycast/utils` and dependency policy for bundling
-- [x] 0014 Curated smoke runner + report for the first 10 commands
+- [x] 0011–0014 corpus fetch, API usage scan, shared `@raycast/utils`, smoke runner
 
 First curated set: 10 List-centric, offline extensions (see git log 0014).
 
