@@ -67,11 +67,32 @@ demo of the controller (decision 0009, consequences).
 
 ## Handoff
 
-Filled in by the worker when finishing:
-
 ```
-Branch/commit:
-Verify:
+Branch/commit: task-0079-tui-controller @ (this commit; see git log)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 100.6s
 Done:
+- app.tsx drives one `createController` per session: OpenTUI keys map to
+  ControllerInput, events go to the session, `schedule` effects run on
+  setTimeout (cleared on unmount/session change) and return via `tick`, `quit`
+  calls onQuit. Grid, dropdown and menu-bar components render from the view
+  model; the list/action rows render from view.rows / view.actions.
+- client-core (small, tested): `ControllerResult.handled` (a `key` input matched
+  a shortcut, so the TUI keeps preventDefault and the search input does not
+  also eat the press); `dropdown.tooltip` in the view (panel title); an
+  extension-controlled `selectedItemId` now reports the requested selection
+  and waits for the echo (the old TUI did this; the controller would have
+  silently ignored arrows). docs/architecture.md table wording updated.
+- Remaining useState/useRef in app.tsx and why: `view` (controller snapshot),
+  `scene` (only so form.tsx, which keeps field editing, gets its Form node),
+  `failure` (runtime-exit error overlay, not client state); refs for the two
+  scroll boxes, the schedule timer set, onQuit/onExit callbacks, and
+  `quitRequested`/`settled` (quit-once and clean-exit lifecycle).
+- No existing TUI expectation was changed; `bun test packages/tui` passes 5x
+  with --randomize.
 Not done / risks:
+- Behaviour differences: a clean runtime exit now quits when the HUD hides
+  (controller timing) instead of one extra HUD window after exit; HUD duration
+  honours the scene's own durationMs unless hudDurationMs is passed; Ctrl-P
+  without a dropdown is a no-op (it used to leave the search unfocused).
+- No pointer `select` wiring (the TUI has no mouse handling).
 ```

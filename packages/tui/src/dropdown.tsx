@@ -1,22 +1,16 @@
 /** @jsxImportSource @opentui/react */
-import { dropdownOptions, filterOptions, text } from "@blastlauncher/client-core";
-import type { SceneNode } from "@blastlauncher/protocol";
+import type { ControllerView } from "@blastlauncher/client-core";
 import { theme } from "./theme.ts";
 import { TextAttributes } from "@opentui/core";
 
 export function DropdownPanel({
   dropdown,
-  query,
-  index,
   onQuery,
 }: {
-  dropdown: SceneNode;
-  query: string;
-  index: number;
+  dropdown: NonNullable<ControllerView["dropdown"]>;
   onQuery: (value: string) => void;
 }) {
-  const options = filterOptions(dropdownOptions(dropdown), query);
-  const chosen = options[Math.min(index, options.length - 1)];
+  const { options, query } = dropdown;
   const headers = new Set(options.map((option) => option.section).filter(Boolean)).size;
   let lastSection: string | undefined;
   return (
@@ -32,7 +26,7 @@ export function DropdownPanel({
       backgroundColor={theme.colors.panel}
       flexShrink={0}
       height={Math.min(options.length + headers + 3, 14)}
-      title={text(dropdown.props.tooltip) || "Dropdown"}
+      title={dropdown.tooltip || "Dropdown"}
     >
       <input
         focused
@@ -62,10 +56,10 @@ export function DropdownPanel({
                 </text>,
               );
           }
-          const isChosen = option.node.id === chosen?.node.id;
+          const isChosen = option.selected;
           rows.push(
             <text
-              key={option.node.id}
+              key={option.value}
               height={1}
               flexShrink={0}
               wrapMode="none"

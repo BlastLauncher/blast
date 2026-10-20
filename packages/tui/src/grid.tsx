@@ -1,49 +1,39 @@
 /** @jsxImportSource @opentui/react */
-import type { SceneNode } from "@blastlauncher/protocol";
-import { contentGlyph, type GridLayout, selectionId, text } from "@blastlauncher/client-core";
+import type { ControllerView } from "@blastlauncher/client-core";
 import { theme } from "./theme.ts";
 
-export function cellText(node: SceneNode): string {
-  return [text(node.props.title), text(node.props.subtitle)].filter(Boolean).join("  ");
-}
-
 export function GridView({
-  layout,
-  selectedId,
+  rows,
   emptyText,
 }: {
-  layout: GridLayout;
-  selectedId: string | null;
+  rows: NonNullable<ControllerView["grid"]>;
   emptyText: string;
 }) {
   return (
     <>
-      {layout.rows.map((row, index) =>
+      {rows.map((row, index) =>
         row.cells.length === 0 ? (
           <text key={`header-${index}`} height={1} flexShrink={0} fg={theme.colors.textMuted}>
             {row.header}
           </text>
         ) : (
           <box key={`row-${index}`} flexDirection="row" flexShrink={0}>
-            {row.cells.map((cell) => {
-              const selected = selectionId(cell) === selectedId;
-              return (
-                <text
-                  key={cell.id}
-                  id={cell.id}
-                  height={2}
-                  flexGrow={1}
-                  flexShrink={1}
-                  {...(selected ? { bg: theme.colors.selectionBg } : {})}
-                >
-                  {`${contentGlyph(cell)}\n${cellText(cell)}`}
-                </text>
-              );
-            })}
+            {row.cells.map((cell) => (
+              <text
+                key={cell.id}
+                id={cell.id}
+                height={2}
+                flexGrow={1}
+                flexShrink={1}
+                {...(cell.selected ? { bg: theme.colors.selectionBg } : {})}
+              >
+                {`${cell.content}\n${[cell.title, cell.subtitle].filter(Boolean).join("  ")}`}
+              </text>
+            ))}
           </box>
         ),
       )}
-      {layout.rows.length === 0 && (
+      {rows.length === 0 && (
         <text flexShrink={0} fg={theme.colors.textMuted}>
           {emptyText}
         </text>

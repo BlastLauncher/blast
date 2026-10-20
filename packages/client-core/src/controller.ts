@@ -34,7 +34,12 @@ export type ControllerInput =
   | { type: "alert"; confirm: boolean; remember?: boolean };
 
 export type Effect = { type: "quit" } | { type: "schedule"; ms: number; token: string };
-export type ControllerResult = { events: OutboundEvent[]; effects: Effect[] };
+export type ControllerResult = {
+  events: OutboundEvent[];
+  effects: Effect[];
+  /** A `key` input matched a shortcut, so the embedder should not also treat the press as text. */
+  handled?: true;
+};
 
 export type ViewKind = "list" | "grid" | "detail" | "form" | "menu-bar" | "empty";
 export type RowView = {
@@ -113,6 +118,7 @@ export type ControllerView = {
   };
   dropdown: {
     label: string;
+    tooltip: string;
     open: boolean;
     query: string;
     options: DropdownOptionView[];
@@ -183,6 +189,10 @@ export function createController(options: ControllerOptions): Controller {
   let searchText = "";
   let selectedId: string | null = null;
   let previousSelection: string | null | undefined;
+  // A selection the extension controls (`selectedItemId`) only changes when it
+  // echoes the request back, so a request waits here and is reported once.
+  let selectionProp: unknown;
+  let pendingSelection: string | undefined;
   let menuPath: string[] = [];
   let panel: string[] | null = null;
   let panelQuery = "";
@@ -280,6 +290,7 @@ export function createController(options: ControllerOptions): Controller {
     panelIndex = 0;
     selectedId = null;
     previousSelection = undefined;
+    pendingSelection = undefined;
     menuPath = [];
     closeDropdown();
     paginatedFor = -1;
@@ -295,8 +306,9 @@ export function createController(options: ControllerOptions): Controller {
     const view = base();
     if (dropdownOpen && !view.accessory) closeDropdown();
     const id = selectionId(view.selected);
+    if (pendingSelection !== undefined && id === pendingSelection) pendingSelection = undefined;
     // A menu-bar command has no list selection; its own state drives rows.
-    if (id !== null) {
+    if (id !== null && pendingSelection === undefined) {
       selectedId = id;
       if (previousSelection !== id) {
         previousSelection = id;
@@ -319,6 +331,9 @@ export function createController(options: ControllerOptions): Controller {
       if (typeof prop === "string" && pendingSearch === undefined) searchText = prop;
     }
     searchProp = prop;
+    const controlled = list?.props.selectedItemId;
+    if (controlled !== selectionProp) pendingSelection = undefined;
+    selectionProp = controlled;
 
     const view = base();
     clearSearchRequested = false;
@@ -393,9 +408,24 @@ export function createController(options: ControllerOptions): Controller {
     if (!vertical && !view.grid) return;
     const id = selectionId(view.selected);
     const index = view.items.findIndex((item) => item.id === view.selected?.id);
-    selectedId = view.grid
-      ? gridMove(view.grid.rows, id, direction)
-      : selectionId(view.items[clamp(index + delta, view.items.length)]);
+    choose(
+      out,
+      view,
+      view.grid
+        ? gridMove(view.grid.rows, id, direction)
+        : selectionId(view.items[clamp(index + delta, view.items.length)]),
+    );
+  }
+
+  function choose(out: ControllerResult, view: Base, target: string | null) {
+    if (view.list?.props.selectedItemId == null) {
+      selectedId = target;
+      return;
+    }
+    if (target === null || target === selectionId(view.selected)) return;
+    pendingSelection = target;
+    previousSelection = target;
+    send(out, event(view.list, "onSelectionChange", [target]));
   }
 
   function menu(out: ControllerResult, view: Base, action: MenuBarAction) {
@@ -458,11 +488,15 @@ export function createController(options: ControllerOptions): Controller {
     const toast = feedback.toast?.actions.find((action) =>
       matchesShortcut(action.shortcut, press, platform),
     );
-    if (toast) return run(out, toast.node);
+    if (toast) {
+      out.handled = true;
+      return run(out, toast.node);
+    }
     const shortcut = actionRows(view.actions, "", platform).find(
       (row) => row.item && matchesShortcut(row.node.props.shortcut, press, platform),
     );
     if (!shortcut) return;
+    out.handled = true;
     if (shortcut.node.type === "ActionPanel.Submenu") {
       send(out, event(shortcut.node, "onOpen"));
       openPanel([shortcut.node.id]);
@@ -486,7 +520,8 @@ export function createController(options: ControllerOptions): Controller {
         return move(out, action.direction);
       case "select": {
         if (level !== "base" || isMenu(view)) return;
-        if (view.items.some((item) => selectionId(item) === action.id)) selectedId = action.id;
+        if (view.items.some((item) => selectionId(item) === action.id))
+          choose(out, view, action.id);
         return;
       }
       case "primary":
@@ -642,6 +677,7 @@ export function createController(options: ControllerOptions): Controller {
       dropdown: list.accessory
         ? {
             label: dropdownLabel(list.accessory, dropdownOptions(list.accessory)),
+            tooltip: text(list.accessory.props.tooltip),
             open: level === "dropdown",
             query: dropdownQuery,
             options: dropdown.options.map((option, index) => ({
