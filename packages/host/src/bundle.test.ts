@@ -48,7 +48,7 @@ test("a tiny deadline cancels a generated import graph and settles promptly", as
       resolveShared: () => undefined,
       dependencyWarnings: () => [],
     }),
-  }).catch((error: unknown) => error);
+  }).catch((failure: unknown) => failure);
   expect(error).toBeInstanceOf(BundleTimeoutError);
   expect(error).toMatchObject({
     code: "BUNDLE_TIMEOUT",

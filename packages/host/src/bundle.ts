@@ -78,7 +78,7 @@ export class BundleTimeoutError extends Error {
 /** Stop awaiting host work when cancelled, without leaving an abort listener behind. */
 async function abortable<T>(work: Promise<T>, signal: AbortSignal): Promise<T> {
   if (signal.aborted) return Promise.race([work, Promise.reject(signal.reason)]);
-  let abort: () => void = () => {};
+  let abort: (() => void) | undefined;
   try {
     return await Promise.race([
       work,
@@ -88,7 +88,7 @@ async function abortable<T>(work: Promise<T>, signal: AbortSignal): Promise<T> {
       }),
     ]);
   } finally {
-    signal.removeEventListener("abort", abort);
+    if (abort) signal.removeEventListener("abort", abort);
   }
 }
 
