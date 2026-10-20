@@ -1,0 +1,10 @@
+{
+  "name": "@blastlauncher/cli",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts",
+  "dependencies": {
+    "@blastlauncher/host": "workspace:*",
+    "@blastlauncher/protocol": "workspace:*"
+  }
+}

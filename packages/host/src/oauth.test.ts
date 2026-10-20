@@ -2,8 +2,6 @@ import { expect, test } from "bun:test";
 import { mkdtemp, open, readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { createBroker } from "./broker.ts";
-import { createHeadlessHandlers } from "./headless.ts";
 import { createOAuthHandlers, oauthTokenFile } from "./oauth.ts";
 
 test("OAuth stores are extension scoped, provider keyed, serialized and atomically replaced", async () => {
@@ -66,23 +64,4 @@ test("OAuth stores are extension scoped, provider keyed, serialized and atomical
   } finally {
     await rm(dataDir, { recursive: true, force: true });
   }
-});
-
-test("bare and headless brokers deny OAuth unless an authorization code is supplied", async () => {
-  const request = {
-    type: "capability.request",
-    id: "oauth",
-    name: "oauth.authorize",
-    params: { url: "https://provider.example" },
-  } as const;
-  for (const handlers of [{}, createHeadlessHandlers()]) {
-    expect(await createBroker(handlers)(request)).toMatchObject({
-      ok: false,
-      error: { code: "denied" },
-    });
-  }
-  expect(await createBroker(createHeadlessHandlers({ oauthCode: "code" }))(request)).toMatchObject({
-    ok: true,
-    value: { authorizationCode: "code" },
-  });
 });

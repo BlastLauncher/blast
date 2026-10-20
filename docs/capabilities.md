@@ -7,11 +7,16 @@ does; `docs/cli.md` lists the headless answers and flags.
 
 ## Session-scoped (no grant)
 
-These act only on the session's own extension, so `blast run` installs them by
-default: `storage.*` (LocalStorage, see `docs/architecture.md`), internal
+The engine supplies these defaults for the session's own extension: `storage.*` (LocalStorage, see `docs/architecture.md`), internal
 `blast:internal` storage (dropdown/field `storeValue`, form drafts),
 `oauth.tokens.*`, and the extension's own AI model provider (`ai.ask` with a
 `{ id }` model, `ai.models.refresh`; decision 0006).
+
+Headless answers belong to `@blastlauncher/cli`, not the engine. The CLI and TUI
+register `createHeadlessHandlers` explicitly for neutral applications, selection,
+window and clipboard reads, metadata and preference requests. Without registered
+handlers these client capabilities are denied. Engine → extension → launch
+registrations override in that order; session-scoped handlers apply last.
 
 ## Requests a client must answer or grant
 
@@ -50,7 +55,7 @@ a failed install still permits a shared-dependency fallback launch.
 as a file) and `open.path` for files, so a client can grant opening links
 without granting file opens.
 
-The terminal client uses the same session broker defaults as `blast run`, with
+The terminal client registers the same headless handlers as `blast run`, with
 client handlers for `clipboard.copy|paste|read|clear` and `open.url`. Clipboard
 content (text, HTML, file path) stays in memory for one session; paste records
 content there, and nonzero history offsets return empty text. Nothing reaches

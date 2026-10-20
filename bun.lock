@@ -13,6 +13,13 @@
         "typescript": "7.0.2",
       },
     },
+    "packages/cli": {
+      "name": "@blastlauncher/cli",
+      "dependencies": {
+        "@blastlauncher/host": "workspace:*",
+        "@blastlauncher/protocol": "workspace:*",
+      },
+    },
     "packages/host": {
       "name": "@blastlauncher/host",
       "dependencies": {
@@ -57,6 +64,7 @@
     "packages/tui": {
       "name": "@blastlauncher/tui",
       "dependencies": {
+        "@blastlauncher/cli": "workspace:*",
         "@blastlauncher/host": "workspace:*",
         "@blastlauncher/protocol": "workspace:*",
         "@opentui/core": "0.6.6",
@@ -69,6 +77,8 @@
     },
   },
   "packages": {
+    "@blastlauncher/cli": ["@blastlauncher/cli@workspace:packages/cli"],
+
     "@blastlauncher/host": ["@blastlauncher/host@workspace:packages/host"],
 
     "@blastlauncher/protocol": ["@blastlauncher/protocol@workspace:packages/protocol"],

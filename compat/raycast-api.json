@@ -10129,7 +10129,7 @@
       "path": "FormLaunchProps.draftValues",
       "status": "covered",
       "tests": [
-        "packages/host/src/cli.test.ts",
+        "packages/cli/src/cli.test.ts",
         "packages/runtime/src/api/aliases.test.ts"
       ],
       "weight": 0,
@@ -16008,7 +16008,7 @@
       "path": "LaunchProps.draftValues",
       "status": "covered",
       "tests": [
-        "packages/host/src/cli.test.ts"
+        "packages/cli/src/cli.test.ts"
       ],
       "weight": 0
     },
@@ -20648,7 +20648,7 @@
       "path": "WindowManagement.getActiveWindow",
       "status": "covered",
       "tests": [
-        "packages/host/src/headless.test.ts",
+        "packages/cli/src/headless.test.ts",
         "packages/runtime/src/api/window-management.test.ts"
       ],
       "weight": 1
@@ -20657,7 +20657,7 @@
       "path": "WindowManagement.getDesktops",
       "status": "covered",
       "tests": [
-        "packages/host/src/headless.test.ts",
+        "packages/cli/src/headless.test.ts",
         "packages/runtime/src/api/window-management.test.ts"
       ],
       "weight": 2
@@ -20666,7 +20666,7 @@
       "path": "WindowManagement.getWindowsOnActiveDesktop",
       "status": "covered",
       "tests": [
-        "packages/host/src/headless.test.ts",
+        "packages/cli/src/headless.test.ts",
         "packages/runtime/src/api/window-management.test.ts"
       ],
       "weight": 2
@@ -20675,7 +20675,7 @@
       "path": "WindowManagement.setWindowBounds",
       "status": "covered",
       "tests": [
-        "packages/host/src/headless.test.ts",
+        "packages/cli/src/headless.test.ts",
         "packages/runtime/src/api/window-management.test.ts"
       ],
       "weight": 2
@@ -20907,7 +20907,7 @@
       "path": "getDefaultApplication",
       "status": "covered",
       "tests": [
-        "packages/host/src/headless.test.ts",
+        "packages/cli/src/headless.test.ts",
         "packages/runtime/src/api/applications.test.ts"
       ],
       "weight": 20

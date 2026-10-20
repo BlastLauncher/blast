@@ -1,6 +1,5 @@
 export * from "./broker.ts";
 export * from "./bundle.ts";
-export * from "./headless.ts";
 export * from "./session.ts";
 export * from "./storage.ts";
 export * from "./oauth.ts";
@@ -9,5 +8,12 @@ export * from "./dependencies.ts";
 export * from "./client.ts";
 export * from "./install-dependencies.ts";
 export * from "./preferences.ts";
-export * from "./extension.ts";
+export {
+  openExtension,
+  MissingLaunchValuesError,
+  type OpenExtensionOptions,
+  type ExtensionHandle,
+  type ExtensionLaunchOptions,
+} from "./extension.ts";
 export * from "./extension-manifest.ts";
+export * from "./engine.ts";

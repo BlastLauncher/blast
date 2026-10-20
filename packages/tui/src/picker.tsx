@@ -1,4 +1,5 @@
 /** @jsxImportSource @opentui/react */
+import { createHeadlessHandlers } from "@blastlauncher/cli";
 import { useEffect, useRef, useState } from "react";
 import { useKeyboard, usePaste } from "@opentui/react";
 import { TextAttributes } from "@opentui/core";
@@ -58,6 +59,7 @@ export function CommandPicker({
     () =>
       suppliedExtension ??
       openExtension({
+        handlers: createHeadlessHandlers(),
         extensionDir,
         ...(suppliedDataDir === undefined ? {} : { dataDir: suppliedDataDir }),
         ...(installer ? { installer } : {}),
@@ -624,7 +626,12 @@ export function CommandSession({
 }) {
   const [resolvedDataDir] = useState(() => dataDir ?? defaultDataDir());
   const [extension] = useState(() =>
-    openExtension({ extensionDir, dataDir: resolvedDataDir, ...(installer ? { installer } : {}) }),
+    openExtension({
+      handlers: createHeadlessHandlers(),
+      extensionDir,
+      dataDir: resolvedDataDir,
+      ...(installer ? { installer } : {}),
+    }),
   );
   const [editPreferences, setEditPreferences] = useState<{
     command: string;

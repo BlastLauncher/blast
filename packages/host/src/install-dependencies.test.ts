@@ -205,10 +205,14 @@ function cli(
   env: NodeJS.ProcessEnv = process.env,
 ): Promise<{ code: number | null; output: string }> {
   return new Promise((done, reject) => {
-    const child = spawn("node", [fileURLToPath(new URL("./cli.ts", import.meta.url)), ...args], {
-      env,
-      stdio: ["ignore", "pipe", "pipe"],
-    });
+    const child = spawn(
+      "node",
+      [fileURLToPath(new URL("../../cli/src/cli.ts", import.meta.url)), ...args],
+      {
+        env,
+        stdio: ["ignore", "pipe", "pipe"],
+      },
+    );
     let output = "";
     child.stdout.on("data", (chunk) => {
       output += chunk;

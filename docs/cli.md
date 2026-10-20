@@ -1,6 +1,6 @@
 # `blast` debug CLI
 
-Reference for the headless client agents use to run and drive extensions.
+Reference for the headless client in `packages/cli/src/cli.ts` that agents use to run and drive extensions.
 `bun run blast --help` is authoritative; keep this file in sync with it.
 
 ```bash

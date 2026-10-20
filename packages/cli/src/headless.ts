@@ -10,7 +10,7 @@
 // `mcp.install`) stays denied unless granted.
 import { createBrowserHandlers, type BrowserTab } from "./browser.ts";
 import type { JsonValue } from "@blastlauncher/protocol";
-import type { CapabilityHandler } from "./broker.ts";
+import type { CapabilityHandler } from "@blastlauncher/host";
 
 /** `Application` from the `@raycast/api` declarations, as it crosses the wire. */
 export type Application = {

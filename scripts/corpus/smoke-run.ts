@@ -1,3 +1,4 @@
+import { createHeadlessHandlers } from "../../packages/cli/src/index.ts";
 // Entry point for `bun run corpus:smoke`. Fetches the curated extensions in
 // budget-sized batches with the task-0011 fetch script (task 0051), then
 // bundles and runs every manifest command of each curated extension through
@@ -13,7 +14,6 @@ import { dirname, join } from "node:path";
 import {
   bundleCommand,
   createBroker,
-  createHeadlessHandlers,
   MissingDependencyError,
   startCommand,
   type BundledCommand,

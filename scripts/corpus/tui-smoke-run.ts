@@ -1,3 +1,4 @@
+import { createHeadlessHandlers } from "../../packages/cli/src/index.ts";
 // Entry point for `bun run corpus:tui-smoke`. Fetches the curated extensions
 // in budget-sized batches with the task-0011 fetch script (task 0051), then
 // renders every manifest command of each curated extension in the TUI `App`
@@ -16,7 +17,6 @@ import type { SceneMessage } from "../../packages/protocol/src/index.ts";
 import {
   bundleCommand,
   createBroker,
-  createHeadlessHandlers,
   MissingDependencyError,
   startCommand,
   type BundledCommand,

@@ -15,12 +15,13 @@ extension code (unmodified, bundled)
 
 ## Packages
 
-| Package             | Owns                                             | Depends on        |
-| ------------------- | ------------------------------------------------ | ----------------- |
-| `packages/tui`      | Bun terminal client, List rendering and input    | host, protocol    |
-| `packages/protocol` | message types, validation, NDJSON framing        | nothing           |
-| `packages/runtime`  | reconciler, `@raycast/api` shim, child entry     | protocol, react   |
-| `packages/host`     | bundling, process lifecycle, broker, `blast` CLI | protocol, esbuild |
+| Package             | Owns                                                 | Depends on          |
+| ------------------- | ---------------------------------------------------- | ------------------- |
+| `packages/tui`      | Bun terminal client, List rendering and input        | host, cli, protocol |
+| `packages/cli`      | `blast` debug CLI and headless capability answers    | host, protocol      |
+| `packages/protocol` | message types, validation, NDJSON framing            | nothing             |
+| `packages/runtime`  | reconciler, `@raycast/api` shim, child entry         | protocol, react     |
+| `packages/host`     | bundling, process lifecycle, broker, engine registry | protocol, esbuild   |
 
 `host` never imports `runtime` code; it only spawns its entry file.
 
@@ -89,17 +90,23 @@ implemented APIs are accessible and stubs are inaccessible.
 
 ## Host sessions
 
+`createEngine({ dataDir?, installer?, handlers? })` owns handles; `close()` closes them.
+`register(handlers)` returns unregister; later registrations win for future launches.
+`engine.openExtension(options)` inherits dataDir/installer; standalone `openExtension` still works.
+Handlers resolve: engine → extension → launch → session storage, OAuth tokens and own-provider AI.
+Unregistered client capabilities are denied; CLI/TUI clients explicitly register headless answers.
+
 `openExtension({ extensionDir, dataDir?, installer? })` returns a reusable handle.
 `manifest()` reads validated commands, arguments and preference schemas;
 `watch(listener)` reports debounced manifest updates or errors and returns an unsubscribe.
 `dependencies.check()` / `install({ onLog })` serialize dependency operations.
 `preferences(command)` returns schemas, stored values and missing required fields;
 `savePreferences(command, values)` splits extension and command scope (command wins).
-Both accept an optional scope for extension-only preference editing.
+Both accept an optional scope for extension-only editing.
 `launch(command, { argumentValues?, handlers?, launchContext? })` waits for installs,
 rejects missing values with `MissingLaunchValuesError`, and returns `{ session, close }`.
-Session close shuts down the runtime and removes its bundle; handle `close()` also
-closes watchers and all owned sessions, including launches still in progress.
+Session close removes its bundle; handle `close()` closes watchers and all owned sessions,
+including launches still in progress.
 
 `blast deps` keeps keyed production installs outside extensions under `<dataDir>/deps/`;
 bundling resolves matching installs before the shared dependency allowlist.
@@ -145,8 +152,7 @@ eviction. Subscriptions notify matching cache instances within the process.
 Callers own bundle output directories (default: a unique directory below
 `os.tmpdir()/blast/builds`) and remove them after sessions exit.
 
-Per-capability semantics (names, grants, headless answers, storage locations)
-are in `docs/capabilities.md`.
+Capability semantics and storage locations are in `docs/capabilities.md`.
 
 ## Local storage
 
