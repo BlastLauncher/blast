@@ -82,7 +82,7 @@ export function checkWorkflow(root: string): string[] {
 
   const decisions = join(root, "docs/decisions");
   if (existsSync(decisions)) {
-    for (const name of readdirSync(decisions)) {
+    for (const name of readdirSync(decisions).toSorted()) {
       const lines = lineCount(join(decisions, name));
       if (lines > DECISION_LINE_LIMIT) {
         errors.push(`docs/decisions/${name}: ${lines} lines exceeds ${DECISION_LINE_LIMIT}`);
@@ -92,7 +92,7 @@ export function checkWorkflow(root: string): string[] {
 
   const tasks = join(root, "tasks");
   const ids = new Map<string, string>();
-  for (const name of existsSync(tasks) ? readdirSync(tasks) : []) {
+  for (const name of existsSync(tasks) ? readdirSync(tasks).toSorted() : []) {
     if (name === "_template.md") continue;
     errors.push(...checkTask(name, readFileSync(join(tasks, name), "utf8")));
     const id = name.slice(0, 4);

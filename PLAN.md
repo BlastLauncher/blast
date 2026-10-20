@@ -87,7 +87,7 @@ Raycast client semantics built in so embedders only draw.
 - [ ] 0071 Deprecated aliases: the 50 missing deprecated symbols
 - [ ] 0072 Capability catalog in `protocol` (names, shapes, scope, API users)
 - [ ] 0073 Engine handler registry; `blast` CLI + headless answers → `packages/cli`
-- [ ] 0074 `@blastlauncher/native` I: clipboard, open, file manager, trash
+- [x] 0074 `@blastlauncher/native` I: clipboard, open, file manager, trash
 - [ ] 0075 `@blastlauncher/native` II: applications, selection, windows
 
 ## Later (not scheduled)
