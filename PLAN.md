@@ -85,7 +85,7 @@ Raycast client semantics built in so embedders only draw.
 - [ ] 0069 Release build: emitted JS + `.d.ts`, `npm pack` smoke on Node 24
 - [ ] 0070 Real-world compat: dependency-heavy corpus set with installs
 - [ ] 0071 Deprecated aliases: the 50 missing deprecated symbols
-- [ ] 0072 Capability catalog in `protocol` (names, shapes, scope, API users)
+- [x] 0072 Capability catalog in `protocol` (names, shapes, scope, API users)
 - [x] 0073 Engine handler registry; `blast` CLI + headless answers → `packages/cli`
 - [x] 0074 `@blastlauncher/native` I: clipboard, open, file manager, trash
 - [ ] 0075 `@blastlauncher/native` II: applications, selection, windows

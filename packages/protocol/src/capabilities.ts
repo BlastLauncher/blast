@@ -265,8 +265,10 @@ export const CAPABILITIES = {
     api: ["OAuth.PKCEClient.authorize"],
   },
   "ai.ask": {
-    scope: "session",
-    summary: "Asks the extension's own AI provider, or a supplied handler, for text.",
+    // The engine answers only `{ id }` models of the extension's own provider;
+    // every other model (Raycast AI) needs an embedder handler.
+    scope: "grant",
+    summary: "Asks an AI model for text; own-provider `{ id }` models are answered by the engine.",
     params: {
       type: "object",
       properties: {
