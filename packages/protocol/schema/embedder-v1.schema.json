@@ -884,6 +884,11 @@
                 "$ref": "#/$defs/jsonValue"
               }
             },
+            "bundleTimeoutMs": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647
+            },
             "views": {
               "type": "object",
               "properties": {

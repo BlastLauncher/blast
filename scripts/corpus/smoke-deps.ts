@@ -17,6 +17,7 @@ export const DEPS_OUTCOMES = [
   "completed",
   "install-failed",
   "bundle-failed",
+  "bundle-timeout",
   "crashed",
   "needs-arguments",
   "needs-preferences",
@@ -206,6 +207,7 @@ function detail(result: DepsResult): string {
       return `denied capability ${result.path}${warnings}`;
     case "completed":
       return `${result.reason ?? "completed without rendering a scene"}${warnings}`;
+    case "bundle-timeout":
     case "timeout":
     case "unsupported-mode":
     case "needs-arguments":
@@ -369,12 +371,12 @@ export function renderDepsMarkdownReport(report: DepsReport): string {
     "",
     "## Commands",
     "",
-    "| Command | Mode | Outcome | Detail |",
-    "| --- | --- | --- | --- |",
+    "| Command | Mode | Outcome | Bundle ms | Detail |",
+    "| --- | --- | --- | --- | --- |",
   );
   for (const result of report.results) {
     lines.push(
-      `| \`${result.extension}/${result.command}\` | ${result.mode} | ${result.outcome} | ${compactLine(detail(result)).replaceAll("|", "\\|")} |`,
+      `| \`${result.extension}/${result.command}\` | ${result.mode} | ${result.outcome} | ${result.bundleMs === undefined ? "—" : Math.round(result.bundleMs)} | ${compactLine(detail(result)).replaceAll("|", "\\|")} |`,
     );
   }
   const failures = report.results.filter((result) => !NOT_FAILURES.includes(result.outcome));

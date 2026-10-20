@@ -9,6 +9,7 @@ export const OUTCOMES = [
   "completed",
   "capability-denied",
   "bundle-failed",
+  "bundle-timeout",
   "crashed",
   "network",
   "timeout",
@@ -32,7 +33,8 @@ export type Json = string | number | boolean | null | Json[] | { [key: string]: 
 
 /** What one command run observably did, before it is labelled for the report. */
 export type ProbeResult =
-  | { kind: "bundle-failed"; error?: string; missing?: string[] }
+  | { kind: "bundle-failed"; error?: string; missing?: string[]; bundleMs?: number }
+  | { kind: "bundle-timeout"; timeoutMs: number; bundleMs: number }
   | { kind: "scene"; nodeCount: number; rootType: string }
   | { kind: "empty-menu-bar" }
   | {
@@ -50,6 +52,7 @@ export type CommandResult = {
   command: string;
   mode: string;
   outcome: Outcome;
+  bundleMs?: number | undefined;
   /** Why a command did not render, when the outcome alone is not enough. */
   reason?: string | undefined;
   /** Unsupported-api: the API path. Capability-denied: the capability name. */
@@ -218,6 +221,7 @@ export type BuildInput = {
   command: string;
   mode: string;
   probe: ProbeResult;
+  bundleMs?: number | undefined;
   /** Runtime warnings, already sanitized, deduplicated and capped. */
   warnings?: string[] | undefined;
   /** Error-level log lines, already sanitized and capped to the last ones. */
@@ -244,6 +248,7 @@ export function buildResult(input: BuildInput): CommandResult {
   };
   if (input.warnings?.length) set({ warnings: input.warnings });
   const probe = input.probe;
+  set({ bundleMs: input.bundleMs ?? ("bundleMs" in probe ? probe.bundleMs : undefined) });
   switch (probe.kind) {
     case "scene":
       return set({ outcome: "rendered", nodes: probe.nodeCount, rootType: probe.rootType });
@@ -257,6 +262,8 @@ export function buildResult(input: BuildInput): CommandResult {
         missing: probe.missing,
         error: probe.error,
       });
+    case "bundle-timeout":
+      return set({ outcome: "bundle-timeout", reason: `bundling exceeded ${probe.timeoutMs} ms` });
     case "timeout":
       return set({ outcome: "timeout", reason: `no scene or exit within ${probe.timeoutMs} ms` });
     case "unsupported-mode":
@@ -355,6 +362,7 @@ function detail(result: CommandResult): string {
       return `${result.path}${warnings}`;
     case "capability-denied":
       return `denied capability ${result.path}${warnings}`;
+    case "bundle-timeout":
     case "timeout":
     case "unsupported-mode":
     case "missing-arguments":
@@ -383,12 +391,12 @@ export function renderMarkdownReport(report: SmokeReport): string {
     "",
     `${report.results.length} commands: ${OUTCOMES.map((outcome) => `${outcome} ${count(outcome)}`).join(", ")}.`,
     "",
-    "| Command | Mode | Outcome | Detail |",
-    "| --- | --- | --- | --- |",
+    "| Command | Mode | Outcome | Bundle ms | Detail |",
+    "| --- | --- | --- | --- | --- |",
   ];
   for (const result of report.results) {
     lines.push(
-      `| \`${result.extension}/${result.command}\` | ${result.mode} | ${result.outcome} | ${compactLine(detail(result))} |`,
+      `| \`${result.extension}/${result.command}\` | ${result.mode} | ${result.outcome} | ${result.bundleMs === undefined ? "—" : Math.round(result.bundleMs)} | ${compactLine(detail(result))} |`,
     );
   }
   const failures = report.results.filter(

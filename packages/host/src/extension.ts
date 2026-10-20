@@ -18,6 +18,8 @@ export type ExtensionLaunchOptions = Pick<
   StartOptions,
   "argumentValues" | "launchContext" | "fallbackText"
 > & {
+  timeoutMs?: number;
+  signal?: AbortSignal;
   handlers?: Record<string, CapabilityHandler>;
 };
 
@@ -34,6 +36,7 @@ export class MissingLaunchValuesError extends Error {
 }
 
 export type OpenExtensionOptions = {
+  timeoutMs?: number;
   extensionDir: string;
   dataDir?: string;
   installer?: DependencyInstaller;
@@ -124,7 +127,14 @@ export function createExtensionHandle(
     if (prefs.missing.length || args.length)
       throw new MissingLaunchValuesError(prefs.missing, args);
     ensureOpen();
-    const bundled = await bundleCommand({ extensionDir, command: name, dataDir });
+    const timeoutMs = launchOptions.timeoutMs ?? options.timeoutMs;
+    const bundled = await bundleCommand({
+      extensionDir,
+      command: name,
+      dataDir,
+      ...(timeoutMs === undefined ? {} : { timeoutMs }),
+      ...(launchOptions.signal === undefined ? {} : { signal: launchOptions.signal }),
+    });
     const cleanup = () => rm(dirname(bundled.entry), { recursive: true, force: true });
     try {
       ensureOpen();

@@ -95,6 +95,8 @@ implemented APIs are accessible and stubs are inaccessible.
 
 ## Host sessions
 
+Bundling reports `bundleMs`; `timeoutMs` (engine/extension/launch/bundle options, default 60_000; 0 disables) and a bundle/launch `signal` cancel esbuild work.
+
 `createEngine({ dataDir?, installer?, handlers? })` groups extension handles:
 `register(handlers)` returns unregister (later wins, future launches), and
 `engine.openExtension` inherits its options; standalone `openExtension` works too.

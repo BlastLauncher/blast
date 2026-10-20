@@ -1,5 +1,5 @@
 import type { CommandMode } from "@blastlauncher/protocol";
-import { build, transform, type Plugin } from "esbuild";
+import { context, transform, type Plugin } from "esbuild";
 import { execFileSync } from "node:child_process";
 import {
   access,
@@ -56,6 +56,39 @@ export class MissingDependencyError extends Error {
     );
     this.name = "MissingDependencyError";
     this.packages = names;
+  }
+}
+
+export class BundleTimeoutError extends Error {
+  readonly code = "BUNDLE_TIMEOUT";
+
+  readonly extension: string;
+  readonly command: string;
+  readonly timeoutMs: number;
+
+  constructor(extension: string, command: string, timeoutMs: number) {
+    super(`Bundling ${extension}/${command} timed out after ${timeoutMs} ms`);
+    this.name = "BundleTimeoutError";
+    this.extension = extension;
+    this.command = command;
+    this.timeoutMs = timeoutMs;
+  }
+}
+
+/** Stop awaiting host work when cancelled, without leaving an abort listener behind. */
+async function abortable<T>(work: Promise<T>, signal: AbortSignal): Promise<T> {
+  if (signal.aborted) return Promise.race([work, Promise.reject(signal.reason)]);
+  let abort: () => void = () => {};
+  try {
+    return await Promise.race([
+      work,
+      new Promise<never>((_, reject) => {
+        abort = () => reject(signal.reason);
+        signal.addEventListener("abort", abort, { once: true });
+      }),
+    ]);
+  } finally {
+    signal.removeEventListener("abort", abort);
   }
 }
 
@@ -174,6 +207,9 @@ function require(specifier) {
 export type BundleOptions = {
   extensionDir: string;
   command: string;
+  /** Bundling deadline in milliseconds; defaults to 60_000, 0 disables it. */
+  timeoutMs?: number;
+  signal?: AbortSignal;
   /** Override optional-package loading, e.g. for an isolated embedder. */
   sharedDependencies?: SharedDependencyLoader;
   outDir?: string;
@@ -190,6 +226,8 @@ export type CommandArgument = {
   placeholder?: string;
 };
 export type BundledCommand = {
+  /** Elapsed bundling time, including dependency resolution and assets. */
+  bundleMs: number;
   modelProviderDir?: string;
   entry: string;
   extensionName: string;
@@ -394,12 +432,50 @@ export async function linkAssets(
 async function bundleEntry(
   options: BundleOptions & { modelProvider?: boolean },
 ): Promise<BundledCommand> {
+  const started = performance.now();
+  const timeoutMs = options.timeoutMs ?? 60_000;
+  if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 0 || timeoutMs > 2_147_483_647)
+    throw new RangeError("timeoutMs must be an integer between 0 and 2147483647");
+  const controller = new AbortController();
+  const abort = () => controller.abort(options.signal?.reason);
+  options.signal?.addEventListener("abort", abort, { once: true });
+  if (options.signal?.aborted) abort();
+  let extension = options.extensionDir;
+  const timer =
+    timeoutMs === 0
+      ? undefined
+      : setTimeout(() => {
+          controller.abort(new BundleTimeoutError(extension, options.command, timeoutMs));
+        }, timeoutMs);
+  try {
+    const bundled = await bundleEntryWithSignal(options, controller.signal, (name) => {
+      extension = name;
+    });
+    return { ...bundled, bundleMs: performance.now() - started };
+  } catch (error) {
+    if (error instanceof BundleTimeoutError)
+      throw new BundleTimeoutError(extension, options.command, timeoutMs);
+    throw error;
+  } finally {
+    clearTimeout(timer);
+    options.signal?.removeEventListener("abort", abort);
+  }
+}
+
+async function bundleEntryWithSignal(
+  options: BundleOptions & { modelProvider?: boolean },
+  signal: AbortSignal,
+  setExtension: (name: string) => void,
+): Promise<Omit<BundledCommand, "bundleMs">> {
+  signal.throwIfAborted();
   const extensionDir = resolve(options.extensionDir);
   const manifest = JSON.parse(await readFile(join(extensionDir, "package.json"), "utf8"));
   const command = options.modelProvider
     ? { name: manifest.ai?.modelProvider, mode: "model-provider" }
     : manifest.commands?.find((item: { name: string }) => item.name === options.command);
   if (typeof manifest.name !== "string" || !command) throw new Error("Unknown extension command");
+  setExtension(manifest.name);
+  signal.throwIfAborted();
   const entryName = options.modelProvider ? command.name : options.command;
   if (typeof entryName !== "string" || !/^[\w-]+$/.test(entryName))
     throw new Error("Invalid command name");
@@ -422,7 +498,7 @@ async function bundleEntry(
       `Missing source for ${entryName}: no src/${entryName}.{tsx,ts,jsx,js} in ${extensionDir}` +
         " (a sparse checkout that only has package.json? fetch the whole extension directory)",
     );
-  const shared = await loadSharedDependencies(options.sharedDependencies);
+  const shared = await abortable(loadSharedDependencies(options.sharedDependencies), signal);
   const aliases = await loadTsconfigAliases(extensionDir);
   for (const warning of aliases?.warnings ?? []) console.warn(warning);
   const install =
@@ -434,7 +510,8 @@ async function bundleEntry(
   const missing = new Set<string>();
   const installedPackages = new Set<string>();
   try {
-    const bundled = await build({
+    signal.throwIfAborted();
+    const builder = await context({
       absWorkingDir: extensionDir,
       entryPoints: [source],
       outfile: entry,
@@ -457,6 +534,16 @@ async function bundleEntry(
       ],
       logLevel: "silent",
     });
+    let bundled;
+    try {
+      signal.throwIfAborted();
+      bundled = await abortable(builder.rebuild(), signal);
+    } finally {
+      // cancel stops esbuild's graph walk; dispose releases the service context.
+      if (signal.aborted) await builder.cancel();
+      await builder.dispose();
+    }
+    signal.throwIfAborted();
     // Optional imports in provided graphs can escape esbuild's resolver.
     // Optional require calls use the banner's MISSING_DEPENDENCY guard instead.
     for (const output of Object.values(bundled.metafile.outputs)) {
@@ -484,14 +571,17 @@ async function bundleEntry(
       target: "node24",
       minifySyntax: true,
     });
+    signal.throwIfAborted();
     await mkdir(outDir, { recursive: true });
     await writeFile(entry, output.code);
+    await linkAssets(outDir, extensionDir);
+    signal.throwIfAborted();
   } catch (error) {
     if (!options.outDir) await rm(outDir, { recursive: true, force: true });
+    signal.throwIfAborted();
     if (missing.size) throw new MissingDependencyError(missing);
     throw error;
   }
-  await linkAssets(outDir, extensionDir);
   return {
     entry,
     dependencyWarnings:

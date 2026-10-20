@@ -8,6 +8,7 @@ import { rm } from "node:fs/promises";
 import { dirname } from "node:path";
 import {
   bundleCommand,
+  BundleTimeoutError,
   createBroker,
   MissingDependencyError,
   startCommand,
@@ -97,6 +98,7 @@ export async function bundleOne(
   dependencies: DependencyMode,
   clean: (text: string) => string,
 ): Promise<BundleOutcome> {
+  const started = performance.now();
   try {
     const bundled = await bundleCommand({
       extensionDir,
@@ -106,13 +108,17 @@ export async function bundleOne(
     });
     return { ok: true, bundled };
   } catch (error) {
+    const bundleMs = performance.now() - started;
+    if (error instanceof BundleTimeoutError)
+      return { ok: false, probe: { kind: "bundle-timeout", timeoutMs: error.timeoutMs, bundleMs } };
     if (error instanceof MissingDependencyError) {
-      return { ok: false, probe: { kind: "bundle-failed", missing: error.packages } };
+      return { ok: false, probe: { kind: "bundle-failed", missing: error.packages, bundleMs } };
     }
     return {
       ok: false,
       probe: {
         kind: "bundle-failed",
+        bundleMs,
         error: clean(error instanceof Error ? error.message : String(error)),
       },
     };
@@ -129,7 +135,15 @@ export async function launchOne(
 ): Promise<CommandResult> {
   const mode = commandMode(manifest, commandName) ?? "view";
   const build = (probe: ProbeResult, warnings?: string[], errorLogs?: string[]): CommandResult =>
-    buildResult({ extension, command: commandName, mode, probe, warnings, errorLogs });
+    buildResult({
+      extension,
+      command: commandName,
+      mode,
+      probe,
+      warnings,
+      errorLogs,
+      bundleMs: bundled.bundleMs,
+    });
   const outDir = dirname(bundled.entry);
   let session: Session | undefined;
   try {

@@ -54,6 +54,7 @@ export type EmbedderParams = {
     command: string;
     argumentValues?: Record<string, string>;
     launchContext?: Record<string, JsonValue>;
+    bundleTimeoutMs?: number;
     views?: { platform: "macOS" | "Windows" | "Linux" };
   };
   "session.input": { session: string; input: EmbedderControllerInput };
@@ -105,7 +106,14 @@ const shapes: Record<keyof EmbedderParams, string[]> = {
   "extension.dependencies.install": ["extension"],
   "extension.preferences": ["extension", "command"],
   "extension.savePreferences": ["extension", "command", "values"],
-  "extension.launch": ["extension", "command", "argumentValues?", "launchContext?", "views?"],
+  "extension.launch": [
+    "extension",
+    "command",
+    "argumentValues?",
+    "launchContext?",
+    "bundleTimeoutMs?",
+    "views?",
+  ],
   "session.input": ["session", "input"],
   "session.event": ["session", "node", "handler", "args"],
   "session.close": ["session"],
@@ -160,6 +168,8 @@ function valid(v: unknown): boolean {
         fields(x, shapes[v.method as keyof EmbedderParams], (key, y) => {
           if (key === "args") return Array.isArray(y) && y.every(json);
           if (key === "argumentValues") return record(y, string);
+          if (key === "bundleTimeoutMs")
+            return typeof y === "number" && Number.isSafeInteger(y) && y >= 0 && y <= 2_147_483_647;
           if (key === "launchContext") return record(y, json);
           if (key === "views")
             return (

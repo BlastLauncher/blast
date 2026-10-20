@@ -9,6 +9,7 @@ import type { DependencyInstaller } from "./install-dependencies.ts";
 /** Shared defaults and capability registrations for a group of extensions. */
 export function createEngine(
   options: {
+    timeoutMs?: number;
     dataDir?: string;
     installer?: DependencyInstaller;
     handlers?: Record<string, CapabilityHandler>;
@@ -37,6 +38,7 @@ export function createEngine(
       ensureOpen();
       const extension = createExtensionHandle(
         {
+          ...(options.timeoutMs === undefined ? {} : { timeoutMs: options.timeoutMs }),
           ...(options.dataDir === undefined ? {} : { dataDir: options.dataDir }),
           ...(options.installer === undefined ? {} : { installer: options.installer }),
           ...extensionOptions,

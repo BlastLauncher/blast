@@ -195,6 +195,9 @@ async function request(message: EmbedderRequest): Promise<JsonValue> {
       const key = id();
       const opened = await extension.launch(message.params.command, {
         ...message.params,
+        ...(message.params.bundleTimeoutMs === undefined
+          ? {}
+          : { timeoutMs: message.params.bundleTimeoutMs }),
         handlers: forwarding(key),
       });
       sessions.set(key, opened);
