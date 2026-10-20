@@ -98,7 +98,7 @@ Embedders that are not React, and `blast serve` later (task 0080), only draw.
 ## Handoff
 
 ```
-Branch/commit: t3/d9043bd6 @ (this commit)
+Branch/commit: t3/d9043bd6 @ 4b0ac32
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 92.6s
 Done:
 - packages/client-core/src/controller.ts: createController({ platform, hudDurationMs? }) with scene/input/tick/view/subscribe; ControllerView and input/effect types exported from client-core.
