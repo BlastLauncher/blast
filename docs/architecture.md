@@ -5,7 +5,7 @@ Current shape only; history lives in git. Decisions: `docs/decisions/`.
 ```
 client (embedder UI; reference clients: headless CLI, OpenTUI terminal)
    │  scene → view model, events, timing rules  (packages/client-core)
-   │  in-process API
+   │  in-process API or NDJSON stdio (packages/serve)
 host ── bundles extension (esbuild), spawns runtime, capability broker
    │  NDJSON over stdio  (packages/protocol)
 runtime (one Node process per command or provider)
@@ -20,6 +20,7 @@ extension code (unmodified, bundled)
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
 | `packages/protocol`    | message types, validation, NDJSON framing                                                                                     | nothing                                  |
 | `packages/runtime`     | reconciler, `@raycast/api` shim, child entry                                                                                  | protocol, react                          |
+| `packages/serve`       | versioned embedder stdio, capability forwarding                                                                               | host, protocol, native                   |
 | `packages/host`        | engine: bundling, process lifecycle, broker, registry                                                                         | protocol, esbuild                        |
 | `packages/client-core` | framework-free Raycast client semantics (view model, filtering, actions, shortcuts, pagination, dropdown, grid, form, timing) | protocol                                 |
 | `packages/native`      | optional OS clipboard, open, file manager, trash                                                                              | protocol                                 |
@@ -27,6 +28,7 @@ extension code (unmodified, bundled)
 | `packages/tui`         | Bun terminal client (reference embedder)                                                                                      | client-core, cli, host, protocol, native |
 
 `host` never imports `runtime` code; it only spawns its entry file.
+Capability semantics and storage locations are in `docs/capabilities.md`.
 
 ## Message flow
 
@@ -151,8 +153,6 @@ supply explicit environment paths. Synchronous `Cache` stores strings under
 eviction. Subscriptions notify matching cache instances within the process.
 Callers own bundle output directories (default: a unique directory below
 `os.tmpdir()/blast/builds`) and remove them after sessions exit.
-
-Capability semantics and storage locations are in `docs/capabilities.md`.
 
 ## Local storage
 

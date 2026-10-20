@@ -1,0 +1,13 @@
+{
+  "name": "@blastlauncher/serve",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/main.ts"
+  },
+  "dependencies": {
+    "@blastlauncher/host": "workspace:*",
+    "@blastlauncher/native": "workspace:*",
+    "@blastlauncher/protocol": "workspace:*"
+  }
+}
