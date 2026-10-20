@@ -6,7 +6,8 @@ files.
 
 ## Current focus
 
-M5 — embeddable engine (`docs/decisions/0009`). Blast is the
+M5 — embeddable engine (`docs/decisions/0009`), task queue empty; backlog
+under "Later". Blast is the
 engine; launchers embed it. The TUI and `blast run` stay reference clients
 and get no new launcher features.
 
@@ -84,6 +85,8 @@ Raycast client semantics built in so embedders only draw.
 
 - Scheduled job regenerating `compat/` for the newest `@raycast/api` (PR).
 - native: macOS window ops without yabai (System Events for list/active/bounds).
+- Rerun `corpus:smoke` and `corpus:tui-smoke` with placeholder inputs (0086).
+- Go example on `blast serve` views (0080); publish packages to npm (needs owner).
 - Autonomous orchestrator loop over `tasks/`; delete `archive/`.
 - Desktop launcher (MyGo) and further TUI launcher polish (out of scope per 0009).
 
