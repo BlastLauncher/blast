@@ -1,7 +1,7 @@
 ---
 id: "0074"
 title: "@blastlauncher/native I: clipboard, open, file manager, trash on macOS/Windows/Linux"
-status: doing
+status: review
 milestone: M5
 depends: []
 ---
@@ -62,13 +62,13 @@ call. The engine itself stays platform-free.
 
 ## Acceptance
 
-- [ ] Per-platform fake-runner tests for each capability listed above,
+- [x] Per-platform fake-runner tests for each capability listed above,
       including Wayland vs X11 selection and every error case named above.
-- [ ] `rg -n "exec\\(|shell: true" packages/native/src` prints nothing.
-- [ ] `packages/native` imports nothing from `@blastlauncher/host` or runtime.
-- [ ] Handoff states which platforms you smoke-tested manually (Linux is
+- [x] `rg -n "exec\\(|shell: true" packages/native/src` prints nothing.
+- [x] `packages/native` imports nothing from `@blastlauncher/host` or runtime.
+- [x] Handoff states which platforms you smoke-tested manually (Linux is
       available here; say "not tested" for the others).
-- [ ] `bun run verify` passes.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -78,11 +78,31 @@ call. The engine itself stays platform-free.
 
 ## Handoff
 
-Filled in by the worker when finishing:
+Branch/commit: `t3/native-capabilities-cli-wiring` @ `f545f6dd338242e3a5de69acb9dafc1d05eeab9d`
+(implementation; this handoff is committed separately).
 
-```
-Branch/commit:
-Verify:
+Verify: `verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 140.3s`
+580 tests passed. Both forbidden-process-pattern and forbidden-import searches
+printed nothing; `git diff --check` passed.
+
 Done:
-Not done / risks:
-```
+
+- Added the optional protocol-only native package with injectable execution,
+  eight capability handlers, platform validation and named missing-tool errors.
+- Added 14 fake-runner tests across macOS, Windows, Wayland and X11, including
+  rich content, applications, history offsets, validation and tool failures.
+- Wired `--native` into direct and picker launches; the user approved the
+  four-line picker handler prop and its integration test. Updated client docs
+  and the architecture package table. No external dependencies added.
+- Manually smoke-tested Linux under Node 24: `gio trash` moved a temporary file
+  into isolated XDG trash; clipboard correctly rejected the missing display,
+  URL open named missing `xdg-open`, and file-manager reveal reported `gio`
+  exit 2 in this headless environment. Temporary smoke data was removed.
+
+Not done / risks: macOS and Windows **not tested** manually. Linux GUI
+clipboard/paste/open/reveal success could not be tested without a display and
+installed desktop tools. Linux HTML copy offers HTML only; the optional plain
+text fallback cannot also be offered by these clipboard tools. OS history is
+not provided. The initial clean baseline had an existing `actions-variants`
+TUI test failure (seed `2181236663`); its seeded rerun and subsequent full
+baseline passed. No host/runtime, other task, PLAN or AGENTS changes; no push.
