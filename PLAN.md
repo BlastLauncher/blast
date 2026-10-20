@@ -67,29 +67,14 @@ Raycast client semantics built in so embedders only draw.
 
 - [x] Decisions 0009 (engine boundary, two surfaces, distribution) and 0010
       (platform-free core, capability registry + catalog, optional native)
-- [x] 0063 `packages/client-core`: move framework-free client behaviour
-      (filtering, selection, actions, shortcuts, grid, dropdown, form model)
-      out of `packages/tui`; the TUI consumes it
-- [x] 0064 Engine API: extension handle (manifest + live reload, commands,
-      deps, preference schema/store, launch) moved out of the TUI picker
-- [x] 0065 client-core: ranking, keepSectionOrder, platform shortcuts, feedback/menu model
-- [x] 0076 Engine-side partials (rememberUserChoice, fallbackText, Cache dir, …)
-- [x] 0066 `blast serve`: versioned embedder protocol over stdio,
-      capabilities forwarded to the embedder
-- [x] 0067 Protocol JSON Schema export + `docs/embedding.md`
-- [x] 0068 Minimal non-JS embedder example over `blast serve` (Go)
-- [x] 0069 Release build: emitted JS + `.d.ts`, `npm pack` smoke on Node 24
-- [x] 0077 Slim engine: shared-dependency allowlist out of the engine install
-- [x] 0078 client-core controller (UI state machine)
-- [ ] 0079 TUI on the controller; 0080 views over `blast serve`
-- [x] 0081 flaky tests under load (event waits, explicit budgets)
+- [x] 0063–0069, 0071–0079, 0081 done (see git log): client-core (ranking,
+      shortcuts, controller), extension handle, engine registry, capability
+      catalog, `blast serve` + schema + docs, Go example, native I/II, release
+      build, slim engine (13 MiB), CLI package, TUI on the controller.
+      Coverage 2026-10-20: non-deprecated 1533/1534 (embedder-owned
+      `BrowserExtension.getContent`), deprecated 939/939.
+- [ ] 0080 Views over `blast serve` (client-core controller per session)
 - [ ] 0070 Real-world compat: dependency-heavy corpus set with installs
-- [x] 0071 Deprecated: 939/939 (2026-10-20: non-deprecated 1533/1534, only
-      embedder-owned `BrowserExtension.getContent` partial)
-- [x] 0072 Capability catalog in `protocol` (names, shapes, scope, API users)
-- [x] 0073 Engine handler registry; `blast` CLI + headless answers → `packages/cli`
-- [x] 0074 `@blastlauncher/native` I: clipboard, open, file manager, trash
-- [x] 0075 `@blastlauncher/native` II: applications, selection, windows
 
 ## Later (not scheduled)
 
