@@ -128,7 +128,7 @@ let launchDraft: FormValues | undefined;
 export function setFormDraftValues(values: FormValues | undefined): void {
   launchDraft = values;
 }
-interface FormContextValue {
+export interface FormContextValue {
   fields: Fields;
   enableDrafts: boolean;
   focusedId: string | null;

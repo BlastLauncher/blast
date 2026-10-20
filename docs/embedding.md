@@ -10,6 +10,12 @@ for other languages (decision 0011). Both expose the same operations with the
 same message shapes; only transport differs. The types and validators live in
 `packages/protocol`, the engine in `@blastlauncher/host`.
 
+## Installing
+
+`bun run release:build [--version 0.0.0-dev]` emits seven npm tarballs in `.cache/release/tarballs/`.
+Install them together with `npm install .cache/release/tarballs/*.tgz`; published host imports use `@blastlauncher/engine`.
+`bun run release:smoke` checks the emitted JS on Node 24 (API, `blast-serve`, `blast`), reports sizes and removes smoke `node_modules`.
+
 ## In-process (JS/TS)
 
 ```ts
