@@ -64,3 +64,42 @@ content (text, HTML, file path) stays in memory for one session; paste records
 content there, and nonzero history offsets return empty text. Nothing reaches
 the system clipboard or another application. URL opens append to the session's
 `effects.urls` record without launching a browser. Other effects remain denied.
+
+## Optional native desktop handlers
+
+`createNativeHandlers()` from `@blastlauncher/native` supplies application,
+selection and window handlers when the embedder registers them. It runs fixed
+scripts through `execFile` with argument arrays; it installs no tools or daemons.
+Missing executables fail with the required tool and capability name.
+
+- macOS: AppKit/JXA discovers applications, associations and the frontmost app;
+  Finder/JXA reads selected files. Window operations require an installed, running
+  [`yabai`](https://github.com/asmvik/yabai/blob/master/doc/yabai.asciidoc), including
+  its required accessibility permissions. Space IDs are Mission Control indices
+  (refresh after rearranging Spaces); screen IDs are display UUIDs. Numeric moves
+  and resizes require windows that yabai can move/resize (normally floating).
+  Exit native fullscreen before requesting numeric bounds.
+- Windows: PowerShell `Get-StartApps` supplies launch identities as
+  `shell:AppsFolder\<AppID>`; `AssocQueryString` resolves default executables.
+  `SHAssocEnumHandlers` lists handlers for a file extension. Explorer selection
+  comes from the frontmost Explorer window. Window reads and bounds use
+  user32 and `IVirtualDesktopManager`; desktop enumeration and generic fullscreen
+  are unsupported. Windows can restrict moving another process's window between
+  virtual desktops; these failures propagate.
+- Linux: application discovery reads XDG `.desktop` entries in precedence order,
+  honoring hidden overrides and MIME associations. Application paths are desktop
+  files (opening with one uses `gio launch`); `Exec` templates are never executed.
+  `xdg-mime` resolves MIME types/default handlers. X11 frontmost lookup uses
+  `xdotool` and `/proc`; windows use `wmctrl`, `xdotool`, and `xprop` with an EWMH
+  window manager. Desktops span the X screen, identified by `DISPLAY`. Text reads
+  use the primary selection (`xclip`, or `wl-paste --primary` on Wayland).
+  File-manager selection is unsupported. Wayland window/frontmost operations
+  reject explicitly, even when an XWayland `DISPLAY` is present.
+
+On macOS and Windows, selected text requires temporarily clearing the clipboard,
+sending Copy to the focused app, waiting up to one second, reading text and
+restoring the captured formats in a `finally` block. This needs automation /
+accessibility permission and an app that handles Copy. It can briefly expose
+selected text on the clipboard; clipboard managers, delayed providers, concurrent
+clipboard writes and focus changes can interfere. Selection reads are serialized
+within one handler registry. An empty selection returns an empty string.
