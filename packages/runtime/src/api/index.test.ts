@@ -179,6 +179,7 @@ test("renders List.EmptyView with its own actions Slot", () => {
 // @covers ActionPanel.Section.Children
 // @covers Action
 // @covers Action.Props
+// @covers Action.Props.id
 // @covers Action.Props.title
 // @covers Action.Props.icon
 // @covers Action.Props.shortcut
@@ -194,6 +195,7 @@ test("renders ActionPanel sections and dispatches plain Action onAction", () => 
         ActionPanel.Section,
         { title: "Copy" },
         h(Action, {
+          id: "go",
           title: "Go",
           icon: { fileIcon: "main.ts" },
           shortcut: { modifiers: ["cmd"], key: "g" },
@@ -212,6 +214,7 @@ test("renders ActionPanel sections and dispatches plain Action onAction", () => 
   const action = section.children[0]!;
   expect(action.type).toBe("Action");
   expect(action.props).toEqual({
+    id: "go",
     title: "Go",
     icon: { fileIcon: "main.ts" },
     shortcut: { modifiers: ["cmd"], key: "g" },
@@ -227,6 +230,7 @@ test("renders ActionPanel sections and dispatches plain Action onAction", () => 
 // @covers Action.CopyToClipboard.Props.title
 // @covers Action.CopyToClipboard.Props.icon
 // @covers Action.CopyToClipboard.Props.shortcut
+// @covers Action.CopyToClipboard.Props.transient
 // @covers Action.CopyToClipboard.Props.concealed
 // @covers Action.CopyToClipboard.Props.content
 test("CopyToClipboard passes props through, defaults its title, keeps content private", () => {
@@ -243,9 +247,12 @@ test("CopyToClipboard passes props through, defaults its title, keeps content pr
       title: "Copy token",
       icon: "clipboard.png",
       shortcut: { modifiers: ["shift"], key: "c" },
+      transient: true,
       concealed: true,
     }),
   );
+  // `transient` is the deprecated copy flag: it travels with the request, not
+  // in the scene, while `concealed` stays visible to clients.
   expect(latest().props).toEqual({
     title: "Copy token",
     icon: "clipboard.png",
@@ -256,6 +263,7 @@ test("CopyToClipboard passes props through, defaults its title, keeps content pr
   root.unmount();
 });
 
+// @covers Action.CopyToClipboard.Props.transient
 // @covers Action.CopyToClipboard.Props.onCopy
 // @covers Clipboard.copy
 test("dispatching CopyToClipboard requests clipboard.copy, then calls onCopy", async () => {
@@ -266,11 +274,18 @@ test("dispatching CopyToClipboard requests clipboard.copy, then calls onCopy", a
   });
   const { root, latest } = setup();
   root.render(
-    h(CopyToClipboard, { content: "hello", onCopy: (content) => events.push(`onCopy ${content}`) }),
+    h(CopyToClipboard, {
+      content: "hello",
+      transient: true,
+      onCopy: (content) => events.push(`onCopy ${content}`),
+    }),
   );
   expect(latest().type).toBe("Action.CopyToClipboard");
   await root.dispatch(latest().id, "onAction", []);
-  expect(events).toEqual(['request clipboard.copy {"text":"hello"}', "onCopy hello"]);
+  expect(events).toEqual([
+    'request clipboard.copy {"text":"hello","transient":true}',
+    "onCopy hello",
+  ]);
   root.unmount();
 });
 

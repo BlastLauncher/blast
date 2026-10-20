@@ -11,6 +11,8 @@ import type { JsonValue } from "../reconciler/index.ts";
 export type ActionStyle = (typeof ActionStyle)[keyof typeof ActionStyle];
 
 export interface ActionProps {
+  /** @deprecated Internal prop; kept so legacy scenes round-trip their ids. */
+  id?: string;
   /** The title displayed for the Action. */
   title: string;
   /** The icon displayed for the Action. */
@@ -37,6 +39,8 @@ export interface CopyToClipboardProps {
   icon?: ImageLike;
   /** The keyboard shortcut for the Action. */
   shortcut?: Shortcut;
+  /** @deprecated Use `concealed` instead. */
+  transient?: boolean;
   /** Indicates whether the content should be treated as confidential. */
   concealed?: boolean;
   /** Callback when the content was copied to clipboard. */
@@ -118,13 +122,17 @@ export const Action = Object.assign(
 );
 
 export function CopyToClipboard(props: CopyToClipboardProps) {
-  const { content, onCopy, title, ...rest } = props;
+  const { content, onCopy, title, transient, ...rest } = props;
   // `content` stays in the runtime: clipboard payloads (possibly concealed
-  // secrets) must not be broadcast to clients in the scene.
+  // secrets) must not be broadcast to clients in the scene. `transient` is the
+  // deprecated `concealed` flag and travels with the copy request instead.
   return createElement("Action.CopyToClipboard", {
     ...rest,
     title: title ?? "Copy to Clipboard",
-    onAction: () => copy(content).then(() => onCopy?.(content)),
+    onAction: () =>
+      copy(content, transient === undefined ? undefined : { transient }).then(() =>
+        onCopy?.(content),
+      ),
   });
 }
 

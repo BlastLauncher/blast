@@ -51,10 +51,11 @@ test("top-level, nested and partially implemented component stubs name the exact
 });
 
 test("sync and promise-returning APIs throw structured errors when called", async () => {
-  unsupported(() => api.randomId(), "randomId");
-  await expect((async () => api.randomId())()).rejects.toMatchObject({
+  const fixture = withUnsupported<ApiStub>("Fixture");
+  unsupported(() => fixture(), "Fixture");
+  await expect((async () => fixture())()).rejects.toMatchObject({
     code: "UNSUPPORTED_API",
-    path: "randomId",
+    path: "Fixture",
   });
 });
 

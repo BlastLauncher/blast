@@ -2,7 +2,7 @@
 // `init.environment` and the `init.command` it was launched with before the
 // extension is imported, so top-level reads work.
 import type { CommandMode, InitEnvironment } from "@blastlauncher/protocol";
-import { LaunchType, type LaunchTypeValue } from "./launch.ts";
+import { LaunchType, type LaunchContext, type LaunchTypeValue } from "./launch.ts";
 import { OPTIONAL_API } from "./ai-browser.ts";
 import { unsupportedPath } from "./unsupported.ts";
 
@@ -31,6 +31,12 @@ export type Environment = {
   launchType: LaunchTypeValue;
   /** Deprecated alias of {@link Environment.entryPointName}; extensions still read it. */
   commandName: string;
+  /** @deprecated Use `appearance` instead. */
+  theme: Appearance;
+  /** @deprecated Use the top-level `launchContext` prop instead. */
+  launchContext?: LaunchContext;
+  /** @deprecated Use `entryPointMode` instead. */
+  commandMode: EntryPointMode;
   canAccess(api: unknown): boolean;
 };
 
@@ -63,6 +69,9 @@ export const environment: Environment = {
   // out of scope (task 0028).
   launchType: LaunchType.UserInitiated,
   commandName: "",
+  // The deprecated aliases mirror their replacements from the start.
+  theme: "dark",
+  commandMode: "view",
   canAccess,
 };
 
@@ -72,7 +81,7 @@ export const environment: Environment = {
  */
 export function setEnvironment(
   values: InitEnvironment,
-  command: { name: string; mode: CommandMode },
+  command: { name: string; mode: CommandMode; launchContext?: LaunchContext },
 ): void {
   availableAPIs = values.availableAPIs ?? [];
   environment.extensionName = values.extensionName;
@@ -86,4 +95,8 @@ export function setEnvironment(
   environment.appearance = values.appearance;
   environment.textSize = values.textSize;
   environment.commandName = values.commandName;
+  environment.theme = values.appearance;
+  environment.commandMode = command.mode;
+  if (command.launchContext === undefined) delete environment.launchContext;
+  else environment.launchContext = command.launchContext;
 }

@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 import { createElement as h } from "react";
 import { createSceneRoot, type SceneSnapshot } from "../reconciler/index.ts";
 import { Action, Color, Icon } from "./index.ts";
-import type { ColorLike } from "./index.ts";
+import type { ColorDynamic, ColorLike } from "./index.ts";
 
 /** Renders one tinted icon and returns the serialized `tintColor`. */
 function serializeTint(tintColor: ColorLike): unknown {
@@ -42,4 +42,18 @@ test("color-likes keep their authored shape: built-in, literal or dynamic", () =
     expect(serialized).toEqual(expected);
     expect(serializeTint(value)).toEqual(serialized);
   }
+});
+
+// @covers Color.Brown
+// @covers Color.Brown.light
+// @covers Color.Brown.dark
+// @covers Color.Brown.adjustContrast
+test("Color.Brown is the deprecated dynamic brown pair", () => {
+  // The declarations carry no value for the deprecated color; it uses Apple's
+  // documented system brown pair and adjusts no contrast.
+  const brown: ColorDynamic = Color.Brown;
+  expect(brown.light).toBe("#A2845E");
+  expect(brown.dark).toBe("#AC8E68");
+  expect("adjustContrast" in brown).toBe(false);
+  expect(serializeTint(Color.Brown)).toEqual({ light: "#A2845E", dark: "#AC8E68" });
 });

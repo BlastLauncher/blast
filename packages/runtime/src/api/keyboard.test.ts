@@ -82,6 +82,9 @@ test("common shortcuts preserve the documented mappings on both platforms in sce
 // @covers Keyboard.Shortcut.Windows
 // @covers Keyboard.Shortcut.Windows.modifiers
 // @covers Keyboard.Shortcut.Windows.key
+// @covers Keyboard.Shortcut.windows
+// @covers Keyboard.Shortcut.windows.modifiers
+// @covers Keyboard.Shortcut.windows.key
 test("shortcut shapes reach the scene as authored, with nothing invented", () => {
   const one = { modifiers: ["cmd"], key: "g" } satisfies Shortcut;
   const perPlatform = {

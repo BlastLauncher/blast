@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
 import { createElement as h, createRef, useState } from "react";
 import { createSceneRoot, type SceneNode, type SceneSnapshot } from "../reconciler/index.ts";
-import { Action, ActionPanel, Form } from "./index.ts";
+import { Action, ActionPanel, Form, SubmitFormAction } from "./index.ts";
 import {
   decodeFormValues,
   flushFormPersistence,
@@ -18,6 +18,13 @@ beforeEach(() => setCapabilityRequester(async () => null));
 afterEach(() => {
   setCapabilityRequester(undefined);
   setFormDraftValues(undefined);
+});
+
+// @covers SubmitFormAction
+// @covers SubmitFormAction.displayName
+test("SubmitFormAction keeps the declared display name", () => {
+  expect(SubmitFormAction.displayName).toBe("SubmitForm");
+  expect(Action.SubmitForm.displayName).toBe("SubmitForm");
 });
 
 // @covers Form.TextField

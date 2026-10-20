@@ -31,6 +31,7 @@ export type {
 export type {
   ActionPanelProps,
   ActionPanelSectionProps,
+  ActionPanelState,
   ActionPanelSubmenuProps,
 } from "./action-panel.ts";
 export type { ClipboardContent, CopyOptions, ReadContent } from "./clipboard.ts";
@@ -91,7 +92,7 @@ export type {
   MetadataTagListItemProps,
   MetadataTagListProps,
 } from "./metadata.ts";
-export type { PreferenceValues } from "./preferences.ts";
+export type { PreferenceValues, Preference, Preferences } from "./preferences.ts";
 
 export type { PushProps } from "./action.ts";
 export type { Navigation, ClearSearchBarOptions } from "./navigation.ts";

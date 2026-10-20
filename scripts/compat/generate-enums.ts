@@ -26,6 +26,12 @@ const PUBLIC_ENUMS = [
 ] as const;
 /** These two must exist in every `@raycast/api` release Blast vendors. */
 const REQUIRED_ENUMS = ["Icon", "Color"] as const;
+/**
+ * Public members the runtime adds around a declared enum. `Color.Brown` is a
+ * deprecated dynamic pair, not an enum member, so the declarations carry no
+ * value for it and the generated const cannot supply it.
+ */
+const PUBLIC_ENUM_EXTRA_MEMBERS: Record<string, readonly string[]> = { Color: ["Brown"] };
 
 function members(node: Extract<Statement, { type: "TSEnumDeclaration" }>): Record<string, string> {
   const values: Record<string, string> = {};
@@ -116,7 +122,15 @@ function generatedTestCode(enums: Record<string, Record<string, string>>): strin
     "});",
     'test("the public API surface serves the generated enum values", () => {',
     `  const paths = ${JSON.stringify(publicPaths)};`,
-    "  for (const path of paths) expect(at(api, path)).toEqual(at(generated, path));",
+    `  const extraMembers = ${JSON.stringify(PUBLIC_ENUM_EXTRA_MEMBERS)};`,
+    "  for (const path of paths) {",
+    "    const expected = at(generated, path) as Record<string, string>;",
+    "    const actual = at(api, path) as Record<string, unknown>;",
+    "    for (const [key, value] of Object.entries(expected)) expect(actual[key]).toBe(value);",
+    "    // Only the documented deprecated extras may sit beside the enum members.",
+    "    const extra = Object.keys(actual).filter((key) => !Object.hasOwn(expected, key));",
+    "    expect(extra).toEqual((extraMembers as Record<string, string[] | undefined>)[path] ?? []);",
+    "  }",
     "});",
     "",
   ].join("\n");

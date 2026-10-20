@@ -531,3 +531,6 @@ export function SubmitForm<T extends FormValues>({
     },
   });
 }
+
+// `Action.SubmitForm` and its deprecated alias declare a `displayName`.
+SubmitForm.displayName = "SubmitForm";

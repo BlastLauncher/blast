@@ -10,6 +10,7 @@ import { getPreferenceValues, setPreferenceValues } from "./preferences.ts";
 // @covers Environment.entryPointType
 // @covers Environment.entryPointName
 // @covers Environment.entryPointMode
+// @covers Environment.commandName
 // @covers Environment.assetsPath
 // @covers Environment.supportPath
 // @covers Environment.isDevelopment
@@ -17,6 +18,9 @@ import { getPreferenceValues, setPreferenceValues } from "./preferences.ts";
 // @covers Environment.textSize
 // @covers Environment.launchType
 // @covers Environment.canAccess
+// @covers Environment.theme
+// @covers Environment.commandMode
+// @covers Environment.launchContext
 // @covers environment
 // @covers environment.raycastVersion
 // @covers environment.ownerOrAuthorName
@@ -32,6 +36,9 @@ import { getPreferenceValues, setPreferenceValues } from "./preferences.ts";
 // @covers environment.textSize
 // @covers environment.launchType
 // @covers environment.canAccess
+// @covers environment.theme
+// @covers environment.commandMode
+// @covers environment.launchContext
 test("environment mirrors init, derives the entry point and answers canAccess", () => {
   const init = {
     extensionName: "Clipboard History",
@@ -58,14 +65,45 @@ test("environment mirrors init, derives the entry point and answers canAccess", 
     textSize: "large",
     // Blast has no background launch yet, so every command is user initiated.
     launchType: "userInitiated",
-    // The deprecated alias keeps the launched command's name.
+    // The deprecated aliases keep the launched command's name and mode, and
+    // `theme` mirrors the app appearance.
     commandName: "history",
+    theme: "light",
+    commandMode: "view",
     canAccess: expect.any(Function),
   });
   // The entry point follows the launched command's mode.
   setEnvironment(init, { name: "session", mode: "menu-bar" });
   expect(environment.entryPointName).toBe("session");
   expect(environment.entryPointMode).toBe("menu-bar");
+  expect(environment.commandMode).toBe("menu-bar");
+  // `theme` follows the appearance, not the mode.
+  expect(environment.theme).toBe("light");
+  expect(environment.launchContext).toBeUndefined();
+});
+
+// @covers Environment.launchContext
+// @covers environment.launchContext
+test("the deprecated environment launch context is the one this command was launched with", () => {
+  const init = {
+    extensionName: "Fixture",
+    commandName: "command",
+    ownerOrAuthorName: "Blast",
+    assetsPath: "",
+    supportPath: "",
+    isDevelopment: true,
+    appearance: "dark",
+    textSize: "medium",
+  } as const;
+  setEnvironment(init, {
+    name: "command",
+    mode: "view",
+    launchContext: { from: "launcher", nested: { deep: true } },
+  });
+  expect(environment.launchContext).toEqual({ from: "launcher", nested: { deep: true } });
+  // A plain launch clears the previous command's context.
+  setEnvironment(init, { name: "command", mode: "view" });
+  expect(environment.launchContext).toBeUndefined();
 });
 
 // @covers Environment.canAccess
