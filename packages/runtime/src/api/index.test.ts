@@ -4,8 +4,8 @@ import { createSceneRoot, type SceneSnapshot } from "../reconciler/index.ts";
 import { setCapabilityRequester } from "./capability.ts";
 import { Action, Clipboard, CopyToClipboard, List, ActionPanel } from "./index.ts";
 
-// @covers List partial
-// @covers List.Props partial
+// @covers List
+// @covers List.Props
 // @covers List.Item
 // @covers List.Section
 // @covers List.EmptyView

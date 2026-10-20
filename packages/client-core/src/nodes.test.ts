@@ -5,7 +5,6 @@ import {
   handler,
   handlerEvent,
   isFiltering,
-  matchesQuery,
   paginationOf,
   selectionId,
   slot,
@@ -68,16 +67,4 @@ test("filtering is client-owned unless the view opts out or handles search itsel
   expect(isFiltering(node("List", "l"))).toBe(true);
   expect(isFiltering(node("List", "l", { filtering: false }))).toBe(false);
   expect(isFiltering(node("List", "l", { onSearchTextChange: { $handler: "s" } }))).toBe(false);
-});
-
-test("matchesQuery is a case-insensitive match over title, subtitle and keywords", () => {
-  const item = node("List.Item", "a", {
-    title: "Apple",
-    subtitle: "Green",
-    keywords: ["fruit", "Juice"],
-  });
-  // The query arrives lowercased from sceneToView.
-  for (const query of ["app", "green", "juice", ""]) expect(matchesQuery(item, query)).toBe(true);
-  expect(matchesQuery(item, "pear")).toBe(false);
-  expect(matchesQuery(node("List.Item", "b", { title: "Pear" }), "app")).toBe(false);
 });

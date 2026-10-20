@@ -9,3 +9,7 @@ export * from "./form-view.ts";
 export * from "./pagination.ts";
 export * from "./search.ts";
 export * from "./hud.ts";
+export * from "./rank.ts";
+export * from "./shortcut.ts";
+export * from "./feedback.ts";
+export * from "./menu-bar.ts";

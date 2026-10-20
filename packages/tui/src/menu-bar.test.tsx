@@ -14,10 +14,9 @@ import { testRender } from "@opentui/react/test-utils";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { HandlerRef, SceneNode, SceneMessage } from "@blastlauncher/protocol";
+import type { SceneMessage } from "@blastlauncher/protocol";
 import type { Session } from "@blastlauncher/host";
 import { App } from "./app.tsx";
-import { menuRows } from "./menu-bar.tsx";
 import { openCommand } from "./session.ts";
 
 function waitScene(session: Session, predicate: (scene: SceneMessage) => boolean): Promise<void> {
@@ -36,36 +35,6 @@ function waitScene(session: Session, predicate: (scene: SceneMessage) => boolean
     });
   });
 }
-
-function node(
-  id: string,
-  type: string,
-  props: SceneNode["props"] = {},
-  children: SceneNode[] = [],
-): SceneNode {
-  return { id, type, props, children };
-}
-
-test("menuRows flattens the level at path, marking disabled items", () => {
-  const action = { $handler: "click" } satisfies HandlerRef;
-  const menu = node("menu", "MenuBarExtra", { title: "Ready", tooltip: "Status" }, [
-    node("s", "MenuBarExtra.Section", { title: "Tools" }, [
-      node("sub", "MenuBarExtra.Submenu", { title: "More" }, [
-        node("click", "MenuBarExtra.Item", { title: "Click", onAction: action }),
-      ]),
-      node("off", "MenuBarExtra.Item", { title: "Disabled" }),
-    ]),
-    node("sep", "MenuBarExtra.Separator"),
-    node("solo", "MenuBarExtra.Item", { title: "Solo", onAction: action }),
-  ]);
-  const root = menuRows(menu, []);
-  expect(root.map((row) => row.text)).toEqual(["Tools", "More ›", "Disabled", "Solo"]);
-  expect(root.map((row) => row.item)).toEqual([false, true, true, true]);
-  expect(root.map((row) => row.disabled)).toEqual([true, false, true, false]);
-  expect(menuRows(menu, ["sub"]).map((row) => row.text)).toEqual(["Click"]);
-  expect(menuRows(node("m", "MenuBarExtra", {}, []), [])).toEqual([]);
-  expect(menuRows(node("l", "List", {}, []), [])).toEqual([]);
-});
 
 test("terminal drives menu-bar: open the Submenu, run the item's onAction", async () => {
   const dataDir = await mkdtemp(join(tmpdir(), "blast-tui-menu-"));

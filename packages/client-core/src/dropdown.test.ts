@@ -1,6 +1,20 @@
+// @covers List.Dropdown
+// @covers List.Dropdown.Props
+// @covers List.Dropdown.Props.filtering
+// @covers List.Dropdown.Props.filtering.keepSectionOrder
+// @covers Grid.Dropdown
+// @covers Grid.Dropdown.Props
+// @covers Grid.Dropdown.Props.filtering
+// @covers Grid.Dropdown.Props.filtering.keepSectionOrder
 import { expect, test } from "bun:test";
 import type { SceneNode } from "@blastlauncher/protocol";
-import { dropdownLabel, dropdownOptions, filterOptions, searchBarDropdown } from "./dropdown.ts";
+import {
+  dropdownLabel,
+  dropdownOptions,
+  filterOptions,
+  searchBarDropdown,
+  visibleOptions,
+} from "./dropdown.ts";
 
 const node = (
   type: string,
@@ -70,4 +84,37 @@ test("dropdownLabel resolves the controlled value, then the default, to a title"
   // An unknown or absent value falls back to the raw value text.
   expect(dropdownLabel(labelled({ value: "soda" }), options)).toBe("soda");
   expect(dropdownLabel(undefined, options)).toBe("");
+});
+
+const item = (id: string, props: SceneNode["props"] = {}) =>
+  node("List.Dropdown.Item", id, { title: id, value: id, ...props });
+
+const dropdownSections = () => [
+  node("List.Dropdown.Section", "A", { title: "A" }, [item("xxapple"), item("apple pie")]),
+  node("List.Dropdown.Section", "B", { title: "B" }, [
+    item("apple"),
+    item("kw", { keywords: ["apple"] }),
+  ]),
+];
+
+const ids = (props: SceneNode["props"], query: string) =>
+  visibleOptions(dropdown(props, dropdownSections()), query).map((option) => option.node.id);
+
+test("dropdown options rank by title, keywords and value, with sections ordered by best item", () => {
+  expect(ids({}, "apple")).toEqual(["apple", "kw", "apple pie", "xxapple"]);
+  expect(ids({ filtering: { keepSectionOrder: true } }, "apple")).toEqual([
+    "apple pie",
+    "xxapple",
+    "apple",
+    "kw",
+  ]);
+  expect(ids({}, "")).toEqual(["xxapple", "apple pie", "apple", "kw"]);
+  expect(ids({ filtering: false }, "zzz")).toEqual(["xxapple", "apple pie", "apple", "kw"]);
+  expect(ids({ onSearchTextChange: { $handler: "h" } }, "zzz")).toEqual([
+    "xxapple",
+    "apple pie",
+    "apple",
+    "kw",
+  ]);
+  expect(visibleOptions(undefined, "x")).toEqual([]);
 });

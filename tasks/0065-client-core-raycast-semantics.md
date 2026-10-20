@@ -97,8 +97,30 @@ evidence. An embedder that renders client-core's model behaves like Raycast.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: task-0065-client-core-semantics @ branch tip
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) in 94.1s
 Done:
+- client-core `rank.ts`: score (match quality exact > prefix > word prefix >
+  substring dominates; title > keywords > subtitle breaks ties), `rankGroups`
+  (keepSectionOrder, stable ties, empty query = declaration order), `filteringOf`.
+  Used by List (`sceneToView`), `gridLayout`, dropdowns (`filterOptions`,
+  new `visibleOptions`), `actionRows`/new `panelRows` (Submenu `filtering`), and
+  new `formDropdownOptions` (+ `searchDispatch` works on any node).
+- `shortcut.ts`: platform-aware `matchesShortcut`/`shortcutLabel` (macOS |
+  Windows | Linux, default Linux), all modifiers, `{ macOS, Windows }` form,
+  labels `⌘⇧K` / `Ctrl+Shift+K`. Off macOS `cmd` maps to Ctrl (my choice).
+- `feedback.ts` (`feedbackState`: toast, HUD with popToRootType/clearRootSearch,
+  alert with rememberUserChoice) and `menu-bar.ts` (`menuRows`, `menuBarView`,
+  `menuBarStep` reducer); the TUI uses them (menu-bar.tsx keeps only rendering).
+- Non-deprecated partials 38 -> 7 (`compat:report` clean); dropped ` partial`
+  from runtime tags for the listed symbols (incl. dropdown `storeValue`, whose
+  runtime persistence already exists), added tags in client-core tests.
 Not done / risks:
+- Remaining 7 partials are 0076's (SubmitForm, Alert.Options.rememberUserChoice,
+  getContent, Cache directory, fallbackText).
+- Visible TUI change: shortcut labels are now `Ctrl+A`, not `ctrl+a`. No TUI
+  test needed changes; the TUI form/dropdown search UI is not wired to
+  `formDropdownOptions` (form dropdowns still cycle options).
+- Unsupported List children now render after the ranked items, not in place.
+- `meta` is not folded into Alt off macOS; embedders must report Alt as `option`.
 ```

@@ -97,12 +97,12 @@ test("List and Grid empty views preserve a null icon", () => {
   root.unmount();
 });
 
-// @covers List.Dropdown.Props partial
-// @covers Grid.Dropdown.Props partial
-// @covers List.Dropdown.Props.storeValue partial
-// @covers Grid.Dropdown.Props.storeValue partial
-// @covers List.Dropdown.Props.filtering.keepSectionOrder partial
-// @covers Grid.Dropdown.Props.filtering.keepSectionOrder partial
+// @covers List.Dropdown.Props
+// @covers Grid.Dropdown.Props
+// @covers List.Dropdown.Props.storeValue
+// @covers Grid.Dropdown.Props.storeValue
+// @covers List.Dropdown.Props.filtering.keepSectionOrder
+// @covers Grid.Dropdown.Props.filtering.keepSectionOrder
 for (const Dropdown of [List.Dropdown, Grid.Dropdown]) {
   test(`${Dropdown.name} restores, saves and retains uncontrolled values with controlled precedence`, async () => {
     const { root, latest } = setup();

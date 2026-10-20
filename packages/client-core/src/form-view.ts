@@ -1,4 +1,5 @@
 import type { SceneNode } from "@blastlauncher/protocol";
+import { filteringOf, groupsOf, rankGroups, score, searchable } from "./rank.ts";
 
 const editable = new Set(
   [
@@ -25,6 +26,24 @@ export function formOptions(field: SceneNode): SceneNode[] {
     return node.type === `${field.type}.Item` ? [node] : node.children.flatMap(visit);
   }
   return field.children.flatMap(visit);
+}
+/**
+ * The items a `Form.Dropdown` shows for `query`, filtered and ranked per its
+ * `filtering` (title, keywords, then value; sections ordered unless
+ * `keepSectionOrder`). A dropdown that owns its search through
+ * `onSearchTextChange` shows everything: forward the text with `searchDispatch`.
+ */
+export function formDropdownOptions(field: SceneNode, query = ""): SceneNode[] {
+  return rankGroups(
+    groupsOf(
+      field,
+      (node) => node.type === "Form.Dropdown.Item",
+      (node) => node.type === "Form.Dropdown.Section",
+    ),
+    query,
+    (node) => score({ ...searchable(node), subtitle: String(node.props.value ?? "") }, query),
+    filteringOf(field),
+  ).flatMap((group) => group.items);
 }
 /** Empty dates clear the field; reject normalized impossible dates such as February 30. */
 export function parseDate(value: string): string | null | undefined {

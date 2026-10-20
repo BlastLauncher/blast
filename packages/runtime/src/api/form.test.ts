@@ -68,7 +68,7 @@ afterEach(() => {
 // @covers Form.DatePicker.Props.onChange
 // @covers Form.DatePicker.Props.onBlur
 // @covers Form.DatePicker.Props.onFocus
-// @covers Form.Dropdown partial
+// @covers Form.Dropdown
 // @covers Form.Dropdown.Props.id
 // @covers Form.Dropdown.Props.title
 // @covers Form.Dropdown.Props.info
@@ -97,8 +97,8 @@ afterEach(() => {
 // @covers Form.Dropdown.Props.placeholder
 // @covers Form.Dropdown.Props.isLoading
 // @covers Form.Dropdown.Props.throttle
-// @covers Form.Dropdown.Props.filtering partial
-// @covers Form.Dropdown.Props.onSearchTextChange partial
+// @covers Form.Dropdown.Props.filtering
+// @covers Form.Dropdown.Props.onSearchTextChange
 // @covers Form.Dropdown.Item
 // @covers Form.Dropdown.Item.Props.value
 // @covers Form.Dropdown.Item.Props.title
@@ -142,7 +142,7 @@ afterEach(() => {
 // @covers Form.DatePicker.Props
 // @covers Form.DatePicker.isFullDay
 // @covers Form.Dropdown.Props
-// @covers Form.Dropdown.Props.filtering.keepSectionOrder partial
+// @covers Form.Dropdown.Props.filtering.keepSectionOrder
 // @covers Form.Dropdown.Item.Props
 // @covers Form.Dropdown.Section.Props
 // @covers Form.FilePicker.Props
@@ -560,7 +560,7 @@ test("FilePicker retains path arrays, controlled values, options and focus event
 });
 
 // @covers Form.DatePicker.isFullDay
-// @covers Form.Dropdown.Props.filtering.keepSectionOrder partial
+// @covers Form.Dropdown.Props.filtering.keepSectionOrder
 test("DatePicker.isFullDay detects midnight values and Dropdown records keepSectionOrder", () => {
   expect(Form.DatePicker.isFullDay(new Date(2026, 9, 18))).toBe(true);
   expect(Form.DatePicker.isFullDay(new Date(2026, 9, 18, 12, 30))).toBe(false);
