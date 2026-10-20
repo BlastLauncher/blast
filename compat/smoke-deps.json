@@ -1,10 +1,10 @@
 {
   "commit": "3b812d1e153a1862df29bc8ec34e170c728512ea",
   "totals": {
-    "rendered": 33,
+    "rendered": 35,
     "completed": 0,
     "install-failed": 0,
-    "bundle-failed": 2,
+    "bundle-failed": 0,
     "crashed": 0,
     "needs-arguments": 6,
     "needs-preferences": 14,
@@ -21,8 +21,8 @@
         "execa"
       ],
       "status": "installed",
-      "ms": 717.544903,
-      "bytes": 230234
+      "ms": 732.167086999998,
+      "bytes": 230236
     },
     {
       "extension": "atomberg-raycast-extension",
@@ -30,8 +30,8 @@
         "@tanstack/react-query"
       ],
       "status": "installed",
-      "ms": 3361.8052959999986,
-      "bytes": 4539193
+      "ms": 3627.085541999997,
+      "bytes": 4539195
     },
     {
       "extension": "bed-time-calculator",
@@ -39,8 +39,8 @@
         "chrono-node"
       ],
       "status": "installed",
-      "ms": 1238.4161299999978,
-      "bytes": 3158586
+      "ms": 1270.4097330000004,
+      "bytes": 3158588
     },
     {
       "extension": "caschys-blog",
@@ -48,8 +48,8 @@
         "xml2js"
       ],
       "status": "installed",
-      "ms": 1374.2509800000007,
-      "bytes": 4934383
+      "ms": 1361.7833769999997,
+      "bytes": 4934385
     },
     {
       "extension": "ccfddl",
@@ -57,8 +57,8 @@
         "js-yaml"
       ],
       "status": "installed",
-      "ms": 2747.241349,
-      "bytes": 2901707
+      "ms": 3209.482877000002,
+      "bytes": 2901709
     },
     {
       "extension": "colorify",
@@ -70,8 +70,8 @@
         "jimp"
       ],
       "status": "installed",
-      "ms": 2582.053791000002,
-      "bytes": 30841859
+      "ms": 2645.639110999997,
+      "bytes": 30841861
     },
     {
       "extension": "commandcode-ai",
@@ -81,8 +81,8 @@
         "ai"
       ],
       "status": "installed",
-      "ms": 1824.6740789999967,
-      "bytes": 17125183
+      "ms": 2741.1504589999968,
+      "bytes": 23265885
     },
     {
       "extension": "control-d",
@@ -90,8 +90,8 @@
         "form-data"
       ],
       "status": "installed",
-      "ms": 938.7918060000011,
-      "bytes": 2432319
+      "ms": 934.7106160000039,
+      "bytes": 2432321
     },
     {
       "extension": "defichain-lottery",
@@ -99,8 +99,8 @@
         "qrcode"
       ],
       "status": "installed",
-      "ms": 1341.5872090000048,
-      "bytes": 8452782
+      "ms": 1386.3705259999988,
+      "bytes": 8452784
     },
     {
       "extension": "emojify",
@@ -108,8 +108,8 @@
         "openai"
       ],
       "status": "installed",
-      "ms": 3796.5551110000015,
-      "bytes": 20439570
+      "ms": 3578.7818719999996,
+      "bytes": 20439572
     },
     {
       "extension": "esa-search",
@@ -118,8 +118,8 @@
         "swr"
       ],
       "status": "installed",
-      "ms": 3562.0109559999983,
-      "bytes": 6831722
+      "ms": 2819.0809759999975,
+      "bytes": 6831724
     },
     {
       "extension": "featurebase",
@@ -127,8 +127,8 @@
         "turndown"
       ],
       "status": "installed",
-      "ms": 3307.309236000001,
-      "bytes": 9121145
+      "ms": 3011.841766000005,
+      "bytes": 9121147
     },
     {
       "extension": "image-diff-checker",
@@ -137,8 +137,8 @@
         "pixelmatch"
       ],
       "status": "installed",
-      "ms": 4308.6517840000015,
-      "bytes": 28529727
+      "ms": 4130.793516999998,
+      "bytes": 28529729
     },
     {
       "extension": "irish-rail",
@@ -146,8 +146,8 @@
         "fast-xml-parser"
       ],
       "status": "installed",
-      "ms": 1010.8137290000013,
-      "bytes": 3562177
+      "ms": 1631.4068770000013,
+      "bytes": 3562179
     },
     {
       "extension": "lyne",
@@ -155,8 +155,8 @@
         "open"
       ],
       "status": "installed",
-      "ms": 578.0546190000023,
-      "bytes": 61339
+      "ms": 525.4013249999989,
+      "bytes": 61341
     },
     {
       "extension": "markdown-preview",
@@ -164,8 +164,8 @@
         "marked"
       ],
       "status": "installed",
-      "ms": 3119.207086999988,
-      "bytes": 2697514
+      "ms": 2696.7388159999973,
+      "bytes": 2697516
     },
     {
       "extension": "monorepo-manager",
@@ -175,8 +175,8 @@
         "parse-git-config"
       ],
       "status": "installed",
-      "ms": 3333.2334649999975,
-      "bytes": 15347858
+      "ms": 3216.6940269999905,
+      "bytes": 15347860
     },
     {
       "extension": "oci",
@@ -185,8 +185,8 @@
         "oci-sdk"
       ],
       "status": "installed",
-      "ms": 25063.258319,
-      "bytes": 226850472
+      "ms": 23646.052641000002,
+      "bytes": 226850474
     },
     {
       "extension": "owl",
@@ -195,8 +195,8 @@
         "raycast-cross-extension"
       ],
       "status": "installed",
-      "ms": 2676.379679000005,
-      "bytes": 2535494
+      "ms": 3367.571941000002,
+      "bytes": 2535496
     },
     {
       "extension": "screen-sharing-recents",
@@ -204,8 +204,8 @@
         "plist"
       ],
       "status": "installed",
-      "ms": 794.293520999985,
-      "bytes": 9079447
+      "ms": 923.4944980000146,
+      "bytes": 9079449
     },
     {
       "extension": "search-composer-packagist",
@@ -213,8 +213,8 @@
         "algoliasearch"
       ],
       "status": "installed",
-      "ms": 3088.5912050000043,
-      "bytes": 2334028
+      "ms": 3144.9230049999896,
+      "bytes": 2334030
     },
     {
       "extension": "search-regexp",
@@ -222,8 +222,8 @@
         "got"
       ],
       "status": "installed",
-      "ms": 988.5901720000256,
-      "bytes": 745166
+      "ms": 983.7224690000003,
+      "bytes": 745168
     },
     {
       "extension": "shopify-developer-changelog",
@@ -231,8 +231,8 @@
         "rss-parser"
       ],
       "status": "installed",
-      "ms": 720.3384969999897,
-      "bytes": 2206494
+      "ms": 695.7023320000153,
+      "bytes": 2206496
     },
     {
       "extension": "vanishlink",
@@ -240,8 +240,8 @@
         "node-html-parser"
       ],
       "status": "installed",
-      "ms": 3567.768312,
-      "bytes": 3137350
+      "ms": 3452.7558220000064,
+      "bytes": 3137352
     },
     {
       "extension": "youtube",
@@ -252,8 +252,8 @@
         "javascript-time-ago"
       ],
       "status": "installed",
-      "ms": 4296.297093000001,
-      "bytes": 27977774
+      "ms": 6266.683537999983,
+      "bytes": 27977776
     }
   ],
   "results": [
@@ -355,15 +355,17 @@
       "extension": "commandcode-ai",
       "command": "ask-commandcode-ai",
       "mode": "view",
-      "error": "Build failed with 8 errors: ../../../smoke-deps-data/deps/commandcode-ai/node_modules/@ai-sdk/anthropic/dist/index.js:4:18: ERROR: Could not resolve \"zod/v4\" .…",
-      "outcome": "bundle-failed"
+      "nodes": 8,
+      "rootType": "Navigation",
+      "outcome": "rendered"
     },
     {
       "extension": "commandcode-ai",
       "command": "refresh-models",
       "mode": "no-view",
-      "error": "Build failed with 8 errors: ../../../smoke-deps-data/deps/commandcode-ai/node_modules/@ai-sdk/anthropic/dist/index.js:4:18: ERROR: Could not resolve \"zod/v4\" .…",
-      "outcome": "bundle-failed"
+      "nodes": 4,
+      "rootType": "Navigation",
+      "outcome": "rendered"
     },
     {
       "extension": "control-d",
@@ -685,6 +687,6 @@
     }
   ],
   "extensionFailures": [],
-  "peakBytes": 476683668,
-  "wallMs": 162424.391676
+  "peakBytes": 467759457,
+  "wallMs": 177796.39105099998
 }

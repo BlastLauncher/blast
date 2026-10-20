@@ -40,6 +40,7 @@
     "@blastlauncher/shared-deps": "workspace:*",
     "@types/bun": "1.4.3",
     "@types/node": "^24",
+    "@types/semver": "7.8.0",
     "oxc-parser": "0.154.0",
     "oxfmt": "0.73.0",
     "oxlint": "1.88.0",

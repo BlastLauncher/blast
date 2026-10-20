@@ -110,8 +110,8 @@ and `launch(command, { argumentValues?, handlers?, launchContext? })`, which wai
 for installs, rejects missing values with `MissingLaunchValuesError` and returns
 `{ session, close }`. `close()` ends watchers and all owned sessions.
 
-`blast deps` keeps keyed production installs outside extensions under `<dataDir>/deps/`;
-bundling resolves the extension's tsconfig `baseUrl`/`paths` aliases first (read only
+`blast deps` keeps keyed production installs outside extensions under `<dataDir>/deps/`. It repairs required non-supplied peers in two passes, preferring lock pins; conflicts warn and additions enter the key.
+Bundling resolves the extension's tsconfig `baseUrl`/`paths` aliases first (read only
 inside the extension directory), then matching installs, then the optional `@blastlauncher/shared-deps` allowlist.
 
 `bundleCommand({ extensionDir, command, outDir?, dataDir? })` returns the entry path,
