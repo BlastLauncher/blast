@@ -24,8 +24,7 @@ are missing; matching installs take precedence over Blast's shared packages.
 ## Options
 
 - `--fallback-text <text>` — search text passed as `LaunchProps.fallbackText`.
-- `--argument <name=value>` — manifest argument (repeatable; a missing
-  required or unknown name is a usage error).
+- `--argument <name=value>` — manifest argument (repeatable; validates required/known names).
 - `--grant <capability>` — grant a capability. A granted `clipboard.copy`
   records and prints the copied content instead of touching an OS clipboard; a
   granted `command.launch` records the request without starting a session.
