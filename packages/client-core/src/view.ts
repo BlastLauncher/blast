@@ -191,7 +191,9 @@ export function actionRows(node: SceneNode | undefined, query = ""): Row[] {
     : children;
 }
 
-type TerminalKey = {
+// The key shape a client matches against. Named neutrally: any embedder can
+// supply it, not only a terminal (`name` plus the held modifiers).
+export type KeyInput = {
   name: string;
   ctrl?: boolean;
   meta?: boolean;
@@ -229,7 +231,7 @@ export function shortcutLabel(value: unknown): string {
   return mapped ? [...mapped.modifiers, mapped.key].join("+") : "";
 }
 
-export function matchesShortcut(value: unknown, key: TerminalKey): boolean {
+export function matchesShortcut(value: unknown, key: KeyInput): boolean {
   const mapped = shortcut(value);
   return (
     !!mapped &&

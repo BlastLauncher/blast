@@ -1,8 +1,7 @@
 /** @jsxImportSource @opentui/react */
 import { TextAttributes } from "@opentui/core";
 import type { SceneNode } from "@blastlauncher/protocol";
-import { handler, text } from "./nodes.ts";
-import { shortcutLabel } from "./view.ts";
+import { handler, shortcutLabel, text } from "@blastlauncher/client-core";
 import { theme } from "./theme.ts";
 
 // `MenuBarExtra` as a navigable menu. Sections are headers, Items run their

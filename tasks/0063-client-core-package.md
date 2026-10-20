@@ -67,8 +67,14 @@ host dependency. `packages/tui` imports them from there.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/client-core-package @ (this commit)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, workflow ok, test ok) — 581 tests, 85 files
 Done:
+- New `@blastlauncher/client-core` (deps: only `@blastlauncher/protocol`; exports `.` → `./src/index.ts`): moved `nodes.ts`, `view.ts`, `grid.ts`, `dropdown.ts`, `form-view.ts` verbatim with their tests, plus new tested helpers — `loadMoreRequest` (pagination.ts), `searchDispatch` + `SEARCH_THROTTLE_MS` (search.ts), `HUD_DURATION_MS` (hud.ts) — and a pure `nodes.test.ts` / `dropdown.test.ts` that did not exist before.
+- `matchesShortcut` keeps its signature; its key parameter type is now exported as `KeyInput`.
+- TUI imports the moved modules from `@blastlauncher/client-core`; `packages/tui/src/{nodes,view,grid,dropdown,form-view}.ts` and their tests are gone; Timers stay in `app.tsx` (core returns event + delay as data). Only import paths changed in TUI tests; `picker.*`/`session.*` untouched.
+- `docs/architecture.md`: client-core table row and diagram line; `bun.lock` regenerated for the new workspace dep.
 Not done / risks:
+- `@covers` tags did not move: the pagination tags belong to `pagination.test.tsx` (a TUI integration test that stays and still passes), and the moved test files carried none. Coverage unchanged at 2151/2473; `compat:report` clean. Re-pointing client-owned partial evidence to client-core is 0065.
+- `matchesQuery` documents that the query arrives lowercased (pre-existing contract, now explicit for embedders); no behaviour change.
 ```

@@ -8,16 +8,20 @@ import {
   event,
   handler,
   handlerEvent,
-  paginationOf,
   sceneToView,
   selectionId,
   text,
   actionRows,
   matchesShortcut,
-} from "./view.ts";
-import { gridMove } from "./grid.ts";
+  gridMove,
+  dropdownLabel,
+  dropdownOptions,
+  filterOptions,
+  loadMoreRequest,
+  searchDispatch,
+  HUD_DURATION_MS,
+} from "@blastlauncher/client-core";
 import { GridView } from "./grid.tsx";
-import { dropdownLabel, dropdownOptions, filterOptions } from "./dropdown.ts";
 import { DropdownPanel } from "./dropdown.tsx";
 import { menuRows, MenuBarView } from "./menu-bar.tsx";
 import { FormView } from "./form.tsx";
@@ -27,7 +31,7 @@ export function App({
   session,
   onQuit,
   onExit,
-  hudDurationMs = 2500,
+  hudDurationMs = HUD_DURATION_MS,
 }: {
   session: Session;
   onQuit: () => void;
@@ -70,7 +74,6 @@ export function App({
   const menu = isMenu ? menuRows(view.list, menuPath) : [];
   const menuItems = menu.filter((row) => row.item);
   const menuChoice = menuItems.find((row) => selectionId(row.node) === selectedId) ?? menuItems[0];
-  const pagination = paginationOf(view.list);
   const dropdown = view.accessory;
   const dropdownChoices = filterOptions(dropdownOptions(dropdown), dropdownQuery);
   const dropdownChoice = dropdownChoices[Math.min(dropdownIndex, dropdownChoices.length - 1)];
@@ -198,26 +201,26 @@ export function App({
     scroll.current?.scrollChildIntoView(menuChoice?.node.id ?? "");
   }, [menuChoice?.node.id]);
   // Pagination: reaching the last loaded item (or last Grid row) loads the
-  // next page once per item count, until `hasMore` turns false.
+  // next page once per item count, until `hasMore` turns false. client-core
+  // decides what and when; the send stays here.
   useEffect(() => {
-    if (!pagination || !handler(pagination.onLoadMore) || pagination.hasMore !== true) return;
-    const last = view.items.at(-1);
-    if (!last || selectionId(last) !== id) return;
-    if (paginatedFor.current === view.items.length) return;
-    paginatedFor.current = view.items.length;
-    send(handlerEvent(view.list, pagination.onLoadMore));
+    const load = loadMoreRequest(view.list, view.items, id, paginatedFor.current);
+    if (!load) return;
+    paginatedFor.current = load.count;
+    send(load.event);
   }, [id, scene?.revision]);
   function search(value: string) {
     if (currentSearch.current === value) return;
     currentSearch.current = value;
     setSearch(value);
     clearTimeout(timer.current);
-    if (!handler(view.list?.props.onSearchTextChange)) return;
+    // client-core decides what is forwarded and how long to wait; the timer
+    // stays here.
+    const forward = searchDispatch(view.list, value);
+    if (!forward) return;
     pendingSearch.current = value;
-    const dispatch = () => {
-      send(event(view.list, "onSearchTextChange", [value]));
-    };
-    if (view.list?.props.throttle) timer.current = setTimeout(dispatch, 200);
+    const dispatch = () => send(forward.event);
+    if (forward.delayMs) timer.current = setTimeout(dispatch, forward.delayMs);
     else dispatch();
   }
   useKeyboard((key) => {

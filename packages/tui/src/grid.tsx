@@ -1,7 +1,6 @@
 /** @jsxImportSource @opentui/react */
 import type { SceneNode } from "@blastlauncher/protocol";
-import { contentGlyph, type GridLayout } from "./grid.ts";
-import { selectionId, text } from "./nodes.ts";
+import { contentGlyph, type GridLayout, selectionId, text } from "@blastlauncher/client-core";
 import { theme } from "./theme.ts";
 
 export function cellText(node: SceneNode): string {
