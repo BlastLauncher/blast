@@ -1,0 +1,46 @@
+{
+  "preferences": [
+    { "name": "text", "type": "textfield", "required": true },
+    { "name": "secret", "type": "password", "required": true },
+    { "name": "enabled", "type": "checkbox", "required": true },
+    {
+      "name": "choice",
+      "type": "dropdown",
+      "required": true,
+      "data": [{ "value": "first" }, { "value": "second" }]
+    },
+    { "name": "app", "type": "appPicker", "required": true },
+    { "name": "file", "type": "file", "required": true },
+    { "name": "directory", "type": "directory", "required": true },
+    { "name": "defaultFalse", "type": "checkbox", "required": true, "default": false },
+    { "name": "defaultEmpty", "type": "textfield", "required": true, "default": "" },
+    { "name": "optional", "type": "password" },
+    { "name": "overridden", "type": "textfield", "required": true, "default": "extension" },
+    { "name": "commandDefault", "type": "textfield", "required": true },
+    { "name": "commandOptional", "type": "textfield", "required": true }
+  ],
+  "commands": [
+    {
+      "name": "run",
+      "arguments": [
+        { "name": "text", "type": "text", "required": true },
+        { "name": "secret", "type": "password", "required": true },
+        {
+          "name": "choice",
+          "type": "dropdown",
+          "required": true,
+          "data": [{ "value": "alpha" }, { "value": "beta" }]
+        },
+        { "name": "empty", "type": "dropdown", "required": true, "data": [{ "value": "" }] },
+        { "name": "optional", "type": "text", "required": false }
+      ],
+      "preferences": [
+        { "name": "overridden", "type": "password", "required": true },
+        { "name": "commandDefault", "type": "textfield", "required": true, "default": "command" },
+        { "name": "commandOptional", "type": "textfield", "required": false },
+        { "name": "local", "type": "checkbox", "required": true }
+      ]
+    },
+    { "name": "other" }
+  ]
+}

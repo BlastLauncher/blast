@@ -1,14 +1,15 @@
 {
   "commit": "3b812d1e153a1862df29bc8ec34e170c728512ea",
   "totals": {
-    "rendered": 35,
+    "rendered": 54,
     "completed": 0,
     "install-failed": 0,
     "bundle-failed": 0,
+    "bundle-timeout": 0,
     "crashed": 0,
-    "needs-arguments": 6,
-    "needs-preferences": 14,
-    "capability-denied": 1,
+    "needs-arguments": 0,
+    "needs-preferences": 0,
+    "capability-denied": 2,
     "network": 0,
     "timeout": 0,
     "unsupported-api": 0,
@@ -21,7 +22,7 @@
         "execa"
       ],
       "status": "installed",
-      "ms": 732.167086999998,
+      "ms": 900.0445270000018,
       "bytes": 230236
     },
     {
@@ -30,7 +31,7 @@
         "@tanstack/react-query"
       ],
       "status": "installed",
-      "ms": 3627.085541999997,
+      "ms": 3783.3201439999975,
       "bytes": 4539195
     },
     {
@@ -39,7 +40,7 @@
         "chrono-node"
       ],
       "status": "installed",
-      "ms": 1270.4097330000004,
+      "ms": 1574.0540760000004,
       "bytes": 3158588
     },
     {
@@ -48,7 +49,7 @@
         "xml2js"
       ],
       "status": "installed",
-      "ms": 1361.7833769999997,
+      "ms": 1901.8895940000039,
       "bytes": 4934385
     },
     {
@@ -57,7 +58,7 @@
         "js-yaml"
       ],
       "status": "installed",
-      "ms": 3209.482877000002,
+      "ms": 2660.671340000001,
       "bytes": 2901709
     },
     {
@@ -70,7 +71,7 @@
         "jimp"
       ],
       "status": "installed",
-      "ms": 2645.639110999997,
+      "ms": 2602.0421429999988,
       "bytes": 30841861
     },
     {
@@ -81,7 +82,7 @@
         "ai"
       ],
       "status": "installed",
-      "ms": 2741.1504589999968,
+      "ms": 3360.445246000003,
       "bytes": 23265885
     },
     {
@@ -90,7 +91,7 @@
         "form-data"
       ],
       "status": "installed",
-      "ms": 934.7106160000039,
+      "ms": 1328.5311389999988,
       "bytes": 2432321
     },
     {
@@ -99,7 +100,7 @@
         "qrcode"
       ],
       "status": "installed",
-      "ms": 1386.3705259999988,
+      "ms": 1974.4892770000006,
       "bytes": 8452784
     },
     {
@@ -108,7 +109,7 @@
         "openai"
       ],
       "status": "installed",
-      "ms": 3578.7818719999996,
+      "ms": 4269.252466000005,
       "bytes": 20439572
     },
     {
@@ -118,7 +119,7 @@
         "swr"
       ],
       "status": "installed",
-      "ms": 2819.0809759999975,
+      "ms": 3305.050187999994,
       "bytes": 6831724
     },
     {
@@ -127,7 +128,7 @@
         "turndown"
       ],
       "status": "installed",
-      "ms": 3011.841766000005,
+      "ms": 3634.8536380000005,
       "bytes": 9121147
     },
     {
@@ -137,7 +138,7 @@
         "pixelmatch"
       ],
       "status": "installed",
-      "ms": 4130.793516999998,
+      "ms": 6811.624082999988,
       "bytes": 28529729
     },
     {
@@ -146,7 +147,7 @@
         "fast-xml-parser"
       ],
       "status": "installed",
-      "ms": 1631.4068770000013,
+      "ms": 1754.6203759999917,
       "bytes": 3562179
     },
     {
@@ -155,7 +156,7 @@
         "open"
       ],
       "status": "installed",
-      "ms": 525.4013249999989,
+      "ms": 738.6271829999896,
       "bytes": 61341
     },
     {
@@ -164,7 +165,7 @@
         "marked"
       ],
       "status": "installed",
-      "ms": 2696.7388159999973,
+      "ms": 3707.816842,
       "bytes": 2697516
     },
     {
@@ -175,7 +176,7 @@
         "parse-git-config"
       ],
       "status": "installed",
-      "ms": 3216.6940269999905,
+      "ms": 4904.005334000001,
       "bytes": 15347860
     },
     {
@@ -185,7 +186,7 @@
         "oci-sdk"
       ],
       "status": "installed",
-      "ms": 23646.052641000002,
+      "ms": 31763.760022000002,
       "bytes": 226850474
     },
     {
@@ -195,7 +196,7 @@
         "raycast-cross-extension"
       ],
       "status": "installed",
-      "ms": 3367.571941000002,
+      "ms": 2699.2136530000134,
       "bytes": 2535496
     },
     {
@@ -204,7 +205,7 @@
         "plist"
       ],
       "status": "installed",
-      "ms": 923.4944980000146,
+      "ms": 818.5505089999933,
       "bytes": 9079449
     },
     {
@@ -213,7 +214,7 @@
         "algoliasearch"
       ],
       "status": "installed",
-      "ms": 3144.9230049999896,
+      "ms": 2430.2399740000255,
       "bytes": 2334030
     },
     {
@@ -222,7 +223,7 @@
         "got"
       ],
       "status": "installed",
-      "ms": 983.7224690000003,
+      "ms": 899.4128029999847,
       "bytes": 745168
     },
     {
@@ -231,7 +232,7 @@
         "rss-parser"
       ],
       "status": "installed",
-      "ms": 695.7023320000153,
+      "ms": 652.3355370000063,
       "bytes": 2206496
     },
     {
@@ -240,7 +241,7 @@
         "node-html-parser"
       ],
       "status": "installed",
-      "ms": 3452.7558220000064,
+      "ms": 2818.813141999999,
       "bytes": 3137352
     },
     {
@@ -252,7 +253,7 @@
         "javascript-time-ago"
       ],
       "status": "installed",
-      "ms": 6266.683537999983,
+      "ms": 3802.7162989999924,
       "bytes": 27977776
     }
   ],
@@ -261,6 +262,7 @@
       "extension": "android-adb-input",
       "command": "index",
       "mode": "view",
+      "bundleMs": 220.32662300000084,
       "nodes": 8,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -269,6 +271,7 @@
       "extension": "atomberg-raycast-extension",
       "command": "list-atomberg-devices",
       "mode": "view",
+      "bundleMs": 879.3930010000004,
       "nodes": 7,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -277,6 +280,7 @@
       "extension": "atomberg-raycast-extension",
       "command": "manage-atomberg-credentials",
       "mode": "view",
+      "bundleMs": 555.3991859999987,
       "nodes": 24,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -285,13 +289,17 @@
       "extension": "bed-time-calculator",
       "command": "sleep-at",
       "mode": "view",
-      "reason": "requires launch arguments: sleepAtTime; not run",
-      "outcome": "needs-arguments"
+      "placeholders": "arguments",
+      "bundleMs": 1687.005964,
+      "nodes": 5,
+      "rootType": "Navigation",
+      "outcome": "rendered"
     },
     {
       "extension": "bed-time-calculator",
       "command": "sleep-now",
       "mode": "view",
+      "bundleMs": 1638.6011900000012,
       "nodes": 29,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -300,13 +308,17 @@
       "extension": "bed-time-calculator",
       "command": "wake-up-at",
       "mode": "view",
-      "reason": "requires launch arguments: wakeUpTime; not run",
-      "outcome": "needs-arguments"
+      "placeholders": "arguments",
+      "bundleMs": 1446.5606980000011,
+      "nodes": 5,
+      "rootType": "Navigation",
+      "outcome": "rendered"
     },
     {
       "extension": "caschys-blog",
       "command": "latest-articles",
       "mode": "view",
+      "bundleMs": 497.176870999996,
       "nodes": 7,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -315,6 +327,7 @@
       "extension": "caschys-blog",
       "command": "open-website",
       "mode": "no-view",
+      "bundleMs": 22.212095999995654,
       "path": "open.url",
       "error": "Capability denied: open.url",
       "outcome": "capability-denied"
@@ -323,6 +336,7 @@
       "extension": "caschys-blog",
       "command": "search-blog",
       "mode": "view",
+      "bundleMs": 447.56372899999405,
       "nodes": 4,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -331,6 +345,7 @@
       "extension": "caschys-blog",
       "command": "submit-tip",
       "mode": "view",
+      "bundleMs": 61.73685700000351,
       "nodes": 13,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -339,6 +354,7 @@
       "extension": "ccfddl",
       "command": "search",
       "mode": "view",
+      "bundleMs": 281.56907599999977,
       "nodes": 3,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -347,6 +363,7 @@
       "extension": "colorify",
       "command": "generate-theme",
       "mode": "view",
+      "bundleMs": 2885.620151000003,
       "nodes": 3,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -355,6 +372,7 @@
       "extension": "commandcode-ai",
       "command": "ask-commandcode-ai",
       "mode": "view",
+      "bundleMs": 1354.727979000003,
       "nodes": 8,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -363,6 +381,7 @@
       "extension": "commandcode-ai",
       "command": "refresh-models",
       "mode": "no-view",
+      "bundleMs": 1004.4529630000034,
       "nodes": 4,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -371,48 +390,67 @@
       "extension": "control-d",
       "command": "change-filters",
       "mode": "view",
-      "outcome": "needs-preferences",
-      "reason": "requires preferences without a default: api-key; bundled, not run"
+      "placeholders": "preferences",
+      "bundleMs": 702.5090430000055,
+      "nodes": 9,
+      "rootType": "Navigation",
+      "outcome": "rendered"
     },
     {
       "extension": "control-d",
       "command": "learn-my-ip",
       "mode": "view",
-      "outcome": "needs-preferences",
-      "reason": "requires preferences without a default: api-key; bundled, not run"
+      "placeholders": "preferences",
+      "bundleMs": 846.637321000002,
+      "nodes": 7,
+      "rootType": "Navigation",
+      "outcome": "rendered"
     },
     {
       "extension": "control-d",
       "command": "list-profiles",
       "mode": "view",
-      "outcome": "needs-preferences",
-      "reason": "requires preferences without a default: api-key; bundled, not run"
+      "placeholders": "preferences",
+      "bundleMs": 633.3792219999959,
+      "nodes": 3,
+      "rootType": "Navigation",
+      "outcome": "rendered"
     },
     {
       "extension": "control-d",
       "command": "modify-profile",
       "mode": "view",
-      "outcome": "needs-preferences",
-      "reason": "requires preferences without a default: api-key; bundled, not run"
+      "placeholders": "preferences",
+      "bundleMs": 712.3823829999965,
+      "nodes": 8,
+      "rootType": "Navigation",
+      "outcome": "rendered"
     },
     {
       "extension": "control-d",
       "command": "status",
       "mode": "view",
-      "outcome": "needs-preferences",
-      "reason": "requires preferences without a default: api-key; bundled, not run"
+      "placeholders": "preferences",
+      "bundleMs": 639.1475770000034,
+      "nodes": 12,
+      "rootType": "Navigation",
+      "outcome": "rendered"
     },
     {
       "extension": "defichain-lottery",
       "command": "add-address",
       "mode": "no-view",
-      "reason": "requires launch arguments: address; not run",
-      "outcome": "needs-arguments"
+      "placeholders": "arguments",
+      "bundleMs": 11.321989000003668,
+      "nodes": 3,
+      "rootType": "Navigation",
+      "outcome": "rendered"
     },
     {
       "extension": "defichain-lottery",
       "command": "remove-address",
       "mode": "view",
+      "bundleMs": 27.80920999999944,
       "nodes": 4,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -421,6 +459,7 @@
       "extension": "defichain-lottery",
       "command": "stats",
       "mode": "view",
+      "bundleMs": 977.2659570000033,
       "nodes": 4,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -429,6 +468,7 @@
       "extension": "defichain-lottery",
       "command": "tickets",
       "mode": "view",
+      "bundleMs": 753.0772309999957,
       "nodes": 8,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -437,13 +477,17 @@
       "extension": "emojify",
       "command": "emoji-selector",
       "mode": "view",
-      "reason": "requires launch arguments: text; not run",
-      "outcome": "needs-arguments"
+      "placeholders": "arguments",
+      "bundleMs": 913.968452000001,
+      "nodes": 5,
+      "rootType": "Navigation",
+      "outcome": "rendered"
     },
     {
       "extension": "emojify",
       "command": "emojify",
       "mode": "view",
+      "bundleMs": 948.0343790000043,
       "nodes": 6,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -452,48 +496,67 @@
       "extension": "esa-search",
       "command": "createPost",
       "mode": "no-view",
-      "outcome": "needs-preferences",
-      "reason": "requires preferences without a default: primaryTeamName, primaryToken; bundled, not run"
+      "placeholders": "preferences",
+      "bundleMs": 10.187902000005124,
+      "path": "open.url",
+      "error": "Capability denied: open.url",
+      "outcome": "capability-denied"
     },
     {
       "extension": "esa-search",
       "command": "searchPost",
       "mode": "view",
-      "reason": "requires launch arguments: keyword; not run",
-      "outcome": "needs-arguments"
+      "placeholders": "both",
+      "bundleMs": 720.8107140000066,
+      "nodes": 10,
+      "rootType": "Navigation",
+      "outcome": "rendered"
     },
     {
       "extension": "featurebase",
       "command": "manage-changelogs",
       "mode": "view",
-      "outcome": "needs-preferences",
-      "reason": "requires preferences without a default: api_key, organization_subdomain; bundled, not run"
+      "placeholders": "preferences",
+      "bundleMs": 42.800021000002744,
+      "nodes": 7,
+      "rootType": "Navigation",
+      "outcome": "rendered"
     },
     {
       "extension": "featurebase",
       "command": "manage-feedback",
       "mode": "view",
-      "outcome": "needs-preferences",
-      "reason": "requires preferences without a default: api_key, organization_subdomain; bundled, not run"
+      "placeholders": "preferences",
+      "bundleMs": 496.25966500000504,
+      "nodes": 3,
+      "rootType": "Navigation",
+      "outcome": "rendered"
     },
     {
       "extension": "featurebase",
       "command": "manage-help-center",
       "mode": "view",
-      "outcome": "needs-preferences",
-      "reason": "requires preferences without a default: api_key, organization_subdomain; bundled, not run"
+      "placeholders": "preferences",
+      "bundleMs": 70.13002799999958,
+      "nodes": 7,
+      "rootType": "Navigation",
+      "outcome": "rendered"
     },
     {
       "extension": "featurebase",
       "command": "manage-users",
       "mode": "view",
-      "outcome": "needs-preferences",
-      "reason": "requires preferences without a default: api_key, organization_subdomain; bundled, not run"
+      "placeholders": "preferences",
+      "bundleMs": 41.297411999999895,
+      "nodes": 3,
+      "rootType": "Navigation",
+      "outcome": "rendered"
     },
     {
       "extension": "image-diff-checker",
       "command": "image-diff-check",
       "mode": "view",
+      "bundleMs": 1736.539024999991,
       "nodes": 21,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -502,6 +565,7 @@
       "extension": "irish-rail",
       "command": "index",
       "mode": "view",
+      "bundleMs": 983.8663970000052,
       "nodes": 9,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -510,6 +574,7 @@
       "extension": "lyne",
       "command": "create-horizontal-lines",
       "mode": "view",
+      "bundleMs": 46.36344200000167,
       "nodes": 9,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -518,6 +583,7 @@
       "extension": "lyne",
       "command": "create-rectangle",
       "mode": "view",
+      "bundleMs": 36.532142999989446,
       "nodes": 10,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -526,6 +592,7 @@
       "extension": "lyne",
       "command": "create-vertical-lines",
       "mode": "view",
+      "bundleMs": 62.646701999998186,
       "nodes": 9,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -534,6 +601,7 @@
       "extension": "markdown-preview",
       "command": "preview-markdown",
       "mode": "view",
+      "bundleMs": 47.271008000010625,
       "nodes": 8,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -542,6 +610,7 @@
       "extension": "monorepo-manager",
       "command": "manageMonorepo",
       "mode": "view",
+      "bundleMs": 6753.7050089999975,
       "nodes": 3,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -550,6 +619,7 @@
       "extension": "oci",
       "command": "core",
       "mode": "view",
+      "bundleMs": 8767.412083000003,
       "nodes": 6,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -558,13 +628,17 @@
       "extension": "oci",
       "command": "email-delivery",
       "mode": "view",
-      "reason": "requires launch arguments: view; not run",
-      "outcome": "needs-arguments"
+      "placeholders": "arguments",
+      "bundleMs": 1773.8065720000013,
+      "nodes": 6,
+      "rootType": "Navigation",
+      "outcome": "rendered"
     },
     {
       "extension": "oci",
       "command": "nosql-database",
       "mode": "view",
+      "bundleMs": 2027.0483160000003,
       "nodes": 6,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -573,6 +647,7 @@
       "extension": "oci",
       "command": "object-storage",
       "mode": "view",
+      "bundleMs": 2363.3809260000126,
       "nodes": 6,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -581,6 +656,7 @@
       "extension": "oci",
       "command": "vault",
       "mode": "view",
+      "bundleMs": 2469.9846550000075,
       "nodes": 6,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -589,6 +665,7 @@
       "extension": "owl",
       "command": "configure-owls",
       "mode": "view",
+      "bundleMs": 294.46411499998067,
       "nodes": 8,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -597,6 +674,7 @@
       "extension": "owl",
       "command": "owl",
       "mode": "view",
+      "bundleMs": 414.62072700000135,
       "nodes": 4,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -605,6 +683,7 @@
       "extension": "screen-sharing-recents",
       "command": "index",
       "mode": "view",
+      "bundleMs": 260.3249470000155,
       "nodes": 4,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -613,6 +692,7 @@
       "extension": "search-composer-packagist",
       "command": "composer",
       "mode": "view",
+      "bundleMs": 320.5223539999861,
       "nodes": 3,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -621,6 +701,7 @@
       "extension": "search-regexp",
       "command": "searchRegexp",
       "mode": "view",
+      "bundleMs": 302.922447000019,
       "nodes": 232,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -629,6 +710,7 @@
       "extension": "shopify-developer-changelog",
       "command": "shopify-changelog",
       "mode": "view",
+      "bundleMs": 280.0088269999833,
       "nodes": 3,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -637,6 +719,7 @@
       "extension": "vanishlink",
       "command": "add",
       "mode": "view",
+      "bundleMs": 469.2120199999772,
       "nodes": 8,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -645,6 +728,7 @@
       "extension": "vanishlink",
       "command": "add-from-clipboard",
       "mode": "no-view",
+      "bundleMs": 254.0621890000184,
       "nodes": 3,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -653,6 +737,7 @@
       "extension": "vanishlink",
       "command": "search",
       "mode": "view",
+      "bundleMs": 456.33202099998016,
       "nodes": 7,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -661,32 +746,44 @@
       "extension": "youtube",
       "command": "popular-videos",
       "mode": "view",
-      "outcome": "needs-preferences",
-      "reason": "requires preferences without a default: apikey; bundled, not run"
+      "placeholders": "preferences",
+      "bundleMs": 820.8947240000125,
+      "nodes": 3,
+      "rootType": "Navigation",
+      "outcome": "rendered"
     },
     {
       "extension": "youtube",
       "command": "search-channel",
       "mode": "view",
-      "outcome": "needs-preferences",
-      "reason": "requires preferences without a default: apikey; bundled, not run"
+      "placeholders": "preferences",
+      "bundleMs": 841.7710500000103,
+      "nodes": 3,
+      "rootType": "Navigation",
+      "outcome": "rendered"
     },
     {
       "extension": "youtube",
       "command": "search-live",
       "mode": "view",
-      "outcome": "needs-preferences",
-      "reason": "requires preferences without a default: apikey; bundled, not run"
+      "placeholders": "preferences",
+      "bundleMs": 811.6426280000014,
+      "nodes": 3,
+      "rootType": "Navigation",
+      "outcome": "rendered"
     },
     {
       "extension": "youtube",
       "command": "search-videos",
       "mode": "view",
-      "outcome": "needs-preferences",
-      "reason": "requires preferences without a default: apikey; bundled, not run"
+      "placeholders": "preferences",
+      "bundleMs": 838.2810699999973,
+      "nodes": 3,
+      "rootType": "Navigation",
+      "outcome": "rendered"
     }
   ],
   "extensionFailures": [],
-  "peakBytes": 467759457,
-  "wallMs": 177796.39105099998
+  "peakBytes": 467773377,
+  "wallMs": 207676.659966
 }

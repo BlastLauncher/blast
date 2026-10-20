@@ -2,6 +2,7 @@
 // bundles and spawns runtimes and needs the network, so `bun test` covers only
 // the pure classification, preference and rendering rules here.
 import { expect, test } from "bun:test";
+import INPUT_MANIFEST from "../../fixtures/corpus/smoke-inputs.json" with { type: "json" };
 import {
   buildReport,
   buildResult,
@@ -11,6 +12,7 @@ import {
   countNodes,
   extractPreferenceDefaults,
   manifestCommands,
+  launchInputs,
   renderJsonReport,
   renderMarkdownReport,
   requiredArguments,
@@ -99,7 +101,7 @@ test("required launch arguments are reported before running an invalid smoke inv
   expect(report.totals["missing-arguments"]).toBe(1);
   expect(renderJsonReport(report)).toContain('"outcome": "missing-arguments"');
   expect(renderMarkdownReport(report)).toContain(
-    "| missing-arguments | — | requires launch arguments: entryName; not run |",
+    "| missing-arguments | — | — | requires launch arguments: entryName; not run |",
   );
 });
 
@@ -111,7 +113,7 @@ test("a menu-bar command that renders an empty scene counts as rendered", () => 
   expect(report.totals.timeout).toBe(0);
   expect(renderJsonReport(report)).toContain('"empty": true');
   expect(renderMarkdownReport(report)).toContain(
-    "| `ext/index` | menu-bar | rendered | — | empty menu bar |",
+    "| `ext/index` | menu-bar | rendered | — | — | empty menu bar |",
   );
   // It is a success, so the report has no failure section for it.
   expect(renderMarkdownReport(report)).not.toContain("## Failures");
@@ -247,7 +249,7 @@ test("a broker denial is classified with its capability name in JSON and markdow
   expect(report.totals["capability-denied"]).toBe(1);
   expect(renderJsonReport(report)).toContain('"path": "open.url"');
   expect(renderMarkdownReport(report)).toContain(
-    "| capability-denied | — | denied capability open.url |",
+    "| capability-denied | — | — | denied capability open.url |",
   );
   // Denials are failures; a completed no-view command is not.
   const markdown = renderMarkdownReport(
@@ -417,7 +419,9 @@ test("UNSUPPORTED_API is classified with its path in JSON and markdown", () => {
   const report = buildReport("pinned", [missing]);
   expect(report.totals["unsupported-api"]).toBe(1);
   expect(renderJsonReport(report)).toContain('"path": "Action.OpenInBrowser"');
-  expect(renderMarkdownReport(report)).toContain("| unsupported-api | — | Action.OpenInBrowser |");
+  expect(renderMarkdownReport(report)).toContain(
+    "| unsupported-api | — | — | Action.OpenInBrowser |",
+  );
 });
 
 test("bundle deadlines are distinct from scene timeouts and carry timing into reports", () => {
@@ -432,7 +436,7 @@ test("bundle deadlines are distinct from scene timeouts and carry timing into re
   expect(report.totals.timeout).toBe(0);
   expect(renderJsonReport(report)).toContain('"bundleMs": 12.4');
   expect(renderMarkdownReport(report)).toContain(
-    "| bundle-timeout | 12 | bundling exceeded 10 ms |",
+    "| bundle-timeout | 12 | — | bundling exceeded 10 ms |",
   );
   const rendered = buildResult({
     extension: "ext",
@@ -442,4 +446,71 @@ test("bundle deadlines are distinct from scene timeouts and carry timing into re
     probe: { kind: "scene", nodeCount: 1, rootType: "List" },
   });
   expect(rendered.bundleMs).toBe(3.5);
+});
+
+test("manifest fixtures derive every argument and preference placeholder and preserve defaults", () => {
+  const inputs = launchInputs(INPUT_MANIFEST, "run", "/smoke-data/command");
+  expect(inputs).toEqual({
+    argumentValues: { choice: "alpha", empty: "", secret: "blast", text: "blast" },
+    preferences: {
+      app: "",
+      choice: "first",
+      commandDefault: "command",
+      defaultEmpty: "",
+      defaultFalse: false,
+      directory: "/smoke-data/command/directory",
+      enabled: false,
+      file: "/smoke-data/command/file",
+      local: false,
+      overridden: "blast-smoke",
+      secret: "blast-smoke",
+      text: "blast-smoke",
+    },
+    placeholders: "both",
+    directories: ["/smoke-data/command/directory", "/smoke-data/command/file"],
+    unsupplied: [],
+  });
+  expect(launchInputs(INPUT_MANIFEST, "run", "/smoke-data/command")).toEqual(inputs);
+  const other = launchInputs(INPUT_MANIFEST, "other", "/smoke-data/other");
+  expect(other.argumentValues).toEqual({});
+  expect(other.placeholders).toBe("preferences");
+  expect(other.preferences.overridden).toBe("extension");
+  expect(other.preferences.commandDefault).toBe("blast-smoke");
+  expect(other.preferences.commandOptional).toBe("blast-smoke");
+  expect(other.preferences.local).toBeUndefined();
+});
+
+test("placeholder annotations reflect only invented inputs and survive real outcomes", () => {
+  const plain = launchInputs({}, "run", "/smoke-data");
+  expect(plain).toEqual({ argumentValues: {}, preferences: {}, directories: [], unsupplied: [] });
+  const args = launchInputs(
+    { commands: [{ name: "run", arguments: [{ name: "q", required: true }] }] },
+    "run",
+    "/smoke-data",
+  );
+  expect(args.placeholders).toBe("arguments");
+  const rendered = buildResult({
+    extension: "ext",
+    command: "run",
+    mode: "view",
+    placeholders: "both",
+    bundleMs: 12,
+    probe: { kind: "scene", nodeCount: 1, rootType: "List" },
+  });
+  const report = buildReport("pin", [rendered]);
+  expect(JSON.parse(renderJsonReport(report)).results[0].placeholders).toBe("both");
+  expect(renderMarkdownReport(report)).toContain("| rendered | 12 | both | 1 nodes");
+  expect(renderMarkdownReport(report)).toContain(
+    "1 ran with placeholder inputs (arguments 0, preferences 0, both 1)",
+  );
+});
+
+test("an argument dropdown without options remains an explicit invalid invocation", () => {
+  expect(
+    launchInputs(
+      { commands: [{ name: "run", arguments: [{ name: "q", type: "dropdown", required: true }] }] },
+      "run",
+      "/smoke-data",
+    ).unsupplied,
+  ).toEqual(["q"]);
 });

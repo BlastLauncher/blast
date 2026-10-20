@@ -176,7 +176,7 @@ test("the markdown report lists installs, top failures and commands deterministi
   expect(markdown).toContain("| `a` | `got` | failed (lockfile) | 1.5 s | 2.0 MB | bad \\| lock |");
   expect(markdown).toContain("## Top failures");
   expect(markdown).toContain("| 1 | install-failed | install failed: lockfile | `a` |");
-  expect(markdown).toContain("| `b/z` | view | rendered | — | 2 nodes, root List |");
+  expect(markdown).toContain("| `b/z` | view | rendered | — | — | 2 nodes, root List |");
   expect(JSON.parse(renderDepsJsonReport(report)).totals.rendered).toBe(1);
 });
 
@@ -199,6 +199,32 @@ test("installed dependency reports preserve bundle timing and bundle-timeout out
   expect(report.totals["bundle-timeout"]).toBe(1);
   expect(renderDepsJsonReport(report)).toContain('"bundleMs": 11.8');
   expect(renderDepsMarkdownReport(report)).toContain(
-    "| bundle-timeout | 12 | bundling exceeded 10 ms |",
+    "| bundle-timeout | 12 | — | bundling exceeded 10 ms |",
   );
+});
+
+test("deps reports retain placeholder inputs alongside the observed outcome and bundle time", () => {
+  const observed = toDepsResult({
+    extension: "ext",
+    command: "run",
+    mode: "view",
+    outcome: "rendered",
+    nodes: 1,
+    rootType: "List",
+    bundleMs: 8,
+    placeholders: "preferences",
+  });
+  const report = buildDepsReport({
+    commit: "pin",
+    installs: [],
+    results: [observed],
+    peakBytes: 0,
+    wallMs: 0,
+  });
+  expect(JSON.parse(renderDepsJsonReport(report)).results[0].placeholders).toBe("preferences");
+  expect(renderDepsMarkdownReport(report)).toContain("| rendered | 8 | preferences | 1 nodes");
+  expect(renderDepsMarkdownReport(report)).toContain(
+    "1 ran with placeholder inputs (arguments 0, preferences 1, both 0)",
+  );
+  expect(renderDepsMarkdownReport(report)).not.toContain("bundled but not run");
 });

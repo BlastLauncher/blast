@@ -6,6 +6,9 @@
 // unit-testable offline; the real run needs network and the corpus checkout.
 import {
   OUTCOMES,
+  PLACEHOLDER_NOTE,
+  placeholderSummary,
+  type PlaceholderKind,
   buildResult,
   compactLine,
   type CommandResult,
@@ -125,7 +128,9 @@ export type TuiResult = {
   /** Runtime warnings such as dropped non-serializable props. */
   warnings?: string[] | undefined;
   /** Placeholder: the node types the TUI could not render. */
-  placeholders?: string[] | undefined;
+  unsupportedNodes?: string[] | undefined;
+  /** Required launch inputs supplied by the smoke runner. */
+  placeholders?: PlaceholderKind | undefined;
   /** Not rendered: up to three sanitized lines of the frame. */
   frame?: string[] | undefined;
 };
@@ -144,6 +149,7 @@ export type BuildTuiInput = {
   command: string;
   mode: string;
   probe: TuiProbe;
+  placeholders?: PlaceholderKind | undefined;
   /** Runtime warnings, already sanitized, deduplicated and capped. */
   warnings?: string[] | undefined;
   /** Error-level log lines, already sanitized and capped to the last ones. */
@@ -156,7 +162,12 @@ export type BuildTuiInput = {
  * a frame is reported exactly as `compat/SMOKE.md` reports it.
  */
 export function buildTuiResult(input: BuildTuiInput): TuiResult {
-  const base = { extension: input.extension, command: input.command, mode: input.mode };
+  const base = {
+    extension: input.extension,
+    command: input.command,
+    mode: input.mode,
+    ...(input.placeholders === undefined ? {} : { placeholders: input.placeholders }),
+  };
   const probe = input.probe;
   if (probe.kind !== "frame") {
     const headless: CommandResult = buildResult({
@@ -197,7 +208,7 @@ export function buildTuiResult(input: BuildTuiInput): TuiResult {
     return {
       ...base,
       outcome: "placeholder",
-      placeholders,
+      unsupportedNodes: placeholders,
       frame: frameExcerpt(probe.frame),
       warnings,
     };
@@ -255,7 +266,7 @@ function detail(result: TuiResult): string {
           : `${result.nodes} nodes, root ${result.rootType}`
       }${warnings}`;
     case "placeholder":
-      return `node types: ${result.placeholders?.join(", ")}${warnings}`;
+      return `node types: ${result.unsupportedNodes?.join(", ")}${warnings}`;
     case "client-error":
       return `${result.error}${warnings}`;
     case "empty":
@@ -297,8 +308,8 @@ export function renderTuiMarkdown(report: TuiReport): string {
     `the TUI \`App\` through OpenTUI's test renderer at ${report.width}×${report.height} — the`,
     "same headless broker as `compat/SMOKE.md` (deny-all except `applications.list`,",
     "`clipboard.read`, `preferences.open` and `command.metadata`) and the same manifest",
-    "preference defaults. Commands requiring launch arguments are reported as",
-    "`missing-arguments` without running.",
+    "preference defaults.",
+    ...PLACEHOLDER_NOTE,
     "",
     "Each command is classified from the first frame its first scene produced, then ↓, Ctrl-K",
     "and Esc are pressed and the frame after each key is captured. `rendered` means the frame",
@@ -313,13 +324,14 @@ export function renderTuiMarkdown(report: TuiReport): string {
     `${report.results.length} commands: ${TUI_OUTCOMES.map(
       (outcome) => `${outcome} ${count(outcome)}`,
     ).join(", ")}.`,
+    ...[placeholderSummary(report.results)].filter(Boolean),
     "",
-    "| Command | Mode | Outcome | Detail |",
-    "| --- | --- | --- | --- |",
+    "| Command | Mode | Outcome | Inputs | Detail |",
+    "| --- | --- | --- | --- | --- |",
   ];
   for (const result of report.results) {
     lines.push(
-      `| \`${result.extension}/${result.command}\` | ${result.mode} | ${result.outcome} | ${compactLine(detail(result))} |`,
+      `| \`${result.extension}/${result.command}\` | ${result.mode} | ${result.outcome} | ${result.placeholders ?? "—"} | ${compactLine(detail(result))} |`,
     );
   }
   const failures = report.results.filter(isFailure);

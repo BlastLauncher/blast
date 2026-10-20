@@ -9,7 +9,7 @@ import { createHeadlessHandlers } from "../../packages/cli/src/index.ts";
 // data, not errors: nothing here fixes Blast, and extension files are never
 // modified.
 import { existsSync } from "node:fs";
-import { readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { homedir, tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { format } from "oxfmt";
@@ -32,11 +32,11 @@ import {
   compactLines,
   countNodes,
   exitProbe,
-  extractPreferenceDefaults,
+  launchInputs,
   manifestCommands,
-  requiredArguments,
   sanitizePath,
   type Manifest,
+  type PlaceholderKind,
   type ProbeResult,
 } from "./smoke.ts";
 import {
@@ -164,10 +164,17 @@ async function runOne(
   clean: (text: string) => string,
 ): Promise<TuiResult> {
   const mode = commandMode(manifest, commandName) ?? "view";
+  let placeholders: PlaceholderKind | undefined;
   const build = (probe: TuiProbe, warnings?: string[], errorLogs?: string[]): TuiResult =>
-    buildTuiResult({ extension, command: commandName, mode, probe, warnings, errorLogs });
-  const names = requiredArguments(manifest, commandName);
-  if (names.length) return build({ kind: "missing-arguments", names });
+    buildTuiResult({
+      extension,
+      command: commandName,
+      mode,
+      probe,
+      warnings,
+      errorLogs,
+      placeholders,
+    });
   let bundled: BundledCommand;
   try {
     // Allowlist-only, like corpus:smoke, so reports stay comparable (decision 0008).
@@ -186,6 +193,11 @@ async function runOne(
     });
   }
   const outDir = dirname(bundled.entry);
+  const scratchRoot = join(process.cwd(), ".cache/smoke-data");
+  await mkdir(scratchRoot, { recursive: true });
+  const scratchDir = await mkdtemp(join(scratchRoot, "command-"));
+  const inputs = launchInputs(manifest, commandName, scratchDir);
+  placeholders = inputs.placeholders;
   let session: Session | undefined;
   let terminal: Terminal | undefined;
   // Installed for the whole command, teardown included: React logs the act
@@ -195,13 +207,17 @@ async function runOne(
   const restore = captureClientErrors(errors);
   let frame: FrameProbe = { kind: "frame", frame: "" };
   try {
+    if (inputs.unsupplied.length)
+      return build({ kind: "missing-arguments", names: inputs.unsupplied });
+    for (const directory of inputs.directories) await mkdir(directory, { recursive: true });
     try {
       session = await startCommand({
         ...bundled,
         // Deny-all apart from Blast's headless read-only defaults, exactly as
         // the CLI smoke opens a command (task 0026).
         broker: createBroker(createHeadlessHandlers()),
-        preferences: extractPreferenceDefaults(manifest, commandName),
+        preferences: inputs.preferences,
+        argumentValues: inputs.argumentValues,
       });
     } catch (error) {
       // Startup failures (handshake, exit before ready) are crashes too.
@@ -269,6 +285,7 @@ async function runOne(
     restore();
     await session?.shutdown({ timeoutMs: 250 });
     await rm(outDir, { recursive: true, force: true });
+    await rm(scratchDir, { recursive: true, force: true });
   }
 }
 
