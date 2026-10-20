@@ -89,6 +89,18 @@ implemented APIs are accessible and stubs are inaccessible.
 
 ## Host sessions
 
+`openExtension({ extensionDir, dataDir?, installer? })` returns a reusable handle.
+`manifest()` reads validated commands, arguments and preference schemas;
+`watch(listener)` reports debounced manifest updates or errors and returns an unsubscribe.
+`dependencies.check()` / `install({ onLog })` serialize dependency operations.
+`preferences(command)` returns schemas, stored values and missing required fields;
+`savePreferences(command, values)` splits extension and command scope (command wins).
+Both accept an optional scope for extension-only preference editing.
+`launch(command, { argumentValues?, handlers?, launchContext? })` waits for installs,
+rejects missing values with `MissingLaunchValuesError`, and returns `{ session, close }`.
+Session close shuts down the runtime and removes its bundle; handle `close()` also
+closes watchers and all owned sessions, including launches still in progress.
+
 `blast deps` keeps keyed production installs outside extensions under `<dataDir>/deps/`;
 bundling resolves matching installs before the shared dependency allowlist.
 

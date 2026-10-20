@@ -1,13 +1,4 @@
-import {
-  bundleCommand,
-  defaultDataDir,
-  createPreferenceStore,
-  startCommand,
-  createSessionBroker,
-  type CapabilityHandler,
-} from "@blastlauncher/host";
-import { dirname } from "node:path";
-import { rm } from "node:fs/promises";
+import { openExtension, type CapabilityHandler, type ExtensionHandle } from "@blastlauncher/host";
 
 export async function openCommand(
   extensionDir: string,
@@ -15,46 +6,32 @@ export async function openCommand(
   options: {
     dataDir?: string;
     handlers?: Record<string, CapabilityHandler>;
-    /** Manifest argument values for this launch, keyed by argument name. */
     argumentValues?: Record<string, string>;
+    extension?: ExtensionHandle;
   } = {},
 ) {
   const effects = createClientHandlers();
-  const dataDir = options.dataDir ?? defaultDataDir();
-  const bundled = await bundleCommand({ extensionDir, command, dataDir });
-  const cleanup = () => rm(dirname(bundled.entry), { recursive: true, force: true });
-  try {
-    const storage = {
-      extensionName: bundled.extensionName,
-      dataDir,
-    };
-    const session = await startCommand({
-      ...bundled,
-      preferences: await createPreferenceStore({
-        extensionName: bundled.extensionName,
-        dataDir,
-      }).values(command),
-      dataDir,
-      ...(options.argumentValues === undefined ? {} : { argumentValues: options.argumentValues }),
-      broker: createSessionBroker(storage, {
-        handlers: { ...effects.handlers, ...options.handlers },
-      }),
+  const extension =
+    options.extension ??
+    openExtension({
+      extensionDir,
+      ...(options.dataDir === undefined ? {} : { dataDir: options.dataDir }),
     });
-    let closing: Promise<void> | undefined;
+  try {
+    const opened = await extension.launch(command, {
+      ...(options.argumentValues === undefined ? {} : { argumentValues: options.argumentValues }),
+      handlers: { ...effects.handlers, ...options.handlers },
+    });
     return {
-      session,
+      ...opened,
       effects,
-      close: () =>
-        (closing ??= (async () => {
-          try {
-            await session.shutdown({ timeoutMs: 5000 });
-          } finally {
-            await cleanup();
-          }
-        })()),
+      close: async () => {
+        await opened.close();
+        if (!options.extension) await extension.close();
+      },
     };
   } catch (error) {
-    await cleanup();
+    if (!options.extension) await extension.close();
     throw error;
   }
 }

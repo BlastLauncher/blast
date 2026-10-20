@@ -9,3 +9,5 @@ export * from "./dependencies.ts";
 export * from "./client.ts";
 export * from "./install-dependencies.ts";
 export * from "./preferences.ts";
+export * from "./extension.ts";
+export * from "./extension-manifest.ts";

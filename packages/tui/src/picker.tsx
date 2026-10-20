@@ -2,24 +2,15 @@
 import { useEffect, useRef, useState } from "react";
 import { useKeyboard, usePaste } from "@opentui/react";
 import { TextAttributes } from "@opentui/core";
-import { watch, type FSWatcher } from "node:fs";
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
+import { filterCommands, modeLabel } from "./picker.ts";
 import {
-  filterCommands,
-  modeLabel,
-  missingRequired,
-  parseManifest,
-  type Manifest,
-  type PickerArgument,
-  type PickerCommand,
-} from "./picker.ts";
-import {
-  checkExtensionDependencies,
-  installExtensionDependencies,
+  openExtension,
   defaultDataDir,
-  createPreferenceStore,
-  parsePreferences,
+  missingRequired,
+  type ExtensionHandle,
+  type ExtensionManifest as Manifest,
+  type ExtensionArgument as PickerArgument,
+  type ExtensionCommand as PickerCommand,
   type Preference,
   type StorageItems,
   type DependencyInstaller,
@@ -30,18 +21,17 @@ import { openCommand } from "./session.ts";
 import { theme } from "./theme.ts";
 import { pastedText } from "./paste.ts";
 
-const WATCH_DEBOUNCE_MS = 100;
-
 /**
  * The picker view: lists the manifest's commands, filters by typed text and
  * opens the argument form. The manifest is re-read while open (debounced
- * fs.watch); a broken manifest shows an inline error and keeps the last good
+ * host reload); a broken manifest shows an inline error and keeps the last good
  * list. Launch errors arrive as the `launching`/`launchError` props so the
  * picker keeps its own state across a failed launch.
  */
 export function CommandPicker({
   extensionDir,
   dataDir: suppliedDataDir,
+  extension: suppliedExtension,
   installer,
   editPreferences,
   onPreferencesOpened,
@@ -52,6 +42,7 @@ export function CommandPicker({
   onQuit,
 }: {
   extensionDir: string;
+  extension?: ExtensionHandle;
   dataDir?: string;
   installer?: DependencyInstaller;
   editPreferences?: { command: string; scope: "extension" | "command" } | undefined;
@@ -63,7 +54,15 @@ export function CommandPicker({
   onLaunch: (command: PickerCommand, values: Record<string, string>) => void;
   onQuit: () => void;
 }) {
-  const [dataDir] = useState(() => suppliedDataDir ?? defaultDataDir());
+  const [extension] = useState(
+    () =>
+      suppliedExtension ??
+      openExtension({
+        extensionDir,
+        ...(suppliedDataDir === undefined ? {} : { dataDir: suppliedDataDir }),
+        ...(installer ? { installer } : {}),
+      }),
+  );
   const install = useRef<Promise<void>>(Promise.resolve());
   const [progress, setProgress] = useState<string>();
   const [installError, setInstallError] = useState<string>();
@@ -71,7 +70,6 @@ export function CommandPicker({
     command: PickerCommand;
     arguments: Record<string, string>;
     fields: Preference[];
-    extensionFields: Preference[];
     initial: StorageItems;
   }>();
   const [preferencesView, setPreferencesView] = useState<{
@@ -89,17 +87,10 @@ export function CommandPicker({
   ) => {
     if (!manifest) return;
     try {
-      const raw = JSON.parse(await readFile(join(extensionDir, "package.json"), "utf8"));
-      const extensionFields = parsePreferences(raw.preferences);
-      const commandFields = parsePreferences(
-        raw.commands.find((c: { name: string }) => c.name === command.name)?.preferences,
-      );
-      const store = createPreferenceStore({ extensionName: manifest.name, dataDir });
-      const stored = await store.read();
-      const initial =
-        scope === "extension"
-          ? stored.extension
-          : { ...stored.extension, ...stored.commands[command.name] };
+      const prefs = await extension.preferences(command.name, scope);
+      const extensionFields = prefs.extension;
+      const commandFields = prefs.command;
+      const initial = prefs.values;
       setPreferencesView({
         command,
         extensionFields,
@@ -117,31 +108,14 @@ export function CommandPicker({
     setPreparing(true);
     try {
       await install.current;
-      const raw = JSON.parse(await readFile(join(extensionDir, "package.json"), "utf8"));
-      const extensionFields = parsePreferences(raw.preferences);
-      const commandFields = parsePreferences(
-        raw.commands.find((c: { name: string }) => c.name === command.name)?.preferences,
-      );
-      const fields = [
-        ...new Map([...extensionFields, ...commandFields].map((p) => [p.name, p])).values(),
-      ];
-      const store = createPreferenceStore({ extensionName: manifest.name, dataDir });
-      const stored = await store.read();
-      const initial = { ...stored.extension, ...stored.commands[command.name] };
-      const missing = fields.filter(
-        (p) =>
-          p.required &&
-          p.default === undefined &&
-          (initial[p.name] === undefined || initial[p.name] === ""),
-      );
+      const prefs = await extension.preferences(command.name);
+      const initial = prefs.values;
+      const missing = prefs.missing;
       if (missing.length > 0) {
         setLaunchGate({
           command,
           arguments: args,
           fields: missing,
-          extensionFields: extensionFields.filter(
-            (p) => !commandFields.some((c) => c.name === p.name),
-          ),
           initial,
         });
       } else {
@@ -163,35 +137,14 @@ export function CommandPicker({
   const [blocked, setBlocked] = useState(false);
   useEffect(() => {
     let active = true;
-    let watcher: FSWatcher | undefined;
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    const read = async () => {
-      try {
-        const parsed = parseManifest(
-          JSON.parse(await readFile(join(extensionDir, "package.json"), "utf8")),
-        );
-        if (!active) return;
-        setManifest(parsed);
-        setManifestError(undefined);
-      } catch (error) {
-        if (!active) return;
-        setManifestError(error instanceof Error ? error.message : String(error));
-      }
-    };
-    const refresh = () => {
-      void read();
-      // Serialize checks/installs: a manifest change during npm gets checked afterwards.
-      install.current = install.current.then(async () => {
-        if (!active) return;
+    const refreshDependencies = () => {
+      install.current = (async () => {
         try {
-          const options = { extensionDir, dataDir };
-          const status = await checkExtensionDependencies(options);
+          const status = await extension.dependencies.check();
           if (!status.needed || !active) return;
           setInstallError(undefined);
           setProgress("Installing dependencies…");
-          await installExtensionDependencies({
-            ...options,
-            ...(installer ? { installer } : {}),
+          await extension.dependencies.install({
             onLog: (message) => {
               if (active) setProgress(message.trim().split(/\r?\n/).filter(Boolean).at(-1));
             },
@@ -201,25 +154,32 @@ export function CommandPicker({
         } finally {
           if (active) setProgress(undefined);
         }
-      });
+      })();
     };
-    refresh();
+    const update = (value: Manifest | Error) => {
+      if (!active) return;
+      if (value instanceof Error) setManifestError(value.message);
+      else {
+        setManifest(value);
+        setManifestError(undefined);
+      }
+      refreshDependencies();
+    };
+    void extension.manifest().then(update, (error: Error) => update(error));
+    // Keep watcher ownership in the host handle; unavailable watching is best-effort.
+    let unsubscribe: (() => void) | undefined;
     try {
-      // Watch the directory: rewrites via rename would strand a file watcher.
-      watcher = watch(extensionDir, (_event, file) => {
-        if (file && file !== "package.json" && file !== "package-lock.json") return;
-        clearTimeout(timer);
-        timer = setTimeout(refresh, WATCH_DEBOUNCE_MS);
-      });
+      const subscribe = extension.watch;
+      unsubscribe = subscribe(update);
     } catch {
-      // Watching is best-effort; the list just stays as it was.
+      /* The initial manifest remains usable without watching. */
     }
     return () => {
       active = false;
-      clearTimeout(timer);
-      watcher?.close();
+      unsubscribe?.();
+      if (!suppliedExtension) void extension.close();
     };
-  }, [extensionDir, dataDir, installer]);
+  }, [extension]);
   useEffect(() => {
     const command = manifest?.commands.find((c) => c.name === editPreferences?.command);
     if (command) void openPreferences(command, editPreferences?.scope).finally(onPreferencesOpened);
@@ -369,15 +329,10 @@ export function CommandPicker({
           initial={preferencesView.initial}
           onCancel={() => setPreferencesView(undefined)}
           onSave={async (saved) => {
-            const isExtension = (name: string) =>
-              preferencesView.scope === "extension"
-                ? true
-                : preferencesView.extensionFields.some((p) => p.name === name) &&
-                  !preferencesView.commandFields.some((c) => c.name === name);
-            await createPreferenceStore({ extensionName: manifest!.name, dataDir }).save(
-              Object.fromEntries(Object.entries(saved).filter(([name]) => isExtension(name))),
+            await extension.savePreferences(
               preferencesView.command.name,
-              Object.fromEntries(Object.entries(saved).filter(([name]) => !isExtension(name))),
+              saved,
+              preferencesView.scope,
             );
             setPreferencesView(undefined);
           }}
@@ -392,13 +347,7 @@ export function CommandPicker({
             setForm(undefined);
           }}
           onSave={async (saved) => {
-            const isExtension = (name: string) =>
-              launchGate.extensionFields.some((p) => p.name === name);
-            await createPreferenceStore({ extensionName: manifest!.name, dataDir }).save(
-              Object.fromEntries(Object.entries(saved).filter(([name]) => isExtension(name))),
-              launchGate.command.name,
-              Object.fromEntries(Object.entries(saved).filter(([name]) => !isExtension(name))),
-            );
+            await extension.savePreferences(launchGate.command.name, saved);
             setLaunchGate(undefined);
             setForm(undefined);
             onLaunch(launchGate.command, launchGate.arguments);
@@ -674,6 +623,9 @@ export function CommandSession({
   onExit?: (crashed: boolean) => void;
 }) {
   const [resolvedDataDir] = useState(() => dataDir ?? defaultDataDir());
+  const [extension] = useState(() =>
+    openExtension({ extensionDir, dataDir: resolvedDataDir, ...(installer ? { installer } : {}) }),
+  );
   const [editPreferences, setEditPreferences] = useState<{
     command: string;
     scope: "extension" | "command";
@@ -696,6 +648,7 @@ export function CommandSession({
       // Unmount without a normal quit (SIGTERM during launch) cleans up.
       const current = latest.current.active;
       if (current) void current.opened.close();
+      void extension.close();
     },
     [],
   );
@@ -707,6 +660,7 @@ export function CommandSession({
       try {
         const opened = await openCommand(extensionDir, command.name, {
           dataDir: resolvedDataDir,
+          extension,
           handlers: {
             "preferences.open": (params) => {
               if (
@@ -777,6 +731,7 @@ export function CommandSession({
   return (
     <CommandPicker
       extensionDir={extensionDir}
+      extension={extension}
       dataDir={resolvedDataDir}
       {...(installer ? { installer } : {})}
       editPreferences={editPreferences}
