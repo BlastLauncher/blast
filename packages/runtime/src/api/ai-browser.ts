@@ -3,7 +3,7 @@ import { requestCapability } from "./capability.ts";
 import { AI as enums } from "./enums.generated.ts";
 import type { ActionStyle } from "./action.ts";
 
-export const OPTIONAL_API = Symbol.for("blast.optionalAPI");
+export const OPTIONAL_API: symbol = Symbol.for("blast.optionalAPI");
 export type Creativity = "none" | "low" | "medium" | "high" | "maximum" | number;
 export type ModelSelector = (typeof enums.Model)[keyof typeof enums.Model] | { id: string };
 export type AskOptions = { creativity?: Creativity; model?: ModelSelector; signal?: AbortSignal };

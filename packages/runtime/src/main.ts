@@ -111,7 +111,7 @@ process.stdout.on("error", () => process.exit(1));
 process.stdin.on("error", fatal);
 
 const modules = new Map([
-  ["@raycast/api", new URL("./api/index.ts", import.meta.url).href],
+  ["@raycast/api", import.meta.resolve("@blastlauncher/runtime/api")],
   ...["react", "react/jsx-runtime", "react/jsx-dev-runtime"].map((name): [string, string] => [
     name,
     import.meta.resolve(name),

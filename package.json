@@ -29,7 +29,9 @@
     "corpus:tui-smoke": "bun scripts/corpus/tui-smoke-run.ts",
     "check:workflow": "bun scripts/check-workflow.ts",
     "tui": "bun packages/tui/src/main.tsx",
-    "blast:serve": "node packages/serve/src/main.ts"
+    "blast:serve": "node packages/serve/src/main.ts",
+    "release:build": "bun scripts/release/build.ts",
+    "release:smoke": "bun scripts/release/smoke.ts"
   },
   "devDependencies": {
     "@types/bun": "1.4.3",
