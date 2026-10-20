@@ -24,6 +24,7 @@ import {
   type SharedDependencies,
   type SharedDependencyLoader,
 } from "./dependencies.ts";
+import { loadTsconfigAliases } from "./tsconfig-paths.ts";
 
 // Bundles run in Node even when Bun runs the host. Bun's built-in list also
 // includes npm packages such as undici and ws, which must be bundled for Node.
@@ -63,6 +64,7 @@ function dependencyPolicy(
   shared: SharedDependencies | undefined,
   installed?: string,
   installedPackages = new Set<string>(),
+  aliases?: Awaited<ReturnType<typeof loadTsconfigAliases>>,
 ): Plugin {
   const dependencyFiles = new Set<string>();
   return {
@@ -76,6 +78,14 @@ function dependencyPolicy(
         if (isNodeBuiltin(specifier)) return { path: specifier, external: true };
         const bare = !specifier.startsWith(".") && !isAbsolute(specifier);
         const inDependencyGraph = dependencyFiles.has(args.importer);
+        // The extension's tsconfig `paths`/`baseUrl` win over packages, as
+        // tsc resolves them: a specifier that maps into the extension is the
+        // extension's own module, never a missing dependency. Imports from
+        // dependency graphs keep package resolution.
+        if (aliases && bare && !inDependencyGraph && args.kind !== "entry-point") {
+          const alias = await aliases.resolve(specifier);
+          if (alias) return { path: alias };
+        }
         if (installed && bare && !inDependencyGraph && args.kind !== "entry-point") {
           const name = specifier.startsWith("@")
             ? specifier.split("/").slice(0, 2).join("/")
@@ -413,6 +423,8 @@ async function bundleEntry(
         " (a sparse checkout that only has package.json? fetch the whole extension directory)",
     );
   const shared = await loadSharedDependencies(options.sharedDependencies);
+  const aliases = await loadTsconfigAliases(extensionDir);
+  for (const warning of aliases?.warnings ?? []) console.warn(warning);
   const install =
     options.installedDependencies === false ? undefined : await checkExtensionDependencies(options);
   const base = join(tmpdir(), "blast", "builds");
@@ -440,6 +452,7 @@ async function bundleEntry(
           shared,
           install && !install.needed ? install.directory : undefined,
           installedPackages,
+          aliases,
         ),
       ],
       logLevel: "silent",
