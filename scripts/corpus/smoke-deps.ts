@@ -6,10 +6,11 @@
 // unit-testable offline.
 import {
   compactLine,
-  extractPreferenceDefaults,
+  requiredPreferences as requiredPreferenceDefinitions,
+  PLACEHOLDER_NOTE,
+  placeholderSummary,
   type CommandResult,
   type Manifest,
-  type ManifestPreference,
 } from "./smoke.ts";
 
 export const DEPS_OUTCOMES = [
@@ -108,20 +109,9 @@ export function installErrorExcerpt(output: string, limit = 3): string {
   return compactLine(lines.slice(-limit).join(" | "));
 }
 
-/** Required preferences with no manifest default: nothing unattended can supply them. */
+/** Names of required preferences that need placeholders rather than manifest defaults. */
 export function requiredPreferences(manifest: Manifest, commandName: string): string[] {
-  const command = manifest.commands?.find((item) => item?.name === commandName);
-  const declared = new Map<string, ManifestPreference>();
-  for (const preference of [...(manifest.preferences ?? []), ...(command?.preferences ?? [])]) {
-    if (typeof preference?.name === "string") declared.set(preference.name, preference);
-  }
-  const defaults = extractPreferenceDefaults(manifest, commandName);
-  return [...declared.values()]
-    .filter(
-      (preference) => preference.required === true && !((preference.name as string) in defaults),
-    )
-    .map((preference) => preference.name!)
-    .toSorted();
+  return requiredPreferenceDefinitions(manifest, commandName).map((preference) => preference.name!);
 }
 
 /** Re-label a plain smoke result with the deps report's outcome names. */
@@ -328,13 +318,14 @@ export function renderDepsMarkdownReport(report: DepsReport): string {
     "engine's dependency install (decision 0008: `npm install --omit=dev --ignore-scripts`",
     "from the extension's lockfile) before its commands are bundled, with the shared",
     "dependency fallback present; the install is deleted afterwards. Broker, preference",
-    "defaults and probe are the same as [SMOKE.md](SMOKE.md). Commands requiring launch",
-    "arguments or preferences without a default are bundled but not run.",
+    "defaults and probe are the same as [SMOKE.md](SMOKE.md).",
+    ...PLACEHOLDER_NOTE,
     "Regenerate with `bun run corpus:smoke-deps` (network required; not part of",
     "`bun run verify`).",
     "",
     `${installed}/${report.installs.length} installs succeeded. ${report.results.length} commands: ${DEPS_OUTCOMES.map((outcome) => `${outcome} ${count(outcome)}`).join(", ")}.`,
     `Peak .cache ${megabytes(report.peakBytes)} MB, wall time ${(report.wallMs / 1000).toFixed(0)} s.`,
+    ...[placeholderSummary(report.results)].filter(Boolean),
     "",
     "## Installs",
     "",
@@ -371,12 +362,12 @@ export function renderDepsMarkdownReport(report: DepsReport): string {
     "",
     "## Commands",
     "",
-    "| Command | Mode | Outcome | Bundle ms | Detail |",
-    "| --- | --- | --- | --- | --- |",
+    "| Command | Mode | Outcome | Bundle ms | Inputs | Detail |",
+    "| --- | --- | --- | --- | --- | --- |",
   );
   for (const result of report.results) {
     lines.push(
-      `| \`${result.extension}/${result.command}\` | ${result.mode} | ${result.outcome} | ${result.bundleMs === undefined ? "—" : Math.round(result.bundleMs)} | ${compactLine(detail(result)).replaceAll("|", "\\|")} |`,
+      `| \`${result.extension}/${result.command}\` | ${result.mode} | ${result.outcome} | ${result.bundleMs === undefined ? "—" : Math.round(result.bundleMs)} | ${result.placeholders ?? "—"} | ${compactLine(detail(result)).replaceAll("|", "\\|")} |`,
     );
   }
   const failures = report.results.filter((result) => !NOT_FAILURES.includes(result.outcome));

@@ -92,7 +92,7 @@ test("a frame with the unknown-node placeholder is a placeholder, types recorded
   );
   expect(placeholder).toMatchObject({
     outcome: "placeholder",
-    placeholders: ["Form.TextField", "List.ItemAccessory"],
+    unsupportedNodes: ["Form.TextField", "List.ItemAccessory"],
   });
   expect(placeholder.frame).toEqual(["Blast", "› apple", "[Unsupported: List.ItemAccessory]"]);
   expect(isFailure(placeholder)).toBe(true);
@@ -279,9 +279,9 @@ test("the markdown report starts with totals, then the table, then the failures"
     "`zeta/index`",
   ]);
   expect(markdown).toContain(
-    "| `alpha/index` | view | placeholder | node types: List.ItemAccessory |",
+    "| `alpha/index` | view | placeholder | — | node types: List.ItemAccessory |",
   );
-  expect(markdown).toContain("| `zeta/index` | view | rendered | 12 nodes, root List |");
+  expect(markdown).toContain("| `zeta/index` | view | rendered | — | 12 nodes, root List |");
   // Every non-rendered command is listed, with its frame lines.
   expect(markdown).toContain("- `alpha/index` (placeholder): node types: List.ItemAccessory");
   expect(markdown).toContain("  - frame: [Unsupported: List.ItemAccessory]");
@@ -317,4 +317,25 @@ test("the JSON report is deterministic and free of machine paths", () => {
 test("every frame outcome is listed once in the headline order", () => {
   expect(FRAME_OUTCOMES[0]).toBe("rendered");
   expect(new Set(TUI_OUTCOMES).size).toBe(TUI_OUTCOMES.length);
+});
+
+test("TUI input placeholders remain distinct from unsupported scene nodes", () => {
+  const base = { extension: "ext", command: "run", mode: "view", placeholders: "both" as const };
+  const frame = buildTuiResult({
+    ...base,
+    probe: { kind: "frame", frame: "[Unsupported: NewNode]" },
+  });
+  expect(frame).toMatchObject({
+    outcome: "placeholder",
+    placeholders: "both",
+    unsupportedNodes: ["NewNode"],
+  });
+  const crashed = buildTuiResult({
+    ...base,
+    probe: { kind: "exit", code: 1, signal: null, error: { message: "bad credentials" } },
+  });
+  expect(crashed).toMatchObject({ outcome: "crashed", placeholders: "both" });
+  const report = buildTuiReport("pin", [frame], 100, 30);
+  expect(JSON.parse(renderTuiJson(report)).results[0].placeholders).toBe("both");
+  expect(renderTuiMarkdown(report)).toContain("| placeholder | both | node types: NewNode |");
 });

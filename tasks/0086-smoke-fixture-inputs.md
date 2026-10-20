@@ -1,7 +1,7 @@
 ---
 id: "0086"
 title: Corpus smokes supply placeholder arguments and preferences so every command runs
-status: doing
+status: review
 milestone: M5
 depends: []
 ---
@@ -54,11 +54,11 @@ values and report what happens, so those commands count as real signal
 
 ## Acceptance
 
-- [ ] Placeholder unit tests pass.
-- [ ] `compat/SMOKE-DEPS.md` has 0 `needs-arguments`/`needs-preferences`
+- [x] Placeholder unit tests pass.
+- [x] `compat/SMOKE-DEPS.md` has 0 `needs-arguments`/`needs-preferences`
       outcomes; Handoff lists the new outcome totals and which ones used
       placeholders.
-- [ ] `bun run verify` passes; `.cache` is under 20 MB afterwards.
+- [x] `bun run verify` passes; `.cache` is under 20 MB afterwards.
 
 ## Out of scope
 
@@ -67,11 +67,28 @@ values and report what happens, so those commands count as real signal
 
 ## Handoff
 
-Filled in by the worker when finishing:
-
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/smoke-fixture-inputs-1 @ c2201ec (implementation merge)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 107.9s
 Done:
+- Merged e1bb8d1 normally, preserving 0087 bundleMs and bundle-timeout behavior.
+- Shared deterministic placeholder derivation across headless, deps and TUI smokes;
+  defaults and command preference scope preserved, temp directories removed after launch.
+- Added manifest fixtures and report tests: 51 focused tests pass; full suite 766 pass.
+- Regenerated deps reports: 25/25 installs; rendered 54, capability-denied 2;
+  every other outcome 0, including needs-arguments and needs-preferences.
+  Placeholders: arguments 5, preferences 14, both 1; 19 rendered, 1 denied open.url.
+- Removed corpus checkout and smoke data/caches; .cache is 4,096 bytes. No dependencies added.
 Not done / risks:
+- Optional corpus:smoke and corpus:tui-smoke reruns were not performed; their old reports remain.
+- TUI result node placeholders now use unsupportedNodes, reserving placeholders for launch inputs.
+- A malformed required argument dropdown with no options still reports missing arguments.
+- Candidates only: caschys-blog/open-website and esa-search/createPost need open.url;
+  both expected broker denials were recorded and left unchanged.
 ```
+
+Commands using placeholders in the regenerated deps report:
+
+- **arguments (5)**: `bed-time-calculator/sleep-at`, `bed-time-calculator/wake-up-at`, `defichain-lottery/add-address`, `emojify/emoji-selector`, `oci/email-delivery`.
+- **preferences (14)**: `control-d/change-filters`, `control-d/learn-my-ip`, `control-d/list-profiles`, `control-d/modify-profile`, `control-d/status`, `esa-search/createPost`, `featurebase/manage-changelogs`, `featurebase/manage-feedback`, `featurebase/manage-help-center`, `featurebase/manage-users`, `youtube/popular-videos`, `youtube/search-channel`, `youtube/search-live`, `youtube/search-videos`.
+- **both (1)**: `esa-search/searchPost`.
