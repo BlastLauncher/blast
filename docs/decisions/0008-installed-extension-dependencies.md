@@ -34,7 +34,9 @@ Status: accepted 2026-10-19; extends 0002 (the shared allowlist stays as fallbac
 6. **Corpus tooling does not install.** `corpus:smoke` and the TUI smoke stay
    allowlist-only (`bundleCommand({ installedDependencies: false })`) and offline
    after fetch, so reports remain comparable and
-   disk-bounded.
+   disk-bounded. The one exception is `corpus:smoke-deps`, a separate report
+   over a dependency-heavy set that installs each extension, runs it and deletes
+   the install before the next.
 
 ## Why
 

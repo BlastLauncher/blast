@@ -1,7 +1,7 @@
 ---
 id: "0070"
 title: "Real-world compat: dependency-heavy curated set, run with installed dependencies"
-status: doing
+status: review
 milestone: M5
 depends: []
 ---
@@ -75,11 +75,36 @@ with failure categories. That shows what to fix next.
 
 ## Handoff
 
-Filled in by the worker when finishing:
-
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/deps-heavy-corpus-smoke @ 54d340d (code; the Handoff text is the commit after it)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 93.9s
 Done:
+- `bun run corpus:select-deps` (`select-deps.ts`, pure rules in `deps-selection.ts` + tests) writes
+  `compat/corpus-deps.json`: 25 extensions, deterministic (two runs, same md5). Rules: >=1 registry dep
+  outside the shared allowlist (<=6), lockfile, view command, no native packages, no child_process /
+  AppleScript / fs-write sources, lockfile <= 300 KB; filed under the most-imported unprovided package
+  (from `compat/dependencies.json`), round-robin over packages, offline before network.
+- `bun run corpus:smoke-deps` (`smoke-deps-run.ts`, pure logic in `smoke-deps.ts` + tests): per extension
+  fetch -> `openExtension().dependencies.install()` under a 180 s timeout (npm cache kept under `.cache`,
+  disk watchdog on `maxMbFromEnv`) -> bundle with installed deps -> launch -> delete install. Reports
+  `compat/smoke-deps.json` + `compat/SMOKE-DEPS.md` (installs, top failures, per-command table).
+- The shared per-command step moved from `smoke-run.ts` to `smoke-command.ts` (behaviour unchanged;
+  `corpus:smoke` still allowlist-only). Decision 0008 item 6 notes the one exception.
+- Run results (one run): 25/25 installs ok. 56 commands: rendered 35, bundle-failed 5, needs-arguments 6,
+  needs-preferences 9, capability-denied 1; install-failed/crashed/timeout/network/unsupported-api 0.
+  Peak `.cache` 466.4 MB (oci-sdk install 254 MB; budget 600), wall time 150 s (installs 0.6-22.8 s).
+- `du -sh .cache`: before 0 (absent), after 159M (manifest-only checkout; `.git` keeps fetched blobs,
+  same as `corpus:smoke`). Per-extension installs, the data dir and the npm cache were deleted each time.
 Not done / risks:
+- Candidate follow-ups (not fixed here): (1) bundler ignores tsconfig `baseUrl`/`paths`: `control-d`
+  imports `common/...` from its own root (5 commands, bundle-failed "missing common"); (2) `open.url`
+  has no headless default (`caschys-blog/open-website`, capability-denied); (3) 15 of 56 commands are not
+  run (6 required arguments, 9 required preferences without defaults, 4 of them `youtube` / 4 `featurebase`):
+  a fixture-values option for the smoke would turn them into signal.
+- Positive result worth knowing: `oci` (254 MB) and `monorepo-manager` (`@yarnpkg/core`) bundle and render,
+  but bundling takes tens of seconds each; no timeout covers bundling.
+- `execa`, `open` and `got` packages pass the source exclusions (they hide `child_process`), so those
+  extensions run but cannot exercise process spawning offline.
+- The committed `.md` is formatter-padded (`bun run fmt` after regenerating), like `SMOKE.md`.
+- No new dependencies. Network was used only by the explicit scripts, never `bun test`.
 ```

@@ -1,0 +1,208 @@
+{
+  "repository": "https://github.com/raycast/extensions.git",
+  "commit": "3b812d1e153a1862df29bc8ec34e170c728512ea",
+  "extensions": [
+    {
+      "name": "shopify-developer-changelog",
+      "dependencies": [
+        "rss-parser"
+      ],
+      "primary": "rss-parser"
+    },
+    {
+      "name": "android-adb-input",
+      "dependencies": [
+        "execa"
+      ],
+      "primary": "execa"
+    },
+    {
+      "name": "search-regexp",
+      "dependencies": [
+        "got"
+      ],
+      "primary": "got"
+    },
+    {
+      "name": "featurebase",
+      "dependencies": [
+        "turndown"
+      ],
+      "primary": "turndown"
+    },
+    {
+      "name": "monorepo-manager",
+      "dependencies": [
+        "@yarnpkg/core",
+        "fs-extra",
+        "parse-git-config"
+      ],
+      "primary": "fs-extra"
+    },
+    {
+      "name": "emojify",
+      "dependencies": [
+        "openai"
+      ],
+      "primary": "openai"
+    },
+    {
+      "name": "screen-sharing-recents",
+      "dependencies": [
+        "plist"
+      ],
+      "primary": "plist"
+    },
+    {
+      "name": "esa-search",
+      "dependencies": [
+        "@suin/esa-api",
+        "swr"
+      ],
+      "primary": "swr"
+    },
+    {
+      "name": "owl",
+      "dependencies": [
+        "raycast",
+        "raycast-cross-extension"
+      ],
+      "primary": "raycast-cross-extension"
+    },
+    {
+      "name": "irish-rail",
+      "dependencies": [
+        "fast-xml-parser"
+      ],
+      "primary": "fast-xml-parser"
+    },
+    {
+      "name": "control-d",
+      "dependencies": [
+        "form-data"
+      ],
+      "primary": "form-data"
+    },
+    {
+      "name": "search-composer-packagist",
+      "dependencies": [
+        "algoliasearch"
+      ],
+      "primary": "algoliasearch"
+    },
+    {
+      "name": "commandcode-ai",
+      "dependencies": [
+        "@ai-sdk/anthropic",
+        "@ai-sdk/openai-compatible",
+        "ai"
+      ],
+      "primary": "ai"
+    },
+    {
+      "name": "bed-time-calculator",
+      "dependencies": [
+        "chrono-node"
+      ],
+      "primary": "chrono-node"
+    },
+    {
+      "name": "youtube",
+      "dependencies": [
+        "@googleapis/youtube",
+        "duration-iso-8601",
+        "he",
+        "javascript-time-ago"
+      ],
+      "primary": "javascript-time-ago"
+    },
+    {
+      "name": "ccfddl",
+      "dependencies": [
+        "js-yaml"
+      ],
+      "primary": "js-yaml"
+    },
+    {
+      "name": "atomberg-raycast-extension",
+      "dependencies": [
+        "@tanstack/react-query"
+      ],
+      "primary": "@tanstack/react-query"
+    },
+    {
+      "name": "oci",
+      "dependencies": [
+        "filesize",
+        "oci-sdk"
+      ],
+      "primary": "filesize"
+    },
+    {
+      "name": "lyne",
+      "dependencies": [
+        "open"
+      ],
+      "primary": "open"
+    },
+    {
+      "name": "defichain-lottery",
+      "dependencies": [
+        "qrcode"
+      ],
+      "primary": "qrcode"
+    },
+    {
+      "name": "vanishlink",
+      "dependencies": [
+        "node-html-parser"
+      ],
+      "primary": "node-html-parser"
+    },
+    {
+      "name": "colorify",
+      "dependencies": [
+        "@lokesh.dhakar/quantize",
+        "file-type",
+        "get-pixels",
+        "image-size",
+        "jimp"
+      ],
+      "primary": "file-type"
+    },
+    {
+      "name": "image-diff-checker",
+      "dependencies": [
+        "jimp",
+        "pixelmatch"
+      ],
+      "primary": "jimp"
+    },
+    {
+      "name": "markdown-preview",
+      "dependencies": [
+        "marked"
+      ],
+      "primary": "marked"
+    },
+    {
+      "name": "caschys-blog",
+      "dependencies": [
+        "xml2js"
+      ],
+      "primary": "xml2js"
+    }
+  ],
+  "selection": {
+    "criteria": {
+      "count": 25,
+      "manifest": "at least one registry dependency outside the shared allowlist (and at most 6), a package-lock.json, a view command, no native packages",
+      "sources": "no child_process, AppleScript, filesystem writes or Swift modules; lockfile at most 300 KB",
+      "spread": "filed under its most-imported unprovided package; round-robin over the 40 most-imported packages, 6 candidates read per package",
+      "order": "offline before network, fewer dependencies, then name hash"
+    },
+    "manifestEligible": 1236,
+    "scanned": 235,
+    "eligible": 126
+  }
+}

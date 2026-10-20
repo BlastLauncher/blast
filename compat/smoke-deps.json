@@ -1,0 +1,702 @@
+{
+  "commit": "3b812d1e153a1862df29bc8ec34e170c728512ea",
+  "totals": {
+    "rendered": 35,
+    "completed": 0,
+    "install-failed": 0,
+    "bundle-failed": 5,
+    "crashed": 0,
+    "needs-arguments": 6,
+    "needs-preferences": 9,
+    "capability-denied": 1,
+    "network": 0,
+    "timeout": 0,
+    "unsupported-api": 0,
+    "unsupported-mode": 0
+  },
+  "installs": [
+    {
+      "extension": "android-adb-input",
+      "packages": [
+        "execa"
+      ],
+      "status": "installed",
+      "ms": 722.633143,
+      "bytes": 230234
+    },
+    {
+      "extension": "atomberg-raycast-extension",
+      "packages": [
+        "@tanstack/react-query"
+      ],
+      "status": "installed",
+      "ms": 2106.065526999999,
+      "bytes": 47186758
+    },
+    {
+      "extension": "bed-time-calculator",
+      "packages": [
+        "chrono-node"
+      ],
+      "status": "installed",
+      "ms": 1230.4775990000016,
+      "bytes": 3158586
+    },
+    {
+      "extension": "caschys-blog",
+      "packages": [
+        "xml2js"
+      ],
+      "status": "installed",
+      "ms": 2002.4489670000003,
+      "bytes": 53914361
+    },
+    {
+      "extension": "ccfddl",
+      "packages": [
+        "js-yaml"
+      ],
+      "status": "installed",
+      "ms": 2109.018143999998,
+      "bytes": 43366504
+    },
+    {
+      "extension": "colorify",
+      "packages": [
+        "@lokesh.dhakar/quantize",
+        "file-type",
+        "get-pixels",
+        "image-size",
+        "jimp"
+      ],
+      "status": "installed",
+      "ms": 2486.726036,
+      "bytes": 30841901
+    },
+    {
+      "extension": "commandcode-ai",
+      "packages": [
+        "@ai-sdk/anthropic",
+        "@ai-sdk/openai-compatible",
+        "ai"
+      ],
+      "status": "installed",
+      "ms": 2558.9888009999995,
+      "bytes": 72705920
+    },
+    {
+      "extension": "control-d",
+      "packages": [
+        "form-data"
+      ],
+      "status": "installed",
+      "ms": 949.2918609999979,
+      "bytes": 2432319
+    },
+    {
+      "extension": "defichain-lottery",
+      "packages": [
+        "qrcode"
+      ],
+      "status": "installed",
+      "ms": 1315.7348439999987,
+      "bytes": 8452782
+    },
+    {
+      "extension": "emojify",
+      "packages": [
+        "openai"
+      ],
+      "status": "installed",
+      "ms": 2689.5493260000003,
+      "bytes": 58321209
+    },
+    {
+      "extension": "esa-search",
+      "packages": [
+        "@suin/esa-api",
+        "swr"
+      ],
+      "status": "installed",
+      "ms": 2391.6002059999955,
+      "bytes": 50282172
+    },
+    {
+      "extension": "featurebase",
+      "packages": [
+        "turndown"
+      ],
+      "status": "installed",
+      "ms": 2233.8081510000047,
+      "bytes": 51708574
+    },
+    {
+      "extension": "image-diff-checker",
+      "packages": [
+        "jimp",
+        "pixelmatch"
+      ],
+      "status": "installed",
+      "ms": 3057.347673999997,
+      "bytes": 69105813
+    },
+    {
+      "extension": "irish-rail",
+      "packages": [
+        "fast-xml-parser"
+      ],
+      "status": "installed",
+      "ms": 1025.0409680000012,
+      "bytes": 3562177
+    },
+    {
+      "extension": "lyne",
+      "packages": [
+        "open"
+      ],
+      "status": "installed",
+      "ms": 581.5514299999995,
+      "bytes": 61339
+    },
+    {
+      "extension": "markdown-preview",
+      "packages": [
+        "marked"
+      ],
+      "status": "installed",
+      "ms": 1908.069779000005,
+      "bytes": 44973033
+    },
+    {
+      "extension": "monorepo-manager",
+      "packages": [
+        "@yarnpkg/core",
+        "fs-extra",
+        "parse-git-config"
+      ],
+      "status": "installed",
+      "ms": 2463.3541659999973,
+      "bytes": 16249897
+    },
+    {
+      "extension": "oci",
+      "packages": [
+        "filesize",
+        "oci-sdk"
+      ],
+      "status": "installed",
+      "ms": 22810.330942999994,
+      "bytes": 266790567
+    },
+    {
+      "extension": "owl",
+      "packages": [
+        "raycast",
+        "raycast-cross-extension"
+      ],
+      "status": "installed",
+      "ms": 2413.995333999992,
+      "bytes": 45674319
+    },
+    {
+      "extension": "screen-sharing-recents",
+      "packages": [
+        "plist"
+      ],
+      "status": "installed",
+      "ms": 865.6449410000059,
+      "bytes": 9079447
+    },
+    {
+      "extension": "search-composer-packagist",
+      "packages": [
+        "algoliasearch"
+      ],
+      "status": "installed",
+      "ms": 2285.4122590000043,
+      "bytes": 42904105
+    },
+    {
+      "extension": "search-regexp",
+      "packages": [
+        "got"
+      ],
+      "status": "installed",
+      "ms": 910.4916170000215,
+      "bytes": 742524
+    },
+    {
+      "extension": "shopify-developer-changelog",
+      "packages": [
+        "rss-parser"
+      ],
+      "status": "installed",
+      "ms": 702.5109339999908,
+      "bytes": 2206494
+    },
+    {
+      "extension": "vanishlink",
+      "packages": [
+        "node-html-parser"
+      ],
+      "status": "installed",
+      "ms": 2183.7137909999874,
+      "bytes": 45617167
+    },
+    {
+      "extension": "youtube",
+      "packages": [
+        "@googleapis/youtube",
+        "duration-iso-8601",
+        "he",
+        "javascript-time-ago"
+      ],
+      "status": "installed",
+      "ms": 4186.902307000011,
+      "bytes": 71358024
+    }
+  ],
+  "results": [
+    {
+      "extension": "android-adb-input",
+      "command": "index",
+      "mode": "view",
+      "nodes": 8,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "atomberg-raycast-extension",
+      "command": "list-atomberg-devices",
+      "mode": "view",
+      "nodes": 7,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "atomberg-raycast-extension",
+      "command": "manage-atomberg-credentials",
+      "mode": "view",
+      "nodes": 24,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "bed-time-calculator",
+      "command": "sleep-at",
+      "mode": "view",
+      "reason": "requires launch arguments: sleepAtTime; not run",
+      "outcome": "needs-arguments"
+    },
+    {
+      "extension": "bed-time-calculator",
+      "command": "sleep-now",
+      "mode": "view",
+      "nodes": 29,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "bed-time-calculator",
+      "command": "wake-up-at",
+      "mode": "view",
+      "reason": "requires launch arguments: wakeUpTime; not run",
+      "outcome": "needs-arguments"
+    },
+    {
+      "extension": "caschys-blog",
+      "command": "latest-articles",
+      "mode": "view",
+      "nodes": 7,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "caschys-blog",
+      "command": "open-website",
+      "mode": "no-view",
+      "path": "open.url",
+      "error": "Capability denied: open.url",
+      "outcome": "capability-denied"
+    },
+    {
+      "extension": "caschys-blog",
+      "command": "search-blog",
+      "mode": "view",
+      "nodes": 4,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "caschys-blog",
+      "command": "submit-tip",
+      "mode": "view",
+      "nodes": 13,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "ccfddl",
+      "command": "search",
+      "mode": "view",
+      "nodes": 3,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "colorify",
+      "command": "generate-theme",
+      "mode": "view",
+      "nodes": 3,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "commandcode-ai",
+      "command": "ask-commandcode-ai",
+      "mode": "view",
+      "nodes": 8,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "commandcode-ai",
+      "command": "refresh-models",
+      "mode": "no-view",
+      "nodes": 4,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "control-d",
+      "command": "change-filters",
+      "mode": "view",
+      "missing": [
+        "common"
+      ],
+      "outcome": "bundle-failed"
+    },
+    {
+      "extension": "control-d",
+      "command": "learn-my-ip",
+      "mode": "view",
+      "missing": [
+        "common"
+      ],
+      "outcome": "bundle-failed"
+    },
+    {
+      "extension": "control-d",
+      "command": "list-profiles",
+      "mode": "view",
+      "missing": [
+        "common"
+      ],
+      "outcome": "bundle-failed"
+    },
+    {
+      "extension": "control-d",
+      "command": "modify-profile",
+      "mode": "view",
+      "missing": [
+        "common"
+      ],
+      "outcome": "bundle-failed"
+    },
+    {
+      "extension": "control-d",
+      "command": "status",
+      "mode": "view",
+      "missing": [
+        "common"
+      ],
+      "outcome": "bundle-failed"
+    },
+    {
+      "extension": "defichain-lottery",
+      "command": "add-address",
+      "mode": "no-view",
+      "reason": "requires launch arguments: address; not run",
+      "outcome": "needs-arguments"
+    },
+    {
+      "extension": "defichain-lottery",
+      "command": "remove-address",
+      "mode": "view",
+      "nodes": 4,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "defichain-lottery",
+      "command": "stats",
+      "mode": "view",
+      "nodes": 4,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "defichain-lottery",
+      "command": "tickets",
+      "mode": "view",
+      "nodes": 8,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "emojify",
+      "command": "emoji-selector",
+      "mode": "view",
+      "reason": "requires launch arguments: text; not run",
+      "outcome": "needs-arguments"
+    },
+    {
+      "extension": "emojify",
+      "command": "emojify",
+      "mode": "view",
+      "nodes": 6,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "esa-search",
+      "command": "createPost",
+      "mode": "no-view",
+      "outcome": "needs-preferences",
+      "reason": "requires preferences without a default: primaryTeamName, primaryToken; bundled, not run"
+    },
+    {
+      "extension": "esa-search",
+      "command": "searchPost",
+      "mode": "view",
+      "reason": "requires launch arguments: keyword; not run",
+      "outcome": "needs-arguments"
+    },
+    {
+      "extension": "featurebase",
+      "command": "manage-changelogs",
+      "mode": "view",
+      "outcome": "needs-preferences",
+      "reason": "requires preferences without a default: api_key, organization_subdomain; bundled, not run"
+    },
+    {
+      "extension": "featurebase",
+      "command": "manage-feedback",
+      "mode": "view",
+      "outcome": "needs-preferences",
+      "reason": "requires preferences without a default: api_key, organization_subdomain; bundled, not run"
+    },
+    {
+      "extension": "featurebase",
+      "command": "manage-help-center",
+      "mode": "view",
+      "outcome": "needs-preferences",
+      "reason": "requires preferences without a default: api_key, organization_subdomain; bundled, not run"
+    },
+    {
+      "extension": "featurebase",
+      "command": "manage-users",
+      "mode": "view",
+      "outcome": "needs-preferences",
+      "reason": "requires preferences without a default: api_key, organization_subdomain; bundled, not run"
+    },
+    {
+      "extension": "image-diff-checker",
+      "command": "image-diff-check",
+      "mode": "view",
+      "nodes": 21,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "irish-rail",
+      "command": "index",
+      "mode": "view",
+      "nodes": 9,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "lyne",
+      "command": "create-horizontal-lines",
+      "mode": "view",
+      "nodes": 9,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "lyne",
+      "command": "create-rectangle",
+      "mode": "view",
+      "nodes": 10,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "lyne",
+      "command": "create-vertical-lines",
+      "mode": "view",
+      "nodes": 9,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "markdown-preview",
+      "command": "preview-markdown",
+      "mode": "view",
+      "nodes": 8,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "monorepo-manager",
+      "command": "manageMonorepo",
+      "mode": "view",
+      "nodes": 3,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "oci",
+      "command": "core",
+      "mode": "view",
+      "nodes": 6,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "oci",
+      "command": "email-delivery",
+      "mode": "view",
+      "reason": "requires launch arguments: view; not run",
+      "outcome": "needs-arguments"
+    },
+    {
+      "extension": "oci",
+      "command": "nosql-database",
+      "mode": "view",
+      "nodes": 6,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "oci",
+      "command": "object-storage",
+      "mode": "view",
+      "nodes": 6,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "oci",
+      "command": "vault",
+      "mode": "view",
+      "nodes": 6,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "owl",
+      "command": "configure-owls",
+      "mode": "view",
+      "nodes": 8,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "owl",
+      "command": "owl",
+      "mode": "view",
+      "nodes": 4,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "screen-sharing-recents",
+      "command": "index",
+      "mode": "view",
+      "nodes": 4,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "search-composer-packagist",
+      "command": "composer",
+      "mode": "view",
+      "nodes": 3,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "search-regexp",
+      "command": "searchRegexp",
+      "mode": "view",
+      "nodes": 232,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "shopify-developer-changelog",
+      "command": "shopify-changelog",
+      "mode": "view",
+      "nodes": 3,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "vanishlink",
+      "command": "add",
+      "mode": "view",
+      "nodes": 8,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "vanishlink",
+      "command": "add-from-clipboard",
+      "mode": "no-view",
+      "nodes": 3,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "vanishlink",
+      "command": "search",
+      "mode": "view",
+      "nodes": 7,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "youtube",
+      "command": "popular-videos",
+      "mode": "view",
+      "outcome": "needs-preferences",
+      "reason": "requires preferences without a default: apikey; bundled, not run"
+    },
+    {
+      "extension": "youtube",
+      "command": "search-channel",
+      "mode": "view",
+      "outcome": "needs-preferences",
+      "reason": "requires preferences without a default: apikey; bundled, not run"
+    },
+    {
+      "extension": "youtube",
+      "command": "search-live",
+      "mode": "view",
+      "outcome": "needs-preferences",
+      "reason": "requires preferences without a default: apikey; bundled, not run"
+    },
+    {
+      "extension": "youtube",
+      "command": "search-videos",
+      "mode": "view",
+      "outcome": "needs-preferences",
+      "reason": "requires preferences without a default: apikey; bundled, not run"
+    }
+  ],
+  "extensionFailures": [],
+  "peakBytes": 489048337,
+  "wallMs": 150050.605434
+}
