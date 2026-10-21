@@ -123,7 +123,7 @@ Not done / risks: <anything skipped, assumptions, follow-ups>
 
 ## Delegation (orchestrator)
 
-Branches: integration branch is `v3/restart` (later `main`). Workers commit on
+Branches: integration branch is `main`. Workers commit on
 their own branch; the orchestrator merges after review and pushes.
 
 Loop per task:

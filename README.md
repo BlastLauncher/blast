@@ -115,7 +115,7 @@ packages (1.x). Its last app release is
 [v0.0.14](https://github.com/BlastLauncher/blast/releases/tag/v0.0.14)
 (August 2023), and its final source is
 [`f713dd6` on `main`](https://github.com/BlastLauncher/blast/tree/f713dd6).
-This v3 rewrite lives on `v3/restart`.
+v3 is a from-scratch rewrite and an ongoing personal experiment, not a product.
 
 ## License
 

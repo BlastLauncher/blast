@@ -1,7 +1,7 @@
 # Plan
 
 Restarted 2026-10-18 from tag `archive/v2-prototype-2026-10-18`. Integration
-branch: `v3/restart`. Keep this file under 120 lines; detail belongs in task
+branch: `main` (v3 merged 2026-10-21). Keep this file under 120 lines; detail belongs in task
 files.
 
 ## Current focus
