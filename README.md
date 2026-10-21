@@ -107,6 +107,16 @@ bun run release:build   # npm tarballs into .cache/release (not published)
 - [Plan, milestones and backlog](./PLAN.md)
 - [Contributor and agent workflow](./AGENTS.md)
 
+## History
+
+Blast v1 was an Electron launcher that ran Raycast extensions, published as
+the `@blastlauncher/cli`, `runtime`, `api`, `renderer` and `utils` npm
+packages (1.x). Its last app release is
+[v0.0.14](https://github.com/BlastLauncher/blast/releases/tag/v0.0.14)
+(August 2023), and its final source is
+[`f713dd6` on `main`](https://github.com/BlastLauncher/blast/tree/f713dd6).
+This v3 rewrite lives on `v3/restart`.
+
 ## License
 
 MIT
