@@ -65,7 +65,7 @@ change because of item 3, say so in Handoff instead of rerunning.
 ## Handoff
 
 ```
-Branch/commit: t3/corpus-selection-version-precision-1 @ fb8c11e
+Branch/commit: t3/corpus-selection-version-precision-1 @ 077d599
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 50.3s
 Done:
 - Made curated selection idempotent by accounting for kept members in every stratum; added repeated-selection tests including an underfilled pool.
