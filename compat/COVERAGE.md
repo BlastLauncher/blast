@@ -1,18 +1,18 @@
 # Raycast API coverage
 
-Denominator: the `@raycast/api@2.8.2` declarations. Evidence:
+Denominator: the `@raycast/api@2.10.1` declarations. Evidence:
 `// @covers` tags in `packages/**/*.test.ts(x)`. A parent is not implied covered
 by its children. Partial support is reported separately from covered.
 Proven aliases inherit descendant evidence from their targets (`via` in JSON).
 
-**Non-deprecated coverage: 1533/1534 covered (99.9%), 1 partial, 0 missing.**
-Deprecated: 939/939 covered (100.0%), 0 partial, 0 missing.
+**Non-deprecated coverage: 1537/1538 covered (99.9%), 1 partial, 0 missing.**
+Deprecated: 942/942 covered (100.0%), 0 partial, 0 missing.
 
 ## Totals
 
 | Status | Non-deprecated | Deprecated | All |
 | --- | --- | --- | --- |
-| covered | 1533 | 939 | 2472 |
+| covered | 1537 | 942 | 2479 |
 | partial | 1 | 0 | 1 |
 | missing | 0 | 0 | 0 |
 
@@ -26,10 +26,10 @@ Deprecated: 939/939 covered (100.0%), 0 partial, 0 missing.
 | const | 21 | 0 | 0 | 21 |
 | class | 3 | 0 | 0 | 3 |
 | enum | 13 | 0 | 0 | 13 |
-| enum-member | 691 | 0 | 0 | 691 |
+| enum-member | 694 | 0 | 0 | 694 |
 | interface | 64 | 0 | 0 | 64 |
-| type | 178 | 0 | 0 | 178 |
-| property | 1304 | 0 | 0 | 1304 |
+| type | 179 | 0 | 0 | 179 |
+| property | 1307 | 0 | 0 | 1307 |
 | method | 24 | 0 | 0 | 24 |
 
 ## Top-level symbols
@@ -38,7 +38,7 @@ Children counts include all descendants, as covered/partial/total.
 
 | Symbol | Kind | Status | Children | Extensions |
 | --- | --- | --- | --- | --- |
-| `AI` | namespace | covered | 266/0/266 | 115 |
+| `AI` | namespace | covered | 269/0/269 | 115 |
 | `Action` | component | covered | 110/0/110 | 2985 |
 | `ActionPanel` | component | covered | 129/0/129 | 3023 |
 | `ActionPanelChildren` | type | covered | 0/0/0 | 0 |
@@ -59,7 +59,7 @@ Children counts include all descendants, as covered/partial/total.
 | `ArgumentsLaunchProps` | interface | covered | 1/0/1 | 1 |
 | `BrowserExtension` | namespace | covered | 7/1/8 | 62 |
 | `Cache` | class | covered | 17/0/17 | 333 |
-| `Clipboard` | namespace | covered | 16/0/16 | 1049 |
+| `Clipboard` | namespace | covered | 18/0/18 | 1049 |
 | `Color` | enum | covered | 22/0/22 | 1420 |
 | `ColorLike` | type | covered | 3/0/3 | 0 |
 | `CopyToClipboardAction` | component | covered | 8/0/8 | 23 |
@@ -119,7 +119,7 @@ Children counts include all descendants, as covered/partial/total.
 | `LocalStorageValues` | interface | covered | 0/0/0 | 0 |
 | `MenuBarExtra` | component | covered | 28/0/28 | 342 |
 | `Navigation` | interface | covered | 2/0/2 | 5 |
-| `OAuth` | namespace | covered | 68/0/68 | 135 |
+| `OAuth` | namespace | covered | 70/0/70 | 135 |
 | `OpenAction` | component | covered | 7/0/7 | 3 |
 | `OpenActionProps` | interface | covered | 6/0/6 | 0 |
 | `OpenInBrowserAction` | component | covered | 6/0/6 | 29 |

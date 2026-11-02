@@ -34,7 +34,7 @@ export type {
   ActionPanelState,
   ActionPanelSubmenuProps,
 } from "./action-panel.ts";
-export type { ClipboardContent, CopyOptions, ReadContent } from "./clipboard.ts";
+export type { ClipboardContent, CopyOptions, PasteOptions, ReadContent } from "./clipboard.ts";
 export type {
   Environment,
   Appearance,

@@ -603,7 +603,9 @@ test("clipboard.paste and clipboard.clear need a grant", async () => {
     "action Paste\nwait\nexpect pasted\naction Clear\nwait\nexpect cleared\nquit\n",
   );
   expect(granted.code, granted.stderr).toBe(0);
-  expect(granted.stdout).toContain('# capability clipboard.paste {"text":"pasted"}');
+  expect(granted.stdout).toContain(
+    '# capability clipboard.paste {"text":"pasted","closeMainWindow":true}',
+  );
   expect(granted.stdout).toContain("# capability clipboard.clear {}");
 }, 30_000);
 

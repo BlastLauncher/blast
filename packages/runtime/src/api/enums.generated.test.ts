@@ -21,7 +21,6 @@ const at = (object: unknown, path: string) =>
 // @covers AI.Model.OpenAI_GPT-6_Luna
 // @covers AI.Model.Groq_GPT-OSS_20b
 // @covers AI.Model.Groq_GPT-OSS_120b
-// @covers AI.Model.Anthropic_Claude_Haiku_4.5
 // @covers AI.Model.Anthropic_Claude_Haiku_5.5
 // @covers AI.Model.Anthropic_Claude_Sonnet_4.6
 // @covers AI.Model.Anthropic_Claude_Sonnet_5
@@ -31,13 +30,14 @@ const at = (object: unknown, path: string) =>
 // @covers AI.Model.Anthropic_Claude_Fable_5.1
 // @covers AI.Model.Perplexity_Sonar
 // @covers AI.Model.Perplexity_Sonar_Pro
-// @covers AI.Model.Mistral_Nemo
+// @covers AI.Model.Vercel_Muse_Spark_1.3
+// @covers AI.Model.Vercel_Muse_Wonder_1.0
 // @covers AI.Model.Mistral_Large
 // @covers AI.Model.Mistral_Medium
 // @covers AI.Model.Mistral_Small
 // @covers AI.Model.Mistral_Codestral
+// @covers AI.Model.Google_Gemini_4_Argon
 // @covers AI.Model.Google_Gemini_3.8_Flash
-// @covers AI.Model.Google_Gemini_3.7_Flash
 // @covers AI.Model.Google_Gemini_3.5_Flash_Lite
 // @covers AI.Model.Google_Gemini_3.1_Pro
 // @covers AI.Model.xAI_Grok-4.7
@@ -54,6 +54,9 @@ const at = (object: unknown, path: string) =>
 // @covers AI.Model.Vercel_DeepSeek_V4.1_Flash
 // @covers AI.Model.Vercel_DeepSeek_V4_Pro
 // @covers AI.Model.Vercel_Qwen3.8_Max
+// @covers AI.Model.Anthropic_Claude_Haiku_4.5
+// @covers AI.Model.Mistral_Nemo
+// @covers AI.Model.Google_Gemini_3.7_Flash
 // @covers AI.Model.OpenAI_GPT-5.3_Codex
 // @covers AI.Model.OpenAI_GPT-5.4_nano
 // @covers AI.Model.OpenAI_GPT-5.6_Sol

@@ -1,6 +1,6 @@
 {
-  "version": "2.8.2",
-  "sha256": "b600be1dd62b422745c1072baefa040167cc6aaa5c34ae6bcc4db9092e792bb6",
+  "version": "2.10.1",
+  "sha256": "6fdf07769035b07c494070e27f30ba33e8ca51576b48b896fe641edded495f2e",
   "entries": [
     {
       "path": "AI",
@@ -111,7 +111,7 @@
     {
       "path": "AI.Model.Anthropic_Claude_Haiku_4.5",
       "kind": "enum-member",
-      "deprecated": false
+      "deprecated": true
     },
     {
       "path": "AI.Model.Anthropic_Claude_Haiku_5.5",
@@ -306,7 +306,7 @@
     {
       "path": "AI.Model.Google_Gemini_3.7_Flash",
       "kind": "enum-member",
-      "deprecated": false
+      "deprecated": true
     },
     {
       "path": "AI.Model.Google_Gemini_3.8_Flash",
@@ -322,6 +322,11 @@
       "path": "AI.Model.Google_Gemini_3_Pro",
       "kind": "enum-member",
       "deprecated": true
+    },
+    {
+      "path": "AI.Model.Google_Gemini_4_Argon",
+      "kind": "enum-member",
+      "deprecated": false
     },
     {
       "path": "AI.Model.Groq_DeepSeek_R1_Distill_Llama_3.3_70B",
@@ -431,7 +436,7 @@
     {
       "path": "AI.Model.Mistral_Nemo",
       "kind": "enum-member",
-      "deprecated": false
+      "deprecated": true
     },
     {
       "path": "AI.Model.Mistral_Small",
@@ -840,6 +845,16 @@
     },
     {
       "path": "AI.Model.Vercel_Kimi_K3",
+      "kind": "enum-member",
+      "deprecated": false
+    },
+    {
+      "path": "AI.Model.Vercel_Muse_Spark_1.3",
+      "kind": "enum-member",
+      "deprecated": false
+    },
+    {
+      "path": "AI.Model.Vercel_Muse_Wonder_1.0",
       "kind": "enum-member",
       "deprecated": false
     },
@@ -3778,6 +3793,16 @@
       "path": "Clipboard.CopyOptions.transient",
       "kind": "property",
       "deprecated": true
+    },
+    {
+      "path": "Clipboard.PasteOptions",
+      "kind": "type",
+      "deprecated": false
+    },
+    {
+      "path": "Clipboard.PasteOptions.closeMainWindow",
+      "kind": "property",
+      "deprecated": false
     },
     {
       "path": "Clipboard.ReadContent",
@@ -11126,6 +11151,11 @@
       "deprecated": false
     },
     {
+      "path": "OAuth.PKCEClient.Options.revocationEndpoint",
+      "kind": "property",
+      "deprecated": false
+    },
+    {
       "path": "OAuth.PKCEClient.authorizationRequest",
       "kind": "method",
       "deprecated": false
@@ -11173,6 +11203,11 @@
     {
       "path": "OAuth.PKCEClient.removeTokens",
       "kind": "method",
+      "deprecated": false
+    },
+    {
+      "path": "OAuth.PKCEClient.revocationEndpoint",
+      "kind": "property",
       "deprecated": false
     },
     {

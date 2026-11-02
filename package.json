@@ -19,6 +19,7 @@
     "compat:report": "bun scripts/compat/generate-coverage.ts",
     "compat:enums": "bun scripts/compat/generate-enums.ts",
     "compat:stubs": "bun scripts/compat/generate-stubs.ts",
+    "compat:upgrade": "bun scripts/compat/upgrade.ts",
     "compat:check": "bun scripts/compat/check.ts",
     "protocol:schema": "bun scripts/protocol/generate-schema.ts",
     "protocol:check": "bun scripts/protocol/check-schema.ts",

@@ -47,6 +47,7 @@ export {
   Clipboard,
   type ClipboardContent,
   type CopyOptions,
+  type PasteOptions,
   type ReadContent,
 } from "./clipboard.ts";
 export { environment, type Environment } from "./environment.ts";

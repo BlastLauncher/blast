@@ -1,6 +1,6 @@
 import { ForwardRefExoticComponent } from 'react';
 import { FunctionComponent } from 'react';
-import { JSX } from 'react/jsx-runtime';
+import { JSX } from 'react';
 import { PathLike } from 'fs';
 import { ReactElement } from 'react';
 import { ReactNode } from 'react';
@@ -555,7 +555,6 @@ export declare namespace AI {
         "OpenAI_GPT-6_Luna" = "openai-gpt-6-luna",
         "Groq_GPT-OSS_20b" = "groq-openai/gpt-oss-20b",
         "Groq_GPT-OSS_120b" = "groq-openai/gpt-oss-120b",
-        "Anthropic_Claude_Haiku_4.5" = "anthropic-claude-4-5-haiku",
         "Anthropic_Claude_Haiku_5.5" = "anthropic-claude-haiku-5-5",
         "Anthropic_Claude_Sonnet_4.6" = "anthropic-claude-sonnet-4-6",
         "Anthropic_Claude_Sonnet_5" = "anthropic-claude-sonnet-5",
@@ -565,13 +564,14 @@ export declare namespace AI {
         "Anthropic_Claude_Fable_5.1" = "anthropic-claude-fable-5-1",
         "Perplexity_Sonar" = "perplexity-sonar",
         "Perplexity_Sonar_Pro" = "perplexity-sonar-pro",
-        "Mistral_Nemo" = "mistral-open-mistral-nemo",
+        "Vercel_Muse_Spark_1.3" = "gateway-meta/muse-spark-1.3",
+        "Vercel_Muse_Wonder_1.0" = "gateway-meta/muse-wonder-1.0",
         "Mistral_Large" = "mistral-mistral-large-latest",
         "Mistral_Medium" = "mistral-mistral-medium-latest",
         "Mistral_Small" = "mistral-mistral-small-latest",
         "Mistral_Codestral" = "mistral-codestral-latest",
+        "Google_Gemini_4_Argon" = "google-gemini-4-argon",
         "Google_Gemini_3.8_Flash" = "google-gemini-3.8-flash",
-        "Google_Gemini_3.7_Flash" = "google-gemini-3.7-flash",
         "Google_Gemini_3.5_Flash_Lite" = "google-gemini-3.5-flash-lite",
         "Google_Gemini_3.1_Pro" = "google-gemini-3.1-pro",
         "xAI_Grok-4.7" = "xai-grok-4.7",
@@ -588,28 +588,34 @@ export declare namespace AI {
         "Vercel_DeepSeek_V4.1_Flash" = "gateway-deepseek/deepseek-v4.1-flash",
         "Vercel_DeepSeek_V4_Pro" = "gateway-deepseek/deepseek-v4-pro-0813",
         "Vercel_Qwen3.8_Max" = "gateway-alibaba/qwen3.8-max",
+        /** @deprecated Use `AI.Model["Anthropic_Claude_Haiku_5.5"]` instead */
+        "Anthropic_Claude_Haiku_4.5" = "anthropic-claude-4-5-haiku",
+        /** @deprecated Use `AI.Model["Mistral_Small"]` instead */
+        "Mistral_Nemo" = "mistral-open-mistral-nemo",
+        /** @deprecated Use `AI.Model["Google_Gemini_3.8_Flash"]` instead */
+        "Google_Gemini_3.7_Flash" = "google-gemini-3.7-flash",
         /** @deprecated Use `AI.Model["OpenAI_GPT-6_Sol"]` instead */
-        "OpenAI_GPT-5.3_Codex" = "openai-gpt-5.3-codex",
+        "OpenAI_GPT-5.3_Codex" = "openai-gpt-6-sol",
         /** @deprecated Use `AI.Model["OpenAI_GPT-6_Luna"]` instead */
-        "OpenAI_GPT-5.4_nano" = "openai-gpt-5.4-nano",
+        "OpenAI_GPT-5.4_nano" = "openai-gpt-6-luna",
         /** @deprecated Use `AI.Model["OpenAI_GPT-6.1_Sol"]` instead */
-        "OpenAI_GPT-5.6_Sol" = "openai-gpt-5.6-sol",
+        "OpenAI_GPT-5.6_Sol" = "openai-gpt-6.1-sol",
         /** @deprecated Use `AI.Model["Anthropic_Claude_Opus_5"]` instead */
-        "Anthropic_Claude_Opus_4.7" = "anthropic-claude-opus-4-7",
+        "Anthropic_Claude_Opus_4.7" = "anthropic-claude-opus-5",
         /** @deprecated Use `AI.Model["Anthropic_Claude_Opus_5"]` instead */
-        "Anthropic_Claude_Opus_4.8" = "anthropic-claude-opus-4-8",
+        "Anthropic_Claude_Opus_4.8" = "anthropic-claude-opus-5",
         /** @deprecated Use `AI.Model["Google_Gemini_3.8_Flash"]` instead */
-        "Google_Gemini_3.6_Flash" = "google-gemini-3.6-flash",
+        "Google_Gemini_3.6_Flash" = "google-gemini-3.8-flash",
         /** @deprecated Use `AI.Model["Google_Gemini_3.8_Flash"]` instead */
-        "Google_Gemini_3.5_Flash" = "google-gemini-3.5-flash",
+        "Google_Gemini_3.5_Flash" = "google-gemini-3.8-flash",
         /** @deprecated Use `AI.Model["Google_Gemini_3.5_Flash_Lite"]` instead */
-        "Google_Gemini_3.1_Flash_Lite" = "google-gemini-3.1-flash-lite",
+        "Google_Gemini_3.1_Flash_Lite" = "google-gemini-3.5-flash-lite",
         /** @deprecated Use `AI.Model["Google_Gemini_3.8_Flash"]` instead */
-        "Google_Gemini_3_Flash" = "google-gemini-3-flash",
+        "Google_Gemini_3_Flash" = "google-gemini-3.8-flash",
         /** @deprecated Use `AI.Model["xAI_Grok-4.6"]` instead */
-        "xAI_Grok-4.5" = "xai-grok-4.5",
+        "xAI_Grok-4.5" = "xai-grok-4.6",
         /** @deprecated Use `AI.Model["xAI_Grok-4.6"]` instead */
-        "xAI_Grok-4.3" = "xai-grok-4.3",
+        "xAI_Grok-4.3" = "xai-grok-4.6",
         /** @deprecated Use `AI.Model["OpenAI_GPT-5.4_mini"]` instead */
         "OpenAI_GPT-5_mini" = "openai-gpt-5.4-mini",
         /** @deprecated Use `AI.Model["OpenAI_GPT-6_Luna"]` instead */
@@ -649,11 +655,11 @@ export declare namespace AI {
         /** @deprecated Use `AI.Model["Anthropic_Claude_Sonnet_5"]` instead */
         "Anthropic_Claude_Sonnet_4.5" = "anthropic-claude-sonnet-5",
         /** @deprecated Use `AI.Model["xAI_Grok-4.6"]` instead */
-        "xAI_Grok-4.20" = "xai-grok-4.5",
+        "xAI_Grok-4.20" = "xai-grok-4.6",
         /** @deprecated Use `AI.Model["OpenAI_GPT-5.6_Terra"]` instead */
         "OpenAI_GPT-4_Turbo" = "openai-gpt-5.6-terra",
         /** @deprecated Use `AI.Model["OpenAI_GPT-6.1_Sol"]` instead */
-        "OpenAI_GPT-5.2_Instant" = "openai-gpt-5.6-sol",
+        "OpenAI_GPT-5.2_Instant" = "openai-gpt-6.1-sol",
         /** @deprecated Use `AI.Model["OpenAI_GPT-5.6_Terra"]` instead */
         "OpenAI_o1" = "openai-gpt-5.6-terra",
         /** @deprecated Use `AI.Model["Groq_GPT-OSS_120b"]` instead */
@@ -669,7 +675,7 @@ export declare namespace AI {
         /** @deprecated Use `AI.Model["Vercel_DeepSeek_V4_Pro"]` instead */
         "Baseten_DeepSeek_V4_Pro" = "gateway-deepseek/deepseek-v4-pro-0813",
         /** @deprecated Use `AI.Model["xAI_Grok-4.6"]` instead */
-        "xAI_Grok-3_Mini_Beta" = "xai-grok-4.3",
+        "xAI_Grok-3_Mini_Beta" = "xai-grok-4.6",
         /** @deprecated Use `AI.Model["Vercel_GLM-5.2"]` instead */
         "Baseten_GLM-5" = "gateway-zai/glm-5.2",
         /** @deprecated Use `AI.Model["Vercel_Kimi_K3"]` instead */
@@ -679,7 +685,7 @@ export declare namespace AI {
         /** @deprecated Use `AI.Model["Vercel_Kimi_K3"]` instead */
         "Baseten_Kimi_K2.6" = "gateway-moonshotai/kimi-k3",
         /** @deprecated Use `AI.Model["OpenAI_GPT-6_Sol"]` instead */
-        "OpenAI_GPT-5.1_Codex" = "openai-gpt-5.3-codex",
+        "OpenAI_GPT-5.1_Codex" = "openai-gpt-6-sol",
         /** @deprecated Use `AI.Model["Anthropic_Claude_Opus_5"]` instead */
         "Anthropic_Claude_Opus_4.6" = "anthropic-claude-opus-5",
         /** @deprecated Use `AI.Model["Groq_GPT-OSS_120b"]` instead */
@@ -690,18 +696,18 @@ export declare namespace AI {
         "Baseten_Kimi_K2.5" = "gateway-moonshotai/kimi-k3",
         /** @deprecated Use `AI.Model["Anthropic_Claude_Sonnet_4.6"]` instead */
         "Anthropic_Claude_Sonnet_4" = "anthropic-claude-sonnet-4-6",
-        /** @deprecated Use `AI.Model["Anthropic_Claude_Haiku_4.5"]` instead */
+        /** @deprecated Use `AI.Model["Anthropic_Claude_Haiku_5.5"]` instead */
         "Anthropic_Claude_3.5_Haiku" = "anthropic-claude-4-5-haiku",
-        /** @deprecated Use `AI.Model["Anthropic_Claude_Haiku_4.5"]` instead */
+        /** @deprecated Use `AI.Model["Anthropic_Claude_Haiku_5.5"]` instead */
         "Anthropic_Claude_4.5_Haiku" = "anthropic-claude-4-5-haiku",
         /** @deprecated Use `AI.Model["Anthropic_Claude_Sonnet_4.6"]` instead */
         "Anthropic_Claude_4_Sonnet" = "anthropic-claude-sonnet-4-6",
         /** @deprecated Use `AI.Model["Anthropic_Claude_Sonnet_5"]` instead */
         "Anthropic_Claude_4.5_Sonnet" = "anthropic-claude-sonnet-5",
         /** @deprecated Use `AI.Model["Anthropic_Claude_Opus_5"]` instead */
-        "Anthropic_Claude_4_Opus" = "anthropic-claude-opus-4-8",
+        "Anthropic_Claude_4_Opus" = "anthropic-claude-opus-5",
         /** @deprecated Use `AI.Model["Anthropic_Claude_Opus_5"]` instead */
-        "Anthropic_Claude_4.1_Opus" = "anthropic-claude-opus-4-8",
+        "Anthropic_Claude_4.1_Opus" = "anthropic-claude-opus-5",
         /** @deprecated Use `AI.Model["OpenAI_GPT-5.4_mini"]` instead */
         "Together_AI_Llama_3.1_405B" = "openai-gpt-5.4-mini",
         /** @deprecated Use `AI.Model["Mistral_Small"]` instead */
@@ -709,7 +715,7 @@ export declare namespace AI {
         /** @deprecated Use `AI.Model["Groq_GPT-OSS_120b"]` instead */
         "Groq_Kimi_K2_Instruct" = "groq-openai/gpt-oss-120b",
         /** @deprecated Use `AI.Model["Google_Gemini_3.8_Flash"]` instead */
-        "Google_Gemini_2.0_Flash" = "google-gemini-3.5-flash",
+        "Google_Gemini_2.0_Flash" = "google-gemini-3.8-flash",
         /** @deprecated Use `AI.Model["OpenAI_GPT-5.4_mini"]` instead */
         "Together_AI_Qwen3-235B-A22B-Instruct-2507-tput" = "openai-gpt-5.4-mini",
         /** @deprecated Use `AI.Model["OpenAI_GPT-5.4_mini"]` instead */
@@ -717,21 +723,21 @@ export declare namespace AI {
         /** @deprecated Use `AI.Model["OpenAI_GPT-5.4_mini"]` instead */
         "Together_AI_DeepSeek-V3" = "openai-gpt-5.4-mini",
         /** @deprecated Use `AI.Model["xAI_Grok-4.6"]` instead */
-        "xAI_Grok-4" = "xai-grok-4.3",
+        "xAI_Grok-4" = "xai-grok-4.6",
         /** @deprecated Use `AI.Model["xAI_Grok-4.6"]` instead */
-        "xAI_Grok-4_Fast" = "xai-grok-4.3",
+        "xAI_Grok-4_Fast" = "xai-grok-4.6",
         /** @deprecated Use `AI.Model["xAI_Grok-4.6"]` instead */
-        "xAI_Grok_Code_Fast_1" = "xai-grok-4.3",
+        "xAI_Grok_Code_Fast_1" = "xai-grok-4.6",
         /** @deprecated Use `AI.Model["xAI_Grok-4.6"]` instead */
-        "xAI_Grok-3_Beta" = "xai-grok-4.3",
+        "xAI_Grok-3_Beta" = "xai-grok-4.6",
         /** @deprecated Use `AI.Model["xAI_Grok-4.6"]` instead */
-        "xAI_Grok-2" = "xai-grok-4.3",
+        "xAI_Grok-2" = "xai-grok-4.6",
         /** @deprecated Use `AI.Model["Anthropic_Claude_Sonnet_5"]` instead */
         "Anthropic_Claude_3.7_Sonnet" = "anthropic-claude-sonnet-5",
         /** @deprecated Use `AI.Model["OpenAI_GPT-6_Luna"]` instead */
         "OpenAI_GPT3.5-turbo-instruct" = "openai-gpt-6-luna",
         /** @deprecated Use `AI.Model["Anthropic_Claude_Opus_5"]` instead */
-        "Anthropic_Claude_Opus" = "anthropic-claude-opus-4-8",
+        "Anthropic_Claude_Opus" = "anthropic-claude-opus-5",
         /** @deprecated Use `AI.Model["Google_Gemini_3.8_Flash"]` instead */
         "Google_Gemini_2.0_Flash_Thinking" = "google-gemini-3.8-flash",
         /** @deprecated Use `AI.Model["Groq_GPT-OSS_120b"]` instead */
@@ -762,13 +768,13 @@ export declare namespace AI {
         "Groq_DeepSeek_R1_Distill_Llama_3.3_70B" = "openai-gpt-5.4-mini",
         /** @deprecated Use `AI.Model["OpenAI_GPT-5.4_mini"]` instead */
         "Together_DeepSeek_R1" = "openai-gpt-5.4-mini",
-        /** @deprecated Use `AI.Model["Mistral_Nemo"]` instead */
+        /** @deprecated Use `AI.Model["Mistral_Small"]` instead */
         "MixtraL_8x7B" = "mistral-open-mistral-nemo",
         /** @deprecated Use `AI.Model["Google_Gemini_3.8_Flash"]` instead */
         "Google_Gemini_1.5_Flash" = "google-gemini-3.8-flash",
         /** @deprecated Use `AI.Model["Google_Gemini_3.8_Flash"]` instead */
         "Google_Gemini_1.5_Pro" = "google-gemini-3.8-flash",
-        /** @deprecated Use `AI.Model["Mistral_Nemo"]` instead */
+        /** @deprecated Use `AI.Model["Mistral_Small"]` instead */
         "Mixtral_8x7B" = "mistral-open-mistral-nemo",
         /** @deprecated Use `AI.Model["OpenAI_GPT-6_Luna"]` instead */
         "Qwen_2.5_32B" = "openai-gpt-6-luna",
@@ -808,7 +814,7 @@ export declare namespace AI {
         "OpenAI_GPT4o" = "openai-gpt-6-sol",
         /** @deprecated Use `AI.Model["OpenAI_GPT-6_Luna"]` instead */
         "OpenAI_GPT4o-mini" = "openai-gpt-6-luna",
-        /** @deprecated Use `AI.Model["Anthropic_Claude_Haiku_4.5"]` instead */
+        /** @deprecated Use `AI.Model["Anthropic_Claude_Haiku_5.5"]` instead */
         "Anthropic_Claude_Haiku" = "anthropic-claude-4-5-haiku",
         /** @deprecated Use `AI.Model["Groq_GPT-OSS_120b"]` instead */
         "Llama3.3_70B" = "groq-openai/gpt-oss-120b",
@@ -823,13 +829,13 @@ export declare namespace AI {
         /** @deprecated Use `AI.Model["OpenAI_GPT-5.4_mini"]` instead */
         "DeepSeek_V3" = "openai-gpt-5.4-mini",
         /** @deprecated Use `AI.Model["xAI_Grok-4.6"]` instead */
-        "xAI_Grok_2" = "xai-grok-4.3",
+        "xAI_Grok_2" = "xai-grok-4.6",
         /** @deprecated Use `AI.Model["xAI_Grok-4.6"]` instead */
-        "xAI_Grok_3" = "xai-grok-4.3",
+        "xAI_Grok_3" = "xai-grok-4.6",
         /** @deprecated Use `AI.Model["xAI_Grok-4.6"]` instead */
-        "xAI_Grok_4" = "xai-grok-4.3",
+        "xAI_Grok_4" = "xai-grok-4.6",
         /** @deprecated Use `AI.Model["xAI_Grok-4.6"]` instead */
-        "xAI_Grok_3_Mini" = "xai-grok-4.3",
+        "xAI_Grok_3_Mini" = "xai-grok-4.6",
         /** @deprecated Use `AI.Model["Groq_GPT-OSS_120b"]` instead */
         "Groq_Qwen3_32B" = "groq-openai/gpt-oss-120b",
         /** @deprecated Use `AI.Model["OpenAI_GPT-5.4_mini"]` instead */
@@ -841,17 +847,17 @@ export declare namespace AI {
         /** @deprecated Use `AI.Model["Anthropic_Claude_Opus_5"]` instead */
         "Anthropic_Claude_4.6_Opus" = "anthropic-claude-opus-5",
         /** @deprecated Use `AI.Model["Anthropic_Claude_Opus_5"]` instead */
-        "Anthropic_Claude_4.7_Opus" = "anthropic-claude-opus-4-7",
+        "Anthropic_Claude_4.7_Opus" = "anthropic-claude-opus-5",
         /** @deprecated */
         "Together_AI_Kimi_K2.5" = "together-moonshotai/Kimi-K2.5",
         /** @deprecated Use `AI.Model["xAI_Grok-4.6"]` instead */
-        "xAI_Grok-4.1_Fast" = "xai-grok-4.5",
+        "xAI_Grok-4.1_Fast" = "xai-grok-4.6",
         /** @deprecated Use `AI.Model["Google_Gemini_3.1_Pro"]` instead */
         "Google_Gemini_3_Pro" = "google-gemini-3.1-pro",
         /** @deprecated Use `AI.Model["OpenAI_GPT-6_Sol"]` instead */
-        "OpenAI_GPT-5_Codex" = "openai-gpt-5.3-codex",
+        "OpenAI_GPT-5_Codex" = "openai-gpt-6-sol",
         /** @deprecated Use `AI.Model["Google_Gemini_3.5_Flash_Lite"]` instead */
-        "Google_Gemini_2.0_Flash_Lite" = "google-gemini-3.1-flash-lite"
+        "Google_Gemini_2.0_Flash_Lite" = "google-gemini-3.5-flash-lite"
     }
     /**
      * A serializable model returned by an extension model provider entrypoint.
@@ -1194,7 +1200,6 @@ export declare class Cache {
      * @returns a function that can be called to remove the subscriber.
      */
     subscribe(subscriber: Cache.Subscriber): Cache.Subscription;
-    private maintainCapacity;
     private notifySubscribers;
 }
 
@@ -1357,6 +1362,7 @@ export declare namespace Clipboard {
      * Pastes content to the current selection of the frontmost application.
      *
      * @param content - The content to insert at the cursor.
+     * @param options - Options for the paste operation.
      * @returns A Promise that resolves when the content is pasted.
      *
      * @example
@@ -1368,7 +1374,7 @@ export declare namespace Clipboard {
      * };
      * ```
      */
-    export function paste(content: string | number | Content): Promise<void>;
+    export function paste(content: string | number | Content, options?: PasteOptions): Promise<void>;
     /**
      * Reads the clipboard content as plain text, file name, or HTML.
      *
@@ -1483,6 +1489,13 @@ export declare namespace Clipboard {
          * Indicates whether the content be treated as confidential. If `true`, it will not be recorded in the Clipboard History.
          */
         concealed?: boolean;
+    };
+    export type PasteOptions = {
+        /**
+         * Whether to close the Raycast main window when pasting. Set to `false` to keep it open while pasting into the frontmost application.
+         * @defaultValue `true`
+         */
+        closeMainWindow?: boolean;
     };
 }
 
@@ -7587,6 +7600,11 @@ declare interface LabelProps {
               * Raycast shows a default message if this is not configured.
               */
              description?: string;
+             /**
+              * The provider's HTTPS token revocation endpoint. Raycast saves this with the token set and calls it when the user logs out or {@link OAuth.PKCEClient.removeTokens} is called.
+              * The request is a form-encoded POST containing `token`, `token_type_hint`, and the `client_id` from {@link OAuth.PKCEClient.authorizationRequest}, using the refresh token when available, otherwise the access token.
+              */
+             revocationEndpoint?: string;
          }
      }
      /**
@@ -7610,6 +7628,8 @@ declare interface LabelProps {
          providerIcon?: Image.ImageLike;
          providerId: string;
          description?: string;
+         revocationEndpoint?: string;
+         private clientId?;
          private resolvesOnRedirect?;
          private isAuthorizing;
          constructor(options: PKCEClient.Options<TRedirectMethod>);
@@ -7659,6 +7679,7 @@ declare interface LabelProps {
           *
           * @remarks Raycast automatically shows a logout preference that removes the token set.
           * Use this method only if you need to provide an additional logout option in your extension or you want to remove the token set because of a migration.
+          * If a `revocationEndpoint` was configured when the tokens were stored, Raycast also requests provider revocation in the background. This method resolves after local tokens are removed; revocation failures are logged as warnings.
           *
           */
          removeTokens(): Promise<void>;

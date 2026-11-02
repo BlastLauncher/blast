@@ -18,6 +18,12 @@ export interface CopyOptions {
   concealed?: boolean;
 }
 
+/** `Clipboard.PasteOptions`. */
+export interface PasteOptions {
+  /** Whether the host should close its main window after pasting. */
+  closeMainWindow?: boolean;
+}
+
 /** Options shared by `Clipboard.read` and `Clipboard.readText`. */
 export interface ReadOptions {
   /** Reaches back through the clipboard history; 0 is the current content. */
@@ -81,8 +87,15 @@ export async function clear(): Promise<void> {
   await requestCapability("clipboard.clear", {});
 }
 
-export async function paste(content: string | number | ClipboardContent): Promise<void> {
-  await requestCapability("clipboard.paste", contentParams(content, "Clipboard.paste"));
+export async function paste(
+  content: string | number | ClipboardContent,
+  options?: PasteOptions,
+): Promise<void> {
+  const params = contentParams(content, "Clipboard.paste");
+  // Raycast closes its main window by default; preserve an explicit false and
+  // make the default visible to hosts so every embedder can apply the policy.
+  params.closeMainWindow = options?.closeMainWindow ?? true;
+  await requestCapability("clipboard.paste", params);
 }
 
 function readParams(options: ReadOptions | undefined, api: string): Record<string, JsonValue> {

@@ -96,7 +96,10 @@ test("Paste keeps content private and calls onPaste after clipboard.paste succee
       onAction: { $handler: "onAction" },
     });
     await root.dispatch(latest().id, "onAction", []);
-    expect(events.splice(0)).toEqual([["clipboard.paste", params], content]);
+    expect(events.splice(0)).toEqual([
+      ["clipboard.paste", { ...params, closeMainWindow: true }],
+      content,
+    ]);
   }
   root.render(
     h(Action.Paste, {
@@ -162,7 +165,7 @@ test("deprecated actions use the same implementations and capability behavior", 
   await root.dispatch(latest().id, "onAction", []);
   expect(requests).toEqual([
     ["clipboard.copy", { text: "copy" }],
-    ["clipboard.paste", { text: "paste" }],
+    ["clipboard.paste", { text: "paste", closeMainWindow: true }],
   ]);
   root.unmount();
 });

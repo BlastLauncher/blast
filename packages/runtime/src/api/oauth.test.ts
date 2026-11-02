@@ -15,11 +15,13 @@ afterEach(() => setCapabilityRequester(undefined));
 // @covers OAuth.PKCEClient.Options.providerId
 // @covers OAuth.PKCEClient.Options.providerName
 // @covers OAuth.PKCEClient.Options.redirectMethod
+// @covers OAuth.PKCEClient.Options.revocationEndpoint
 // @covers OAuth.PKCEClient.description
 // @covers OAuth.PKCEClient.providerIcon
 // @covers OAuth.PKCEClient.providerId
 // @covers OAuth.PKCEClient.providerName
 // @covers OAuth.PKCEClient.redirectMethod
+// @covers OAuth.PKCEClient.revocationEndpoint
 // @covers OAuth.PKCEClient.authorizationRequest
 // @covers OAuth.AuthorizationRequest
 // @covers OAuth.AuthorizationRequest.clientId
@@ -61,6 +63,7 @@ test("PKCE requests use S256, independent random state and documented redirect U
       providerId: "account",
       providerIcon: "icon.png",
       description: "Connect",
+      revocationEndpoint: "https://provider.example/revoke",
     });
     expect([
       client.redirectMethod,
@@ -68,7 +71,15 @@ test("PKCE requests use S256, independent random state and documented redirect U
       client.providerId,
       client.providerIcon,
       client.description,
-    ]).toEqual([redirectMethod, "Provider", "account", "icon.png", "Connect"]);
+      client.revocationEndpoint,
+    ]).toEqual([
+      redirectMethod,
+      "Provider",
+      "account",
+      "icon.png",
+      "Connect",
+      "https://provider.example/revoke",
+    ]);
     const request = await client.authorizationRequest({
       endpoint: "https://provider.example/auth?existing=1",
       clientId: "client",
@@ -183,10 +194,13 @@ test("authorize sends URL and provider metadata and propagates denials", async (
 // @covers OAuth.TokenSetOptions.idToken
 // @covers OAuth.TokenSetOptions.refreshToken
 // @covers OAuth.TokenSetOptions.scope
+// @covers OAuth.PKCEClient.Options.revocationEndpoint
 test("token responses normalize, rehydrate Dates and check expiry with a buffer", async () => {
   let stored: JsonValue = null;
   setCapabilityRequester(async (name, params) => {
     expect(params.providerId).toBe("Provider");
+    if (name === "oauth.tokens.set")
+      expect(params.revocationEndpoint).toBe("https://provider.example/revoke");
     if (name === "oauth.tokens.set")
       stored = {
         ...(params.tokens as Record<string, JsonValue>),
@@ -195,7 +209,11 @@ test("token responses normalize, rehydrate Dates and check expiry with a buffer"
     if (name === "oauth.tokens.remove") stored = null;
     return name === "oauth.tokens.get" ? stored : null;
   });
-  const client = new OAuth.PKCEClient({ redirectMethod: "web", providerName: "Provider" });
+  const client = new OAuth.PKCEClient({
+    redirectMethod: "web",
+    providerName: "Provider",
+    revocationEndpoint: "https://provider.example/revoke",
+  });
   expect(await client.getTokens()).toBeUndefined();
   await client.setTokens({
     access_token: "access",
