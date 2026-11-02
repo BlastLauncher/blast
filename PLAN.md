@@ -1,15 +1,12 @@
 # Plan
 
 Restarted 2026-10-18 from tag `archive/v2-prototype-2026-10-18`. Integration
-branch: `main` (v3 merged 2026-10-21). Keep this file under 120 lines; detail belongs in task
-files.
+branch: `main`. Keep this file under 120 lines; detail belongs in task files.
 
 ## Current focus
 
-M5 — embeddable engine (`docs/decisions/0009`), task queue empty; backlog
-under "Later". Blast is the
-engine; launchers embed it. The TUI and `blast run` stay reference clients
-and get no new launcher features.
+M6 — evidence at scale. Blast is the engine; launchers embed it. The TUI and
+`blast run` stay reference clients and get no new launcher features.
 
 ## Milestones
 
@@ -81,12 +78,22 @@ Raycast client semantics built in so embedders only draw.
 - [x] 0085 Lean installs keep required non-runtime peers (`zod` for `@ai-sdk/*`)
 - [x] 0086 smoke placeholder args/prefs; 0087 bundle time limit
 
+### M6 — Evidence at scale
+
+Honest gate, latest API, real compatibility across the corpus. Tasks run in
+order, each with a disk budget (the volume is nearly full).
+
+- [ ] 0088 Verify passes on a clean Mac
+- [ ] 0089 `@raycast/api` 2.10.1 and a weekly upgrade job
+- [ ] 0090 Repin the corpus and rerun all smokes
+- [ ] 0091 Sandboxed corpus sweep runner and pilot
+- [ ] 0092 Primary action probe; full sweep task follows the pilot
+
 ## Later (not scheduled)
 
-- Scheduled job regenerating `compat/` for the newest `@raycast/api` (PR).
 - native: macOS window ops without yabai (System Events for list/active/bounds).
-- Rerun `corpus:smoke` and `corpus:tui-smoke` with placeholder inputs (0086).
-- Go example on `blast serve` views (0080); publish packages to npm (needs owner).
+- Go example on `blast serve` views (0080).
+- Publish to npm: owner plans to, timing theirs (`3.0.0-alpha.N` on `next`).
 - Autonomous orchestrator loop over `tasks/`; delete `archive/`.
 - Desktop launcher (MyGo) and further TUI launcher polish (out of scope per 0009).
 
@@ -109,3 +116,4 @@ One line per decision; link a record only when it exists.
   launcher UI is the embedder's; MyGo deferred (`docs/decisions/0009`).
 - 2026-10-19: Engine core is platform-free; native capabilities are registered
   by embedders, with optional `@blastlauncher/native` (`docs/decisions/0010`).
+- 2026-11-02: Corpus sweeps run third-party code only in a no-network sandbox.
