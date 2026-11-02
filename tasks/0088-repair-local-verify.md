@@ -50,7 +50,7 @@ stray files affecting the result. CI on Linux stays green.
 ## Handoff
 
 ```
-Branch/commit: t3/repair-local-verify @ 42e605c
+Branch/commit: t3/repair-local-verify @ e7581bf
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 49.6s
 Done:
 - Resolved the real Node executable before test environment overrides and used it for all test child processes found under `packages/`.
