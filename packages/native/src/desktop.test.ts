@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { mkdtemp, mkdir, writeFile, rm, readlink } from "node:fs/promises";
+import { mkdtemp, mkdir, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
 import type { JsonValue } from "@blastlauncher/protocol";
@@ -135,17 +135,20 @@ test("Linux desktop entries respect XDG precedence, tombstones, sections, escape
   }
 });
 
-test("X11 frontmost resolves the real executable and text uses primary selection", async () => {
-  const { handlers: h, calls } = fake("linux", ["42\n", String(process.pid), "selected\n"]);
-  const path = await readlink(`/proc/${process.pid}/exe`);
-  expect(await h["applications.frontmost"]!({})).toEqual({ name: basename(path), path });
-  expect(await h["selection.text"]!({})).toBe("selected\n");
-  expect(calls).toEqual([
-    ["xdotool", ["getactivewindow"], {}],
-    ["xdotool", ["getwindowpid", "42"], {}],
-    ["xclip", ["-selection", "primary", "-o"], {}],
-  ]);
-});
+test.skipIf(process.platform !== "linux")(
+  "X11 frontmost resolves the real executable and text uses primary selection",
+  async () => {
+    const { handlers: h, calls } = fake("linux", ["42\n", String(process.pid), "selected\n"]);
+    const path = process.execPath;
+    expect(await h["applications.frontmost"]!({})).toEqual({ name: basename(path), path });
+    expect(await h["selection.text"]!({})).toBe("selected\n");
+    expect(calls).toEqual([
+      ["xdotool", ["getactivewindow"], {}],
+      ["xdotool", ["getwindowpid", "42"], {}],
+      ["xclip", ["-selection", "primary", "-o"], {}],
+    ]);
+  },
+);
 
 test("X11 reads desktops, active/sticky windows, geometry and allowed actions", async () => {
   const listing =

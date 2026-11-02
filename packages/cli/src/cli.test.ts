@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 // The CLI is exercised as a real `node` child process: it must run without a
 // build step under plain Node 24 and leave no processes or temp files behind.
 const cliPath = fileURLToPath(new URL("./cli.ts", import.meta.url));
+const nodePath = execFileSync("node", ["-p", "process.execPath"], { encoding: "utf8" }).trim();
 const root = fileURLToPath(new URL("../../../", import.meta.url));
 const helloList = join(root, "fixtures/extensions/hello-list");
 const hostSession = join(root, "fixtures/extensions/host-session");
@@ -21,7 +22,7 @@ type CliResult = { code: number; stdout: string; stderr: string };
 
 function runCli(args: string[], script?: string): Promise<CliResult> {
   return new Promise((resolve, reject) => {
-    const child = spawn("node", [cliPath, ...args], {
+    const child = spawn(nodePath, [cliPath, ...args], {
       cwd: root,
       stdio: ["pipe", "pipe", "pipe"],
     });
@@ -701,7 +702,7 @@ test("CLI fills TagPicker and PasswordField; the password never reaches a scene"
 }, 30_000);
 
 test("a reader that closes stdout early does not crash the CLI", async () => {
-  const child = spawn("node", [cliPath, "run", helloList, "index", "--script", "-"], {
+  const child = spawn(nodePath, [cliPath, "run", helloList, "index", "--script", "-"], {
     cwd: root,
     stdio: ["pipe", "pipe", "pipe"],
   });

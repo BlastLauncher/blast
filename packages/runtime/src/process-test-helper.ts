@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import {
   createLineDecoder,
@@ -13,6 +13,7 @@ import {
 } from "@blastlauncher/protocol";
 
 const noop = () => {};
+const nodePath = execFileSync("node", ["-p", "process.execPath"], { encoding: "utf8" }).trim();
 
 const defaultEnvironment: InitEnvironment = {
   extensionName: "fixture",
@@ -37,7 +38,7 @@ export type InitOptions = {
 };
 
 export function startRuntime() {
-  const child = spawn("node", [fileURLToPath(new URL("./main.ts", import.meta.url))], {
+  const child = spawn(nodePath, [fileURLToPath(new URL("./main.ts", import.meta.url))], {
     stdio: ["pipe", "pipe", "pipe"],
   });
   const messages: RuntimeMessage[] = [];

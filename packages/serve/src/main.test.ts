@@ -1,11 +1,12 @@
 import { afterEach, expect, test } from "bun:test";
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { mkdtemp, cp, readFile, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { resolve, join } from "node:path";
 import type { SceneNode, SceneMessage } from "@blastlauncher/protocol";
 
 const noop = () => {};
+const nodePath = execFileSync("node", ["-p", "process.execPath"], { encoding: "utf8" }).trim();
 const cleanups: (() => Promise<void>)[] = [];
 afterEach(async () => {
   await Promise.all(cleanups.splice(0).map((clean) => clean()));
@@ -13,7 +14,7 @@ afterEach(async () => {
 async function client(native = false) {
   const dir = await mkdtemp(join(tmpdir(), "blast-serve-"));
   const child = spawn(
-    "node",
+    nodePath,
     [resolve("packages/serve/src/main.ts"), ...(native ? ["--native"] : [])],
     { env: { ...process.env, XDG_DATA_HOME: dir }, stdio: ["pipe", "pipe", "pipe"] },
   );
