@@ -1,7 +1,7 @@
 ---
 id: "0091"
 title: Sandboxed corpus sweep runner with a pilot run
-status: todo
+status: doing
 milestone: M6
 depends: ["0090", "0093"]
 ---
@@ -15,7 +15,7 @@ failures ranked by cause. A 100-extension pilot proves it and sizes a full run.
 ## Context
 
 Curated runs cover about 105 of 3,443 extensions. Population here: extensions
-_satisfied_ by shared dependencies per `compat/dependencies.json`, about 2,009
+_satisfied_ by shared dependencies per `compat/dependencies.json`, 1,939 of 3,493 since 0093 (semver-aware)
 at the last scan. Never install dependencies.
 
 Reuse `scripts/corpus/batch.ts`, `smoke-command.ts`, `smoke.ts` (outcomes,
