@@ -56,7 +56,7 @@ coverage drop: its purpose is to report new symbols, not to implement them.
 ## Handoff
 
 ```
-Branch/commit: t3/29c4a0dd @ 86614e26606f256bbb5660c08f41287d5d8ac16b
+Branch/commit: t3/29c4a0dd @ abe9d904bacf5241c6f67bdd068ab3080980bad5
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 48.9s
 Done:
 - Vendored @raycast/api 2.10.1 and regenerated inventory, enums, stubs, and coverage.
