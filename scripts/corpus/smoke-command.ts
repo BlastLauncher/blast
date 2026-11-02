@@ -134,7 +134,7 @@ export async function launchOne(
 ): Promise<CommandResult> {
   const mode = commandMode(manifest, commandName) ?? "view";
   const outDir = dirname(bundled.entry);
-  const scratchRoot = join(process.cwd(), ".cache/smoke-data");
+  const scratchRoot = process.env.BLAST_SWEEP_SCRATCH ?? join(process.cwd(), ".cache/smoke-data");
   await mkdir(scratchRoot, { recursive: true });
   const scratchDir = await mkdtemp(join(scratchRoot, "command-"));
   const inputs = launchInputs(manifest, commandName, scratchDir);

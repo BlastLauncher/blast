@@ -1,0 +1,65 @@
+{
+  "commit": "bad7de0172ce6ea5e721ed919f4e1d7186f74192",
+  "seed": "0091",
+  "selectedExtensions": 100,
+  "commands": 288,
+  "totals": {
+    "rendered": 176,
+    "completed": 0,
+    "capability-denied": 3,
+    "bundle-failed": 104,
+    "bundle-timeout": 0,
+    "crashed": 5,
+    "network": 0,
+    "timeout": 0,
+    "unsupported-mode": 0,
+    "unsupported-api": 0,
+    "missing-arguments": 0
+  },
+  "failures": [
+    {
+      "signature": "bundle-failed",
+      "commands": 104
+    },
+    {
+      "signature": "Command failed: chmod +x <path> chmod: Unable to change file mode on <path> Operation not permitted",
+      "commands": 4
+    },
+    {
+      "signature": "Capability denied: clipboard.copy",
+      "commands": 1
+    },
+    {
+      "signature": "Capability denied: command.launch",
+      "commands": 1
+    },
+    {
+      "signature": "Capability denied: storage.get",
+      "commands": 1
+    },
+    {
+      "signature": "ENOENT: no such file or directory, open '<path>",
+      "commands": 1
+    }
+  ],
+  "capabilities": [
+    {
+      "signature": "clipboard.copy",
+      "commands": 1
+    },
+    {
+      "signature": "command.launch",
+      "commands": 1
+    },
+    {
+      "signature": "storage.get",
+      "commands": 1
+    }
+  ],
+  "peakBytes": 559255146,
+  "wallMs": 113372.099542,
+  "commandsPerMinute": 152.41845277460374,
+  "resumed": 0,
+  "projectedFullRunMinutes": 36.63808350198967,
+  "projectedFullRunPeakBytes": 559255146
+}

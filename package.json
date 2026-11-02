@@ -30,6 +30,7 @@
     "corpus:smoke": "bun scripts/corpus/smoke-run.ts",
     "corpus:smoke-deps": "bun scripts/corpus/smoke-deps-run.ts",
     "corpus:tui-smoke": "bun scripts/corpus/tui-smoke-run.ts",
+    "corpus:sweep": "bun scripts/corpus/sweep-run.ts",
     "check:workflow": "bun scripts/check-workflow.ts",
     "tui": "bun packages/tui/src/main.tsx",
     "blast:serve": "node packages/serve/src/main.ts",
