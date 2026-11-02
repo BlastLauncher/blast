@@ -28,7 +28,9 @@ export function decideUpgrade(
   repository = "blastlauncher/blast",
   base = "main",
 ): UpgradeDecision {
-  const needed = compareVersions(current, latest) < 0;
+  // Only stable releases are vendored: an rc tagged `latest` by mistake must
+  // not open an upgrade issue.
+  const needed = !/[-+]/.test(latest) && compareVersions(current, latest) < 0;
   const branch = `compat/raycast-api-${latest}`;
   return {
     needed,

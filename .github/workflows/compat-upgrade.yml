@@ -33,7 +33,7 @@ jobs:
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git checkout -b "$BRANCH"
-          git add compat
+          git add -A
           git commit -m "chore: vendor @raycast/api $VERSION"
           git push --force origin "$BRANCH"
           issue_number=$(gh issue list --state open --search "${ISSUE_TITLE}" --json number,title --jq ".[] | select(.title == \"${ISSUE_TITLE}\") | .number" | head -n 1)

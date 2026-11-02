@@ -32,4 +32,6 @@ test("upgrade job compares releases and names its branch and issue", () => {
     compareUrl: "https://github.com/owner/repo/compare/main...compat/raycast-api-2.10.1",
   });
   expect(decideUpgrade("2.10.1", "2.10.1").needed).toBe(false);
+  expect(decideUpgrade("2.10.1", "2.10.2-rc.1").needed).toBe(false);
+  expect(decideUpgrade("2.10.1", "2.11.0+build.3").needed).toBe(false);
 });
