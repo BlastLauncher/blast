@@ -1,7 +1,7 @@
 {
-  "corpusCommit": "3b812d1e153a1862df29bc8ec34e170c728512ea",
-  "extensions": 3443,
-  "providedOnly": 1573,
+  "corpusCommit": "bad7de0172ce6ea5e721ed919f4e1d7186f74192",
+  "extensions": 3493,
+  "providedOnly": 1607,
   "shared": {
     "provided": [
       "@raycast/api",
@@ -21,43 +21,43 @@
       "uuid",
       "zod"
     ],
-    "satisfied": 2009
+    "satisfied": 2042
   },
   "curve": [
     {
       "provided": 10,
-      "satisfied": 1986
+      "satisfied": 2017
     },
     {
       "provided": 20,
-      "satisfied": 2139
+      "satisfied": 2171
     },
     {
       "provided": 30,
-      "satisfied": 2205
+      "satisfied": 2239
     },
     {
       "provided": 50,
-      "satisfied": 2306
+      "satisfied": 2344
     }
   ],
   "packages": [
     {
       "name": "node-fetch",
-      "declared": 366,
-      "imported": 331,
+      "declared": 363,
+      "imported": 328,
       "majors": {
         "2": 20,
-        "3": 346
+        "3": 343
       }
     },
     {
       "name": "axios",
-      "declared": 211,
-      "imported": 200,
+      "declared": 210,
+      "imported": 199,
       "majors": {
         "0": 27,
-        "1": 184
+        "1": 183
       }
     },
     {
@@ -72,10 +72,10 @@
     },
     {
       "name": "run-applescript",
-      "declared": 111,
-      "imported": 96,
+      "declared": 110,
+      "imported": 95,
       "majors": {
-        "6": 77,
+        "6": 76,
         "7": 34
       }
     },
@@ -89,11 +89,11 @@
     },
     {
       "name": "zod",
-      "declared": 69,
-      "imported": 64,
+      "declared": 71,
+      "imported": 66,
       "majors": {
-        "3": 34,
-        "4": 35
+        "3": 35,
+        "4": 36
       }
     },
     {
@@ -107,19 +107,19 @@
     },
     {
       "name": "dayjs",
-      "declared": 61,
-      "imported": 59,
+      "declared": 62,
+      "imported": 60,
       "majors": {
-        "1": 61
+        "1": 62
       }
     },
     {
       "name": "fuse.js",
-      "declared": 51,
-      "imported": 49,
+      "declared": 52,
+      "imported": 50,
       "majors": {
         "6": 17,
-        "7": 34
+        "7": 35
       }
     },
     {
@@ -155,6 +155,15 @@
       }
     },
     {
+      "name": "node-html-markdown",
+      "declared": 40,
+      "imported": 37,
+      "majors": {
+        "1": 29,
+        "2": 11
+      }
+    },
+    {
       "name": "moment",
       "declared": 39,
       "imported": 36,
@@ -163,12 +172,15 @@
       }
     },
     {
-      "name": "node-html-markdown",
-      "declared": 39,
-      "imported": 36,
+      "name": "execa",
+      "declared": 35,
+      "imported": 35,
       "majors": {
-        "1": 29,
-        "2": 10
+        "5": 2,
+        "6": 7,
+        "7": 1,
+        "8": 6,
+        "9": 19
       }
     },
     {
@@ -177,18 +189,6 @@
       "imported": 35,
       "majors": {
         "3": 35
-      }
-    },
-    {
-      "name": "execa",
-      "declared": 34,
-      "imported": 34,
-      "majors": {
-        "5": 2,
-        "6": 7,
-        "7": 1,
-        "8": 6,
-        "9": 18
       }
     },
     {
@@ -226,10 +226,10 @@
       "imported": 29,
       "majors": {
         "3": 2,
-        "4": 19,
-        "5": 3,
+        "4": 17,
+        "5": 4,
         "6": 2,
-        "7": 3
+        "7": 4
       }
     },
     {
@@ -259,6 +259,22 @@
       }
     },
     {
+      "name": "yaml",
+      "declared": 21,
+      "imported": 21,
+      "majors": {
+        "2": 21
+      }
+    },
+    {
+      "name": "@chrismessina/raycast-logger",
+      "declared": 20,
+      "imported": 20,
+      "majors": {
+        "1": 20
+      }
+    },
+    {
       "name": "fast-xml-parser",
       "declared": 20,
       "imported": 20,
@@ -276,20 +292,20 @@
       }
     },
     {
-      "name": "yaml",
-      "declared": 20,
-      "imported": 20,
-      "majors": {
-        "2": 20
-      }
-    },
-    {
       "name": "algoliasearch",
       "declared": 19,
       "imported": 19,
       "majors": {
         "4": 18,
         "5": 1
+      }
+    },
+    {
+      "name": "chrono-node",
+      "declared": 19,
+      "imported": 19,
+      "majors": {
+        "2": 19
       }
     },
     {
@@ -303,11 +319,12 @@
       }
     },
     {
-      "name": "chrono-node",
+      "name": "filesize",
       "declared": 18,
       "imported": 18,
       "majors": {
-        "2": 18
+        "10": 3,
+        "11": 15
       }
     },
     {
@@ -327,14 +344,6 @@
       }
     },
     {
-      "name": "@chrismessina/raycast-logger",
-      "declared": 17,
-      "imported": 17,
-      "majors": {
-        "1": 17
-      }
-    },
-    {
       "name": "@tanstack/react-query",
       "declared": 19,
       "imported": 17,
@@ -343,20 +352,11 @@
       }
     },
     {
-      "name": "filesize",
-      "declared": 17,
-      "imported": 17,
-      "majors": {
-        "10": 3,
-        "11": 14
-      }
-    },
-    {
       "name": "open",
-      "declared": 23,
-      "imported": 17,
+      "declared": 22,
+      "imported": 16,
       "majors": {
-        "8": 18,
+        "8": 17,
         "9": 1,
         "10": 3,
         "11": 1
@@ -371,14 +371,35 @@
       }
     },
     {
+      "name": "marked",
+      "declared": 13,
+      "imported": 13,
+      "majors": {
+        "9": 1,
+        "14": 2,
+        "15": 4,
+        "16": 1,
+        "17": 2,
+        "18": 3
+      }
+    },
+    {
       "name": "node-html-parser",
-      "declared": 17,
-      "imported": 14,
+      "declared": 16,
+      "imported": 13,
       "majors": {
         "5": 3,
         "6": 8,
         "7": 4,
-        "9": 2
+        "9": 1
+      }
+    },
+    {
+      "name": "@chrismessina/raycast-kit",
+      "declared": 12,
+      "imported": 12,
+      "majors": {
+        "0": 12
       }
     },
     {
@@ -403,16 +424,11 @@
       }
     },
     {
-      "name": "marked",
+      "name": "proper-lockfile",
       "declared": 12,
       "imported": 12,
       "majors": {
-        "9": 1,
-        "14": 2,
-        "15": 3,
-        "16": 1,
-        "17": 2,
-        "18": 3
+        "4": 12
       }
     },
     {
@@ -461,6 +477,14 @@
       "imported": 10,
       "majors": {
         "4": 10
+      }
+    },
+    {
+      "name": "linkedom",
+      "declared": 10,
+      "imported": 10,
+      "majors": {
+        "0": 10
       }
     },
     {
@@ -526,9 +550,9 @@
       "declared": 9,
       "imported": 9,
       "majors": {
-        "5": 7,
+        "5": 6,
         "6": 1,
-        "7": 1
+        "7": 2
       }
     },
     {
@@ -547,27 +571,11 @@
       }
     },
     {
-      "name": "linkedom",
-      "declared": 9,
-      "imported": 9,
-      "majors": {
-        "0": 9
-      }
-    },
-    {
       "name": "pinyin-pro",
       "declared": 9,
       "imported": 9,
       "majors": {
         "3": 9
-      }
-    },
-    {
-      "name": "proper-lockfile",
-      "declared": 9,
-      "imported": 9,
-      "majors": {
-        "4": 9
       }
     },
     {
@@ -594,14 +602,6 @@
         "3": 1,
         "4": 2,
         "5": 6
-      }
-    },
-    {
-      "name": "@chrismessina/raycast-kit",
-      "declared": 8,
-      "imported": 8,
-      "majors": {
-        "0": 8
       }
     },
     {
@@ -659,6 +659,14 @@
       }
     },
     {
+      "name": "@mozilla/readability",
+      "declared": 7,
+      "imported": 7,
+      "majors": {
+        "0": 7
+      }
+    },
+    {
       "name": "he",
       "declared": 8,
       "imported": 7,
@@ -705,14 +713,6 @@
       "imported": 6,
       "majors": {
         "10": 2
-      }
-    },
-    {
-      "name": "@mozilla/readability",
-      "declared": 6,
-      "imported": 6,
-      "majors": {
-        "0": 6
       }
     },
     {
@@ -819,6 +819,15 @@
       }
     },
     {
+      "name": "tldts",
+      "declared": 6,
+      "imported": 6,
+      "majors": {
+        "6": 2,
+        "7": 4
+      }
+    },
+    {
       "name": "ts-pattern",
       "declared": 7,
       "imported": 6,
@@ -828,11 +837,27 @@
       }
     },
     {
+      "name": "validator",
+      "declared": 6,
+      "imported": 6,
+      "majors": {
+        "13": 6
+      }
+    },
+    {
       "name": "vitest",
       "declared": 1,
       "imported": 6,
       "majors": {
         "1": 1
+      }
+    },
+    {
+      "name": "@resvg/resvg-wasm",
+      "declared": 5,
+      "imported": 5,
+      "majors": {
+        "2": 5
       }
     },
     {
@@ -876,6 +901,15 @@
       }
     },
     {
+      "name": "culori",
+      "declared": 5,
+      "imported": 5,
+      "majors": {
+        "3": 1,
+        "4": 4
+      }
+    },
+    {
       "name": "dedent",
       "declared": 6,
       "imported": 5,
@@ -910,6 +944,14 @@
       }
     },
     {
+      "name": "fzf",
+      "declared": 5,
+      "imported": 5,
+      "majors": {
+        "0": 5
+      }
+    },
+    {
       "name": "glob",
       "declared": 5,
       "imported": 5,
@@ -938,6 +980,14 @@
       }
     },
     {
+      "name": "json5",
+      "declared": 5,
+      "imported": 5,
+      "majors": {
+        "2": 5
+      }
+    },
+    {
       "name": "moment-timezone",
       "declared": 5,
       "imported": 5,
@@ -955,10 +1005,10 @@
     },
     {
       "name": "pretty-bytes",
-      "declared": 6,
+      "declared": 5,
       "imported": 5,
       "majors": {
-        "6": 4,
+        "6": 3,
         "7": 2
       }
     },
@@ -979,29 +1029,12 @@
       }
     },
     {
-      "name": "tldts",
-      "declared": 5,
-      "imported": 5,
-      "majors": {
-        "6": 1,
-        "7": 4
-      }
-    },
-    {
       "name": "url-join",
       "declared": 5,
       "imported": 5,
       "majors": {
         "4": 3,
         "5": 2
-      }
-    },
-    {
-      "name": "validator",
-      "declared": 5,
-      "imported": 5,
-      "majors": {
-        "13": 5
       }
     },
     {
@@ -1057,14 +1090,6 @@
       }
     },
     {
-      "name": "@resvg/resvg-wasm",
-      "declared": 4,
-      "imported": 4,
-      "majors": {
-        "2": 4
-      }
-    },
-    {
       "name": "@testing-library/jest-dom",
       "declared": 0,
       "imported": 4,
@@ -1096,15 +1121,6 @@
       }
     },
     {
-      "name": "culori",
-      "declared": 4,
-      "imported": 4,
-      "majors": {
-        "3": 1,
-        "4": 3
-      }
-    },
-    {
       "name": "echarts",
       "declared": 4,
       "imported": 4,
@@ -1130,21 +1146,14 @@
       }
     },
     {
-      "name": "fzf",
-      "declared": 4,
-      "imported": 4,
-      "majors": {
-        "0": 4
-      }
-    },
-    {
       "name": "ini",
       "declared": 4,
       "imported": 4,
       "majors": {
         "3": 1,
         "5": 1,
-        "6": 2
+        "6": 1,
+        "7": 1
       }
     },
     {
@@ -1156,11 +1165,12 @@
       }
     },
     {
-      "name": "json5",
+      "name": "jose",
       "declared": 4,
       "imported": 4,
       "majors": {
-        "2": 4
+        "5": 1,
+        "6": 3
       }
     },
     {
@@ -1553,15 +1563,6 @@
       }
     },
     {
-      "name": "jose",
-      "declared": 3,
-      "imported": 3,
-      "majors": {
-        "5": 1,
-        "6": 2
-      }
-    },
-    {
       "name": "jotai",
       "declared": 3,
       "imported": 3,
@@ -1583,6 +1584,15 @@
       "imported": 3,
       "majors": {
         "0": 3
+      }
+    },
+    {
+      "name": "minisearch",
+      "declared": 4,
+      "imported": 3,
+      "majors": {
+        "4": 1,
+        "7": 3
       }
     },
     {
@@ -1608,6 +1618,15 @@
       "imported": 3,
       "majors": {
         "0": 3
+      }
+    },
+    {
+      "name": "opentype.js",
+      "declared": 3,
+      "imported": 3,
+      "majors": {
+        "1": 2,
+        "2": 1
       }
     },
     {
@@ -2232,14 +2251,6 @@
       }
     },
     {
-      "name": "better-sqlite3-multiple-ciphers",
-      "declared": 2,
-      "imported": 2,
-      "majors": {
-        "11": 2
-      }
-    },
-    {
       "name": "bignumber.js",
       "declared": 2,
       "imported": 2,
@@ -2344,7 +2355,8 @@
       "declared": 2,
       "imported": 2,
       "majors": {
-        "0": 2
+        "0": 1,
+        "1": 1
       }
     },
     {
@@ -2451,6 +2463,14 @@
       "imported": 2,
       "majors": {
         "16": 2
+      }
+    },
+    {
+      "name": "globalping",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "0": 2
       }
     },
     {
@@ -2690,29 +2710,11 @@
       }
     },
     {
-      "name": "minisearch",
-      "declared": 3,
-      "imported": 2,
-      "majors": {
-        "4": 1,
-        "7": 2
-      }
-    },
-    {
       "name": "mixpanel",
       "declared": 2,
       "imported": 2,
       "majors": {
         "0": 2
-      }
-    },
-    {
-      "name": "mongodb",
-      "declared": 2,
-      "imported": 2,
-      "majors": {
-        "6": 1,
-        "7": 1
       }
     },
     {
@@ -2780,6 +2782,14 @@
       }
     },
     {
+      "name": "nostr-tools",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "2": 2
+      }
+    },
+    {
       "name": "numeral",
       "declared": 2,
       "imported": 2,
@@ -2801,14 +2811,6 @@
       "imported": 2,
       "majors": {
         "5": 2
-      }
-    },
-    {
-      "name": "opentype.js",
-      "declared": 2,
-      "imported": 2,
-      "majors": {
-        "1": 2
       }
     },
     {
@@ -2981,6 +2983,14 @@
       "majors": {}
     },
     {
+      "name": "srt-parser-2",
+      "declared": 2,
+      "imported": 2,
+      "majors": {
+        "1": 2
+      }
+    },
+    {
       "name": "stream-json",
       "declared": 2,
       "imported": 2,
@@ -3036,14 +3046,6 @@
       "majors": {
         "3": 1,
         "4": 1
-      }
-    },
-    {
-      "name": "tar-stream",
-      "declared": 2,
-      "imported": 2,
-      "majors": {
-        "3": 2
       }
     },
     {
@@ -4723,6 +4725,14 @@
       }
     },
     {
+      "name": "@mutedeck/plugin-client",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
       "name": "@mux/mux-node",
       "declared": 1,
       "imported": 1,
@@ -5035,7 +5045,7 @@
       "declared": 1,
       "imported": 1,
       "majors": {
-        "2": 1
+        "3": 1
       }
     },
     {
@@ -5999,11 +6009,27 @@
       }
     },
     {
+      "name": "@zweer/substack-client",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "1": 1
+      }
+    },
+    {
       "name": "abi-coder",
       "declared": 1,
       "imported": 1,
       "majors": {
         "5": 1
+      }
+    },
+    {
+      "name": "adhan",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "4": 1
       }
     },
     {
@@ -6229,6 +6255,14 @@
       }
     },
     {
+      "name": "better-sqlite3-multiple-ciphers",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "12": 1
+      }
+    },
+    {
       "name": "bettertouchtool",
       "declared": 1,
       "imported": 1,
@@ -6314,6 +6348,14 @@
       "imported": 1,
       "majors": {
         "4": 1
+      }
+    },
+    {
+      "name": "bson",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "6": 1
       }
     },
     {
@@ -6795,6 +6837,14 @@
       }
     },
     {
+      "name": "double-metaphone",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "2": 1
+      }
+    },
+    {
       "name": "dropbox",
       "declared": 1,
       "imported": 1,
@@ -6962,6 +7012,14 @@
       "imported": 1,
       "majors": {
         "1": 1
+      }
+    },
+    {
+      "name": "fflate",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
       }
     },
     {
@@ -7148,14 +7206,6 @@
       "imported": 1,
       "majors": {
         "3": 1
-      }
-    },
-    {
-      "name": "globalping",
-      "declared": 1,
-      "imported": 1,
-      "majors": {
-        "0": 1
       }
     },
     {
@@ -7461,6 +7511,12 @@
       }
     },
     {
+      "name": "import.target.title",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
       "name": "inpost",
       "declared": 1,
       "imported": 1,
@@ -7740,6 +7796,14 @@
     },
     {
       "name": "lemmy-js-client",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "libsodium-wrappers-sumo",
       "declared": 1,
       "imported": 1,
       "majors": {
@@ -8150,6 +8214,14 @@
       }
     },
     {
+      "name": "mongodb",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "7": 1
+      }
+    },
+    {
       "name": "moviedb-promise",
       "declared": 1,
       "imported": 1,
@@ -8188,6 +8260,12 @@
       "majors": {
         "2": 1
       }
+    },
+    {
+      "name": "name",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
     },
     {
       "name": "nano-spawn",
@@ -8326,14 +8404,6 @@
       }
     },
     {
-      "name": "nostr-tools",
-      "declared": 1,
-      "imported": 1,
-      "majors": {
-        "2": 1
-      }
-    },
-    {
       "name": "notdiamond",
       "declared": 1,
       "imported": 1,
@@ -8427,6 +8497,14 @@
     },
     {
       "name": "ojp-sdk-next",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "0": 1
+      }
+    },
+    {
+      "name": "ondine",
       "declared": 1,
       "imported": 1,
       "majors": {
@@ -9260,6 +9338,12 @@
       "majors": {}
     },
     {
+      "name": "some",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
+    },
+    {
       "name": "sort-keys",
       "declared": 1,
       "imported": 1,
@@ -9303,14 +9387,6 @@
       "imported": 1,
       "majors": {
         "2": 1
-      }
-    },
-    {
-      "name": "srt-parser-2",
-      "declared": 1,
-      "imported": 1,
-      "majors": {
-        "1": 1
       }
     },
     {
@@ -9400,6 +9476,14 @@
       }
     },
     {
+      "name": "style-dictionary",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "5": 1
+      }
+    },
+    {
       "name": "sudo-prompt",
       "declared": 1,
       "imported": 1,
@@ -9465,6 +9549,14 @@
     },
     {
       "name": "tailwind-merge",
+      "declared": 1,
+      "imported": 1,
+      "majors": {
+        "3": 1
+      }
+    },
+    {
+      "name": "tar-stream",
       "declared": 1,
       "imported": 1,
       "majors": {
@@ -9613,6 +9705,12 @@
       "majors": {
         "1": 1
       }
+    },
+    {
+      "name": "truncated",
+      "declared": 0,
+      "imported": 1,
+      "majors": {}
     },
     {
       "name": "ts-enum-util",
@@ -10442,22 +10540,6 @@
       }
     },
     {
-      "name": "better-sqlite3",
-      "declared": 2,
-      "imported": 0,
-      "majors": {
-        "12": 2
-      }
-    },
-    {
-      "name": "bindings",
-      "declared": 1,
-      "imported": 0,
-      "majors": {
-        "1": 1
-      }
-    },
-    {
       "name": "bluebird",
       "declared": 1,
       "imported": 0,
@@ -11034,22 +11116,6 @@
       "imported": 0,
       "majors": {
         "4": 1
-      }
-    },
-    {
-      "name": "sharp",
-      "declared": 1,
-      "imported": 0,
-      "majors": {
-        "0": 1
-      }
-    },
-    {
-      "name": "sqlite3",
-      "declared": 1,
-      "imported": 0,
-      "majors": {
-        "5": 1
       }
     },
     {

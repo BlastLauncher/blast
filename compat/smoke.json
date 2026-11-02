@@ -1,16 +1,17 @@
 {
-  "commit": "3b812d1e153a1862df29bc8ec34e170c728512ea",
+  "commit": "bad7de0172ce6ea5e721ed919f4e1d7186f74192",
   "totals": {
-    "rendered": 184,
-    "completed": 1,
-    "capability-denied": 7,
-    "bundle-failed": 0,
-    "crashed": 3,
+    "rendered": 237,
+    "completed": 2,
+    "capability-denied": 13,
+    "bundle-failed": 1,
+    "bundle-timeout": 0,
+    "crashed": 0,
     "network": 0,
     "timeout": 0,
     "unsupported-mode": 0,
     "unsupported-api": 0,
-    "missing-arguments": 5
+    "missing-arguments": 0
   },
   "results": [
     {
@@ -18,15 +19,89 @@
       "command": "divide-by-8",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 38.79270799999995,
       "nodes": 3,
       "rootType": "Navigation"
+    },
+    {
+      "extension": "advanced-replace",
+      "command": "advanced-replace",
+      "mode": "view",
+      "outcome": "rendered",
+      "bundleMs": 30.0142079999996,
+      "nodes": 11,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "advanced-replace",
+      "command": "quick-slot-1",
+      "mode": "no-view",
+      "outcome": "capability-denied",
+      "bundleMs": 6.057667000000038,
+      "path": "storage.get",
+      "error": "Capability denied: storage.get"
+    },
+    {
+      "extension": "advanced-replace",
+      "command": "quick-slot-2",
+      "mode": "no-view",
+      "outcome": "capability-denied",
+      "bundleMs": 6.046207999999751,
+      "path": "storage.get",
+      "error": "Capability denied: storage.get"
+    },
+    {
+      "extension": "advanced-replace",
+      "command": "quick-slot-3",
+      "mode": "no-view",
+      "outcome": "capability-denied",
+      "bundleMs": 5.658750000000509,
+      "path": "storage.get",
+      "error": "Capability denied: storage.get"
+    },
+    {
+      "extension": "advanced-replace",
+      "command": "quick-slot-4",
+      "mode": "no-view",
+      "outcome": "capability-denied",
+      "bundleMs": 6.196375000000444,
+      "path": "storage.get",
+      "error": "Capability denied: storage.get"
+    },
+    {
+      "extension": "advanced-replace",
+      "command": "quick-slot-5",
+      "mode": "no-view",
+      "outcome": "capability-denied",
+      "bundleMs": 5.8715420000007725,
+      "path": "storage.get",
+      "error": "Capability denied: storage.get"
+    },
+    {
+      "extension": "advanced-replace",
+      "command": "quick-slot-6",
+      "mode": "no-view",
+      "outcome": "capability-denied",
+      "bundleMs": 6.150290999999925,
+      "path": "storage.get",
+      "error": "Capability denied: storage.get"
     },
     {
       "extension": "android-versions",
       "command": "search-android-version",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 5.159749999998894,
       "nodes": 273,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "anilist-airing-schedule",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "bundleMs": 2655.077374999999,
+      "nodes": 3,
       "rootType": "Navigation"
     },
     {
@@ -34,6 +109,7 @@
       "command": "index",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 6.227167000000918,
       "nodes": 17,
       "rootType": "Navigation"
     },
@@ -42,6 +118,7 @@
       "command": "analog-clock",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 6.288249999999607,
       "nodes": 12,
       "rootType": "Navigation"
     },
@@ -50,6 +127,7 @@
       "command": "copy-atomic-time",
       "mode": "no-view",
       "outcome": "capability-denied",
+      "bundleMs": 16.420749999999316,
       "path": "clipboard.copy",
       "error": "Capability denied: clipboard.copy"
     },
@@ -58,6 +136,7 @@
       "command": "index",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 8.480541999999332,
       "nodes": 76,
       "rootType": "Navigation"
     },
@@ -66,7 +145,38 @@
       "command": "biaodian",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 4.846917000000758,
       "nodes": 133,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "bookstack",
+      "command": "search-command",
+      "mode": "view",
+      "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 425.2460409999985,
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "bookstack",
+      "command": "show-all-books",
+      "mode": "view",
+      "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 451.23491699999977,
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "bookstack",
+      "command": "show-all-shelves",
+      "mode": "view",
+      "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 418.9723329999997,
+      "nodes": 3,
       "rootType": "Navigation"
     },
     {
@@ -74,6 +184,7 @@
       "command": "find-login",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 945.8596660000003,
       "nodes": 3,
       "rootType": "Navigation"
     },
@@ -82,6 +193,7 @@
       "command": "cangjie",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 220.55774999999994,
       "nodes": 8,
       "rootType": "Navigation"
     },
@@ -90,6 +202,7 @@
       "command": "components",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 14.455000000001746,
       "nodes": 616,
       "rootType": "Navigation"
     },
@@ -98,6 +211,7 @@
       "command": "get-started",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 15.256625000001804,
       "nodes": 43,
       "rootType": "Navigation"
     },
@@ -106,6 +220,7 @@
       "command": "hooks",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 5.2534579999992275,
       "nodes": 103,
       "rootType": "Navigation"
     },
@@ -114,14 +229,24 @@
       "command": "styled-system",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 6.989375000001019,
       "nodes": 83,
       "rootType": "Navigation"
+    },
+    {
+      "extension": "cilium-docs",
+      "command": "index",
+      "mode": "view",
+      "outcome": "bundle-failed",
+      "bundleMs": 906.5722080000014,
+      "error": "Build failed with 1 error: src/index.tsx:3:7: ERROR: No matching export in \"../../../../node_modules/.bun/cheerio@1.2.0/node_modules/cheerio/dist/esm/index.js\"…"
     },
     {
       "extension": "clocky-time-tracker",
       "command": "clock-in",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 4.810832999999548,
       "nodes": 6,
       "rootType": "Navigation"
     },
@@ -130,6 +255,7 @@
       "command": "clock-out",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 5.275375000001077,
       "nodes": 6,
       "rootType": "Navigation"
     },
@@ -138,6 +264,7 @@
       "command": "history",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 7.192792000001646,
       "nodes": 7,
       "rootType": "Navigation"
     },
@@ -146,6 +273,7 @@
       "command": "status",
       "mode": "menu-bar",
       "outcome": "rendered",
+      "bundleMs": 6.1727500000015425,
       "nodes": 4,
       "rootType": "MenuBarExtra"
     },
@@ -154,6 +282,7 @@
       "command": "today",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 8.041874999998981,
       "nodes": 10,
       "rootType": "Navigation"
     },
@@ -162,6 +291,7 @@
       "command": "toggle-pause",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 5.2158329999983835,
       "nodes": 6,
       "rootType": "Navigation"
     },
@@ -170,6 +300,7 @@
       "command": "week",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 6.948625000000902,
       "nodes": 49,
       "rootType": "Navigation"
     },
@@ -178,6 +309,7 @@
       "command": "index",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 5.040750000000116,
       "nodes": 88,
       "rootType": "Navigation"
     },
@@ -186,6 +318,8 @@
       "command": "create-collection",
       "mode": "view",
       "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 510.20816600000035,
       "nodes": 12,
       "rootType": "Navigation"
     },
@@ -194,6 +328,8 @@
       "command": "create-pen",
       "mode": "view",
       "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 446.1296659999971,
       "nodes": 19,
       "rootType": "Navigation"
     },
@@ -202,6 +338,8 @@
       "command": "search-assets",
       "mode": "view",
       "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 429.1011660000004,
       "nodes": 11,
       "rootType": "Navigation"
     },
@@ -210,6 +348,8 @@
       "command": "search-collections",
       "mode": "view",
       "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 470.0863750000026,
       "nodes": 11,
       "rootType": "Navigation"
     },
@@ -218,6 +358,8 @@
       "command": "search-pens",
       "mode": "view",
       "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 515.8571249999986,
       "nodes": 23,
       "rootType": "Navigation"
     },
@@ -226,14 +368,44 @@
       "command": "upload-asset",
       "mode": "view",
       "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 431.02400000000125,
       "nodes": 9,
       "rootType": "Navigation"
+    },
+    {
+      "extension": "codex-reset-forecast",
+      "command": "check-reset-forecast",
+      "mode": "view",
+      "outcome": "rendered",
+      "bundleMs": 421.273541999999,
+      "nodes": 11,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "codex-reset-forecast",
+      "command": "reset-history-calendar",
+      "mode": "view",
+      "outcome": "rendered",
+      "bundleMs": 467.1104590000032,
+      "nodes": 17,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "codex-reset-forecast",
+      "command": "toggle-reset-forecast-menu-bar",
+      "mode": "menu-bar",
+      "outcome": "rendered",
+      "bundleMs": 481.35154200000034,
+      "nodes": 1,
+      "rootType": "MenuBarExtra"
     },
     {
       "extension": "color-studio-picker",
       "command": "index",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 5.933499999999185,
       "nodes": 716,
       "rootType": "Navigation"
     },
@@ -242,6 +414,7 @@
       "command": "commit-message-structure",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 4.374917000001005,
       "nodes": 3,
       "rootType": "Navigation"
     },
@@ -250,6 +423,7 @@
       "command": "index",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 4.559750000000349,
       "nodes": 47,
       "rootType": "Navigation"
     },
@@ -257,14 +431,18 @@
       "extension": "convert-px-to-vw-vh",
       "command": "height",
       "mode": "no-view",
-      "outcome": "missing-arguments",
-      "reason": "requires launch arguments: height, pixels; not run"
+      "outcome": "rendered",
+      "placeholders": "arguments",
+      "bundleMs": 16.20158299999821,
+      "nodes": 3,
+      "rootType": "Navigation"
     },
     {
       "extension": "convert-px-to-vw-vh",
       "command": "index",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 16.550374999998894,
       "nodes": 27,
       "rootType": "Navigation"
     },
@@ -273,6 +451,7 @@
       "command": "menu-bar",
       "mode": "menu-bar",
       "outcome": "rendered",
+      "bundleMs": 15.824083999999857,
       "nodes": 5,
       "rootType": "MenuBarExtra"
     },
@@ -280,14 +459,19 @@
       "extension": "convert-px-to-vw-vh",
       "command": "width",
       "mode": "no-view",
-      "outcome": "missing-arguments",
-      "reason": "requires launch arguments: pixels, width; not run"
+      "outcome": "rendered",
+      "placeholders": "arguments",
+      "bundleMs": 15.66112499999872,
+      "nodes": 3,
+      "rootType": "Navigation"
     },
     {
       "extension": "devpod",
       "command": "workspaces-manage",
       "mode": "view",
       "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 17.68279199999961,
       "nodes": 7,
       "rootType": "Navigation"
     },
@@ -296,6 +480,7 @@
       "command": "index",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 6.269790999998804,
       "nodes": 19,
       "rootType": "Navigation"
     },
@@ -304,7 +489,80 @@
       "command": "show-donut",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 5.2644579999978305,
       "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "dot-new",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "bundleMs": 24.963959000000614,
+      "nodes": 3211,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "douban",
+      "command": "search-books",
+      "mode": "view",
+      "outcome": "rendered",
+      "bundleMs": 976.8860839999979,
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "douban",
+      "command": "search-games",
+      "mode": "view",
+      "outcome": "rendered",
+      "bundleMs": 1044.205750000001,
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "douban",
+      "command": "search-groups",
+      "mode": "view",
+      "outcome": "rendered",
+      "bundleMs": 959.1850420000046,
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "douban",
+      "command": "search-movies",
+      "mode": "view",
+      "outcome": "rendered",
+      "bundleMs": 1211.3748339999947,
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "douban",
+      "command": "search-music",
+      "mode": "view",
+      "outcome": "rendered",
+      "bundleMs": 954.6143749999974,
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "douban",
+      "command": "search-sites",
+      "mode": "view",
+      "outcome": "rendered",
+      "bundleMs": 982.0097920000044,
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "douban",
+      "command": "search-users",
+      "mode": "view",
+      "outcome": "rendered",
+      "bundleMs": 1030.4966249999998,
+      "nodes": 4,
       "rootType": "Navigation"
     },
     {
@@ -312,6 +570,7 @@
       "command": "list-links",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 57.53308300000208,
       "nodes": 9,
       "rootType": "Navigation"
     },
@@ -320,6 +579,7 @@
       "command": "shorten-link",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 57.922374999994645,
       "nodes": 10,
       "rootType": "Navigation"
     },
@@ -328,6 +588,7 @@
       "command": "new-tab",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 15.076082999999926,
       "nodes": 2,
       "rootType": "Navigation"
     },
@@ -336,6 +597,7 @@
       "command": "search-bookmarks",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 18.238875000002736,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -344,6 +606,7 @@
       "command": "search-history",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 18.021332999996957,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -352,6 +615,7 @@
       "command": "search-notes",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 16.600917000003392,
       "nodes": 3,
       "rootType": "Navigation"
     },
@@ -360,6 +624,7 @@
       "command": "search-tasks",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 17.159459000002244,
       "nodes": 3,
       "rootType": "Navigation"
     },
@@ -368,6 +633,7 @@
       "command": "index",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 4.3648749999993015,
       "nodes": 78,
       "rootType": "Navigation"
     },
@@ -376,6 +642,7 @@
       "command": "fix-parser",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 39.76608400000259,
       "nodes": 9,
       "rootType": "Navigation"
     },
@@ -384,7 +651,17 @@
       "command": "fix-search-tags",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 39.3039590000044,
       "nodes": 3253,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "flighty",
+      "command": "view-flights",
+      "mode": "view",
+      "outcome": "rendered",
+      "bundleMs": 464.2364579999994,
+      "nodes": 10,
       "rootType": "Navigation"
     },
     {
@@ -392,6 +669,8 @@
       "command": "index",
       "mode": "view",
       "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 17.062959000002593,
       "nodes": 6,
       "rootType": "Navigation"
     },
@@ -400,6 +679,8 @@
       "command": "find",
       "mode": "view",
       "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 4.745499999997264,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -407,14 +688,18 @@
       "extension": "google-maps-search",
       "command": "quickSearchMaps",
       "mode": "no-view",
-      "outcome": "missing-arguments",
-      "reason": "requires launch arguments: query; not run"
+      "outcome": "completed",
+      "placeholders": "both",
+      "bundleMs": 4.470584000002418,
+      "reason": "command mode \"no-view\" completed without rendering a scene"
     },
     {
       "extension": "google-maps-search",
       "command": "travelHome",
       "mode": "no-view",
       "outcome": "capability-denied",
+      "placeholders": "preferences",
+      "bundleMs": 4.5506250000034925,
       "path": "open.url",
       "error": "Capability denied: open.url"
     },
@@ -423,7 +708,45 @@
       "command": "travelTo",
       "mode": "view",
       "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 5.289292000001296,
       "nodes": 18,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "gradle-plugins",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "bundleMs": 1307.0222909999939,
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "hetzner",
+      "command": "addProject",
+      "mode": "view",
+      "outcome": "rendered",
+      "bundleMs": 12.725624999999127,
+      "nodes": 12,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "hetzner",
+      "command": "manageProject",
+      "mode": "view",
+      "outcome": "rendered",
+      "bundleMs": 5.582958999999391,
+      "nodes": 8,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "hetzner",
+      "command": "manageServer",
+      "mode": "view",
+      "outcome": "rendered",
+      "bundleMs": 412.4753750000018,
+      "nodes": 7,
       "rootType": "Navigation"
     },
     {
@@ -431,6 +754,8 @@
       "command": "search-routines",
       "mode": "view",
       "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 2555.4184160000004,
       "nodes": 3,
       "rootType": "Navigation"
     },
@@ -439,6 +764,8 @@
       "command": "search-workouts",
       "mode": "view",
       "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 2484.2419169999994,
       "nodes": 3,
       "rootType": "Navigation"
     },
@@ -447,6 +774,8 @@
       "command": "book-time",
       "mode": "no-view",
       "outcome": "capability-denied",
+      "placeholders": "preferences",
+      "bundleMs": 4.9354999999995925,
       "path": "open.url",
       "error": "Capability denied: open.url"
     },
@@ -455,6 +784,8 @@
       "command": "clock-in",
       "mode": "no-view",
       "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 51.724874999999884,
       "nodes": 2,
       "rootType": "Navigation"
     },
@@ -463,6 +794,8 @@
       "command": "clock-out",
       "mode": "no-view",
       "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 56.33091599999898,
       "nodes": 2,
       "rootType": "Navigation"
     },
@@ -470,18 +803,19 @@
       "extension": "humaans",
       "command": "holidays",
       "mode": "view",
-      "outcome": "crashed",
-      "exit": "code 1",
-      "error": "api key missing",
-      "logs": [
-        "RUNTIME_ERROR: api key missing"
-      ]
+      "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 263.5124169999981,
+      "nodes": 4,
+      "rootType": "Navigation"
     },
     {
       "extension": "humaans",
       "command": "me-time-away",
       "mode": "no-view",
       "outcome": "capability-denied",
+      "placeholders": "preferences",
+      "bundleMs": 4.632666999998037,
       "path": "open.url",
       "error": "Capability denied: open.url"
     },
@@ -489,18 +823,18 @@
       "extension": "humaans",
       "command": "people",
       "mode": "view",
-      "outcome": "crashed",
-      "exit": "code 1",
-      "error": "api key missing",
-      "logs": [
-        "RUNTIME_ERROR: api key missing"
-      ]
+      "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 228.25829099999828,
+      "nodes": 4,
+      "rootType": "Navigation"
     },
     {
       "extension": "hyrule-compendium-search",
       "command": "broadSearch",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 17.024124999996275,
       "nodes": 1559,
       "rootType": "Navigation"
     },
@@ -508,14 +842,18 @@
       "extension": "hyrule-compendium-search",
       "command": "getEntry",
       "mode": "view",
-      "outcome": "missing-arguments",
-      "reason": "requires launch arguments: entryName; not run"
+      "outcome": "rendered",
+      "placeholders": "arguments",
+      "bundleMs": 27.599874999999884,
+      "nodes": 10,
+      "rootType": "Navigation"
     },
     {
       "extension": "input-source-switcher",
       "command": "form",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 18.083207999996375,
       "nodes": 17,
       "rootType": "Navigation"
     },
@@ -524,6 +862,7 @@
       "command": "index",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.326708000000508,
       "nodes": 3,
       "rootType": "Navigation"
     },
@@ -532,6 +871,7 @@
       "command": "analyze-clipboard-invisible-characters",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.4762919999993755,
       "nodes": 3,
       "rootType": "Navigation"
     },
@@ -540,6 +880,7 @@
       "command": "fix-invisible-characters",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 6.006458999996539,
       "nodes": 3,
       "rootType": "Navigation"
     },
@@ -548,7 +889,26 @@
       "command": "open-invisible-text-detector",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 6.478209000000788,
       "nodes": 32,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "jisho",
+      "command": "history",
+      "mode": "view",
+      "outcome": "rendered",
+      "bundleMs": 19.270000000004075,
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "jisho",
+      "command": "search",
+      "mode": "view",
+      "outcome": "rendered",
+      "bundleMs": 18.371832999997423,
+      "nodes": 4,
       "rootType": "Navigation"
     },
     {
@@ -556,6 +916,7 @@
       "command": "index",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 21.889374999998836,
       "nodes": 107,
       "rootType": "Navigation"
     },
@@ -564,14 +925,27 @@
       "command": "now",
       "mode": "no-view",
       "outcome": "capability-denied",
+      "bundleMs": 9.338292000000365,
       "path": "clipboard.paste",
       "error": "Capability denied: clipboard.paste"
+    },
+    {
+      "extension": "kagi-search",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 13.177042000002984,
+      "nodes": 4,
+      "rootType": "Navigation"
     },
     {
       "extension": "keeper-security",
       "command": "generate-passphrase",
       "mode": "view",
       "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 423.64650000000256,
       "nodes": 9,
       "rootType": "Navigation"
     },
@@ -580,6 +954,8 @@
       "command": "generate-password",
       "mode": "view",
       "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 411.4187499999971,
       "nodes": 14,
       "rootType": "Navigation"
     },
@@ -588,6 +964,8 @@
       "command": "generate-password-quick",
       "mode": "view",
       "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 414.276457999993,
       "nodes": 2,
       "rootType": "Navigation"
     },
@@ -596,6 +974,8 @@
       "command": "my-vault",
       "mode": "view",
       "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 426.173959000007,
       "nodes": 31,
       "rootType": "Navigation"
     },
@@ -604,6 +984,8 @@
       "command": "api-tokens",
       "mode": "view",
       "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 23.429749999995693,
       "nodes": 3,
       "rootType": "Navigation"
     },
@@ -612,6 +994,8 @@
       "command": "api-usage",
       "mode": "no-view",
       "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 29.661416000002646,
       "nodes": 3,
       "rootType": "Navigation"
     },
@@ -620,6 +1004,8 @@
       "command": "environments",
       "mode": "view",
       "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 24.242333000001963,
       "nodes": 3,
       "rootType": "Navigation"
     },
@@ -628,6 +1014,8 @@
       "command": "licenses",
       "mode": "view",
       "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 23.601708999995026,
       "nodes": 3,
       "rootType": "Navigation"
     },
@@ -636,6 +1024,8 @@
       "command": "policies",
       "mode": "view",
       "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 23.574959000005038,
       "nodes": 3,
       "rootType": "Navigation"
     },
@@ -644,6 +1034,8 @@
       "command": "products",
       "mode": "view",
       "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 23.27566700000898,
       "nodes": 3,
       "rootType": "Navigation"
     },
@@ -652,6 +1044,8 @@
       "command": "users",
       "mode": "view",
       "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 22.905666999999085,
       "nodes": 3,
       "rootType": "Navigation"
     },
@@ -660,6 +1054,7 @@
       "command": "index",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 19.96104200000991,
       "nodes": 6,
       "rootType": "Navigation"
     },
@@ -668,6 +1063,7 @@
       "command": "generate-shift",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 6.362084000007599,
       "nodes": 59,
       "rootType": "Navigation"
     },
@@ -676,6 +1072,7 @@
       "command": "generate-app",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 14.872667000003275,
       "nodes": 29,
       "rootType": "Navigation"
     },
@@ -684,6 +1081,7 @@
       "command": "menu-bar",
       "mode": "menu-bar",
       "outcome": "rendered",
+      "bundleMs": 4.896666999993613,
       "nodes": 5,
       "rootType": "MenuBarExtra"
     },
@@ -692,6 +1090,7 @@
       "command": "daily-challenge",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 215.1461249999993,
       "nodes": 8,
       "rootType": "Navigation"
     },
@@ -700,6 +1099,7 @@
       "command": "potd-menu-bar",
       "mode": "menu-bar",
       "outcome": "rendered",
+      "bundleMs": 35.44408299999486,
       "nodes": 7,
       "rootType": "MenuBarExtra"
     },
@@ -708,6 +1108,7 @@
       "command": "problem-search",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 276.91941699999734,
       "nodes": 13,
       "rootType": "Navigation"
     },
@@ -716,6 +1117,7 @@
       "command": "random-problem",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 217.28133299999172,
       "nodes": 45,
       "rootType": "Navigation"
     },
@@ -724,6 +1126,7 @@
       "command": "user-profile",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 217.28641600000265,
       "nodes": 3,
       "rootType": "Navigation"
     },
@@ -732,7 +1135,26 @@
       "command": "markdown-reference",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 5.233208000005106,
       "nodes": 63,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "mbta-tracker",
+      "command": "browse-stops",
+      "mode": "view",
+      "outcome": "rendered",
+      "bundleMs": 25.36633299999812,
+      "nodes": 13,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "mbta-tracker",
+      "command": "view-favorites",
+      "mode": "view",
+      "outcome": "rendered",
+      "bundleMs": 43.711332999999286,
+      "nodes": 4,
       "rootType": "Navigation"
     },
     {
@@ -740,7 +1162,9 @@
       "command": "add-to-shopping-list",
       "mode": "view",
       "outcome": "rendered",
-      "nodes": 7,
+      "placeholders": "preferences",
+      "bundleMs": 19.422124999997322,
+      "nodes": 3,
       "rootType": "Navigation"
     },
     {
@@ -748,7 +1172,9 @@
       "command": "import-recipe",
       "mode": "view",
       "outcome": "rendered",
-      "nodes": 7,
+      "placeholders": "preferences",
+      "bundleMs": 29.309124999999767,
+      "nodes": 3,
       "rootType": "Navigation"
     },
     {
@@ -756,7 +1182,9 @@
       "command": "meal-plan",
       "mode": "view",
       "outcome": "rendered",
-      "nodes": 7,
+      "placeholders": "preferences",
+      "bundleMs": 18.102041000005556,
+      "nodes": 59,
       "rootType": "Navigation"
     },
     {
@@ -764,7 +1192,9 @@
       "command": "search-recipes",
       "mode": "view",
       "outcome": "rendered",
-      "nodes": 7,
+      "placeholders": "preferences",
+      "bundleMs": 21.772292000008747,
+      "nodes": 3,
       "rootType": "Navigation"
     },
     {
@@ -772,7 +1202,9 @@
       "command": "shopping-lists",
       "mode": "view",
       "outcome": "rendered",
-      "nodes": 7,
+      "placeholders": "preferences",
+      "bundleMs": 43.00604199999361,
+      "nodes": 3,
       "rootType": "Navigation"
     },
     {
@@ -780,6 +1212,8 @@
       "command": "search-files",
       "mode": "view",
       "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 27.80708400000003,
       "nodes": 7,
       "rootType": "Navigation"
     },
@@ -788,6 +1222,7 @@
       "command": "open-settings",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.314375000001746,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -796,6 +1231,7 @@
       "command": "set-focus",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 4.622624999989057,
       "nodes": 7,
       "rootType": "Navigation"
     },
@@ -804,6 +1240,7 @@
       "command": "toggle",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 4.573208999994677,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -812,6 +1249,7 @@
       "command": "turn-off",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 4.9415420000004815,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -820,6 +1258,7 @@
       "command": "turn-on",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 4.744957999995677,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -828,6 +1267,7 @@
       "command": "apply-set",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 16.2491660000087,
       "nodes": 3,
       "rootType": "Navigation"
     },
@@ -836,6 +1276,7 @@
       "command": "reload-sets",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 4.577999999994063,
       "nodes": 3,
       "rootType": "Navigation"
     },
@@ -844,6 +1285,7 @@
       "command": "multi-ai-chat",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 5.4337090000044554,
       "nodes": 36,
       "rootType": "Navigation"
     },
@@ -852,6 +1294,7 @@
       "command": "run-presets",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 6.926999999996042,
       "nodes": 7,
       "rootType": "Navigation"
     },
@@ -860,6 +1303,7 @@
       "command": "play-nano-snake",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 16.99754199999734,
       "nodes": 8,
       "rootType": "Navigation"
     },
@@ -868,6 +1312,7 @@
       "command": "nterm-calculator",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 5.7629999999917345,
       "nodes": 39,
       "rootType": "Navigation"
     },
@@ -876,6 +1321,7 @@
       "command": "index",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 5.501499999998487,
       "nodes": 1632,
       "rootType": "Navigation"
     },
@@ -884,6 +1330,7 @@
       "command": "remove-one-thing",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 4.405417000001762,
       "nodes": 2,
       "rootType": "Navigation"
     },
@@ -892,6 +1339,7 @@
       "command": "set-one-thing",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 4.801084000006085,
       "nodes": 7,
       "rootType": "Navigation"
     },
@@ -900,13 +1348,26 @@
       "command": "show-one-thing",
       "mode": "menu-bar",
       "outcome": "rendered",
+      "bundleMs": 4.635500000003958,
       "empty": true
+    },
+    {
+      "extension": "openweathermap",
+      "command": "weather",
+      "mode": "view",
+      "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 100.84141700000328,
+      "nodes": 4,
+      "rootType": "Navigation"
     },
     {
       "extension": "parcel",
       "command": "add-delivery",
       "mode": "view",
       "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 423.54412500000035,
       "nodes": 11,
       "rootType": "Navigation"
     },
@@ -914,18 +1375,18 @@
       "extension": "parcel",
       "command": "my-deliveries",
       "mode": "view",
-      "outcome": "crashed",
-      "exit": "code 1",
-      "error": "API key not found. Please add your Parcel API key in extension preferences.",
-      "logs": [
-        "RUNTIME_ERROR: API key not found. Please add your Parcel API key in extension preferences."
-      ]
+      "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 2743.260875000007,
+      "nodes": 7,
+      "rootType": "Navigation"
     },
     {
       "extension": "pbr-assistant",
       "command": "find-pbr-ior-value",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 5.376250000001164,
       "nodes": 672,
       "rootType": "Navigation"
     },
@@ -933,14 +1394,18 @@
       "extension": "pinch-svg",
       "command": "custom-rectangle",
       "mode": "view",
-      "outcome": "missing-arguments",
-      "reason": "requires launch arguments: height, width; not run"
+      "outcome": "rendered",
+      "placeholders": "arguments",
+      "bundleMs": 4.522916000001715,
+      "nodes": 2,
+      "rootType": "Navigation"
     },
     {
       "extension": "pinch-svg",
       "command": "grid",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 14.800457999997889,
       "nodes": 8,
       "rootType": "Navigation"
     },
@@ -949,6 +1414,7 @@
       "command": "pokemon-tcg-pocket-binder",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 10.620249999992666,
       "nodes": 39,
       "rootType": "Navigation"
     },
@@ -957,6 +1423,7 @@
       "command": "list",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 29.656290999992052,
       "nodes": 3,
       "rootType": "Navigation"
     },
@@ -965,6 +1432,7 @@
       "command": "search-promptty",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 17.094375000000582,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -973,6 +1441,7 @@
       "command": "menu-bar",
       "mode": "menu-bar",
       "outcome": "rendered",
+      "bundleMs": 5.200291000001016,
       "nodes": 3,
       "rootType": "MenuBarExtra"
     },
@@ -981,7 +1450,8 @@
       "command": "start-timer",
       "mode": "view",
       "outcome": "rendered",
-      "nodes": 11,
+      "bundleMs": 16.654249999992317,
+      "nodes": 12,
       "rootType": "Navigation"
     },
     {
@@ -989,6 +1459,7 @@
       "command": "index",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 4.2040410000045085,
       "nodes": 13,
       "rootType": "Navigation"
     },
@@ -997,6 +1468,8 @@
       "command": "search",
       "mode": "view",
       "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 9.345416999989538,
       "nodes": 3,
       "rootType": "Navigation"
     },
@@ -1005,6 +1478,7 @@
       "command": "colors",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 4.494374999994761,
       "nodes": 53,
       "rootType": "Navigation"
     },
@@ -1013,6 +1487,7 @@
       "command": "primitives",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 4.755042000004323,
       "nodes": 265,
       "rootType": "Navigation"
     },
@@ -1021,6 +1496,7 @@
       "command": "themes",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 5.706583000006503,
       "nodes": 429,
       "rootType": "Navigation"
     },
@@ -1029,6 +1505,7 @@
       "command": "random-color",
       "mode": "no-view",
       "outcome": "capability-denied",
+      "bundleMs": 4.664707999996608,
       "path": "clipboard.copy",
       "error": "Capability denied: clipboard.copy"
     },
@@ -1037,6 +1514,7 @@
       "command": "select-color",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 4.849625000002561,
       "nodes": 59,
       "rootType": "Navigation"
     },
@@ -1045,6 +1523,7 @@
       "command": "calculate-ratio",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 5.0622500000026776,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1053,6 +1532,7 @@
       "command": "raytype",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 5.24758299998939,
       "nodes": 15,
       "rootType": "Navigation"
     },
@@ -1061,6 +1541,7 @@
       "command": "almost-maximize",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.687374999994063,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1069,6 +1550,7 @@
       "command": "bottom-center-sixth",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.498583000007784,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1077,6 +1559,7 @@
       "command": "bottom-half",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.753499999991618,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1085,6 +1568,7 @@
       "command": "bottom-left",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.8355409999931,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1093,6 +1577,7 @@
       "command": "bottom-left-sixth",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.697874999998021,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1101,6 +1586,7 @@
       "command": "bottom-right",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.611625000005006,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1109,6 +1595,7 @@
       "command": "bottom-right-sixth",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.555500000002212,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1117,6 +1604,7 @@
       "command": "cascade-all",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.468874999991385,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1125,6 +1613,7 @@
       "command": "center",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.449915999997756,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1133,6 +1622,7 @@
       "command": "center-half",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.583832999996957,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1141,6 +1631,7 @@
       "command": "center-third",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.8790420000004815,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1149,6 +1640,7 @@
       "command": "first-fourth",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 6.429249999986496,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1157,6 +1649,7 @@
       "command": "first-third",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.270875000001979,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1165,6 +1658,7 @@
       "command": "first-three-fourths",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.697250000011991,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1173,6 +1667,7 @@
       "command": "first-two-thirds",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.610957999990205,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1181,6 +1676,7 @@
       "command": "index",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 6.796583000003011,
       "nodes": 326,
       "rootType": "Navigation"
     },
@@ -1189,6 +1685,7 @@
       "command": "larger",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.464749999999185,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1197,6 +1694,7 @@
       "command": "last-fourth",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.282416000001831,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1205,6 +1703,7 @@
       "command": "last-third",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.431749999988824,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1213,6 +1712,7 @@
       "command": "last-three-fourths",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.617499999993015,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1221,6 +1721,7 @@
       "command": "last-two-thirds",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.705958000005921,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1229,6 +1730,7 @@
       "command": "left-half",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.652584000010393,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1237,6 +1739,7 @@
       "command": "maximize",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.757499999992433,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1245,6 +1748,7 @@
       "command": "maximize-height",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.768208000008599,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1253,6 +1757,7 @@
       "command": "move-down",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.753832999995211,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1261,6 +1766,7 @@
       "command": "move-left",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.596208999995724,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1269,6 +1775,7 @@
       "command": "move-right",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.6060839999991,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1277,6 +1784,7 @@
       "command": "move-up",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.791917000009562,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1285,6 +1793,7 @@
       "command": "next-display",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.669041999994079,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1293,6 +1802,7 @@
       "command": "previous-display",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.273082999992766,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1301,6 +1811,7 @@
       "command": "restore",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.785791000002064,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1309,6 +1820,7 @@
       "command": "right-half",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.232959000000847,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1317,6 +1829,7 @@
       "command": "second-fourth",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 6.1111670000100276,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1325,6 +1838,7 @@
       "command": "smaller",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.641208999993978,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1333,6 +1847,7 @@
       "command": "specified",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 8.114375000004657,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1341,6 +1856,7 @@
       "command": "third-fourth",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 6.4650000000110595,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1349,6 +1865,7 @@
       "command": "top-center-sixth",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.360290999989957,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1357,6 +1874,7 @@
       "command": "top-half",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.892207999990205,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1365,6 +1883,7 @@
       "command": "top-left",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.638542000000598,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1373,6 +1892,7 @@
       "command": "top-left-sixth",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.805959000004805,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1381,6 +1901,7 @@
       "command": "top-right",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 5.585750000012922,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1389,6 +1910,7 @@
       "command": "top-right-sixth",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 6.111665999997058,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1397,6 +1919,7 @@
       "command": "authenticate",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 53.057792000006884,
       "nodes": 6,
       "rootType": "Navigation"
     },
@@ -1405,6 +1928,7 @@
       "command": "unlock",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 50.44854100000521,
       "nodes": 3,
       "rootType": "Navigation"
     },
@@ -1413,6 +1937,7 @@
       "command": "rtl-text",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 10.031667000002926,
       "nodes": 9,
       "rootType": "Navigation"
     },
@@ -1421,6 +1946,34 @@
       "command": "index",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 10.85404199999175,
+      "nodes": 7,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "scrapbook",
+      "command": "search-users",
+      "mode": "view",
+      "outcome": "rendered",
+      "bundleMs": 22.523874999998952,
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "scrapbook",
+      "command": "search-users-posts",
+      "mode": "view",
+      "outcome": "rendered",
+      "bundleMs": 22.50029200001154,
+      "nodes": 5,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "scrapbook",
+      "command": "view-recent-posts",
+      "mode": "view",
+      "outcome": "rendered",
+      "bundleMs": 17.224333000005572,
       "nodes": 7,
       "rootType": "Navigation"
     },
@@ -1429,6 +1982,7 @@
       "command": "index",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 14.64100000000326,
       "nodes": 37,
       "rootType": "Navigation"
     },
@@ -1437,6 +1991,7 @@
       "command": "list-spaces",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 4.986833999995724,
       "nodes": 3,
       "rootType": "Navigation"
     },
@@ -1445,7 +2000,26 @@
       "command": "switch-space",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 4.744083999990835,
       "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "splatoon",
+      "command": "splatoon-2-schedules",
+      "mode": "view",
+      "outcome": "rendered",
+      "bundleMs": 2503.417333999998,
+      "nodes": 10,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "splatoon",
+      "command": "splatoon-3-schedules",
+      "mode": "view",
+      "outcome": "rendered",
+      "bundleMs": 2591.5028750000056,
+      "nodes": 10,
       "rootType": "Navigation"
     },
     {
@@ -1453,6 +2027,7 @@
       "command": "departures",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 41.63570900000923,
       "nodes": 5,
       "rootType": "Navigation"
     },
@@ -1461,6 +2036,7 @@
       "command": "local",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 26.59937500000524,
       "nodes": 538,
       "rootType": "Navigation"
     },
@@ -1469,7 +2045,62 @@
       "command": "online",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 6.051582999993116,
       "nodes": 538,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "superwhisper",
+      "command": "copy-last-history",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "bundleMs": 15.845499999995809,
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "superwhisper",
+      "command": "open-settings",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "bundleMs": 4.628582999997889,
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "superwhisper",
+      "command": "paste-last-history",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "bundleMs": 15.98124999999709,
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "superwhisper",
+      "command": "search-history",
+      "mode": "view",
+      "outcome": "rendered",
+      "bundleMs": 2594.8651659999887,
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "superwhisper",
+      "command": "select-mode",
+      "mode": "view",
+      "outcome": "rendered",
+      "bundleMs": 17.069166000001132,
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "superwhisper",
+      "command": "toggle-record",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "bundleMs": 5.376375000007101,
+      "nodes": 4,
       "rootType": "Navigation"
     },
     {
@@ -1477,6 +2108,7 @@
       "command": "japanese-vertical-text",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 5.124500000005355,
       "nodes": 24,
       "rootType": "Navigation"
     },
@@ -1485,6 +2117,7 @@
       "command": "decorate-text",
       "mode": "no-view",
       "outcome": "capability-denied",
+      "bundleMs": 6.682624999986729,
       "path": "command.launch",
       "error": "Capability denied: command.launch"
     },
@@ -1493,6 +2126,7 @@
       "command": "decorate-text-with-font",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 8.029000000009546,
       "nodes": 143,
       "rootType": "Navigation"
     },
@@ -1501,6 +2135,7 @@
       "command": "undecorate-text",
       "mode": "no-view",
       "outcome": "rendered",
+      "bundleMs": 7.224040999994031,
       "nodes": 2,
       "rootType": "Navigation"
     },
@@ -1509,7 +2144,12 @@
       "command": "index",
       "mode": "view",
       "outcome": "rendered",
-      "nodes": 6,
+      "warnings": [
+        "Deprecation warning: value provided is not in a recognized RFC2822 or ISO format. moment construction falls back to js Date(), which is not reliable across all…"
+      ],
+      "placeholders": "preferences",
+      "bundleMs": 17.627249999990454,
+      "nodes": 14,
       "rootType": "Navigation"
     },
     {
@@ -1517,6 +2157,7 @@
       "command": "timezone-buddy",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 15.748875000004773,
       "nodes": 7,
       "rootType": "Navigation"
     },
@@ -1525,6 +2166,7 @@
       "command": "timezone-buddy-menubar",
       "mode": "menu-bar",
       "outcome": "rendered",
+      "bundleMs": 4.778999999994994,
       "nodes": 2,
       "rootType": "MenuBarExtra"
     },
@@ -1533,7 +2175,17 @@
       "command": "index",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 5.854124999998021,
       "nodes": 867,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "trenit",
+      "command": "departures-and-arrivals",
+      "mode": "view",
+      "outcome": "rendered",
+      "bundleMs": 952.3851250000007,
+      "nodes": 4,
       "rootType": "Navigation"
     },
     {
@@ -1541,6 +2193,7 @@
       "command": "index",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 91.64908400000422,
       "nodes": 3,
       "rootType": "Navigation"
     },
@@ -1549,6 +2202,7 @@
       "command": "next-holiday",
       "mode": "no-view",
       "outcome": "completed",
+      "bundleMs": 112.70725000000675,
       "reason": "command mode \"no-view\" completed without rendering a scene"
     },
     {
@@ -1556,7 +2210,68 @@
       "command": "create-prompt",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 20.335917000003974,
       "nodes": 6,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "v0-by-vercel",
+      "command": "create-project",
+      "mode": "view",
+      "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 28.280041999998502,
+      "nodes": 12,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "v0-by-vercel",
+      "command": "manage-profiles",
+      "mode": "view",
+      "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 84.91812500001106,
+      "nodes": 8,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "v0-by-vercel",
+      "command": "new-chat",
+      "mode": "view",
+      "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 28.25220800000534,
+      "nodes": 26,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "v0-by-vercel",
+      "command": "view-billing",
+      "mode": "view",
+      "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 18.273416999989422,
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "v0-by-vercel",
+      "command": "view-chats",
+      "mode": "view",
+      "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 25.52958299999591,
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "v0-by-vercel",
+      "command": "view-projects",
+      "mode": "view",
+      "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 27.06270900000527,
+      "nodes": 4,
       "rootType": "Navigation"
     },
     {
@@ -1564,6 +2279,7 @@
       "command": "search-valkey-commands",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 955.9591660000006,
       "nodes": 3,
       "rootType": "Navigation"
     },
@@ -1572,6 +2288,7 @@
       "command": "index",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 31.668584000013652,
       "nodes": 924,
       "rootType": "Navigation"
     },
@@ -1580,6 +2297,7 @@
       "command": "vocab",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 414.1785419999942,
       "nodes": 3,
       "rootType": "Navigation"
     },
@@ -1588,6 +2306,7 @@
       "command": "my-user",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 17.38795800000662,
       "nodes": 5,
       "rootType": "Navigation"
     },
@@ -1596,6 +2315,7 @@
       "command": "search-user",
       "mode": "view",
       "outcome": "rendered",
+      "bundleMs": 15.873290999996243,
       "nodes": 4,
       "rootType": "Navigation"
     },
@@ -1604,6 +2324,8 @@
       "command": "index",
       "mode": "view",
       "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 79.19133300000976,
       "nodes": 12,
       "rootType": "Navigation"
     },
@@ -1612,7 +2334,19 @@
       "command": "view",
       "mode": "view",
       "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 17.08979199999885,
       "nodes": 6,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "wrike",
+      "command": "search",
+      "mode": "view",
+      "outcome": "rendered",
+      "placeholders": "preferences",
+      "bundleMs": 254.4673749999929,
+      "nodes": 8,
       "rootType": "Navigation"
     }
   ],

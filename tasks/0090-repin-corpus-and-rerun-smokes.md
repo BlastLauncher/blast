@@ -42,8 +42,14 @@ replaced through `corpus:select` and `corpus:select-deps`, never edited.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/3d6d82aa @ ea249ea (handoff corrected by the orchestrator after review)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 50.1s
 Done:
+- Repinned the corpus to upstream bad7de01 and regenerated scans, selections, dependency data and all three smokes.
+- Headless/TUI: 200 → 253 commands (237 rendered, 2 completed, 13 denied, 1 bundle-failed, 0 crashed). Deps: 56 → 52 (51 rendered, 1 denied).
+- Attribution, per the review's per-command comparison: of the 200 commands in both runs, 8 improved and 0 got worse. All 8 come from placeholder inputs (5 arguments, 3 preferences), none from the repin or API 2.10.1. The 53 new commands come from `corpus:select` adding 20 `shared-deps` extensions (80 → 100). The deps change from 56 to 52 is selection churn.
+- Peak .cache 586.4 MB (TUI smoke, budget 600 MB); left at 0 B.
 Not done / risks:
+- `cilium-docs/index` bundle-fails: it declares cheerio ^1.0.0-rc.12 and default-imports it, but the shared cheerio 1.2.0 ESM entry has no default export. Name-only "satisfied" and the major-only version guard miss this (task 0093).
+- `corpus:select` is not stable: the shared-deps stratum re-requests its full quota on every run (task 0093).
 ```

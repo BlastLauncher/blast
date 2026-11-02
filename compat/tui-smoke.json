@@ -1,21 +1,22 @@
 {
-  "commit": "3b812d1e153a1862df29bc8ec34e170c728512ea",
+  "commit": "bad7de0172ce6ea5e721ed919f4e1d7186f74192",
   "width": 100,
   "height": 30,
   "totals": {
-    "rendered": 184,
+    "rendered": 237,
     "placeholder": 0,
     "client-error": 0,
     "empty": 0,
-    "completed": 1,
-    "capability-denied": 7,
-    "bundle-failed": 0,
-    "crashed": 3,
+    "completed": 2,
+    "capability-denied": 13,
+    "bundle-failed": 1,
+    "bundle-timeout": 0,
+    "crashed": 0,
     "network": 0,
     "timeout": 0,
     "unsupported-mode": 0,
     "unsupported-api": 0,
-    "missing-arguments": 5
+    "missing-arguments": 0
   },
   "results": [
     {
@@ -27,11 +28,75 @@
       "rootType": "Navigation"
     },
     {
+      "extension": "advanced-replace",
+      "command": "advanced-replace",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 11,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "advanced-replace",
+      "command": "quick-slot-1",
+      "mode": "no-view",
+      "outcome": "capability-denied",
+      "path": "storage.get",
+      "error": "Capability denied: storage.get"
+    },
+    {
+      "extension": "advanced-replace",
+      "command": "quick-slot-2",
+      "mode": "no-view",
+      "outcome": "capability-denied",
+      "path": "storage.get",
+      "error": "Capability denied: storage.get"
+    },
+    {
+      "extension": "advanced-replace",
+      "command": "quick-slot-3",
+      "mode": "no-view",
+      "outcome": "capability-denied",
+      "path": "storage.get",
+      "error": "Capability denied: storage.get"
+    },
+    {
+      "extension": "advanced-replace",
+      "command": "quick-slot-4",
+      "mode": "no-view",
+      "outcome": "capability-denied",
+      "path": "storage.get",
+      "error": "Capability denied: storage.get"
+    },
+    {
+      "extension": "advanced-replace",
+      "command": "quick-slot-5",
+      "mode": "no-view",
+      "outcome": "capability-denied",
+      "path": "storage.get",
+      "error": "Capability denied: storage.get"
+    },
+    {
+      "extension": "advanced-replace",
+      "command": "quick-slot-6",
+      "mode": "no-view",
+      "outcome": "capability-denied",
+      "path": "storage.get",
+      "error": "Capability denied: storage.get"
+    },
+    {
       "extension": "android-versions",
       "command": "search-android-version",
       "mode": "view",
       "outcome": "rendered",
       "nodes": 273,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "anilist-airing-schedule",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
       "rootType": "Navigation"
     },
     {
@@ -72,6 +137,33 @@
       "mode": "view",
       "outcome": "rendered",
       "nodes": 133,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "bookstack",
+      "command": "search-command",
+      "mode": "view",
+      "placeholders": "preferences",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "bookstack",
+      "command": "show-all-books",
+      "mode": "view",
+      "placeholders": "preferences",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "bookstack",
+      "command": "show-all-shelves",
+      "mode": "view",
+      "placeholders": "preferences",
+      "outcome": "rendered",
+      "nodes": 3,
       "rootType": "Navigation"
     },
     {
@@ -121,6 +213,13 @@
       "outcome": "rendered",
       "nodes": 83,
       "rootType": "Navigation"
+    },
+    {
+      "extension": "cilium-docs",
+      "command": "index",
+      "mode": "view",
+      "outcome": "bundle-failed",
+      "error": "Build failed with 1 error: src/index.tsx:3:7: ERROR: No matching export in \"../../../../node_modules/.bun/cheerio@1.2.0/node_modules/cheerio/dist/esm/index.js\"…"
     },
     {
       "extension": "clocky-time-tracker",
@@ -190,6 +289,7 @@
       "extension": "codepen",
       "command": "create-collection",
       "mode": "view",
+      "placeholders": "preferences",
       "outcome": "rendered",
       "nodes": 12,
       "rootType": "Navigation"
@@ -198,6 +298,7 @@
       "extension": "codepen",
       "command": "create-pen",
       "mode": "view",
+      "placeholders": "preferences",
       "outcome": "rendered",
       "nodes": 19,
       "rootType": "Navigation"
@@ -206,6 +307,7 @@
       "extension": "codepen",
       "command": "search-assets",
       "mode": "view",
+      "placeholders": "preferences",
       "outcome": "rendered",
       "nodes": 11,
       "rootType": "Navigation"
@@ -214,6 +316,7 @@
       "extension": "codepen",
       "command": "search-collections",
       "mode": "view",
+      "placeholders": "preferences",
       "outcome": "rendered",
       "nodes": 11,
       "rootType": "Navigation"
@@ -222,6 +325,7 @@
       "extension": "codepen",
       "command": "search-pens",
       "mode": "view",
+      "placeholders": "preferences",
       "outcome": "rendered",
       "nodes": 23,
       "rootType": "Navigation"
@@ -230,9 +334,34 @@
       "extension": "codepen",
       "command": "upload-asset",
       "mode": "view",
+      "placeholders": "preferences",
       "outcome": "rendered",
       "nodes": 9,
       "rootType": "Navigation"
+    },
+    {
+      "extension": "codex-reset-forecast",
+      "command": "check-reset-forecast",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 11,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "codex-reset-forecast",
+      "command": "reset-history-calendar",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 17,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "codex-reset-forecast",
+      "command": "toggle-reset-forecast-menu-bar",
+      "mode": "menu-bar",
+      "outcome": "rendered",
+      "nodes": 1,
+      "rootType": "MenuBarExtra"
     },
     {
       "extension": "color-studio-picker",
@@ -262,8 +391,10 @@
       "extension": "convert-px-to-vw-vh",
       "command": "height",
       "mode": "no-view",
-      "outcome": "missing-arguments",
-      "reason": "requires launch arguments: height, pixels; not run"
+      "placeholders": "arguments",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
     },
     {
       "extension": "convert-px-to-vw-vh",
@@ -285,13 +416,16 @@
       "extension": "convert-px-to-vw-vh",
       "command": "width",
       "mode": "no-view",
-      "outcome": "missing-arguments",
-      "reason": "requires launch arguments: pixels, width; not run"
+      "placeholders": "arguments",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
     },
     {
       "extension": "devpod",
       "command": "workspaces-manage",
       "mode": "view",
+      "placeholders": "preferences",
       "outcome": "rendered",
       "nodes": 7,
       "rootType": "Navigation"
@@ -310,6 +444,70 @@
       "mode": "view",
       "outcome": "rendered",
       "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "dot-new",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3211,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "douban",
+      "command": "search-books",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "douban",
+      "command": "search-games",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "douban",
+      "command": "search-groups",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "douban",
+      "command": "search-movies",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "douban",
+      "command": "search-music",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "douban",
+      "command": "search-sites",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "douban",
+      "command": "search-users",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 4,
       "rootType": "Navigation"
     },
     {
@@ -393,9 +591,18 @@
       "rootType": "Navigation"
     },
     {
+      "extension": "flighty",
+      "command": "view-flights",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 10,
+      "rootType": "Navigation"
+    },
+    {
       "extension": "google-cloud-run",
       "command": "index",
       "mode": "view",
+      "placeholders": "preferences",
       "outcome": "rendered",
       "nodes": 6,
       "rootType": "Navigation"
@@ -404,6 +611,7 @@
       "extension": "google-maps-search",
       "command": "find",
       "mode": "view",
+      "placeholders": "preferences",
       "outcome": "rendered",
       "nodes": 4,
       "rootType": "Navigation"
@@ -412,13 +620,15 @@
       "extension": "google-maps-search",
       "command": "quickSearchMaps",
       "mode": "no-view",
-      "outcome": "missing-arguments",
-      "reason": "requires launch arguments: query; not run"
+      "placeholders": "both",
+      "outcome": "completed",
+      "reason": "command mode \"no-view\" completed without rendering a scene"
     },
     {
       "extension": "google-maps-search",
       "command": "travelHome",
       "mode": "no-view",
+      "placeholders": "preferences",
       "outcome": "capability-denied",
       "path": "open.url",
       "error": "Capability denied: open.url"
@@ -427,14 +637,48 @@
       "extension": "google-maps-search",
       "command": "travelTo",
       "mode": "view",
+      "placeholders": "preferences",
       "outcome": "rendered",
       "nodes": 18,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "gradle-plugins",
+      "command": "index",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "hetzner",
+      "command": "addProject",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 12,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "hetzner",
+      "command": "manageProject",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 8,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "hetzner",
+      "command": "manageServer",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 7,
       "rootType": "Navigation"
     },
     {
       "extension": "hevy",
       "command": "search-routines",
       "mode": "view",
+      "placeholders": "preferences",
       "outcome": "rendered",
       "nodes": 3,
       "rootType": "Navigation"
@@ -443,6 +687,7 @@
       "extension": "hevy",
       "command": "search-workouts",
       "mode": "view",
+      "placeholders": "preferences",
       "outcome": "rendered",
       "nodes": 3,
       "rootType": "Navigation"
@@ -451,6 +696,7 @@
       "extension": "humaans",
       "command": "book-time",
       "mode": "no-view",
+      "placeholders": "preferences",
       "outcome": "capability-denied",
       "path": "open.url",
       "error": "Capability denied: open.url"
@@ -459,6 +705,7 @@
       "extension": "humaans",
       "command": "clock-in",
       "mode": "no-view",
+      "placeholders": "preferences",
       "outcome": "rendered",
       "nodes": 2,
       "rootType": "Navigation"
@@ -467,6 +714,7 @@
       "extension": "humaans",
       "command": "clock-out",
       "mode": "no-view",
+      "placeholders": "preferences",
       "outcome": "rendered",
       "nodes": 2,
       "rootType": "Navigation"
@@ -475,17 +723,16 @@
       "extension": "humaans",
       "command": "holidays",
       "mode": "view",
-      "outcome": "crashed",
-      "error": "api key missing",
-      "exit": "code 1",
-      "logs": [
-        "RUNTIME_ERROR: api key missing"
-      ]
+      "placeholders": "preferences",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
     },
     {
       "extension": "humaans",
       "command": "me-time-away",
       "mode": "no-view",
+      "placeholders": "preferences",
       "outcome": "capability-denied",
       "path": "open.url",
       "error": "Capability denied: open.url"
@@ -494,12 +741,10 @@
       "extension": "humaans",
       "command": "people",
       "mode": "view",
-      "outcome": "crashed",
-      "error": "api key missing",
-      "exit": "code 1",
-      "logs": [
-        "RUNTIME_ERROR: api key missing"
-      ]
+      "placeholders": "preferences",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
     },
     {
       "extension": "hyrule-compendium-search",
@@ -513,8 +758,10 @@
       "extension": "hyrule-compendium-search",
       "command": "getEntry",
       "mode": "view",
-      "outcome": "missing-arguments",
-      "reason": "requires launch arguments: entryName; not run"
+      "placeholders": "arguments",
+      "outcome": "rendered",
+      "nodes": 10,
+      "rootType": "Navigation"
     },
     {
       "extension": "input-source-switcher",
@@ -557,6 +804,22 @@
       "rootType": "Navigation"
     },
     {
+      "extension": "jisho",
+      "command": "history",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "jisho",
+      "command": "search",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
       "extension": "kaalam",
       "command": "index",
       "mode": "view",
@@ -573,9 +836,19 @@
       "error": "Capability denied: clipboard.paste"
     },
     {
+      "extension": "kagi-search",
+      "command": "index",
+      "mode": "view",
+      "placeholders": "preferences",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
       "extension": "keeper-security",
       "command": "generate-passphrase",
       "mode": "view",
+      "placeholders": "preferences",
       "outcome": "rendered",
       "nodes": 9,
       "rootType": "Navigation"
@@ -584,6 +857,7 @@
       "extension": "keeper-security",
       "command": "generate-password",
       "mode": "view",
+      "placeholders": "preferences",
       "outcome": "rendered",
       "nodes": 14,
       "rootType": "Navigation"
@@ -592,6 +866,7 @@
       "extension": "keeper-security",
       "command": "generate-password-quick",
       "mode": "view",
+      "placeholders": "preferences",
       "outcome": "rendered",
       "nodes": 2,
       "rootType": "Navigation"
@@ -600,6 +875,7 @@
       "extension": "keeper-security",
       "command": "my-vault",
       "mode": "view",
+      "placeholders": "preferences",
       "outcome": "rendered",
       "nodes": 31,
       "rootType": "Navigation"
@@ -608,6 +884,7 @@
       "extension": "keygen",
       "command": "api-tokens",
       "mode": "view",
+      "placeholders": "preferences",
       "outcome": "rendered",
       "nodes": 3,
       "rootType": "Navigation"
@@ -616,6 +893,7 @@
       "extension": "keygen",
       "command": "api-usage",
       "mode": "no-view",
+      "placeholders": "preferences",
       "outcome": "rendered",
       "nodes": 3,
       "rootType": "Navigation"
@@ -624,6 +902,7 @@
       "extension": "keygen",
       "command": "environments",
       "mode": "view",
+      "placeholders": "preferences",
       "outcome": "rendered",
       "nodes": 3,
       "rootType": "Navigation"
@@ -632,6 +911,7 @@
       "extension": "keygen",
       "command": "licenses",
       "mode": "view",
+      "placeholders": "preferences",
       "outcome": "rendered",
       "nodes": 3,
       "rootType": "Navigation"
@@ -640,6 +920,7 @@
       "extension": "keygen",
       "command": "policies",
       "mode": "view",
+      "placeholders": "preferences",
       "outcome": "rendered",
       "nodes": 3,
       "rootType": "Navigation"
@@ -648,6 +929,7 @@
       "extension": "keygen",
       "command": "products",
       "mode": "view",
+      "placeholders": "preferences",
       "outcome": "rendered",
       "nodes": 3,
       "rootType": "Navigation"
@@ -656,6 +938,7 @@
       "extension": "keygen",
       "command": "users",
       "mode": "view",
+      "placeholders": "preferences",
       "outcome": "rendered",
       "nodes": 3,
       "rootType": "Navigation"
@@ -741,49 +1024,71 @@
       "rootType": "Navigation"
     },
     {
+      "extension": "mbta-tracker",
+      "command": "browse-stops",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 13,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "mbta-tracker",
+      "command": "view-favorites",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
       "extension": "mealie",
       "command": "add-to-shopping-list",
       "mode": "view",
+      "placeholders": "preferences",
       "outcome": "rendered",
-      "nodes": 7,
+      "nodes": 3,
       "rootType": "Navigation"
     },
     {
       "extension": "mealie",
       "command": "import-recipe",
       "mode": "view",
+      "placeholders": "preferences",
       "outcome": "rendered",
-      "nodes": 7,
+      "nodes": 3,
       "rootType": "Navigation"
     },
     {
       "extension": "mealie",
       "command": "meal-plan",
       "mode": "view",
+      "placeholders": "preferences",
       "outcome": "rendered",
-      "nodes": 7,
+      "nodes": 59,
       "rootType": "Navigation"
     },
     {
       "extension": "mealie",
       "command": "search-recipes",
       "mode": "view",
+      "placeholders": "preferences",
       "outcome": "rendered",
-      "nodes": 7,
+      "nodes": 3,
       "rootType": "Navigation"
     },
     {
       "extension": "mealie",
       "command": "shopping-lists",
       "mode": "view",
+      "placeholders": "preferences",
       "outcome": "rendered",
-      "nodes": 7,
+      "nodes": 3,
       "rootType": "Navigation"
     },
     {
       "extension": "melanite-search",
       "command": "search-files",
       "mode": "view",
+      "placeholders": "preferences",
       "outcome": "rendered",
       "nodes": 7,
       "rootType": "Navigation"
@@ -907,9 +1212,19 @@
       "outcome": "rendered"
     },
     {
+      "extension": "openweathermap",
+      "command": "weather",
+      "mode": "view",
+      "placeholders": "preferences",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
       "extension": "parcel",
       "command": "add-delivery",
       "mode": "view",
+      "placeholders": "preferences",
       "outcome": "rendered",
       "nodes": 11,
       "rootType": "Navigation"
@@ -918,12 +1233,10 @@
       "extension": "parcel",
       "command": "my-deliveries",
       "mode": "view",
-      "outcome": "crashed",
-      "error": "API key not found. Please add your Parcel API key in extension preferences.",
-      "exit": "code 1",
-      "logs": [
-        "RUNTIME_ERROR: API key not found. Please add your Parcel API key in extension preferences."
-      ]
+      "placeholders": "preferences",
+      "outcome": "rendered",
+      "nodes": 7,
+      "rootType": "Navigation"
     },
     {
       "extension": "pbr-assistant",
@@ -937,8 +1250,10 @@
       "extension": "pinch-svg",
       "command": "custom-rectangle",
       "mode": "view",
-      "outcome": "missing-arguments",
-      "reason": "requires launch arguments: height, width; not run"
+      "placeholders": "arguments",
+      "outcome": "rendered",
+      "nodes": 2,
+      "rootType": "Navigation"
     },
     {
       "extension": "pinch-svg",
@@ -985,7 +1300,7 @@
       "command": "start-timer",
       "mode": "view",
       "outcome": "rendered",
-      "nodes": 11,
+      "nodes": 12,
       "rootType": "Navigation"
     },
     {
@@ -1000,6 +1315,7 @@
       "extension": "quick-jump",
       "command": "search",
       "mode": "view",
+      "placeholders": "preferences",
       "outcome": "rendered",
       "nodes": 3,
       "rootType": "Navigation"
@@ -1429,6 +1745,30 @@
       "rootType": "Navigation"
     },
     {
+      "extension": "scrapbook",
+      "command": "search-users",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "scrapbook",
+      "command": "search-users-posts",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 5,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "scrapbook",
+      "command": "view-recent-posts",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 7,
+      "rootType": "Navigation"
+    },
+    {
       "extension": "sf-symbols-search",
       "command": "index",
       "mode": "view",
@@ -1453,6 +1793,22 @@
       "rootType": "Navigation"
     },
     {
+      "extension": "splatoon",
+      "command": "splatoon-2-schedules",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 10,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "splatoon",
+      "command": "splatoon-3-schedules",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 10,
+      "rootType": "Navigation"
+    },
+    {
       "extension": "stockholm-public-transport",
       "command": "departures",
       "mode": "view",
@@ -1474,6 +1830,54 @@
       "mode": "view",
       "outcome": "rendered",
       "nodes": 538,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "superwhisper",
+      "command": "copy-last-history",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "superwhisper",
+      "command": "open-settings",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "superwhisper",
+      "command": "paste-last-history",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "superwhisper",
+      "command": "search-history",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "superwhisper",
+      "command": "select-mode",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 3,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "superwhisper",
+      "command": "toggle-record",
+      "mode": "no-view",
+      "outcome": "rendered",
+      "nodes": 4,
       "rootType": "Navigation"
     },
     {
@@ -1512,9 +1916,13 @@
       "extension": "time-until-i-do",
       "command": "index",
       "mode": "view",
+      "placeholders": "preferences",
       "outcome": "rendered",
-      "nodes": 6,
-      "rootType": "Navigation"
+      "nodes": 14,
+      "rootType": "Navigation",
+      "warnings": [
+        "Deprecation warning: value provided is not in a recognized RFC2822 or ISO format. moment construction falls back to js Date(), which is not reliable across all…"
+      ]
     },
     {
       "extension": "timezone-buddy",
@@ -1541,6 +1949,14 @@
       "rootType": "Navigation"
     },
     {
+      "extension": "trenit",
+      "command": "departures-and-arrivals",
+      "mode": "view",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
       "extension": "uk-bank-holidays",
       "command": "index",
       "mode": "view",
@@ -1561,6 +1977,60 @@
       "mode": "view",
       "outcome": "rendered",
       "nodes": 6,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "v0-by-vercel",
+      "command": "create-project",
+      "mode": "view",
+      "placeholders": "preferences",
+      "outcome": "rendered",
+      "nodes": 12,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "v0-by-vercel",
+      "command": "manage-profiles",
+      "mode": "view",
+      "placeholders": "preferences",
+      "outcome": "rendered",
+      "nodes": 8,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "v0-by-vercel",
+      "command": "new-chat",
+      "mode": "view",
+      "placeholders": "preferences",
+      "outcome": "rendered",
+      "nodes": 26,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "v0-by-vercel",
+      "command": "view-billing",
+      "mode": "view",
+      "placeholders": "preferences",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "v0-by-vercel",
+      "command": "view-chats",
+      "mode": "view",
+      "placeholders": "preferences",
+      "outcome": "rendered",
+      "nodes": 4,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "v0-by-vercel",
+      "command": "view-projects",
+      "mode": "view",
+      "placeholders": "preferences",
+      "outcome": "rendered",
+      "nodes": 4,
       "rootType": "Navigation"
     },
     {
@@ -1607,6 +2077,7 @@
       "extension": "workflowy-inbox",
       "command": "index",
       "mode": "view",
+      "placeholders": "preferences",
       "outcome": "rendered",
       "nodes": 12,
       "rootType": "Navigation"
@@ -1615,8 +2086,18 @@
       "extension": "workflowy-inbox",
       "command": "view",
       "mode": "view",
+      "placeholders": "preferences",
       "outcome": "rendered",
       "nodes": 6,
+      "rootType": "Navigation"
+    },
+    {
+      "extension": "wrike",
+      "command": "search",
+      "mode": "view",
+      "placeholders": "preferences",
+      "outcome": "rendered",
+      "nodes": 8,
       "rootType": "Navigation"
     }
   ],

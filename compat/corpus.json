@@ -1,6 +1,6 @@
 {
   "repository": "https://github.com/raycast/extensions.git",
-  "commit": "3b812d1e153a1862df29bc8ec34e170c728512ea",
+  "commit": "bad7de0172ce6ea5e721ed919f4e1d7186f74192",
   "curated": [
     "fibonacci-sequence",
     "ohmyzsh-git-alias",
@@ -81,7 +81,27 @@
     "parcel",
     "keygen",
     "hyrule-compendium-search",
-    "stockholm-public-transport"
+    "stockholm-public-transport",
+    "bookstack",
+    "cilium-docs",
+    "anilist-airing-schedule",
+    "mbta-tracker",
+    "dot-new",
+    "advanced-replace",
+    "wrike",
+    "v0-by-vercel",
+    "codex-reset-forecast",
+    "hetzner",
+    "trenit",
+    "superwhisper",
+    "scrapbook",
+    "kagi-search",
+    "openweathermap",
+    "flighty",
+    "gradle-plugins",
+    "douban",
+    "splatoon",
+    "jisho"
   ],
   "selection": {
     "criteria": {
@@ -202,13 +222,7 @@
         "fix-helper",
         "text-decorator",
         "cangjie",
-        "input-source-switcher"
-      ],
-      "grid": [],
-      "menu-bar": [],
-      "action-variants": [],
-      "selection-apis": [],
-      "shared-deps": [
+        "input-source-switcher",
         "keeper-security",
         "bugmenot",
         "ring-intercom",
@@ -229,9 +243,35 @@
         "keygen",
         "hyrule-compendium-search",
         "stockholm-public-transport"
+      ],
+      "grid": [],
+      "menu-bar": [],
+      "action-variants": [],
+      "selection-apis": [],
+      "shared-deps": [
+        "bookstack",
+        "cilium-docs",
+        "anilist-airing-schedule",
+        "mbta-tracker",
+        "dot-new",
+        "advanced-replace",
+        "wrike",
+        "v0-by-vercel",
+        "codex-reset-forecast",
+        "hetzner",
+        "trenit",
+        "superwhisper",
+        "scrapbook",
+        "kagi-search",
+        "openweathermap",
+        "flighty",
+        "gradle-plugins",
+        "douban",
+        "splatoon",
+        "jisho"
       ]
     },
     "scanned": 768,
-    "eligible": 496
+    "eligible": 489
   }
 }

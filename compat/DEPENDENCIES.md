@@ -10,15 +10,15 @@ package; a scope-shaped tsconfig alias (`@lib/utils`) is, because the
 bundler cannot resolve it either.
 
 Source: [dependencies.json](dependencies.json), from the same scan as
-[raycast-usage.json](raycast-usage.json) at commit `3b812d1e153a1862df29bc8ec34e170c728512ea`
-(3443 extensions).
+[raycast-usage.json](raycast-usage.json) at commit `bad7de0172ce6ea5e721ed919f4e1d7186f74192`
+(3493 extensions).
 
 ## Summary
 
-- 1573 of 3443 extensions need nothing beyond the baseline set.
-- 2009 of 3443 extensions are satisfied by the current shared allowlist
+- 1607 of 3493 extensions need nothing beyond the baseline set.
+- 2042 of 3493 extensions are satisfied by the current shared allowlist
   (`@raycast/api`, `@raycast/utils`, `axios`, `cheerio`, `cross-fetch`, `date-fns`, `dayjs`, `fuse.js`, `lodash`, `moment`, `nanoid`, `node-fetch`, `node-html-markdown`, `react`, `uuid`, `zod`).
-- 1427 packages are declared or imported by at least one extension.
+- 1436 packages are declared or imported by at least one extension.
 
 ## Cumulative curve
 
@@ -26,11 +26,11 @@ How many extensions are satisfied once the top N packages by imports are provide
 
 | Packages provided | Extensions satisfied |
 | --- | --- |
-| 0 | 1573 |
-| 10 | 1986 |
-| 20 | 2139 |
-| 30 | 2205 |
-| 50 | 2306 |
+| 0 | 1607 |
+| 10 | 2017 |
+| 20 | 2171 |
+| 30 | 2239 |
+| 50 | 2344 |
 
 ## Top 60 packages
 
@@ -39,52 +39,55 @@ Ordered by imported extensions (desc), then name. Declared counts
 
 | Package | Imported | Declared | Top major |
 | --- | --- | --- | --- |
-| `node-fetch` | 331 | 366 | 3 (95%) |
-| `axios` | 200 | 211 | 1 (87%) |
+| `node-fetch` | 328 | 363 | 3 (94%) |
+| `axios` | 199 | 210 | 1 (87%) |
 | `date-fns` | 135 | 141 | 4 (53%) |
-| `run-applescript` | 96 | 111 | 6 (69%) |
+| `run-applescript` | 95 | 110 | 6 (69%) |
 | `lodash` | 72 | 81 | 4 (100%) |
-| `zod` | 64 | 69 | 4 (51%) |
+| `zod` | 66 | 71 | 4 (51%) |
 | `cheerio` | 62 | 64 | 1 (98%) |
-| `dayjs` | 59 | 61 | 1 (100%) |
-| `fuse.js` | 49 | 51 | 7 (67%) |
+| `dayjs` | 60 | 62 | 1 (100%) |
+| `fuse.js` | 50 | 52 | 7 (67%) |
 | `uuid` | 49 | 50 | 11 (42%) |
 | `nanoid` | 48 | 52 | 5 (48%) |
 | `cross-fetch` | 46 | 46 | 4 (78%) |
+| `node-html-markdown` | 37 | 40 | 1 (73%) |
 | `moment` | 36 | 39 | 2 (100%) |
-| `node-html-markdown` | 36 | 39 | 1 (74%) |
+| `execa` | 35 | 35 | 9 (54%) |
 | `rss-parser` | 35 | 35 | 3 (100%) |
-| `execa` | 34 | 34 | 9 (53%) |
 | `got` | 33 | 39 | 12 (46%) |
 | `turndown` | 33 | 34 | 7 (100%) |
 | `fs-extra` | 32 | 34 | 11 (88%) |
-| `openai` | 29 | 29 | 4 (66%) |
+| `openai` | 29 | 29 | 4 (59%) |
 | `plist` | 22 | 22 | 3 (95%) |
 | `swr` | 22 | 23 | 2 (70%) |
 | `raycast-cross-extension` | 21 | 23 | 0 (100%) |
+| `yaml` | 21 | 21 | 2 (100%) |
+| `@chrismessina/raycast-logger` | 20 | 20 | 1 (100%) |
 | `fast-xml-parser` | 20 | 20 | 5 (75%) |
 | `form-data` | 20 | 26 | 4 (100%) |
-| `yaml` | 20 | 20 | 2 (100%) |
 | `algoliasearch` | 19 | 19 | 4 (95%) |
+| `chrono-node` | 19 | 19 | 2 (100%) |
 | `ai` | 18 | 18 | 7 (67%) |
-| `chrono-node` | 18 | 18 | 2 (100%) |
+| `filesize` | 18 | 18 | 11 (83%) |
 | `javascript-time-ago` | 18 | 18 | 2 (100%) |
 | `js-yaml` | 18 | 16 | 4 (100%) |
-| `@chrismessina/raycast-logger` | 17 | 17 | 1 (100%) |
 | `@tanstack/react-query` | 17 | 19 | 5 (100%) |
-| `filesize` | 17 | 17 | 11 (82%) |
-| `open` | 17 | 23 | 8 (78%) |
+| `open` | 16 | 22 | 8 (77%) |
 | `qrcode` | 16 | 16 | 1 (100%) |
-| `node-html-parser` | 14 | 17 | 6 (47%) |
+| `marked` | 13 | 13 | 15 (31%) |
+| `node-html-parser` | 13 | 16 | 6 (50%) |
+| `@chrismessina/raycast-kit` | 12 | 12 | 0 (100%) |
 | `file-type` | 12 | 13 | 21 (38%) |
 | `jimp` | 12 | 14 | 1 (79%) |
-| `marked` | 12 | 12 | 15 (25%) |
+| `proper-lockfile` | 12 | 12 | 4 (100%) |
 | `tildify` | 12 | 12 | 3 (100%) |
 | `xml2js` | 12 | 13 | 0 (100%) |
 | `@supabase/supabase-js` | 11 | 11 | 2 (100%) |
 | `raycast-toolkit` | 11 | 11 | 1 (100%) |
 | `fast-glob` | 10 | 9 | 3 (100%) |
 | `gray-matter` | 10 | 10 | 4 (100%) |
+| `linkedom` | 10 | 10 | 0 (100%) |
 | `lodash.groupby` | 10 | 10 | 4 (100%) |
 | `luxon` | 10 | 10 | 3 (100%) |
 | `mime-types` | 10 | 10 | 2 (60%) |
@@ -92,11 +95,8 @@ Ordered by imported extensions (desc), then name. Declared counts
 | `@ai-sdk/openai-compatible` | 9 | 9 | 3 (67%) |
 | `@apollo/client` | 9 | 9 | 3 (100%) |
 | `@modelcontextprotocol/sdk` | 9 | 9 | 1 (100%) |
-| `csv-parse` | 9 | 9 | 5 (78%) |
+| `csv-parse` | 9 | 9 | 5 (67%) |
 | `domhandler` | 9 | 0 | — |
 | `json2md` | 9 | 10 | 2 (70%) |
-| `linkedom` | 9 | 9 | 0 (100%) |
 | `pinyin-pro` | 9 | 9 | 3 (100%) |
-| `proper-lockfile` | 9 | 9 | 4 (100%) |
-| `sql.js` | 9 | 9 | 1 (100%) |
 
