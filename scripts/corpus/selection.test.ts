@@ -509,23 +509,7 @@ test("repeated selection over the same pool is identical", () => {
   expect(new Set(first.curated).size).toBe(80);
 });
 
-test("selection is idempotent when the kept set is already larger than a quota", () => {
-  const pool = Array.from({ length: 3 }, (_, index) =>
-    candidate({
-      name: `shared-${index}`,
-      stratum: "none",
-      features: ["shared-deps"],
-      sharedPackages: ["axios"],
-    }),
-  );
-  const quotas = quotasFor({ "shared-deps": 2 });
-  const first = selectCurated(["shared-0", "shared-1"], pool, quotas);
-  const second = selectCurated(first.curated, pool, quotas);
-  expect(second.curated).toEqual(first.curated);
-  expect(second.missing["shared-deps"]).toBe(0);
-});
-
-test("selection is idempotent when its complete output is kept", () => {
+test("selection is idempotent when its complete output is fed back as kept", () => {
   const pool = Array.from({ length: 2 }, (_, index) => candidate({ name: `form-${index}` })).concat(
     Array.from({ length: 2 }, (_, index) =>
       candidate({ name: `shared-${index}`, stratum: "none", features: ["shared-deps"] }),
@@ -533,8 +517,50 @@ test("selection is idempotent when its complete output is kept", () => {
   );
   const quotas = quotasFor({ form: 3, "shared-deps": 3 });
   const first = selectCurated([], pool, quotas);
-  const second = selectCurated(first.curated, pool, quotas);
+  const second = selectCurated(first.curated, pool, quotas, strataMembers(first));
   expect(second.curated).toEqual(first.curated);
+  expect(
+    PICK_STRATA.map((stratum) => [
+      [...first.keptByStratum[stratum], ...first.picks[stratum]],
+      [...second.keptByStratum[stratum], ...second.picks[stratum]],
+    ]),
+  ).toEqual(
+    PICK_STRATA.map((stratum) => [
+      [...first.keptByStratum[stratum], ...first.picks[stratum]],
+      [...first.keptByStratum[stratum], ...first.picks[stratum]],
+    ]),
+  );
+  expect(second.missing).toEqual(first.missing);
+  expect(strataMembers(second)).toEqual(strataMembers(first));
+});
+
+test("underfilled idempotence assigns a multi-feature kept pick to one stratum", () => {
+  const pool = [
+    candidate({
+      name: "form-and-shared",
+      features: ["shared-deps"],
+      sharedPackages: ["axios"],
+    }),
+  ];
+  const quotas = quotasFor({ form: 2, "shared-deps": 2 });
+  const first = selectCurated([], pool, quotas);
+  const second = selectCurated(first.curated, pool, quotas, strataMembers(first));
+  expect(second.curated).toEqual(first.curated);
+  expect(
+    PICK_STRATA.map((stratum) => [
+      [...first.keptByStratum[stratum], ...first.picks[stratum]],
+      [...second.keptByStratum[stratum], ...second.picks[stratum]],
+    ]),
+  ).toEqual(
+    PICK_STRATA.map((stratum) => [
+      [...first.keptByStratum[stratum], ...first.picks[stratum]],
+      [...first.keptByStratum[stratum], ...first.picks[stratum]],
+    ]),
+  );
+  expect(second.missing).toEqual(first.missing);
+  expect(strataMembers(first)).toEqual(strataMembers(second));
+  expect(strataMembers(second).form).toEqual(["form-and-shared"]);
+  expect(strataMembers(second)["shared-deps"]).toEqual([]);
 });
 
 test("the additive strata fill after the exclusive ones and never reuse a pick", () => {

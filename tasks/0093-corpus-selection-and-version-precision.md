@@ -65,13 +65,13 @@ change because of item 3, say so in Handoff instead of rerunning.
 ## Handoff
 
 ```
-Branch/commit: t3/corpus-selection-version-precision-1 @ 077d599
-Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 50.3s
+Branch/commit: t3/fix-corpus-selection-precision @ dd5f9d4
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 49.6s
 Done:
-- Made curated selection idempotent by accounting for kept members in every stratum; added repeated-selection tests including an underfilled pool.
-- `bun run corpus:select` kept the current 100-extension `compat/corpus.json` byte-identical (SHA-256 `76b6b39746e270b0f5c31327576f2f5bc44205fb419d6cd4f2a1a29130d9ffae`).
-- Made shared dependency satisfaction pre-release-aware. Manifest scan changed the count from 2042/3493 to 1939/3493, moving 103 extensions out of satisfied; regenerated `compat/dependencies.json` and `compat/DEPENDENCIES.md`.
-- Preserved the identifying file, package, and quoted export name in long esbuild errors; smoke and TUI report builders now record `peakBytes`.
-- Kept `.cache` at 89 MB and did not run any smoke command.
-Not done / risks: Existing `compat/smoke.json` and `compat/tui-smoke.json` were not rerun, per task scope, so their new `peakBytes` fields and any compacted esbuild details will appear on the next smoke run.
+- Replaced regex dependency checks with semver comparator-set checks, including prerelease-only ranges, 0.x minor lines, npm aliases, and non-semver satisfaction rules; warnings remain safe for every specifier form.
+- Made sticky selection idempotent with persisted prior strata, single-stratum kept accounting, corrected offline quota accounting, and unconditional deterministic pin writes; repeated and underfilled tests cover the behavior.
+- `bun run corpus:select` kept 100 curated extensions. The rerun is byte-identical; `compat/corpus.json` differs from `main` only in refreshed diagnostics (`scanned 768/489` to `64/43`) because fixed sticky strata are recognized in the first batch.
+- The manifest scan keeps the shared satisfaction count at 1939/3493, moving 103 extensions out of satisfied; regenerated dependency curve data and documented that hypothetical curve packages do not apply pinned-version checks.
+- Long esbuild export errors retain the package, quoted export name, and source location; `buildReport` and `buildTuiReport` include `peakBytes` with tests. `.cache` is 89 MB.
+Not done / risks: Existing `compat/smoke.json` and `compat/tui-smoke.json` were not rerun, per task scope, so their new `peakBytes` fields and compacted export details will appear on the next smoke run.
 ```

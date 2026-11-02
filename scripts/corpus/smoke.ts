@@ -345,10 +345,20 @@ export function compactLine(text: string, width = 160): string {
   if (exportError && line.length > width) {
     const file = exportError[1] ?? "";
     const name = exportError[2] ?? "";
-    const suffix = ` for import "${name}"`;
-    const prefix = 'No matching export in "';
-    const available = Math.max(0, width - prefix.length - suffix.length - 2);
-    return `${prefix}${file.slice(-available)}"${suffix}`.slice(0, width);
+    const packageName =
+      /(?:^|\/)node_modules\/(?:((?:@[^/]+\/)?[^/]+))/.exec(file)?.[1] ?? file.split("/").at(-1);
+    const location =
+      /((?:^|\/)src\/[^\s"']+:\d+:\d+)/.exec(line)?.[1]?.replace(/^.*\/(src\/)/, "$1") ??
+      /((?:^|\/)\w+\/[^\s"']+:\d+:\d+)/.exec(line)?.[1]?.replace(/^.*\//, "") ??
+      undefined;
+    const concise = `No matching export "${name}" in ${packageName ?? "package"}${
+      location ? ` at ${location}` : ""
+    }`;
+    if (concise.length <= width) return concise;
+    const suffix = ` export "${name}" in ${packageName ?? "package"}`;
+    if (location && suffix.length + location.length + 4 <= width)
+      return `…${location}${suffix}`.slice(0, width);
+    return `${concise.slice(0, Math.max(0, width - 1))}…`;
   }
   return line.length > width ? `${line.slice(0, width - 1)}…` : line;
 }

@@ -15,7 +15,12 @@ export const COMMIT_SHA = /^[0-9a-f]{40}$/;
 /** Every extension manifest: the smallest checkout that still maps the corpus. */
 export const MANIFEST_PATTERN = "/extensions/*/package.json";
 
-export type CorpusPin = { repository: string; commit: string; curated: string[] };
+export type CorpusPin = {
+  repository: string;
+  commit: string;
+  curated: string[];
+  selection?: { strata?: Record<string, string[]> };
+};
 export type FetchOptions = { extensions: string[]; curated: boolean };
 
 export function isValidExtensionName(name: string): boolean {
@@ -50,7 +55,27 @@ export function parsePin(value: unknown): CorpusPin {
   const names = curated.map((name) => requireName(name, "corpus pin: curated"));
   const duplicate = names.find((name, index) => names.indexOf(name) !== index);
   if (duplicate !== undefined) throw new Error(`corpus pin: curated lists ${duplicate} twice`);
-  return { repository, commit, curated: names };
+  const selection = source.selection;
+  const strata =
+    typeof selection === "object" && selection !== null && !Array.isArray(selection)
+      ? (selection as Record<string, unknown>).strata
+      : undefined;
+  const validStrata =
+    typeof strata === "object" && strata !== null && !Array.isArray(strata)
+      ? Object.fromEntries(
+          Object.entries(strata).flatMap(([stratum, members]) =>
+            Array.isArray(members)
+              ? [[stratum, members.filter((name): name is string => typeof name === "string")]]
+              : [],
+          ),
+        )
+      : undefined;
+  return {
+    repository,
+    commit,
+    curated: names,
+    ...(validStrata === undefined ? {} : { selection: { strata: validStrata } }),
+  };
 }
 
 export function readPin(root: string): CorpusPin {

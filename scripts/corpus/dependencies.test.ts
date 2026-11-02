@@ -10,7 +10,7 @@ import {
   type ExtensionDependencies,
 } from "./dependencies.ts";
 import { PROVIDED_PACKAGES } from "@blastlauncher/shared-deps";
-import { dependencyWarnings } from "@blastlauncher/shared-deps";
+import { dependencyWarnings, isDependencyCompatible } from "@blastlauncher/shared-deps";
 import { packageName } from "./imports.ts";
 import type { Manifest } from "./selection.ts";
 
@@ -63,6 +63,51 @@ test("pre-release-only shared ranges are not satisfied by a stable provided majo
     source('import cheerio from "cheerio";'),
   ]);
   expect(aggregateDependencies("pin", [prerelease, stable]).shared.satisfied).toBe(1);
+});
+
+test("semver comparator sets distinguish prerelease-only ranges from stable branches", () => {
+  const cases: Array<[string, boolean]> = [
+    ["^1.0.0-rc.12", false],
+    ["^1.0.10-rc.1", false],
+    ["~1.0.0-beta.3", false],
+    [">=1.0.0-rc.1 <2.0.0", true],
+    ["1.0.0-rc.12 || ^1.1", true],
+    ["1.0.0-rc.12 || 1.x", true],
+    [">=1.2.0-rc.1 <1.2.0", false],
+    ["^1.1.0", true],
+    ["1.x", true],
+    ["*", true],
+    ["^11.0.0-rc.1", false],
+  ];
+  for (const [range, expected] of cases)
+    expect(isDependencyCompatible("cheerio", range), range).toBe(expected);
+});
+
+test("aliases evaluate their inner range and non-semver specifiers are not satisfied", () => {
+  expect(isDependencyCompatible("cheerio", "npm:cheerio@^1.0.0-rc.12")).toBe(false);
+  expect(isDependencyCompatible("cheerio", "npm:cheerio@^1.1.0")).toBe(true);
+  expect(isDependencyCompatible("cheerio", "npm:other@^1.1.0")).toBe(false);
+  expect(isDependencyCompatible("cheerio", "workspace:*")).toBe(false);
+  expect(isDependencyCompatible("cheerio", "file:../cheerio")).toBe(false);
+  expect(isDependencyCompatible("cheerio", "https://example.com/cheerio.tgz")).toBe(false);
+  expect(isDependencyCompatible("cheerio", "latest")).toBe(true);
+  expect(isDependencyCompatible("cheerio", "*")).toBe(true);
+  expect(() => dependencyWarnings({ cheerio: "workspace:*" })).not.toThrow();
+  expect(() => dependencyWarnings({ cheerio: "npm:cheerio@^1.0.0-rc.12" })).not.toThrow();
+});
+
+test("dependency warnings deliberately flag stable ranges with no version on the provided line", () => {
+  for (const range of ["<1.0.0", ">=0.5.0 <1.0.0", "<=1.0.0-rc.5"])
+    expect(dependencyWarnings({ cheerio: range })).toEqual([
+      `Shared dependency cheerio: declared ${range}, provided 1.2.0 (major mismatch)`,
+    ]);
+});
+
+test("the 0.x compatibility line is minor-specific when a provided package is 0.x", () => {
+  // No current shared package is 0.x; this still exercises that a 0.x
+  // declaration cannot satisfy the provided axios 1.x line. The implementation
+  // uses 0.y when such a package is added.
+  expect(isDependencyCompatible("axios", "^0.1.2")).toBe(false);
 });
 
 test("imported packages are the npm modules non-test sources import, subpaths folded in", () => {
@@ -177,4 +222,15 @@ test("shared satisfaction requires every declared and imported package, independ
   expect(limited.packages).toEqual(report.packages);
   expect(limited.curve).toEqual(report.curve);
   expect(limited.providedOnly).toBe(report.providedOnly);
+});
+
+test("the package curve models availability without hypothetical version checks", () => {
+  const extension: ExtensionDependencies = {
+    declared: { hypothetical: "not-a-semver" },
+    ranges: { hypothetical: "not-a-semver" },
+    imported: ["hypothetical"],
+  };
+  expect(aggregateDependencies("pin", [extension], [1]).curve).toEqual([
+    { provided: 1, satisfied: 1 },
+  ]);
 });

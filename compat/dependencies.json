@@ -26,19 +26,19 @@
   "curve": [
     {
       "provided": 10,
-      "satisfied": 1933
+      "satisfied": 2017
     },
     {
       "provided": 20,
-      "satisfied": 2061
+      "satisfied": 2171
     },
     {
       "provided": 30,
-      "satisfied": 2124
+      "satisfied": 2239
     },
     {
       "provided": 50,
-      "satisfied": 2218
+      "satisfied": 2344
     }
   ],
   "packages": [

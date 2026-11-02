@@ -23,14 +23,16 @@ Source: [dependencies.json](dependencies.json), from the same scan as
 ## Cumulative curve
 
 How many extensions are satisfied once the top N packages by imports are provided.
+The curve models package availability only; it does not apply pinned-version checks to
+hypothetical packages. Pinned versions are checked in the shared allowlist count above.
 
 | Packages provided | Extensions satisfied |
 | --- | --- |
 | 0 | 1607 |
-| 10 | 1933 |
-| 20 | 2061 |
-| 30 | 2124 |
-| 50 | 2218 |
+| 10 | 2017 |
+| 20 | 2171 |
+| 30 | 2239 |
+| 50 | 2344 |
 
 ## Top 60 packages
 

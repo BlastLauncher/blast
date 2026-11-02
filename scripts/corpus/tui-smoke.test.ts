@@ -172,6 +172,10 @@ test("warnings attach to results and count in the detail column", () => {
   expect(renderTuiMarkdown(report)).toContain("1 nodes, root List; 1 warning(s)");
 });
 
+test("buildTuiReport records the cache peak when supplied", () => {
+  expect(buildTuiReport("pin", [], 100, 30, [], 5678).peakBytes).toBe(5678);
+});
+
 test("the report totals every outcome and sorts the table by command", () => {
   const report = buildTuiReport(
     "3b812d1e153a1862df29bc8ec34e170c728512ea",

@@ -157,7 +157,8 @@ export function aggregateDependencies(
         [...need].every(
           (name) =>
             provided.includes(name) &&
-            isDependencyCompatible(name, extensions[index]?.ranges?.[name]),
+            (extensions[index]?.ranges?.[name] === undefined ||
+              isDependencyCompatible(name, extensions[index]?.ranges?.[name])),
         ),
       ).length,
     },
@@ -165,13 +166,7 @@ export function aggregateDependencies(
       const available = new Set(byImports.slice(0, count));
       return {
         provided: count,
-        satisfied: needs.filter((need, index) =>
-          [...need].every(
-            (name) =>
-              available.has(name) &&
-              isDependencyCompatible(name, extensions[index]?.ranges?.[name]),
-          ),
-        ).length,
+        satisfied: needs.filter((need) => [...need].every((name) => available.has(name))).length,
       };
     }),
     packages,
@@ -215,6 +210,8 @@ export function renderDependenciesMd(dependencies: Dependencies): string {
     "## Cumulative curve",
     "",
     "How many extensions are satisfied once the top N packages by imports are provided.",
+    "The curve models package availability only; it does not apply pinned-version checks to",
+    "hypothetical packages. Pinned versions are checked in the shared allowlist count above.",
     "",
     "| Packages provided | Extensions satisfied |",
     "| --- | --- |",

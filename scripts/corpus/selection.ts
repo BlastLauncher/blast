@@ -299,11 +299,28 @@ function emptyLists<K extends string>(keys: readonly K[]): Record<K, string[]> {
 }
 
 /** How many picks a stratum still needs after accounting for kept candidates. */
-function room(stratum: PickStratum, kept: number, keptInStratum: number, quotas: Quotas): number {
-  // The original ten are known to be list-only. For every other stratum,
-  // count only kept candidates that are present in the analyzed pool; this
-  // makes a selection idempotent when its own output is fed back as `kept`.
-  return quotas[stratum] - (stratum === "list-only" ? kept : keptInStratum);
+function room(stratum: PickStratum, keptInStratum: number, quotas: Quotas): number {
+  return quotas[stratum] - keptInStratum;
+}
+
+/** Assign each kept extension to the first stratum the pick loop would use. */
+function keptByStratum(
+  kept: string[],
+  order: Candidate[],
+  prior?: Partial<Record<PickStratum, readonly string[]>>,
+): Record<PickStratum, string[]> {
+  const assigned = emptyLists(PICK_STRATA);
+  const byName = new Map(order.map((candidate) => [candidate.name, candidate]));
+  for (const name of kept) {
+    const candidate = byName.get(name);
+    const priorStratum = PICK_STRATA.find((stratum) => prior?.[stratum]?.includes(name));
+    const stratum =
+      priorStratum ??
+      PICK_STRATA.find((item) => candidate !== undefined && matchesStratum(candidate, item)) ??
+      "list-only";
+    assigned[stratum].push(name);
+  }
+  return assigned;
 }
 
 /**
@@ -375,6 +392,8 @@ export type Selection = {
   curated: string[];
   /** How many picks each stratum is still short of its quota. */
   missing: Record<PickStratum, number>;
+  /** Kept members assigned to the first stratum they would have been picked for. */
+  keptByStratum: Record<PickStratum, string[]>;
 };
 
 /** The plain rank-order pick every stratum but `shared-deps` uses. */
@@ -437,18 +456,17 @@ export function selectCurated(
   kept: string[],
   candidates: Candidate[],
   quotas: Quotas = DEFAULT_QUOTAS,
+  priorStrata?: Partial<Record<PickStratum, readonly string[]>>,
 ): Selection {
   const order = ranked(candidates.filter(eligible));
   const picks = emptyLists(PICK_STRATA);
   const missing = emptyCounts(PICK_STRATA);
+  const keptMembers = keptByStratum(kept, order, priorStrata);
   // The exclusive strata are disjoint, so excluding earlier picks leaves their
   // selection exactly as it was before the additive strata existed.
   const taken = new Set(kept);
   for (const stratum of PICK_STRATA) {
-    const keptInStratum = order.filter(
-      (candidate) => kept.includes(candidate.name) && matchesStratum(candidate, stratum),
-    ).length;
-    const needed = room(stratum, kept.length, keptInStratum, quotas);
+    const needed = room(stratum, keptMembers[stratum].length, quotas);
     const matched =
       stratum === "shared-deps"
         ? pickSharedDeps(order, taken, needed)
@@ -464,15 +482,15 @@ export function selectCurated(
     picks,
     curated: [...kept, ...PICK_STRATA.flatMap((stratum) => picks[stratum])],
     missing,
+    keptByStratum: keptMembers,
   };
 }
 
 /** Every member of each stratum, including the kept extensions. */
 export function strataMembers(selection: Selection): Record<PickStratum, string[]> {
   const members = emptyLists(PICK_STRATA);
-  for (const stratum of STRATA) members[stratum] = [...selection.picks[stratum]];
-  members["list-only"] = [...selection.kept, ...selection.picks["list-only"]];
-  for (const stratum of FEATURE_STRATA) members[stratum] = [...selection.picks[stratum]];
+  for (const stratum of PICK_STRATA)
+    members[stratum] = [...selection.keptByStratum[stratum], ...selection.picks[stratum]];
   return members;
 }
 
@@ -507,13 +525,15 @@ export function offlineQuotasMet(
   kept: string[],
   candidates: Candidate[],
   quotas: Quotas = DEFAULT_QUOTAS,
+  priorStrata?: Partial<Record<PickStratum, readonly string[]>>,
 ): boolean {
   const exclusive = capacity(candidates, false);
   const features = featureCapacity(candidates, false);
+  const keptMembers = keptByStratum(kept, ranked(candidates.filter(eligible)), priorStrata);
   return PICK_STRATA.every((stratum) =>
     isFeatureStratum(stratum)
-      ? features[stratum] >= room(stratum, kept.length, 0, quotas)
-      : exclusive[stratum] >= room(stratum, kept.length, 0, quotas),
+      ? features[stratum] >= room(stratum, keptMembers[stratum].length, quotas)
+      : exclusive[stratum] >= room(stratum, keptMembers[stratum].length, quotas),
   );
 }
 

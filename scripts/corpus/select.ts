@@ -119,13 +119,13 @@ function main(): void {
     }
     // Keep reading while any quota would have to fall back on a network user:
     // the fingerprints of the extensions that need one are the report's data.
-    if (offlineQuotasMet(previousCurated, analyzed, STICKY_QUOTAS)) break;
+    if (offlineQuotasMet(previousCurated, analyzed, STICKY_QUOTAS, pin.selection?.strata)) break;
   }
 
   git(repo, ["sparse-checkout", "set", "--no-cone", ...buildPatterns()]);
   guard("reset");
 
-  const selection = selectCurated(previousCurated, analyzed, STICKY_QUOTAS);
+  const selection = selectCurated(previousCurated, analyzed, STICKY_QUOTAS, pin.selection?.strata);
   const short = Object.entries(selection.missing).filter(([, count]) => count > 0);
   if (short.length > 0) {
     throw new Error(
@@ -138,15 +138,10 @@ function main(): void {
   const stats = { scanned: analyzed.length, eligible: analyzed.filter(eligible).length };
   const corpusPath = join(root, "compat/corpus.json");
   const rendered = renderPin(pin, selection, stats);
-  // A sticky rerun can have no new picks while its diagnostic strata are
-  // represented by the existing pin. Preserve those bytes so selecting the
-  // same corpus pin is a true no-op.
-  if (
-    readFileSync(corpusPath, "utf8") !== rendered &&
-    selection.curated.join("\n") !== pin.curated.join("\n")
-  ) {
-    writeFileSync(corpusPath, rendered);
-  }
+  // Always record the current scan diagnostics and strata. The selection is
+  // deterministic, so a sticky rerun remains byte-identical once its output
+  // has converged.
+  if (readFileSync(corpusPath, "utf8") !== rendered) writeFileSync(corpusPath, rendered);
   const counts = PICK_STRATA.map((stratum) => `${stratum} ${selection.picks[stratum].length}`).join(
     ", ",
   );
