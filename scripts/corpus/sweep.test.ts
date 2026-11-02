@@ -109,3 +109,41 @@ test("report groups normalized failures and capabilities without command rows", 
   expect(JSON.parse(renderSweepJson(report)).results).toBeUndefined();
   expect(renderSweepMarkdown(report)).toContain("Projected full population");
 });
+
+test("reports redact the repository root and per-command scratch names", () => {
+  const scratchPath = `${process.cwd()}/.cache/sweep/scratch/unit-abc123/bundle.mjs`;
+  const report = buildSweepReport({
+    commit: "pin",
+    seed: "0",
+    selectedExtensions: 1,
+    results: [{ ...result("a", "crashed"), error: `Cannot read ${scratchPath}:3` }],
+    peakBytes: 1,
+    wallMs: 1,
+  });
+  const text = renderSweepJson(report) + renderSweepMarkdown(report);
+  expect(text).not.toContain(process.cwd());
+  expect(text).not.toContain("unit-abc123");
+  expect(text).toContain("<scratch>/bundle.mjs");
+});
+
+// Distinct failure rows of a given width, for the size-limit test.
+const rows = (count: number, width: number) =>
+  Array.from({ length: count }, (_, index) => ({
+    signature: `cause ${String.fromCharCode(97 + (index % 26))} ${"x".repeat(width)} ${index}`,
+    commands: 1,
+  }));
+
+test("report renderers refuse output over their size limits", () => {
+  const base = buildSweepReport({
+    commit: "pin",
+    seed: "0",
+    selectedExtensions: 1,
+    results: [],
+    peakBytes: 1,
+    wallMs: 1,
+  });
+  expect(() => renderSweepMarkdown({ ...base, failures: rows(400, 10) })).toThrow(
+    "exceeds 300 lines",
+  );
+  expect(() => renderSweepJson({ ...base, failures: rows(2_000, 120) })).toThrow("exceeds 200 KB");
+});

@@ -45,6 +45,18 @@ function executablePath(command: string, path = process.env.PATH): string {
   return existing(command);
 }
 
+/**
+ * The real binary behind a command. Version-manager shims (mise, asdf) are
+ * symlinks to the manager itself, so realpath alone finds the wrong file and
+ * the shim would then read its config from home, which the sandbox denies.
+ * Asking the runtime for its own execPath, outside the sandbox, avoids both.
+ */
+export function runtimeBinary(command: string): string {
+  const printed = spawnSync(command, ["-p", "process.execPath"], { encoding: "utf8" });
+  const path = printed.status === 0 ? printed.stdout.trim() : "";
+  return path && isAbsolute(path) ? existing(path) : executablePath(command);
+}
+
 function installationRoot(binary: string): string {
   return dirname(dirname(binary));
 }
@@ -149,8 +161,8 @@ export function runSandboxed(options: {
   const root = options.root ?? process.cwd();
   const command = options.bun ?? process.env.BUN ?? "bun";
   const node = options.node ?? process.env.NODE ?? "node";
-  const resolvedCommand = executablePath(command);
-  const resolvedNode = executablePath(node);
+  const resolvedCommand = runtimeBinary(command);
+  const resolvedNode = runtimeBinary(node);
   const args = [options.script, ...options.args];
   const commandArgs = options.unsandboxed
     ? args
@@ -168,7 +180,13 @@ export function runSandboxed(options: {
   return new Promise((resolvePromise, reject) => {
     const child = spawn(executable, commandArgs, {
       cwd: root,
-      env: sweepEnvironment(options.scratch),
+      env: {
+        ...sweepEnvironment(options.scratch),
+        // Only the real runtimes, never an inherited shim directory.
+        PATH: [
+          ...new Set([dirname(resolvedNode), dirname(resolvedCommand), "/usr/bin", "/bin"]),
+        ].join(":"),
+      },
       stdio: ["ignore", "pipe", "pipe"],
     });
     let stdout = "";

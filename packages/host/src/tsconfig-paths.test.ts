@@ -1,5 +1,5 @@
 import { afterEach, expect, test } from "bun:test";
-import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { cp, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -143,6 +143,34 @@ test("an extends target outside the extension is skipped with a warning, aliases
     outDir: join(dir, "out"),
   });
   expect(await readFile(bundled.entry, "utf8")).toContain("aliased");
+});
+
+test("a relative or symlinked tsconfig outside the extension is never read", async () => {
+  const base = await mkdtemp(join(tmpdir(), "blast-tsconfig-escape-"));
+  directories.push(base);
+  const dir = join(base, "ext");
+  await mkdir(join(dir, "src"), { recursive: true });
+  await writeFile(
+    join(base, "outside.json"),
+    JSON.stringify({ compilerOptions: { paths: { evil: ["./src/evil.ts"] } } }),
+  );
+  await writeFile(join(dir, "src/evil.ts"), "export const evil = true;");
+  await writeFile(
+    join(dir, "tsconfig.json"),
+    JSON.stringify({ extends: "../outside.json", compilerOptions: { baseUrl: "." } }),
+  );
+  const relativeEscape = (await loadTsconfigAliases(dir))!;
+  expect(await relativeEscape.resolve("evil")).toBeUndefined();
+  expect(relativeEscape.warnings).toEqual([
+    'Blast ignored tsconfig "../outside.json": outside the extension, so its path aliases are off',
+  ]);
+  await rm(join(dir, "tsconfig.json"));
+  await symlink(join(base, "outside.json"), join(dir, "tsconfig.json"));
+  const symlinked = (await loadTsconfigAliases(dir))!;
+  expect(await symlinked.resolve("evil")).toBeUndefined();
+  expect(symlinked.warnings).toEqual([
+    'Blast ignored tsconfig "tsconfig.json": outside the extension, so its path aliases are off',
+  ]);
 });
 
 test("paths without baseUrl resolve targets against the tsconfig directory", async () => {

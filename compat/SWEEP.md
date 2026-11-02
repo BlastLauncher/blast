@@ -1,9 +1,9 @@
 # Corpus sweep report
 
 Corpus commit `bad7de0172ce6ea5e721ed919f4e1d7186f74192`; seed `0091`; 100 selected extensions and 262 commands (262 command records).
-Peak .cache 450.9 MB; wall time 83 s; 189.96 commands/min; 0 resumed command(s).
+Peak .cache 450.9 MB; wall time 96 s; 163.04 commands/min; 0 resumed command(s).
 Rendered means a first scene was published; it does not assert that the command works with live data or actions.
-Projected full population: 0.4 h; projected peak 450.9 MB.
+Projected full population: 0.5 h; projected peak 450.9 MB.
 
 ## Outcomes
 
@@ -27,8 +27,8 @@ Projected full population: 0.4 h; projected peak 450.9 MB.
 - 2 command(s): missing dependencies: swift:..
 - 1 command(s): Capability denied: command.launch
 - 1 command(s): Capability denied: storage.get
-- 1 command(s): ENOENT: no such file or directory, open '<home>/.t3/worktrees/blast/t3-ce053793/.cache/sweep/scratch/unit-2YwWFW/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json'
-- 1 command(s): ENOENT: no such file or directory, scandir '<home>/.t3/worktrees/blast/t3-ce053793/.cache/sweep/scratch/unit-tOe657/Desktop'
+- 1 command(s): ENOENT: no such file or directory, open '<scratch>/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json'
+- 1 command(s): ENOENT: no such file or directory, scandir '<scratch>/Desktop'
 - 1 command(s): Preference "executablePath" needs a scalar "default"
 - 1 command(s): request to https://api.urbandictionary.com/v0/words_of_the_day failed, reason: getaddrinfo ENOTFOUND api.urbandictionary.com
 

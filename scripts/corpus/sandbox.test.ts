@@ -4,7 +4,13 @@ import { rm } from "node:fs/promises";
 import net from "node:net";
 import { tmpdir } from "node:os";
 import { join, relative, resolve as resolvePath } from "node:path";
-import { runSandboxed, sandboxAvailable, sandboxProfile, sweepEnvironment } from "./sandbox.ts";
+import {
+  runtimeBinary,
+  runSandboxed,
+  sandboxAvailable,
+  sandboxProfile,
+  sweepEnvironment,
+} from "./sandbox.ts";
 
 async function removeTemp(path: string): Promise<void> {
   const root = resolvePath(tmpdir());
@@ -152,3 +158,9 @@ test.skipIf(!sandboxAvailable())(
     await removeTemp(scratch);
   },
 );
+
+test("runtime binaries resolve past version-manager shims", () => {
+  const node = runtimeBinary("node");
+  expect(node).not.toContain("/shims/");
+  expect(node.split("/").at(-1)).toBe("node");
+});

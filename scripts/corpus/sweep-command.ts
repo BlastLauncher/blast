@@ -1,5 +1,6 @@
-// One sandboxed sweep unit. The parent process never bundles or launches an
-// extension itself; this helper does both while inheriting the Seatbelt profile.
+// One sandboxed sweep unit. The parent bundles outside Seatbelt (bundling is
+// confined to the extension's own files); this helper launches the bundled
+// runtime under the Seatbelt profile it inherits.
 import { readFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";

@@ -1,6 +1,7 @@
 // Pure planning and aggregation for the sandboxed corpus sweep. The runner
 // owns git, processes and files; keeping these rules here makes selection,
 // resume and report-size guarantees deterministic and testable.
+import { realpathSync } from "node:fs";
 import { homedir } from "node:os";
 import { OUTCOMES, sanitizeReportText, type CommandResult, type Outcome } from "./smoke.ts";
 
@@ -175,8 +176,16 @@ function ranked(values: Iterable<string>): RankedCause[] {
     .toSorted((a, b) => b.commands - a.commands || a.signature.localeCompare(b.signature));
 }
 
+// The repository root (often a worktree under home) and per-command scratch
+// names must not reach committed reports; only the home prefix was redacted.
+const repoRoots: Array<[string, string]> = [
+  ...new Set([process.cwd(), realpathSync(process.cwd())]),
+].map((root) => [root, "<repo>"]);
+
 function sanitizeText(value: string): string {
-  return sanitizeReportText(value, [], homedir()).replace(/\/Users\/[^/\s]+/g, "<home>");
+  return sanitizeReportText(value, repoRoots, homedir())
+    .replace(/\/Users\/[^/\s]+/g, "<home>")
+    .replace(/<repo>\/\.cache\/sweep\/scratch\/[^/\s]+/g, "<scratch>");
 }
 
 function sanitizeResult(result: CommandResult): CommandResult {
