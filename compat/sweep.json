@@ -18,12 +18,68 @@
   },
   "failures": [
     {
-      "signature": "bundle-failed",
-      "commands": 104
+      "signature": "missing dependencies: run-applescript",
+      "commands": 19
+    },
+    {
+      "signature": "missing dependencies: #",
+      "commands": 13
+    },
+    {
+      "signature": "missing dependencies: @chrismessina/raycast-kit, rust:..",
+      "commands": 7
+    },
+    {
+      "signature": "missing dependencies: qs",
+      "commands": 6
+    },
+    {
+      "signature": "missing dependencies: swr",
+      "commands": 5
     },
     {
       "signature": "Command failed: chmod +x <path> chmod: Unable to change file mode on <path> Operation not permitted",
       "commands": 4
+    },
+    {
+      "signature": "missing dependencies: execa, p-queue, valibot",
+      "commands": 4
+    },
+    {
+      "signature": "missing dependencies: @supernovaio/supernova-sdk, tinycolor2",
+      "commands": 3
+    },
+    {
+      "signature": "missing dependencies: form-data",
+      "commands": 3
+    },
+    {
+      "signature": "missing dependencies: js-yaml",
+      "commands": 3
+    },
+    {
+      "signature": "missing dependencies: @googleapis/calendar",
+      "commands": 2
+    },
+    {
+      "signature": "missing dependencies: cjk-conv",
+      "commands": 2
+    },
+    {
+      "signature": "missing dependencies: css.gg",
+      "commands": 2
+    },
+    {
+      "signature": "missing dependencies: es-toolkit, semver, ts-pattern",
+      "commands": 2
+    },
+    {
+      "signature": "missing dependencies: say",
+      "commands": 2
+    },
+    {
+      "signature": "missing dependencies: semver",
+      "commands": 2
     },
     {
       "signature": "Capability denied: clipboard.copy",
@@ -39,6 +95,122 @@
     },
     {
       "signature": "ENOENT: no such file or directory, open '<path>",
+      "commands": 1
+    },
+    {
+      "signature": "missing dependencies: @hyzyla/pdfium, image-size, pngjs, run-jxa",
+      "commands": 1
+    },
+    {
+      "signature": "missing dependencies: @mem-labs/mem-node",
+      "commands": 1
+    },
+    {
+      "signature": "missing dependencies: @supernovaio/supernova-sdk, color-namer, tinycolor2",
+      "commands": 1
+    },
+    {
+      "signature": "missing dependencies: @supernovaio/supernova-sdk, parse-url, tinycolor2",
+      "commands": 1
+    },
+    {
+      "signature": "missing dependencies: @supernovaio/supernova-sdk, run-applescript, tinycolor2",
+      "commands": 1
+    },
+    {
+      "signature": "missing dependencies: @tanstack/query-async-storage-persister, @tanstack/react-query, @tanstack/react-query-persist-client, chartjs-to-image, fastest-levenshtein",
+      "commands": 1
+    },
+    {
+      "signature": "missing dependencies: bignumber.js, nzh",
+      "commands": 1
+    },
+    {
+      "signature": "missing dependencies: bplist-parser",
+      "commands": 1
+    },
+    {
+      "signature": "missing dependencies: change-case, got, sort-keys",
+      "commands": 1
+    },
+    {
+      "signature": "missing dependencies: csv-parse, say",
+      "commands": 1
+    },
+    {
+      "signature": "missing dependencies: culori",
+      "commands": 1
+    },
+    {
+      "signature": "missing dependencies: culori, json5, style-dictionary",
+      "commands": 1
+    },
+    {
+      "signature": "missing dependencies: expand-tilde, plist",
+      "commands": 1
+    },
+    {
+      "signature": "missing dependencies: extract-zip, proper-lockfile, sanitize-filename, tar",
+      "commands": 1
+    },
+    {
+      "signature": "missing dependencies: glob, gray-matter",
+      "commands": 1
+    },
+    {
+      "signature": "missing dependencies: glob, gray-matter, open",
+      "commands": 1
+    },
+    {
+      "signature": "missing dependencies: got",
+      "commands": 1
+    },
+    {
+      "signature": "missing dependencies: iconv-lite",
+      "commands": 1
+    },
+    {
+      "signature": "missing dependencies: jalali-moment",
+      "commands": 1
+    },
+    {
+      "signature": "missing dependencies: jimp, pixelmatch",
+      "commands": 1
+    },
+    {
+      "signature": "missing dependencies: laravel-echo, pusher, pusher-js",
+      "commands": 1
+    },
+    {
+      "signature": "missing dependencies: ldapts",
+      "commands": 1
+    },
+    {
+      "signature": "missing dependencies: lodash.unescape",
+      "commands": 1
+    },
+    {
+      "signature": "missing dependencies: node-html-parser",
+      "commands": 1
+    },
+    {
+      "signature": "missing dependencies: open",
+      "commands": 1
+    },
+    {
+      "signature": "missing dependencies: pinyin-pro",
+      "commands": 1
+    },
+    {
+      "signature": "missing dependencies: semver, ts-pattern",
+      "commands": 1
+    },
+    {
+      "signature": "missing dependencies: simple-icons",
+      "commands": 1
+    },
+    {
+      "signature": "missing dependencies: turndown",
       "commands": 1
     }
   ],

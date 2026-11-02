@@ -52,6 +52,7 @@ test("report groups normalized failures and capabilities without command rows", 
     results: [
       result("a", "crashed"),
       { ...result("b", "crashed"), error: "/Users/test/tmp/file.ts:42" },
+      { ...result("missing", "bundle-failed"), missing: ["zod", "axios"] },
       result("c", "capability-denied", "open.url"),
       result("d", "unsupported-api", "AI.ask"),
     ],
@@ -60,6 +61,9 @@ test("report groups normalized failures and capabilities without command rows", 
     fullPopulation: 1_939,
   });
   expect(report.totals.crashed).toBe(2);
+  expect(
+    report.failures.some((row) => row.signature.includes("missing dependencies: zod, axios")),
+  ).toBe(true);
   expect(report.commandsPerMinute).toBeGreaterThan(0);
   expect(report.capabilities).toEqual([
     { signature: "AI.ask", commands: 1 },

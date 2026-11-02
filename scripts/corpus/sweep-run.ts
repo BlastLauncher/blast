@@ -6,6 +6,7 @@ import { mkdtemp } from "node:fs/promises";
 import { join } from "node:path";
 import { fetchBatch } from "./batch.ts";
 import {
+  batchSize,
   checkDiskBudget,
   CORPUS_DIR,
   directoryBytes,
@@ -86,6 +87,17 @@ async function readManifests(root: string): Promise<string[]> {
     .filter((entry) => existsSync(join(extensionsDir, entry.name, "package.json")))
     .map((entry) => entry.name)
     .toSorted();
+}
+
+async function satisfiedPopulation(root: string, fallback: number): Promise<number> {
+  try {
+    const value = JSON.parse(await readFile(join(root, "compat/dependencies.json"), "utf8")) as {
+      shared?: { satisfied?: unknown };
+    };
+    return typeof value.shared?.satisfied === "number" ? value.shared.satisfied : fallback;
+  } catch {
+    return fallback;
+  }
 }
 
 async function runOneSandboxed(
@@ -173,15 +185,15 @@ async function main(): Promise<void> {
     peakBytes = Math.max(peakBytes, fetchBatch([], root));
     const allNames = await readManifests(root);
     selected = selectExtensions(allNames, options.limit, options.seed);
-    const fullPopulation = allNames.length;
+    const fullPopulation = await satisfiedPopulation(root, allNames.length);
     console.log(
       `corpus:sweep: ${selected.length}/${fullPopulation} extensions, ${options.jobs} jobs`,
     );
-    const batchSize = Math.max(1, Math.min(20, Math.floor(maxMb / 15) || 1));
-    for (let offset = 0; offset < selected.length; offset += batchSize) {
+    const size = batchSize(maxMb);
+    for (let offset = 0; offset < selected.length; offset += size) {
       if (interrupted) throw new Error("sweep interrupted");
       ensureDisk(root, maxMb);
-      const batch = selected.slice(offset, offset + batchSize);
+      const batch = selected.slice(offset, offset + size);
       peakBytes = Math.max(peakBytes, fetchBatch(batch, root));
       ensureDisk(root, maxMb);
       const tasks: Array<{ extension: string; command: string }> = [];
@@ -228,7 +240,7 @@ async function main(): Promise<void> {
     peakBytes,
     wallMs: performance.now() - started,
     resumed: resumedCount,
-    fullPopulation: 1939,
+    fullPopulation: await satisfiedPopulation(root, selected.length),
   });
   await writeFile(join(root, SWEEP_JSON), renderSweepJson(report));
   await writeFile(join(root, SWEEP_MD), renderSweepMarkdown(report));
