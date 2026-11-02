@@ -69,7 +69,6 @@ function firstSceneOrExit(session: Session, timeoutMs: number, mode: string): Pr
       settled = true;
       clearTimeout(timer);
       unsubscribe?.();
-      unsubscribeLog?.();
       resolve({ probe, ...(scene === undefined ? {} : { scene }) });
     };
     const timer = setTimeout(() => finish({ kind: "timeout", timeoutMs }), timeoutMs);
@@ -137,6 +136,7 @@ async function probePrimaryAction(
       settled = true;
       clearTimeout(timer);
       unsubscribe?.();
+      unsubscribeLog?.();
       const result = classifyPrimaryAction(observation);
       resolve({
         ...result,

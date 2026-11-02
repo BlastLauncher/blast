@@ -69,10 +69,26 @@
       "commands": 1
     }
   ],
-  "peakBytes": 472819528,
-  "wallMs": 96420.83125,
-  "commandsPerMinute": 163.0353088249278,
+  "peakBytes": 472837320,
+  "wallMs": 87542.82579100001,
+  "commandsPerMinute": 179.5692549099337,
   "resumed": 0,
-  "projectedFullRunMinutes": 31.159998632291668,
-  "projectedFullRunPeakBytes": 472819528
+  "projectedFullRunMinutes": 28.29092320145817,
+  "projectedFullRunPeakBytes": 472837320,
+  "primaryActionProbe": {
+    "commands": 247,
+    "totals": {
+      "navigated": 3,
+      "scene-changed": 51,
+      "capability-requested": 6,
+      "no-primary-action": 187,
+      "no-op": 0,
+      "crashed": 0,
+      "timeout": 0
+    },
+    "crashCauses": [],
+    "renderOnlyCrashRate": 0,
+    "actionCrashRate": 0,
+    "addedRuntimeMsPerCommand": 2.7335696963562732
+  }
 }

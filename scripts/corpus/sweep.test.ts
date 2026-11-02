@@ -53,7 +53,11 @@ test("primary action probe classifications are deterministic", () => {
     outcome: "scene-changed",
   });
   expect(classifyPrimaryAction({ primary: true, events: 1, capability: "clipboard.copy" })).toEqual(
-    { outcome: "capability-requested", capability: "clipboard.copy" },
+    {
+      outcome: "capability-requested",
+      capability: "clipboard.copy",
+      error: "Capability denied: clipboard.copy",
+    },
   );
   expect(classifyPrimaryAction({ primary: true, events: 0 })).toEqual({ outcome: "no-op" });
   expect(

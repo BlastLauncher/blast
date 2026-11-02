@@ -1,7 +1,7 @@
 # Corpus sweep report
 
 Corpus commit `bad7de0172ce6ea5e721ed919f4e1d7186f74192`; seed `0091`; 100 selected extensions and 262 commands (262 command records).
-Peak .cache 450.9 MB; wall time 96 s; 163.04 commands/min; 0 resumed command(s).
+Peak .cache 450.9 MB; wall time 88 s; 179.57 commands/min; 0 resumed command(s).
 Rendered means a first scene was published; it does not assert that the command works with live data or actions.
 Projected full population: 0.5 h; projected peak 450.9 MB.
 
@@ -37,5 +37,22 @@ Projected full population: 0.5 h; projected peak 450.9 MB.
 - 2 command(s): clipboard.copy
 - 1 command(s): command.launch
 - 1 command(s): storage.get
+
+## Primary action probe
+
+247 command(s) dispatched through client-core; a denied capability counts as working as far as a headless run can show.
+Render-only crash rate 0.0%; after the primary action 0.0%; added runtime 2.7 ms/command.
+
+- navigated: 3 command(s)
+- scene-changed: 51 command(s)
+- capability-requested: 6 command(s)
+- no-primary-action: 187 command(s)
+- no-op: 0 command(s)
+- crashed: 0 command(s)
+- timeout: 0 command(s)
+
+### Primary action crash causes
+
+- none
 
 The per-command log remains in `.cache/sweep/results.jsonl` and is intentionally not committed.

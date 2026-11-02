@@ -444,7 +444,11 @@ export type PrimaryActionObservation = {
 export function classifyPrimaryAction(observation: PrimaryActionObservation): PrimaryActionResult {
   if (!observation.primary) return { outcome: "no-primary-action" };
   if (observation.capability)
-    return { outcome: "capability-requested", capability: observation.capability };
+    return {
+      outcome: "capability-requested",
+      capability: observation.capability,
+      error: `Capability denied: ${observation.capability}`,
+    };
   if (observation.exit) {
     const { code, signal, error } = observation.exit;
     if (code === 0 && signal === null && !error) return { outcome: "no-op" };

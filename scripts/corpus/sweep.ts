@@ -288,9 +288,11 @@ export function buildSweepReport(input: {
             }),
           ),
           renderOnlyCrashRate:
-            results.length === 0
+            actionResults.length === 0
               ? 0
-              : results.filter((result) => result.outcome === "crashed").length / results.length,
+              : results.filter(
+                  (result) => result.action !== undefined && result.outcome === "crashed",
+                ).length / actionResults.length,
           actionCrashRate:
             actionResults.length === 0
               ? 0
