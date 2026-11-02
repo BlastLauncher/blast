@@ -42,8 +42,8 @@ replaced through `corpus:select` and `corpus:select-deps`, never edited.
 ## Handoff
 
 ```
-Branch/commit: t3/3d6d82aa @ <pending commit>
-Verify: pending (run after generated reports and cache cleanup)
+Branch/commit: t3/3d6d82aa @ d4a3930 (amended below for this handoff update)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 50.1s
 Done:
 - Repinned `compat/corpus.json` and all generated corpus reports to upstream commit `bad7de0172ce6ea5e721ed919f4e1d7186f74192`; reran `corpus:scan`, `corpus:select`, and `corpus:select-deps`.
 - Reran all three smokes with the existing placeholder-input behavior. Headless and TUI each covered 253 commands; deps covered 52 commands across 25 installs.
