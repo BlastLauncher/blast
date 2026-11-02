@@ -79,7 +79,7 @@ Done:
 - Moved esbuild bundling outside Seatbelt into per-command scratch; only the bundled extension runtime is launched under the strict profile. Added sandbox-denied classification for denied child binaries and chmod failures.
 - Reused the 0093 dependency scan's named satisfied population (1,939 extensions), excluded `#imports` from missing-package results, and added report redaction for home paths and token-shaped text.
 - Added macOS containment probes with unsandboxed contrasts, plus pure tests for exact population selection, resume, grouping, report limits and redaction.
-- Pilot: `bun run corpus:sweep --limit 100 --seed 0091 --jobs 4`; 262 commands: rendered 246, capability-denied 4, sandbox-denied 6, bundle-failed 3, crashed 2, network 1; 253.02 commands/min; peak `.cache` 450.9 MB; final `.cache` 60 KB; projected full-population duration 20.1 minutes and peak 450.9 MB.
+- Pilot: `bun run corpus:sweep --limit 100 --seed 0091 --jobs 4`; 262 commands: rendered 247, capability-denied 4, sandbox-denied 5, bundle-failed 3, crashed 2, network 1; 185.84 commands/min; peak `.cache` 450.9 MB; final `.cache` 60 KB; projected full-population duration 27.3 minutes and peak 450.9 MB.
 - Interruption/resume: a SIGINT run completed 262 records before the batch stopped; rerun with `--resume` skipped all 262 and reported `resumed: 262`.
 Not done / risks:
 - The full population sweep and primary-action probing remain task 0092/out of scope.

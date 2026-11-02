@@ -4,10 +4,10 @@
   "selectedExtensions": 100,
   "commands": 262,
   "totals": {
-    "rendered": 246,
+    "rendered": 247,
     "completed": 0,
     "capability-denied": 4,
-    "sandbox-denied": 6,
+    "sandbox-denied": 5,
     "bundle-failed": 3,
     "bundle-timeout": 0,
     "crashed": 2,
@@ -39,11 +39,11 @@
       "commands": 1
     },
     {
-      "signature": "ENOENT: no such file or directory, open '<home>/.t3/worktrees/blast/t3-f08a97a7/.cache/sweep/scratch/unit-JxMjxm/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json'",
+      "signature": "ENOENT: no such file or directory, open '<home>/.t3/worktrees/blast/t3-f08a97a7/.cache/sweep/scratch/unit-MezmHH/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json'",
       "commands": 1
     },
     {
-      "signature": "ENOENT: no such file or directory, scandir '<home>/.t3/worktrees/blast/t3-f08a97a7/.cache/sweep/scratch/unit-PE6erq/Desktop'",
+      "signature": "ENOENT: no such file or directory, scandir '<home>/.t3/worktrees/blast/t3-f08a97a7/.cache/sweep/scratch/unit-WEXFrT/Desktop'",
       "commands": 1
     },
     {
@@ -52,10 +52,6 @@
     },
     {
       "signature": "request to https://api.urbandictionary.com/v0/words_of_the_day failed, reason: getaddrinfo ENOTFOUND api.urbandictionary.com",
-      "commands": 1
-    },
-    {
-      "signature": "sandbox child exited with SIGINT:",
       "commands": 1
     }
   ],
@@ -73,10 +69,10 @@
       "commands": 1
     }
   ],
-  "peakBytes": 472820997,
-  "wallMs": 62130.625,
-  "commandsPerMinute": 253.0153205444175,
-  "resumed": 262,
-  "projectedFullRunMinutes": 20.078546979166667,
-  "projectedFullRunPeakBytes": 472820997
+  "peakBytes": 472815491,
+  "wallMs": 84587.519417,
+  "commandsPerMinute": 185.84301925800023,
+  "resumed": 0,
+  "projectedFullRunMinutes": 27.335866691593836,
+  "projectedFullRunPeakBytes": 472815491
 }

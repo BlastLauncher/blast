@@ -1,16 +1,16 @@
 # Corpus sweep report
 
 Corpus commit `bad7de0172ce6ea5e721ed919f4e1d7186f74192`; seed `0091`; 100 selected extensions and 262 commands (262 command records).
-Peak .cache 450.9 MB; wall time 62 s; 253.02 commands/min; 262 resumed command(s).
+Peak .cache 450.9 MB; wall time 85 s; 185.84 commands/min; 0 resumed command(s).
 Rendered means a first scene was published; it does not assert that the command works with live data or actions.
-Projected full population: 0.3 h; projected peak 450.9 MB.
+Projected full population: 0.5 h; projected peak 450.9 MB.
 
 ## Outcomes
 
-- rendered: 246 command(s)
+- rendered: 247 command(s)
 - completed: 0 command(s)
 - capability-denied: 4 command(s)
-- sandbox-denied: 6 command(s)
+- sandbox-denied: 5 command(s)
 - bundle-failed: 3 command(s)
 - bundle-timeout: 0 command(s)
 - crashed: 2 command(s)
@@ -27,11 +27,10 @@ Projected full population: 0.3 h; projected peak 450.9 MB.
 - 2 command(s): missing dependencies: swift:..
 - 1 command(s): Capability denied: command.launch
 - 1 command(s): Capability denied: storage.get
-- 1 command(s): ENOENT: no such file or directory, open '<home>/.t3/worktrees/blast/t3-f08a97a7/.cache/sweep/scratch/unit-JxMjxm/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json'
-- 1 command(s): ENOENT: no such file or directory, scandir '<home>/.t3/worktrees/blast/t3-f08a97a7/.cache/sweep/scratch/unit-PE6erq/Desktop'
+- 1 command(s): ENOENT: no such file or directory, open '<home>/.t3/worktrees/blast/t3-f08a97a7/.cache/sweep/scratch/unit-MezmHH/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json'
+- 1 command(s): ENOENT: no such file or directory, scandir '<home>/.t3/worktrees/blast/t3-f08a97a7/.cache/sweep/scratch/unit-WEXFrT/Desktop'
 - 1 command(s): Preference "executablePath" needs a scalar "default"
 - 1 command(s): request to https://api.urbandictionary.com/v0/words_of_the_day failed, reason: getaddrinfo ENOTFOUND api.urbandictionary.com
-- 1 command(s): sandbox child exited with SIGINT:
 
 ## Unsupported and denied capabilities
 
