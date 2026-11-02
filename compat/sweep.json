@@ -39,11 +39,11 @@
       "commands": 1
     },
     {
-      "signature": "ENOENT: no such file or directory, open '<home>/.t3/worktrees/blast/t3-f08a97a7/.cache/sweep/scratch/unit-MezmHH/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json'",
+      "signature": "ENOENT: no such file or directory, open '<home>/.t3/worktrees/blast/t3-ce053793/.cache/sweep/scratch/unit-2YwWFW/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json'",
       "commands": 1
     },
     {
-      "signature": "ENOENT: no such file or directory, scandir '<home>/.t3/worktrees/blast/t3-f08a97a7/.cache/sweep/scratch/unit-WEXFrT/Desktop'",
+      "signature": "ENOENT: no such file or directory, scandir '<home>/.t3/worktrees/blast/t3-ce053793/.cache/sweep/scratch/unit-tOe657/Desktop'",
       "commands": 1
     },
     {
@@ -69,10 +69,10 @@
       "commands": 1
     }
   ],
-  "peakBytes": 472815491,
-  "wallMs": 84587.519417,
-  "commandsPerMinute": 185.84301925800023,
+  "peakBytes": 472816618,
+  "wallMs": 82755.429584,
+  "commandsPerMinute": 189.95732460120436,
   "resumed": 0,
-  "projectedFullRunMinutes": 27.335866691593836,
-  "projectedFullRunPeakBytes": 472815491
+  "projectedFullRunMinutes": 26.743796327229337,
+  "projectedFullRunPeakBytes": 472816618
 }

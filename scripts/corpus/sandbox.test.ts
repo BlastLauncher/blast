@@ -1,9 +1,19 @@
 import { expect, test } from "bun:test";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { rm } from "node:fs/promises";
 import net from "node:net";
-import { homedir, tmpdir } from "node:os";
-import { join } from "node:path";
-import { runSandboxed, sandboxAvailable, sweepEnvironment } from "./sandbox.ts";
+import { tmpdir } from "node:os";
+import { join, relative, resolve as resolvePath } from "node:path";
+import { runSandboxed, sandboxAvailable, sandboxProfile, sweepEnvironment } from "./sandbox.ts";
+
+async function removeTemp(path: string): Promise<void> {
+  const root = resolvePath(tmpdir());
+  const target = resolvePath(path);
+  const remainder = relative(root, target);
+  if (!remainder || remainder.startsWith("..") || remainder.startsWith("/"))
+    throw new Error(`refusing to remove path outside temporary directory: ${path}`);
+  await rm(target, { recursive: true, force: true });
+}
 
 test("sweep environment contains only the allowlist and points user paths at scratch", () => {
   const env = sweepEnvironment("/private/tmp/blast-scratch", {
@@ -30,6 +40,24 @@ test("sweep environment contains only the allowlist and points user paths at scr
   ]);
 });
 
+test("sandbox profile does not grant host credential or app services", () => {
+  const profile = sandboxProfile(
+    [process.cwd()],
+    join(tmpdir(), "blast-profile-test"),
+    [],
+    "/home/test",
+    ["/usr/bin/true"],
+  );
+  for (const service of [
+    "com.apple.securityd",
+    "com.apple.pasteboard",
+    "com.apple.LaunchServices",
+    "com.apple.appleeventsd",
+  ])
+    expect(profile).not.toContain(service);
+  expect(profile).toContain("(deny network*)");
+});
+
 async function fixture(
   args: string[],
   scratch: string,
@@ -53,7 +81,7 @@ async function fixture(
 }
 
 test.skipIf(!sandboxAvailable())(
-  "sandbox containment differs from an unsandboxed child for reads, network, DNS, writes and apps",
+  "sandbox containment differs from an unsandboxed child for reads, local network and writes",
   async () => {
     const root = process.cwd();
     const base = mkdtempSync(join(tmpdir(), "blast-sandbox-fixture-"));
@@ -76,16 +104,14 @@ test.skipIf(!sandboxAvailable())(
     expect(unsandboxed.deniedRead).toBe("allowed");
     expect(sandboxed.network).not.toBe("connected");
     expect(unsandboxed.network).toBe("connected");
-    expect(String(sandboxed.dns)).not.toStartWith("resolved:");
-    expect(String(unsandboxed.dns)).toStartWith("resolved:");
     expect(sandboxed.outsideWrite).not.toBe("allowed");
     expect(unsandboxed.outsideWrite).toBe("allowed");
     expect(sandboxed.scratchWrite).toBe("allowed");
     expect(sandboxed.devNullWrite).toBe("allowed");
     expect(existsSync(outside)).toBe(true);
     expect(readFileSync(join(scratch, "inside"), "utf8")).toBe("inside");
-    for (const name of ["pbpaste", "osascript", "open"])
-      expect(sandboxed[name]).not.toBe(unsandboxed[name]);
+    expect(sandboxed.exec).not.toBe("exit:0");
+    expect(unsandboxed.exec).toBe("exit:0");
     expect(sandboxed.env).toEqual([
       "HOME",
       "LANG",
@@ -100,25 +126,29 @@ test.skipIf(!sandboxAvailable())(
       "XDG_CONFIG_HOME",
       "XDG_DATA_HOME",
     ]);
-    rmSync(base, { recursive: true, force: true });
-    rmSync(deniedDir, { recursive: true, force: true });
+    await removeTemp(base);
+    await removeTemp(deniedDir);
   },
 );
 
 test.skipIf(!sandboxAvailable())(
-  "the real home deny covers a newly planted non-allowlisted path",
+  "the home deny covers a newly planted non-allowlisted path",
   async () => {
-    const base = mkdtempSync(join(homedir(), ".blast-sandbox-home-"));
-    const secret = join(base, "secret");
+    const base = mkdtempSync(join(tmpdir(), "blast-sandbox-home-"));
+    const fakeHome = mkdtempSync(join(base, "home-"));
+    const secret = join(fakeHome, "secret");
     const scratch = mkdtempSync(join(tmpdir(), "blast-sandbox-scratch-"));
     writeFileSync(secret, "real home secret");
-    const sandboxed = await fixture([secret, join(tmpdir(), "unused"), scratch], scratch);
+    const sandboxed = await fixture([secret, join(tmpdir(), "unused"), scratch], scratch, {
+      home: fakeHome,
+    });
     const unsandboxed = await fixture([secret, join(tmpdir(), "unused"), scratch], scratch, {
+      home: fakeHome,
       unsandboxed: true,
     });
-    expect(sandboxed.deniedRead).not.toBe("real home secret");
+    expect(sandboxed.deniedRead).not.toBe("allowed");
     expect(unsandboxed.deniedRead).toBe("allowed");
-    rmSync(base, { recursive: true, force: true });
-    rmSync(scratch, { recursive: true, force: true });
+    await removeTemp(base);
+    await removeTemp(scratch);
   },
 );

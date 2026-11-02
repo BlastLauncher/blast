@@ -126,11 +126,10 @@ export function sandboxProfile(
     // Bun and Node use null/zero for ordinary stream and buffer plumbing.
     '(allow file-write* (literal "/dev/null") (literal "/dev/zero"))',
     "(allow ipc-posix-shm)",
-    // Bun/Node diagnostics and esbuild's native service use these three
-    // lookups; pasteboard, LaunchServices and Apple Events are intentionally
-    // absent.
+    // Bun/Node diagnostics and esbuild's native service use these two lookups;
+    // keychain, pasteboard, LaunchServices and Apple Events are intentionally
+    // absent because extension code has no host credential or app authority.
     '(allow mach-lookup (global-name "com.apple.system.logger"))',
-    '(allow mach-lookup (global-name "com.apple.securityd"))',
     '(allow mach-lookup (global-name "com.apple.system.opendirectoryd.libinfo"))',
     "(deny network*)",
   ].join(" ");

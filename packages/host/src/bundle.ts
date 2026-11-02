@@ -9,6 +9,7 @@ import {
   mkdtemp,
   readFile,
   readdir,
+  realpath,
   rm,
   stat,
   symlink,
@@ -16,7 +17,7 @@ import {
 } from "node:fs/promises";
 import { builtinModules } from "node:module";
 import { tmpdir } from "node:os";
-import { isAbsolute, join, resolve } from "node:path";
+import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 
 import { checkExtensionDependencies } from "./install-dependencies.ts";
 import {
@@ -75,6 +76,19 @@ export class BundleTimeoutError extends Error {
   }
 }
 
+export class BundleContainmentError extends Error {
+  readonly code = "BUNDLE_OUTSIDE_ROOT";
+  readonly specifier: string;
+
+  constructor(specifier: string) {
+    super(
+      `Import ${JSON.stringify(specifier)} resolves outside the extension and dependency roots`,
+    );
+    this.name = "BundleContainmentError";
+    this.specifier = specifier;
+  }
+}
+
 /** Stop awaiting host work when cancelled, without leaving an abort listener behind. */
 async function abortable<T>(work: Promise<T>, signal: AbortSignal): Promise<T> {
   if (signal.aborted) return Promise.race([work, Promise.reject(signal.reason)]);
@@ -92,12 +106,88 @@ async function abortable<T>(work: Promise<T>, signal: AbortSignal): Promise<T> {
   }
 }
 
+function contained(root: string, path: string): boolean {
+  const remainder = relative(root, path);
+  return remainder === "" || (!remainder.startsWith("..") && !isAbsolute(remainder));
+}
+
+async function packageRoot(path: string): Promise<string> {
+  const fallback = dirname(path);
+  let current = fallback;
+  while (true) {
+    if (
+      await access(join(current, "package.json")).then(
+        () => true,
+        () => false,
+      )
+    )
+      return realpath(current);
+    const parent = dirname(current);
+    if (parent === current) return fallback;
+    current = parent;
+  }
+}
+
+class BundleContainment {
+  private readonly roots = new Set<string>();
+  private readonly sharedNodeModules = new Set<string>();
+  private readonly sharedStores = new Set<string>();
+
+  constructor(extensionDir: string, installed?: string) {
+    this.roots.add(extensionDir);
+    if (installed) this.roots.add(installed);
+  }
+
+  async registerInstalled(directory: string): Promise<void> {
+    const modules = join(directory, "node_modules");
+    const entries = await readdir(modules, { withFileTypes: true }).catch(() => []);
+    for (const entry of entries) {
+      const candidates = entry.name.startsWith("@")
+        ? await readdir(join(modules, entry.name), { withFileTypes: true }).catch(() => [])
+        : [entry];
+      for (const candidate of candidates) {
+        const path = join(modules, entry.name, entry.name.startsWith("@") ? candidate.name : "");
+        const target = await realpath(path).catch(() => undefined);
+        if (target) this.roots.add(target);
+      }
+    }
+  }
+
+  async registerShared(path: string): Promise<void> {
+    // Shared resolvers may return extensionless package subpaths (for example
+    // lodash/get) that esbuild completes during its own resolution step.
+    const resolved = await realpath(path).catch(() => resolve(path));
+    const root = await packageRoot(resolved);
+    this.roots.add(root);
+    let current = root;
+    while (current !== dirname(current)) {
+      if (current.endsWith("/node_modules")) {
+        this.sharedNodeModules.add(current);
+      }
+      if (current.endsWith("/.bun")) this.sharedStores.add(current);
+      current = dirname(current);
+    }
+  }
+
+  async assert(path: string, specifier: string): Promise<void> {
+    const resolved = await realpath(path);
+    if (
+      [...this.roots, ...this.sharedNodeModules, ...this.sharedStores].some((root) =>
+        contained(root, resolved),
+      )
+    )
+      return;
+    throw new BundleContainmentError(specifier);
+  }
+}
+
 function dependencyPolicy(
   missing: Set<string>,
   shared: SharedDependencies | undefined,
   installed?: string,
   installedPackages = new Set<string>(),
   aliases?: Awaited<ReturnType<typeof loadTsconfigAliases>>,
+  containment?: BundleContainment,
 ): Plugin {
   const dependencyFiles = new Set<string>();
   return {
@@ -110,6 +200,23 @@ function dependencyPolicy(
           return { path: specifier, external: true };
         if (isNodeBuiltin(specifier)) return { path: specifier, external: true };
         const bare = !specifier.startsWith(".") && !isAbsolute(specifier);
+
+        // Relative and absolute imports are resolved here before esbuild reads
+        // them. This keeps an extension from smuggling an arbitrary file into
+        // the bundle through a default loader (including data/text loaders).
+        if (!bare) {
+          const result = await builder.resolve(specifier, {
+            resolveDir: args.resolveDir,
+            kind: args.kind,
+            pluginData: "blast-resolving",
+          });
+          if (!result.errors.length && result.path && !result.external) {
+            await containment?.assert(result.path, specifier);
+            if (dependencyFiles.has(args.importer)) dependencyFiles.add(result.path);
+            return result;
+          }
+          return;
+        }
         const inDependencyGraph = dependencyFiles.has(args.importer);
         // The extension's tsconfig `paths`/`baseUrl` win over packages, as
         // tsc resolves them: a specifier that maps into the extension is the
@@ -117,7 +224,10 @@ function dependencyPolicy(
         // dependency graphs keep package resolution.
         if (aliases && bare && !inDependencyGraph && args.kind !== "entry-point") {
           const alias = await aliases.resolve(specifier);
-          if (alias) return { path: alias };
+          if (alias) {
+            await containment?.assert(alias, specifier);
+            return { path: alias };
+          }
         }
         if (installed && bare && !inDependencyGraph && args.kind !== "entry-point") {
           const name = specifier.startsWith("@")
@@ -135,6 +245,7 @@ function dependencyPolicy(
               pluginData: "blast-resolving",
             });
             if (!result.errors.length && result.path) {
+              if (!result.external) await containment?.assert(result.path, specifier);
               if (!result.external) dependencyFiles.add(result.path);
               installedPackages.add(name);
               return result;
@@ -152,6 +263,7 @@ function dependencyPolicy(
             : undefined;
         // Installed and shared dependency graphs get normal transitive resolution.
         if (provided || inDependencyGraph) {
+          if (provided) await containment?.registerShared(provided);
           const result = await builder.resolve(provided ?? specifier, {
             resolveDir: args.resolveDir,
             kind: args.kind,
@@ -160,7 +272,10 @@ function dependencyPolicy(
           // Let esbuild handle unresolved optional requires inside try/catch.
           // Returning plugin errors here would make those optional imports fatal.
           if (result.errors.length && inDependencyGraph) return;
-          if (result.path && !result.external) dependencyFiles.add(result.path);
+          if (result.path && !result.external) {
+            await containment?.assert(result.path, specifier);
+            dependencyFiles.add(result.path);
+          }
           return result;
         }
         if (args.kind === "entry-point" || specifier.startsWith(".") || isAbsolute(specifier))
@@ -513,6 +628,11 @@ async function bundleEntryWithSignal(
   const entry = join(outDir, `${entryName}.mjs`);
   const missing = new Set<string>();
   const installedPackages = new Set<string>();
+  const containment = new BundleContainment(
+    await realpath(extensionDir),
+    install && !install.needed ? await realpath(install.directory) : undefined,
+  );
+  if (install && !install.needed) await containment.registerInstalled(install.directory);
   try {
     signal.throwIfAborted();
     const builder = await context({
@@ -534,6 +654,7 @@ async function bundleEntryWithSignal(
           install && !install.needed ? install.directory : undefined,
           installedPackages,
           aliases,
+          containment,
         ),
       ],
       logLevel: "silent",
