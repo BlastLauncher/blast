@@ -1,7 +1,7 @@
 ---
 id: "0092"
 title: Probe primary actions in the corpus sweep
-status: todo
+status: doing
 milestone: M6
 depends: ["0091"]
 ---

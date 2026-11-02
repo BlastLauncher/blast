@@ -86,7 +86,7 @@ order with disk budgets.
 - [x] 0089 `@raycast/api` 2.10.1 and a weekly upgrade job
 - [x] 0090 Repin the corpus and rerun all smokes
 - [x] 0093 Stable selection, pre-release-aware shared deps (before 0091)
-- [ ] 0091 Sandboxed corpus sweep runner and pilot
+- [x] 0091 Sandboxed corpus sweep runner and pilot
 - [ ] 0092 Primary action probe; full sweep task follows the pilot
 
 ## Later (not scheduled)
