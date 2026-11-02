@@ -218,6 +218,7 @@ test("the report totals every outcome and sorts the table by command", () => {
     empty: 0,
     completed: 1,
     "capability-denied": 0,
+    "sandbox-denied": 0,
     "bundle-failed": 0,
     "bundle-timeout": 0,
     crashed: 0,
@@ -273,7 +274,7 @@ test("the markdown report starts with totals, then the table, then the failures"
   expect(markdown.slice(0, markdown.indexOf("| Command |"))).toContain("100×30");
   const totals = markdown.split("\n").find((line) => line.endsWith("missing-arguments 0."));
   expect(totals).toBe(
-    "3 commands: rendered 1, placeholder 1, client-error 0, empty 0, completed 1, capability-denied 0, bundle-failed 0, bundle-timeout 0, crashed 0, network 0, timeout 0, unsupported-mode 0, unsupported-api 0, missing-arguments 0.",
+    "3 commands: rendered 1, placeholder 1, client-error 0, empty 0, completed 1, capability-denied 0, sandbox-denied 0, bundle-failed 0, bundle-timeout 0, crashed 0, network 0, timeout 0, unsupported-mode 0, unsupported-api 0, missing-arguments 0.",
   );
   expect(markdown.indexOf(totals!)).toBeLessThan(markdown.indexOf("| Command |"));
   const rows = markdown.split("\n").filter((line) => line.startsWith("| `"));

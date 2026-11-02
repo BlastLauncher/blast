@@ -45,6 +45,8 @@ export function majorOf(range: unknown): string {
 
 /** What one extension declares in `dependencies` and imports from its sources. */
 export type ExtensionDependencies = {
+  /** Corpus extension name, retained so the sweep can reuse this exact verdict. */
+  name?: string;
   /** Declared runtime dependency name → its major bucket. */
   declared: Record<string, string>;
   /** Exact declared ranges, retained for compatibility checks. */
@@ -85,7 +87,7 @@ export type Dependencies = {
   /** Extensions that need no package beyond the baseline API/utils/React set. */
   providedOnly: number;
   /** Exact satisfaction for the host allowlist, including baseline packages. */
-  shared: { provided: string[]; satisfied: number };
+  shared: { provided: string[]; satisfied: number; satisfiedExtensions?: string[] };
   /** Providing the top `provided` importers satisfies `satisfied` extensions. */
   curve: Array<{ provided: number; satisfied: number }>;
   /** Ordering: `imported` desc, then name asc. */
@@ -102,6 +104,20 @@ function rankedMajors(majors: Record<string, number>): Array<[string, number]> {
   return Object.entries(majors).toSorted(
     ([aBucket, aCount], [bBucket, bCount]) =>
       bCount - aCount || majorRank(aBucket) - majorRank(bBucket),
+  );
+}
+
+/** Exact 0093 shared-dependency verdict used by both the scan and sweep. */
+export function isExtensionSatisfied(
+  extension: ExtensionDependencies,
+  provided: readonly string[] = PROVIDED_PACKAGES,
+): boolean {
+  const need = new Set([...Object.keys(extension.declared), ...extension.imported]);
+  return [...need].every(
+    (name) =>
+      provided.includes(name) &&
+      (extension.ranges?.[name] === undefined ||
+        isDependencyCompatible(name, extension.ranges[name])),
   );
 }
 
@@ -147,20 +163,19 @@ export function aggregateDependencies(
       (a, b) => b.imported - a.imported || (a.name < b.name ? -1 : a.name > b.name ? 1 : 0),
     );
   const byImports = packages.map(({ name }) => name);
+  const satisfiedExtensions = extensions
+    .filter((extension) => isExtensionSatisfied(extension, provided))
+    .flatMap((extension) => (extension.name === undefined ? [] : [extension.name]))
+    .toSorted();
   return {
     corpusCommit: commit,
     extensions: extensions.length,
     providedOnly: needs.filter((need) => need.size === 0).length,
     shared: {
       provided: [...new Set(provided)].toSorted(),
-      satisfied: needs.filter((need, index) =>
-        [...need].every(
-          (name) =>
-            provided.includes(name) &&
-            (extensions[index]?.ranges?.[name] === undefined ||
-              isDependencyCompatible(name, extensions[index]?.ranges?.[name])),
-        ),
-      ).length,
+      satisfied: needs.filter((_, index) => isExtensionSatisfied(extensions[index]!, provided))
+        .length,
+      ...(satisfiedExtensions.length > 0 ? { satisfiedExtensions } : {}),
     },
     curve: steps.map((count) => {
       const available = new Set(byImports.slice(0, count));

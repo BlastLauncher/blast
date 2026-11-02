@@ -71,6 +71,21 @@ test("unprovided packages still fail with MISSING_DEPENDENCY", async () => {
   }
 });
 
+test("Node #imports aliases are not reported as npm missing dependencies", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "blast-hash-import-"));
+  directories.push(dir);
+  await mkdir(join(dir, "src"));
+  await writeFile(
+    join(dir, "package.json"),
+    JSON.stringify({ name: "hash-import", commands: [{ name: "index", mode: "no-view" }] }),
+  );
+  await writeFile(join(dir, "src/index.ts"), 'import value from "#imports"; console.log(value);');
+  const error = await bundleCommand({ extensionDir: dir, command: "index" }).catch(
+    (failure) => failure,
+  );
+  expect(error).not.toMatchObject({ code: "MISSING_DEPENDENCY" });
+});
+
 test("Cheerio's undici dependency bundles under Bun and executes offline in Node", async () => {
   expect(await execute((await bundle("cheerio")).entry)).toBe("Bundled HTML\nfunction\n");
 });

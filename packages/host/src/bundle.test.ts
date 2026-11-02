@@ -1,5 +1,5 @@
 import { afterEach, expect, test } from "bun:test";
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -61,6 +61,61 @@ test("a tiny deadline cancels a generated import graph and settles promptly", as
   const bundled = await bundleCommand({ extensionDir: fixture, command: "index" });
   directories.push(dirname(bundled.entry));
   expect(bundled.bundleMs).toBeGreaterThan(0);
+});
+
+async function confinementFixture(importSource: string): Promise<{
+  extensionDir: string;
+  outDir: string;
+  outsideContent: string;
+}> {
+  const root = await mkdtemp(join(tmpdir(), "blast-bundle-confinement-"));
+  directories.push(root);
+  const extensionDir = join(root, "extension");
+  const outDir = join(root, "output");
+  await mkdir(join(extensionDir, "src"), { recursive: true });
+  await writeFile(
+    join(extensionDir, "package.json"),
+    JSON.stringify({ name: "bundle-confinement", commands: [{ name: "index", mode: "no-view" }] }),
+  );
+  const outsideContent = "outside-secret-content-0091";
+  await writeFile(join(root, "outside.json"), JSON.stringify({ outsideContent }));
+  await writeFile(join(root, "outside.txt"), outsideContent);
+  await writeFile(join(extensionDir, "src/index.ts"), importSource);
+  return { extensionDir, outDir, outsideContent };
+}
+
+test("bundling rejects a relative import outside the extension before reading it", async () => {
+  const caseFixture = await confinementFixture(
+    "import cfg from '../../outside.json'; console.log(cfg);",
+  );
+  const error = await bundleCommand({
+    extensionDir: caseFixture.extensionDir,
+    command: "index",
+    outDir: caseFixture.outDir,
+    installedDependencies: false,
+  }).catch((failure: unknown) => failure);
+  expect(String(error)).toContain('"../../outside.json"');
+  expect(String(error)).not.toContain(caseFixture.outsideContent);
+  await expect(readFile(join(caseFixture.outDir, "index.mjs"), "utf8")).rejects.toBeDefined();
+});
+
+test("bundling rejects a symlink that escapes the extension before reading it", async () => {
+  const caseFixture = await confinementFixture(
+    "import text from './outside.txt'; console.log(text);",
+  );
+  await symlink(
+    join(caseFixture.extensionDir, "..", "outside.txt"),
+    join(caseFixture.extensionDir, "src/outside.txt"),
+  );
+  const error = await bundleCommand({
+    extensionDir: caseFixture.extensionDir,
+    command: "index",
+    outDir: caseFixture.outDir,
+    installedDependencies: false,
+  }).catch((failure: unknown) => failure);
+  expect(String(error)).toContain('"./outside.txt"');
+  expect(String(error)).not.toContain(caseFixture.outsideContent);
+  await expect(readFile(join(caseFixture.outDir, "index.mjs"), "utf8")).rejects.toBeDefined();
 });
 
 test("zero disables the deadline and successful bundles report finite elapsed time", async () => {

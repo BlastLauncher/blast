@@ -108,7 +108,10 @@ function main(): void {
         const result = scanExtension(files, known);
         for (const failure of result.failures) console.error(`parse: ${failure}`);
         results.push(result);
-        dependencies.push(extensionDependencies(readManifest(join(dir, "package.json")), files));
+        dependencies.push({
+          name,
+          ...extensionDependencies(readManifest(join(dir, "package.json")), files),
+        });
       }
       run(repo, "git", ["sparse-checkout", "set", "--no-cone", ...buildPatterns()]);
       guard();

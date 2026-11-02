@@ -3,9 +3,9 @@
 // (control-d's `common/...`), and esbuild never gets to apply them itself —
 // the dependency plugin resolves every bare specifier first — so the plugin
 // probes them here. Aliasing never reads outside the extension directory:
-// `extends` targets that are package presets are skipped with a warning and
-// candidate paths are probed only inside the extension.
-import { readFile, stat } from "node:fs/promises";
+// package-preset and out-of-tree `extends` targets (also via symlinks) are
+// skipped with a warning, and candidate paths are probed only inside it.
+import { readFile, realpath, stat } from "node:fs/promises";
 import { isAbsolute, join, relative, resolve } from "node:path";
 
 /** File extensions tried for an extensionless alias target, esbuild's order. */
@@ -58,6 +58,18 @@ async function loadChain(
   // A cycle is an extension bug; stop instead of looping.
   if (stack.has(path)) return undefined;
   const name = relative(extensionDir, path) || path;
+  // Never read a config outside the extension, including through a relative
+  // `extends` or a symlink: bundling runs outside any sandbox.
+  const [realDir, realPath] = await Promise.all([
+    realpath(extensionDir).catch(() => resolve(extensionDir)),
+    realpath(path).catch(() => path),
+  ]);
+  if (!inside(realDir, realPath)) {
+    warnings.push(
+      `Blast ignored tsconfig ${JSON.stringify(name)}: outside the extension, so its path aliases are off`,
+    );
+    return undefined;
+  }
   let text: string;
   try {
     text = await readFile(path, "utf8");

@@ -1,0 +1,78 @@
+{
+  "commit": "bad7de0172ce6ea5e721ed919f4e1d7186f74192",
+  "seed": "0091",
+  "selectedExtensions": 100,
+  "commands": 262,
+  "totals": {
+    "rendered": 247,
+    "completed": 0,
+    "capability-denied": 4,
+    "sandbox-denied": 5,
+    "bundle-failed": 3,
+    "bundle-timeout": 0,
+    "crashed": 2,
+    "network": 1,
+    "timeout": 0,
+    "unsupported-mode": 0,
+    "unsupported-api": 0,
+    "missing-arguments": 0
+  },
+  "failures": [
+    {
+      "signature": "spawnSync /bin/sh EPERM",
+      "commands": 5
+    },
+    {
+      "signature": "Capability denied: clipboard.copy",
+      "commands": 2
+    },
+    {
+      "signature": "missing dependencies: swift:..",
+      "commands": 2
+    },
+    {
+      "signature": "Capability denied: command.launch",
+      "commands": 1
+    },
+    {
+      "signature": "Capability denied: storage.get",
+      "commands": 1
+    },
+    {
+      "signature": "ENOENT: no such file or directory, open '<scratch>/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json'",
+      "commands": 1
+    },
+    {
+      "signature": "ENOENT: no such file or directory, scandir '<scratch>/Desktop'",
+      "commands": 1
+    },
+    {
+      "signature": "Preference \"executablePath\" needs a scalar \"default\"",
+      "commands": 1
+    },
+    {
+      "signature": "request to https://api.urbandictionary.com/v0/words_of_the_day failed, reason: getaddrinfo ENOTFOUND api.urbandictionary.com",
+      "commands": 1
+    }
+  ],
+  "capabilities": [
+    {
+      "signature": "clipboard.copy",
+      "commands": 2
+    },
+    {
+      "signature": "command.launch",
+      "commands": 1
+    },
+    {
+      "signature": "storage.get",
+      "commands": 1
+    }
+  ],
+  "peakBytes": 472819528,
+  "wallMs": 96420.83125,
+  "commandsPerMinute": 163.0353088249278,
+  "resumed": 0,
+  "projectedFullRunMinutes": 31.159998632291668,
+  "projectedFullRunPeakBytes": 472819528
+}

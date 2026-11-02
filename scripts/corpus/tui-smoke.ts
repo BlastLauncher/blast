@@ -288,6 +288,8 @@ function detail(result: TuiResult): string {
       return `${result.path}${warnings}`;
     case "capability-denied":
       return `denied capability ${result.path}${warnings}`;
+    case "sandbox-denied":
+      return `${result.error ?? "sandbox denied"}${warnings}`;
     case "completed":
       return `${result.reason ?? "completed without rendering a scene"}${warnings}`;
   }

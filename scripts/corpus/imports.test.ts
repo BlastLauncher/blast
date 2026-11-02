@@ -24,6 +24,7 @@ test("unprovided imports are the bare specifiers Blast cannot resolve", () => {
   expect(unprovidedImports([source('const client = await import("graphql-request");')])).toEqual([
     "graphql-request",
   ]);
+  expect(unprovidedImports([source('import generated from "#imports";')])).toEqual([]);
   // A test file is never bundled, so its dev-only imports do not count.
   expect(
     unprovidedImports([source('import { test } from "vitest";', "src/__tests__/unit.test.ts")]),

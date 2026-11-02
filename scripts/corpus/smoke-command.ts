@@ -11,6 +11,7 @@ import {
   BundleTimeoutError,
   createBroker,
   MissingDependencyError,
+  runtimeEnvironment,
   startCommand,
   type BundledCommand,
   type Session,
@@ -22,6 +23,7 @@ import {
   countNodes,
   exitProbe,
   launchInputs,
+  isSandboxDeniedMessage,
   type CommandResult,
   type Manifest,
   type ProbeResult,
@@ -39,6 +41,8 @@ export type DependencyMode = {
   installedDependencies: boolean;
   /** Where `blast deps` installed the extension, when `installedDependencies` is on. */
   dataDir?: string;
+  /** Optional build output directory, used by the sandbox sweep parent. */
+  outDir?: string;
 };
 
 /**
@@ -104,6 +108,7 @@ export async function bundleOne(
       command: commandName,
       installedDependencies: dependencies.installedDependencies,
       ...(dependencies.dataDir === undefined ? {} : { dataDir: dependencies.dataDir }),
+      ...(dependencies.outDir === undefined ? {} : { outDir: dependencies.outDir }),
     });
     return { ok: true, bundled };
   } catch (error) {
@@ -112,6 +117,16 @@ export async function bundleOne(
       return { ok: false, probe: { kind: "bundle-timeout", timeoutMs: error.timeoutMs, bundleMs } };
     if (error instanceof MissingDependencyError) {
       return { ok: false, probe: { kind: "bundle-failed", missing: error.packages, bundleMs } };
+    }
+    if (isSandboxDeniedMessage(error instanceof Error ? error.message : String(error))) {
+      return {
+        ok: false,
+        probe: {
+          kind: "sandbox-denied",
+          bundleMs,
+          error: clean(error instanceof Error ? error.message : String(error)),
+        },
+      };
     }
     return {
       ok: false,
@@ -134,7 +149,7 @@ export async function launchOne(
 ): Promise<CommandResult> {
   const mode = commandMode(manifest, commandName) ?? "view";
   const outDir = dirname(bundled.entry);
-  const scratchRoot = join(process.cwd(), ".cache/smoke-data");
+  const scratchRoot = process.env.BLAST_SWEEP_SCRATCH ?? join(process.cwd(), ".cache/smoke-data");
   await mkdir(scratchRoot, { recursive: true });
   const scratchDir = await mkdtemp(join(scratchRoot, "command-"));
   const inputs = launchInputs(manifest, commandName, scratchDir);
@@ -155,6 +170,17 @@ export async function launchOne(
       return build({ kind: "missing-arguments", names: inputs.unsupplied });
     for (const directory of inputs.directories) await mkdir(directory, { recursive: true });
     try {
+      const runtimeEnv =
+        process.env.BLAST_SWEEP_SCRATCH === undefined
+          ? undefined
+          : {
+              ...runtimeEnvironment(),
+              ...Object.fromEntries(
+                ["XDG_CACHE_HOME", "XDG_CONFIG_HOME", "XDG_DATA_HOME"].flatMap((name) =>
+                  process.env[name] === undefined ? [] : [[name, process.env[name] as string]],
+                ),
+              ),
+            };
       session = await startCommand({
         ...bundled,
         // Deny-all apart from Blast's headless read-only defaults, so a command
@@ -165,6 +191,7 @@ export async function launchOne(
         ...(Object.keys(inputs.argumentValues).length > 0
           ? { argumentValues: inputs.argumentValues }
           : {}),
+        ...(runtimeEnv === undefined ? {} : { env: runtimeEnv }),
       });
     } catch (error) {
       // Startup failures (handshake, exit before ready) are crashes too.
