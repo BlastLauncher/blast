@@ -1,5 +1,5 @@
 import { afterEach, expect, test } from "bun:test";
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -13,6 +13,7 @@ import { dependencyWarnings, PROVIDED_PACKAGES } from "@blastlauncher/shared-dep
 const fixture = fileURLToPath(
   new URL("../../../fixtures/extensions/shared-dependencies", import.meta.url),
 );
+const nodePath = execFileSync("node", ["-p", "process.execPath"], { encoding: "utf8" }).trim();
 const directories: string[] = [];
 afterEach(async () => {
   await Promise.all(directories.splice(0).map((dir) => rm(dir, { recursive: true, force: true })));
@@ -24,7 +25,7 @@ async function bundle(command: string, extensionDir = fixture) {
 }
 async function execute(entry: string): Promise<string> {
   return new Promise((resolve, reject) => {
-    const child = spawn("node", [
+    const child = spawn(nodePath, [
       "--input-type=module",
       "-e",
       "(await import(process.argv[1])).default()",

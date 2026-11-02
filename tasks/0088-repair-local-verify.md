@@ -50,8 +50,12 @@ stray files affecting the result. CI on Linux stays green.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/repair-local-verify @ e7581bf
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 49.6s
 Done:
-Not done / risks:
+- Resolved the real Node executable before test environment overrides and used it for all test child processes found under `packages/`.
+- Skipped the Linux-only `/proc/<pid>/exe` assertion on non-Linux platforms while keeping it active on Linux.
+- Scoped verify tests and formatting to Git-selected non-ignored files; ignored `dist/` tests are not collected and Git info excludes are honored.
+- Baseline: 765 pass, 1 fail; final: 765 pass, 1 skip (766 total), with no tests removed.
+Not done / risks: The X11 executable assertion is intentionally skipped on macOS and Windows because `/proc` is Linux-specific.
 ```

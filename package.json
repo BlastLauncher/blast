@@ -8,8 +8,8 @@
   "type": "module",
   "scripts": {
     "verify": "bun scripts/verify.ts",
-    "fmt": "oxfmt --ignore-path .gitignore --ignore-path .ignore",
-    "fmt:check": "oxfmt --check --ignore-path .gitignore --ignore-path .ignore",
+    "fmt": "bun scripts/fmt.ts",
+    "fmt:check": "bun scripts/fmt.ts --check",
     "lint": "oxlint --deny-warnings --ignore-pattern 'archive/**' --ignore-pattern 'compat/raycast-api/**'",
     "typecheck": "tsc --noEmit -p .",
     "test": "bun test",
