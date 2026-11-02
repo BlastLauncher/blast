@@ -72,7 +72,7 @@ affected, and unsupported or denied capabilities ranked likewise.
 ## Handoff
 
 ```
-Branch/commit: t3/corpus-sweep-runner @ 664fc2b
+Branch/commit: t3/corpus-sweep-runner @ e31202f
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 50.6s
 Done:
 - Added `bun run corpus:sweep` with deterministic seeded selection, `--limit`, `--jobs`, `--resume`, disk/free-space guards, per-command JSONL resume logging, and bounded aggregate reports.
