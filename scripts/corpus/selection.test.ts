@@ -703,6 +703,9 @@ test("feature capacity counts eligible candidates per additive stratum", () => {
 test("offline quotas decide whether the selector has to keep scanning", () => {
   const quotas = quotasFor({ form: 1, "list-only": 1 });
   expect(offlineQuotasMet(["keep"], [candidate({ name: "form" })], quotas)).toBe(true);
+  expect(offlineQuotasMet(["form"], [candidate({ name: "form" })], quotasFor({ form: 2 }))).toBe(
+    false,
+  );
   expect(offlineQuotasMet(["keep"], [candidate({ name: "form", network: true })], quotas)).toBe(
     false,
   );

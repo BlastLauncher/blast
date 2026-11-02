@@ -527,8 +527,10 @@ export function offlineQuotasMet(
   quotas: Quotas = DEFAULT_QUOTAS,
   priorStrata?: Partial<Record<PickStratum, readonly string[]>>,
 ): boolean {
-  const exclusive = capacity(candidates, false);
-  const features = featureCapacity(candidates, false);
+  const keptNames = new Set(kept);
+  const available = candidates.filter((candidate) => !keptNames.has(candidate.name));
+  const exclusive = capacity(available, false);
+  const features = featureCapacity(available, false);
   const keptMembers = keptByStratum(kept, ranked(candidates.filter(eligible)), priorStrata);
   return PICK_STRATA.every((stratum) =>
     isFeatureStratum(stratum)
