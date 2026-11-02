@@ -291,6 +291,18 @@ test("compactLine flattens whitespace and truncates deterministically", () => {
   expect(compactLine("x".repeat(200)).endsWith("…")).toBe(true);
 });
 
+test("compactLine preserves the identifying part of a long esbuild export error", () => {
+  const detail = compactLine(
+    `✘ [ERROR] No matching export in "/repo/node_modules/cheerio/dist/browser/index.js" for import "default" from "/repo/src/index.tsx" at /repo/src/index.tsx:3:7 ${"details ".repeat(20)}`,
+    96,
+  );
+  expect(detail.length).toBeLessThanOrEqual(96);
+  expect(detail).toContain("No matching export");
+  expect(detail).toContain("cheerio");
+  expect(detail).toContain('"default"');
+  expect(detail).toContain("src/index.tsx:3:7");
+});
+
 test("compactLines keeps only the last lines and drops empty input", () => {
   expect(compactLines([])).toBeUndefined();
   expect(compactLines(["a"])).toEqual(["a"]);
@@ -341,6 +353,10 @@ test("buildReport sorts results and extension failures and totals outcomes", () 
     "unsupported-api": 0,
     "missing-arguments": 0,
   });
+});
+
+test("buildReport records the cache peak when supplied", () => {
+  expect(buildReport("pin", [], [], 1234).peakBytes).toBe(1234);
 });
 
 test("the JSON report is deterministic and contains no absolute paths", () => {

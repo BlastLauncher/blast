@@ -76,6 +76,12 @@ test("patterns reject an invalid extension name", () => {
 
 test("pin validation accepts the committed shape", () => {
   expect(parsePin({ ...PIN })).toEqual(PIN);
+  expect(
+    parsePin({
+      ...PIN,
+      selection: { strata: { "shared-deps": ["radix"] } },
+    }).selection,
+  ).toEqual({ strata: { "shared-deps": ["radix"] } });
 });
 
 test("pin validation rejects a bad repository, commit or curated list", () => {

@@ -142,6 +142,7 @@ export type TuiReport = {
   totals: Record<TuiOutcome, number>;
   results: TuiResult[];
   extensionFailures: { extension: string; error: string }[];
+  peakBytes?: number;
 };
 
 export type BuildTuiInput = {
@@ -236,6 +237,7 @@ export function buildTuiReport(
   width: number,
   height: number,
   extensionFailures: { extension: string; error: string }[] = [],
+  peakBytes?: number,
 ): TuiReport {
   const totals = Object.fromEntries(TUI_OUTCOMES.map((outcome) => [outcome, 0])) as Record<
     TuiOutcome,
@@ -253,6 +255,7 @@ export function buildTuiReport(
     extensionFailures: [...extensionFailures].toSorted((a, b) =>
       a.extension.localeCompare(b.extension),
     ),
+    ...(peakBytes === undefined ? {} : { peakBytes }),
   };
 }
 

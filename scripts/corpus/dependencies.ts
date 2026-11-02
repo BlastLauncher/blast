@@ -6,6 +6,7 @@
 import { isBuiltin } from "node:module";
 import { BASE_PACKAGES, importedPackages, PROVIDED_PACKAGES, type Source } from "./imports.ts";
 import type { Manifest } from "./selection.ts";
+import { isDependencyCompatible } from "@blastlauncher/shared-deps";
 
 export const DEPENDENCIES_PATH = "compat/dependencies.json";
 export const DEPENDENCIES_MD_PATH = "compat/DEPENDENCIES.md";
@@ -46,6 +47,8 @@ export function majorOf(range: unknown): string {
 export type ExtensionDependencies = {
   /** Declared runtime dependency name → its major bucket. */
   declared: Record<string, string>;
+  /** Exact declared ranges, retained for compatibility checks. */
+  ranges?: Record<string, string>;
   /** npm packages imported by the extension's non-test sources, sorted. */
   imported: string[];
 };
@@ -56,10 +59,14 @@ export function extensionDependencies(
 ): ExtensionDependencies {
   const dependencies = manifest?.dependencies ?? {};
   const declared: Record<string, string> = {};
+  const ranges: Record<string, string> = {};
   for (const name of Object.keys(dependencies).toSorted()) {
-    if (trackedPackage(name)) declared[name] = majorOf(dependencies[name]);
+    if (trackedPackage(name)) {
+      declared[name] = majorOf(dependencies[name]);
+      if (typeof dependencies[name] === "string") ranges[name] = dependencies[name];
+    }
   }
-  return { declared, imported: importedPackages(sources).filter(trackedPackage) };
+  return { declared, ranges, imported: importedPackages(sources).filter(trackedPackage) };
 }
 
 export type DependencyEntry = {
@@ -146,7 +153,14 @@ export function aggregateDependencies(
     providedOnly: needs.filter((need) => need.size === 0).length,
     shared: {
       provided: [...new Set(provided)].toSorted(),
-      satisfied: needs.filter((need) => [...need].every((name) => provided.includes(name))).length,
+      satisfied: needs.filter((need, index) =>
+        [...need].every(
+          (name) =>
+            provided.includes(name) &&
+            (extensions[index]?.ranges?.[name] === undefined ||
+              isDependencyCompatible(name, extensions[index]?.ranges?.[name])),
+        ),
+      ).length,
     },
     curve: steps.map((count) => {
       const available = new Set(byImports.slice(0, count));
@@ -196,6 +210,8 @@ export function renderDependenciesMd(dependencies: Dependencies): string {
     "## Cumulative curve",
     "",
     "How many extensions are satisfied once the top N packages by imports are provided.",
+    "The curve models package availability only; it does not apply pinned-version checks to",
+    "hypothetical packages. Pinned versions are checked in the shared allowlist count above.",
     "",
     "| Packages provided | Extensions satisfied |",
     "| --- | --- |",

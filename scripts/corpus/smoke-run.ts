@@ -89,7 +89,7 @@ async function main(): Promise<void> {
     fetchBatch([], root);
   }
 
-  const report = buildReport(pin.commit, results, extensionFailures);
+  const report = buildReport(pin.commit, results, extensionFailures, peakBytes);
   await writeFile(join(root, "compat/smoke.json"), renderJsonReport(report));
   await writeFile(join(root, "compat/SMOKE.md"), renderMarkdownReport(report));
   const totals = Object.entries(report.totals)
