@@ -66,7 +66,7 @@ change because of item 3, say so in Handoff instead of rerunning.
 
 ```
 Branch/commit: t3/fix-corpus-selection-precision @ 329fd56
-Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 49.6s
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 50.3s
 Done:
 - Replaced regex dependency checks with semver comparator-set checks, including prerelease-only ranges, 0.x minor lines, npm aliases, and non-semver satisfaction rules; warnings remain safe for every specifier form.
 - Made sticky selection idempotent with persisted prior strata, single-stratum kept accounting, corrected offline quota accounting, and unconditional deterministic pin writes; repeated and underfilled tests cover the behavior.
