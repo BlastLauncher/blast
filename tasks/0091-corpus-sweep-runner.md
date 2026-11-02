@@ -72,7 +72,7 @@ affected, and unsupported or denied capabilities ranked likewise.
 ## Handoff
 
 ```
-Branch/commit: t3/corpus-sweep-runner @ e31202f
+Branch/commit: t3/tighten-corpus-sandbox @ 1b6f1c524e75ebde0b058a0a815d43ff48c5fbb1
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 51.4s
 Done:
 - Tightened Seatbelt to deny home data reads except the repository, real Bun/Node installations and scratch; restricted execution to real Bun/Node binaries, allowed only required device writes and tested mach services, and denied network/pasteboard/LaunchServices/Apple Events.
@@ -83,5 +83,5 @@ Done:
 - Interruption/resume: a SIGINT run completed 262 records before the batch stopped; rerun with `--resume` skipped all 262 and reported `resumed: 262`.
 Not done / risks:
 - The full population sweep and primary-action probing remain task 0092/out of scope.
-- The pilot records incompatibilities and sandbox denials; it does not repair extension code or install dependencies. The task file will be refreshed with the final implementation commit below.
+- The pilot records incompatibilities and sandbox denials; it does not repair extension code or install dependencies.
 ```
