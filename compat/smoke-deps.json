@@ -1,7 +1,7 @@
 {
-  "commit": "3b812d1e153a1862df29bc8ec34e170c728512ea",
+  "commit": "bad7de0172ce6ea5e721ed919f4e1d7186f74192",
   "totals": {
-    "rendered": 54,
+    "rendered": 51,
     "completed": 0,
     "install-failed": 0,
     "bundle-failed": 0,
@@ -9,7 +9,7 @@
     "crashed": 0,
     "needs-arguments": 0,
     "needs-preferences": 0,
-    "capability-denied": 2,
+    "capability-denied": 1,
     "network": 0,
     "timeout": 0,
     "unsupported-api": 0,
@@ -17,22 +17,13 @@
   },
   "installs": [
     {
-      "extension": "android-adb-input",
-      "packages": [
-        "execa"
-      ],
-      "status": "installed",
-      "ms": 900.0445270000018,
-      "bytes": 230236
-    },
-    {
       "extension": "atomberg-raycast-extension",
       "packages": [
         "@tanstack/react-query"
       ],
       "status": "installed",
-      "ms": 3783.3201439999975,
-      "bytes": 4539195
+      "ms": 5541.840625000001,
+      "bytes": 4565615
     },
     {
       "extension": "bed-time-calculator",
@@ -40,17 +31,8 @@
         "chrono-node"
       ],
       "status": "installed",
-      "ms": 1574.0540760000004,
+      "ms": 503.58979199999885,
       "bytes": 3158588
-    },
-    {
-      "extension": "caschys-blog",
-      "packages": [
-        "xml2js"
-      ],
-      "status": "installed",
-      "ms": 1901.8895940000039,
-      "bytes": 4934385
     },
     {
       "extension": "ccfddl",
@@ -58,8 +40,8 @@
         "js-yaml"
       ],
       "status": "installed",
-      "ms": 2660.671340000001,
-      "bytes": 2901709
+      "ms": 2176.866374999998,
+      "bytes": 2928129
     },
     {
       "extension": "colorify",
@@ -71,19 +53,8 @@
         "jimp"
       ],
       "status": "installed",
-      "ms": 2602.0421429999988,
+      "ms": 2124.734958000001,
       "bytes": 30841861
-    },
-    {
-      "extension": "commandcode-ai",
-      "packages": [
-        "@ai-sdk/anthropic",
-        "@ai-sdk/openai-compatible",
-        "ai"
-      ],
-      "status": "installed",
-      "ms": 3360.445246000003,
-      "bytes": 23265885
     },
     {
       "extension": "control-d",
@@ -91,7 +62,7 @@
         "form-data"
       ],
       "status": "installed",
-      "ms": 1328.5311389999988,
+      "ms": 373.3229999999967,
       "bytes": 2432321
     },
     {
@@ -100,7 +71,7 @@
         "qrcode"
       ],
       "status": "installed",
-      "ms": 1974.4892770000006,
+      "ms": 463.16070800000307,
       "bytes": 8452784
     },
     {
@@ -109,8 +80,8 @@
         "openai"
       ],
       "status": "installed",
-      "ms": 4269.252466000005,
-      "bytes": 20439572
+      "ms": 2664.766334,
+      "bytes": 17702556
     },
     {
       "extension": "esa-search",
@@ -119,8 +90,8 @@
         "swr"
       ],
       "status": "installed",
-      "ms": 3305.050187999994,
-      "bytes": 6831724
+      "ms": 2625.4870420000007,
+      "bytes": 6876371
     },
     {
       "extension": "featurebase",
@@ -128,18 +99,18 @@
         "turndown"
       ],
       "status": "installed",
-      "ms": 3634.8536380000005,
-      "bytes": 9121147
+      "ms": 2345.190625000003,
+      "bytes": 9147567
     },
     {
-      "extension": "image-diff-checker",
+      "extension": "grammaring",
       "packages": [
-        "jimp",
-        "pixelmatch"
+        "@ai-sdk/openai",
+        "ai"
       ],
       "status": "installed",
-      "ms": 6811.624082999988,
-      "bytes": 28529729
+      "ms": 4001.1413749999992,
+      "bytes": 13453525
     },
     {
       "extension": "irish-rail",
@@ -147,7 +118,7 @@
         "fast-xml-parser"
       ],
       "status": "installed",
-      "ms": 1754.6203759999917,
+      "ms": 394.43354199999885,
       "bytes": 3562179
     },
     {
@@ -156,7 +127,7 @@
         "open"
       ],
       "status": "installed",
-      "ms": 738.6271829999896,
+      "ms": 272.5081250000003,
       "bytes": 61341
     },
     {
@@ -165,8 +136,19 @@
         "marked"
       ],
       "status": "installed",
-      "ms": 3707.816842,
-      "bytes": 2697516
+      "ms": 2496.606667,
+      "bytes": 2723936
+    },
+    {
+      "extension": "meta-music",
+      "packages": [
+        "filesize",
+        "mime",
+        "node-id3"
+      ],
+      "status": "installed",
+      "ms": 3039.800624999996,
+      "bytes": 24538178
     },
     {
       "extension": "monorepo-manager",
@@ -176,18 +158,8 @@
         "parse-git-config"
       ],
       "status": "installed",
-      "ms": 4904.005334000001,
-      "bytes": 15347860
-    },
-    {
-      "extension": "oci",
-      "packages": [
-        "filesize",
-        "oci-sdk"
-      ],
-      "status": "installed",
-      "ms": 31763.760022000002,
-      "bytes": 226850474
+      "ms": 2464.344542000006,
+      "bytes": 15388042
     },
     {
       "extension": "owl",
@@ -196,8 +168,27 @@
         "raycast-cross-extension"
       ],
       "status": "installed",
-      "ms": 2699.2136530000134,
-      "bytes": 2535496
+      "ms": 2212.293542000014,
+      "bytes": 2561937
+    },
+    {
+      "extension": "raycast-store-updates",
+      "packages": [
+        "@chrismessina/raycast-kit"
+      ],
+      "status": "installed",
+      "ms": 2131.8826249999984,
+      "bytes": 1357618
+    },
+    {
+      "extension": "reddit-search",
+      "packages": [
+        "@chrismessina/raycast-logger",
+        "fast-xml-parser"
+      ],
+      "status": "installed",
+      "ms": 1357.153250000003,
+      "bytes": 3134097
     },
     {
       "extension": "screen-sharing-recents",
@@ -205,7 +196,7 @@
         "plist"
       ],
       "status": "installed",
-      "ms": 818.5505089999933,
+      "ms": 333.12149999999383,
       "bytes": 9079449
     },
     {
@@ -214,8 +205,8 @@
         "algoliasearch"
       ],
       "status": "installed",
-      "ms": 2430.2399740000255,
-      "bytes": 2334030
+      "ms": 4988.498916000011,
+      "bytes": 2379394
     },
     {
       "extension": "search-regexp",
@@ -223,7 +214,7 @@
         "got"
       ],
       "status": "installed",
-      "ms": 899.4128029999847,
+      "ms": 565.1377079999947,
       "bytes": 745168
     },
     {
@@ -232,7 +223,7 @@
         "rss-parser"
       ],
       "status": "installed",
-      "ms": 652.3355370000063,
+      "ms": 287.049708999999,
       "bytes": 2206496
     },
     {
@@ -241,8 +232,8 @@
         "node-html-parser"
       ],
       "status": "installed",
-      "ms": 2818.813141999999,
-      "bytes": 3137352
+      "ms": 2296.3899999999994,
+      "bytes": 3163772
     },
     {
       "extension": "youtube",
@@ -253,25 +244,27 @@
         "javascript-time-ago"
       ],
       "status": "installed",
-      "ms": 3802.7162989999924,
-      "bytes": 27977776
+      "ms": 2406.331290999995,
+      "bytes": 28006323
+    },
+    {
+      "extension": "zoxide-git-projects",
+      "packages": [
+        "execa",
+        "fzf",
+        "node-cache"
+      ],
+      "status": "installed",
+      "ms": 2459.238499999992,
+      "bytes": 2127093
     }
   ],
   "results": [
     {
-      "extension": "android-adb-input",
-      "command": "index",
-      "mode": "view",
-      "bundleMs": 220.32662300000084,
-      "nodes": 8,
-      "rootType": "Navigation",
-      "outcome": "rendered"
-    },
-    {
       "extension": "atomberg-raycast-extension",
       "command": "list-atomberg-devices",
       "mode": "view",
-      "bundleMs": 879.3930010000004,
+      "bundleMs": 414.6623749999999,
       "nodes": 7,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -280,7 +273,7 @@
       "extension": "atomberg-raycast-extension",
       "command": "manage-atomberg-credentials",
       "mode": "view",
-      "bundleMs": 555.3991859999987,
+      "bundleMs": 354.6750409999986,
       "nodes": 24,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -290,7 +283,7 @@
       "command": "sleep-at",
       "mode": "view",
       "placeholders": "arguments",
-      "bundleMs": 1687.005964,
+      "bundleMs": 1042.9422919999997,
       "nodes": 5,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -299,7 +292,7 @@
       "extension": "bed-time-calculator",
       "command": "sleep-now",
       "mode": "view",
-      "bundleMs": 1638.6011900000012,
+      "bundleMs": 999.4678749999985,
       "nodes": 29,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -309,44 +302,8 @@
       "command": "wake-up-at",
       "mode": "view",
       "placeholders": "arguments",
-      "bundleMs": 1446.5606980000011,
+      "bundleMs": 993.622542000001,
       "nodes": 5,
-      "rootType": "Navigation",
-      "outcome": "rendered"
-    },
-    {
-      "extension": "caschys-blog",
-      "command": "latest-articles",
-      "mode": "view",
-      "bundleMs": 497.176870999996,
-      "nodes": 7,
-      "rootType": "Navigation",
-      "outcome": "rendered"
-    },
-    {
-      "extension": "caschys-blog",
-      "command": "open-website",
-      "mode": "no-view",
-      "bundleMs": 22.212095999995654,
-      "path": "open.url",
-      "error": "Capability denied: open.url",
-      "outcome": "capability-denied"
-    },
-    {
-      "extension": "caschys-blog",
-      "command": "search-blog",
-      "mode": "view",
-      "bundleMs": 447.56372899999405,
-      "nodes": 4,
-      "rootType": "Navigation",
-      "outcome": "rendered"
-    },
-    {
-      "extension": "caschys-blog",
-      "command": "submit-tip",
-      "mode": "view",
-      "bundleMs": 61.73685700000351,
-      "nodes": 13,
       "rootType": "Navigation",
       "outcome": "rendered"
     },
@@ -354,7 +311,7 @@
       "extension": "ccfddl",
       "command": "search",
       "mode": "view",
-      "bundleMs": 281.56907599999977,
+      "bundleMs": 188.44537499999933,
       "nodes": 3,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -363,26 +320,8 @@
       "extension": "colorify",
       "command": "generate-theme",
       "mode": "view",
-      "bundleMs": 2885.620151000003,
+      "bundleMs": 1362.669624999995,
       "nodes": 3,
-      "rootType": "Navigation",
-      "outcome": "rendered"
-    },
-    {
-      "extension": "commandcode-ai",
-      "command": "ask-commandcode-ai",
-      "mode": "view",
-      "bundleMs": 1354.727979000003,
-      "nodes": 8,
-      "rootType": "Navigation",
-      "outcome": "rendered"
-    },
-    {
-      "extension": "commandcode-ai",
-      "command": "refresh-models",
-      "mode": "no-view",
-      "bundleMs": 1004.4529630000034,
-      "nodes": 4,
       "rootType": "Navigation",
       "outcome": "rendered"
     },
@@ -391,7 +330,7 @@
       "command": "change-filters",
       "mode": "view",
       "placeholders": "preferences",
-      "bundleMs": 702.5090430000055,
+      "bundleMs": 424.7224159999969,
       "nodes": 9,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -401,7 +340,7 @@
       "command": "learn-my-ip",
       "mode": "view",
       "placeholders": "preferences",
-      "bundleMs": 846.637321000002,
+      "bundleMs": 410.48354200000176,
       "nodes": 7,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -411,7 +350,7 @@
       "command": "list-profiles",
       "mode": "view",
       "placeholders": "preferences",
-      "bundleMs": 633.3792219999959,
+      "bundleMs": 385.6491670000032,
       "nodes": 3,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -421,7 +360,7 @@
       "command": "modify-profile",
       "mode": "view",
       "placeholders": "preferences",
-      "bundleMs": 712.3823829999965,
+      "bundleMs": 387.4079999999958,
       "nodes": 8,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -431,7 +370,7 @@
       "command": "status",
       "mode": "view",
       "placeholders": "preferences",
-      "bundleMs": 639.1475770000034,
+      "bundleMs": 385.20429200000217,
       "nodes": 12,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -441,7 +380,7 @@
       "command": "add-address",
       "mode": "no-view",
       "placeholders": "arguments",
-      "bundleMs": 11.321989000003668,
+      "bundleMs": 6.72820800000045,
       "nodes": 3,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -450,7 +389,7 @@
       "extension": "defichain-lottery",
       "command": "remove-address",
       "mode": "view",
-      "bundleMs": 27.80920999999944,
+      "bundleMs": 6.254999999997381,
       "nodes": 4,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -459,7 +398,7 @@
       "extension": "defichain-lottery",
       "command": "stats",
       "mode": "view",
-      "bundleMs": 977.2659570000033,
+      "bundleMs": 511.26141700000153,
       "nodes": 4,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -468,7 +407,7 @@
       "extension": "defichain-lottery",
       "command": "tickets",
       "mode": "view",
-      "bundleMs": 753.0772309999957,
+      "bundleMs": 398.9144579999993,
       "nodes": 8,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -478,7 +417,7 @@
       "command": "emoji-selector",
       "mode": "view",
       "placeholders": "arguments",
-      "bundleMs": 913.968452000001,
+      "bundleMs": 678.2203329999975,
       "nodes": 5,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -487,7 +426,7 @@
       "extension": "emojify",
       "command": "emojify",
       "mode": "view",
-      "bundleMs": 948.0343790000043,
+      "bundleMs": 658.2859170000011,
       "nodes": 6,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -497,7 +436,7 @@
       "command": "createPost",
       "mode": "no-view",
       "placeholders": "preferences",
-      "bundleMs": 10.187902000005124,
+      "bundleMs": 5.970332999997481,
       "path": "open.url",
       "error": "Capability denied: open.url",
       "outcome": "capability-denied"
@@ -507,7 +446,7 @@
       "command": "searchPost",
       "mode": "view",
       "placeholders": "both",
-      "bundleMs": 720.8107140000066,
+      "bundleMs": 317.544332999998,
       "nodes": 10,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -517,7 +456,7 @@
       "command": "manage-changelogs",
       "mode": "view",
       "placeholders": "preferences",
-      "bundleMs": 42.800021000002744,
+      "bundleMs": 16.034082999998645,
       "nodes": 7,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -527,7 +466,7 @@
       "command": "manage-feedback",
       "mode": "view",
       "placeholders": "preferences",
-      "bundleMs": 496.25966500000504,
+      "bundleMs": 276.98608299999614,
       "nodes": 3,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -537,7 +476,7 @@
       "command": "manage-help-center",
       "mode": "view",
       "placeholders": "preferences",
-      "bundleMs": 70.13002799999958,
+      "bundleMs": 34.78033300000243,
       "nodes": 7,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -547,17 +486,28 @@
       "command": "manage-users",
       "mode": "view",
       "placeholders": "preferences",
-      "bundleMs": 41.297411999999895,
+      "bundleMs": 16.348791000003985,
       "nodes": 3,
       "rootType": "Navigation",
       "outcome": "rendered"
     },
     {
-      "extension": "image-diff-checker",
-      "command": "image-diff-check",
+      "extension": "grammaring",
+      "command": "fix-fact-text",
+      "mode": "no-view",
+      "placeholders": "preferences",
+      "bundleMs": 483.56470800000534,
+      "nodes": 3,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "grammaring",
+      "command": "fix-fact-text-input",
       "mode": "view",
-      "bundleMs": 1736.539024999991,
-      "nodes": 21,
+      "placeholders": "preferences",
+      "bundleMs": 499.7019999999975,
+      "nodes": 7,
       "rootType": "Navigation",
       "outcome": "rendered"
     },
@@ -565,7 +515,7 @@
       "extension": "irish-rail",
       "command": "index",
       "mode": "view",
-      "bundleMs": 983.8663970000052,
+      "bundleMs": 423.0355419999978,
       "nodes": 9,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -574,7 +524,7 @@
       "extension": "lyne",
       "command": "create-horizontal-lines",
       "mode": "view",
-      "bundleMs": 46.36344200000167,
+      "bundleMs": 18.52716700000019,
       "nodes": 9,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -583,7 +533,7 @@
       "extension": "lyne",
       "command": "create-rectangle",
       "mode": "view",
-      "bundleMs": 36.532142999989446,
+      "bundleMs": 18.4697079999969,
       "nodes": 10,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -592,7 +542,7 @@
       "extension": "lyne",
       "command": "create-vertical-lines",
       "mode": "view",
-      "bundleMs": 62.646701999998186,
+      "bundleMs": 18.63683299999684,
       "nodes": 9,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -601,8 +551,17 @@
       "extension": "markdown-preview",
       "command": "preview-markdown",
       "mode": "view",
-      "bundleMs": 47.271008000010625,
+      "bundleMs": 13.221125000003667,
       "nodes": 8,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "meta-music",
+      "command": "manage-id3-tags",
+      "mode": "view",
+      "bundleMs": 4380.417415999997,
+      "nodes": 3,
       "rootType": "Navigation",
       "outcome": "rendered"
     },
@@ -610,54 +569,8 @@
       "extension": "monorepo-manager",
       "command": "manageMonorepo",
       "mode": "view",
-      "bundleMs": 6753.7050089999975,
+      "bundleMs": 4602.250125000006,
       "nodes": 3,
-      "rootType": "Navigation",
-      "outcome": "rendered"
-    },
-    {
-      "extension": "oci",
-      "command": "core",
-      "mode": "view",
-      "bundleMs": 8767.412083000003,
-      "nodes": 6,
-      "rootType": "Navigation",
-      "outcome": "rendered"
-    },
-    {
-      "extension": "oci",
-      "command": "email-delivery",
-      "mode": "view",
-      "placeholders": "arguments",
-      "bundleMs": 1773.8065720000013,
-      "nodes": 6,
-      "rootType": "Navigation",
-      "outcome": "rendered"
-    },
-    {
-      "extension": "oci",
-      "command": "nosql-database",
-      "mode": "view",
-      "bundleMs": 2027.0483160000003,
-      "nodes": 6,
-      "rootType": "Navigation",
-      "outcome": "rendered"
-    },
-    {
-      "extension": "oci",
-      "command": "object-storage",
-      "mode": "view",
-      "bundleMs": 2363.3809260000126,
-      "nodes": 6,
-      "rootType": "Navigation",
-      "outcome": "rendered"
-    },
-    {
-      "extension": "oci",
-      "command": "vault",
-      "mode": "view",
-      "bundleMs": 2469.9846550000075,
-      "nodes": 6,
       "rootType": "Navigation",
       "outcome": "rendered"
     },
@@ -665,7 +578,7 @@
       "extension": "owl",
       "command": "configure-owls",
       "mode": "view",
-      "bundleMs": 294.46411499998067,
+      "bundleMs": 184.00841599999694,
       "nodes": 8,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -674,8 +587,54 @@
       "extension": "owl",
       "command": "owl",
       "mode": "view",
-      "bundleMs": 414.62072700000135,
+      "bundleMs": 269.69920800000546,
       "nodes": 4,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "raycast-store-updates",
+      "command": "store-updates-menu-bar",
+      "mode": "menu-bar",
+      "bundleMs": 21.11837500000547,
+      "nodes": 5,
+      "rootType": "MenuBarExtra",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "raycast-store-updates",
+      "command": "view-store-updates",
+      "mode": "view",
+      "bundleMs": 41.686333000005106,
+      "nodes": 10,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "reddit-search",
+      "command": "index",
+      "mode": "view",
+      "bundleMs": 130.67695799999638,
+      "nodes": 14,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "reddit-search",
+      "command": "quick-search-subreddit",
+      "mode": "no-view",
+      "placeholders": "arguments",
+      "bundleMs": 16.441915999996127,
+      "nodes": 4,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "reddit-search",
+      "command": "search-subreddits",
+      "mode": "view",
+      "bundleMs": 128.71408299999894,
+      "nodes": 7,
       "rootType": "Navigation",
       "outcome": "rendered"
     },
@@ -683,7 +642,7 @@
       "extension": "screen-sharing-recents",
       "command": "index",
       "mode": "view",
-      "bundleMs": 260.3249470000155,
+      "bundleMs": 205.45758300001035,
       "nodes": 4,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -692,7 +651,7 @@
       "extension": "search-composer-packagist",
       "command": "composer",
       "mode": "view",
-      "bundleMs": 320.5223539999861,
+      "bundleMs": 225.35874999999942,
       "nodes": 3,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -701,7 +660,7 @@
       "extension": "search-regexp",
       "command": "searchRegexp",
       "mode": "view",
-      "bundleMs": 302.922447000019,
+      "bundleMs": 211.10329100000672,
       "nodes": 232,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -710,7 +669,7 @@
       "extension": "shopify-developer-changelog",
       "command": "shopify-changelog",
       "mode": "view",
-      "bundleMs": 280.0088269999833,
+      "bundleMs": 223.1747910000122,
       "nodes": 3,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -719,7 +678,7 @@
       "extension": "vanishlink",
       "command": "add",
       "mode": "view",
-      "bundleMs": 469.2120199999772,
+      "bundleMs": 373.5352920000005,
       "nodes": 8,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -728,7 +687,7 @@
       "extension": "vanishlink",
       "command": "add-from-clipboard",
       "mode": "no-view",
-      "bundleMs": 254.0621890000184,
+      "bundleMs": 174.13791700000002,
       "nodes": 3,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -737,7 +696,7 @@
       "extension": "vanishlink",
       "command": "search",
       "mode": "view",
-      "bundleMs": 456.33202099998016,
+      "bundleMs": 315.0337500000023,
       "nodes": 7,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -747,7 +706,7 @@
       "command": "popular-videos",
       "mode": "view",
       "placeholders": "preferences",
-      "bundleMs": 820.8947240000125,
+      "bundleMs": 576.5940830000036,
       "nodes": 3,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -757,7 +716,7 @@
       "command": "search-channel",
       "mode": "view",
       "placeholders": "preferences",
-      "bundleMs": 841.7710500000103,
+      "bundleMs": 692.5981659999961,
       "nodes": 3,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -767,7 +726,7 @@
       "command": "search-live",
       "mode": "view",
       "placeholders": "preferences",
-      "bundleMs": 811.6426280000014,
+      "bundleMs": 586.8640419999865,
       "nodes": 3,
       "rootType": "Navigation",
       "outcome": "rendered"
@@ -777,13 +736,23 @@
       "command": "search-videos",
       "mode": "view",
       "placeholders": "preferences",
-      "bundleMs": 838.2810699999973,
+      "bundleMs": 587.4957500000019,
+      "nodes": 3,
+      "rootType": "Navigation",
+      "outcome": "rendered"
+    },
+    {
+      "extension": "zoxide-git-projects",
+      "command": "find",
+      "mode": "view",
+      "placeholders": "preferences",
+      "bundleMs": 241.28100000000268,
       "nodes": 3,
       "rootType": "Navigation",
       "outcome": "rendered"
     }
   ],
   "extensionFailures": [],
-  "peakBytes": 467773377,
-  "wallMs": 207676.659966
+  "peakBytes": 280002186,
+  "wallMs": 115095.166208
 }

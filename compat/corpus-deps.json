@@ -1,20 +1,22 @@
 {
   "repository": "https://github.com/raycast/extensions.git",
-  "commit": "3b812d1e153a1862df29bc8ec34e170c728512ea",
+  "commit": "bad7de0172ce6ea5e721ed919f4e1d7186f74192",
   "extensions": [
+    {
+      "name": "zoxide-git-projects",
+      "dependencies": [
+        "execa",
+        "fzf",
+        "node-cache"
+      ],
+      "primary": "execa"
+    },
     {
       "name": "shopify-developer-changelog",
       "dependencies": [
         "rss-parser"
       ],
       "primary": "rss-parser"
-    },
-    {
-      "name": "android-adb-input",
-      "dependencies": [
-        "execa"
-      ],
-      "primary": "execa"
     },
     {
       "name": "search-regexp",
@@ -70,6 +72,14 @@
       "primary": "raycast-cross-extension"
     },
     {
+      "name": "reddit-search",
+      "dependencies": [
+        "@chrismessina/raycast-logger",
+        "fast-xml-parser"
+      ],
+      "primary": "@chrismessina/raycast-logger"
+    },
+    {
       "name": "irish-rail",
       "dependencies": [
         "fast-xml-parser"
@@ -91,20 +101,28 @@
       "primary": "algoliasearch"
     },
     {
-      "name": "commandcode-ai",
-      "dependencies": [
-        "@ai-sdk/anthropic",
-        "@ai-sdk/openai-compatible",
-        "ai"
-      ],
-      "primary": "ai"
-    },
-    {
       "name": "bed-time-calculator",
       "dependencies": [
         "chrono-node"
       ],
       "primary": "chrono-node"
+    },
+    {
+      "name": "grammaring",
+      "dependencies": [
+        "@ai-sdk/openai",
+        "ai"
+      ],
+      "primary": "ai"
+    },
+    {
+      "name": "meta-music",
+      "dependencies": [
+        "filesize",
+        "mime",
+        "node-id3"
+      ],
+      "primary": "filesize"
     },
     {
       "name": "youtube",
@@ -131,14 +149,6 @@
       "primary": "@tanstack/react-query"
     },
     {
-      "name": "oci",
-      "dependencies": [
-        "filesize",
-        "oci-sdk"
-      ],
-      "primary": "filesize"
-    },
-    {
       "name": "lyne",
       "dependencies": [
         "open"
@@ -153,11 +163,25 @@
       "primary": "qrcode"
     },
     {
+      "name": "markdown-preview",
+      "dependencies": [
+        "marked"
+      ],
+      "primary": "marked"
+    },
+    {
       "name": "vanishlink",
       "dependencies": [
         "node-html-parser"
       ],
       "primary": "node-html-parser"
+    },
+    {
+      "name": "raycast-store-updates",
+      "dependencies": [
+        "@chrismessina/raycast-kit"
+      ],
+      "primary": "@chrismessina/raycast-kit"
     },
     {
       "name": "colorify",
@@ -169,28 +193,6 @@
         "jimp"
       ],
       "primary": "file-type"
-    },
-    {
-      "name": "image-diff-checker",
-      "dependencies": [
-        "jimp",
-        "pixelmatch"
-      ],
-      "primary": "jimp"
-    },
-    {
-      "name": "markdown-preview",
-      "dependencies": [
-        "marked"
-      ],
-      "primary": "marked"
-    },
-    {
-      "name": "caschys-blog",
-      "dependencies": [
-        "xml2js"
-      ],
-      "primary": "xml2js"
     }
   ],
   "selection": {
@@ -201,8 +203,8 @@
       "spread": "filed under its most-imported unprovided package; round-robin over the 40 most-imported packages, 6 candidates read per package",
       "order": "offline before network, fewer dependencies, then name hash"
     },
-    "manifestEligible": 1236,
-    "scanned": 235,
-    "eligible": 126
+    "manifestEligible": 1256,
+    "scanned": 232,
+    "eligible": 118
   }
 }
