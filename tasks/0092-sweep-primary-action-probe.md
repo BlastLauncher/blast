@@ -41,8 +41,13 @@ as a headless run can show, which the report must state.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/sweep-primary-action-probe @ ea6934e
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 53.0s
 Done:
-Not done / risks:
+- Added `--probe-actions`; primary dispatch uses `packages/client-core` inside the same Seatbelt child runtime.
+- Added deterministic classifications and fixture coverage for all seven action outcomes, including broker-denied capability evidence.
+- Committed the 100-extension pilot report with totals and ranked action crash causes.
+- Pilot: render-only crash rate 0/247 (0.0%); after primary action 0/247 (0.0%); added runtime 2.7 ms/probed command.
+- Pilot cleanup left `.cache` at 132 KiB.
+Not done / risks: No action crashes, no-op outcomes, or action timeouts occurred in this pilot; those paths are covered by deterministic classifier tests and remain untriaged by design.
 ```
