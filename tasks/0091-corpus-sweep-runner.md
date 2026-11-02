@@ -1,7 +1,7 @@
 ---
 id: "0091"
 title: Sandboxed corpus sweep runner with a pilot run
-status: doing
+status: review
 milestone: M6
 depends: ["0090", "0093"]
 ---
@@ -72,8 +72,15 @@ affected, and unsupported or denied capabilities ranked likewise.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/corpus-sweep-runner @ be05e8f
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 50.6s
 Done:
+- Added `bun run corpus:sweep` with deterministic seeded selection, `--limit`, `--jobs`, `--resume`, disk/free-space guards, per-command JSONL resume logging, and bounded aggregate reports.
+- Bundling and runtime execution now happen together inside a macOS `sandbox-exec` child with an allowlisted environment, no network entitlement, explicit credential/personal-path read denies, and writes confined to per-command scratch; non-macOS runs refuse unless `--unsandboxed` is explicit.
+- Added macOS containment fixtures plus pure tests for selection, resume, grouping, environment allowlisting, and report limits.
+- Pilot: `bun run corpus:sweep --limit 100 --seed 0091 --jobs 4`; 288 commands, 152.42 commands/min, peak `.cache` 533.3 MB, final `.cache` 68 KB, projected full-population duration 36.6 minutes and peak 533.3 MB.
+- Interruption/resume: a SIGINT run left 186 completed records; rerun with `--resume` skipped those records and reported `resumed: 186`.
 Not done / risks:
+- The full population sweep and primary-action probing remain task 0092/out of scope.
+- The pilot intentionally records bundle failures and denials; it does not repair extension incompatibilities or install dependencies.
 ```
