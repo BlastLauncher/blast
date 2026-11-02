@@ -84,14 +84,14 @@ Honest gate, latest API, real compatibility across the corpus. Tasks run in
 order, each with a disk budget (the volume is nearly full).
 
 - [x] 0088 Verify passes on a clean Mac
-- [ ] 0089 `@raycast/api` 2.10.1 and a weekly upgrade job
+- [x] 0089 `@raycast/api` 2.10.1 and a weekly upgrade job
 - [ ] 0090 Repin the corpus and rerun all smokes
 - [ ] 0091 Sandboxed corpus sweep runner and pilot
 - [ ] 0092 Primary action probe; full sweep task follows the pilot
 
 ## Later (not scheduled)
 
-- native: macOS window ops without yabai (System Events for list/active/bounds).
+- native: macOS window ops without yabai (System Events); honour paste `closeMainWindow`.
 - Go example on `blast serve` views (0080).
 - Publish to npm: owner plans to, timing theirs (`3.0.0-alpha.N` on `next`).
 - Autonomous orchestrator loop over `tasks/`; delete `archive/`.
