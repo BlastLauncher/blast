@@ -4,6 +4,8 @@
 // exit. The runners differ only in how dependencies resolve, so that is a
 // parameter; classification stays in `smoke.ts`.
 import { createHeadlessHandlers } from "../../packages/cli/src/index.ts";
+import { createController, type Controller } from "../../packages/client-core/src/index.ts";
+import type { SceneMessage, SceneNode } from "../../packages/protocol/src/index.ts";
 import { mkdir, mkdtemp, rm } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import {
@@ -26,11 +28,15 @@ import {
   isSandboxDeniedMessage,
   type CommandResult,
   type Manifest,
+  type PrimaryActionResult,
+  classifyPrimaryAction,
   type ProbeResult,
 } from "./smoke.ts";
 
 /** How long one command may take to publish its first scene (or exit). */
 const SCENE_TIMEOUT_MS = 5000;
+/** A responsive action gets a short observation window; a hung command gets a timeout. */
+const ACTION_TIMEOUT_MS = 1000;
 /** Warnings kept per command, after deduplication. */
 const MAX_WARNINGS = 5;
 /** Error-level log lines kept for a crash. */
@@ -52,31 +58,127 @@ export type DependencyMode = {
  * waiting for a root. The probe keeps raw messages; sanitation happens once,
  * when the result is built.
  */
-function firstSceneOrExit(session: Session, timeoutMs: number, mode: string): Promise<ProbeResult> {
+type FirstScene = { probe: ProbeResult; scene?: SceneMessage };
+
+function firstSceneOrExit(session: Session, timeoutMs: number, mode: string): Promise<FirstScene> {
   return new Promise((resolve) => {
     let settled = false;
     let unsubscribe: (() => void) | undefined;
-    const finish = (probe: ProbeResult): void => {
+    const finish = (probe: ProbeResult, scene?: SceneMessage): void => {
       if (settled) return;
       settled = true;
       clearTimeout(timer);
       unsubscribe?.();
-      resolve(probe);
+      unsubscribeLog?.();
+      resolve({ probe, ...(scene === undefined ? {} : { scene }) });
     };
     const timer = setTimeout(() => finish({ kind: "timeout", timeoutMs }), timeoutMs);
     unsubscribe = session.scenes((scene) => {
       if (scene.root) {
-        finish({
-          kind: "scene",
-          nodeCount: countNodes(scene.root),
-          rootType: scene.root.type,
-        });
+        finish(
+          {
+            kind: "scene",
+            nodeCount: countNodes(scene.root),
+            rootType: scene.root.type,
+          },
+          scene,
+        );
       } else if (mode === "menu-bar") {
-        finish({ kind: "empty-menu-bar" });
+        finish({ kind: "empty-menu-bar" }, scene);
       }
     });
     void session.exited.then((exit) => {
       finish(exitProbe(exit));
+    });
+  });
+}
+
+function navigationKey(root: SceneNode | null): string {
+  if (!root || root.type !== "Navigation") return "";
+  const entries = root.children
+    .filter((child) => child.type === "Navigation.Entry")
+    .map((child) => `${child.id}:${child.props.active === true ? "active" : "inactive"}`)
+    .join("|");
+  return `${root.id}/${entries}`;
+}
+
+function capabilityDenied(error: string | undefined): string | undefined {
+  return /^Capability denied: (.+)$/.exec(error ?? "")?.[1];
+}
+
+async function probePrimaryAction(
+  session: Session,
+  first: SceneMessage,
+  clean: (text: string) => string,
+): Promise<PrimaryActionResult> {
+  const started = performance.now();
+  const controller: Controller = createController({ platform: "macOS" });
+  controller.scene(first);
+  const before = controller.view();
+  if (!before.primary.enabled)
+    return { outcome: "no-primary-action", elapsedMs: performance.now() - started };
+  const dispatched = controller.input({ type: "primary" });
+  const panelOpened = controller.view().actions.open !== before.actions.open;
+  if (dispatched.events.length === 0) {
+    const result = classifyPrimaryAction({
+      primary: true,
+      events: 0,
+      panelOpened,
+    });
+    return { ...result, elapsedMs: performance.now() - started };
+  }
+
+  return await new Promise((resolve) => {
+    let settled = false;
+    let unsubscribe: (() => void) | undefined;
+    let unsubscribeLog: (() => void) | undefined;
+    const finish = (observation: Parameters<typeof classifyPrimaryAction>[0]) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      unsubscribe?.();
+      const result = classifyPrimaryAction(observation);
+      resolve({
+        ...result,
+        ...(result.error === undefined && observation.exit?.error
+          ? { error: clean(observation.exit.error) }
+          : {}),
+        elapsedMs: performance.now() - started,
+      });
+    };
+    const timer = setTimeout(
+      () => finish({ primary: true, events: dispatched.events.length, timedOut: true }),
+      ACTION_TIMEOUT_MS,
+    );
+    const initialRevision = first.revision;
+    unsubscribe = session.scenes((scene) => {
+      if (scene.revision === initialRevision || !scene.root) return;
+      const beforeNavigation = navigationKey(first.root);
+      const afterNavigation = navigationKey(scene.root);
+      finish({
+        primary: true,
+        events: dispatched.events.length,
+        sceneChanged: true,
+        navigated: beforeNavigation !== afterNavigation,
+      });
+    });
+    unsubscribeLog = session.onLog((log) => {
+      const capability = capabilityDenied(log.message.replace(/^EVENT_ERROR: /, ""));
+      if (capability) finish({ primary: true, events: dispatched.events.length, capability });
+    });
+    for (const event of dispatched.events) session.sendEvent(event.node, event.handler, event.args);
+    void session.exited.then((exit) => {
+      const capability = capabilityDenied(exit.error?.message);
+      finish({
+        primary: true,
+        events: dispatched.events.length,
+        ...(capability === undefined ? {} : { capability }),
+        exit: {
+          code: exit.code,
+          signal: exit.signal,
+          ...(exit.error === undefined ? {} : { error: exit.error.message }),
+        },
+      });
     });
   });
 }
@@ -146,6 +248,7 @@ export async function launchOne(
   commandName: string,
   bundled: BundledCommand,
   clean: (text: string) => string,
+  options: { probeActions?: boolean } = {},
 ): Promise<CommandResult> {
   const mode = commandMode(manifest, commandName) ?? "view";
   const outDir = dirname(bundled.entry);
@@ -210,10 +313,15 @@ export async function launchOne(
         [],
       );
     }
-    const probe = await firstSceneOrExit(session, SCENE_TIMEOUT_MS, mode);
+    const observed = await firstSceneOrExit(session, SCENE_TIMEOUT_MS, mode);
+    const probe = observed.probe;
     const warnings = logLines(session, "warn", clean);
     const errorLogs = logLines(session, "error", clean);
-    return build(probe, warnings, errorLogs);
+    const result = build(probe, warnings, errorLogs);
+    if (options.probeActions && observed.scene && probe.kind === "scene") {
+      result.action = await probePrimaryAction(session, observed.scene, clean);
+    }
+    return result;
   } finally {
     await session?.shutdown({ timeoutMs: 250 });
     await rm(outDir, { recursive: true, force: true });
@@ -229,10 +337,11 @@ export async function runOne(
   commandName: string,
   clean: (text: string) => string,
   dependencies: DependencyMode = { installedDependencies: false },
+  options: { probeActions?: boolean } = {},
 ): Promise<CommandResult> {
   const mode = commandMode(manifest, commandName) ?? "view";
   const bundle = await bundleOne(extensionDir, commandName, dependencies, clean);
   if (!bundle.ok)
     return buildResult({ extension, command: commandName, mode, probe: bundle.probe });
-  return launchOne(extension, manifest, commandName, bundle.bundled, clean);
+  return launchOne(extension, manifest, commandName, bundle.bundled, clean, options);
 }

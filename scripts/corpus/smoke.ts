@@ -21,6 +21,27 @@ export const OUTCOMES = [
 ] as const;
 export type Outcome = (typeof OUTCOMES)[number];
 
+export const ACTION_OUTCOMES = [
+  "navigated",
+  "scene-changed",
+  "capability-requested",
+  "no-primary-action",
+  "no-op",
+  "crashed",
+  "timeout",
+] as const;
+export type ActionOutcome = (typeof ACTION_OUTCOMES)[number];
+
+/** The result of dispatching the client-core primary action once. */
+export type PrimaryActionResult = {
+  outcome: ActionOutcome;
+  /** A denied broker capability, when the action requested one. */
+  capability?: string;
+  reason?: string;
+  error?: string;
+  elapsedMs?: number;
+};
+
 /**
  * Smoke runs offline against a deny-all broker, so a command whose first
  * render depends on the network fails for a reason that says nothing about
@@ -77,6 +98,8 @@ export type CommandResult = {
   warnings?: string[] | undefined;
   /** The launch used placeholder values for required arguments and/or preferences. */
   placeholders?: PlaceholderKind | undefined;
+  /** Present only when the sweep was run with --probe-actions. */
+  action?: PrimaryActionResult | undefined;
 };
 
 export type SmokeReport = {
@@ -404,6 +427,38 @@ function formatExit(probe: Extract<ProbeResult, { kind: "exit" }>): string {
 
 export function isSandboxDeniedMessage(message: string | undefined): boolean {
   return /(?:sandbox|operation not permitted|not permitted|eperm)/i.test(message ?? "");
+}
+
+export type PrimaryActionObservation = {
+  primary: boolean;
+  events: number;
+  panelOpened?: boolean;
+  sceneChanged?: boolean;
+  navigated?: boolean;
+  capability?: string;
+  exit?: { code: number | null; signal: string | null; error?: string };
+  timedOut?: boolean;
+};
+
+/** Classify one primary dispatch without coupling reports to the host process. */
+export function classifyPrimaryAction(observation: PrimaryActionObservation): PrimaryActionResult {
+  if (!observation.primary) return { outcome: "no-primary-action" };
+  if (observation.capability)
+    return { outcome: "capability-requested", capability: observation.capability };
+  if (observation.exit) {
+    const { code, signal, error } = observation.exit;
+    if (code === 0 && signal === null && !error) return { outcome: "no-op" };
+    return {
+      outcome: "crashed",
+      ...(error ? { error } : {}),
+      ...(signal ? { reason: signal } : {}),
+    };
+  }
+  if (observation.timedOut) return { outcome: "timeout" };
+  if (observation.navigated) return { outcome: "navigated" };
+  if (observation.sceneChanged) return { outcome: "scene-changed" };
+  if (observation.panelOpened) return { outcome: "navigated" };
+  return { outcome: "no-op" };
 }
 
 /** Label one probe for the report; the runner gathers, this classifies. */

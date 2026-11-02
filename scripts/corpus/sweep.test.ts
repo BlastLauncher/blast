@@ -8,7 +8,7 @@ import {
   selectExtensions,
   selectSatisfiedExtensions,
 } from "./sweep.ts";
-import type { CommandResult } from "./smoke.ts";
+import { classifyPrimaryAction, type CommandResult } from "./smoke.ts";
 
 const result = (
   extension: string,
@@ -29,12 +29,46 @@ test("sweep arguments and selection are deterministic", () => {
     jobs: 2,
     resume: true,
     unsandboxed: false,
+    probeActions: false,
   });
+  expect(parseSweepArgs(["--probe-actions"]).probeActions).toBe(true);
   const names = ["zeta", "alpha", "beta", "alpha"];
   expect(selectExtensions(names, 3, "seed")).toEqual(
     selectExtensions(names.toReversed(), 3, "seed"),
   );
   expect(selectExtensions(names, 2, "seed")).toHaveLength(2);
+});
+
+test("primary action probe classifications are deterministic", () => {
+  expect(classifyPrimaryAction({ primary: false, events: 0 })).toEqual({
+    outcome: "no-primary-action",
+  });
+  expect(classifyPrimaryAction({ primary: true, events: 0, panelOpened: true })).toEqual({
+    outcome: "navigated",
+  });
+  expect(classifyPrimaryAction({ primary: true, events: 1, navigated: true })).toEqual({
+    outcome: "navigated",
+  });
+  expect(classifyPrimaryAction({ primary: true, events: 1, sceneChanged: true })).toEqual({
+    outcome: "scene-changed",
+  });
+  expect(classifyPrimaryAction({ primary: true, events: 1, capability: "clipboard.copy" })).toEqual(
+    { outcome: "capability-requested", capability: "clipboard.copy" },
+  );
+  expect(classifyPrimaryAction({ primary: true, events: 0 })).toEqual({ outcome: "no-op" });
+  expect(
+    classifyPrimaryAction({ primary: true, events: 1, exit: { code: 0, signal: null } }),
+  ).toEqual({ outcome: "no-op" });
+  expect(
+    classifyPrimaryAction({
+      primary: true,
+      events: 1,
+      exit: { code: 1, signal: null, error: "boom" },
+    }),
+  ).toEqual({ outcome: "crashed", error: "boom" });
+  expect(classifyPrimaryAction({ primary: true, events: 1, timedOut: true })).toEqual({
+    outcome: "timeout",
+  });
 });
 
 test("selection is limited to the exact satisfied population", () => {
@@ -108,6 +142,36 @@ test("report groups normalized failures and capabilities without command rows", 
   ]);
   expect(JSON.parse(renderSweepJson(report)).results).toBeUndefined();
   expect(renderSweepMarkdown(report)).toContain("Projected full population");
+});
+
+test("primary action report compares crashes and ranks action causes", () => {
+  const report = buildSweepReport({
+    commit: "pin",
+    seed: "0",
+    selectedExtensions: 1,
+    probeActions: true,
+    results: [
+      { ...result("a", "rendered"), action: { outcome: "scene-changed", elapsedMs: 20 } },
+      {
+        ...result("b", "crashed"),
+        action: { outcome: "crashed", error: "boom", elapsedMs: 30 },
+      },
+      {
+        ...result("c", "rendered"),
+        action: { outcome: "capability-requested", capability: "open.url", elapsedMs: 10 },
+      },
+    ],
+    peakBytes: 1,
+    wallMs: 1,
+  });
+  expect(report.primaryActionProbe).toMatchObject({
+    commands: 3,
+    actionCrashRate: 1 / 3,
+    renderOnlyCrashRate: 1 / 3,
+    addedRuntimeMsPerCommand: 20,
+  });
+  expect(report.primaryActionProbe?.crashCauses).toEqual([{ signature: "boom", commands: 1 }]);
+  expect(renderSweepMarkdown(report)).toContain("Primary action probe");
 });
 
 test("reports redact the repository root and per-command scratch names", () => {
