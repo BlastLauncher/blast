@@ -168,6 +168,10 @@ function dependencyPolicy(
         const name = specifier.startsWith("@")
           ? specifier.split("/").slice(0, 2).join("/")
           : specifier.split("/")[0]!;
+        // `#imports` and other Node subpath aliases are not npm packages;
+        // report the bundler's ordinary unresolved-import error instead of a
+        // misleading "missing dependencies: #" result.
+        if (specifier.startsWith("#")) return;
         missing.add(name);
         return { errors: [{ text: `Blast does not provide dependency ${name}` }] };
       });
@@ -555,11 +559,10 @@ async function bundleEntryWithSignal(
           !/^react(?:\/|$)/.test(imported.path) &&
           !isNodeBuiltin(imported.path)
         ) {
-          missing.add(
-            imported.path.startsWith("@")
-              ? imported.path.split("/").slice(0, 2).join("/")
-              : imported.path.split("/")[0]!,
-          );
+          const name = imported.path.startsWith("@")
+            ? imported.path.split("/").slice(0, 2).join("/")
+            : imported.path.split("/")[0]!;
+          if (!imported.path.startsWith("#")) missing.add(name);
         }
       }
     }

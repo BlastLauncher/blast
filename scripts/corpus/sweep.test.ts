@@ -6,6 +6,7 @@ import {
   renderSweepJson,
   renderSweepMarkdown,
   selectExtensions,
+  selectSatisfiedExtensions,
 } from "./sweep.ts";
 import type { CommandResult } from "./smoke.ts";
 
@@ -34,6 +35,42 @@ test("sweep arguments and selection are deterministic", () => {
     selectExtensions(names.toReversed(), 3, "seed"),
   );
   expect(selectExtensions(names, 2, "seed")).toHaveLength(2);
+});
+
+test("selection is limited to the exact satisfied population", () => {
+  expect(
+    selectSatisfiedExtensions(["ok", "unsatisfied", "also-ok"], ["ok", "also-ok"], undefined, "0"),
+  ).toEqual([
+    ...selectSatisfiedExtensions(
+      ["also-ok", "unsatisfied", "ok"],
+      ["ok", "also-ok"],
+      undefined,
+      "0",
+    ),
+  ]);
+  expect(selectSatisfiedExtensions(["ok", "unsatisfied"], ["ok"], undefined, "0")).not.toContain(
+    "unsatisfied",
+  );
+});
+
+test("report text redacts home paths and token-shaped strings", () => {
+  const report = buildSweepReport({
+    commit: "pin",
+    seed: "0",
+    selectedExtensions: 1,
+    results: [
+      {
+        ...result("a", "crashed"),
+        error: "/Users/alice/.ssh/id: sk-live_1234567890 abcdefabcdefabcdefabcdefabcdefabcdef",
+      },
+    ],
+    peakBytes: 1,
+    wallMs: 1,
+  });
+  const text = `${renderSweepJson(report)}${renderSweepMarkdown(report)}`;
+  expect(text).not.toContain("/Users/alice");
+  expect(text).not.toContain("sk-live_");
+  expect(text).not.toContain("abcdefabcdefabcdefabcdefabcdefabcdef");
 });
 
 test("resume log keeps the latest complete command and ignores a torn line", () => {

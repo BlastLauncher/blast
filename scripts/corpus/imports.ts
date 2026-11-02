@@ -33,7 +33,10 @@ export function unprovidedImports(sources: Iterable<Source>): string[] {
       const specifier = match[1]!;
       if (specifier.startsWith(".") || specifier.startsWith("/")) continue;
       if (isProvidedSpecifier(specifier) || isBuiltin(specifier)) continue;
-      found.add(specifier);
+      // Node subpath aliases (`#imports`) are not npm packages. Other
+      // non-npm specifiers stay visible to the bundler's unsupported-import
+      // checks, as they did before the sweep population fix.
+      if (!specifier.startsWith("#")) found.add(specifier);
     }
   }
   return [...found].toSorted();

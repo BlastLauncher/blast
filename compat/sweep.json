@@ -2,15 +2,16 @@
   "commit": "bad7de0172ce6ea5e721ed919f4e1d7186f74192",
   "seed": "0091",
   "selectedExtensions": 100,
-  "commands": 288,
+  "commands": 262,
   "totals": {
-    "rendered": 176,
+    "rendered": 246,
     "completed": 0,
-    "capability-denied": 3,
-    "bundle-failed": 104,
+    "capability-denied": 4,
+    "sandbox-denied": 6,
+    "bundle-failed": 3,
     "bundle-timeout": 0,
-    "crashed": 5,
-    "network": 0,
+    "crashed": 2,
+    "network": 1,
     "timeout": 0,
     "unsupported-mode": 0,
     "unsupported-api": 0,
@@ -18,72 +19,16 @@
   },
   "failures": [
     {
-      "signature": "missing dependencies: run-applescript",
-      "commands": 19
-    },
-    {
-      "signature": "missing dependencies: #",
-      "commands": 13
-    },
-    {
-      "signature": "missing dependencies: @chrismessina/raycast-kit, rust:..",
-      "commands": 7
-    },
-    {
-      "signature": "missing dependencies: qs",
-      "commands": 6
-    },
-    {
-      "signature": "missing dependencies: swr",
+      "signature": "spawnSync /bin/sh EPERM",
       "commands": 5
     },
     {
-      "signature": "Command failed: chmod +x <path> chmod: Unable to change file mode on <path> Operation not permitted",
-      "commands": 4
-    },
-    {
-      "signature": "missing dependencies: execa, p-queue, valibot",
-      "commands": 4
-    },
-    {
-      "signature": "missing dependencies: @supernovaio/supernova-sdk, tinycolor2",
-      "commands": 3
-    },
-    {
-      "signature": "missing dependencies: form-data",
-      "commands": 3
-    },
-    {
-      "signature": "missing dependencies: js-yaml",
-      "commands": 3
-    },
-    {
-      "signature": "missing dependencies: @googleapis/calendar",
-      "commands": 2
-    },
-    {
-      "signature": "missing dependencies: cjk-conv",
-      "commands": 2
-    },
-    {
-      "signature": "missing dependencies: css.gg",
-      "commands": 2
-    },
-    {
-      "signature": "missing dependencies: es-toolkit, semver, ts-pattern",
-      "commands": 2
-    },
-    {
-      "signature": "missing dependencies: say",
-      "commands": 2
-    },
-    {
-      "signature": "missing dependencies: semver",
-      "commands": 2
-    },
-    {
       "signature": "Capability denied: clipboard.copy",
-      "commands": 1
+      "commands": 2
+    },
+    {
+      "signature": "missing dependencies: swift:..",
+      "commands": 2
     },
     {
       "signature": "Capability denied: command.launch",
@@ -94,130 +39,30 @@
       "commands": 1
     },
     {
-      "signature": "ENOENT: no such file or directory, open '<path>",
+      "signature": "ENOENT: no such file or directory, open '<home>/.t3/worktrees/blast/t3-f08a97a7/.cache/sweep/scratch/unit-JxMjxm/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json'",
       "commands": 1
     },
     {
-      "signature": "missing dependencies: @hyzyla/pdfium, image-size, pngjs, run-jxa",
+      "signature": "ENOENT: no such file or directory, scandir '<home>/.t3/worktrees/blast/t3-f08a97a7/.cache/sweep/scratch/unit-PE6erq/Desktop'",
       "commands": 1
     },
     {
-      "signature": "missing dependencies: @mem-labs/mem-node",
+      "signature": "Preference \"executablePath\" needs a scalar \"default\"",
       "commands": 1
     },
     {
-      "signature": "missing dependencies: @supernovaio/supernova-sdk, color-namer, tinycolor2",
+      "signature": "request to https://api.urbandictionary.com/v0/words_of_the_day failed, reason: getaddrinfo ENOTFOUND api.urbandictionary.com",
       "commands": 1
     },
     {
-      "signature": "missing dependencies: @supernovaio/supernova-sdk, parse-url, tinycolor2",
-      "commands": 1
-    },
-    {
-      "signature": "missing dependencies: @supernovaio/supernova-sdk, run-applescript, tinycolor2",
-      "commands": 1
-    },
-    {
-      "signature": "missing dependencies: @tanstack/query-async-storage-persister, @tanstack/react-query, @tanstack/react-query-persist-client, chartjs-to-image, fastest-levenshtein",
-      "commands": 1
-    },
-    {
-      "signature": "missing dependencies: bignumber.js, nzh",
-      "commands": 1
-    },
-    {
-      "signature": "missing dependencies: bplist-parser",
-      "commands": 1
-    },
-    {
-      "signature": "missing dependencies: change-case, got, sort-keys",
-      "commands": 1
-    },
-    {
-      "signature": "missing dependencies: csv-parse, say",
-      "commands": 1
-    },
-    {
-      "signature": "missing dependencies: culori",
-      "commands": 1
-    },
-    {
-      "signature": "missing dependencies: culori, json5, style-dictionary",
-      "commands": 1
-    },
-    {
-      "signature": "missing dependencies: expand-tilde, plist",
-      "commands": 1
-    },
-    {
-      "signature": "missing dependencies: extract-zip, proper-lockfile, sanitize-filename, tar",
-      "commands": 1
-    },
-    {
-      "signature": "missing dependencies: glob, gray-matter",
-      "commands": 1
-    },
-    {
-      "signature": "missing dependencies: glob, gray-matter, open",
-      "commands": 1
-    },
-    {
-      "signature": "missing dependencies: got",
-      "commands": 1
-    },
-    {
-      "signature": "missing dependencies: iconv-lite",
-      "commands": 1
-    },
-    {
-      "signature": "missing dependencies: jalali-moment",
-      "commands": 1
-    },
-    {
-      "signature": "missing dependencies: jimp, pixelmatch",
-      "commands": 1
-    },
-    {
-      "signature": "missing dependencies: laravel-echo, pusher, pusher-js",
-      "commands": 1
-    },
-    {
-      "signature": "missing dependencies: ldapts",
-      "commands": 1
-    },
-    {
-      "signature": "missing dependencies: lodash.unescape",
-      "commands": 1
-    },
-    {
-      "signature": "missing dependencies: node-html-parser",
-      "commands": 1
-    },
-    {
-      "signature": "missing dependencies: open",
-      "commands": 1
-    },
-    {
-      "signature": "missing dependencies: pinyin-pro",
-      "commands": 1
-    },
-    {
-      "signature": "missing dependencies: semver, ts-pattern",
-      "commands": 1
-    },
-    {
-      "signature": "missing dependencies: simple-icons",
-      "commands": 1
-    },
-    {
-      "signature": "missing dependencies: turndown",
+      "signature": "sandbox child exited with SIGINT:",
       "commands": 1
     }
   ],
   "capabilities": [
     {
       "signature": "clipboard.copy",
-      "commands": 1
+      "commands": 2
     },
     {
       "signature": "command.launch",
@@ -228,10 +73,10 @@
       "commands": 1
     }
   ],
-  "peakBytes": 559255146,
-  "wallMs": 113372.099542,
-  "commandsPerMinute": 152.41845277460374,
-  "resumed": 0,
-  "projectedFullRunMinutes": 36.63808350198967,
-  "projectedFullRunPeakBytes": 559255146
+  "peakBytes": 472820997,
+  "wallMs": 62130.625,
+  "commandsPerMinute": 253.0153205444175,
+  "resumed": 262,
+  "projectedFullRunMinutes": 20.078546979166667,
+  "projectedFullRunPeakBytes": 472820997
 }

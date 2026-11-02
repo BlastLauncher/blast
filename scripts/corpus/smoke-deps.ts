@@ -117,7 +117,15 @@ export function requiredPreferences(manifest: Manifest, commandName: string): st
 /** Re-label a plain smoke result with the deps report's outcome names. */
 export function toDepsResult(result: CommandResult): DepsResult {
   const { outcome, ...rest } = result;
-  return { ...rest, outcome: outcome === "missing-arguments" ? "needs-arguments" : outcome };
+  return {
+    ...rest,
+    outcome:
+      outcome === "missing-arguments"
+        ? "needs-arguments"
+        : outcome === "sandbox-denied"
+          ? "crashed"
+          : outcome,
+  };
 }
 
 export function needsPreferencesResult(base: {

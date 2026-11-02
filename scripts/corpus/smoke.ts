@@ -9,6 +9,7 @@ export const OUTCOMES = [
   "rendered",
   "completed",
   "capability-denied",
+  "sandbox-denied",
   "bundle-failed",
   "bundle-timeout",
   "crashed",
@@ -35,6 +36,7 @@ export type Json = string | number | boolean | null | Json[] | { [key: string]: 
 /** What one command run observably did, before it is labelled for the report. */
 export type ProbeResult =
   | { kind: "bundle-failed"; error?: string; missing?: string[]; bundleMs?: number }
+  | { kind: "sandbox-denied"; error?: string; bundleMs?: number }
   | { kind: "bundle-timeout"; timeoutMs: number; bundleMs: number }
   | { kind: "scene"; nodeCount: number; rootType: string }
   | { kind: "empty-menu-bar" }
@@ -336,6 +338,20 @@ export function sanitizePath(text: string, replacements: Array<[string, string]>
   return result;
 }
 
+/** Defence in depth for text that can reach committed sweep reports. */
+export function sanitizeReportText(
+  text: string,
+  replacements: Array<[string, string]> = [],
+  home?: string,
+): string {
+  const all: Array<[string, string]> =
+    home === undefined ? replacements : [...replacements, [home, "<home>"]];
+  return sanitizePath(text, all)
+    .replace(/\b(?:ghp_|sk-|xox[baprs]-)[A-Za-z0-9_./-]{10,}\b/g, "<token>")
+    .replace(/\b[0-9a-fA-F]{32,}\b/g, "<token>")
+    .replace(/\b[A-Za-z0-9+/]{40,}={0,2}\b/g, "<token>");
+}
+
 /** One line of at most `width` characters, for embedding in table cells. */
 export function compactLine(text: string, width = 160): string {
   const line = text.replace(/\s+/g, " ").trim();
@@ -386,6 +402,10 @@ function formatExit(probe: Extract<ProbeResult, { kind: "exit" }>): string {
   return probe.signal !== null ? `signal ${probe.signal}` : `code ${probe.code}`;
 }
 
+export function isSandboxDeniedMessage(message: string | undefined): boolean {
+  return /(?:sandbox|operation not permitted|not permitted|eperm)/i.test(message ?? "");
+}
+
 /** Label one probe for the report; the runner gathers, this classifies. */
 export function buildResult(input: BuildInput): CommandResult {
   const base: CommandResult = {
@@ -412,11 +432,15 @@ export function buildResult(input: BuildInput): CommandResult {
       // is a rendered command, not a timeout.
       return set({ outcome: "rendered", empty: true });
     case "bundle-failed":
+      if (isSandboxDeniedMessage(probe.error))
+        return set({ outcome: "sandbox-denied", error: probe.error });
       return set({
         outcome: "bundle-failed",
         missing: probe.missing,
         error: probe.error,
       });
+    case "sandbox-denied":
+      return set({ outcome: "sandbox-denied", error: probe.error });
     case "bundle-timeout":
       return set({ outcome: "bundle-timeout", reason: `bundling exceeded ${probe.timeoutMs} ms` });
     case "timeout":
@@ -438,6 +462,14 @@ export function buildResult(input: BuildInput): CommandResult {
       }
       if (probe.error?.code === "UNSUPPORTED") {
         return set({ outcome: "unsupported-mode", reason: probe.error.message });
+      }
+      if (isSandboxDeniedMessage(probe.error?.message)) {
+        return set({
+          outcome: "sandbox-denied",
+          exit: formatExit(probe),
+          error: probe.error?.message,
+          logs: compactLines(input.errorLogs ?? []),
+        });
       }
       // The runtime reports a broker denial as a plain crash whose message
       // names the capability (see createBroker); surface it as its own outcome.
@@ -511,6 +543,8 @@ function detail(result: CommandResult): string {
       }${warnings}`;
     case "bundle-failed":
       return `${result.missing ? `missing ${result.missing.join(", ")}` : result.error}${warnings}`;
+    case "sandbox-denied":
+      return `${result.error ?? "sandbox denied"}${warnings}`;
     case "crashed":
       return `${[result.reason, result.exit, result.error].filter(Boolean).join("; ") || "crashed"}${warnings}`;
     case "network":

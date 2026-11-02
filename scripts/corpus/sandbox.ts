@@ -1,10 +1,11 @@
 // macOS containment for the corpus sweep. The profile is deliberately narrow:
 // the helper can read the repository and its toolchain, write only to its
-// per-command scratch directory, and receives no network entitlement.
+// per-command scratch directory (plus harmless device nodes), and receives no
+// network entitlement.
 import { realpathSync } from "node:fs";
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { homedir, tmpdir } from "node:os";
-import { isAbsolute, resolve } from "node:path";
+import { dirname, isAbsolute, join, resolve } from "node:path";
 
 export const SANDBOX_EXEC = "/usr/bin/sandbox-exec";
 
@@ -26,6 +27,26 @@ function existing(path: string): string {
 
 function quote(path: string): string {
   return JSON.stringify(existing(path));
+}
+
+function executablePath(command: string, path = process.env.PATH): string {
+  if (isAbsolute(command)) return existing(command);
+  for (const directory of (path ?? "").split(":").filter(Boolean)) {
+    const candidate = join(directory, command);
+    try {
+      return realpathSync(candidate);
+    } catch {
+      // Keep looking through PATH. The parent is outside the sandbox, so this
+      // lookup cannot be influenced by extension code.
+    }
+  }
+  const which = spawnSync("which", [command], { encoding: "utf8" });
+  if (which.status === 0 && which.stdout.trim() !== "") return existing(which.stdout.trim());
+  return existing(command);
+}
+
+function installationRoot(binary: string): string {
+  return dirname(dirname(binary));
 }
 
 /** Environment inherited by the helper and then by the extension runtime. */
@@ -50,44 +71,68 @@ export function sweepEnvironment(
   return env;
 }
 
+function homeDeny(home: string, allowed: string[]): string {
+  const exceptions = [...new Set(allowed.map(existing))]
+    .filter((path) => path === home || path.startsWith(`${home}/`))
+    .map((path) => `(require-not (subpath ${quote(path)}))`)
+    .join(" ");
+  // Seatbelt deny rules have precedence over broad grants. A single
+  // require-all predicate makes the home deny the default while allowing only
+  // the explicit repository/toolchain/scratch subpaths listed above.
+  return `(deny file-read-data (require-all (subpath ${quote(home)})${exceptions ? ` ${exceptions}` : ""}))`;
+}
+
 /**
- * A deny-by-default profile. `readPaths` must include the repository and the
- * Bun/Node installation roots; system roots are needed for dynamic libraries.
- * No network rule is allowed, so the default deny covers both sockets and DNS.
+ * A deny-by-default profile. `readPaths` includes the repository and the
+ * command script; Bun/Node binaries and their installation roots are added by
+ * `runSandboxed`. System locations outside home remain readable, but home is
+ * denied except for those exact allowlisted subpaths.
+ *
+ * The mach service is deliberately explicit. Bun, Node and esbuild use the
+ * system logger for runtime diagnostics; pasteboard, LaunchServices and Apple
+ * Events are not reachable through this grant.
  */
 export function sandboxProfile(
   readPaths: string[],
   scratch: string,
   extraDenied: string[] = [],
+  home = homedir(),
+  executables: string[] = [],
 ): string {
-  void readPaths;
-  // Bun and esbuild consult system caches and dynamic libraries outside the
-  // repository. A broad read grant keeps that toolchain functional; the
-  // explicit credential/personal-path denies below still win under deny
-  // default. Writes remain narrow because only the scratch subpath is allowed.
-  const denied = [
-    `${homedir()}/.ssh`,
-    `${homedir()}/.aws`,
-    `${homedir()}/.config`,
-    `${homedir()}/.gnupg`,
-    `${homedir()}/.npmrc`,
-    `${homedir()}/Library/Keychains`,
-    `${homedir()}/Library/Application Support`,
-    `${homedir()}/Documents`,
-    `${homedir()}/Desktop`,
-    ...extraDenied,
-  ];
+  const realHome = existing(home);
+  const realScratch = existing(scratch);
+  const binaries = executables.map(existing);
+  const allowedReads = [
+    ...readPaths,
+    realScratch,
+    ...binaries,
+    ...binaries.map(installationRoot),
+  ].map(existing);
+  const explicitDenied = extraDenied.map(existing);
   return [
     "(version 1)",
     "(deny default)",
-    "(allow process*)",
+    "(allow process-fork)",
+    ...binaries.map((binary) => `(allow process-exec (literal ${quote(binary)}))`),
     "(allow sysctl-read)",
-    "(allow file-read*)",
-    ...denied.map((path) => `(deny file-read* (subpath ${quote(path)}))`),
-    `(allow file-write* (subpath ${quote(scratch)}))`,
-    // A sandboxed Bun occasionally uses shared-memory primitives for esbuild.
+    '(allow file-read* (subpath "/"))',
+    homeDeny(realHome, allowedReads),
+    ...explicitDenied.map((path) => `(deny file-read-data (subpath ${quote(path)}))`),
+    `(allow file-read* (subpath ${quote(realScratch)}))`,
+    ...allowedReads
+      .filter((path) => path !== realScratch)
+      .map((path) => `(allow file-read* (subpath ${quote(path)}))`),
+    `(allow file-write* (subpath ${quote(realScratch)}))`,
+    // Bun and Node use null/zero for ordinary stream and buffer plumbing.
+    '(allow file-write* (literal "/dev/null") (literal "/dev/zero"))',
     "(allow ipc-posix-shm)",
-    "(allow mach-lookup)",
+    // Bun/Node diagnostics and esbuild's native service use these three
+    // lookups; pasteboard, LaunchServices and Apple Events are intentionally
+    // absent.
+    '(allow mach-lookup (global-name "com.apple.system.logger"))',
+    '(allow mach-lookup (global-name "com.apple.securityd"))',
+    '(allow mach-lookup (global-name "com.apple.system.opendirectoryd.libinfo"))',
+    "(deny network*)",
   ].join(" ");
 }
 
@@ -98,20 +143,28 @@ export function runSandboxed(options: {
   root?: string;
   unsandboxed?: boolean;
   bun?: string;
+  node?: string;
+  home?: string;
   deniedPaths?: string[];
 }): Promise<SandboxedResult> {
   const root = options.root ?? process.cwd();
   const command = options.bun ?? process.env.BUN ?? "bun";
+  const node = options.node ?? process.env.NODE ?? "node";
+  const resolvedCommand = executablePath(command);
+  const resolvedNode = executablePath(node);
   const args = [options.script, ...options.args];
   const commandArgs = options.unsandboxed
     ? args
     : [
         "-p",
-        sandboxProfile([root, options.script], options.scratch, options.deniedPaths),
-        command,
+        sandboxProfile([root, options.script], options.scratch, options.deniedPaths, options.home, [
+          resolvedCommand,
+          resolvedNode,
+        ]),
+        resolvedCommand,
         ...args,
       ];
-  const executable = options.unsandboxed ? command : SANDBOX_EXEC;
+  const executable = options.unsandboxed ? resolvedCommand : SANDBOX_EXEC;
   const started = performance.now();
   return new Promise((resolvePromise, reject) => {
     const child = spawn(executable, commandArgs, {
@@ -150,8 +203,8 @@ export function isSafeScratch(path: string, scratch: string): boolean {
   return target === root || target.startsWith(`${root}/`);
 }
 
-export function deniedHomePath(name: string): string {
-  return `${homedir()}/${name}`;
+export function deniedHomePath(name: string, home = homedir()): string {
+  return `${home}/${name}`;
 }
 
 export function assertAbsolute(path: string, label: string): void {

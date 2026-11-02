@@ -1,22 +1,30 @@
 // One sandboxed sweep unit. The parent process never bundles or launches an
 // extension itself; this helper does both while inheriting the Seatbelt profile.
 import { readFile } from "node:fs/promises";
+import { homedir } from "node:os";
 import { join } from "node:path";
-import { runOne } from "./smoke-command.ts";
-import { buildResult, compactLine, sanitizePath, type Manifest } from "./smoke.ts";
+import { launchOne } from "./smoke-command.ts";
+import type { BundledCommand } from "../../packages/host/src/index.ts";
+import { buildResult, compactLine, sanitizeReportText, type Manifest } from "./smoke.ts";
 
-const [extension, extensionDir, command, scratch] = process.argv.slice(2);
-if (!extension || !extensionDir || !command || !scratch) {
-  console.error("sweep-command: expected extension, extension directory, command and scratch");
+const [extension, extensionDir, command, scratch, bundlePath] = process.argv.slice(2);
+if (!extension || !extensionDir || !command || !scratch || !bundlePath) {
+  console.error(
+    "sweep-command: expected extension, extension directory, command, scratch and bundle metadata",
+  );
   process.exit(2);
 }
 
 const clean = (text: string): string =>
   compactLine(
-    sanitizePath(text, [
-      [process.cwd(), "<repo>"],
-      [scratch, "<scratch>"],
-    ]),
+    sanitizeReportText(
+      text,
+      [
+        [process.cwd(), "<repo>"],
+        [scratch, "<scratch>"],
+      ],
+      homedir(),
+    ),
   );
 
 try {
@@ -24,7 +32,8 @@ try {
     await readFile(join(extensionDir, "package.json"), "utf8"),
   ) as Manifest;
   process.env.BLAST_SWEEP_SCRATCH = scratch;
-  const result = await runOne(extension, extensionDir, manifest, command, clean);
+  const bundled = JSON.parse(await readFile(bundlePath, "utf8")) as BundledCommand;
+  const result = await launchOne(extension, manifest, command, bundled, clean);
   process.stdout.write(`SWEEP_RESULT ${JSON.stringify(result)}\n`);
 } catch (error) {
   const result = buildResult({

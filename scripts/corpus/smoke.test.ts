@@ -131,6 +131,30 @@ test("bundle failures separate missing dependencies from other errors", () => {
   expect(result({ kind: "bundle-failed", error: "esbuild exploded" }).missing).toBeUndefined();
 });
 
+test("sandbox denials are distinct from extension crashes", () => {
+  expect(
+    buildResult({
+      extension: "x",
+      command: "index",
+      mode: "view",
+      probe: {
+        kind: "exit",
+        code: 1,
+        signal: null,
+        error: { message: "EPERM: operation not permitted" },
+      },
+    }).outcome,
+  ).toBe("sandbox-denied");
+  expect(
+    buildResult({
+      extension: "x",
+      command: "index",
+      mode: "view",
+      probe: { kind: "bundle-failed", error: "chmod: Operation not permitted" },
+    }).outcome,
+  ).toBe("sandbox-denied");
+});
+
 test("timeouts and pre-checked unsupported modes keep their reason", () => {
   expect(result({ kind: "timeout", timeoutMs: 5000 })).toMatchObject({
     outcome: "timeout",
@@ -344,6 +368,7 @@ test("buildReport sorts results and extension failures and totals outcomes", () 
     rendered: 1,
     completed: 0,
     "capability-denied": 0,
+    "sandbox-denied": 0,
     "bundle-failed": 0,
     "bundle-timeout": 0,
     crashed: 0,
@@ -417,7 +442,7 @@ test("the markdown report renders a sorted table, totals and failure details", (
     "`zeta/index`",
   ]);
   expect(markdown).toContain(
-    "3 commands: rendered 1, completed 1, capability-denied 0, bundle-failed 1, bundle-timeout 0, crashed 0, network 0, timeout 0, unsupported-mode 0, unsupported-api 0",
+    "3 commands: rendered 1, completed 1, capability-denied 0, sandbox-denied 0, bundle-failed 1, bundle-timeout 0, crashed 0, network 0, timeout 0, unsupported-mode 0, unsupported-api 0",
   );
   expect(markdown).toContain("missing left-pad, right-pad");
   expect(markdown).toContain('command mode "no-view" completed without rendering a scene');

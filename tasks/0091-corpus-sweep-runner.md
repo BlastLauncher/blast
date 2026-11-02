@@ -73,14 +73,15 @@ affected, and unsupported or denied capabilities ranked likewise.
 
 ```
 Branch/commit: t3/corpus-sweep-runner @ e31202f
-Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 50.6s
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 51.4s
 Done:
-- Added `bun run corpus:sweep` with deterministic seeded selection, `--limit`, `--jobs`, `--resume`, disk/free-space guards, per-command JSONL resume logging, and bounded aggregate reports.
-- Bundling and runtime execution now happen together inside a macOS `sandbox-exec` child with an allowlisted environment, no network entitlement, explicit credential/personal-path read denies, and writes confined to per-command scratch; non-macOS runs refuse unless `--unsandboxed` is explicit.
-- Added macOS containment fixtures plus pure tests for selection, resume, grouping, environment allowlisting, and report limits.
-- Pilot: `bun run corpus:sweep --limit 100 --seed 0091 --jobs 4`; 288 commands, 152.42 commands/min, peak `.cache` 533.3 MB, final `.cache` 68 KB, projected full-population duration 36.6 minutes and peak 533.3 MB.
-- Interruption/resume: a SIGINT run left 186 completed records; rerun with `--resume` skipped those records and reported `resumed: 186`.
+- Tightened Seatbelt to deny home data reads except the repository, real Bun/Node installations and scratch; restricted execution to real Bun/Node binaries, allowed only required device writes and tested mach services, and denied network/pasteboard/LaunchServices/Apple Events.
+- Moved esbuild bundling outside Seatbelt into per-command scratch; only the bundled extension runtime is launched under the strict profile. Added sandbox-denied classification for denied child binaries and chmod failures.
+- Reused the 0093 dependency scan's named satisfied population (1,939 extensions), excluded `#imports` from missing-package results, and added report redaction for home paths and token-shaped text.
+- Added macOS containment probes with unsandboxed contrasts, plus pure tests for exact population selection, resume, grouping, report limits and redaction.
+- Pilot: `bun run corpus:sweep --limit 100 --seed 0091 --jobs 4`; 262 commands: rendered 246, capability-denied 4, sandbox-denied 6, bundle-failed 3, crashed 2, network 1; 253.02 commands/min; peak `.cache` 450.9 MB; final `.cache` 60 KB; projected full-population duration 20.1 minutes and peak 450.9 MB.
+- Interruption/resume: a SIGINT run completed 262 records before the batch stopped; rerun with `--resume` skipped all 262 and reported `resumed: 262`.
 Not done / risks:
 - The full population sweep and primary-action probing remain task 0092/out of scope.
-- The pilot intentionally records bundle failures and denials; it does not repair extension incompatibilities or install dependencies.
+- The pilot records incompatibilities and sandbox denials; it does not repair extension code or install dependencies. The task file will be refreshed with the final implementation commit below.
 ```

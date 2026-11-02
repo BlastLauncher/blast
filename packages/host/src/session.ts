@@ -142,6 +142,7 @@ export async function startCommand(options: StartOptions): Promise<Session> {
   let ready = false;
   let closed = false;
   let failure: Error | undefined;
+  let stderr = "";
   let latestScene: SceneMessage | undefined;
   const logs: LogMessage[] = [];
   const maxLogs = options.maxLogs ?? 1000;
@@ -241,9 +242,10 @@ export async function startCommand(options: StartOptions): Promise<Session> {
   );
   child.stdout.on("data", (chunk: Buffer) => decoder.push(chunk));
   child.stdout.on("end", () => decoder.end());
-  child.stderr
-    .setEncoding("utf8")
-    .on("data", (message: string) => addLog({ type: "log", level: "error", message }));
+  child.stderr.setEncoding("utf8").on("data", (message: string) => {
+    stderr += message;
+    addLog({ type: "log", level: "error", message });
+  });
   child.stdin.on("error", fail);
   child.on("error", fail);
   child.on("close", async (code, signal) => {
@@ -253,7 +255,12 @@ export async function startCommand(options: StartOptions): Promise<Session> {
     listeners.clear();
     for (const controller of capabilities.values()) controller.abort();
     await ai?.shutdown();
-    resolveExit({ code, signal, ...(failure ? { error: failure } : {}) });
+    const startupError =
+      failure ??
+      (!ready && stderr.trim() !== ""
+        ? new Error(`Runtime exited before ready: ${stderr.trim().slice(-1000)}`)
+        : undefined);
+    resolveExit({ code, signal, ...(startupError ? { error: startupError } : {}) });
   });
   send(init);
   await Promise.race([

@@ -1,7 +1,8 @@
 // Pure planning and aggregation for the sandboxed corpus sweep. The runner
 // owns git, processes and files; keeping these rules here makes selection,
 // resume and report-size guarantees deterministic and testable.
-import { OUTCOMES, type CommandResult, type Outcome } from "./smoke.ts";
+import { homedir } from "node:os";
+import { OUTCOMES, sanitizeReportText, type CommandResult, type Outcome } from "./smoke.ts";
 
 export const SWEEP_JSON = "compat/sweep.json";
 export const SWEEP_MD = "compat/SWEEP.md";
@@ -99,6 +100,21 @@ export function selectExtensions(
   return limit === undefined ? ordered : ordered.slice(0, limit);
 }
 
+/** Select only the extensions whose 0093 scan verdict is satisfied. */
+export function selectSatisfiedExtensions(
+  names: readonly string[],
+  satisfied: readonly string[],
+  limit: number | undefined,
+  seed: string,
+): string[] {
+  const allowed = new Set(satisfied);
+  return selectExtensions(
+    names.filter((name) => allowed.has(name)),
+    limit,
+    seed,
+  );
+}
+
 export function resultKey(extension: string, command: string): string {
   return `${extension}\0${command}`;
 }
@@ -159,6 +175,24 @@ function ranked(values: Iterable<string>): RankedCause[] {
     .toSorted((a, b) => b.commands - a.commands || a.signature.localeCompare(b.signature));
 }
 
+function sanitizeText(value: string): string {
+  return sanitizeReportText(value, [], homedir()).replace(/\/Users\/[^/\s]+/g, "<home>");
+}
+
+function sanitizeResult(result: CommandResult): CommandResult {
+  const clean = sanitizeText;
+  return {
+    ...result,
+    ...(result.reason === undefined ? {} : { reason: clean(result.reason) }),
+    ...(result.path === undefined ? {} : { path: clean(result.path) }),
+    ...(result.error === undefined ? {} : { error: clean(result.error) }),
+    ...(result.exit === undefined ? {} : { exit: clean(result.exit) }),
+    ...(result.logs === undefined ? {} : { logs: result.logs.map(clean) }),
+    ...(result.warnings === undefined ? {} : { warnings: result.warnings.map(clean) }),
+    ...(result.missing === undefined ? {} : { missing: result.missing.map(clean) }),
+  };
+}
+
 export function buildSweepReport(input: {
   commit: string;
   seed: string;
@@ -173,9 +207,10 @@ export function buildSweepReport(input: {
     Outcome,
     number
   >;
-  for (const result of input.results) totals[result.outcome] += 1;
+  const results = input.results.map(sanitizeResult);
+  for (const result of results) totals[result.outcome] += 1;
   const renderedMinutes = input.wallMs / 60000;
-  const commandsPerMinute = renderedMinutes > 0 ? input.results.length / renderedMinutes : 0;
+  const commandsPerMinute = renderedMinutes > 0 ? results.length / renderedMinutes : 0;
   const projectedFullRunMinutes =
     input.fullPopulation && input.selectedExtensions > 0
       ? renderedMinutes * (input.fullPopulation / input.selectedExtensions)
@@ -184,16 +219,16 @@ export function buildSweepReport(input: {
     commit: input.commit,
     seed: input.seed,
     selectedExtensions: input.selectedExtensions,
-    commands: input.results.length,
+    commands: results.length,
     totals,
     failures: ranked(
-      input.results.flatMap((result) => {
+      results.flatMap((result) => {
         const signature = failureSignature(result);
         return signature === undefined ? [] : [signature];
       }),
     ),
     capabilities: ranked(
-      input.results.flatMap((result) => {
+      results.flatMap((result) => {
         const signature = capabilitySignature(result);
         return signature === undefined ? [] : [signature];
       }),

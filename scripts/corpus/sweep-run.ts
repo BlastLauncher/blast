@@ -4,6 +4,7 @@ import { existsSync, readdirSync, statfsSync } from "node:fs";
 import { appendFile, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { mkdtemp } from "node:fs/promises";
 import { join } from "node:path";
+import { homedir } from "node:os";
 import { fetchBatch } from "./batch.ts";
 import {
   batchSize,
@@ -18,9 +19,11 @@ import {
   buildResult,
   compactLine,
   manifestCommands,
+  sanitizeReportText,
   type CommandResult,
   type Manifest,
 } from "./smoke.ts";
+import { bundleOne } from "./smoke-command.ts";
 import {
   buildSweepReport,
   parseSweepArgs,
@@ -28,7 +31,7 @@ import {
   renderSweepJson,
   renderSweepMarkdown,
   resultKey,
-  selectExtensions,
+  selectSatisfiedExtensions,
   SWEEP_JSON,
   SWEEP_LOG,
   SWEEP_MD,
@@ -76,7 +79,12 @@ function failedResult(extension: string, command: string, message: string): Comm
     extension,
     command,
     mode: "view",
-    probe: { kind: "exit", code: 1, signal: null, error: { message } },
+    probe: {
+      kind: "exit",
+      code: 1,
+      signal: null,
+      error: { message: sanitizeReportText(message) },
+    },
   });
 }
 
@@ -89,15 +97,18 @@ async function readManifests(root: string): Promise<string[]> {
     .toSorted();
 }
 
-async function satisfiedPopulation(root: string, fallback: number): Promise<number> {
-  try {
-    const value = JSON.parse(await readFile(join(root, "compat/dependencies.json"), "utf8")) as {
-      shared?: { satisfied?: unknown };
-    };
-    return typeof value.shared?.satisfied === "number" ? value.shared.satisfied : fallback;
-  } catch {
-    return fallback;
-  }
+async function satisfiedNames(root: string, allNames: readonly string[]): Promise<string[]> {
+  const value = JSON.parse(await readFile(join(root, "compat/dependencies.json"), "utf8")) as {
+    shared?: { satisfiedExtensions?: unknown };
+  };
+  if (!Array.isArray(value.shared?.satisfiedExtensions))
+    throw new Error(
+      "compat/dependencies.json is missing shared.satisfiedExtensions; rerun corpus:scan",
+    );
+  const known = new Set(
+    value.shared.satisfiedExtensions.filter((name): name is string => typeof name === "string"),
+  );
+  return allNames.filter((name) => known.has(name));
 }
 
 async function runOneSandboxed(
@@ -108,9 +119,44 @@ async function runOneSandboxed(
   unsandboxed: boolean,
 ): Promise<CommandResult> {
   const extensionDir = join(root, CORPUS_DIR, "extensions", extension);
+  const manifest = JSON.parse(
+    await readFile(join(extensionDir, "package.json"), "utf8"),
+  ) as Manifest;
+  const clean = (text: string): string =>
+    compactLine(
+      sanitizeReportText(
+        text,
+        [
+          [root, "<repo>"],
+          [scratch, "<scratch>"],
+        ],
+        homedir(),
+      ),
+    );
+  // esbuild's native helper is a toolchain binary, not extension code. Build
+  // it outside Seatbelt into this command's scratch, then launch only the
+  // bundled extension under the strict Bun/Node process-exec allowlist.
+  const bundle = await bundleOne(
+    extensionDir,
+    command,
+    {
+      installedDependencies: false,
+      outDir: join(scratch, "bundle"),
+    },
+    clean,
+  );
+  if (!bundle.ok)
+    return buildResult({
+      extension,
+      command,
+      mode: manifest.commands?.find((item) => item.name === command)?.mode ?? "view",
+      probe: bundle.probe,
+    });
+  const bundlePath = join(scratch, "bundle.json");
+  await writeFile(bundlePath, JSON.stringify(bundle.bundled));
   const outcome = await runSandboxed({
     script: "scripts/corpus/sweep-command.ts",
-    args: [extension, extensionDir, command, scratch],
+    args: [extension, extensionDir, command, scratch, bundlePath],
     scratch,
     root,
     unsandboxed,
@@ -177,6 +223,7 @@ async function main(): Promise<void> {
   let peakBytes = initial;
   const started = performance.now();
   let selected: string[] = [];
+  let fullPopulation = 0;
   let resumedCount = 0;
   try {
     ensureDisk(root, maxMb);
@@ -184,8 +231,9 @@ async function main(): Promise<void> {
     // out any extension source. Source batches are fetched only after this.
     peakBytes = Math.max(peakBytes, fetchBatch([], root));
     const allNames = await readManifests(root);
-    selected = selectExtensions(allNames, options.limit, options.seed);
-    const fullPopulation = await satisfiedPopulation(root, allNames.length);
+    const satisfied = await satisfiedNames(root, allNames);
+    fullPopulation = satisfied.length;
+    selected = selectSatisfiedExtensions(allNames, satisfied, options.limit, options.seed);
     console.log(
       `corpus:sweep: ${selected.length}/${fullPopulation} extensions, ${options.jobs} jobs`,
     );
@@ -240,7 +288,7 @@ async function main(): Promise<void> {
     peakBytes,
     wallMs: performance.now() - started,
     resumed: resumedCount,
-    fullPopulation: await satisfiedPopulation(root, selected.length),
+    fullPopulation,
   });
   await writeFile(join(root, SWEEP_JSON), renderSweepJson(report));
   await writeFile(join(root, SWEEP_MD), renderSweepMarkdown(report));

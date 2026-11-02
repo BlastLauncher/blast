@@ -23,6 +23,7 @@ import {
   countNodes,
   exitProbe,
   launchInputs,
+  isSandboxDeniedMessage,
   type CommandResult,
   type Manifest,
   type ProbeResult,
@@ -40,6 +41,8 @@ export type DependencyMode = {
   installedDependencies: boolean;
   /** Where `blast deps` installed the extension, when `installedDependencies` is on. */
   dataDir?: string;
+  /** Optional build output directory, used by the sandbox sweep parent. */
+  outDir?: string;
 };
 
 /**
@@ -105,6 +108,7 @@ export async function bundleOne(
       command: commandName,
       installedDependencies: dependencies.installedDependencies,
       ...(dependencies.dataDir === undefined ? {} : { dataDir: dependencies.dataDir }),
+      ...(dependencies.outDir === undefined ? {} : { outDir: dependencies.outDir }),
     });
     return { ok: true, bundled };
   } catch (error) {
@@ -113,6 +117,16 @@ export async function bundleOne(
       return { ok: false, probe: { kind: "bundle-timeout", timeoutMs: error.timeoutMs, bundleMs } };
     if (error instanceof MissingDependencyError) {
       return { ok: false, probe: { kind: "bundle-failed", missing: error.packages, bundleMs } };
+    }
+    if (isSandboxDeniedMessage(error instanceof Error ? error.message : String(error))) {
+      return {
+        ok: false,
+        probe: {
+          kind: "sandbox-denied",
+          bundleMs,
+          error: clean(error instanceof Error ? error.message : String(error)),
+        },
+      };
     }
     return {
       ok: false,
