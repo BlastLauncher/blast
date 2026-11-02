@@ -73,7 +73,7 @@ affected, and unsupported or denied capabilities ranked likewise.
 
 ```
 Branch/commit: t3/tighten-corpus-bundle-confinement @ c6bcd7800fe4e60469789a36c0184822a5737471
-Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 51.2s
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 50.8s
 Done:
 - Tightened bundling so every resolved non-external file is realpath-contained in the extension, installed dependency roots, or shared dependency roots; out-of-tree relative imports and escaping symlinks fail before esbuild reads them. Existing shared and installed dependency fixtures still bundle.
 - Removed the `com.apple.securityd` mach lookup. Containment probes now use a planted file, a loopback listener, and `/usr/bin/true`; profile-text tests assert keychain, pasteboard, LaunchServices and Apple Events are absent.
