@@ -83,7 +83,7 @@ Raycast client semantics built in so embedders only draw.
 Honest gate, latest API, real compatibility across the corpus. Tasks run in
 order, each with a disk budget (the volume is nearly full).
 
-- [ ] 0088 Verify passes on a clean Mac
+- [x] 0088 Verify passes on a clean Mac
 - [ ] 0089 `@raycast/api` 2.10.1 and a weekly upgrade job
 - [ ] 0090 Repin the corpus and rerun all smokes
 - [ ] 0091 Sandboxed corpus sweep runner and pilot

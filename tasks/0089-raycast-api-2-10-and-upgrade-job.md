@@ -1,7 +1,7 @@
 ---
 id: "0089"
 title: Upgrade to @raycast/api 2.10.1 and automate future upgrades
-status: todo
+status: doing
 milestone: M6
 depends: ["0088"]
 ---
