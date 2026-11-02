@@ -73,6 +73,11 @@ export function createOAuthHandlers(options: StorageOptions): Record<string, Cap
             if (tokens[field] !== undefined && typeof tokens[field] !== "string")
               throw new Error("Invalid OAuth token set");
           if (
+            params.revocationEndpoint !== undefined &&
+            (typeof params.revocationEndpoint !== "string" || params.revocationEndpoint === "")
+          )
+            throw new Error("Invalid OAuth revocation endpoint");
+          if (
             tokens.expiresIn !== undefined &&
             (typeof tokens.expiresIn !== "number" || !Number.isFinite(tokens.expiresIn))
           )
@@ -83,6 +88,8 @@ export function createOAuthHandlers(options: StorageOptions): Record<string, Cap
           };
           for (const field of ["refreshToken", "idToken", "scope", "expiresIn"])
             if (tokens[field] !== undefined) stored[field] = tokens[field];
+          if (params.revocationEndpoint !== undefined)
+            stored.revocationEndpoint = params.revocationEndpoint;
           Object.defineProperty(items, key, {
             value: stored,
             enumerable: true,

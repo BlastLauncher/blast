@@ -1,0 +1,42 @@
+name: Raycast API compatibility upgrade
+
+on:
+  schedule:
+    - cron: "23 8 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  upgrade:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.4.2
+      - run: bun install --frozen-lockfile
+      - id: decision
+        run: bun scripts/compat/upgrade-job.ts >> "$GITHUB_OUTPUT"
+      - if: steps.decision.outputs.needed == 'true'
+        env:
+          VERSION: ${{ steps.decision.outputs.latest }}
+          BRANCH: ${{ steps.decision.outputs.branch }}
+          ISSUE_TITLE: ${{ steps.decision.outputs.issueTitle }}
+          COMPARE_URL: ${{ steps.decision.outputs.compareUrl }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          bun run compat:upgrade "$VERSION"
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git checkout -b "$BRANCH"
+          git add compat
+          git commit -m "chore: vendor @raycast/api $VERSION"
+          git push --force origin "$BRANCH"
+          issue_number=$(gh issue list --state open --search "${ISSUE_TITLE}" --json number,title --jq ".[] | select(.title == \"${ISSUE_TITLE}\") | .number" | head -n 1)
+          if [ -z "$issue_number" ]; then
+            gh issue create --title "$ISSUE_TITLE" --body "A new @raycast/api release is vendored on [${BRANCH}](${COMPARE_URL}). Review the generated inventory and coverage report before merging."
+          fi

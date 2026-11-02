@@ -56,8 +56,13 @@ coverage drop: its purpose is to report new symbols, not to implement them.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/29c4a0dd @ 86614e26606f256bbb5660c08f41287d5d8ac16b
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 48.9s
 Done:
-Not done / risks:
+- Vendored @raycast/api 2.10.1 and regenerated inventory, enums, stubs, and coverage.
+- Added Clipboard.paste closeMainWindow wire behavior and OAuth revocationEndpoint forwarding/storage with tests.
+- Added idempotent compat:upgrade and tested weekly upgrade decision helpers plus pinned weekly workflow.
+- Coverage headline: non-deprecated 1537/1538 covered (99.9%), 1 partial, 0 missing; deprecated 942/942 covered.
+- Inventory adds Clipboard.PasteOptions, Clipboard.PasteOptions.closeMainWindow, OAuth.PKCEClient.Options.revocationEndpoint, OAuth.PKCEClient.revocationEndpoint, and three non-deprecated AI model enum members; AI enum values also changed/reordered.
+Not done / risks: Workflow was validated locally with YAML parsing and check:workflow; it was not triggered on GitHub.
 ```

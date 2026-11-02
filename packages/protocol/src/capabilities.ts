@@ -103,6 +103,7 @@ const CLIPBOARD_PROPERTIES = {
   file: STRING,
   html: STRING,
   concealed: BOOLEAN,
+  closeMainWindow: BOOLEAN,
 } as const;
 
 const CLIPBOARD_CONTENT: CapabilitySchema = {
@@ -122,6 +123,7 @@ const TOKEN_PROPERTIES = {
   idToken: STRING,
   expiresIn: NUMBER,
   scope: { type: ["string", "array"], items: STRING },
+  revocationEndpoint: STRING,
 } as const;
 
 const TOKENS: CapabilitySchema = {

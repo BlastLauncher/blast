@@ -10,6 +10,7 @@ export type PKCEClientOptions = {
   providerIcon?: JsonValue;
   providerId?: string;
   description?: string;
+  revocationEndpoint?: string;
 };
 export type AuthorizationRequestOptions = {
   endpoint: string;
@@ -68,6 +69,7 @@ class PKCEClient<M extends RedirectMethod = RedirectMethod> {
   providerIcon?: JsonValue;
   providerId: string;
   description?: string;
+  revocationEndpoint?: string;
 
   constructor(options: PKCEClientOptions & { redirectMethod: M }) {
     this.redirectMethod = options.redirectMethod;
@@ -75,6 +77,8 @@ class PKCEClient<M extends RedirectMethod = RedirectMethod> {
     this.providerId = options.providerId ?? options.providerName;
     if (options.providerIcon !== undefined) this.providerIcon = options.providerIcon;
     if (options.description !== undefined) this.description = options.description;
+    if (options.revocationEndpoint !== undefined)
+      this.revocationEndpoint = options.revocationEndpoint;
     if (!redirects[this.redirectMethod]) throw new TypeError("Unknown OAuth redirect method");
   }
 
@@ -157,7 +161,13 @@ class PKCEClient<M extends RedirectMethod = RedirectMethod> {
       const value = values[key];
       if (value !== undefined) tokens[key] = Array.isArray(value) ? value.join(" ") : value;
     }
-    await requestCapability("oauth.tokens.set", { providerId: this.providerId, tokens });
+    await requestCapability("oauth.tokens.set", {
+      providerId: this.providerId,
+      tokens,
+      ...(this.revocationEndpoint === undefined
+        ? {}
+        : { revocationEndpoint: this.revocationEndpoint }),
+    });
   }
 
   async getTokens(): Promise<TokenSet | undefined> {

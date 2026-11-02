@@ -2756,6 +2756,9 @@
             "items": {
               "type": "string"
             }
+          },
+          "revocationEndpoint": {
+            "type": "string"
           }
         }
       },
@@ -2795,6 +2798,9 @@
                 "items": {
                   "type": "string"
                 }
+              },
+              "revocationEndpoint": {
+                "type": "string"
               }
             },
             "required": [
@@ -3068,6 +3074,9 @@
           "concealed": {
             "type": "boolean"
           },
+          "closeMainWindow": {
+            "type": "boolean"
+          },
           "transient": {
             "type": "boolean"
           }
@@ -3112,6 +3121,9 @@
             "type": "string"
           },
           "concealed": {
+            "type": "boolean"
+          },
+          "closeMainWindow": {
             "type": "boolean"
           }
         }

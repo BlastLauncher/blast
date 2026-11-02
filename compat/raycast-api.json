@@ -1,23 +1,23 @@
 {
-  "version": "2.8.2",
+  "version": "2.10.1",
   "totals": {
     "all": {
-      "covered": 2472,
+      "covered": 2479,
       "partial": 1,
       "missing": 0,
-      "total": 2473
+      "total": 2480
     },
     "nonDeprecated": {
-      "covered": 1533,
+      "covered": 1537,
       "partial": 1,
       "missing": 0,
-      "total": 1534
+      "total": 1538
     },
     "deprecated": {
-      "covered": 939,
+      "covered": 942,
       "partial": 0,
       "missing": 0,
-      "total": 939
+      "total": 942
     },
     "kinds": {
       "namespace": {
@@ -57,10 +57,10 @@
         "total": 13
       },
       "enum-member": {
-        "covered": 691,
+        "covered": 694,
         "partial": 0,
         "missing": 0,
-        "total": 691
+        "total": 694
       },
       "interface": {
         "covered": 64,
@@ -69,16 +69,16 @@
         "total": 64
       },
       "type": {
-        "covered": 178,
+        "covered": 179,
         "partial": 0,
         "missing": 0,
-        "total": 178
+        "total": 179
       },
       "property": {
-        "covered": 1304,
+        "covered": 1307,
         "partial": 0,
         "missing": 0,
-        "total": 1304
+        "total": 1307
       },
       "method": {
         "covered": 24,
@@ -595,6 +595,14 @@
     },
     {
       "path": "AI.Model.Google_Gemini_3_Pro",
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
+      "weight": 0
+    },
+    {
+      "path": "AI.Model.Google_Gemini_4_Argon",
       "status": "covered",
       "tests": [
         "packages/runtime/src/api/enums.generated.test.ts"
@@ -1427,6 +1435,22 @@
     },
     {
       "path": "AI.Model.Vercel_Kimi_K3",
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
+      "weight": 0
+    },
+    {
+      "path": "AI.Model.Vercel_Muse_Spark_1.3",
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
+      "weight": 0
+    },
+    {
+      "path": "AI.Model.Vercel_Muse_Wonder_1.0",
       "status": "covered",
       "tests": [
         "packages/runtime/src/api/enums.generated.test.ts"
@@ -6681,6 +6705,22 @@
     },
     {
       "path": "Clipboard.CopyOptions.transient",
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/clipboard.test.ts"
+      ],
+      "weight": 0
+    },
+    {
+      "path": "Clipboard.PasteOptions",
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/clipboard.test.ts"
+      ],
+      "weight": 0
+    },
+    {
+      "path": "Clipboard.PasteOptions.closeMainWindow",
       "status": "covered",
       "tests": [
         "packages/runtime/src/api/clipboard.test.ts"
@@ -18815,6 +18855,15 @@
       "weight": 0
     },
     {
+      "path": "OAuth.PKCEClient.Options.revocationEndpoint",
+      "status": "covered",
+      "tests": [
+        "packages/host/src/oauth.test.ts",
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
+      "weight": 0
+    },
+    {
       "path": "OAuth.PKCEClient.authorizationRequest",
       "status": "covered",
       "tests": [
@@ -18890,6 +18939,15 @@
       "path": "OAuth.PKCEClient.removeTokens",
       "status": "covered",
       "tests": [
+        "packages/runtime/src/api/oauth.test.ts"
+      ],
+      "weight": 0
+    },
+    {
+      "path": "OAuth.PKCEClient.revocationEndpoint",
+      "status": "covered",
+      "tests": [
+        "packages/host/src/oauth.test.ts",
         "packages/runtime/src/api/oauth.test.ts"
       ],
       "weight": 0

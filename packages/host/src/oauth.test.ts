@@ -4,6 +4,8 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { createOAuthHandlers, oauthTokenFile } from "./oauth.ts";
 
+// @covers OAuth.PKCEClient.Options.revocationEndpoint
+// @covers OAuth.PKCEClient.revocationEndpoint
 test("OAuth stores are extension scoped, provider keyed, serialized and atomically replaced", async () => {
   const dataDir = await mkdtemp(join(tmpdir(), "blast-oauth-"));
   try {
@@ -17,12 +19,14 @@ test("OAuth stores are extension scoped, provider keyed, serialized and atomical
           providerId: `provider-${i}`,
           extensionName: "victim",
           tokens: { accessToken: `secret-${i}` },
+          ...(i === 0 ? { revocationEndpoint: "https://provider.example/revoke" } : {}),
         }),
       ),
     );
     const contents = JSON.parse(await readFile(file, "utf8"));
     expect(Object.keys(contents)).toHaveLength(12);
     expect(contents["provider-0"].updatedAt).toEqual(expect.any(String));
+    expect(contents["provider-0"].revocationEndpoint).toBe("https://provider.example/revoke");
     expect((await stat(file)).mode & 0o777).toBe(0o600);
     expect(await readdir(dirname(file))).toEqual([file.split("/").at(-1)!]);
     const fresh = createOAuthHandlers(options);

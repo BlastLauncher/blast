@@ -109,6 +109,8 @@ test("Clipboard.copy rejects content outside the declared union before the wire"
 // @covers Clipboard.Content.text
 // @covers Clipboard.Content.file
 // @covers Clipboard.Content.html
+// @covers Clipboard.PasteOptions
+// @covers Clipboard.PasteOptions.closeMainWindow
 test("Clipboard.paste sends text, file and HTML content", async () => {
   const requests = recorder([]);
   for (const [content, params] of [
@@ -123,12 +125,20 @@ test("Clipboard.paste sends text, file and HTML content", async () => {
     ],
   ] as const) {
     await Clipboard.paste(content);
-    expect(requests.at(-1)).toEqual({ name: "clipboard.paste", params });
+    expect(requests.at(-1)).toEqual({
+      name: "clipboard.paste",
+      params: { ...params, closeMainWindow: true },
+    });
   }
+  await Clipboard.paste("keep open", { closeMainWindow: false });
+  expect(requests.at(-1)).toEqual({
+    name: "clipboard.paste",
+    params: { text: "keep open", closeMainWindow: false },
+  });
   await expect(Clipboard.paste({} as { text: string })).rejects.toThrow(
     "Clipboard.paste: unsupported content in Blast",
   );
-  expect(requests).toHaveLength(6);
+  expect(requests).toHaveLength(7);
 });
 
 // @covers Clipboard.clear
@@ -161,7 +171,7 @@ test("clipboard file content accepts Buffer and URL paths for copying and pastin
   expect(requests).toEqual([
     { name: "clipboard.copy", params: { file: "/tmp/a" } },
     { name: "clipboard.copy", params: { file: "file:///tmp/b" } },
-    { name: "clipboard.paste", params: { file: "/tmp/a" } },
-    { name: "clipboard.paste", params: { file: "file:///tmp/b" } },
+    { name: "clipboard.paste", params: { file: "/tmp/a", closeMainWindow: true } },
+    { name: "clipboard.paste", params: { file: "file:///tmp/b", closeMainWindow: true } },
   ]);
 });
