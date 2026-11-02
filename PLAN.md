@@ -74,18 +74,18 @@ Raycast client semantics built in so embedders only draw.
 - [x] 0080 Views over `blast serve` (client-core controller per session)
 - [x] 0070 Deps-heavy corpus (`compat/SMOKE-DEPS.md`, after 0082–0087): 25/25
       installs, 54/56 render (20 with placeholder inputs), 2 `open.url` denials
-- [x] 0082 tsconfig `baseUrl`/`paths`; 0083 lean installs (−91%); 0084 form editing in the controller
-- [x] 0085 Lean installs keep required non-runtime peers (`zod` for `@ai-sdk/*`)
+- [x] 0082 tsconfig paths; 0083 lean installs; 0084 form editing; 0085 keep required peers
 - [x] 0086 smoke placeholder args/prefs; 0087 bundle time limit
 
 ### M6 — Evidence at scale
 
 Honest gate, latest API, real compatibility across the corpus. Tasks run in
-order, each with a disk budget (the volume is nearly full).
+order with disk budgets.
 
 - [x] 0088 Verify passes on a clean Mac
 - [x] 0089 `@raycast/api` 2.10.1 and a weekly upgrade job
-- [ ] 0090 Repin the corpus and rerun all smokes
+- [x] 0090 Repin the corpus and rerun all smokes
+- [ ] 0093 Stable selection, pre-release-aware shared deps (before 0091)
 - [ ] 0091 Sandboxed corpus sweep runner and pilot
 - [ ] 0092 Primary action probe; full sweep task follows the pilot
 

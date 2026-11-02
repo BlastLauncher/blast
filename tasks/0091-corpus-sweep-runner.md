@@ -3,7 +3,7 @@ id: "0091"
 title: Sandboxed corpus sweep runner with a pilot run
 status: todo
 milestone: M6
-depends: ["0090"]
+depends: ["0090", "0093"]
 ---
 
 ## Goal
