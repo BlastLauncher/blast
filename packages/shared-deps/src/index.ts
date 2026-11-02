@@ -31,7 +31,7 @@ export function isProvidedSpecifier(specifier: string): boolean {
 
 /** Whether a declared range admits a stable release of the provided major. */
 export function isDependencyCompatible(name: string, range: unknown): boolean {
-  const version = manifest.dependencies[name];
+  const version = (manifest.dependencies as Record<string, string>)[name];
   if (!version || typeof range !== "string" || !validRange(range)) return true;
   const major = version.split(".")[0]!;
   // A prerelease declaration such as ^1.0.0-rc.12 is intentionally pinned

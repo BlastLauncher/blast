@@ -343,7 +343,8 @@ export function compactLine(text: string, width = 160): string {
     /No matching export in ["']([^"']+)["'] for import ["']([^"']+)["']/i,
   );
   if (exportError && line.length > width) {
-    const [, file, name] = exportError;
+    const file = exportError[1] ?? "";
+    const name = exportError[2] ?? "";
     const suffix = ` for import "${name}"`;
     const prefix = 'No matching export in "';
     const available = Math.max(0, width - prefix.length - suffix.length - 2);

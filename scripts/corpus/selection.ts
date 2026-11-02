@@ -298,18 +298,12 @@ function emptyLists<K extends string>(keys: readonly K[]): Record<K, string[]> {
   return Object.fromEntries(keys.map((key) => [key, [] as string[]])) as Record<K, string[]>;
 }
 
-/** How many picks a stratum still needs; only `list-only` accounts for the kept set. */
+/** How many picks a stratum still needs after accounting for kept candidates. */
 function room(stratum: PickStratum, kept: number, keptInStratum: number, quotas: Quotas): number {
-  // Sticky quotas describe the final set, while the default quotas describe
-  // additions after the original ten. Once the kept set already fills the
-  // sticky shared-deps target, do not grow the curated set on every rerun.
-  const sticky =
-    quotas["shared-deps"] > 0 &&
-    PICK_STRATA.filter((name) => name !== "shared-deps").every((name) => quotas[name] === 0);
-  return (
-    quotas[stratum] -
-    (stratum === "list-only" ? kept : sticky && stratum === "shared-deps" ? keptInStratum : 0)
-  );
+  // The original ten are known to be list-only. For every other stratum,
+  // count only kept candidates that are present in the analyzed pool; this
+  // makes a selection idempotent when its own output is fed back as `kept`.
+  return quotas[stratum] - (stratum === "list-only" ? kept : keptInStratum);
 }
 
 /**

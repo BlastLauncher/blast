@@ -16,7 +16,7 @@ Source: [dependencies.json](dependencies.json), from the same scan as
 ## Summary
 
 - 1607 of 3493 extensions need nothing beyond the baseline set.
-- 2042 of 3493 extensions are satisfied by the current shared allowlist
+- 1939 of 3493 extensions are satisfied by the current shared allowlist
   (`@raycast/api`, `@raycast/utils`, `axios`, `cheerio`, `cross-fetch`, `date-fns`, `dayjs`, `fuse.js`, `lodash`, `moment`, `nanoid`, `node-fetch`, `node-html-markdown`, `react`, `uuid`, `zod`).
 - 1436 packages are declared or imported by at least one extension.
 
@@ -27,10 +27,10 @@ How many extensions are satisfied once the top N packages by imports are provide
 | Packages provided | Extensions satisfied |
 | --- | --- |
 | 0 | 1607 |
-| 10 | 2017 |
-| 20 | 2171 |
-| 30 | 2239 |
-| 50 | 2344 |
+| 10 | 1933 |
+| 20 | 2061 |
+| 30 | 2124 |
+| 50 | 2218 |
 
 ## Top 60 packages
 

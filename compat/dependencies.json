@@ -21,24 +21,24 @@
       "uuid",
       "zod"
     ],
-    "satisfied": 2042
+    "satisfied": 1939
   },
   "curve": [
     {
       "provided": 10,
-      "satisfied": 2017
+      "satisfied": 1933
     },
     {
       "provided": 20,
-      "satisfied": 2171
+      "satisfied": 2061
     },
     {
       "provided": 30,
-      "satisfied": 2239
+      "satisfied": 2124
     },
     {
       "provided": 50,
-      "satisfied": 2344
+      "satisfied": 2218
     }
   ],
   "packages": [

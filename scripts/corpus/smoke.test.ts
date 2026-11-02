@@ -293,7 +293,7 @@ test("compactLine flattens whitespace and truncates deterministically", () => {
 
 test("compactLine preserves the identifying part of a long esbuild export error", () => {
   const detail = compactLine(
-    `✘ [ERROR] No matching export in \"/repo/node_modules/cheerio/dist/browser/index.js\" for import \"default\" from \"/repo/src/index.ts\"`,
+    `✘ [ERROR] No matching export in "/repo/node_modules/cheerio/dist/browser/index.js" for import "default" from "/repo/src/index.ts"`,
   );
   expect(detail.length).toBeLessThanOrEqual(160);
   expect(detail).toContain("No matching export");
