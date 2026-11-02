@@ -509,6 +509,24 @@ test("repeated selection over the same pool is identical", () => {
   expect(new Set(first.curated).size).toBe(80);
 });
 
+test("selection is idempotent when the kept set is already larger than a quota", () => {
+  const pool = [
+    ...Array.from({ length: 3 }, (_, index) =>
+      candidate({
+        name: `shared-${index}`,
+        stratum: "none",
+        features: ["shared-deps"],
+        sharedPackages: ["axios"],
+      }),
+    ),
+  ];
+  const quotas = quotasFor({ "shared-deps": 2 });
+  const first = selectCurated(["shared-0", "shared-1"], pool, quotas);
+  const second = selectCurated(first.curated, pool, quotas);
+  expect(second.curated).toEqual(first.curated);
+  expect(second.missing["shared-deps"]).toBe(0);
+});
+
 test("the additive strata fill after the exclusive ones and never reuse a pick", () => {
   const pool = [
     candidate({ name: "form-0" }),

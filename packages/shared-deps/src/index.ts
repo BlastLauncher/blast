@@ -29,6 +29,21 @@ export function isProvidedSpecifier(specifier: string): boolean {
   return PROVIDED_PACKAGES.some((name) => specifier === name || specifier.startsWith(`${name}/`));
 }
 
+/** Whether a declared range admits a stable release of the provided major. */
+export function isDependencyCompatible(name: string, range: unknown): boolean {
+  const version = manifest.dependencies[name];
+  if (!version || typeof range !== "string" || !validRange(range)) return true;
+  const major = version.split(".")[0]!;
+  // A prerelease declaration such as ^1.0.0-rc.12 is intentionally pinned
+  // to the prerelease line by the extension, even though semver's caret range
+  // can also mathematically include later stable releases.
+  if (new RegExp(`\\b${major}\\.\\d+\\.\\d+-[0-9A-Za-z.-]+`).test(range)) {
+    const hasStableComparator = new RegExp(`\\b${major}\\.\\d+\\.\\d+(?!-)`).test(range);
+    if (!hasStableComparator) return false;
+  }
+  return intersects(range, `${major}.x`);
+}
+
 /** Warn only when no version in the supplied major can satisfy the declaration. */
 export function dependencyWarnings(declarations: Record<string, unknown> = {}): string[] {
   const pinned: Record<string, string> = manifest.dependencies;
@@ -36,8 +51,7 @@ export function dependencyWarnings(declarations: Record<string, unknown> = {}): 
     const version = pinned[name];
     const range = declarations[name];
     if (!version || typeof range !== "string" || !validRange(range)) return [];
-    const major = version.split(".")[0];
-    if (intersects(range, `${major}.x`, { includePrerelease: true })) return [];
+    if (isDependencyCompatible(name, range)) return [];
     return [`Shared dependency ${name}: declared ${range}, provided ${version} (major mismatch)`];
   });
 }

@@ -291,6 +291,16 @@ test("compactLine flattens whitespace and truncates deterministically", () => {
   expect(compactLine("x".repeat(200)).endsWith("…")).toBe(true);
 });
 
+test("compactLine preserves the identifying part of a long esbuild export error", () => {
+  const detail = compactLine(
+    `✘ [ERROR] No matching export in \"/repo/node_modules/cheerio/dist/browser/index.js\" for import \"default\" from \"/repo/src/index.ts\"`,
+  );
+  expect(detail.length).toBeLessThanOrEqual(160);
+  expect(detail).toContain("No matching export");
+  expect(detail).toContain("cheerio");
+  expect(detail).toContain('"default"');
+});
+
 test("compactLines keeps only the last lines and drops empty input", () => {
   expect(compactLines([])).toBeUndefined();
   expect(compactLines(["a"])).toEqual(["a"]);

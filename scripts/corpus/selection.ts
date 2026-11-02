@@ -299,8 +299,17 @@ function emptyLists<K extends string>(keys: readonly K[]): Record<K, string[]> {
 }
 
 /** How many picks a stratum still needs; only `list-only` accounts for the kept set. */
-function room(stratum: PickStratum, kept: number, quotas: Quotas): number {
-  return quotas[stratum] - (stratum === "list-only" ? kept : 0);
+function room(stratum: PickStratum, kept: number, keptInStratum: number, quotas: Quotas): number {
+  // Sticky quotas describe the final set, while the default quotas describe
+  // additions after the original ten. Once the kept set already fills the
+  // sticky shared-deps target, do not grow the curated set on every rerun.
+  const sticky =
+    quotas["shared-deps"] > 0 &&
+    PICK_STRATA.filter((name) => name !== "shared-deps").every((name) => quotas[name] === 0);
+  return (
+    quotas[stratum] -
+    (stratum === "list-only" ? kept : sticky && stratum === "shared-deps" ? keptInStratum : 0)
+  );
 }
 
 /**
@@ -442,7 +451,10 @@ export function selectCurated(
   // selection exactly as it was before the additive strata existed.
   const taken = new Set(kept);
   for (const stratum of PICK_STRATA) {
-    const needed = room(stratum, kept.length, quotas);
+    const keptInStratum = order.filter(
+      (candidate) => kept.includes(candidate.name) && matchesStratum(candidate, stratum),
+    ).length;
+    const needed = room(stratum, kept.length, keptInStratum, quotas);
     const matched =
       stratum === "shared-deps"
         ? pickSharedDeps(order, taken, needed)
@@ -506,8 +518,8 @@ export function offlineQuotasMet(
   const features = featureCapacity(candidates, false);
   return PICK_STRATA.every((stratum) =>
     isFeatureStratum(stratum)
-      ? features[stratum] >= room(stratum, kept.length, quotas)
-      : exclusive[stratum] >= room(stratum, kept.length, quotas),
+      ? features[stratum] >= room(stratum, kept.length, 0, quotas)
+      : exclusive[stratum] >= room(stratum, kept.length, 0, quotas),
   );
 }
 

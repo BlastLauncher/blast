@@ -10,6 +10,7 @@ import {
   type ExtensionDependencies,
 } from "./dependencies.ts";
 import { PROVIDED_PACKAGES } from "@blastlauncher/shared-deps";
+import { dependencyWarnings } from "@blastlauncher/shared-deps";
 import { packageName } from "./imports.ts";
 import type { Manifest } from "./selection.ts";
 
@@ -48,6 +49,20 @@ test("declared dependencies are the runtime ones, beyond the provided packages a
   expect(deps.declared).toEqual({ "node-fetch": "2", zod: "3" });
   expect(deps.imported).toEqual(["zod"]);
   expect(extensionDependencies(undefined, []).declared).toEqual({});
+});
+
+test("pre-release-only shared ranges are not satisfied by a stable provided major", () => {
+  expect(dependencyWarnings({ cheerio: "^1.0.0-rc.12" })).toEqual([
+    "Shared dependency cheerio: declared ^1.0.0-rc.12, provided 1.2.0 (major mismatch)",
+  ]);
+  expect(dependencyWarnings({ cheerio: "^1.0.0" })).toEqual([]);
+  const prerelease = extensionDependencies({ dependencies: { cheerio: "^1.0.0-rc.12" } }, [
+    source('import cheerio from "cheerio";'),
+  ]);
+  const stable = extensionDependencies({ dependencies: { cheerio: "^1.0.0" } }, [
+    source('import cheerio from "cheerio";'),
+  ]);
+  expect(aggregateDependencies("pin", [prerelease, stable]).shared.satisfied).toBe(1);
 });
 
 test("imported packages are the npm modules non-test sources import, subpaths folded in", () => {

@@ -82,6 +82,7 @@ export type SmokeReport = {
   totals: Record<Outcome, number>;
   results: CommandResult[];
   extensionFailures: { extension: string; error: string }[];
+  peakBytes?: number;
 };
 
 /** A scene node narrowed to what counting needs; protocol scenes satisfy it. */
@@ -338,6 +339,16 @@ export function sanitizePath(text: string, replacements: Array<[string, string]>
 /** One line of at most `width` characters, for embedding in table cells. */
 export function compactLine(text: string, width = 160): string {
   const line = text.replace(/\s+/g, " ").trim();
+  const exportError = line.match(
+    /No matching export in ["']([^"']+)["'] for import ["']([^"']+)["']/i,
+  );
+  if (exportError && line.length > width) {
+    const [, file, name] = exportError;
+    const suffix = ` for import "${name}"`;
+    const prefix = 'No matching export in "';
+    const available = Math.max(0, width - prefix.length - suffix.length - 2);
+    return `${prefix}${file.slice(-available)}"${suffix}`.slice(0, width);
+  }
   return line.length > width ? `${line.slice(0, width - 1)}…` : line;
 }
 
@@ -460,6 +471,7 @@ export function buildReport(
   commit: string,
   results: CommandResult[],
   extensionFailures: { extension: string; error: string }[] = [],
+  peakBytes?: number,
 ): SmokeReport {
   const totals = Object.fromEntries(OUTCOMES.map((outcome) => [outcome, 0])) as Record<
     Outcome,
@@ -475,6 +487,7 @@ export function buildReport(
     extensionFailures: [...extensionFailures].toSorted((a, b) =>
       a.extension.localeCompare(b.extension),
     ),
+    ...(peakBytes === undefined ? {} : { peakBytes }),
   };
 }
 

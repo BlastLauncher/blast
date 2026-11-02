@@ -352,7 +352,7 @@ async function main(): Promise<void> {
     fetchBatch([], root);
   }
 
-  const report = buildTuiReport(pin.commit, results, WIDTH, HEIGHT, extensionFailures);
+  const report = buildTuiReport(pin.commit, results, WIDTH, HEIGHT, extensionFailures, peakBytes);
   await writeFile(join(root, JSON_PATH), renderTuiJson(report));
   // Formatted like every generated file in `compat/` (see
   // `scripts/compat/generate-enums.ts`), so the committed report is exactly

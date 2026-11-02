@@ -136,7 +136,17 @@ function main(): void {
   }
 
   const stats = { scanned: analyzed.length, eligible: analyzed.filter(eligible).length };
-  writeFileSync(join(root, "compat/corpus.json"), renderPin(pin, selection, stats));
+  const corpusPath = join(root, "compat/corpus.json");
+  const rendered = renderPin(pin, selection, stats);
+  // A sticky rerun can have no new picks while its diagnostic strata are
+  // represented by the existing pin. Preserve those bytes so selecting the
+  // same corpus pin is a true no-op.
+  if (
+    readFileSync(corpusPath, "utf8") !== rendered &&
+    selection.curated.join("\n") !== pin.curated.join("\n")
+  ) {
+    writeFileSync(corpusPath, rendered);
+  }
   const counts = PICK_STRATA.map((stratum) => `${stratum} ${selection.picks[stratum].length}`).join(
     ", ",
   );
