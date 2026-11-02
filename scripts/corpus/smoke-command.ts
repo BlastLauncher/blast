@@ -11,6 +11,7 @@ import {
   BundleTimeoutError,
   createBroker,
   MissingDependencyError,
+  runtimeEnvironment,
   startCommand,
   type BundledCommand,
   type Session,
@@ -155,6 +156,17 @@ export async function launchOne(
       return build({ kind: "missing-arguments", names: inputs.unsupplied });
     for (const directory of inputs.directories) await mkdir(directory, { recursive: true });
     try {
+      const runtimeEnv =
+        process.env.BLAST_SWEEP_SCRATCH === undefined
+          ? undefined
+          : {
+              ...runtimeEnvironment(),
+              ...Object.fromEntries(
+                ["XDG_CACHE_HOME", "XDG_CONFIG_HOME", "XDG_DATA_HOME"].flatMap((name) =>
+                  process.env[name] === undefined ? [] : [[name, process.env[name] as string]],
+                ),
+              ),
+            };
       session = await startCommand({
         ...bundled,
         // Deny-all apart from Blast's headless read-only defaults, so a command
@@ -165,6 +177,7 @@ export async function launchOne(
         ...(Object.keys(inputs.argumentValues).length > 0
           ? { argumentValues: inputs.argumentValues }
           : {}),
+        ...(runtimeEnv === undefined ? {} : { env: runtimeEnv }),
       });
     } catch (error) {
       // Startup failures (handshake, exit before ready) are crashes too.
