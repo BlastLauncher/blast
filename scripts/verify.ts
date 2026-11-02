@@ -1,12 +1,15 @@
 // The single gate from AGENTS.md. Runs every check even after a failure so one
 // run reports everything, then prints a one-line summary for handoff notes.
 import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
 
 const files = spawnSync("git", ["ls-files", "--cached", "--others", "--exclude-standard"], {
   encoding: "utf8",
 });
 if (files.status !== 0) process.exit(files.status ?? 1);
-const testFiles = files.stdout.split("\n").filter((path) => /\.test\.(?:ts|tsx|js)$/.test(path));
+const testFiles = files.stdout
+  .split("\n")
+  .filter((path) => /\.test\.(?:ts|tsx|js)$/.test(path) && existsSync(path));
 
 const steps: Array<[name: string, command: string[]]> = [
   ["format", ["bun", "run", "--silent", "fmt:check"]],
