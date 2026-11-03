@@ -1,41 +1,149 @@
 {
   "commit": "bad7de0172ce6ea5e721ed919f4e1d7186f74192",
   "seed": "0091",
-  "selectedExtensions": 100,
-  "commands": 262,
+  "selectedExtensions": 1939,
+  "commands": 5759,
   "totals": {
-    "rendered": 230,
-    "completed": 0,
-    "capability-denied": 9,
-    "sandbox-denied": 6,
-    "bundle-failed": 3,
+    "rendered": 4879,
+    "completed": 27,
+    "capability-denied": 451,
+    "sandbox-denied": 59,
+    "bundle-failed": 170,
     "bundle-timeout": 0,
-    "crashed": 10,
-    "network": 4,
+    "crashed": 157,
+    "network": 14,
     "timeout": 0,
     "unsupported-mode": 0,
-    "unsupported-api": 0,
+    "unsupported-api": 2,
     "missing-arguments": 0
   },
   "failures": [
+    {
+      "signature": "Capability denied: storage.get",
+      "commands": 266
+    },
+    {
+      "signature": "Capability denied: open.url",
+      "commands": 117
+    },
+    {
+      "signature": "An unknown Component is an async Client Component. Only Server Components can be async at the moment. This error is often caused by accidentally adding `'use client'` to a module that was originally written for the server.",
+      "commands": 85
+    },
+    {
+      "signature": "missing dependencies: swift:..",
+      "commands": 82
+    },
+    {
+      "signature": "spawn EPERM",
+      "commands": 47
+    },
+    {
+      "signature": "missing dependencies: rust:..",
+      "commands": 33
+    },
+    {
+      "signature": "Invalid URL",
+      "commands": 23
+    },
+    {
+      "signature": "Capability denied: oauth.tokens.get",
+      "commands": 15
+    },
+    {
+      "signature": "Capability denied: clipboard.copy",
+      "commands": 14
+    },
+    {
+      "signature": "Capability denied: storage.all",
+      "commands": 13
+    },
+    {
+      "signature": "Preference \"terminalApp\" needs a scalar \"default\"",
+      "commands": 13
+    },
+    {
+      "signature": "spawnSync /bin/sh EPERM",
+      "commands": 10
+    },
+    {
+      "signature": "missing dependencies: @/lib",
+      "commands": 9
+    },
+    {
+      "signature": "missing dependencies: ws",
+      "commands": 9
+    },
+    {
+      "signature": "Capability denied: storage.set",
+      "commands": 8
+    },
     {
       "signature": "Cannot convert undefined or null to object",
       "commands": 7
     },
     {
-      "signature": "Capability denied: storage.get",
+      "signature": "Cannot read properties of undefined (reading 'length')",
       "commands": 6
     },
     {
-      "signature": "spawnSync /bin/sh EPERM",
+      "signature": "Capability denied: open.path",
+      "commands": 6
+    },
+    {
+      "signature": "missing dependencies: @/hooks",
       "commands": 5
     },
     {
-      "signature": "Capability denied: clipboard.copy",
+      "signature": "missing dependencies: undici",
+      "commands": 5
+    },
+    {
+      "signature": "Capability denied: clipboard.paste",
+      "commands": 4
+    },
+    {
+      "signature": "Capability denied: storage.remove",
+      "commands": 4
+    },
+    {
+      "signature": "ENOENT: no such file or directory, scandir '<scratch>/Library/Application Support/zen/Profiles'",
+      "commands": 4
+    },
+    {
+      "signature": "Build failed with # error: src/hooks/useHistorySearch.tsx:#:#: ERROR: [plugin: blast-dependencies] Cannot find package '@raycast/utils' imported from <repo>/p…",
+      "commands": 3
+    },
+    {
+      "signature": "Cannot read properties of undefined (reading 'trim')",
+      "commands": 3
+    },
+    {
+      "signature": "fetch failed",
+      "commands": 3
+    },
+    {
+      "signature": "Rendered fewer hooks than expected. This may be caused by an accidental early return statement.",
+      "commands": 3
+    },
+    {
+      "signature": "Capability denied: command.launch",
       "commands": 2
     },
     {
-      "signature": "missing dependencies: swift:..",
+      "signature": "ENOENT: no such file or directory, open '<scratch>/bundle/package.json'",
+      "commands": 2
+    },
+    {
+      "signature": "missing dependencies: @/utils",
+      "commands": 2
+    },
+    {
+      "signature": "missing dependencies: rust:.., swift:..",
+      "commands": 2
+    },
+    {
+      "signature": "Preference \"menu_bar_icon_only\" needs a scalar \"default\"",
       "commands": 2
     },
     {
@@ -43,11 +151,59 @@
       "commands": 2
     },
     {
-      "signature": "Cannot read properties of undefined (reading 'length')",
+      "signature": "request to https://www.gov.uk/bank-holidays.json failed, reason: getaddrinfo ENOTFOUND www.gov.uk",
+      "commands": 2
+    },
+    {
+      "signature": "Unable to get application list",
+      "commands": 2
+    },
+    {
+      "signature": "Cannot read properties of undefined (reading 'articles')",
       "commands": 1
     },
     {
-      "signature": "Capability denied: command.launch",
+      "signature": "Cannot read properties of undefined (reading 'data')",
+      "commands": 1
+    },
+    {
+      "signature": "Cannot read properties of undefined (reading 'read')",
+      "commands": 1
+    },
+    {
+      "signature": "Cannot read properties of undefined (reading 'replace')",
+      "commands": 1
+    },
+    {
+      "signature": "Cannot read properties of undefined (reading 'results')",
+      "commands": 1
+    },
+    {
+      "signature": "Cannot read properties of undefined (reading 'split')",
+      "commands": 1
+    },
+    {
+      "signature": "Cannot read properties of undefined (reading 'sports')",
+      "commands": 1
+    },
+    {
+      "signature": "Capability denied: browser.tabs",
+      "commands": 1
+    },
+    {
+      "signature": "Capability denied: clipboard.clear",
+      "commands": 1
+    },
+    {
+      "signature": "coast CLI not found. Install Coast and make sure the app is running, or set the Coast Binary Path preference.",
+      "commands": 1
+    },
+    {
+      "signature": "Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: object.",
+      "commands": 1
+    },
+    {
+      "signature": "ENOENT: no such file or directory, lstat '<scratch>/.config/valet/valet.sock'",
       "commands": 1
     },
     {
@@ -55,11 +211,59 @@
       "commands": 1
     },
     {
+      "signature": "ENOENT: no such file or directory, open '<scratch>/Library/Application Support/obsidian/obsidian.json'",
+      "commands": 1
+    },
+    {
+      "signature": "ENOENT: no such file or directory, open '~/Documents/#-#-#.md'",
+      "commands": 1
+    },
+    {
       "signature": "ENOENT: no such file or directory, scandir '<scratch>/Desktop'",
       "commands": 1
     },
     {
+      "signature": "LocalStorage.setItem: value must be a string, number or boolean",
+      "commands": 1
+    },
+    {
+      "signature": "missing dependencies: @/components",
+      "commands": 1
+    },
+    {
+      "signature": "missing dependencies: @/components, @/hooks, @/types, @/utils",
+      "commands": 1
+    },
+    {
+      "signature": "missing dependencies: @/components, @/hooks, @/utils",
+      "commands": 1
+    },
+    {
+      "signature": "No default application for https://www.feishu.cn/drive/create/?type=base",
+      "commands": 1
+    },
+    {
+      "signature": "No default application for https://www.feishu.cn/drive/create/?type=docx",
+      "commands": 1
+    },
+    {
+      "signature": "No default application for https://www.feishu.cn/drive/create/?type=mindnote",
+      "commands": 1
+    },
+    {
+      "signature": "No default application for https://www.feishu.cn/drive/create/?type=sheet",
+      "commands": 1
+    },
+    {
+      "signature": "Preference \"defaultStreamingApp\" needs a scalar \"default\"",
+      "commands": 1
+    },
+    {
       "signature": "Preference \"executablePath\" needs a scalar \"default\"",
+      "commands": 1
+    },
+    {
+      "signature": "presets2 is not iterable",
       "commands": 1
     },
     {
@@ -71,50 +275,147 @@
       "commands": 1
     },
     {
-      "signature": "spawn EPERM",
+      "signature": "request to https://api.xqc.wtf/vods?$limit=#&$sort[createdAt]=-# failed, reason: getaddrinfo ENOTFOUND api.xqc.wtf",
+      "commands": 1
+    },
+    {
+      "signature": "request to https://azuresearch-usnc.nuget.org/query?&prerelease=false&semVerLevel=#.# failed, reason: getaddrinfo ENOTFOUND azuresearch-usnc.nuget.org",
+      "commands": 1
+    },
+    {
+      "signature": "request to https://m.hupu.com/api/v2/bbs/walkingStreet/threads?page=# failed, reason: getaddrinfo ENOTFOUND m.hupu.com",
+      "commands": 1
+    },
+    {
+      "signature": "request to https://tarot-api-mu.vercel.app/api/cards/random?n=# failed, reason: getaddrinfo ENOTFOUND tarot-api-mu.vercel.app",
+      "commands": 1
+    },
+    {
+      "signature": "request to https://zipper.dev/api/bootInfo/blast failed, reason: getaddrinfo ENOTFOUND zipper.dev",
+      "commands": 1
+    },
+    {
+      "signature": "sandbox child exited with SIGINT: # | const handshake = new Promise<void>((done) => { # | resolveReady = done; # | }); # | function fail(error: Error) …",
+      "commands": 1
+    },
+    {
+      "signature": "spawn powershell.exe ENOENT",
+      "commands": 1
+    },
+    {
+      "signature": "spawnSync bash EPERM",
+      "commands": 1
+    },
+    {
+      "signature": "The GeForce NOW extension is only supported on Windows.",
+      "commands": 1
+    },
+    {
+      "signature": "Unsupported API in Blast: Form.DatePicker.Date",
+      "commands": 1
+    },
+    {
+      "signature": "Unsupported API in Blast: Icon.Lightbulb",
       "commands": 1
     }
   ],
   "capabilities": [
     {
       "signature": "storage.get",
-      "commands": 6
+      "commands": 266
+    },
+    {
+      "signature": "open.url",
+      "commands": 117
+    },
+    {
+      "signature": "oauth.tokens.get",
+      "commands": 15
     },
     {
       "signature": "clipboard.copy",
-      "commands": 2
+      "commands": 14
+    },
+    {
+      "signature": "storage.all",
+      "commands": 13
+    },
+    {
+      "signature": "storage.set",
+      "commands": 8
+    },
+    {
+      "signature": "open.path",
+      "commands": 6
+    },
+    {
+      "signature": "clipboard.paste",
+      "commands": 4
+    },
+    {
+      "signature": "storage.remove",
+      "commands": 4
     },
     {
       "signature": "command.launch",
+      "commands": 2
+    },
+    {
+      "signature": "browser.tabs",
+      "commands": 1
+    },
+    {
+      "signature": "clipboard.clear",
+      "commands": 1
+    },
+    {
+      "signature": "Form.DatePicker.Date",
+      "commands": 1
+    },
+    {
+      "signature": "Icon.Lightbulb",
       "commands": 1
     }
   ],
-  "peakBytes": 472859279,
-  "wallMs": 87218.024208,
-  "commandsPerMinute": 180.23797423466624,
-  "resumed": 0,
-  "projectedFullRunMinutes": 28.185958156552,
-  "projectedFullRunPeakBytes": 472859279,
+  "peakBytes": 1571375668,
+  "wallMs": 226855.113834,
+  "commandsPerMinute": 1523.1748324300374,
+  "resumed": 5443,
+  "projectedFullRunMinutes": 3.7809185639,
+  "projectedFullRunPeakBytes": 1571375668,
   "primaryActionProbe": {
-    "commands": 230,
+    "commands": 4867,
     "totals": {
-      "navigated": 6,
-      "scene-changed": 44,
-      "capability-requested": 7,
-      "no-items-or-content": 154,
-      "items-but-no-primary-action": 12,
-      "still-loading": 1,
-      "no-op": 0,
-      "crashed": 0,
-      "timeout": 6
+      "navigated": 132,
+      "scene-changed": 718,
+      "capability-requested": 282,
+      "no-items-or-content": 3292,
+      "items-but-no-primary-action": 167,
+      "still-loading": 52,
+      "no-op": 1,
+      "crashed": 3,
+      "timeout": 220
     },
-    "crashCauses": [],
-    "renderOnlyCrashRate": 0.03816793893129771,
-    "renderOnlyCrashNumerator": 10,
-    "renderOnlyCrashDenominator": 262,
-    "actionCrashRate": 0,
-    "actionCrashNumerator": 0,
-    "actionCrashDenominator": 63,
-    "probeRuntimeMsPerDispatchedCommand": 102.6055596190476
+    "crashCauses": [
+      {
+        "signature": "request to https://scrapbox.io/api/pages/blast-smoke?sort=accessed&limit=# failed, reason: getaddrinfo ENOTFOUND scrapbox.io",
+        "commands": 1
+      },
+      {
+        "signature": "spawn delphitools ENOENT",
+        "commands": 1
+      },
+      {
+        "signature": "spawn EPERM",
+        "commands": 1
+      }
+    ],
+    "renderOnlyCrashRate": 0.027261677374544192,
+    "renderOnlyCrashNumerator": 157,
+    "renderOnlyCrashDenominator": 5759,
+    "actionCrashRate": 0.0022091310751104565,
+    "actionCrashNumerator": 3,
+    "actionCrashDenominator": 1358,
+    "probeRuntimeMsPerDispatchedCommand": 170.59155029234142
   }
 }
