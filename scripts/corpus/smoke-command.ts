@@ -11,10 +11,11 @@ import { dirname, join } from "node:path";
 import {
   bundleCommand,
   BundleTimeoutError,
-  createBroker,
+  createSessionBroker,
   MissingDependencyError,
   runtimeEnvironment,
   startCommand,
+  type Broker,
   type BundledCommand,
   type Session,
 } from "../../packages/host/src/index.ts";
@@ -54,6 +55,21 @@ export type DependencyMode = {
   /** Optional build output directory, used by the sandbox sweep parent. */
   outDir?: string;
 };
+
+/**
+ * The session broker a sweep command runs with: Blast's headless read-only
+ * defaults plus the storage and OAuth handlers an embedder gets
+ * (`packages/host/src/client.ts`). Their files live in the command's own scratch
+ * directory, which `launchOne` deletes when the command ends, so commands never
+ * share state and nothing outlives the run. Machine-changing capabilities such
+ * as `open.url` stay denied (task 0097).
+ */
+export function createSweepBroker(extensionName: string, scratchDir: string): Broker {
+  return createSessionBroker(
+    { extensionName, dataDir: join(scratchDir, "host-data") },
+    { handlers: createHeadlessHandlers() },
+  );
+}
 
 /**
  * First non-null scene, first empty menu bar, exit, or timeout — whichever comes
@@ -368,10 +384,9 @@ export async function launchOne(
             };
       session = await startCommand({
         ...bundled,
-        // Deny-all apart from Blast's headless read-only defaults, so a command
-        // that only reads applications, the clipboard or its preferences still
-        // renders; the report header records the policy.
-        broker: createBroker(createHeadlessHandlers()),
+        // Headless read-only defaults plus per-command storage and OAuth state
+        // under this command's scratch; machine effects stay denied.
+        broker: createSweepBroker(extension, scratchDir),
         preferences: inputs.preferences,
         ...(Object.keys(inputs.argumentValues).length > 0
           ? { argumentValues: inputs.argumentValues }
