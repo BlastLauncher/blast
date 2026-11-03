@@ -28,7 +28,11 @@ const actionScene = (revision: number, title: string): SceneMessage => ({
   ]),
 });
 
-function fakeSession(first: SceneMessage, after: SceneMessage): Session {
+function fakeSession(
+  first: SceneMessage,
+  after: SceneMessage,
+  order: "exit-first" | "scene-first" = "exit-first",
+): Session {
   let sceneListener: ((scene: SceneMessage) => void) | undefined;
   let resolveExit!: (exit: Exit) => void;
   const exited = new Promise<Exit>((resolve) => {
@@ -47,10 +51,15 @@ function fakeSession(first: SceneMessage, after: SceneMessage): Session {
     },
     sendProvider: () => {},
     sendEvent: () => {
-      // Resolve first, then publish on a later microtask. This reproduces the
-      // exit-before-scene ordering that used to misclassify a clean action as no-op.
-      resolveExit({ code: 0, signal: null });
-      queueMicrotask(() => sceneListener?.(after));
+      if (order === "scene-first") {
+        sceneListener?.(after);
+        resolveExit({ code: 0, signal: null });
+      } else {
+        // Resolve first, then publish on a later microtask. This reproduces the
+        // exit-before-scene ordering that used to misclassify a clean action as no-op.
+        resolveExit({ code: 0, signal: null });
+        queueMicrotask(() => sceneListener?.(after));
+      }
     },
     shutdown: async () => ({ code: 0, signal: null }),
     exited,
@@ -82,6 +91,18 @@ test("observation keeps a clean exit-first action when the settled scene changes
   const first = actionScene(1, "before");
   const after = actionScene(2, "after");
   const result = await probePrimaryAction(fakeSession(first, after), first, (text) => text);
+  expect(result.outcome).toBe("scene-changed");
+  expect(result.dispatched).toBe(true);
+});
+
+test("observation also keeps a scene-first action change", async () => {
+  const first = actionScene(1, "before");
+  const after = actionScene(2, "after");
+  const result = await probePrimaryAction(
+    fakeSession(first, after, "scene-first"),
+    first,
+    (text) => text,
+  );
   expect(result.outcome).toBe("scene-changed");
   expect(result.dispatched).toBe(true);
 });
