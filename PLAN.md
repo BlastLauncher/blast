@@ -83,11 +83,11 @@ Honest gate, latest API, real compatibility across the corpus. Tasks run in
 order with disk budgets.
 
 - [x] 0088 Verify on a clean Mac; 0089 API 2.10.1 + weekly job; 0090 repin; 0093 semver deps
-- [x] 0091 Sandboxed corpus sweep runner and pilot
-- [x] 0092 Primary action probe in the sweep
+- [x] 0091 Sandboxed corpus sweep runner and pilot; 0092 primary action probe
 - [x] 0094 Full sweep; after 0095-0098: 5266/5759 commands render (`compat/SWEEP.md`)
 - [x] From the triage: 0095 Suspense/`use()`, 0096 JSONC tsconfig, 0097 sweep broker parity, 0098 sweep reporting
 - [x] 0099 Reclone the sweep corpus only near the budget (full runs under an hour)
+- [ ] 0100 Dependencies are part of launch: typed error, per-launch install, policy (`0012`)
 
 ## Later (not scheduled)
 
@@ -101,8 +101,7 @@ order with disk budgets.
 
 One line per decision; link a record only when it exists.
 
-- 2026-10-18: Bun for dev toolchain; product code stays Node 24-runnable.
-- 2026-10-18: Headless client first; desktop UI deferred to M4.
+- 2026-10-18: Bun dev toolchain, Node 24-runnable product; headless client first.
 - 2026-10-18: Process/protocol/scene model accepted (`docs/decisions/0001`).
 - 2026-10-18: Coverage denominator is the latest `@raycast/api` declarations.
 - 2026-10-19: M4 is an OpenTUI terminal client on Bun; MyGo desktop later (`0007`).
@@ -117,3 +116,4 @@ One line per decision; link a record only when it exists.
 - 2026-10-19: Engine core is platform-free; native capabilities are registered
   by embedders, with optional `@blastlauncher/native` (`docs/decisions/0010`).
 - 2026-11-02: Corpus sweeps run third-party code only in a no-network sandbox.
+- 2026-11-04: Launch reports missing dependencies as a typed error; installs stay explicit (`docs/decisions/0012`).
