@@ -87,7 +87,7 @@ order with disk budgets.
 - [x] 0091 Sandboxed corpus sweep runner and pilot
 - [x] 0092 Primary action probe in the sweep
 - [x] 0094 Full sweep: 4879/5759 commands render (`compat/SWEEP.md`)
-- [ ] From the triage: 0095 Suspense/`use()` (done), 0096 JSONC tsconfig (done), 0097 sweep broker parity (done), 0098 sweep reporting
+- [x] From the triage: 0095 Suspense/`use()`, 0096 JSONC tsconfig, 0097 sweep broker parity, 0098 sweep reporting
 
 ## Later (not scheduled)
 
