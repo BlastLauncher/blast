@@ -47,7 +47,7 @@ free-space floor.
 
 ```
 Branch/commit: t3/e82346d8 (round-2 worktree; t3/sweep-reclone-threshold fast-forwarded to it) @ 812d2db (code, tests and acceptance run); this Handoff text is the commit after it
-Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 64.9s
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 54.9s
 Done:
 - `shouldReclone(bytes, maxMb)` (scripts/corpus/corpus.ts) is a pure function, true only past half the budget; the boundary (exactly 300 MB of 600) is tested. `fetchBatch` measures `.cache/raycast-extensions` before each source batch and deletes the clone only when it is over the threshold.
 - `removeStaleClone(root)` in scripts/corpus/batch.ts deletes a clone whose `.git/index.lock` or `.git/info/sparse-checkout.lock` exists and whose owner no running git process is (cwd inside the clone, via `lsof`); it runs at the start of every fetch, so a `--resume` after a kill replaces the clone instead of failing. Deletion only via `fs.rm(join(root, CORPUS_DIR))`, with an empty-root guard.
