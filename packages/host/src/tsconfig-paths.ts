@@ -26,6 +26,88 @@ type Declared = { value: unknown; directory: string };
 
 type Chain = { baseUrl?: Declared; paths?: Declared };
 
+/**
+ * Parses the JSON with comments and trailing commas accepted by tsconfig.
+ * This stays local so loading a config cannot expand the host dependency
+ * surface. Strings are copied byte-for-byte, including URL-like `//` text.
+ */
+function parseJsonc(text: string): unknown {
+  let withoutComments = "";
+  let inString = false;
+  let escaped = false;
+  let inLineComment = false;
+  let inBlockComment = false;
+  for (let index = 0; index < text.length; index += 1) {
+    const character = text[index]!;
+    const next = text[index + 1];
+    if (inLineComment) {
+      if (character === "\n" || character === "\r") {
+        inLineComment = false;
+        withoutComments += character;
+      }
+      continue;
+    }
+    if (inBlockComment) {
+      if (character === "*" && next === "/") {
+        inBlockComment = false;
+        index += 1;
+      } else if (character === "\n" || character === "\r") {
+        withoutComments += character;
+      }
+      continue;
+    }
+    if (inString) {
+      withoutComments += character;
+      if (escaped) escaped = false;
+      else if (character === "\\") escaped = true;
+      else if (character === '"') inString = false;
+      continue;
+    }
+    if (character === '"') {
+      inString = true;
+      withoutComments += character;
+    } else if (character === "/" && next === "/") {
+      inLineComment = true;
+      index += 1;
+    } else if (character === "/" && next === "*") {
+      inBlockComment = true;
+      index += 1;
+    } else {
+      withoutComments += character;
+    }
+  }
+  if (inString || inBlockComment) throw new Error("unterminated JSONC token");
+
+  let json = "";
+  inString = false;
+  escaped = false;
+  for (let index = 0; index < withoutComments.length; index += 1) {
+    const character = withoutComments[index]!;
+    if (inString) {
+      json += character;
+      if (escaped) escaped = false;
+      else if (character === "\\") escaped = true;
+      else if (character === '"') inString = false;
+      continue;
+    }
+    if (character === '"') {
+      inString = true;
+      json += character;
+      continue;
+    }
+    if (character === ",") {
+      let next = index + 1;
+      while (/\s/.test(withoutComments[next] ?? "")) next += 1;
+      if (withoutComments[next] === "]" || withoutComments[next] === "}") {
+        index = next - 1;
+        continue;
+      }
+    }
+    json += character;
+  }
+  return JSON.parse(json);
+}
+
 async function kindOf(path: string): Promise<"file" | "directory" | undefined> {
   try {
     const stats = await stat(path);
@@ -79,7 +161,7 @@ async function loadChain(
   }
   let json: unknown;
   try {
-    json = JSON.parse(text);
+    json = parseJsonc(text);
   } catch {
     warnings.push(`Blast skipped tsconfig ${name}: not valid JSON, so path aliases are off`);
     return undefined;

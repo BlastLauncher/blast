@@ -217,6 +217,34 @@ test("alias targets outside the extension are never probed and self-extends cann
   expect(await aliases.resolve("@out/marker")).toBeUndefined();
 });
 
+test("JSONC tsconfig comments and trailing commas preserve aliases and strings", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "blast-tsconfig-jsonc-"));
+  directories.push(dir);
+  await mkdir(join(dir, "src"), { recursive: true });
+  await writeFile(
+    join(dir, "tsconfig.json"),
+    `{
+      // A line comment before compilerOptions.
+      "compilerOptions": {
+        /* A block comment after the key. */
+        "baseUrl": "src",
+        "description": "https://example.test//kept",
+        "paths": {
+          "@lib/*": ["./lib/*",],
+          "url": ["./url.ts"],
+        },
+      },
+    }`,
+  );
+  await mkdir(join(dir, "src/lib"), { recursive: true });
+  await writeFile(join(dir, "src/lib/value.ts"), "export const value = true;");
+  await writeFile(join(dir, "src/url.ts"), 'export const value = "https://example.test//kept";');
+  const aliases = (await loadTsconfigAliases(dir))!;
+  expect(await aliases.resolve("@lib/value")).toBe(join(dir, "src/lib/value.ts"));
+  expect(await aliases.resolve("url")).toBe(join(dir, "src/url.ts"));
+  expect(aliases.warnings).toEqual([]);
+});
+
 test("an unreadable tsconfig degrades to no aliasing with a warning", async () => {
   const dir = await mkdtemp(join(tmpdir(), "blast-tsconfig-broken-"));
   directories.push(dir);
