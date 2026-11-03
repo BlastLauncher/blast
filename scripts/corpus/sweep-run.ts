@@ -1,6 +1,6 @@
 // Entry point for `bun run corpus:sweep`. Fetching is the only networked step;
 // every bundle and runtime is delegated to sweep-command.ts under Seatbelt.
-import { existsSync, readdirSync, statfsSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statfsSync } from "node:fs";
 import { appendFile, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { mkdtemp } from "node:fs/promises";
 import { join } from "node:path";
@@ -210,6 +210,16 @@ async function runTasks(
   await Promise.all(Array.from({ length: Math.min(jobs, Math.max(1, tasks.length)) }, worker));
 }
 
+/** Manifest commands of one extension from the checkout, or none if unreadable. */
+function manifestCommandsOf(root: string, extension: string): string[] {
+  try {
+    const path = join(root, CORPUS_DIR, "extensions", extension, "package.json");
+    return manifestCommands(JSON.parse(readFileSync(path, "utf8")) as Manifest);
+  } catch {
+    return [];
+  }
+}
+
 async function main(): Promise<void> {
   const root = process.cwd();
   const options = parseSweepArgs(process.argv.slice(2));
@@ -252,6 +262,18 @@ async function main(): Promise<void> {
       if (interrupted) throw new Error("sweep interrupted");
       ensureDisk(root, maxMb);
       const batch = selected.slice(offset, offset + size);
+      // Decide from the manifest-only checkout what is left before fetching
+      // sources: a resumed run must not re-download batches it already finished
+      // (fetched blobs stay in the partial clone, so that only grows .cache).
+      const pending = batch.filter((extension) =>
+        manifestCommandsOf(root, extension).some(
+          (command) => !previous.has(resultKey(extension, command)),
+        ),
+      );
+      if (pending.length === 0) {
+        for (const extension of batch) resumedCount += manifestCommandsOf(root, extension).length;
+        continue;
+      }
       peakBytes = Math.max(peakBytes, fetchBatch(batch, root));
       ensureDisk(root, maxMb);
       const tasks: Array<{ extension: string; command: string }> = [];

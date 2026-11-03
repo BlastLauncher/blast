@@ -9,8 +9,13 @@ export const CORPUS_PIN_PATH = "compat/corpus.json";
 export const CORPUS_DIR = ".cache/raycast-extensions";
 export const MAX_MB_ENV = "BLAST_CORPUS_MAX_MB";
 export const DEFAULT_MAX_MB = 600;
-/** Extension directory names follow the rule Raycast enforces for publishing. */
-export const EXTENSION_NAME = /^[a-z0-9][a-z0-9-]*$/;
+/**
+ * Extension directory names as the corpus has them, including legacy ones such
+ * as `dbtCloud` and `http.cat`. The point is that a name is one path segment
+ * that can never escape `extensions/`: no slash or space, and no leading dot or
+ * hyphen (so never `.`, `..` or an option-like `-x`).
+ */
+export const EXTENSION_NAME = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
 export const COMMIT_SHA = /^[0-9a-f]{40}$/;
 /** Every extension manifest: the smallest checkout that still maps the corpus. */
 export const MANIFEST_PATTERN = "/extensions/*/package.json";
