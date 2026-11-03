@@ -2,6 +2,7 @@
 
 Corpus commit `bad7de0172ce6ea5e721ed919f4e1d7186f74192`; seed `0091`; 1939 selected extensions and 5759 commands (5759 command records).
 Peak .cache 1498.6 MB; wall time 227 s; 1523.17 commands/min; 5443 resumed command(s).
+This is a resumed run: wall time, throughput, peak and projected-full-population values are partial-run artifacts, not whole-population measurements; use a clean run (or per-batch timing) for those metrics.
 Rendered means a first scene was published; it does not assert that the command works with live data or actions.
 Projected full population: 0.1 h; projected peak 1498.6 MB.
 
