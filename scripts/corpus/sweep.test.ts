@@ -312,3 +312,16 @@ test("a sandbox EPERM after the primary action is sandbox-denied, not a crash", 
     }),
   ).toMatchObject({ outcome: "crashed" });
 });
+
+test("sweep markdown never contains a double blank line", () => {
+  const base = buildSweepReport({
+    commit: "pin",
+    seed: "0",
+    selectedExtensions: 1,
+    results: [result("a", "rendered")],
+    peakBytes: 1,
+    wallMs: 1,
+  });
+  for (const report of [base, { ...base, resumed: 1 }, { ...base, projectedFullRunMinutes: 30 }])
+    expect(renderSweepMarkdown(report)).not.toContain("\n\n\n");
+});

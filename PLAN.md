@@ -85,7 +85,7 @@ order with disk budgets.
 - [x] 0088 Verify on a clean Mac; 0089 API 2.10.1 + weekly job; 0090 repin; 0093 semver deps
 - [x] 0091 Sandboxed corpus sweep runner and pilot
 - [x] 0092 Primary action probe in the sweep
-- [x] 0094 Full sweep: 4879/5759 commands render (`compat/SWEEP.md`)
+- [x] 0094 Full sweep; after 0095-0098: 5266/5759 commands render (`compat/SWEEP.md`)
 - [x] From the triage: 0095 Suspense/`use()`, 0096 JSONC tsconfig, 0097 sweep broker parity, 0098 sweep reporting
 - [ ] 0099 Reclone the sweep corpus only near the budget (full runs under an hour)
 

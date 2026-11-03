@@ -362,9 +362,12 @@ export function renderSweepMarkdown(report: SweepReport): string {
         ]
       : []),
     "Rendered means a first scene was published; it does not assert that the command works with live data or actions.",
-    resumed || report.projectedFullRunMinutes === undefined
-      ? ""
-      : `Projected full population: ${(report.projectedFullRunMinutes / 60).toFixed(1)} h; projected peak ${mb(report.projectedFullRunPeakBytes ?? report.peakBytes)}.`,
+    // Omitted entirely, not left as "", so the markdown has no double blank line.
+    ...(resumed || report.projectedFullRunMinutes === undefined
+      ? []
+      : [
+          `Projected full population: ${(report.projectedFullRunMinutes / 60).toFixed(1)} h; projected peak ${mb(report.projectedFullRunPeakBytes ?? report.peakBytes)}.`,
+        ]),
     "",
     "## Outcomes",
     "",

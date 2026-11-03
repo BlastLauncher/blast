@@ -5,7 +5,6 @@ Corpus commit `bad7de0172ce6ea5e721ed919f4e1d7186f74192`; seed `0091`; 1939 sele
 This is a resumed run: wall time, throughput, peak and projected-full-population values are partial-run artifacts; use a clean run (or per-batch timing) for those metrics.
 Rendered means a first scene was published; it does not assert that the command works with live data or actions.
 
-
 ## Outcomes
 
 - rendered: 5266 command(s)
