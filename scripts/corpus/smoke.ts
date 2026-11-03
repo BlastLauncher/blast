@@ -25,7 +25,9 @@ export const ACTION_OUTCOMES = [
   "navigated",
   "scene-changed",
   "capability-requested",
-  "no-primary-action",
+  "no-items-or-content",
+  "items-but-no-primary-action",
+  "still-loading",
   "no-op",
   "crashed",
   "timeout",
@@ -35,6 +37,8 @@ export type ActionOutcome = (typeof ACTION_OUTCOMES)[number];
 /** The result of dispatching the client-core primary action once. */
 export type PrimaryActionResult = {
   outcome: ActionOutcome;
+  /** Whether an action event was actually sent to the extension. */
+  dispatched?: boolean;
   /** A denied broker capability, when the action requested one. */
   capability?: string;
   reason?: string;
@@ -432,23 +436,31 @@ export function isSandboxDeniedMessage(message: string | undefined): boolean {
 export type PrimaryActionObservation = {
   primary: boolean;
   events: number;
+  hasContent?: boolean;
   panelOpened?: boolean;
   sceneChanged?: boolean;
   navigated?: boolean;
   capability?: string;
   exit?: { code: number | null; signal: string | null; error?: string };
   timedOut?: boolean;
+  stillLoading?: boolean;
 };
 
 /** Classify one primary dispatch without coupling reports to the host process. */
 export function classifyPrimaryAction(observation: PrimaryActionObservation): PrimaryActionResult {
-  if (!observation.primary) return { outcome: "no-primary-action" };
+  if (!observation.primary)
+    return {
+      outcome: observation.hasContent ? "items-but-no-primary-action" : "no-items-or-content",
+    };
   if (observation.capability)
     return {
       outcome: "capability-requested",
       capability: observation.capability,
       error: `Capability denied: ${observation.capability}`,
     };
+  if (observation.navigated) return { outcome: "navigated" };
+  if (observation.sceneChanged) return { outcome: "scene-changed" };
+  if (observation.stillLoading) return { outcome: "still-loading" };
   if (observation.exit) {
     const { code, signal, error } = observation.exit;
     if (code === 0 && signal === null && !error) return { outcome: "no-op" };
@@ -459,8 +471,6 @@ export function classifyPrimaryAction(observation: PrimaryActionObservation): Pr
     };
   }
   if (observation.timedOut) return { outcome: "timeout" };
-  if (observation.navigated) return { outcome: "navigated" };
-  if (observation.sceneChanged) return { outcome: "scene-changed" };
   if (observation.panelOpened) return { outcome: "navigated" };
   return { outcome: "no-op" };
 }

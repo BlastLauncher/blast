@@ -41,7 +41,10 @@ test("sweep arguments and selection are deterministic", () => {
 
 test("primary action probe classifications are deterministic", () => {
   expect(classifyPrimaryAction({ primary: false, events: 0 })).toEqual({
-    outcome: "no-primary-action",
+    outcome: "no-items-or-content",
+  });
+  expect(classifyPrimaryAction({ primary: false, events: 0, hasContent: true })).toEqual({
+    outcome: "items-but-no-primary-action",
   });
   expect(classifyPrimaryAction({ primary: true, events: 0, panelOpened: true })).toEqual({
     outcome: "navigated",
@@ -51,6 +54,9 @@ test("primary action probe classifications are deterministic", () => {
   });
   expect(classifyPrimaryAction({ primary: true, events: 1, sceneChanged: true })).toEqual({
     outcome: "scene-changed",
+  });
+  expect(classifyPrimaryAction({ primary: true, events: 1, stillLoading: true })).toEqual({
+    outcome: "still-loading",
   });
   expect(classifyPrimaryAction({ primary: true, events: 1, capability: "clipboard.copy" })).toEqual(
     {
@@ -70,6 +76,14 @@ test("primary action probe classifications are deterministic", () => {
       exit: { code: 1, signal: null, error: "boom" },
     }),
   ).toEqual({ outcome: "crashed", error: "boom" });
+  expect(
+    classifyPrimaryAction({
+      primary: true,
+      events: 1,
+      sceneChanged: true,
+      exit: { code: 0, signal: null },
+    }),
+  ).toEqual({ outcome: "scene-changed" });
   expect(classifyPrimaryAction({ primary: true, events: 1, timedOut: true })).toEqual({
     outcome: "timeout",
   });
@@ -100,6 +114,32 @@ test("report text redacts home paths and token-shaped strings", () => {
       {
         ...result("a", "crashed"),
         error: "/Users/alice/.ssh/id: sk-live_1234567890 abcdefabcdefabcdefabcdefabcdefabcdef",
+      },
+    ],
+    peakBytes: 1,
+    wallMs: 1,
+  });
+  const text = `${renderSweepJson(report)}${renderSweepMarkdown(report)}`;
+  expect(text).not.toContain("/Users/alice");
+  expect(text).not.toContain("sk-live_");
+  expect(text).not.toContain("abcdefabcdefabcdefabcdefabcdefabcdef");
+});
+
+test("report text redacts action fields too", () => {
+  const report = buildSweepReport({
+    commit: "pin",
+    seed: "0",
+    selectedExtensions: 1,
+    probeActions: true,
+    results: [
+      {
+        ...result("a", "rendered"),
+        action: {
+          outcome: "crashed",
+          dispatched: true,
+          reason: "/Users/alice/.config/blast/token",
+          error: "sk-live_1234567890 abcdefabcdefabcdefabcdefabcdefabcdef",
+        },
       },
     ],
     peakBytes: 1,
@@ -155,15 +195,24 @@ test("primary action report compares crashes and ranks action causes", () => {
     selectedExtensions: 1,
     probeActions: true,
     results: [
-      { ...result("a", "rendered"), action: { outcome: "scene-changed", elapsedMs: 20 } },
       {
-        ...result("b", "crashed"),
-        action: { outcome: "crashed", error: "boom", elapsedMs: 30 },
+        ...result("a", "rendered"),
+        action: { outcome: "scene-changed", dispatched: true, elapsedMs: 20 },
+      },
+      {
+        ...result("b", "rendered"),
+        action: { outcome: "crashed", dispatched: true, error: "boom", elapsedMs: 30 },
       },
       {
         ...result("c", "rendered"),
-        action: { outcome: "capability-requested", capability: "open.url", elapsedMs: 10 },
+        action: {
+          outcome: "capability-requested",
+          dispatched: true,
+          capability: "open.url",
+          elapsedMs: 10,
+        },
       },
+      { ...result("d", "crashed") },
     ],
     peakBytes: 1,
     wallMs: 1,
@@ -171,8 +220,12 @@ test("primary action report compares crashes and ranks action causes", () => {
   expect(report.primaryActionProbe).toMatchObject({
     commands: 3,
     actionCrashRate: 1 / 3,
-    renderOnlyCrashRate: 1 / 3,
-    addedRuntimeMsPerCommand: 20,
+    renderOnlyCrashRate: 1 / 4,
+    renderOnlyCrashNumerator: 1,
+    renderOnlyCrashDenominator: 4,
+    actionCrashNumerator: 1,
+    actionCrashDenominator: 3,
+    probeRuntimeMsPerDispatchedCommand: 20,
   });
   expect(report.primaryActionProbe?.crashCauses).toEqual([{ signature: "boom", commands: 1 }]);
   expect(renderSweepMarkdown(report)).toContain("Primary action probe");

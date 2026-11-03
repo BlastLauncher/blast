@@ -35,8 +35,12 @@ import {
 
 /** How long one command may take to publish its first scene (or exit). */
 const SCENE_TIMEOUT_MS = 5000;
+/** A scene that stays loading is settled after this quiet period, if revisions stop. */
+const SCENE_QUIET_MS = 150;
 /** A responsive action gets a short observation window; a hung command gets a timeout. */
 const ACTION_TIMEOUT_MS = 1000;
+/** Give an exit-first action event a bounded chance to publish its scene. */
+const ACTION_QUIET_MS = 50;
 /** Warnings kept per command, after deduplication. */
 const MAX_WARNINGS = 5;
 /** Error-level log lines kept for a crash. */
@@ -58,30 +62,64 @@ export type DependencyMode = {
  * waiting for a root. The probe keeps raw messages; sanitation happens once,
  * when the result is built.
  */
-type FirstScene = { probe: ProbeResult; scene?: SceneMessage };
+type FirstScene = { probe: ProbeResult; scene?: SceneMessage; loading?: boolean };
 
-function firstSceneOrExit(session: Session, timeoutMs: number, mode: string): Promise<FirstScene> {
+function sceneLoading(scene: SceneMessage): boolean {
+  const controller = createController({ platform: "macOS" });
+  controller.scene(scene);
+  return controller.view().loading;
+}
+
+export function firstSceneOrExit(
+  session: Session,
+  timeoutMs: number,
+  mode: string,
+): Promise<FirstScene> {
   return new Promise((resolve) => {
     let settled = false;
     let unsubscribe: (() => void) | undefined;
-    const finish = (probe: ProbeResult, scene?: SceneMessage): void => {
+    let quietTimer: ReturnType<typeof setTimeout> | undefined;
+    let loadingScene: SceneMessage | undefined;
+    const finish = (probe: ProbeResult, scene?: SceneMessage, loading = false): void => {
       if (settled) return;
       settled = true;
       clearTimeout(timer);
+      if (quietTimer !== undefined) clearTimeout(quietTimer);
       unsubscribe?.();
-      resolve({ probe, ...(scene === undefined ? {} : { scene }) });
+      resolve({
+        probe,
+        ...(scene === undefined ? {} : { scene }),
+        ...(scene === undefined || !loading ? {} : { loading: true }),
+      });
     };
-    const timer = setTimeout(() => finish({ kind: "timeout", timeoutMs }), timeoutMs);
-    unsubscribe = session.scenes((scene) => {
-      if (scene.root) {
+    const settleLoading = () => {
+      if (loadingScene)
         finish(
           {
             kind: "scene",
-            nodeCount: countNodes(scene.root),
-            rootType: scene.root.type,
+            nodeCount: countNodes(loadingScene.root!),
+            rootType: loadingScene.root!.type,
           },
-          scene,
+          loadingScene,
+          true,
         );
+    };
+    const timer = setTimeout(() => {
+      if (loadingScene) settleLoading();
+      else finish({ kind: "timeout", timeoutMs });
+    }, timeoutMs);
+    unsubscribe = session.scenes((scene) => {
+      if (scene.root) {
+        if (!sceneLoading(scene)) {
+          finish(
+            { kind: "scene", nodeCount: countNodes(scene.root), rootType: scene.root.type },
+            scene,
+          );
+          return;
+        }
+        loadingScene = scene;
+        if (quietTimer !== undefined) clearTimeout(quietTimer);
+        quietTimer = setTimeout(settleLoading, SCENE_QUIET_MS);
       } else if (mode === "menu-bar") {
         finish({ kind: "empty-menu-bar" }, scene);
       }
@@ -105,17 +143,29 @@ function capabilityDenied(error: string | undefined): string | undefined {
   return /^Capability denied: (.+)$/.exec(error ?? "")?.[1];
 }
 
-async function probePrimaryAction(
+export async function probePrimaryAction(
   session: Session,
   first: SceneMessage,
   clean: (text: string) => string,
+  initiallyLoading = false,
 ): Promise<PrimaryActionResult> {
   const started = performance.now();
   const controller: Controller = createController({ platform: "macOS" });
   controller.scene(first);
   const before = controller.view();
+  const hasContent =
+    before.rows.some((row) => row.kind === "item") ||
+    before.grid?.some((row) => row.cells.length > 0) === true ||
+    before.detail.length > 0 ||
+    before.kind === "detail";
+  if (initiallyLoading || before.loading)
+    return { outcome: "still-loading", dispatched: false, elapsedMs: performance.now() - started };
   if (!before.primary.enabled)
-    return { outcome: "no-primary-action", elapsedMs: performance.now() - started };
+    return {
+      ...classifyPrimaryAction({ primary: false, events: 0, hasContent }),
+      dispatched: false,
+      elapsedMs: performance.now() - started,
+    };
   const dispatched = controller.input({ type: "primary" });
   const panelOpened = controller.view().actions.open !== before.actions.open;
   if (dispatched.events.length === 0) {
@@ -124,61 +174,93 @@ async function probePrimaryAction(
       events: 0,
       panelOpened,
     });
-    return { ...result, elapsedMs: performance.now() - started };
+    return { ...result, dispatched: false, elapsedMs: performance.now() - started };
   }
 
   return await new Promise((resolve) => {
     let settled = false;
     let unsubscribe: (() => void) | undefined;
     let unsubscribeLog: (() => void) | undefined;
+    let latestScene: SceneMessage | undefined;
+    let latestLoading = false;
+    let exit: Awaited<Session["exited"]> | undefined;
+    let quietTimer: ReturnType<typeof setTimeout> | undefined;
+    const baselineKey = JSON.stringify(first.root);
     const finish = (observation: Parameters<typeof classifyPrimaryAction>[0]) => {
       if (settled) return;
       settled = true;
       clearTimeout(timer);
+      if (quietTimer !== undefined) clearTimeout(quietTimer);
       unsubscribe?.();
       unsubscribeLog?.();
       const result = classifyPrimaryAction(observation);
       resolve({
         ...result,
+        dispatched: true,
         ...(result.error === undefined && observation.exit?.error
           ? { error: clean(observation.exit.error) }
           : {}),
         elapsedMs: performance.now() - started,
       });
     };
-    const timer = setTimeout(
-      () => finish({ primary: true, events: dispatched.events.length, timedOut: true }),
-      ACTION_TIMEOUT_MS,
-    );
-    const initialRevision = first.revision;
+    const settleObserved = () => {
+      if (settled) return;
+      const sceneChanged =
+        latestScene !== undefined && JSON.stringify(latestScene.root) !== baselineKey;
+      const navigated =
+        sceneChanged && navigationKey(first.root) !== navigationKey(latestScene?.root ?? null);
+      if (sceneChanged) {
+        finish({ primary: true, events: dispatched.events.length, sceneChanged, navigated });
+        return;
+      }
+      if (exit) {
+        const capability = capabilityDenied(exit.error?.message);
+        finish({
+          primary: true,
+          events: dispatched.events.length,
+          ...(capability === undefined ? {} : { capability }),
+          exit: {
+            code: exit.code,
+            signal: exit.signal,
+            ...(exit.error === undefined ? {} : { error: exit.error.message }),
+          },
+        });
+      }
+    };
+    const armQuiet = () => {
+      if (quietTimer !== undefined) clearTimeout(quietTimer);
+      quietTimer = setTimeout(() => {
+        if (!latestLoading) settleObserved();
+      }, ACTION_QUIET_MS);
+    };
+    const timer = setTimeout(() => {
+      if (latestLoading) {
+        finish({ primary: true, events: dispatched.events.length, stillLoading: true });
+      } else {
+        settleObserved();
+        if (!settled) finish({ primary: true, events: dispatched.events.length, timedOut: true });
+      }
+    }, ACTION_TIMEOUT_MS);
     unsubscribe = session.scenes((scene) => {
-      if (scene.revision === initialRevision || !scene.root) return;
-      const beforeNavigation = navigationKey(first.root);
-      const afterNavigation = navigationKey(scene.root);
-      finish({
-        primary: true,
-        events: dispatched.events.length,
-        sceneChanged: true,
-        navigated: beforeNavigation !== afterNavigation,
-      });
+      if (scene.revision === first.revision) return;
+      latestScene = scene;
+      latestLoading = scene.root === null ? false : sceneLoading(scene);
+      if (!latestLoading) {
+        armQuiet();
+        settleObserved();
+      } else {
+        armQuiet();
+      }
     });
     unsubscribeLog = session.onLog((log) => {
       const capability = capabilityDenied(log.message.replace(/^EVENT_ERROR: /, ""));
       if (capability) finish({ primary: true, events: dispatched.events.length, capability });
     });
     for (const event of dispatched.events) session.sendEvent(event.node, event.handler, event.args);
-    void session.exited.then((exit) => {
-      const capability = capabilityDenied(exit.error?.message);
-      finish({
-        primary: true,
-        events: dispatched.events.length,
-        ...(capability === undefined ? {} : { capability }),
-        exit: {
-          code: exit.code,
-          signal: exit.signal,
-          ...(exit.error === undefined ? {} : { error: exit.error.message }),
-        },
-      });
+    void session.exited.then((value) => {
+      exit = value;
+      armQuiet();
+      settleObserved();
     });
   });
 }
@@ -319,7 +401,7 @@ export async function launchOne(
     const errorLogs = logLines(session, "error", clean);
     const result = build(probe, warnings, errorLogs);
     if (options.probeActions && observed.scene && probe.kind === "scene") {
-      result.action = await probePrimaryAction(session, observed.scene, clean);
+      result.action = await probePrimaryAction(session, observed.scene, clean, observed.loading);
     }
     return result;
   } finally {

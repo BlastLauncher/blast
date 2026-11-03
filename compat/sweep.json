@@ -4,20 +4,28 @@
   "selectedExtensions": 100,
   "commands": 262,
   "totals": {
-    "rendered": 247,
+    "rendered": 230,
     "completed": 0,
-    "capability-denied": 4,
-    "sandbox-denied": 5,
+    "capability-denied": 9,
+    "sandbox-denied": 6,
     "bundle-failed": 3,
     "bundle-timeout": 0,
-    "crashed": 2,
-    "network": 1,
+    "crashed": 10,
+    "network": 4,
     "timeout": 0,
     "unsupported-mode": 0,
     "unsupported-api": 0,
     "missing-arguments": 0
   },
   "failures": [
+    {
+      "signature": "Cannot convert undefined or null to object",
+      "commands": 7
+    },
+    {
+      "signature": "Capability denied: storage.get",
+      "commands": 6
+    },
     {
       "signature": "spawnSync /bin/sh EPERM",
       "commands": 5
@@ -31,11 +39,15 @@
       "commands": 2
     },
     {
-      "signature": "Capability denied: command.launch",
+      "signature": "request to https://api.urbandictionary.com/v0/words_of_the_day failed, reason: getaddrinfo ENOTFOUND api.urbandictionary.com",
+      "commands": 2
+    },
+    {
+      "signature": "Cannot read properties of undefined (reading 'length')",
       "commands": 1
     },
     {
-      "signature": "Capability denied: storage.get",
+      "signature": "Capability denied: command.launch",
       "commands": 1
     },
     {
@@ -51,11 +63,23 @@
       "commands": 1
     },
     {
-      "signature": "request to https://api.urbandictionary.com/v0/words_of_the_day failed, reason: getaddrinfo ENOTFOUND api.urbandictionary.com",
+      "signature": "request to https://api.buddy.works/workspaces failed, reason: getaddrinfo ENOTFOUND api.buddy.works",
+      "commands": 1
+    },
+    {
+      "signature": "request to https://api.urbandictionary.com/v0/random failed, reason: getaddrinfo ENOTFOUND api.urbandictionary.com",
+      "commands": 1
+    },
+    {
+      "signature": "spawn EPERM",
       "commands": 1
     }
   ],
   "capabilities": [
+    {
+      "signature": "storage.get",
+      "commands": 6
+    },
     {
       "signature": "clipboard.copy",
       "commands": 2
@@ -63,32 +87,34 @@
     {
       "signature": "command.launch",
       "commands": 1
-    },
-    {
-      "signature": "storage.get",
-      "commands": 1
     }
   ],
-  "peakBytes": 472837320,
-  "wallMs": 87542.82579100001,
-  "commandsPerMinute": 179.5692549099337,
+  "peakBytes": 472859279,
+  "wallMs": 87218.024208,
+  "commandsPerMinute": 180.23797423466624,
   "resumed": 0,
-  "projectedFullRunMinutes": 28.29092320145817,
-  "projectedFullRunPeakBytes": 472837320,
+  "projectedFullRunMinutes": 28.185958156552,
+  "projectedFullRunPeakBytes": 472859279,
   "primaryActionProbe": {
-    "commands": 247,
+    "commands": 230,
     "totals": {
-      "navigated": 3,
-      "scene-changed": 51,
-      "capability-requested": 6,
-      "no-primary-action": 187,
+      "navigated": 6,
+      "scene-changed": 44,
+      "capability-requested": 7,
+      "no-items-or-content": 154,
+      "items-but-no-primary-action": 12,
+      "still-loading": 1,
       "no-op": 0,
       "crashed": 0,
-      "timeout": 0
+      "timeout": 6
     },
     "crashCauses": [],
-    "renderOnlyCrashRate": 0,
+    "renderOnlyCrashRate": 0.03816793893129771,
+    "renderOnlyCrashNumerator": 10,
+    "renderOnlyCrashDenominator": 262,
     "actionCrashRate": 0,
-    "addedRuntimeMsPerCommand": 2.7335696963562732
+    "actionCrashNumerator": 0,
+    "actionCrashDenominator": 63,
+    "probeRuntimeMsPerDispatchedCommand": 102.6055596190476
   }
 }

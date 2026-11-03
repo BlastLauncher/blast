@@ -60,8 +60,12 @@ export type PrimaryActionReport = {
   totals: Record<ActionOutcome, number>;
   crashCauses: PrimaryActionCause[];
   renderOnlyCrashRate: number;
+  renderOnlyCrashNumerator: number;
+  renderOnlyCrashDenominator: number;
   actionCrashRate: number;
-  addedRuntimeMsPerCommand: number;
+  actionCrashNumerator: number;
+  actionCrashDenominator: number;
+  probeRuntimeMsPerDispatchedCommand: number;
 };
 
 function positiveInt(raw: string, flag: string): number {
@@ -275,7 +279,12 @@ export function buildSweepReport(input: {
     number
   >;
   for (const action of actionResults) actionTotals[action.outcome] += 1;
-  const actionRuntime = actionResults.reduce((sum, action) => sum + (action.elapsedMs ?? 0), 0);
+  const renderOnlyCrashNumerator = results.filter((result) => result.outcome === "crashed").length;
+  const dispatchedActions = actionResults.filter((action) => action.dispatched === true);
+  const actionRuntime = dispatchedActions.reduce((sum, action) => sum + (action.elapsedMs ?? 0), 0);
+  const actionCrashNumerator = dispatchedActions.filter(
+    (action) => action.outcome === "crashed",
+  ).length;
   const primaryActionProbe =
     input.probeActions === true
       ? {
@@ -287,19 +296,15 @@ export function buildSweepReport(input: {
               return signature === undefined ? [] : [signature];
             }),
           ),
-          renderOnlyCrashRate:
-            actionResults.length === 0
-              ? 0
-              : results.filter(
-                  (result) => result.action !== undefined && result.outcome === "crashed",
-                ).length / actionResults.length,
+          renderOnlyCrashRate: results.length === 0 ? 0 : renderOnlyCrashNumerator / results.length,
+          renderOnlyCrashNumerator,
+          renderOnlyCrashDenominator: results.length,
           actionCrashRate:
-            actionResults.length === 0
-              ? 0
-              : actionResults.filter((action) => action.outcome === "crashed").length /
-                actionResults.length,
-          addedRuntimeMsPerCommand:
-            actionResults.length === 0 ? 0 : actionRuntime / actionResults.length,
+            dispatchedActions.length === 0 ? 0 : actionCrashNumerator / dispatchedActions.length,
+          actionCrashNumerator,
+          actionCrashDenominator: dispatchedActions.length,
+          probeRuntimeMsPerDispatchedCommand:
+            dispatchedActions.length === 0 ? 0 : actionRuntime / dispatchedActions.length,
         }
       : undefined;
   return {
@@ -374,8 +379,8 @@ export function renderSweepMarkdown(report: SweepReport): string {
       : [
           "## Primary action probe",
           "",
-          `${report.primaryActionProbe.commands} command(s) dispatched through client-core; a denied capability counts as working as far as a headless run can show.`,
-          `Render-only crash rate ${(report.primaryActionProbe.renderOnlyCrashRate * 100).toFixed(1)}%; after the primary action ${(report.primaryActionProbe.actionCrashRate * 100).toFixed(1)}%; added runtime ${report.primaryActionProbe.addedRuntimeMsPerCommand.toFixed(1)} ms/command.`,
+          `${report.primaryActionProbe.commands} rendered command(s) were probed through client-core; a denied capability counts as working as far as a headless run can show.`,
+          `Render-only crash rate ${report.primaryActionProbe.renderOnlyCrashNumerator}/${report.primaryActionProbe.renderOnlyCrashDenominator} (${(report.primaryActionProbe.renderOnlyCrashRate * 100).toFixed(1)}%); after the primary action ${report.primaryActionProbe.actionCrashNumerator}/${report.primaryActionProbe.actionCrashDenominator} dispatched (${(report.primaryActionProbe.actionCrashRate * 100).toFixed(1)}%); probe time ${report.primaryActionProbe.probeRuntimeMsPerDispatchedCommand.toFixed(1)} ms/dispatched command.`,
           "",
           ...ACTION_OUTCOMES.map(
             (outcome) => `- ${outcome}: ${report.primaryActionProbe!.totals[outcome]} command(s)`,
