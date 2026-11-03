@@ -4,7 +4,15 @@
 // the most-imported packages. `scan.ts` feeds it the same pass that writes
 // `raycast-usage.json`; nothing here reads files or touches the network.
 import { isBuiltin } from "node:module";
-import { BASE_PACKAGES, importedPackages, PROVIDED_PACKAGES, type Source } from "./imports.ts";
+import {
+  BASE_PACKAGES,
+  IMPORT_SPECIFIER,
+  importedPackages,
+  isNativeModuleSpecifier,
+  PROVIDED_PACKAGES,
+  TEST_FILE,
+  type Source,
+} from "./imports.ts";
 import type { Manifest } from "./selection.ts";
 import { isDependencyCompatible } from "@blastlauncher/shared-deps";
 
@@ -53,12 +61,25 @@ export type ExtensionDependencies = {
   ranges?: Record<string, string>;
   /** npm packages imported by the extension's non-test sources, sorted. */
   imported: string[];
+  /** Raycast-native Swift/Rust imports cannot run in Blast's host. */
+  nativeModule?: boolean;
 };
+
+function hasNativeModule(sources: Iterable<Source>): boolean {
+  for (const { file, source } of sources) {
+    if (TEST_FILE.test(file)) continue;
+    for (const match of source.matchAll(IMPORT_SPECIFIER)) {
+      if (isNativeModuleSpecifier(match[1]!)) return true;
+    }
+  }
+  return false;
+}
 
 export function extensionDependencies(
   manifest: Manifest | undefined,
   sources: Iterable<Source>,
 ): ExtensionDependencies {
+  const list = [...sources];
   const dependencies = manifest?.dependencies ?? {};
   const declared: Record<string, string> = {};
   const ranges: Record<string, string> = {};
@@ -68,7 +89,12 @@ export function extensionDependencies(
       if (typeof dependencies[name] === "string") ranges[name] = dependencies[name];
     }
   }
-  return { declared, ranges, imported: importedPackages(sources).filter(trackedPackage) };
+  return {
+    declared,
+    ranges,
+    imported: importedPackages(list).filter(trackedPackage),
+    ...(hasNativeModule(list) ? { nativeModule: true } : {}),
+  };
 }
 
 export type DependencyEntry = {
@@ -112,6 +138,7 @@ export function isExtensionSatisfied(
   extension: ExtensionDependencies,
   provided: readonly string[] = PROVIDED_PACKAGES,
 ): boolean {
+  if (extension.nativeModule === true) return false;
   const need = new Set([...Object.keys(extension.declared), ...extension.imported]);
   return [...need].every(
     (name) =>
@@ -170,7 +197,8 @@ export function aggregateDependencies(
   return {
     corpusCommit: commit,
     extensions: extensions.length,
-    providedOnly: needs.filter((need) => need.size === 0).length,
+    providedOnly: needs.filter((need, index) => need.size === 0 && !extensions[index]!.nativeModule)
+      .length,
     shared: {
       provided: [...new Set(provided)].toSorted(),
       satisfied: needs.filter((_, index) => isExtensionSatisfied(extensions[index]!, provided))
@@ -181,7 +209,10 @@ export function aggregateDependencies(
       const available = new Set(byImports.slice(0, count));
       return {
         provided: count,
-        satisfied: needs.filter((need) => [...need].every((name) => available.has(name))).length,
+        satisfied: needs.filter(
+          (need, index) =>
+            !extensions[index]!.nativeModule && [...need].every((name) => available.has(name)),
+        ).length,
       };
     }),
     packages,

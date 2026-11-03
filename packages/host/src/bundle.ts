@@ -60,6 +60,18 @@ export class MissingDependencyError extends Error {
   }
 }
 
+export class NativeModuleError extends Error {
+  readonly code = "NATIVE_MODULE";
+  readonly modules: string[];
+
+  constructor(modules: Iterable<string>) {
+    const names = [...new Set(modules)].toSorted();
+    super(`Native modules are not supported in Blast: ${names.join(", ")}`);
+    this.name = "NativeModuleError";
+    this.modules = names;
+  }
+}
+
 export class BundleTimeoutError extends Error {
   readonly code = "BUNDLE_TIMEOUT";
 
@@ -183,6 +195,7 @@ class BundleContainment {
 
 function dependencyPolicy(
   missing: Set<string>,
+  nativeModules: Set<string>,
   shared: SharedDependencies | undefined,
   installed?: string,
   installedPackages = new Set<string>(),
@@ -200,6 +213,10 @@ function dependencyPolicy(
           return { path: specifier, external: true };
         if (isNodeBuiltin(specifier)) return { path: specifier, external: true };
         const bare = !specifier.startsWith(".") && !isAbsolute(specifier);
+        if (bare && /^(?:swift|rust):/.test(specifier)) {
+          nativeModules.add(specifier);
+          return { errors: [{ text: `Blast does not provide native module ${specifier}` }] };
+        }
 
         // Relative and absolute imports are resolved here before esbuild reads
         // them. This keeps an extension from smuggling an arbitrary file into
@@ -627,6 +644,7 @@ async function bundleEntryWithSignal(
   const outDir = options.outDir ? resolve(options.outDir) : await mkdtemp(join(base, "command-"));
   const entry = join(outDir, `${entryName}.mjs`);
   const missing = new Set<string>();
+  const nativeModules = new Set<string>();
   const installedPackages = new Set<string>();
   const containment = new BundleContainment(
     await realpath(extensionDir),
@@ -650,6 +668,7 @@ async function bundleEntryWithSignal(
       plugins: [
         dependencyPolicy(
           missing,
+          nativeModules,
           shared,
           install && !install.needed ? install.directory : undefined,
           installedPackages,
@@ -687,6 +706,7 @@ async function bundleEntryWithSignal(
         }
       }
     }
+    if (nativeModules.size) throw new NativeModuleError(nativeModules);
     if (missing.size) throw new MissingDependencyError(missing);
     // After tree shaking utils' monolithic entry, remove unused named imports
     // so Node does not try to link shim symbols the command never uses.
@@ -703,6 +723,7 @@ async function bundleEntryWithSignal(
   } catch (error) {
     if (!options.outDir) await rm(outDir, { recursive: true, force: true });
     signal.throwIfAborted();
+    if (nativeModules.size) throw new NativeModuleError(nativeModules);
     if (missing.size) throw new MissingDependencyError(missing);
     throw error;
   }

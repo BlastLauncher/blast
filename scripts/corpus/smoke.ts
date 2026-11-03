@@ -11,6 +11,7 @@ export const OUTCOMES = [
   "capability-denied",
   "sandbox-denied",
   "bundle-failed",
+  "native-module",
   "bundle-timeout",
   "crashed",
   "network",
@@ -25,6 +26,7 @@ export const ACTION_OUTCOMES = [
   "navigated",
   "scene-changed",
   "capability-requested",
+  "sandbox-denied",
   "no-items-or-content",
   "items-but-no-primary-action",
   "still-loading",
@@ -61,6 +63,7 @@ export type Json = string | number | boolean | null | Json[] | { [key: string]: 
 /** What one command run observably did, before it is labelled for the report. */
 export type ProbeResult =
   | { kind: "bundle-failed"; error?: string; missing?: string[]; bundleMs?: number }
+  | { kind: "native-module"; modules: string[]; bundleMs?: number }
   | { kind: "sandbox-denied"; error?: string; bundleMs?: number }
   | { kind: "bundle-timeout"; timeoutMs: number; bundleMs: number }
   | { kind: "scene"; nodeCount: number; rootType: string }
@@ -463,6 +466,8 @@ export function classifyPrimaryAction(observation: PrimaryActionObservation): Pr
   if (observation.stillLoading) return { outcome: "still-loading" };
   if (observation.exit) {
     const { code, signal, error } = observation.exit;
+    if (isSandboxDeniedMessage(error))
+      return { outcome: "sandbox-denied", ...(error === undefined ? {} : { error }) };
     if (code === 0 && signal === null && !error) return { outcome: "no-op" };
     return {
       outcome: "crashed",
@@ -507,6 +512,11 @@ export function buildResult(input: BuildInput): CommandResult {
         outcome: "bundle-failed",
         missing: probe.missing,
         error: probe.error,
+      });
+    case "native-module":
+      return set({
+        outcome: "native-module",
+        reason: `native modules: ${probe.modules.join(", ")}`,
       });
     case "sandbox-denied":
       return set({ outcome: "sandbox-denied", error: probe.error });
@@ -612,6 +622,8 @@ function detail(result: CommandResult): string {
       }${warnings}`;
     case "bundle-failed":
       return `${result.missing ? `missing ${result.missing.join(", ")}` : result.error}${warnings}`;
+    case "native-module":
+      return `${result.reason ?? "native module"}${warnings}`;
     case "sandbox-denied":
       return `${result.error ?? "sandbox denied"}${warnings}`;
     case "crashed":

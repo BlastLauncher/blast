@@ -21,6 +21,12 @@ export type Source = { file: string; source: string };
 
 export const IMPORT_SPECIFIER =
   /(?:from\s+|import\s*\(\s*|import\s+|require\s*\(\s*)["']([^"'\s]+)["']/g;
+/** Raycast extension-native bridges; these are not npm packages. */
+export const NATIVE_MODULE_SPECIFIER = /^(?:swift|rust):/;
+
+export function isNativeModuleSpecifier(specifier: string): boolean {
+  return NATIVE_MODULE_SPECIFIER.test(specifier);
+}
 /** A command never bundles a test file, so a dev-only import there cannot fail it. */
 export const TEST_FILE = /(?:^|[\\/])(?:__tests__|__mocks__)[\\/]|\.(?:test|spec)\.[cm]?[jt]sx?$/;
 
@@ -33,6 +39,7 @@ export function unprovidedImports(sources: Iterable<Source>): string[] {
       const specifier = match[1]!;
       if (specifier.startsWith(".") || specifier.startsWith("/")) continue;
       if (isProvidedSpecifier(specifier) || isBuiltin(specifier)) continue;
+      if (isNativeModuleSpecifier(specifier)) continue;
       // Node subpath aliases (`#imports`) are not npm packages. Other
       // non-npm specifiers stay visible to the bundler's unsupported-import
       // checks, as they did before the sweep population fix.

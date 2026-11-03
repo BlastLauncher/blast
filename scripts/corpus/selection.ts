@@ -54,7 +54,7 @@ export const EXCLUSIONS: ReadonlyArray<{ id: string; pattern: RegExp }> = [
   },
   // Raycast's native Swift bridge: an extension-specific module Blast can
   // never provide, so the same rule that rejects an unprovided npm dependency.
-  { id: "native-module", pattern: /["']swift:/ },
+  { id: "native-module", pattern: /["'](?:swift|rust):/ },
 ];
 
 /**

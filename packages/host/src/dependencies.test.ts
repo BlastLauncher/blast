@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import manifest from "../../shared-deps/package.json" with { type: "json" };
 import { loadSharedDependencies } from "./dependencies.ts";
 import { checkExtensionDependencies } from "./install-dependencies.ts";
-import { bundleCommand, MissingDependencyError } from "./bundle.ts";
+import { bundleCommand, MissingDependencyError, NativeModuleError } from "./bundle.ts";
 import { dependencyWarnings, PROVIDED_PACKAGES } from "@blastlauncher/shared-deps";
 
 const fixture = fileURLToPath(
@@ -69,6 +69,24 @@ test("unprovided packages still fail with MISSING_DEPENDENCY", async () => {
       packages: ["blast-unprovided-package"],
     });
   }
+});
+
+test("Swift and Rust native imports fail with NATIVE_MODULE", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "blast-native-module-"));
+  directories.push(dir);
+  await mkdir(join(dir, "src"));
+  await writeFile(
+    join(dir, "package.json"),
+    JSON.stringify({ name: "native-module", commands: [{ name: "index", mode: "no-view" }] }),
+  );
+  await writeFile(
+    join(dir, "src/index.ts"),
+    'import swift from "swift:../../swift"; import rust from "rust:../../rust"; console.log(swift, rust);',
+  );
+  await expect(bundleCommand({ extensionDir: dir, command: "index" })).rejects.toMatchObject({
+    code: "NATIVE_MODULE",
+    modules: ["rust:../../rust", "swift:../../swift"],
+  } satisfies Partial<NativeModuleError>);
 });
 
 test("Node #imports aliases are not reported as npm missing dependencies", async () => {

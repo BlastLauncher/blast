@@ -13,6 +13,7 @@ import {
   BundleTimeoutError,
   createSessionBroker,
   MissingDependencyError,
+  NativeModuleError,
   runtimeEnvironment,
   startCommand,
   type Broker,
@@ -317,6 +318,9 @@ export async function bundleOne(
       return { ok: false, probe: { kind: "bundle-timeout", timeoutMs: error.timeoutMs, bundleMs } };
     if (error instanceof MissingDependencyError) {
       return { ok: false, probe: { kind: "bundle-failed", missing: error.packages, bundleMs } };
+    }
+    if (error instanceof NativeModuleError) {
+      return { ok: false, probe: { kind: "native-module", modules: error.modules, bundleMs } };
     }
     if (isSandboxDeniedMessage(error instanceof Error ? error.message : String(error))) {
       return {
