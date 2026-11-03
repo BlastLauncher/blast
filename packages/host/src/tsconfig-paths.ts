@@ -31,7 +31,10 @@ type Chain = { baseUrl?: Declared; paths?: Declared };
  * This stays local so loading a config cannot expand the host dependency
  * surface. Strings are copied byte-for-byte, including URL-like `//` text.
  */
-function parseJsonc(text: string): unknown {
+function parseJsonc(source: string): unknown {
+  // Editors on Windows often save tsconfig with a UTF-8 byte-order mark,
+  // which tsc accepts and JSON.parse does not.
+  const text = source.startsWith("\uFEFF") ? source.slice(1) : source;
   let withoutComments = "";
   let inString = false;
   let escaped = false;

@@ -245,6 +245,20 @@ test("JSONC tsconfig comments and trailing commas preserve aliases and strings",
   expect(aliases.warnings).toEqual([]);
 });
 
+test("a tsconfig saved with a UTF-8 byte-order mark keeps its aliases", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "blast-tsconfig-bom-"));
+  directories.push(dir);
+  await mkdir(join(dir, "src/lib"), { recursive: true });
+  await writeFile(
+    join(dir, "tsconfig.json"),
+    '\uFEFF{ "compilerOptions": { "paths": { "@lib/*": ["./src/lib/*"] } } }',
+  );
+  await writeFile(join(dir, "src/lib/value.ts"), "export const value = true;");
+  const aliases = (await loadTsconfigAliases(dir))!;
+  expect(await aliases.resolve("@lib/value")).toBe(join(dir, "src/lib/value.ts"));
+  expect(aliases.warnings).toEqual([]);
+});
+
 test("an unreadable tsconfig degrades to no aliasing with a warning", async () => {
   const dir = await mkdtemp(join(tmpdir(), "blast-tsconfig-broken-"));
   directories.push(dir);
