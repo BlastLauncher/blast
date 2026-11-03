@@ -38,8 +38,12 @@ HOC. Example extension: `meeting-room-check` (`src/list-rooms.tsx:387-411`).
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/implement-suspense-react-use @ 6403539
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 55.4s
 Done:
-Not done / risks:
+- Added mode-aware Suspense boundaries with Raycast loading fallbacks around view and legacy command roots.
+- Added resolving and rejecting `React.use(promise)` runtime fixtures and integration coverage.
+- Added a shared `@raycast/utils` `withAccessToken` fixture with delayed stub authorization coverage.
+- Regenerated compatibility coverage evidence for the exercised List API paths.
+Not done / risks: None.
 ```

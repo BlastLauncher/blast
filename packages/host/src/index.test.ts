@@ -206,6 +206,20 @@ test("shared utils bundles and renders without embedding React or the API", asyn
   ).toBeDefined();
 });
 
+// @covers List
+// @covers List.Item
+test("shared utils withAccessToken suspends and renders after authorization", async () => {
+  const fixture = fileURLToPath(
+    new URL("../../../fixtures/extensions/suspense-utils", import.meta.url),
+  );
+  const bundled = await bundleCommand({ extensionDir: fixture, command: "index" });
+  const session = await startCommand({ ...bundled, broker: createBroker() });
+  sessions.push(session);
+  const snapshot = await scene(session, "with token");
+  expect(find(snapshot.root!, "OAuth stub-token")).toBeDefined();
+  expect(session.logs.filter((log) => log.level === "error")).toEqual([]);
+});
+
 test("unprovided imports report sorted package names even when locally installed", async () => {
   const fixture = fileURLToPath(
     new URL("../../../fixtures/extensions/missing-dependency", import.meta.url),

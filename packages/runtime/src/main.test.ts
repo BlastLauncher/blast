@@ -297,6 +297,31 @@ test("promise-returning view rejection is fatal", async () => {
   expect(await runtime.exited).toBe(1);
 }, 2000);
 
+// @covers List.Props.isLoading
+test("React use waits behind the loading scene and publishes the settled view", async () => {
+  const runtime = start();
+  runtime.init({ fixture: "suspense-use.js" });
+  const loading = await runtime.next("scene");
+  expect(loading.root!.children[0]!.children[0]!.props).toMatchObject({ isLoading: true });
+  const settled = await runtime.next("scene");
+  expect(settled.root!.children[0]!.children[0]!.props.navigationTitle).toBe("settled");
+  expect(find(settled.root!, "settled command")).toBeDefined();
+  runtime.send({ type: "shutdown" });
+  expect(await runtime.exited).toBe(0);
+}, 2000);
+
+test("a rejected React use promise reports the command error", async () => {
+  const runtime = start();
+  runtime.init({ fixture: "suspense-use-reject.js" });
+  const loading = await runtime.next("scene");
+  expect(loading.root!.children[0]!.children[0]!.props.isLoading).toBe(true);
+  expect(await runtime.next("error")).toMatchObject({
+    fatal: true,
+    message: "suspense rejected",
+  });
+  expect(await runtime.exited).toBe(1);
+}, 2000);
+
 // @covers captureException
 // @covers captureMemorySnapshot
 test("diagnostics use runtime log messages without failing the command", async () => {

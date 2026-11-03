@@ -14,7 +14,7 @@ import { registerHooks } from "node:module";
 import { Writable } from "node:stream";
 import { pathToFileURL } from "node:url";
 import { format } from "node:util";
-import { createElement, type ComponentType, type ReactNode } from "react";
+import { createElement, Suspense, type ComponentType, type ReactNode } from "react";
 import { setCapabilityRequester } from "./api/capability.ts";
 import { setRuntimeLogSink } from "./api/diagnostics.ts";
 import { setEnvironment } from "./api/environment.ts";
@@ -154,6 +154,19 @@ setCapabilityRequester((name, params, options = {}) => {
 // protocol's log channel; the runtime owns no other reporter.
 setRuntimeLogSink((level, message) => log(level, [message]));
 
+function loadingFallback(mode: Extract<HostMessage, { type: "init" }>["command"]["mode"]) {
+  return mode === "menu-bar"
+    ? createElement("MenuBarExtra", { isLoading: true })
+    : createElement("List", { isLoading: true });
+}
+
+function withSuspense(
+  element: ReactNode,
+  mode: Extract<HostMessage, { type: "init" }>["command"]["mode"],
+) {
+  return createElement(Suspense, { fallback: loadingFallback(mode) }, element);
+}
+
 /**
  * Launch props for this command: the manifest arguments the host resolved and,
  * when another command started it, the `launchCommand` context. Blast only
@@ -184,8 +197,10 @@ async function load(message: Extract<HostMessage, { type: "init" }>) {
     rendered = true;
     root.render(
       message.command.mode === "menu-bar"
-        ? element
-        : createElement(NavigationProvider, { children: element }),
+        ? withSuspense(element, message.command.mode)
+        : createElement(NavigationProvider, {
+            children: withSuspense(element, message.command.mode),
+          }),
     );
     loaded = true;
   });
@@ -237,10 +252,11 @@ async function load(message: Extract<HostMessage, { type: "init" }>) {
     wrap ? Command : (command.default as ComponentType<LaunchProps>),
     props,
   );
+  const suspended = withSuspense(element, message.command.mode);
   root.render(
     message.command.mode === "menu-bar"
-      ? element
-      : createElement(NavigationProvider, { children: element }),
+      ? suspended
+      : createElement(NavigationProvider, { children: suspended }),
   );
   loaded = true;
 }

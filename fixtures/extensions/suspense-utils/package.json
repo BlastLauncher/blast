@@ -1,0 +1,9 @@
+{
+  "name": "suspense-utils",
+  "commands": [
+    {
+      "name": "index",
+      "mode": "view"
+    }
+  ]
+}
