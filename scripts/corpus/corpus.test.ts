@@ -29,16 +29,34 @@ const PIN: CorpusPin = {
 };
 
 test("accepts extension names Raycast would publish", () => {
-  for (const name of ["radix", "px-to-rem-converter", "axios-docs", "a", "a1-b2"]) {
+  for (const name of [
+    "radix",
+    "px-to-rem-converter",
+    "axios-docs",
+    "a",
+    "a1-b2",
+    "dbtCloud",
+    "http.cat",
+    "snake_case",
+  ]) {
     expect(isValidExtensionName(name)).toBe(true);
   }
-  // The pattern the task specifies is `^[a-z0-9][a-z0-9-]*$`, which a trailing
-  // hyphen does not violate.
+  // A trailing hyphen cannot escape the extensions directory either.
   expect(isValidExtensionName("radix-")).toBe(true);
 });
 
 test("rejects names that could escape the extensions directory", () => {
-  for (const name of ["", "Radix", "-radix", "ra dix", "ra/dix", "../etc", ".hidden", "radix/"]) {
+  for (const name of [
+    "",
+    "-radix",
+    "ra dix",
+    "ra/dix",
+    "../etc",
+    ".hidden",
+    "radix/",
+    "..",
+    "ra\\dix",
+  ]) {
     expect(isValidExtensionName(name)).toBe(false);
     expect(EXTENSION_NAME.test(name)).toBe(false);
   }
@@ -93,7 +111,7 @@ test("pin validation rejects a bad repository, commit or curated list", () => {
     [{ ...PIN, commit: "3B812D1E153A1862DF29BC8EC34E170C728512EA" }, /40 lowercase hex/],
     [{ ...PIN, curated: "radix" }, /list of extension names/],
     [{ ...PIN, curated: [] }, /must not be empty/],
-    [{ ...PIN, curated: ["Radix"] }, /must match/],
+    [{ ...PIN, curated: ["ra dix"] }, /must match/],
     [{ ...PIN, curated: ["radix", "radix"] }, /twice/],
   ];
   for (const [value, message] of cases) expect(() => parsePin(value)).toThrow(message);
@@ -167,6 +185,6 @@ test("parseArgs reads repeatable extensions and --curated", () => {
     curated: true,
   });
   expect(() => parseArgs(["--extension"])).toThrow(/--extension needs an extension name/);
-  expect(() => parseArgs(["--extension", "Radix"])).toThrow(/must match/);
+  expect(() => parseArgs(["--extension", "../radix"])).toThrow(/must match/);
   expect(() => parseArgs(["--all"])).toThrow(/unknown argument --all/);
 });
