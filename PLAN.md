@@ -82,12 +82,12 @@ Raycast client semantics built in so embedders only draw.
 Honest gate, latest API, real compatibility across the corpus. Tasks run in
 order with disk budgets.
 
-- [x] 0088 Verify on a clean Mac; 0089 `@raycast/api` 2.10.1 and weekly upgrade job
-- [x] 0090 Repin the corpus and rerun all smokes
+- [x] 0088 Verify on a clean Mac; 0089 API 2.10.1 + weekly job; 0090 corpus repin
 - [x] 0093 Stable selection, pre-release-aware shared deps (before 0091)
 - [x] 0091 Sandboxed corpus sweep runner and pilot
 - [x] 0092 Primary action probe in the sweep
-- [ ] 0094 Full corpus sweep and failure triage
+- [x] 0094 Full sweep: 4879/5759 commands render (`compat/SWEEP.md`)
+- [ ] From the triage: 0095 Suspense/`use()`, 0096 JSONC tsconfig, 0097 sweep broker parity, 0098 sweep reporting
 
 ## Later (not scheduled)
 

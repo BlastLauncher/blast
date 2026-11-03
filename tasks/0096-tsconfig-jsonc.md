@@ -1,0 +1,41 @@
+---
+id: "0096"
+title: Parse tsconfig as JSONC for path aliases
+status: todo
+milestone: M6
+depends: []
+---
+
+## Goal
+
+Extensions whose `tsconfig.json` has comments or trailing commas keep their
+`paths` aliases, as `tsc` does.
+
+## Context
+
+0094 sweep: 14 commands fail with `missing dependencies: @/lib` or `@/hooks`.
+`packages/host/src/tsconfig-paths.ts:82` uses strict `JSON.parse`, so valid
+JSONC (Sonarr's tsconfig has trailing commas) disables aliasing, and
+`bundle.ts` then reports the aliases as missing packages. Keep the 0091
+confinement: never read a config outside the extension.
+
+## Acceptance
+
+- [ ] Tests: a tsconfig with line comments, block comments and trailing
+      commas resolves its `paths`; a string containing `//` is not mangled.
+- [ ] Invalid JSONC still degrades to "no aliasing" with a warning.
+- [ ] No new dependency unless justified in Handoff (prefer a small parser).
+- [ ] `bun run verify` passes.
+
+## Out of scope
+
+- Other tsconfig options; rerunning the sweep.
+
+## Handoff
+
+```
+Branch/commit:
+Verify:
+Done:
+Not done / risks:
+```
