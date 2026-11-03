@@ -34,8 +34,11 @@ confinement: never read a config outside the extension.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/parse-tsconfig-jsonc @ b09ba54
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 51.1s
 Done:
-Not done / risks:
+- Added a dependency-free JSONC parser for comments and trailing commas while preserving string contents.
+- Added coverage for line/block comments, trailing commas, URL-like strings, alias resolution, and warning-free valid configs.
+- Kept existing confinement and invalid-config degradation behavior unchanged.
+Not done / risks: No new dependencies. The parser intentionally supports the JSONC syntax needed by tsconfig and leaves other tsconfig options out of scope.
 ```
