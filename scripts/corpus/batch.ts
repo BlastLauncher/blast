@@ -7,33 +7,58 @@
 // with an empty batch is how a finished run leaves the checkout
 // manifest-only.
 import { spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, realpathSync } from "node:fs";
 import { rm } from "node:fs/promises";
-import { join } from "node:path";
-import { checkDiskBudget, CORPUS_DIR, directoryBytes, maxMbFromEnv, shouldReclone } from "./corpus.ts";
+import { join, sep } from "node:path";
+import { CORPUS_DIR, directoryBytes, maxMbFromEnv, shouldReclone } from "./corpus.ts";
 
-const LOCK_NAMES = ["index.lock", "sparse-checkout.lock"] as const;
+/** Lock files a killed git step leaves behind: `index` and `sparse-checkout`. */
+const LOCK_FILES = ["index.lock", join("info", "sparse-checkout.lock")] as const;
 
+/** The clone path, refusing an empty root so a deletion can never widen. */
 function clonePath(root: string): string {
-  if (root.trim() === "") throw new Error("corpus root must be non-empty before deleting the clone");
+  if (root.trim() === "")
+    throw new Error("corpus root must be non-empty before deleting the clone");
   return join(root, CORPUS_DIR);
 }
 
-function lockOwned(lockPath: string): boolean {
-  const result = spawnSync("lsof", ["-t", "--", lockPath], { encoding: "utf8" });
-  if (result.error || result.status === null) return true;
-  return result.status === 0 && result.stdout.trim() !== "";
+function canonical(path: string): string {
+  try {
+    return realpathSync(path);
+  } catch {
+    return path;
+  }
 }
 
-/** Remove a clone left locked by an interrupted git operation. */
-export async function removeStaleClone(root: string): Promise<boolean> {
-  const repo = clonePath(root);
-  const stale = LOCK_NAMES.some((name) => {
-    const lock = join(repo, ".git", name);
-    return existsSync(lock) && !lockOwned(lock);
+/**
+ * True when a running `git` process has a working directory inside `repo`,
+ * i.e. another run is using this clone. When `lsof` is missing or fails the
+ * answer is "no owner": Blast runs one sweep per checkout, so a lock with no
+ * visible owner is the interrupted run this recovery exists for.
+ */
+function gitProcessInClone(repo: string): boolean {
+  const result = spawnSync("lsof", ["-a", "-c", "git", "-d", "cwd", "-Fn"], { encoding: "utf8" });
+  if (result.error || result.status !== 0) return false;
+  const base = canonical(repo);
+  return result.stdout.split("\n").some((line) => {
+    if (!line.startsWith("n")) return false;
+    const cwd = canonical(line.slice(1));
+    return cwd === base || cwd.startsWith(`${base}${sep}`);
   });
-  if (!stale) return false;
-  await rm(join(root, CORPUS_DIR), { recursive: true, force: true });
+}
+
+/**
+ * Delete a clone left locked by an interrupted git operation. A lock that a
+ * live git process owns is kept: that run will clear it itself.
+ */
+export async function removeStaleClone(
+  root: string,
+  inUse: (repo: string) => boolean = gitProcessInClone,
+): Promise<boolean> {
+  const repo = clonePath(root);
+  const locked = LOCK_FILES.some((name) => existsSync(join(repo, ".git", name)));
+  if (!locked || inUse(repo)) return false;
+  await rm(repo, { recursive: true, force: true });
   return true;
 }
 
@@ -43,11 +68,14 @@ export async function removeStaleClone(root: string): Promise<boolean> {
  */
 export async function fetchBatch(extensions: string[], root: string): Promise<number> {
   const repo = clonePath(root);
+  // Recover from a checkout a killed run left half-done before git refuses to
+  // reuse the clone.
   await removeStaleClone(root);
-  // A partial clone retains every fetched blob after sparse-checkout drops its
-  // working tree. Reclone only when it nears half the configured budget.
+  // A partial clone retains every fetched blob even after sparse-checkout drops
+  // its working tree. Reclone only once it reaches half the budget, so a long
+  // sweep pays for a clone every few batches instead of before every one.
   if (extensions.length > 0 && shouldReclone(directoryBytes(repo), maxMbFromEnv(process.env)))
-    await rm(join(root, CORPUS_DIR), { recursive: true, force: true });
+    await rm(repo, { recursive: true, force: true });
   const args = ["scripts/corpus/fetch.ts", ...extensions.flatMap((name) => ["--extension", name])];
   const fetch = spawnSync("bun", args, { stdio: "inherit" });
   if (fetch.status !== 0) throw new Error("corpus fetch failed; see output above");

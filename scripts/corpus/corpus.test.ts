@@ -139,9 +139,12 @@ test("disk budget passes at the limit and aborts above it", () => {
 });
 
 test("reclone threshold is half the configured budget", () => {
-  expect(shouldReclone(300 * 1024 * 1024, 600)).toBe(false);
-  expect(shouldReclone(300 * 1024 * 1024 + 1, 600)).toBe(true);
-  expect(shouldReclone(1, 1)).toBe(true);
+  const mb = 1024 * 1024;
+  expect(shouldReclone(0, 600)).toBe(false);
+  expect(shouldReclone(299 * mb, 600)).toBe(false);
+  expect(shouldReclone(300 * mb, 600)).toBe(false);
+  expect(shouldReclone(300 * mb + 1, 600)).toBe(true);
+  expect(shouldReclone(300 * mb, 300)).toBe(true);
 });
 
 test("batch size grows with the budget between its floor and ceiling", () => {
