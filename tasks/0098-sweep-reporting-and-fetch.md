@@ -1,7 +1,7 @@
 ---
 id: "0098"
 title: Sweep reporting fixes and bounded corpus fetch growth
-status: todo
+status: doing
 milestone: M6
 depends: []
 ---
