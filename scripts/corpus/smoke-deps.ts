@@ -18,6 +18,7 @@ export const DEPS_OUTCOMES = [
   "completed",
   "install-failed",
   "bundle-failed",
+  "native-module",
   "bundle-timeout",
   "crashed",
   "needs-arguments",
@@ -193,6 +194,8 @@ function detail(result: DepsResult): string {
       }${warnings}`;
     case "bundle-failed":
       return `${result.missing ? `missing ${result.missing.join(", ")}` : result.error}${warnings}`;
+    case "native-module":
+      return `${result.reason ?? "native module"}${warnings}`;
     case "crashed":
       return `${[result.reason, result.exit, result.error].filter(Boolean).join("; ") || "crashed"}${warnings}`;
     case "network":

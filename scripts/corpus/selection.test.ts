@@ -168,10 +168,12 @@ const text = await readFile("data.json", "utf8");
 const dir = await readdir(".");`),
     ]),
   ).toEqual([]);
-  expect(exclusionIds([source('import { connect } from "swift:../../swift";')])).toEqual([
-    "native-module",
-    IMPORT_EXCLUSION,
-  ]);
+  expect(
+    exclusionIds([
+      source('import { connect } from "swift:../../swift";'),
+      source('import { connect } from "rust:../../rust";'),
+    ]),
+  ).toEqual(["native-module"]);
 });
 
 test("an unprovided import rejects the candidate", () => {

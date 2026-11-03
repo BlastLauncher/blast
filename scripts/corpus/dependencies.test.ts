@@ -124,7 +124,18 @@ test("imported packages are the npm modules non-test sources import, subpaths fo
     source('import { helper } from "./helper";'),
   ]);
   expect(deps.imported).toEqual(["@scope/pkg", "graphql-request", "lodash"]);
+  expect(deps.nativeModule).toBe(true);
   expect(packageName("lodash/merge.js")).toBe("lodash");
+});
+
+test("native-module extensions are excluded from the satisfied population", () => {
+  const report = aggregateDependencies("pin", [
+    { name: "native", declared: {}, imported: [], nativeModule: true },
+    { name: "plain", declared: {}, imported: [] },
+  ]);
+  expect(report.shared.satisfied).toBe(1);
+  expect(report.shared.satisfiedExtensions).toEqual(["plain"]);
+  expect(report.providedOnly).toBe(1);
 });
 
 /** Two extensions that need nothing, one per package, and one needing two. */

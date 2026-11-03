@@ -131,6 +131,15 @@ test("bundle failures separate missing dependencies from other errors", () => {
   expect(result({ kind: "bundle-failed", error: "esbuild exploded" }).missing).toBeUndefined();
 });
 
+test("native module bundle failures have their own outcome", () => {
+  expect(
+    result({ kind: "native-module", modules: ["swift:../../swift", "rust:../../rust"] }),
+  ).toMatchObject({
+    outcome: "native-module",
+    reason: "native modules: swift:../../swift, rust:../../rust",
+  });
+});
+
 test("sandbox denials are distinct from extension crashes", () => {
   expect(
     buildResult({
@@ -370,6 +379,7 @@ test("buildReport sorts results and extension failures and totals outcomes", () 
     "capability-denied": 0,
     "sandbox-denied": 0,
     "bundle-failed": 0,
+    "native-module": 0,
     "bundle-timeout": 0,
     crashed: 0,
     network: 0,
@@ -442,7 +452,7 @@ test("the markdown report renders a sorted table, totals and failure details", (
     "`zeta/index`",
   ]);
   expect(markdown).toContain(
-    "3 commands: rendered 1, completed 1, capability-denied 0, sandbox-denied 0, bundle-failed 1, bundle-timeout 0, crashed 0, network 0, timeout 0, unsupported-mode 0, unsupported-api 0",
+    "3 commands: rendered 1, completed 1, capability-denied 0, sandbox-denied 0, bundle-failed 1, native-module 0, bundle-timeout 0, crashed 0, network 0, timeout 0, unsupported-mode 0, unsupported-api 0",
   );
   expect(markdown).toContain("missing left-pad, right-pad");
   expect(markdown).toContain('command mode "no-view" completed without rendering a scene');

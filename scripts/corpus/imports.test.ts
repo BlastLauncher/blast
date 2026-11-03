@@ -45,6 +45,8 @@ export * from "../shared";
 import "./side-effect";`),
     ]),
   ).toEqual([]);
+  expect(unprovidedImports([source('import { connect } from "swift:../../swift";')])).toEqual([]);
+  expect(unprovidedImports([source('import { connect } from "rust:../../rust";')])).toEqual([]);
 });
 
 test("a bare specifier maps to its npm package name", () => {

@@ -348,13 +348,21 @@ function mb(bytes: number): string {
 
 export function renderSweepMarkdown(report: SweepReport): string {
   const total = Object.values(report.totals).reduce((sum, value) => sum + value, 0);
+  const resumed = report.resumed > 0;
   const lines = [
     "# Corpus sweep report",
     "",
     `Corpus commit \`${report.commit}\`; seed \`${report.seed}\`; ${report.selectedExtensions} selected extensions and ${report.commands} commands (${total} command records).`,
-    `Peak .cache ${mb(report.peakBytes)}; wall time ${(report.wallMs / 1000).toFixed(0)} s; ${report.commandsPerMinute.toFixed(2)} commands/min; ${report.resumed} resumed command(s).`,
+    resumed
+      ? `${report.resumed} resumed command(s).`
+      : `Peak .cache ${mb(report.peakBytes)}; wall time ${(report.wallMs / 1000).toFixed(0)} s; ${report.commandsPerMinute.toFixed(2)} commands/min; 0 resumed command(s).`,
+    ...(resumed
+      ? [
+          "This is a resumed run: wall time, throughput, peak and projected-full-population values are partial-run artifacts; use a clean run (or per-batch timing) for those metrics.",
+        ]
+      : []),
     "Rendered means a first scene was published; it does not assert that the command works with live data or actions.",
-    report.projectedFullRunMinutes === undefined
+    resumed || report.projectedFullRunMinutes === undefined
       ? ""
       : `Projected full population: ${(report.projectedFullRunMinutes / 60).toFixed(1)} h; projected peak ${mb(report.projectedFullRunPeakBytes ?? report.peakBytes)}.`,
     "",

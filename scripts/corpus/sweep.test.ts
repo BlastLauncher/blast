@@ -87,6 +87,33 @@ test("primary action probe classifications are deterministic", () => {
   expect(classifyPrimaryAction({ primary: true, events: 1, timedOut: true })).toEqual({
     outcome: "timeout",
   });
+  expect(
+    classifyPrimaryAction({
+      primary: true,
+      events: 1,
+      exit: { code: 1, signal: null, error: "EPERM: operation not permitted" },
+    }),
+  ).toEqual({ outcome: "sandbox-denied", error: "EPERM: operation not permitted" });
+});
+
+test("resumed sweep markdown warns and omits whole-run metrics", () => {
+  const report = buildSweepReport({
+    commit: "pin",
+    seed: "0",
+    selectedExtensions: 1,
+    results: [],
+    peakBytes: 123,
+    wallMs: 60_000,
+    resumed: 1,
+    fullPopulation: 10,
+  });
+  const markdown = renderSweepMarkdown(report);
+  expect(markdown).toContain("This is a resumed run:");
+  expect(markdown.split("\n")[3]).toBe("1 resumed command(s).");
+  expect(markdown.split("\n")[3]).not.toContain("Peak .cache");
+  expect(markdown.split("\n")[3]).not.toContain("wall time");
+  expect(markdown.split("\n")[3]).not.toContain("commands/min");
+  expect(markdown).not.toContain("Projected full population");
 });
 
 test("selection is limited to the exact satisfied population", () => {
@@ -267,4 +294,21 @@ test("report renderers refuse output over their size limits", () => {
     "exceeds 300 lines",
   );
   expect(() => renderSweepJson({ ...base, failures: rows(2_000, 120) })).toThrow("exceeds 200 KB");
+});
+
+test("a sandbox EPERM after the primary action is sandbox-denied, not a crash", () => {
+  expect(
+    classifyPrimaryAction({
+      primary: true,
+      events: 1,
+      exit: { code: 1, signal: null, error: "spawn EPERM" },
+    }),
+  ).toEqual({ outcome: "sandbox-denied", error: "spawn EPERM" });
+  expect(
+    classifyPrimaryAction({
+      primary: true,
+      events: 1,
+      exit: { code: 1, signal: null, error: "spawn delphitools ENOENT" },
+    }),
+  ).toMatchObject({ outcome: "crashed" });
 });

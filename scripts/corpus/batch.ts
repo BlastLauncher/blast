@@ -7,6 +7,7 @@
 // with an empty batch is how a finished run leaves the checkout
 // manifest-only.
 import { spawnSync } from "node:child_process";
+import { rmSync } from "node:fs";
 import { join } from "node:path";
 import { directoryBytes } from "./corpus.ts";
 
@@ -15,6 +16,11 @@ import { directoryBytes } from "./corpus.ts";
  * caller's peak-disk bookkeeping.
  */
 export function fetchBatch(extensions: string[], root: string): number {
+  // A partial clone retains every fetched blob even after sparse-checkout drops
+  // its working tree. Reclone between source batches so the next batch does
+  // not inherit the previous batch's blobs and grow past the disk budget.
+  if (extensions.length > 0)
+    rmSync(join(root, ".cache/raycast-extensions"), { recursive: true, force: true });
   const args = ["scripts/corpus/fetch.ts", ...extensions.flatMap((name) => ["--extension", name])];
   const fetch = spawnSync("bun", args, { stdio: "inherit" });
   if (fetch.status !== 0) throw new Error("corpus fetch failed; see output above");
