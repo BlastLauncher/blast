@@ -82,12 +82,12 @@ Raycast client semantics built in so embedders only draw.
 Honest gate, latest API, real compatibility across the corpus. Tasks run in
 order with disk budgets.
 
-- [x] 0088 Verify passes on a clean Mac
-- [x] 0089 `@raycast/api` 2.10.1 and a weekly upgrade job
+- [x] 0088 Verify on a clean Mac; 0089 `@raycast/api` 2.10.1 and weekly upgrade job
 - [x] 0090 Repin the corpus and rerun all smokes
 - [x] 0093 Stable selection, pre-release-aware shared deps (before 0091)
 - [x] 0091 Sandboxed corpus sweep runner and pilot
-- [ ] 0092 Primary action probe; full sweep task follows the pilot
+- [x] 0092 Primary action probe in the sweep
+- [ ] 0094 Full corpus sweep and failure triage
 
 ## Later (not scheduled)
 
