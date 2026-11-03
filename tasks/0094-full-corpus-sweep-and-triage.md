@@ -51,8 +51,14 @@ or a dependency mismatch (0093 rules).
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3-13fdfcab @ 1e6c685 (triage in progress; Handoff will be updated)
+Verify: not run yet
 Done:
-Not done / risks:
+- Merged `t3/full-corpus-sweep-triage`; the committed report covers 1,939 extensions and 5,759 commands.
+- Report totals: 4,879 rendered, 27 completed, 451 capability-denied, 59 sandbox-denied, 170 bundle-failed, 157 crashed, 14 network, 2 unsupported-api. Render crash rate is 157/5,759 (2.7%); dispatched primary-action crash rate is 3/1,358 (0.2%).
+- The run was resumed for 5,443 commands. Its 227 s wall time, 1,523.17 commands/min, 1,498.6 MB peak and projected-full-population values are not meaningful as whole-run measurements; the report should label resumed-run timing/projection as partial/invalid and compute metrics only from a fresh run (or record per-batch timings).
+- Preliminary triage: `storage.get` 266 + `storage.all` 13 + `storage.set` 8 + `storage.remove` 4 are expected headless consequences in this sweep. `packages/host/src/storage.ts:170-195` provides the handlers, while the sweep launch path uses `createHeadlessHandlers` without merging storage (`scripts/corpus/smoke-command.ts:6-20`, `packages/cli/src/cli.ts:620-647`); the default CLI deliberately grants storage via `createSessionBroker`, but the sweep does not. Proposed fix: give the sweep an isolated per-command in-memory storage handler (or explicitly document the denial as a sweep limitation), without changing the sandbox.
+- Preliminary triage: `open.url` 117 and `oauth.tokens.get` 15 are expected headless consequences. `createHeadlessHandlers` intentionally has no `open.url` handler (`packages/cli/src/headless.ts:94-115`) and OAuth token reads are denied by the broker unless an embedder supplies them (`packages/host/src/oauth.ts`); proposed fix: expected/optionally add explicit synthetic handlers only for a separately configured headless fixture.
+- Preliminary triage: the 85 async Client Component crashes are a React/reconciler compatibility issue to investigate next; the custom reconciler mounts through `updateContainerSync` and `flushSyncWork` (`packages/runtime/src/reconciler/index.ts:199-220`).
+Not done / risks: source-line evidence for extension failures and remaining causes, plus final verify, still pending.
 ```
