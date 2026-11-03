@@ -1,7 +1,7 @@
 ---
 id: "0097"
 title: Give sweep commands the default embedder storage and OAuth handlers
-status: todo
+status: doing
 milestone: M6
 depends: []
 ---

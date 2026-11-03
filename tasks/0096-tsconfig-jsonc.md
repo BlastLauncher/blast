@@ -1,7 +1,7 @@
 ---
 id: "0096"
 title: Parse tsconfig as JSONC for path aliases
-status: todo
+status: doing
 milestone: M6
 depends: []
 ---
