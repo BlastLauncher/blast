@@ -16220,6 +16220,7 @@
       "status": "covered",
       "tests": [
         "packages/client-core/src/rank.test.ts",
+        "packages/host/src/index.test.ts",
         "packages/runtime/src/api/index.test.ts"
       ],
       "weight": 2649
@@ -16482,6 +16483,7 @@
       "path": "List.Item",
       "status": "covered",
       "tests": [
+        "packages/host/src/index.test.ts",
         "packages/runtime/src/api/index.test.ts"
       ],
       "weight": 2610
@@ -17054,7 +17056,8 @@
       "path": "List.Props.isLoading",
       "status": "covered",
       "tests": [
-        "packages/runtime/src/api/index.test.ts"
+        "packages/runtime/src/api/index.test.ts",
+        "packages/runtime/src/main.test.ts"
       ],
       "weight": 2352
     },
@@ -18005,7 +18008,8 @@
       "status": "covered",
       "tests": [
         "packages/runtime/src/api/aliases.test.ts",
-        "packages/runtime/src/api/index.test.ts"
+        "packages/runtime/src/api/index.test.ts",
+        "packages/runtime/src/main.test.ts"
       ],
       "weight": 0,
       "via": "List.Props"
