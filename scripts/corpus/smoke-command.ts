@@ -4,6 +4,8 @@
 // exit. The runners differ only in how dependencies resolve, so that is a
 // parameter; classification stays in `smoke.ts`.
 import { createHeadlessHandlers } from "../../packages/cli/src/index.ts";
+import { createController, type Controller } from "../../packages/client-core/src/index.ts";
+import type { SceneMessage, SceneNode } from "../../packages/protocol/src/index.ts";
 import { mkdir, mkdtemp, rm } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import {
@@ -26,11 +28,19 @@ import {
   isSandboxDeniedMessage,
   type CommandResult,
   type Manifest,
+  type PrimaryActionResult,
+  classifyPrimaryAction,
   type ProbeResult,
 } from "./smoke.ts";
 
 /** How long one command may take to publish its first scene (or exit). */
 const SCENE_TIMEOUT_MS = 5000;
+/** A scene that stays loading is settled after this quiet period, if revisions stop. */
+const SCENE_QUIET_MS = 150;
+/** A responsive action gets a short observation window; a hung command gets a timeout. */
+const ACTION_TIMEOUT_MS = 1000;
+/** Give an exit-first action event a bounded chance to publish its scene. */
+const ACTION_QUIET_MS = 50;
 /** Warnings kept per command, after deduplication. */
 const MAX_WARNINGS = 5;
 /** Error-level log lines kept for a crash. */
@@ -52,31 +62,205 @@ export type DependencyMode = {
  * waiting for a root. The probe keeps raw messages; sanitation happens once,
  * when the result is built.
  */
-function firstSceneOrExit(session: Session, timeoutMs: number, mode: string): Promise<ProbeResult> {
+type FirstScene = { probe: ProbeResult; scene?: SceneMessage; loading?: boolean };
+
+function sceneLoading(scene: SceneMessage): boolean {
+  const controller = createController({ platform: "macOS" });
+  controller.scene(scene);
+  return controller.view().loading;
+}
+
+export function firstSceneOrExit(
+  session: Session,
+  timeoutMs: number,
+  mode: string,
+): Promise<FirstScene> {
   return new Promise((resolve) => {
     let settled = false;
     let unsubscribe: (() => void) | undefined;
-    const finish = (probe: ProbeResult): void => {
+    let quietTimer: ReturnType<typeof setTimeout> | undefined;
+    let loadingScene: SceneMessage | undefined;
+    const finish = (probe: ProbeResult, scene?: SceneMessage, loading = false): void => {
       if (settled) return;
       settled = true;
       clearTimeout(timer);
+      if (quietTimer !== undefined) clearTimeout(quietTimer);
       unsubscribe?.();
-      resolve(probe);
+      resolve({
+        probe,
+        ...(scene === undefined ? {} : { scene }),
+        ...(scene === undefined || !loading ? {} : { loading: true }),
+      });
     };
-    const timer = setTimeout(() => finish({ kind: "timeout", timeoutMs }), timeoutMs);
+    const settleLoading = () => {
+      if (loadingScene)
+        finish(
+          {
+            kind: "scene",
+            nodeCount: countNodes(loadingScene.root!),
+            rootType: loadingScene.root!.type,
+          },
+          loadingScene,
+          true,
+        );
+    };
+    const timer = setTimeout(() => {
+      if (loadingScene) settleLoading();
+      else finish({ kind: "timeout", timeoutMs });
+    }, timeoutMs);
     unsubscribe = session.scenes((scene) => {
       if (scene.root) {
-        finish({
-          kind: "scene",
-          nodeCount: countNodes(scene.root),
-          rootType: scene.root.type,
-        });
+        if (!sceneLoading(scene)) {
+          finish(
+            { kind: "scene", nodeCount: countNodes(scene.root), rootType: scene.root.type },
+            scene,
+          );
+          return;
+        }
+        loadingScene = scene;
+        if (quietTimer !== undefined) clearTimeout(quietTimer);
+        quietTimer = setTimeout(settleLoading, SCENE_QUIET_MS);
       } else if (mode === "menu-bar") {
-        finish({ kind: "empty-menu-bar" });
+        finish({ kind: "empty-menu-bar" }, scene);
       }
     });
     void session.exited.then((exit) => {
       finish(exitProbe(exit));
+    });
+  });
+}
+
+function navigationKey(root: SceneNode | null): string {
+  if (!root || root.type !== "Navigation") return "";
+  const entries = root.children
+    .filter((child) => child.type === "Navigation.Entry")
+    .map((child) => `${child.id}:${child.props.active === true ? "active" : "inactive"}`)
+    .join("|");
+  return `${root.id}/${entries}`;
+}
+
+function capabilityDenied(error: string | undefined): string | undefined {
+  return /^Capability denied: (.+)$/.exec(error ?? "")?.[1];
+}
+
+export async function probePrimaryAction(
+  session: Session,
+  first: SceneMessage,
+  clean: (text: string) => string,
+  initiallyLoading = false,
+): Promise<PrimaryActionResult> {
+  const started = performance.now();
+  const controller: Controller = createController({ platform: "macOS" });
+  controller.scene(first);
+  const before = controller.view();
+  const hasContent =
+    before.rows.some((row) => row.kind === "item") ||
+    before.grid?.some((row) => row.cells.length > 0) === true ||
+    before.detail.length > 0 ||
+    before.kind === "detail";
+  if (initiallyLoading || before.loading)
+    return { outcome: "still-loading", dispatched: false, elapsedMs: performance.now() - started };
+  if (!before.primary.enabled)
+    return {
+      ...classifyPrimaryAction({ primary: false, events: 0, hasContent }),
+      dispatched: false,
+      elapsedMs: performance.now() - started,
+    };
+  const dispatched = controller.input({ type: "primary" });
+  const panelOpened = controller.view().actions.open !== before.actions.open;
+  if (dispatched.events.length === 0) {
+    const result = classifyPrimaryAction({
+      primary: true,
+      events: 0,
+      panelOpened,
+    });
+    return { ...result, dispatched: false, elapsedMs: performance.now() - started };
+  }
+
+  return await new Promise((resolve) => {
+    let settled = false;
+    let unsubscribe: (() => void) | undefined;
+    let unsubscribeLog: (() => void) | undefined;
+    let latestScene: SceneMessage | undefined;
+    let latestLoading = false;
+    let exit: Awaited<Session["exited"]> | undefined;
+    let quietTimer: ReturnType<typeof setTimeout> | undefined;
+    const baselineKey = JSON.stringify(first.root);
+    const finish = (observation: Parameters<typeof classifyPrimaryAction>[0]) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      if (quietTimer !== undefined) clearTimeout(quietTimer);
+      unsubscribe?.();
+      unsubscribeLog?.();
+      const result = classifyPrimaryAction(observation);
+      resolve({
+        ...result,
+        dispatched: true,
+        ...(result.error === undefined && observation.exit?.error
+          ? { error: clean(observation.exit.error) }
+          : {}),
+        elapsedMs: performance.now() - started,
+      });
+    };
+    const settleObserved = () => {
+      if (settled) return;
+      const sceneChanged =
+        latestScene !== undefined && JSON.stringify(latestScene.root) !== baselineKey;
+      const navigated =
+        sceneChanged && navigationKey(first.root) !== navigationKey(latestScene?.root ?? null);
+      if (sceneChanged) {
+        finish({ primary: true, events: dispatched.events.length, sceneChanged, navigated });
+        return;
+      }
+      if (exit) {
+        const capability = capabilityDenied(exit.error?.message);
+        finish({
+          primary: true,
+          events: dispatched.events.length,
+          ...(capability === undefined ? {} : { capability }),
+          exit: {
+            code: exit.code,
+            signal: exit.signal,
+            ...(exit.error === undefined ? {} : { error: exit.error.message }),
+          },
+        });
+      }
+    };
+    const armQuiet = () => {
+      if (quietTimer !== undefined) clearTimeout(quietTimer);
+      quietTimer = setTimeout(() => {
+        if (!latestLoading) settleObserved();
+      }, ACTION_QUIET_MS);
+    };
+    const timer = setTimeout(() => {
+      if (latestLoading) {
+        finish({ primary: true, events: dispatched.events.length, stillLoading: true });
+      } else {
+        settleObserved();
+        if (!settled) finish({ primary: true, events: dispatched.events.length, timedOut: true });
+      }
+    }, ACTION_TIMEOUT_MS);
+    unsubscribe = session.scenes((scene) => {
+      if (scene.revision === first.revision) return;
+      latestScene = scene;
+      latestLoading = scene.root === null ? false : sceneLoading(scene);
+      if (!latestLoading) {
+        armQuiet();
+        settleObserved();
+      } else {
+        armQuiet();
+      }
+    });
+    unsubscribeLog = session.onLog((log) => {
+      const capability = capabilityDenied(log.message.replace(/^EVENT_ERROR: /, ""));
+      if (capability) finish({ primary: true, events: dispatched.events.length, capability });
+    });
+    for (const event of dispatched.events) session.sendEvent(event.node, event.handler, event.args);
+    void session.exited.then((value) => {
+      exit = value;
+      armQuiet();
+      settleObserved();
     });
   });
 }
@@ -146,6 +330,7 @@ export async function launchOne(
   commandName: string,
   bundled: BundledCommand,
   clean: (text: string) => string,
+  options: { probeActions?: boolean } = {},
 ): Promise<CommandResult> {
   const mode = commandMode(manifest, commandName) ?? "view";
   const outDir = dirname(bundled.entry);
@@ -210,10 +395,15 @@ export async function launchOne(
         [],
       );
     }
-    const probe = await firstSceneOrExit(session, SCENE_TIMEOUT_MS, mode);
+    const observed = await firstSceneOrExit(session, SCENE_TIMEOUT_MS, mode);
+    const probe = observed.probe;
     const warnings = logLines(session, "warn", clean);
     const errorLogs = logLines(session, "error", clean);
-    return build(probe, warnings, errorLogs);
+    const result = build(probe, warnings, errorLogs);
+    if (options.probeActions && observed.scene && probe.kind === "scene") {
+      result.action = await probePrimaryAction(session, observed.scene, clean, observed.loading);
+    }
+    return result;
   } finally {
     await session?.shutdown({ timeoutMs: 250 });
     await rm(outDir, { recursive: true, force: true });
@@ -229,10 +419,11 @@ export async function runOne(
   commandName: string,
   clean: (text: string) => string,
   dependencies: DependencyMode = { installedDependencies: false },
+  options: { probeActions?: boolean } = {},
 ): Promise<CommandResult> {
   const mode = commandMode(manifest, commandName) ?? "view";
   const bundle = await bundleOne(extensionDir, commandName, dependencies, clean);
   if (!bundle.ok)
     return buildResult({ extension, command: commandName, mode, probe: bundle.probe });
-  return launchOne(extension, manifest, commandName, bundle.bundled, clean);
+  return launchOne(extension, manifest, commandName, bundle.bundled, clean, options);
 }

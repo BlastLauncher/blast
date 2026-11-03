@@ -117,6 +117,7 @@ async function runOneSandboxed(
   command: string,
   scratch: string,
   unsandboxed: boolean,
+  probeActions: boolean,
 ): Promise<CommandResult> {
   const extensionDir = join(root, CORPUS_DIR, "extensions", extension);
   const manifest = JSON.parse(
@@ -156,7 +157,14 @@ async function runOneSandboxed(
   await writeFile(bundlePath, JSON.stringify(bundle.bundled));
   const outcome = await runSandboxed({
     script: "scripts/corpus/sweep-command.ts",
-    args: [extension, extensionDir, command, scratch, bundlePath],
+    args: [
+      extension,
+      extensionDir,
+      command,
+      scratch,
+      bundlePath,
+      ...(probeActions ? ["--probe-actions"] : []),
+    ],
     scratch,
     root,
     unsandboxed,
@@ -175,6 +183,7 @@ async function runTasks(
   tasks: Array<{ extension: string; command: string }>,
   jobs: number,
   unsandboxed: boolean,
+  probeActions: boolean,
   onResult: (entry: SweepLogEntry) => Promise<void>,
 ): Promise<void> {
   let cursor = 0;
@@ -190,6 +199,7 @@ async function runTasks(
           task.command,
           scratch,
           unsandboxed,
+          probeActions,
         );
         await onResult({ extension: task.extension, command: task.command, result });
       } finally {
@@ -258,10 +268,17 @@ async function main(): Promise<void> {
           else tasks.push({ extension, command });
         }
       }
-      await runTasks(root, tasks, options.jobs, options.unsandboxed, async (entry) => {
-        await appendFile(logPath, `${JSON.stringify(entry)}\n`);
-        previous.set(resultKey(entry.extension, entry.command), entry);
-      });
+      await runTasks(
+        root,
+        tasks,
+        options.jobs,
+        options.unsandboxed,
+        options.probeActions,
+        async (entry) => {
+          await appendFile(logPath, `${JSON.stringify(entry)}\n`);
+          previous.set(resultKey(entry.extension, entry.command), entry);
+        },
+      );
       if (interrupted) throw new Error("sweep interrupted");
       peakBytes = Math.max(peakBytes, directoryBytes(join(root, ".cache")));
       // The next sparse checkout drops this batch's source and build output;
@@ -289,6 +306,7 @@ async function main(): Promise<void> {
     wallMs: performance.now() - started,
     resumed: resumedCount,
     fullPopulation,
+    probeActions: options.probeActions,
   });
   await writeFile(join(root, SWEEP_JSON), renderSweepJson(report));
   await writeFile(join(root, SWEEP_MD), renderSweepMarkdown(report));

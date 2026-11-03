@@ -8,7 +8,7 @@ import { launchOne } from "./smoke-command.ts";
 import type { BundledCommand } from "../../packages/host/src/index.ts";
 import { buildResult, compactLine, sanitizeReportText, type Manifest } from "./smoke.ts";
 
-const [extension, extensionDir, command, scratch, bundlePath] = process.argv.slice(2);
+const [extension, extensionDir, command, scratch, bundlePath, ...flags] = process.argv.slice(2);
 if (!extension || !extensionDir || !command || !scratch || !bundlePath) {
   console.error(
     "sweep-command: expected extension, extension directory, command, scratch and bundle metadata",
@@ -34,7 +34,9 @@ try {
   ) as Manifest;
   process.env.BLAST_SWEEP_SCRATCH = scratch;
   const bundled = JSON.parse(await readFile(bundlePath, "utf8")) as BundledCommand;
-  const result = await launchOne(extension, manifest, command, bundled, clean);
+  const result = await launchOne(extension, manifest, command, bundled, clean, {
+    probeActions: flags.includes("--probe-actions"),
+  });
   process.stdout.write(`SWEEP_RESULT ${JSON.stringify(result)}\n`);
 } catch (error) {
   const result = buildResult({

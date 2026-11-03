@@ -3,7 +3,14 @@
 // resume and report-size guarantees deterministic and testable.
 import { realpathSync } from "node:fs";
 import { homedir } from "node:os";
-import { OUTCOMES, sanitizeReportText, type CommandResult, type Outcome } from "./smoke.ts";
+import {
+  ACTION_OUTCOMES,
+  OUTCOMES,
+  sanitizeReportText,
+  type ActionOutcome,
+  type CommandResult,
+  type Outcome,
+} from "./smoke.ts";
 
 export const SWEEP_JSON = "compat/sweep.json";
 export const SWEEP_MD = "compat/SWEEP.md";
@@ -19,6 +26,7 @@ export type SweepOptions = {
   jobs: number;
   resume: boolean;
   unsandboxed: boolean;
+  probeActions: boolean;
 };
 
 export type SweepLogEntry = {
@@ -43,6 +51,21 @@ export type SweepReport = {
   resumed: number;
   projectedFullRunMinutes?: number;
   projectedFullRunPeakBytes?: number;
+  primaryActionProbe?: PrimaryActionReport;
+};
+
+export type PrimaryActionCause = { signature: string; commands: number };
+export type PrimaryActionReport = {
+  commands: number;
+  totals: Record<ActionOutcome, number>;
+  crashCauses: PrimaryActionCause[];
+  renderOnlyCrashRate: number;
+  renderOnlyCrashNumerator: number;
+  renderOnlyCrashDenominator: number;
+  actionCrashRate: number;
+  actionCrashNumerator: number;
+  actionCrashDenominator: number;
+  probeRuntimeMsPerDispatchedCommand: number;
 };
 
 function positiveInt(raw: string, flag: string): number {
@@ -57,6 +80,7 @@ export function parseSweepArgs(argv: string[]): SweepOptions {
   let jobs = DEFAULT_SWEEP_JOBS;
   let resume = false;
   let unsandboxed = false;
+  let probeActions = false;
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index]!;
     const take = (flag: string): string => {
@@ -66,6 +90,7 @@ export function parseSweepArgs(argv: string[]): SweepOptions {
     };
     if (arg === "--resume") resume = true;
     else if (arg === "--unsandboxed") unsandboxed = true;
+    else if (arg === "--probe-actions") probeActions = true;
     else if (arg === "--limit" || arg.startsWith("--limit="))
       limit = positiveInt(take("--limit"), "--limit");
     else if (arg === "--seed" || arg.startsWith("--seed=")) seed = take("--seed");
@@ -73,10 +98,17 @@ export function parseSweepArgs(argv: string[]): SweepOptions {
       jobs = positiveInt(take("--jobs"), "--jobs");
     else
       throw new Error(
-        `unknown argument ${arg}; usage: corpus:sweep [--limit N] [--seed S] [--jobs N] [--resume] [--unsandboxed]`,
+        `unknown argument ${arg}; usage: corpus:sweep [--limit N] [--seed S] [--jobs N] [--resume] [--unsandboxed] [--probe-actions]`,
       );
   }
-  return { ...(limit === undefined ? {} : { limit }), seed, jobs, resume, unsandboxed };
+  return {
+    ...(limit === undefined ? {} : { limit }),
+    seed,
+    jobs,
+    resume,
+    unsandboxed,
+    probeActions,
+  };
 }
 
 /** FNV-1a gives a portable deterministic ranking without depending on RNG state. */
@@ -190,6 +222,7 @@ function sanitizeText(value: string): string {
 
 function sanitizeResult(result: CommandResult): CommandResult {
   const clean = sanitizeText;
+  const action = result.action;
   return {
     ...result,
     ...(result.reason === undefined ? {} : { reason: clean(result.reason) }),
@@ -199,7 +232,22 @@ function sanitizeResult(result: CommandResult): CommandResult {
     ...(result.logs === undefined ? {} : { logs: result.logs.map(clean) }),
     ...(result.warnings === undefined ? {} : { warnings: result.warnings.map(clean) }),
     ...(result.missing === undefined ? {} : { missing: result.missing.map(clean) }),
+    ...(action === undefined
+      ? {}
+      : {
+          action: {
+            ...action,
+            ...(action.capability === undefined ? {} : { capability: clean(action.capability) }),
+            ...(action.reason === undefined ? {} : { reason: clean(action.reason) }),
+            ...(action.error === undefined ? {} : { error: clean(action.error) }),
+          },
+        }),
   };
+}
+
+function actionCrashSignature(result: CommandResult): string | undefined {
+  if (result.action?.outcome !== "crashed") return undefined;
+  return normalized(result.action.error ?? result.action.reason ?? "crashed");
 }
 
 export function buildSweepReport(input: {
@@ -211,6 +259,7 @@ export function buildSweepReport(input: {
   wallMs: number;
   resumed?: number;
   fullPopulation?: number;
+  probeActions?: boolean;
 }): SweepReport {
   const totals = Object.fromEntries(OUTCOMES.map((outcome) => [outcome, 0])) as Record<
     Outcome,
@@ -223,6 +272,40 @@ export function buildSweepReport(input: {
   const projectedFullRunMinutes =
     input.fullPopulation && input.selectedExtensions > 0
       ? renderedMinutes * (input.fullPopulation / input.selectedExtensions)
+      : undefined;
+  const actionResults = results.flatMap((result) => (result.action ? [result.action] : []));
+  const actionTotals = Object.fromEntries(ACTION_OUTCOMES.map((outcome) => [outcome, 0])) as Record<
+    ActionOutcome,
+    number
+  >;
+  for (const action of actionResults) actionTotals[action.outcome] += 1;
+  const renderOnlyCrashNumerator = results.filter((result) => result.outcome === "crashed").length;
+  const dispatchedActions = actionResults.filter((action) => action.dispatched === true);
+  const actionRuntime = dispatchedActions.reduce((sum, action) => sum + (action.elapsedMs ?? 0), 0);
+  const actionCrashNumerator = dispatchedActions.filter(
+    (action) => action.outcome === "crashed",
+  ).length;
+  const primaryActionProbe =
+    input.probeActions === true
+      ? {
+          commands: actionResults.length,
+          totals: actionTotals,
+          crashCauses: ranked(
+            results.flatMap((result) => {
+              const signature = actionCrashSignature(result);
+              return signature === undefined ? [] : [signature];
+            }),
+          ),
+          renderOnlyCrashRate: results.length === 0 ? 0 : renderOnlyCrashNumerator / results.length,
+          renderOnlyCrashNumerator,
+          renderOnlyCrashDenominator: results.length,
+          actionCrashRate:
+            dispatchedActions.length === 0 ? 0 : actionCrashNumerator / dispatchedActions.length,
+          actionCrashNumerator,
+          actionCrashDenominator: dispatchedActions.length,
+          probeRuntimeMsPerDispatchedCommand:
+            dispatchedActions.length === 0 ? 0 : actionRuntime / dispatchedActions.length,
+        }
       : undefined;
   return {
     commit: input.commit,
@@ -248,6 +331,7 @@ export function buildSweepReport(input: {
     resumed: input.resumed ?? 0,
     ...(projectedFullRunMinutes === undefined ? {} : { projectedFullRunMinutes }),
     ...(input.fullPopulation === undefined ? {} : { projectedFullRunPeakBytes: input.peakBytes }),
+    ...(primaryActionProbe === undefined ? {} : { primaryActionProbe }),
   };
 }
 
@@ -290,6 +374,27 @@ export function renderSweepMarkdown(report: SweepReport): string {
       ? report.capabilities.map((row) => `- ${row.commands} command(s): ${row.signature}`)
       : ["- none"]),
     "",
+    ...(report.primaryActionProbe === undefined
+      ? []
+      : [
+          "## Primary action probe",
+          "",
+          `${report.primaryActionProbe.commands} rendered command(s) were probed through client-core; a denied capability counts as working as far as a headless run can show.`,
+          `Render-only crash rate ${report.primaryActionProbe.renderOnlyCrashNumerator}/${report.primaryActionProbe.renderOnlyCrashDenominator} (${(report.primaryActionProbe.renderOnlyCrashRate * 100).toFixed(1)}%); after the primary action ${report.primaryActionProbe.actionCrashNumerator}/${report.primaryActionProbe.actionCrashDenominator} dispatched (${(report.primaryActionProbe.actionCrashRate * 100).toFixed(1)}%); probe time ${report.primaryActionProbe.probeRuntimeMsPerDispatchedCommand.toFixed(1)} ms/dispatched command.`,
+          "",
+          ...ACTION_OUTCOMES.map(
+            (outcome) => `- ${outcome}: ${report.primaryActionProbe!.totals[outcome]} command(s)`,
+          ),
+          "",
+          "### Primary action crash causes",
+          "",
+          ...(report.primaryActionProbe.crashCauses.length
+            ? report.primaryActionProbe.crashCauses.map(
+                (row) => `- ${row.commands} command(s): ${row.signature}`,
+              )
+            : ["- none"]),
+          "",
+        ]),
     "The per-command log remains in `.cache/sweep/results.jsonl` and is intentionally not committed.",
     "",
   ];

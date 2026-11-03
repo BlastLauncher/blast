@@ -41,8 +41,13 @@ as a headless run can show, which the report must state.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/fix-primary-action-probe-metrics @ c54ded8
+Verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 51.4s
 Done:
-Not done / risks:
+- Settled loading scenes before probing, split empty content from items without a primary action, and kept exit-first scene changes from becoming `no-op`.
+- Added deterministic scene-stream tests for loading settlement and both exit/scene event orders, plus action-field path/token redaction coverage.
+- Refreshed the 100-extension pilot report. Probe outcomes before → after: navigated 3 → 6; scene-changed 51 → 44; capability-requested 6 → 7; no-primary-action 187 → no-items-or-content 154 + items-but-no-primary-action 12; still-loading 0 → 1; no-op 0 → 0; crashed 0 → 0; timeout 0 → 6.
+- Crash rates before (the old structurally invalid metrics) were render-only 0/247 and post-action 0/247; the pilot's actual render crashes were 2/262. After the fixes: render-only 10/262 (3.8%); post-action 0/63 dispatched (0.0%). Probe time is 102.6 ms per dispatched command.
+- Pilot cleanup left `.cache` at 132 KiB.
+Not done / risks: A same-selection run without `--probe-actions` was not measured, so no wall-time delta is reported. Six commands reached the bounded action timeout and remain untriaged by design.
 ```
