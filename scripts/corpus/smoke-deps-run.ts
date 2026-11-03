@@ -180,7 +180,7 @@ async function main(): Promise<void> {
       const batch = extensions.slice(offset, offset + size);
       peakBytes = Math.max(
         peakBytes,
-        fetchBatch(
+        await fetchBatch(
           batch.map((entry) => entry.name),
           root,
         ),
@@ -238,7 +238,7 @@ async function main(): Promise<void> {
     }
   } finally {
     // Leave the checkout minimal: every extension dropped from the sparse set.
-    fetchBatch([], root);
+    await fetchBatch([], root);
     await rm(dataDir, { recursive: true, force: true });
     await rm(npmCache, { recursive: true, force: true });
   }
