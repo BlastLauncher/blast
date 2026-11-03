@@ -4,14 +4,15 @@
   "selectedExtensions": 1939,
   "commands": 5759,
   "totals": {
-    "rendered": 4879,
-    "completed": 27,
-    "capability-denied": 451,
-    "sandbox-denied": 59,
-    "bundle-failed": 170,
+    "rendered": 5266,
+    "completed": 35,
+    "capability-denied": 158,
+    "sandbox-denied": 60,
+    "bundle-failed": 34,
+    "native-module": 117,
     "bundle-timeout": 0,
-    "crashed": 157,
-    "network": 14,
+    "crashed": 70,
+    "network": 17,
     "timeout": 0,
     "unsupported-mode": 0,
     "unsupported-api": 2,
@@ -19,44 +20,32 @@
   },
   "failures": [
     {
-      "signature": "Capability denied: storage.get",
-      "commands": 266
-    },
-    {
       "signature": "Capability denied: open.url",
       "commands": 117
     },
     {
-      "signature": "An unknown Component is an async Client Component. Only Server Components can be async at the moment. This error is often caused by accidentally adding `'use client'` to a module that was originally written for the server.",
-      "commands": 85
-    },
-    {
-      "signature": "missing dependencies: swift:..",
-      "commands": 82
-    },
-    {
       "signature": "spawn EPERM",
-      "commands": 47
-    },
-    {
-      "signature": "missing dependencies: rust:..",
-      "commands": 33
+      "commands": 49
     },
     {
       "signature": "Invalid URL",
       "commands": 23
     },
     {
-      "signature": "Capability denied: oauth.tokens.get",
-      "commands": 15
+      "signature": "native modules: swift:../swift",
+      "commands": 22
+    },
+    {
+      "signature": "native modules: rust:../rust",
+      "commands": 20
     },
     {
       "signature": "Capability denied: clipboard.copy",
-      "commands": 14
+      "commands": 16
     },
     {
-      "signature": "Capability denied: storage.all",
-      "commands": 13
+      "signature": "native modules: swift:../../swift",
+      "commands": 14
     },
     {
       "signature": "Preference \"terminalApp\" needs a scalar \"default\"",
@@ -67,7 +56,7 @@
       "commands": 10
     },
     {
-      "signature": "missing dependencies: @/lib",
+      "signature": "Capability denied: oauth.authorize",
       "commands": 9
     },
     {
@@ -75,7 +64,7 @@
       "commands": 9
     },
     {
-      "signature": "Capability denied: storage.set",
+      "signature": "native modules: rust:../../rust",
       "commands": 8
     },
     {
@@ -91,11 +80,15 @@
       "commands": 6
     },
     {
-      "signature": "missing dependencies: @/hooks",
-      "commands": 5
+      "signature": "native modules: swift:../swift/dimmer-helper",
+      "commands": 6
     },
     {
       "signature": "missing dependencies: undici",
+      "commands": 5
+    },
+    {
+      "signature": "native modules: swift:../swift/locatecursor",
       "commands": 5
     },
     {
@@ -103,11 +96,23 @@
       "commands": 4
     },
     {
-      "signature": "Capability denied: storage.remove",
+      "signature": "Capability denied: command.launch",
       "commands": 4
     },
     {
       "signature": "ENOENT: no such file or directory, scandir '<scratch>/Library/Application Support/zen/Profiles'",
+      "commands": 4
+    },
+    {
+      "signature": "fetch failed",
+      "commands": 4
+    },
+    {
+      "signature": "native modules: swift:../../swift/contacts",
+      "commands": 4
+    },
+    {
+      "signature": "native modules: swift:../swift/movecursor",
       "commands": 4
     },
     {
@@ -119,31 +124,43 @@
       "commands": 3
     },
     {
-      "signature": "fetch failed",
-      "commands": 3
-    },
-    {
-      "signature": "Rendered fewer hooks than expected. This may be caused by an accidental early return statement.",
-      "commands": 3
-    },
-    {
-      "signature": "Capability denied: command.launch",
-      "commands": 2
-    },
-    {
       "signature": "ENOENT: no such file or directory, open '<scratch>/bundle/package.json'",
+      "commands": 3
+    },
+    {
+      "signature": "native modules: rust:../../rust/winget-com",
+      "commands": 3
+    },
+    {
+      "signature": "native modules: swift:../../swift, swift:../swift",
+      "commands": 3
+    },
+    {
+      "signature": "native modules: swift:../swift/fullscreen",
+      "commands": 3
+    },
+    {
+      "signature": "native modules: swift:../swift/hide-details",
+      "commands": 3
+    },
+    {
+      "signature": "native modules: swift:../../swift/window-kickflip",
       "commands": 2
     },
     {
-      "signature": "missing dependencies: @/utils",
+      "signature": "native modules: swift:../swift/display-helper",
       "commands": 2
     },
     {
-      "signature": "missing dependencies: rust:.., swift:..",
+      "signature": "native modules: swift:../swift/keyprobe-helper",
       "commands": 2
     },
     {
       "signature": "Preference \"menu_bar_icon_only\" needs a scalar \"default\"",
+      "commands": 2
+    },
+    {
+      "signature": "Rendered fewer hooks than expected. This may be caused by an accidental early return statement.",
       "commands": 2
     },
     {
@@ -152,10 +169,6 @@
     },
     {
       "signature": "request to https://www.gov.uk/bank-holidays.json failed, reason: getaddrinfo ENOTFOUND www.gov.uk",
-      "commands": 2
-    },
-    {
-      "signature": "Unable to get application list",
       "commands": 2
     },
     {
@@ -199,6 +212,10 @@
       "commands": 1
     },
     {
+      "signature": "Controller URL must be a valid HTTPS URL.",
+      "commands": 1
+    },
+    {
       "signature": "Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: object.",
       "commands": 1
     },
@@ -223,19 +240,67 @@
       "commands": 1
     },
     {
-      "signature": "LocalStorage.setItem: value must be a string, number or boolean",
+      "signature": "native modules: rust:../../../rust",
       "commands": 1
     },
     {
-      "signature": "missing dependencies: @/components",
+      "signature": "native modules: rust:../../rust, rust:../rust",
       "commands": 1
     },
     {
-      "signature": "missing dependencies: @/components, @/hooks, @/types, @/utils",
+      "signature": "native modules: rust:../rust/clean-keyboard, swift:../swift/MyExecutable",
       "commands": 1
     },
     {
-      "signature": "missing dependencies: @/components, @/hooks, @/utils",
+      "signature": "native modules: rust:../rust/ruler, swift:../swift/Ruler",
+      "commands": 1
+    },
+    {
+      "signature": "native modules: swift:../../swift/Location",
+      "commands": 1
+    },
+    {
+      "signature": "native modules: swift:../QuitAllButFocused",
+      "commands": 1
+    },
+    {
+      "signature": "native modules: swift:../swift/blackr-overlay",
+      "commands": 1
+    },
+    {
+      "signature": "native modules: swift:../swift/caps-lock",
+      "commands": 1
+    },
+    {
+      "signature": "native modules: swift:../swift/cursor-helper",
+      "commands": 1
+    },
+    {
+      "signature": "native modules: swift:../swift/menu-bar-icon-search",
+      "commands": 1
+    },
+    {
+      "signature": "native modules: swift:../swift/motion-preview",
+      "commands": 1
+    },
+    {
+      "signature": "native modules: swift:../swift/privmask-bridge",
+      "commands": 1
+    },
+    {
+      "signature": "native modules: swift:../swift/Punto",
+      "commands": 1
+    },
+    {
+      "signature": "native modules: swift:../swift/screen-draw",
+      "commands": 1
+    },
+    {
+      "signature": "native modules: swift:../swift/simple-draw",
+      "commands": 1
+    },
+    {
+      "signature": "native modules: swift:../swift/svga-player",
       "commands": 1
     },
     {
@@ -283,6 +348,14 @@
       "commands": 1
     },
     {
+      "signature": "request to https://blast-smoke/api/v1/apps failed, reason: getaddrinfo ENOTFOUND blast-smoke",
+      "commands": 1
+    },
+    {
+      "signature": "request to https://envoyer.io/api/projects failed, reason: getaddrinfo ENOTFOUND envoyer.io",
+      "commands": 1
+    },
+    {
       "signature": "request to https://m.hupu.com/api/v2/bbs/walkingStreet/threads?page=# failed, reason: getaddrinfo ENOTFOUND m.hupu.com",
       "commands": 1
     },
@@ -292,10 +365,6 @@
     },
     {
       "signature": "request to https://zipper.dev/api/bootInfo/blast failed, reason: getaddrinfo ENOTFOUND zipper.dev",
-      "commands": 1
-    },
-    {
-      "signature": "sandbox child exited with SIGINT: # | const handshake = new Promise<void>((done) => { # | resolveReady = done; # | }); # | function fail(error: Error) …",
       "commands": 1
     },
     {
@@ -321,28 +390,16 @@
   ],
   "capabilities": [
     {
-      "signature": "storage.get",
-      "commands": 266
-    },
-    {
       "signature": "open.url",
       "commands": 117
     },
     {
-      "signature": "oauth.tokens.get",
-      "commands": 15
-    },
-    {
       "signature": "clipboard.copy",
-      "commands": 14
+      "commands": 16
     },
     {
-      "signature": "storage.all",
-      "commands": 13
-    },
-    {
-      "signature": "storage.set",
-      "commands": 8
+      "signature": "oauth.authorize",
+      "commands": 9
     },
     {
       "signature": "open.path",
@@ -353,12 +410,8 @@
       "commands": 4
     },
     {
-      "signature": "storage.remove",
-      "commands": 4
-    },
-    {
       "signature": "command.launch",
-      "commands": 2
+      "commands": 4
     },
     {
       "signature": "browser.tabs",
@@ -377,26 +430,35 @@
       "commands": 1
     }
   ],
-  "peakBytes": 1571375668,
-  "wallMs": 226855.113834,
-  "commandsPerMinute": 1523.1748324300374,
-  "resumed": 5443,
-  "projectedFullRunMinutes": 3.7809185639,
-  "projectedFullRunPeakBytes": 1571375668,
+  "peakBytes": 245594885,
+  "wallMs": 585148.196917,
+  "commandsPerMinute": 590.5170721204717,
+  "resumed": 4806,
+  "projectedFullRunMinutes": 9.752469948616666,
+  "projectedFullRunPeakBytes": 245594885,
   "primaryActionProbe": {
-    "commands": 4867,
+    "commands": 5256,
     "totals": {
-      "navigated": 132,
-      "scene-changed": 718,
-      "capability-requested": 282,
-      "no-items-or-content": 3292,
-      "items-but-no-primary-action": 167,
-      "still-loading": 52,
-      "no-op": 1,
-      "crashed": 3,
-      "timeout": 220
+      "navigated": 156,
+      "scene-changed": 773,
+      "capability-requested": 259,
+      "sandbox-denied": 1,
+      "no-items-or-content": 3486,
+      "items-but-no-primary-action": 183,
+      "still-loading": 148,
+      "no-op": 2,
+      "crashed": 5,
+      "timeout": 243
     },
     "crashCauses": [
+      {
+        "signature": "EISDIR: illegal operation on a directory, read",
+        "commands": 1
+      },
+      {
+        "signature": "No default application for https://github.com/search?q=&type=code",
+        "commands": 1
+      },
       {
         "signature": "request to https://scrapbox.io/api/pages/blast-smoke?sort=accessed&limit=# failed, reason: getaddrinfo ENOTFOUND scrapbox.io",
         "commands": 1
@@ -406,16 +468,16 @@
         "commands": 1
       },
       {
-        "signature": "spawn EPERM",
+        "signature": "Unexpected end of JSON input",
         "commands": 1
       }
     ],
-    "renderOnlyCrashRate": 0.027261677374544192,
-    "renderOnlyCrashNumerator": 157,
+    "renderOnlyCrashRate": 0.01215488800138913,
+    "renderOnlyCrashNumerator": 70,
     "renderOnlyCrashDenominator": 5759,
-    "actionCrashRate": 0.0022091310751104565,
-    "actionCrashNumerator": 3,
-    "actionCrashDenominator": 1358,
-    "probeRuntimeMsPerDispatchedCommand": 170.59155029234142
+    "actionCrashRate": 0.0034698126301179735,
+    "actionCrashNumerator": 5,
+    "actionCrashDenominator": 1441,
+    "probeRuntimeMsPerDispatchedCommand": 178.22034582789715
   }
 }
