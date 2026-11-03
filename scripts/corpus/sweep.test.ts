@@ -295,3 +295,20 @@ test("report renderers refuse output over their size limits", () => {
   );
   expect(() => renderSweepJson({ ...base, failures: rows(2_000, 120) })).toThrow("exceeds 200 KB");
 });
+
+test("a sandbox EPERM after the primary action is sandbox-denied, not a crash", () => {
+  expect(
+    classifyPrimaryAction({
+      primary: true,
+      events: 1,
+      exit: { code: 1, signal: null, error: "spawn EPERM" },
+    }),
+  ).toEqual({ outcome: "sandbox-denied", error: "spawn EPERM" });
+  expect(
+    classifyPrimaryAction({
+      primary: true,
+      events: 1,
+      exit: { code: 1, signal: null, error: "spawn delphitools ENOENT" },
+    }),
+  ).toMatchObject({ outcome: "crashed" });
+});

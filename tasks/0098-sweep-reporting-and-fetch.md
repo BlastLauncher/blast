@@ -33,11 +33,11 @@ From the 0094 triage and its run:
 
 ## Acceptance
 
-- [ ] Tests for each of items 1–3.
-- [ ] A fresh `--limit 300` run stays under the default budget, with the peak
+- [x] Tests for each of items 1–3.
+- [x] A fresh `--limit 300` run stays under the default budget, with the peak
       in Handoff, and `.cache` left under 150 MB.
-- [ ] The sandbox, broker and bundle confinement are unchanged.
-- [ ] `bun run verify` passes.
+- [x] The sandbox, broker and bundle confinement are unchanged.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -46,8 +46,14 @@ From the 0094 triage and its run:
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/sweep-reporting-fetch (worker 2d75bc4; finished by the orchestrator after a model capacity stop)
+Verify: see the merge commit; verify passed on the branch before merge
 Done:
+- swift:/rust: imports raise NativeModuleError in packages/host/src/bundle.ts and get a `native-module` outcome; selection and the satisfied population exclude both consistently.
+- A sandbox EPERM after the primary action is `sandbox-denied`, not a crash (test added by the orchestrator).
+- Resumed runs: SWEEP.md warns and omits wall time, throughput, peak and projection.
+- Fetch growth bounded by recloning the partial clone between source batches.
+- Acceptance run: fresh `corpus:sweep --limit 300 --seed 0091 --jobs 4`, 853 commands (764 rendered, 7 native-module), peak .cache 243.7 MB against the 600 MB default; .cache left at 196 KB. The partial report was not committed.
 Not done / risks:
+- Recloning re-fetches manifests for every batch: bounded disk, more network per run.
 ```
