@@ -125,6 +125,11 @@ export function checkDiskBudget(bytes: number, maxMb: number): string | undefine
   return `${megabytes(bytes)} MB is above ${MAX_MB_ENV}=${maxMb} MB; delete ${CORPUS_DIR} or raise the budget`;
 }
 
+/** Reclone before the next batch once the partial clone reaches half the budget. */
+export function shouldReclone(bytes: number, maxMb: number): boolean {
+  return bytes > (maxMb * 1024 * 1024) / 2;
+}
+
 /** Batches smaller than this lose most of the benefit to script overhead. */
 export const MIN_BATCH_SIZE = 5;
 /** Batches larger than this approach checking everything out at once. */

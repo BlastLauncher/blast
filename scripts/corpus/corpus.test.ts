@@ -18,6 +18,7 @@ import {
   parseArgs,
   parsePin,
   readPin,
+  shouldReclone,
   type CorpusPin,
 } from "./corpus.ts";
 import { KEPT_CURATED } from "./selection.ts";
@@ -135,6 +136,15 @@ test("disk budget passes at the limit and aborts above it", () => {
     /600 MB is above BLAST_CORPUS_MAX_MB=600 MB; delete \.cache\/raycast-extensions/,
   );
   expect(checkDiskBudget(700 * 1024 * 1024, 600)).toMatch(/^700 MB is above/);
+});
+
+test("reclone threshold is half the configured budget", () => {
+  const mb = 1024 * 1024;
+  expect(shouldReclone(0, 600)).toBe(false);
+  expect(shouldReclone(299 * mb, 600)).toBe(false);
+  expect(shouldReclone(300 * mb, 600)).toBe(false);
+  expect(shouldReclone(300 * mb + 1, 600)).toBe(true);
+  expect(shouldReclone(300 * mb, 300)).toBe(true);
 });
 
 test("batch size grows with the budget between its floor and ceiling", () => {

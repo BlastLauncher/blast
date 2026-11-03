@@ -314,7 +314,7 @@ async function main(): Promise<void> {
   try {
     for (let offset = 0; offset < curated.length; offset += size) {
       const batch = curated.slice(offset, offset + size);
-      peakBytes = Math.max(peakBytes, fetchBatch(batch, root));
+      peakBytes = Math.max(peakBytes, await fetchBatch(batch, root));
       console.log(`corpus:tui-smoke: batch .cache is ${megabytes(peakBytes)} MB (peak so far)`);
       for (const extension of batch) {
         const extensionDir = join(root, CORPUS_DIR, "extensions", extension);
@@ -349,7 +349,7 @@ async function main(): Promise<void> {
   } finally {
     // Leave the checkout minimal: every extension dropped from the sparse set
     // once the run is over.
-    fetchBatch([], root);
+    await fetchBatch([], root);
   }
 
   const report = buildTuiReport(pin.commit, results, WIDTH, HEIGHT, extensionFailures, peakBytes);

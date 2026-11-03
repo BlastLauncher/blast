@@ -31,13 +31,13 @@ free-space floor.
 
 ## Acceptance
 
-- [ ] The reclone decision is a pure, tested function of the measured size and
+- [x] The reclone decision is a pure, tested function of the measured size and
       the budget, and `batch.ts` calls it.
-- [ ] A fresh `bun run corpus:sweep --limit 300 --seed 0091 --jobs 4` stays
+- [x] A fresh `bun run corpus:sweep --limit 300 --seed 0091 --jobs 4` stays
       under the default budget, and runs faster than with 0098's per-batch
       reclone (record wall time and peak in Handoff). Don't commit its report.
-- [ ] A test proves a clone holding a stale git lock is replaced on start.
-- [ ] `.cache` is left under 150 MB. `bun run verify` passes.
+- [x] A test proves a clone holding a stale git lock is replaced on start.
+- [x] `.cache` is left under 150 MB. `bun run verify` passes.
 
 ## Out of scope
 
@@ -46,8 +46,16 @@ free-space floor.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/e82346d8 (round-2 worktree; t3/sweep-reclone-threshold fast-forwarded to it) @ 812d2db (code, tests and acceptance run); this Handoff text is the commit after it
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 54.9s
 Done:
+- `shouldReclone(bytes, maxMb)` (scripts/corpus/corpus.ts) is a pure function, true only past half the budget; the boundary (exactly 300 MB of 600) is tested. `fetchBatch` measures `.cache/raycast-extensions` before each source batch and deletes the clone only when it is over the threshold.
+- `removeStaleClone(root)` in scripts/corpus/batch.ts deletes a clone whose `.git/index.lock` or `.git/info/sparse-checkout.lock` exists and whose owner no running git process is (cwd inside the clone, via `lsof`); it runs at the start of every fetch, so a `--resume` after a kill replaces the clone instead of failing. Deletion only via `fs.rm(join(root, CORPUS_DIR))`, with an empty-root guard.
+- `fetchBatch` is now async (it removes files); smoke-run, smoke-deps-run, tui-smoke-run and sweep-run await it.
+- Tests: scripts/corpus/batch.test.ts covers `.git/index.lock` with the default owner probe, `.git/info/sparse-checkout.lock`, no lock, a lock held by a live git process, and the empty-root refusal.
+- Acceptance run from an empty `.cache`: `bun run corpus:sweep --limit 300 --seed 0091 --jobs 4`, 853 commands (772 rendered), wall 320.19 s and peak .cache 383.8 MB (0098's per-batch reclone: 410 s, 243.7 MB, 16 clone events). This run cloned 5 times: once at start and four reclones. Report restored with `git checkout -- compat/SWEEP.md compat/sweep.json`; `.cache` left at 196 KB (sweep log only).
 Not done / risks:
+- The threshold is checked on the clone before a batch, and one batch can add up to ~120 MB of blobs, so the peak sits near half the budget plus one batch rather than at half.
+- The owner probe is best effort: if `lsof` is missing or fails, a lock with no observable owner counts as stale. Two runs sharing one `.cache` are still unsupported.
+- The acceptance report was intentionally discarded; the orchestrator's full rerun produces the retained one.
 ```

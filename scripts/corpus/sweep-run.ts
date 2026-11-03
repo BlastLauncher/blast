@@ -249,7 +249,7 @@ async function main(): Promise<void> {
     ensureDisk(root, maxMb);
     // Manifests are cheap and let us select deterministically before checking
     // out any extension source. Source batches are fetched only after this.
-    peakBytes = Math.max(peakBytes, fetchBatch([], root));
+    peakBytes = Math.max(peakBytes, await fetchBatch([], root));
     const allNames = await readManifests(root);
     const satisfied = await satisfiedNames(root, allNames);
     fullPopulation = satisfied.length;
@@ -274,7 +274,7 @@ async function main(): Promise<void> {
         for (const extension of batch) resumedCount += manifestCommandsOf(root, extension).length;
         continue;
       }
-      peakBytes = Math.max(peakBytes, fetchBatch(batch, root));
+      peakBytes = Math.max(peakBytes, await fetchBatch(batch, root));
       ensureDisk(root, maxMb);
       const tasks: Array<{ extension: string; command: string }> = [];
       for (const extension of batch) {
@@ -309,7 +309,7 @@ async function main(): Promise<void> {
   } finally {
     if (existsSync(join(root, CORPUS_DIR))) {
       try {
-        fetchBatch([], root);
+        await fetchBatch([], root);
       } catch {
         // Preserve the original failure; the final cleanup below still runs.
       }
