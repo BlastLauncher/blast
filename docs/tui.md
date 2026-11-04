@@ -21,16 +21,12 @@ A `[command]` opens it directly; otherwise the picker lists commands. `--native`
 | Enter / Esc     | confirm / dismiss an open Alert                                       |
 | Ctrl-T / Ctrl-Y | toast primary / secondary action                                      |
 
-Action shortcuts use the Linux mapping (`cmd` is Ctrl); client keys take priority.
-
 ## Raycast parity checklist (0104)
 
 - **Toasts** — done: success/failure dismiss after 3 seconds; animated stays until updated.
 - **Action panels** — done: sections and labels; Ctrl-K opens, Ctrl-Enter runs the second action; Ctrl-C always quits, so copy actions run from the panel.
 - **Form presentation** — done: `Description`, `Separator`, and `LinkAccessory` are non-focusable text (targets shown).
 - **Navigation** — done: `navigationTitle` and `‹` back affordance; Esc performs semantic back.
-- **Native window/clipboard** — terminal limitation; these remain embedder capabilities.
-- **Pointer, animation, desktop layout** — not planned for this terminal client.
 
 ## Picker
 
@@ -45,24 +41,17 @@ Action shortcuts use the Linux mapping (`cmd` is Ctrl); client keys take priorit
   `password` fields take typing (masked), `dropdown` cycles its `data` options
   with ← / →; Tab / ↑ / ↓ move between fields. Enter launches once every
   required argument is filled; values reach the command like `--argument`.
-- Esc at a command's root view, a no-view command finishing and the crash
-  error screen return to the picker, selection kept; the crash screen also
-  offers R to relaunch the same command and arguments. Ctrl-C quits from
-  anywhere; a launch failure (bundling) stays on the picker with an error
-  line. The process exits 1 only if the last launched command crashed and
-  the user then quits.
+- Esc at a command's root view, a no-view command finishing and the crash error
+  screen return to the picker, selection kept; the crash screen also offers R
+  to relaunch the same command and arguments. Ctrl-C quits from anywhere; a
+  launch failure (bundling) stays on the picker with an error line. The process
+  exits 1 only if the last launched command crashed and the user then quits.
 
-The picker checks dependencies on open and on manifest changes; installs live under `<dataDir>/deps/` (decision 0008). Missing required preferences open **Set up <command>** before launch. Ctrl-E
-and `open*Preferences` open full **Preferences — <extension>** view (Extension
+The picker checks dependencies on open and on manifest changes; installs live under `<dataDir>/deps/` (decision 0008). Missing required preferences open **Set up <command>** before launch. Ctrl-E and `open*Preferences` open full **Preferences — <extension>** view (Extension
 and command sections, `*` required, field description); saves without launch.
 Passwords masked, Space toggles checkboxes, ←/→ cycles dropdowns, Enter saves, Esc cancels. Values persist in `<dataDir>/preferences/<encoded-name>.json` (**plaintext, mode 0600**). Data root: `$XDG_DATA_HOME/blast` (or `~/.local/share/blast`).
 
-## Local benchmark
-
-Run `bun scripts/tui-benchmark.ts` to measure time to the first `hello-list`
-frame and mean keystroke latency while moving through a synthetic 10,000-item
-List. It uses OpenTUI's in-memory test renderer and does not run as part of
-`bun run verify`; timings are machine-dependent.
+Run `bun scripts/tui-benchmark.ts` for `hello-list` first-frame time and mean keystroke latency through a synthetic 10,000-item List; it uses OpenTUI's in-memory renderer, is outside `bun run verify`, and reports machine-dependent timing.
 
 ## Rendering
 
