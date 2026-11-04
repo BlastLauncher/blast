@@ -18,6 +18,8 @@ import { dirname } from "node:path";
 import { parseArgs } from "node:util";
 import {
   bundleCommand,
+  checkExtensionDependencies,
+  DependenciesRequiredError,
   installExtensionDependencies,
   createSessionBroker,
   defaultDataDir,
@@ -586,6 +588,16 @@ async function run(options: RunOptions): Promise<number> {
       options.scriptSource === undefined ? undefined : parseScript(options.scriptSource);
     let bundled: BundledCommand;
     try {
+      const dependencies = await checkExtensionDependencies({
+        extensionDir: options.extensionDir,
+        dataDir: options.dataDir,
+        command: options.command,
+      });
+      if (
+        dependencies.unresolved.length &&
+        (dependencies.needed || !dependencies.installable)
+      )
+        throw new DependenciesRequiredError(dependencies);
       bundled = await Promise.race([
         bundleCommand({
           extensionDir: options.extensionDir,

@@ -1,6 +1,7 @@
 import {
   createEngine,
   BundleTimeoutError,
+  DependenciesRequiredError,
   MissingLaunchValuesError,
   type CapabilityHandler,
   type ExtensionHandle,
@@ -17,7 +18,18 @@ import {
   type EmbedderServerMessage,
 } from "@blastlauncher/protocol";
 
+const dependencyArgument = process.argv.find(
+  (value) => value === "--dependencies" || value.startsWith("--dependencies="),
+);
+const dependencyPolicy = dependencyArgument?.includes("=")
+  ? dependencyArgument.slice(dependencyArgument.indexOf("=") + 1)
+  : dependencyArgument
+    ? process.argv[process.argv.indexOf(dependencyArgument) + 1]
+    : undefined;
+if (dependencyPolicy !== undefined && dependencyPolicy !== "manual" && dependencyPolicy !== "auto")
+  throw new Error(`--dependencies must be manual or auto, got ${dependencyPolicy}`);
 const engine = createEngine({
+  dependencies: dependencyPolicy === "auto" ? "auto" : "manual",
   handlers: process.argv.includes("--native") ? createNativeHandlers() : {},
 });
 const extensions = new Map<string, ExtensionHandle>();
@@ -65,7 +77,12 @@ const send = (message: EmbedderServerMessage) => {
   process.stdout.write(`${JSON.stringify(message)}\n`);
 };
 const errorInfo = (error: unknown) => ({
-  code: error instanceof BundleTimeoutError ? error.code : "failed",
+  code:
+    error instanceof BundleTimeoutError
+      ? error.code
+      : error instanceof DependenciesRequiredError
+        ? "missing_dependencies"
+        : "failed",
   message: error instanceof Error ? error.message : String(error),
   ...(error instanceof BundleTimeoutError
     ? {
@@ -75,6 +92,14 @@ const errorInfo = (error: unknown) => ({
           timeoutMs: error.timeoutMs,
         }),
       }
+    : error instanceof DependenciesRequiredError
+      ? {
+          data: json({
+            unresolved: error.unresolved,
+            installable: error.installable,
+            pinned: error.pinned,
+          }),
+        }
     : {}),
 });
 const protocolError = (message: string, code = "invalid_message") =>
@@ -208,6 +233,8 @@ async function request(message: EmbedderRequest): Promise<JsonValue> {
         ...(message.params.bundleTimeoutMs === undefined
           ? {}
           : { timeoutMs: message.params.bundleTimeoutMs }),
+        onDependencyLog: (message) =>
+          event("dependencies.log", { extension: p.extension, message }),
         handlers: forwarding(key),
       });
       sessions.set(key, opened);

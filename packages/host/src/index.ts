@@ -11,6 +11,7 @@ export * from "./preferences.ts";
 export {
   openExtension,
   MissingLaunchValuesError,
+  DependenciesRequiredError,
   type OpenExtensionOptions,
   type ExtensionHandle,
   type ExtensionLaunchOptions,

@@ -12,6 +12,7 @@ export function createEngine(
     timeoutMs?: number;
     dataDir?: string;
     installer?: DependencyInstaller;
+    dependencies?: "manual" | "auto";
     handlers?: Record<string, CapabilityHandler>;
   } = {},
 ) {
@@ -44,6 +45,7 @@ export function createEngine(
           ...extensionOptions,
         },
         registeredHandlers,
+        options.dependencies === "auto",
       );
       const close = extension.close;
       extension.close = async () => {

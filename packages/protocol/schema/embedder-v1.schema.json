@@ -889,6 +889,9 @@
               "minimum": 0,
               "maximum": 2147483647
             },
+            "installDependencies": {
+              "type": "boolean"
+            },
             "views": {
               "type": "object",
               "properties": {

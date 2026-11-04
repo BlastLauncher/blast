@@ -55,7 +55,13 @@ const RESULTS: Record<keyof EmbedderParams, Schema> = {
 
 /** Optional params per method, mirroring the `?` markers of the wire shapes. */
 const OPTIONAL_KEYS: Partial<Record<keyof EmbedderParams, readonly string[]>> = {
-  "extension.launch": ["argumentValues", "launchContext", "bundleTimeoutMs", "views"],
+  "extension.launch": [
+    "argumentValues",
+    "launchContext",
+    "bundleTimeoutMs",
+    "installDependencies",
+    "views",
+  ],
 };
 
 const PARAMS: Record<keyof EmbedderParams, Schema> = {
@@ -78,6 +84,7 @@ const PARAMS: Record<keyof EmbedderParams, Schema> = {
     argumentValues: stringRecord(string),
     launchContext: stringRecord(json),
     bundleTimeoutMs: { type: "integer", minimum: 0, maximum: 2_147_483_647 },
+    installDependencies: { type: "boolean" },
     views: envelope(["platform"], { platform: { enum: ["macOS", "Windows", "Linux"] } }),
   },
   "session.input": { session: string, input: ref("controllerInput") },
