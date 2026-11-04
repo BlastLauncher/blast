@@ -36,7 +36,16 @@ test("v3 prerelease versions accept alpha, beta and rc and reject stable or othe
   expect(validatePrereleaseVersion("3.0.0-alpha.1")).toBe("3.0.0-alpha.1");
   expect(validatePrereleaseVersion("3.2.4-beta.2")).toBe("3.2.4-beta.2");
   expect(validatePrereleaseVersion("3.9.1-rc.10")).toBe("3.9.1-rc.10");
-  for (const version of ["3.0.0", "2.0.0-alpha.1", "3.0.0-dev.1", "3.0.0-alpha", "v3.0.0-alpha.1"])
+  expect(validatePrereleaseVersion("3.0.0-alpha.1+build.5")).toBe("3.0.0-alpha.1+build.5");
+  for (const version of [
+    "3.0.0",
+    "2.0.0-alpha.1",
+    "3.0.0-dev.1",
+    "3.0.0-alpha",
+    "3.0.0-alpha.01",
+    "03.0.0-alpha.1",
+    "v3.0.0-alpha.1",
+  ])
     expect(() => validatePrereleaseVersion(version)).toThrow();
   expect(tagForVersion("3.0.0-alpha.1")).toBe("v3.0.0-alpha.1");
 });

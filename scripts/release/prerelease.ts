@@ -13,7 +13,7 @@ export type ReleasePackage = {
 export type PublishPlanEntry = ReleasePackage & { alreadyPublished: boolean };
 
 const VERSION_PATTERN =
-  /^(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)-(?<channel>[0-9A-Za-z-]+)\.(?<number>\d+)$/;
+  /^(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.(?<patch>0|[1-9]\d*)-(?<channel>alpha|beta|rc)\.(?<number>0|[1-9]\d*)(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
 
 export function validatePrereleaseVersion(version: string): string {
   const match = VERSION_PATTERN.exec(version);
@@ -21,8 +21,6 @@ export function validatePrereleaseVersion(version: string): string {
     throw new Error(
       `Version must be a v3 semver pre-release such as 3.0.0-alpha.1, got: ${version}`,
     );
-  if (!/^(?:alpha|beta|rc)$/.test(match.groups?.channel ?? ""))
-    throw new Error(`Version pre-release channel must be alpha, beta, or rc: ${version}`);
   return version;
 }
 
@@ -101,7 +99,10 @@ export function npmVersionExists(packageName: string, version: string): boolean 
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],
   });
-  return result.status === 0 && result.stdout.trim() === version;
+  if (result.status === 0) return result.stdout.trim() === version;
+  const error = result.stderr.trim();
+  if (/\bE404\b|\b404\b/.test(error)) return false;
+  throw new Error(`Unable to query npm for ${packageName}@${version}: ${error || "npm failed"}`);
 }
 
 export function remoteTagExists(tag: string): boolean {
