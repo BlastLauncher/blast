@@ -58,12 +58,11 @@ access in `bun test`.
 ## Handoff
 
 ```
-Branch/commit: t3/launch-dependency-policy @ 07990e7
-Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 52.8s
+Branch/commit: t3/fix-launch-dependency-preflight @ 0ed00fd
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 52.6s
 Done:
-- Launch preflights declared and imported dependencies and raises `DependenciesRequiredError` with unresolved/installable/pinned data.
-- Explicit per-launch installs use the injected installer and progress callback; engine `dependencies: "auto"` supplies the default and `false` overrides it.
-- Serve accepts `installDependencies`, `--dependencies manual|auto`, emits dependency logs, and maps failures to `missing_dependencies`; CLI and TUI behavior remain compatible.
-- Added host, protocol, serve coverage and updated embedding, CLI, and protocol docs/schema.
-Not done / risks: No corpus smoke or sweep was run, per task scope. Source import preflight is intentionally limited to the selected command source during launch; extension-level dependency checks retain their manifest-wide behavior.
+- Removed source-text import scanning; launch preflight now uses manifest dependencies, the install key and shared fallback.
+- Converted esbuild graph failures from nested imports into `DependenciesRequiredError`, with one install/retry for declared packages and no install for undeclared ones.
+- Updated the CLI and TUI to surface typed dependency failures and added host/serve/TUI regressions for comments, nested imports, retry and installability.
+Not done / risks: No corpus smoke or sweep was run, per task scope. The TUI keeps its background install prompt and reports a typed launch failure when that install cannot resolve a declared package.
 ```

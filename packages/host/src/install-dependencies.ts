@@ -1,7 +1,6 @@
 import { spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
-import { isBuiltin } from "node:module";
 import { join, resolve } from "node:path";
 import { loadSharedDependencies, type SharedDependencyLoader } from "./dependencies.ts";
 import { requiredPeerAdditions, supplied } from "./install-peers.ts";
@@ -11,8 +10,6 @@ export type DependencyInstallOptions = {
   extensionDir: string;
   dataDir?: string;
   sharedDependencies?: SharedDependencyLoader;
-  /** Restrict the import preflight to one command's source file. */
-  command?: string;
 };
 export type DependencyInstallStatus = {
   directory: string;
@@ -61,40 +58,6 @@ async function optionalFile(path: string): Promise<string | undefined> {
   }
 }
 
-const IMPORT_SPECIFIER = /(?:from\s+|import\s*\(\s*|import\s+|require\s*\(\s*)["']([^"'\s]+)["']/g;
-const NATIVE_MODULE = /^(?:swift|rust):/;
-const SOURCE_SUFFIXES = ["tsx", "ts", "jsx", "js"] as const;
-
-function packageName(specifier: string): string {
-  const parts = specifier.split("/");
-  return specifier.startsWith("@") ? parts.slice(0, 2).join("/") : parts[0]!;
-}
-
-async function sourceImports(extensionDir: string, command?: string): Promise<string[]> {
-  const names = new Set<string>();
-  const entries = command ? [command] : [];
-  for (const entry of entries) {
-    for (const suffix of SOURCE_SUFFIXES) {
-      const source = await optionalFile(join(extensionDir, "src", `${entry}.${suffix}`));
-      if (source === undefined) continue;
-      for (const match of source.matchAll(IMPORT_SPECIFIER)) {
-        const specifier = match[1]!;
-        if (
-          specifier.startsWith(".") ||
-          specifier.startsWith("/") ||
-          specifier.startsWith("#") ||
-          isBuiltin(specifier) ||
-          NATIVE_MODULE.test(specifier)
-        )
-          continue;
-        names.add(packageName(specifier));
-      }
-      break;
-    }
-  }
-  return [...names].toSorted();
-}
-
 async function inputs(options: DependencyInstallOptions) {
   const extensionDir = resolve(options.extensionDir);
   const manifest = JSON.parse(await readFile(join(extensionDir, "package.json"), "utf8"));
@@ -134,13 +97,11 @@ function installKey(baseKey: string, additions: Record<string, string>): string 
 export async function checkExtensionDependencies(
   options: DependencyInstallOptions,
 ): Promise<DependencyInstallStatus> {
-  const { directory, key, lock, dependencies, extensionDir } = await inputs(options);
+  const { directory, key, lock, dependencies } = await inputs(options);
   const needed = (await optionalFile(join(directory, "key"))) !== key;
   const shared = await loadSharedDependencies(options.sharedDependencies);
-  const imports = await sourceImports(extensionDir, options.command);
   const unresolved: string[] = [];
   for (const name of Object.keys(dependencies)) {
-    if (options.command && !imports.includes(name)) continue;
     if (supplied(name)) continue;
     if (
       !needed &&
@@ -148,15 +109,6 @@ export async function checkExtensionDependencies(
     )
       continue;
     if (shared?.resolveShared(name)) continue;
-    unresolved.push(name);
-  }
-  for (const name of imports) {
-    if (supplied(name) || name in dependencies || shared?.resolveShared(name)) continue;
-    if (
-      !needed &&
-      (await optionalFile(join(directory, "node_modules", name, "package.json"))) !== undefined
-    )
-      continue;
     unresolved.push(name);
   }
   const unique = [...new Set(unresolved)].toSorted();

@@ -359,7 +359,7 @@ test("picker installs with progress, waits to launch, reuses installs and watche
   }
 }, 30_000);
 
-test("failed install shows an error and still launches with the shared fallback", async () => {
+test("failed install shows the typed dependency error", async () => {
   const dir = await copyFixture("host-session");
   const file = join(dir, "package.json");
   const manifest = JSON.parse(await readFile(file, "utf8"));
@@ -377,7 +377,7 @@ test("failed install shows an error and still launches with the shared fallback"
   try {
     await settle(terminal, (f) => f.includes("Install failed: Error: offline install failure"));
     await press(terminal, "enter");
-    await settle(terminal, (f) => f.includes("count 0 popped false"));
+    await settle(terminal, (f) => f.includes("Launch failed: Missing dependencies:"));
   } finally {
     await act(async () => terminal.dispose());
     await rm(join(dir, ".."), { recursive: true, force: true });

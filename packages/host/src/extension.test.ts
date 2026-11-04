@@ -242,6 +242,70 @@ test("launch reports unresolved dependencies before bundling", async () => {
   }
 });
 
+test("an import-looking comment does not become a launch dependency", async () => {
+  const f = await fixture();
+  try {
+    await writeFile(
+      join(f.extensionDir, "src/index.tsx"),
+      '// import "comment-only-package";\nimport { List } from "@raycast/api";\nexport default () => <List navigationTitle="comment-safe" />;\n',
+    );
+    const opened = await f.handle.launch("index");
+    await opened.close();
+  } finally {
+    await f.close();
+  }
+});
+
+test("bundle imports from a non-entry source file become typed dependency failures", async () => {
+  let installs = 0;
+  const f = await fixture(async () => {
+    installs++;
+  });
+  try {
+    await mkdir(join(f.extensionDir, "src/lib"), { recursive: true });
+    await writeFile(
+      join(f.extensionDir, "src/index.tsx"),
+      'import { value } from "./lib/api"; import { List } from "@raycast/api"; export default () => <List navigationTitle={value} />;\n',
+    );
+    await writeFile(
+      join(f.extensionDir, "src/lib/api.ts"),
+      'import "nested-missing-package"; export const value = "x";\n',
+    );
+    await expect(f.handle.launch("index", { installDependencies: true })).rejects.toMatchObject({
+      code: "DEPENDENCIES_REQUIRED",
+      unresolved: ["nested-missing-package"],
+      installable: false,
+      pinned: false,
+    } satisfies Partial<DependenciesRequiredError>);
+    expect(installs).toBe(0);
+  } finally {
+    await f.close();
+  }
+});
+
+test("a declared bundle-time dependency retries installation once", async () => {
+  let installs = 0;
+  const f = await fixture(async () => {
+    installs++;
+  });
+  try {
+    f.raw.dependencies = { "bundle-time-missing": "1" };
+    await f.write();
+    await writeFile(
+      join(f.extensionDir, "src/index.tsx"),
+      'import value from "bundle-time-missing"; import { List } from "@raycast/api"; export default () => <List navigationTitle={value} />;',
+    );
+    await expect(f.handle.launch("index", { installDependencies: true })).rejects.toMatchObject({
+      code: "DEPENDENCIES_REQUIRED",
+      unresolved: ["bundle-time-missing"],
+      installable: true,
+    } satisfies Partial<DependenciesRequiredError>);
+    expect(installs).toBe(1);
+  } finally {
+    await f.close();
+  }
+});
+
 test("launch can install through the injected installer and streams progress", async () => {
   const f = await fixture(async ({ cwd, onLog }) => {
     onLog?.("installing example");

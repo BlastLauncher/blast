@@ -14,10 +14,11 @@ import type {
 } from "@blastlauncher/protocol";
 import { rmSync } from "node:fs";
 import { readFile, rm } from "node:fs/promises";
-import { dirname } from "node:path";
+import { dirname, join } from "node:path";
 import { parseArgs } from "node:util";
 import {
   bundleCommand,
+  MissingDependencyError,
   checkExtensionDependencies,
   DependenciesRequiredError,
   installExtensionDependencies,
@@ -591,19 +592,38 @@ async function run(options: RunOptions): Promise<number> {
       const dependencies = await checkExtensionDependencies({
         extensionDir: options.extensionDir,
         dataDir: options.dataDir,
-        command: options.command,
       });
       if (dependencies.unresolved.length && (dependencies.needed || !dependencies.installable))
         throw new DependenciesRequiredError(dependencies);
-      bundled = await Promise.race([
-        bundleCommand({
+      try {
+        bundled = await Promise.race([
+          bundleCommand({
+            extensionDir: options.extensionDir,
+            command: options.command,
+            ...(options.bundleTimeoutMs === undefined
+              ? {}
+              : { timeoutMs: options.bundleTimeoutMs }),
+            dataDir: options.dataDir,
+          }),
+          deadline,
+        ]);
+      } catch (bundleError) {
+        if (!(bundleError instanceof MissingDependencyError)) throw bundleError;
+        const manifest = JSON.parse(
+          await readFile(join(options.extensionDir, "package.json"), "utf8"),
+        ) as { dependencies?: Record<string, unknown> };
+        const status = await checkExtensionDependencies({
           extensionDir: options.extensionDir,
-          command: options.command,
-          ...(options.bundleTimeoutMs === undefined ? {} : { timeoutMs: options.bundleTimeoutMs }),
           dataDir: options.dataDir,
-        }),
-        deadline,
-      ]);
+        });
+        throw new DependenciesRequiredError({
+          unresolved: bundleError.packages,
+          installable: bundleError.packages.every((name) =>
+            Object.hasOwn(manifest.dependencies ?? {}, name),
+          ),
+          pinned: status.pinned,
+        });
+      }
     } catch (error) {
       if (error instanceof RunError) throw error;
       const message = error instanceof Error ? error.message : String(error);
