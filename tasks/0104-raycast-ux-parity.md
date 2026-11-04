@@ -49,7 +49,7 @@ usage first (`compat/raycast-usage.json` has weights).
 
 ```
 Branch/commit: t3/raycast-ux-parity @ b95948e2c01290742a83b5bf54f0df6da23f1c3c
-Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 53.3s (env -u NO_COLOR bun run verify)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 52.5s (env -u NO_COLOR bun run verify)
 Done:
 - Added client-core toast lifetimes, style normalization, and deterministic schedule/tick behavior.
 - Added Raycast default action shortcuts, section/shortcut view data, and navigation back metadata.
