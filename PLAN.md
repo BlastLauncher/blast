@@ -89,7 +89,7 @@ Raycast client semantics built in so embedders only draw.
 AppKit launcher over `blast serve`; automated tests and contract fixtures first.
 
 - [x] 0106 BlastKit Swift client + contract fixtures + macOS CI
-- [x] 0107 AppKit launcher window; [ ] 0108 hotkey, OS actions, picker; 0109 walkthroughs
+- [x] 0107 AppKit launcher window; 0108 hotkey, OS actions, picker; [ ] 0109 walkthroughs
 
 ## Later (not scheduled)
 

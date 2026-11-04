@@ -1,7 +1,7 @@
 ---
 id: "0109"
 title: Walkthroughs of popular extensions in the TUI and the macOS example
-status: todo
+status: doing
 milestone: M7
 depends: ["0108"]
 ---
