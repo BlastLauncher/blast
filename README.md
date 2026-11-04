@@ -8,36 +8,42 @@ UI; Blast brings the extensions.
 
 Compatibility is measured against the latest `@raycast/api`, not claimed:
 
-- **API coverage:** 1533/1534 current symbols (the remaining one needs the
-  embedder's browser), 939/939 deprecated ([COVERAGE.md](./compat/COVERAGE.md)).
-- **Real extensions:** 184/200 curated commands render headlessly
+- **API coverage:** `@raycast/api` 2.10.1, 1537/1538 current symbols (the
+  remaining one needs the embedder's browser), 942/942 deprecated
+  ([COVERAGE.md](./compat/COVERAGE.md)).
+- **Real extensions:** across all 1,939 corpus extensions Blast's shared
+  libraries cover, 91.4% of 5,759 commands render in a sandboxed, offline sweep
+  ([SWEEP.md](./compat/SWEEP.md)); 237/253 curated commands render
   ([SMOKE.md](./compat/SMOKE.md)); extensions with their own dependencies
-  install and render 54/56 ([SMOKE-DEPS.md](./compat/SMOKE-DEPS.md)).
+  install and render 51/52 ([SMOKE-DEPS.md](./compat/SMOKE-DEPS.md)).
 
-> **Status:** pre-release. Nothing is published to npm yet. The previous
+> **Status:** alpha. `3.0.0-alpha.0` is on npm under the `next` tag
+> ([release](https://github.com/BlastLauncher/blast/releases/tag/v3.0.0-alpha.0));
+> `latest` still points at Blast v1 for `cli` and `runtime`. The previous
 > prototype is frozen under [`archive/`](./archive/README.md).
 
-## Where it stands (October 2026)
+```bash
+npm install @blastlauncher/engine@next @blastlauncher/client-core@next
+npx @blastlauncher/cli@next run ./my-extension index
+```
+
+## Where it stands (November 2026)
 
 - **Done:**
   - headless runtime and host (M1);
   - real-extension runs (M2);
   - API coverage (M3);
   - terminal client (M4);
-  - the embeddable engine (M5):
-    - in-process API and `blast serve`, with a schema;
-    - `client-core` controller with views over the wire;
-    - capability catalog and registry;
-    - native handlers;
-    - lean per-extension dependency installs (about 5 MB for a typical extension);
-    - bundle time limits;
-    - npm release build.
+  - the embeddable engine (M5): in-process API and `blast serve` with a
+    schema, `client-core` views over the wire, capability registry, native
+    handlers, lean per-extension dependency installs, npm release build;
+  - evidence at scale (M6): latest-API tracking, a sandboxed corpus sweep with
+    primary-action probes, Suspense and `use()`, dependencies as part of launch
+    ([decision 0012](./docs/decisions/0012-launch-dependency-policy.md)), the
+    Go example on views, TUI polish, and pre-releases via npm trusted
+    publishing ([docs/release.md](./docs/release.md)).
 - **Engine size:** about 13 MiB installed without the optional shared libraries.
-- **Backlog** (see [PLAN.md](./PLAN.md), "Later"):
-  - rerun the older smokes with placeholder inputs;
-  - macOS window management without `yabai`;
-  - Go example on server-side views;
-  - publishing to npm.
+- **Next:** real embedder examples. Backlog in [PLAN.md](./PLAN.md), "Later".
 
 ## Two ways to embed
 
@@ -99,7 +105,7 @@ bun run blast:serve                                      # engine over stdio
 
 ```bash
 bun run verify          # the only gate: format, lint, types, compat, protocol, workflow, tests
-bun run release:build   # npm tarballs into .cache/release (not published)
+bun run release:build   # npm tarballs into .cache/release (publishing: docs/release.md)
 ```
 
 - [Architecture](./docs/architecture.md) · [Capabilities](./docs/capabilities.md) ·
