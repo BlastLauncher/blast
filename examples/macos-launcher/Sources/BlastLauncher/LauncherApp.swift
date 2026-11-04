@@ -9,43 +9,31 @@ struct MacOSCapabilityHandler: CapabilityHandler, @unchecked Sendable {
     func handle(_ request: CapabilityRequest) async throws -> JSONValue {
         switch request.name {
         case "clipboard.copy":
-            let text = request.params["text"]?.stringValue ?? ""
-            await MainActor.run { NSPasteboard.general.clearContents(); NSPasteboard.general.setString(text, forType: .string) }
+            let content = ClipboardContent(params: request.params)
+            await MainActor.run { ClipboardAdapter.write(content, to: .general) }
             return .null
         case "clipboard.paste":
-            return await MainActor.run { .string(NSPasteboard.general.string(forType: .string) ?? "") }
+            try await ClipboardAdapter.paste(ClipboardContent(params: request.params))
+            return .null
         case "open.url":
-            guard let value = request.params["url"]?.stringValue, let url = URL(string: value), url.scheme != nil else {
-                throw EmbedderError(code: "invalid_argument", message: "open.url requires a valid url")
-            }
-            _ = await MainActor.run { NSWorkspace.shared.open(url) }
+            let urlArguments = try Self.openArguments { try OpenArguments.url(from: request.params) }
+            await MainActor.run { WorkspaceOpener.open(urlArguments) }
             return .null
         case "open.path":
-            guard let value = request.params["path"]?.stringValue else { throw EmbedderError(code: "invalid_argument", message: "open.path requires path") }
-            _ = await MainActor.run { NSWorkspace.shared.open(URL(fileURLWithPath: value)) }
-            return .null
-        case "hud.show":
-            let title = request.params["title"]?.stringValue ?? request.params["message"]?.stringValue ?? ""
-            await MainActor.run { NSApp.dockTile.badgeLabel = title.isEmpty ? nil : "✓" }
+            let pathArguments = try Self.openArguments { try OpenArguments.path(from: request.params) }
+            await MainActor.run { WorkspaceOpener.open(pathArguments) }
             return .null
         default:
             throw EmbedderError(code: "unhandled_capability", message: "No handler for \(request.name).")
         }
     }
-}
 
-private final class AppKitHotkeySource: LauncherHotkeySource, @unchecked Sendable {
-    private var monitor: Any?
-    private let hotkey: LauncherHotkey
-    init(hotkey: LauncherHotkey) { self.hotkey = hotkey }
-    func start(_ handler: @escaping @Sendable () -> Void) throws {
-        monitor = NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { [hotkey] event in
-            guard event.keyCode == (hotkey.key == "space" ? 49 : 0), event.modifierFlags.contains(.option) else { return }
-            handler()
+    private static func openArguments(_ parse: () throws -> OpenArguments) throws -> OpenArguments {
+        do {
+            return try parse()
+        } catch let error as OpenArgumentsError {
+            throw EmbedderError(code: "invalid_argument", message: "\(error)")
         }
-    }
-    func stop() {
-        if let monitor { NSEvent.removeMonitor(monitor); self.monitor = nil }
     }
 }
 
@@ -76,10 +64,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         let controller = LauncherWindowController(presenter: presenter)
-        let hotkeys = LauncherHotkeyController(source: AppKitHotkeySource(hotkey: .defaultOptionSpace)) { [weak self] presented in
+        let hotkeys = LauncherHotkeyController(source: CarbonHotkeySource(hotkey: .defaultOptionSpace)) { [weak self] presented in
             Task { @MainActor [weak self] in
                 guard let window = self?.windowController?.window else { return }
-                if presented { window.makeKeyAndOrderFront(nil) } else { window.orderOut(nil) }
+                if presented {
+                    NSApp.unhide(nil)
+                    NSApp.activate()
+                    window.makeKeyAndOrderFront(nil)
+                } else {
+                    window.orderOut(nil)
+                }
             }
         }
         hotkeyController = hotkeys
@@ -116,7 +110,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             blast.onEvent = { [weak self] event in
                 Task { @MainActor in self?.handle(event) }
             }
-            _ = try await blast.start(capabilities: ["clipboard.copy", "clipboard.paste", "open.url", "open.path", "hud.show"])
+            _ = try await blast.start(capabilities: ["clipboard.copy", "clipboard.paste", "open.url", "open.path"])
             discovered = try LauncherCommandCatalog.load(from: URL(fileURLWithPath: extensionDirectory))
             if discovered.isEmpty { throw LauncherError.noCommands }
             if let requestedCommand {

@@ -373,15 +373,15 @@ struct CapabilityRoutingTests {
     func routes() async throws {
         let router = CapabilityRouter(handlers: [
             "clipboard.copy": { request in request.params["text"] ?? .null },
-            "hud.show": { _ in .string("shown") },
+            "open.url": { _ in .string("opened") },
         ])
         let copy = try await router.handle(CapabilityRequest(
             id: "1", session: "s", name: "clipboard.copy", params: .object(["text": .string("safe")])
         ))
         #expect(copy == .string("safe"))
-        #expect(try await router.handle(CapabilityRequest(id: "2", session: "s", name: "hud.show", params: .null)) == .string("shown"))
+        #expect(try await router.handle(CapabilityRequest(id: "2", session: "s", name: "open.url", params: .null)) == .string("opened"))
         do {
-            _ = try await router.handle(CapabilityRequest(id: "3", session: "s", name: "open.url", params: .null))
+            _ = try await router.handle(CapabilityRequest(id: "3", session: "s", name: "clipboard.read", params: .null))
             Issue.record("unhandled capability unexpectedly succeeded")
         } catch let error as EmbedderError {
             #expect(error.code == "unhandled_capability")

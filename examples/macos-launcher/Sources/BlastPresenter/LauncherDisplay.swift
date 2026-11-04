@@ -110,6 +110,8 @@ public struct LauncherDisplay: Equatable, Sendable {
     public let primaryShortcut: String
     public let primaryEnabled: Bool
     public let toast: LauncherToast?
+    /// A transient `feedback.hud` title; client-core already times it out.
+    public let hud: String?
 
     public init(
         title: String,
@@ -126,7 +128,8 @@ public struct LauncherDisplay: Equatable, Sendable {
         primaryTitle: String,
         primaryShortcut: String,
         primaryEnabled: Bool,
-        toast: LauncherToast? = nil
+        toast: LauncherToast? = nil,
+        hud: String? = nil
     ) {
         self.title = title
         self.searchText = searchText
@@ -143,6 +146,7 @@ public struct LauncherDisplay: Equatable, Sendable {
         self.primaryShortcut = primaryShortcut
         self.primaryEnabled = primaryEnabled
         self.toast = toast
+        self.hud = hud
     }
 
     /// Shown before a session exists (while `blast serve` is starting).

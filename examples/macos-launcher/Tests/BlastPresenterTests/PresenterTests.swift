@@ -138,6 +138,13 @@ struct PresenterTests {
         #expect(described.body == .empty(title: "No matches", description: "Try another search."))
     }
 
+    @Test("maps feedback.hud to the transient overlay while it is present")
+    func hud() throws {
+        #expect(LauncherPresenter(view: try Fixtures.view("list")).display.hud == nil)
+        #expect(LauncherPresenter(view: try Fixtures.synthetic(hudTitle: "Copied")).display.hud == "Copied")
+        #expect(LauncherPresenter(view: try Fixtures.synthetic(hudTitle: "")).display.hud == nil)
+    }
+
     // MARK: - Key mapping
 
     @Test("maps arrows to move inputs")
@@ -283,7 +290,8 @@ private enum Fixtures {
         loading: Bool = false,
         emptyText: String = "No results",
         empty: JSONValue = .null,
-        canGoBack: Bool = false
+        canGoBack: Bool = false,
+        hudTitle: String? = nil
     ) throws -> ControllerView {
         let json: JSONValue = .object([
             "kind": .string(kind),
@@ -295,7 +303,8 @@ private enum Fixtures {
             "grid": .null,
             "selectedId": .null,
             "emptyText": .string(emptyText),
-            "empty": empty,            "detail": .string(""),
+            "empty": empty,
+            "detail": .string(""),
             "primary": .object([
                 "title": .string("Run"),
                 "shortcut": .string("↵"),
@@ -310,7 +319,11 @@ private enum Fixtures {
                 "selectedIndex": .number(-1),
             ]),
             "dropdown": .null,
-            "feedback": .object(["toast": .null, "hud": .null, "alert": .null]),
+            "feedback": .object([
+                "toast": .null,
+                "hud": hudTitle.map { .object(["title": .string($0)]) } ?? .null,
+                "alert": .null,
+            ]),
             "menuBar": .null,
             "form": .null,
             "requests": .object(["quit": .bool(false), "clearSearch": .bool(false)]),

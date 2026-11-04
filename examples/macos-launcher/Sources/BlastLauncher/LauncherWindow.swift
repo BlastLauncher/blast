@@ -95,6 +95,7 @@ final class LauncherWindowController: NSWindowController, NSTableViewDataSource,
     let actionPanelView = NSBox()
     let actionStackView = NSStackView()
     let toastLabel = NSTextField(labelWithString: "")
+    let hudLabel = NSTextField(labelWithString: "")
     let emptyLabel = NSTextField(wrappingLabelWithString: "")
     let titleLabel = NSTextField(labelWithString: "")
     let backButton = NSButton(title: "‹ Back", target: nil, action: nil)
@@ -141,6 +142,8 @@ final class LauncherWindowController: NSWindowController, NSTableViewDataSource,
             .filter { !$0.isEmpty }
             .joined(separator: ": ")
         toastLabel.isHidden = toastLabel.stringValue.isEmpty
+        hudLabel.stringValue = display.hud ?? ""
+        hudLabel.isHidden = display.hud == nil
 
         tableScrollView.isHidden = true
         detailScrollView.isHidden = true
@@ -238,6 +241,15 @@ final class LauncherWindowController: NSWindowController, NSTableViewDataSource,
         toastLabel.textColor = .systemBlue
         toastLabel.isHidden = true
 
+        hudLabel.font = .systemFont(ofSize: 15, weight: .medium)
+        hudLabel.alignment = .center
+        hudLabel.maximumNumberOfLines = 0
+        hudLabel.drawsBackground = true
+        hudLabel.backgroundColor = NSColor.windowBackgroundColor.withAlphaComponent(0.94)
+        hudLabel.wantsLayer = true
+        hudLabel.layer?.cornerRadius = 8
+        hudLabel.isHidden = true
+
         let column = NSTableColumn(identifier: NSUserInterfaceItemIdentifier("main"))
         column.resizingMask = .autoresizingMask
         tableView.addTableColumn(column)
@@ -304,6 +316,8 @@ final class LauncherWindowController: NSWindowController, NSTableViewDataSource,
         columnStack.edgeInsets = NSEdgeInsets(top: 18, left: 20, bottom: 18, right: 20)
         root.addSubview(columnStack)
         columnStack.translatesAutoresizingMaskIntoConstraints = false
+        root.addSubview(hudLabel)
+        hudLabel.translatesAutoresizingMaskIntoConstraints = false
 
         for view in columnStack.arrangedSubviews {
             view.translatesAutoresizingMaskIntoConstraints = false
@@ -317,6 +331,11 @@ final class LauncherWindowController: NSWindowController, NSTableViewDataSource,
             searchField.heightAnchor.constraint(equalToConstant: 30),
             tableScrollView.heightAnchor.constraint(greaterThanOrEqualToConstant: 200),
             detailScrollView.heightAnchor.constraint(greaterThanOrEqualToConstant: 200),
+        ])
+        NSLayoutConstraint.activate([
+            hudLabel.centerXAnchor.constraint(equalTo: root.centerXAnchor),
+            hudLabel.centerYAnchor.constraint(equalTo: root.centerYAnchor),
+            hudLabel.widthAnchor.constraint(lessThanOrEqualTo: root.widthAnchor, constant: -80),
         ])
 
         window.initialFirstResponder = searchField

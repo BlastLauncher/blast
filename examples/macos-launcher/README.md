@@ -36,11 +36,23 @@ swift run --package-path examples/macos-launcher BlastLauncher fixtures/extensio
 ```
 
 If the engine is elsewhere, set `BLAST_REPO_ROOT` to a checkout that contains
-`packages/serve/src/main.ts`. Capabilities are handled by `MacOSCapabilityHandler`: `NSPasteboard` serves
-`clipboard.copy`/`clipboard.paste`, `NSWorkspace` opens `open.url` and
-`open.path`, and `hud.show` updates the app badge. Tests inject `CapabilityRouter`
-handlers and never touch these real APIs. The default global shortcut is ⌥Space;
-it toggles the panel and is owned by the AppKit adapter.
+`packages/serve/src/main.ts`. `MacOSCapabilityHandler` is the only layer that
+touches system state:
+
+- `clipboard.copy` writes text, HTML or a file URL to `NSPasteboard`.
+- `clipboard.paste` writes the content, hides the launcher and posts ⌘V with
+  `CGEvent`. Posting keystrokes requires **Accessibility permission**; without
+  it the request fails with `accessibility_required`.
+- `open.url` and `open.path` use `NSWorkspace`, honouring an optional
+  `application` (a name, a path, or an object with `path`/`bundleId`/`name`) and
+  falling back to the default application when it does not resolve.
+
+The HUD is not a capability: the engine reports it as `feedback.hud`, which
+client-core already times, and the window draws it as a small transient overlay.
+Tests inject `CapabilityRouter` handlers and never touch these real APIs. The
+default global shortcut is ⌥Space; it is registered with Carbon
+`RegisterEventHotKey`, so it fires while another app is frontmost, swallows the
+keystroke and toggles the panel.
 
 ## Build and test
 
@@ -50,8 +62,10 @@ bun run example:mac          # cd examples/macos-launcher && swift test
 
 The suite has four layers:
 
-- **BlastKit unit tests** (`FramingTests`, `InputTests`, `ClientTests`) use a
-  fake transport and never spawn a process.
+- **BlastKit unit tests** (`FramingTests`, `InputTests`, `ClientTests`,
+  `CapabilityArgumentsTests`) use a fake transport and never spawn a process;
+  capability arguments (clipboard content, open targets and applications) are
+  parsed and asserted without touching the pasteboard, `NSWorkspace` or files.
 - **Contract fixtures** (`ViewTests`) decode every recorded `ControllerView`.
 - **Presenter tests** (`PresenterTests`, `CommandPickerTests`) drive
   `LauncherPresenter` over all seven fixtures: list, grid, detail, form,
@@ -60,15 +74,16 @@ The suite has four layers:
   affordance, and the key mapping for arrows, Return, ⌘K, ⌘↵, Esc and typing.
 - **AppKit view tests** (`AppKitTests`) build the real window offscreen, with no
   event loop and no ordering front, and assert the rendered cell titles,
-  selected row, detail text, toast, and action-panel visibility.
+  selected row, detail text, toast, HUD overlay, and action-panel visibility.
 - **End to end** (`LauncherEndToEndTests`) starts the real `blast serve`, opens
   `fixtures/extensions/hello-list`, and drives it through the presenter: search,
   move down, Return, and a fake `clipboard.copy` handler that must receive the
   selected text. It is skipped when `node` is not on `PATH`.
 
 Neither the tests nor the launcher's startup path in CI touch the system
-clipboard, open applications or launch the GUI. The executable is only built and
-its usage path checked; the window tests use it offscreen.
+clipboard, open applications, post keystrokes or register the global shortcut.
+The executable is only built and its usage path checked; the window tests use it
+offscreen.
 
 ## Fixtures
 
