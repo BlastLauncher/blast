@@ -58,8 +58,12 @@ access in `bun test`.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/launch-dependency-policy @ 07990e7
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 52.8s
 Done:
-Not done / risks:
+- Launch preflights declared and imported dependencies and raises `DependenciesRequiredError` with unresolved/installable/pinned data.
+- Explicit per-launch installs use the injected installer and progress callback; engine `dependencies: "auto"` supplies the default and `false` overrides it.
+- Serve accepts `installDependencies`, `--dependencies manual|auto`, emits dependency logs, and maps failures to `missing_dependencies`; CLI and TUI behavior remain compatible.
+- Added host, protocol, serve coverage and updated embedding, CLI, and protocol docs/schema.
+Not done / risks: No corpus smoke or sweep was run, per task scope. Source import preflight is intentionally limited to the selected command source during launch; extension-level dependency checks retain their manifest-wide behavior.
 ```
