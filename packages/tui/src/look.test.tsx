@@ -294,6 +294,36 @@ test("look: loading uses one consistent indicator", async () => {
   }
 });
 
+test("look: form descriptions, separators and links are plain non-focusable text", async () => {
+  const { session } = mockSession(
+    sceneOf(
+      node("Form", "form", { navigationTitle: "Details" }, [
+        node("Form.Description", "description", { title: "Help", text: "Enter a value" }),
+        node("Form.Separator", "separator"),
+        node("Form.TextField", "value", { title: "Value", value: "" }),
+        node("Slot", "search", { name: "searchBarAccessory" }, [
+          node("Form.LinkAccessory", "link", { text: "Docs", target: "https://example.test" }),
+        ]),
+      ]),
+    ),
+  );
+  const terminal = await testRender(<App session={session} onQuit={() => {}} />, {
+    width: 100,
+    height: 15,
+    exitOnCtrlC: false,
+  });
+  try {
+    await waitForFrame(terminal, (frame) => frame.includes("Enter a value"));
+    const frame = terminal.captureCharFrame();
+    expect(frame).toContain("Enter a value");
+    expect(frame).toContain("────────");
+    expect(frame).toContain("Docs  https://example.test");
+    expect(frame).not.toContain("› Help");
+  } finally {
+    await act(async () => terminal.dispose());
+  }
+});
+
 test("look: a failed command shows its message, the last log line and the Esc hint", async () => {
   const { session } = mockSession(
     sceneOf(

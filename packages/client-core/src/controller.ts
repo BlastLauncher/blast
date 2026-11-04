@@ -1,6 +1,6 @@
 import type { SceneMessage, SceneNode } from "@blastlauncher/protocol";
 import { event, handler, selectionId, text, type OutboundEvent } from "./nodes.ts";
-import { activeNode, actionRows, panelRows, sceneToView } from "./view.ts";
+import { activeNode, actionRows, defaultActionShortcut, panelRows, sceneToView } from "./view.ts";
 import { contentGlyph, gridMove } from "./grid.ts";
 import { iconView } from "./icons.ts";
 import { dropdownLabel, dropdownOptions, visibleOptions } from "./dropdown.ts";
@@ -8,7 +8,7 @@ import { createFormController, type FormInput, type FormFieldView } from "./form
 export type { FormFieldView } from "./form-view.ts";
 import { loadMoreRequest } from "./pagination.ts";
 import { searchDispatch } from "./search.ts";
-import { feedbackState } from "./feedback.ts";
+import { feedbackState, TOAST_DURATION_MS } from "./feedback.ts";
 import { HUD_DURATION_MS } from "./hud.ts";
 import { menuBarStep, menuBarView, type MenuBarAction } from "./menu-bar.ts";
 import { matchesShortcut, shortcutLabel, type KeyInput, type Platform } from "./shortcut.ts";
@@ -97,6 +97,7 @@ export type MenuRowView = {
 export type ControllerView = {
   kind: ViewKind;
   title: string;
+  navigation: { canGoBack: boolean };
   loading: boolean;
   search: { text: string; placeholder: string };
   rows: RowView[];
@@ -171,6 +172,8 @@ export type ControllerOptions = {
   platform: Platform;
   /** Overrides how long a HUD stays visible. */
   hudDurationMs?: number;
+  /** Overrides how long success and failure toasts stay visible. */
+  toastDurationMs?: number;
 };
 
 const fresh = (): ControllerResult => ({ events: [], effects: [] });
@@ -210,6 +213,9 @@ export function createController(options: ControllerOptions): Controller {
   let hudKey = "";
   let hudVisible = false;
   let hudGeneration = 0;
+  let toastKey = "";
+  let toastVisible = false;
+  let toastGeneration = 0;
   let quitRequested = false;
   let clearSearchRequested = false;
   let serial = 0;
@@ -382,6 +388,19 @@ export function createController(options: ControllerOptions): Controller {
           token: `hud:${generation}`,
         });
     }
+    const toast = feedbackState(current).toast;
+    const nextToastKey = toast ? `${toast.node.id}\u0000${JSON.stringify(toast.node)}` : "";
+    if (nextToastKey !== toastKey) {
+      toastKey = nextToastKey;
+      toastVisible = !!toast;
+      const generation = ++toastGeneration;
+      if (toast && toast.style !== "animated")
+        out.effects.push({
+          type: "schedule",
+          ms: options.toastDurationMs ?? TOAST_DURATION_MS,
+          token: `toast:${generation}`,
+        });
+    }
   }
 
   function move(out: ControllerResult, direction: "up" | "down" | "left" | "right") {
@@ -492,16 +511,21 @@ export function createController(options: ControllerOptions): Controller {
   function shortcutKey(out: ControllerResult, view: Base, press: KeyInput) {
     const feedback = feedbackState(current);
     if (mode(view, !!feedback.alert) !== "base") return;
-    const toast = feedback.toast?.actions.find((action) =>
-      matchesShortcut(action.shortcut, press, platform),
-    );
+    const toast =
+      toastVisible &&
+      feedback.toast?.actions.find((action) => matchesShortcut(action.shortcut, press, platform));
     if (toast) {
       out.handled = true;
       return run(out, toast.node);
     }
-    const shortcut = actionRows(view.actions, "", platform).find(
-      (row) => row.item && matchesShortcut(row.node.props.shortcut, press, platform),
-    );
+    const rows = actionRows(view.actions, "", platform);
+    let actionIndex = 0;
+    const shortcut = rows.find((row) => {
+      if (!row.item) return false;
+      const match = matchesShortcut(defaultActionShortcut(row.node, actionIndex), press, platform);
+      actionIndex++;
+      return match;
+    });
     if (!shortcut) return;
     out.handled = true;
     if (shortcut.node.type === "ActionPanel.Submenu") {
@@ -578,7 +602,7 @@ export function createController(options: ControllerOptions): Controller {
         return;
       case "toastAction": {
         if (level === "alert") return;
-        const toast = feedback.toast?.actions[action.index];
+        const toast = toastVisible && feedback.toast?.actions[action.index];
         return toast ? run(out, toast.node) : undefined;
       }
       case "alert": {
@@ -646,7 +670,7 @@ export function createController(options: ControllerOptions): Controller {
         return text(node?.props.title);
       });
     }
-    const toast = feedback.toast;
+    const toast = toastVisible ? feedback.toast : undefined;
     const alert = feedback.alert;
     const dismiss = alert?.dismiss;
     const confirm = alert?.primary;
@@ -654,6 +678,7 @@ export function createController(options: ControllerOptions): Controller {
     return {
       kind,
       title: list.title,
+      navigation: { canGoBack: handler(list.navigation?.props.pop) },
       loading: list.loading,
       search: {
         text: searchText,
@@ -783,6 +808,7 @@ export function createController(options: ControllerOptions): Controller {
     tick(token) {
       const out = fresh();
       if (token === `hud:${hudGeneration}`) hudVisible = false;
+      if (token === `toast:${toastGeneration}`) toastVisible = false;
       for (const [key, waiting] of deferred)
         if (waiting.token === token) {
           deferred.delete(key);

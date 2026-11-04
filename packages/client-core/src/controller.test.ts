@@ -192,7 +192,7 @@ test("the action panel filters, opens a submenu with a breadcrumb, runs, and goe
   panel = controller.view().actions;
   expect(panel.breadcrumb).toEqual(["More"]);
   expect(panel.title).toBe("More");
-  expect(panel.rows.map((row) => row.shortcut)).toEqual(["Ctrl+D", ""]);
+  expect(panel.rows.map((row) => row.shortcut)).toEqual(["Ctrl+D", "Ctrl+Enter"]);
   controller.input({ type: "actionsQuery", text: "oth" });
   expect(controller.view().actions.rows.map((row) => row.id)).toEqual(["other"]);
   controller.input({ type: "back" });
@@ -392,6 +392,61 @@ test("toast actions run by index and by shortcut", () => {
     "retry",
   ]);
   expect(controller.input({ type: "toastAction", index: 5 }).events).toEqual([]);
+});
+
+test("Raycast default action shortcuts run secondary and copy actions", () => {
+  const controller = ready(
+    "Linux",
+    scene(
+      list(
+        {},
+        item("a", {}, [
+          act("primary"),
+          act("secondary", { onAction: h("secondary") }),
+          node("Action.CopyToClipboard", "copy", { title: "Copy", onAction: h("copy") }),
+        ]),
+      ),
+    ),
+  );
+  expect(names(controller.input({ type: "key", key: { name: "return", ctrl: true } }))).toEqual([
+    "secondary",
+  ]);
+  expect(controller.view().actions.rows.map((row) => row.shortcut)).toEqual([
+    "",
+    "Ctrl+Enter",
+    "Ctrl+C",
+  ]);
+  expect(names(controller.input({ type: "key", key: { name: "c", ctrl: true } }))).toEqual([
+    "copy",
+  ]);
+});
+
+test("success and failure toasts schedule dismissal while animated toasts stay mounted", () => {
+  const controller = createController({ platform: "Linux", toastDurationMs: 25 });
+  const success = scene(
+    list({}, item("a")),
+    node("Toast", "toast", { style: "success", title: "Done" }),
+  );
+  const first = controller.scene(success);
+  expect(first.effects).toEqual([{ type: "schedule", ms: 25, token: expect.any(String) }]);
+  const token = first.effects[0];
+  if (token?.type !== "schedule") throw new Error("missing toast timer");
+  expect(controller.view().feedback.toast?.title).toBe("Done");
+  controller.tick(token.token);
+  expect(controller.view().feedback.toast).toBeNull();
+
+  const animated = controller.scene(
+    scene(list({}, item("a")), node("Toast", "toast", { style: "animated", title: "Working" })),
+  );
+  expect(animated.effects).toEqual([]);
+  expect(controller.view().feedback.toast?.title).toBe("Working");
+  controller.scene(
+    scene(
+      list({}, item("a")),
+      node("Toast", "toast", { style: "animated", title: "Still working" }),
+    ),
+  );
+  expect(controller.view().feedback.toast?.title).toBe("Still working");
 });
 
 test("menu-bar navigation: move, open a submenu, activate, back, and leave", () => {

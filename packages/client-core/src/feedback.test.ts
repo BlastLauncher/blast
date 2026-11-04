@@ -31,7 +31,7 @@ test("no feedback nodes means nothing visible", () => {
 test("a toast carries its style, text and actions in order", () => {
   const state = feedbackState(
     scene(
-      node("Toast", "toast", { style: "failure", title: "Oops", message: "Disk full" }, [
+      node("Toast", "toast", { style: "FAILURE", title: "Oops", message: "Disk full" }, [
         node("Toast.Action", "a", {
           name: "primaryAction",
           title: "Retry",

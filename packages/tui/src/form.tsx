@@ -107,6 +107,20 @@ export function FormView({
           const options = display?.options ?? [];
           const kind = node.type.slice(5);
           const unsupported = !knownFields.has(kind) && options.length === 0;
+          if (kind === "Separator")
+            return (
+              <text key={node.id} height={1} flexShrink={0} fg={theme.colors.textMuted}>
+                ────────
+              </text>
+            );
+          if (kind === "Description" || kind === "LinkAccessory")
+            return (
+              <text key={node.id} height={1} flexShrink={0} fg={theme.colors.textMuted}>
+                {kind === "LinkAccessory"
+                  ? `${text(node.props.text)}  ${text(node.props.target)}`.trim()
+                  : [text(node.props.title), text(node.props.text)].filter(Boolean).join("  ")}
+              </text>
+            );
           return (
             <box key={node.id} id={node.id} flexDirection="column" flexShrink={0}>
               <text height={1}>
@@ -138,13 +152,9 @@ export function FormView({
                               return `${selected && index === display?.optionIndex ? "›" : " "} [${checked ? "x" : " "}] ${item.title}`;
                             })
                             .join("\n")
-                        : kind === "Separator"
-                          ? "────────"
-                          : kind === "Description" || kind === "LinkAccessory"
-                            ? text(node.props.text)
-                            : kind === "Dropdown" || kind === "TagPicker"
-                              ? text(node.props.placeholder)
-                              : `Unsupported field: ${node.type}`}
+                        : kind === "Dropdown" || kind === "TagPicker"
+                          ? text(node.props.placeholder)
+                          : `Unsupported field: ${node.type}`}
                 </text>
               )}
               {!!display?.error && <text height={1}>{display.error}</text>}
@@ -157,7 +167,7 @@ export function FormView({
         .map((node) => (
           <text key={node.id} fg={theme.colors.textMuted}>
             {node.type === "Form.LinkAccessory"
-              ? `${text(node.props.text)} ${text(node.props.target)}`
+              ? `${text(node.props.text)}  ${text(node.props.target)}`.trim()
               : `Unsupported field: ${node.type}`}
           </text>
         ))}

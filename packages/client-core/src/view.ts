@@ -14,6 +14,14 @@ import {
 import { shortcutLabel, type Platform } from "./shortcut.ts";
 import { iconView, type IconView } from "./icons.ts";
 
+/** Raycast's built-in shortcuts for actions without an explicit shortcut. */
+export function defaultActionShortcut(node: SceneNode, index: number): unknown {
+  if (node.props.shortcut !== undefined) return node.props.shortcut;
+  if (node.type === "Action.CopyToClipboard") return { modifiers: ["cmd"], key: "c" };
+  if (index === 1) return { modifiers: ["cmd"], key: "return" };
+  return undefined;
+}
+
 export {
   event,
   handler,
@@ -202,10 +210,10 @@ export function sceneToView(scene: SceneMessage | undefined, state: UIState) {
   };
 }
 
-function actionRow(node: SceneNode, platform: Platform): Row {
+function actionRow(node: SceneNode, platform: Platform, index: number): Row {
   const isSubmenu = node.type === "ActionPanel.Submenu";
   const title = text(node.props.title);
-  const label = shortcutLabel(node.props.shortcut, platform);
+  const label = shortcutLabel(defaultActionShortcut(node, index), platform);
   return {
     node,
     item: true,
@@ -257,18 +265,19 @@ export function actionRows(
 ): Row[] {
   if (!node) return [];
   if (isAction(node)) {
-    const row = actionRow(node, platform);
+    const row = actionRow(node, platform, 0);
     return score({ title: text(node.props.title) }, query) > 0 ? [row] : [];
   }
   const groups: Group<SceneNode>[] = [];
   actionGroups(node, groups, {});
+  let index = 0;
   return rankGroups(
     groups,
     query,
     (action) => score({ title: text(action.props.title) }, query),
     filtering,
   ).flatMap((group) => {
-    const items = group.items.map((action) => actionRow(action, platform));
+    const items = group.items.map((action) => actionRow(action, platform, index++));
     return group.section
       ? [
           {
