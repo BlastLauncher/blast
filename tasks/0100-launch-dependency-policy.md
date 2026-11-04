@@ -58,7 +58,7 @@ access in `bun test`.
 ## Handoff
 
 ```
-Branch/commit: t3/fix-launch-dependency-preflight @ 0ed00fd
+Branch/commit: t3/fix-launch-dependency-preflight @ 74b1c7f
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 52.6s
 Done:
 - Removed source-text import scanning; launch preflight now uses manifest dependencies, the install key and shared fallback.
