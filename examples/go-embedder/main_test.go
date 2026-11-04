@@ -84,7 +84,8 @@ func TestTerminalInput(t *testing.T) {
 		{name: "down", input: "\x1b[B", want: controllerInput{Type: "move", Direction: "down"}},
 		{name: "up shortcut", input: "k", want: controllerInput{Type: "move", Direction: "up"}},
 		{name: "primary", input: "\r", want: controllerInput{Type: "primary"}},
-		{name: "actions", input: "a", want: controllerInput{Type: "openActions"}},
+		{name: "actions", input: "?", want: controllerInput{Type: "openActions"}},
+		{name: "search starts with a", input: "a", want: controllerInput{Type: "search", Text: "a"}},
 		{name: "search", input: "e", want: controllerInput{Type: "search", Text: "apple"}, search: "appl"},
 		{name: "back", input: "\x1b", want: controllerInput{Type: "back"}},
 	}

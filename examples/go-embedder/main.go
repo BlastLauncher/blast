@@ -585,7 +585,7 @@ func terminalInput(reader *bufio.Reader, search *string) (controllerInput, bool,
 		return controllerInput{Type: "move", Direction: "down"}, true, nil
 	case 'k':
 		return controllerInput{Type: "move", Direction: "up"}, true, nil
-	case 'a', '?':
+	case '?':
 		return controllerInput{Type: "openActions"}, true, nil
 	case 8, 127:
 		if len(*search) == 0 {

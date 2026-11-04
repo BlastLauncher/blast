@@ -16,7 +16,7 @@ Keys are mapped to semantic `session.input` messages:
 
 - `↑`/`↓` or `k`/`j`: move the selection
 - `Enter`: run the selected row's `primary` action
-- `a` (or `?`): open the action panel
+- `?`: open the action panel
 - printable text: update `search.text`; Backspace removes one character
 - `Escape`: go `back`
 - Ctrl-D (stdin EOF): shut the server down
