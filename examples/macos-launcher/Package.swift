@@ -1,15 +1,20 @@
 // swift-tools-version: 6.0
 import PackageDescription
 
-// BlastKit is the Foundation-only Swift client for `blast serve` (embedder
-// protocol v1). It has no dependencies and no Xcode project; tests are the
-// contract (Swift Testing, fake transports plus a real-engine integration test).
 let package = Package(
     name: "BlastKit",
     platforms: [.macOS(.v14)],
-    products: [.library(name: "BlastKit", targets: ["BlastKit"])],
+    products: [
+        .library(name: "BlastKit", targets: ["BlastKit"]),
+        .library(name: "BlastPresenter", targets: ["BlastPresenter"]),
+        .executable(name: "BlastLauncher", targets: ["BlastLauncher"]),
+    ],
     targets: [
         .target(name: "BlastKit"),
+        .target(name: "BlastPresenter", dependencies: ["BlastKit"]),
+        .executableTarget(name: "BlastLauncher", dependencies: ["BlastKit", "BlastPresenter"]),
         .testTarget(name: "BlastKitTests", dependencies: ["BlastKit"]),
+        .testTarget(name: "BlastPresenterTests", dependencies: ["BlastKit", "BlastPresenter"]),
+        .testTarget(name: "BlastLauncherTests", dependencies: ["BlastKit", "BlastPresenter", "BlastLauncher"]),
     ]
 )
