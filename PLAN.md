@@ -79,17 +79,17 @@ Raycast client semantics built in so embedders only draw.
 
 ### M6 — Evidence at scale
 
-Honest gate, latest API, real compatibility across the corpus. Tasks run in
-order with disk budgets.
+- [x] 0088–0105 done (see git log): honest gate, API 2.10.1 + weekly job, corpus
+      repin, sandboxed sweep (5266/5759 render, `compat/SWEEP.md`), triage fixes,
+      dependencies in launch (`0012`), Go example on views, v3 pre-release via
+      npm trusted publishing (`3.0.0-alpha.0` on `next`), TUI polish.
 
-- [x] 0088 Verify on a clean Mac; 0089 API 2.10.1 + weekly job; 0090 repin; 0093 semver deps
-- [x] 0091 Sandboxed corpus sweep runner and pilot; 0092 primary action probe
-- [x] 0094 Full sweep; after 0095-0098: 5266/5759 commands render (`compat/SWEEP.md`)
-- [x] From the triage: 0095 Suspense/`use()`, 0096 JSONC tsconfig, 0097 sweep broker parity, 0098 sweep reporting
-- [x] 0099 Reclone the sweep corpus only near the budget (full runs under an hour)
-- [x] 0100 Dependencies are part of launch: typed error, per-launch install, policy (`0012`)
-- [x] 0101 Go example on `blast serve` views (Go in CI); 0102 v3 pre-release workflow
-- [x] TUI polish: 0103 look and feel, 0104 Raycast UX parity, 0105 speed and robustness
+### M7 — Real examples
+
+AppKit launcher over `blast serve`; automated tests and contract fixtures first.
+
+- [ ] 0106 BlastKit Swift client + contract fixtures + macOS CI
+- [ ] 0107 AppKit launcher window; 0108 hotkey, OS actions, picker; 0109 walkthroughs
 
 ## Later (not scheduled)
 
@@ -116,4 +116,4 @@ One line per decision; link a record only when it exists.
 - 2026-10-19: Engine core is platform-free; native capabilities are registered
   by embedders, with optional `@blastlauncher/native` (`docs/decisions/0010`).
 - 2026-11-02: Corpus sweeps run third-party code only in a no-network sandbox.
-- 2026-11-04: Launch reports missing dependencies as a typed error; installs stay explicit (`docs/decisions/0012`).
+- 2026-11-04: Launch reports missing dependencies as a typed error (`0012`); M7 example uses AppKit.
