@@ -8,7 +8,8 @@ Status: accepted 2026-10-19; supersedes the M5 desktop-client plan in 0007 (7)
    Raycast extensions and exposes them as scenes, events and capability
    requests. Launcher UI (pickers, themes, windows, hotkeys) belongs to
    whoever embeds the engine; `packages/tui` and `blast run` stay as
-   reference/debug clients and get no new launcher features.
+   reference/debug clients and get no new launcher features; polishing
+   them (look, Raycast UX parity, speed, robustness) is in scope (2026-11-04).
 2. **Two embedding surfaces, one contract.**
    - In-process: `@blastlauncher/engine` for JS/TS hosts (Node 24, Bun,
      Electron main). It wraps today's host API.
