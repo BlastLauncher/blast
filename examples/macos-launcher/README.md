@@ -1,13 +1,44 @@
-# BlastKit (macOS launcher example)
+# macOS launcher example
 
-BlastKit is the Foundation-only Swift package behind the AppKit launcher example
-(0107 builds the UI on top). It is a complete client of `blast serve`'s embedder
-protocol v1: NDJSON over stdio, the `hello`/`welcome` handshake, request and
-response correlation, typed events, the `ControllerView`/`ControllerInput` models
-from `packages/client-core`, and capability forwarding to an injected handler.
+An AppKit launcher that runs Raycast-compatible extensions through `blast serve`.
+The package has three layers:
 
-There are no third-party dependencies, no Xcode project and no build step beyond
-SwiftPM. The package targets macOS 14 with `swift-tools-version: 6.0`.
+- **BlastKit** — a Foundation-only client for the embedder protocol: NDJSON over
+  stdio, the `hello`/`welcome` handshake, request/response correlation, typed
+  events, `ControllerView`/`ControllerInput` models, capability forwarding.
+- **BlastPresenter** — pure Swift (Foundation + BlastKit, never AppKit). It
+  turns a `ControllerView` into `LauncherDisplay` values (rows with title,
+  subtitle, icon text and selection; search text and placeholder; action rows
+  with shortcut labels; toast; detail markdown; empty and loading states; title
+  and back affordance) and maps `LauncherKey` presses to `ControllerInput`. It
+  also owns the command picker shown before a session starts.
+- **BlastLauncher** — a thin AppKit executable: an `NSPanel`, a search field, a
+  view-based `NSTableView`, a `NSTextView` for detail and a small action panel.
+  It renders `LauncherDisplay` and forwards keys and clicks back as semantic
+  inputs.
+
+Everything under test is the presenter or the rendered views; no part of the
+suite needs a human at the keyboard.
+
+## Run
+
+From the repository root (so the launcher can find `packages/serve/src/main.ts`):
+
+```sh
+swift run --package-path examples/macos-launcher BlastLauncher fixtures/extensions/hello-list
+```
+
+That opens the command picker for the extension; Return (or a click) launches
+the selected command. Pass a command name to skip the picker:
+
+```sh
+swift run --package-path examples/macos-launcher BlastLauncher fixtures/extensions/hello-list index
+```
+
+If the engine is elsewhere, set `BLAST_REPO_ROOT` to a checkout that contains
+`packages/serve/src/main.ts`. Capabilities are granted and logged to stderr;
+this example deliberately does not write the real clipboard or open URLs
+(0107 leaves that to a later task).
 
 ## Build and test
 
@@ -15,25 +46,32 @@ SwiftPM. The package targets macOS 14 with `swift-tools-version: 6.0`.
 bun run example:mac          # cd examples/macos-launcher && swift test
 ```
 
-The suite has three layers:
+The suite has four layers:
 
-- **Unit tests** (`FramingTests`, `InputTests`, `ClientTests`) use a fake
-  transport and never spawn a process: split/joined/oversized NDJSON lines,
-  out-of-order responses, events before their response, malformed lines,
-  `version_mismatch`, typed `missing_values`/`missing_dependencies` errors and
-  capability round trips.
+- **BlastKit unit tests** (`FramingTests`, `InputTests`, `ClientTests`) use a
+  fake transport and never spawn a process.
 - **Contract fixtures** (`ViewTests`) decode every recorded `ControllerView`.
-- **Integration** (`ProcessIntegrationTests`) starts the real engine, launches
-  `fixtures/extensions/hello-list`, moves the selection, runs `primary` and
-  answers `clipboard.copy` through a recording handler. It never touches the
-  system clipboard or opens applications, and is skipped when `node` is not on
-  `PATH`.
+- **Presenter tests** (`PresenterTests`, `CommandPickerTests`) drive
+  `LauncherPresenter` over all seven fixtures: list, grid, detail, form,
+  menu-bar, toast and an open action panel. They assert rows, selection, search
+  text, action shortcut labels, toasts, markdown, empty/loading states, the back
+  affordance, and the key mapping for arrows, Return, ⌘K, ⌘↵, Esc and typing.
+- **AppKit view tests** (`AppKitTests`) build the real window offscreen, with no
+  event loop and no ordering front, and assert the rendered cell titles,
+  selected row, detail text, toast, and action-panel visibility.
+- **End to end** (`LauncherEndToEndTests`) starts the real `blast serve`, opens
+  `fixtures/extensions/hello-list`, and drives it through the presenter: search,
+  move down, Return, and a fake `clipboard.copy` handler that must receive the
+  selected text. It is skipped when `node` is not on `PATH`.
+
+Neither the tests nor the launcher's startup path in CI touch the system
+clipboard, open applications or launch the GUI. The executable is only built and
+its usage path checked; the window tests use it offscreen.
 
 ## Fixtures
 
 `Tests/Fixtures/*.json` are `ControllerView` snapshots recorded from the real
-engine, one per scenario (list, grid, detail, form, menu-bar, toast and an open
-action panel). They are the cross-language contract between the TypeScript
+engine, one per scenario — the cross-language contract between the TypeScript
 engine and this Swift client.
 
 ```sh
@@ -42,10 +80,9 @@ bun run example:mac:fixtures --check   # what `bun run verify` runs
 ```
 
 Output is deterministic: object keys sorted, engine ids only, a throwaway
-`XDG_DATA_HOME`, and no paths or timestamps. `bun run verify` fails when the
-committed fixtures drift from what `blast serve` produces.
+`XDG_DATA_HOME`, and no paths or timestamps.
 
-## Using it
+## Using BlastKit directly
 
 ```swift
 let transport = ProcessTransport(
