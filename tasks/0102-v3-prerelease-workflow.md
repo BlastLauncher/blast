@@ -64,8 +64,12 @@ creates a GitHub prerelease.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/2ab0d67c @ 5a514e2
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 54.1s
 Done:
-Not done / risks:
+- Added a manually dispatched dry-run-first workflow with read-only build permissions and publish-only write/id-token permissions.
+- Added tested v3 prerelease validation, remote tag checks, dependency ordering, npm version resume checks, and token enforcement.
+- Added release instructions and linked them from the README development section.
+- Locally ran the release build and smoke flow for 3.0.0-alpha.0; YAML parsed successfully.
+Not done / risks: GitHub Actions, npm publishing, tag creation, and GitHub release creation were intentionally not triggered.
 ```
