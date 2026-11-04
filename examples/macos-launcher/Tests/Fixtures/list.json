@@ -1,1 +1,95 @@
-{"kind":"list","title":"hello-list","navigation":{"canGoBack":false},"loading":false,"search":{"text":"","placeholder":"Search…"},"rows":[{"id":"5","kind":"item","title":"apple","subtitle":"","accessories":"","icon":false,"iconLabel":"","count":null,"selected":true,"text":"apple"},{"id":"10","kind":"item","title":"banana","subtitle":"","accessories":"","icon":false,"iconLabel":"","count":null,"selected":false,"text":"banana"},{"id":"15","kind":"item","title":"cherry","subtitle":"","accessories":"","icon":false,"iconLabel":"","count":null,"selected":false,"text":"cherry"}],"grid":null,"selectedId":"5","emptyText":"No results","empty":null,"detail":"","primary":{"title":"Copy apple","shortcut":"↵","enabled":true},"actions":{"open":false,"title":"Actions","query":"","breadcrumb":[],"rows":[{"id":"1","kind":"action","title":"Copy apple","shortcut":"⌘C","selected":true},{"id":"2","kind":"action","title":"Pin apple","shortcut":"⌘↵","selected":false}],"selectedIndex":0},"dropdown":null,"feedback":{"toast":null,"hud":null,"alert":null},"menuBar":null,"form":null,"requests":{"quit":false,"clearSearch":false}}
+{
+  "actions": {
+    "breadcrumb": [],
+    "open": false,
+    "query": "",
+    "rows": [
+      {
+        "id": "1",
+        "kind": "action",
+        "selected": true,
+        "shortcut": "⌘C",
+        "title": "Copy apple"
+      },
+      {
+        "id": "2",
+        "kind": "action",
+        "selected": false,
+        "shortcut": "⌘↵",
+        "title": "Pin apple"
+      }
+    ],
+    "selectedIndex": 0,
+    "title": "Actions"
+  },
+  "detail": "",
+  "dropdown": null,
+  "empty": null,
+  "emptyText": "No results",
+  "feedback": {
+    "alert": null,
+    "hud": null,
+    "toast": null
+  },
+  "form": null,
+  "grid": null,
+  "kind": "list",
+  "loading": false,
+  "menuBar": null,
+  "navigation": {
+    "canGoBack": false
+  },
+  "primary": {
+    "enabled": true,
+    "shortcut": "↵",
+    "title": "Copy apple"
+  },
+  "requests": {
+    "clearSearch": false,
+    "quit": false
+  },
+  "rows": [
+    {
+      "accessories": "",
+      "count": null,
+      "icon": false,
+      "iconLabel": "",
+      "id": "5",
+      "kind": "item",
+      "selected": true,
+      "subtitle": "",
+      "text": "apple",
+      "title": "apple"
+    },
+    {
+      "accessories": "",
+      "count": null,
+      "icon": false,
+      "iconLabel": "",
+      "id": "10",
+      "kind": "item",
+      "selected": false,
+      "subtitle": "",
+      "text": "banana",
+      "title": "banana"
+    },
+    {
+      "accessories": "",
+      "count": null,
+      "icon": false,
+      "iconLabel": "",
+      "id": "15",
+      "kind": "item",
+      "selected": false,
+      "subtitle": "",
+      "text": "cherry",
+      "title": "cherry"
+    }
+  ],
+  "search": {
+    "placeholder": "Search…",
+    "text": ""
+  },
+  "selectedId": "5",
+  "title": "hello-list"
+}

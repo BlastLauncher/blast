@@ -17,6 +17,7 @@ const steps: Array<[name: string, command: string[]]> = [
   ["typecheck", ["bun", "run", "--silent", "typecheck"]],
   ["compat", ["bun", "run", "--silent", "compat:check"]],
   ["protocol", ["bun", "run", "--silent", "protocol:check"]],
+  ["mac-fixtures", ["bun", "run", "--silent", "example:mac:fixtures", "--check"]],
   ["workflow", ["bun", "run", "--silent", "check:workflow"]],
   // Random order catches tests that leak module state into each other; a
   // failure prints `--seed=N` to reproduce with `bun test --randomize --seed=N`.

@@ -1,1 +1,159 @@
-{"kind":"form","title":"Fill form","navigation":{"canGoBack":false},"loading":false,"search":{"text":"","placeholder":"Search…"},"rows":[],"grid":null,"selectedId":null,"emptyText":"No results","empty":null,"detail":"","primary":{"title":"Submit Form","shortcut":"↵","enabled":true},"actions":{"open":false,"title":"Actions","query":"","breadcrumb":[],"rows":[{"id":"8","kind":"action","title":"Submit Form","shortcut":"","selected":true}],"selectedIndex":0},"dropdown":null,"feedback":{"toast":null,"hud":null,"alert":null},"menuBar":null,"form":{"focusId":"1","fields":[{"id":"1","type":"Form.TextField","title":"name","info":"","label":"","placeholder":"","error":"","value":"","text":"","checked":false,"hasValue":false,"selected":[],"options":[],"optionIndex":0,"query":"","focused":true},{"id":"2","type":"Form.TextArea","title":"notes","info":"","label":"","placeholder":"","error":"","value":"initial","text":"initial","checked":false,"hasValue":false,"selected":[],"options":[],"optionIndex":0,"query":"","focused":false},{"id":"5","type":"Form.Dropdown","title":"drink","info":"","label":"","placeholder":"","error":"","value":"water","text":"water","checked":false,"hasValue":false,"selected":[{"value":"water","title":"Water"}],"options":[{"value":"water","title":"Water"},{"value":"tea","title":"Tea"}],"optionIndex":0,"query":"","focused":false},{"id":"6","type":"Form.Checkbox","title":"agree","info":"","label":"Agree","placeholder":"","error":"","value":false,"text":"","checked":false,"hasValue":false,"selected":[],"options":[],"optionIndex":0,"query":"","focused":false},{"id":"7","type":"Form.DatePicker","title":"date","info":"","label":"","placeholder":"","error":"","value":null,"text":"","checked":false,"hasValue":false,"selected":[],"options":[],"optionIndex":0,"query":"","focused":false}]},"requests":{"quit":false,"clearSearch":false}}
+{
+  "actions": {
+    "breadcrumb": [],
+    "open": false,
+    "query": "",
+    "rows": [
+      {
+        "id": "8",
+        "kind": "action",
+        "selected": true,
+        "shortcut": "",
+        "title": "Submit Form"
+      }
+    ],
+    "selectedIndex": 0,
+    "title": "Actions"
+  },
+  "detail": "",
+  "dropdown": null,
+  "empty": null,
+  "emptyText": "No results",
+  "feedback": {
+    "alert": null,
+    "hud": null,
+    "toast": null
+  },
+  "form": {
+    "fields": [
+      {
+        "checked": false,
+        "error": "",
+        "focused": true,
+        "hasValue": false,
+        "id": "1",
+        "info": "",
+        "label": "",
+        "optionIndex": 0,
+        "options": [],
+        "placeholder": "",
+        "query": "",
+        "selected": [],
+        "text": "",
+        "title": "name",
+        "type": "Form.TextField",
+        "value": ""
+      },
+      {
+        "checked": false,
+        "error": "",
+        "focused": false,
+        "hasValue": false,
+        "id": "2",
+        "info": "",
+        "label": "",
+        "optionIndex": 0,
+        "options": [],
+        "placeholder": "",
+        "query": "",
+        "selected": [],
+        "text": "initial",
+        "title": "notes",
+        "type": "Form.TextArea",
+        "value": "initial"
+      },
+      {
+        "checked": false,
+        "error": "",
+        "focused": false,
+        "hasValue": false,
+        "id": "5",
+        "info": "",
+        "label": "",
+        "optionIndex": 0,
+        "options": [
+          {
+            "title": "Water",
+            "value": "water"
+          },
+          {
+            "title": "Tea",
+            "value": "tea"
+          }
+        ],
+        "placeholder": "",
+        "query": "",
+        "selected": [
+          {
+            "title": "Water",
+            "value": "water"
+          }
+        ],
+        "text": "water",
+        "title": "drink",
+        "type": "Form.Dropdown",
+        "value": "water"
+      },
+      {
+        "checked": false,
+        "error": "",
+        "focused": false,
+        "hasValue": false,
+        "id": "6",
+        "info": "",
+        "label": "Agree",
+        "optionIndex": 0,
+        "options": [],
+        "placeholder": "",
+        "query": "",
+        "selected": [],
+        "text": "",
+        "title": "agree",
+        "type": "Form.Checkbox",
+        "value": false
+      },
+      {
+        "checked": false,
+        "error": "",
+        "focused": false,
+        "hasValue": false,
+        "id": "7",
+        "info": "",
+        "label": "",
+        "optionIndex": 0,
+        "options": [],
+        "placeholder": "",
+        "query": "",
+        "selected": [],
+        "text": "",
+        "title": "date",
+        "type": "Form.DatePicker",
+        "value": null
+      }
+    ],
+    "focusId": "1"
+  },
+  "grid": null,
+  "kind": "form",
+  "loading": false,
+  "menuBar": null,
+  "navigation": {
+    "canGoBack": false
+  },
+  "primary": {
+    "enabled": true,
+    "shortcut": "↵",
+    "title": "Submit Form"
+  },
+  "requests": {
+    "clearSearch": false,
+    "quit": false
+  },
+  "rows": [],
+  "search": {
+    "placeholder": "Search…",
+    "text": ""
+  },
+  "selectedId": null,
+  "title": "Fill form"
+}

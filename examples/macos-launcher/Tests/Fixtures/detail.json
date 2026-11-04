@@ -1,1 +1,43 @@
-{"kind":"list","title":"assets","navigation":{"canGoBack":false},"loading":false,"search":{"text":"","placeholder":"Search…"},"rows":[{"id":"1","kind":"item","title":"from assets","subtitle":"from assets","accessories":"","icon":false,"iconLabel":"","count":null,"selected":true,"text":"from assets  from assets"}],"grid":null,"selectedId":"1","emptyText":"No results","empty":null,"detail":"","primary":{"title":"Run","shortcut":"↵","enabled":false},"actions":{"open":false,"title":"Actions","query":"","breadcrumb":[],"rows":[],"selectedIndex":-1},"dropdown":null,"feedback":{"toast":null,"hud":null,"alert":null},"menuBar":null,"form":null,"requests":{"quit":false,"clearSearch":false}}
+{
+  "actions": {
+    "breadcrumb": [],
+    "open": false,
+    "query": "",
+    "rows": [],
+    "selectedIndex": -1,
+    "title": "Actions"
+  },
+  "detail": "pushed detail",
+  "dropdown": null,
+  "empty": null,
+  "emptyText": "No results",
+  "feedback": {
+    "alert": null,
+    "hud": null,
+    "toast": null
+  },
+  "form": null,
+  "grid": null,
+  "kind": "detail",
+  "loading": false,
+  "menuBar": null,
+  "navigation": {
+    "canGoBack": true
+  },
+  "primary": {
+    "enabled": false,
+    "shortcut": "↵",
+    "title": "Run"
+  },
+  "requests": {
+    "clearSearch": false,
+    "quit": false
+  },
+  "rows": [],
+  "search": {
+    "placeholder": "Search…",
+    "text": ""
+  },
+  "selectedId": null,
+  "title": "Blast"
+}
