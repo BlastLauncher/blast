@@ -27,7 +27,7 @@ export function EmptyState({
         </text>
       ) : null}
       <text flexShrink={0} fg={theme.colors.text}>
-        {empty.title || emptyText || "No results"}
+        {empty.title || "No results"}
       </text>
       {empty.description ? (
         <text flexShrink={0} fg={theme.colors.textMuted}>
