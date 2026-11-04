@@ -59,8 +59,11 @@ longer. Keep answering `clipboard.copy` by printing the text.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/7d87c6a0 @ 3947478
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 52.5s
 Done:
-Not done / risks:
+- Reworked the Go example to opt into `blast serve` views, render list/action/toast state, and send semantic `session.input` messages.
+- Added real-server Go coverage for handshake, selected-row movement, primary action, and clipboard.copy.
+- Documented terminal keys, ControllerView fields, and added a pinned Go CI job using `go-version-file`.
+Not done / risks: A complete ControllerView JSON Schema is not warranted for this example; the protocol intentionally keeps that model opaque and the docs cover the fields this client draws.
 ```
