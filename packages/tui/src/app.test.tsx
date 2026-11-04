@@ -134,7 +134,23 @@ test("search coalesces throttled events, selection notifies, and Ctrl-C quits", 
         type: "List.Item",
         id,
         props: { id, title: id },
-        children: [],
+        // A copy action whose default shortcut is Ctrl+C must not stop Ctrl-C
+        // from quitting.
+        children: [
+          {
+            type: "ActionPanel",
+            id: `${id}-panel`,
+            props: {},
+            children: [
+              {
+                type: "Action.CopyToClipboard",
+                id: `${id}-copy`,
+                props: { title: "Copy", content: id, onAction: { $handler: "copy" } },
+                children: [],
+              },
+            ],
+          },
+        ],
       })),
     },
   };
@@ -175,6 +191,7 @@ test("search coalesces throttled events, selection notifies, and Ctrl-C quits", 
     ]);
     await act(async () => terminal.mockInput.pressCtrlC());
     expect(quit).toBe(true);
+    expect(events.some((event) => (event as unknown[])[0] === "copy")).toBe(false);
   } finally {
     await act(async () => terminal.dispose());
   }

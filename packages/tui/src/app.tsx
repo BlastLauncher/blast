@@ -167,11 +167,11 @@ export function App({
       dispatch(result);
       return result.handled === true;
     };
+    // Ctrl-C always quits in a terminal, even when an action claims it as a
+    // copy shortcut (client-core's default for GUI embedders); copy actions
+    // stay reachable from the action panel.
     if (key.ctrl && key.name === "c") {
-      if (dispatchShortcut()) {
-        key.preventDefault();
-        return;
-      }
+      key.preventDefault();
       if (onExitRef.current) onExitRef.current();
       else requestQuit();
       return;
@@ -469,7 +469,10 @@ export function App({
                 );
               }
               const first = view.actions.rows.findIndex((it) => it.kind !== "section") === rowIndex;
-              const shortcut = row.shortcut || (first ? theme.glyphs.enter : "");
+              // Ctrl+C is reserved for quitting here, so it is not offered as
+              // an action shortcut.
+              const label = row.shortcut === "Ctrl+C" ? "" : row.shortcut;
+              const shortcut = label || (first ? theme.glyphs.enter : "");
               const isSubmenu = row.kind === "submenu";
               return (
                 <box

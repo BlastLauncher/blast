@@ -26,7 +26,7 @@ Action shortcuts use the Linux mapping (`cmd` is Ctrl); client keys take priorit
 ## Raycast parity checklist (0104)
 
 - **Toasts** — done: success/failure dismiss after 3 seconds; animated stays until updated.
-- **Action panels** — done: sections and labels; Ctrl-K opens, Ctrl-Enter runs the second action, Ctrl-C runs copy actions.
+- **Action panels** — done: sections and labels; Ctrl-K opens, Ctrl-Enter runs the second action; Ctrl-C always quits, so copy actions run from the panel.
 - **Form presentation** — done: `Description`, `Separator`, and `LinkAccessory` are non-focusable text (targets shown).
 - **Navigation** — done: `navigationTitle` and `‹` back affordance; Esc performs semantic back.
 - **Native window/clipboard** — terminal limitation; these remain embedder capabilities.
