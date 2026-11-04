@@ -1,7 +1,7 @@
 ---
 id: "0105"
 title: TUI speed and robustness
-status: todo
+status: doing
 milestone: M6
 depends: ["0104"]
 ---
