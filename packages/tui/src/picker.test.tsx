@@ -24,14 +24,16 @@ const press = async (
       pressEnter(): void;
       pressEscape(): void;
       pressCtrlC(): void;
+      pressKey(key: string): void;
       pressArrow(dir: "down" | "up" | "left" | "right"): void;
     };
   },
-  key: "enter" | "escape" | "ctrl-c" | "down" | "up",
+  key: "enter" | "escape" | "ctrl-c" | "r" | "down" | "up",
 ) => {
   await act(async () => {
     if (key === "enter") terminal.mockInput.pressEnter();
     else if (key === "escape") terminal.mockInput.pressEscape();
+    else if (key === "r") terminal.mockInput.pressKey("r");
     else if (key === "down") terminal.mockInput.pressArrow("down");
     else if (key === "up") terminal.mockInput.pressArrow("up");
     else terminal.mockInput.pressCtrlC();
@@ -263,7 +265,10 @@ test("a crashed command returns to the picker and quitting then exits 1", async 
     await type(terminal, "inv");
     await settle(terminal, (frame) => frame.includes("› invalid"));
     await press(terminal, "enter");
-    // The invalid command crashes at startup; the error screen waits for Esc.
+    // The invalid command crashes at startup; R relaunches it with the same
+    // command and arguments, and Esc returns to the picker.
+    await settle(terminal, (frame) => frame.includes("Error"));
+    await press(terminal, "r");
     await settle(terminal, (frame) => frame.includes("Error"));
     await press(terminal, "escape");
     await settle(terminal, (frame) => frame.includes("› invalid"));

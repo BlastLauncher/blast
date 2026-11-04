@@ -46,7 +46,8 @@ Action shortcuts use the Linux mapping (`cmd` is Ctrl); client keys take priorit
   with ← / →; Tab / ↑ / ↓ move between fields. Enter launches once every
   required argument is filled; values reach the command like `--argument`.
 - Esc at a command's root view, a no-view command finishing and the crash
-  error screen all return to the picker, selection kept; Ctrl-C quits from
+  error screen return to the picker, selection kept; the crash screen also
+  offers R to relaunch the same command and arguments. Ctrl-C quits from
   anywhere; a launch failure (bundling) stays on the picker with an error
   line. The process exits 1 only if the last launched command crashed and
   the user then quits.
@@ -55,6 +56,13 @@ The picker checks dependencies on open and on manifest changes; installs live un
 and `open*Preferences` open full **Preferences — <extension>** view (Extension
 and command sections, `*` required, field description); saves without launch.
 Passwords masked, Space toggles checkboxes, ←/→ cycles dropdowns, Enter saves, Esc cancels. Values persist in `<dataDir>/preferences/<encoded-name>.json` (**plaintext, mode 0600**). Data root: `$XDG_DATA_HOME/blast` (or `~/.local/share/blast`).
+
+## Local benchmark
+
+Run `bun scripts/tui-benchmark.ts` to measure time to the first `hello-list`
+frame and mean keystroke latency while moving through a synthetic 10,000-item
+List. It uses OpenTUI's in-memory test renderer and does not run as part of
+`bun run verify`; timings are machine-dependent.
 
 ## Rendering
 
@@ -78,7 +86,8 @@ Passwords masked, Space toggles checkboxes, ←/→ cycles dropdowns, Enter save
   closes it; Enter on an Item runs `onAction` with a `left-click` event, and
   Items without one render dimmed.
 - `no-view` commands render only feedback (alert, toast, HUD). When runtime
-  exits 0, client quits after HUD (2.5 s). Errors wait for Esc; direct exits 1.
+  exits 0, client quits after HUD (2.5 s). Errors offer relaunch or back;
+  direct exits 1.
 - `List`/`Grid` pagination sends one `onLoadMore` per item-count change when the
   selection reaches the last loaded item (or Grid row) and `hasMore` is set;
   `isLoading` shows the loading line.
@@ -91,7 +100,8 @@ Passwords masked, Space toggles checkboxes, ←/→ cycles dropdowns, Enter save
   Icon tints resolve through the theme palette; `NO_COLOR` drops all attributes.
 - Alerts stay while mounted; a HUD line shows for 2.5 s.
 - Loading uses one `◌ Loading…` footer indicator; a runtime failure shows the
-  message, the last log line (or `No runtime log output.`) and `Press Esc to quit`.
+  message, the last log line (or `No runtime log output.`) and `R Relaunch ·
+  Esc/B Back` (or `Press Esc/B to go back` for a direct command).
 - Unknown node types render as a dimmed `Unsupported view: <type>` notice (Form
   fields: `Unsupported field: <type>`); the raw `[Unsupported: <type>]` text
   stays in client-core row `text` and is logged once per type on stderr.
