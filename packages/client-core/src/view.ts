@@ -12,6 +12,7 @@ import {
   type Group,
 } from "./rank.ts";
 import { shortcutLabel, type Platform } from "./shortcut.ts";
+import { iconView, type IconView } from "./icons.ts";
 
 export {
   event,
@@ -34,6 +35,7 @@ export type Row = {
   accessories?: string;
   shortcut?: string;
   icon?: boolean;
+  iconView?: IconView;
   count?: number;
   isSubmenu?: boolean;
 };
@@ -63,7 +65,9 @@ function itemAccessories(node: SceneNode): string {
   const labels = Array.isArray(accessories)
     ? accessories.map((value) => {
         if (!value || typeof value !== "object" || Array.isArray(value)) return "";
-        return [text(value.text), text(value.tag), value.icon ? "◇" : ""].filter(Boolean).join(" ");
+        return [text(value.text), text(value.tag), value.icon ? iconView(value.icon).label : ""]
+          .filter(Boolean)
+          .join(" ");
       })
     : [];
   return labels.filter(Boolean).join("  ");
@@ -74,10 +78,17 @@ function itemText(node: SceneNode): string {
   const labels = Array.isArray(accessories)
     ? accessories.map((value) => {
         if (!value || typeof value !== "object" || Array.isArray(value)) return "";
-        return [text(value.text), text(value.tag), value.icon ? "◇" : ""].filter(Boolean).join(" ");
+        return [text(value.text), text(value.tag), value.icon ? iconView(value.icon).label : ""]
+          .filter(Boolean)
+          .join(" ");
       })
     : [];
-  return [node.props.icon ? "◇" : "", text(node.props.title), text(node.props.subtitle), ...labels]
+  return [
+    node.props.icon ? iconView(node.props.icon).label : "",
+    text(node.props.title),
+    text(node.props.subtitle),
+    ...labels,
+  ]
     .filter(Boolean)
     .join("  ");
 }
@@ -91,6 +102,7 @@ function itemRow(node: SceneNode): Row {
     subtitle: text(node.props.subtitle),
     accessories: itemAccessories(node),
     icon: Boolean(node.props.icon),
+    ...(node.props.icon ? { iconView: iconView(node.props.icon) } : {}),
   };
 }
 
@@ -150,6 +162,7 @@ export function sceneToView(scene: SceneMessage | undefined, state: UIState) {
           : "",
     rows,
     items,
+    empty,
     selected,
     title:
       text(list?.props.navigationTitle) ||
@@ -159,7 +172,7 @@ export function sceneToView(scene: SceneMessage | undefined, state: UIState) {
       "Blast",
     loading: list?.props.isLoading === true || !scene,
     emptyText: empty
-      ? [empty.props.icon ? "◇" : "", text(empty.props.title), text(empty.props.description)]
+      ? [empty.props.icon ? iconView(empty.props.icon).label : "", text(empty.props.title), text(empty.props.description)]
           .filter(Boolean)
           .join("  ")
       : "No results",

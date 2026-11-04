@@ -10,6 +10,7 @@ import type { SceneMessage } from "@blastlauncher/protocol";
 import { App } from "./app.tsx";
 import { openCommand } from "./session.ts";
 import { waitForFrame, waitScene } from "./test-support.ts";
+import { renderMarkdownLines } from "./markdown.tsx";
 
 test("look: 80x24 renders rounded frame, search bar, list row accessories, footer shortcuts, and action panel", async () => {
   const dataDir = await mkdtemp(join(tmpdir(), "blast-tui-look-80-"));
@@ -69,6 +70,109 @@ test("look: 80x24 renders rounded frame, search bar, list row accessories, foote
     await rm(dataDir, { recursive: true, force: true });
   }
 }, 30_000);
+
+test("markdown renderer keeps terminal syntax readable", () => {
+  const lines = renderMarkdownLines(
+    "# Heading\n**bold** and *emphasis* with `code`\n- item\n> quote\n[docs](https://example.com)\n```\nconst x = 1;\n```",
+  );
+  expect(lines.map((line) => line.segments.map((segment) => segment.text).join(""))).toEqual([
+    "Heading",
+    "bold and emphasis with code",
+    "• item",
+    "│ quote",
+    "docs (https://example.com)",
+    "│ ",
+    "│ const x = 1;",
+  ]);
+  expect(lines[0]?.kind).toBe("heading");
+  expect(lines[1]?.segments.map((segment) => segment.style)).toEqual([
+    "emphasis",
+    "plain",
+    "emphasis",
+    "plain",
+    "code",
+  ]);
+});
+
+test("look: detail markdown and icons render as terminal-native text", async () => {
+  const scene: SceneMessage = {
+    type: "scene",
+    revision: 1,
+    root: {
+      id: "detail",
+      type: "Detail",
+      props: { navigationTitle: "Notes", markdown: "# Heading\n**bold** [docs](https://example.com)" },
+      children: [],
+    },
+  };
+  const session = {
+    latestScene: scene,
+    scenes: () => () => {},
+    sendEvent: () => {},
+    logs: [],
+    onLog: () => () => {},
+    exited: new Promise<{ code: number; signal: null }>(() => {}),
+    sendProvider: () => {},
+  } as unknown as Session;
+  const terminal = await testRender(<App session={session} onQuit={() => {}} />, {
+    width: 80,
+    height: 15,
+    exitOnCtrlC: false,
+  });
+  try {
+    await waitForFrame(terminal, (frame) =>
+      ["Heading", "bold", "docs", "https://example.com"].every((value) => frame.includes(value)),
+    );
+  } finally {
+    await act(async () => terminal.dispose());
+  }
+});
+
+test("look: empty view, unsupported nodes, and runtime log hint are deliberate", async () => {
+  const scene: SceneMessage = {
+    type: "scene",
+    revision: 1,
+    root: {
+      id: "list",
+      type: "List",
+      props: { navigationTitle: "Empty" },
+      children: [
+        { id: "empty", type: "List.EmptyView", props: { title: "Nothing here", description: "Try again", icon: "calendar-16" }, children: [] },
+      ],
+    },
+  };
+  let logListener: ((log: { message: string }) => void) | undefined;
+  const session = {
+    latestScene: scene,
+    scenes: () => () => {},
+    sendEvent: () => {},
+    logs: [{ level: "error", message: "last runtime line" }],
+    onLog: (listener: (log: { message: string }) => void) => {
+      logListener = listener;
+      return () => {
+        logListener = undefined;
+      };
+    },
+    exited: new Promise<{ code: number; signal: null }>(() => {}),
+    sendProvider: () => {},
+  } as unknown as Session;
+  const terminal = await testRender(<App session={session} onQuit={() => {}} />, {
+    width: 80,
+    height: 15,
+    exitOnCtrlC: false,
+  });
+  try {
+    await waitForFrame(terminal, (frame) =>
+      ["Nothing here", "Try again", "▣", "Press Esc to quit", "last runtime line"].every((value) =>
+        frame.includes(value),
+      ),
+    );
+    logListener?.({ message: "new runtime line" });
+    await waitForFrame(terminal, (frame) => frame.includes("new runtime line"));
+  } finally {
+    await act(async () => terminal.dispose());
+  }
+});
 
 test("look: 60x20 renders without line wrapping wider than terminal width", async () => {
   const dataDir = await mkdtemp(join(tmpdir(), "blast-tui-look-60-"));

@@ -5,10 +5,13 @@ import { theme } from "./theme.ts";
 export function GridView({
   rows,
   emptyText,
+  empty,
 }: {
   rows: NonNullable<ControllerView["grid"]>;
   emptyText: string;
+  empty: ControllerView["empty"];
 }) {
+  const hasCells = rows.some((row) => row.cells.length > 0);
   return (
     <>
       {rows.map((row, index) =>
@@ -33,11 +36,17 @@ export function GridView({
           </box>
         ),
       )}
-      {rows.length === 0 && (
+      {!hasCells && empty ? (
+        <box flexDirection="column" alignItems="center" paddingTop={2}>
+          {empty.iconLabel ? <text fg={empty.iconColor ?? theme.colors.accent}>{empty.iconLabel}</text> : null}
+          <text fg={theme.colors.text}>{empty.title || emptyText}</text>
+          {empty.description ? <text fg={theme.colors.textMuted}>{empty.description}</text> : null}
+        </box>
+      ) : !hasCells ? (
         <text flexShrink={0} fg={theme.colors.textMuted}>
-          {emptyText}
+          {emptyText || "No results"}
         </text>
-      )}
+      ) : null}
     </>
   );
 }
