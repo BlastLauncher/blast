@@ -34,8 +34,11 @@ by a script, not only described.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/extension-walkthroughs @ dbc0f67
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 55.8s
 Done:
-Not done / risks:
+- Added four walkthrough pages for Random Color, Ratio Calculator, Markdown Reference, and Conventional Commits.
+- Added networked reproducible checks that fetch only the named corpus extension and drive it through `bun run blast run --script`.
+- Documented TUI and macOS launcher commands, capability behavior, and known limitations.
+Not done / risks: macOS GUI launch was documented but not automated, as required; capability checks use Blast's fake grants. The first final verify attempt hit a transient existing watch-test timing failure and passed on retry.
 ```

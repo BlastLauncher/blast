@@ -1,0 +1,3 @@
+# Dispatch the first prefix's fake paste action; the shell check asserts the capability call.
+action Paste in Active App
+quit

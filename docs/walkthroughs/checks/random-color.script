@@ -1,0 +1,3 @@
+# Dispatch the first Grid item's copy action; the shell check asserts the fake capability call.
+action Copy to Clipboard
+quit

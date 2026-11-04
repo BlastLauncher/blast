@@ -1,0 +1,4 @@
+action View
+wait
+expect Blockquotes
+quit
