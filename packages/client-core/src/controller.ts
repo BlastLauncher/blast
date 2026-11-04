@@ -2,6 +2,7 @@ import type { SceneMessage, SceneNode } from "@blastlauncher/protocol";
 import { event, handler, selectionId, text, type OutboundEvent } from "./nodes.ts";
 import { activeNode, actionRows, panelRows, sceneToView } from "./view.ts";
 import { contentGlyph, gridMove } from "./grid.ts";
+import { iconView } from "./icons.ts";
 import { dropdownLabel, dropdownOptions, visibleOptions } from "./dropdown.ts";
 import { createFormController, type FormInput, type FormFieldView } from "./form-view.ts";
 export type { FormFieldView } from "./form-view.ts";
@@ -55,6 +56,8 @@ export type RowView = {
   /** Items in a section header's section. */
   count: number | null;
   selected: boolean;
+  iconLabel: string;
+  iconColor?: string;
   /** The row as one line, for clients that do not lay columns out. */
   text: string;
 };
@@ -100,6 +103,7 @@ export type ControllerView = {
   grid: GridRowView[] | null;
   selectedId: string | null;
   emptyText: string;
+  empty: { title: string; description: string; iconLabel: string; iconColor?: string } | null;
   detail: string;
   primary: { title: string; shortcut: string; enabled: boolean };
   actions: {
@@ -623,6 +627,8 @@ export function createController(options: ControllerOptions): Controller {
         subtitle: row.subtitle ?? "",
         accessories: row.accessories ?? "",
         icon: row.icon === true,
+        iconLabel: row.iconView?.label ?? "",
+        ...(row.iconView?.tintColor ? { iconColor: row.iconView.tintColor } : {}),
         count: row.count ?? null,
         selected: item && row.node.id === list.selected?.id,
         text: row.text,
@@ -668,6 +674,18 @@ export function createController(options: ControllerOptions): Controller {
         : null,
       selectedId: selected,
       emptyText: list.emptyText,
+      empty: list.empty
+        ? {
+            title: text(list.empty.props.title),
+            description: text(list.empty.props.description),
+            iconLabel: list.empty.props.icon
+              ? iconView(list.empty.props.icon).label
+              : "",
+            ...(list.empty.props.icon && iconView(list.empty.props.icon).tintColor
+              ? { iconColor: iconView(list.empty.props.icon).tintColor }
+              : {}),
+          }
+        : null,
       detail: list.detail,
       primary: {
         title: text(primaryNode?.props.title) || (kind === "form" ? "Submit" : "Run"),

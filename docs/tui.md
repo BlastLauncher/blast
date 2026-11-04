@@ -90,10 +90,19 @@ Esc cancels. Values persist in `<dataDir>/preferences/<encoded-name>.json`
 - `List`/`Grid` pagination: when the selection reaches the last loaded item
   (or the last Grid row) and `pagination.hasMore` is set, the client sends one
   `onLoadMore` per item-count change; `isLoading` shows the loading line.
-- `Detail` shows markdown source as plain text plus metadata lines;
-  `List.Item.Detail` appears beside the list when `isShowingDetail`.
+- `Detail` and `List.Item.Detail` render terminal markdown: headings, emphasis,
+  lists, quotes, inline/fenced code and links (the URL is dimmed). Unknown
+  markdown remains visible as source text. Metadata lines follow the detail.
+- `List.EmptyView` and `Grid.EmptyView` show their icon, title and description;
+  an empty filtered view without one says `No results`.
+- Raycast `Icon.*` names map to compact terminal glyphs and unknown image values
+  use a readable fallback. Icon tint names use the TUI palette; `NO_COLOR`
+  remains supported by OpenTUI's terminal output.
 - Toasts and alerts stay while mounted; a HUD line shows for 2.5 s.
-- Unknown node types render as `[Unsupported: <type>]`.
+- Loading uses one `◌ Loading…` status indicator. Runtime failures show the
+  message, the latest runtime log line when available, and `Press Esc to quit`.
+- Unknown node types render as a dimmed `Unsupported view: <type>` notice while
+  retaining the original placeholder in client diagnostics.
 
 ## Forms
 

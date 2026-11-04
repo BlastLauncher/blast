@@ -15,6 +15,7 @@ import { GridView } from "./grid.tsx";
 import { DropdownPanel } from "./dropdown.tsx";
 import { MenuBarView } from "./menu-bar.tsx";
 import { FormView } from "./form.tsx";
+import { MarkdownView } from "./markdown.tsx";
 import { theme } from "./theme.ts";
 
 const platform: Platform =
@@ -45,6 +46,7 @@ export function App({
   const [view, setView] = useState(() => controller.view());
   const [scene, setScene] = useState<SceneMessage | undefined>(undefined);
   const [failure, setFailure] = useState<string | undefined>(undefined);
+  const [lastLog, setLastLog] = useState<string | undefined>(undefined);
   const scroll = useRef<ScrollBoxRenderable>(null);
   const actionScroll = useRef<ScrollBoxRenderable>(null);
   const timers = useRef(new Set<ReturnType<typeof setTimeout>>());
@@ -79,6 +81,12 @@ export function App({
     quitIfSettled();
   };
   const input = (action: ControllerInput) => dispatch(controller.input(action));
+  useEffect(() => {
+    setLastLog(session.logs.at(-1)?.message);
+    return typeof session.onLog === "function"
+      ? session.onLog((log) => setLastLog(log.message))
+      : undefined;
+  }, [session]);
   useEffect(() => {
     setView(controller.view());
     const stop = controller.subscribe(setView);
@@ -211,7 +219,7 @@ export function App({
   const leftFooter = [
     toastParts.join(" · "),
     hudText,
-    !toastParts.length && !hudText && view.loading ? "Loading…" : "",
+    !toastParts.length && !hudText && view.loading ? `${theme.glyphs.loading} Loading…` : "",
   ]
     .filter(Boolean)
     .join(" · ");
@@ -279,7 +287,7 @@ export function App({
               width={view.kind === "detail" ? 0 : view.detail ? "50%" : "100%"}
             >
               {view.grid ? (
-                <GridView rows={view.grid} emptyText={view.emptyText} />
+                <GridView rows={view.grid} emptyText={view.emptyText} empty={view.empty} />
               ) : (
                 <>
                   {view.rows.map((row) => {
@@ -302,7 +310,9 @@ export function App({
                             fg={theme.colors.textMuted}
                             attributes={TextAttributes.BOLD}
                           >
-                            {row.title}
+                            {row.kind === "unsupported"
+                              ? `Unsupported view: ${row.title.replace(/^\[Unsupported: |\]$/g, "")}`
+                              : row.title}
                           </text>
                           {row.count !== null ? (
                             <text flexShrink={0} wrapMode="none" fg={theme.colors.textMuted}>
@@ -330,6 +340,16 @@ export function App({
                         >
                           {isSelected ? `${theme.glyphs.pointer} ` : "  "}
                         </text>
+                        {row.iconLabel ? (
+                          <text
+                            flexShrink={0}
+                            wrapMode="none"
+                            fg={row.iconColor ?? theme.colors.accent}
+                            {...(isSelected ? { backgroundColor: theme.colors.selectionBg } : {})}
+                          >
+                            {`${row.iconLabel} `}
+                          </text>
+                        ) : null}
                         <text
                           flexShrink={0}
                           wrapMode="none"
@@ -367,17 +387,27 @@ export function App({
                       </box>
                     );
                   })}
-                  {view.kind !== "detail" && view.rows.length === 0 && (
-                    <text fg={theme.colors.textMuted}>{view.emptyText}</text>
-                  )}
+                  {view.kind !== "detail" && view.rows.length === 0 && view.empty ? (
+                    <box flexDirection="column" alignItems="center" paddingTop={2}>
+                      {view.empty.iconLabel ? (
+                        <text fg={view.empty.iconColor ?? theme.colors.accent}>
+                          {view.empty.iconLabel}
+                        </text>
+                      ) : null}
+                      <text fg={theme.colors.text}>{view.empty.title || "No results"}</text>
+                      {view.empty.description ? (
+                        <text fg={theme.colors.textMuted}>{view.empty.description}</text>
+                      ) : null}
+                    </box>
+                  ) : view.kind !== "detail" && view.rows.length === 0 ? (
+                    <text fg={theme.colors.textMuted}>No results</text>
+                  ) : null}
                 </>
               )}
             </scrollbox>
             {view.detail && (
               <scrollbox flexGrow={1} width={view.kind === "detail" ? "100%" : "50%"}>
-                <text height={view.detail.split("\n").length} flexShrink={0} fg={theme.colors.text}>
-                  {view.detail}
-                </text>
+                <MarkdownView markdown={view.detail} />
               </scrollbox>
             )}
           </box>
@@ -503,8 +533,13 @@ export function App({
           <text fg={theme.colors.text} height={1} flexShrink={0}>
             {failure}
           </text>
+          {lastLog ? (
+            <text fg={theme.colors.textMuted} flexShrink={0}>
+              {`Last log: ${lastLog}`}
+            </text>
+          ) : null}
           <text fg={theme.colors.textMuted} height={1} flexShrink={0}>
-            Esc Quit
+            Press Esc to quit
           </text>
         </box>
       )}
