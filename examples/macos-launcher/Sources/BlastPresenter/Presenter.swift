@@ -62,7 +62,8 @@ public final class LauncherPresenter {
                     message: $0.message,
                     actions: $0.actions.map { .init(title: $0.title, shortcut: $0.shortcut) }
                 )
-            }
+            },
+            hud: view.feedback.hud.flatMap { $0.title.isEmpty ? nil : $0.title }
         )
     }
 

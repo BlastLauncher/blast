@@ -158,6 +158,40 @@ struct AppKitTests {
         #expect(controller.searchField.stringValue == "zzz")
     }
 
+    @Test("renders the transient HUD overlay and hides it when absent")
+    @MainActor
+    func rendersHUD() throws {
+        _ = NSApplication.shared
+        let controller = LauncherWindowController()
+        defer { controller.window?.close() }
+        #expect(controller.hudLabel.isHidden)
+
+        controller.render(
+            LauncherDisplay(
+                title: "Blast",
+                searchText: "",
+                searchPlaceholder: "Search…",
+                body: .loading,
+                selectedRowIndex: nil,
+                actionsOpen: false,
+                actionsTitle: "Actions",
+                actions: [],
+                selectedActionIndex: nil,
+                canGoBack: false,
+                primaryTitle: "",
+                primaryShortcut: "",
+                primaryEnabled: false,
+                hud: "Copied"
+            )
+        )
+        #expect(controller.hudLabel.isHidden == false)
+        #expect(controller.hudLabel.stringValue == "Copied")
+
+        controller.render(.initial)
+        #expect(controller.hudLabel.isHidden)
+        #expect(controller.hudLabel.stringValue.isEmpty)
+    }
+
     @Test("maps AppKit key events to presenter keys")
     @MainActor
     func keyEvents() throws {

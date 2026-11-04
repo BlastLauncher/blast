@@ -184,12 +184,14 @@ public final class BlastClient: @unchecked Sendable {
     public func launchExtension(
         extension extensionID: String,
         command: String,
-        views: ViewPlatform? = .macOS
+        views: ViewPlatform? = .macOS,
+        installDependencies: Bool = false
     ) async throws -> String {
         var params: [String: JSONValue] = ["extension": .string(extensionID), "command": .string(command)]
         if let views {
             params["views"] = .object(["platform": .string(views.rawValue)])
         }
+        if installDependencies { params["installDependencies"] = .bool(true) }
         let result = try await request("extension.launch", params: .object(params))
         guard let session = result["session"]?.stringValue else {
             throw BlastError.malformedMessage("extension.launch did not return a session id")
