@@ -1,0 +1,69 @@
+{
+  "actions": {
+    "breadcrumb": [],
+    "open": false,
+    "query": "",
+    "rows": [],
+    "selectedIndex": -1,
+    "title": "Actions"
+  },
+  "detail": "",
+  "dropdown": null,
+  "empty": null,
+  "emptyText": "No results",
+  "feedback": {
+    "alert": null,
+    "hud": null,
+    "toast": null
+  },
+  "form": null,
+  "grid": null,
+  "kind": "menu-bar",
+  "loading": false,
+  "menuBar": {
+    "loading": false,
+    "path": [],
+    "rows": [
+      {
+        "disabled": true,
+        "id": "3",
+        "kind": "section",
+        "selected": false,
+        "shortcut": "",
+        "subtitle": "",
+        "title": "Tools"
+      },
+      {
+        "disabled": false,
+        "id": "2",
+        "kind": "submenu",
+        "selected": true,
+        "shortcut": "",
+        "subtitle": "",
+        "title": "More"
+      }
+    ],
+    "selectedId": "2",
+    "title": "Ready",
+    "tooltip": ""
+  },
+  "navigation": {
+    "canGoBack": false
+  },
+  "primary": {
+    "enabled": false,
+    "shortcut": "↵",
+    "title": "Run"
+  },
+  "requests": {
+    "clearSearch": false,
+    "quit": false
+  },
+  "rows": [],
+  "search": {
+    "placeholder": "Search…",
+    "text": ""
+  },
+  "selectedId": null,
+  "title": "Ready"
+}

@@ -1,0 +1,113 @@
+{
+  "actions": {
+    "breadcrumb": [],
+    "open": false,
+    "query": "",
+    "rows": [
+      {
+        "id": "1",
+        "kind": "action",
+        "selected": true,
+        "shortcut": "",
+        "title": "Delete beer"
+      }
+    ],
+    "selectedIndex": 0,
+    "title": "Actions"
+  },
+  "detail": "",
+  "dropdown": {
+    "label": "water",
+    "open": false,
+    "options": [
+      {
+        "current": false,
+        "section": "Drinks",
+        "selected": true,
+        "title": "beer",
+        "value": "beer"
+      },
+      {
+        "current": false,
+        "section": "Drinks",
+        "selected": false,
+        "title": "wine",
+        "value": "wine"
+      },
+      {
+        "current": true,
+        "section": "Drinks",
+        "selected": false,
+        "title": "water",
+        "value": "water"
+      }
+    ],
+    "query": "",
+    "selectedIndex": 0,
+    "tooltip": "Drink"
+  },
+  "empty": null,
+  "emptyText": "No results",
+  "feedback": {
+    "alert": null,
+    "hud": null,
+    "toast": null
+  },
+  "form": null,
+  "grid": [
+    {
+      "cells": [],
+      "header": "Drinks — Still or sparkling",
+      "id": "13"
+    },
+    {
+      "cells": [
+        {
+          "content": "beer.png",
+          "id": "4",
+          "selected": true,
+          "subtitle": "Germany",
+          "title": "beer"
+        },
+        {
+          "content": "wine.png",
+          "id": "8",
+          "selected": false,
+          "subtitle": "France",
+          "title": "wine"
+        },
+        {
+          "content": "water.png",
+          "id": "12",
+          "selected": false,
+          "subtitle": "Norway",
+          "title": "water"
+        }
+      ],
+      "header": "",
+      "id": null
+    }
+  ],
+  "kind": "grid",
+  "loading": false,
+  "menuBar": null,
+  "navigation": {
+    "canGoBack": false
+  },
+  "primary": {
+    "enabled": true,
+    "shortcut": "↵",
+    "title": "Delete beer"
+  },
+  "requests": {
+    "clearSearch": false,
+    "quit": false
+  },
+  "rows": [],
+  "search": {
+    "placeholder": "Search…",
+    "text": ""
+  },
+  "selectedId": "4",
+  "title": "grid"
+}

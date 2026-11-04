@@ -1,0 +1,26 @@
+import Foundation
+
+/// One capability forwarded by the engine: answer it with a value or an error.
+public struct CapabilityRequest: Equatable, Sendable {
+    public let id: String
+    public let session: String
+    public let name: String
+    public let params: JSONValue
+
+    public init(id: String, session: String, name: String, params: JSONValue) {
+        self.id = id
+        self.session = session
+        self.name = name
+        self.params = params
+    }
+}
+
+/// The embedder side of granted capabilities (clipboard, open, …).
+///
+/// `BlastClient` calls `handle` off the read loop and sends the returned value
+/// as `capability.result`; a thrown `EmbedderError` is forwarded as the
+/// `ok: false` error, and an uninstalled handler answers `ok: false` with
+/// `unhandled_capability`.
+public protocol CapabilityHandler: Sendable {
+    func handle(_ request: CapabilityRequest) async throws -> JSONValue
+}

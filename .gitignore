@@ -8,3 +8,6 @@ coverage/
 .env
 .env.*
 /examples/go-embedder/go-embedder
+
+# SwiftPM build products
+examples/macos-launcher/.build/

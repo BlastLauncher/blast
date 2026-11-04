@@ -1,0 +1,95 @@
+{
+  "actions": {
+    "breadcrumb": [],
+    "open": false,
+    "query": "",
+    "rows": [
+      {
+        "id": "1",
+        "kind": "action",
+        "selected": true,
+        "shortcut": "⌘C",
+        "title": "Copy apple"
+      },
+      {
+        "id": "2",
+        "kind": "action",
+        "selected": false,
+        "shortcut": "⌘↵",
+        "title": "Pin apple"
+      }
+    ],
+    "selectedIndex": 0,
+    "title": "Actions"
+  },
+  "detail": "",
+  "dropdown": null,
+  "empty": null,
+  "emptyText": "No results",
+  "feedback": {
+    "alert": null,
+    "hud": null,
+    "toast": null
+  },
+  "form": null,
+  "grid": null,
+  "kind": "list",
+  "loading": false,
+  "menuBar": null,
+  "navigation": {
+    "canGoBack": false
+  },
+  "primary": {
+    "enabled": true,
+    "shortcut": "↵",
+    "title": "Copy apple"
+  },
+  "requests": {
+    "clearSearch": false,
+    "quit": false
+  },
+  "rows": [
+    {
+      "accessories": "",
+      "count": null,
+      "icon": false,
+      "iconLabel": "",
+      "id": "5",
+      "kind": "item",
+      "selected": true,
+      "subtitle": "",
+      "text": "apple",
+      "title": "apple"
+    },
+    {
+      "accessories": "",
+      "count": null,
+      "icon": false,
+      "iconLabel": "",
+      "id": "10",
+      "kind": "item",
+      "selected": false,
+      "subtitle": "",
+      "text": "banana",
+      "title": "banana"
+    },
+    {
+      "accessories": "",
+      "count": null,
+      "icon": false,
+      "iconLabel": "",
+      "id": "15",
+      "kind": "item",
+      "selected": false,
+      "subtitle": "",
+      "text": "cherry",
+      "title": "cherry"
+    }
+  ],
+  "search": {
+    "placeholder": "Search…",
+    "text": ""
+  },
+  "selectedId": "5",
+  "title": "hello-list"
+}

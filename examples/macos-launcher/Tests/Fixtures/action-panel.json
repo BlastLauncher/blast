@@ -1,0 +1,120 @@
+{
+  "actions": {
+    "breadcrumb": [],
+    "open": true,
+    "query": "",
+    "rows": [
+      {
+        "id": "4",
+        "kind": "submenu",
+        "selected": true,
+        "shortcut": "",
+        "title": "Labels"
+      },
+      {
+        "id": "5",
+        "kind": "action",
+        "selected": false,
+        "shortcut": "⌘↵",
+        "title": "Open Target"
+      },
+      {
+        "id": "6",
+        "kind": "action",
+        "selected": false,
+        "shortcut": "",
+        "title": "Open With"
+      },
+      {
+        "id": "7",
+        "kind": "action",
+        "selected": false,
+        "shortcut": "",
+        "title": "Show in Finder"
+      },
+      {
+        "id": "8",
+        "kind": "action",
+        "selected": false,
+        "shortcut": "",
+        "title": "Move to Trash"
+      },
+      {
+        "id": "9",
+        "kind": "action",
+        "selected": false,
+        "shortcut": "",
+        "title": "Create Snippet"
+      },
+      {
+        "id": "10",
+        "kind": "action",
+        "selected": false,
+        "shortcut": "",
+        "title": "Create Quicklink"
+      },
+      {
+        "id": "11",
+        "kind": "action",
+        "selected": false,
+        "shortcut": "",
+        "title": "Quick Look"
+      },
+      {
+        "id": "12",
+        "kind": "action",
+        "selected": false,
+        "shortcut": "",
+        "title": "Pick a date"
+      }
+    ],
+    "selectedIndex": 0,
+    "title": "Actions"
+  },
+  "detail": "",
+  "dropdown": null,
+  "empty": null,
+  "emptyText": "No results",
+  "feedback": {
+    "alert": null,
+    "hud": null,
+    "toast": null
+  },
+  "form": null,
+  "grid": null,
+  "kind": "list",
+  "loading": false,
+  "menuBar": null,
+  "navigation": {
+    "canGoBack": false
+  },
+  "primary": {
+    "enabled": true,
+    "shortcut": "↵",
+    "title": "Open Target"
+  },
+  "requests": {
+    "clearSearch": false,
+    "quit": false
+  },
+  "rows": [
+    {
+      "accessories": "",
+      "count": null,
+      "icon": false,
+      "iconLabel": "",
+      "id": "15",
+      "kind": "item",
+      "selected": true,
+      "subtitle": "",
+      "text": "Everything",
+      "title": "Everything"
+    }
+  ],
+  "search": {
+    "placeholder": "Search…",
+    "text": ""
+  },
+  "selectedId": "15",
+  "title": "actions-variants"
+}

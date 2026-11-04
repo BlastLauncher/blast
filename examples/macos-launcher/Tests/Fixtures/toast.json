@@ -1,0 +1,48 @@
+{
+  "actions": {
+    "breadcrumb": [],
+    "open": false,
+    "query": "",
+    "rows": [],
+    "selectedIndex": -1,
+    "title": "Actions"
+  },
+  "detail": "",
+  "dropdown": null,
+  "empty": null,
+  "emptyText": "No results",
+  "feedback": {
+    "alert": null,
+    "hud": null,
+    "toast": {
+      "actions": [],
+      "message": "",
+      "style": "success",
+      "title": "Confirmed"
+    }
+  },
+  "form": null,
+  "grid": null,
+  "kind": "empty",
+  "loading": false,
+  "menuBar": null,
+  "navigation": {
+    "canGoBack": false
+  },
+  "primary": {
+    "enabled": false,
+    "shortcut": "↵",
+    "title": "Run"
+  },
+  "requests": {
+    "clearSearch": false,
+    "quit": false
+  },
+  "rows": [],
+  "search": {
+    "placeholder": "Search…",
+    "text": ""
+  },
+  "selectedId": null,
+  "title": "Blast"
+}

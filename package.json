@@ -37,7 +37,9 @@
     "release:build": "bun scripts/release/build.ts",
     "release:smoke": "bun scripts/release/smoke.ts",
     "example:go": "cd examples/go-embedder && go test ./...",
-    "release:bootstrap": "bun scripts/release/prerelease.ts bootstrap"
+    "release:bootstrap": "bun scripts/release/prerelease.ts bootstrap",
+    "example:mac": "cd examples/macos-launcher && swift test",
+    "example:mac:fixtures": "bun scripts/mac-fixtures.ts"
   },
   "devDependencies": {
     "@blastlauncher/shared-deps": "workspace:*",
