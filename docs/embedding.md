@@ -115,7 +115,7 @@ Opt into client-core view models — the server owns ranking, selection, actions
 {"type":"request","id":"5","method":"session.input","params":{"session":"3","input":{"type":"search","text":"apple"}}}
 ```
 
-`ControllerView` (`packages/client-core/src/controller.ts`) is deduplicated by JSON; scenes still flow without `views`, and `back` at the root closes the session.
+`ControllerView` (`packages/client-core/src/controller.ts`) is deduplicated by JSON; scenes still flow without `views`, and `back` at the root closes the session. The Go example reads `search.text`/`placeholder`, list `rows` (including `id`, `title`, `subtitle`, `selected`, and `text`) plus `selectedId`, `actions.open`/`query`/`rows` (action rows include `title` and `selected`), and `feedback.toast` (`style`, `title`, `message`, and `actions`).
 
 ## Capability catalog
 
