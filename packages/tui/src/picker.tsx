@@ -643,6 +643,8 @@ export function CommandSession({
   }>();
   const [active, setActive] = useState<{
     command: string;
+    pickerCommand: PickerCommand;
+    argumentValues: Record<string, string>;
     opened: OpenedCommand;
     /** Set before we close the session, so our own shutdown is not a crash. */
     closing: { value: boolean };
@@ -728,7 +730,13 @@ export function CommandSession({
           if (!closing.value && (exit.error || exit.code !== 0)) crashed.current = true;
         });
         setLaunching(undefined);
-        setActive({ command: command.name, opened, closing });
+        setActive({
+          command: command.name,
+          pickerCommand: command,
+          argumentValues: values,
+          opened,
+          closing,
+        });
       } catch (error) {
         setLaunching(undefined);
         setLaunchError(error instanceof Error ? error.message : String(error));
@@ -742,6 +750,20 @@ export function CommandSession({
     setActive(undefined);
     current.closing.value = true;
     void current.opened.close();
+  }
+  function relaunch() {
+    const current = latest.current.active;
+    if (!current || exiting.current) return;
+    setLastCommand(current.command);
+    current.closing.value = true;
+    setActive(undefined);
+    void current.opened.close().then(() => {
+      // Let React commit the picker state before launch's guard checks the
+      // latest active session. The command and arguments remain unchanged.
+      setTimeout(() => {
+        if (!exiting.current) launch(current.pickerCommand, current.argumentValues);
+      }, 0);
+    });
   }
   function quit() {
     if (exiting.current) return;
@@ -764,6 +786,7 @@ export function CommandSession({
         session={active.opened.session}
         onQuit={leave}
         onExit={quit}
+        onRelaunch={relaunch}
         {...(hudDurationMs === undefined ? {} : { hudDurationMs })}
       />
     );

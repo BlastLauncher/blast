@@ -324,7 +324,7 @@ test("look: form descriptions, separators and links are plain non-focusable text
   }
 });
 
-test("look: a failed command shows its message, the last log line and the Esc hint", async () => {
+test("look: a failed command shows its message, the last log line and back hint", async () => {
   const { session } = mockSession(
     sceneOf(
       node("List", "list", { navigationTitle: "Crash" }, [
@@ -350,7 +350,7 @@ test("look: a failed command shows its message, the last log line and the Esc hi
       (f) =>
         f.includes("Runtime blew up") &&
         f.includes("Last log: boom failure") &&
-        f.includes("Press Esc to quit"),
+        f.includes("Press Esc/B to go back"),
     );
     expect(frame).not.toContain("warn: slow");
   } finally {

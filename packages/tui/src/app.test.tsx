@@ -9,7 +9,7 @@ import type { Session } from "@blastlauncher/host";
 import type { SceneMessage } from "@blastlauncher/protocol";
 import { App } from "./app.tsx";
 import { openCommand } from "./session.ts";
-import { waitForFrame, waitScene } from "./test-support.ts";
+import { frameEventually, waitForFrame, waitScene } from "./test-support.ts";
 
 for (const fixture of ["hello-list", "list-extras"]) {
   test(`terminal drives ${fixture}: frames, search, selection, primary action and shutdown`, async () => {
@@ -354,12 +354,13 @@ test("no-view feedback command shows its HUD and the TUI exits 0", async () => {
   }
 }, 30_000);
 
-test("a failed runtime shows the error and waits for Esc", async () => {
+test("a failed runtime offers relaunch and back", async () => {
   let quit!: () => void;
   const quitting = new Promise<void>((resolve) => {
     quit = resolve;
   });
   let quitCount = 0;
+  let relaunchCount = 0;
   const session = {
     latestScene: {
       type: "scene",
@@ -386,13 +387,20 @@ test("a failed runtime shows the error and waits for Esc", async () => {
         quitCount++;
         quit();
       }}
+      onRelaunch={() => {
+        relaunchCount++;
+      }}
     />,
     { width: 70, height: 10, exitOnCtrlC: false },
   );
   try {
-    await waitForFrame(terminal, (frame) => frame.includes("Runtime exited: 1"));
-    // Other keys wait; only Esc (or Ctrl-C) quits.
+    await frameEventually(terminal, (frame) => frame.includes("Runtime exited: 1"));
+    expect(terminal.captureCharFrame()).toContain("R Relaunch · Esc/B Back");
+    // Other keys wait; R requests a fresh command session without quitting.
     await act(async () => terminal.mockInput.pressArrow("down"));
+    expect(quitCount).toBe(0);
+    await act(async () => terminal.mockInput.pressKey("r"));
+    expect(relaunchCount).toBe(1);
     expect(quitCount).toBe(0);
     await act(async () => {
       terminal.mockInput.pressEscape();

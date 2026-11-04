@@ -1,6 +1,6 @@
 /** @jsxImportSource @opentui/react */
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useKeyboard } from "@opentui/react";
+import { useKeyboard, useTerminalDimensions } from "@opentui/react";
 import { TextAttributes, type ScrollBoxRenderable } from "@opentui/core";
 import type { Session } from "@blastlauncher/host";
 import type { SceneMessage } from "@blastlauncher/protocol";
@@ -18,6 +18,7 @@ import { FormView } from "./form.tsx";
 import { EmptyState } from "./empty-state.tsx";
 import { MarkdownView } from "./markdown.tsx";
 import { iconTint, theme } from "./theme.ts";
+import { visibleRows } from "./virtual-list.ts";
 
 const platform: Platform =
   process.platform === "darwin" ? "macOS" : process.platform === "win32" ? "Windows" : "Linux";
@@ -38,12 +39,15 @@ export function App({
   session,
   onQuit,
   onExit,
+  onRelaunch,
   hudDurationMs,
 }: {
   session: Session;
   onQuit: () => void;
   /** Ctrl-C, which quits the whole TUI even when a picker owns the session. */
   onExit?: () => void;
+  /** Recover a crashed command without leaving the picker. */
+  onRelaunch?: () => void;
   hudDurationMs?: number;
 }) {
   const controller = useMemo(
@@ -64,13 +68,16 @@ export function App({
   onQuitRef.current = onQuit;
   const onExitRef = useRef(onExit);
   onExitRef.current = onExit;
+  const onRelaunchRef = useRef(onRelaunch);
+  onRelaunchRef.current = onRelaunch;
+  const { height: terminalHeight } = useTerminalDimensions();
   const requestQuit = () => {
     if (quitRequested.current) return;
     quitRequested.current = true;
     onQuitRef.current();
   };
   // A runtime that exits on its own is a no-view command: quit once its HUD
-  // (if any) has gone. A failed runtime shows the error and waits for Esc.
+  // (if any) has gone. A failed runtime stays actionable until back/relaunch.
   const quitIfSettled = () => {
     if (settled.current && !controller.view().feedback.hud) requestQuit();
   };
@@ -177,8 +184,13 @@ export function App({
       return;
     }
     if (failure) {
-      // A failed runtime only waits for Esc to quit.
-      if (key.name === "escape") {
+      if (key.name === "r" && onRelaunchRef.current) {
+        key.preventDefault();
+        setFailure(undefined);
+        setLastLog(undefined);
+        onRelaunchRef.current();
+      } else if (key.name === "escape" || key.name === "b") {
+        // Esc and b return to the picker (or quit in direct-command mode).
         key.preventDefault();
         requestQuit();
       }
@@ -254,6 +266,10 @@ export function App({
     .filter(Boolean)
     .join(" · ");
   const primaryTitle = view.primary.title;
+  // The client-core view stays complete for filtering and selection. OpenTUI
+  // only needs a bounded mount window; keeping a couple of rows around the
+  // viewport makes a one-row move cheap without changing semantics.
+  const listRows = visibleRows(view.rows, Math.max(1, terminalHeight - 6));
 
   return (
     <box
@@ -320,7 +336,7 @@ export function App({
                 <GridView rows={view.grid} emptyText={view.emptyText} empty={view.empty} />
               ) : (
                 <>
-                  {view.rows.map((row) => {
+                  {listRows.map((row) => {
                     const isSelected = row.selected;
                     if (row.kind !== "item") {
                       return (
@@ -558,7 +574,7 @@ export function App({
             {lastLog ? `Last log: ${lastLog}` : "No runtime log output."}
           </text>
           <text fg={theme.colors.textMuted} height={1} flexShrink={0}>
-            Press Esc to quit
+            {onRelaunch ? "R Relaunch · Esc/B Back" : "Press Esc/B to go back"}
           </text>
         </box>
       )}

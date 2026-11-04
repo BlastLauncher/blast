@@ -617,10 +617,10 @@ export function createController(options: ControllerOptions): Controller {
 
   function settle(out: ControllerResult): ControllerResult {
     reconcile(out);
-    const json = JSON.stringify(snapshot());
+    const next = snapshot();
+    const json = JSON.stringify(next);
     if (json !== lastJson) {
       lastJson = json;
-      const next = snapshot();
       for (const listener of listeners) listener(next);
     }
     return out;
