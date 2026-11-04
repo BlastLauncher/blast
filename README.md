@@ -104,6 +104,7 @@ bun run release:build   # npm tarballs into .cache/release (not published)
 
 - [Architecture](./docs/architecture.md) · [Capabilities](./docs/capabilities.md) ·
   [CLI](./docs/cli.md) · [TUI](./docs/tui.md) · [Decisions](./docs/decisions/)
+- [Cut a v3 prerelease](./docs/release.md)
 - [Plan, milestones and backlog](./PLAN.md)
 - [Contributor and agent workflow](./AGENTS.md)
 

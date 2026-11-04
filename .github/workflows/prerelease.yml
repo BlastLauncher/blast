@@ -1,0 +1,111 @@
+name: v3 prerelease
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "v3 prerelease version (for example 3.0.0-alpha.1)"
+        required: true
+        type: string
+      dry_run:
+        description: "Build and smoke-test without publishing"
+        required: true
+        default: true
+        type: boolean
+
+concurrency:
+  group: prerelease-${{ inputs.version }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    outputs:
+      publish_packages: ${{ steps.plan.outputs.publish_packages }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.4.2
+      - if: ${{ inputs.dry_run == false }}
+        name: Require npm token
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: bun scripts/release/prerelease.ts require-token
+      - run: bun install --frozen-lockfile
+      - id: plan
+        run: bun scripts/release/prerelease.ts plan --version "${{ inputs.version }}" --output "$GITHUB_OUTPUT"
+      - run: bun run verify
+      - run: bun run release:build --version "${{ inputs.version }}"
+      - run: bun run release:smoke
+      - name: Stage release artifacts
+        run: |
+          mkdir -p .cache/release/artifact
+          cp -R .cache/release/tarballs .cache/release/artifact/tarballs
+          cp packages/protocol/schema/embedder-v1.schema.json .cache/release/artifact/embedder-v1.schema.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: blast-v3-${{ inputs.version }}
+          path: .cache/release/artifact
+          if-no-files-found: error
+
+  publish:
+    if: ${{ inputs.dry_run == false }}
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.4.2
+      - name: Require npm token
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: bun scripts/release/prerelease.ts require-token
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: blast-v3-${{ inputs.version }}
+          path: .cache/release/artifact
+      - name: Publish packages under next
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          PUBLISH_PACKAGES: ${{ needs.build.outputs.publish_packages }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          umask 077
+          printf '%s\n' "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > "$HOME/.npmrc"
+          for package in $PUBLISH_PACKAGES; do
+            tarball_name="${package#@}"
+            tarball_name="${tarball_name//\//-}-${VERSION}.tgz"
+            tarball=".cache/release/artifact/tarballs/${tarball_name}"
+            test -f "$tarball" || { echo "Missing tarball: $tarball" >&2; exit 1; }
+            npm publish "$tarball" --tag next --access public --provenance
+          done
+      - name: Tag and create GitHub prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git tag "v${VERSION}"
+          git push origin "v${VERSION}"
+          gh release create "v${VERSION}" \
+            --prerelease \
+            --generate-notes \
+            --title "Blast ${VERSION}" \
+            .cache/release/artifact/tarballs/*.tgz \
+            .cache/release/artifact/embedder-v1.schema.json
