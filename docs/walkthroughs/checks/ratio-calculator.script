@@ -1,0 +1,4 @@
+search 1:2 = x:4
+wait
+expect X = 2.00
+quit
