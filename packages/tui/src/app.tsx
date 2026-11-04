@@ -15,11 +15,18 @@ import { GridView } from "./grid.tsx";
 import { DropdownPanel } from "./dropdown.tsx";
 import { MenuBarView } from "./menu-bar.tsx";
 import { FormView } from "./form.tsx";
+import { EmptyState } from "./empty-state.tsx";
 import { MarkdownView } from "./markdown.tsx";
-import { theme } from "./theme.ts";
+import { iconTint, theme } from "./theme.ts";
 
 const platform: Platform =
   process.platform === "darwin" ? "macOS" : process.platform === "win32" ? "Windows" : "Linux";
+
+/** Logs from stderr can be multi-line; the error panel shows one line. */
+function lastLogLine(logs: readonly { message: string }[]): string | undefined {
+  const message = logs.at(-1)?.message.trim();
+  return message?.split(/\r?\n/).filter(Boolean).at(-1);
+}
 
 /**
  * A terminal over the client-core controller: keys become controller inputs,
@@ -47,6 +54,7 @@ export function App({
   const [scene, setScene] = useState<SceneMessage | undefined>(undefined);
   const [failure, setFailure] = useState<string | undefined>(undefined);
   const [lastLog, setLastLog] = useState<string | undefined>(undefined);
+  const warnedUnsupported = useRef(new Set<string>());
   const scroll = useRef<ScrollBoxRenderable>(null);
   const actionScroll = useRef<ScrollBoxRenderable>(null);
   const timers = useRef(new Set<ReturnType<typeof setTimeout>>());
@@ -82,11 +90,20 @@ export function App({
   };
   const input = (action: ControllerInput) => dispatch(controller.input(action));
   useEffect(() => {
-    setLastLog(session.logs.at(-1)?.message);
+    setLastLog(lastLogLine(session.logs));
     return typeof session.onLog === "function"
-      ? session.onLog((log) => setLastLog(log.message))
+      ? session.onLog((log) => setLastLog(lastLogLine([log])))
       : undefined;
   }, [session]);
+  // A node type the client cannot draw is a product gap: keep the terse
+  // in-frame notice, but leave the raw marker in the process log once per type.
+  useEffect(() => {
+    for (const row of view.rows) {
+      if (row.kind !== "unsupported" || warnedUnsupported.current.has(row.title)) continue;
+      warnedUnsupported.current.add(row.title);
+      console.warn(`Blast TUI: ${row.text}`);
+    }
+  }, [view.rows]);
   useEffect(() => {
     setView(controller.view());
     const stop = controller.subscribe(setView);
@@ -219,7 +236,9 @@ export function App({
   const leftFooter = [
     toastParts.join(" · "),
     hudText,
-    !toastParts.length && !hudText && view.loading ? `${theme.glyphs.loading} Loading…` : "",
+    !toastParts.length && !hudText && !failure && view.loading
+      ? `${theme.glyphs.loading} Loading…`
+      : "",
   ]
     .filter(Boolean)
     .join(" · ");
@@ -311,7 +330,7 @@ export function App({
                             attributes={TextAttributes.BOLD}
                           >
                             {row.kind === "unsupported"
-                              ? `Unsupported view: ${row.title.replace(/^\[Unsupported: |\]$/g, "")}`
+                              ? `Unsupported view: ${row.title}`
                               : row.title}
                           </text>
                           {row.count !== null ? (
@@ -344,7 +363,7 @@ export function App({
                           <text
                             flexShrink={0}
                             wrapMode="none"
-                            fg={row.iconColor ?? theme.colors.accent}
+                            fg={iconTint(row.iconTint)}
                             {...(isSelected ? { backgroundColor: theme.colors.selectionBg } : {})}
                           >
                             {`${row.iconLabel} `}
@@ -387,20 +406,8 @@ export function App({
                       </box>
                     );
                   })}
-                  {view.kind !== "detail" && view.rows.length === 0 && view.empty ? (
-                    <box flexDirection="column" alignItems="center" paddingTop={2}>
-                      {view.empty.iconLabel ? (
-                        <text fg={view.empty.iconColor ?? theme.colors.accent}>
-                          {view.empty.iconLabel}
-                        </text>
-                      ) : null}
-                      <text fg={theme.colors.text}>{view.empty.title || "No results"}</text>
-                      {view.empty.description ? (
-                        <text fg={theme.colors.textMuted}>{view.empty.description}</text>
-                      ) : null}
-                    </box>
-                  ) : view.kind !== "detail" && view.rows.length === 0 ? (
-                    <text fg={theme.colors.textMuted}>No results</text>
+                  {view.kind !== "detail" && view.rows.length === 0 ? (
+                    <EmptyState empty={view.empty} emptyText={view.emptyText} />
                   ) : null}
                 </>
               )}
@@ -533,11 +540,9 @@ export function App({
           <text fg={theme.colors.text} height={1} flexShrink={0}>
             {failure}
           </text>
-          {lastLog ? (
-            <text fg={theme.colors.textMuted} flexShrink={0}>
-              {`Last log: ${lastLog}`}
-            </text>
-          ) : null}
+          <text fg={theme.colors.textMuted} flexShrink={0}>
+            {lastLog ? `Last log: ${lastLog}` : "No runtime log output."}
+          </text>
           <text fg={theme.colors.textMuted} height={1} flexShrink={0}>
             Press Esc to quit
           </text>

@@ -10,6 +10,21 @@ import {
   type FormFieldView,
 } from "@blastlauncher/client-core";
 import { pastedText } from "./paste.ts";
+import { theme } from "./theme.ts";
+
+const knownFields = new Set([
+  "TextField",
+  "TextArea",
+  "DatePicker",
+  "FilePicker",
+  "PasswordField",
+  "Checkbox",
+  "Separator",
+  "Description",
+  "LinkAccessory",
+  "Dropdown",
+  "TagPicker",
+]);
 
 export function FormView({
   form,
@@ -91,6 +106,7 @@ export function FormView({
           const selected = display?.focused === true;
           const options = display?.options ?? [];
           const kind = node.type.slice(5);
+          const unsupported = !knownFields.has(kind) && options.length === 0;
           return (
             <box key={node.id} id={node.id} flexDirection="column" flexShrink={0}>
               <text height={1}>
@@ -103,7 +119,10 @@ export function FormView({
               {["TextField", "TextArea", "DatePicker", "FilePicker"].includes(kind) ? (
                 <FieldInput field={display!} enabled={enabled && selected} input={input} />
               ) : (
-                <text height={Math.max(1, options.length)}>
+                <text
+                  height={Math.max(1, options.length)}
+                  {...(unsupported ? { fg: theme.colors.textMuted } : {})}
+                >
                   {kind === "PasswordField"
                     ? display?.hasValue
                       ? "••••••••"
@@ -125,7 +144,7 @@ export function FormView({
                             ? text(node.props.text)
                             : kind === "Dropdown" || kind === "TagPicker"
                               ? text(node.props.placeholder)
-                              : `[Unsupported: ${node.type}]`}
+                              : `Unsupported field: ${node.type}`}
                 </text>
               )}
               {!!display?.error && <text height={1}>{display.error}</text>}
@@ -136,10 +155,10 @@ export function FormView({
         .filter((node) => node.type === "Slot" && node.props.name !== "actions")
         .flatMap((node) => node.children)
         .map((node) => (
-          <text key={node.id}>
+          <text key={node.id} fg={theme.colors.textMuted}>
             {node.type === "Form.LinkAccessory"
               ? `${text(node.props.text)} ${text(node.props.target)}`
-              : `[Unsupported: ${node.type}]`}
+              : `Unsupported field: ${node.type}`}
           </text>
         ))}
     </scrollbox>

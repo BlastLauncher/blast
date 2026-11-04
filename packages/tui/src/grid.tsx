@@ -1,5 +1,6 @@
 /** @jsxImportSource @opentui/react */
 import type { ControllerView } from "@blastlauncher/client-core";
+import { EmptyState } from "./empty-state.tsx";
 import { theme } from "./theme.ts";
 
 export function GridView({
@@ -36,17 +37,7 @@ export function GridView({
           </box>
         ),
       )}
-      {!hasCells && empty ? (
-        <box flexDirection="column" alignItems="center" paddingTop={2}>
-          {empty.iconLabel ? <text fg={empty.iconColor ?? theme.colors.accent}>{empty.iconLabel}</text> : null}
-          <text fg={theme.colors.text}>{empty.title || emptyText}</text>
-          {empty.description ? <text fg={theme.colors.textMuted}>{empty.description}</text> : null}
-        </box>
-      ) : !hasCells ? (
-        <text flexShrink={0} fg={theme.colors.textMuted}>
-          {emptyText || "No results"}
-        </text>
-      ) : null}
+      {hasCells ? null : <EmptyState empty={empty} emptyText={emptyText} />}
     </>
   );
 }

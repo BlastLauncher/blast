@@ -86,6 +86,11 @@ test("unknown views and nodes are visible; primary action resolves Slots and fal
   let view = sceneToView(value, { searchText: "", selectedId: null });
   expect(view.primary).toBe(action);
   expect(view.rows[1]?.text).toBe("[Unsupported: Future]");
+  expect(view.rows[1]).toMatchObject({
+    title: "Future",
+    item: false,
+    unsupported: true,
+  });
   expect(view.loading).toBe(true);
   value.root!.children[0]!.children.push(
     node("Slot", "own", { name: "actions" }, [node("Action.SubmitForm", "own-action")]),

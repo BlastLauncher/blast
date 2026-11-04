@@ -57,7 +57,7 @@ export type RowView = {
   count: number | null;
   selected: boolean;
   iconLabel: string;
-  iconColor?: string;
+  iconTint?: string;
   /** The row as one line, for clients that do not lay columns out. */
   text: string;
 };
@@ -103,7 +103,7 @@ export type ControllerView = {
   grid: GridRowView[] | null;
   selectedId: string | null;
   emptyText: string;
-  empty: { title: string; description: string; iconLabel: string; iconColor?: string } | null;
+  empty: { title: string; description: string; iconLabel: string; iconTint?: string } | null;
   detail: string;
   primary: { title: string; shortcut: string; enabled: boolean };
   actions: {
@@ -622,13 +622,13 @@ export function createController(options: ControllerOptions): Controller {
       const item = row.item;
       return {
         id: item ? (selectionId(row.node) ?? row.node.id) : row.node.id,
-        kind: item ? "item" : row.text.startsWith("[Unsupported:") ? "unsupported" : "section",
+        kind: item ? "item" : row.unsupported ? "unsupported" : "section",
         title: row.title ?? row.text,
         subtitle: row.subtitle ?? "",
         accessories: row.accessories ?? "",
         icon: row.icon === true,
         iconLabel: row.iconView?.label ?? "",
-        ...(row.iconView?.tintColor ? { iconColor: row.iconView.tintColor } : {}),
+        ...(row.iconView?.tint ? { iconTint: row.iconView.tint } : {}),
         count: row.count ?? null,
         selected: item && row.node.id === list.selected?.id,
         text: row.text,
@@ -650,6 +650,7 @@ export function createController(options: ControllerOptions): Controller {
     const alert = feedback.alert;
     const dismiss = alert?.dismiss;
     const confirm = alert?.primary;
+    const emptyIcon = list.empty?.props.icon ? iconView(list.empty.props.icon) : undefined;
     return {
       kind,
       title: list.title,
@@ -678,12 +679,8 @@ export function createController(options: ControllerOptions): Controller {
         ? {
             title: text(list.empty.props.title),
             description: text(list.empty.props.description),
-            iconLabel: list.empty.props.icon
-              ? iconView(list.empty.props.icon).label
-              : "",
-            ...(list.empty.props.icon && iconView(list.empty.props.icon).tintColor
-              ? { iconColor: iconView(list.empty.props.icon).tintColor }
-              : {}),
+            iconLabel: emptyIcon?.label ?? "",
+            ...(emptyIcon?.tint ? { iconTint: emptyIcon.tint } : {}),
           }
         : null,
       detail: list.detail,

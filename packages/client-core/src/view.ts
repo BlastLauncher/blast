@@ -38,6 +38,8 @@ export type Row = {
   iconView?: IconView;
   count?: number;
   isSubmenu?: boolean;
+  /** A node type this client has no renderer for; `text` keeps the raw marker. */
+  unsupported?: boolean;
 };
 
 export function firstAction(node: SceneNode | undefined): SceneNode | undefined {
@@ -111,6 +113,21 @@ function sectionRow(node: SceneNode): Row {
   return { node, text: title, title, item: false };
 }
 
+/**
+ * A scene node the client cannot draw. `title` is the bare node type for a
+ * friendly notice; `text` keeps `[Unsupported: <type>]` for diagnostics and
+ * headless clients that only print one string per row.
+ */
+function unsupportedRow(node: SceneNode): Row {
+  return {
+    node,
+    title: node.type,
+    text: `[Unsupported: ${node.type}]`,
+    item: false,
+    unsupported: true,
+  };
+}
+
 export function sceneToView(scene: SceneMessage | undefined, state: UIState) {
   const list = activeNode(scene?.root);
   const rows: Row[] = [];
@@ -137,9 +154,8 @@ export function sceneToView(scene: SceneMessage | undefined, state: UIState) {
     // Children that are neither items nor sections have no list rendering.
     for (const node of list.children)
       if (!["List.Item", "List.Section", "List.EmptyView", "Slot"].includes(node.type))
-        rows.push({ node, text: `[Unsupported: ${node.type}]`, item: false });
-  } else if (!grid && list && list.type !== "Detail")
-    rows.push({ node: list, text: `[Unsupported: ${list.type}]`, item: false });
+        rows.push(unsupportedRow(node));
+  } else if (!grid && list && list.type !== "Detail") rows.push(unsupportedRow(list));
   const items = grid ? grid.cells : rows.filter((row) => row.item).map((row) => row.node);
   const desired = list?.props.selectedItemId ?? state.selectedId;
   const selected = items.find((item) => (item.props.id ?? item.id) === desired) ?? items[0];
@@ -172,7 +188,11 @@ export function sceneToView(scene: SceneMessage | undefined, state: UIState) {
       "Blast",
     loading: list?.props.isLoading === true || !scene,
     emptyText: empty
-      ? [empty.props.icon ? iconView(empty.props.icon).label : "", text(empty.props.title), text(empty.props.description)]
+      ? [
+          empty.props.icon ? iconView(empty.props.icon).label : "",
+          text(empty.props.title),
+          text(empty.props.description),
+        ]
           .filter(Boolean)
           .join("  ")
       : "No results",

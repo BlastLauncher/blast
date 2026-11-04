@@ -7,12 +7,6 @@ bun run tui <extensionDir> [command] [--native]
 A `[command]` opens it directly; otherwise the picker lists commands. `--native`
 enables system clipboard/paste, URL/file opens, file-manager reveal and trash.
 
-## Look
-
-Command palette styling features rounded frames, a search bar with a glyph,
-list rows with pointer markers and right-aligned accessories, floating action
-panels and dropdowns, and segmented footers with shortcut hints.
-
 ## Keys
 
 | Key             | Effect                                                                |
@@ -41,10 +35,9 @@ Action shortcuts use the Linux mapping (`cmd` is Ctrl); client keys take priorit
   `package.json`): command edits show up live. Invalid JSON or a missing
   `commands` array shows an inline error line and keeps the last good list.
 - A command declaring `arguments` opens a small form first: `text` and
-  `password` fields take typing (passwords are masked), `dropdown` cycles its
-  `data` options with ← / →; Tab / ↑ / ↓ move between fields. Enter launches
-  only once every required argument is filled, else an error line names what
-  is missing; values reach the command like the CLI's `--argument`.
+  `password` fields take typing (masked), `dropdown` cycles its `data` options
+  with ← / →; Tab / ↑ / ↓ move between fields. Enter launches once every
+  required argument is filled; values reach the command like `--argument`.
 - Esc at a command's root view, a no-view command finishing and the crash
   error screen all return to the picker, selection kept; Ctrl-C quits from
   anywhere; a launch failure (bundling) stays on the picker with an error
@@ -69,40 +62,38 @@ Esc cancels. Values persist in `<dataDir>/preferences/<encoded-name>.json`
   search handler owns filtering, and `throttle` delays the event by 200 ms.
 - `List` and `Grid` share selection, filtering and primary-action handling;
   the active view's root type picks the renderer. Grid lays items out in rows
-  of `columns` (default 5; a section's own `columns` overrides it) with a
-  header line per section; a cell shows its `content` as short text (image
-  source name or a color) above title/subtitle, `aspectRatio`, `fit` and
-  `inset` are ignored. ↑/↓ keep the column when crossing rows and sections,
-  clamping into shorter rows.
+  of `columns` (default 5; a section's `columns` overrides it) with a header
+  line per section; a cell shows its `content` as short text above
+  title/subtitle, and `aspectRatio`, `fit` and `inset` are ignored.
 - A `searchBarAccessory` dropdown (`List.Dropdown` / `Grid.Dropdown`) shows the
   current value's title next to the search bar; Ctrl-P opens its options
   (sections included) in a filterable panel, Enter sends `onChange` with the
   chosen value and Esc closes. The runtime owns the dropdown value.
 - Only the active `Navigation.Entry` renders. `popToRoot({ clearSearchBar })`
   and `clearSearchBar()` clear the input; `closeMainWindow()` quits.
-- `menu-bar` commands render their `MenuBarExtra` as a navigable menu: the
+- `menu-bar` commands render their `MenuBarExtra` as a navigable menu:
   `title`/`tooltip` head the window, Sections are headers, and Items (title,
-  subtitle, shortcut label) are selectable with ↑/↓. → / Enter opens a
-  Submenu and ← / Esc closes it; Enter on an Item runs its `onAction` with a
-  `left-click` event, and Items without one render dimmed.
+  subtitle, shortcut) select with ↑/↓. → / Enter opens a Submenu and ← / Esc
+  closes it; Enter on an Item runs `onAction` with a `left-click` event, and
+  Items without one render dimmed.
 - `no-view` commands render only feedback (alert, toast, HUD). When runtime
   exits 0, client quits after HUD (2.5 s). Errors wait for Esc; direct exits 1.
-- `List`/`Grid` pagination: when the selection reaches the last loaded item
-  (or the last Grid row) and `pagination.hasMore` is set, the client sends one
-  `onLoadMore` per item-count change; `isLoading` shows the loading line.
+- `List`/`Grid` pagination sends one `onLoadMore` per item-count change when the
+  selection reaches the last loaded item (or Grid row) and `hasMore` is set;
+  `isLoading` shows the loading line.
 - `Detail` and `List.Item.Detail` render terminal markdown: headings, emphasis,
-  lists, quotes, inline/fenced code and links (the URL is dimmed). Unknown
-  markdown remains visible as source text. Metadata lines follow the detail.
-- `List.EmptyView` and `Grid.EmptyView` show their icon, title and description;
-  an empty filtered view without one says `No results`.
-- Raycast `Icon.*` names map to compact terminal glyphs and unknown image values
-  use a readable fallback. Icon tint names use the TUI palette; `NO_COLOR`
-  remains supported by OpenTUI's terminal output.
+  lists, quotes, inline/fenced code and links (text plus a dimmed URL); other
+  syntax stays visible as source. Metadata lines follow the detail.
+- `List.EmptyView` and `Grid.EmptyView` show icon, title and description; without one an empty view says `No results`.
+- Raycast `Icon.*` names map to compact glyphs (`✓`, `⚙`, `★`, …); unknown icons
+  and images fall back to a short label or `▣`, and images are never fetched.
+  Icon tints resolve through the theme palette; `NO_COLOR` drops all attributes.
 - Toasts and alerts stay while mounted; a HUD line shows for 2.5 s.
-- Loading uses one `◌ Loading…` status indicator. Runtime failures show the
-  message, the latest runtime log line when available, and `Press Esc to quit`.
-- Unknown node types render as a dimmed `Unsupported view: <type>` notice while
-  retaining the original placeholder in client diagnostics.
+- Loading uses one `◌ Loading…` footer indicator; a runtime failure shows the
+  message, the last log line (or `No runtime log output.`) and `Press Esc to quit`.
+- Unknown node types render as a dimmed `Unsupported view: <type>` notice (Form
+  fields: `Unsupported field: <type>`); the raw `[Unsupported: <type>]` text
+  stays in client-core row `text` and is logged once per type on stderr.
 
 ## Forms
 
