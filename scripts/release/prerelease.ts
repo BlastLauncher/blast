@@ -71,8 +71,53 @@ export async function buildPublishPlan(
   return plan;
 }
 
-export function assertPublishToken(token: string | undefined): asserts token is string {
-  if (!token?.trim()) throw new Error("NPM_TOKEN is required for a real prerelease publish");
+/** npm's trusted publishing (GitHub Actions OIDC) needs npm 11.5.1 or later. */
+export const TRUSTED_PUBLISHING_NPM = "11.5.1";
+
+function versionParts(value: string): number[] {
+  return value.trim().split("-")[0]!.split(".").map(Number);
+}
+
+export function assertTrustedPublishingNpm(version: string): void {
+  const have = versionParts(version);
+  const need = versionParts(TRUSTED_PUBLISHING_NPM);
+  const valid = have.length >= 3 && have.slice(0, 3).every(Number.isInteger);
+  const diff = need.map((part, index) => (have[index] ?? 0) - part).find((value) => value !== 0);
+  if (!valid || (diff ?? 0) < 0)
+    throw new Error(
+      `Trusted publishing needs npm ${TRUSTED_PUBLISHING_NPM} or later, found ${version.trim()}`,
+    );
+}
+
+/**
+ * One-time commands the owner runs locally to move packages to trusted
+ * publishing: npm cannot attach a trusted publisher to a package that does not
+ * exist, so when any name is unpublished the whole set gets a first manual
+ * publish at one version, then every package trusts the prerelease workflow.
+ */
+export function bootstrapCommands(
+  plan: readonly { name: string; id: string; exists: boolean }[],
+  version: string,
+  repository = "BlastLauncher/blast",
+  workflow = "prerelease.yml",
+): string[] {
+  const tarball = (name: string) =>
+    `.cache/release/tarballs/${name.slice(1).replace("/", "-")}-${version}.tgz`;
+  const missing = plan.filter((pkg) => !pkg.exists);
+  return [
+    ...(missing.length
+      ? [
+          `bun run release:build --version ${version}`,
+          // Publish the whole set, in dependency order, so the bootstrap version
+          // installs: new packages depend on the same version of existing ones.
+          ...plan.map((pkg) => `npm publish ${tarball(pkg.name)} --tag next --access public`),
+        ]
+      : []),
+    ...plan.map(
+      (pkg) =>
+        `npm trust github ${pkg.name} --file ${workflow} --repo ${repository} --allow-publish -y`,
+    ),
+  ];
 }
 
 export async function readReleasePackages(): Promise<ReleasePackage[]> {
@@ -105,6 +150,19 @@ export function npmVersionExists(packageName: string, version: string): boolean 
   throw new Error(`Unable to query npm for ${packageName}@${version}: ${error || "npm failed"}`);
 }
 
+export function npmPackageExists(packageName: string): boolean {
+  const result = spawnSync("npm", ["view", packageName, "name"], {
+    cwd: root,
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  if (result.status === 0) return result.stdout.trim() === packageName;
+  if (/\bE404\b|\b404\b/.test(result.stderr)) return false;
+  throw new Error(
+    `Unable to query npm for ${packageName}: ${result.stderr.trim() || "npm failed"}`,
+  );
+}
+
 export function remoteTagExists(tag: string): boolean {
   const result = spawnSync(
     "git",
@@ -129,8 +187,18 @@ async function main() {
     },
   });
   const mode = positionals[0] ?? "plan";
-  if (mode === "require-token") {
-    assertPublishToken(process.env.NPM_TOKEN);
+  if (mode === "require-npm") {
+    const npm = spawnSync("npm", ["--version"], { encoding: "utf8" });
+    assertTrustedPublishingNpm(npm.stdout ?? "");
+    return;
+  }
+  if (mode === "bootstrap") {
+    // Prints only; the owner runs these logged in to npm. Nothing publishes here.
+    const version = values.version ?? "3.0.0-alpha.0";
+    validatePrereleaseVersion(version);
+    const release = await readReleasePackages();
+    const plan = release.map((pkg) => ({ ...pkg, exists: npmPackageExists(pkg.name) }));
+    console.log(bootstrapCommands(plan, version).join("\n"));
     return;
   }
   const version = values.version;

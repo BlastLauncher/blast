@@ -1,7 +1,8 @@
 import { expect, test } from "bun:test";
 import {
   assertTagAvailable,
-  assertPublishToken,
+  assertTrustedPublishingNpm,
+  bootstrapCommands,
   buildPublishPlan,
   orderByDependencies,
   tagForVersion,
@@ -76,10 +77,33 @@ test("publish planning skips versions already on npm and keeps dependency order"
   expect(lookedUp).toHaveLength(source.length);
 });
 
-test("real publishing requires an npm token", () => {
-  expect(() => assertPublishToken(undefined)).toThrow("NPM_TOKEN is required");
-  expect(() => assertPublishToken("  ")).toThrow("NPM_TOKEN is required");
-  expect(assertPublishToken("token")).toBeUndefined();
+test("trusted publishing requires npm 11.5.1 or later", () => {
+  for (const ok of ["11.5.1", "11.19.0\n", "12.0.0", "11.6.0-pre.1"])
+    expect(() => assertTrustedPublishingNpm(ok)).not.toThrow();
+  for (const old of ["11.5.0", "10.9.3", "11.4.9", "", "garbage"])
+    expect(() => assertTrustedPublishingNpm(old)).toThrow("npm 11.5.1 or later");
+});
+
+test("bootstrap publishes the whole set when any package is missing, then trusts all", () => {
+  const commands = bootstrapCommands(
+    [
+      { id: "cli", name: "@blastlauncher/cli", exists: true },
+      { id: "host", name: "@blastlauncher/engine", exists: false },
+    ],
+    "3.0.0-alpha.0",
+  );
+  expect(commands).toEqual([
+    "bun run release:build --version 3.0.0-alpha.0",
+    "npm publish .cache/release/tarballs/blastlauncher-cli-3.0.0-alpha.0.tgz --tag next --access public",
+    "npm publish .cache/release/tarballs/blastlauncher-engine-3.0.0-alpha.0.tgz --tag next --access public",
+    "npm trust github @blastlauncher/cli --file prerelease.yml --repo BlastLauncher/blast --allow-publish -y",
+    "npm trust github @blastlauncher/engine --file prerelease.yml --repo BlastLauncher/blast --allow-publish -y",
+  ]);
+  expect(
+    bootstrapCommands([{ id: "cli", name: "@blastlauncher/cli", exists: true }], "3.0.0-alpha.0"),
+  ).toEqual([
+    "npm trust github @blastlauncher/cli --file prerelease.yml --repo BlastLauncher/blast --allow-publish -y",
+  ]);
 });
 
 test("release planning refuses an existing version tag", () => {
