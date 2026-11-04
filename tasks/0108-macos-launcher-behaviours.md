@@ -1,7 +1,7 @@
 ---
 id: "0108"
 title: macOS example, part 3 — hotkey, OS actions and extension picker
-status: todo
+status: doing
 milestone: M7
 depends: ["0107"]
 ---
