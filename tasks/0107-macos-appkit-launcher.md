@@ -1,7 +1,7 @@
 ---
 id: "0107"
 title: macOS example, part 2 — AppKit launcher window
-status: todo
+status: doing
 milestone: M7
 depends: ["0106"]
 ---
