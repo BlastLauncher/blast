@@ -593,10 +593,7 @@ async function run(options: RunOptions): Promise<number> {
         dataDir: options.dataDir,
         command: options.command,
       });
-      if (
-        dependencies.unresolved.length &&
-        (dependencies.needed || !dependencies.installable)
-      )
+      if (dependencies.unresolved.length && (dependencies.needed || !dependencies.installable))
         throw new DependenciesRequiredError(dependencies);
       bundled = await Promise.race([
         bundleCommand({

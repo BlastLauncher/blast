@@ -11,11 +11,11 @@ const cleanups: (() => Promise<void>)[] = [];
 afterEach(async () => {
   await Promise.all(cleanups.splice(0).map((clean) => clean()));
 });
-async function client(native = false) {
+async function client(native = false, args: string[] = []) {
   const dir = await mkdtemp(join(tmpdir(), "blast-serve-"));
   const child = spawn(
     nodePath,
-    [resolve("packages/serve/src/main.ts"), ...(native ? ["--native"] : [])],
+    [resolve("packages/serve/src/main.ts"), ...(native ? ["--native"] : []), ...args],
     { env: { ...process.env, XDG_DATA_HOME: dir }, stdio: ["pipe", "pipe", "pipe"] },
   );
   const messages: Record<string, any>[] = [];
@@ -149,6 +149,37 @@ test("launch, scenes, events, capability forwarding and EOF shutdown", async () 
   );
   c.child.stdin.end();
   await c.wait((v) => v.event === "session.exited");
+  expect(await c.exited).toBe(0);
+});
+
+test("launch reports typed missing dependencies and accepts the install flag", async () => {
+  const c = await client();
+  await c.hello();
+  const missing = await c.request("extension.open", {
+    dir: resolve("fixtures/extensions/missing-dependency"),
+  });
+  const extension = missing.result.extension;
+  const failed = await c.request("extension.launch", {
+    extension,
+    command: "index",
+    installDependencies: false,
+  });
+  expect(failed.error).toMatchObject({
+    code: "missing_dependencies",
+    data: {
+      unresolved: ["@blast-missing/scoped", "blast-unavailable"],
+      installable: false,
+      pinned: false,
+    },
+  });
+  c.child.stdin.end();
+  expect(await c.exited).toBe(0);
+});
+
+test("serve auto dependency policy is accepted", async () => {
+  const c = await client(false, ["--dependencies", "auto"]);
+  await c.hello();
+  await c.request("engine.shutdown");
   expect(await c.exited).toBe(0);
 });
 

@@ -22,12 +22,13 @@ Install all local tarballs together with `npm install .cache/release/tarballs/*.
 ```ts
 import { createEngine } from "@blastlauncher/host";
 
-const engine = createEngine({ dataDir?: string, handlers?, installer? });
+const engine = createEngine({ dataDir?: string, handlers?, installer?, dependencies?: "manual" | "auto" });
 const unregister = engine.register(handlers);              // optional, later wins
 const extension = engine.openExtension({ extensionDir: "..." });
 const manifest = await extension.manifest();               // validated commands et al
 const { session, close } = await extension.launch("index", {
   argumentValues: { query: "a" },                          // optional
+  installDependencies: true,                              // optional per-launch install
   launchContext,                                           // optional
   handlers: { "clipboard.copy": (params) => "ok" },        // grants, optional
 });
@@ -38,23 +39,17 @@ await extension.close();                                   // ends its sessions
 ```
 
 `openExtension` also works standalone (`import { openExtension }`), with
-`manifest()`, `watch(listener)` (live reload), `dependencies.check()` /
-`install({ onLog })`, `preferences(command)` / `savePreferences(command, values)`
-and `launch(command, options)` as on the engine handle. Missing launch values
-reject with `MissingLaunchValuesError` (its `preferences` / `arguments` data is
-exactly what a settings UI needs). Launch options return `{ session, close }`;
-`session.scenes(callback)` subscribes and replays the latest scene, `latestScene`
-and `logs` are direct reads, `exited` resolves on exit, and errors appear in
-both logs and `exited.error`. Protocol version 1 (`packages/runtime`) is the
-host↔runtime wire; embedders do not see it — only scenes (`scene` messages),
-logs (`log` messages) and events.
+`manifest()`, `watch(listener)`, dependency check/install, preferences and
+`launch(command, options)` as on the engine handle. Unresolved dependencies
+reject with `DependenciesRequiredError` (`unresolved`, `installable`, `pinned`);
+pass `installDependencies: true` to install via the configured installer.
+`createEngine({ dependencies: "auto" })` makes that the default, while a launch
+can pass `false`. Missing launch values reject with `MissingLaunchValuesError`
+(`preferences` / `arguments` data); launch returns `{ session, close }`.
 
-To render: turn a scene into view models with
-`@blastlauncher/client-core` — framework-free `sceneToView`, `matchesQuery`,
-`selection`/event helpers (`event`, `handlerEvent`), `actionRows`,
-`matchesShortcut`, `shortcutLabel`, grid, dropdown, pagination and form-field
-behaviour driven by the same scene nodes — then handle pagination and `pop`
-requests yourself. The TUI (`packages/tui`) is the reference embedder.
+To render, turn scenes into view models with `@blastlauncher/client-core` —
+`sceneToView`, search, selection/event helpers, action rows, shortcuts, grid,
+dropdown, pagination and form fields — then handle pagination and `pop` requests.
 
 OS integration is opt-in: pass handlers yourself, or start from the optional
 `createNativeHandlers()` of `@blastlauncher/native` (clipboard, open, file
@@ -66,7 +61,7 @@ same way — `blast serve --native` plus any embedder-declared grants.
 Decisions 0009/0011, types in `@blastlauncher/protocol`:
 
 ```
-$ node packages/serve/src/main.ts [--native]      # or `bun run blast:serve`
+$ node packages/serve/src/main.ts [--native] [--dependencies manual|auto]      # or `bun run blast:serve`
 → NDJSON on stdout, stdin lines in; stdout carries protocol output only.
 ```
 
@@ -97,6 +92,11 @@ manifest change and dependency-install logs). Malformed lines get
 newline; a version mismatch ends the process with exit code 2. `engine.shutdown`
 finishes pending operations, cancels forwarded work and exits 0; EOF does the
 same. Line cap: 8 MiB.
+
+`extension.launch` accepts optional `installDependencies`; `--dependencies auto`
+on the serve process makes it the default. A rejected launch can use
+`missing_dependencies` with `{unresolved,installable,pinned}` data to prompt for
+an explicit retry.
 
 Capability forwarding: every grant you declared comes back as
 `capability.request {id,session,name,params}`; answer with

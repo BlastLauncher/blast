@@ -498,3 +498,17 @@ test("launch bundleTimeoutMs agrees between the validator and schema", () => {
     expect(schemaOf(message) === null).toBe(valid);
   }
 });
+
+test("launch installDependencies is an optional boolean", () => {
+  for (const installDependencies of [true, false, 1, "true", null]) {
+    const message = {
+      type: "request",
+      id: "1",
+      method: "extension.launch",
+      params: { extension: "1", command: "index", installDependencies },
+    };
+    const valid = typeof installDependencies === "boolean";
+    expect(parseEmbedderMessage(message).ok).toBe(valid);
+    expect(schemaOf(message) === null).toBe(valid);
+  }
+});

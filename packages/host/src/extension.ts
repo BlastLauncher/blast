@@ -48,7 +48,9 @@ export class DependenciesRequiredError extends Error {
 
   constructor(status: Pick<DependencyInstallStatus, "unresolved" | "installable" | "pinned">) {
     const names = [...new Set(status.unresolved)].toSorted();
-    super(`Missing dependencies: ${names.join(", ")}. Install dependencies before launching.`);
+    super(
+      `Missing dependencies: ${names.join(", ")}. Run blast deps <extensionDir> to install them before launching.`,
+    );
     this.name = "DependenciesRequiredError";
     this.unresolved = names;
     this.installable = status.installable;
@@ -152,13 +154,12 @@ export function createExtensionHandle(
       ...dependencyOptions,
       command: name,
     });
-    const installDependencies =
-      launchOptions.installDependencies ?? defaultInstallDependencies;
+    const installDependencies = launchOptions.installDependencies ?? defaultInstallDependencies;
     if (dependencyStatus.unresolved.length && installDependencies) {
       await installExtensionDependencies({
         ...dependencyOptions,
-        installer: options.installer,
-        onLog: launchOptions.onDependencyLog,
+        ...(options.installer ? { installer: options.installer } : {}),
+        ...(launchOptions.onDependencyLog ? { onLog: launchOptions.onDependencyLog } : {}),
       });
       dependencyStatus = await checkExtensionDependencies({
         ...dependencyOptions,

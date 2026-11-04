@@ -100,7 +100,7 @@ const errorInfo = (error: unknown) => ({
             pinned: error.pinned,
           }),
         }
-    : {}),
+      : {}),
 });
 const protocolError = (message: string, code = "invalid_message") =>
   send({ type: "error", error: { code, message } });
@@ -233,8 +233,8 @@ async function request(message: EmbedderRequest): Promise<JsonValue> {
         ...(message.params.bundleTimeoutMs === undefined
           ? {}
           : { timeoutMs: message.params.bundleTimeoutMs }),
-        onDependencyLog: (message) =>
-          event("dependencies.log", { extension: p.extension, message }),
+        onDependencyLog: (logMessage) =>
+          event("dependencies.log", { extension: p.extension, message: logMessage }),
         handlers: forwarding(key),
       });
       sessions.set(key, opened);
