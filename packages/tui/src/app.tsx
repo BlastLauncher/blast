@@ -603,7 +603,7 @@ export function App({
           <span fg={theme.colors.textMuted}>{` ${theme.glyphs.enter}  `}</span>
           <span fg={theme.colors.text}>Actions</span>
           <span fg={theme.colors.textMuted}>{` ${theme.glyphs.actionMod}`}</span>
-          <span fg={theme.colors.textMuted}>{" · ^↵ Secondary · ^C Copy"}</span>
+          {!toast && <span fg={theme.colors.textMuted}>{" · ^↵ Secondary · ^C Copy"}</span>}
         </text>
       </box>
     </box>
