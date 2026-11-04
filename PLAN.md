@@ -87,7 +87,7 @@ order with disk budgets.
 - [x] 0094 Full sweep; after 0095-0098: 5266/5759 commands render (`compat/SWEEP.md`)
 - [x] From the triage: 0095 Suspense/`use()`, 0096 JSONC tsconfig, 0097 sweep broker parity, 0098 sweep reporting
 - [x] 0099 Reclone the sweep corpus only near the budget (full runs under an hour)
-- [ ] 0100 Dependencies are part of launch: typed error, per-launch install, policy (`0012`)
+- [x] 0100 Dependencies are part of launch: typed error, per-launch install, policy (`0012`)
 
 ## Later (not scheduled)
 
