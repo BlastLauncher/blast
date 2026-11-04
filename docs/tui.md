@@ -6,7 +6,6 @@ bun run tui <extensionDir> [command] [--native]
 
 A `[command]` opens it directly; otherwise the picker lists commands. `--native`
 enables system clipboard/paste, URL/file opens, file-manager reveal and trash.
-
 ## Keys
 
 | Key             | Effect                                                                |
@@ -23,32 +22,18 @@ enables system clipboard/paste, URL/file opens, file-manager reveal and trash.
 | Ctrl-T / Ctrl-Y | toast primary / secondary action                                      |
 
 Action shortcuts use the Linux mapping (`cmd` is Ctrl); client keys take priority.
-
 ## Raycast parity checklist (0104)
 
-- **Toasts** — done: success/failure toasts dismiss after 3 seconds, while
-  animated toasts remain until the runtime updates or hides them. The terminal
-  shows style and action labels; the timeout is client-owned because the scene
-  protocol carries no timer.
-- **Action panels** — done: section headers, explicit and Raycast default
-  shortcuts are shown; Ctrl-K opens the panel, Ctrl-Enter invokes the second
-  action, and Ctrl-C invokes copy actions. Terminal Ctrl-C remains quit when no
-  copy action matches.
-- **Form presentation nodes** — done: `Description`, `Separator`, and
-  `LinkAccessory` render as non-focusable text. Link targets are shown so a
-  terminal has an inspectable destination.
-- **Navigation** — done: `navigationTitle` heads each view and pushed views
-  show a `‹` back affordance; Esc still performs the semantic back operation.
-- **Native window and clipboard affordances** — terminal limitation: these
-  remain embedder capabilities and are not emulated by the TUI.
-- **Pointer, animation, and desktop-only layout** — not planned for the
-  terminal client; semantic events remain available to other embedders.
-
+- **Toasts** — done: success/failure dismiss after 3 seconds; animated stays until updated.
+- **Action panels** — done: sections and labels; Ctrl-K opens, Ctrl-Enter runs the second action, Ctrl-C runs copy actions.
+- **Form presentation** — done: `Description`, `Separator`, and `LinkAccessory` are non-focusable text (targets shown).
+- **Navigation** — done: `navigationTitle` and `‹` back affordance; Esc performs semantic back.
+- **Native window/clipboard** — terminal limitation; these remain embedder capabilities.
+- **Pointer, animation, desktop layout** — not planned for this terminal client.
 ## Picker
 
 `bun run tui <extensionDir>` lists manifest commands. Rows show each command's
 `title` (else name), `subtitle` (else `description`), mode; header shows title.
-
 - Typing filters case-insensitively on title, subtitle and name; ↑ / ↓ move
   the selection; Enter launches; Esc / Ctrl-C quit the TUI.
 - The manifest is re-read while the picker is open (debounced `fs.watch` on
@@ -67,14 +52,12 @@ Action shortcuts use the Linux mapping (`cmd` is Ctrl); client keys take priorit
 The picker checks dependencies on open and on manifest changes. A status line
 shows npm progress; launches wait for install. Failures show inline and allow
 shared-dep fallback. Installs live under `<dataDir>/deps/` (decision 0008).
-
 Missing required preferences open **Set up <command>** before launch. Ctrl-E
 and `open*Preferences` open full **Preferences — <extension>** view (Extension
 and command sections, `*` required, field description); saves without launch.
 Passwords masked, Space toggles checkboxes, ←/→ cycles dropdowns, Enter saves,
 Esc cancels. Values persist in `<dataDir>/preferences/<encoded-name>.json`
 (**plaintext, mode 0600**). Data root: `$XDG_DATA_HOME/blast` (or `~/.local/share/blast`).
-
 ## Rendering
 
 - Client filtering ranks matches (title, keywords, subtitle) and orders sections
@@ -108,19 +91,16 @@ Esc cancels. Values persist in `<dataDir>/preferences/<encoded-name>.json`
 - Raycast `Icon.*` names map to compact glyphs (`✓`, `⚙`, `★`, …); unknown icons
   and images fall back to a short label or `▣`, and images are never fetched.
   Icon tints resolve through the theme palette; `NO_COLOR` drops all attributes.
-- Success and failure toasts show for 3 s; animated toasts stay until updated.
-  Alerts stay while mounted; a HUD line shows for 2.5 s.
+- Alerts stay while mounted; a HUD line shows for 2.5 s.
 - Loading uses one `◌ Loading…` footer indicator; a runtime failure shows the
   message, the last log line (or `No runtime log output.`) and `Press Esc to quit`.
 - Unknown node types render as a dimmed `Unsupported view: <type>` notice (Form
   fields: `Unsupported field: <type>`); the raw `[Unsupported: <type>]` text
   stays in client-core row `text` and is logged once per type on stderr.
-
 ## Forms
 
 Forms show labels, help and errors. Tab / Shift-Tab move through fields; ↑ / ↓
 do the same outside TextArea. Scene focus requests reach the runtime.
-
 - TextField edits one line; TextArea uses Enter for newlines and ↑ / ↓ for
   its cursor. Ctrl-Enter or Ctrl-S submits from any field.
 - Enter runs the primary action outside TextArea and pickers. Ctrl-K opens
@@ -136,5 +116,4 @@ do the same outside TextArea. Scene focus requests reach the runtime.
 - Runtime values own field state, including controlled values, stored values
   and restored drafts. The client sends edits and SubmitForm events; the
   runtime persists enabled drafts and clears them after successful submission.
-
-Esc goes back/quits. Description, Separator and LinkAccessory render as text.
+  Esc goes back/quits.
