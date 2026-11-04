@@ -39,10 +39,16 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: bun scripts/release/prerelease.ts require-token
       - run: bun install --frozen-lockfile
+      # Inputs reach the shell only through env, never interpolated into the
+      # script text, so a crafted version cannot run before it is validated.
       - id: plan
-        run: bun scripts/release/prerelease.ts plan --version "${{ inputs.version }}" --output "$GITHUB_OUTPUT"
+        env:
+          VERSION: ${{ inputs.version }}
+        run: bun scripts/release/prerelease.ts plan --version "$VERSION" --output "$GITHUB_OUTPUT"
       - run: bun run verify
-      - run: bun run release:build --version "${{ inputs.version }}"
+      - env:
+          VERSION: ${{ inputs.version }}
+        run: bun run release:build --version "$VERSION"
       - run: bun run release:smoke
       - name: Stage release artifacts
         run: |
