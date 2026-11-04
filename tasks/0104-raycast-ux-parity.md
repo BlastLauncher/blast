@@ -1,7 +1,7 @@
 ---
 id: "0104"
 title: Raycast UX parity in client-core and the TUI
-status: todo
+status: doing
 milestone: M6
 depends: ["0103"]
 ---
