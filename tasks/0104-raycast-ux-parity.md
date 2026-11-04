@@ -48,8 +48,12 @@ usage first (`compat/raycast-usage.json` has weights).
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/raycast-ux-parity @ b95948e2c01290742a83b5bf54f0df6da23f1c3c
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 53.3s (env -u NO_COLOR bun run verify)
 Done:
-Not done / risks:
+- Added client-core toast lifetimes, style normalization, and deterministic schedule/tick behavior.
+- Added Raycast default action shortcuts, section/shortcut view data, and navigation back metadata.
+- Routed TUI secondary/copy shortcuts, added pushed-view back affordances, and rendered form presentation nodes as text.
+- Added parity checklist and controller/TUI regression coverage.
+Not done / risks: The repository shell exports `NO_COLOR=1`, which makes pre-existing color assertions fail under a literal `bun run verify`; the recorded passing gate clears that environment variable.
 ```
