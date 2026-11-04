@@ -89,11 +89,11 @@ order with disk budgets.
 - [x] 0099 Reclone the sweep corpus only near the budget (full runs under an hour)
 - [x] 0100 Dependencies are part of launch: typed error, per-launch install, policy (`0012`)
 - [x] 0101 Go example on `blast serve` views; Go tests in CI
+- [ ] 0102 v3 pre-release workflow (dry run by default; publish needs `NPM_TOKEN`)
 
 ## Later (not scheduled)
 
 - native: macOS window ops without yabai (System Events); honour paste `closeMainWindow`.
-- Publish to npm: owner plans to, timing theirs (`3.0.0-alpha.N` on `next`).
 - Autonomous orchestrator loop over `tasks/`; delete `archive/`.
 - Desktop launcher (MyGo) and further TUI launcher polish (out of scope per 0009).
 
