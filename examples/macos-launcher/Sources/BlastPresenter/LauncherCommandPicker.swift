@@ -6,11 +6,15 @@ public struct LauncherCommand: Equatable, Sendable {
     public let name: String
     public let title: String
     public let subtitle: String
+    public let extensionDirectory: String?
+    public let extensionName: String?
 
-    public init(name: String, title: String, subtitle: String = "") {
+    public init(name: String, title: String, subtitle: String = "", extensionDirectory: String? = nil, extensionName: String? = nil) {
         self.name = name
         self.title = title
         self.subtitle = subtitle
+        self.extensionDirectory = extensionDirectory
+        self.extensionName = extensionName
     }
 }
 

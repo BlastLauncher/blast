@@ -318,3 +318,69 @@ private enum Fixtures {
         return try JSONDecoder().decode(ControllerView.self, from: JSONEncoder().encode(json))
     }
 }
+
+@Suite("Launcher behaviours")
+struct LauncherBehaviourTests {
+    private final class FakeHotkey: LauncherHotkeySource, @unchecked Sendable {
+        var callback: (@Sendable () -> Void)?
+        func start(_ handler: @escaping @Sendable () -> Void) throws { callback = handler }
+        func stop() { callback = nil }
+        func press() { callback?() }
+    }
+    private final class BoolRecorder: @unchecked Sendable {
+        var values: [Bool] = []
+    }
+    private final class AttemptRecorder: @unchecked Sendable {
+        var values: [Bool] = []
+    }
+
+    @Test("injected hotkey toggles presentation without registering a system shortcut")
+    func hotkeyToggle() throws {
+        let source = FakeHotkey()
+        let recorder = BoolRecorder()
+        let controller = LauncherHotkeyController(source: source) { recorder.values.append($0) }
+        try controller.start()
+        source.press(); source.press()
+        #expect(controller.hotkey == .defaultOptionSpace)
+        #expect(controller.isPresented == false)
+        #expect(recorder.values == [true, false])
+    }
+
+    @Test("catalog scans extension folders and picker searches across them")
+    func catalog() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("catalog-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: root) }
+        for (name, title) in [("one", "Alpha"), ("two", "Beta")] {
+            let directory = root.appendingPathComponent(name)
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            let manifest = "{\"name\":\"\(name)\",\"commands\":[{\"name\":\"index\",\"title\":\"\(title)\",\"mode\":\"view\"}]}"
+            try Data(manifest.utf8).write(to: directory.appendingPathComponent("package.json"))
+        }
+        let found = try LauncherCommandCatalog.load(from: root)
+        #expect(found.map { $0.command.title } == ["Alpha", "Beta"])
+        var picker = LauncherCommandPicker(commands: found.map(\.command))
+        picker.search("beta")
+        #expect(picker.selectedCommand?.extensionDirectory?.hasSuffix("/two") == true)
+    }
+
+    @Test("dependency prompt retries only after confirmation")
+    func dependencyRetry() async throws {
+        let dependency = MissingDependencies(unresolved: ["left-pad"], installable: true, pinned: true)
+        let remote = EmbedderError(code: "missing_dependencies", message: "install", data: try JSONEncoder().encode(dependency).jsonValue)
+        let recorder = AttemptRecorder()
+        let coordinator = LauncherLaunchCoordinator(
+            launch: { install in
+                recorder.values.append(install)
+                if !install { throw BlastError.remote(remote) }
+                return "session"
+            },
+            confirmInstall: { _ in true }
+        )
+        #expect(try await coordinator.run() == "session")
+        #expect(recorder.values == [false, true])
+    }
+}
+
+private extension Data {
+    var jsonValue: JSONValue { (try? JSONDecoder().decode(JSONValue.self, from: self)) ?? .null }
+}

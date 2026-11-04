@@ -41,8 +41,12 @@ decision 0012 (`missing_dependencies` → offer install).
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3-122aae73 @ pending commit
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 57.6s
 Done:
-Not done / risks:
+- Added injected hotkey toggle state with configurable default ⌥Space.
+- Added deterministic multi-extension manifest discovery and searchable picker entries.
+- Added capability routing, real AppKit clipboard/open/HUD adapters, and typed dependency install confirmation/retry.
+- Added fake-driven behavior and routing tests; updated launcher capability documentation.
+Not done / risks: AppKit hotkey adapter uses NSEvent's global monitor; no automated test registers a real shortcut or touches OS state.
 ```

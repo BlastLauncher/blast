@@ -3,14 +3,49 @@ import Foundation
 import BlastKit
 import BlastPresenter
 
-/// Grants every capability the launcher asks for and logs it. Copying to the
-/// real system clipboard is deliberately out of scope for this example (0107);
-/// the log keeps the capability visible without touching user state.
-struct LoggingCapabilityHandler: CapabilityHandler, Sendable {
+/// Thin AppKit adapters. Tests use CapabilityRouter with in-memory handlers;
+/// this type is only constructed by the executable.
+struct MacOSCapabilityHandler: CapabilityHandler, @unchecked Sendable {
     func handle(_ request: CapabilityRequest) async throws -> JSONValue {
-        let line = "capability \(request.name) \(request.params)\n"
-        FileHandle.standardError.write(Data(line.utf8))
-        return .null
+        switch request.name {
+        case "clipboard.copy":
+            let text = request.params["text"]?.stringValue ?? ""
+            await MainActor.run { NSPasteboard.general.clearContents(); NSPasteboard.general.setString(text, forType: .string) }
+            return .null
+        case "clipboard.paste":
+            return await MainActor.run { .string(NSPasteboard.general.string(forType: .string) ?? "") }
+        case "open.url":
+            guard let value = request.params["url"]?.stringValue, let url = URL(string: value), url.scheme != nil else {
+                throw EmbedderError(code: "invalid_argument", message: "open.url requires a valid url")
+            }
+            _ = await MainActor.run { NSWorkspace.shared.open(url) }
+            return .null
+        case "open.path":
+            guard let value = request.params["path"]?.stringValue else { throw EmbedderError(code: "invalid_argument", message: "open.path requires path") }
+            _ = await MainActor.run { NSWorkspace.shared.open(URL(fileURLWithPath: value)) }
+            return .null
+        case "hud.show":
+            let title = request.params["title"]?.stringValue ?? request.params["message"]?.stringValue ?? ""
+            await MainActor.run { NSApp.dockTile.badgeLabel = title.isEmpty ? nil : "✓" }
+            return .null
+        default:
+            throw EmbedderError(code: "unhandled_capability", message: "No handler for \(request.name).")
+        }
+    }
+}
+
+private final class AppKitHotkeySource: LauncherHotkeySource, @unchecked Sendable {
+    private var monitor: Any?
+    private let hotkey: LauncherHotkey
+    init(hotkey: LauncherHotkey) { self.hotkey = hotkey }
+    func start(_ handler: @escaping @Sendable () -> Void) throws {
+        monitor = NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { [hotkey] event in
+            guard event.keyCode == (hotkey.key == "space" ? 49 : 0), event.modifierFlags.contains(.option) else { return }
+            handler()
+        }
+    }
+    func stop() {
+        if let monitor { NSEvent.removeMonitor(monitor); self.monitor = nil }
     }
 }
 
@@ -30,6 +65,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var extensionID: String?
     private var mode: Mode = .picker
     private var picker = LauncherCommandPicker(commands: [])
+    private var discovered: [DiscoveredLauncherCommand] = []
+    private var hotkeyController: LauncherHotkeyController?
 
     init(extensionDirectory: String, command: String?) {
         self.extensionDirectory = extensionDirectory
@@ -39,6 +76,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         let controller = LauncherWindowController(presenter: presenter)
+        let hotkeys = LauncherHotkeyController(source: AppKitHotkeySource(hotkey: .defaultOptionSpace)) { [weak self] presented in
+            Task { @MainActor [weak self] in
+                guard let window = self?.windowController?.window else { return }
+                if presented { window.makeKeyAndOrderFront(nil) } else { window.orderOut(nil) }
+            }
+        }
+        hotkeyController = hotkeys
+        try? hotkeys.start()
         controller.onInput = { [weak self] input in self?.handle(input) }
         controller.onCancel = { NSApplication.shared.terminate(nil) }
         windowController = controller
@@ -49,6 +94,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillTerminate(_ notification: Notification) {
+        hotkeyController?.stop()
         client?.close()
     }
 
@@ -65,24 +111,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 servePath: ProcessTransport.defaultServePath,
                 workingDirectory: root
             )
-            let blast = BlastClient(transport: transport, capabilityHandler: LoggingCapabilityHandler())
+            let blast = BlastClient(transport: transport, capabilityHandler: MacOSCapabilityHandler())
             client = blast
             blast.onEvent = { [weak self] event in
                 Task { @MainActor in self?.handle(event) }
             }
-            _ = try await blast.start(capabilities: ["clipboard.copy"])
-            let opened = try await blast.openExtension(dir: extensionDirectory)
-            extensionID = opened
-
+            _ = try await blast.start(capabilities: ["clipboard.copy", "clipboard.paste", "open.url", "open.path", "hud.show"])
+            discovered = try LauncherCommandCatalog.load(from: URL(fileURLWithPath: extensionDirectory))
+            if discovered.isEmpty { throw LauncherError.noCommands }
             if let requestedCommand {
-                await launch(requestedCommand)
+                let selected = discovered.first { $0.command.name == requestedCommand }?.command
+                await launch(selected ?? LauncherCommand(name: requestedCommand, title: requestedCommand, extensionDirectory: extensionDirectory))
                 return
             }
-            let manifest = try await blast.request(
-                "extension.manifest",
-                params: .object(["extension": .string(opened)])
-            )
-            picker = LauncherCommandPicker(commands: Self.commands(from: manifest))
+            picker = LauncherCommandPicker(commands: discovered.map(\.command))
             mode = .picker
             render(picker.display)
         } catch {
@@ -90,13 +132,30 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    private func launch(_ command: String) async {
-        guard let blast = client, let extensionID else { return }
+    private func launch(_ command: LauncherCommand) async {
+        guard let blast = client else { return }
         do {
+            let directory = command.extensionDirectory ?? extensionDirectory
+            let opened = try await blast.openExtension(dir: directory)
+            extensionID = opened
+            let coordinator = LauncherLaunchCoordinator(
+                launch: { install in try await blast.launchExtension(extension: opened, command: command.name, installDependencies: install) },
+                confirmInstall: { [weak self] dependencies in await self?.confirmInstall(dependencies) ?? false },
+                prompt: { _ in }
+            )
             mode = .session
-            session = try await blast.launchExtension(extension: extensionID, command: command)
-        } catch {
-            present(error)
+            session = try await coordinator.run()
+        } catch { present(error) }
+    }
+
+    private func confirmInstall(_ dependencies: MissingDependencies) async -> Bool {
+        await MainActor.run {
+            let alert = NSAlert()
+            alert.messageText = "Install dependencies?"
+            alert.informativeText = dependencies.unresolved.joined(separator: ", ")
+            alert.addButton(withTitle: "Install")
+            alert.addButton(withTitle: "Cancel")
+            return alert.runModal() == .alertFirstButtonReturn
         }
     }
 
@@ -132,7 +191,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             render(picker.display)
         case .primary:
             guard let command = picker.selectedCommand else { return }
-            Task { await launch(command.name) }
+            Task { await launch(command) }
         default:
             break
         }
@@ -192,10 +251,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
 enum LauncherError: Error, CustomStringConvertible {
     case missingEngine(String)
+    case noCommands
 
     var description: String {
         switch self {
         case .missingEngine(let message): message
+        case .noCommands: "no commands found in extension directory"
         }
     }
 }

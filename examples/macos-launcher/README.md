@@ -36,9 +36,11 @@ swift run --package-path examples/macos-launcher BlastLauncher fixtures/extensio
 ```
 
 If the engine is elsewhere, set `BLAST_REPO_ROOT` to a checkout that contains
-`packages/serve/src/main.ts`. Capabilities are granted and logged to stderr;
-this example deliberately does not write the real clipboard or open URLs
-(0107 leaves that to a later task).
+`packages/serve/src/main.ts`. Capabilities are handled by `MacOSCapabilityHandler`: `NSPasteboard` serves
+`clipboard.copy`/`clipboard.paste`, `NSWorkspace` opens `open.url` and
+`open.path`, and `hud.show` updates the app badge. Tests inject `CapabilityRouter`
+handlers and never touch these real APIs. The default global shortcut is ⌥Space;
+it toggles the panel and is owned by the AppKit adapter.
 
 ## Build and test
 

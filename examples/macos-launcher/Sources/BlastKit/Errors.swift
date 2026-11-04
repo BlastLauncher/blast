@@ -30,6 +30,12 @@ public struct MissingDependencies: Codable, Equatable, Sendable {
     public let unresolved: [String]
     public let installable: Bool
     public let pinned: Bool
+
+    public init(unresolved: [String], installable: Bool, pinned: Bool) {
+        self.unresolved = unresolved
+        self.installable = installable
+        self.pinned = pinned
+    }
 }
 
 public extension EmbedderError {

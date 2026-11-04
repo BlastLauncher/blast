@@ -366,3 +366,25 @@ private func expectBlastError(from task: Task<JSONValue, Error>) async throws ->
         return error
     }
 }
+
+@Suite("Capability routing")
+struct CapabilityRoutingTests {
+    @Test("routes named capabilities to injected handlers without OS side effects")
+    func routes() async throws {
+        let router = CapabilityRouter(handlers: [
+            "clipboard.copy": { request in request.params["text"] ?? .null },
+            "hud.show": { _ in .string("shown") },
+        ])
+        let copy = try await router.handle(CapabilityRequest(
+            id: "1", session: "s", name: "clipboard.copy", params: .object(["text": .string("safe")])
+        ))
+        #expect(copy == .string("safe"))
+        #expect(try await router.handle(CapabilityRequest(id: "2", session: "s", name: "hud.show", params: .null)) == .string("shown"))
+        do {
+            _ = try await router.handle(CapabilityRequest(id: "3", session: "s", name: "open.url", params: .null))
+            Issue.record("unhandled capability unexpectedly succeeded")
+        } catch let error as EmbedderError {
+            #expect(error.code == "unhandled_capability")
+        }
+    }
+}
