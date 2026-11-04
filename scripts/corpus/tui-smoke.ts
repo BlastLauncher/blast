@@ -35,14 +35,17 @@ export const TUI_OUTCOMES: readonly TuiOutcome[] = [
 export const FRAME_EXCERPT_LINES = 3;
 
 /**
- * The node types the TUI printed its `[Unsupported: Node]` row for, sorted and
+ * The node types the TUI printed an unsupported notice for, sorted and
  * deduplicated (see `view.ts` and `form.tsx`: a scene node the client has no
- * renderer for, and a Form field type it does not know).
+ * renderer for, and a Form field type it does not know). Since 0103 the frame
+ * shows `Unsupported view: X` / `Unsupported field: X`; the older
+ * `[Unsupported: X]` form is still recognised.
  */
 export function placeholderTypes(frame: string): string[] {
   const types = new Set<string>();
-  for (const match of frame.matchAll(/\[Unsupported: ([^\]\n]*)\]/g)) {
-    const type = (match[1] ?? "").trim();
+  const notices = /\[Unsupported: ([^\]\n]*)\]|Unsupported (?:view|field): ([\w.]+)/g;
+  for (const match of frame.matchAll(notices)) {
+    const type = (match[1] ?? match[2] ?? "").trim();
     if (type !== "") types.add(type);
   }
   return [...types].toSorted();

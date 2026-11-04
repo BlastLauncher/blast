@@ -1,14 +1,18 @@
 /** @jsxImportSource @opentui/react */
 import type { ControllerView } from "@blastlauncher/client-core";
+import { EmptyState } from "./empty-state.tsx";
 import { theme } from "./theme.ts";
 
 export function GridView({
   rows,
   emptyText,
+  empty,
 }: {
   rows: NonNullable<ControllerView["grid"]>;
   emptyText: string;
+  empty: ControllerView["empty"];
 }) {
+  const hasCells = rows.some((row) => row.cells.length > 0);
   return (
     <>
       {rows.map((row, index) =>
@@ -33,11 +37,7 @@ export function GridView({
           </box>
         ),
       )}
-      {rows.length === 0 && (
-        <text flexShrink={0} fg={theme.colors.textMuted}>
-          {emptyText}
-        </text>
-      )}
+      {hasCells ? null : <EmptyState empty={empty} emptyText={emptyText} />}
     </>
   );
 }

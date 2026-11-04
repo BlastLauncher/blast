@@ -2,6 +2,7 @@ import type { SceneMessage, SceneNode } from "@blastlauncher/protocol";
 import { event, handler, selectionId, text, type OutboundEvent } from "./nodes.ts";
 import { activeNode, actionRows, panelRows, sceneToView } from "./view.ts";
 import { contentGlyph, gridMove } from "./grid.ts";
+import { iconView } from "./icons.ts";
 import { dropdownLabel, dropdownOptions, visibleOptions } from "./dropdown.ts";
 import { createFormController, type FormInput, type FormFieldView } from "./form-view.ts";
 export type { FormFieldView } from "./form-view.ts";
@@ -55,6 +56,8 @@ export type RowView = {
   /** Items in a section header's section. */
   count: number | null;
   selected: boolean;
+  iconLabel: string;
+  iconTint?: string;
   /** The row as one line, for clients that do not lay columns out. */
   text: string;
 };
@@ -100,6 +103,7 @@ export type ControllerView = {
   grid: GridRowView[] | null;
   selectedId: string | null;
   emptyText: string;
+  empty: { title: string; description: string; iconLabel: string; iconTint?: string } | null;
   detail: string;
   primary: { title: string; shortcut: string; enabled: boolean };
   actions: {
@@ -618,11 +622,13 @@ export function createController(options: ControllerOptions): Controller {
       const item = row.item;
       return {
         id: item ? (selectionId(row.node) ?? row.node.id) : row.node.id,
-        kind: item ? "item" : row.text.startsWith("[Unsupported:") ? "unsupported" : "section",
+        kind: item ? "item" : row.unsupported ? "unsupported" : "section",
         title: row.title ?? row.text,
         subtitle: row.subtitle ?? "",
         accessories: row.accessories ?? "",
         icon: row.icon === true,
+        iconLabel: row.iconView?.label ?? "",
+        ...(row.iconView?.tint ? { iconTint: row.iconView.tint } : {}),
         count: row.count ?? null,
         selected: item && row.node.id === list.selected?.id,
         text: row.text,
@@ -644,6 +650,7 @@ export function createController(options: ControllerOptions): Controller {
     const alert = feedback.alert;
     const dismiss = alert?.dismiss;
     const confirm = alert?.primary;
+    const emptyIcon = list.empty?.props.icon ? iconView(list.empty.props.icon) : undefined;
     return {
       kind,
       title: list.title,
@@ -668,6 +675,14 @@ export function createController(options: ControllerOptions): Controller {
         : null,
       selectedId: selected,
       emptyText: list.emptyText,
+      empty: list.empty
+        ? {
+            title: text(list.empty.props.title),
+            description: text(list.empty.props.description),
+            iconLabel: emptyIcon?.label ?? "",
+            ...(emptyIcon?.tint ? { iconTint: emptyIcon.tint } : {}),
+          }
+        : null,
       detail: list.detail,
       primary: {
         title: text(primaryNode?.props.title) || (kind === "form" ? "Submit" : "Run"),

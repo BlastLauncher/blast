@@ -15,10 +15,18 @@ import { GridView } from "./grid.tsx";
 import { DropdownPanel } from "./dropdown.tsx";
 import { MenuBarView } from "./menu-bar.tsx";
 import { FormView } from "./form.tsx";
-import { theme } from "./theme.ts";
+import { EmptyState } from "./empty-state.tsx";
+import { MarkdownView } from "./markdown.tsx";
+import { iconTint, theme } from "./theme.ts";
 
 const platform: Platform =
   process.platform === "darwin" ? "macOS" : process.platform === "win32" ? "Windows" : "Linux";
+
+/** Logs from stderr can be multi-line; the error panel shows one line. */
+function lastLogLine(logs: readonly { message: string }[]): string | undefined {
+  const message = logs.at(-1)?.message.trim();
+  return message?.split(/\r?\n/).filter(Boolean).at(-1);
+}
 
 /**
  * A terminal over the client-core controller: keys become controller inputs,
@@ -45,6 +53,8 @@ export function App({
   const [view, setView] = useState(() => controller.view());
   const [scene, setScene] = useState<SceneMessage | undefined>(undefined);
   const [failure, setFailure] = useState<string | undefined>(undefined);
+  const [lastLog, setLastLog] = useState<string | undefined>(undefined);
+  const warnedUnsupported = useRef(new Set<string>());
   const scroll = useRef<ScrollBoxRenderable>(null);
   const actionScroll = useRef<ScrollBoxRenderable>(null);
   const timers = useRef(new Set<ReturnType<typeof setTimeout>>());
@@ -79,6 +89,21 @@ export function App({
     quitIfSettled();
   };
   const input = (action: ControllerInput) => dispatch(controller.input(action));
+  useEffect(() => {
+    setLastLog(lastLogLine(session.logs));
+    return typeof session.onLog === "function"
+      ? session.onLog((log) => setLastLog(lastLogLine([log])))
+      : undefined;
+  }, [session]);
+  // A node type the client cannot draw is a product gap: keep the terse
+  // in-frame notice, but leave the raw marker in the process log once per type.
+  useEffect(() => {
+    for (const row of view.rows) {
+      if (row.kind !== "unsupported" || warnedUnsupported.current.has(row.title)) continue;
+      warnedUnsupported.current.add(row.title);
+      console.warn(`Blast TUI: ${row.text}`);
+    }
+  }, [view.rows]);
   useEffect(() => {
     setView(controller.view());
     const stop = controller.subscribe(setView);
@@ -211,7 +236,9 @@ export function App({
   const leftFooter = [
     toastParts.join(" · "),
     hudText,
-    !toastParts.length && !hudText && view.loading ? "Loading…" : "",
+    !toastParts.length && !hudText && !failure && view.loading
+      ? `${theme.glyphs.loading} Loading…`
+      : "",
   ]
     .filter(Boolean)
     .join(" · ");
@@ -279,7 +306,7 @@ export function App({
               width={view.kind === "detail" ? 0 : view.detail ? "50%" : "100%"}
             >
               {view.grid ? (
-                <GridView rows={view.grid} emptyText={view.emptyText} />
+                <GridView rows={view.grid} emptyText={view.emptyText} empty={view.empty} />
               ) : (
                 <>
                   {view.rows.map((row) => {
@@ -302,7 +329,9 @@ export function App({
                             fg={theme.colors.textMuted}
                             attributes={TextAttributes.BOLD}
                           >
-                            {row.title}
+                            {row.kind === "unsupported"
+                              ? `Unsupported view: ${row.title}`
+                              : row.title}
                           </text>
                           {row.count !== null ? (
                             <text flexShrink={0} wrapMode="none" fg={theme.colors.textMuted}>
@@ -330,6 +359,16 @@ export function App({
                         >
                           {isSelected ? `${theme.glyphs.pointer} ` : "  "}
                         </text>
+                        {row.iconLabel ? (
+                          <text
+                            flexShrink={0}
+                            wrapMode="none"
+                            fg={iconTint(row.iconTint)}
+                            {...(isSelected ? { backgroundColor: theme.colors.selectionBg } : {})}
+                          >
+                            {`${row.iconLabel} `}
+                          </text>
+                        ) : null}
                         <text
                           flexShrink={0}
                           wrapMode="none"
@@ -367,17 +406,15 @@ export function App({
                       </box>
                     );
                   })}
-                  {view.kind !== "detail" && view.rows.length === 0 && (
-                    <text fg={theme.colors.textMuted}>{view.emptyText}</text>
-                  )}
+                  {view.kind !== "detail" && view.rows.length === 0 ? (
+                    <EmptyState empty={view.empty} emptyText={view.emptyText} />
+                  ) : null}
                 </>
               )}
             </scrollbox>
             {view.detail && (
               <scrollbox flexGrow={1} width={view.kind === "detail" ? "100%" : "50%"}>
-                <text height={view.detail.split("\n").length} flexShrink={0} fg={theme.colors.text}>
-                  {view.detail}
-                </text>
+                <MarkdownView markdown={view.detail} />
               </scrollbox>
             )}
           </box>
@@ -503,8 +540,11 @@ export function App({
           <text fg={theme.colors.text} height={1} flexShrink={0}>
             {failure}
           </text>
+          <text fg={theme.colors.textMuted} flexShrink={0}>
+            {lastLog ? `Last log: ${lastLog}` : "No runtime log output."}
+          </text>
           <text fg={theme.colors.textMuted} height={1} flexShrink={0}>
-            Esc Quit
+            Press Esc to quit
           </text>
         </box>
       )}

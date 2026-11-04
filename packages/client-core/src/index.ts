@@ -13,4 +13,5 @@ export * from "./rank.ts";
 export * from "./shortcut.ts";
 export * from "./feedback.ts";
 export * from "./menu-bar.ts";
+export * from "./icons.ts";
 export * from "./controller.ts";
