@@ -41,6 +41,9 @@ test("placeholderTypes collects the node types the TUI could not render", () => 
   expect(placeholderTypes("no placeholders here")).toEqual([]);
   expect(placeholderTypes("[Unsupported: List.ItemAccessory]")).toEqual(["List.ItemAccessory"]);
   expect(
+    placeholderTypes(" Unsupported view: Future.View    │\n Unsupported field: Form.Future"),
+  ).toEqual(["Form.Future", "Future.View"]);
+  expect(
     placeholderTypes(
       [
         " [Unsupported: Grid.ItemAccessory]",
