@@ -51,8 +51,16 @@ output readable at 80 columns.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/tui-look-feel @ 77a26ea
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok)
 Done:
+- Detail and List.Item.Detail render terminal markdown: headings, emphasis, lists, quotes, inline/fenced code, and links (text plus a dimmed URL); unsupported syntax stays visible. Parsed and frame-tested.
+- client-core `icons.ts` (framework-free) maps Raycast Icon.* / ImageLike values to glyphs or short fallback labels and semantic tint roles; the TUI resolves tints through the theme palette. Row and EmptyView icons covered.
+- List/Grid EmptyView shows icon, title and description; a bare empty view says "No results". One `◌ Loading…` footer indicator. Failures show the message, the last log line (or "No runtime log output.") and "Press Esc to quit".
+- Unknown node/form-field types render dimmed one-line notices; the raw `[Unsupported: …]` marker stays in client-core row text and is logged once per type on stderr.
+- docs/tui.md updated; new tests use OpenTUI's test renderer and bun:test.
 Not done / risks:
+- `scripts/corpus/tui-smoke.ts` scrapes `[Unsupported: …]` from the frame and is off-limits here; corpus TUI-smoke reports will stop classifying placeholders until that scraper reads row diagnostics or stderr. No product behaviour is lost.
+- NO_COLOR is honoured by passing absent colours to OpenTUI (env read at module load), so there is no automated colour-free frame test; `bun run typecheck` covers the typed palette.
+- The glyph table is curated for the common Icon.* names; rarer icons use readable short labels rather than pictograms.
 ```
