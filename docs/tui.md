@@ -4,8 +4,8 @@
 bun run tui <extensionDir> [command] [--native]
 ```
 
-A `[command]` opens it directly; otherwise the picker lists commands. `--native`
-enables system clipboard/paste, URL/file opens, file-manager reveal and trash.
+A `[command]` opens it directly; otherwise the picker lists commands. `--native` enables system clipboard/paste, URL/file opens, file-manager reveal and trash.
+
 ## Keys
 
 | Key             | Effect                                                                |
@@ -22,6 +22,7 @@ enables system clipboard/paste, URL/file opens, file-manager reveal and trash.
 | Ctrl-T / Ctrl-Y | toast primary / secondary action                                      |
 
 Action shortcuts use the Linux mapping (`cmd` is Ctrl); client keys take priority.
+
 ## Raycast parity checklist (0104)
 
 - **Toasts** — done: success/failure dismiss after 3 seconds; animated stays until updated.
@@ -30,10 +31,11 @@ Action shortcuts use the Linux mapping (`cmd` is Ctrl); client keys take priorit
 - **Navigation** — done: `navigationTitle` and `‹` back affordance; Esc performs semantic back.
 - **Native window/clipboard** — terminal limitation; these remain embedder capabilities.
 - **Pointer, animation, desktop layout** — not planned for this terminal client.
+
 ## Picker
 
-`bun run tui <extensionDir>` lists manifest commands. Rows show each command's
-`title` (else name), `subtitle` (else `description`), mode; header shows title.
+`bun run tui <extensionDir>` lists manifest commands. Rows show each command's `title` (else name), `subtitle` (else `description`), mode; header shows title.
+
 - Typing filters case-insensitively on title, subtitle and name; ↑ / ↓ move
   the selection; Enter launches; Esc / Ctrl-C quit the TUI.
 - The manifest is re-read while the picker is open (debounced `fs.watch` on
@@ -49,15 +51,11 @@ Action shortcuts use the Linux mapping (`cmd` is Ctrl); client keys take priorit
   line. The process exits 1 only if the last launched command crashed and
   the user then quits.
 
-The picker checks dependencies on open and on manifest changes. A status line
-shows npm progress; launches wait for install. Failures show inline and allow
-shared-dep fallback. Installs live under `<dataDir>/deps/` (decision 0008).
-Missing required preferences open **Set up <command>** before launch. Ctrl-E
+The picker checks dependencies on open and on manifest changes; installs live under `<dataDir>/deps/` (decision 0008). Missing required preferences open **Set up <command>** before launch. Ctrl-E
 and `open*Preferences` open full **Preferences — <extension>** view (Extension
 and command sections, `*` required, field description); saves without launch.
-Passwords masked, Space toggles checkboxes, ←/→ cycles dropdowns, Enter saves,
-Esc cancels. Values persist in `<dataDir>/preferences/<encoded-name>.json`
-(**plaintext, mode 0600**). Data root: `$XDG_DATA_HOME/blast` (or `~/.local/share/blast`).
+Passwords masked, Space toggles checkboxes, ←/→ cycles dropdowns, Enter saves, Esc cancels. Values persist in `<dataDir>/preferences/<encoded-name>.json` (**plaintext, mode 0600**). Data root: `$XDG_DATA_HOME/blast` (or `~/.local/share/blast`).
+
 ## Rendering
 
 - Client filtering ranks matches (title, keywords, subtitle) and orders sections
@@ -97,10 +95,12 @@ Esc cancels. Values persist in `<dataDir>/preferences/<encoded-name>.json`
 - Unknown node types render as a dimmed `Unsupported view: <type>` notice (Form
   fields: `Unsupported field: <type>`); the raw `[Unsupported: <type>]` text
   stays in client-core row `text` and is logged once per type on stderr.
+
 ## Forms
 
 Forms show labels, help and errors. Tab / Shift-Tab move through fields; ↑ / ↓
 do the same outside TextArea. Scene focus requests reach the runtime.
+
 - TextField edits one line; TextArea uses Enter for newlines and ↑ / ↓ for
   its cursor. Ctrl-Enter or Ctrl-S submits from any field.
 - Enter runs the primary action outside TextArea and pickers. Ctrl-K opens
