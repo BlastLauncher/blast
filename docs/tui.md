@@ -24,6 +24,26 @@ enables system clipboard/paste, URL/file opens, file-manager reveal and trash.
 
 Action shortcuts use the Linux mapping (`cmd` is Ctrl); client keys take priority.
 
+## Raycast parity checklist (0104)
+
+- **Toasts** — done: success/failure toasts dismiss after 3 seconds, while
+  animated toasts remain until the runtime updates or hides them. The terminal
+  shows style and action labels; the timeout is client-owned because the scene
+  protocol carries no timer.
+- **Action panels** — done: section headers, explicit and Raycast default
+  shortcuts are shown; Ctrl-K opens the panel, Ctrl-Enter invokes the second
+  action, and Ctrl-C invokes copy actions. Terminal Ctrl-C remains quit when no
+  copy action matches.
+- **Form presentation nodes** — done: `Description`, `Separator`, and
+  `LinkAccessory` render as non-focusable text. Link targets are shown so a
+  terminal has an inspectable destination.
+- **Navigation** — done: `navigationTitle` heads each view and pushed views
+  show a `‹` back affordance; Esc still performs the semantic back operation.
+- **Native window and clipboard affordances** — terminal limitation: these
+  remain embedder capabilities and are not emulated by the TUI.
+- **Pointer, animation, and desktop-only layout** — not planned for the
+  terminal client; semantic events remain available to other embedders.
+
 ## Picker
 
 `bun run tui <extensionDir>` lists manifest commands. Rows show each command's
@@ -88,7 +108,8 @@ Esc cancels. Values persist in `<dataDir>/preferences/<encoded-name>.json`
 - Raycast `Icon.*` names map to compact glyphs (`✓`, `⚙`, `★`, …); unknown icons
   and images fall back to a short label or `▣`, and images are never fetched.
   Icon tints resolve through the theme palette; `NO_COLOR` drops all attributes.
-- Toasts and alerts stay while mounted; a HUD line shows for 2.5 s.
+- Success and failure toasts show for 3 s; animated toasts stay until updated.
+  Alerts stay while mounted; a HUD line shows for 2.5 s.
 - Loading uses one `◌ Loading…` footer indicator; a runtime failure shows the
   message, the last log line (or `No runtime log output.`) and `Press Esc to quit`.
 - Unknown node types render as a dimmed `Unsupported view: <type>` notice (Form

@@ -2,6 +2,9 @@ import type { SceneMessage, SceneNode } from "@blastlauncher/protocol";
 import { text } from "./nodes.ts";
 import { HUD_DURATION_MS } from "./hud.ts";
 
+/** Raycast automatically dismisses success and failure toasts after a short delay. */
+export const TOAST_DURATION_MS = 3_000;
+
 // Toast, HUD and Alert as data. The runtime publishes them as children of the
 // root Navigation node; this says what is visible and which effects the HUD
 // and alert request, so every embedder renders them the same way.
@@ -65,7 +68,7 @@ export function feedbackState(scene: SceneMessage | undefined): FeedbackState {
   return {
     toast: toast && {
       node: toast,
-      style: text(toast.props.style),
+      style: text(toast.props.style).toLowerCase(),
       title: text(toast.props.title),
       message: text(toast.props.message),
       actions: toast.children.map((node) => ({

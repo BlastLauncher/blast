@@ -152,7 +152,26 @@ export function App({
   }, [chosenAction]);
   const { alert, toast, hud } = view.feedback;
   useKeyboard((key) => {
+    const dispatchShortcut = () => {
+      const result = controller.input({
+        type: "key",
+        key: {
+          name: key.name,
+          ctrl: key.ctrl,
+          meta: key.meta,
+          shift: key.shift,
+          option: key.option,
+          super: key.super === true,
+        },
+      });
+      dispatch(result);
+      return result.handled === true;
+    };
     if (key.ctrl && key.name === "c") {
+      if (dispatchShortcut()) {
+        key.preventDefault();
+        return;
+      }
       if (onExitRef.current) onExitRef.current();
       else requestQuit();
       return;
@@ -179,6 +198,10 @@ export function App({
     const direction = ({ up: "up", down: "down", left: "left", right: "right" } as const)[
       key.name as "up"
     ];
+    if ((key.ctrl || key.meta) && key.name === "return") {
+      if (dispatchShortcut()) key.preventDefault();
+      return;
+    }
     const menu = now.kind === "menu-bar";
     // The menu bar, the dropdown and the action panel own the arrows, Enter
     // and Esc while they are open.
@@ -195,19 +218,7 @@ export function App({
     const toastIndex = key.ctrl ? ["t", "y"].indexOf(key.name) : -1;
     if (toastIndex >= 0 && now.feedback.toast?.actions[toastIndex])
       return press({ type: "toastAction", index: toastIndex });
-    const result = controller.input({
-      type: "key",
-      key: {
-        name: key.name,
-        ctrl: key.ctrl,
-        meta: key.meta,
-        shift: key.shift,
-        option: key.option,
-        super: key.super === true,
-      },
-    });
-    dispatch(result);
-    if (result.handled) return key.preventDefault();
+    if (dispatchShortcut()) return key.preventDefault();
     if (now.kind === "form") return;
     if (direction === "up" || direction === "down" || (now.grid && direction)) {
       key.preventDefault();
@@ -251,7 +262,7 @@ export function App({
       borderStyle="rounded"
       borderColor={theme.colors.border}
       backgroundColor={theme.colors.background}
-      title={view.title}
+      title={view.navigation.canGoBack ? `‹ ${view.title}` : view.title}
     >
       {form ? (
         <box flexDirection="column" flexGrow={1} paddingLeft={1} paddingRight={1}>
@@ -592,6 +603,7 @@ export function App({
           <span fg={theme.colors.textMuted}>{` ${theme.glyphs.enter}  `}</span>
           <span fg={theme.colors.text}>Actions</span>
           <span fg={theme.colors.textMuted}>{` ${theme.glyphs.actionMod}`}</span>
+          <span fg={theme.colors.textMuted}>{" · ^↵ Secondary · ^C Copy"}</span>
         </text>
       </box>
     </box>
