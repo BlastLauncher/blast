@@ -58,8 +58,11 @@ access in `bun test`.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/fix-launch-dependency-preflight @ 74b1c7f
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, workflow ok, test ok) in 52.6s
 Done:
-Not done / risks:
+- Removed source-text import scanning; launch preflight now uses manifest dependencies, the install key and shared fallback.
+- Converted esbuild graph failures from nested imports into `DependenciesRequiredError`, with one install/retry for declared packages and no install for undeclared ones.
+- Updated the CLI and TUI to surface typed dependency failures and added host/serve/TUI regressions for comments, nested imports, retry and installability.
+Not done / risks: No corpus smoke or sweep was run, per task scope. The TUI keeps its background install prompt and reports a typed launch failure when that install cannot resolve a declared package.
 ```

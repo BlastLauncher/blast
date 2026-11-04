@@ -18,6 +18,8 @@ export type DependencyInstallStatus = {
   pinned: boolean;
   /** Declared packages unavailable from a matching install or shared fallback. */
   unresolved: string[];
+  /** Whether the manifest declares every unresolved package and can be installed. */
+  installable: boolean;
 };
 export type DependencyInstaller = (request: {
   command: string;
@@ -109,12 +111,14 @@ export async function checkExtensionDependencies(
     if (shared?.resolveShared(name)) continue;
     unresolved.push(name);
   }
+  const unique = [...new Set(unresolved)].toSorted();
   return {
     directory,
     key,
     needed,
-    unresolved,
+    unresolved: unique,
     pinned: lock !== undefined,
+    installable: unique.every((name) => Object.hasOwn(dependencies, name)),
   };
 }
 
@@ -132,6 +136,7 @@ export async function installExtensionDependencies(
     needed: false,
     pinned: input.lock !== undefined,
     unresolved: [],
+    installable: true,
   };
   if ((await optionalFile(join(input.directory, "key"))) === input.key) {
     options.onLog?.("Dependencies are up to date.");

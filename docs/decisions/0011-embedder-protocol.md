@@ -22,8 +22,10 @@ Status: accepted 2026-10-20
    {extension}`; `extension.dependencies.check|install {extension}`;
    `extension.preferences {extension,command}`; `extension.savePreferences
    {extension,command,values}`; `extension.launch {extension,command,
-   argumentValues?,launchContext?}`; `session.event {session,node,handler,args}`;
-   `session.close {session}`; `engine.shutdown {}`. Void results are null.
+   argumentValues?,launchContext?,installDependencies?}`; launch may fail with
+   `missing_dependencies` and `{unresolved,installable,pinned}` data;
+   `session.event {session,node,handler,args}`; `session.close {session}`;
+   `engine.shutdown {}`. Void results are null.
    Launch errors use `missing_values`, with `{preferences,arguments}` data.
 6. Server `event` messages carry `event` plus `extension` or `session`:
    `manifest.changed {manifest}`, `manifest.error {error}`,

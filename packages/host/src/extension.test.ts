@@ -1,10 +1,11 @@
 import { expect, test } from "bun:test";
 import type { SceneMessage } from "@blastlauncher/protocol";
-import { cp, mkdtemp, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
+import { cp, mkdir, mkdtemp, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { tmpdir } from "node:os";
 import {
   openExtension,
+  DependenciesRequiredError,
   MissingLaunchValuesError,
   createPreferenceStore,
   type ExtensionManifest,
@@ -211,6 +212,136 @@ test("extension launch rejects typed missing preferences and arguments before bu
     await expect(f.handle.launch("index", { argumentValues: { query: "" } })).rejects.toMatchObject(
       { preferences: [], arguments: ["query"] },
     );
+  } finally {
+    await f.close();
+  }
+});
+
+test("launch reports unresolved dependencies before bundling", async () => {
+  const root = await mkdtemp(join(tmpdir(), "blast-launch-missing-"));
+  const extensionDir = join(root, "extension");
+  const dataDir = join(root, "data");
+  await cp(
+    new URL("../../../fixtures/extensions/missing-dependency", import.meta.url),
+    extensionDir,
+    {
+      recursive: true,
+    },
+  );
+  const handle = openExtension({ extensionDir, dataDir });
+  try {
+    await expect(handle.launch("index")).rejects.toMatchObject({
+      code: "DEPENDENCIES_REQUIRED",
+      unresolved: ["@blast-missing/scoped", "blast-unavailable"],
+      installable: false,
+      pinned: false,
+    } satisfies Partial<DependenciesRequiredError>);
+  } finally {
+    await handle.close();
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("an import-looking comment does not become a launch dependency", async () => {
+  const f = await fixture();
+  try {
+    await writeFile(
+      join(f.extensionDir, "src/index.tsx"),
+      '// import "comment-only-package";\nimport { List } from "@raycast/api";\nexport default () => <List navigationTitle="comment-safe" />;\n',
+    );
+    const opened = await f.handle.launch("index");
+    await opened.close();
+  } finally {
+    await f.close();
+  }
+});
+
+test("bundle imports from a non-entry source file become typed dependency failures", async () => {
+  let installs = 0;
+  const f = await fixture(async () => {
+    installs++;
+  });
+  try {
+    await mkdir(join(f.extensionDir, "src/lib"), { recursive: true });
+    await writeFile(
+      join(f.extensionDir, "src/index.tsx"),
+      'import { value } from "./lib/api"; import { List } from "@raycast/api"; export default () => <List navigationTitle={value} />;\n',
+    );
+    await writeFile(
+      join(f.extensionDir, "src/lib/api.ts"),
+      'import "nested-missing-package"; export const value = "x";\n',
+    );
+    await expect(f.handle.launch("index", { installDependencies: true })).rejects.toMatchObject({
+      code: "DEPENDENCIES_REQUIRED",
+      unresolved: ["nested-missing-package"],
+      installable: false,
+      pinned: false,
+    } satisfies Partial<DependenciesRequiredError>);
+    expect(installs).toBe(0);
+  } finally {
+    await f.close();
+  }
+});
+
+test("a declared bundle-time dependency retries installation once", async () => {
+  let installs = 0;
+  const f = await fixture(async () => {
+    installs++;
+  });
+  try {
+    f.raw.dependencies = { "bundle-time-missing": "1" };
+    await f.write();
+    await writeFile(
+      join(f.extensionDir, "src/index.tsx"),
+      'import value from "bundle-time-missing"; import { List } from "@raycast/api"; export default () => <List navigationTitle={value} />;',
+    );
+    await expect(f.handle.launch("index", { installDependencies: true })).rejects.toMatchObject({
+      code: "DEPENDENCIES_REQUIRED",
+      unresolved: ["bundle-time-missing"],
+      installable: true,
+    } satisfies Partial<DependenciesRequiredError>);
+    expect(installs).toBe(1);
+  } finally {
+    await f.close();
+  }
+});
+
+test("launch can install through the injected installer and streams progress", async () => {
+  const f = await fixture(async ({ cwd, onLog }) => {
+    onLog?.("installing example");
+    const packageDir = join(cwd, "node_modules", "example");
+    await mkdir(packageDir, { recursive: true });
+    await writeFile(
+      join(packageDir, "package.json"),
+      JSON.stringify({ name: "example", version: "1.0.0", type: "module", main: "index.js" }),
+    );
+    await writeFile(join(packageDir, "index.js"), 'export default "installed";');
+  });
+  try {
+    f.raw.dependencies = { example: "1" };
+    await f.write();
+    await writeFile(
+      join(f.extensionDir, "src/index.tsx"),
+      'import value from "example"; import { List } from "@raycast/api"; export default () => <List navigationTitle={value} />;',
+    );
+    const logs: string[] = [];
+    const opened = await f.handle.launch("index", {
+      installDependencies: true,
+      onDependencyLog: (message) => logs.push(message),
+    });
+    try {
+      expect(logs).toContain("installing example");
+      await new Promise<void>((resolve, reject) => {
+        opened.session.scenes((scene) => {
+          if (JSON.stringify(scene).includes('"installed"')) resolve();
+        });
+        void opened.session.exited.then((exit) =>
+          reject(exit.error ?? new Error(`exited with code ${exit.code}`)),
+        );
+      });
+    } finally {
+      await opened.close();
+    }
   } finally {
     await f.close();
   }

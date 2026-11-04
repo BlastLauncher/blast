@@ -6,6 +6,7 @@ import { TextAttributes } from "@opentui/core";
 import { filterCommands, modeLabel } from "./picker.ts";
 import {
   openExtension,
+  DependenciesRequiredError,
   defaultDataDir,
   missingRequired,
   type ExtensionHandle,
@@ -298,11 +299,11 @@ export function CommandPicker({
   if (manifestError) {
     statusText = `Manifest: ${manifestError}`;
     statusColor = theme.colors.danger;
-  } else if (installError) {
-    statusText = `Install failed: ${installError}`;
-    statusColor = theme.colors.danger;
   } else if (launchError) {
     statusText = `Launch failed: ${launchError}`;
+    statusColor = theme.colors.danger;
+  } else if (installError) {
+    statusText = `Install failed: ${installError}`;
     statusColor = theme.colors.danger;
   } else if (progress) {
     statusText = `Dependencies: ${progress}`;
@@ -668,28 +669,55 @@ export function CommandSession({
     setLaunching(command.name);
     void (async () => {
       try {
-        const opened = await openCommand(extensionDir, command.name, {
-          dataDir: resolvedDataDir,
-          extension,
-          handlers: {
-            ...handlers,
-            "preferences.open": (params) => {
-              if (
-                !params ||
-                typeof params !== "object" ||
-                Array.isArray(params) ||
-                (params.scope !== "extension" && params.scope !== "command")
-              )
-                throw new Error("Invalid preferences scope");
-              const scope = params.scope;
-              setTimeout(() => {
-                leave();
-                setEditPreferences({ command: command.name, scope });
-              }, 0);
+        const open = () =>
+          openCommand(extensionDir, command.name, {
+            dataDir: resolvedDataDir,
+            extension,
+            handlers: {
+              ...handlers,
+              "preferences.open": (params) => {
+                if (
+                  !params ||
+                  typeof params !== "object" ||
+                  Array.isArray(params) ||
+                  (params.scope !== "extension" && params.scope !== "command")
+                )
+                  throw new Error("Invalid preferences scope");
+                const scope = params.scope;
+                setTimeout(() => {
+                  leave();
+                  setEditPreferences({ command: command.name, scope });
+                }, 0);
+              },
             },
-          },
-          argumentValues: values,
-        });
+            argumentValues: values,
+          });
+        let opened;
+        try {
+          opened = await open();
+        } catch (error) {
+          if (!(error instanceof DependenciesRequiredError)) throw error;
+          if (!error.installable) {
+            throw new Error(
+              `${error.message} Install it with blast deps before launching this command.`,
+              { cause: error },
+            );
+          }
+          setLaunchError(`Dependencies required; installing ${error.unresolved.join(", ")}…`);
+          try {
+            await extension.dependencies.install({
+              onLog: (message) => setLaunchError(message.trim()),
+            });
+          } catch (installError) {
+            throw new Error(
+              `${error.message} Install failed: ${
+                installError instanceof Error ? installError.message : String(installError)
+              }`,
+              { cause: installError },
+            );
+          }
+          opened = await open();
+        }
         if (exiting.current) {
           void opened.close();
           return;

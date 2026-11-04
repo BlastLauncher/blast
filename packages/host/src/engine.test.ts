@@ -160,7 +160,7 @@ test("engine inherits data directory and installer, permits extension overrides,
       }),
     );
     await writeFile(
-      join(f.extensionDir, "src/index.ts"),
+      join(f.extensionDir, "src/index.tsx"),
       `
       import { List } from "@raycast/api";
       import { createElement } from "react";
@@ -190,6 +190,47 @@ test("engine inherits data directory and installer, permits extension overrides,
     expect((await stat(join(f.dataDir, "support", "registry"))).isDirectory()).toBe(true);
   } finally {
     await engine.close();
+    await rm(f.root, { recursive: true, force: true });
+  }
+});
+
+test("engine auto dependency policy installs by default and can be disabled per launch", async () => {
+  const f = await fixture();
+  let installs = 0;
+  try {
+    await writeFile(
+      join(f.extensionDir, "package.json"),
+      JSON.stringify({
+        name: "registry",
+        dependencies: { example: "1" },
+        commands: [{ name: "index", mode: "view" }],
+      }),
+    );
+    await writeFile(
+      join(f.extensionDir, "src/index.tsx"),
+      'import value from "example"; import { List } from "@raycast/api"; export default () => <List navigationTitle={value} />;',
+    );
+    const installer = async ({ cwd }: { cwd: string }) => {
+      installs++;
+      const packageDir = join(cwd, "node_modules", "example");
+      await mkdir(packageDir, { recursive: true });
+      await writeFile(
+        join(packageDir, "package.json"),
+        JSON.stringify({ name: "example", version: "1.0.0", type: "module", main: "index.js" }),
+      );
+      await writeFile(join(packageDir, "index.js"), 'export default "auto";');
+    };
+    const engine = createEngine({ dataDir: f.dataDir, dependencies: "auto", installer });
+    const extension = engine.openExtension({ extensionDir: f.extensionDir });
+    const opened = await extension
+      .launch("index", { installDependencies: false })
+      .catch((error: unknown) => error);
+    expect(opened).toMatchObject({ code: "DEPENDENCIES_REQUIRED" });
+    const auto = await extension.launch("index");
+    await auto.close();
+    expect(installs).toBe(1);
+    await engine.close();
+  } finally {
     await rm(f.root, { recursive: true, force: true });
   }
 });

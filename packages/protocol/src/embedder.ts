@@ -55,6 +55,7 @@ export type EmbedderParams = {
     argumentValues?: Record<string, string>;
     launchContext?: Record<string, JsonValue>;
     bundleTimeoutMs?: number;
+    installDependencies?: boolean;
     views?: { platform: "macOS" | "Windows" | "Linux" };
   };
   "session.input": { session: string; input: EmbedderControllerInput };
@@ -112,6 +113,7 @@ const shapes: Record<keyof EmbedderParams, string[]> = {
     "argumentValues?",
     "launchContext?",
     "bundleTimeoutMs?",
+    "installDependencies?",
     "views?",
   ],
   "session.input": ["session", "input"],
@@ -170,6 +172,7 @@ function valid(v: unknown): boolean {
           if (key === "argumentValues") return record(y, string);
           if (key === "bundleTimeoutMs")
             return typeof y === "number" && Number.isSafeInteger(y) && y >= 0 && y <= 2_147_483_647;
+          if (key === "installDependencies") return typeof y === "boolean";
           if (key === "launchContext") return record(y, json);
           if (key === "views")
             return (

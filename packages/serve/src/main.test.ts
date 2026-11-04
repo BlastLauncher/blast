@@ -1,6 +1,6 @@
 import { afterEach, expect, test } from "bun:test";
 import { execFileSync, spawn } from "node:child_process";
-import { mkdtemp, cp, readFile, writeFile, rm } from "node:fs/promises";
+import { mkdtemp, cp, mkdir, readFile, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { resolve, join } from "node:path";
 import type { SceneNode, SceneMessage } from "@blastlauncher/protocol";
@@ -11,11 +11,11 @@ const cleanups: (() => Promise<void>)[] = [];
 afterEach(async () => {
   await Promise.all(cleanups.splice(0).map((clean) => clean()));
 });
-async function client(native = false) {
+async function client(native = false, args: string[] = []) {
   const dir = await mkdtemp(join(tmpdir(), "blast-serve-"));
   const child = spawn(
     nodePath,
-    [resolve("packages/serve/src/main.ts"), ...(native ? ["--native"] : [])],
+    [resolve("packages/serve/src/main.ts"), ...(native ? ["--native"] : []), ...args],
     { env: { ...process.env, XDG_DATA_HOME: dir }, stdio: ["pipe", "pipe", "pipe"] },
   );
   const messages: Record<string, any>[] = [];
@@ -149,6 +149,71 @@ test("launch, scenes, events, capability forwarding and EOF shutdown", async () 
   );
   c.child.stdin.end();
   await c.wait((v) => v.event === "session.exited");
+  expect(await c.exited).toBe(0);
+});
+
+test("launch reports typed missing dependencies and accepts the install flag", async () => {
+  const c = await client();
+  await c.hello();
+  const missing = await c.request("extension.open", {
+    dir: resolve("fixtures/extensions/missing-dependency"),
+  });
+  const extension = missing.result.extension;
+  const failed = await c.request("extension.launch", {
+    extension,
+    command: "index",
+    installDependencies: false,
+  });
+  expect(failed.error).toMatchObject({
+    code: "missing_dependencies",
+    data: {
+      unresolved: ["@blast-missing/scoped", "blast-unavailable"],
+      installable: false,
+      pinned: false,
+    },
+  });
+  c.child.stdin.end();
+  expect(await c.exited).toBe(0);
+});
+
+test("serve reports dependencies imported from a non-entry source file", async () => {
+  const c = await client();
+  const extensionDir = join(c.dir, "nested-import");
+  await mkdir(join(extensionDir, "src/lib"), { recursive: true });
+  await writeFile(
+    join(extensionDir, "package.json"),
+    JSON.stringify({ name: "nested-import", commands: [{ name: "index", mode: "view" }] }),
+  );
+  await writeFile(
+    join(extensionDir, "src/index.tsx"),
+    'import { value } from "./lib/api"; import { List } from "@raycast/api"; export default () => <List navigationTitle={value} />;',
+  );
+  await writeFile(
+    join(extensionDir, "src/lib/api.ts"),
+    'import "nested-missing-package"; export const value = "x";',
+  );
+  await c.hello();
+  const opened = await c.request("extension.open", { dir: extensionDir });
+  const failed = await c.request("extension.launch", {
+    extension: opened.result.extension,
+    command: "index",
+  });
+  expect(failed.error).toMatchObject({
+    code: "missing_dependencies",
+    data: {
+      unresolved: ["nested-missing-package"],
+      installable: false,
+      pinned: false,
+    },
+  });
+  c.child.stdin.end();
+  expect(await c.exited).toBe(0);
+});
+
+test("serve auto dependency policy is accepted", async () => {
+  const c = await client(false, ["--dependencies", "auto"]);
+  await c.hello();
+  await c.request("engine.shutdown");
   expect(await c.exited).toBe(0);
 });
 

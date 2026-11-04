@@ -1,12 +1,13 @@
 import { watch as watchDirectory } from "node:fs";
 import { readFile, rm } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
-import { bundleCommand, type Preference } from "./bundle.ts";
+import { bundleCommand, MissingDependencyError, type Preference } from "./bundle.ts";
 import { createSessionBroker } from "./client.ts";
 import { parseManifest, missingRequired, type ExtensionManifest } from "./extension-manifest.ts";
 import {
   checkExtensionDependencies,
   installExtensionDependencies,
+  type DependencyInstallStatus,
   type DependencyInstaller,
 } from "./install-dependencies.ts";
 import { createPreferenceStore } from "./preferences.ts";
@@ -18,6 +19,10 @@ export type ExtensionLaunchOptions = Pick<
   StartOptions,
   "argumentValues" | "launchContext" | "fallbackText"
 > & {
+  /** Install unresolved manifest dependencies before bundling this launch. */
+  installDependencies?: boolean;
+  /** Receives installer output when this launch performs an install. */
+  onDependencyLog?: (message: string) => void;
   timeoutMs?: number;
   signal?: AbortSignal;
   handlers?: Record<string, CapabilityHandler>;
@@ -32,6 +37,24 @@ export class MissingLaunchValuesError extends Error {
     this.name = "MissingLaunchValuesError";
     this.preferences = preferences;
     this.arguments = args;
+  }
+}
+
+export class DependenciesRequiredError extends Error {
+  readonly code = "DEPENDENCIES_REQUIRED";
+  readonly unresolved: string[];
+  readonly installable: boolean;
+  readonly pinned: boolean;
+
+  constructor(status: Pick<DependencyInstallStatus, "unresolved" | "installable" | "pinned">) {
+    const names = [...new Set(status.unresolved)].toSorted();
+    super(
+      `Missing dependencies: ${names.join(", ")}. Run blast deps <extensionDir> to install them before launching.`,
+    );
+    this.name = "DependenciesRequiredError";
+    this.unresolved = names;
+    this.installable = status.installable;
+    this.pinned = status.pinned;
   }
 }
 
@@ -52,6 +75,7 @@ export function openExtension(options: OpenExtensionOptions) {
 export function createExtensionHandle(
   options: OpenExtensionOptions,
   engineHandlers: () => Record<string, CapabilityHandler> = () => ({}),
+  defaultInstallDependencies = false,
 ) {
   const extensionDir = resolve(options.extensionDir);
   const dataDir = options.dataDir ?? defaultDataDir();
@@ -126,15 +150,77 @@ export function createExtensionHandle(
     const args = missingRequired(command.arguments, launchOptions.argumentValues ?? {});
     if (prefs.missing.length || args.length)
       throw new MissingLaunchValuesError(prefs.missing, args);
+    let dependencyStatus = await checkExtensionDependencies({
+      ...dependencyOptions,
+    });
+    const installDependencies = launchOptions.installDependencies ?? defaultInstallDependencies;
+    if (dependencyStatus.unresolved.length && installDependencies) {
+      await installExtensionDependencies({
+        ...dependencyOptions,
+        ...(options.installer ? { installer: options.installer } : {}),
+        ...(launchOptions.onDependencyLog ? { onLog: launchOptions.onDependencyLog } : {}),
+      });
+      dependencyStatus = await checkExtensionDependencies({
+        ...dependencyOptions,
+      });
+    }
+    // A successful installer publishes its key before the bundle runs. Some
+    // installers provision packages lazily, so an installable manifest is no
+    // longer launch-blocking once that key is current; undeclared imports are
+    // never installable and remain an immediate typed failure.
+    if (
+      dependencyStatus.unresolved.length &&
+      (dependencyStatus.needed || !dependencyStatus.installable)
+    )
+      throw new DependenciesRequiredError(dependencyStatus);
     ensureOpen();
     const timeoutMs = launchOptions.timeoutMs ?? options.timeoutMs;
-    const bundled = await bundleCommand({
-      extensionDir,
-      command: name,
-      dataDir,
-      ...(timeoutMs === undefined ? {} : { timeoutMs }),
-      ...(launchOptions.signal === undefined ? {} : { signal: launchOptions.signal }),
-    });
+    const bundle = () =>
+      bundleCommand({
+        extensionDir,
+        command: name,
+        dataDir,
+        ...(timeoutMs === undefined ? {} : { timeoutMs }),
+        ...(launchOptions.signal === undefined ? {} : { signal: launchOptions.signal }),
+      });
+    let bundled;
+    try {
+      bundled = await bundle();
+    } catch (error) {
+      if (!(error instanceof MissingDependencyError)) throw error;
+      const declared = new Set(
+        Object.keys(
+          (
+            JSON.parse(await readFile(join(extensionDir, "package.json"), "utf8")) as {
+              dependencies?: Record<string, unknown>;
+            }
+          ).dependencies ?? {},
+        ),
+      );
+      const status = {
+        unresolved: error.packages,
+        installable: error.packages.every((packageName) => declared.has(packageName)),
+        pinned: (await checkExtensionDependencies(dependencyOptions)).pinned,
+      };
+      if (!installDependencies || !status.installable) throw new DependenciesRequiredError(status);
+      await installExtensionDependencies({
+        ...dependencyOptions,
+        ...(options.installer ? { installer: options.installer } : {}),
+        ...(launchOptions.onDependencyLog ? { onLog: launchOptions.onDependencyLog } : {}),
+      });
+      try {
+        bundled = await bundle();
+      } catch (retryError) {
+        if (retryError instanceof MissingDependencyError) {
+          throw new DependenciesRequiredError({
+            unresolved: retryError.packages,
+            installable: retryError.packages.every((packageName) => declared.has(packageName)),
+            pinned: status.pinned,
+          });
+        }
+        throw retryError;
+      }
+    }
     const cleanup = () => rm(dirname(bundled.entry), { recursive: true, force: true });
     try {
       ensureOpen();
