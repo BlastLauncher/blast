@@ -88,14 +88,14 @@ Raycast client semantics built in so embedders only draw.
 
 AppKit launcher over `blast serve`; automated tests and contract fixtures first.
 
-- [x] 0106 BlastKit Swift client + contract fixtures + macOS CI
-- [x] 0107 AppKit launcher window; 0108 hotkey, OS actions, picker; [ ] 0109 walkthroughs
+- [x] 0106 BlastKit + contract fixtures + macOS CI; 0107 AppKit window; 0108 hotkey, OS
+      actions, picker; 0109 walkthroughs (`docs/walkthroughs/`)
 
 ## Later (not scheduled)
 
+- Watch tests (host/serve/TUI picker) rely on real `fs.watch` timing; one flaked under full-verify load: inject the watcher.
 - native: macOS window ops without yabai (System Events); honour paste `closeMainWindow`.
-- Autonomous orchestrator loop over `tasks/`; delete `archive/`.
-- Desktop launcher (MyGo) and TUI launcher features (out of scope per 0009).
+- Orchestrator loop over `tasks/`; delete `archive/`. Out of scope (0009): MyGo, TUI launcher features.
 
 ## Decision log
 
