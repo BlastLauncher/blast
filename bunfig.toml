@@ -7,3 +7,4 @@ peer = false
 
 [test]
 pathIgnorePatterns = ["archive/**", ".cache/**"]
+preload = ["./scripts/test-env.ts"]
