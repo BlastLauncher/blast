@@ -88,7 +88,7 @@ order with disk budgets.
 - [x] From the triage: 0095 Suspense/`use()`, 0096 JSONC tsconfig, 0097 sweep broker parity, 0098 sweep reporting
 - [x] 0099 Reclone the sweep corpus only near the budget (full runs under an hour)
 - [x] 0100 Dependencies are part of launch: typed error, per-launch install, policy (`0012`)
-- [x] 0101 Go example on `blast serve` views (Go in CI); [ ] 0102 v3 pre-release workflow
+- [x] 0101 Go example on `blast serve` views (Go in CI); 0102 v3 pre-release workflow
 - [ ] TUI polish, in order: 0103 look and feel, 0104 Raycast UX parity, 0105 speed and robustness
 
 ## Later (not scheduled)
