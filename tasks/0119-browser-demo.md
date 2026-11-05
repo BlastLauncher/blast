@@ -67,7 +67,7 @@ plain `<name>`, and the page then:
 ## Handoff
 
 ```
-Branch/commit: t3/fix-browser-demo-live-fetch @ cf719863963e5e2873ddb25489ae633a0721880c
+Branch/commit: t3/fix-browser-demo-live-fetch @ 8691201867a43f15aed8e56f1b98e48328762c9f
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 63.5s
 Done:
 - Fixed the browser bundle test's global scope typing and lint-safe name while preserving the module-default assertion.
