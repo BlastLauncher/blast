@@ -1,7 +1,7 @@
 ---
 id: "0123"
 title: Typecheck the browser examples with a DOM-aware tsconfig in verify
-status: todo
+status: doing
 milestone: M8
 depends: []
 ---
