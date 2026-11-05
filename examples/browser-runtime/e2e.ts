@@ -61,6 +61,16 @@ function server(handler: (request: IncomingMessage, response: ServerResponse) =>
     });
   });
 }
+async function boundedClose(close: (() => Promise<void>) | undefined): Promise<void> {
+  if (!close) return;
+  await Promise.race([
+    close(),
+    new Promise<void>((resolve) => {
+      const timer = setTimeout(resolve, 500);
+      timer.unref();
+    }),
+  ]);
+}
 function sandboxHtml(almostUrl: string): string {
   return `<!doctype html><script type="module">
 import { Runtime, VirtualFS } from ${JSON.stringify(almostUrl)};
@@ -246,9 +256,16 @@ async function main(): Promise<void> {
       ),
     );
   } finally {
-    await browser?.close();
-    await host?.close();
-    await sandbox?.close();
+    await boundedClose(browser?.close.bind(browser));
+    await boundedClose(host?.close);
+    await boundedClose(sandbox?.close);
   }
 }
-await main();
+try {
+  await main();
+} catch (error) {
+  console.error(error instanceof Error ? error.message : error);
+  process.exitCode = 1;
+} finally {
+  process.exit(process.exitCode ?? 0);
+}
