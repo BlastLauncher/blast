@@ -17,7 +17,8 @@ const view = {
 test("root view includes a footer and extension view includes breadcrumb context", () => {
   const root = renderRoot([], -1, "", { status: { text: "Ready" } });
   expect(root).toContain('id="status"');
-  expect(root).toContain("Actions ⌘K");
+  expect(root).toContain('data-footer="actions"');
+  expect(root).toContain("<kbd>⌘K</kbd>");
   const extension = render(view, {
     context: { extensionTitle: "Fixture Extension", commandTitle: "Hello List", icon: "⌘" },
     status: { text: "Starting…", progress: true },

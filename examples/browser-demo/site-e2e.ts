@@ -3,7 +3,15 @@ import { join, relative, sep } from "node:path";
 import { buildSite } from "./site.ts";
 import { projectRoot } from "./build.ts";
 
-type BrowserDocument = { querySelector(selector: string): { textContent: string | null } | null };
+type BrowserElement = {
+  textContent: string | null;
+  getBoundingClientRect(): { top: number; bottom: number; height: number; width: number };
+};
+type BrowserDocument = {
+  scrollingElement?: { scrollHeight: number };
+  documentElement: { scrollWidth: number; clientHeight: number };
+  querySelector<T extends BrowserElement = BrowserElement>(selector: string): T | null;
+};
 declare const document: BrowserDocument;
 
 const browsers = process.env.PLAYWRIGHT_BROWSERS_PATH;
@@ -61,6 +69,44 @@ try {
       undefined,
       { timeout: 30_000 },
     );
+    // 0125 layout: a fixed panel, no page scroll, and selection kept in view.
+    // (These checks were lost once in a merge; keep them with the flow.)
+    if ((await page.locator('[role="option"]').count()) < 237)
+      throw new Error("catalog should render at least 237 command options");
+    const panelHeight = await page.evaluate(
+      () => document.querySelector("main.root")?.getBoundingClientRect().height ?? 0,
+    );
+    if (!panelHeight || panelHeight > 520)
+      throw new Error(`launcher panel is too tall: ${panelHeight}`);
+    const documentHeight = await page.evaluate(() => document.scrollingElement?.scrollHeight ?? 0);
+    if (documentHeight > 801) throw new Error(`page unexpectedly scrolls: ${documentHeight}px`);
+    // On a phone the panel fits the width and the footer sits inside the viewport.
+    await page.setViewportSize({ width: 390, height: 844 });
+    const phone = await page.evaluate(() => ({
+      page: document.documentElement.scrollWidth,
+      panel: Math.round(document.querySelector("main.root")?.getBoundingClientRect().width ?? 0),
+      footerBottom: Math.round(
+        document.querySelector("main.root footer")?.getBoundingClientRect().bottom ?? 0,
+      ),
+      viewport: document.documentElement.clientHeight,
+    }));
+    if (phone.page > 390 || phone.panel > 390 || phone.footerBottom > phone.viewport)
+      throw new Error(`launcher does not fit a 390x844 viewport: ${JSON.stringify(phone)}`);
+    await page.setViewportSize({ width: 1280, height: 800 });
+    for (let index = 0; index < 30; index++) await page.keyboard.press("ArrowDown");
+    const selectedPosition = await page.evaluate(() => {
+      const selected = document.querySelector('[role="option"][aria-selected="true"]');
+      const list = document.querySelector(".root-options");
+      if (!selected || !list) return null;
+      const row = selected.getBoundingClientRect();
+      const box = list.getBoundingClientRect();
+      return { visible: row.top >= box.top - 1 && row.bottom <= box.bottom + 1 };
+    });
+    if (!selectedPosition?.visible) throw new Error("selected option left the visible list");
+    // Footer keys are buttons: the Actions button opens the root action panel.
+    await page.locator('main.root [data-footer="actions"]').click();
+    await page.getByRole("option", { name: /^Run Command/ }).waitFor({ timeout: 10_000 });
+    await page.keyboard.press("Escape");
     await page.locator("#root-search").fill("hello-list");
     await page.keyboard.press("Enter");
     await page
@@ -75,15 +121,37 @@ try {
       throw new Error("prebuilt fixture launch requested esbuild.wasm");
     if ((await page.locator('iframe[data-blast="session"]').count()) !== 1)
       throw new Error("the command did not reuse the warmed sandbox");
+    if (!(await page.locator(".breadcrumb").textContent())?.includes("Hello List"))
+      throw new Error("extension breadcrumb did not show the fixture title");
+    // Wait for the first scene; input before it is dropped by the controller.
+    await page.waitForFunction(
+      () => (document.querySelector("#app .rows li:nth-child(3)")?.textContent ?? "") !== "",
+      undefined,
+      { timeout: 30_000 },
+    );
+    // Arrow keys move the extension's selection.
+    await page.keyboard.press("ArrowDown");
+    await page.waitForFunction(
+      () => (document.querySelector("#app .rows li.selected")?.textContent ?? "") === "banana",
+      undefined,
+      { timeout: 10_000 },
+    );
+    // The Actions footer button toggles the extension's action panel.
+    await page.locator('#app [data-footer="actions"]').click();
+    await page.locator("#app section.actions").waitFor({ timeout: 10_000 });
+    await page.locator('#app [data-footer="actions"]').click();
+    await page.locator("#app section.actions").waitFor({ state: "detached", timeout: 10_000 });
     await page.locator("#app #search").fill("ban");
     await page.waitForFunction(
       () => (document.querySelector("#app")?.textContent ?? "").includes("banana"),
       undefined,
       { timeout: 30_000 },
     );
-    await page.keyboard.press("Escape");
+    // The Back footer button leaves the extension like Esc does.
+    await page.locator('#app [data-footer="back"]').click();
+    await page.locator("#root-search").waitFor({ timeout: 10_000 });
     if ((await page.locator("#root-search").count()) !== 1)
-      throw new Error("Escape did not return to root list");
+      throw new Error("the Back button did not return to root list");
     if ((await page.locator('iframe[data-blast="session"]').count()) !== 0)
       throw new Error("the sandbox session outlived the extension view");
     console.log(

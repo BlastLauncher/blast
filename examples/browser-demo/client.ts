@@ -578,14 +578,40 @@ document.addEventListener("keydown", (event) => {
       actionSelected = 0;
       drawRoot();
     }
+  } else if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+    event.preventDefault();
+    toggleExtensionActions();
+  } else if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+    event.preventDefault();
+    sendInput({ type: "move", direction: event.key === "ArrowDown" ? "down" : "up" });
   } else if (event.key === "Enter") {
     event.preventDefault();
     sendInput({ type: "primary" });
   } else if (event.key === "Escape") {
     event.preventDefault();
+    // The controller closes an open action panel on back before leaving the view.
     backFromExtension();
   }
 });
+
+function toggleExtensionActions() {
+  sendInput({ type: controller?.view().actions.open ? "closeActions" : "openActions" });
+}
+
+/** A footer button does exactly what its key does, in either view. */
+function runFooter(action: string) {
+  if (rootOpen) {
+    if (action === "primary") runSelected();
+    else if (action === "actions") {
+      actionOpen = !actionOpen;
+      actionQuery = "";
+      actionSelected = 0;
+      drawRoot();
+    } else if (action === "back") stopSession();
+  } else if (action === "primary") sendInput({ type: "primary" });
+  else if (action === "actions") toggleExtensionActions();
+  else if (action === "back") backFromExtension();
+}
 document.addEventListener("input", (event) => {
   const target = event.target as HTMLInputElement;
   if (target.id === "root-search") {
@@ -597,13 +623,34 @@ document.addEventListener("input", (event) => {
     actionSelected = 0;
     drawRoot();
   } else if (target.id === "search") sendInput({ type: "search", text: target.value });
+  else if (target.id === "action-search") sendInput({ type: "actionsQuery", text: target.value });
 });
 document.addEventListener("click", (event) => {
   const target = event.target as HTMLElement;
+  const footer = target.closest<HTMLElement>("[data-footer]")?.dataset.footer;
+  if (footer !== undefined) {
+    runFooter(footer);
+    return;
+  }
   const index = target.closest<HTMLElement>("[data-root-index]")?.dataset.rootIndex;
   if (index !== undefined) {
     rootSelected = Number(index);
     runSelected();
+    return;
   }
+  if (rootOpen) return;
+  // In an extension view, clicking a row selects it; clicking an action runs it.
+  const actionIndex = target.closest<HTMLElement>("[data-action-index]")?.dataset.actionIndex;
+  if (actionIndex !== undefined) {
+    const rows = controller?.view().actions.rows ?? [];
+    const from = rows.findIndex((row) => row.selected);
+    const steps = Number(actionIndex) - Math.max(from, 0);
+    for (let step = 0; step < Math.abs(steps); step++)
+      sendInput({ type: "move", direction: steps > 0 ? "down" : "up" });
+    sendInput({ type: "primary" });
+    return;
+  }
+  const rowId = target.closest<HTMLElement>("#app .rows li[data-id]")?.dataset.id;
+  if (rowId !== undefined) sendInput({ type: "select", id: rowId });
 });
 void start();

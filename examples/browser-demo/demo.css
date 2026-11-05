@@ -151,7 +151,7 @@ footer {
 .footer-hints {
   margin-left: auto;
   display: flex;
-  gap: 16px;
+  gap: 4px;
   white-space: nowrap;
 }
 footer button {
@@ -160,6 +160,37 @@ footer button {
   background: transparent;
   color: inherit;
   font: inherit;
+}
+/* Footer hints are buttons that do what their key does. */
+.footer-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 0 8px !important;
+  border-radius: 7px;
+  cursor: pointer;
+  color: #c9c9ce;
+}
+.footer-key:hover {
+  background: #2c2c31;
+  color: #fff;
+}
+.footer-key:focus-visible {
+  outline: 2px solid #7aa7ff;
+  outline-offset: 1px;
+}
+.footer-key kbd {
+  font:
+    600 11px system-ui,
+    sans-serif;
+  min-width: 18px;
+  padding: 2px 5px;
+  border-radius: 5px;
+  background: #2f2f35;
+  border: 1px solid #45454c;
+  color: inherit;
+  text-align: center;
 }
 .actions {
   position: absolute;
@@ -206,15 +237,37 @@ footer button {
   }
   main {
     width: 100%;
+    /* 100vh includes the area behind mobile browser toolbars, which hid the
+       footer; dvh tracks the visible viewport (vh stays as the fallback). */
     height: 100vh;
+    height: 100dvh;
     border: 0;
     border-radius: 0;
+    /* Keep content clear of the notch and the home indicator. */
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+      env(safe-area-inset-left);
+    box-sizing: border-box;
   }
   .actions {
-    inset: 76px 8px 48px;
+    inset: calc(76px + env(safe-area-inset-top)) 8px calc(48px + env(safe-area-inset-bottom));
+  }
+  /* On phones the keycap carries the meaning; drop labels except the primary. */
+  .footer-key:not([data-footer="primary"]) span {
+    display: none;
   }
 }
 @media (prefers-color-scheme: light) {
+  .footer-key {
+    color: #44444a;
+  }
+  .footer-key:hover {
+    background: #e7e7ec;
+    color: #111;
+  }
+  .footer-key kbd {
+    background: #f3f3f6;
+    border-color: #d4d4da;
+  }
   :root {
     color-scheme: light;
   }

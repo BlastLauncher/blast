@@ -15,7 +15,10 @@ declare module "playwright" {
     fulfill(options: { contentType: string; body: string }): Promise<void>;
   };
   export type Locator = {
-    waitFor(options?: { timeout?: number }): Promise<void>;
+    waitFor(options?: {
+      timeout?: number;
+      state?: "attached" | "detached" | "visible" | "hidden";
+    }): Promise<void>;
     fill(value: string): Promise<void>;
     count(): Promise<number>;
     innerText(): Promise<string>;

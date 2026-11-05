@@ -10,6 +10,16 @@ export function escapeHtml(value) {
     .replaceAll("'", "&#39;");
 }
 
+/**
+ * A footer hint is a real button: clicking it does what its key does. The
+ * label is visible text and the key renders as a keycap.
+ * @param {string} label
+ * @param {string} key
+ * @param {"primary" | "actions" | "back"} action
+ */
+const footerButton = (label, key, action) =>
+  `<button type="button" class="footer-key" data-footer="${action}"><span>${escapeHtml(label)}</span><kbd>${escapeHtml(key)}</kbd></button>`;
+
 /** @param {string} label @param {string} action @param {boolean} [selected] */
 const button = (label, action, selected = false) =>
   `<button data-input="${escapeHtml(action)}"${selected ? ' class="selected"' : ""}>${escapeHtml(label)}</button>`;
@@ -69,7 +79,7 @@ export function render(view, options = {}) {
       : view.kind === "detail"
         ? detail
         : `<ul class="rows">${rows}</ul>${empty}`;
-  const footer = `<footer>${statusMarkup(status)}<span class="footer-hints">${view.primary.enabled ? `${button(`${view.primary.shortcut || "↵"} ${view.primary.title}`, "primary")}` : ""}<span>Actions ⌘K</span><span>Esc Back</span></span></footer>`;
+  const footer = `<footer>${statusMarkup(status)}<span class="footer-hints">${view.primary.enabled ? footerButton(view.primary.title, view.primary.shortcut || "↵", "primary") : ""}${footerButton("Actions", "⌘K", "actions")}${footerButton("Back", "Esc", "back")}</span></footer>`;
   return `<main data-kind="${escapeHtml(view.kind)}"><header>${breadcrumbMarkup(options.context)}<h1>${escapeHtml(view.title)}</h1>${search}</header>${body}${actions}${footer}${toast}</main>`;
 }
 
@@ -96,5 +106,5 @@ export function renderRoot(rows, selected, query, panel = {}) {
     ? `<span role="status" class="root-toast">${escapeHtml(panel.toast)}</span>`
     : "";
   const status = panel.status ?? { text: "Ready" };
-  return `<main class="root" data-kind="root"><header><h1>Blast</h1><input id="root-search" value="${escapeHtml(query)}" placeholder="Search extension commands…" aria-label="Search extension commands" role="combobox" aria-controls="root-options" aria-activedescendant="${selected >= 0 ? `root-option-${selected}` : ""}" autocomplete="off" autofocus></header><ul id="root-options" class="rows root-options" role="listbox" aria-label="Extension commands">${options}</ul>${rows.length === 0 ? '<p class="empty">No matching commands</p>' : ""}<footer>${statusMarkup(status)}<span class="footer-hints"><span>↵ Run Command</span><span>Actions ⌘K</span>${status.error ? "<span>Esc Back</span>" : ""}</span>${toast}</footer>${actionPanel}</main>`;
+  return `<main class="root" data-kind="root"><header><h1>Blast</h1><input id="root-search" value="${escapeHtml(query)}" placeholder="Search extension commands…" aria-label="Search extension commands" role="combobox" aria-controls="root-options" aria-activedescendant="${selected >= 0 ? `root-option-${selected}` : ""}" autocomplete="off" autofocus></header><ul id="root-options" class="rows root-options" role="listbox" aria-label="Extension commands">${options}</ul>${rows.length === 0 ? '<p class="empty">No matching commands</p>' : ""}<footer>${statusMarkup(status)}<span class="footer-hints">${footerButton("Run Command", "↵", "primary")}${footerButton("Actions", "⌘K", "actions")}${status.error ? footerButton("Back", "Esc", "back") : ""}</span>${toast}</footer>${actionPanel}</main>`;
 }
