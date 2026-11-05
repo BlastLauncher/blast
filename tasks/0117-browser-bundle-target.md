@@ -69,8 +69,7 @@ So the same function runs in Node and in a browser.
 ## Handoff
 
 ```text
-Branch/commit: t3/fix-browser-bundle-resolution @ 24a0b0b4369e31d5eced373581a2c2d87f2360b4
-  (latest handoff update: see follow-up commit below)
+Branch/commit: t3/fix-browser-bundle-resolution @ 2b5fc46
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok)
 Done:
 - Added Node-style in-memory package resolution with exports conditions and subpath patterns, browser/module/main/index fallback, and nearest importer-relative node_modules lookup.
