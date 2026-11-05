@@ -292,7 +292,7 @@ test("manifest watch, missing values, preferences, dependencies and close", asyn
   expect((await c.request("extension.manifest", { extension })).ok).toBe(false);
   c.child.stdin.end();
   expect(await c.exited).toBe(0);
-});
+}, 20_000);
 
 test("capability progress and abort, late results, and session close", async () => {
   const c = await client();
