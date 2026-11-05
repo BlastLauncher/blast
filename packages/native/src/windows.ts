@@ -13,7 +13,10 @@ export function windowHandlers(t: DesktopTools): Record<string, CapabilityHandle
         async (value: JsonValue) => {
           const p = params(value);
           if (t.platform === "darwin") {
-            if (op === "setBounds") validateBounds(p);
+            if (op === "setBounds") {
+              validateBounds(p);
+              validateMacBounds(p);
+            }
             return macWindows(t, cap, op, p);
           }
           if (t.platform === "win32") {
@@ -142,4 +145,14 @@ function validateBounds(p: Record<string, JsonValue>) {
         throw new Error("Invalid window bounds");
     }
   }
+}
+
+function validateMacBounds(p: Record<string, JsonValue>) {
+  if (!/^\d+$/.test(string(p.id))) throw new Error("Invalid window id");
+  if (
+    p.desktopId !== undefined &&
+    !/^\d+$/.test(string(p.desktopId)) &&
+    !/^screen:[^\s\0]+$/.test(string(p.desktopId))
+  )
+    throw new Error("Invalid desktop id");
 }
