@@ -399,7 +399,7 @@ export async function bundleForBrowser(options: BrowserBundleOptions): Promise<B
             : packageCandidates(files, specifier, args.importer)
                 .map((path) => findFile(files, path))
                 .find(Boolean);
-        if (candidate) return { path: candidate };
+        if (candidate) return { path: candidate.startsWith("/") ? candidate : `/${candidate}` };
         if (!relative) {
           missing.add(packageName(specifier));
           return { errors: [{ text: `Missing browser dependency ${packageName(specifier)}` }] };

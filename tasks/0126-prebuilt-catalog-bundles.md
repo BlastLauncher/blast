@@ -97,8 +97,12 @@ small bundle and starts it.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/prebuilt-catalog-bundles @ 0cb0724
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 64.5s
 Done:
-Not done / risks:
+- Added a validated `bundles.json` contract, SHA-256 verification, build-SHA gating, and launch fast path with fallback.
+- Added native-esbuild catalog prebuilds, pinned raw-source caching, deterministic bundle indexes, and fixture prebuild support.
+- Added schema, digest, tree mapping, and Playwright fixture assertions; `site:e2e` passes without requesting `esbuild.wasm` for the prebuilt fixture.
+- Production measurement: 49/237 commands built; ratio-calculator/calculate-ratio.js is 1,017,916 bytes; generated bundle bytes are 53,790,676 (~51.3 MiB); `.cache/browser-catalog` is 224 MiB.
+Not done / risks: The pinned GitHub recursive tree is truncated for this corpus. Commands requiring files outside the bounded fallback or unsupported dependency graphs remain runtime fallbacks, so measured prebuild coverage is 20.7%, below the 90% target. The local smoke harness could not serve the generated output with the ad-hoc server; `site:e2e` and focused browser tests pass.
 ```
