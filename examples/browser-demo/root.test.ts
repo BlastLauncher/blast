@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test";
 import {
+  catalogCommandTitle,
   executeRootAction,
   rootActionModel,
   rootActions,
@@ -63,6 +64,20 @@ test("URL row and selection are clamped", () => {
   expect(model.rows[0]?.title).toBe("Run from URL");
   expect(model.selected).toBe(model.rows.length - 1);
   expect(rootModel(catalog, "", -4).selected).toBe(0);
+});
+
+test("the catalog supplies the command title used as the view title fallback", () => {
+  expect(
+    catalogCommandTitle(
+      catalog,
+      "https://github.com/raycast/extensions/tree/x/extensions/zeta",
+      "run",
+    ),
+  ).toBe("Run Zeta");
+  expect(catalogCommandTitle(catalog, "https://example.com/runner", "run")).toBeUndefined();
+  expect(
+    catalogCommandTitle(undefined, "https://github.com/raycast/extensions/tree/x", "run"),
+  ).toBe(undefined);
 });
 
 test("catalog validation requires sorted extensions", () => {

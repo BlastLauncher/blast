@@ -32,3 +32,11 @@ test("error status renders with the footer error style", () => {
   expect(html).toContain('data-error="true"');
   expect(html).toContain("Failed");
 });
+
+test("an empty list shows the extension EmptyView, else a neutral hint", () => {
+  const withEmptyView = render(view);
+  expect(withEmptyView).toContain("Nothing here");
+  expect(withEmptyView).toContain("Try another search");
+  const bare = { ...view, empty: null, emptyText: "No results" };
+  expect(render(bare as unknown as Parameters<typeof render>[0])).toContain("No results");
+});

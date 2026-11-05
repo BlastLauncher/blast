@@ -731,3 +731,11 @@ test("form scenes control text values, preserve date syntax on acknowledgement, 
   controller.scene(scene(node("Form", "form")));
   expect(controller.view().form).toEqual({ fields: [], focusId: null });
 });
+
+test("the command title is the fallback when the list has no navigation title", () => {
+  const controller = createController({ platform: "macOS", fallbackTitle: "View People" });
+  controller.scene(scene(list({}, item("a"))));
+  expect(controller.view().title).toBe("View People");
+  controller.scene(scene(list({ navigationTitle: "People" }, item("a"))));
+  expect(controller.view().title).toBe("People");
+});

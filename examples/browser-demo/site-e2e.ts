@@ -55,6 +55,12 @@ try {
     await page.getByRole("heading", { name: "Extensions, outside the launcher." }).waitFor();
     await page.getByRole("link", { name: "Open the browser demo" }).click();
     await page.locator("#root-search").waitFor();
+    // The root list warms the sandbox ahead of the first command open.
+    await page.waitForFunction(
+      () => document.querySelector('iframe[data-blast="warm"]') !== null,
+      undefined,
+      { timeout: 30_000 },
+    );
     await page.locator("#root-search").fill("hello-list");
     await page.keyboard.press("Enter");
     await page
@@ -67,6 +73,8 @@ try {
       });
     if (resources.some((url) => url.includes("esbuild.wasm")))
       throw new Error("prebuilt fixture launch requested esbuild.wasm");
+    if ((await page.locator('iframe[data-blast="session"]').count()) !== 1)
+      throw new Error("the command did not reuse the warmed sandbox");
     await page.locator("#app #search").fill("ban");
     await page.waitForFunction(
       () => (document.querySelector("#app")?.textContent ?? "").includes("banana"),
@@ -76,6 +84,8 @@ try {
     await page.keyboard.press("Escape");
     if ((await page.locator("#root-search").count()) !== 1)
       throw new Error("Escape did not return to root list");
+    if ((await page.locator('iframe[data-blast="session"]').count()) !== 0)
+      throw new Error("the sandbox session outlived the extension view");
     console.log(
       JSON.stringify({
         pass: true,

@@ -111,9 +111,12 @@ function ancestorCandidates(parentPath: string | undefined, name: string): strin
   result.push(packagePath(name));
   return [...new Set(result)];
 }
-function lockVersion(lock: BrowserLockfile | undefined, name: string): string | undefined {
-  if (!lock) return undefined;
-  return lock.packages?.[`node_modules/${name}`]?.version ?? lock.dependencies?.[name]?.version;
+function lockedVersion(lock: BrowserLockfile | undefined, path: string): string | undefined {
+  return lock?.packages?.[path]?.version;
+}
+/** npm v1 lockfiles only nest dependency records, so only the root has a path here. */
+function legacyLockVersion(lock: BrowserLockfile | undefined, name: string): string | undefined {
+  return lock?.dependencies?.[name]?.version;
 }
 function parseLockfile(
   lockfile: BrowserLockfile | string | undefined,
@@ -236,7 +239,6 @@ export async function installForBrowser(
   };
   async function install(name: string, range: string, parentPath?: string): Promise<void> {
     if (supplied(name)) return;
-    const pinned = lockVersion(lock, name);
     const packument = (await packumentFor(name, range)) as {
       versions?: Record<
         string,
@@ -248,41 +250,67 @@ export async function installForBrowser(
         }
       >;
     };
-    const version = pinned ?? maxSatisfying(Object.keys(packument.versions ?? {}), range);
-    if (!version || !satisfies(version, range)) throw new BrowserResolutionError(name, range);
-    const metadata = packument.versions?.[version];
-    const tarball = metadata?.dist?.tarball;
-    if (!metadata || !tarball) throw new BrowserResolutionError(name, range);
 
     // The nearest existing copy is the one the importer will load, so it alone
     // decides: reuse it when it satisfies, otherwise nest a copy under the parent.
     // A farther matching copy must not count; it would be shadowed at runtime.
-    // With no copy anywhere on the chain, hoist to the root: nothing shadows it.
-    let path: string | undefined = packagePath(name);
-    const nearest = ancestorCandidates(parentPath, name).find((candidate) =>
-      records.has(candidate),
-    );
-    if (nearest) {
-      const record = records.get(nearest)!;
+    const candidates = ancestorCandidates(parentPath, name);
+    const shadow = candidates.find((candidate) => records.has(candidate));
+    if (shadow) {
+      const record = records.get(shadow)!;
       if (satisfies(record.version, range)) {
         if (!record.active) await record.promise;
         return;
       }
-      path = parentPath ? `${parentPath}/node_modules/${name}` : undefined;
     }
+
+    // Nothing is loaded yet, so follow the layout npm resolved for this
+    // extension. The nearest locked copy that satisfies the range is where Node
+    // would find it, including a nested copy when the root holds another major.
+    let path = shadow
+      ? undefined
+      : candidates.find((candidate) => {
+          const version = lockedVersion(lock, candidate);
+          return version !== undefined && satisfies(version, range) && !records.has(candidate);
+        });
     if (!path) {
-      path = `${parentPath ?? packagePath(name)}/node_modules/${name}`;
-      while (records.has(path)) path = `${path}/node_modules/${name}`;
+      if (shadow) {
+        // A shadowing copy forces nesting below the importer; a top-level
+        // duplicate range conflict nests below the root copy itself.
+        path = `${parentPath ?? packagePath(name)}/node_modules/${name}`;
+      } else if (parentPath === undefined) {
+        path = packagePath(name);
+      } else {
+        const root = packagePath(name);
+        const rootVersion = lockedVersion(lock, root);
+        // The lockfile's root version is the copy npm hoisted for this importer;
+        // when it does not satisfy the range, nest instead of overwriting it.
+        path =
+          rootVersion !== undefined && !satisfies(rootVersion, range)
+            ? `${parentPath}/node_modules/${name}`
+            : root;
+      }
     }
-    if (records.has(path)) {
+    while (records.has(path)) {
       const record = records.get(path)!;
       if (satisfies(record.version, range)) {
         if (!record.active) await record.promise;
         return;
       }
       path = `${path}/node_modules/${name}`;
-      while (records.has(path)) path = `${path}/node_modules/${name}`;
     }
+
+    const locked =
+      lockedVersion(lock, path) ??
+      (path === packagePath(name) ? legacyLockVersion(lock, name) : undefined);
+    const version =
+      locked !== undefined && satisfies(locked, range)
+        ? locked
+        : maxSatisfying(Object.keys(packument.versions ?? {}), range);
+    if (!version || !satisfies(version, range)) throw new BrowserResolutionError(name, range);
+    const metadata = packument.versions?.[version];
+    const tarball = metadata?.dist?.tarball;
+    if (!metadata || !tarball) throw new BrowserResolutionError(name, range);
     if (records.size >= maxPackages) throw new BrowserPackageLimitError(maxPackages);
 
     let finish!: () => void;

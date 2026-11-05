@@ -140,6 +140,17 @@ export function rootModel(catalog: Catalog, query: string, selected: number, url
   };
 }
 
+/** The catalog's title for a command, used when its view has no navigation title. */
+export function catalogCommandTitle(
+  catalog: Catalog | undefined,
+  source: string,
+  command: string,
+): string | undefined {
+  return catalog?.extensions
+    .find((extension) => source.endsWith(`/extensions/${extension.name}`))
+    ?.commands.find((item) => item.name === command)?.title;
+}
+
 export function rootActions(selectedRow: RootRow | undefined): RootAction[] {
   if (!selectedRow) return [];
   return [

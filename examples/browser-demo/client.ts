@@ -3,10 +3,12 @@ import { createController, type Controller } from "../../packages/client-core/sr
 import { installForBrowser } from "../../packages/host/src/browser-install.ts";
 import { bundleForBrowser } from "../../packages/host/src/browser-bundle.ts";
 import type { SceneMessage } from "../../packages/protocol/src/index.ts";
+import { aliases } from "./bundle-config.ts";
 import { bundleKey, bundleMatches, parseBundleIndex, sha256Hex } from "./bundles.ts";
 import { render, renderRoot } from "../web-launcher/render.js";
 import { canUseLocalFixture, isTextExtension, parseExtensionSource } from "./source.ts";
 import {
+  catalogCommandTitle,
   executeRootAction,
   rootActionModel,
   rootModel,
@@ -19,6 +21,12 @@ import { statusError, statusForStage, statusInfo, type DemoStatus } from "./stat
 
 type FileMap = Record<string, string>;
 type BrowserFile = string | Uint8Array;
+type SandboxRuntime = {
+  execute(code: string, filename?: string): Promise<unknown>;
+  iframe?: HTMLIFrameElement;
+  terminate?: () => void;
+};
+type Sandbox = { runtime: SandboxRuntime; iframe?: HTMLIFrameElement };
 const asset = (path: string) => new URL(path, new URL(".", location.href)).toString();
 const app = document.querySelector<HTMLElement>("#app")!;
 const commandSelect = document.querySelector<HTMLSelectElement>("#command");
@@ -36,6 +44,9 @@ let actionSelected = 0;
 let rootToast = "";
 let statusState: DemoStatus = statusForStage("ready");
 let bundleIndex: ReturnType<typeof parseBundleIndex> | undefined;
+let runtimeCode: string | undefined;
+let sandbox: Sandbox | undefined;
+let warming: Promise<Sandbox | undefined> | undefined;
 
 let extensionContext:
   | {
@@ -244,12 +255,10 @@ async function launch(source: string, commandName: string): Promise<void> {
   let extension: Awaited<ReturnType<typeof fetchFiles>>;
   let command: string;
   let bundled: { code: string };
-  let runtimeCode: string | undefined;
   if (bundle) {
     extension = { files: new Map(), manifest: { name: source }, root: "" };
     command = `/src/${selectedCommand}.tsx`;
     bundled = bundle;
-    runtimeCode = bundle.runtimeCode;
     setStatus("Starting prebuilt bundle…");
   } else {
     setStatus("Fetching extension…");
@@ -272,46 +281,27 @@ async function launch(source: string, commandName: string): Promise<void> {
       packages: installed.packages,
       command,
       runtimeEntry: "/examples/browser-demo/runtime-entry.ts",
-      aliases: {
-        "@raycast/api": "/packages/runtime/src/api/index.ts",
-        "@blastlauncher/protocol": "/packages/protocol/src/index.ts",
-        react: "/node_modules/react/index.js",
-        "react/jsx-runtime": "/node_modules/react/jsx-runtime.js",
-        "react-reconciler": "/node_modules/react-reconciler/index.js",
-        "react-reconciler/constants.js": "/node_modules/react-reconciler/constants.js",
-        scheduler: "/node_modules/scheduler/index.js",
-      },
+      aliases,
     });
   }
-  const almost = (await import(asset("almostnode.mjs"))) as unknown as {
-    VirtualFS: new () => unknown;
-    createRuntime: (
-      vfs: unknown,
-      options: { sandbox: string },
-    ) => Promise<{ execute(code: string, filename?: string): Promise<unknown> }>;
-  };
-  const runtime = await almost.createRuntime(new almost.VirtualFS(), {
-    sandbox:
-      ((globalThis as Record<string, unknown>)["__BLAST_SANDBOX__"] as string | undefined) ?? "",
-  });
-  runtimeFrame =
-    (runtime as unknown as { iframe?: HTMLIFrameElement }).iframe?.contentWindow ??
-    document.querySelector("iframe")?.contentWindow ??
-    undefined;
+  const active = await acquireSandbox();
   const channel = new MessageChannel();
   port = channel.port1;
   port.start();
   port.addEventListener("message", (event) => handleRuntime(event.data));
   try {
-    if (runtimeCode)
-      await runtime.execute(`${runtimeCode}\nmodule.exports = null;`, "/runtime.cjs");
-    await runtime.execute(`${bundled.code}\nmodule.exports = null;`, "/bundle.cjs");
+    await active.runtime.execute(`${bundled.code}\nmodule.exports = null;`, "/bundle.cjs");
   } catch (error) {
     setStatus(`Runtime failed: ${String(error)}`, true);
     return;
   }
   setTimeout(() => runtimeFrame?.postMessage({ type: "blast-port" }, "*", [channel.port2]), 100);
-  controller = createController({ platform: "macOS" });
+  const commandTitle =
+    extensionContext?.commandTitle ?? catalogCommandTitle(catalog, source, selectedCommand);
+  controller = createController({
+    platform: "macOS",
+    ...(commandTitle ? { fallbackTitle: commandTitle } : {}),
+  });
   controller.subscribe(draw);
   setTimeout(
     () =>
@@ -341,61 +331,145 @@ async function launch(source: string, commandName: string): Promise<void> {
   setStatus("Starting…");
 }
 
+async function loadBundleIndex() {
+  if (bundleIndex) return bundleIndex;
+  const [indexResponse, buildResponse] = await Promise.all([
+    fetch(asset("bundles.json")),
+    fetch(asset("../build.json")),
+  ]);
+  if (!indexResponse.ok || !buildResponse.ok) return undefined;
+  const index = parseBundleIndex(await indexResponse.json());
+  const build = (await buildResponse.json()) as { sha?: unknown };
+  if (typeof build.sha !== "string" || build.sha !== index.buildSha) return undefined;
+  bundleIndex = index;
+  return index;
+}
+
+async function loadRuntimeCode(): Promise<string | undefined> {
+  if (runtimeCode !== undefined) return runtimeCode;
+  const index = await loadBundleIndex();
+  if (!index?.runtime) return undefined;
+  const response = await fetch(asset(index.runtime.path));
+  if (!response.ok) return undefined;
+  const bytes = await response.arrayBuffer();
+  if (index.runtime.bytes !== bytes.byteLength || (await sha256Hex(bytes)) !== index.runtime.sha256)
+    return undefined;
+  runtimeCode = new TextDecoder().decode(bytes);
+  return runtimeCode;
+}
+
 async function prebuiltBundle(
   source: string,
   command: string,
-): Promise<{ code: string; runtimeCode?: string } | undefined> {
+): Promise<{ code: string } | undefined> {
   try {
-    if (!bundleIndex) {
-      const [indexResponse, buildResponse] = await Promise.all([
-        fetch(asset("bundles.json")),
-        fetch(asset("../build.json")),
-      ]);
-      if (!indexResponse.ok || !buildResponse.ok) return undefined;
-      const index = parseBundleIndex(await indexResponse.json());
-      const build = (await buildResponse.json()) as { sha?: unknown };
-      if (typeof build.sha !== "string" || build.sha !== index.buildSha) return undefined;
-      bundleIndex = index;
-    }
+    const index = await loadBundleIndex();
+    if (!index) return undefined;
     const parts = new URL(source).pathname.split("/").filter(Boolean);
     const treeIndex = parts.indexOf("tree");
     const extension = treeIndex >= 0 ? parts[treeIndex + 3] : undefined;
     if (!extension) return undefined;
     const key = bundleKey(extension, command);
-    const entry = bundleIndex.bundles[key];
+    const entry = index.bundles[key];
     if (!entry) return undefined;
     const response = await fetch(asset(entry.path));
     if (!response.ok) return undefined;
     const bytes = await response.arrayBuffer();
-    if (!(await bundleMatches(bundleIndex, bundleIndex.buildSha, key, bytes))) return undefined;
-    let runtimeCode: string | undefined;
-    if (bundleIndex.runtime) {
-      const runtimeResponse = await fetch(asset(bundleIndex.runtime.path));
-      if (!runtimeResponse.ok) return undefined;
-      const runtimeBytes = await runtimeResponse.arrayBuffer();
-      if (
-        bundleIndex.runtime.bytes !== runtimeBytes.byteLength ||
-        (await sha256Hex(runtimeBytes)) !== bundleIndex.runtime.sha256
-      )
-        return undefined;
-      runtimeCode = new TextDecoder().decode(runtimeBytes);
-    }
-    return { code: new TextDecoder().decode(bytes), ...(runtimeCode ? { runtimeCode } : {}) };
+    if (!(await bundleMatches(index, index.buildSha, key, bytes))) return undefined;
+    return { code: new TextDecoder().decode(bytes) };
   } catch {
     return undefined;
   }
+}
+
+/** Create the cross-origin sandbox and load the shared runtime before any command code. */
+async function createSandbox(kind: "warm" | "session"): Promise<Sandbox> {
+  const almost = (await import(asset("almostnode.mjs"))) as unknown as {
+    VirtualFS: new () => unknown;
+    createRuntime: (
+      vfs: unknown,
+      options: { sandbox: string },
+    ) => Promise<{
+      execute(code: string, filename?: string): Promise<unknown>;
+      iframe?: HTMLIFrameElement;
+      terminate?: () => void;
+    }>;
+  };
+  const runtime = await almost.createRuntime(new almost.VirtualFS(), {
+    sandbox:
+      ((globalThis as Record<string, unknown>)["__BLAST_SANDBOX__"] as string | undefined) ?? "",
+  });
+  runtime.iframe?.setAttribute("data-blast", kind);
+  sandbox = { runtime, ...(runtime.iframe ? { iframe: runtime.iframe } : {}) };
+  runtimeFrame = runtime.iframe?.contentWindow ?? undefined;
+  const code = await loadRuntimeCode();
+  if (code) await runtime.execute(`${code}\nmodule.exports = null;`, "/runtime.cjs");
+  return sandbox;
+}
+
+function discardSandbox() {
+  const current = sandbox;
+  sandbox = undefined;
+  runtimeFrame = undefined;
+  try {
+    current?.runtime.terminate?.();
+  } catch {
+    // A sandbox that never finished initializing has nothing to terminate.
+  }
+  document.querySelector("iframe[data-blast]")?.remove();
+}
+
+function warmIdle() {
+  warmSandbox();
+}
+
+function scheduleWarm() {
+  const idle = (
+    globalThis as {
+      requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => void;
+    }
+  ).requestIdleCallback;
+  if (idle) idle(warmIdle, { timeout: 1500 });
+  else setTimeout(warmIdle, 200);
+}
+
+function warmSandbox() {
+  if (sandbox || warming) return;
+  warming = (async () => {
+    const index = await loadBundleIndex();
+    if (!index?.runtime) return undefined;
+    try {
+      return await createSandbox("warm");
+    } catch {
+      discardSandbox();
+      return undefined;
+    }
+  })().finally(() => {
+    warming = undefined;
+  });
+}
+
+/** Reuse the idle sandbox when it is ready; otherwise start a fresh session. */
+async function acquireSandbox(): Promise<Sandbox> {
+  if (warming) await warming;
+  const current = sandbox;
+  if (current) {
+    current.runtime.iframe?.setAttribute("data-blast", "session");
+    return current;
+  }
+  return createSandbox("session");
 }
 
 function stopSession() {
   port?.close();
   port = undefined;
   controller = undefined;
-  runtimeFrame = undefined;
-  document.querySelector("iframe")?.remove();
+  discardSandbox();
   rootOpen = true;
   extensionContext = undefined;
   setStatus("Ready");
   drawRoot();
+  scheduleWarm();
 }
 
 function backFromExtension() {
@@ -457,6 +531,7 @@ async function start() {
       return void launch(extension, command).catch((error) => setStatus(String(error), true));
     drawRoot();
     setStatus("Ready");
+    scheduleWarm();
   } catch (error) {
     setStatus(String(error), true);
   }

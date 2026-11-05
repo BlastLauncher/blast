@@ -47,6 +47,8 @@ export function isTextExtension(path: string): boolean {
 
 export function canUseLocalFixture(source: GitHubExtensionSource, enabled: boolean): boolean {
   return (
-    enabled && source.owner === "raycast" && source.repo === "extensions" && source.ref === "main"
+    // Fixtures are keyed by extension name, and only test builds enable them, so
+    // any ref may use them (the dev e2e serves its catalog at ref "fixture").
+    enabled && source.owner === "raycast" && source.repo === "extensions"
   );
 }
