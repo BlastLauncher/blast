@@ -308,13 +308,15 @@ export function landTask(root: string, id: string, options: LandOptions = {}): v
     fail(`GitHub Actions failed: ${failed.map((run) => run.name ?? "unnamed").join(", ")}`);
   // The orchestrator may add fix commits between the merge and the done commit,
   // so find the task's merge on main's first-parent line rather than at HEAD^.
+  // Start from the done commit captured before the push, not HEAD: another task
+  // can be merged on main while this one waits for CI.
   const merge = runOrFail(runner, root, "git", [
     "rev-list",
     "--first-parent",
     "--merges",
     "-n",
     "1",
-    "HEAD",
+    head,
   ]).stdout.trim();
   if (!merge) fail(`no merge commit found below HEAD for task ${id}`);
   const secondParent = runOrFail(runner, root, "git", ["rev-parse", `${merge}^2`]).stdout.trim();

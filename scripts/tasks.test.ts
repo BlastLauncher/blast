@@ -156,7 +156,7 @@ function landFake(conclusion: string) {
     "gh run list --commit head --json status,conclusion,name": {
       stdout: JSON.stringify([{ status: "completed", conclusion, name: "ci" }]),
     },
-    "git rev-list --first-parent --merges -n 1 HEAD": { stdout: "merge\n" },
+    "git rev-list --first-parent --merges -n 1 head": { stdout: "merge\n" },
     "git rev-parse merge^2": { stdout: "worker-tip\n" },
     "git worktree list --porcelain": { stdout: "worktree /tmp/worker\nbranch refs/heads/worker\n" },
     "git rev-parse worker": { stdout: "worker-tip\n" },
@@ -391,6 +391,40 @@ describe("tasks:land", () => {
     expect(() =>
       execFileSync("git", ["show-ref", "--verify", "refs/heads/worker"], { cwd: root }),
     ).toThrow();
+  });
+
+  test("cleans this task's worker even if another task merges during the CI wait", () => {
+    const root = repo({
+      "PLAN.md": "### M1\n- [ ] 0001\n- [ ] 0002\n",
+      "tasks/0001-merge.md": task("0001", "doing"),
+      "tasks/0002-other.md": task("0002", "doing"),
+    });
+    const parent = mkdtempSync(join(tmpdir(), "blast-worker-"));
+    roots.push(parent);
+    const worker = (name: string, file: string) => {
+      const path = join(parent, name);
+      execFileSync("git", ["worktree", "add", "-b", name, path], { cwd: root });
+      writeFileSync(join(path, file), `${name}\n`);
+      execFileSync("git", ["add", "."], { cwd: path });
+      execFileSync("git", ["commit", "-m", name], { cwd: path });
+      return path;
+    };
+    const first = worker("first", "first.txt");
+    const second = worker("second", "second.txt");
+    mergeTask(root, "0001", { branch: "first" }, mergeTestRunner);
+    let merged = false;
+    landTask(root, "0001", {
+      runner: (command, args, cwd) => {
+        // While "CI" runs, the orchestrator merges the next task onto main.
+        if (command === "gh" && !merged) {
+          merged = true;
+          mergeTask(root, "0002", { branch: "second" }, mergeTestRunner);
+        }
+        return landRealRunner(command, args, cwd);
+      },
+    });
+    expect(() => readFileSync(join(first, "first.txt"))).toThrow();
+    expect(readFileSync(join(second, "second.txt"), "utf8")).toBe("second\n");
   });
 
   test("keeps a real worker worktree after failed CI", () => {
