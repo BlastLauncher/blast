@@ -43,9 +43,11 @@ try {
   const browser = await chromium.launch({ headless: true });
   try {
     const page = await browser.newPage();
+    const resources: string[] = [];
     page.on("console", (message) => console.error(`[browser:${message.type()}] ${message.text()}`));
     page.on("pageerror", (error) => console.error(`[pageerror] ${error.message}`));
     page.on("response", (response) => {
+      resources.push(response.url());
       if (response.status() >= 400)
         console.error(`[response:${response.status()}] ${response.url()}`);
     });
@@ -63,6 +65,8 @@ try {
           `${error} status=${await page.locator("#status").textContent()} app=${await page.locator("#app").innerText()}`,
         );
       });
+    if (resources.some((url) => url.includes("esbuild.wasm")))
+      throw new Error("prebuilt fixture launch requested esbuild.wasm");
     await page.locator("#app #search").fill("ban");
     await page.waitForFunction(
       () => (document.querySelector("#app")?.textContent ?? "").includes("banana"),

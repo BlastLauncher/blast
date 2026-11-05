@@ -3,6 +3,7 @@ import { createController, type Controller } from "../../packages/client-core/sr
 import { installForBrowser } from "../../packages/host/src/browser-install.ts";
 import { bundleForBrowser } from "../../packages/host/src/browser-bundle.ts";
 import type { SceneMessage } from "../../packages/protocol/src/index.ts";
+import { bundleKey, bundleMatches, parseBundleIndex } from "./bundles.ts";
 import { render, renderRoot } from "../web-launcher/render.js";
 import { canUseLocalFixture, isTextExtension, parseExtensionSource } from "./source.ts";
 import {
@@ -33,6 +34,7 @@ let actionOpen = false;
 let actionQuery = "";
 let actionSelected = 0;
 let rootToast = "";
+let bundleIndex: ReturnType<typeof parseBundleIndex> | undefined;
 
 const setStatus = (text: string, error = false) => {
   status.textContent = text;
@@ -201,37 +203,55 @@ function commandEntry(files: Map<string, BrowserFile>, name: string): string {
 async function launch(source: string, commandName: string): Promise<void> {
   rootOpen = false;
   actionOpen = false;
-  setStatus("Fetching extension…");
-  const extension = await fetchFiles(source);
-  const sourceFiles = (await (await fetch(asset("blast-sources.json"))).json()) as FileMap;
-  const files = new Map<string, BrowserFile>(Object.entries(sourceFiles));
-  for (const [path, value] of extension.files) files.set(path, value);
   const selectedCommand = commandName || commandSelect?.value || "index";
-  const command = commandEntry(extension.files, selectedCommand);
-  setStatus("Installing dependencies…");
-  const installed = await installForBrowser({
-    fetch: (value, init) => fetch(value, init),
-    manifest: extension.manifest,
-    ...(extension.lockfile === undefined ? {} : { lockfile: extension.lockfile }),
-  });
-  setStatus("Bundling…");
-  await esbuild.initialize({ wasmURL: asset("esbuild.wasm"), worker: false });
-  const bundled = await bundleForBrowser({
-    esbuild,
-    files,
-    packages: installed.packages,
-    command,
-    runtimeEntry: "/examples/browser-demo/runtime-entry.ts",
-    aliases: {
-      "@raycast/api": "/packages/runtime/src/api/index.ts",
-      "@blastlauncher/protocol": "/packages/protocol/src/index.ts",
-      react: "/node_modules/react/index.js",
-      "react/jsx-runtime": "/node_modules/react/jsx-runtime.js",
-      "react-reconciler": "/node_modules/react-reconciler/index.js",
-      "react-reconciler/constants.js": "/node_modules/react-reconciler/constants.js",
-      scheduler: "/node_modules/scheduler/index.js",
-    },
-  });
+  let extension: Awaited<ReturnType<typeof fetchFiles>>;
+  let command: string;
+  let bundled: { code: string };
+  const catalogSource = source.startsWith("https://github.com/raycast/extensions/tree/");
+  const bundle = catalogSource ? await prebuiltBundle(source, selectedCommand) : undefined;
+  if (bundle) {
+    extension = {
+      files: new Map(),
+      manifest: {
+        name: source.split("/extensions/tree/")[1]?.split("/").slice(1).join("/") ?? source,
+      },
+      root: "",
+    };
+    command = `/src/${selectedCommand}.tsx`;
+    bundled = bundle;
+    setStatus("Starting prebuilt bundle…");
+  } else {
+    setStatus("Fetching extension…");
+    extension = await fetchFiles(source);
+    const sourceFiles = (await (await fetch(asset("blast-sources.json"))).json()) as FileMap;
+    const files = new Map<string, BrowserFile>(Object.entries(sourceFiles));
+    for (const [path, value] of extension.files) files.set(path, value);
+    command = commandEntry(extension.files, selectedCommand);
+    setStatus("Installing dependencies…");
+    const installed = await installForBrowser({
+      fetch: (value, init) => fetch(value, init),
+      manifest: extension.manifest,
+      ...(extension.lockfile === undefined ? {} : { lockfile: extension.lockfile }),
+    });
+    setStatus("Bundling…");
+    await esbuild.initialize({ wasmURL: asset("esbuild.wasm"), worker: false });
+    bundled = await bundleForBrowser({
+      esbuild,
+      files,
+      packages: installed.packages,
+      command,
+      runtimeEntry: "/examples/browser-demo/runtime-entry.ts",
+      aliases: {
+        "@raycast/api": "/packages/runtime/src/api/index.ts",
+        "@blastlauncher/protocol": "/packages/protocol/src/index.ts",
+        react: "/node_modules/react/index.js",
+        "react/jsx-runtime": "/node_modules/react/jsx-runtime.js",
+        "react-reconciler": "/node_modules/react-reconciler/index.js",
+        "react-reconciler/constants.js": "/node_modules/react-reconciler/constants.js",
+        scheduler: "/node_modules/scheduler/index.js",
+      },
+    });
+  }
   const almost = (await import(asset("almostnode.mjs"))) as unknown as {
     VirtualFS: new () => unknown;
     createRuntime: (
@@ -288,6 +308,46 @@ async function launch(source: string, commandName: string): Promise<void> {
   setStatus("Starting…");
 }
 
+async function prebuiltBundle(
+  source: string,
+  command: string,
+): Promise<{ code: string } | undefined> {
+  try {
+    if (!bundleIndex) {
+      const [indexResponse, buildResponse] = await Promise.all([
+        fetch(asset("bundles.json")),
+        fetch(asset("../build.json")),
+      ]);
+      if (!indexResponse.ok || !buildResponse.ok) return undefined;
+      const index = parseBundleIndex(await indexResponse.json());
+      const build = (await buildResponse.json()) as { sha?: unknown };
+      if (typeof build.sha !== "string" || build.sha !== index.buildSha) return undefined;
+      bundleIndex = index;
+    }
+    const parts = new URL(source).pathname.split("/").filter(Boolean);
+    const treeIndex = parts.indexOf("tree");
+    const extension = treeIndex >= 0 ? parts[treeIndex + 3] : undefined;
+    if (!extension) return undefined;
+    const entry = bundleIndex.bundles[bundleKey(extension, command)];
+    if (!entry) return undefined;
+    const response = await fetch(asset(entry.path.replace(/^bundles\//, "bundles/")));
+    if (!response.ok) return undefined;
+    const bytes = await response.arrayBuffer();
+    if (
+      !(await bundleMatches(
+        bundleIndex,
+        bundleIndex.buildSha,
+        bundleKey(extension, command),
+        bytes,
+      ))
+    )
+      return undefined;
+    return { code: new TextDecoder().decode(bytes) };
+  } catch {
+    return undefined;
+  }
+}
+
 function stopSession() {
   port?.close();
   port = undefined;
@@ -316,9 +376,10 @@ function backFromExtension() {
 function runSelected() {
   const selected = rootRows[rootSelected];
   if (!selected) return;
-  void launch(selected.url ?? selected.extension, selected.command).catch((error) =>
-    setStatus(String(error), true),
-  );
+  const source =
+    selected.url ??
+    `https://github.com/raycast/extensions/tree/${catalog.commit}/extensions/${selected.extension}`;
+  void launch(source, selected.command).catch((error) => setStatus(String(error), true));
 }
 
 function runAction() {

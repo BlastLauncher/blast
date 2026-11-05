@@ -170,7 +170,10 @@ try {
       if ((await page.locator("iframe").count()) !== 0)
         throw new Error("Esc returned to the root list but the sandbox iframe is still running");
       const deep = await browser.newPage();
-      await deep.goto(`${url}?ext=hello-list&cmd=index`, { waitUntil: "load" });
+      await deep.goto(
+        `${url}?ext=${encodeURIComponent("https://github.com/raycast/extensions/tree/main/extensions/hello-list")}&cmd=index`,
+        { waitUntil: "load" },
+      );
       await deep.locator("#app #search").waitFor({ timeout: 120_000 });
       await deep.close();
     }

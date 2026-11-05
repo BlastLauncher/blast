@@ -31,6 +31,7 @@ describe("site build helpers", () => {
       siteOrigin: "http://127.0.0.1:4173",
       sandboxUrl: "https://blastlauncher.github.io/blast-sandbox/",
       buildSha: "test-sha",
+      fixtures: true,
     });
     const [wwwBuild, sandboxBuild] = await Promise.all([
       readFile(`${result.www}/build.json`, "utf8"),
