@@ -69,8 +69,12 @@ So the same function runs in Node and in a browser.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/browser-bundle-target @ 902fa0e2d981cf7ea8196c5d3a97162e12268c61
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok)
 Done:
-Not done / risks:
+- Added pure `bundleForBrowser()` with injected esbuild and in-memory source/package resolution.
+- Bundled runtime and command through a virtual entry while keeping `node:*` imports external.
+- Added typed missing-file, missing-dependency, and native-module errors plus focused tests.
+- Exported the browser bundler from `@blastlauncher/host`.
+Not done / risks: Runtime entry integration beyond the virtual entry contract is left to 0116/0119.
 ```
