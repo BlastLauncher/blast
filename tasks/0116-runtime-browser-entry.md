@@ -1,7 +1,7 @@
 ---
 id: "0116"
 title: Transport-agnostic runtime core with stdio and postMessage entries
-status: todo
+status: doing
 milestone: M8
 depends: []
 ---
