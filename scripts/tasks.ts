@@ -176,24 +176,27 @@ function candidateBranches(runner: CommandRunner, root: string, task: TaskInfo):
   return candidates.toSorted();
 }
 
-function planUpdate(root: string, task: TaskInfo, planText?: string): void {
-  const path = join(root, "PLAN.md");
-  const plan = readFileSync(path, "utf8");
+/** PLAN.md with the task ticked, or with `planText` appended as a ticked item
+ * at the end of the task milestone's checklist. Pure, so merge can check it
+ * before touching git. */
+export function updatedPlan(plan: string, task: TaskInfo, planText?: string): string {
   const tick = new RegExp(`^- \\[ \\] ${task.id}(?:\\s|$)`, "m");
-  if (tick.test(plan)) {
-    writeFileSync(
-      path,
-      plan.replace(tick, (line) => line.replace("- [ ]", "- [x]")),
-    );
-    return;
-  }
+  if (tick.test(plan)) return plan.replace(tick, (line) => line.replace("- [ ]", "- [x]"));
   if (!planText) fail(`PLAN.md has no unchecked ${task.id} line; pass --plan "<text>"`);
-  const heading = new RegExp(`^### ${task.milestone}\\s*$`, "m");
-  if (!heading.test(plan)) fail(`PLAN.md has no ${task.milestone} milestone heading`);
-  writeFileSync(
-    path,
-    plan.replace(heading, (line) => `${line}\n\n- [x] ${planText}`),
+  const lines = plan.split("\n");
+  const heading = lines.findIndex((line) =>
+    new RegExp(`^### ${task.milestone}(?:\\s|$)`).test(line),
   );
+  if (heading < 0) fail(`PLAN.md has no ${task.milestone} milestone heading`);
+  let end = lines.findIndex((line, i) => i > heading && /^##/.test(line));
+  if (end < 0) end = lines.length;
+  let last = -1;
+  for (let i = heading + 1; i < end; i++) if (/^- \[[ x]\] /.test(lines[i]!)) last = i;
+  if (last < 0) fail(`PLAN.md ${task.milestone} has no checklist to append to`);
+  // Continuation lines of the last item are indented; append after them.
+  while (last + 1 < end && /^\s+\S/.test(lines[last + 1]!)) last++;
+  lines.splice(last + 1, 0, `- [x] ${planText}`);
+  return lines.join("\n");
 }
 
 export function mergeTask(
@@ -218,13 +221,16 @@ export function mergeTask(
     `main..${selected}`,
   ]).stdout.trim();
   if (ahead === "0") fail(`branch ${selected} is not ahead of main`);
+  // Fail on a missing PLAN line before anything changes.
+  updatedPlan(readFileSync(join(root, "PLAN.md"), "utf8"), task, options.plan);
   const merged = runner("git", ["merge", "--no-ff", selected], root);
   if (merged.status !== 0) {
     runner("git", ["merge", "--abort"], root);
     fail(`merge of ${selected} failed; merge was aborted`);
   }
   unlinkSync(join(root, "tasks", task.file));
-  planUpdate(root, task, options.plan);
+  const planPath = join(root, "PLAN.md");
+  writeFileSync(planPath, updatedPlan(readFileSync(planPath, "utf8"), task, options.plan));
   for (const command of [
     ["bun", ["run", "check:workflow"]],
     ["bun", ["run", "verify"]],
@@ -350,6 +356,8 @@ if (import.meta.main) {
     } else if (command === "land" && id) {
       const timeoutIndex = args.indexOf("--timeout-ms");
       const timeoutArg = timeoutIndex >= 0 ? Number(args[timeoutIndex + 1]) : undefined;
+      if (timeoutArg !== undefined && !(Number.isInteger(timeoutArg) && timeoutArg > 0))
+        fail("--timeout-ms must be a positive integer");
       landTask(root, id, timeoutArg === undefined ? {} : { timeoutMs: timeoutArg });
     } else usage();
   } catch (error) {

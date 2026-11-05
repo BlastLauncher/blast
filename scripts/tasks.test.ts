@@ -3,7 +3,7 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { landTask, mergeTask, nextTasks, readyTasks, startTask } from "./tasks.ts";
+import { landTask, mergeTask, updatedPlan, nextTasks, readyTasks, startTask } from "./tasks.ts";
 
 const roots: string[] = [];
 const task = (id: string, status: string, depends = "[]") =>
@@ -254,7 +254,7 @@ describe("tasks:merge", () => {
 
   test("requires a plan argument when the checklist line is absent", () => {
     const root = repo({ "PLAN.md": "### M1\n", "tasks/0001-merge.md": task("0001", "doing") });
-    const { runner } = fakeRunner({
+    const { calls, runner } = fakeRunner({
       "git branch --show-current": { stdout: "main" },
       "git status --porcelain": {},
       "git show-ref --verify refs/heads/worker": {},
@@ -264,6 +264,27 @@ describe("tasks:merge", () => {
       "bun run verify": {},
     });
     expect(() => mergeTask(root, "0001", { branch: "worker" }, runner)).toThrow("pass --plan");
+    expect(calls.some((call) => call.includes("merge"))).toBe(false);
+  });
+
+  test("appends --plan text at the end of the milestone checklist", () => {
+    const task = { id: "0002", milestone: "M7" } as Parameters<typeof updatedPlan>[1];
+    const plan = [
+      "### M7 — Real examples",
+      "",
+      "Intro text.",
+      "",
+      "- [x] 0001 first;",
+      "      continued",
+      "",
+      "## Later",
+      "",
+    ].join("\n");
+    expect(updatedPlan(plan, task, "0002 second")).toBe(
+      plan.replace("      continued\n", "      continued\n- [x] 0002 second\n"),
+    );
+    expect(updatedPlan("### M7\n- [ ] 0002 x\n", task)).toBe("### M7\n- [x] 0002 x\n");
+    expect(() => updatedPlan("### M6\n- [x] a\n", task, "t")).toThrow("no M7 milestone");
   });
 
   test("leaves the merge in place when verify fails", () => {
