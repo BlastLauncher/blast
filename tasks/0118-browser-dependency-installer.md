@@ -1,7 +1,7 @@
 ---
 id: "0118"
 title: Browser dependency installer (registry + tarballs, in memory, lean rules)
-status: todo
+status: doing
 milestone: M8
 depends: []
 ---
