@@ -88,7 +88,7 @@ Run any Raycast extension in a browser tab from its URL, inside almostnode
 - [x] 0115 Spike: real runtime in almostnode's sandbox, measured (`examples/browser-runtime`)
 - [x] 0116 runtime core + postMessage; 0117 browser bundle; 0118 installer; 0119 demo by URL
 - [x] 0120 Raycast-style root list to pick and run commands in the browser demo
-- [ ] 0121 Static site build: landing + /demo, separate sandbox origin (GitHub Pages)
+- [x] 0121 Static site build: landing + /demo, separate sandbox origin (GitHub Pages)
 - [ ] 0122 Deploy: blast.yukai.dev + blastlauncher.github.io/blast-sandbox, live smoke
 
 ## Later (not scheduled)
