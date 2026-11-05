@@ -14,8 +14,28 @@ export function escapeHtml(value) {
 const button = (label, action, selected = false) =>
   `<button data-input="${escapeHtml(action)}"${selected ? ' class="selected"' : ""}>${escapeHtml(label)}</button>`;
 
-/** @param {import("@blastlauncher/client-core").ControllerView} view */
-export function render(view) {
+/**
+ * @typedef {{text: string, error?: boolean, progress?: boolean}} FooterStatus
+ * @typedef {{extensionTitle: string, commandTitle: string, icon?: string, iconUrl?: string}} ExtensionContext
+ */
+
+/** @param {FooterStatus} status */
+function statusMarkup(status) {
+  return `<span id="status" role="status" data-error="${status.error ? "true" : "false"}">${status.progress ? '<span class="status-spinner" aria-hidden="true"></span>' : ""}${escapeHtml(status.text)}</span>`;
+}
+
+/** @param {ExtensionContext | undefined} context */
+function breadcrumbMarkup(context) {
+  if (!context) return "";
+  const icon = context.iconUrl
+    ? `<img src="${escapeHtml(context.iconUrl)}" alt="" width="20" height="20" onerror="this.hidden=true">`
+    : escapeHtml(context.icon ?? "⌘");
+  return `<div class="breadcrumb"><span class="breadcrumb-icon" aria-hidden="true">${icon}</span><span>${escapeHtml(context.extensionTitle)}</span><span class="breadcrumb-separator">›</span><span>${escapeHtml(context.commandTitle)}</span></div>`;
+}
+
+/** @param {import("@blastlauncher/client-core").ControllerView} view @param {{status?: FooterStatus, context?: ExtensionContext}} [options] */
+export function render(view, options = {}) {
+  const status = options.status ?? { text: "Ready" };
   const search = `<input id="search" value="${escapeHtml(view.search.text)}" placeholder="${escapeHtml(view.search.placeholder)}" aria-label="Search">`;
   const rows = view.rows
     .map(
@@ -43,10 +63,11 @@ export function render(view) {
       : view.kind === "detail"
         ? detail
         : `<ul class="rows">${rows}</ul>${empty}`;
-  return `<main data-kind="${escapeHtml(view.kind)}"><header><h1>${escapeHtml(view.title)}</h1>${search}</header>${body}${actions}${view.primary.enabled ? `<footer>${button(view.primary.title, "primary")}</footer>` : ""}${toast}</main>`;
+  const footer = `<footer>${statusMarkup(status)}<span class="footer-hints">${view.primary.enabled ? `${button(`${view.primary.shortcut || "↵"} ${view.primary.title}`, "primary")}` : ""}<span>Actions ⌘K</span><span>Esc Back</span></span></footer>`;
+  return `<main data-kind="${escapeHtml(view.kind)}"><header>${breadcrumbMarkup(options.context)}<h1>${escapeHtml(view.title)}</h1>${search}</header>${body}${actions}${footer}${toast}</main>`;
 }
 
-/** @param {import("../browser-demo/root.ts").RootRow[]} rows @param {number} selected @param {string} query @param {{open?: boolean, query?: string, actions?: import("../browser-demo/root.ts").RootAction[], selected?: number, toast?: string}} [panel] */
+/** @param {import("../browser-demo/root.ts").RootRow[]} rows @param {number} selected @param {string} query @param {{open?: boolean, query?: string, actions?: import("../browser-demo/root.ts").RootAction[], selected?: number, toast?: string, status?: FooterStatus}} [panel] */
 export function renderRoot(rows, selected, query, panel = {}) {
   const options = rows
     .map(
@@ -68,5 +89,6 @@ export function renderRoot(rows, selected, query, panel = {}) {
   const toast = panel.toast
     ? `<span role="status" class="root-toast">${escapeHtml(panel.toast)}</span>`
     : "";
-  return `<main class="root" data-kind="root"><header><h1>Blast</h1><input id="root-search" value="${escapeHtml(query)}" placeholder="Search extension commands…" aria-label="Search extension commands" role="combobox" aria-controls="root-options" aria-activedescendant="${selected >= 0 ? `root-option-${selected}` : ""}" autocomplete="off" autofocus></header><ul id="root-options" class="rows root-options" role="listbox" aria-label="Extension commands">${options}</ul>${rows.length === 0 ? '<p class="empty">No matching commands</p>' : ""}<footer><span>↵ Run Command</span><span>Actions ⌘K</span>${toast}</footer>${actionPanel}</main>`;
+  const status = panel.status ?? { text: "Ready" };
+  return `<main class="root" data-kind="root"><header><h1>Blast</h1><input id="root-search" value="${escapeHtml(query)}" placeholder="Search extension commands…" aria-label="Search extension commands" role="combobox" aria-controls="root-options" aria-activedescendant="${selected >= 0 ? `root-option-${selected}` : ""}" autocomplete="off" autofocus></header><ul id="root-options" class="rows root-options" role="listbox" aria-label="Extension commands">${options}</ul>${rows.length === 0 ? '<p class="empty">No matching commands</p>' : ""}<footer>${statusMarkup(status)}<span class="footer-hints"><span>↵ Run Command</span><span>Actions ⌘K</span>${status.error ? "<span>Esc Back</span>" : ""}</span>${toast}</footer>${actionPanel}</main>`;
 }

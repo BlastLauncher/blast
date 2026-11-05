@@ -3,7 +3,14 @@ import { join, relative, sep } from "node:path";
 import { buildSite } from "./site.ts";
 import { projectRoot } from "./build.ts";
 
-type BrowserDocument = { querySelector(selector: string): { textContent: string | null } | null };
+type BrowserElement = {
+  textContent: string | null;
+  getBoundingClientRect(): { top: number; bottom: number; height: number };
+};
+type BrowserDocument = {
+  scrollingElement?: { scrollHeight: number };
+  querySelector<T extends BrowserElement = BrowserElement>(selector: string): T | null;
+};
 declare const document: BrowserDocument;
 
 const browsers = process.env.PLAYWRIGHT_BROWSERS_PATH;
@@ -53,6 +60,32 @@ try {
     await page.getByRole("heading", { name: "Extensions, outside the launcher." }).waitFor();
     await page.getByRole("link", { name: "Open the browser demo" }).click();
     await page.locator("#root-search").waitFor();
+    if ((await page.locator('[role="option"]').count()) < 237)
+      throw new Error("catalog should render at least 237 command options");
+    const panelHeight = await page.evaluate(
+      () => document.querySelector("main.root")?.getBoundingClientRect().height ?? 0,
+    );
+    if (!panelHeight || panelHeight > 520)
+      throw new Error(`launcher panel is too tall: ${panelHeight}`);
+    const documentHeight = await page.evaluate(() => document.scrollingElement?.scrollHeight ?? 0);
+    if (documentHeight > 801) throw new Error(`page unexpectedly scrolls: ${documentHeight}px`);
+    for (let index = 0; index < 30; index++) await page.keyboard.press("ArrowDown");
+    const selectedPosition = await page.evaluate(() => {
+      const selected = document.querySelector('[role="option"][aria-selected="true"]');
+      const list = document.querySelector(".root-options");
+      if (!selected || !list) return null;
+      const row = selected.getBoundingClientRect();
+      const box = list.getBoundingClientRect();
+      return {
+        visible: row.top >= box.top - 1 && row.bottom <= box.bottom + 1,
+        row: [row.top, row.bottom],
+        box: [box.top, box.bottom],
+      };
+    });
+    if (!selectedPosition?.visible)
+      throw new Error(
+        `selected option was not kept in the visible list: ${JSON.stringify(selectedPosition)}`,
+      );
     await page.locator("#root-search").fill("hello-list");
     await page.keyboard.press("Enter");
     await page
@@ -63,6 +96,8 @@ try {
           `${error} status=${await page.locator("#status").textContent()} app=${await page.locator("#app").innerText()}`,
         );
       });
+    if (!(await page.locator(".breadcrumb").textContent())?.includes("Hello List"))
+      throw new Error("extension breadcrumb did not show the fixture title");
     await page.locator("#app #search").fill("ban");
     await page.waitForFunction(
       () => (document.querySelector("#app")?.textContent ?? "").includes("banana"),

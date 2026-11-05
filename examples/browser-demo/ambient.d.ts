@@ -26,7 +26,10 @@ declare module "playwright" {
     launch(options: { headless: boolean }): Promise<Browser>;
   };
   export type Browser = {
-    newPage(): Promise<Page>;
+    newPage(options?: {
+      colorScheme?: "dark" | "light";
+      viewport?: { width: number; height: number };
+    }): Promise<Page>;
     close(): Promise<void>;
   };
   export type Page = {
