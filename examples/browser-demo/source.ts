@@ -44,3 +44,9 @@ export function parseExtensionSource(value: string): GitHubExtensionSource {
 export function isTextExtension(path: string): boolean {
   return /\.(?:cjs|css|html?|js|jsx|json|md|mjs|ts|tsx|txt|yaml|yml)$/i.test(path);
 }
+
+export function canUseLocalFixture(source: GitHubExtensionSource, enabled: boolean): boolean {
+  return (
+    enabled && source.owner === "raycast" && source.repo === "extensions" && source.ref === "main"
+  );
+}

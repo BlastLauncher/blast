@@ -35,6 +35,25 @@ test("root rows rank matches and keep curated suggestions first", () => {
   ]);
 });
 
+test("catalog icons resolve from each extension assets directory", () => {
+  const row = rootRows(
+    {
+      commit: "abc123",
+      extensions: [
+        {
+          name: "ratio-calculator",
+          title: "Ratio Calculator",
+          icon: "icon.png",
+          commands: [{ name: "index", title: "Ratio", mode: "view" }],
+        },
+      ],
+    },
+    "",
+  )[0]!;
+  expect(row.icon).toBe("⌘");
+  expect(row.iconUrl).toContain("/extensions/ratio-calculator/assets/icon.png");
+});
+
 test("URL row and selection are clamped", () => {
   const model = rootModel(
     catalog,

@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { parseExtensionSource } from "./source.ts";
+import { canUseLocalFixture, parseExtensionSource } from "./source.ts";
 
 test("parses a full GitHub extension URL", () => {
   expect(parseExtensionSource("https://github.com/acme/tools/tree/v1/extensions/demo")).toEqual({
@@ -24,4 +24,16 @@ test("parses a bare name as the Raycast extensions repository", () => {
 test("rejects non-GitHub and incomplete URLs", () => {
   expect(() => parseExtensionSource("https://example.com/a/b/tree/main/extensions/demo")).toThrow();
   expect(() => parseExtensionSource("https://github.com/acme/tools")).toThrow();
+});
+
+test("local fixtures are opt-in for the fixture build", () => {
+  const source = parseExtensionSource("ratio-calculator");
+  expect(canUseLocalFixture(source, false)).toBe(false);
+  expect(canUseLocalFixture(source, true)).toBe(true);
+  expect(
+    canUseLocalFixture(
+      parseExtensionSource("https://github.com/acme/tools/tree/main/extensions/demo"),
+      true,
+    ),
+  ).toBe(false);
 });

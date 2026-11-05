@@ -33,6 +33,7 @@ declare module "playwright" {
     addInitScript(pageFunction: () => void): Promise<void>;
     goto(url: string, options?: { waitUntil?: "load" }): Promise<unknown>;
     close(): Promise<void>;
+    screenshot(options: { path: string; fullPage?: boolean }): Promise<unknown>;
     evaluate<T>(pageFunction: () => T): Promise<T>;
     evaluate<T, A>(pageFunction: (arg: A) => T, arg: A): Promise<T>;
     waitForFunction<T>(pageFunction: () => T, options?: { timeout?: number }): Promise<unknown>;

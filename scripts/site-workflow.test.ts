@@ -5,6 +5,7 @@ type Job = {
   needs?: string | string[];
   permissions?: Record<string, string>;
   environment?: { name?: string };
+  steps?: Array<{ run?: string; uses?: string; env?: Record<string, string> }>;
 };
 
 describe("site workflow", () => {
@@ -26,6 +27,15 @@ describe("site workflow", () => {
     expect(workflow.concurrency?.["cancel-in-progress"]).toBe(false);
     expect(jobs.smoke!.needs).toEqual(["pages", "sandbox"]);
     expect(jobs.smoke!.permissions).toEqual({ contents: "read" });
+    expect(jobs.smoke!.steps?.some((step) => step.run?.includes("site:smoke:browser"))).toBe(true);
+    expect(
+      jobs.smoke!.steps?.some((step) =>
+        step.run?.includes("playwright@1.58.0 install --with-deps chromium"),
+      ),
+    ).toBe(true);
+    expect(jobs.smoke!.steps?.some((step) => step.uses?.includes("actions/upload-artifact@"))).toBe(
+      true,
+    );
     for (const match of source.matchAll(/uses:\s+([^\s#]+)/g))
       expect(match[1]).toMatch(/@[0-9a-f]{40}$/);
   });

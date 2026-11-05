@@ -148,3 +148,16 @@ jobs:
           # Header lines end in CRLF; strip CR before matching the CORS header.
           tr -d '\r' < "$sandbox_headers" | grep -i '^access-control-allow-origin: \*$'
           echo "deployed build $GITHUB_SHA"
+      - name: Install Chromium
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: .cache/ms-playwright
+        run: npx --yes playwright@1.58.0 install --with-deps chromium
+      - name: Browser smoke
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: .cache/ms-playwright
+        run: bun run site:smoke:browser https://blast.yukai.dev https://blastlauncher.github.io/blast-sandbox/
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: site-smoke
+          path: .cache/site-smoke

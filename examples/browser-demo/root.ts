@@ -80,10 +80,10 @@ function row(extension: CatalogExtension, command: CatalogCommand, commit: strin
     id: `${extension.name}:${command.name}`,
     title: command.title,
     subtitle: command.subtitle ?? extension.title,
-    icon: extension.icon ?? "⌘",
+    icon: "⌘",
     ...(extension.icon
       ? {
-          iconUrl: `https://raw.githubusercontent.com/raycast/extensions/${commit}/extensions/${extension.name}/${extension.icon}`,
+          iconUrl: `https://raw.githubusercontent.com/raycast/extensions/${commit}/extensions/${extension.name}/assets/${extension.icon}`,
         }
       : {}),
     accessory: "Command",

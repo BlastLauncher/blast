@@ -51,7 +51,8 @@
     "example:browser-demo:catalog": "bun scripts/browser-catalog.ts",
     "example:browser-demo:e2e": "bun examples/browser-demo/e2e.ts",
     "site:build": "bun examples/browser-demo/site.ts",
-    "site:e2e": "bun examples/browser-demo/site-e2e.ts"
+    "site:e2e": "bun examples/browser-demo/site-e2e.ts",
+    "site:smoke:browser": "bun examples/browser-demo/site-smoke-browser.ts"
   },
   "devDependencies": {
     "@blastlauncher/shared-deps": "workspace:*",

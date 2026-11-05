@@ -113,8 +113,13 @@ after 0122, found these bugs while the curl smoke check passed:
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/fix-live-demo-smoke @ 528bf9217e785a090c822a49cf8efcf40bfc2442
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 64.1s
 Done:
-Not done / risks:
+- Shared the demo page template and stylesheet between the dev server and production site build.
+- Fixed catalog icon asset URLs and neutral image fallbacks; production builds opt out of local fixtures.
+- Made browser runtime evaluation clone-safe and fatal on rejection, with clear status reporting.
+- Added production browser smoke coverage, screenshots, CI Chromium setup, artifact upload, and tests.
+- Timings: local production smoke ~8s; fixture site e2e ~3s.
+Not done / risks: Live deployed URLs remain on the pre-fix deployment until the integration branch is deployed.
 ```
