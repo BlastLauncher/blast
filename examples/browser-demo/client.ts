@@ -4,7 +4,7 @@ import { installForBrowser } from "../../packages/host/src/browser-install.ts";
 import { bundleForBrowser } from "../../packages/host/src/browser-bundle.ts";
 import type { SceneMessage } from "../../packages/protocol/src/index.ts";
 import { render, renderRoot } from "../web-launcher/render.js";
-import { isTextExtension, parseExtensionSource } from "./source.ts";
+import { canUseLocalFixture, isTextExtension, parseExtensionSource } from "./source.ts";
 import {
   executeRootAction,
   rootActionModel,
@@ -133,7 +133,9 @@ async function fetchFiles(source: string): Promise<{
   };
   let root = parsed.path;
   let paths: string[];
-  if (parsed.owner === "raycast" && parsed.repo === "extensions" && parsed.ref === "main") {
+  const allowFixtures =
+    Object.getOwnPropertyDescriptor(globalThis, "__BLAST_FIXTURES__")?.value === true;
+  if (canUseLocalFixture(parsed, allowFixtures)) {
     const localBase = asset(
       `fixtures/${encodeURIComponent(parsed.path.replace(/^extensions\//, ""))}`,
     );
@@ -249,9 +251,12 @@ async function launch(source: string, commandName: string): Promise<void> {
   port = channel.port1;
   port.start();
   port.addEventListener("message", (event) => handleRuntime(event.data));
-  void runtime
-    .execute(bundled.code, "/bundle.cjs")
-    .catch((error) => setStatus(String(error), true));
+  try {
+    await runtime.execute(`${bundled.code}\nmodule.exports = null;`, "/bundle.cjs");
+  } catch (error) {
+    setStatus(`Runtime failed: ${String(error)}`, true);
+    return;
+  }
   setTimeout(() => runtimeFrame?.postMessage({ type: "blast-port" }, "*", [channel.port2]), 100);
   controller = createController({ platform: "macOS" });
   controller.subscribe(draw);

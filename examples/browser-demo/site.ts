@@ -1,6 +1,7 @@
 import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { buildBrowserAssets, projectRoot, relativeFiles } from "./build.ts";
+import { demoPage } from "./template.ts";
 
 export type SiteOptions = {
   siteOrigin: string;
@@ -111,10 +112,8 @@ export async function buildSite(
     '<!doctype html><title>Blast — not found</title><p>That page is not here. <a href="/">Go home</a>.</p>\n',
   );
   await writeFile(join(www, ".nojekyll"), "");
-  await writeFile(
-    join(demo, "index.html"),
-    `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Blast browser demo</title></head><body><p id="status">Loading catalog…</p><div id="app"></div><script>window.__BLAST_SANDBOX__=${JSON.stringify(sandboxUrl.href)}</script><script type="module" src="./client.js"></script></body></html>`,
-  );
+  await writeFile(join(demo, "index.html"), demoPage(sandboxUrl.href, "./", options.fixtures));
+  await cp(join(projectRoot, "examples/browser-demo/demo.css"), join(demo, "demo.css"));
   await writeFile(join(demo, "client.js"), assets.clientJs);
   await writeFile(join(demo, "almostnode.mjs"), assets.almost);
   await writeFile(join(demo, "esbuild.wasm"), assets.wasm);

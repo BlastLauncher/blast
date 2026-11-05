@@ -40,6 +40,8 @@ describe("site build helpers", () => {
     expect(JSON.parse(sandboxBuild)).toEqual({ sha: "test-sha" });
     const demo = await readFile(`${result.www}/demo/index.html`, "utf8");
     expect(demo).toContain("https://blastlauncher.github.io/blast-sandbox/");
+    expect(demo).toContain('href="./demo.css"');
+    await expect(readFile(`${result.www}/demo/demo.css`, "utf8")).resolves.toContain(".root-icon");
     const sandbox = await readFile(`${result.sandbox}/index.html`, "utf8");
     expect(sandbox).toContain("./almostnode-full.mjs");
     expect(sandbox).not.toMatch(/(?:src|href)=["']\//);
