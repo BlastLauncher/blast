@@ -69,7 +69,7 @@ So the same function runs in Node and in a browser.
 ## Handoff
 
 ```
-Branch/commit: t3/browser-bundle-target @ 902fa0e2d981cf7ea8196c5d3a97162e12268c61
+Branch/commit: t3/browser-bundle-target @ 078140272cbf3f2d8e3383beb7839444969ef4b0
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok)
 Done:
 - Added pure `bundleForBrowser()` with injected esbuild and in-memory source/package resolution.
