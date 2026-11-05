@@ -881,12 +881,11 @@ test("stored dropdown selections restore through the host storage capability acr
       "--script",
       "-",
     ];
+    // Code and stderr together, so a CI failure shows the CLI's `# error` line.
     const first = await runCli(args, "dropdown wine\nwait\nexpect drink wine\nquit\n");
-    expect(first.code).toBe(0);
-    expect(first.stderr).toBe("");
+    expect({ code: first.code, stderr: first.stderr }).toEqual({ code: 0, stderr: "" });
     const second = await runCli(args, "wait\nwait\nexpect drink wine\nquit\n");
-    expect(second.code).toBe(0);
-    expect(second.stderr).toBe("");
+    expect({ code: second.code, stderr: second.stderr }).toEqual({ code: 0, stderr: "" });
     expect(second.stdout).toContain('value="wine"');
   } finally {
     await rm(dataDir, { recursive: true, force: true });
