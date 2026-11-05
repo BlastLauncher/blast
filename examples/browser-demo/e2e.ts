@@ -31,6 +31,22 @@ try {
   const browser = await chromium.launch({ headless: true });
   try {
     const page = await browser.newPage();
+    await page.addInitScript(() => {
+      const state = globalThis as typeof globalThis & {
+        blastClipboard?: string;
+        blastOpened?: string[];
+      };
+      state.blastClipboard = "";
+      state.blastOpened = [];
+      Object.defineProperty(navigator, "clipboard", {
+        configurable: true,
+        value: { writeText: async (value: string) => (state.blastClipboard = value) },
+      });
+      window.open = ((targetUrl?: string | URL) => {
+        state.blastOpened?.push(String(targetUrl ?? ""));
+        return null;
+      }) as typeof window.open;
+    });
     if (!live) {
       await page.route("**/catalog.json", (route) =>
         route.fulfill({
@@ -42,6 +58,11 @@ try {
                 name: "hello-list",
                 title: "Hello List",
                 commands: [{ name: "index", title: "Hello List", mode: "view" }],
+              },
+              {
+                name: "other-extension",
+                title: "Other Extension",
+                commands: [{ name: "index", title: "Other Command", mode: "view" }],
               },
             ],
           }),
@@ -62,7 +83,29 @@ try {
     } else {
       await page.keyboard.press("Control+K");
       for (const action of ["Run Command", "Open Extension on GitHub", "Copy Extension URL"])
-        await page.getByText(action, { exact: true }).first().waitFor();
+        await page.getByRole("option", { name: new RegExp(`^${action}`) }).waitFor();
+      await page.keyboard.press("Escape");
+      await page.keyboard.press("Control+K");
+      await page.keyboard.press("ArrowDown");
+      await page.keyboard.press("ArrowDown");
+      await page.keyboard.press("Enter");
+      const copied = await page.evaluate(
+        () => (globalThis as typeof globalThis & { blastClipboard?: string }).blastClipboard,
+      );
+      if (copied !== "https://github.com/raycast/extensions/tree/fixture/extensions/hello-list")
+        throw new Error(`unexpected copied extension URL: ${copied}`);
+      await page.keyboard.press("Control+K");
+      await page.keyboard.press("ArrowDown");
+      await page.keyboard.press("Enter");
+      const opened = await page.evaluate(
+        () => (globalThis as typeof globalThis & { blastOpened?: string[] }).blastOpened,
+      );
+      if (
+        !opened?.includes(
+          "https://github.com/raycast/extensions/tree/fixture/extensions/hello-list",
+        )
+      )
+        throw new Error(`unexpected opened extension URL: ${JSON.stringify(opened)}`);
       await page.keyboard.press("Escape");
       const options = page.locator('[role="option"]');
       const before = await options.count();

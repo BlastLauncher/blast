@@ -4,7 +4,15 @@ import { installForBrowser } from "../../packages/host/src/browser-install.ts";
 import { bundleForBrowser } from "../../packages/host/src/browser-bundle.ts";
 import { render, renderRoot } from "../web-launcher/render.js";
 import { isTextExtension, parseExtensionSource } from "./source.ts";
-import { rootModel, validateCatalog, type Catalog, type RootRow } from "./root.ts";
+import {
+  executeRootAction,
+  rootActionModel,
+  rootModel,
+  validateCatalog,
+  type Catalog,
+  type RootActionId,
+  type RootRow,
+} from "./root.ts";
 
 type FileMap = Record<string, string>;
 type BrowserFile = string | Uint8Array;
@@ -21,6 +29,9 @@ let rootSelected = 0;
 let rootRows: RootRow[] = [];
 let rootOpen = true;
 let actionOpen = false;
+let actionQuery = "";
+let actionSelected = 0;
+let rootToast = "";
 
 const setStatus = (text: string, error = false) => {
   status.textContent = text;
@@ -38,9 +49,17 @@ const drawRoot = () => {
   );
   rootRows = model.rows;
   rootSelected = model.selected;
-  app.innerHTML = renderRoot(rootRows, rootSelected, rootQuery);
+  const actions = rootActionModel(rootRows[rootSelected], actionQuery, actionSelected);
+  actionSelected = actions.selected;
+  app.innerHTML = renderRoot(rootRows, rootSelected, rootQuery, {
+    open: actionOpen,
+    query: actionQuery,
+    actions: actions.actions,
+    selected: actionSelected,
+    toast: rootToast,
+  });
   const search = document.querySelector<HTMLInputElement>("#root-search");
-  search?.focus();
+  (actionOpen ? document.querySelector<HTMLInputElement>("#root-action-search") : search)?.focus();
   search?.setSelectionRange(search.value.length, search.value.length);
   document
     .querySelector<HTMLElement>(`#root-option-${rootSelected}`)
@@ -294,6 +313,32 @@ function runSelected() {
   );
 }
 
+function runAction() {
+  const row = rootRows[rootSelected];
+  const actions = rootActionModel(row, actionQuery, actionSelected).actions;
+  const action = actions[actionSelected];
+  if (!row || !action) return;
+  const result = executeRootAction(row, action.id as RootActionId);
+  if (result.type === "run") {
+    actionOpen = false;
+    drawRoot();
+    runSelected();
+  } else if (result.type === "open") {
+    window.open(result.url, "_blank", "noopener");
+    actionOpen = false;
+    drawRoot();
+  } else {
+    actionOpen = false;
+    actionQuery = "";
+    actionSelected = 0;
+    void navigator.clipboard.writeText(result.url).then(() => {
+      rootToast = "Copied extension URL";
+      setStatus("Copied extension URL");
+      drawRoot();
+    });
+  }
+}
+
 async function start() {
   try {
     catalog = validateCatalog(await (await fetch("/catalog.json")).json());
@@ -311,7 +356,28 @@ async function start() {
 
 document.addEventListener("keydown", (event) => {
   if (rootOpen) {
-    if (event.key === "ArrowDown") {
+    if (actionOpen) {
+      const actionCount = rootActionModel(rootRows[rootSelected], actionQuery, actionSelected)
+        .actions.length;
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        actionSelected = Math.min(actionSelected + 1, actionCount - 1);
+        drawRoot();
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        actionSelected = Math.max(actionSelected - 1, 0);
+        drawRoot();
+      } else if (event.key === "Enter") {
+        event.preventDefault();
+        runAction();
+      } else if (event.key === "Escape") {
+        event.preventDefault();
+        actionOpen = false;
+        actionQuery = "";
+        actionSelected = 0;
+        drawRoot();
+      }
+    } else if (event.key === "ArrowDown") {
       event.preventDefault();
       rootSelected = Math.min(rootSelected + 1, rootRows.length - 1);
       drawRoot();
@@ -321,19 +387,17 @@ document.addEventListener("keydown", (event) => {
       drawRoot();
     } else if (event.key === "Enter") {
       event.preventDefault();
-      if (actionOpen) {
-        actionOpen = false;
-        drawRoot();
-      } else runSelected();
+      runSelected();
     } else if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
       event.preventDefault();
       actionOpen = true;
-      app.innerHTML += `<section class="actions" role="dialog"><strong>Actions</strong><ul><li>Run Command <small>↵</small></li><li>Open Extension on GitHub</li><li>Copy Extension URL</li></ul></section>`;
-    } else if (event.key === "Escape" && actionOpen) {
-      event.preventDefault();
-      actionOpen = false;
+      actionQuery = "";
+      actionSelected = 0;
       drawRoot();
     }
+  } else if (event.key === "Enter") {
+    event.preventDefault();
+    sendInput({ type: "primary" });
   } else if (event.key === "Escape") {
     event.preventDefault();
     backFromExtension();
@@ -344,6 +408,10 @@ document.addEventListener("input", (event) => {
   if (target.id === "root-search") {
     rootQuery = target.value;
     rootSelected = 0;
+    drawRoot();
+  } else if (target.id === "root-action-search") {
+    actionQuery = target.value;
+    actionSelected = 0;
     drawRoot();
   } else if (target.id === "search") sendInput({ type: "search", text: target.value });
 });

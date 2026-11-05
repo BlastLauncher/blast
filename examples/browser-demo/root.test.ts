@@ -1,5 +1,13 @@
 import { expect, test } from "bun:test";
-import { rootModel, rootRows, validateCatalog, type Catalog } from "./root.ts";
+import {
+  executeRootAction,
+  rootActionModel,
+  rootActions,
+  rootModel,
+  rootRows,
+  validateCatalog,
+  type Catalog,
+} from "./root.ts";
 
 const catalog: Catalog = {
   commit: "x",
@@ -48,4 +56,26 @@ test("catalog validation requires sorted extensions", () => {
       ],
     }),
   ).toThrow("sorted");
+});
+
+test("actions filter, clamp selection, and produce host effects", () => {
+  const row = rootRows(catalog, "zeta")[0]!;
+  expect(rootActions(row).map((action) => action.title)).toEqual([
+    "Run Command",
+    "Open Extension on GitHub",
+    "Copy Extension URL",
+  ]);
+  expect(rootActionModel(row, "copy", 99)).toMatchObject({
+    selected: 0,
+    actions: [{ id: "copy", title: "Copy Extension URL" }],
+  });
+  expect(executeRootAction(row, "run")).toEqual({ type: "run" });
+  expect(executeRootAction(row, "github")).toEqual({
+    type: "open",
+    url: "https://github.com/raycast/extensions/tree/x/extensions/zeta",
+  });
+  expect(executeRootAction(row, "copy")).toEqual({
+    type: "copy",
+    url: "https://github.com/raycast/extensions/tree/x/extensions/zeta",
+  });
 });

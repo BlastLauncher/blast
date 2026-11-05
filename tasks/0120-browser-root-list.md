@@ -122,12 +122,14 @@ The browser demo opens on a launcher-style root list instead of a URL box.
 ## Handoff
 
 ```
-Branch/commit: t3/implement-browser-root-list @ db75f4a651ebfc36c61b71119feaecc39dd03be4
-Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 63.5s
+Branch/commit: t3/browser-root-actions @ 02b6fa59adb7c794f3664a00c8f45e4a252edef4
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 67.0s
 Done:
 - Added the catalog-backed, ranked browser root list with suggestions, URL rows, keyboard selection, action panel, ARIA listbox markup, light/dark styling, and runtime icon fallbacks.
 - Added the deterministic catalog generator and committed catalog.json (56,654 bytes; 99 extensions; 237 rendered commands; pinned to the smoke commit).
 - Added deep links, fixture-catalog default e2e coverage, command launch from the real install/bundle/sandbox path, and session teardown/back navigation.
 - Added pure model and renderer tests.
-Not done / risks: Playwright e2e was not run because this worktree has no cached Playwright package/browser and the task forbids downloading Chromium; `bun run verify` and focused tests pass.
+- Replaced the decorative root action panel with a filtered, keyboard-navigable model and ARIA listbox, including Run, GitHub, and copy effects with clipboard toast feedback.
+- Extended e2e coverage with stubbed clipboard/window.open assertions; default e2e passed in 2,640 ms transferring 17,446,329 bytes, and `--live` passed in 13,545 ms transferring 17,500,777 bytes using ratio-calculator.
+Not done / risks: none known.
 ```

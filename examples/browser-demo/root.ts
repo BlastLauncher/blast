@@ -19,7 +19,15 @@ export type RootRow = {
   extension: string;
   command: string;
   url?: string;
+  githubUrl?: string;
 };
+
+export type RootActionId = "run" | "github" | "copy";
+export type RootAction = { id: RootActionId; title: string; shortcut: string };
+export type RootActionResult =
+  | { type: "run" }
+  | { type: "open"; url: string }
+  | { type: "copy"; url: string };
 
 const curated = new Set(["ratio-calculator", "hello-list", "weather", "github", "calendar"]);
 
@@ -81,6 +89,7 @@ function row(extension: CatalogExtension, command: CatalogCommand, commit: strin
     accessory: "Command",
     extension: extension.name,
     command: command.name,
+    githubUrl: `https://github.com/raycast/extensions/tree/${commit}/extensions/${extension.name}`,
   };
 }
 
@@ -121,6 +130,7 @@ export function rootModel(catalog: Catalog, query: string, selected: number, url
         extension: candidate,
         command: "index",
         url: candidate,
+        githubUrl: candidate,
       } satisfies RootRow)
     : undefined;
   const visible = urlRow ? [urlRow, ...rows] : rows;
@@ -128,4 +138,30 @@ export function rootModel(catalog: Catalog, query: string, selected: number, url
     rows: visible,
     selected: visible.length === 0 ? -1 : Math.max(0, Math.min(selected, visible.length - 1)),
   };
+}
+
+export function rootActions(selectedRow: RootRow | undefined): RootAction[] {
+  if (!selectedRow) return [];
+  return [
+    { id: "run", title: "Run Command", shortcut: "↵" },
+    { id: "github", title: "Open Extension on GitHub", shortcut: "" },
+    { id: "copy", title: "Copy Extension URL", shortcut: "" },
+  ];
+}
+
+export function rootActionModel(selectedRow: RootRow | undefined, query: string, selected: number) {
+  const normalized = query.trim().toLocaleLowerCase();
+  const actions = rootActions(selectedRow).filter((action) =>
+    normalized ? action.title.toLocaleLowerCase().includes(normalized) : true,
+  );
+  return {
+    actions,
+    selected: actions.length === 0 ? -1 : Math.max(0, Math.min(selected, actions.length - 1)),
+  };
+}
+
+export function executeRootAction(selectedRow: RootRow, action: RootActionId): RootActionResult {
+  if (action === "run") return { type: "run" };
+  if (action === "github") return { type: "open", url: selectedRow.githubUrl ?? "" };
+  return { type: "copy", url: selectedRow.githubUrl ?? "" };
 }

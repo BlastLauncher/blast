@@ -46,13 +46,27 @@ export function render(view) {
   return `<main data-kind="${escapeHtml(view.kind)}"><header><h1>${escapeHtml(view.title)}</h1>${search}</header>${body}${actions}${view.primary.enabled ? `<footer>${button(view.primary.title, "primary")}</footer>` : ""}${toast}</main>`;
 }
 
-/** @param {import("../browser-demo/root.ts").RootRow[]} rows @param {number} selected @param {string} query */
-export function renderRoot(rows, selected, query) {
+/** @param {import("../browser-demo/root.ts").RootRow[]} rows @param {number} selected @param {string} query @param {{open?: boolean, query?: string, actions?: import("../browser-demo/root.ts").RootAction[], selected?: number, toast?: string}} [panel] */
+export function renderRoot(rows, selected, query, panel = {}) {
   const options = rows
     .map(
       (row, index) =>
         `<li id="root-option-${index}" role="option" aria-selected="${index === selected}" data-root-index="${index}"${index === selected ? ' class="selected"' : ""}><span class="root-icon" aria-hidden="true">${row.iconUrl ? `<img src="${escapeHtml(row.iconUrl)}" alt="" width="24" height="24" onerror="this.hidden=true;this.nextElementSibling.hidden=false">` : ""}<span${row.iconUrl ? " hidden" : ""}>${escapeHtml(row.icon)}</span></span><span class="root-copy"><strong>${escapeHtml(row.title)}</strong><small>${escapeHtml(row.subtitle)}</small></span><span class="root-accessory">${escapeHtml(row.accessory)}</span></li>`,
     )
     .join("");
-  return `<main class="root" data-kind="root"><header><h1>Blast</h1><input id="root-search" value="${escapeHtml(query)}" placeholder="Search extension commands…" aria-label="Search extension commands" role="combobox" aria-controls="root-options" aria-activedescendant="${selected >= 0 ? `root-option-${selected}` : ""}" autocomplete="off" autofocus></header><ul id="root-options" class="rows root-options" role="listbox" aria-label="Extension commands">${options}</ul>${rows.length === 0 ? '<p class="empty">No matching commands</p>' : ""}<footer><span>↵ Run Command</span><span>Actions ⌘K</span></footer></main>`;
+  const actions = panel.open
+    ? (panel.actions ?? [])
+        .map(
+          (action, index) =>
+            `<li id="root-action-${index}" role="option" aria-selected="${index === panel.selected}" data-root-action-index="${index}"${index === panel.selected ? ' class="selected"' : ""}>${escapeHtml(action.title)}${action.shortcut ? ` <small>${escapeHtml(action.shortcut)}</small>` : ""}</li>`,
+        )
+        .join("")
+    : "";
+  const actionPanel = panel.open
+    ? `<section class="actions" role="dialog" aria-label="Actions"><strong>Actions</strong><input id="root-action-search" value="${escapeHtml(panel.query ?? "")}" placeholder="Search actions…" aria-label="Search actions" role="combobox" aria-controls="root-actions" aria-activedescendant="${panel.selected !== undefined && panel.selected >= 0 ? `root-action-${panel.selected}` : ""}" autocomplete="off" autofocus><ul id="root-actions" role="listbox" aria-label="Command actions">${actions}</ul></section>`
+    : "";
+  const toast = panel.toast
+    ? `<span role="status" class="root-toast">${escapeHtml(panel.toast)}</span>`
+    : "";
+  return `<main class="root" data-kind="root"><header><h1>Blast</h1><input id="root-search" value="${escapeHtml(query)}" placeholder="Search extension commands…" aria-label="Search extension commands" role="combobox" aria-controls="root-options" aria-activedescendant="${selected >= 0 ? `root-option-${selected}` : ""}" autocomplete="off" autofocus></header><ul id="root-options" class="rows root-options" role="listbox" aria-label="Extension commands">${options}</ul>${rows.length === 0 ? '<p class="empty">No matching commands</p>' : ""}<footer><span>↵ Run Command</span><span>Actions ⌘K</span>${toast}</footer>${actionPanel}</main>`;
 }
