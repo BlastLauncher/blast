@@ -90,7 +90,7 @@ Run any Raycast extension in a browser tab from its URL, inside almostnode
 - [x] 0120 root list to pick and run commands; 0121 static site build (landing + /demo)
 - [x] 0122 Deploy: blast.yukai.dev + blastlauncher.github.io/blast-sandbox, live smoke
 - [x] 0123 Typecheck browser examples (DOM tsconfig) in verify
-- [ ] 0124 Fix the live demo (styles, icons, DataCloneError) + browser smoke in CI
+- [x] 0124 Fix the live demo (styles, icons, DataCloneError) + browser smoke in CI
 
 ## Later (not scheduled)
 
