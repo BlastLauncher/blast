@@ -109,8 +109,15 @@ T3 Code, the app running the agents, has an open window on this Mac.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/orchestrator-loop @ c234799abbb0f3c25b65b007af02bad95a1635e7
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 56.9s
 Done:
-Not done / risks:
+- Added `tasks:next`, `tasks:start`, `tasks:merge`, and `tasks:land` with injectable command execution.
+- Shared task filename/frontmatter parsing with `check-workflow.ts`.
+- Added temporary-repository and fake-runner coverage for preconditions, branch ambiguity, merge conflicts, PLAN updates, verify failures, and CI cleanup.
+- Usage: `bun run tasks:next [--json]` lists todo tasks and blockers.
+- Usage: `bun run tasks:start <id>` marks a task doing, commits it, and prints the worker brief.
+- Usage: `bun run tasks:merge <id> [--branch <b>] [--plan <text>]` merges, updates PLAN, verifies, and commits done.
+- Usage: `bun run tasks:land <id>` pushes, waits for CI, then safely removes the worker worktree and branch.
+Not done / risks: CI polling requires GitHub CLI JSON output and a configured `origin`; no network operations were run by tests.
 ```
