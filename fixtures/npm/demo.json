@@ -1,0 +1,22 @@
+{
+  "name": "demo",
+  "dist-tags": {
+    "latest": "1.2.0"
+  },
+  "versions": {
+    "1.2.0": {
+      "name": "demo",
+      "version": "1.2.0",
+      "dependencies": {
+        "nested": "^1.0.0"
+      },
+      "peerDependencies": {
+        "peer": "~1.0.0"
+      },
+      "dist": {
+        "tarball": "https://registry.test/demo.tgz",
+        "integrity": "sha512-Kppq87pL5cQ9yCzBVgbXn029eikSqpMaNhQOpsV1LteLhbS6bgGZU0aBKBFiaKFmxf6FyWFZ8MKwLUphw1vViA=="
+      }
+    }
+  }
+}

@@ -2,9 +2,9 @@ import { readFile, readdir } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { Range, minVersion, rcompare, satisfies, valid } from "semver";
 
-export function supplied(name: string): boolean {
-  return name === "@raycast/api" || /^react(?:\/|$)/.test(name) || name.startsWith("@types/");
-}
+import { supplied } from "./dependency-policy.ts";
+
+export { supplied };
 
 async function manifest(directory: string) {
   try {

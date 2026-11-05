@@ -22,3 +22,4 @@ export {
 } from "./extension.ts";
 export * from "./extension-manifest.ts";
 export * from "./engine.ts";
+export * from "./browser-install.ts";

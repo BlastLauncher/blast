@@ -68,8 +68,12 @@ depends: []
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/fix-browser-installer @ 282f0324f37e4d7eaca3c85018107bad47cecd5a
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 62.8s
 Done:
-Not done / risks:
+- Reused the shared supplied-package policy so @raycast/utils installs while host-provided packages remain skipped.
+- Added cycle-safe concurrent dependency installation with npm-style nested paths for version conflicts.
+- Hardened tar extraction against traversal, absolute/backslash paths, and links; added pax handling and SRI sha512 parsing.
+- Added abbreviated packument requests and offline coverage for ranges, cycles, conflicts, pax paths, traversal, multi-hash integrity, and native/limit errors.
+Not done / risks: none known.
 ```

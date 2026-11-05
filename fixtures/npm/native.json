@@ -1,0 +1,13 @@
+{
+  "name": "native",
+  "versions": {
+    "1.0.0": {
+      "name": "native",
+      "version": "1.0.0",
+      "dist": {
+        "tarball": "https://registry.test/native.tgz",
+        "integrity": "sha512-TERrV2XEX0BAUlbRFlv7KBsoyJsHrq8Qg/tfdPAzEcUusNnhUIEq/no4DloL2S+mIKc94FIJhQdU0tXqif0wFA=="
+      }
+    }
+  }
+}
