@@ -122,7 +122,7 @@ The browser demo opens on a launcher-style root list instead of a URL box.
 ## Handoff
 
 ```
-Branch/commit: t3/implement-browser-root-list @ fca31167960a111018a1a8cc2104b329668fbd84
+Branch/commit: t3/implement-browser-root-list @ db75f4a651ebfc36c61b71119feaecc39dd03be4
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 63.5s
 Done:
 - Added the catalog-backed, ranked browser root list with suggestions, URL rows, keyboard selection, action panel, ARIA listbox markup, light/dark styling, and runtime icon fallbacks.
