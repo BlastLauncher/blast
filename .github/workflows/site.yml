@@ -1,0 +1,150 @@
+name: Site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/site.yml"
+      - "compat/**"
+      - "examples/browser-demo/**"
+      - "packages/client-core/**"
+      - "packages/host/**"
+      - "packages/protocol/**"
+      - "packages/runtime/**"
+  workflow_dispatch:
+
+# Deploys queue rather than cancel: a cancelled run could leave a new sandbox
+# behind an old site.
+concurrency:
+  group: site-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.4.2
+      - run: bun install --frozen-lockfile
+      - run: bun run site:build --site-origin https://blast.yukai.dev --sandbox-url https://blastlauncher.github.io/blast-sandbox/
+      - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
+        with:
+          path: .cache/site/www
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: sandbox
+          path: .cache/site/sandbox
+
+  sandbox:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: sandbox
+          path: sandbox
+      - name: Deploy sandbox branch
+        env:
+          SANDBOX_DEPLOY_KEY: ${{ secrets.SANDBOX_DEPLOY_KEY }}
+        run: |
+          set -euo pipefail
+          key_file="$RUNNER_TEMP/blast-sandbox-deploy-key"
+          printf '%s\n' "$SANDBOX_DEPLOY_KEY" > "$key_file"
+          chmod 600 "$key_file"
+          eval "$(ssh-agent -s)"
+          trap 'ssh-agent -k >/dev/null' EXIT
+          ssh-add "$key_file"
+          mkdir -p "$HOME/.ssh"
+          ssh-keyscan -H github.com >> "$HOME/.ssh/known_hosts"
+          mkdir -p "$RUNNER_TEMP/blast-sandbox-repo"
+          git -C "$RUNNER_TEMP/blast-sandbox-repo" init --initial-branch=gh-pages
+          git -C "$RUNNER_TEMP/blast-sandbox-repo" config user.name github-actions[bot]
+          git -C "$RUNNER_TEMP/blast-sandbox-repo" config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          cp -R sandbox/. "$RUNNER_TEMP/blast-sandbox-repo/"
+          git -C "$RUNNER_TEMP/blast-sandbox-repo" add --all
+          git -C "$RUNNER_TEMP/blast-sandbox-repo" commit -m "deploy $GITHUB_SHA"
+          git -C "$RUNNER_TEMP/blast-sandbox-repo" remote add origin git@github.com:BlastLauncher/blast-sandbox.git
+          git -C "$RUNNER_TEMP/blast-sandbox-repo" push --force origin gh-pages
+
+  pages:
+    needs: sandbox
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    # deploy-pages requires the github-pages environment.
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
+
+  smoke:
+    needs: [pages, sandbox]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Check deployed sites
+        env:
+          SITE_URL: https://blast.yukai.dev
+          SANDBOX_URL: https://blastlauncher.github.io/blast-sandbox
+        run: |
+          set -euo pipefail
+          deadline=$((SECONDS + 600))
+          fetch() {
+            local url="$1"
+            local output="$2"
+            local headers="$3"
+            while :; do
+              if curl --fail --silent --show-error --location --retry 2 --retry-all-errors --connect-timeout 10 --max-time 30 -D "$headers" "$url" -o "$output"; then
+                return 0
+              fi
+              if (( SECONDS >= deadline )); then
+                echo "Timed out waiting for $url; DNS or deployment may not be live yet." >&2
+                return 1
+              fi
+              sleep 10
+            done
+          }
+          site_headers="$RUNNER_TEMP/site.headers"
+          sandbox_headers="$RUNNER_TEMP/sandbox.headers"
+          sha_of() { node -e 'const fs=require("fs"); process.stdout.write(String(JSON.parse(fs.readFileSync(process.argv[1], "utf8")).sha))' "$1"; }
+          # Pages and its CDN can serve the previous build for a few minutes;
+          # wait until both origins report this run's commit.
+          while :; do
+            fetch "$SITE_URL/build.json" "$RUNNER_TEMP/site-build.json" "$site_headers"
+            fetch "$SANDBOX_URL/build.json" "$RUNNER_TEMP/sandbox-build.json" "$sandbox_headers"
+            site_sha=$(sha_of "$RUNNER_TEMP/site-build.json")
+            sandbox_sha=$(sha_of "$RUNNER_TEMP/sandbox-build.json")
+            if [ "$site_sha" = "$GITHUB_SHA" ] && [ "$sandbox_sha" = "$GITHUB_SHA" ]; then break; fi
+            if (( SECONDS >= deadline )); then
+              echo "Expected build $GITHUB_SHA; site serves $site_sha, sandbox serves $sandbox_sha" >&2
+              exit 1
+            fi
+            sleep 15
+          done
+          fetch "$SITE_URL/" "$RUNNER_TEMP/site.html" "$site_headers"
+          grep -F '<title>Blast — an engine for extension experiences</title>' "$RUNNER_TEMP/site.html"
+          fetch "$SITE_URL/demo/" "$RUNNER_TEMP/demo.html" "$site_headers"
+          grep -F '<title>Blast browser demo</title>' "$RUNNER_TEMP/demo.html"
+          grep -F "$SANDBOX_URL/" "$RUNNER_TEMP/demo.html"
+          fetch "$SANDBOX_URL/" "$RUNNER_TEMP/sandbox.html" "$sandbox_headers"
+          # Header lines end in CRLF; strip CR before matching the CORS header.
+          tr -d '\r' < "$sandbox_headers" | grep -i '^access-control-allow-origin: \*$'
+          echo "deployed build $GITHUB_SHA"

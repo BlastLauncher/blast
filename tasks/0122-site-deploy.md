@@ -107,8 +107,11 @@ check confirms both:
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/site-deploy @ 2de7d3acb61a196382bafd7b6125e11093b7958c
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 63.8s
 Done:
-Not done / risks:
+- Added the pinned GitHub Pages workflow for the custom-domain site and sandbox gh-pages deployment, with build-id and live smoke checks.
+- Added sandbox URL path-prefix support, relative sandbox assets, and matching build.json files.
+- Added workflow and generated-site tests, plus release documentation for first-time Pages and HTTPS setup.
+Not done / risks: The workflow was not dispatched or pushed, and live DNS/Pages smoke was not run locally per the task safety rules.
 ```
