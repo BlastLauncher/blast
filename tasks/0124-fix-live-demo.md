@@ -113,7 +113,7 @@ after 0122, found these bugs while the curl smoke check passed:
 ## Handoff
 
 ```
-Branch/commit: t3/fix-live-demo-smoke @ 528bf9217e785a090c822a49cf8efcf40bfc2442
+Branch/commit: t3/fix-live-demo-smoke @ 8ac1464fadd9fc3c381828d0a55fd22495ab9a34
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 64.1s
 Done:
 - Shared the demo page template and stylesheet between the dev server and production site build.
