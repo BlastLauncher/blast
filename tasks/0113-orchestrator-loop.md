@@ -109,7 +109,7 @@ T3 Code, the app running the agents, has an open window on this Mac.
 ## Handoff
 
 ```
-Branch/commit: t3/orchestrator-loop @ c234799abbb0f3c25b65b007af02bad95a1635e7
+Branch/commit: t3/orchestrator-loop @ f35befb201a49b0a27b858e75a016d83846f547f
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 56.9s
 Done:
 - Added `tasks:next`, `tasks:start`, `tasks:merge`, and `tasks:land` with injectable command execution.
