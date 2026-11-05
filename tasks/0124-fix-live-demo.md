@@ -1,7 +1,7 @@
 ---
 id: "0124"
 title: Fix the live demo (styles, icons, DataCloneError, fixture lookup) and smoke it in a real browser
-status: todo
+status: doing
 milestone: M8
 depends: []
 ---
