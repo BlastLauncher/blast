@@ -103,7 +103,7 @@ async function buildAlmost() {
   await writeFile(join(cache, "almostnode-full.mjs"), await sandbox.outputs[0]!.text());
 }
 function html(sandboxPort: number) {
-  return `<!doctype html><meta charset="utf-8"><title>Blast browser demo</title><style>body{font:16px system-ui;max-width:760px;margin:3rem auto;background:#111;color:#eee}input,select{background:#222;color:inherit;border:1px solid #555;padding:.6rem;width:70%}button{padding:.6rem}.error{color:#f88}li{list-style:none;padding:.5rem}.selected{background:#345}.rows{padding:0}</style><label>Extension URL or name <input id="extension" value="hello-list"><button id="launch">Run</button></label><label> Command <select id="command" hidden></select></label><p id="status">Idle</p><div id="app"></div><script>window.__BLAST_SANDBOX__=${JSON.stringify(`http://127.0.0.1:${sandboxPort}/`)}</script><script type="module" src="/client.js"></script>`;
+  return `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Blast browser demo</title><style>:root{color-scheme:dark}body{font:14px system-ui,-apple-system,sans-serif;max-width:760px;margin:3rem auto;background:#111;color:#eee}main{background:#1b1b1d;border:1px solid #39393d;border-radius:14px;overflow:hidden;box-shadow:0 18px 55px #0008}header{padding:18px 20px 12px}h1{font-size:16px;margin:0 0 12px}input,select{background:#252528;color:inherit;border:1px solid #4b4b50;border-radius:8px;padding:.7rem;width:100%;box-sizing:border-box}ul{margin:0;padding:0;list-style:none}.rows li{min-height:40px;box-sizing:border-box;padding:7px 20px;display:flex;align-items:center;gap:11px}.rows li.selected{background:#34343a;outline:1px solid #666}.root-copy{display:flex;flex-direction:column;flex:1;min-width:0}.root-copy strong,.root-copy small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.root-copy small{color:#aaa}.root-accessory{color:#999;font-size:12px}.root-icon{width:24px;text-align:center;font-size:18px}.empty{padding:18px 20px;color:#aaa}footer{display:flex;justify-content:space-between;border-top:1px solid #333;padding:11px 20px;color:#aaa;font-size:12px}#status{padding:8px 20px;color:#aaa}#status[data-error=true]{color:#ff8b8b}.actions{padding:18px}.actions li{padding:10px}.breadcrumb{color:#aaa;margin:5px 0 12px}@media(prefers-color-scheme:light){:root{color-scheme:light}body{background:#f2f2f4;color:#171719}main{background:#fff;border-color:#ddd}.rows li.selected{background:#e8e8ed}.root-copy small,.root-accessory,footer,#status,.breadcrumb{color:#666}input{background:#f7f7f8;border-color:#bbb}}</style><p id="status">Loading catalog…</p><div id="app"></div><script>window.__BLAST_SANDBOX__=${JSON.stringify(`http://127.0.0.1:${sandboxPort}/`)}</script><script type="module" src="/client.js"></script>`;
 }
 async function listen(handler: (request: Request) => Response | Promise<Response>) {
   const server = Bun.serve({ hostname: "127.0.0.1", port: 0, fetch: handler });
@@ -164,6 +164,10 @@ async function main() {
     if (path === "/client.js")
       return new Response(clientJs, { headers: { "content-type": "text/javascript" } });
     if (path === "/blast-sources.json") return Response.json(sourceFiles);
+    if (path === "/catalog.json")
+      return new Response(await readFile(join(root, "examples/browser-demo/catalog.json")), {
+        headers: { "content-type": "application/json" },
+      });
     if (path === "/almostnode.mjs")
       return new Response(await readFile(join(cache, "almostnode.mjs")), {
         headers: { "content-type": "text/javascript" },

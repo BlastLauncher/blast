@@ -1,0 +1,2131 @@
+{
+  "commit": "bad7de0172ce6ea5e721ed919f4e1d7186f74192",
+  "extensions": [
+    {
+      "name": "8-divide",
+      "title": "8 Divide",
+      "description": "Check if the number you highlighted is divisable by 8. If it isn't, paste the up- or down rounded number",
+      "icon": "icon.png",
+      "commands": [
+        {
+          "name": "divide-by-8",
+          "title": "Divide by 8",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "advanced-replace",
+      "title": "Advanced Replace",
+      "description": "Extract and replace text using custom regex.",
+      "icon": "advanced-replace.png",
+      "commands": [
+        {
+          "name": "advanced-replace",
+          "title": "Extract and Replace Text",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "android-versions",
+      "title": "Android Versions",
+      "description": "Search quickly between Android version number, API level, codename.",
+      "icon": "command-icon.png",
+      "commands": [
+        {
+          "name": "search-android-version",
+          "title": "Search Android Version",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "anilist-airing-schedule",
+      "title": "Anilist Airing Schedule",
+      "description": "Get airing schedule of anime from Anilist.co",
+      "icon": "anilist-icon-512x512.png",
+      "commands": [
+        {
+          "name": "index",
+          "title": "Get Airing Schedule",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "appgrid",
+      "title": "AppGrid",
+      "description": "Smart app launcher with grid view and category grouping",
+      "icon": "icon.png",
+      "commands": [
+        {
+          "name": "index",
+          "title": "Search AppGrid",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "atomtick",
+      "title": "AtomTick",
+      "description": "NTP-synchronized atomic reference time as a live analog clock face, with a digital readout underneath.",
+      "icon": "icon.png",
+      "commands": [
+        {
+          "name": "analog-clock",
+          "title": "Analog Clock",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "axios-docs",
+      "title": "Axios Docs",
+      "description": "Quickly lookup Axios documentation",
+      "icon": "command-icon.png",
+      "commands": [
+        {
+          "name": "index",
+          "title": "Search Documentation",
+          "mode": "view",
+          "subtitle": "Axios"
+        }
+      ]
+    },
+    {
+      "name": "biaodian",
+      "title": "Search Chinese Punctuation Marks",
+      "description": "Search Chinese Punctuation Marks",
+      "icon": "command-icon.png",
+      "commands": [
+        {
+          "name": "biaodian",
+          "title": "Biaodian",
+          "mode": "view",
+          "subtitle": "Chinese Punctuation Marks"
+        }
+      ]
+    },
+    {
+      "name": "bookstack",
+      "title": "BookStack",
+      "description": "Seamlessly integrates Raycast with BookStack to search and manage your documentation directly from your macOS desktop.",
+      "icon": "bookstack.png",
+      "commands": [
+        {
+          "name": "search-command",
+          "title": "Search Documentation",
+          "mode": "view",
+          "subtitle": "BookStack"
+        },
+        {
+          "name": "show-all-books",
+          "title": "Show All Books",
+          "mode": "view",
+          "subtitle": "BookStack"
+        },
+        {
+          "name": "show-all-shelves",
+          "title": "Show All Shelves",
+          "mode": "view",
+          "subtitle": "BookStack"
+        }
+      ]
+    },
+    {
+      "name": "bugmenot",
+      "title": "BugMeNot",
+      "description": "Find username/password on BugMeNot",
+      "icon": "icon.png",
+      "commands": [
+        {
+          "name": "find-login",
+          "title": "Find Login",
+          "mode": "view",
+          "subtitle": "BugMeNot"
+        }
+      ]
+    },
+    {
+      "name": "cangjie",
+      "title": "Cangjie Dictionary",
+      "description": "Fast Chinese characters lookup for Cangjie and Sucheng codes. Supports instant search from selected text and provides both English letters and Chinese radicals.",
+      "icon": "icon.png",
+      "commands": [
+        {
+          "name": "cangjie",
+          "title": "Search Cangjie Codes",
+          "mode": "view",
+          "subtitle": "Cangjie Dictionary"
+        }
+      ]
+    },
+    {
+      "name": "chakra-ui-docs",
+      "title": "Chakra UI Documentation",
+      "description": "Provide quick links to the Chakra UI component documentation.",
+      "icon": "chakra.png",
+      "commands": [
+        {
+          "name": "components",
+          "title": "Search Components",
+          "mode": "view",
+          "subtitle": "Chakra UI"
+        },
+        {
+          "name": "get-started",
+          "title": "Get Started",
+          "mode": "view",
+          "subtitle": "Chakra UI"
+        },
+        {
+          "name": "hooks",
+          "title": "Search Hooks",
+          "mode": "view",
+          "subtitle": "Chakra UI"
+        },
+        {
+          "name": "styled-system",
+          "title": "Search Styled System",
+          "mode": "view",
+          "subtitle": "Chakra UI"
+        }
+      ]
+    },
+    {
+      "name": "clocky-time-tracker",
+      "title": "Clocky - Time Tracker",
+      "description": "Clocky helps you keep track of your work hours in a simple and flexible way. Clock in, clock out, track breaks, and monitor your daily or weekly time balance — perfect for flexible working hours and trust-based schedules.",
+      "icon": "extension_icon.png",
+      "commands": [
+        {
+          "name": "clock-in",
+          "title": "Clock In",
+          "mode": "view",
+          "subtitle": "Clocky"
+        },
+        {
+          "name": "clock-out",
+          "title": "Clock Out",
+          "mode": "view",
+          "subtitle": "Clocky"
+        },
+        {
+          "name": "history",
+          "title": "Adjust Entries",
+          "mode": "view",
+          "subtitle": "Clocky"
+        },
+        {
+          "name": "status",
+          "title": "Status",
+          "mode": "menu-bar",
+          "subtitle": "Clocky"
+        },
+        {
+          "name": "today",
+          "title": "Today",
+          "mode": "view",
+          "subtitle": "Clocky"
+        },
+        {
+          "name": "toggle-pause",
+          "title": "Toggle Pause",
+          "mode": "view",
+          "subtitle": "Clocky"
+        },
+        {
+          "name": "week",
+          "title": "Week",
+          "mode": "view",
+          "subtitle": "Clocky"
+        }
+      ]
+    },
+    {
+      "name": "code-review-emojis",
+      "title": "Code Review Emoji Guide",
+      "description": "A simple emoji legend to help convey intention and added meaning in code review comments.",
+      "icon": "command-icon.png",
+      "commands": [
+        {
+          "name": "index",
+          "title": "Show Review Emoji",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "codepen",
+      "title": "CodePen",
+      "description": "Search, create, and manage your CodePen Pens, collections, and assets with API v2.",
+      "icon": "extension-icon.png",
+      "commands": [
+        {
+          "name": "create-collection",
+          "title": "Create Collection",
+          "mode": "view",
+          "subtitle": "CodePen"
+        },
+        {
+          "name": "create-pen",
+          "title": "Create Pen",
+          "mode": "view",
+          "subtitle": "CodePen"
+        },
+        {
+          "name": "search-assets",
+          "title": "Search Assets",
+          "mode": "view",
+          "subtitle": "CodePen"
+        },
+        {
+          "name": "search-collections",
+          "title": "Search Collections",
+          "mode": "view",
+          "subtitle": "CodePen"
+        },
+        {
+          "name": "search-pens",
+          "title": "Search Pens",
+          "mode": "view",
+          "subtitle": "CodePen"
+        },
+        {
+          "name": "upload-asset",
+          "title": "Upload Asset",
+          "mode": "view",
+          "subtitle": "CodePen"
+        }
+      ]
+    },
+    {
+      "name": "codex-reset-forecast",
+      "title": "Codex Reset Forecast",
+      "description": "See 24-hour and 48-hour Codex reset forecasts, confidence, official watches, and verified reset history. Data: codex-reset.com. Unofficial and not affiliated with OpenAI.",
+      "icon": "codexreset-icon-transparent.png",
+      "commands": [
+        {
+          "name": "check-reset-forecast",
+          "title": "Check Reset Forecast",
+          "mode": "view"
+        },
+        {
+          "name": "reset-history-calendar",
+          "title": "View Reset Calendar",
+          "mode": "view"
+        },
+        {
+          "name": "toggle-reset-forecast-menu-bar",
+          "title": "Show Reset Forecast in Menu Bar",
+          "mode": "menu-bar"
+        }
+      ]
+    },
+    {
+      "name": "color-studio-picker",
+      "title": "Color Studio Picker",
+      "description": "Helps you identify and pick colors from Automattic's Color Studio",
+      "icon": "command-icon.png",
+      "commands": [
+        {
+          "name": "index",
+          "title": "Pick a Color",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "conventional-commits",
+      "title": "Conventional Commits",
+      "description": "Provides a list of conventional commits prefixes and descriptions that can be inserted into your active window as well as example of how messages should be structured",
+      "icon": "command-icon.png",
+      "commands": [
+        {
+          "name": "commit-message-structure",
+          "title": "View Conventional Commit Message Structure",
+          "mode": "view"
+        },
+        {
+          "name": "index",
+          "title": "Insert Conventional Commit Prefix",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "convert-px-to-vw-vh",
+      "title": "Pixels to Viewport Width or Height",
+      "description": "Fast conversion of pixels to vw or vh depending on the size of your viewport.",
+      "icon": "logo.png",
+      "commands": [
+        {
+          "name": "height",
+          "title": "Pixels Viewport Height",
+          "mode": "no-view"
+        },
+        {
+          "name": "index",
+          "title": "Convert PX to VW or VH",
+          "mode": "view"
+        },
+        {
+          "name": "menu-bar",
+          "title": "Conversion History",
+          "mode": "menu-bar"
+        },
+        {
+          "name": "width",
+          "title": "Pixels Viewport Width",
+          "mode": "no-view"
+        }
+      ]
+    },
+    {
+      "name": "devpod",
+      "title": "DevPod",
+      "description": "Manage DevPod workspaces",
+      "icon": "extension_icon.png",
+      "commands": [
+        {
+          "name": "workspaces-manage",
+          "title": "DevPod Workspaces",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "dice-tiles",
+      "title": "Dice Tiles",
+      "description": "A minimalist dice-and-tiles elimination game. Roll dice, eliminate tiles matching their sum, and climb through reward tiers while tracking victories and defeats.",
+      "icon": "dice-tiles.png",
+      "commands": [
+        {
+          "name": "index",
+          "title": "Dice Tiles",
+          "mode": "view",
+          "subtitle": "Tiles and Dice Challenge"
+        }
+      ]
+    },
+    {
+      "name": "donut",
+      "title": "Donut",
+      "description": "Show an animation of a donut",
+      "icon": "extension-icon.png",
+      "commands": [
+        {
+          "name": "show-donut",
+          "title": "Show Donut",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "dot-new",
+      "title": "dot-new",
+      "description": "Start something .new! .new links are shortcuts to your favorite actions on the websites you love",
+      "icon": "command-icon.png",
+      "commands": [
+        {
+          "name": "index",
+          "title": ".new",
+          "mode": "view",
+          "subtitle": "Start something new!"
+        }
+      ]
+    },
+    {
+      "name": "douban",
+      "title": "Douban",
+      "description": "Search Something on Douban",
+      "icon": "douban.png",
+      "commands": [
+        {
+          "name": "search-books",
+          "title": "Search Books",
+          "mode": "view"
+        },
+        {
+          "name": "search-games",
+          "title": "Search Games",
+          "mode": "view"
+        },
+        {
+          "name": "search-groups",
+          "title": "Search Groups",
+          "mode": "view"
+        },
+        {
+          "name": "search-movies",
+          "title": "Search Movies",
+          "mode": "view"
+        },
+        {
+          "name": "search-music",
+          "title": "Search Music",
+          "mode": "view"
+        },
+        {
+          "name": "search-sites",
+          "title": "Search Sites",
+          "mode": "view"
+        },
+        {
+          "name": "search-users",
+          "title": "Search Users",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "duan-raycast-extension",
+      "title": "Duan: Shorten and Manage Links",
+      "description": "Shorten and manage links with your own domain, powered by Cloudflare Workers and D1 database.",
+      "icon": "extension-icon.png",
+      "commands": [
+        {
+          "name": "list-links",
+          "title": "List Links",
+          "mode": "view",
+          "subtitle": "List all your shortened links"
+        },
+        {
+          "name": "shorten-link",
+          "title": "Shorten Link",
+          "mode": "view",
+          "subtitle": "Create a new short link"
+        }
+      ]
+    },
+    {
+      "name": "ego-lite",
+      "title": "Ego Lite",
+      "description": "Create tabs and search local bookmarks and history in Ego Lite.",
+      "icon": "extension-icon.png",
+      "commands": [
+        {
+          "name": "new-tab",
+          "title": "New Tab",
+          "mode": "no-view",
+          "subtitle": "Ego Lite"
+        },
+        {
+          "name": "search-bookmarks",
+          "title": "Search Bookmarks",
+          "mode": "view",
+          "subtitle": "Ego Lite"
+        },
+        {
+          "name": "search-history",
+          "title": "Search History",
+          "mode": "view",
+          "subtitle": "Ego Lite"
+        }
+      ]
+    },
+    {
+      "name": "evernote",
+      "title": "Evernote Instant Search",
+      "description": "Search your Evernote notes instantly using the local database of the official Evernote client.",
+      "icon": "ev-icon.png",
+      "commands": [
+        {
+          "name": "search-notes",
+          "title": "Search Notes",
+          "mode": "view",
+          "subtitle": "Search your Evernote notes"
+        },
+        {
+          "name": "search-tasks",
+          "title": "Search Open Tasks",
+          "mode": "view",
+          "subtitle": "Search your Evernote tasks within notes"
+        }
+      ]
+    },
+    {
+      "name": "fibonacci-sequence",
+      "title": "Fibonacci Sequence",
+      "description": "Gives you the fibonacci sequence for using in story points on engineering tickets",
+      "icon": "command-icon.png",
+      "commands": [
+        {
+          "name": "index",
+          "title": "Fibonacci Sequence",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "fix-helper",
+      "title": "FIX Helper",
+      "description": "Quickly parse, analyze, and understand FIX messages with ease.",
+      "icon": "extension-icon.png",
+      "commands": [
+        {
+          "name": "fix-parser",
+          "title": "Parse FIX Messages",
+          "mode": "view",
+          "subtitle": "FIX Helper"
+        },
+        {
+          "name": "fix-search-tags",
+          "title": "Search FIX Tags",
+          "mode": "view",
+          "subtitle": "FIX Helper"
+        }
+      ]
+    },
+    {
+      "name": "flighty",
+      "title": "Flighty",
+      "description": "Interact with the Flighty app.",
+      "icon": "flighty.png",
+      "commands": [
+        {
+          "name": "view-flights",
+          "title": "View Flights",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "google-cloud-run",
+      "title": "Google Cloud Run",
+      "description": "Commands for Google Cloud Run",
+      "icon": "command-icon.png",
+      "commands": [
+        {
+          "name": "index",
+          "title": "Migrate Traffic",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "google-maps-search",
+      "title": "Google Maps Search",
+      "description": "Quickly search Google Maps or get directions.",
+      "icon": "google-maps-icon.png",
+      "commands": [
+        {
+          "name": "find",
+          "title": "Search Google Maps",
+          "mode": "view",
+          "subtitle": "Google Maps"
+        },
+        {
+          "name": "travelTo",
+          "title": "Get Me Somewhere",
+          "mode": "view",
+          "subtitle": "Google Maps"
+        }
+      ]
+    },
+    {
+      "name": "gradle-plugins",
+      "title": "Gradle Plugins",
+      "description": "Search for gradle plugins",
+      "icon": "gradle-icon.png",
+      "commands": [
+        {
+          "name": "index",
+          "title": "Search Plugin",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "hetzner",
+      "title": "Hetzner",
+      "description": "Provides different actions via the Hetzner API",
+      "icon": "hetzner-icon.png",
+      "commands": [
+        {
+          "name": "addProject",
+          "title": "Add Project",
+          "mode": "view"
+        },
+        {
+          "name": "manageProject",
+          "title": "Manage Projects",
+          "mode": "view"
+        },
+        {
+          "name": "manageServer",
+          "title": "Manage Servers",
+          "mode": "view",
+          "subtitle": "Hetzner"
+        }
+      ]
+    },
+    {
+      "name": "hevy",
+      "title": "Hevy",
+      "description": "Your Hevy workout data at your fingertips via Raycast",
+      "icon": "hevy.png",
+      "commands": [
+        {
+          "name": "search-routines",
+          "title": "Search Routines",
+          "mode": "view",
+          "subtitle": "Hevy"
+        },
+        {
+          "name": "search-workouts",
+          "title": "Search Workouts",
+          "mode": "view",
+          "subtitle": "Hevy"
+        }
+      ]
+    },
+    {
+      "name": "humaans",
+      "title": "Humaans",
+      "description": "Interact with the Humaans platform",
+      "icon": "humaans.png",
+      "commands": [
+        {
+          "name": "clock-in",
+          "title": "Clock In",
+          "mode": "no-view",
+          "subtitle": "Humaans"
+        },
+        {
+          "name": "clock-out",
+          "title": "Clock Out",
+          "mode": "no-view",
+          "subtitle": "Humaans"
+        },
+        {
+          "name": "holidays",
+          "title": "View Holidays",
+          "mode": "view",
+          "subtitle": "Humaans"
+        },
+        {
+          "name": "people",
+          "title": "View People",
+          "mode": "view",
+          "subtitle": "Humaans"
+        }
+      ]
+    },
+    {
+      "name": "hyrule-compendium-search",
+      "title": "Hyrule Compendium Search",
+      "description": "This extension allows you to access the Hyrule Compendium in Breath of the Wild.",
+      "icon": "command-icon.png",
+      "commands": [
+        {
+          "name": "broadSearch",
+          "title": "Search Entries",
+          "mode": "view",
+          "subtitle": "Search Hyrule Compendium Broadly"
+        },
+        {
+          "name": "getEntry",
+          "title": "Get Entry",
+          "mode": "view",
+          "subtitle": "Hyrule Compendium Search"
+        }
+      ]
+    },
+    {
+      "name": "input-source-switcher",
+      "title": "Input Source Switcher",
+      "description": "Switch input source (English/Ukraine) of the provided text if you forgot to do it before typing.",
+      "icon": "extension-icon.png",
+      "commands": [
+        {
+          "name": "form",
+          "title": "Switch Input Source Form",
+          "mode": "view"
+        },
+        {
+          "name": "index",
+          "title": "Switch Input Source",
+          "mode": "no-view"
+        }
+      ]
+    },
+    {
+      "name": "invisible-text-detector",
+      "title": "Invisible Text Detector",
+      "description": "Remove all hidden Unicode characters in your text, usually injected by LLMs.",
+      "icon": "icon.png",
+      "commands": [
+        {
+          "name": "analyze-clipboard-invisible-characters",
+          "title": "Analyze Clipboard for Invisible Characters",
+          "mode": "no-view"
+        },
+        {
+          "name": "fix-invisible-characters",
+          "title": "Fix Invisible Characters",
+          "mode": "no-view"
+        },
+        {
+          "name": "open-invisible-text-detector",
+          "title": "Open Invisible Text Detector",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "jisho",
+      "title": "Jisho - Japanese Dictionary",
+      "description": "Search Jisho.org",
+      "icon": "jisho-icon.png",
+      "commands": [
+        {
+          "name": "history",
+          "title": "Search History",
+          "mode": "view",
+          "subtitle": "Jisho"
+        },
+        {
+          "name": "search",
+          "title": "Translate Japanese",
+          "mode": "view",
+          "subtitle": "Jisho"
+        }
+      ]
+    },
+    {
+      "name": "kaalam",
+      "title": "Kaalam",
+      "description": "Gives Current Time in all formats",
+      "icon": "command-icon.png",
+      "commands": [
+        {
+          "name": "index",
+          "title": "Show Time",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "kagi-search",
+      "title": "Kagi Search",
+      "description": "Searches the Closed Beta of Kagi Search, with autosuggestions and quick access to FastGPT",
+      "icon": "command-icon.png",
+      "commands": [
+        {
+          "name": "index",
+          "title": "Search Kagi",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "keeper-security",
+      "title": "Keeper Security",
+      "description": "Access your Keeper Security secrets directly from Raycast.",
+      "icon": "keeper-logo.png",
+      "commands": [
+        {
+          "name": "generate-passphrase",
+          "title": "Generate Passphrase",
+          "mode": "view",
+          "subtitle": "Keeper Security"
+        },
+        {
+          "name": "generate-password",
+          "title": "Generate Password",
+          "mode": "view",
+          "subtitle": "Keeper Security"
+        },
+        {
+          "name": "generate-password-quick",
+          "title": "Generate Password - Quick",
+          "mode": "view",
+          "subtitle": "Keeper Security"
+        },
+        {
+          "name": "my-vault",
+          "title": "My Vault",
+          "mode": "view",
+          "subtitle": "Keeper Security"
+        }
+      ]
+    },
+    {
+      "name": "keygen",
+      "title": "Keygen",
+      "description": "Manage API Tokens, Licenses, Policies, Products and Users",
+      "icon": "extension_icon.png",
+      "commands": [
+        {
+          "name": "api-tokens",
+          "title": "View API Tokens",
+          "mode": "view",
+          "subtitle": "Keygen"
+        },
+        {
+          "name": "api-usage",
+          "title": "API Usage",
+          "mode": "no-view",
+          "subtitle": "Keygen"
+        },
+        {
+          "name": "environments",
+          "title": "View Environments",
+          "mode": "view",
+          "subtitle": "Keygen"
+        },
+        {
+          "name": "licenses",
+          "title": "View Licenses",
+          "mode": "view",
+          "subtitle": "Keygen"
+        },
+        {
+          "name": "policies",
+          "title": "View Policies",
+          "mode": "view",
+          "subtitle": "Keygen"
+        },
+        {
+          "name": "products",
+          "title": "View Products",
+          "mode": "view",
+          "subtitle": "Keygen"
+        },
+        {
+          "name": "users",
+          "title": "View Users",
+          "mode": "view",
+          "subtitle": "Keygen"
+        }
+      ]
+    },
+    {
+      "name": "laravel-artisan",
+      "title": "Laravel Artisan",
+      "description": "View and search Laravel Artisan commands.",
+      "icon": "command-icon.png",
+      "commands": [
+        {
+          "name": "index",
+          "title": "Search Console Commands",
+          "mode": "view",
+          "subtitle": "Laravel Artisan"
+        }
+      ]
+    },
+    {
+      "name": "laravel-shift",
+      "title": "Laravel Shift for Docker",
+      "description": "Run any of the Shifts for Laravel, Lumen, PHP, Django, and Tailwind completely locally using Raycast.",
+      "icon": "command-icon.png",
+      "commands": [
+        {
+          "name": "generate-shift",
+          "title": "Generate Shift Command",
+          "mode": "view",
+          "subtitle": "Laravel Shift for Docker"
+        }
+      ]
+    },
+    {
+      "name": "leap-new",
+      "title": "Leap.new",
+      "description": "Generate production-ready fullstack apps with leap.new AI platform",
+      "icon": "logo.png",
+      "commands": [
+        {
+          "name": "generate-app",
+          "title": "Generate App",
+          "mode": "view",
+          "subtitle": "leap.new"
+        },
+        {
+          "name": "menu-bar",
+          "title": "Menu Bar",
+          "mode": "menu-bar",
+          "subtitle": "leap.new"
+        }
+      ]
+    },
+    {
+      "name": "leetcode",
+      "title": "LeetCode",
+      "description": "Search LeetCode problem, view LeetCode daily challenge, view LeetCode problem and more.",
+      "icon": "leetcode.png",
+      "commands": [
+        {
+          "name": "daily-challenge",
+          "title": "View LeetCode Daily Challenge",
+          "mode": "view",
+          "subtitle": "LeetCode"
+        },
+        {
+          "name": "potd-menu-bar",
+          "title": "Daily Challenge Status",
+          "mode": "menu-bar",
+          "subtitle": "LeetCode"
+        },
+        {
+          "name": "problem-search",
+          "title": "Search LeetCode Problems",
+          "mode": "view",
+          "subtitle": "LeetCode"
+        },
+        {
+          "name": "random-problem",
+          "title": "Pick a Random LeetCode Problem",
+          "mode": "view",
+          "subtitle": "LeetCode"
+        },
+        {
+          "name": "user-profile",
+          "title": "View LeetCode User Profile",
+          "mode": "view",
+          "subtitle": "LeetCode"
+        }
+      ]
+    },
+    {
+      "name": "markdown-reference",
+      "title": "Markdown Reference",
+      "description": "Markdown documentation at your fingertips",
+      "icon": "logo.png",
+      "commands": [
+        {
+          "name": "markdown-reference",
+          "title": "Search Markdown Syntax",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "mbta-tracker",
+      "title": "MBTA Tracker",
+      "description": "View departure times for saved stops along MBTA routes",
+      "icon": "mbta-secondary-logo-circle.png",
+      "commands": [
+        {
+          "name": "browse-stops",
+          "title": "Browse Stops",
+          "mode": "view"
+        },
+        {
+          "name": "view-favorites",
+          "title": "View Favorites",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "mealie",
+      "title": "Mealie",
+      "description": "Manage Mealie shopping lists and meal plans, import recipes and search your recipe collection.",
+      "icon": "extension-icon.png",
+      "commands": [
+        {
+          "name": "add-to-shopping-list",
+          "title": "Add to Shopping List",
+          "mode": "view",
+          "subtitle": "Mealie"
+        },
+        {
+          "name": "import-recipe",
+          "title": "Import Recipe",
+          "mode": "view",
+          "subtitle": "Mealie"
+        },
+        {
+          "name": "meal-plan",
+          "title": "Meal Plan",
+          "mode": "view",
+          "subtitle": "Mealie"
+        },
+        {
+          "name": "search-recipes",
+          "title": "Search Recipes",
+          "mode": "view",
+          "subtitle": "Mealie"
+        },
+        {
+          "name": "shopping-lists",
+          "title": "Shopping Lists",
+          "mode": "view",
+          "subtitle": "Mealie"
+        }
+      ]
+    },
+    {
+      "name": "melanite-search",
+      "title": "Melanite Search",
+      "description": "Search your Melanite library by file name and tag name, with thumbnail previews.",
+      "icon": "extension-icon.png",
+      "commands": [
+        {
+          "name": "search-files",
+          "title": "Search Files",
+          "mode": "view",
+          "subtitle": "Melanite"
+        }
+      ]
+    },
+    {
+      "name": "menucloak",
+      "title": "MenuCloak",
+      "description": "Control MenuCloak focus, cloak, and Google Calendar settings",
+      "icon": "extension-icon.png",
+      "commands": [
+        {
+          "name": "open-settings",
+          "title": "Open MenuCloak Settings",
+          "mode": "no-view"
+        },
+        {
+          "name": "set-focus",
+          "title": "Set Focus Text",
+          "mode": "view"
+        },
+        {
+          "name": "toggle",
+          "title": "Toggle MenuCloak",
+          "mode": "no-view"
+        },
+        {
+          "name": "turn-off",
+          "title": "Turn off MenuCloak",
+          "mode": "no-view"
+        },
+        {
+          "name": "turn-on",
+          "title": "Turn on MenuCloak",
+          "mode": "no-view"
+        }
+      ]
+    },
+    {
+      "name": "mise-window-sets",
+      "title": "Mise Window Sets",
+      "description": "Apply saved Mise window Sets from Raycast.",
+      "icon": "icon.png",
+      "commands": [
+        {
+          "name": "apply-set",
+          "title": "Apply Set",
+          "mode": "view",
+          "subtitle": "Mise"
+        },
+        {
+          "name": "reload-sets",
+          "title": "Reload Sets",
+          "mode": "no-view",
+          "subtitle": "Mise"
+        }
+      ]
+    },
+    {
+      "name": "multi-ai-chat",
+      "title": "Multi AI Chat",
+      "description": "Open or prefill one prompt in ChatGPT, Claude, Grok, and Perplexity using query URLs in your browser.",
+      "icon": "icon.png",
+      "commands": [
+        {
+          "name": "multi-ai-chat",
+          "title": "Multi AI Chat",
+          "mode": "view"
+        },
+        {
+          "name": "run-presets",
+          "title": "Saved Prompts",
+          "mode": "view",
+          "subtitle": "Multi AI Chat"
+        }
+      ]
+    },
+    {
+      "name": "nano-games",
+      "title": "Nano Games",
+      "description": "Play Snake and other games in the Raycast search bar using braille characters.",
+      "icon": "nano-games.png",
+      "commands": [
+        {
+          "name": "play-nano-snake",
+          "title": "Play Nano Snake",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "nterm-calculator",
+      "title": "N-Term Grade Calculator",
+      "description": "Calculate Dutch exam grades with the official N-term (CvTE) formula.",
+      "icon": "extension-icon.png",
+      "commands": [
+        {
+          "name": "nterm-calculator",
+          "title": "N-Term Grade Calculator",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "ohmyzsh-git-alias",
+      "title": "Oh My Zsh Git Alias",
+      "description": "Quick search git alias.",
+      "icon": "icon.png",
+      "commands": [
+        {
+          "name": "index",
+          "title": "Git Alias",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "one-thing",
+      "title": "One Thing",
+      "description": "Put a thing in your Menu Bar.",
+      "icon": "command-icon.png",
+      "commands": [
+        {
+          "name": "remove-one-thing",
+          "title": "Remove One Thing",
+          "mode": "no-view"
+        },
+        {
+          "name": "set-one-thing",
+          "title": "Set One Thing",
+          "mode": "view"
+        },
+        {
+          "name": "show-one-thing",
+          "title": "One Thing",
+          "mode": "menu-bar"
+        }
+      ]
+    },
+    {
+      "name": "openweathermap",
+      "title": "OpenWeatherMap",
+      "description": "Get Weather via https://openweathermap.com",
+      "icon": "openweathermap.png",
+      "commands": [
+        {
+          "name": "weather",
+          "title": "Weather",
+          "mode": "view",
+          "subtitle": "OpenWeatherMap"
+        }
+      ]
+    },
+    {
+      "name": "parcel",
+      "title": "Parcel",
+      "description": "Allow Parcel users to see upcoming and active deliveries",
+      "icon": "extension-icon.png",
+      "commands": [
+        {
+          "name": "add-delivery",
+          "title": "Add Delivery",
+          "mode": "view"
+        },
+        {
+          "name": "my-deliveries",
+          "title": "My Deliveries",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "pbr-assistant",
+      "title": "PBR Assistant",
+      "description": "This extension helps 3D artists find physically accurate PBR diffuse colors as well as IOR values.",
+      "icon": "extension-icon.png",
+      "commands": [
+        {
+          "name": "find-pbr-ior-value",
+          "title": "Find PBR/IOR Value",
+          "mode": "view",
+          "subtitle": "PBR Assistant"
+        }
+      ]
+    },
+    {
+      "name": "pinch-svg",
+      "title": "Pinch SVG",
+      "description": "Generate pixel spacing increments and references in a pinch using SVGs.",
+      "icon": "extension_icon.png",
+      "commands": [
+        {
+          "name": "custom-rectangle",
+          "title": "Create SVG rectangle using pixels",
+          "mode": "view"
+        },
+        {
+          "name": "grid",
+          "title": "Copy SVG Spacing Increment",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "pokemon-tcg-pocket-binder",
+      "title": "Pokémon Tcg Pocket Binder",
+      "description": "Browse the complete collection of Pokémon TCG Pocket Cards",
+      "icon": "extension-icon.png",
+      "commands": [
+        {
+          "name": "pokemon-tcg-pocket-binder",
+          "title": "Pokémon Tcg Pocket",
+          "mode": "view",
+          "subtitle": "Binder"
+        }
+      ]
+    },
+    {
+      "name": "portless",
+      "title": "Portless Active Routes",
+      "description": "Instantly view active routes and their assigned ports.",
+      "icon": "extension_icon.png",
+      "commands": [
+        {
+          "name": "list",
+          "title": "List Active Routes",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "promptty",
+      "title": "Promptty",
+      "description": "Search, paste, and copy prompts from your Promptty library",
+      "icon": "icon.png",
+      "commands": [
+        {
+          "name": "search-promptty",
+          "title": "Search Promptty",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "punch-clock",
+      "title": "Punch Clock",
+      "description": "Track your working hours: set a total work time and break length, then watch a live countdown in the macOS menu bar.",
+      "icon": "icon.png",
+      "commands": [
+        {
+          "name": "menu-bar",
+          "title": "Work Timer",
+          "mode": "menu-bar",
+          "subtitle": "Punch Clock"
+        },
+        {
+          "name": "start-timer",
+          "title": "Start Work Timer",
+          "mode": "view",
+          "subtitle": "Punch Clock"
+        }
+      ]
+    },
+    {
+      "name": "px-to-rem-converter",
+      "title": "PX to Rem Converter",
+      "description": "Conversions between PX and REM",
+      "icon": "icon.png",
+      "commands": [
+        {
+          "name": "index",
+          "title": "Convert PX to REM",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "quick-jump",
+      "title": "Quick Jump",
+      "description": "Quick access to your team's Git repositories, dashboards, databases, and internal tools.",
+      "icon": "icon.png",
+      "commands": [
+        {
+          "name": "search",
+          "title": "Search",
+          "mode": "view",
+          "subtitle": "Quick Jump"
+        }
+      ]
+    },
+    {
+      "name": "radix",
+      "title": "Radix",
+      "description": "Search and open Radix content directly from Raycast.",
+      "icon": "icon.png",
+      "commands": [
+        {
+          "name": "colors",
+          "title": "Radix Colors",
+          "mode": "view",
+          "subtitle": "Documentation"
+        },
+        {
+          "name": "primitives",
+          "title": "Radix Primitives",
+          "mode": "view",
+          "subtitle": "Documentation"
+        },
+        {
+          "name": "themes",
+          "title": "Radix Themes",
+          "mode": "view",
+          "subtitle": "Documentation"
+        }
+      ]
+    },
+    {
+      "name": "random-color",
+      "title": "Random Color",
+      "description": "Pick a random color.",
+      "icon": "icon.png",
+      "commands": [
+        {
+          "name": "select-color",
+          "title": "Select Color",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "ratio-calculator",
+      "title": "Ratio Calculator",
+      "description": "A calculator for quickly calculating ratios/proportions. Replace multiple values on one side with variables such as x or y. Example syntax: \"1:2 = x:4\" outputs \"x = 2\"",
+      "icon": "icon.png",
+      "commands": [
+        {
+          "name": "calculate-ratio",
+          "title": "Calculate Ratio",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "raytyping",
+      "title": "Raytyping",
+      "description": "This extension inspired by monkeytype. For developer who loves typing keyboard and measure their speed of typing skill",
+      "icon": "command-icon.png",
+      "commands": [
+        {
+          "name": "raytype",
+          "title": "Start Raytyping",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "rectangle",
+      "title": "Rectangle",
+      "description": "Integration with Rectangle",
+      "icon": "rectangle-icon.png",
+      "commands": [
+        {
+          "name": "almost-maximize",
+          "title": "Almost Maximize",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "bottom-center-sixth",
+          "title": "Bottom Center Sixth",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "bottom-half",
+          "title": "Bottom Half",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "bottom-left",
+          "title": "Bottom Left",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "bottom-left-sixth",
+          "title": "Bottom Left Sixth",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "bottom-right",
+          "title": "Bottom Right",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "bottom-right-sixth",
+          "title": "Bottom Right Sixth",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "cascade-all",
+          "title": "Cascade All",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "center",
+          "title": "Center",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "center-half",
+          "title": "Half Width Center",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "center-third",
+          "title": "Center Third",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "first-fourth",
+          "title": "First Fourth",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "first-third",
+          "title": "First Third",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "first-three-fourths",
+          "title": "First Three Fourths",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "first-two-thirds",
+          "title": "First Two Thirds",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "index",
+          "title": "Rectangle Actions",
+          "mode": "view",
+          "subtitle": "Window management"
+        },
+        {
+          "name": "larger",
+          "title": "Make Larger",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "last-fourth",
+          "title": "Last Fourth",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "last-third",
+          "title": "Last Third",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "last-three-fourths",
+          "title": "Last Three Fourths",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "last-two-thirds",
+          "title": "Last Two Thirds",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "left-half",
+          "title": "Left Half",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "maximize",
+          "title": "Maximize",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "maximize-height",
+          "title": "Maximize Height",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "move-down",
+          "title": "Move Down",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "move-left",
+          "title": "Move Left",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "move-right",
+          "title": "Move Right",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "move-up",
+          "title": "Move Up",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "next-display",
+          "title": "Next Display",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "previous-display",
+          "title": "Previous Display",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "restore",
+          "title": "Restore",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "right-half",
+          "title": "Right Half",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "second-fourth",
+          "title": "Second Fourth",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "smaller",
+          "title": "Make Smaller",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "specified",
+          "title": "Reasonable Size",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "third-fourth",
+          "title": "Third Fourth",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "top-center-sixth",
+          "title": "Top Center Sixth",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "top-half",
+          "title": "Top Half",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "top-left",
+          "title": "Top Left",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "top-left-sixth",
+          "title": "Top Left Sixth",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "top-right",
+          "title": "Top Right",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        },
+        {
+          "name": "top-right-sixth",
+          "title": "Top Right Sixth",
+          "mode": "no-view",
+          "subtitle": "Rectangle"
+        }
+      ]
+    },
+    {
+      "name": "ring-intercom",
+      "title": "Ring Intercom",
+      "description": "Interact with your Ring Intercom device",
+      "icon": "command-icon.png",
+      "commands": [
+        {
+          "name": "authenticate",
+          "title": "Authenticate",
+          "mode": "view",
+          "subtitle": "Ring Intercom"
+        },
+        {
+          "name": "unlock",
+          "title": "Unlock Door",
+          "mode": "no-view",
+          "subtitle": "Ring Intercom"
+        }
+      ]
+    },
+    {
+      "name": "rtl-reader",
+      "title": "RTL Reader",
+      "description": "This extension fixes formatting issues in texts that mix Right-to-Left (RTL) and Left-to-Right (LTR) languages, like Kurdish and English.\n\nInstead of opening a separate app just to read a piece of text, you can paste it here to instantly display it correctly. It's perfect for quick reads without needing to edit or save.",
+      "icon": "extension-icon.png",
+      "commands": [
+        {
+          "name": "rtl-text",
+          "title": "RTL Text Formatter",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "saved-items",
+      "title": "Saved Items",
+      "description": "Save some items (eg. quick replies) and insert or copy them.",
+      "icon": "saved-items.png",
+      "commands": [
+        {
+          "name": "index",
+          "title": "Saved Items",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "scrapbook",
+      "title": "Scrapbook",
+      "description": "View hackclub's scrapbook posts and users from raycast.",
+      "icon": "icon.png",
+      "commands": [
+        {
+          "name": "search-users",
+          "title": "Search Users",
+          "mode": "view",
+          "subtitle": "Scrapbook"
+        },
+        {
+          "name": "search-users-posts",
+          "title": "Search User's Posts",
+          "mode": "view",
+          "subtitle": "Scrapbook"
+        },
+        {
+          "name": "view-recent-posts",
+          "title": "View Recent Posts",
+          "mode": "view",
+          "subtitle": "Scrapbook"
+        }
+      ]
+    },
+    {
+      "name": "sf-symbols-search",
+      "title": "SF Symbols Search",
+      "description": "Search and copy SF Symbols",
+      "icon": "command-icon.png",
+      "commands": [
+        {
+          "name": "index",
+          "title": "Search SF Symbols",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "spacejump",
+      "title": "SpaceJump",
+      "description": "Switch and manage macOS desktop Spaces with SpaceJump",
+      "icon": "icon.png",
+      "commands": [
+        {
+          "name": "list-spaces",
+          "title": "List Spaces",
+          "mode": "view"
+        },
+        {
+          "name": "switch-space",
+          "title": "Jump to Space",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "splatoon",
+      "title": "Splatoon",
+      "description": "View Splatoon’s current schedules. Supports Splatoon 2 and Splatoon 3.",
+      "icon": "extension.png",
+      "commands": [
+        {
+          "name": "splatoon-2-schedules",
+          "title": "View Schedules",
+          "mode": "view",
+          "subtitle": "Splatoon 2"
+        },
+        {
+          "name": "splatoon-3-schedules",
+          "title": "View Schedules",
+          "mode": "view",
+          "subtitle": "Splatoon 3"
+        }
+      ]
+    },
+    {
+      "name": "stockholm-public-transport",
+      "title": "Stockholm Public Transport",
+      "description": "Departures for public transport in Stockholm",
+      "icon": "command-icon.png",
+      "commands": [
+        {
+          "name": "departures",
+          "title": "List Departures",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "storybook-sandboxes",
+      "title": "Storybook Sandboxes",
+      "description": "Create new Storybook sandboxes locally, or online in StackBlitz",
+      "icon": "storybook-logo.png",
+      "commands": [
+        {
+          "name": "local",
+          "title": "Create Local Storybook Sandbox",
+          "mode": "view"
+        },
+        {
+          "name": "online",
+          "title": "Create Online Storybook Sandbox",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "superwhisper",
+      "title": "Superwhisper - Offline Voice to Text",
+      "description": "Start a recording, change Modes and open settings. Requires installing superwhisper.",
+      "icon": "superwhisper-light-icon.png",
+      "commands": [
+        {
+          "name": "copy-last-history",
+          "title": "Copy Last History",
+          "mode": "no-view",
+          "subtitle": "superwhisper"
+        },
+        {
+          "name": "open-settings",
+          "title": "Open Settings",
+          "mode": "no-view",
+          "subtitle": "superwhisper"
+        },
+        {
+          "name": "paste-last-history",
+          "title": "Paste Last History",
+          "mode": "no-view",
+          "subtitle": "superwhisper"
+        },
+        {
+          "name": "search-history",
+          "title": "Search History",
+          "mode": "view",
+          "subtitle": "superwhisper"
+        },
+        {
+          "name": "select-mode",
+          "title": "Select Mode",
+          "mode": "view",
+          "subtitle": "superwhisper"
+        },
+        {
+          "name": "toggle-record",
+          "title": "Start Recording",
+          "mode": "no-view",
+          "subtitle": "superwhisper"
+        }
+      ]
+    },
+    {
+      "name": "tategaki",
+      "title": "Tategaki",
+      "description": "Convert text to Japanese vertical writing",
+      "icon": "extension-icon.png",
+      "commands": [
+        {
+          "name": "japanese-vertical-text",
+          "title": "Japanese Vertical Text",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "text-decorator",
+      "title": "Text Decorator",
+      "description": "Super cool unicode text magic. Use 𝐛𝐨𝐥𝐝, 𝒊𝒕𝒂𝒍𝒊𝒄𝒔, and 🅜🅞🅡🅔 🄲🅁🄰🅉🅈 𝔩𝔬𝔬𝔨𝔦𝔫𝔤 fonts on Facebook, Twitter, and everywhere else.",
+      "icon": "text-decorator.png",
+      "commands": [
+        {
+          "name": "decorate-text-with-font",
+          "title": "Decorate Text with Font",
+          "mode": "view"
+        },
+        {
+          "name": "undecorate-text",
+          "title": "Undecorate Text",
+          "mode": "no-view"
+        }
+      ]
+    },
+    {
+      "name": "time-until-i-do",
+      "title": "Time Until I Do",
+      "description": "Time Until 'The Big Day' is a customizable Raycast extension that helps you keep track of the time left until your upcoming event. Whether you're counting down to a birthday, anniversary, vacation, or any other special occasion, this extension has you covered. Stay motivated and inspired with its daily quotes and focus points. Download now and start counting down to your big day!",
+      "icon": "icon.png",
+      "commands": [
+        {
+          "name": "index",
+          "title": "Big Day Countdown",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "timezone-buddy",
+      "title": "Timezone Buddy",
+      "description": "Show friends in other timezones",
+      "icon": "icon.png",
+      "commands": [
+        {
+          "name": "timezone-buddy",
+          "title": "Timezone Buddy",
+          "mode": "view"
+        },
+        {
+          "name": "timezone-buddy-menubar",
+          "title": "Timezone Buddy Menu Bar",
+          "mode": "menu-bar"
+        }
+      ]
+    },
+    {
+      "name": "tiny-tycho",
+      "title": "Tiny Tycho",
+      "description": "Cute and Goofy Tycho Stickers for Mac",
+      "icon": "tiny-tycho.png",
+      "commands": [
+        {
+          "name": "index",
+          "title": "Search Stickers",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "trenit",
+      "title": "Trenit",
+      "description": "Italian Rail departure information",
+      "icon": "extension-icon.png",
+      "commands": [
+        {
+          "name": "departures-and-arrivals",
+          "title": "Check Trains Status",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "uk-bank-holidays",
+      "title": "UK Bank Holidays",
+      "description": "Display the upcoming bank holiday information for England and Wales.",
+      "icon": "holidays-icon.png",
+      "commands": [
+        {
+          "name": "index",
+          "title": "Show Upcoming Bank Holidays in England and Wales",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "url-designer",
+      "title": "URL Designer",
+      "description": "Collect URL patterns and copy them as an implementation prompt.",
+      "icon": "extension-icon.png",
+      "commands": [
+        {
+          "name": "create-prompt",
+          "title": "Create Prompt",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "v0-by-vercel",
+      "title": "v0 by Vercel",
+      "description": "Create, view and manage your v0 chats within Raycast",
+      "icon": "icon.png",
+      "commands": [
+        {
+          "name": "create-project",
+          "title": "Create Project",
+          "mode": "view",
+          "subtitle": "v0"
+        },
+        {
+          "name": "manage-profiles",
+          "title": "Manage Profiles",
+          "mode": "view",
+          "subtitle": "v0"
+        },
+        {
+          "name": "new-chat",
+          "title": "New Chat",
+          "mode": "view",
+          "subtitle": "v0"
+        },
+        {
+          "name": "view-billing",
+          "title": "View Billing",
+          "mode": "view",
+          "subtitle": "v0"
+        },
+        {
+          "name": "view-chats",
+          "title": "View Chats",
+          "mode": "view",
+          "subtitle": "v0"
+        },
+        {
+          "name": "view-projects",
+          "title": "View Projects",
+          "mode": "view",
+          "subtitle": "v0"
+        }
+      ]
+    },
+    {
+      "name": "valkey-commands-search",
+      "title": "Valkey Commands Search",
+      "description": "Searches Valkey commands.",
+      "icon": "valkey-icon.png",
+      "commands": [
+        {
+          "name": "search-valkey-commands",
+          "title": "Search Valkey Commands",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "vim-bro",
+      "title": "Vim Bro - Search Vim Commands",
+      "description": "Search Vim commands",
+      "icon": "vim.png",
+      "commands": [
+        {
+          "name": "index",
+          "title": "Search Commands",
+          "mode": "view",
+          "subtitle": "Vim"
+        }
+      ]
+    },
+    {
+      "name": "vocab-search",
+      "title": "Vocabulary.com",
+      "description": "Retrieve Word definitions from vocab.com",
+      "icon": "vocab-logo.png",
+      "commands": [
+        {
+          "name": "vocab",
+          "title": "Vocab Search",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "windows-domain",
+      "title": "Windows Domain",
+      "description": "Get Information from your current Windows Domain",
+      "icon": "domain.png",
+      "commands": [
+        {
+          "name": "my-user",
+          "title": "My User",
+          "mode": "view"
+        },
+        {
+          "name": "search-user",
+          "title": "Search User",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "workflowy-inbox",
+      "title": "Workflowy Inbox",
+      "description": "Quickly add items to your Workflowy inbox. (This is an independent extension and is not created by Workflowy.)",
+      "icon": "send-to-workflowy.png",
+      "commands": [
+        {
+          "name": "index",
+          "title": "Send to Workflowy Inbox",
+          "mode": "view"
+        },
+        {
+          "name": "view",
+          "title": "View Workflowy Inbox",
+          "mode": "view"
+        }
+      ]
+    },
+    {
+      "name": "wrike",
+      "title": "Wrike",
+      "description": "Interact with Wrike",
+      "icon": "wrike_logo.png",
+      "commands": [
+        {
+          "name": "search",
+          "title": "Search Tasks",
+          "mode": "view",
+          "subtitle": "Wrike"
+        }
+      ]
+    }
+  ]
+}

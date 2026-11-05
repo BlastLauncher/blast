@@ -48,6 +48,7 @@
     "example:web": "node examples/web-launcher/main.ts",
     "example:browser:e2e": "bun examples/browser-runtime/e2e.ts",
     "example:browser-demo": "bun examples/browser-demo/main.ts",
+    "example:browser-demo:catalog": "bun scripts/browser-catalog.ts",
     "example:browser-demo:e2e": "bun examples/browser-demo/e2e.ts"
   },
   "devDependencies": {

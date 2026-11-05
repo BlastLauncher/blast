@@ -45,3 +45,14 @@ export function render(view) {
         : `<ul class="rows">${rows}</ul>${empty}`;
   return `<main data-kind="${escapeHtml(view.kind)}"><header><h1>${escapeHtml(view.title)}</h1>${search}</header>${body}${actions}${view.primary.enabled ? `<footer>${button(view.primary.title, "primary")}</footer>` : ""}${toast}</main>`;
 }
+
+/** @param {import("../browser-demo/root.ts").RootRow[]} rows @param {number} selected @param {string} query */
+export function renderRoot(rows, selected, query) {
+  const options = rows
+    .map(
+      (row, index) =>
+        `<li id="root-option-${index}" role="option" aria-selected="${index === selected}" data-root-index="${index}"${index === selected ? ' class="selected"' : ""}><span class="root-icon" aria-hidden="true">${row.iconUrl ? `<img src="${escapeHtml(row.iconUrl)}" alt="" width="24" height="24" onerror="this.hidden=true;this.nextElementSibling.hidden=false">` : ""}<span${row.iconUrl ? " hidden" : ""}>${escapeHtml(row.icon)}</span></span><span class="root-copy"><strong>${escapeHtml(row.title)}</strong><small>${escapeHtml(row.subtitle)}</small></span><span class="root-accessory">${escapeHtml(row.accessory)}</span></li>`,
+    )
+    .join("");
+  return `<main class="root" data-kind="root"><header><h1>Blast</h1><input id="root-search" value="${escapeHtml(query)}" placeholder="Search extension commands…" aria-label="Search extension commands" role="combobox" aria-controls="root-options" aria-activedescendant="${selected >= 0 ? `root-option-${selected}` : ""}" autocomplete="off" autofocus></header><ul id="root-options" class="rows root-options" role="listbox" aria-label="Extension commands">${options}</ul>${rows.length === 0 ? '<p class="empty">No matching commands</p>' : ""}<footer><span>↵ Run Command</span><span>Actions ⌘K</span></footer></main>`;
+}

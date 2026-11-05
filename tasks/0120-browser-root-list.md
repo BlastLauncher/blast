@@ -122,8 +122,12 @@ The browser demo opens on a launcher-style root list instead of a URL box.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/implement-browser-root-list @ fca31167960a111018a1a8cc2104b329668fbd84
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 63.5s
 Done:
-Not done / risks:
+- Added the catalog-backed, ranked browser root list with suggestions, URL rows, keyboard selection, action panel, ARIA listbox markup, light/dark styling, and runtime icon fallbacks.
+- Added the deterministic catalog generator and committed catalog.json (56,654 bytes; 99 extensions; 237 rendered commands; pinned to the smoke commit).
+- Added deep links, fixture-catalog default e2e coverage, command launch from the real install/bundle/sandbox path, and session teardown/back navigation.
+- Added pure model and renderer tests.
+Not done / risks: Playwright e2e was not run because this worktree has no cached Playwright package/browser and the task forbids downloading Chromium; `bun run verify` and focused tests pass.
 ```

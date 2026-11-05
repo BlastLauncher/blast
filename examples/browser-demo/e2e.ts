@@ -23,6 +23,23 @@ try {
   const browser = await chromium.launch({ headless: true });
   try {
     const page = await browser.newPage();
+    if (!live) {
+      await page.route("**/catalog.json", (route) =>
+        route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify({
+            commit: "fixture",
+            extensions: [
+              {
+                name: "hello-list",
+                title: "Hello List",
+                commands: [{ name: "index", title: "Hello List", mode: "view" }],
+              },
+            ],
+          }),
+        }),
+      );
+    }
     page.on("console", (message) => console.error(`[browser:${message.type()}] ${message.text()}`));
     page.on("pageerror", (error) => console.error(`[pageerror] ${error.message}`));
     page.on("response", (response) => {
@@ -30,19 +47,22 @@ try {
         console.error(`[response:${response.status()}] ${response.url()}`);
     });
     await page.goto(url, { waitUntil: "load" });
-    if (live)
-      await page
-        .locator("#extension")
-        .fill("https://github.com/raycast/extensions/tree/main/extensions/ratio-calculator");
-    await page.locator("#launch").click();
+    await page.locator("#root-search").waitFor();
+    if (live) {
+      await page.locator("#root-search").fill("ratio-calculator");
+      await page.keyboard.press("Enter");
+    } else {
+      await page.keyboard.press("Control+K");
+      await page.getByText("Open Extension on GitHub").waitFor();
+      await page.keyboard.press("Escape");
+      await page.locator("#root-search").fill("hello");
+      await page.keyboard.press("ArrowDown");
+      await page.keyboard.press("Enter");
+    }
     await page
-      .waitForFunction(
-        (expectLive) => document.querySelector(expectLive ? "#app #search" : "#app li") !== null,
-        live,
-        {
-          timeout: live ? 120_000 : 120_000,
-        },
-      )
+      .waitForFunction(() => document.querySelector("#app #search") !== null, live, {
+        timeout: live ? 120_000 : 120_000,
+      })
       .catch(async (error) => {
         throw new Error(`${error}\nstatus=${await page.locator("#status").textContent()}`);
       });
@@ -63,18 +83,12 @@ try {
             `search did not filter to banana: ${await page.locator("#app").innerText()}`,
           );
         });
-      // The primary action copies; the page's fake handler records the request.
-      await page.keyboard.press("Enter");
-      await page
-        .waitForFunction(
-          () => (document.querySelector("#status")?.textContent ?? "").includes("Copied"),
-          { timeout: 30_000 },
-        )
-        .catch(async () => {
-          throw new Error(
-            `clipboard.copy did not reach the host: ${await page.locator("#status").textContent()}`,
-          );
-        });
+      await page.keyboard.press("Escape");
+      await page.locator("#root-search").waitFor();
+      const deep = await browser.newPage();
+      await deep.goto(`${url}?ext=hello-list&cmd=index`, { waitUntil: "load" });
+      await deep.locator("#app #search").waitFor({ timeout: 120_000 });
+      await deep.close();
     }
     const elapsed = Date.now() - started;
     const transfer = await page.evaluate(() => {

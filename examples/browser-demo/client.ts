@@ -2,20 +2,25 @@ import * as esbuild from "esbuild-wasm";
 import { createController, type Controller } from "../../packages/client-core/src/index.ts";
 import { installForBrowser } from "../../packages/host/src/browser-install.ts";
 import { bundleForBrowser } from "../../packages/host/src/browser-bundle.ts";
-import { render } from "../web-launcher/render.js";
+import { render, renderRoot } from "../web-launcher/render.js";
 import { isTextExtension, parseExtensionSource } from "./source.ts";
+import { rootModel, validateCatalog, type Catalog, type RootRow } from "./root.ts";
 
 type FileMap = Record<string, string>;
 type BrowserFile = string | Uint8Array;
 type SceneMessage = { type: "scene"; revision: number; root: unknown };
 const app = document.querySelector<HTMLElement>("#app")!;
 const status = document.querySelector<HTMLElement>("#status")!;
-const input = document.querySelector<HTMLInputElement>("#extension")!;
-const commandSelect = document.querySelector<HTMLSelectElement>("#command")!;
+const commandSelect = document.querySelector<HTMLSelectElement>("#command");
 let controller: Controller | undefined;
 let port: MessagePort | undefined;
 let runtimeFrame: Window | undefined;
-let ready = false;
+let catalog: Catalog;
+let rootQuery = "";
+let rootSelected = 0;
+let rootRows: RootRow[] = [];
+let rootOpen = true;
+let actionOpen = false;
 
 const setStatus = (text: string, error = false) => {
   status.textContent = text;
@@ -23,6 +28,23 @@ const setStatus = (text: string, error = false) => {
 };
 const draw = (view: ReturnType<Controller["view"]>) => {
   app.innerHTML = render(view);
+};
+const drawRoot = () => {
+  const model = rootModel(
+    catalog,
+    rootQuery,
+    rootSelected,
+    rootQuery.trim().startsWith("https://github.com/") ? rootQuery.trim() : undefined,
+  );
+  rootRows = model.rows;
+  rootSelected = model.selected;
+  app.innerHTML = renderRoot(rootRows, rootSelected, rootQuery);
+  const search = document.querySelector<HTMLInputElement>("#root-search");
+  search?.focus();
+  search?.setSelectionRange(search.value.length, search.value.length);
+  document
+    .querySelector<HTMLElement>(`#root-option-${rootSelected}`)
+    ?.scrollIntoView({ block: "nearest" });
 };
 const sendInput = (value: Parameters<Controller["input"]>[0]) => {
   const result = controller?.input(value);
@@ -44,10 +66,9 @@ function handleRuntime(
     | { type: "error"; message: string },
 ) {
   if (message.type === "ready") {
-    ready = true;
     setStatus("Ready");
   } else if (message.type === "scene") {
-    if (!controller) return;
+    if (!controller || rootOpen) return;
     const result = controller.scene(message);
     draw(controller.view());
     for (const effect of result.effects) if (effect.type === "quit") setStatus("Command exited");
@@ -131,15 +152,15 @@ async function fetchFiles(source: string): Promise<{
   }
   const manifest = JSON.parse(String(files.get("/package.json"))) as Record<string, unknown>;
   const commands = (manifest.commands as Array<{ name?: string }> | undefined) ?? [];
-  commandSelect.replaceChildren();
+  commandSelect?.replaceChildren();
   for (const command of commands) {
     if (typeof command.name !== "string") continue;
     const option = document.createElement("option");
     option.value = command.name;
     option.textContent = command.name;
-    commandSelect.append(option);
+    commandSelect?.append(option);
   }
-  commandSelect.hidden = commandSelect.options.length < 2;
+  if (commandSelect) commandSelect.hidden = commandSelect.options.length < 2;
   const lockfile = files.get("/package-lock.json");
   return { files, manifest, root, ...(typeof lockfile === "string" ? { lockfile } : {}) };
 }
@@ -153,16 +174,16 @@ function commandEntry(files: Map<string, BrowserFile>, name: string): string {
   throw new Error(`Command source not found for ${name}`);
 }
 
-async function launch(): Promise<void> {
-  if (ready) return;
+async function launch(source: string, commandName: string): Promise<void> {
+  rootOpen = false;
+  actionOpen = false;
   setStatus("Fetching extension…");
-  const source = input.value.trim();
   const extension = await fetchFiles(source);
   const sourceFiles = (await (await fetch("/blast-sources.json")).json()) as FileMap;
   const files = new Map(Object.entries(sourceFiles));
   for (const [path, value] of extension.files) files.set(path, value);
-  const commandName = commandSelect.value || "index";
-  const command = commandEntry(extension.files, commandName);
+  const selectedCommand = commandName || commandSelect?.value || "index";
+  const command = commandEntry(extension.files, selectedCommand);
   setStatus("Installing dependencies…");
   const installed = await installForBrowser({
     fetch: (value, init) => fetch(value, init),
@@ -219,14 +240,14 @@ async function launch(): Promise<void> {
         protocol: 1,
         command: {
           extension: String(extension.manifest.name ?? source),
-          name: commandName,
+          name: selectedCommand,
           entry: command,
           mode: "view",
         },
         preferences: {},
         environment: {
           extensionName: String(extension.manifest.name ?? source),
-          commandName,
+          commandName: selectedCommand,
           ownerOrAuthorName: "Browser",
           assetsPath: "",
           supportPath: "",
@@ -240,16 +261,98 @@ async function launch(): Promise<void> {
   setStatus("Starting…");
 }
 
-document
-  .querySelector("#launch")
-  ?.addEventListener("click", () => void launch().catch((error) => setStatus(String(error), true)));
+function stopSession() {
+  port?.close();
+  port = undefined;
+  controller = undefined;
+  runtimeFrame = undefined;
+  document.querySelector("iframe")?.remove();
+  rootOpen = true;
+  setStatus("Ready");
+  drawRoot();
+}
+
+function backFromExtension() {
+  const result = controller?.input({ type: "back" });
+  if (!result) return stopSession();
+  for (const event of result.events)
+    port?.postMessage({
+      type: "event",
+      node: event.node,
+      handler: event.handler,
+      args: event.args,
+    });
+  if (result.effects.some((effect) => effect.type === "quit")) stopSession();
+  else if (controller) draw(controller.view());
+}
+
+function runSelected() {
+  const selected = rootRows[rootSelected];
+  if (!selected) return;
+  void launch(selected.url ?? selected.extension, selected.command).catch((error) =>
+    setStatus(String(error), true),
+  );
+}
+
+async function start() {
+  try {
+    catalog = validateCatalog(await (await fetch("/catalog.json")).json());
+    const params = new URLSearchParams(location.search);
+    const extension = params.get("ext");
+    const command = params.get("cmd");
+    if (extension && command)
+      return void launch(extension, command).catch((error) => setStatus(String(error), true));
+    drawRoot();
+    setStatus("Ready");
+  } catch (error) {
+    setStatus(String(error), true);
+  }
+}
+
 document.addEventListener("keydown", (event) => {
-  if (event.key === "ArrowDown") sendInput({ type: "move", direction: "down" });
-  else if (event.key === "ArrowUp") sendInput({ type: "move", direction: "up" });
-  else if (event.key === "Enter") sendInput({ type: "primary" });
-  else if (event.key === "Escape") sendInput({ type: "back" });
+  if (rootOpen) {
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      rootSelected = Math.min(rootSelected + 1, rootRows.length - 1);
+      drawRoot();
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      rootSelected = Math.max(rootSelected - 1, 0);
+      drawRoot();
+    } else if (event.key === "Enter") {
+      event.preventDefault();
+      if (actionOpen) {
+        actionOpen = false;
+        drawRoot();
+      } else runSelected();
+    } else if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+      event.preventDefault();
+      actionOpen = true;
+      app.innerHTML += `<section class="actions" role="dialog"><strong>Actions</strong><ul><li>Run Command <small>↵</small></li><li>Open Extension on GitHub</li><li>Copy Extension URL</li></ul></section>`;
+    } else if (event.key === "Escape" && actionOpen) {
+      event.preventDefault();
+      actionOpen = false;
+      drawRoot();
+    }
+  } else if (event.key === "Escape") {
+    event.preventDefault();
+    backFromExtension();
+  }
 });
 document.addEventListener("input", (event) => {
   const target = event.target as HTMLInputElement;
-  if (target.id === "search") sendInput({ type: "search", text: target.value });
+  if (target.id === "root-search") {
+    rootQuery = target.value;
+    rootSelected = 0;
+    drawRoot();
+  } else if (target.id === "search") sendInput({ type: "search", text: target.value });
 });
+document.addEventListener("click", (event) => {
+  const target = event.target as HTMLElement;
+  const index = target.closest<HTMLElement>("[data-root-index]")?.dataset.rootIndex;
+  if (index !== undefined) {
+    rootSelected = Number(index);
+    runSelected();
+  }
+});
+void start();
