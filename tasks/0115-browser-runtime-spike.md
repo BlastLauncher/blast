@@ -115,7 +115,7 @@ Done:
 - Added `examples/browser-runtime/e2e.ts`, which starts two 127.0.0.1 servers, drives headless Chromium, and always closes the browser and servers.
 - Added a cross-origin iframe transport prototype with scene, search/selection event, fake clipboard capability response, and deliberate DOM/storage isolation probe.
 - Added `fixtures/extensions/browser-isolation-probe` for the probe source and documented the measured run in `examples/browser-runtime/README.md`.
-- Added `bun run example:browser:e2e`; it installs `almostnode@0.2.14` and `playwright@1.58.0` only in the e2e path. Chromium cache measured 547,420 KiB (535 MiB) after Playwright's Chromium, headless shell, and ffmpeg downloads.
+- Added `bun run example:browser:e2e`; it installs `almostnode@0.2.14` (16 MiB unpacked) and `playwright@1.58.0` (3.9 MiB package plus 9.6 MiB `playwright-core`) only in the e2e path. Chromium cache measured 547,420 KiB (535 MiB) after Playwright's Chromium, headless shell, and ffmpeg downloads.
 
 Measured findings:
 
