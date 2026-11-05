@@ -89,7 +89,7 @@ Run any Raycast extension in a browser tab from its URL, inside almostnode
 - [x] 0116 runtime core + postMessage; 0117 browser bundle; 0118 installer; 0119 demo by URL
 - [x] 0120 root list to pick and run commands; 0121 static site build (landing + /demo)
 - [x] 0122 deploy (blast.yukai.dev + github.io sandbox); 0123 browser typecheck; 0124 live fixes
-- [ ] 0125 Demo polish: fixed-height panel, extension breadcrumb, status in footer
+- [x] 0125 Demo polish: fixed-height panel, extension breadcrumb, status in footer
 - [ ] 0126 Prebuilt catalog bundles for a ~1 s first open
 
 ## Later (not scheduled)
