@@ -15,6 +15,9 @@ export {
   type OpenExtensionOptions,
   type ExtensionHandle,
   type ExtensionLaunchOptions,
+  type DebounceScheduler,
+  type ExtensionWatcher,
+  type ExtensionWatcherFactory,
 } from "./extension.ts";
 export * from "./extension-manifest.ts";
 export * from "./engine.ts";

@@ -12,6 +12,8 @@ export function createEngine(
     timeoutMs?: number;
     dataDir?: string;
     installer?: DependencyInstaller;
+    watcher?: OpenExtensionOptions["watcher"];
+    debounce?: OpenExtensionOptions["debounce"];
     dependencies?: "manual" | "auto";
     handlers?: Record<string, CapabilityHandler>;
   } = {},
@@ -42,6 +44,8 @@ export function createEngine(
           ...(options.timeoutMs === undefined ? {} : { timeoutMs: options.timeoutMs }),
           ...(options.dataDir === undefined ? {} : { dataDir: options.dataDir }),
           ...(options.installer === undefined ? {} : { installer: options.installer }),
+          ...(options.watcher === undefined ? {} : { watcher: options.watcher }),
+          ...(options.debounce === undefined ? {} : { debounce: options.debounce }),
           ...extensionOptions,
         },
         registeredHandlers,

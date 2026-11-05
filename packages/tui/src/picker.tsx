@@ -616,6 +616,7 @@ type OpenedCommand = Awaited<ReturnType<typeof openCommand>>;
 export function CommandSession({
   extensionDir,
   dataDir,
+  extension: suppliedExtension,
   hudDurationMs,
   installer,
   handlers,
@@ -623,19 +624,22 @@ export function CommandSession({
 }: {
   extensionDir: string;
   dataDir?: string;
+  extension?: ExtensionHandle;
   hudDurationMs?: number;
   installer?: DependencyInstaller;
   handlers?: Record<string, CapabilityHandler>;
   onExit?: (crashed: boolean) => void;
 }) {
   const [resolvedDataDir] = useState(() => dataDir ?? defaultDataDir());
-  const [extension] = useState(() =>
-    openExtension({
-      handlers: createHeadlessHandlers(),
-      extensionDir,
-      dataDir: resolvedDataDir,
-      ...(installer ? { installer } : {}),
-    }),
+  const [extension] = useState(
+    () =>
+      suppliedExtension ??
+      openExtension({
+        handlers: createHeadlessHandlers(),
+        extensionDir,
+        dataDir: resolvedDataDir,
+        ...(installer ? { installer } : {}),
+      }),
   );
   const [editPreferences, setEditPreferences] = useState<{
     command: string;
@@ -661,7 +665,7 @@ export function CommandSession({
       // Unmount without a normal quit (SIGTERM during launch) cleans up.
       const current = latest.current.active;
       if (current) void current.opened.close();
-      void extension.close();
+      if (!suppliedExtension) void extension.close();
     },
     [],
   );
