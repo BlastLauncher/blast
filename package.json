@@ -43,7 +43,8 @@
     "example:go": "cd examples/go-embedder && go test ./...",
     "release:bootstrap": "bun scripts/release/prerelease.ts bootstrap",
     "example:mac": "cd examples/macos-launcher && swift test",
-    "example:mac:fixtures": "bun scripts/mac-fixtures.ts"
+    "example:mac:fixtures": "bun scripts/mac-fixtures.ts",
+    "example:browser:e2e": "bun examples/browser-runtime/e2e.ts"
   },
   "devDependencies": {
     "@blastlauncher/shared-deps": "workspace:*",

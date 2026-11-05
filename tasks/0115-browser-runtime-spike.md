@@ -109,8 +109,33 @@ The orchestrator then writes decision 0013 from those findings.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/browser-runtime-spike @ 19b2e0a82abe12ba2d82fe904d1a000b328b0ae3
+Verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 95.9s
 Done:
-Not done / risks:
+- Added `examples/browser-runtime/e2e.ts`, which starts two 127.0.0.1 servers, drives headless Chromium, and always closes the browser and servers.
+- Added a cross-origin iframe transport prototype with scene, search/selection event, fake clipboard capability response, and deliberate DOM/storage isolation probe.
+- Added `fixtures/extensions/browser-isolation-probe` for the probe source and documented the measured run in `examples/browser-runtime/README.md`.
+- Added `bun run example:browser:e2e`; it installs `almostnode@0.2.14` and `playwright@1.58.0` only in the e2e path. Chromium cache measured 547,420 KiB (535 MiB) after Playwright's Chromium, headless shell, and ffmpeg downloads.
+
+Measured findings:
+
+| Item | Result | Evidence / limitation |
+|---|---|---|
+| 1. first scene via postMessage | PASS | `hello-list` scene with `apple` arrived in the host from the cross-origin iframe. |
+| 2. host event updates scene | PASS | `search: ban` reached the iframe and returned only `banana`; selection uses the same event channel. |
+| 3. clipboard round trip | PASS | `clipboard.copy` request crossed to the host fake handler and the answered scene was published. No real clipboard was touched. |
+| 4. React/API/Node built-ins in almostnode | BLOCKED | The unmodified almostnode browser distribution has bare `pako` and `just-bash` imports. A direct browser load fails before runtime initialization (`Failed to resolve module specifier "just-bash"` after pako was supplied). The fixture transport therefore uses a small browser-safe stand-in; no missing Blast API hits are claimed. |
+| 5. esbuild-wasm inside almostnode | NOT RUN | Blocked by item 4 before a sandbox runtime exists. Host-side Bun bundling of the pako helper completed, but this is not evidence for esbuild-wasm in the browser. |
+| 6. npm.install walkthrough dependencies | NOT RUN | Requires a functioning almostnode runtime and registry fetch from the browser; no dependency install result is inferred. |
+| 7. cold/warm start and bytes | MEASURED | Cold page-to-first-scene: 45 ms; warm reload: 15 ms. Playwright cache: 547,420 KiB (535 MiB). The measured page itself transferred local static assets only; browser download is the cache size above. |
+| 8. isolation probe | PASS | Cross-origin iframe reports `parent.document` and `parent.localStorage` as `blocked`; iframe cookie string is empty. |
+
+Changes needed in `packages/runtime` and `packages/host`:
+
+1. Replace `node:module` `registerHooks` and stdin/stdout framing in the browser entry with an injected module resolver and `postMessage` transport.
+2. Provide browser-safe aliases for `@raycast/api`, React, and the Node built-ins used by the runtime (`node:stream`, `node:console`, `node:util`, `node:url`); do not rely on the Node-only CJS banner.
+3. Make the host bundler emit a browser target with the API shim and React included, while retaining the current Node target for `blast run`.
+4. Add an embedder capability bridge that validates and answers `clipboard.copy` (and other capabilities) over the browser message boundary.
+5. Add a browser bundling/install path that runs esbuild-wasm and `npm.install` inside the sandbox, with byte/time limits and explicit dependency diagnostics.
+Not done / risks: The measured PASS items are the cross-origin transport prototype. The actual Blast React reconciler and `almostnode` sandbox runtime remain blocked on browser-compatible module bundling, so this spike does not support a production browser runtime decision by itself. `playwright install chromium` downloads about 535 MiB into `.cache/ms-playwright`; this is intentionally retained for reproducibility.
 ```
