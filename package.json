@@ -46,7 +46,9 @@
     "example:mac": "cd examples/macos-launcher && swift test",
     "example:mac:fixtures": "bun scripts/mac-fixtures.ts",
     "example:web": "node examples/web-launcher/main.ts",
-    "example:browser:e2e": "bun examples/browser-runtime/e2e.ts"
+    "example:browser:e2e": "bun examples/browser-runtime/e2e.ts",
+    "example:browser-demo": "bun examples/browser-demo/main.ts",
+    "example:browser-demo:e2e": "bun examples/browser-demo/e2e.ts"
   },
   "devDependencies": {
     "@blastlauncher/shared-deps": "workspace:*",

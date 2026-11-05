@@ -410,7 +410,7 @@ export async function bundleForBrowser(options: BrowserBundleOptions): Promise<B
       build.onLoad({ filter: /.*/ }, (args) => {
         if (args.path === virtualEntry) {
           return {
-            contents: `import * as __blastRuntime from ${JSON.stringify(runtimeEntry)};\nimport * as __blastCommand from ${JSON.stringify(command)};\nvoid __blastRuntime;\nexport * from ${JSON.stringify(command)};\nexport default __blastCommand.default ?? __blastCommand;`,
+            contents: `import * as __blastRuntime from ${JSON.stringify(runtimeEntry)};\nimport * as __blastCommand from ${JSON.stringify(command)};\nconst __blastCommandValue = __blastCommand.default ?? __blastCommand;\nif (typeof __blastRuntime.start === "function") __blastRuntime.start(__blastCommandValue);\nexport * from ${JSON.stringify(command)};\nexport default __blastCommandValue;`,
             loader: "js",
             resolveDir: "/",
           };

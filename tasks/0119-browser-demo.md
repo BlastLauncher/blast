@@ -67,8 +67,13 @@ plain `<name>`, and the page then:
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/browser-demo-e2e @ 6477a61654be4cc4fcd4b9fad6d077c95bc007cb
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 63.5s
 Done:
+- Added the static browser-demo host, cross-origin almostnode sandbox wiring, browser dependency installation, esbuild-wasm bundling, controller, renderer, keyboard input, and visible capability denials.
+- Added local fixture serving, package bootstrap with pinned almostnode 0.2.14, esbuild-wasm 0.28.2, and Playwright 1.58.0, plus the browser-demo commands and README trust/limitations documentation.
+- Updated browser bundle entry startup so the runtime entry starts the real command over a transferred MessageChannel.
 Not done / risks:
+- Default e2e reached the real sandbox and runtime but failed before a scene with `Element type is invalid` from the bundled fixture command; measured run time was 30.0s timeout and the browser resource transfer was not emitted because the run failed. This needs follow-up to reconcile the browser React/reconciler aliases.
+- `--live` was not run because the default walkthrough is currently blocked by that same scene error; no live cold-start/byte measurement is available.
 ```
