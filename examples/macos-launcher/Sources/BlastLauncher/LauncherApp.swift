@@ -13,7 +13,7 @@ struct MacOSCapabilityHandler: CapabilityHandler, @unchecked Sendable {
             await MainActor.run { ClipboardAdapter.write(content, to: .general) }
             return .null
         case "clipboard.paste":
-            try await ClipboardAdapter.paste(ClipboardContent(params: request.params))
+            try await ClipboardAdapter.paste(ClipboardPastePlan(params: request.params))
             return .null
         case "open.url":
             let urlArguments = try Self.openArguments { try OpenArguments.url(from: request.params) }

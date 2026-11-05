@@ -29,8 +29,8 @@ enum ClipboardAdapter {
     /// Writes the content, yields the frontmost application its focus back and
     /// presses ⌘V. Posting keystrokes needs Accessibility permission; without
     /// it the request fails instead of silently doing nothing.
-    static func paste(_ content: ClipboardContent) async throws {
-        guard !content.isEmpty else {
+    static func paste(_ plan: ClipboardPastePlan) async throws {
+        guard !plan.content.isEmpty else {
             throw EmbedderError(code: "invalid_argument", message: "clipboard.paste requires text, html or file")
         }
         guard AXIsProcessTrusted() else {
@@ -40,13 +40,18 @@ enum ClipboardAdapter {
             )
         }
         await MainActor.run {
-            write(content, to: .general)
+            write(plan.content, to: .general)
             NSApplication.shared.hide(nil)
         }
         // Give the previously frontmost application time to take focus back
         // before the keystroke is posted.
         try await Task.sleep(for: .milliseconds(60))
         postCommandV()
+        if !plan.closeMainWindow {
+            await MainActor.run {
+                NSApp.unhideWithoutActivation()
+            }
+        }
     }
 
     static func postCommandV() {

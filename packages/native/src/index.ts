@@ -23,6 +23,7 @@ export type Runner = (
   args: string[],
   options: { input?: string },
 ) => Promise<{ stdout: string; code: number }>;
+export type BeforePaste = (options: { closeMainWindow: boolean }) => void | Promise<void>;
 
 const defaultRun: Runner = (command, args, { input }) =>
   new Promise((resolve, reject) => {
@@ -55,10 +56,12 @@ export function createNativeHandlers({
   platform = process.platform,
   run = defaultRun,
   env = process.env,
+  beforePaste,
 }: {
   platform?: NodeJS.Platform;
   run?: Runner;
   env?: Record<string, string | undefined>;
+  beforePaste?: BeforePaste;
 } = {}): Record<string, CapabilityHandler> {
   const windows = platform === "win32",
     mac = platform === "darwin";
@@ -155,7 +158,9 @@ export function createNativeHandlers({
       await copy("clipboard.copy", object(params));
     },
     "clipboard.paste": async (params) => {
-      await copy("clipboard.paste", object(params));
+      const pasteParams = object(params);
+      await copy("clipboard.paste", pasteParams);
+      await beforePaste?.({ closeMainWindow: pasteParams.closeMainWindow !== false });
       if (mac)
         await command("clipboard.paste", "osascript", [
           "-e",

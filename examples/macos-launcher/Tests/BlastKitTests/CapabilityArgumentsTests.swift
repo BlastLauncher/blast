@@ -33,6 +33,15 @@ struct CapabilityArgumentsTests {
         #expect(ClipboardContent(params: .object(["concealed": .bool(true)])).concealed)
     }
 
+    @Test("clipboard paste defaults to closing and accepts an explicit keep-visible flag")
+    func clipboardPastePlan() {
+        #expect(ClipboardPastePlan(params: .object([:])).closeMainWindow)
+        #expect(ClipboardPastePlan(params: .object(["closeMainWindow": .bool(true)])).closeMainWindow)
+        #expect(!ClipboardPastePlan(params: .object(["closeMainWindow": .bool(false)])).closeMainWindow)
+        // A non-boolean value follows the safe default rather than opting out.
+        #expect(ClipboardPastePlan(params: .object(["closeMainWindow": .string("false")])).closeMainWindow)
+    }
+
     // MARK: - Open
 
     @Test("open.url parses an HTTP url without an application")

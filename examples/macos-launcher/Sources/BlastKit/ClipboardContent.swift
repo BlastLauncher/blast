@@ -28,6 +28,25 @@ public struct ClipboardContent: Equatable, Sendable {
     }
 }
 
+/// The content and window policy for a clipboard paste request. Parsing this
+/// separately keeps the AppKit adapter's side effects out of the decision.
+public struct ClipboardPastePlan: Equatable, Sendable {
+    public let content: ClipboardContent
+    public let closeMainWindow: Bool
+
+    public init(content: ClipboardContent, closeMainWindow: Bool = true) {
+        self.content = content
+        self.closeMainWindow = closeMainWindow
+    }
+
+    public init(params: JSONValue) {
+        content = ClipboardContent(params: params)
+        // Only an explicit false opts out. This preserves Raycast's default
+        // when older or malformed callers omit the flag.
+        closeMainWindow = params["closeMainWindow"]?.boolValue != false
+    }
+}
+
 /// One pasteboard representation. Order is the order the adapter writes them.
 public struct ClipboardItem: Equatable, Sendable {
     public enum Kind: String, Equatable, Sendable {
