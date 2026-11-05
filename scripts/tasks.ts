@@ -228,6 +228,13 @@ export function mergeTask(
     runner("git", ["merge", "--abort"], root);
     fail(`merge of ${selected} failed; merge was aborted`);
   }
+  // A merge that adds a workspace package or dependency leaves node_modules
+  // stale, and verify would fail on unresolved imports.
+  const lockChanged = runner("git", ["diff", "--quiet", "HEAD^1", "HEAD", "--", "bun.lock"], root);
+  if (lockChanged.status !== 0) {
+    const installed = runner("bun", ["install", "--frozen-lockfile"], root, { inherit: true });
+    if (installed.status !== 0) fail("bun install --frozen-lockfile failed after the merge");
+  }
   unlinkSync(join(root, "tasks", task.file));
   const planPath = join(root, "PLAN.md");
   writeFileSync(planPath, updatedPlan(readFileSync(planPath, "utf8"), task, options.plan));
@@ -299,7 +306,18 @@ export function landTask(root: string, id: string, options: LandOptions = {}): v
   const failed = runs.filter((run) => run.conclusion !== "success");
   if (failed.length > 0)
     fail(`GitHub Actions failed: ${failed.map((run) => run.name ?? "unnamed").join(", ")}`);
-  const secondParent = runOrFail(runner, root, "git", ["rev-parse", "HEAD^^2"]).stdout.trim();
+  // The orchestrator may add fix commits between the merge and the done commit,
+  // so find the task's merge on main's first-parent line rather than at HEAD^.
+  const merge = runOrFail(runner, root, "git", [
+    "rev-list",
+    "--first-parent",
+    "--merges",
+    "-n",
+    "1",
+    "HEAD",
+  ]).stdout.trim();
+  if (!merge) fail(`no merge commit found below HEAD for task ${id}`);
+  const secondParent = runOrFail(runner, root, "git", ["rev-parse", `${merge}^2`]).stdout.trim();
   const worker = worktrees(runner, root).find((item) => {
     if (item.branch === "main") return false;
     return runner("git", ["rev-parse", item.branch], root).stdout.trim() === secondParent;

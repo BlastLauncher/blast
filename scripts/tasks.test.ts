@@ -156,7 +156,8 @@ function landFake(conclusion: string) {
     "gh run list --commit head --json status,conclusion,name": {
       stdout: JSON.stringify([{ status: "completed", conclusion, name: "ci" }]),
     },
-    "git rev-parse HEAD^^2": { stdout: "worker-tip\n" },
+    "git rev-list --first-parent --merges -n 1 HEAD": { stdout: "merge\n" },
+    "git rev-parse merge^2": { stdout: "worker-tip\n" },
     "git worktree list --porcelain": { stdout: "worktree /tmp/worker\nbranch refs/heads/worker\n" },
     "git rev-parse worker": { stdout: "worker-tip\n" },
     "git worktree remove /tmp/worker": {},
@@ -343,6 +344,53 @@ describe("tasks:land", () => {
       execFileSync("git", ["show-ref", "--verify", "refs/heads/worker"], { cwd: root }),
     ).toThrow();
     expect(() => readFileSync(workerPath)).toThrow();
+  });
+
+  test("merge reinstalls only when the merge changes bun.lock", () => {
+    for (const changesLock of [true, false]) {
+      const root = repo({
+        "PLAN.md": "### M1\n- [ ] 0001\n",
+        "bun.lock": "{}\n",
+        "tasks/0001-merge.md": task("0001", "doing"),
+      });
+      const workerParent = mkdtempSync(join(tmpdir(), "blast-worker-"));
+      roots.push(workerParent);
+      const workerPath = join(workerParent, "tree");
+      execFileSync("git", ["worktree", "add", "-b", "worker", workerPath], { cwd: root });
+      writeFileSync(join(workerPath, changesLock ? "bun.lock" : "work.txt"), "{ }\n");
+      execFileSync("git", ["add", "."], { cwd: workerPath });
+      execFileSync("git", ["commit", "-m", "worker"], { cwd: workerPath });
+      const bunCalls: string[] = [];
+      mergeTask(root, "0001", { branch: "worker" }, (command, args, cwd) => {
+        if (command === "bun") bunCalls.push(args.join(" "));
+        return mergeTestRunner(command, args, cwd);
+      });
+      expect(bunCalls.includes("install --frozen-lockfile")).toBe(changesLock);
+    }
+  });
+
+  test("cleans up when fix commits sit between the merge and the done commit", () => {
+    const root = repo({
+      "PLAN.md": "### M1\n- [ ] 0001\n",
+      "tasks/0001-merge.md": task("0001", "doing"),
+    });
+    const workerParent = mkdtempSync(join(tmpdir(), "blast-worker-"));
+    roots.push(workerParent);
+    const workerPath = join(workerParent, "tree");
+    execFileSync("git", ["worktree", "add", "-b", "worker", workerPath], { cwd: root });
+    writeFileSync(join(workerPath, "work.txt"), "work\n");
+    execFileSync("git", ["add", "."], { cwd: workerPath });
+    execFileSync("git", ["commit", "-m", "worker"], { cwd: workerPath });
+    execFileSync("git", ["merge", "--no-ff", "-m", "merge", "worker"], { cwd: root });
+    writeFileSync(join(root, "fix.txt"), "fix\n");
+    execFileSync("git", ["add", "."], { cwd: root });
+    execFileSync("git", ["commit", "-m", "test: fix"], { cwd: root });
+    execFileSync("git", ["rm", "-q", "tasks/0001-merge.md"], { cwd: root });
+    execFileSync("git", ["commit", "-m", "chore(0001): done"], { cwd: root });
+    landTask(root, "0001", { runner: landRealRunner });
+    expect(() =>
+      execFileSync("git", ["show-ref", "--verify", "refs/heads/worker"], { cwd: root }),
+    ).toThrow();
   });
 
   test("keeps a real worker worktree after failed CI", () => {
