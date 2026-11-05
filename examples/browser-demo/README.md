@@ -3,10 +3,14 @@
 Run a Raycast extension from a URL without installing it:
 
 ```sh
-PLAYWRIGHT_BROWSERS_PATH=/Users/yukai/Projects/BlastLauncher/blast/.cache/ms-playwright bun run example:browser-demo
-PLAYWRIGHT_BROWSERS_PATH=/Users/yukai/Projects/BlastLauncher/blast/.cache/ms-playwright bun run example:browser-demo:e2e
-PLAYWRIGHT_BROWSERS_PATH=/Users/yukai/Projects/BlastLauncher/blast/.cache/ms-playwright bun run example:browser-demo:e2e -- --live
+bun run example:browser-demo
+bun run example:browser-demo:e2e
+bun run example:browser-demo:e2e -- --live
 ```
+
+Chromium comes from `PLAYWRIGHT_BROWSERS_PATH`, or `.cache/ms-playwright` in
+this checkout. Install it once there with
+`PLAYWRIGHT_BROWSERS_PATH=.cache/ms-playwright bunx playwright@1.58.0 install chromium`.
 
 The host accepts a full GitHub tree URL or a bare extension name (which means
 `raycast/extensions` on `main`). It lists the extension through GitHub's

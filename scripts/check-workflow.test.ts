@@ -2,7 +2,7 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { checkTask, checkWorkflow } from "./check-workflow.ts";
+import { checkTask, checkWorkflow, findHomePaths } from "./check-workflow.ts";
 
 const VALID_TASK = `---
 id: "0007"
@@ -90,4 +90,20 @@ describe("checkWorkflow", () => {
       "tasks/0007-other.md: id 0007 already used by 0007-do-a-thing.md",
     ]);
   });
+});
+
+test("flags committed files that contain the local home directory", () => {
+  const home = ["", "Users", "someone"].join("/");
+  expect(
+    findHomePaths(
+      [
+        { path: "a.md", text: `run ${home}/Projects/x` },
+        { path: "b.ts", text: "fixture /Users/alice/.ssh/id" },
+        { path: "c.ts", text: `just ${home}` },
+      ],
+      home,
+    ),
+  ).toEqual(["a.md: contains the local home directory path"]);
+  // A root or one-segment home (containers, CI as root) never matches.
+  expect(findHomePaths([{ path: "a", text: "/root/x" }], "/root")).toEqual([]);
 });

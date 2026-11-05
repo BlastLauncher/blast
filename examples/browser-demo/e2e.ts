@@ -1,11 +1,13 @@
-import { chromium } from "../../.cache/browser-demo/deps/node_modules/playwright/index.mjs";
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const root = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 
 const live = process.argv.includes("--live");
-const browsers =
-  process.env.PLAYWRIGHT_BROWSERS_PATH ??
-  "/Users/yukai/Projects/BlastLauncher/blast/.cache/ms-playwright";
+const browsers = process.env.PLAYWRIGHT_BROWSERS_PATH ?? join(root, ".cache", "ms-playwright");
+process.env.PLAYWRIGHT_BROWSERS_PATH = browsers;
 if (!existsSync(browsers)) throw new Error(`PLAYWRIGHT_BROWSERS_PATH is missing: ${browsers}`);
 const server = spawn("bun", ["examples/browser-demo/main.ts"], {
   stdio: ["ignore", "pipe", "inherit"],
@@ -20,6 +22,12 @@ try {
   while (!output.includes("Browser demo:")) await new Promise((resolve) => setTimeout(resolve, 25));
   const url = output.match(/http:\/\/127\.0\.0\.1:\d+\//)?.[0];
   if (!url) throw new Error("demo URL missing");
+  // The demo server installs the pinned deps (Playwright included) before it
+  // prints its URL, so import Playwright only now; a static import fails on a
+  // fresh checkout.
+  const { chromium } = (await import(
+    join(root, ".cache/browser-demo/deps/node_modules/playwright/index.mjs")
+  )) as typeof import("playwright");
   const browser = await chromium.launch({ headless: true });
   try {
     const page = await browser.newPage();
@@ -53,9 +61,21 @@ try {
       await page.keyboard.press("Enter");
     } else {
       await page.keyboard.press("Control+K");
-      await page.getByText("Open Extension on GitHub").waitFor();
+      for (const action of ["Run Command", "Open Extension on GitHub", "Copy Extension URL"])
+        await page.getByText(action, { exact: true }).first().waitFor();
       await page.keyboard.press("Escape");
+      const options = page.locator('[role="option"]');
+      const before = await options.count();
       await page.locator("#root-search").fill("hello");
+      // Typing must really filter the catalog, not just leave the list as is.
+      await page.waitForFunction(
+        (total) => {
+          const rows = document.querySelectorAll('[role="option"]').length;
+          return rows > 0 && rows < total;
+        },
+        before,
+        { timeout: 10_000 },
+      );
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Enter");
     }
@@ -83,8 +103,23 @@ try {
             `search did not filter to banana: ${await page.locator("#app").innerText()}`,
           );
         });
+      // The primary action copies; the page's fake handler records it.
+      await page.keyboard.press("Enter");
+      await page
+        .waitForFunction(
+          () => (document.querySelector("#status")?.textContent ?? "").includes("Copied"),
+          { timeout: 30_000 },
+        )
+        .catch(async () => {
+          throw new Error(
+            `clipboard.copy did not reach the host: ${await page.locator("#status").textContent()}`,
+          );
+        });
       await page.keyboard.press("Escape");
       await page.locator("#root-search").waitFor();
+      // Back at the root, the sandbox session must be gone, not just hidden.
+      if ((await page.locator("iframe").count()) !== 0)
+        throw new Error("Esc returned to the root list but the sandbox iframe is still running");
       const deep = await browser.newPage();
       await deep.goto(`${url}?ext=hello-list&cmd=index`, { waitUntil: "load" });
       await deep.locator("#app #search").waitFor({ timeout: 120_000 });

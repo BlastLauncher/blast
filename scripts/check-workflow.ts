@@ -1,6 +1,8 @@
 // Guards the agent workflow described in AGENTS.md against drift: file size
 // limits and task file shape.
+import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { homedir } from "node:os";
 import { join } from "node:path";
 
 export const LINE_LIMITS: Record<string, number> = {
@@ -94,8 +96,41 @@ export function checkWorkflow(root: string): string[] {
   return errors;
 }
 
+/**
+ * The repo is public: committed files must not name the machine they were
+ * written on. Flags tracked text files containing `home` (the current user's
+ * home directory), which catches absolute paths like `<home>/Projects/...`.
+ */
+export function findHomePaths(
+  files: Array<{ path: string; text: string }>,
+  home: string,
+): string[] {
+  const needle = home.replace(/\/+$/, "");
+  // A root or very short home (containers, CI as root) would match everything.
+  if (needle.split("/").filter(Boolean).length < 2) return [];
+  return files
+    .filter((file) => file.text.includes(`${needle}/`))
+    .map((file) => `${file.path}: contains the local home directory path`);
+}
+
+function trackedTextFiles(root: string): Array<{ path: string; text: string }> {
+  const listed = spawnSync("git", ["ls-files", "-z"], { cwd: root, encoding: "utf8" });
+  if (listed.status !== 0) return [];
+  return listed.stdout
+    .split("\0")
+    .filter((path) => path && !/\.(?:png|jpe?g|gif|ico|tgz|gz|wasm|zip|pdf)$/i.test(path))
+    .flatMap((path) => {
+      try {
+        return [{ path, text: readFileSync(join(root, path), "utf8") }];
+      } catch {
+        return [];
+      }
+    });
+}
+
 if (import.meta.main) {
-  const errors = checkWorkflow(process.cwd());
+  const root = process.cwd();
+  const errors = [...checkWorkflow(root), ...findHomePaths(trackedTextFiles(root), homedir())];
   for (const error of errors) console.error(`workflow: ${error}`);
   if (errors.length > 0) process.exit(1);
   console.log("workflow: ok");

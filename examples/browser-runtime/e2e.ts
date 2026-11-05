@@ -6,9 +6,7 @@ import { fileURLToPath } from "node:url";
 const root = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 const cache = join(root, ".cache", "browser-runtime");
 const deps = join(cache, "deps");
-const browsers =
-  process.env.PLAYWRIGHT_BROWSERS_PATH ??
-  "/Users/yukai/Projects/BlastLauncher/blast/.cache/ms-playwright";
+const browsers = process.env.PLAYWRIGHT_BROWSERS_PATH ?? join(root, ".cache", "ms-playwright");
 const almostVersion = "0.2.14";
 const playwrightVersion = "1.58.0";
 async function command(args: string[]): Promise<void> {
