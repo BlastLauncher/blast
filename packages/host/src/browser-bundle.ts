@@ -410,7 +410,7 @@ export async function bundleForBrowser(options: BrowserBundleOptions): Promise<B
       build.onLoad({ filter: /.*/ }, (args) => {
         if (args.path === virtualEntry) {
           return {
-            contents: `import * as __blastRuntime from ${JSON.stringify(runtimeEntry)};\nimport * as __blastCommand from ${JSON.stringify(command)};\nconst __blastCommandValue = __blastCommand.default ?? __blastCommand;\nif (typeof __blastRuntime.start === "function") __blastRuntime.start(__blastCommandValue);\nexport * from ${JSON.stringify(command)};\nexport default __blastCommandValue;`,
+            contents: `import * as __blastRuntime from ${JSON.stringify(runtimeEntry)};\nimport * as __blastCommand from ${JSON.stringify(command)};\nconst __blastCommandValue = __blastCommand.default ?? __blastCommand;\nif (typeof __blastRuntime.start === "function") __blastRuntime.start({ default: __blastCommandValue });\nexport * from ${JSON.stringify(command)};\nexport default __blastCommandValue;`,
             loader: "js",
             resolveDir: "/",
           };
@@ -435,6 +435,9 @@ export async function bundleForBrowser(options: BrowserBundleOptions): Promise<B
       format: "cjs",
       platform: "browser",
       target: "es2020",
+      // Raycast extensions use the automatic JSX runtime, as bundleCommand does;
+      // esbuild's default classic transform needs React in scope.
+      jsx: "automatic",
       plugins: [plugin],
       logLevel: "silent",
     })

@@ -44,8 +44,33 @@ try {
       });
     await page.locator("#search").fill("ban");
     if (!live) {
-      if ((await page.locator("#app").innerText()).includes("banana") === false)
-        throw new Error("search did not render banana");
+      // hello-list starts with apple, banana and cherry, so "banana is shown"
+      // proves nothing; the search must have removed the other rows.
+      await page
+        .waitForFunction(
+          () => {
+            const text = document.querySelector("#app")?.textContent ?? "";
+            return text.includes("banana") && !text.includes("apple") && !text.includes("cherry");
+          },
+          { timeout: 30_000 },
+        )
+        .catch(async () => {
+          throw new Error(
+            `search did not filter to banana: ${await page.locator("#app").innerText()}`,
+          );
+        });
+      // The primary action copies; the page's fake handler records the request.
+      await page.keyboard.press("Enter");
+      await page
+        .waitForFunction(
+          () => (document.querySelector("#status")?.textContent ?? "").includes("Copied"),
+          { timeout: 30_000 },
+        )
+        .catch(async () => {
+          throw new Error(
+            `clipboard.copy did not reach the host: ${await page.locator("#status").textContent()}`,
+          );
+        });
     }
     const elapsed = Date.now() - started;
     const bytes = await page.evaluate(() =>
