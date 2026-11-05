@@ -1,7 +1,7 @@
 ---
 id: "0121"
 title: Static website build (landing + /demo) and a separate sandbox build for GitHub Pages
-status: todo
+status: doing
 milestone: M8
 depends: []
 ---
