@@ -268,7 +268,7 @@ describe("tasks:merge", () => {
   });
 
   test("appends --plan text at the end of the milestone checklist", () => {
-    const task = { id: "0002", milestone: "M7" } as Parameters<typeof updatedPlan>[1];
+    const info = { id: "0002", milestone: "M7" } as Parameters<typeof updatedPlan>[1];
     const plan = [
       "### M7 — Real examples",
       "",
@@ -280,11 +280,11 @@ describe("tasks:merge", () => {
       "## Later",
       "",
     ].join("\n");
-    expect(updatedPlan(plan, task, "0002 second")).toBe(
+    expect(updatedPlan(plan, info, "0002 second")).toBe(
       plan.replace("      continued\n", "      continued\n- [x] 0002 second\n"),
     );
-    expect(updatedPlan("### M7\n- [ ] 0002 x\n", task)).toBe("### M7\n- [x] 0002 x\n");
-    expect(() => updatedPlan("### M6\n- [x] a\n", task, "t")).toThrow("no M7 milestone");
+    expect(updatedPlan("### M7\n- [ ] 0002 x\n", info)).toBe("### M7\n- [x] 0002 x\n");
+    expect(() => updatedPlan("### M6\n- [x] a\n", info, "t")).toThrow("no M7 milestone");
   });
 
   test("leaves the merge in place when verify fails", () => {

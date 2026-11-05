@@ -188,7 +188,7 @@ export function updatedPlan(plan: string, task: TaskInfo, planText?: string): st
     new RegExp(`^### ${task.milestone}(?:\\s|$)`).test(line),
   );
   if (heading < 0) fail(`PLAN.md has no ${task.milestone} milestone heading`);
-  let end = lines.findIndex((line, i) => i > heading && /^##/.test(line));
+  let end = lines.findIndex((line, i) => i > heading && line.startsWith("##"));
   if (end < 0) end = lines.length;
   let last = -1;
   for (let i = heading + 1; i < end; i++) if (/^- \[[ x]\] /.test(lines[i]!)) last = i;
