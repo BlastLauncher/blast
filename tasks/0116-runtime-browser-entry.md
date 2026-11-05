@@ -61,7 +61,7 @@ depends: []
 ## Handoff
 
 ```
-Branch/commit: t3/runtime-browser-entry @ 9e92c2e4dd8833ffc450c462db25222db1961dda
+Branch/commit: t3/runtime-browser-entry @ 481c9e769cd75d54a635a86d292f3ed0cf485913
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 63.4s
 Done:
 - Extracted transport-neutral runtime lifecycle into `packages/runtime/src/core.ts`.
