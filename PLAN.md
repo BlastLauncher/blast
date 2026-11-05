@@ -90,7 +90,7 @@ AppKit launcher over `blast serve`; automated tests and contract fixtures first.
 
 - [x] 0106 BlastKit + contract fixtures + macOS CI; 0107 AppKit window; 0108 hotkey, OS
       actions, picker; 0109 walkthroughs (`docs/walkthroughs/`)
-- [ ] 0110 Deterministic manifest-watch tests (inject the watcher)
+- [x] 0110 Deterministic manifest-watch tests (inject the watcher)
 
 ## Later (not scheduled)
 
