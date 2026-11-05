@@ -1,7 +1,7 @@
 ---
 id: "0117"
 title: Browser bundle target from in-memory files with an injected esbuild
-status: todo
+status: doing
 milestone: M8
 depends: []
 ---
