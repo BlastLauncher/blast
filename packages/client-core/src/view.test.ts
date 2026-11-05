@@ -130,3 +130,12 @@ test("detail metadata, panel sections and terminal shortcuts", async () => {
   );
   expect(rows.map((row) => row.text.trim())).toEqual(["Section", "Run Ctrl+A"]);
 });
+
+test("the command title is the fallback when the scene has no navigation title", () => {
+  const state = { searchText: "", selectedId: null, fallbackTitle: "View People" };
+  expect(sceneToView(scene(), state).title).toBe("View People");
+  expect(sceneToView(scene({ navigationTitle: "Humaans People" }), state).title).toBe(
+    "Humaans People",
+  );
+  expect(sceneToView(scene(), { searchText: "", selectedId: null }).title).toBe("Blast");
+});

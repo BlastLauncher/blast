@@ -174,6 +174,8 @@ export type ControllerOptions = {
   hudDurationMs?: number;
   /** Overrides how long success and failure toasts stay visible. */
   toastDurationMs?: number;
+  /** Shown when the scene has no navigation title, typically the command title. */
+  fallbackTitle?: string;
 };
 
 const fresh = (): ControllerResult => ({ events: [], effects: [] });
@@ -243,7 +245,12 @@ export function createController(options: ControllerOptions): Controller {
     out.effects.push({ type: "schedule", ms: value.delayMs, token });
   };
 
-  const base = () => sceneToView(current, { searchText, selectedId });
+  const base = () =>
+    sceneToView(current, {
+      searchText,
+      selectedId,
+      ...(options.fallbackTitle ? { fallbackTitle: options.fallbackTitle } : {}),
+    });
   type Base = ReturnType<typeof base>;
   const isMenu = (view: Base) => view.list?.type === "MenuBarExtra";
   const panelNodeOf = (view: Base) => {

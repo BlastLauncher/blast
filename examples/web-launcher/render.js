@@ -54,9 +54,15 @@ export function render(view, options = {}) {
   const toast = view.feedback.toast
     ? `<aside class="toast" data-style="${escapeHtml(view.feedback.toast.style)}"><strong>${escapeHtml(view.feedback.toast.title)}</strong> ${escapeHtml(view.feedback.toast.message)}</aside>`
     : "";
+  const noRows =
+    view.kind === "grid"
+      ? (view.grid ?? []).every((row) => row.cells.length === 0)
+      : view.rows.length === 0;
   const empty = view.empty
     ? `<p class="empty"><strong>${escapeHtml(view.empty.title)}</strong> ${escapeHtml(view.empty.description)}</p>`
-    : "";
+    : noRows && (view.kind === "list" || view.kind === "grid")
+      ? `<p class="empty">${escapeHtml(view.emptyText || "No results")}</p>`
+      : "";
   const body =
     view.kind === "form"
       ? form

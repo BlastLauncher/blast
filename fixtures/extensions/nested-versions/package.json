@@ -1,0 +1,14 @@
+{
+  "name": "nested-versions",
+  "dependencies": {
+    "@raycast/api": "^1.104.0",
+    "first": "1.0.0",
+    "second": "1.0.0"
+  },
+  "commands": [
+    {
+      "name": "index",
+      "mode": "view"
+    }
+  ]
+}

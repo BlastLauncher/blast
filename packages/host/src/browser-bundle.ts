@@ -197,8 +197,12 @@ function text(value: BrowserBundleFile): string {
 
 function findFile(map: Map<string, BrowserBundleFile>, path: string): string | undefined {
   const base = clean(path);
+  // TypeScript source is commonly imported with the emitted `.js` extension;
+  // try the source extensions in its place, as TypeScript's own resolver does.
+  const sourceBase = base.replace(/\.[cm]?jsx?$/, "");
   const candidates = [
     base,
+    ...(sourceBase === base ? [] : extensions.map((extension) => `${sourceBase}${extension}`)),
     ...extensions.map((extension) => `${base}${extension}`),
     `${base}/index.ts`,
     `${base}/index.tsx`,

@@ -166,9 +166,10 @@ try {
         });
       await page.keyboard.press("Escape");
       await page.locator("#root-search").waitFor();
-      // Back at the root, the sandbox session must be gone, not just hidden.
-      if ((await page.locator("iframe").count()) !== 0)
-        throw new Error("Esc returned to the root list but the sandbox iframe is still running");
+      // Back at the root, the sandbox session must be gone, not just hidden. An
+      // idle warm-up sandbox may exist, but it never ran extension code.
+      if ((await page.locator('iframe[data-blast="session"]').count()) !== 0)
+        throw new Error("Esc returned to the root list but the sandbox session is still running");
       const deep = await browser.newPage();
       await deep.goto(
         `${url}?ext=${encodeURIComponent("https://github.com/raycast/extensions/tree/main/extensions/hello-list")}&cmd=index`,

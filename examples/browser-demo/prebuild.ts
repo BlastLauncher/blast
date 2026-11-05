@@ -1,24 +1,15 @@
 import { createHash } from "node:crypto";
-import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import * as esbuild from "esbuild";
 import { bundleForBrowser } from "../../packages/host/src/browser-bundle.ts";
-import { installForBrowser } from "../../packages/host/src/browser-install.ts";
+import { installForBrowser, type BrowserFetch } from "../../packages/host/src/browser-install.ts";
+import { aliases, sharedModules } from "./bundle-config.ts";
 import { bundleKey, type BundleIndex } from "./bundles.ts";
 import { projectRoot, relativeFiles } from "./build.ts";
 import { ensureCorpusCheckout } from "../../scripts/corpus/fetch.ts";
 import type { Catalog } from "./root.ts";
 
-const aliases = {
-  "@raycast/api": "/packages/runtime/src/api/index.ts",
-  "@blastlauncher/protocol": "/packages/protocol/src/index.ts",
-  react: "/node_modules/react/index.js",
-  "react/jsx-runtime": "/node_modules/react/jsx-runtime.js",
-  "react/jsx-dev-runtime": "/node_modules/react/jsx-dev-runtime.js",
-  "react-reconciler": "/node_modules/react-reconciler/index.js",
-  "react-reconciler/constants.js": "/node_modules/react-reconciler/constants.js",
-  scheduler: "/node_modules/scheduler/index.js",
-};
 const textFile = (path: string) =>
   /\.(?:cjs|css|html?|js|jsx|json|md|mjs|ts|tsx|txt|yaml|yml)$/i.test(path);
 
@@ -66,13 +57,9 @@ export function extensionFilesFromTree(
     .toSorted();
 }
 
-async function fetchExtension(
-  checkout: string,
-  extension: string,
-): Promise<Map<string, string | Uint8Array>> {
-  const directory = join(checkout, "extensions", extension);
+async function extensionFrom(directory: string): Promise<Map<string, string | Uint8Array>> {
   if (!(await exists(join(directory, "package.json"))))
-    throw new Error(`Extension package.json was not found: ${extension}`);
+    throw new Error(`Extension package.json was not found: ${directory}`);
   const files = new Map<string, string | Uint8Array>();
   for (const path of await relativeFiles(directory)) {
     if (path.split("/").includes("node_modules")) continue;
@@ -82,6 +69,13 @@ async function fetchExtension(
   return files;
 }
 
+async function fetchExtension(
+  checkout: string,
+  extension: string,
+): Promise<Map<string, string | Uint8Array>> {
+  return extensionFrom(join(checkout, "extensions", extension));
+}
+
 function commandEntry(files: Map<string, string | Uint8Array>, name: string): string {
   for (const extension of ["tsx", "ts", "jsx", "js"])
     if (files.has(`/src/${name}.${extension}`)) return `/src/${name}.${extension}`;
@@ -89,11 +83,17 @@ function commandEntry(files: Map<string, string | Uint8Array>, name: string): st
   throw new Error(`Command source not found for ${name}`);
 }
 
+export type PrebuildOptions = {
+  /** Registry requests for dependency installs; tests inject an offline one. */
+  fetch?: BrowserFetch;
+};
+
 export async function prebuildCatalog(
   catalog: Catalog,
   buildSha: string,
   output: string,
   fixtures = false,
+  options: PrebuildOptions = {},
 ): Promise<{
   index: BundleIndex;
   built: number;
@@ -140,29 +140,26 @@ globalThis.__blastModules = { react, "react/jsx-runtime": jsxRuntime, "react/jsx
   };
   let built = 0;
   const reasons: string[] = [];
+  // Fixture builds stay offline and local: only extensions checked into the
+  // repository are built, so the production catalog passed by `--fixtures`
+  // still prebuilds just its fixture commands.
+  const local = fixtures
+    ? new Set(await readdir(join(projectRoot, "fixtures/extensions")))
+    : undefined;
   const extensions = catalog.extensions.filter(
-    (extension) => !fixtures || extension.name === "hello-list",
+    (extension) => local === undefined || local.has(extension.name),
   );
   let next = 0;
   async function buildOne(extension: Catalog["extensions"][number]) {
     let files: Map<string, string | Uint8Array>;
     try {
-      if (fixtures && extension.name === "hello-list") {
-        files = new Map();
-        for (const path of await relativeFiles(join(projectRoot, "fixtures/extensions/hello-list")))
-          files.set(
-            `/${path}`,
-            textFile(path)
-              ? await readFile(join(projectRoot, "fixtures/extensions/hello-list", path), "utf8")
-              : new Uint8Array(
-                  await readFile(join(projectRoot, "fixtures/extensions/hello-list", path)),
-                ),
-          );
-      } else files = await fetchExtension(checkout, extension.name);
+      files = fixtures
+        ? await extensionFrom(join(projectRoot, "fixtures/extensions", extension.name))
+        : await fetchExtension(checkout, extension.name);
       const manifest = JSON.parse(String(files.get("/package.json"))) as Record<string, unknown>;
       const lockfile = files.get("/package-lock.json");
       const installed = await installForBrowser({
-        fetch: (input, init) => fetch(input, init),
+        fetch: options.fetch ?? ((input, init) => fetch(input, init)),
         manifest,
         ...(typeof lockfile === "string" ? { lockfile } : {}),
       });
@@ -179,15 +176,7 @@ globalThis.__blastModules = { react, "react/jsx-runtime": jsxRuntime, "react/jsx
             runtimeEntry: "/examples/browser-demo/runtime-entry.ts",
             aliases,
             sharedRuntime: true,
-            sharedModules: [
-              "react",
-              "react/jsx-runtime",
-              "react/jsx-dev-runtime",
-              "@raycast/api",
-              "react-reconciler",
-              "scheduler",
-              "@blastlauncher/protocol",
-            ],
+            sharedModules,
           });
           const bytes = Buffer.from(bundled.code);
           const relativePath = `bundles/${extension.name}/${command.name}.js`;

@@ -33,7 +33,12 @@ export {
   text,
 } from "./nodes.ts";
 
-export type UIState = { searchText: string; selectedId: string | null };
+export type UIState = {
+  searchText: string;
+  selectedId: string | null;
+  /** Shown when the scene has no navigation title, typically the command title. */
+  fallbackTitle?: string;
+};
 export type Row = {
   node: SceneNode;
   text: string;
@@ -193,6 +198,7 @@ export function sceneToView(scene: SceneMessage | undefined, state: UIState) {
       (list?.type === "MenuBarExtra"
         ? [text(list.props.title), text(list.props.tooltip)].filter(Boolean).join(" — ")
         : "") ||
+      state.fallbackTitle ||
       "Blast",
     loading: list?.props.isLoading === true || !scene,
     emptyText: empty
