@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
 import * as esbuild from "esbuild";
 import { bundleForBrowser } from "../../packages/host/src/browser-bundle.ts";
 import { installForBrowser } from "../../packages/host/src/browser-install.ts";
@@ -109,7 +109,6 @@ export async function prebuildCatalog(
         catalog.commit,
       );
   const index: BundleIndex = { buildSha, bundles: {} };
-  const sharedModules = aliases;
   const runtime = await bundleForBrowser({
     esbuild,
     files: shared,
@@ -118,7 +117,9 @@ export async function prebuildCatalog(
     runtimeEntry: "/examples/browser-demo/runtime-entry.ts",
     aliases,
   });
-  const runtimeBytes = Buffer.from(`${runtime.code}\nglobalThis.__blastRuntime = runtime_entry_exports;\n`);
+  const runtimeBytes = Buffer.from(
+    `${runtime.code}\nglobalThis.__blastRuntime = runtime_entry_exports;\n`,
+  );
   await mkdir(join(output, "bundles"), { recursive: true });
   await writeFile(join(output, "bundles", "runtime.js"), runtimeBytes);
   index.runtime = {
@@ -204,8 +205,11 @@ export async function prebuildCatalog(
     0,
   );
   const bytes = Object.values(index.bundles).reduce((sum, entry) => sum + entry.bytes, 0);
-  const sizes = Object.values(index.bundles).map((entry) => entry.bytes).toSorted((a, b) => a - b);
-  const percentile = (fraction: number) => sizes[Math.min(sizes.length - 1, Math.floor(sizes.length * fraction))] ?? 0;
+  const sizes = Object.values(index.bundles)
+    .map((entry) => entry.bytes)
+    .toSorted((a, b) => a - b);
+  const percentile = (fraction: number) =>
+    sizes[Math.min(sizes.length - 1, Math.floor(sizes.length * fraction))] ?? 0;
   console.log(
     `catalog prebuild: ${built}/${total} built, ${reasons.length} failed, ${bytes} command bytes + ${runtimeBytes.byteLength} runtime bytes (median ${percentile(0.5)}, p95 ${percentile(0.95)}, max ${percentile(1)})`,
   );

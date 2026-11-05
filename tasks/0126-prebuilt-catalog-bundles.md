@@ -97,8 +97,8 @@ small bundle and starts it.
 ## Handoff
 
 ```
-Branch/commit: t3/prebuilt-catalog-bundles-1 @ pending
-Verify: focused bundles tests, typecheck, workflow check, and fixture site:e2e pass; full verify pending
+Branch/commit: t3/prebuilt-catalog-bundles-1 @ c23f3e1
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 65.7s
 Done:
 - Reworked production prebuild to reuse scripts/corpus/fetch.ts for a pinned shallow blobless sparse checkout at the catalog commit, eliminating the GitHub tree API and including all non-node_modules extension files.
 - Added a runtime bundle artifact and extended bundles.json validation with runtime metadata; command bundles retain SHA-256 and build-SHA gating and the fast path preserves the 0125 status rendering.
