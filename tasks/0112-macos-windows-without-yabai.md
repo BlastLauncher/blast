@@ -84,12 +84,12 @@ resizing, hiding, fullscreening or closing it would break the session.
 ## Handoff
 
 ```
-Branch/commit: t3/macos-windows-desktop-fakes @ e35f07f
-Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 54.8s
+Branch/commit: t3/fix-macos-window-fallback @ ecb1d76f8dbbe33cf3b050806293e453d432f474
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 55.3s
 Done:
-- Added fixed Core Graphics/System Events JXA fallback for macOS window reads and mutations when yabai is missing.
-- Preserved yabai as the preferred backend and propagated non-missing yabai failures.
-- Added fake-tool coverage for backend selection, fallback shapes and argv, validation, foreign desktops, and Accessibility errors.
-- Documented yabai and fallback limits in docs/capabilities.md.
-Not done / risks: The fallback depends on macOS Accessibility permission and intentionally cannot distinguish Mission Control Spaces or move windows across displays.
+- Corrected fallback display matching to use global Core Graphics coordinates and largest screen intersection.
+- Selected the active window from the frontmost application's PID, cached System Events windows per PID, and separated permission from matching failures.
+- Used Accessibility attribute settable checks (with readable fallback) and the AXFullScreen attribute for capability flags.
+- Added a JXA syntax test, restored yabai rationale comments, and documented fallback capability limits.
+Not done / risks: The fallback depends on macOS Accessibility permission and intentionally cannot distinguish Mission Control Spaces or move windows across displays. Live macOS execution was not performed per the task Safety section.
 ```

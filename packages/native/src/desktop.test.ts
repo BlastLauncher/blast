@@ -16,6 +16,10 @@ import { psWindows } from "./windows-scripts.ts";
 import { psPrefix } from "./scripts.ts";
 import { macWindowsFallback } from "./windows-macos.ts";
 
+test("macOS fallback script parses as JavaScript", () => {
+  expect(() => new Function("$args", "ObjC", "$", "Application", macWindowsFallback)).not.toThrow();
+});
+
 type Call = [string, string[], { input?: string }];
 function fake(
   platform: NodeJS.Platform,

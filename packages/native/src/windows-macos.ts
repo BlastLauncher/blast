@@ -1,6 +1,9 @@
 import type { JsonValue } from "@blastlauncher/protocol";
 import { params, string, type DesktopTools } from "./desktop.ts";
 
+// yabai supplies actual Space/display identities that System Events lacks.
+// The fallback below uses display identities only and cannot distinguish Spaces.
+// No daemon is installed or configured by Blast.
 /** The one script used when yabai is unavailable. Inputs are op and JSON params argv. */
 export const macWindowsFallback = String.raw`
 ObjC.import('AppKit');
@@ -21,68 +24,86 @@ for (let i = 0; i < screens.count; i++) {
   const description = screen.deviceDescription;
   const display = number(description.objectForKey('NSScreenNumber'));
   const uuid = ObjC.unwrap($.CGDisplayCreateUUIDFromDisplayID(display).UUIDString);
-  const frame = ObjC.unwrap(screen.frame);
+  // CG window bounds and CGDisplayBounds share global top-left coordinates.
+  const frame = rect($.CGDisplayBounds(display));
   screenInfo.push({ id: 'screen:' + uuid, screenId: uuid, display, frame });
 }
 const screenFor = (bounds) => {
-  const center = { x: bounds.X + bounds.Width / 2, y: bounds.Y + bounds.Height / 2 };
-  return screenInfo.find((s) => {
-    const f = s.frame;
-    return center.x >= f.X && center.x <= f.X + f.Width && center.y >= f.Y && center.y <= f.Y + f.Height;
-  }) || screenInfo[0];
+  let best = screenInfo[0], bestArea = -1;
+  for (const screen of screenInfo) {
+    const f = screen.frame;
+    const width = Math.max(0, Math.min(bounds.X + bounds.Width, f.position.x + f.size.width) - Math.max(bounds.X, f.position.x));
+    const height = Math.max(0, Math.min(bounds.Y + bounds.Height, f.position.y + f.size.height) - Math.max(bounds.Y, f.position.y));
+    const area = width * height;
+    if (area > bestArea) { best = screen; bestArea = area; }
+  }
+  return best;
 };
+const systemEvents = Application('System Events');
+const axCache = new Map();
 const axWindows = (pid) => {
-  const app = Application('System Events').applicationProcesses.byId(pid);
-  try { return app.windows(); } catch (_) { return []; }
+  if (!axCache.has(pid)) axCache.set(pid, systemEvents.applicationProcesses.byId(pid).windows());
+  return axCache.get(pid);
+};
+const sameFrame = (window, bounds) => {
+  const p = window.position(), s = window.size();
+  return Math.abs(p.x - bounds.X) < 2 && Math.abs(p.y - bounds.Y) < 2 && Math.abs(s.width - bounds.Width) < 2 && Math.abs(s.height - bounds.Height) < 2;
+};
+const attribute = (window, name) => {
+  try { return window.attributes.byName(name); } catch (_) { return undefined; }
+};
+const canSet = (attr) => {
+  if (!attr) return false;
+  try { if (typeof attr.settable === 'function') return !!attr.settable(); } catch (_) {}
+  try { return attr.value() !== undefined; } catch (_) { return false; }
+};
+const frontmostWindow = () => {
+  const pid = number($.NSWorkspace.sharedWorkspace.frontmostApplication.processIdentifier);
+  return windows.find((window) => number(window.kCGWindowOwnerPID) === pid);
+};
+const requireAccessibility = () => {
+  if (!systemEvents.uiElementsEnabled()) throw new Error('Accessibility permission is required');
 };
 const windows = cg.filter((w) => number(w.kCGWindowLayer) === 0 && !!ObjC.unwrap(w.kCGWindowIsOnscreen));
 const convert = (w, active) => {
   const bounds = ObjC.unwrap(w.kCGWindowBounds);
   const screen = screenFor(bounds);
   let positionable = false, resizable = false, fullScreenSettable = false;
-  try {
-    const candidates = axWindows(number(w.kCGWindowOwnerPID));
-    const match = candidates.find((window) => {
-      const p = window.position(), s = window.size();
-      return Math.abs(p.x - bounds.X) < 2 && Math.abs(p.y - bounds.Y) < 2 && Math.abs(s.width - bounds.Width) < 2 && Math.abs(s.height - bounds.Height) < 2;
-    });
-    if (match) {
-      positionable = match.attributes.byName('AXPosition').value() !== undefined;
-      resizable = match.attributes.byName('AXSize').value() !== undefined;
-      fullScreenSettable = match.actions().some((action) => action.name() === 'AXPress') && match.attributes.byName('AXFullScreen').value() !== undefined;
-    }
-  } catch (_) {}
+  const match = axWindows(number(w.kCGWindowOwnerPID)).find((window) => sameFrame(window, bounds));
+  if (match) {
+    positionable = canSet(attribute(match, 'AXPosition'));
+    resizable = canSet(attribute(match, 'AXSize'));
+    fullScreenSettable = !!attribute(match, 'AXFullScreen');
+  }
   return { id: String(number(w.kCGWindowNumber)), desktopId: screen.id, active, fullScreenSettable, resizable, positionable, bounds: rect(w.kCGWindowBounds) };
 };
-const front = windows[0];
+const front = frontmostWindow();
 if (op === 'desktops') {
   const frontScreen = front ? screenFor(ObjC.unwrap(front.kCGWindowBounds)) : undefined;
-  console.log(JSON.stringify(screenInfo.map((s) => ({ id: s.id, screenId: s.screenId, active: s === frontScreen, type: 'User', size: { width: s.frame.Width, height: s.frame.Height } }))));
+  console.log(JSON.stringify(screenInfo.map((s) => ({ id: s.id, screenId: s.screenId, active: s === frontScreen, type: 'User', size: s.frame.size }))));
 } else if (op === 'list' || op === 'active') {
-  const result = windows.map((w, i) => convert(w, i === 0));
-  console.log(JSON.stringify(op === 'active' ? (result[0] || (() => { throw new Error('No active window'); })()) : result));
+  const result = windows.map((w) => convert(w, w === front));
+  if (op === 'active' && !front) throw new Error('No active window');
+  console.log(JSON.stringify(op === 'active' ? result.find((w) => w.active) : result));
 } else if (op === 'setBounds') {
+  requireAccessibility();
   const id = String(input.id);
   const target = windows.find((w) => String(number(w.kCGWindowNumber)) === id);
   if (!target) throw new Error('Window not found');
   const current = convert(target, false);
   if (input.desktopId !== undefined && input.desktopId !== current.desktopId) throw new Error('Window cannot move to a different desktop without yabai');
-  const app = Application('System Events').applicationProcesses.byId(number(target.kCGWindowOwnerPID));
   const candidates = axWindows(number(target.kCGWindowOwnerPID));
   const frame = ObjC.unwrap(target.kCGWindowBounds);
-  const match = candidates.find((window) => {
-    const p = window.position(), s = window.size();
-    return Math.abs(p.x - frame.X) < 2 && Math.abs(p.y - frame.Y) < 2 && Math.abs(s.width - frame.Width) < 2 && Math.abs(s.height - frame.Height) < 2;
-  });
-  if (!match) throw new Error('Accessibility permission is required to identify this window');
+  const match = candidates.find((window) => sameFrame(window, frame));
+  if (!match) throw new Error('Accessibility cannot identify this window');
   if (input.bounds === 'fullscreen') {
-    try { match.attributes.byName('AXFullScreen').setValue(true); } catch (_) { throw new Error('Accessibility permission is required to set fullscreen'); }
+    const fullscreen = attribute(match, 'AXFullScreen');
+    if (!fullscreen) throw new Error('Window does not support fullscreen');
+    fullscreen.setValue(true);
   } else {
     const b = input.bounds || {}, p = b.position || {}, s = b.size || {};
-    try {
-      if (p.x !== undefined || p.y !== undefined) match.position = [p.x ?? frame.X, p.y ?? frame.Y];
-      if (s.width !== undefined || s.height !== undefined) match.size = [s.width ?? frame.Width, s.height ?? frame.Height];
-    } catch (_) { throw new Error('Accessibility permission is required to set window bounds'); }
+    if (p.x !== undefined || p.y !== undefined) match.position = [p.x ?? frame.X, p.y ?? frame.Y];
+    if (s.width !== undefined || s.height !== undefined) match.size = [s.width ?? frame.Width, s.height ?? frame.Height];
   }
   console.log('null');
 }`;
@@ -139,6 +160,8 @@ async function yabaiWindows(
     if (p.bounds === "fullscreen") {
       if (!fullscreen) await send(["window", id, "--toggle", "native-fullscreen"]);
     } else {
+      // Exiting native fullscreen is asynchronous. Do not race a move against
+      // the Space transition or change unrelated window state silently.
       if (fullscreen) throw new Error("Exit native fullscreen before setting numeric bounds");
       const b = params(p.bounds!),
         pos = b.position === undefined ? {} : params(b.position),

@@ -92,7 +92,9 @@ Missing executables fail with the required tool and capability name.
   The fallback exposes one `User` desktop per display (desktop IDs are stable
   `screen:<display UUID>` values); Mission Control Spaces cannot be distinguished.
   Its window capability flags are conservative when Accessibility cannot identify
-  a window, and moving a window to another display is unsupported. Space IDs from
+  a window, and moving a window to another display is unsupported. The fallback's
+  positionable and resizable flags use readable attributes when System Events does
+  not expose settable checks. Space IDs from
   yabai are Mission Control indices (refresh after rearranging Spaces); screen IDs
   are display UUIDs. Numeric moves and resizes require windows that the selected
   backend can move/resize. Exit native fullscreen before requesting numeric bounds.
