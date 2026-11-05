@@ -96,7 +96,7 @@ jobs:
   smoke:
     needs: [pages, sandbox]
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     permissions:
       contents: read
     steps:
@@ -148,6 +148,14 @@ jobs:
           # Header lines end in CRLF; strip CR before matching the CORS header.
           tr -d '\r' < "$sandbox_headers" | grep -i '^access-control-allow-origin: \*$'
           echo "deployed build $GITHUB_SHA"
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.4.2
+      - run: bun install --frozen-lockfile
       - name: Install Chromium
         env:
           PLAYWRIGHT_BROWSERS_PATH: .cache/ms-playwright

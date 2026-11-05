@@ -1,7 +1,7 @@
 import { mkdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { projectRoot } from "./build.ts";
+import { depsReady, projectRoot } from "./build.ts";
 
 type SmokeImage = { naturalWidth: number };
 type SmokeIframe = { src: string };
@@ -28,6 +28,8 @@ if (!/^https?:$/.test(site.protocol) || !/^https?:$/.test(sandbox.protocol))
 const browsers = process.env.PLAYWRIGHT_BROWSERS_PATH;
 if (!browsers) throw new Error("PLAYWRIGHT_BROWSERS_PATH is required");
 if (!existsSync(browsers)) throw new Error(`PLAYWRIGHT_BROWSERS_PATH is missing: ${browsers}`);
+// CI has no prior demo run, so install the pinned Playwright package first.
+await depsReady();
 const { chromium } = (await import(
   join(projectRoot, ".cache/browser-demo/deps/node_modules/playwright/index.mjs")
 )) as typeof import("playwright");
