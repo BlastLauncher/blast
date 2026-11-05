@@ -15,13 +15,13 @@ export const LINE_LIMITS: Record<string, number> = {
 export const DECISION_LINE_LIMIT = 60;
 export const TASK_STATUSES = ["todo", "doing", "review"] as const;
 export const TASK_SECTIONS = ["Goal", "Context", "Acceptance", "Out of scope", "Handoff"];
-const TASK_FILE = /^(\d{4})-[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
+export const TASK_FILE = /^(\d{4})-[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
 
 function lineCount(path: string): number {
   return readFileSync(path, "utf8").split("\n").length;
 }
 
-function parseFrontmatter(text: string): Record<string, unknown> | undefined {
+export function parseFrontmatter(text: string): Record<string, unknown> | undefined {
   const match = /^---\n([\s\S]*?)\n---\n/.exec(text);
   if (!match?.[1]) return undefined;
   const data: unknown = Bun.YAML.parse(match[1]);

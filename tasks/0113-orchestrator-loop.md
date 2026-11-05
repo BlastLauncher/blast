@@ -109,8 +109,19 @@ T3 Code, the app running the agents, has an open window on this Mac.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/fix-orchestrator-loop @ f7653b878308af44a6d5f6659e5e1c3cfd5e99e5
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 60.9s
 Done:
-Not done / risks:
+- Corrected land cleanup to resolve the worker tip from the merge commit and added real temporary-worktree success/failure tests.
+- Added optional co-author trailers to start and merge commits, with no trailer by default.
+- Extended CI polling defaults to 30 minutes/20 seconds, added timeout CLI support and progress output.
+- Streamed check:workflow and verify through the runner and improved step-specific failures.
+- Listed doing/review tasks after todo tasks with status in text and JSON output.
+Usage:
+- `bun run tasks:next [--json]` lists todo tasks followed by doing/review tasks and blockers.
+- `bun run tasks:start <id> [--co-author "Name <email>"]` marks a task doing and commits it.
+- `bun run tasks:merge <id> [--branch <b>] [--plan <text>] [--co-author "Name <email>"]` merges, verifies, and commits done.
+- `bun run tasks:land <id> [--timeout-ms <ms>]` pushes, waits for CI, then removes the worker worktree and branch on success.
+- Run mutating commands only from a clean `main` checkout; tests use temporary repositories and injected fakes.
+Not done / risks: CI polling still requires GitHub CLI JSON output and a configured `origin`; no network operations were run by tests.
 ```
