@@ -88,7 +88,7 @@ Run any Raycast extension in a browser tab from its URL, inside almostnode
 - [x] 0115 Spike: real runtime in almostnode's sandbox, measured (`examples/browser-runtime`)
 - [x] 0116 Runtime core + stdio / postMessage entries
 - [x] 0117 Browser bundle target (in-memory files, injected esbuild)
-- [ ] 0118 Browser dependency installer (registry, tarballs, lean rules)
+- [x] 0118 Browser dependency installer (registry, tarballs, lean rules)
 - [ ] 0119 Browser demo: run an extension from its URL (after 0116–0118)
 
 ## Later (not scheduled)

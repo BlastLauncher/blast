@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { expect, test } from "bun:test";
 import {
   BrowserIntegrityError,
-  BrowserNativeModuleError,
+  BrowserNativePackageError,
   BrowserTarPathError,
   BrowserSizeLimitError,
   installForBrowser,
@@ -108,10 +108,10 @@ test("browser installer rejects native archives and has no node filesystem impor
   const source = await readFile(join(import.meta.dir, "browser-install.ts"), "utf8");
   expect(source).not.toContain("node:fs");
   expect(source).not.toContain("node:child_process");
-  expect(BrowserNativeModuleError).toBeDefined();
+  expect(BrowserNativePackageError).toBeDefined();
   await expect(
     installForBrowser({ fetch: fixtureFetch, manifest: { dependencies: { native: "1" } } }),
-  ).rejects.toBeInstanceOf(BrowserNativeModuleError);
+  ).rejects.toBeInstanceOf(BrowserNativePackageError);
 });
 
 test("installs @raycast/utils and chooses highest matching major", async () => {

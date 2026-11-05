@@ -69,14 +69,14 @@ export class BrowserPackageLimitError extends BrowserInstallError {
     this.limit = limit;
   }
 }
-export class BrowserNativeModuleError extends BrowserInstallError {
+export class BrowserNativePackageError extends BrowserInstallError {
   readonly packageName: string;
   constructor(packageName: string) {
     super(
       "BROWSER_NATIVE_MODULE",
       `Native package is not supported in the browser: ${packageName}`,
     );
-    this.name = "BrowserNativeModuleError";
+    this.name = "BrowserNativePackageError";
     this.packageName = packageName;
   }
 }
@@ -307,7 +307,7 @@ export async function installForBrowser(
               file.endsWith(".node") || file === "binding.gyp" || file.endsWith("/binding.gyp"),
           )
         )
-          throw new BrowserNativeModuleError(name);
+          throw new BrowserNativePackageError(name);
         for (const [file, content] of files) {
           const clean = file.replace(/^package\/?/, "");
           if (clean) packages.set(`${path}/${clean}`, content);
