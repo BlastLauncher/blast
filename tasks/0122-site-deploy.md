@@ -107,7 +107,7 @@ check confirms both:
 ## Handoff
 
 ```
-Branch/commit: t3/site-deploy @ ce02eaa62f633194db63aac43f6501dc6302aca3
+Branch/commit: t3/site-deploy @ 2de7d3acb61a196382bafd7b6125e11093b7958c
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 63.8s
 Done:
 - Added the pinned GitHub Pages workflow for the custom-domain site and sandbox gh-pages deployment, with build-id and live smoke checks.
