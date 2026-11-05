@@ -242,6 +242,47 @@ for (const options of environments) {
   });
 }
 
+test("clipboard.paste writes, awaits beforePaste and then posts the keystroke", async () => {
+  const calls: string[] = [];
+  let received: { closeMainWindow: boolean } | undefined;
+  const handlers = createNativeHandlers({
+    platform: "linux",
+    env: { WAYLAND_DISPLAY: "wayland-0" },
+    run: async (command) => {
+      calls.push(command);
+      return { stdout: "", code: 0 };
+    },
+    beforePaste: async (options) => {
+      received = options;
+      calls.push("beforePaste");
+    },
+  });
+
+  await handlers["clipboard.paste"]!({ text: "paste", closeMainWindow: false });
+  expect(received).toEqual({ closeMainWindow: false });
+  expect(calls).toEqual(["wl-copy", "beforePaste", "wtype"]);
+});
+
+test("clipboard.paste rejects a beforePaste failure without posting the keystroke", async () => {
+  const calls: string[] = [];
+  const handlers = createNativeHandlers({
+    platform: "linux",
+    env: { WAYLAND_DISPLAY: "wayland-0" },
+    run: async (command) => {
+      calls.push(command);
+      return { stdout: "", code: 0 };
+    },
+    beforePaste: () => {
+      throw new Error("window hook failed");
+    },
+  });
+
+  await expect(handlers["clipboard.paste"]!({ text: "paste" })).rejects.toThrow(
+    "window hook failed",
+  );
+  expect(calls).toEqual(["wl-copy"]);
+});
+
 test("X11 falls back to xsel for text only; file-manager failure opens the parent", async () => {
   const calls: Call[] = [];
   const run: Runner = async (...args) => {

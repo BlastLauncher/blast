@@ -70,6 +70,13 @@ content there, and nonzero history offsets return empty text. Nothing reaches
 the system clipboard or another application. URL opens append to the session's
 `effects.urls` record without launching a browser. Other effects remain denied.
 
+`clipboard.paste` handlers receive `closeMainWindow` (default `true`). When it
+is true, the embedder closes or hides its launcher before posting ⌘V; when false,
+it keeps the launcher visible while still delivering the keystroke to the
+previously focused application. Native embedders can provide
+`createNativeHandlers({ beforePaste })`; the awaited hook receives the boolean
+after the clipboard is written and before the keystroke is posted.
+
 ## Optional native desktop handlers
 
 `createNativeHandlers()` from `@blastlauncher/native` supplies application,

@@ -41,8 +41,9 @@ touches system state:
 
 - `clipboard.copy` writes text, HTML or a file URL to `NSPasteboard`.
 - `clipboard.paste` writes the content, hides the launcher and posts ⌘V with
-  `CGEvent`. Posting keystrokes requires **Accessibility permission**; without
-  it the request fails with `accessibility_required`.
+  `CGEvent`; `closeMainWindow: false` unhides it after the paste. Posting
+  keystrokes requires **Accessibility permission**; without it the request
+  fails with `accessibility_required`.
 - `open.url` and `open.path` use `NSWorkspace`, honouring an optional
   `application` (a name, a path, or an object with `path`/`bundleId`/`name`) and
   falling back to the default application when it does not resolve.

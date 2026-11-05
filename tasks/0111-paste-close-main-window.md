@@ -76,8 +76,12 @@ T3 Code, the app running the agents, has an open window on this Mac.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/paste-close-main-window @ 75af613dd8f41bf21a5c22f0a9683ce8d7dc4a7f
+Verify: `bun run verify` PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok); `swift test --package-path examples/macos-launcher` PASS (87 tests); `bun test packages/native/src/index.test.ts` PASS (16 tests)
 Done:
-Not done / risks:
+- Added the pure `ClipboardPastePlan` with Raycast's default-close behavior and offscreen coverage for absent, true, false, and malformed flags.
+- Updated the AppKit launcher to hide before paste and unhide without activation when `closeMainWindow` is false.
+- Added the awaited native `beforePaste` hook and fake-runner tests for payload, ordering, rejection, and unchanged no-hook behavior.
+- Documented the close-window contract and hook for embedders.
+Not done / risks: The AppKit adapter's real window and keystroke behavior remains covered by pure/offscreen tests only, per the task safety rules.
 ```
