@@ -17,6 +17,7 @@ import {
 type FileMap = Record<string, string>;
 type BrowserFile = string | Uint8Array;
 type SceneMessage = { type: "scene"; revision: number; root: unknown };
+const asset = (path: string) => new URL(path, new URL(".", location.href)).toString();
 const app = document.querySelector<HTMLElement>("#app")!;
 const status = document.querySelector<HTMLElement>("#status")!;
 const commandSelect = document.querySelector<HTMLSelectElement>("#command");
@@ -133,7 +134,9 @@ async function fetchFiles(source: string): Promise<{
   let root = parsed.path;
   let paths: string[];
   if (parsed.owner === "raycast" && parsed.repo === "extensions" && parsed.ref === "main") {
-    const localBase = `${location.origin}/fixtures/${encodeURIComponent(parsed.path.replace(/^extensions\//, ""))}`;
+    const localBase = asset(
+      `fixtures/${encodeURIComponent(parsed.path.replace(/^extensions\//, ""))}`,
+    );
     const localListing = await fetch(`${localBase}/__files`).catch(() => undefined);
     if (localListing?.ok) {
       paths = (await localListing.json()) as string[];
@@ -198,7 +201,7 @@ async function launch(source: string, commandName: string): Promise<void> {
   actionOpen = false;
   setStatus("Fetching extension…");
   const extension = await fetchFiles(source);
-  const sourceFiles = (await (await fetch("/blast-sources.json")).json()) as FileMap;
+  const sourceFiles = (await (await fetch(asset("blast-sources.json"))).json()) as FileMap;
   const files = new Map(Object.entries(sourceFiles));
   for (const [path, value] of extension.files) files.set(path, value);
   const selectedCommand = commandName || commandSelect?.value || "index";
@@ -210,7 +213,7 @@ async function launch(source: string, commandName: string): Promise<void> {
     lockfile: extension.lockfile,
   });
   setStatus("Bundling…");
-  await esbuild.initialize({ wasmURL: "/esbuild.wasm", worker: false });
+  await esbuild.initialize({ wasmURL: asset("esbuild.wasm"), worker: false });
   const bundled = await bundleForBrowser({
     esbuild,
     files,
@@ -227,7 +230,7 @@ async function launch(source: string, commandName: string): Promise<void> {
       scheduler: "/node_modules/scheduler/index.js",
     },
   });
-  const almost = (await import(`${location.origin}/almostnode.mjs`)) as unknown as {
+  const almost = (await import(asset("almostnode.mjs"))) as unknown as {
     VirtualFS: new () => unknown;
     createRuntime: (
       vfs: unknown,
@@ -341,7 +344,7 @@ function runAction() {
 
 async function start() {
   try {
-    catalog = validateCatalog(await (await fetch("/catalog.json")).json());
+    catalog = validateCatalog(await (await fetch(asset("catalog.json"))).json());
     const params = new URLSearchParams(location.search);
     const extension = params.get("ext");
     const command = params.get("cmd");

@@ -104,9 +104,19 @@ real domains:
 
 ## Handoff
 
-```
-Branch/commit:
-Verify:
+Branch/commit: t3/build-static-landing-page @ 611aea10f3268882184ea3778e1e8b1e08a86983
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 63.7s
 Done:
-Not done / risks:
-```
+
+- Added `site:build` to emit the landing page, `/demo/`, and the separate almostnode sandbox with origin-aware URLs, CNAME rules, headers, 404 pages, and `.nojekyll` markers.
+- Added generated coverage and sweep stats, responsive light/dark accessible landing content, npm snippets, and GitHub/demo/documentation links.
+- Refactored the existing browser demo to use the same static browser assets and relative paths, retaining the dev server and its e2e.
+- Added pure helper tests and `site:e2e`, including static serving and the fixture root-list → command → scene → Esc flow.
+
+Build listing (`site:build --site-origin http://127.0.0.1:4175 --sandbox-origin http://127.0.0.1:4176`):
+
+- `www/index.html` 6299 B; `www/site.css` 104 B; `www/404.html` 104 B; `www/.nojekyll` 0 B
+- `www/demo/index.html` 342 B; `client.js` 299605 B; `almostnode.mjs` 22276 B; `blast-sources.json` 3160373 B; `catalog.json` 36413 B; `esbuild.wasm` 13978850 B
+- `sandbox/index.html` 474 B; `almostnode-full.mjs` 594521 B; `_headers` 81 B; `404.html` 40 B; `.nojekyll` 0 B
+
+Not done / risks: GitHub Pages deployment, DNS, and workflow changes remain intentionally out of scope for task 0122.
