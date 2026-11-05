@@ -38,6 +38,14 @@ export function releaseManifest(source: Record<string, unknown>, version: string
   manifest.name = String(source.name).replace("@blastlauncher/host", "@blastlauncher/engine");
   manifest.version = version;
   manifest.license = "MIT";
+  // npm provenance rejects a publish unless repository.url matches the
+  // GitHub repository that signed it.
+  manifest.repository = {
+    type: "git",
+    url: "git+https://github.com/BlastLauncher/blast.git",
+    directory: `packages/${String(source.name).replace("@blastlauncher/", "")}`,
+  };
+  manifest.homepage = "https://github.com/BlastLauncher/blast#readme";
   manifest.engines = { node: ">=24.20.0" };
   manifest.files = ["dist", "schema", "LICENSE", "README.md"];
   manifest.exports =

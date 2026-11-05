@@ -11,6 +11,11 @@ test("release manifests expose JS with declarations and resolve only release wor
     expect(JSON.stringify(source)).toBe(before);
     expect(manifest.private).toBeUndefined();
     expect(manifest.version).toBe("1.2.3-rc.1");
+    expect(manifest.repository).toEqual({
+      type: "git",
+      url: "git+https://github.com/BlastLauncher/blast.git",
+      directory: `packages/${pkg}`,
+    });
     expect(manifest.name).toBe(`@blastlauncher/${pkg === "host" ? "engine" : pkg}`);
     for (const value of Object.values(
       manifest.exports as Record<string, { import: string; types: string }>,
