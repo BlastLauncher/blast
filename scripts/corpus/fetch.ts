@@ -38,12 +38,13 @@ export function ensureCorpusCheckout(
   root: string,
   requested: string[],
   commitOverride?: string,
+  options: { catalogOnly?: boolean } = {},
 ): string {
   const pin = readPin(root);
   const maxMb = maxMbFromEnv(process.env);
   const repoDir = join(root, CORPUS_DIR);
   const commit = commitOverride ?? pin.commit;
-  const patterns = buildPatterns(requested);
+  const patterns = buildPatterns(requested, options.catalogOnly === true);
 
   const guard = (step: string): void => {
     const bytes = directoryBytes(repoDir);

@@ -3,7 +3,7 @@ import { createController, type Controller } from "../../packages/client-core/sr
 import { installForBrowser } from "../../packages/host/src/browser-install.ts";
 import { bundleForBrowser } from "../../packages/host/src/browser-bundle.ts";
 import type { SceneMessage } from "../../packages/protocol/src/index.ts";
-import { bundleKey, bundleMatches, parseBundleIndex } from "./bundles.ts";
+import { bundleKey, bundleMatches, parseBundleIndex, sha256Hex } from "./bundles.ts";
 import { render, renderRoot } from "../web-launcher/render.js";
 import { canUseLocalFixture, isTextExtension, parseExtensionSource } from "./source.ts";
 import {
@@ -244,10 +244,12 @@ async function launch(source: string, commandName: string): Promise<void> {
   let extension: Awaited<ReturnType<typeof fetchFiles>>;
   let command: string;
   let bundled: { code: string };
+  let runtimeCode: string | undefined;
   if (bundle) {
     extension = { files: new Map(), manifest: { name: source }, root: "" };
     command = `/src/${selectedCommand}.tsx`;
     bundled = bundle;
+    runtimeCode = bundle.runtimeCode;
     setStatus("Starting prebuilt bundle…");
   } else {
     setStatus("Fetching extension…");
@@ -301,6 +303,8 @@ async function launch(source: string, commandName: string): Promise<void> {
   port.start();
   port.addEventListener("message", (event) => handleRuntime(event.data));
   try {
+    if (runtimeCode)
+      await runtime.execute(`${runtimeCode}\nmodule.exports = null;`, "/runtime.cjs");
     await runtime.execute(`${bundled.code}\nmodule.exports = null;`, "/bundle.cjs");
   } catch (error) {
     setStatus(`Runtime failed: ${String(error)}`, true);
@@ -340,7 +344,7 @@ async function launch(source: string, commandName: string): Promise<void> {
 async function prebuiltBundle(
   source: string,
   command: string,
-): Promise<{ code: string } | undefined> {
+): Promise<{ code: string; runtimeCode?: string } | undefined> {
   try {
     if (!bundleIndex) {
       const [indexResponse, buildResponse] = await Promise.all([
@@ -364,7 +368,19 @@ async function prebuiltBundle(
     if (!response.ok) return undefined;
     const bytes = await response.arrayBuffer();
     if (!(await bundleMatches(bundleIndex, bundleIndex.buildSha, key, bytes))) return undefined;
-    return { code: new TextDecoder().decode(bytes) };
+    let runtimeCode: string | undefined;
+    if (bundleIndex.runtime) {
+      const runtimeResponse = await fetch(asset(bundleIndex.runtime.path));
+      if (!runtimeResponse.ok) return undefined;
+      const runtimeBytes = await runtimeResponse.arrayBuffer();
+      if (
+        bundleIndex.runtime.bytes !== runtimeBytes.byteLength ||
+        (await sha256Hex(runtimeBytes)) !== bundleIndex.runtime.sha256
+      )
+        return undefined;
+      runtimeCode = new TextDecoder().decode(runtimeBytes);
+    }
+    return { code: new TextDecoder().decode(bytes), ...(runtimeCode ? { runtimeCode } : {}) };
   } catch {
     return undefined;
   }

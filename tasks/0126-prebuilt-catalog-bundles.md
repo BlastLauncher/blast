@@ -1,7 +1,7 @@
 ---
 id: "0126"
 title: Prebuild catalog command bundles at site build time for a fast first open
-status: doing
+status: review
 milestone: M8
 depends: []
 ---
@@ -97,15 +97,14 @@ small bundle and starts it.
 ## Handoff
 
 ```
-Branch/commit: t3/prebuilt-catalog-bundles-1 @ c23f3e1
-Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 65.7s
+Branch/commit: t3/optimize-prebuilt-catalog-bundles @ 241c2cd
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 64.9s
 Done:
-- Reworked production prebuild to reuse scripts/corpus/fetch.ts for a pinned shallow blobless sparse checkout at the catalog commit, eliminating the GitHub tree API and including all non-node_modules extension files.
-- Added a runtime bundle artifact and extended bundles.json validation with runtime metadata; command bundles retain SHA-256 and build-SHA gating and the fast path preserves the 0125 status rendering.
-- Production build measured 225/237 commands (94.9%) built in about 19 seconds after checkout; 12 failures are grouped below. Command bundle bytes were 262,592,197 plus a 933,015-byte runtime artifact (median/p95/max are printed by the prebuild summary).
-- Fixture Playwright smoke passes and confirms the prebuilt fixture launch does not request esbuild.wasm. The production smoke script was not run against the generated output because the generated bundle set is too large for the local safety budget.
-- Sparse corpus checkout measured 816 MB, above the requested ~300 MB target; CI sets BLAST_CORPUS_MAX_MB=1000 to permit the complete catalog checkout.
+- Added a shared runtime registry and esbuild externalization for React, JSX runtimes, Raycast API, reconciler, scheduler, protocol, and runtime start; command bundles now execute after the verified runtime chunk in one almostnode instance.
+- Production build measured 225/237 commands (94.9%) built: 19,330,165 command bytes plus 257,682 runtime bytes (median 12,829, p95 466,252, max 1,657,408). Fixture smoke passes without an esbuild.wasm request.
+- Catalog-only sparse checkout excludes assets, media, metadata, and image/video/font files; measured 35.6 MB including `.git`. The CI 1000 MB override is removed.
+- Production smoke passes on 127.0.0.1 with the `/blast-sandbox/` prefix: ratio-calculator cold first scene 87 ms and bundle bytes 260,498, with no esbuild.wasm request.
+- Added a shared-runtime package-component test exercising React hook identity and minified bundles to keep the catalog under 30 MB.
 Not done / risks:
-- Shared runtime externalization is not complete: command bundles still embed React/reconciler/API, so generated bundles exceed the 30 MB target. A registry-based externalization needs to preserve a single React instance across the sandbox VM.
-- Production failures: bugmenot/find-login (missing npm entities), humaans/clock-in, clock-out, holidays, people (missing cross-fetch), multi-ai-chat/multi-ai-chat and run-presets (missing local files), promptty/search-promptty (missing local component), splatoon/splatoon-2-schedules and splatoon-3-schedules (missing node-fetch), trenit/departures-and-arrivals and valkey-commands-search/search-valkey-commands (missing entities).
+- Production failures: `entities`, `cross-fetch`, and `node-fetch` are declared by the affected manifests but the browser installer cannot resolve those ranges from the npm registry; the other five failures are missing local source files in the pinned commit (`multi-ai-chat` x2, `promptty` x1). No installer code change was warranted.
 ```

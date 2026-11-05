@@ -14,6 +14,7 @@ const aliases = {
   "@blastlauncher/protocol": "/packages/protocol/src/index.ts",
   react: "/node_modules/react/index.js",
   "react/jsx-runtime": "/node_modules/react/jsx-runtime.js",
+  "react/jsx-dev-runtime": "/node_modules/react/jsx-dev-runtime.js",
   "react-reconciler": "/node_modules/react-reconciler/index.js",
   "react-reconciler/constants.js": "/node_modules/react-reconciler/constants.js",
   scheduler: "/node_modules/scheduler/index.js",
@@ -107,6 +108,7 @@ export async function prebuildCatalog(
         projectRoot,
         catalog.extensions.map((extension) => extension.name),
         catalog.commit,
+        { catalogOnly: true },
       );
   const index: BundleIndex = { buildSha, bundles: {} };
   const runtime = await bundleForBrowser({
@@ -116,9 +118,18 @@ export async function prebuildCatalog(
     command: "/examples/browser-demo/runtime-entry.ts",
     runtimeEntry: "/examples/browser-demo/runtime-entry.ts",
     aliases,
+    entryCode: `import * as react from "react";
+import * as jsxRuntime from "react/jsx-runtime";
+import * as jsxDevRuntime from "react/jsx-dev-runtime";
+import * as api from "@raycast/api";
+import * as reconciler from "react-reconciler";
+import * as scheduler from "scheduler";
+import * as protocol from "@blastlauncher/protocol";
+import { start } from "/examples/browser-demo/runtime-entry.ts";
+globalThis.__blastModules = { react, "react/jsx-runtime": jsxRuntime, "react/jsx-dev-runtime": jsxDevRuntime, "@raycast/api": api, "react-reconciler": reconciler, scheduler, "@blastlauncher/protocol": protocol, start };`,
   });
   const runtimeBytes = Buffer.from(
-    `${runtime.code}\nglobalThis.__blastRuntime = runtime_entry_exports;\n`,
+    `${runtime.code}\nglobalThis.__blastRuntime = globalThis.__blastModules;\n`,
   );
   await mkdir(join(output, "bundles"), { recursive: true });
   await writeFile(join(output, "bundles", "runtime.js"), runtimeBytes);
@@ -167,6 +178,16 @@ export async function prebuildCatalog(
             command: commandPath,
             runtimeEntry: "/examples/browser-demo/runtime-entry.ts",
             aliases,
+            sharedRuntime: true,
+            sharedModules: [
+              "react",
+              "react/jsx-runtime",
+              "react/jsx-dev-runtime",
+              "@raycast/api",
+              "react-reconciler",
+              "scheduler",
+              "@blastlauncher/protocol",
+            ],
           });
           const bytes = Buffer.from(bundled.code);
           const relativePath = `bundles/${extension.name}/${command.name}.js`;

@@ -117,9 +117,28 @@ try {
   });
   await light.close();
   await mobile.close();
+  const ratioRequests: string[] = [];
+  let ratioBytes = 0;
+  const requestEvents = page as unknown as {
+    on(event: "request", listener: (request: { url(): string }) => void): void;
+  };
+  requestEvents.on("request", (request) => {
+    if (request.url().includes("esbuild.wasm")) ratioRequests.push(request.url());
+  });
+  page.on("response", async (response) => {
+    if (!response.url().includes("/bundles/")) return;
+    const length = (response as unknown as { headers(): Record<string, string> }).headers()[
+      "content-length"
+    ];
+    if (length) ratioBytes += Number(length);
+  });
+  const ratioStarted = performance.now();
   await page.locator("#root-search").fill("ratio-calculator");
   await page.keyboard.press("Enter");
   await page.locator("#app #search").waitFor({ timeout: 120_000 });
+  const ratioColdMs = Math.round(performance.now() - ratioStarted);
+  if (ratioRequests.length)
+    throw new Error("ratio-calculator prebuilt launch requested esbuild.wasm");
   const status = await page.locator("#status").textContent();
   if (status?.includes("error") || status?.includes("failed"))
     throw new Error(`command failed: ${status}`);
@@ -137,6 +156,8 @@ try {
       site: site.href,
       sandbox: sandbox.href,
       options: optionCount,
+      ratioColdMs,
+      ratioBytes,
       errors,
     }),
   );

@@ -24,6 +24,8 @@ export type BrowserBundleOptions = {
   /** Explicit specifier-to-file aliases for supplied runtime modules. */
   aliases?: Record<string, string>;
   sharedRuntime?: boolean;
+  sharedModules?: string[];
+  entryCode?: string;
 };
 
 export type BrowserBundle = {
@@ -372,6 +374,8 @@ export async function bundleForBrowser(options: BrowserBundleOptions): Promise<B
           const entry = findFile(files, specifier);
           return entry ? { path: entry } : undefined;
         }
+        if (options.sharedRuntime && options.sharedModules?.includes(specifier))
+          return { path: `/__blast_shared_${specifier.replaceAll("/", "_")}` };
         if (isBuiltin(specifier)) return { path: specifier, external: true };
         if (specifier.endsWith(".node")) {
           native.add(specifier);
@@ -411,11 +415,20 @@ export async function bundleForBrowser(options: BrowserBundleOptions): Promise<B
       build.onLoad({ filter: /.*/ }, (args) => {
         if (args.path === virtualEntry) {
           return {
-            contents: options.sharedRuntime
-              ? `const __blastRuntime = globalThis.__blastRuntime;\nimport * as __blastCommand from ${JSON.stringify(command)};\nif (typeof __blastRuntime?.start === "function") __blastRuntime.start(__blastCommand);\nexport * from ${JSON.stringify(command)};\nexport default __blastCommand.default;`
-              : `import * as __blastRuntime from ${JSON.stringify(runtimeEntry)};\nimport * as __blastCommand from ${JSON.stringify(command)};\nconst __blastCommandValue = __blastCommand.default ?? __blastCommand;\nif (typeof __blastRuntime.start === "function") __blastRuntime.start({ default: __blastCommandValue });\nexport * from ${JSON.stringify(command)};\nexport default __blastCommandValue;`,
+            contents: options.entryCode
+              ? options.entryCode
+              : options.sharedRuntime
+                ? `const __blastRuntime = globalThis.__blastRuntime;\nimport * as __blastCommand from ${JSON.stringify(command)};\nif (typeof __blastRuntime?.start === "function") __blastRuntime.start(__blastCommand);\nexport * from ${JSON.stringify(command)};\nexport default __blastCommand.default;`
+                : `import * as __blastRuntime from ${JSON.stringify(runtimeEntry)};\nimport * as __blastCommand from ${JSON.stringify(command)};\nconst __blastCommandValue = __blastCommand.default ?? __blastCommand;\nif (typeof __blastRuntime.start === "function") __blastRuntime.start({ default: __blastCommandValue });\nexport * from ${JSON.stringify(command)};\nexport default __blastCommandValue;`,
             loader: "js",
             resolveDir: "/",
+          };
+        }
+        if (args.path.startsWith("/__blast_shared_")) {
+          const specifier = args.path.slice("/__blast_shared_".length).replaceAll("_", "/");
+          return {
+            contents: `module.exports = globalThis.__blastModules[${JSON.stringify(specifier)}];`,
+            loader: "js",
           };
         }
         const key = findFile(files, args.path);
@@ -438,6 +451,8 @@ export async function bundleForBrowser(options: BrowserBundleOptions): Promise<B
       format: "cjs",
       platform: "browser",
       target: "es2020",
+      minify: true,
+      legalComments: "none",
       // Raycast extensions use the automatic JSX runtime, as bundleCommand does;
       // esbuild's default classic transform needs React in scope.
       jsx: "automatic",
