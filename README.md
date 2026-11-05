@@ -17,8 +17,9 @@ Compatibility is measured against the latest `@raycast/api`, not claimed:
   ([SMOKE.md](./compat/SMOKE.md)); extensions with their own dependencies
   install and render 51/52 ([SMOKE-DEPS.md](./compat/SMOKE-DEPS.md)).
 
-> **Status:** alpha. `3.0.0-alpha.0` is on npm under the `next` tag
-> ([release](https://github.com/BlastLauncher/blast/releases/tag/v3.0.0-alpha.0));
+> **Status:** alpha. `3.0.0-alpha.1` is on npm under the `next` tag, published
+> from GitHub Actions with provenance
+> ([release](https://github.com/BlastLauncher/blast/releases/tag/v3.0.0-alpha.1));
 > `latest` still points at Blast v1 for `cli` and `runtime`. The previous
 > prototype is kept at tag
 > [`archive/v2-prototype-2026-10-18`](https://github.com/BlastLauncher/blast/tree/archive/v2-prototype-2026-10-18).
@@ -43,8 +44,11 @@ npx @blastlauncher/cli@next run ./my-extension index
     ([decision 0012](./docs/decisions/0012-launch-dependency-policy.md)), the
     Go example on views, TUI polish, and pre-releases via npm trusted
     publishing ([docs/release.md](./docs/release.md)).
+  - real examples (M7, in progress): an AppKit launcher over `blast serve`
+    ([examples/macos-launcher](./examples/macos-launcher/)), walkthroughs, paste
+    `closeMainWindow`, and macOS window operations without yabai.
 - **Engine size:** about 13 MiB installed without the optional shared libraries.
-- **Next:** real embedder examples. Backlog in [PLAN.md](./PLAN.md), "Later".
+- **Next:** more real embedder examples. Backlog in [PLAN.md](./PLAN.md), "Later".
 
 ## Two ways to embed
 

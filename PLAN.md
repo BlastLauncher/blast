@@ -90,8 +90,8 @@ AppKit launcher over `blast serve`; automated tests and contract fixtures first.
 
 - [x] 0106 BlastKit + contract fixtures + macOS CI; 0107 AppKit window; 0108 hotkey, OS
       actions, picker; 0109 walkthroughs (`docs/walkthroughs/`)
-- [x] 0110 Deterministic manifest-watch tests (inject the watcher); 0111 paste `closeMainWindow`;
-      0112 macOS windows without yabai (CG + System Events); `archive/` deleted (tag keeps it)
+- [x] 0110 deterministic watch tests; 0111 paste `closeMainWindow`; 0112 macOS windows without
+      yabai; `archive/` deleted (tag keeps it); `3.0.0-alpha.1` on `next` with provenance
 
 ## Later (not scheduled)
 
