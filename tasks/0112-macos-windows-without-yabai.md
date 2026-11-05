@@ -84,7 +84,7 @@ resizing, hiding, fullscreening or closing it would break the session.
 ## Handoff
 
 ```
-Branch/commit: t3/macos-windows-desktop-fakes @ 1676aa5
+Branch/commit: t3/macos-windows-desktop-fakes @ e35f07f
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 54.8s
 Done:
 - Added fixed Core Graphics/System Events JXA fallback for macOS window reads and mutations when yabai is missing.
