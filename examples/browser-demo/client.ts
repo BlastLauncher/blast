@@ -2,6 +2,7 @@ import * as esbuild from "esbuild-wasm";
 import { createController, type Controller } from "../../packages/client-core/src/index.ts";
 import { installForBrowser } from "../../packages/host/src/browser-install.ts";
 import { bundleForBrowser } from "../../packages/host/src/browser-bundle.ts";
+import type { SceneMessage } from "../../packages/protocol/src/index.ts";
 import { render, renderRoot } from "../web-launcher/render.js";
 import { isTextExtension, parseExtensionSource } from "./source.ts";
 import {
@@ -16,7 +17,6 @@ import {
 
 type FileMap = Record<string, string>;
 type BrowserFile = string | Uint8Array;
-type SceneMessage = { type: "scene"; revision: number; root: unknown };
 const asset = (path: string) => new URL(path, new URL(".", location.href)).toString();
 const app = document.querySelector<HTMLElement>("#app")!;
 const status = document.querySelector<HTMLElement>("#status")!;
@@ -202,7 +202,7 @@ async function launch(source: string, commandName: string): Promise<void> {
   setStatus("Fetching extension…");
   const extension = await fetchFiles(source);
   const sourceFiles = (await (await fetch(asset("blast-sources.json"))).json()) as FileMap;
-  const files = new Map(Object.entries(sourceFiles));
+  const files = new Map<string, BrowserFile>(Object.entries(sourceFiles));
   for (const [path, value] of extension.files) files.set(path, value);
   const selectedCommand = commandName || commandSelect?.value || "index";
   const command = commandEntry(extension.files, selectedCommand);
@@ -210,7 +210,7 @@ async function launch(source: string, commandName: string): Promise<void> {
   const installed = await installForBrowser({
     fetch: (value, init) => fetch(value, init),
     manifest: extension.manifest,
-    lockfile: extension.lockfile,
+    ...(extension.lockfile === undefined ? {} : { lockfile: extension.lockfile }),
   });
   setStatus("Bundling…");
   await esbuild.initialize({ wasmURL: asset("esbuild.wasm"), worker: false });

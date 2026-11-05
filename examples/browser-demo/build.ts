@@ -8,6 +8,8 @@ const deps = join(cache, "deps");
 const almostVersion = "0.2.14";
 const esbuildVersion = "0.28.2";
 const playwrightVersion = "1.58.0";
+const bunBuild = (options: Parameters<typeof Bun.build>[0] & Record<string, unknown>) =>
+  Bun.build(options as unknown as Parameters<typeof Bun.build>[0]);
 const exists = (path: string) =>
   stat(path).then(
     () => true,
@@ -91,13 +93,13 @@ async function buildAlmost() {
     sandboxEntry,
     `export { Runtime } from ${JSON.stringify(join(copied, "runtime.ts"))}; export { VirtualFS } from ${JSON.stringify(join(copied, "virtual-fs.ts"))};`,
   );
-  const host = await Bun.build({
+  const host = await bunBuild({
     entrypoints: [hostEntry],
     target: "browser",
     format: "esm",
     outfile: join(cache, "almostnode.mjs"),
   });
-  const sandbox = await Bun.build({
+  const sandbox = await bunBuild({
     entrypoints: [sandboxEntry],
     target: "browser",
     format: "esm",
@@ -139,7 +141,7 @@ export async function buildBrowserAssets(): Promise<BrowserAssets> {
       "node_modules/scheduler",
     )),
   };
-  const client = await Bun.build({
+  const client = await bunBuild({
     entrypoints: [join(projectRoot, "examples/browser-demo/client.ts")],
     target: "browser",
     format: "esm",

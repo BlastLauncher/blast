@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "lib": ["esnext", "dom", "dom.iterable"],
+    "types": []
+  },
+  "include": [
+    "examples/browser-demo/client.ts",
+    "examples/browser-demo/root.ts",
+    "examples/browser-demo/ambient.d.ts"
+  ],
+  "exclude": ["node_modules", "**/dist", ".cache"]
+}

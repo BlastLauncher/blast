@@ -12,7 +12,7 @@
     "fmt": "bun scripts/fmt.ts",
     "fmt:check": "bun scripts/fmt.ts --check",
     "lint": "oxlint --deny-warnings --ignore-pattern 'compat/raycast-api/**'",
-    "typecheck": "tsc --noEmit -p .",
+    "typecheck": "tsc --noEmit -p . && tsc --noEmit -p tsconfig.browser.json",
     "test": "bun test",
     "blast": "node packages/cli/src/cli.ts",
     "compat:fetch": "bun scripts/compat/fetch-raycast-api.ts",
