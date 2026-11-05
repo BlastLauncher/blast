@@ -1,7 +1,7 @@
 ---
 id: "0125"
 title: "Demo polish: fixed-height launcher panel, extension context, status in the footer"
-status: todo
+status: doing
 milestone: M8
 depends: []
 ---
