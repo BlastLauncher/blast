@@ -68,9 +68,12 @@ So the same function runs in Node and in a browser.
 
 ## Handoff
 
-```
-Branch/commit:
-Verify:
+```text
+Branch/commit: t3/fix-browser-bundle-resolution @ 2b5fc46
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok)
 Done:
-Not done / risks:
+- Added Node-style in-memory package resolution with exports conditions and subpath patterns, browser/module/main/index fallback, and nearest importer-relative node_modules lookup.
+- Replaced suffix-based supplied module matching with explicit aliases and expanded Node 24 built-in coverage.
+- Added focused tests for package metadata, nested versions, aliases, and built-in parity; existing bundle tests continue to cover evaluation, externals, missing and native imports.
+Not done / risks: The real Blast API is loaded from runtime source files in a focused test; 0118 remains responsible for browser package installation inputs.
 ```
