@@ -109,7 +109,7 @@ The orchestrator then writes decision 0013 from those findings.
 ## Handoff
 
 ```
-Branch/commit: t3/browser-runtime-spike @ 19b2e0a82abe12ba2d82fe904d1a000b328b0ae3
+Branch/commit: t3/browser-runtime-spike @ a301d34c68a4f650ce76bc2f5bc1582be2ea7b70
 Verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 95.9s
 Done:
 - Added `examples/browser-runtime/e2e.ts`, which starts two 127.0.0.1 servers, drives headless Chromium, and always closes the browser and servers.
