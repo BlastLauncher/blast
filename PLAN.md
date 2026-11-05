@@ -79,10 +79,9 @@ Raycast client semantics built in so embedders only draw.
 
 ### M6 — Evidence at scale
 
-- [x] 0088–0105 done (see git log): honest gate, API 2.10.1 + weekly job, corpus
-      repin, sandboxed sweep (5266/5759 render, `compat/SWEEP.md`), triage fixes,
-      dependencies in launch (`0012`), Go example on views, v3 pre-release via
-      npm trusted publishing (`3.0.0-alpha.0` on `next`), TUI polish.
+- [x] 0088–0105: honest gate, API 2.10.1 + weekly job, corpus repin, sandboxed sweep
+      (5266/5759 render, `compat/SWEEP.md`), triage fixes, dependencies in launch
+      (`0012`), Go example on views, trusted-publishing pre-releases, TUI polish.
 
 ### M7 — Real examples
 
@@ -95,7 +94,7 @@ AppKit launcher over `blast serve`; automated tests and contract fixtures first.
 
 ## Later (not scheduled)
 
-- Orchestrator loop over `tasks/`. Out of scope (0009): MyGo, TUI launcher features.
+- Nothing scheduled. Out of scope (0009): MyGo, TUI launcher features.
 
 ## Decision log
 
