@@ -68,13 +68,12 @@ So the same function runs in Node and in a browser.
 
 ## Handoff
 
-```
-Branch/commit: t3/browser-bundle-target @ 078140272cbf3f2d8e3383beb7839444969ef4b0
+```text
+Branch/commit: t3/fix-browser-bundle-resolution @ 24a0b0b4369e31d5eced373581a2c2d87f2360b4
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok)
 Done:
-- Added pure `bundleForBrowser()` with injected esbuild and in-memory source/package resolution.
-- Bundled runtime and command through a virtual entry while keeping `node:*` imports external.
-- Added typed missing-file, missing-dependency, and native-module errors plus focused tests.
-- Exported the browser bundler from `@blastlauncher/host`.
-Not done / risks: Runtime entry integration beyond the virtual entry contract is left to 0116/0119.
+- Added Node-style in-memory package resolution with exports conditions and subpath patterns, browser/module/main/index fallback, and nearest importer-relative node_modules lookup.
+- Replaced suffix-based supplied module matching with explicit aliases and expanded Node 24 built-in coverage.
+- Added focused tests for package metadata, nested versions, aliases, and built-in parity; existing bundle tests continue to cover evaluation, externals, missing and native imports.
+Not done / risks: The real Blast API alias is exercised by the existing in-memory API fixture; 0118 remains responsible for browser package installation inputs.
 ```
