@@ -1,7 +1,7 @@
 ---
 id: "0126"
 title: Prebuild catalog command bundles at site build time for a fast first open
-status: todo
+status: doing
 milestone: M8
 depends: []
 ---
