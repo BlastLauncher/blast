@@ -96,7 +96,9 @@ function packagePath(name: string): string {
 }
 function ancestorCandidates(parentPath: string | undefined, name: string): string[] {
   if (!parentPath) return [packagePath(name)];
-  const result: string[] = [];
+  // Nearest first, exactly the order Node and bundleForBrowser resolve in: the
+  // parent's own node_modules, then each enclosing node_modules up to the root.
+  const result: string[] = [`${parentPath}/node_modules/${name}`];
   let packageDirectory = parentPath;
   while (packageDirectory && packageDirectory !== ".") {
     const nodeModulesDirectory = packageDirectory.slice(0, packageDirectory.lastIndexOf("/"));
@@ -211,14 +213,27 @@ export async function installForBrowser(
     if (bytes > maxBytes) throw new BrowserSizeLimitError(maxBytes, bytes);
   };
 
+  // One registry request per package name, however many dependents ask for it.
+  const packuments = new Map<string, Promise<unknown>>();
+  const packumentFor = (name: string, range: string) => {
+    let pending = packuments.get(name);
+    if (!pending) {
+      pending = options
+        .fetch(`${registry}/${name}`, {
+          headers: { Accept: "application/vnd.npm.install-v1+json" },
+        })
+        .then((response) => {
+          if (!response.ok) throw new BrowserResolutionError(name, range);
+          return response.json();
+        });
+      packuments.set(name, pending);
+    }
+    return pending;
+  };
   async function install(name: string, range: string, parentPath?: string): Promise<void> {
     if (supplied(name)) return;
     const pinned = lockVersion(lock, name);
-    const response = await options.fetch(`${registry}/${name}`, {
-      headers: { Accept: "application/vnd.npm.install-v1+json" },
-    });
-    if (!response.ok) throw new BrowserResolutionError(name, range);
-    const packument = (await response.json()) as {
+    const packument = (await packumentFor(name, range)) as {
       versions?: Record<
         string,
         {
@@ -235,14 +250,21 @@ export async function installForBrowser(
     const tarball = metadata?.dist?.tarball;
     if (!metadata || !tarball) throw new BrowserResolutionError(name, range);
 
-    let path: string | undefined;
-    for (const candidate of ancestorCandidates(parentPath, name)) {
-      const record = records.get(candidate);
-      if (record && satisfies(record.version, range)) {
+    // The nearest existing copy is the one the importer will load, so it alone
+    // decides: reuse it when it satisfies, otherwise nest a copy under the parent.
+    // A farther matching copy must not count; it would be shadowed at runtime.
+    // With no copy anywhere on the chain, hoist to the root: nothing shadows it.
+    let path: string | undefined = packagePath(name);
+    const nearest = ancestorCandidates(parentPath, name).find((candidate) =>
+      records.has(candidate),
+    );
+    if (nearest) {
+      const record = records.get(nearest)!;
+      if (satisfies(record.version, range)) {
         if (!record.active) await record.promise;
         return;
       }
-      if (!record && path === undefined) path = candidate;
+      path = parentPath ? `${parentPath}/node_modules/${name}` : undefined;
     }
     if (!path) {
       path = `${parentPath ?? packagePath(name)}/node_modules/${name}`;

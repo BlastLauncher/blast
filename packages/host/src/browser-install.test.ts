@@ -215,6 +215,46 @@ test("handles pax long paths, cycles, and nested conflicting versions", async ()
   ).toBe(true);
 });
 
+test("a nearer conflicting copy shadows a farther match, so the installer nests", async () => {
+  const tarball = await readFile(join(fixtureRoot, "nested-1.1.0.tgz"));
+  // root: a@1, x@1, c@2. a needs x@2 and c@1, so both nest under a. c@1 needs
+  // x@1: the nearest copy from a/node_modules/c is a's x@2, which shadows the
+  // root x@1 at runtime, so x@1 must be nested under a/node_modules/c.
+  const graph: Record<string, Record<string, { dependencies?: Record<string, string> }>> = {
+    a: { "1.0.0": { dependencies: { x: "2", c: "1" } } },
+    c: { "1.0.0": { dependencies: { x: "1" } }, "2.0.0": {} },
+    x: { "1.0.0": {}, "2.0.0": {} },
+  };
+  const fetch = async (input: string): Promise<Response> => {
+    const name = input.split("/").at(-1)!;
+    if (name.endsWith(".tgz")) return new Response(tarball);
+    const versions = graph[name];
+    if (!versions) return new Response(null, { status: 404 });
+    return new Response(
+      JSON.stringify({
+        versions: Object.fromEntries(
+          Object.entries(versions).map(([version, metadata]) => [
+            version,
+            { ...metadata, dist: { tarball: `${name}-${version}.tgz` } },
+          ]),
+        ),
+      }),
+    );
+  };
+  const result = await installForBrowser({
+    fetch,
+    manifest: { dependencies: { a: "1", x: "1", c: "2" } },
+  });
+  const roots = new Set(
+    [...result.packages.keys()]
+      .filter((path) => path.endsWith("/package.json"))
+      .map((path) => path.slice(0, -"/package.json".length)),
+  );
+  expect(roots).toContain("node_modules/a/node_modules/x");
+  expect(roots).toContain("node_modules/a/node_modules/c");
+  expect(roots).toContain("node_modules/a/node_modules/c/node_modules/x");
+});
+
 test("reads pax path records", () => {
   const longPath = `package/${"x".repeat(120)}.js`;
   const record = `${String(longPath.length + 12).padStart(5, "0")} path=${longPath}\n`;
