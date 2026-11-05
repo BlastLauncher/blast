@@ -85,7 +85,7 @@ and is covered by automated tests that need no browser.
 ## Handoff
 
 ```
-Branch/commit: `t3/web-launcher-example @ 3c661c4`
+Branch/commit: `t3/web-launcher-example @ 879ea3e`
 Verify: `verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok)`
 Done:
 - Added the Node 24 in-process web launcher server with token-authenticated page, SSE view/effect stream, semantic input, and command switching.
