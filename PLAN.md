@@ -91,6 +91,7 @@ AppKit launcher over `blast serve`; automated tests and contract fixtures first.
       actions, picker; 0109 walkthroughs (`docs/walkthroughs/`)
 - [x] 0110 deterministic watch tests; 0111 paste `closeMainWindow`; 0112 macOS windows without
       yabai; `archive/` deleted (tag keeps it); `3.0.0-alpha.1` on `next` with provenance
+- [x] 0113 orchestrator loop: `tasks:next|start|merge|land`
 
 ## Later (not scheduled)
 
