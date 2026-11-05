@@ -5,10 +5,11 @@ import { projectRoot } from "./build.ts";
 
 type BrowserElement = {
   textContent: string | null;
-  getBoundingClientRect(): { top: number; bottom: number; height: number };
+  getBoundingClientRect(): { top: number; bottom: number; height: number; width: number };
 };
 type BrowserDocument = {
   scrollingElement?: { scrollHeight: number };
+  documentElement: { scrollWidth: number };
   querySelector<T extends BrowserElement = BrowserElement>(selector: string): T | null;
 };
 declare const document: BrowserDocument;
@@ -69,6 +70,16 @@ try {
       throw new Error(`launcher panel is too tall: ${panelHeight}`);
     const documentHeight = await page.evaluate(() => document.scrollingElement?.scrollHeight ?? 0);
     if (documentHeight > 801) throw new Error(`page unexpectedly scrolls: ${documentHeight}px`);
+    // On a phone the panel must fit the viewport: long nowrap titles once
+    // widened the grid item to ~506px at 390px wide.
+    await page.setViewportSize({ width: 390, height: 844 });
+    const phone = await page.evaluate(() => ({
+      page: document.documentElement.scrollWidth,
+      panel: Math.round(document.querySelector("main.root")?.getBoundingClientRect().width ?? 0),
+    }));
+    if (phone.page > 390 || phone.panel > 390)
+      throw new Error(`launcher overflows a 390px viewport: ${JSON.stringify(phone)}`);
+    await page.setViewportSize({ width: 1280, height: 800 });
     for (let index = 0; index < 30; index++) await page.keyboard.press("ArrowDown");
     const selectedPosition = await page.evaluate(() => {
       const selected = document.querySelector('[role="option"][aria-selected="true"]');

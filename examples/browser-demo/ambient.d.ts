@@ -33,6 +33,7 @@ declare module "playwright" {
     close(): Promise<void>;
   };
   export type Page = {
+    setViewportSize(size: { width: number; height: number }): Promise<void>;
     addInitScript(pageFunction: () => void): Promise<void>;
     goto(url: string, options?: { waitUntil?: "load" }): Promise<unknown>;
     close(): Promise<void>;

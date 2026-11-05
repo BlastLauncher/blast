@@ -9,11 +9,22 @@ body {
   min-height: 100vh;
   margin: 0;
   display: grid;
+  /* An auto column grows to the widest row's text (nowrap titles), so the
+     panel's min(750px, 100%) resolved against it and overflowed on phones. */
+  grid-template-columns: minmax(0, 1fr);
   place-items: center;
   padding: 24px;
   box-sizing: border-box;
   background: #111;
   color: #eee;
+}
+/* #app is the grid item; it must span the column so main's 100% is the
+   viewport, not the widest row. */
+#app {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
 }
 main {
   position: relative;
