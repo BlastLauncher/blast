@@ -13,9 +13,11 @@ on:
       - "packages/runtime/**"
   workflow_dispatch:
 
+# Deploys queue rather than cancel: a cancelled run could leave a new sandbox
+# behind an old site.
 concurrency:
   group: site-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -83,8 +85,13 @@ jobs:
     permissions:
       pages: write
       id-token: write
+    # deploy-pages requires the github-pages environment.
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
+      - id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
 
   smoke:
     needs: [pages, sandbox]
@@ -96,7 +103,7 @@ jobs:
       - name: Check deployed sites
         env:
           SITE_URL: https://blast.yukai.dev
-          SANDBOX_URL: https://blastlauncher.github.io/blast-sandbox/
+          SANDBOX_URL: https://blastlauncher.github.io/blast-sandbox
         run: |
           set -euo pipefail
           deadline=$((SECONDS + 600))
@@ -117,16 +124,27 @@ jobs:
           }
           site_headers="$RUNNER_TEMP/site.headers"
           sandbox_headers="$RUNNER_TEMP/sandbox.headers"
+          sha_of() { node -e 'const fs=require("fs"); process.stdout.write(String(JSON.parse(fs.readFileSync(process.argv[1], "utf8")).sha))' "$1"; }
+          # Pages and its CDN can serve the previous build for a few minutes;
+          # wait until both origins report this run's commit.
+          while :; do
+            fetch "$SITE_URL/build.json" "$RUNNER_TEMP/site-build.json" "$site_headers"
+            fetch "$SANDBOX_URL/build.json" "$RUNNER_TEMP/sandbox-build.json" "$sandbox_headers"
+            site_sha=$(sha_of "$RUNNER_TEMP/site-build.json")
+            sandbox_sha=$(sha_of "$RUNNER_TEMP/sandbox-build.json")
+            if [ "$site_sha" = "$GITHUB_SHA" ] && [ "$sandbox_sha" = "$GITHUB_SHA" ]; then break; fi
+            if (( SECONDS >= deadline )); then
+              echo "Expected build $GITHUB_SHA; site serves $site_sha, sandbox serves $sandbox_sha" >&2
+              exit 1
+            fi
+            sleep 15
+          done
           fetch "$SITE_URL/" "$RUNNER_TEMP/site.html" "$site_headers"
           grep -F '<title>Blast — an engine for extension experiences</title>' "$RUNNER_TEMP/site.html"
           fetch "$SITE_URL/demo/" "$RUNNER_TEMP/demo.html" "$site_headers"
           grep -F '<title>Blast browser demo</title>' "$RUNNER_TEMP/demo.html"
-          fetch "$SANDBOX_URL" "$RUNNER_TEMP/sandbox.html" "$sandbox_headers"
-          grep -i '^access-control-allow-origin: *\*$' "$sandbox_headers"
-          fetch "$SITE_URL/build.json" "$RUNNER_TEMP/site-build.json" "$site_headers"
-          fetch "$SANDBOX_URL/build.json" "$RUNNER_TEMP/sandbox-build.json" "$sandbox_headers"
-          site_sha=$(node -e 'const fs=require("fs"); process.stdout.write(JSON.parse(fs.readFileSync(process.argv[1], "utf8")).sha)' "$RUNNER_TEMP/site-build.json")
-          sandbox_sha=$(node -e 'const fs=require("fs"); process.stdout.write(JSON.parse(fs.readFileSync(process.argv[1], "utf8")).sha)' "$RUNNER_TEMP/sandbox-build.json")
-          test "$site_sha" = "$sandbox_sha"
-          grep -F "$SANDBOX_URL" "$RUNNER_TEMP/demo.html"
-          echo "deployed build $site_sha"
+          grep -F "$SANDBOX_URL/" "$RUNNER_TEMP/demo.html"
+          fetch "$SANDBOX_URL/" "$RUNNER_TEMP/sandbox.html" "$sandbox_headers"
+          # Header lines end in CRLF; strip CR before matching the CORS header.
+          tr -d '\r' < "$sandbox_headers" | grep -i '^access-control-allow-origin: \*$'
+          echo "deployed build $GITHUB_SHA"

@@ -4,6 +4,7 @@ import { describe, expect, test } from "bun:test";
 type Job = {
   needs?: string | string[];
   permissions?: Record<string, string>;
+  environment?: { name?: string };
 };
 
 describe("site workflow", () => {
@@ -12,12 +13,17 @@ describe("site workflow", () => {
       new URL("../.github/workflows/site.yml", import.meta.url),
       "utf8",
     );
-    const workflow = Bun.YAML.parse(source) as { jobs: Record<string, Job> };
+    const workflow = Bun.YAML.parse(source) as {
+      jobs: Record<string, Job>;
+      concurrency?: Record<string, unknown>;
+    };
     const jobs = workflow.jobs;
     expect(jobs.build!.permissions).toEqual({ contents: "read" });
     expect(jobs.sandbox!.needs).toEqual("build");
     expect(jobs.pages!.needs).toEqual("sandbox");
     expect(jobs.pages!.permissions).toEqual({ pages: "write", "id-token": "write" });
+    expect(jobs.pages!.environment?.name).toBe("github-pages");
+    expect(workflow.concurrency?.["cancel-in-progress"]).toBe(false);
     expect(jobs.smoke!.needs).toEqual(["pages", "sandbox"]);
     expect(jobs.smoke!.permissions).toEqual({ contents: "read" });
     for (const match of source.matchAll(/uses:\s+([^\s#]+)/g))
