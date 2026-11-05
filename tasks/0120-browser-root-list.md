@@ -122,8 +122,14 @@ The browser demo opens on a launcher-style root list instead of a URL box.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/browser-root-actions @ 07dc051342bbea7e0fa1a8006c1cae1064a41146
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 67.0s
 Done:
-Not done / risks:
+- Added the catalog-backed, ranked browser root list with suggestions, URL rows, keyboard selection, action panel, ARIA listbox markup, light/dark styling, and runtime icon fallbacks.
+- Added the deterministic catalog generator and committed catalog.json (56,654 bytes; 99 extensions; 237 rendered commands; pinned to the smoke commit).
+- Added deep links, fixture-catalog default e2e coverage, command launch from the real install/bundle/sandbox path, and session teardown/back navigation.
+- Added pure model and renderer tests.
+- Replaced the decorative root action panel with a filtered, keyboard-navigable model and ARIA listbox, including Run, GitHub, and copy effects with clipboard toast feedback.
+- Extended e2e coverage with stubbed clipboard/window.open assertions; default e2e passed in 2,640 ms transferring 17,446,329 bytes, and `--live` passed in 13,545 ms transferring 17,500,777 bytes using ratio-calculator.
+Not done / risks: none known.
 ```
