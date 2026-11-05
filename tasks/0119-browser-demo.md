@@ -1,7 +1,7 @@
 ---
 id: "0119"
 title: Browser demo — run a Raycast extension from its URL, nothing installed
-status: todo
+status: doing
 milestone: M8
 depends: ["0116", "0117", "0118"]
 ---
