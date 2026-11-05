@@ -109,6 +109,23 @@ describe("web launcher", () => {
       expect((await request).status).toBe(403);
   });
 
+  test("serves the page scripts without a token, as a browser requests them", async () => {
+    launcher = await startWebLauncher({ extensionDir: "./fixtures/extensions/hello-list" });
+    const html = await (await fetch(endpoint("/", launcher.token))).text();
+    expect(html).toContain('src="/client.js"');
+    const origin = new URL(launcher.url).origin;
+    for (const path of ["/client.js", "/render.js"]) {
+      const response = await fetch(origin + path);
+      expect(response.status).toBe(200);
+      expect(response.headers.get("content-type")).toContain("javascript");
+    }
+    const client = await (await fetch(origin + "/client.js")).text();
+    expect(client).toContain('from "./render.js"');
+    expect((await fetch(origin + "/client.js", { headers: { host: "localhost" } })).status).toBe(
+      403,
+    );
+  });
+
   test("rejects a Host header that is not the bound loopback address", async () => {
     launcher = await startWebLauncher({ extensionDir: "./fixtures/extensions/hello-list" });
     const response = await fetch(endpoint("/", launcher.token), { headers: { host: "localhost" } });

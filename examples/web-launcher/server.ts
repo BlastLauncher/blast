@@ -103,12 +103,17 @@ export async function startWebLauncher(options: WebLauncherOptions): Promise<Web
     stopScenes = opened.session.scenes((scene) => apply(controller!.scene(scene)));
     update(controller.view());
   };
+  const publicAssets = new Set(["/client.js", "/render.js"]);
   const authorized = (request: IncomingMessage, response: ServerResponse) => {
     if (request.headers.host !== expectedHost) {
       respond(response, 403, { error: "Invalid host" });
       return false;
     }
     const url = new URL(request.url ?? "/", "http://127.0.0.1");
+    // The page loads its scripts as `<script src="/client.js">` and
+    // `import "./render.js"`, which carry no `?t=`. They are public static code,
+    // so only the page, the event stream and the input endpoints need the token.
+    if (request.method === "GET" && publicAssets.has(url.pathname)) return true;
     if (url.searchParams.get("t") !== token) {
       respond(response, 403, { error: "Forbidden" });
       return false;
