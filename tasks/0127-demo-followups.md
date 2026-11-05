@@ -61,7 +61,7 @@ These are the remaining issues seen on the live demo after 0126.
 ## Handoff
 
 ```
-Branch/commit: t3/demo-followups-0127 @ <pending>
+Branch/commit: t3/demo-followups-0127 @ 2dc0e46
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 88.5s
 Done:
 - Prebuild now builds 237/237 (was 225/237). No separate externalizing path
