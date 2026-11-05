@@ -43,7 +43,13 @@
     "example:go": "cd examples/go-embedder && go test ./...",
     "release:bootstrap": "bun scripts/release/prerelease.ts bootstrap",
     "example:mac": "cd examples/macos-launcher && swift test",
-    "example:mac:fixtures": "bun scripts/mac-fixtures.ts"
+    "example:mac:fixtures": "bun scripts/mac-fixtures.ts",
+    "example:web": "node examples/web-launcher/main.ts"
+  },
+  "dependencies": {
+    "@blastlauncher/client-core": "workspace:*",
+    "@blastlauncher/host": "workspace:*",
+    "@blastlauncher/protocol": "workspace:*"
   },
   "devDependencies": {
     "@blastlauncher/shared-deps": "workspace:*",

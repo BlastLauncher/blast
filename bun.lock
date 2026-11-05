@@ -4,6 +4,11 @@
   "workspaces": {
     "": {
       "name": "@blastlauncher/workspace",
+      "dependencies": {
+        "@blastlauncher/client-core": "workspace:*",
+        "@blastlauncher/host": "workspace:*",
+        "@blastlauncher/protocol": "workspace:*",
+      },
       "devDependencies": {
         "@blastlauncher/shared-deps": "workspace:*",
         "@types/bun": "1.4.3",

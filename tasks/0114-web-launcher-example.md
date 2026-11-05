@@ -85,8 +85,12 @@ and is covered by automated tests that need no browser.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: `t3/web-launcher-example @ 3c661c4`
+Verify: `verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok)`
 Done:
-Not done / risks:
+- Added the Node 24 in-process web launcher server with token-authenticated page, SSE view/effect stream, semantic input, and command switching.
+- Added the vanilla ES module page renderer and DOM keyboard/input wiring with escaped output.
+- Added focused server and renderer tests covering views, input, clipboard effects, auth, JSON content type, cleanup, and injection escaping.
+- Added the web example README, package script/workspace dependencies, and TypeScript inclusion.
+Not done / risks: Browser-side effects are intentionally limited to the documented clipboard and URL handlers; no browser was opened during verification.
 ```
