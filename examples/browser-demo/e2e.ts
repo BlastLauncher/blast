@@ -125,7 +125,15 @@ try {
         before,
         { timeout: 10_000 },
       );
-      await page.keyboard.press("ArrowDown");
+      // Move to the Hello List row with the keyboard, however many rows match:
+      // a bare ArrowDown only worked while "hello" matched a single command.
+      const target = await page.evaluate(() =>
+        [...document.querySelectorAll('[role="option"]')].findIndex((row) =>
+          (row.textContent ?? "").includes("Hello List"),
+        ),
+      );
+      if (target < 0) throw new Error("Hello List is not in the filtered catalog");
+      for (let step = 0; step < target; step++) await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Enter");
     }
     await page
@@ -135,6 +143,16 @@ try {
       .catch(async (error) => {
         throw new Error(`${error}\nstatus=${await page.locator("#status").textContent()}`);
       });
+    // Type only once the first scene has rows; input before the first scene is
+    // dropped by the controller and the scene re-renders an empty search box.
+    if (!live)
+      await page.waitForFunction(
+        () => document.querySelectorAll("#app .rows li").length >= 3,
+        null,
+        {
+          timeout: 30_000,
+        },
+      );
     await page.locator("#search").fill("ban");
     if (!live) {
       // hello-list starts with apple, banana and cherry, so "banana is shown"
