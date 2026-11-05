@@ -89,7 +89,7 @@ AppKit launcher over `blast serve`; automated tests and contract fixtures first.
 Run any Raycast extension in a browser tab from its URL, inside almostnode
 (Node-in-WASM, MIT) in a cross-origin sandbox. Feasibility before decision 0013.
 
-- [ ] 0115 Spike: runtime + fixture scene inside almostnode, headless browser, measured
+- [x] 0115 Spike: runtime + fixture scene inside almostnode, headless browser, measured
 
 ## Later (not scheduled)
 
