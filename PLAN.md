@@ -94,8 +94,7 @@ Run any Raycast extension in a browser tab from its URL, inside almostnode
 
 ## Later (not scheduled)
 
-- Demo: keystrokes typed before an extension's first scene are dropped; buffer them.
-- Out of scope (0009): MyGo, TUI launcher features.
+- Demo: buffer keystrokes typed before an extension's first scene. Out of scope (0009): MyGo, TUI launcher features.
 
 ## Decision log
 
