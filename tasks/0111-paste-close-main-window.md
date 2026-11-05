@@ -76,7 +76,7 @@ T3 Code, the app running the agents, has an open window on this Mac.
 ## Handoff
 
 ```
-Branch/commit: t3/paste-close-main-window @ c9a1f0d04ef698d5c1f0ad76b284e4e005adab56
+Branch/commit: t3/paste-close-main-window @ 75af613dd8f41bf21a5c22f0a9683ce8d7dc4a7f
 Verify: `bun run verify` PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok); `swift test --package-path examples/macos-launcher` PASS (87 tests); `bun test packages/native/src/index.test.ts` PASS (16 tests)
 Done:
 - Added the pure `ClipboardPastePlan` with Raycast's default-close behavior and offscreen coverage for absent, true, false, and malformed flags.
