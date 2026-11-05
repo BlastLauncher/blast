@@ -37,7 +37,10 @@ await mkdir(join(projectRoot, ".cache/site-smoke"), { recursive: true });
 const browser = await chromium.launch({ headless: true });
 const errors: string[] = [];
 try {
-  const page = await browser.newPage();
+  const page = await browser.newPage({
+    colorScheme: "dark",
+    viewport: { width: 1280, height: 800 },
+  });
   await page.addInitScript(() => {
     Object.defineProperty(navigator, "clipboard", {
       configurable: true,
@@ -74,6 +77,46 @@ try {
     { timeout: 30_000 },
   );
   await page.screenshot({ path: join(projectRoot, ".cache/site-smoke/demo.png"), fullPage: true });
+  await page.screenshot({
+    path: join(projectRoot, ".cache/site-smoke/demo-dark.png"),
+    fullPage: false,
+  });
+  const light = await browser.newPage({
+    colorScheme: "light",
+    viewport: { width: 1280, height: 800 },
+  });
+  await light.addInitScript(() => {
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText: async () => undefined },
+    });
+    window.open = (() => null) as typeof window.open;
+  });
+  await light.goto(new URL("demo/", site).href, { waitUntil: "load" });
+  await light.locator("#root-search").waitFor({ timeout: 30_000 });
+  await light.screenshot({
+    path: join(projectRoot, ".cache/site-smoke/demo-light.png"),
+    fullPage: false,
+  });
+  const mobile = await browser.newPage({
+    colorScheme: "dark",
+    viewport: { width: 390, height: 844 },
+  });
+  await mobile.addInitScript(() => {
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText: async () => undefined },
+    });
+    window.open = (() => null) as typeof window.open;
+  });
+  await mobile.goto(new URL("demo/", site).href, { waitUntil: "load" });
+  await mobile.locator("#root-search").waitFor({ timeout: 30_000 });
+  await mobile.screenshot({
+    path: join(projectRoot, ".cache/site-smoke/demo-mobile.png"),
+    fullPage: false,
+  });
+  await light.close();
+  await mobile.close();
   await page.locator("#root-search").fill("ratio-calculator");
   await page.keyboard.press("Enter");
   await page.locator("#app #search").waitFor({ timeout: 120_000 });

@@ -14,12 +14,12 @@ import {
   type RootActionId,
   type RootRow,
 } from "./root.ts";
+import { statusError, statusForStage, statusInfo, type DemoStatus } from "./status.ts";
 
 type FileMap = Record<string, string>;
 type BrowserFile = string | Uint8Array;
 const asset = (path: string) => new URL(path, new URL(".", location.href)).toString();
 const app = document.querySelector<HTMLElement>("#app")!;
-const status = document.querySelector<HTMLElement>("#status")!;
 const commandSelect = document.querySelector<HTMLSelectElement>("#command");
 let controller: Controller | undefined;
 let port: MessagePort | undefined;
@@ -33,13 +33,37 @@ let actionOpen = false;
 let actionQuery = "";
 let actionSelected = 0;
 let rootToast = "";
+let statusState: DemoStatus = statusForStage("ready");
+let extensionContext:
+  | {
+      extensionTitle: string;
+      commandTitle: string;
+      icon?: string;
+      iconUrl?: string;
+    }
+  | undefined;
 
+const statusForText = (text: string, error: boolean): DemoStatus => {
+  if (error) return statusError(text);
+  if (text === "Ready") return statusForStage("ready");
+  if (text === "Fetching extension…") return statusForStage("fetching");
+  if (text === "Installing…") return statusForStage("installing");
+  if (text === "Bundling…") return statusForStage("bundling");
+  if (text === "Starting…") return statusForStage("starting");
+  return statusInfo(text);
+};
 const setStatus = (text: string, error = false) => {
-  status.textContent = text;
-  status.dataset.error = error ? "true" : "false";
+  statusState = statusForText(text, error);
+  if (catalog) {
+    if (rootOpen || !controller) drawRoot();
+    else draw(controller.view());
+  }
 };
 const draw = (view: ReturnType<Controller["view"]>) => {
-  app.innerHTML = render(view);
+  app.innerHTML = render(view, {
+    status: statusState,
+    ...(extensionContext ? { context: extensionContext } : {}),
+  });
 };
 const drawRoot = () => {
   const model = rootModel(
@@ -58,6 +82,7 @@ const drawRoot = () => {
     actions: actions.actions,
     selected: actionSelected,
     toast: rootToast,
+    status: statusState,
   });
   const search = document.querySelector<HTMLInputElement>("#root-search");
   (actionOpen ? document.querySelector<HTMLInputElement>("#root-action-search") : search)?.focus();
@@ -201,14 +226,28 @@ function commandEntry(files: Map<string, BrowserFile>, name: string): string {
 async function launch(source: string, commandName: string): Promise<void> {
   rootOpen = false;
   actionOpen = false;
+  const selectedRow = rootRows[rootSelected];
+  extensionContext = selectedRow
+    ? {
+        extensionTitle: selectedRow.subtitle,
+        commandTitle: selectedRow.title,
+        icon: selectedRow.icon,
+        ...(selectedRow.iconUrl ? { iconUrl: selectedRow.iconUrl } : {}),
+      }
+    : undefined;
   setStatus("Fetching extension…");
   const extension = await fetchFiles(source);
+  if (extensionContext) {
+    const title =
+      typeof extension.manifest.title === "string" ? extension.manifest.title : undefined;
+    if (title) extensionContext.extensionTitle = title;
+  }
   const sourceFiles = (await (await fetch(asset("blast-sources.json"))).json()) as FileMap;
   const files = new Map<string, BrowserFile>(Object.entries(sourceFiles));
   for (const [path, value] of extension.files) files.set(path, value);
   const selectedCommand = commandName || commandSelect?.value || "index";
   const command = commandEntry(extension.files, selectedCommand);
-  setStatus("Installing dependencies…");
+  setStatus("Installing…");
   const installed = await installForBrowser({
     fetch: (value, init) => fetch(value, init),
     manifest: extension.manifest,
@@ -295,6 +334,7 @@ function stopSession() {
   runtimeFrame = undefined;
   document.querySelector("iframe")?.remove();
   rootOpen = true;
+  extensionContext = undefined;
   setStatus("Ready");
   drawRoot();
 }

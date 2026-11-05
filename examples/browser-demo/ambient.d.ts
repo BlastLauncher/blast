@@ -26,10 +26,14 @@ declare module "playwright" {
     launch(options: { headless: boolean }): Promise<Browser>;
   };
   export type Browser = {
-    newPage(): Promise<Page>;
+    newPage(options?: {
+      colorScheme?: "dark" | "light";
+      viewport?: { width: number; height: number };
+    }): Promise<Page>;
     close(): Promise<void>;
   };
   export type Page = {
+    setViewportSize(size: { width: number; height: number }): Promise<void>;
     addInitScript(pageFunction: () => void): Promise<void>;
     goto(url: string, options?: { waitUntil?: "load" }): Promise<unknown>;
     close(): Promise<void>;

@@ -81,8 +81,12 @@ page:
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/polish-demo-launcher-ui @ 61fc02603f4808d0c008c72e6324bd47d91e0a9c
+Verify: verify passed locally (949 pass, 1 skip; format, lint, typecheck, compat, protocol, mac-fixtures, workflow all passed)
 Done:
-Not done / risks:
+- Fixed the demo launcher to a centered 750×475 desktop panel and full viewport mobile panel with a scroll-only option list.
+- Added extension breadcrumb context, footer primary/action hints, loading progress, and footer error status with Back hint.
+- Added deterministic status/render unit coverage and browser assertions for panel height, scrolling selection, and breadcrumbs.
+- Captured screenshots: `.cache/site-smoke/demo-dark.png`, `.cache/site-smoke/demo-light.png`, and `.cache/site-smoke/demo-mobile.png`.
+Not done / risks: Local fixture smoke renders 238 options because the fixture adds one command to the 237-command production catalog; production smoke reports the expected 237 catalog commands.
 ```
