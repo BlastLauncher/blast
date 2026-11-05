@@ -68,11 +68,12 @@ depends: []
 ## Handoff
 
 ```
-Branch/commit: t3/browser-dependency-installer @ 917c6dccfe8086eca3083d5de2bd9c4151c29079
-Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 71.1s
+Branch/commit: t3-a6dfc770 @ bd8cf0126b029f3f1bbca5c8ec1e8b307fa20192
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 62.8s
 Done:
-- Added browser-safe registry resolution with semver ranges, lockfile pins, lean dependency filtering, peer installation, integrity checks, and configurable byte/package caps.
-- Added in-memory gzip/tar unpacking with ustar/pax support and typed native-module, integrity, resolution, and limit errors.
-- Exported installForBrowser and added offline fixture-backed tests and hand-made npm archives.
-Not done / risks: Conflicting package versions are currently represented by the shared package map entry; the browser bundler should define nested-version path handling if it needs simultaneous versions.
+- Reused the shared supplied-package policy so @raycast/utils installs while host-provided packages remain skipped.
+- Added cycle-safe concurrent dependency installation with npm-style nested paths for version conflicts.
+- Hardened tar extraction against traversal, absolute/backslash paths, and links; added pax handling and SRI sha512 parsing.
+- Added abbreviated packument requests and offline coverage for ranges, cycles, conflicts, pax paths, traversal, multi-hash integrity, and native/limit errors.
+Not done / risks: none known.
 ```

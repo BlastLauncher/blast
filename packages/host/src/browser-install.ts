@@ -1,4 +1,5 @@
 import { maxSatisfying, satisfies } from "semver";
+import { supplied } from "./dependency-policy.ts";
 
 export type BrowserFetch = (input: string, init?: RequestInit) => Promise<Response>;
 export type BrowserManifest = {
@@ -90,23 +91,27 @@ export class BrowserResolutionError extends BrowserInstallError {
 
 const DEFAULT_MAX_BYTES = 32 * 1024 * 1024;
 const DEFAULT_MAX_PACKAGES = 128;
-function supplied(name: string): boolean {
-  return (
-    name === "@raycast/api" ||
-    name.startsWith("@raycast/") ||
-    /^react(?:\/|$)/.test(name) ||
-    name.startsWith("@types/")
-  );
-}
 function packagePath(name: string): string {
   return `node_modules/${name}`;
 }
+function ancestorCandidates(parentPath: string | undefined, name: string): string[] {
+  if (!parentPath) return [packagePath(name)];
+  const result: string[] = [];
+  let packageDirectory = parentPath;
+  while (packageDirectory && packageDirectory !== ".") {
+    const nodeModulesDirectory = packageDirectory.slice(0, packageDirectory.lastIndexOf("/"));
+    if (!nodeModulesDirectory) break;
+    result.push(`${nodeModulesDirectory}/${name}`);
+    const separator = nodeModulesDirectory.lastIndexOf("/");
+    if (separator < 0) break;
+    packageDirectory = nodeModulesDirectory.slice(0, separator);
+  }
+  result.push(packagePath(name));
+  return [...new Set(result)];
+}
 function lockVersion(lock: BrowserLockfile | undefined, name: string): string | undefined {
   if (!lock) return undefined;
-  const direct = lock.packages?.[`node_modules/${name}`]?.version;
-  if (direct) return direct;
-  const old = lock.dependencies?.[name]?.version;
-  return old;
+  return lock.packages?.[`node_modules/${name}`]?.version ?? lock.dependencies?.[name]?.version;
 }
 function parseLockfile(
   lockfile: BrowserLockfile | string | undefined,
@@ -126,6 +131,22 @@ function octal(bytes: Uint8Array): number {
   return value ? Number.parseInt(value, 8) : 0;
 }
 
+export class BrowserTarPathError extends BrowserInstallError {
+  readonly path: string;
+  constructor(path: string) {
+    super("BROWSER_TAR_PATH", `Unsafe path in npm archive: ${path}`);
+    this.name = "BrowserTarPathError";
+    this.path = path;
+  }
+}
+function normalTarPath(path: string): string {
+  if (path.includes("\\") || path.startsWith("/") || /^[A-Za-z]:[\\/]/.test(path))
+    throw new BrowserTarPathError(path);
+  const parts = path.split("/");
+  if (parts.some((part) => part === "..")) throw new BrowserTarPathError(path);
+  return parts.filter((part) => part !== "" && part !== ".").join("/");
+}
+
 /** Parses the small subset of POSIX tar needed for npm archives, including pax and ustar names. */
 export function unpackTar(archive: Uint8Array): Map<string, Uint8Array> {
   const files = new Map<string, Uint8Array>();
@@ -143,8 +164,7 @@ export function unpackTar(archive: Uint8Array): Map<string, Uint8Array> {
     const body = archive.subarray(offset, offset + size);
     offset += Math.ceil(size / 512) * 512;
     if (type === 120) {
-      const pax = decode(body);
-      for (const record of pax.split("\n")) {
+      for (const record of decode(body).split("\n")) {
         const equals = record.indexOf("=");
         if (equals > 0) {
           const key = record.slice(record.indexOf(" ") + 1, equals);
@@ -153,9 +173,9 @@ export function unpackTar(archive: Uint8Array): Map<string, Uint8Array> {
       }
       continue;
     }
-    name = paxPath ?? name;
+    name = normalTarPath(paxPath ?? name);
     paxPath = undefined;
-    if (type === 53 || name.endsWith("/")) continue;
+    if (!name || type === 53 || type === 1 || type === 2 || name.endsWith("/")) continue;
     if (type === 0 || type === 48 || type === undefined) files.set(name, body.slice());
   }
   return files;
@@ -181,84 +201,128 @@ export async function installForBrowser(
   const registry = (options.registry ?? "https://registry.npmjs.org").replace(/\/$/, "");
   const packages = new Map<string, BrowserPackageFile>();
   const versions = new Map<string, string>();
-  const resolved = new Map<string, Promise<void>>();
+  const records = new Map<
+    string,
+    { name: string; version: string; promise: Promise<void>; active: boolean }
+  >();
   let bytes = 0;
   const addBytes = (count: number) => {
     bytes += count;
     if (bytes > maxBytes) throw new BrowserSizeLimitError(maxBytes, bytes);
   };
 
-  async function install(name: string, range: string): Promise<void> {
+  async function install(name: string, range: string, parentPath?: string): Promise<void> {
     if (supplied(name)) return;
     const pinned = lockVersion(lock, name);
-    const key = `${name}@${pinned ?? range}`;
-    const prior = resolved.get(key);
-    if (prior) return prior;
-    const task = (async () => {
-      const response = await options.fetch(`${registry}/${name}`);
-      if (!response.ok) throw new BrowserResolutionError(name, range);
-      const packument = (await response.json()) as {
-        versions?: Record<
-          string,
-          {
-            dependencies?: Record<string, string>;
-            peerDependencies?: Record<string, string>;
-            dist?: { tarball?: string; integrity?: string };
-          }
-        >;
-      };
-      const available = Object.keys(packument.versions ?? {});
-      const version = pinned ?? maxSatisfying(available, range);
-      if (!version || !satisfies(version, range)) throw new BrowserResolutionError(name, range);
-      const metadata = packument.versions?.[version];
-      const tarball = metadata?.dist?.tarball;
-      if (!metadata || !tarball) throw new BrowserResolutionError(name, range);
-      if (versions.has(name) && versions.get(name) === version) return;
-      if (versions.size >= maxPackages && !versions.has(name))
-        throw new BrowserPackageLimitError(maxPackages);
-      const archiveResponse = await options.fetch(tarball);
-      if (!archiveResponse.ok) throw new BrowserResolutionError(name, version);
-      const archive = new Uint8Array(await archiveResponse.arrayBuffer());
-      addBytes(archive.byteLength);
-      const actual = await integrity(archive);
-      const expected = metadata.dist?.integrity;
-      if (expected && expected !== actual) throw new BrowserIntegrityError(name, expected, actual);
-      const files = unpackTar(await gunzip(archive));
-      if (
-        [...files.keys()].some(
-          (path) =>
-            path.endsWith(".node") || path === "binding.gyp" || path.endsWith("/binding.gyp"),
-        )
-      )
-        throw new BrowserNativeModuleError(name);
-      const root = packagePath(name);
-      for (const [path, content] of files) {
-        const clean = path.replace(/^package\/?/, "");
-        if (clean) packages.set(`${root}/${clean}`, content);
+    const response = await options.fetch(`${registry}/${name}`, {
+      headers: { Accept: "application/vnd.npm.install-v1+json" },
+    });
+    if (!response.ok) throw new BrowserResolutionError(name, range);
+    const packument = (await response.json()) as {
+      versions?: Record<
+        string,
+        {
+          dependencies?: Record<string, string>;
+          peerDependencies?: Record<string, string>;
+          peerDependenciesMeta?: Record<string, { optional?: boolean }>;
+          dist?: { tarball?: string; integrity?: string };
+        }
+      >;
+    };
+    const version = pinned ?? maxSatisfying(Object.keys(packument.versions ?? {}), range);
+    if (!version || !satisfies(version, range)) throw new BrowserResolutionError(name, range);
+    const metadata = packument.versions?.[version];
+    const tarball = metadata?.dist?.tarball;
+    if (!metadata || !tarball) throw new BrowserResolutionError(name, range);
+
+    let path: string | undefined;
+    for (const candidate of ancestorCandidates(parentPath, name)) {
+      const record = records.get(candidate);
+      if (record && satisfies(record.version, range)) {
+        if (!record.active) await record.promise;
+        return;
       }
-      if (!packages.has(`${root}/package.json`))
-        packages.set(`${root}/package.json`, JSON.stringify({ name, version }));
-      versions.set(name, version);
-      const optionalPeers = new Set(
-        Object.entries(
-          (metadata as { peerDependenciesMeta?: Record<string, { optional?: boolean }> })
-            .peerDependenciesMeta ?? {},
+      if (!record && path === undefined) path = candidate;
+    }
+    if (!path) {
+      path = `${parentPath ?? packagePath(name)}/node_modules/${name}`;
+      while (records.has(path)) path = `${path}/node_modules/${name}`;
+    }
+    if (records.has(path)) {
+      const record = records.get(path)!;
+      if (satisfies(record.version, range)) {
+        if (!record.active) await record.promise;
+        return;
+      }
+      path = `${path}/node_modules/${name}`;
+      while (records.has(path)) path = `${path}/node_modules/${name}`;
+    }
+    if (records.size >= maxPackages) throw new BrowserPackageLimitError(maxPackages);
+
+    let finish!: () => void;
+    let fail!: (error: unknown) => void;
+    const promise = new Promise<void>((resolve, reject) => {
+      finish = resolve;
+      fail = reject;
+    });
+    const record = { name, version, promise, active: true };
+    records.set(path, record);
+    const task = (async () => {
+      try {
+        const archiveResponse = await options.fetch(tarball);
+        if (!archiveResponse.ok) throw new BrowserResolutionError(name, version);
+        const archive = new Uint8Array(await archiveResponse.arrayBuffer());
+        addBytes(archive.byteLength);
+        const actual = await integrity(archive);
+        const expected = metadata.dist?.integrity;
+        const expectedSha512 = expected?.split(/\s+/).find((entry) => entry.startsWith("sha512-"));
+        if (expectedSha512 && expectedSha512 !== actual)
+          throw new BrowserIntegrityError(name, expectedSha512, actual);
+        const files = unpackTar(await gunzip(archive));
+        if (
+          [...files.keys()].some(
+            (file) =>
+              file.endsWith(".node") || file === "binding.gyp" || file.endsWith("/binding.gyp"),
+          )
         )
-          .filter(([, value]) => value?.optional === true)
-          .map(([dependency]) => dependency),
-      );
-      const dependencies = Object.fromEntries(
-        Object.entries({ ...metadata.dependencies, ...metadata.peerDependencies }).filter(
-          ([dependency]) => !optionalPeers.has(dependency),
-        ),
-      );
-      for (const [dependency, dependencyRange] of Object.entries(dependencies))
-        await install(dependency, dependencyRange);
+          throw new BrowserNativeModuleError(name);
+        for (const [file, content] of files) {
+          const clean = file.replace(/^package\/?/, "");
+          if (clean) packages.set(`${path}/${clean}`, content);
+        }
+        if (!packages.has(`${path}/package.json`))
+          packages.set(`${path}/package.json`, JSON.stringify({ name, version }));
+        if (!versions.has(name) || path === packagePath(name)) versions.set(name, version);
+        const optionalPeers = new Set(
+          Object.entries(metadata.peerDependenciesMeta ?? {})
+            .filter(([, value]) => value?.optional === true)
+            .map(([dependency]) => dependency),
+        );
+        const dependencies = Object.fromEntries(
+          Object.entries({ ...metadata.dependencies, ...metadata.peerDependencies }).filter(
+            ([dependency]) => !optionalPeers.has(dependency),
+          ),
+        );
+        await Promise.all(
+          Object.entries(dependencies).map(([dependency, dependencyRange]) =>
+            install(dependency, dependencyRange, path),
+          ),
+        );
+        record.active = false;
+        finish();
+      } catch (error) {
+        record.active = false;
+        fail(error);
+      }
     })();
-    resolved.set(key, task);
-    return task;
+    // Keep the promise exposed by the record independent of the async executor's return value.
+    void task;
+    return promise;
   }
-  for (const [name, range] of Object.entries(options.manifest.dependencies ?? {}))
-    await install(name, range);
+  await Promise.all(
+    Object.entries(options.manifest.dependencies ?? {}).map(([name, range]) =>
+      install(name, range),
+    ),
+  );
   return { packages, versions, bytes };
 }
