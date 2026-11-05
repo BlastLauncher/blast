@@ -10,6 +10,14 @@ Prereleases use the `next` npm dist-tag and do not move `latest`, which stays
 on Blast v1. The workflow tags the commit as `v<version>` and creates a GitHub
 prerelease with generated notes.
 
+## Website
+
+The `site` workflow publishes `blast.yukai.dev` through the Blast repository's
+GitHub Pages Actions source and publishes the browser sandbox to the
+`gh-pages` branch of `BlastLauncher/blast-sandbox`. After the first deployment,
+enable Pages for `blast-sandbox` from that branch, then enable HTTPS enforcement
+on both repositories once their certificates exist.
+
 ## Trusted publishing
 
 Publishing uses npm trusted publishing: the publish job's GitHub Actions OIDC

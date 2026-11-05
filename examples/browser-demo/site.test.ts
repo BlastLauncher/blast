@@ -1,11 +1,14 @@
 import { describe, expect, test } from "bun:test";
-import { cnameForOrigin, extractStats, parseOrigin } from "./site.ts";
+import { readFile } from "node:fs/promises";
+import { buildSite, cnameForOrigin, extractStats, parseOrigin, parseSandboxUrl } from "./site.ts";
 
 describe("site build helpers", () => {
   test("validates origins and rejects paths", () => {
     expect(parseOrigin("https://example.com/").origin).toBe("https://example.com");
     expect(() => parseOrigin("ftp://example.com")).toThrow();
     expect(() => parseOrigin("https://example.com/demo")).toThrow();
+    expect(parseSandboxUrl("https://example.com/blast-sandbox/").pathname).toBe("/blast-sandbox/");
+    expect(() => parseSandboxUrl("https://example.com/blast-sandbox")).toThrow();
   });
   test("only custom domains get CNAME files", () => {
     expect(cnameForOrigin("http://127.0.0.1:4173")).toBeUndefined();
@@ -22,5 +25,23 @@ describe("site build helpers", () => {
       rendered: 77,
       commands: 90,
     });
+  });
+  test("writes one build id and relative sandbox asset references", async () => {
+    const result = await buildSite({
+      siteOrigin: "http://127.0.0.1:4173",
+      sandboxUrl: "https://blastlauncher.github.io/blast-sandbox/",
+      buildSha: "test-sha",
+    });
+    const [wwwBuild, sandboxBuild] = await Promise.all([
+      readFile(`${result.www}/build.json`, "utf8"),
+      readFile(`${result.sandbox}/build.json`, "utf8"),
+    ]);
+    expect(JSON.parse(wwwBuild)).toEqual({ sha: "test-sha" });
+    expect(JSON.parse(sandboxBuild)).toEqual({ sha: "test-sha" });
+    const demo = await readFile(`${result.www}/demo/index.html`, "utf8");
+    expect(demo).toContain("https://blastlauncher.github.io/blast-sandbox/");
+    const sandbox = await readFile(`${result.sandbox}/index.html`, "utf8");
+    expect(sandbox).toContain("./almostnode-full.mjs");
+    expect(sandbox).not.toMatch(/(?:src|href)=["']\//);
   });
 });

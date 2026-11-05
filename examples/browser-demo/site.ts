@@ -2,7 +2,12 @@ import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { buildBrowserAssets, projectRoot, relativeFiles } from "./build.ts";
 
-export type SiteOptions = { siteOrigin: string; sandboxOrigin: string; fixtures?: boolean };
+export type SiteOptions = {
+  siteOrigin: string;
+  sandboxUrl: string;
+  buildSha?: string;
+  fixtures?: boolean;
+};
 export type SiteStats = {
   coverage: { covered: number; total: number; percent: string };
   rendered: number;
@@ -25,6 +30,25 @@ export function parseOrigin(value: string, label = "origin"): URL {
     url.hash
   )
     throw new Error(`${label} must be an http(s) origin without a path`);
+  return url;
+}
+export function parseSandboxUrl(value: string, label = "sandbox URL"): URL {
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    throw new Error(`${label} must be an http(s) URL with a path`);
+  }
+  if (
+    !/^https?:$/.test(url.protocol) ||
+    url.username ||
+    url.password ||
+    url.pathname === "/" ||
+    !url.pathname.endsWith("/") ||
+    url.search ||
+    url.hash
+  )
+    throw new Error(`${label} must be an http(s) URL with a trailing-slash path`);
   return url;
 }
 export function cnameForOrigin(value: string): string | undefined {
@@ -63,7 +87,8 @@ export async function buildSite(
   options: SiteOptions,
 ): Promise<{ www: string; sandbox: string; stats: SiteStats }> {
   const site = parseOrigin(options.siteOrigin, "--site-origin");
-  const sandboxOrigin = parseOrigin(options.sandboxOrigin, "--sandbox-origin");
+  const sandboxUrl = parseSandboxUrl(options.sandboxUrl, "--sandbox-url");
+  const buildSha = options.buildSha ?? process.env.GITHUB_SHA ?? "local";
   const stats = extractStats(
     await readFile(join(projectRoot, "compat/COVERAGE.md"), "utf8"),
     await readFile(join(projectRoot, "compat/SWEEP.md"), "utf8"),
@@ -88,7 +113,7 @@ export async function buildSite(
   await writeFile(join(www, ".nojekyll"), "");
   await writeFile(
     join(demo, "index.html"),
-    `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Blast browser demo</title></head><body><p id="status">Loading catalog…</p><div id="app"></div><script>window.__BLAST_SANDBOX__=${JSON.stringify(`${sandboxOrigin.origin}/`)}</script><script type="module" src="./client.js"></script></body></html>`,
+    `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Blast browser demo</title></head><body><p id="status">Loading catalog…</p><div id="app"></div><script>window.__BLAST_SANDBOX__=${JSON.stringify(sandboxUrl.href)}</script><script type="module" src="./client.js"></script></body></html>`,
   );
   await writeFile(join(demo, "client.js"), assets.clientJs);
   await writeFile(join(demo, "almostnode.mjs"), assets.almost);
@@ -124,19 +149,16 @@ export async function buildSite(
     `<!doctype html><script type="module">import {Runtime,VirtualFS} from './almostnode-full.mjs'; const runtime=new Runtime(new VirtualFS(),{}); addEventListener('message',async e=>{if(e.data?.type==='execute'){try{const result=await runtime.execute(e.data.code,e.data.filename); parent.postMessage({type:'result',id:e.data.id,result},'*')}catch(error){parent.postMessage({type:'error',id:e.data.id,error:String(error)},'*')}}}); parent.postMessage({type:'ready'},'*');</script>`,
   );
   await writeFile(join(sandbox, "almostnode-full.mjs"), assets.sandbox);
+  await writeFile(join(www, "build.json"), `${JSON.stringify({ sha: buildSha })}\n`);
+  await writeFile(join(sandbox, "build.json"), `${JSON.stringify({ sha: buildSha })}\n`);
   await writeFile(
     join(sandbox, "_headers"),
     "/*\n  Access-Control-Allow-Origin: *\n  Cross-Origin-Resource-Policy: cross-origin\n",
   );
   await writeFile(join(sandbox, ".nojekyll"), "");
   await writeFile(join(sandbox, "404.html"), "<!doctype html><title>Not found</title>\n");
-  for (const [directory, origin] of [
-    [www, site.origin],
-    [sandbox, sandboxOrigin.origin],
-  ] as const) {
-    const cname = cnameForOrigin(origin);
-    if (cname) await writeFile(join(directory, "CNAME"), `${cname}\n`);
-  }
+  const cname = cnameForOrigin(site.origin);
+  if (cname) await writeFile(join(www, "CNAME"), `${cname}\n`);
   return { www, sandbox, stats };
 }
 
@@ -147,10 +169,10 @@ if (import.meta.main) {
     return index >= 0 ? args[index + 1] : undefined;
   };
   const siteOrigin = value("--site-origin") ?? "http://127.0.0.1:4173";
-  const sandboxOrigin = value("--sandbox-origin") ?? "http://127.0.0.1:4174";
+  const sandboxUrl = value("--sandbox-url") ?? "http://127.0.0.1:4174/";
   const result = await buildSite({
     siteOrigin,
-    sandboxOrigin,
+    sandboxUrl,
     fixtures: args.includes("--fixtures"),
   });
   console.log(`site:build ${result.www} and ${result.sandbox}`);

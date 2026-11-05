@@ -9,15 +9,17 @@ const wwwPort = 4175;
 const sandboxPort = 4176;
 const result = await buildSite({
   siteOrigin: `http://127.0.0.1:${wwwPort}`,
-  sandboxOrigin: `http://127.0.0.1:${sandboxPort}`,
+  sandboxUrl: `http://127.0.0.1:${sandboxPort}/blast-sandbox/`,
   fixtures: true,
 });
-function serve(root: string) {
+function serve(root: string, basePath = "/") {
   return Bun.serve({
     hostname: "127.0.0.1",
     port: root === result.www ? wwwPort : sandboxPort,
     fetch: async (request) => {
-      const urlPath = decodeURIComponent(new URL(request.url).pathname).replace(/^\/+/, "");
+      const pathname = decodeURIComponent(new URL(request.url).pathname);
+      if (!pathname.startsWith(basePath)) return new Response("Not found", { status: 404 });
+      const urlPath = pathname.slice(basePath.length).replace(/^\/+/, "");
       const path = join(
         root,
         urlPath.endsWith("/") ? `${urlPath}index.html` : urlPath || "index.html",
@@ -30,7 +32,7 @@ function serve(root: string) {
   });
 }
 const www = serve(result.www),
-  sandbox = serve(result.sandbox);
+  sandbox = serve(result.sandbox, "/blast-sandbox/");
 try {
   const { chromium } = (await import(
     join(projectRoot, ".cache/browser-demo/deps/node_modules/playwright/index.mjs")
@@ -71,7 +73,7 @@ try {
       JSON.stringify({
         pass: true,
         site: `http://127.0.0.1:${wwwPort}/`,
-        sandbox: `http://127.0.0.1:${sandboxPort}/`,
+        sandbox: `http://127.0.0.1:${sandboxPort}/blast-sandbox/`,
       }),
     );
   } finally {
