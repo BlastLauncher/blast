@@ -67,8 +67,14 @@ plain `<name>`, and the page then:
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/fix-browser-demo-live-fetch @ 8691201867a43f15aed8e56f1b98e48328762c9f
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 63.5s
 Done:
+- Fixed the browser bundle test's global scope typing and lint-safe name while preserving the module-default assertion.
+- Added pure GitHub URL parsing tests, CORS-enabled GitHub contents/raw fetching, GitHub rate-limit errors, recursive extension file loading with binary assets, local fixture manifests, and manifest-driven command selection.
+- Default e2e passes search filtering and simulated clipboard handling: 1,172 ms cold start, 17,350,140 bytes.
+- Live `ratio-calculator` e2e passes its first scene: 6,108 ms cold start, 17,348,198 bytes.
+- Default cold-download breakdown (17,350,140 bytes): esbuild.wasm 13,979,150; Blast sources 3,346,163; almostnode 22,576; extension 2,251; npm packages 0. The largest item is esbuild.wasm; caching it between sessions or serving it precompressed would cut cold transfer.
 Not done / risks:
+- Cross-origin GitHub/npm entries may report zero in browser `transferSize` because the remote servers do not expose timing headers; the live total therefore represents measurable browser resources.
 ```

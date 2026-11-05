@@ -230,3 +230,47 @@ test("bundles the real Blast API through an explicit Raycast alias", async () =>
   expect(typeof List.Item).toBe("function");
   expect(typeof List.Section).toBe("function");
 });
+
+test("hands the runtime entry a module whose default is the command component", async () => {
+  // packages/runtime core reads `command.default`; handing it the component
+  // itself rendered `undefined` ("Element type is invalid") in the 0119 demo.
+  const result = await bundleForBrowser({
+    esbuild: { build },
+    files: new Map<string, string>([
+      ["/src/index.ts", "export default function Command() { return 'ok'; }"],
+      ["/runtime.js", "export function start(module) { globalThis.blastBrowserStarted = module; }"],
+    ]),
+    packages: new Map(),
+    command: "/src/index.ts",
+    runtimeEntry: "/runtime.js",
+  });
+  const scope = globalThis as typeof globalThis & {
+    blastBrowserStarted?: { default?: unknown };
+  };
+  delete scope.blastBrowserStarted;
+  const module = { exports: {} as Record<string, unknown> };
+  new Function("module", "exports", "require", result.code)(module, module.exports, () => ({}));
+  const started = Reflect.get(scope, "blastBrowserStarted") as { default?: unknown } | undefined;
+  expect(typeof started?.default).toBe("function");
+  expect((started!.default as () => string)()).toBe("ok");
+  delete scope.blastBrowserStarted;
+});
+
+test("compiles JSX with the automatic runtime, so React need not be in scope", async () => {
+  const result = await bundleForBrowser({
+    esbuild: { build },
+    files: new Map<string, string>([
+      ["/src/index.tsx", "export default function Command() { return <div />; }"],
+      ["/runtime.js", "export function start() {}"],
+      ["/vendor/jsx.js", "export const jsx = (type) => ({ type }); export const jsxs = jsx;"],
+    ]),
+    packages: new Map(),
+    aliases: { "react/jsx-runtime": "/vendor/jsx.js" },
+    command: "/src/index.tsx",
+    runtimeEntry: "/runtime.js",
+  });
+  expect(result.code).not.toContain("React.createElement");
+  const module = { exports: {} as Record<string, unknown> };
+  new Function("module", "exports", "require", result.code)(module, module.exports, () => ({}));
+  expect((module.exports.default as () => unknown)()).toEqual({ type: "div" });
+});
