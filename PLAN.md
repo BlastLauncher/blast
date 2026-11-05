@@ -16,10 +16,8 @@ engine; the TUI and `blast run` get no new launcher features.
 
 ### M1 — Headless vertical slice
 
-One fixture extension command (List + Action + Clipboard.copy) runs in its own
-Node child process, renders through a React reconciler into a serializable
-scene, and is driven by a headless client: snapshot the scene, dispatch an
-action, observe the clipboard capability request, survive a crash.
+A fixture command runs in its own Node process, renders to a serializable scene,
+and is driven headlessly (dispatch, capabilities, crash recovery).
 
 - [x] Process/protocol/scene model (`0001`), protocol, reconciler, shim,
       runtime entry, host, `blast` CLI (0004–0010)
@@ -36,10 +34,8 @@ First curated set: 10 List-centric, offline extensions (see git log 0014).
 
 ### M3 — Coverage to 100%
 
-Goal: 100% of the non-deprecated `@raycast/api` surface, then deprecated
-aliases. First step: export a stub for every inventory symbol that throws a
-structured "unsupported in Blast" error when used, so missing APIs fail with
-diagnostics instead of ESM link errors.
+100% of the non-deprecated `@raycast/api` surface, then deprecated aliases,
+starting from structured "unsupported in Blast" stubs for every symbol.
 
 - [x] 0015–0051 done: stubs, every API area, shared deps, deprecated aliases,
       curated sets v1–v4, smoke tooling (see git log).
@@ -87,9 +83,13 @@ AppKit launcher over `blast serve`; automated tests and contract fixtures first.
 ### M8 — Browser runtime
 
 Run any Raycast extension in a browser tab from its URL, inside almostnode
-(Node-in-WASM, MIT) in a cross-origin sandbox. Feasibility before decision 0013.
+(Node-in-WASM, MIT) in a cross-origin sandbox (decision 0013).
 
-- [x] 0115 Spike: runtime + fixture scene inside almostnode, headless browser, measured
+- [x] 0115 Spike: real runtime in almostnode's sandbox, measured (`examples/browser-runtime`)
+- [ ] 0116 Runtime core + stdio / postMessage entries
+- [ ] 0117 Browser bundle target (in-memory files, injected esbuild)
+- [ ] 0118 Browser dependency installer (registry, tarballs, lean rules)
+- [ ] 0119 Browser demo: run an extension from its URL (after 0116–0118)
 
 ## Later (not scheduled)
 
@@ -115,3 +115,4 @@ One line per decision; link a record only when it exists.
   by embedders, with optional `@blastlauncher/native` (`docs/decisions/0010`).
 - 2026-11-02: Corpus sweeps run third-party code only in a no-network sandbox.
 - 2026-11-04: Launch reports missing dependencies as a typed error (`0012`); M7 example uses AppKit.
+- 2026-11-05: Browser runtime runs extensions only in almostnode's cross-origin sandbox (`0013`).
