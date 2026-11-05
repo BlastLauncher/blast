@@ -21,6 +21,8 @@ export type BrowserBundleOptions = {
   command: string;
   /** In-memory path to the runtime browser entry. */
   runtimeEntry: string;
+  /** Explicit specifier-to-file aliases for supplied runtime modules. */
+  aliases?: Record<string, string>;
 };
 
 export type BrowserBundle = {
@@ -65,26 +67,84 @@ export class BrowserNativeModuleError extends Error {
 }
 
 const extensions = [".tsx", ".ts", ".jsx", ".js", ".json"];
-const builtin = new Set([
+
+// Keep this list in sync with Node 24's module.builtinModules. The browser
+// resolver cannot import node:module to discover it at runtime.
+export const browserBuiltinModules = [
+  "_http_agent",
+  "_http_client",
+  "_http_common",
+  "_http_incoming",
+  "_http_outgoing",
+  "_http_server",
+  "_stream_duplex",
+  "_stream_passthrough",
+  "_stream_readable",
+  "_stream_transform",
+  "_stream_wrap",
+  "_stream_writable",
+  "_tls_common",
+  "_tls_wrap",
   "assert",
+  "assert/strict",
+  "async_hooks",
   "buffer",
   "child_process",
+  "cluster",
+  "console",
+  "constants",
   "crypto",
+  "dgram",
+  "diagnostics_channel",
+  "dns",
+  "dns/promises",
+  "domain",
   "events",
+  "fs",
+  "fs/promises",
   "http",
+  "http2",
   "https",
+  "inspector",
+  "inspector/promises",
   "module",
+  "net",
   "os",
   "path",
+  "path/posix",
+  "path/win32",
+  "perf_hooks",
   "process",
+  "punycode",
+  "querystring",
+  "readline",
+  "readline/promises",
+  "repl",
   "stream",
+  "stream/consumers",
+  "stream/promises",
+  "stream/web",
   "string_decoder",
+  "sys",
   "timers",
+  "timers/promises",
+  "tls",
+  "trace_events",
+  "tty",
   "url",
   "util",
+  "util/types",
+  "v8",
+  "vm",
+  "wasi",
   "worker_threads",
   "zlib",
-]);
+  "node:sea",
+  "node:sqlite",
+  "node:test",
+  "node:test/reporters",
+] as const;
+const builtin = new Set<string>(browserBuiltinModules);
 const nativePackages = new Set([
   "better-sqlite3",
   "canvas",
@@ -128,6 +188,10 @@ function asText(value: BrowserBundleFile): string | Uint8Array {
   return value;
 }
 
+function text(value: BrowserBundleFile): string {
+  return typeof value === "string" ? value : new TextDecoder().decode(value);
+}
+
 function findFile(map: Map<string, BrowserBundleFile>, path: string): string | undefined {
   const base = clean(path);
   const candidates = [
@@ -146,43 +210,137 @@ function findFile(map: Map<string, BrowserBundleFile>, path: string): string | u
   return undefined;
 }
 
-function packageCandidates(map: Map<string, BrowserBundleFile>, specifier: string): string[] {
-  const name = packageName(specifier);
-  const subpath = specifier.slice(name.length).replace(/^\//, "");
-  const roots = [...map.keys()]
-    .map(clean)
-    .filter(
-      (path) =>
-        path.includes(`/node_modules/${name}/`) ||
-        path.endsWith(`/node_modules/${name}`) ||
-        path === `/${name}` ||
-        path.startsWith(`/${name}/`),
-    );
-  const root = roots
-    .map((path) => {
-      const marker = path.indexOf(`/node_modules/${name}`);
-      return marker >= 0 ? path.slice(0, marker + `/node_modules/${name}`.length) : `/${name}`;
-    })
-    .toSorted((a, b) => a.length - b.length)[0];
-  if (!root) return [];
-  return [
-    clean(`${root}/${subpath}`),
-    clean(`${root}/${subpath}/index`),
-    clean(`${root}/index`),
-    ...extensions.map((extension) => clean(`${root}/${subpath}${extension}`)),
-  ];
+function packageJson(
+  map: Map<string, BrowserBundleFile>,
+  root: string,
+): Record<string, unknown> | undefined {
+  const key = findFile(map, `${root}/package.json`);
+  if (!key) return undefined;
+  try {
+    const parsed: unknown = JSON.parse(text(map.get(key)!));
+    return parsed && typeof parsed === "object" ? (parsed as Record<string, unknown>) : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
-function suppliedRuntimeModule(map: Map<string, BrowserBundleFile>, specifier: string): string[] {
-  const suffixes =
-    specifier === "@raycast/api"
-      ? ["/runtime/src/api/index.ts", "/runtime/api/index.ts"]
-      : specifier === "react"
-        ? ["/node_modules/react/index.js", "/react/index.js", "/react/index.ts"]
-        : specifier === "react/jsx-runtime"
-          ? ["/node_modules/react/jsx-runtime.js", "/react/jsx-runtime.js"]
-          : [];
-  return [...map.keys()].filter((path) => suffixes.some((suffix) => clean(path).endsWith(suffix)));
+function packageRoots(
+  map: Map<string, BrowserBundleFile>,
+  importer: string,
+  name: string,
+): string[] {
+  const roots: string[] = [];
+  let dir = clean(importer.slice(0, importer.lastIndexOf("/")) || "/");
+  while (true) {
+    const root = clean(`${dir}/node_modules/${name}`);
+    if (
+      map.has(root) ||
+      map.has(root.slice(1)) ||
+      [...map.keys()].some((key) => clean(key).startsWith(`${root}/`))
+    ) {
+      roots.push(root);
+    }
+    if (dir === "/") break;
+    dir = clean(`${dir}/..`);
+  }
+  const direct = `/${name}`;
+  if (
+    map.has(direct) ||
+    map.has(name) ||
+    [...map.keys()].some((key) => clean(key).startsWith(`${direct}/`))
+  )
+    roots.push(direct);
+  return [...new Set(roots)];
+}
+
+function exportTarget(value: unknown, subpath: string): string | false | undefined {
+  if (typeof value === "string") return value;
+  if (value === null || value === false) return false;
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const resolved = exportTarget(item, subpath);
+      if (resolved !== undefined && resolved !== false) return resolved;
+    }
+    return undefined;
+  }
+  if (!value || typeof value !== "object") return undefined;
+  const record = value as Record<string, unknown>;
+  const subkeys = Object.keys(record).filter((key) => key.startsWith("."));
+  if (subkeys.length) {
+    const exact = record[subpath];
+    if (exact !== undefined) return exportTarget(exact, subpath);
+    const pattern = subkeys
+      .filter((key) => key.endsWith("*") && subpath.startsWith(key.slice(0, -1)))
+      .toSorted((a, b) => b.length - a.length)[0];
+    if (pattern) {
+      const resolved = exportTarget(record[pattern], subpath);
+      return typeof resolved === "string"
+        ? resolved.replaceAll("*", subpath.slice(pattern.length - 1))
+        : resolved;
+    }
+    return undefined;
+  }
+  for (const condition of ["browser", "import", "module", "require", "default"]) {
+    if (record[condition] !== undefined) {
+      const resolved = exportTarget(record[condition], subpath);
+      if (resolved !== undefined) return resolved;
+    }
+  }
+  return undefined;
+}
+
+function packageCandidates(
+  map: Map<string, BrowserBundleFile>,
+  specifier: string,
+  importer: string,
+): string[] {
+  const name = packageName(specifier);
+  const subpath = specifier.slice(name.length).replace(/^\//, "");
+  for (const root of packageRoots(map, importer, name)) {
+    const metadata = packageJson(map, root);
+    const requested = subpath ? `./${subpath}` : ".";
+    if (metadata?.exports !== undefined) {
+      const target = exportTarget(metadata.exports, requested);
+      // Once the nearest package has an exports map, unexported subpaths are
+      // blocked; Node does not fall through to a parent node_modules copy.
+      if (target === false || target === undefined) return [];
+      const candidate = findFile(map, clean(`${root}/${target}`));
+      return candidate ? [candidate] : [];
+    }
+    const base = subpath ? clean(`${root}/${subpath}`) : undefined;
+    if (base) {
+      const candidate = findFile(map, base);
+      if (candidate) return [candidate];
+      continue;
+    }
+    const browser = metadata?.browser;
+    if (typeof browser === "string") {
+      const candidate = findFile(map, clean(`${root}/${browser}`));
+      if (candidate) return [candidate];
+    }
+    const candidates: string[] = [];
+    const main =
+      typeof metadata?.module === "string"
+        ? metadata.module
+        : typeof metadata?.main === "string"
+          ? metadata.main
+          : "index";
+    if (typeof browser === "object" && browser) {
+      const mapped =
+        (browser as Record<string, unknown>)[`./${main}`] ??
+        (browser as Record<string, unknown>)["."];
+      if (typeof mapped === "string") candidates.push(clean(`${root}/${mapped}`));
+    }
+    candidates.push(clean(`${root}/${main}`));
+    if (typeof metadata?.main === "string" && typeof metadata?.module === "string")
+      candidates.push(clean(`${root}/${metadata.main}`));
+    candidates.push(clean(`${root}/index`));
+    for (const candidate of candidates) {
+      const found = findFile(map, candidate);
+      if (found) return [found];
+    }
+  }
+  return [];
 }
 
 /** Bundle an in-memory command and browser runtime with an injected esbuild. */
@@ -230,11 +388,17 @@ export async function bundleForBrowser(options: BrowserBundleOptions): Promise<B
         }
         if (specifier === "@blastlauncher/command") return { path: command };
         const relative = specifier.startsWith(".") || specifier.startsWith("/");
+        const alias = options.aliases?.[specifier];
         const candidate = relative
-          ? findFile(files, clean(`${args.importer}/../${specifier}`))
-          : [...suppliedRuntimeModule(files, specifier), ...packageCandidates(files, specifier)]
-              .map((path) => findFile(files, path))
-              .find(Boolean);
+          ? findFile(
+              files,
+              clean(`${args.importer.slice(0, args.importer.lastIndexOf("/"))}/${specifier}`),
+            )
+          : alias
+            ? findFile(files, alias)
+            : packageCandidates(files, specifier, args.importer)
+                .map((path) => findFile(files, path))
+                .find(Boolean);
         if (candidate) return { path: candidate };
         if (!relative) {
           missing.add(packageName(specifier));
