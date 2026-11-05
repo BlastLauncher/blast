@@ -119,5 +119,6 @@ Done:
 - Usage: `bun run tasks:start <id>` marks a task doing, commits it, and prints the worker brief.
 - Usage: `bun run tasks:merge <id> [--branch <b>] [--plan <text>]` merges, updates PLAN, verifies, and commits done.
 - Usage: `bun run tasks:land <id>` pushes, waits for CI, then safely removes the worker worktree and branch.
+- Run mutating commands only from a clean `main` checkout; use temporary repositories for tests.
 Not done / risks: CI polling requires GitHub CLI JSON output and a configured `origin`; no network operations were run by tests.
 ```
