@@ -68,7 +68,7 @@ depends: []
 ## Handoff
 
 ```
-Branch/commit: t3/browser-dependency-installer @ 629c6ce85747292fadce412230a98950aa3b5aa3
+Branch/commit: t3/browser-dependency-installer @ 917c6dccfe8086eca3083d5de2bd9c4151c29079
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 71.1s
 Done:
 - Added browser-safe registry resolution with semver ranges, lockfile pins, lean dependency filtering, peer installation, integrity checks, and configurable byte/package caps.
