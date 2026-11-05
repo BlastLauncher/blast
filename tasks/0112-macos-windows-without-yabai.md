@@ -84,7 +84,7 @@ resizing, hiding, fullscreening or closing it would break the session.
 ## Handoff
 
 ```
-Branch/commit: t3/fix-macos-window-fallback @ ecb1d76f8dbbe33cf3b050806293e453d432f474
+Branch/commit: t3/fix-macos-window-fallback @ 6bdfee1b85ea936b4dcd53bfbd9a6022adf9de57
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 55.3s
 Done:
 - Corrected fallback display matching to use global Core Graphics coordinates and largest screen intersection.
