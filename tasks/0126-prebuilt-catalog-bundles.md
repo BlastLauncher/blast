@@ -97,7 +97,7 @@ small bundle and starts it.
 ## Handoff
 
 ```
-Branch/commit: t3/prebuilt-catalog-bundles @ ec184bd
+Branch/commit: t3/prebuilt-catalog-bundles @ 0cb0724
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 64.5s
 Done:
 - Added a validated `bundles.json` contract, SHA-256 verification, build-SHA gating, and launch fast path with fallback.
