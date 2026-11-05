@@ -1,7 +1,7 @@
 ---
 id: "0122"
 title: Deploy the website to blast.yukai.dev and the sandbox to blastlauncher.github.io/blast-sandbox
-status: todo
+status: doing
 milestone: M8
 depends: ["0121"]
 ---
