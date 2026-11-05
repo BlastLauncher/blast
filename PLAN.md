@@ -91,11 +91,11 @@ AppKit launcher over `blast serve`; automated tests and contract fixtures first.
 - [x] 0106 BlastKit + contract fixtures + macOS CI; 0107 AppKit window; 0108 hotkey, OS
       actions, picker; 0109 walkthroughs (`docs/walkthroughs/`)
 - [x] 0110 Deterministic manifest-watch tests (inject the watcher); 0111 paste `closeMainWindow`;
-      0112 macOS windows without yabai (CG + System Events)
+      0112 macOS windows without yabai (CG + System Events); `archive/` deleted (tag keeps it)
 
 ## Later (not scheduled)
 
-- Orchestrator loop over `tasks/`; delete `archive/`. Out of scope (0009): MyGo, TUI launcher features.
+- Orchestrator loop over `tasks/`. Out of scope (0009): MyGo, TUI launcher features.
 
 ## Decision log
 

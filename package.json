@@ -10,7 +10,7 @@
     "verify": "bun scripts/verify.ts",
     "fmt": "bun scripts/fmt.ts",
     "fmt:check": "bun scripts/fmt.ts --check",
-    "lint": "oxlint --deny-warnings --ignore-pattern 'archive/**' --ignore-pattern 'compat/raycast-api/**'",
+    "lint": "oxlint --deny-warnings --ignore-pattern 'compat/raycast-api/**'",
     "typecheck": "tsc --noEmit -p .",
     "test": "bun test",
     "blast": "node packages/cli/src/cli.ts",

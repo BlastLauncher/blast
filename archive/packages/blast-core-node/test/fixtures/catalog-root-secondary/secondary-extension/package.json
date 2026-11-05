@@ -1,5 +1,0 @@
-{
-  "name": "secondary",
-  "title": "Secondary Extension",
-  "commands": [{ "name": "index", "title": "Secondary Index" }]
-}

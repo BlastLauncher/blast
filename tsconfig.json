@@ -18,5 +18,5 @@
     "jsx": "react-jsx"
   },
   "include": ["scripts", "packages"],
-  "exclude": ["archive", "node_modules", "**/dist", ".cache"]
+  "exclude": ["node_modules", "**/dist", ".cache"]
 }

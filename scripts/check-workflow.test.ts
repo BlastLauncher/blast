@@ -90,12 +90,4 @@ describe("checkWorkflow", () => {
       "tasks/0007-other.md: id 0007 already used by 0007-do-a-thing.md",
     ]);
   });
-
-  test("rejects imports from the archive", () => {
-    // Assembled at runtime so this file does not trip the check itself.
-    const source = ['import x from "../../', 'archive/packages/a.ts";\n'].join("");
-    expect(checkWorkflow(repo({ "packages/a/src/x.ts": source }))).toEqual([
-      "packages/a/src/x.ts: imports from archive/",
-    ]);
-  });
 });

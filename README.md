@@ -20,7 +20,8 @@ Compatibility is measured against the latest `@raycast/api`, not claimed:
 > **Status:** alpha. `3.0.0-alpha.0` is on npm under the `next` tag
 > ([release](https://github.com/BlastLauncher/blast/releases/tag/v3.0.0-alpha.0));
 > `latest` still points at Blast v1 for `cli` and `runtime`. The previous
-> prototype is frozen under [`archive/`](./archive/README.md).
+> prototype is kept at tag
+> [`archive/v2-prototype-2026-10-18`](https://github.com/BlastLauncher/blast/tree/archive/v2-prototype-2026-10-18).
 
 ```bash
 npm install @blastlauncher/engine@next @blastlauncher/client-core@next

@@ -23,8 +23,8 @@ claimed.
 
 ## Ground rules
 
-- `archive/` is the frozen V1/V2 prototype. Do not read, search, import, or copy
-  from it unless your task file names a specific path there as reference.
+- The V1/V2 prototype is not in the tree; tag `archive/v2-prototype-2026-10-18`
+  keeps it. Do not consult it unless your task file names a path there.
 - The repo is public. Never commit secrets, tokens, personal paths, or
   extension source you are not licensed to redistribute.
 - Keep disk usage minimal: no global installs, no full clones of large repos;
@@ -55,7 +55,6 @@ docs/            architecture, capabilities, CLI, TUI, rare decisions/
 compat/          generated Raycast API coverage — never edit by hand
 packages/        product code (Node-runnable TypeScript)
 scripts/         repo automation (verify, workflow checks, generators)
-archive/         frozen prototype, scheduled for deletion
 ```
 
 ## Commands

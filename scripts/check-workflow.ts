@@ -1,7 +1,7 @@
 // Guards the agent workflow described in AGENTS.md against drift: file size
-// limits, task file shape, and imports from the frozen archive.
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
-import { join, relative } from "node:path";
+// limits and task file shape.
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 
 export const LINE_LIMITS: Record<string, number> = {
   "AGENTS.md": 200,
@@ -16,8 +16,6 @@ export const DECISION_LINE_LIMIT = 60;
 export const TASK_STATUSES = ["todo", "doing", "review"] as const;
 export const TASK_SECTIONS = ["Goal", "Context", "Acceptance", "Out of scope", "Handoff"];
 const TASK_FILE = /^(\d{4})-[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
-const ARCHIVE_IMPORT = /(?:from\s+|import\s*\(\s*|require\s*\(\s*)["'][^"']*\barchive\//;
-const SOURCE_DIRS = ["packages", "scripts"];
 
 function lineCount(path: string): number {
   return readFileSync(path, "utf8").split("\n").length;
@@ -59,15 +57,6 @@ export function checkTask(name: string, text: string): string[] {
   return errors;
 }
 
-function* walk(dir: string): Generator<string> {
-  for (const entry of readdirSync(dir)) {
-    if (entry === "node_modules" || entry === "dist") continue;
-    const path = join(dir, entry);
-    if (statSync(path).isDirectory()) yield* walk(path);
-    else yield path;
-  }
-}
-
 export function checkWorkflow(root: string): string[] {
   const errors: string[] = [];
 
@@ -100,17 +89,6 @@ export function checkWorkflow(root: string): string[] {
     const previous = ids.get(id);
     if (previous) errors.push(`tasks/${name}: id ${id} already used by ${previous}`);
     ids.set(id, name);
-  }
-
-  for (const dir of SOURCE_DIRS) {
-    const base = join(root, dir);
-    if (!existsSync(base)) continue;
-    for (const path of walk(base)) {
-      if (!/\.(?:[cm]?[jt]sx?)$/.test(path)) continue;
-      if (ARCHIVE_IMPORT.test(readFileSync(path, "utf8"))) {
-        errors.push(`${relative(root, path)}: imports from archive/`);
-      }
-    }
   }
 
   return errors;

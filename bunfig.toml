@@ -6,5 +6,5 @@ exact = true
 peer = false
 
 [test]
-pathIgnorePatterns = ["archive/**", ".cache/**"]
+pathIgnorePatterns = [".cache/**"]
 preload = ["./scripts/test-env.ts"]
