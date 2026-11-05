@@ -97,12 +97,15 @@ small bundle and starts it.
 ## Handoff
 
 ```
-Branch/commit: t3/prebuilt-catalog-bundles @ 0cb0724
-Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 64.5s
+Branch/commit: t3/prebuilt-catalog-bundles-1 @ pending
+Verify: focused bundles tests, typecheck, workflow check, and fixture site:e2e pass; full verify pending
 Done:
-- Added a validated `bundles.json` contract, SHA-256 verification, build-SHA gating, and launch fast path with fallback.
-- Added native-esbuild catalog prebuilds, pinned raw-source caching, deterministic bundle indexes, and fixture prebuild support.
-- Added schema, digest, tree mapping, and Playwright fixture assertions; `site:e2e` passes without requesting `esbuild.wasm` for the prebuilt fixture.
-- Production measurement: 49/237 commands built; ratio-calculator/calculate-ratio.js is 1,017,916 bytes; generated bundle bytes are 53,790,676 (~51.3 MiB); `.cache/browser-catalog` is 224 MiB.
-Not done / risks: The pinned GitHub recursive tree is truncated for this corpus. Commands requiring files outside the bounded fallback or unsupported dependency graphs remain runtime fallbacks, so measured prebuild coverage is 20.7%, below the 90% target. The local smoke harness could not serve the generated output with the ad-hoc server; `site:e2e` and focused browser tests pass.
+- Reworked production prebuild to reuse scripts/corpus/fetch.ts for a pinned shallow blobless sparse checkout at the catalog commit, eliminating the GitHub tree API and including all non-node_modules extension files.
+- Added a runtime bundle artifact and extended bundles.json validation with runtime metadata; command bundles retain SHA-256 and build-SHA gating and the fast path preserves the 0125 status rendering.
+- Production build measured 225/237 commands (94.9%) built in about 19 seconds after checkout; 12 failures are grouped below. Command bundle bytes were 262,592,197 plus a 933,015-byte runtime artifact (median/p95/max are printed by the prebuild summary).
+- Fixture Playwright smoke passes and confirms the prebuilt fixture launch does not request esbuild.wasm. The production smoke script was not run against the generated output because the generated bundle set is too large for the local safety budget.
+- Sparse corpus checkout measured 816 MB, above the requested ~300 MB target; CI sets BLAST_CORPUS_MAX_MB=1000 to permit the complete catalog checkout.
+Not done / risks:
+- Shared runtime externalization is not complete: command bundles still embed React/reconciler/API, so generated bundles exceed the 30 MB target. A registry-based externalization needs to preserve a single React instance across the sandbox VM.
+- Production failures: bugmenot/find-login (missing npm entities), humaans/clock-in, clock-out, holidays, people (missing cross-fetch), multi-ai-chat/multi-ai-chat and run-presets (missing local files), promptty/search-promptty (missing local component), splatoon/splatoon-2-schedules and splatoon-3-schedules (missing node-fetch), trenit/departures-and-arrivals and valkey-commands-search/search-valkey-commands (missing entities).
 ```

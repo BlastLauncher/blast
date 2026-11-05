@@ -6,13 +6,9 @@ import { bundleForBrowser } from "../../packages/host/src/browser-bundle.ts";
 import { installForBrowser } from "../../packages/host/src/browser-install.ts";
 import { bundleKey, type BundleIndex } from "./bundles.ts";
 import { projectRoot, relativeFiles } from "./build.ts";
+import { ensureCorpusCheckout } from "../../scripts/corpus/fetch.ts";
 import type { Catalog } from "./root.ts";
 
-const cacheRoot = join(projectRoot, ".cache", "browser-catalog");
-const raw = (owner: string, repo: string, commit: string, path: string) =>
-  `https://raw.githubusercontent.com/${owner}/${repo}/${encodeURIComponent(commit)}/${path}`;
-const tree = (owner: string, repo: string, commit: string) =>
-  `https://api.github.com/repos/${owner}/${repo}/git/trees/${encodeURIComponent(commit)}?recursive=1`;
 const aliases = {
   "@raycast/api": "/packages/runtime/src/api/index.ts",
   "@blastlauncher/protocol": "/packages/protocol/src/index.ts",
@@ -56,66 +52,29 @@ async function sharedSources(): Promise<Map<string, string | Uint8Array>> {
   return files;
 }
 
-type TreeEntry = { path?: string; type?: string };
-export function extensionFilesFromTree(entries: TreeEntry[], extensionPath: string): string[] {
+export function extensionFilesFromTree(
+  entries: Array<{ path?: string; type?: string }>,
+  extensionPath: string,
+): string[] {
   const prefix = `${extensionPath.replace(/\/$/, "")}/`;
   return entries
     .filter((entry) => entry.type === "blob" && typeof entry.path === "string")
-    .map((entry) => entry.path!)
+    .map((entry) => entry.path as string)
     .filter((path) => path.startsWith(prefix) && !path.split("/").includes("node_modules"))
     .map((path) => path.slice(prefix.length))
     .toSorted();
 }
 
 async function fetchExtension(
+  checkout: string,
   extension: string,
-  commit: string,
-  treeEntries: TreeEntry[],
-  commands: string[],
 ): Promise<Map<string, string | Uint8Array>> {
-  const extensionPath = `extensions/${extension}`;
-  const directory = join(cacheRoot, commit, extension);
-  const marker = join(directory, ".complete");
-  await mkdir(directory, { recursive: true });
-  let paths: string[];
-  if (await exists(marker))
-    paths = await readFile(join(directory, ".files"), "utf8").then(JSON.parse);
-  else {
-    paths = extensionFilesFromTree(treeEntries, extensionPath);
-    // GitHub marks very large recursive trees as truncated. The catalog still
-    // gives us each command entry, so fetch the manifest and conventional
-    // command files as a bounded fallback for those extensions.
-    if (!paths.includes("package.json")) {
-      paths = [
-        "package.json",
-        ...commands.flatMap((name) => [
-          `src/${name}.tsx`,
-          `src/${name}.ts`,
-          `src/${name}.jsx`,
-          `src/${name}.js`,
-        ]),
-      ];
-    }
-    if (!paths.includes("package.json")) throw new Error("Extension package.json was not found");
-    const found: string[] = [];
-    for (const path of paths) {
-      const response = await fetch(
-        raw("raycast", "extensions", commit, `${extensionPath}/${path}`),
-      );
-      if (!response.ok) {
-        if (path !== "package.json") continue;
-        throw new Error(`Unable to fetch ${extension}/${path} (${response.status})`);
-      }
-      found.push(path);
-      await mkdir(dirname(join(directory, path)), { recursive: true });
-      await writeFile(join(directory, path), new Uint8Array(await response.arrayBuffer()));
-    }
-    paths = found;
-    await writeFile(join(directory, ".files"), JSON.stringify(paths));
-    await writeFile(marker, "ok\n");
-  }
+  const directory = join(checkout, "extensions", extension);
+  if (!(await exists(join(directory, "package.json"))))
+    throw new Error(`Extension package.json was not found: ${extension}`);
   const files = new Map<string, string | Uint8Array>();
-  for (const path of paths) {
+  for (const path of await relativeFiles(directory)) {
+    if (path.split("/").includes("node_modules")) continue;
     const bytes = await readFile(join(directory, path));
     files.set(`/${path}`, textFile(path) ? bytes.toString("utf8") : new Uint8Array(bytes));
   }
@@ -142,13 +101,31 @@ export async function prebuildCatalog(
   bytes: number;
 }> {
   const shared = await sharedSources();
-  let treeEntries: TreeEntry[] = [];
-  if (!fixtures) {
-    const treeResponse = await fetch(tree("raycast", "extensions", catalog.commit));
-    if (!treeResponse.ok) throw new Error(`Unable to list catalog tree (${treeResponse.status})`);
-    treeEntries = ((await treeResponse.json()) as { tree?: TreeEntry[] }).tree ?? [];
-  }
+  const checkout = fixtures
+    ? ""
+    : ensureCorpusCheckout(
+        projectRoot,
+        catalog.extensions.map((extension) => extension.name),
+        catalog.commit,
+      );
   const index: BundleIndex = { buildSha, bundles: {} };
+  const sharedModules = aliases;
+  const runtime = await bundleForBrowser({
+    esbuild,
+    files: shared,
+    packages: new Map(),
+    command: "/examples/browser-demo/runtime-entry.ts",
+    runtimeEntry: "/examples/browser-demo/runtime-entry.ts",
+    aliases,
+  });
+  const runtimeBytes = Buffer.from(`${runtime.code}\nglobalThis.__blastRuntime = runtime_entry_exports;\n`);
+  await mkdir(join(output, "bundles"), { recursive: true });
+  await writeFile(join(output, "bundles", "runtime.js"), runtimeBytes);
+  index.runtime = {
+    path: "bundles/runtime.js",
+    bytes: runtimeBytes.byteLength,
+    sha256: createHash("sha256").update(runtimeBytes).digest("hex"),
+  };
   let built = 0;
   const reasons: string[] = [];
   const extensions = catalog.extensions.filter(
@@ -169,13 +146,7 @@ export async function prebuildCatalog(
                   await readFile(join(projectRoot, "fixtures/extensions/hello-list", path)),
                 ),
           );
-      } else
-        files = await fetchExtension(
-          extension.name,
-          catalog.commit,
-          treeEntries,
-          extension.commands.map((command) => command.name),
-        );
+      } else files = await fetchExtension(checkout, extension.name);
       const manifest = JSON.parse(String(files.get("/package.json"))) as Record<string, unknown>;
       const lockfile = files.get("/package-lock.json");
       const installed = await installForBrowser({
@@ -233,8 +204,10 @@ export async function prebuildCatalog(
     0,
   );
   const bytes = Object.values(index.bundles).reduce((sum, entry) => sum + entry.bytes, 0);
+  const sizes = Object.values(index.bundles).map((entry) => entry.bytes).toSorted((a, b) => a - b);
+  const percentile = (fraction: number) => sizes[Math.min(sizes.length - 1, Math.floor(sizes.length * fraction))] ?? 0;
   console.log(
-    `catalog prebuild: ${built}/${total} built, ${reasons.length} failed, ${bytes} bundle bytes`,
+    `catalog prebuild: ${built}/${total} built, ${reasons.length} failed, ${bytes} command bytes + ${runtimeBytes.byteLength} runtime bytes (median ${percentile(0.5)}, p95 ${percentile(0.95)}, max ${percentile(1)})`,
   );
   for (const reason of reasons) console.log(`  ${reason}`);
   return { index, built, failed: reasons.length, reasons, bytes };

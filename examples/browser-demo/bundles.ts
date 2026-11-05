@@ -1,5 +1,9 @@
 export type CatalogBundle = { path: string; bytes: number; sha256: string };
-export type BundleIndex = { buildSha: string; bundles: Record<string, CatalogBundle> };
+export type BundleIndex = {
+  buildSha: string;
+  bundles: Record<string, CatalogBundle>;
+  runtime?: CatalogBundle;
+};
 
 export function bundleKey(extension: string, command: string): string {
   return `${extension}/${command}`;
@@ -10,6 +14,22 @@ export function parseBundleIndex(value: unknown): BundleIndex {
   const input = value as Record<string, unknown>;
   if (typeof input.buildSha !== "string" || !input.bundles || typeof input.bundles !== "object")
     throw new Error("Invalid browser bundle index shape");
+  const runtimeValue = input.runtime;
+  let runtime: CatalogBundle | undefined;
+  if (runtimeValue !== undefined) {
+    if (!runtimeValue || typeof runtimeValue !== "object")
+      throw new Error("Invalid runtime bundle");
+    const item = runtimeValue as Record<string, unknown>;
+    if (
+      item.path !== "bundles/runtime.js" ||
+      typeof item.bytes !== "number" ||
+      !Number.isInteger(item.bytes) ||
+      typeof item.sha256 !== "string" ||
+      !/^[0-9a-f]{64}$/.test(item.sha256)
+    )
+      throw new Error("Invalid runtime bundle");
+    runtime = { path: item.path, bytes: item.bytes, sha256: item.sha256 };
+  }
   const bundles: Record<string, CatalogBundle> = {};
   for (const [key, entryValue] of Object.entries(input.bundles as Record<string, unknown>)) {
     if (!entryValue || typeof entryValue !== "object")
@@ -27,7 +47,7 @@ export function parseBundleIndex(value: unknown): BundleIndex {
       throw new Error(`Invalid bundle entry shape: ${key}`);
     bundles[key] = { path: item.path, bytes: item.bytes, sha256: item.sha256 };
   }
-  return { buildSha: input.buildSha, bundles };
+  return { buildSha: input.buildSha, bundles, ...(runtime ? { runtime } : {}) };
 }
 
 export async function sha256Hex(value: ArrayBuffer): Promise<string> {

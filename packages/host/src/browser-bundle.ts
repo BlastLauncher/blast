@@ -23,6 +23,7 @@ export type BrowserBundleOptions = {
   runtimeEntry: string;
   /** Explicit specifier-to-file aliases for supplied runtime modules. */
   aliases?: Record<string, string>;
+  sharedRuntime?: boolean;
 };
 
 export type BrowserBundle = {
@@ -410,7 +411,9 @@ export async function bundleForBrowser(options: BrowserBundleOptions): Promise<B
       build.onLoad({ filter: /.*/ }, (args) => {
         if (args.path === virtualEntry) {
           return {
-            contents: `import * as __blastRuntime from ${JSON.stringify(runtimeEntry)};\nimport * as __blastCommand from ${JSON.stringify(command)};\nconst __blastCommandValue = __blastCommand.default ?? __blastCommand;\nif (typeof __blastRuntime.start === "function") __blastRuntime.start({ default: __blastCommandValue });\nexport * from ${JSON.stringify(command)};\nexport default __blastCommandValue;`,
+            contents: options.sharedRuntime
+              ? `const __blastRuntime = globalThis.__blastRuntime;\nimport * as __blastCommand from ${JSON.stringify(command)};\nif (typeof __blastRuntime?.start === "function") __blastRuntime.start(__blastCommand);\nexport * from ${JSON.stringify(command)};\nexport default __blastCommand.default;`
+              : `import * as __blastRuntime from ${JSON.stringify(runtimeEntry)};\nimport * as __blastCommand from ${JSON.stringify(command)};\nconst __blastCommandValue = __blastCommand.default ?? __blastCommand;\nif (typeof __blastRuntime.start === "function") __blastRuntime.start({ default: __blastCommandValue });\nexport * from ${JSON.stringify(command)};\nexport default __blastCommandValue;`,
             loader: "js",
             resolveDir: "/",
           };

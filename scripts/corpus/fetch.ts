@@ -34,13 +34,15 @@ function head(cwd: string): string | undefined {
   return result.status === 0 ? result.stdout.trim() : undefined;
 }
 
-function main(): void {
-  const root = process.cwd();
-  const options = parseArgs(process.argv.slice(2));
+export function ensureCorpusCheckout(
+  root: string,
+  requested: string[],
+  commitOverride?: string,
+): string {
   const pin = readPin(root);
   const maxMb = maxMbFromEnv(process.env);
   const repoDir = join(root, CORPUS_DIR);
-  const requested = options.curated ? [...pin.curated, ...options.extensions] : options.extensions;
+  const commit = commitOverride ?? pin.commit;
   const patterns = buildPatterns(requested);
 
   const guard = (step: string): void => {
@@ -74,25 +76,33 @@ function main(): void {
   // probe that would answer "is the pin here?" resolves objects, which on a
   // partial clone silently fetches them. Fetch the pin every run instead: it
   // is idempotent and keeps the step observable.
-  git(repoDir, ["fetch", "--depth=1", "origin", pin.commit]);
+  git(repoDir, ["fetch", "--depth=1", "origin", commit]);
   guard("fetch");
 
   git(repoDir, ["sparse-checkout", "set", "--no-cone", ...patterns]);
   guard("sparse-checkout");
-  git(repoDir, ["-c", "advice.detachedHead=false", "checkout", pin.commit]);
+  git(repoDir, ["-c", "advice.detachedHead=false", "checkout", commit]);
   guard("checkout");
 
   const resolved = head(repoDir);
-  if (resolved !== pin.commit) {
-    throw new Error(`HEAD is ${resolved}, expected the pin ${pin.commit}`);
+  if (resolved !== commit) {
+    throw new Error(`HEAD is ${resolved}, expected the pin ${commit}`);
   }
-  console.log(`corpus: ${CORPUS_DIR} is at ${pin.commit}`);
+  console.log(`corpus: ${CORPUS_DIR} is at ${commit}`);
   for (const pattern of patterns) console.log(`corpus:   ${pattern}`);
+  return repoDir;
 }
 
-try {
-  main();
-} catch (error) {
-  console.error(`corpus: ${error instanceof Error ? error.message : error}`);
-  process.exit(1);
+if (import.meta.main) {
+  try {
+    const options = parseArgs(process.argv.slice(2));
+    const pin = readPin(process.cwd());
+    ensureCorpusCheckout(
+      process.cwd(),
+      options.curated ? [...pin.curated, ...options.extensions] : options.extensions,
+    );
+  } catch (error) {
+    console.error(`corpus: ${error instanceof Error ? error.message : error}`);
+    process.exit(1);
+  }
 }

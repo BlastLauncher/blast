@@ -15,12 +15,12 @@ import {
   type RootActionId,
   type RootRow,
 } from "./root.ts";
+import { statusError, statusForStage, statusInfo, type DemoStatus } from "./status.ts";
 
 type FileMap = Record<string, string>;
 type BrowserFile = string | Uint8Array;
 const asset = (path: string) => new URL(path, new URL(".", location.href)).toString();
 const app = document.querySelector<HTMLElement>("#app")!;
-const status = document.querySelector<HTMLElement>("#status")!;
 const commandSelect = document.querySelector<HTMLSelectElement>("#command");
 let controller: Controller | undefined;
 let port: MessagePort | undefined;
@@ -34,14 +34,39 @@ let actionOpen = false;
 let actionQuery = "";
 let actionSelected = 0;
 let rootToast = "";
+let statusState: DemoStatus = statusForStage("ready");
 let bundleIndex: ReturnType<typeof parseBundleIndex> | undefined;
 
+let extensionContext:
+  | {
+      extensionTitle: string;
+      commandTitle: string;
+      icon?: string;
+      iconUrl?: string;
+    }
+  | undefined;
+
+const statusForText = (text: string, error: boolean): DemoStatus => {
+  if (error) return statusError(text);
+  if (text === "Ready") return statusForStage("ready");
+  if (text === "Fetching extension…") return statusForStage("fetching");
+  if (text === "Installing…") return statusForStage("installing");
+  if (text === "Bundling…") return statusForStage("bundling");
+  if (text === "Starting…") return statusForStage("starting");
+  return statusInfo(text);
+};
 const setStatus = (text: string, error = false) => {
-  status.textContent = text;
-  status.dataset.error = error ? "true" : "false";
+  statusState = statusForText(text, error);
+  if (catalog) {
+    if (rootOpen || !controller) drawRoot();
+    else draw(controller.view());
+  }
 };
 const draw = (view: ReturnType<Controller["view"]>) => {
-  app.innerHTML = render(view);
+  app.innerHTML = render(view, {
+    status: statusState,
+    ...(extensionContext ? { context: extensionContext } : {}),
+  });
 };
 const drawRoot = () => {
   const model = rootModel(
@@ -60,6 +85,7 @@ const drawRoot = () => {
     actions: actions.actions,
     selected: actionSelected,
     toast: rootToast,
+    status: statusState,
   });
   const search = document.querySelector<HTMLInputElement>("#root-search");
   (actionOpen ? document.querySelector<HTMLInputElement>("#root-action-search") : search)?.focus();
@@ -203,20 +229,18 @@ function commandEntry(files: Map<string, BrowserFile>, name: string): string {
 async function launch(source: string, commandName: string): Promise<void> {
   rootOpen = false;
   actionOpen = false;
+  const selectedRow = rootRows[rootSelected];
+  extensionContext = selectedRow
+    ? { extensionTitle: selectedRow.subtitle, commandTitle: selectedRow.title, icon: selectedRow.icon, ...(selectedRow.iconUrl ? { iconUrl: selectedRow.iconUrl } : {}) }
+    : undefined;
   const selectedCommand = commandName || commandSelect?.value || "index";
+  const catalogSource = source.startsWith("https://github.com/raycast/extensions/tree/");
+  const bundle = catalogSource ? await prebuiltBundle(source, selectedCommand) : undefined;
   let extension: Awaited<ReturnType<typeof fetchFiles>>;
   let command: string;
   let bundled: { code: string };
-  const catalogSource = source.startsWith("https://github.com/raycast/extensions/tree/");
-  const bundle = catalogSource ? await prebuiltBundle(source, selectedCommand) : undefined;
   if (bundle) {
-    extension = {
-      files: new Map(),
-      manifest: {
-        name: source.split("/extensions/tree/")[1]?.split("/").slice(1).join("/") ?? source,
-      },
-      root: "",
-    };
+    extension = { files: new Map(), manifest: { name: source }, root: "" };
     command = `/src/${selectedCommand}.tsx`;
     bundled = bundle;
     setStatus("Starting prebuilt bundle…");
@@ -227,125 +251,39 @@ async function launch(source: string, commandName: string): Promise<void> {
     const files = new Map<string, BrowserFile>(Object.entries(sourceFiles));
     for (const [path, value] of extension.files) files.set(path, value);
     command = commandEntry(extension.files, selectedCommand);
-    setStatus("Installing dependencies…");
-    const installed = await installForBrowser({
-      fetch: (value, init) => fetch(value, init),
-      manifest: extension.manifest,
-      ...(extension.lockfile === undefined ? {} : { lockfile: extension.lockfile }),
-    });
+    setStatus("Installing…");
+    const installed = await installForBrowser({ fetch: (value, init) => fetch(value, init), manifest: extension.manifest, ...(extension.lockfile === undefined ? {} : { lockfile: extension.lockfile }) });
     setStatus("Bundling…");
     await esbuild.initialize({ wasmURL: asset("esbuild.wasm"), worker: false });
-    bundled = await bundleForBrowser({
-      esbuild,
-      files,
-      packages: installed.packages,
-      command,
-      runtimeEntry: "/examples/browser-demo/runtime-entry.ts",
-      aliases: {
-        "@raycast/api": "/packages/runtime/src/api/index.ts",
-        "@blastlauncher/protocol": "/packages/protocol/src/index.ts",
-        react: "/node_modules/react/index.js",
-        "react/jsx-runtime": "/node_modules/react/jsx-runtime.js",
-        "react-reconciler": "/node_modules/react-reconciler/index.js",
-        "react-reconciler/constants.js": "/node_modules/react-reconciler/constants.js",
-        scheduler: "/node_modules/scheduler/index.js",
-      },
-    });
+    bundled = await bundleForBrowser({ esbuild, files, packages: installed.packages, command, runtimeEntry: "/examples/browser-demo/runtime-entry.ts", aliases: { "@raycast/api": "/packages/runtime/src/api/index.ts", "@blastlauncher/protocol": "/packages/protocol/src/index.ts", react: "/node_modules/react/index.js", "react/jsx-runtime": "/node_modules/react/jsx-runtime.js", "react-reconciler": "/node_modules/react-reconciler/index.js", "react-reconciler/constants.js": "/node_modules/react-reconciler/constants.js", scheduler: "/node_modules/scheduler/index.js" } });
   }
-  const almost = (await import(asset("almostnode.mjs"))) as unknown as {
-    VirtualFS: new () => unknown;
-    createRuntime: (
-      vfs: unknown,
-      options: { sandbox: string },
-    ) => Promise<{ execute(code: string, filename?: string): Promise<unknown> }>;
-  };
-  const runtime = await almost.createRuntime(new almost.VirtualFS(), {
-    sandbox:
-      ((globalThis as Record<string, unknown>)["__BLAST_SANDBOX__"] as string | undefined) ?? "",
-  });
-  runtimeFrame =
-    (runtime as unknown as { iframe?: HTMLIFrameElement }).iframe?.contentWindow ??
-    document.querySelector("iframe")?.contentWindow ??
-    undefined;
+  const almost = (await import(asset("almostnode.mjs"))) as unknown as { VirtualFS: new () => unknown; createRuntime: (vfs: unknown, options: { sandbox: string }) => Promise<{ execute(code: string, filename?: string): Promise<unknown> }> };
+  const runtime = await almost.createRuntime(new almost.VirtualFS(), { sandbox: ((globalThis as Record<string, unknown>)["__BLAST_SANDBOX__"] as string | undefined) ?? "" });
+  runtimeFrame = (runtime as unknown as { iframe?: HTMLIFrameElement }).iframe?.contentWindow ?? document.querySelector("iframe")?.contentWindow ?? undefined;
   const channel = new MessageChannel();
-  port = channel.port1;
-  port.start();
-  port.addEventListener("message", (event) => handleRuntime(event.data));
-  try {
-    await runtime.execute(`${bundled.code}\nmodule.exports = null;`, "/bundle.cjs");
-  } catch (error) {
-    setStatus(`Runtime failed: ${String(error)}`, true);
-    return;
-  }
+  port = channel.port1; port.start(); port.addEventListener("message", (event) => handleRuntime(event.data));
+  try { await runtime.execute(`${bundled.code}\nmodule.exports = null;`, "/bundle.cjs"); } catch (error) { setStatus(`Runtime failed: ${String(error)}`, true); return; }
   setTimeout(() => runtimeFrame?.postMessage({ type: "blast-port" }, "*", [channel.port2]), 100);
-  controller = createController({ platform: "macOS" });
-  controller.subscribe(draw);
-  setTimeout(
-    () =>
-      port?.postMessage({
-        type: "init",
-        protocol: 1,
-        command: {
-          extension: String(extension.manifest.name ?? source),
-          name: selectedCommand,
-          entry: command,
-          mode: "view",
-        },
-        preferences: {},
-        environment: {
-          extensionName: String(extension.manifest.name ?? source),
-          commandName: selectedCommand,
-          ownerOrAuthorName: "Browser",
-          assetsPath: "",
-          supportPath: "",
-          isDevelopment: false,
-          appearance: "dark",
-          textSize: "medium",
-        },
-      }),
-    250,
-  );
+  controller = createController({ platform: "macOS" }); controller.subscribe(draw);
+  setTimeout(() => port?.postMessage({ type: "init", protocol: 1, command: { extension: String(extension.manifest.name ?? source), name: selectedCommand, entry: command, mode: "view" }, preferences: {}, environment: { extensionName: String(extension.manifest.name ?? source), commandName: selectedCommand, ownerOrAuthorName: "Browser", assetsPath: "", supportPath: "", isDevelopment: false, appearance: "dark", textSize: "medium" } }), 250);
   setStatus("Starting…");
 }
 
-async function prebuiltBundle(
-  source: string,
-  command: string,
-): Promise<{ code: string } | undefined> {
+async function prebuiltBundle(source: string, command: string): Promise<{ code: string } | undefined> {
   try {
     if (!bundleIndex) {
-      const [indexResponse, buildResponse] = await Promise.all([
-        fetch(asset("bundles.json")),
-        fetch(asset("../build.json")),
-      ]);
+      const [indexResponse, buildResponse] = await Promise.all([fetch(asset("bundles.json")), fetch(asset("../build.json"))]);
       if (!indexResponse.ok || !buildResponse.ok) return undefined;
-      const index = parseBundleIndex(await indexResponse.json());
-      const build = (await buildResponse.json()) as { sha?: unknown };
+      const index = parseBundleIndex(await indexResponse.json()); const build = (await buildResponse.json()) as { sha?: unknown };
       if (typeof build.sha !== "string" || build.sha !== index.buildSha) return undefined;
       bundleIndex = index;
     }
-    const parts = new URL(source).pathname.split("/").filter(Boolean);
-    const treeIndex = parts.indexOf("tree");
-    const extension = treeIndex >= 0 ? parts[treeIndex + 3] : undefined;
-    if (!extension) return undefined;
-    const entry = bundleIndex.bundles[bundleKey(extension, command)];
-    if (!entry) return undefined;
-    const response = await fetch(asset(entry.path.replace(/^bundles\//, "bundles/")));
-    if (!response.ok) return undefined;
-    const bytes = await response.arrayBuffer();
-    if (
-      !(await bundleMatches(
-        bundleIndex,
-        bundleIndex.buildSha,
-        bundleKey(extension, command),
-        bytes,
-      ))
-    )
-      return undefined;
+    const parts = new URL(source).pathname.split("/").filter(Boolean); const treeIndex = parts.indexOf("tree"); const extension = treeIndex >= 0 ? parts[treeIndex + 3] : undefined;
+    if (!extension) return undefined; const key = bundleKey(extension, command); const entry = bundleIndex.bundles[key]; if (!entry) return undefined;
+    const response = await fetch(asset(entry.path)); if (!response.ok) return undefined; const bytes = await response.arrayBuffer();
+    if (!(await bundleMatches(bundleIndex, bundleIndex.buildSha, key, bytes))) return undefined;
     return { code: new TextDecoder().decode(bytes) };
-  } catch {
-    return undefined;
-  }
+  } catch { return undefined; }
 }
 
 function stopSession() {
@@ -355,6 +293,7 @@ function stopSession() {
   runtimeFrame = undefined;
   document.querySelector("iframe")?.remove();
   rootOpen = true;
+  extensionContext = undefined;
   setStatus("Ready");
   drawRoot();
 }
@@ -376,10 +315,10 @@ function backFromExtension() {
 function runSelected() {
   const selected = rootRows[rootSelected];
   if (!selected) return;
-  const source =
-    selected.url ??
-    `https://github.com/raycast/extensions/tree/${catalog.commit}/extensions/${selected.extension}`;
-  void launch(source, selected.command).catch((error) => setStatus(String(error), true));
+  const source = selected.url ?? `https://github.com/raycast/extensions/tree/${catalog.commit}/extensions/${selected.extension}`;
+  void launch(source, selected.command).catch((error) =>
+    setStatus(String(error), true),
+  );
 }
 
 function runAction() {
