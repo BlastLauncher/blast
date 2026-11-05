@@ -1,0 +1,9 @@
+{
+  "name": "browser-isolation-probe",
+  "commands": [
+    {
+      "name": "index",
+      "mode": "view"
+    }
+  ]
+}

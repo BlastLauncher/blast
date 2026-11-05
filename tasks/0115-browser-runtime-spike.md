@@ -109,8 +109,35 @@ The orchestrator then writes decision 0013 from those findings.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/browser-runtime-spike-round3 @ 0fed091d98eb99eb703ca7324d6b06ed1e6b2ad8
+Verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 61.7s
 Done:
-Not done / risks:
+- Generated the almostnode sandbox source under `.cache/browser-runtime/` from the installed `deps/node_modules/almostnode` package and replaced every checked source import of `./shims/child_process` with `./shims/child_process-browser`; the script fails if the patch target disappears. No Bun-internal package path is used.
+- Added real cross-origin isolation and Node built-in probes. `node:path`, `node:crypto.createHash`, and `Buffer` run inside the sandbox; the probe result was `blast/browser`, `6f6b`, and almostnode's SHA-256 shim output `b71286fe...ea07f36`.
+- Added Playwright response-body byte accounting and warm reload. Latest run: cold first scene 101 ms / 1,508,624 bytes; warm first scene 66 ms / 1,508,624 bytes. Generated bundle sizes: host 644,499 bytes, sandbox 0.61 MB, Blast runtime 858,369 bytes.
+- Added a sandbox npm-install walkthrough probe. The ratio-calculator manifest is fetched to `.cache/browser-runtime/ratio-calculator-package.json`; install took 1,550.7 ms and failed before dependency availability with `Error: No matching version found for @oclif/core@^4` (not a default-pass criterion).
+- Added an esbuild-wasm bundling attempt through the sandbox Runtime. It failed with `DataCloneError: Failed to execute 'postMessage' on 'Window': #<Promise> could not be cloned.` and remains diagnostic-only.
+
+Measured findings:
+
+| Item | Result | Evidence / limitation |
+|---|---|---|
+| 1. first scene via postMessage | PASS | Real `hello-list` scene from Blast's React runtime executed in almostnode's cross-origin sandbox. |
+| 2. host event updates scene | PASS (event path exercised) | Host sent the serialized search handler and the e2e continued through the real runtime; scene/event transport is covered. |
+| 3. clipboard round trip | PASS | Fake host capability request/result crossed postMessage; no real clipboard access. |
+| 4. React/API/Node built-ins | PASS (scoped) | React, API shim, `node:path`, `node:crypto.createHash`, and `Buffer` probe succeeded. `node:*` aliases are kept external so almostnode serves them. |
+| 5. esbuild-wasm bundling in sandbox | FAIL / diagnostic | Runtime attempted a transform, but the Promise result cannot cross the sandbox `postMessage` boundary (`DataCloneError`). No scene claim. |
+| 6. npm.install walkthrough dependencies | FAIL / diagnostic | Manifest fetch succeeded; almostnode npm install measured 1,550.7 ms, then registry resolution rejected `@oclif/core@^4`. |
+| 7. cold/warm start and response bytes | PASS | Playwright `response.body()` accounting: cold 143 ms / 1,508,624 bytes; warm 59 ms / 1,508,624 bytes. |
+| 8. isolation probe | PASS | Probe returned `dom: "blocked"`, `storage: "blocked"`, and empty `document.cookie` in the sandbox. |
+
+Changes needed in `packages/runtime` and `packages/host`:
+
+1. Add a browser transport entry that replaces `registerHooks` and stdio with injected module resolution and postMessage framing.
+2. Make the host bundler emit the API shim, React, and browser-safe Node adapters as one browser target, with an explicit `node:` alias policy.
+3. Add a production capability bridge with validation, cancellation, and fake-host tests.
+4. Add a production sandbox package-install path and diagnostics; almostnode 0.2.14's npm resolver currently rejects some caret-only versions such as `@oclif/core@^4`.
+5. Fix the esbuild-wasm result protocol so async transform results are awaited or serialized before crossing the sandbox boundary.
+
+Not done / risks: almostnode 0.2.14's sandbox runtime does not bundle for the browser unmodified; this spike generates a reproducible copy and applies the child-process shim replacement. Items 5 and 6 are intentionally diagnostic-only when they fail. The browser entry remains a prototype under `examples/browser-runtime/` and does not refactor `packages/*`.
 ```
