@@ -36,6 +36,13 @@ describe("site workflow", () => {
     expect(jobs.smoke!.steps?.some((step) => step.uses?.includes("actions/upload-artifact@"))).toBe(
       true,
     );
+    // The sandbox branch is served by branch-based Pages, so .nojekyll must
+    // survive the artifact round trip (upload-artifact drops dotfiles by default).
+    const buildSteps = JSON.stringify((jobs.build as { steps?: unknown[] }).steps ?? []);
+    expect(buildSteps).toContain('"include-hidden-files":true');
+    expect(JSON.stringify((jobs.sandbox as { steps?: unknown[] }).steps ?? [])).toContain(
+      ".nojekyll",
+    );
     // The browser smoke runs repo scripts, so the job must check out and install.
     const smokeSteps = JSON.stringify((jobs.smoke as { steps?: unknown[] }).steps ?? []);
     expect(smokeSteps).toContain("actions/checkout@");

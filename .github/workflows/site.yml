@@ -43,6 +43,9 @@ jobs:
         with:
           name: sandbox
           path: .cache/site/sandbox
+          # upload-artifact >= 4.4 drops dotfiles by default, which lost
+          # .nojekyll and sent the sandbox branch through Jekyll (it errored).
+          include-hidden-files: true
 
   sandbox:
     needs: build
@@ -73,6 +76,8 @@ jobs:
           git -C "$RUNNER_TEMP/blast-sandbox-repo" init --initial-branch=gh-pages
           git -C "$RUNNER_TEMP/blast-sandbox-repo" config user.name github-actions[bot]
           git -C "$RUNNER_TEMP/blast-sandbox-repo" config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          # Without .nojekyll, the sandbox repo's branch-based Pages runs Jekyll.
+          test -f sandbox/.nojekyll || { echo "sandbox artifact is missing .nojekyll" >&2; exit 1; }
           cp -R sandbox/. "$RUNNER_TEMP/blast-sandbox-repo/"
           git -C "$RUNNER_TEMP/blast-sandbox-repo" add --all
           git -C "$RUNNER_TEMP/blast-sandbox-repo" commit -m "deploy $GITHUB_SHA"
