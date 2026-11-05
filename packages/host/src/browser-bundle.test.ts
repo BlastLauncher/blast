@@ -238,19 +238,22 @@ test("hands the runtime entry a module whose default is the command component", 
     esbuild: { build },
     files: new Map<string, string>([
       ["/src/index.ts", "export default function Command() { return 'ok'; }"],
-      ["/runtime.js", "export function start(module) { globalThis.__started = module; }"],
+      ["/runtime.js", "export function start(module) { globalThis.blastBrowserStarted = module; }"],
     ]),
     packages: new Map(),
     command: "/src/index.ts",
     runtimeEntry: "/runtime.js",
   });
-  const scope = globalThis as { __started?: { default?: unknown } };
-  delete scope.__started;
+  const scope = globalThis as typeof globalThis & {
+    blastBrowserStarted?: { default?: unknown };
+  };
+  delete scope.blastBrowserStarted;
   const module = { exports: {} as Record<string, unknown> };
   new Function("module", "exports", "require", result.code)(module, module.exports, () => ({}));
-  expect(typeof scope.__started?.default).toBe("function");
-  expect((scope.__started!.default as () => string)()).toBe("ok");
-  delete scope.__started;
+  const started = Reflect.get(scope, "blastBrowserStarted") as { default?: unknown } | undefined;
+  expect(typeof started?.default).toBe("function");
+  expect((started!.default as () => string)()).toBe("ok");
+  delete scope.blastBrowserStarted;
 });
 
 test("compiles JSX with the automatic runtime, so React need not be in scope", async () => {

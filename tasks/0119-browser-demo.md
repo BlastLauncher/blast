@@ -67,13 +67,14 @@ plain `<name>`, and the page then:
 ## Handoff
 
 ```
-Branch/commit: t3/browser-demo-e2e @ 1a48cd850628dd9c450411c401d3363364251e39
+Branch/commit: t3/fix-browser-demo-live-fetch @ cf719863963e5e2873ddb25489ae633a0721880c
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 63.5s
 Done:
-- Added the static browser-demo host, cross-origin almostnode sandbox wiring, browser dependency installation, esbuild-wasm bundling, controller, renderer, keyboard input, and visible capability denials.
-- Added local fixture serving, package bootstrap with pinned almostnode 0.2.14, esbuild-wasm 0.28.2, and Playwright 1.58.0, plus the browser-demo commands and README trust/limitations documentation.
-- Updated browser bundle entry startup so the runtime entry starts the real command over a transferred MessageChannel.
+- Fixed the browser bundle test's global scope typing and lint-safe name while preserving the module-default assertion.
+- Added pure GitHub URL parsing tests, CORS-enabled GitHub contents/raw fetching, GitHub rate-limit errors, recursive extension file loading with binary assets, local fixture manifests, and manifest-driven command selection.
+- Default e2e passes search filtering and simulated clipboard handling: 1,172 ms cold start, 17,350,140 bytes.
+- Live `ratio-calculator` e2e passes its first scene: 6,108 ms cold start, 17,348,198 bytes.
+- Default cold-download breakdown (17,350,140 bytes): esbuild.wasm 13,979,150; Blast sources 3,346,163; almostnode 22,576; extension 2,251; npm packages 0. The largest item is esbuild.wasm; caching it between sessions or serving it precompressed would cut cold transfer.
 Not done / risks:
-- Default e2e reached the real sandbox and runtime but failed before a scene with `Element type is invalid` from the bundled fixture command; measured run time was 30.0s timeout and the browser resource transfer was not emitted because the run failed. This needs follow-up to reconcile the browser React/reconciler aliases.
-- `--live` was not run because the default walkthrough is currently blocked by that same scene error; no live cold-start/byte measurement is available.
+- Cross-origin GitHub/npm entries may report zero in browser `transferSize` because the remote servers do not expose timing headers; the live total therefore represents measurable browser resources.
 ```

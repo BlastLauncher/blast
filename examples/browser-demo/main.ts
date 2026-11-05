@@ -52,6 +52,19 @@ async function filesUnder(directory: string, prefix: string): Promise<Record<str
   await visit(directory);
   return result;
 }
+async function relativeFiles(directory: string): Promise<string[]> {
+  const result: string[] = [];
+  async function visit(path: string, prefix: string) {
+    for (const entry of await readdir(path, { withFileTypes: true })) {
+      const current = join(path, entry.name);
+      const child = prefix ? `${prefix}/${entry.name}` : entry.name;
+      if (entry.isDirectory()) await visit(current, child);
+      else result.push(child);
+    }
+  }
+  await visit(directory, "");
+  return result;
+}
 async function buildAlmost() {
   const packageRoot = join(deps, "node_modules", "almostnode");
   const source = await readFile(join(packageRoot, "src", "runtime.ts"), "utf8");
@@ -90,7 +103,7 @@ async function buildAlmost() {
   await writeFile(join(cache, "almostnode-full.mjs"), await sandbox.outputs[0]!.text());
 }
 function html(sandboxPort: number) {
-  return `<!doctype html><meta charset="utf-8"><title>Blast browser demo</title><style>body{font:16px system-ui;max-width:760px;margin:3rem auto;background:#111;color:#eee}input{background:#222;color:inherit;border:1px solid #555;padding:.6rem;width:70%}button{padding:.6rem}.error{color:#f88}li{list-style:none;padding:.5rem}.selected{background:#345}.rows{padding:0}</style><label>Extension URL or name <input id="extension" value="hello-list"><button id="launch">Run</button></label><p id="status">Idle</p><div id="app"></div><script>window.__BLAST_SANDBOX__=${JSON.stringify(`http://127.0.0.1:${sandboxPort}/`)}</script><script type="module" src="/client.js"></script>`;
+  return `<!doctype html><meta charset="utf-8"><title>Blast browser demo</title><style>body{font:16px system-ui;max-width:760px;margin:3rem auto;background:#111;color:#eee}input,select{background:#222;color:inherit;border:1px solid #555;padding:.6rem;width:70%}button{padding:.6rem}.error{color:#f88}li{list-style:none;padding:.5rem}.selected{background:#345}.rows{padding:0}</style><label>Extension URL or name <input id="extension" value="hello-list"><button id="launch">Run</button></label><label> Command <select id="command" hidden></select></label><p id="status">Idle</p><div id="app"></div><script>window.__BLAST_SANDBOX__=${JSON.stringify(`http://127.0.0.1:${sandboxPort}/`)}</script><script type="module" src="/client.js"></script>`;
 }
 async function listen(handler: (request: Request) => Response | Promise<Response>) {
   const server = Bun.serve({ hostname: "127.0.0.1", port: 0, fetch: handler });
@@ -160,11 +173,13 @@ async function main() {
         headers: { "content-type": "application/wasm" },
       });
     if (path.startsWith("/fixtures/")) {
-      const fixture = join(
-        root,
-        "fixtures/extensions",
-        decodeURIComponent(path.slice("/fixtures/".length)),
-      );
+      const fixturePath = decodeURIComponent(path.slice("/fixtures/".length));
+      const fixtureName = fixturePath.split("/")[0]!;
+      const fixtureRoot = join(root, "fixtures/extensions", fixtureName);
+      const relativePath = fixturePath.slice(fixtureName.length).replace(/^\//, "");
+      if (!(await exists(fixtureRoot))) return new Response("Not found", { status: 404 });
+      if (relativePath === "__files") return Response.json(await relativeFiles(fixtureRoot));
+      const fixture = join(fixtureRoot, relativePath);
       if (!(await exists(fixture))) return new Response("Not found", { status: 404 });
       return new Response(Bun.file(fixture));
     }

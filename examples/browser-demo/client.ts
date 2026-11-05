@@ -3,12 +3,15 @@ import { createController, type Controller } from "../../packages/client-core/sr
 import { installForBrowser } from "../../packages/host/src/browser-install.ts";
 import { bundleForBrowser } from "../../packages/host/src/browser-bundle.ts";
 import { render } from "../web-launcher/render.js";
+import { isTextExtension, parseExtensionSource } from "./source.ts";
 
 type FileMap = Record<string, string>;
+type BrowserFile = string | Uint8Array;
 type SceneMessage = { type: "scene"; revision: number; root: unknown };
 const app = document.querySelector<HTMLElement>("#app")!;
 const status = document.querySelector<HTMLElement>("#status")!;
 const input = document.querySelector<HTMLInputElement>("#extension")!;
+const commandSelect = document.querySelector<HTMLSelectElement>("#command")!;
 let controller: Controller | undefined;
 let port: MessagePort | undefined;
 let runtimeFrame: Window | undefined;
@@ -27,6 +30,11 @@ const sendInput = (value: Parameters<Controller["input"]>[0]) => {
   for (const event of result.events)
     port.postMessage({ type: "event", node: event.node, handler: event.handler, args: event.args });
 };
+const githubApiPath = (path: string) =>
+  path
+    .split("/")
+    .map((part) => encodeURIComponent(part))
+    .join("/");
 
 function handleRuntime(
   message:
@@ -62,28 +70,87 @@ function handleRuntime(
   } else if (message.type === "error") setStatus(message.message, true);
 }
 
-async function fetchFiles(
-  source: string,
-): Promise<{ files: Map<string, string>; manifest: Record<string, unknown>; lockfile?: string }> {
-  const files = new Map<string, string>();
-  const base = source.startsWith("http")
-    ? source
-    : `${location.origin}/fixtures/${encodeURIComponent(source)}`;
-  const fetchFile = async (path: string) => {
-    const response = await fetch(`${base.replace(/\/$/, "")}/${path}`);
-    if (!response.ok) throw new Error(`Unable to fetch ${path} (${response.status})`);
-    const value = await response.text();
+async function fetchFiles(source: string): Promise<{
+  files: Map<string, BrowserFile>;
+  manifest: Record<string, unknown>;
+  lockfile?: string;
+  root: string;
+}> {
+  const parsed = parseExtensionSource(source);
+  const files = new Map<string, BrowserFile>();
+  const read = async (path: string, url: string) => {
+    const response = await fetch(url);
+    if (!response.ok) {
+      if (response.status === 403 && response.headers.get("x-ratelimit-remaining") === "0")
+        throw new Error("GitHub API rate limit reached; try again later or use a local fixture");
+      throw new Error(`Unable to fetch ${path} (${response.status})`);
+    }
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    const value: BrowserFile = isTextExtension(path) ? new TextDecoder().decode(bytes) : bytes;
     files.set(`/${path}`, value);
     return value;
   };
-  const manifest = JSON.parse(await fetchFile("package.json")) as Record<string, unknown>;
-  const entry =
-    typeof (manifest.commands as Array<{ name?: string }> | undefined)?.[0]?.name === "string"
-      ? `src/${(manifest.commands as Array<{ name: string }>)[0]!.name}.tsx`
-      : "src/index.tsx";
-  await fetchFile(entry).catch(() => fetchFile(entry.replace(/\.tsx$/, ".ts")));
-  const lockfile = await fetchFile("package-lock.json").catch(() => undefined);
-  return { files, manifest, ...(lockfile === undefined ? {} : { lockfile }) };
+  let root = parsed.path;
+  let paths: string[];
+  if (parsed.owner === "raycast" && parsed.repo === "extensions" && parsed.ref === "main") {
+    const localBase = `${location.origin}/fixtures/${encodeURIComponent(parsed.path.replace(/^extensions\//, ""))}`;
+    const localListing = await fetch(`${localBase}/__files`).catch(() => undefined);
+    if (localListing?.ok) {
+      paths = (await localListing.json()) as string[];
+      root = parsed.path.replace(/^extensions\//, "");
+      for (const path of paths) await read(path, `${localBase}/${path}`);
+    } else paths = [];
+  } else paths = [];
+  if (paths.length === 0) {
+    const list = async (path: string): Promise<string[]> => {
+      const response = await fetch(
+        `https://api.github.com/repos/${encodeURIComponent(parsed.owner)}/${encodeURIComponent(parsed.repo)}/contents/${githubApiPath(path)}?ref=${encodeURIComponent(parsed.ref)}`,
+        { headers: { Accept: "application/vnd.github+json" } },
+      );
+      if (!response.ok) {
+        if (response.status === 403 && response.headers.get("x-ratelimit-remaining") === "0")
+          throw new Error("GitHub API rate limit reached; try again later or use a local fixture");
+        throw new Error(`Unable to list GitHub extension files (${response.status})`);
+      }
+      const entries = (await response.json()) as Array<{ path?: string; type?: string }>;
+      const result: string[] = [];
+      for (const entry of entries) {
+        if (!entry.path || entry.path.split("/").includes("node_modules")) continue;
+        if (entry.type === "dir") result.push(...(await list(entry.path)));
+        else if (entry.type === "file") result.push(entry.path.slice(parsed.path.length + 1));
+      }
+      return result;
+    };
+    paths = await list(parsed.path);
+    if (!paths.includes("package.json")) throw new Error("Extension package.json was not found");
+    for (const path of paths)
+      await read(
+        path,
+        `https://raw.githubusercontent.com/${parsed.owner}/${parsed.repo}/${encodeURIComponent(parsed.ref)}/${parsed.path}/${path}`,
+      );
+  }
+  const manifest = JSON.parse(String(files.get("/package.json"))) as Record<string, unknown>;
+  const commands = (manifest.commands as Array<{ name?: string }> | undefined) ?? [];
+  commandSelect.replaceChildren();
+  for (const command of commands) {
+    if (typeof command.name !== "string") continue;
+    const option = document.createElement("option");
+    option.value = command.name;
+    option.textContent = command.name;
+    commandSelect.append(option);
+  }
+  commandSelect.hidden = commandSelect.options.length < 2;
+  const lockfile = files.get("/package-lock.json");
+  return { files, manifest, root, ...(typeof lockfile === "string" ? { lockfile } : {}) };
+}
+
+function commandEntry(files: Map<string, BrowserFile>, name: string): string {
+  for (const extension of ["tsx", "ts", "jsx", "js"]) {
+    const path = `/src/${name}.${extension}`;
+    if (files.has(path)) return path;
+  }
+  if (files.has("/src/index.tsx")) return "/src/index.tsx";
+  throw new Error(`Command source not found for ${name}`);
 }
 
 async function launch(): Promise<void> {
@@ -94,6 +161,8 @@ async function launch(): Promise<void> {
   const sourceFiles = (await (await fetch("/blast-sources.json")).json()) as FileMap;
   const files = new Map(Object.entries(sourceFiles));
   for (const [path, value] of extension.files) files.set(path, value);
+  const commandName = commandSelect.value || "index";
+  const command = commandEntry(extension.files, commandName);
   setStatus("Installing dependencies…");
   const installed = await installForBrowser({
     fetch: (value, init) => fetch(value, init),
@@ -106,7 +175,7 @@ async function launch(): Promise<void> {
     esbuild,
     files,
     packages: installed.packages,
-    command: "/src/index.tsx",
+    command,
     runtimeEntry: "/examples/browser-demo/runtime-entry.ts",
     aliases: {
       "@raycast/api": "/packages/runtime/src/api/index.ts",
@@ -150,14 +219,14 @@ async function launch(): Promise<void> {
         protocol: 1,
         command: {
           extension: String(extension.manifest.name ?? source),
-          name: "index",
-          entry: "/src/index.tsx",
+          name: commandName,
+          entry: command,
           mode: "view",
         },
         preferences: {},
         environment: {
           extensionName: String(extension.manifest.name ?? source),
-          commandName: "index",
+          commandName,
           ownerOrAuthorName: "Browser",
           assetsPath: "",
           supportPath: "",

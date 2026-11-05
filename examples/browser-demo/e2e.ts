@@ -36,9 +36,13 @@ try {
         .fill("https://github.com/raycast/extensions/tree/main/extensions/ratio-calculator");
     await page.locator("#launch").click();
     await page
-      .waitForFunction(() => document.querySelector("#app li") !== null, {
-        timeout: live ? 120_000 : 120_000,
-      })
+      .waitForFunction(
+        (expectLive) => document.querySelector(expectLive ? "#app #search" : "#app li") !== null,
+        live,
+        {
+          timeout: live ? 120_000 : 120_000,
+        },
+      )
       .catch(async (error) => {
         throw new Error(`${error}\nstatus=${await page.locator("#status").textContent()}`);
       });
@@ -73,15 +77,30 @@ try {
         });
     }
     const elapsed = Date.now() - started;
-    const bytes = await page.evaluate(() =>
-      performance
-        .getEntriesByType("resource")
-        .reduce(
-          (total, entry) => total + ((entry as PerformanceResourceTiming).transferSize || 0),
-          0,
-        ),
+    const transfer = await page.evaluate(() => {
+      const result: Record<string, number> = {};
+      for (const entry of performance.getEntriesByType("resource") as PerformanceResourceTiming[]) {
+        const resourceUrl = entry.name;
+        const key = resourceUrl.includes("esbuild.wasm")
+          ? "esbuild.wasm"
+          : resourceUrl.includes("almostnode")
+            ? "almostnode"
+            : resourceUrl.includes("blast-sources") || resourceUrl.endsWith("/client.js")
+              ? "Blast sources"
+              : resourceUrl.includes("fixtures/") ||
+                  resourceUrl.includes("raw.githubusercontent.com")
+                ? "extension"
+                : resourceUrl.includes("registry.npmjs.org") || resourceUrl.includes("npmjs.com")
+                  ? "npm packages"
+                  : "other";
+        result[key] = (result[key] ?? 0) + (entry.transferSize || 0);
+      }
+      return result;
+    });
+    const bytes = Object.values(transfer).reduce((total, value) => total + value, 0);
+    console.log(
+      JSON.stringify({ pass: true, live, coldStartMs: elapsed, bytes, transfer }, null, 2),
     );
-    console.log(JSON.stringify({ pass: true, live, coldStartMs: elapsed, bytes }, null, 2));
   } finally {
     await browser.close();
   }
