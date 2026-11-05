@@ -1,90 +1,15 @@
-import {
-  createLineDecoder,
-  encodeMessage,
-  parseHostMessage,
-  PROTOCOL_VERSION,
-  type HostMessage,
-  type JsonValue,
-  type LogLevel,
-  type RuntimeMessage,
-} from "@blastlauncher/protocol";
-import { createModelProvider } from "./provider.ts";
+import { createLineDecoder, encodeMessage, type LogLevel } from "@blastlauncher/protocol";
 import { Console } from "node:console";
 import { registerHooks } from "node:module";
 import { Writable } from "node:stream";
 import { pathToFileURL } from "node:url";
 import { format } from "node:util";
-import { createElement, Suspense, type ComponentType, type ReactNode } from "react";
-import { setCapabilityRequester } from "./api/capability.ts";
-import { setRuntimeLogSink } from "./api/diagnostics.ts";
-import { setEnvironment } from "./api/environment.ts";
-import { setFeedbackMount } from "./api/feedback.ts";
-import { decodeFormValues, flushFormPersistence, setFormDraftValues } from "./api/form.ts";
-import { LaunchType, type LaunchProps } from "./api/launch.ts";
-import { NavigationProvider } from "./api/navigation.ts";
-import { setPreferenceValues } from "./api/preferences.ts";
-import { setRenderMount } from "./api/legacy.ts";
-import { UnsupportedApiError } from "./api/unsupported.ts";
-import { createSceneRoot } from "./reconciler/index.ts";
+import { startRuntime } from "./core.ts";
 
-let provider: ReturnType<typeof createModelProvider> | undefined;
-let providerLoad: Promise<void> | undefined;
 let stopping = false;
-let initialized = false;
-let loaded = false;
-let nextRequest = 1;
-const pending = new Map<
-  string,
-  {
-    resolve(value: JsonValue): void;
-    reject(error: Error): void;
-    progress?(value: JsonValue): void;
-    cleanup(): void;
-  }
->();
-
-// Protocol output owns the real stdout stream. Extension code that writes to
-// `process.stdout` (or a library doing it for them) must not corrupt the NDJSON
-// framing, so those writes become log messages instead. The protocol keeps its
-// own reference to the original writer.
-process.stdout.on("error", (error: NodeJS.ErrnoException) => {
-  if (error.code === "EPIPE") process.exit(0);
-  throw error;
-});
-const writeToStdout = process.stdout.write.bind(process.stdout);
-process.stdout.write = ((chunk: unknown, encoding?: unknown, callback?: unknown) => {
-  const done = typeof encoding === "function" ? encoding : callback;
-  log("info", [String(chunk).replace(/\n$/, "")]);
-  if (typeof done === "function") queueMicrotask(done as () => void);
-  return true;
-}) as typeof process.stdout.write;
-
-function send(message: RuntimeMessage) {
-  if (!stopping) writeToStdout(encodeMessage(message));
-}
-function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
-}
-function finish(code: number) {
-  if (stopping) return;
-  stopping = true;
-  process.stdin.pause();
-  setCapabilityRequester(undefined);
-  pending.clear();
-  // Explicit exit also stops extension timers; wait for protocol output to drain.
-  process.stdout.end(() => process.exit(code));
-}
-function fatal(error: unknown, code = "RUNTIME_ERROR") {
-  send({
-    type: "error",
-    code: error instanceof UnsupportedApiError ? error.code : code,
-    message: errorMessage(error),
-    fatal: true,
-  });
-  finish(1);
-}
+const protocolWrite = process.stdout.write.bind(process.stdout);
 function log(level: LogLevel, args: unknown[]) {
-  send({ type: "log", level, message: format(...args) });
+  if (!stopping) protocolWrite(encodeMessage({ type: "log", level, message: format(...args) }));
 }
 function logStream(level: LogLevel) {
   return new Writable({
@@ -94,7 +19,13 @@ function logStream(level: LogLevel) {
     },
   });
 }
-// Console's remaining methods (trace, table, time, assert, …) also stay off stdout.
+const writeToStdout = protocolWrite;
+process.stdout.write = ((chunk: unknown, encoding?: unknown, callback?: unknown) => {
+  const done = typeof encoding === "function" ? encoding : callback;
+  log("info", [String(chunk).replace(/\n$/, "")]);
+  if (typeof done === "function") queueMicrotask(done as () => void);
+  return true;
+}) as typeof process.stdout.write;
 Object.assign(console, new Console({ stdout: logStream("info"), stderr: logStream("error") }));
 console.timeStamp = () => {};
 for (const [method, level] of [
@@ -106,11 +37,6 @@ for (const [method, level] of [
 ] as const) {
   console[method] = (...args: unknown[]) => log(level, args);
 }
-process.on("uncaughtException", (error) => fatal(error));
-process.on("unhandledRejection", (error) => fatal(error));
-process.stdout.on("error", () => process.exit(1));
-process.stdin.on("error", fatal);
-
 const modules = new Map([
   ["@raycast/api", import.meta.resolve("@blastlauncher/runtime/api")],
   ...["react", "react/jsx-runtime", "react/jsx-dev-runtime"].map((name): [string, string] => [
@@ -124,228 +50,39 @@ registerHooks({
     return url ? { url, shortCircuit: true } : nextResolve(specifier, context);
   },
 });
-const root = createSceneRoot({
-  publish: (scene) => send({ type: "scene", ...scene }),
-  onWarning: (message) => log("warn", [message]),
-  onError: fatal,
-});
-setCapabilityRequester((name, params, options = {}) => {
-  if (options.signal?.aborted)
-    return Promise.reject(new DOMException("The operation was aborted", "AbortError"));
-  const id = String(nextRequest++);
-  return new Promise((resolve, reject) => {
-    const abort = () => {
-      reject(new DOMException("The operation was aborted", "AbortError"));
-      send({ type: "capability.cancel", id });
-    };
-    pending.set(id, {
-      resolve,
-      reject,
-      progress: (value) => {
-        if (!options.signal?.aborted) options.onProgress?.(value);
-      },
-      cleanup: () => options.signal?.removeEventListener("abort", abort),
+// `runtime` is only read from stdin callbacks, after this assignment.
+const runtime = startRuntime({
+  send(message) {
+    writeToStdout(encodeMessage(message));
+  },
+  onMessage(listener) {
+    // The protocol decoder enforces the 8 MiB line cap (0001), strict UTF-8 and
+    // the malformed/unterminated-line rules; do not hand-roll framing here.
+    const decoder = createLineDecoder({
+      onLine: listener,
+      onError: (error) => runtime.fatal(error, "PROTOCOL_ERROR"),
     });
-    options.signal?.addEventListener("abort", abort, { once: true });
-    send({ type: "capability.request", id, name, params });
-  });
-});
-// `captureException` and `captureMemorySnapshot` report diagnostics through the
-// protocol's log channel; the runtime owns no other reporter.
-setRuntimeLogSink((level, message) => log(level, [message]));
-
-function loadingFallback(mode: Extract<HostMessage, { type: "init" }>["command"]["mode"]) {
-  return mode === "menu-bar"
-    ? createElement("MenuBarExtra", { isLoading: true })
-    : createElement("List", { isLoading: true });
-}
-
-function withSuspense(
-  element: ReactNode,
-  mode: Extract<HostMessage, { type: "init" }>["command"]["mode"],
-) {
-  return createElement(Suspense, { fallback: loadingFallback(mode) }, element);
-}
-
-/**
- * Launch props for this command: the manifest arguments the host resolved and,
- * when another command started it, the `launchCommand` context. Blast only
- * launches user initiated commands (background launch is out of scope).
- */
-function launchProps(command: Extract<HostMessage, { type: "init" }>["command"]): LaunchProps {
-  return {
-    arguments: command.arguments ?? {},
-    launchType: LaunchType.UserInitiated,
-    ...(command.draftValues === undefined
-      ? {}
-      : { draftValues: decodeFormValues(command.draftValues) }),
-    ...(command.fallbackText === undefined ? {} : { fallbackText: command.fallbackText }),
-    ...(command.launchContext === undefined ? {} : { launchContext: command.launchContext }),
-  };
-}
-
-async function load(message: Extract<HostMessage, { type: "init" }>) {
-  setEnvironment(message.environment, message.command);
-  setPreferenceValues(message.preferences);
-  const props = launchProps(message.command);
-  setFormDraftValues(props.draftValues);
-  // Legacy commands call `render(element)` while the module is being imported;
-  // that element becomes the command root instead of a default export.
-  let rendered = false;
-  setRenderMount((element) => {
-    if (rendered) return;
-    rendered = true;
-    root.render(
-      message.command.mode === "menu-bar"
-        ? withSuspense(element, message.command.mode)
-        : createElement(NavigationProvider, {
-            children: withSuspense(element, message.command.mode),
-          }),
-    );
-    loaded = true;
-  });
-  const command = await import(pathToFileURL(message.command.entry).href);
-  setRenderMount(undefined);
-  if (stopping) return;
-  if (rendered) return;
-  if (message.command.mode === "model-provider") {
-    provider = createModelProvider(command, send);
-    return;
-  }
-  if (message.command.mode === "no-view") {
-    setFeedbackMount(() => {
-      if (!loaded) {
-        loaded = true;
-        root.render(createElement(NavigationProvider, { children: null }));
-      }
+    const onData = (chunk: Buffer) => decoder.push(chunk);
+    process.stdin.on("data", onData);
+    process.stdin.on("end", () => {
+      decoder.end();
+      runtime();
     });
-    // A no-view command runs until it settles, with a scene only for feedback.
-    // A rejection is a fatal error through the caller's `.catch`.
-    await (command.default as (props: LaunchProps) => unknown)(props);
-    if (stopping) return;
-    finish(0);
-    return;
-  }
-  // Call inside React so ordinary view commands retain hooks and navigation.
-  // A thenable is a command body, never a suspending React component (0004).
-  let running = false;
-  function Command() {
-    if (running) return null;
-    const result: unknown = command.default(props);
-    if (
-      result !== null &&
-      (typeof result === "object" || typeof result === "function") &&
-      "then" in result &&
-      typeof result.then === "function"
-    ) {
-      running = true;
-      void Promise.resolve(result).then(() => finish(0), fatal);
-      return null;
-    }
-    return result as ReactNode;
-  }
-  const wrap =
-    message.command.mode === "view" &&
-    typeof command.default === "function" &&
-    !command.default.prototype?.isReactComponent;
-  const element = createElement(
-    wrap ? Command : (command.default as ComponentType<LaunchProps>),
-    props,
-  );
-  const suspended = withSuspense(element, message.command.mode);
-  root.render(
-    message.command.mode === "menu-bar"
-      ? suspended
-      : createElement(NavigationProvider, { children: suspended }),
-  );
-  loaded = true;
-}
-function shutdown() {
-  if (stopping) return;
-  try {
-    root.unmount();
-    void flushFormPersistence().then(() => finish(0), fatal);
-  } catch (error) {
-    fatal(error);
-  }
-}
-function handle(value: unknown) {
-  if (stopping) return;
-  const parsed = parseHostMessage(value);
-  if (!parsed.ok) return fatal(parsed.error, "PROTOCOL_ERROR");
-  const message = parsed.message;
-  if (!initialized) {
-    if (message.type !== "init" || message.protocol !== PROTOCOL_VERSION) {
-      return fatal(`Expected init with protocol ${PROTOCOL_VERSION}`, "PROTOCOL_ERROR");
-    }
-    initialized = true;
-    send({ type: "ready", protocol: PROTOCOL_VERSION });
-    providerLoad = load(message);
-    void providerLoad.catch(fatal);
-    return;
-  }
-  switch (message.type) {
-    case "provider.getModels":
-    case "provider.stream":
-    case "provider.abort":
-      void providerLoad
-        ?.then(() => {
-          if (!provider) return fatal("Provider request in command session", "PROTOCOL_ERROR");
-          provider.handle(message);
-        })
-        .catch(fatal);
-      return;
-    case "init":
-      return fatal("Duplicate init", "PROTOCOL_ERROR");
-    case "shutdown":
-      return shutdown();
-    case "capability.progress": {
-      const request = pending.get(message.id);
-      if (!request) return fatal(`Unknown capability id: ${message.id}`, "PROTOCOL_ERROR");
-      request.progress?.(message.value);
-      return;
-    }
-    case "capability.result": {
-      const request = pending.get(message.id);
-      if (!request) return fatal(`Unknown capability id: ${message.id}`, "PROTOCOL_ERROR");
-      pending.delete(message.id);
-      request.cleanup();
-      if (message.ok) request.resolve(message.value);
-      else
-        request.reject(
-          Object.assign(new Error(message.error.message), { code: message.error.code }),
-        );
-      return;
-    }
-    case "event": {
-      if (!loaded) return fatal("Event before command loaded", "PROTOCOL_ERROR");
-      const failed = (error: unknown) => {
-        if (error instanceof UnsupportedApiError) fatal(error);
-        else
-          send({ type: "error", code: "EVENT_ERROR", message: errorMessage(error), fatal: false });
-      };
-      try {
-        // Do not await: a handler can be waiting for a capability.result on stdin.
-        void Promise.resolve(root.dispatch(message.node, message.handler, message.args)).catch(
-          failed,
-        );
-      } catch (error) {
-        failed(error);
-      }
-      try {
-        root.flush();
-      } catch (error) {
-        fatal(error);
-      }
-    }
-  }
-}
-const decoder = createLineDecoder({
-  onLine: handle,
-  onError: (error) => fatal(error, "PROTOCOL_ERROR"),
+    return () => process.stdin.off("data", onData);
+  },
+  exit(code) {
+    stopping = true;
+    process.stdin.pause();
+    process.stdout.end(() => process.exit(code));
+  },
+  log,
+  loadCommand: (command) => import(pathToFileURL(command.entry).href),
 });
-process.stdin.on("data", (chunk: Buffer) => decoder.push(chunk));
-process.stdin.on("end", () => {
-  decoder.end();
-  shutdown();
+process.on("uncaughtException", (error) => runtime.fatal(error));
+process.on("unhandledRejection", (error) => runtime.fatal(error));
+process.stdin.on("error", (error) => runtime.fatal(error));
+// EPIPE means the host closed our stdout: a normal shutdown, not a crash.
+process.stdout.on("error", (error: NodeJS.ErrnoException) => {
+  if (error.code === "EPIPE") process.exit(0);
+  process.exit(1);
 });
