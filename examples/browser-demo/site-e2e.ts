@@ -3,6 +3,9 @@ import { join, relative, sep } from "node:path";
 import { buildSite } from "./site.ts";
 import { projectRoot } from "./build.ts";
 
+type BrowserDocument = { querySelector(selector: string): { textContent: string | null } | null };
+declare const document: BrowserDocument;
+
 const browsers = process.env.PLAYWRIGHT_BROWSERS_PATH;
 if (!browsers) throw new Error("PLAYWRIGHT_BROWSERS_PATH is required");
 const wwwPort = 4175;

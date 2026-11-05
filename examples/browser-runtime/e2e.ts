@@ -2,6 +2,9 @@ import { createServer, type IncomingMessage, type ServerResponse } from "node:ht
 import { cp, mkdir, readFile, stat, symlink, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import type { Browser } from "playwright";
+
+declare const window: Record<string, unknown>;
 
 const root = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 const cache = join(root, ".cache", "browser-runtime");
@@ -9,6 +12,8 @@ const deps = join(cache, "deps");
 const browsers = process.env.PLAYWRIGHT_BROWSERS_PATH ?? join(root, ".cache", "ms-playwright");
 const almostVersion = "0.2.14";
 const playwrightVersion = "1.58.0";
+const bunBuild = (options: Parameters<typeof Bun.build>[0] & Record<string, unknown>) =>
+  Bun.build(options as unknown as Parameters<typeof Bun.build>[0]);
 async function command(args: string[]): Promise<void> {
   const p = Bun.spawn(["bun", ...args], { cwd: root, stdout: "inherit", stderr: "inherit" });
   if ((await p.exited) !== 0) throw new Error(`command failed: bun ${args.join(" ")}`);
@@ -144,13 +149,13 @@ async function buildBundles(): Promise<{
     sandboxEntry,
     `export { Runtime } from ${JSON.stringify(join(cache, "almost-src/runtime.ts"))};\nexport { VirtualFS } from ${JSON.stringify(join(cache, "almost-src/virtual-fs.ts"))};\nexport { PackageManager } from ${JSON.stringify(join(almostRoot, "src/npm/index.ts"))};\n`,
   );
-  const almost = await Bun.build({
+  const almost = await bunBuild({
     entrypoints: [almostEntry],
     target: "browser",
     format: "esm",
     outfile: join(cache, "almostnode.mjs"),
   });
-  const sandboxBundle = await Bun.build({
+  const sandboxBundle = await bunBuild({
     entrypoints: [sandboxEntry],
     target: "browser",
     format: "esm",
@@ -162,7 +167,7 @@ async function buildBundles(): Promise<{
     );
   await writeFile(join(cache, "almostnode.mjs"), await almost.outputs[0]!.text());
   await writeFile(join(cache, "almostnode-full.mjs"), await sandboxBundle.outputs[0]!.text());
-  const blast = await Bun.build({
+  const blast = await bunBuild({
     entrypoints: [join(root, "examples/browser-runtime/runtime-entry.ts")],
     target: "browser",
     format: "cjs",
@@ -215,7 +220,7 @@ async function main(): Promise<void> {
   const bundles = await buildBundles();
   let host: Awaited<ReturnType<typeof server>> | undefined;
   let sandbox: Awaited<ReturnType<typeof server>> | undefined;
-  let browser: { close: () => Promise<void> } | undefined;
+  let browser: Browser | undefined;
   try {
     sandbox = await server((request, response) =>
       request.url === "/almostnode-full.mjs"

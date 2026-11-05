@@ -4,6 +4,12 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
+type BrowserDocument = {
+  querySelector(selector: string): { textContent: string | null } | null;
+  querySelectorAll(selector: string): { length: number };
+};
+declare const document: BrowserDocument;
+declare const window: { open: (targetUrl?: string | URL) => null };
 
 const live = process.argv.includes("--live");
 const browsers = process.env.PLAYWRIGHT_BROWSERS_PATH ?? join(root, ".cache", "ms-playwright");

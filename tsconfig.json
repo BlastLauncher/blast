@@ -19,6 +19,20 @@
     "allowJs": true,
     "checkJs": false
   },
-  "include": ["scripts", "packages", "examples/web-launcher"],
-  "exclude": ["node_modules", "**/dist", ".cache"]
+  "include": [
+    "scripts",
+    "packages",
+    "examples/web-launcher",
+    "examples/browser-demo",
+    "examples/browser-demo/runtime-entry.ts",
+    "examples/browser-runtime/e2e.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/dist",
+    ".cache",
+    "examples/browser-demo/client.ts",
+    "examples/browser-demo/root.ts",
+    "examples/browser-runtime/runtime-entry.ts"
+  ]
 }

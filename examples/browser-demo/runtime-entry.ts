@@ -25,5 +25,8 @@ export function start(command: CommandModule): void {
     if (event.data?.type !== "blast-port" || !event.ports?.[0]) return;
     begin(event.ports[0]);
   });
-  globalThis.parent?.postMessage({ type: "blast-port-request" }, "*");
+  const host = globalThis as typeof globalThis & {
+    parent?: { postMessage(message: unknown, targetOrigin: string): void };
+  };
+  host.parent?.postMessage({ type: "blast-port-request" }, "*");
 }

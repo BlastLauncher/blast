@@ -74,8 +74,13 @@ screenshot.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/typecheck-browser-examples @ b582c57e30114fc5ea22b3fb2df540f1aa7083d8
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 64.0s
 Done:
-Not done / risks:
+- Added the DOM-aware browser tsconfig and made verify run both root and browser typechecks.
+- Added minimal ambient types for esbuild-wasm and the Playwright API used by e2e scripts.
+- Fixed protocol scene typing, mixed browser file maps, exact-optional lockfile handling, and browser-safe byte copies for Blob and crypto APIs.
+- Typechecked browser build and e2e sources, and kept runtime entry coverage in the root Node config.
+- `site:e2e` and `example:browser-demo:e2e` pass headlessly with the required browser path.
+Not done / risks: The browser-runtime e2e suite was not rerun; it was outside the task acceptance commands. No new dependencies were added.
 ```
