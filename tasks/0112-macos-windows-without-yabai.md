@@ -84,8 +84,12 @@ resizing, hiding, fullscreening or closing it would break the session.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/macos-windows-desktop-fakes @ e35f07f
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 54.8s
 Done:
-Not done / risks:
+- Added fixed Core Graphics/System Events JXA fallback for macOS window reads and mutations when yabai is missing.
+- Preserved yabai as the preferred backend and propagated non-missing yabai failures.
+- Added fake-tool coverage for backend selection, fallback shapes and argv, validation, foreign desktops, and Accessibility errors.
+- Documented yabai and fallback limits in docs/capabilities.md.
+Not done / risks: The fallback depends on macOS Accessibility permission and intentionally cannot distinguish Mission Control Spaces or move windows across displays.
 ```
