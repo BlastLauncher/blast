@@ -6,25 +6,25 @@ import { fileURLToPath } from "node:url";
 const root = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 const cache = join(root, ".cache", "browser-runtime");
 const deps = join(cache, "deps");
-const browsers = join(root, ".cache", "ms-playwright");
+const browsers =
+  process.env.PLAYWRIGHT_BROWSERS_PATH ??
+  "/Users/yukai/Projects/BlastLauncher/blast/.cache/ms-playwright";
 const almostVersion = "0.2.14";
 const playwrightVersion = "1.58.0";
-
-async function command(args: string[], cwd = root): Promise<void> {
-  const process = Bun.spawn(["bun", ...args], { cwd, stdout: "inherit", stderr: "inherit" });
-  const status = await process.exited;
-  if (status !== 0) throw new Error(`command failed (${status}): bun ${args.join(" ")}`);
+async function command(args: string[]): Promise<void> {
+  const p = Bun.spawn(["bun", ...args], { cwd: root, stdout: "inherit", stderr: "inherit" });
+  if ((await p.exited) !== 0) throw new Error(`command failed: bun ${args.join(" ")}`);
 }
-
+async function exists(path: string): Promise<boolean> {
+  return stat(path).then(
+    () => true,
+    () => false,
+  );
+}
 async function ensureDependencies(): Promise<void> {
   await mkdir(deps, { recursive: true });
   const marker = join(deps, `installed-${almostVersion}-${playwrightVersion}`);
-  if (
-    !(await stat(marker).then(
-      () => true,
-      () => false,
-    ))
-  ) {
+  if (!(await exists(marker))) {
     await command([
       "add",
       "--cwd",
@@ -35,18 +35,9 @@ async function ensureDependencies(): Promise<void> {
     ]);
     await writeFile(marker, "ok\n");
   }
-  await mkdir(browsers, { recursive: true });
-  if (
-    !(await stat(join(browsers, ".chromium-marker")).then(
-      () => true,
-      () => false,
-    ))
-  ) {
-    await command(["x", `playwright@${playwrightVersion}`, "install", "chromium"]);
-    await writeFile(join(browsers, ".chromium-marker"), "ok\n");
-  }
+  if (!(await exists(join(browsers, "chromium- chromium"))) && !(await exists(browsers)))
+    throw new Error(`PLAYWRIGHT_BROWSERS_PATH is missing: ${browsers}`);
 }
-
 function send(response: ServerResponse, body: string, type = "text/html") {
   response.writeHead(200, {
     "content-type": `${type}; charset=utf-8`,
@@ -55,7 +46,6 @@ function send(response: ServerResponse, body: string, type = "text/html") {
   });
   response.end(body);
 }
-
 function server(handler: (request: IncomingMessage, response: ServerResponse) => void) {
   return new Promise<{ port: number; close: () => Promise<void> }>((resolve, reject) => {
     const instance = createServer(handler);
@@ -71,151 +61,173 @@ function server(handler: (request: IncomingMessage, response: ServerResponse) =>
     });
   });
 }
-
-const commandSource = `
-  globalThis.__blastState ??= { search: "", selected: "apple", copied: null };
-  const fruits = ["apple", "banana", "cherry"];
-  function scene() {
-    const visible = fruits.filter((fruit) => fruit.includes(globalThis.__blastState.search));
-    return { type: "scene", title: globalThis.__blastState.copied ? "copied " + globalThis.__blastState.copied : "hello-list", items: visible, selected: globalThis.__blastState.selected };
-  }
-  globalThis.__blastEvent = (event) => {
-    if (event.type === "search") globalThis.__blastState.search = event.text;
-    if (event.type === "select") globalThis.__blastState.selected = event.value;
-    if (event.type === "copy") return { capability: { name: "clipboard.copy", content: event.value }, scene: scene() };
-    if (event.type === "capability.result") globalThis.__blastState.copied = event.ok ? event.content : null;
-    return { scene: scene() };
-  };
-  module.exports = { scene: scene(), event: (event) => globalThis.__blastEvent(event) };
-`;
-
-function sandboxHtml(): string {
-  return `<!doctype html><meta charset="utf-8"><script>
-    const module = { exports: {} };
-    ${commandSource}
-    addEventListener('message', (event) => {
-      if (event.data?.type !== 'event') return;
-      const result = globalThis.__blastEvent(event.data.event);
-      if (result.capability) parent.postMessage({ type: 'capability', capability: result.capability }, '*');
-      else parent.postMessage({ type: 'scene', scene: result.scene }, '*');
-    });
-    parent.postMessage({ type: 'scene', scene: scene() }, '*');
-    let dom = 'blocked', storage = 'blocked';
-    try { dom = typeof parent.document; } catch {}
-    try { storage = typeof parent.localStorage; } catch {}
-    parent.postMessage({ type: 'probe', value: { dom, storage, cookie: document.cookie } }, '*');
-  </script>`;
+function sandboxHtml(almostUrl: string): string {
+  return `<!doctype html><script type="module">
+import { Runtime, VirtualFS } from ${JSON.stringify(almostUrl)};
+let runtime;
+addEventListener('message', async (event) => {
+  const m = event.data;
+  if (m?.type === 'init') { runtime = new Runtime(VirtualFS.fromSnapshot(m.vfsSnapshot), m.options ?? {}); return; }
+  if (m?.type === 'execute' && runtime) { try { const result = runtime.execute(m.code, m.filename); parent.postMessage({type:'result', id:m.id, result}, '*'); } catch (error) { parent.postMessage({type:'error', id:m.id, error:String(error)}, '*'); } return; }
+  if (m?.type === 'blast-host') dispatchEvent(new MessageEvent('message', { data: m }));
+});
+parent.postMessage({type:'ready'}, '*');
+</script>`;
 }
-
 function hostHtml(sandboxUrl: string): string {
-  return `<!doctype html><meta charset="utf-8"><iframe id="sandbox" src=${JSON.stringify(sandboxUrl)}></iframe><script>
-    const frame = document.querySelector('#sandbox'); const received = []; let pending;
-    addEventListener('message', (event) => {
-      if (event.source !== frame.contentWindow) return;
-      if (event.data?.type === 'scene') { received.push(event.data); window.postMessage(event.data, '*'); }
-      if (event.data?.type === 'probe') window.__probe = event.data.value;
-      if (event.data?.type === 'capability') { frame.contentWindow.postMessage({ type: 'event', event: { type: 'capability.result', ok: true, content: event.data.capability.content } }, '*'); pending?.({ answered: true }); pending = undefined; }
-    });
-    window.__blast = { received };
-    window.__blastEvent = (event) => new Promise((resolve) => { pending = resolve; frame.contentWindow.postMessage({ type: 'event', event }, '*'); if (event.type !== 'copy') { setTimeout(() => { pending = undefined; resolve({ answered: false }); }, 100); } });
-  </script>`;
+  return `<!doctype html><script type="module">
+import { createRuntime, VirtualFS } from '/almostnode.mjs';
+const sandbox = ${JSON.stringify(sandboxUrl)}; const vfs = new VirtualFS();
+const runtime = await createRuntime(vfs, { sandbox });
+const frame = [...document.querySelectorAll('iframe')].at(-1);
+const events = []; let ready;
+addEventListener('message', (event) => {
+  if (event.origin !== new URL(sandbox).origin) return;
+  if (event.data?.type === 'blast') { events.push(event.data.message); window.blastState = { events, frame: event.source }; }
+});
+const code = await fetch('/blast-runtime.cjs').then((r) => r.text());
+await runtime.execute(code, '/blast-runtime.cjs');
+window.blastSend = (message) => { const target = window.blastState?.frame; if (!target) throw new Error('sandbox frame not ready'); target.postMessage({type:'blast-host', message}, new URL(sandbox).origin); };
+window.blastInit = () => window.blastSend({type:'init'});
+window.blastRuntimeReady = true;
+</script>`;
 }
-
-async function main(): Promise<void> {
-  await ensureDependencies();
-  const { createRuntime, VirtualFS } = await import("almostnode");
-  void createRuntime;
-  void VirtualFS;
-  const packagePath = dirname(dirname(fileURLToPath(import.meta.resolve("almostnode"))));
-  const pakoEntry = join(cache, "pako-entry.ts");
-  const pakoBundle = join(cache, "pako.mjs");
+async function buildBundles(): Promise<{
+  almostHost: string;
+  almostSandbox: string;
+  blast: string;
+}> {
+  await mkdir(cache, { recursive: true });
+  const almostEntry = join(cache, "almost-entry.ts");
+  const sandboxEntry = join(cache, "almost-full-entry.ts");
   await writeFile(
-    pakoEntry,
-    `export * from ${JSON.stringify(join(root, "node_modules", ".bun", "pako@2.2.0", "node_modules", "pako", "dist", "pako.esm.mjs"))};\n`,
+    almostEntry,
+    `import { SandboxRuntime } from ${JSON.stringify(join(root, "node_modules/.bun/almostnode@0.2.14/node_modules/almostnode/src/sandbox-runtime.ts"))};\nimport { VirtualFS } from ${JSON.stringify(join(root, "node_modules/.bun/almostnode@0.2.14/node_modules/almostnode/src/virtual-fs.ts"))};\nexport { VirtualFS };\nexport async function createRuntime(vfs: VirtualFS, options: { sandbox: string }) { return new SandboxRuntime(options.sandbox, vfs); }\n`,
   );
-  const built = await Bun.build({
-    entrypoints: [pakoEntry],
+  await writeFile(
+    sandboxEntry,
+    `export { Runtime } from ${JSON.stringify(join(cache, "almost-src2/runtime.ts"))};\nexport { VirtualFS } from ${JSON.stringify(join(cache, "almost-src2/virtual-fs.ts"))};\n`,
+  );
+  const almost = await Bun.build({
+    entrypoints: [almostEntry],
     target: "browser",
     format: "esm",
-    outfile: pakoBundle,
-    minify: false,
+    outfile: join(cache, "almostnode.mjs"),
   });
-  if (!built.success)
+  const sandboxBundle = await Bun.build({
+    entrypoints: [sandboxEntry],
+    target: "browser",
+    format: "esm",
+    outfile: join(cache, "almostnode-full.mjs"),
+  });
+  if (!almost.success || !sandboxBundle.success)
     throw new Error(
-      `pako browser bundle failed: ${built.logs.map((log) => log.message).join("; ")}`,
+      `almostnode bundle failed: ${[...almost.logs, ...sandboxBundle.logs].map((x) => x.message).join("; ")}`,
     );
-  const pakoOutput = built.outputs[0];
-  if (!pakoOutput) throw new Error("pako browser bundle produced no output");
-  const pakoBundleText = await pakoOutput.text();
-  const almostnodeBundle = (await readFile(join(packagePath, "dist", "index.mjs"), "utf8"))
-    .replaceAll('from"pako"', 'from"__PAKO__"')
-    .replaceAll('from "pako"', 'from "__PAKO__"');
-  const sandboxFiles = sandboxHtml();
-  let host: { port: number; close: () => Promise<void> } | undefined;
-  let sandbox: { port: number; close: () => Promise<void> } | undefined;
+  const blast = await Bun.build({
+    entrypoints: [join(root, "examples/browser-runtime/runtime-entry.ts")],
+    target: "browser",
+    format: "cjs",
+    outfile: join(cache, "blast-runtime.cjs"),
+  });
+  if (!blast.success)
+    throw new Error(`Blast runtime bundle failed: ${blast.logs.map((x) => x.message).join("; ")}`);
+  return {
+    almostHost: await readFile(join(cache, "almostnode.mjs"), "utf8"),
+    almostSandbox: await readFile(join(cache, "almostnode-full.mjs"), "utf8"),
+    blast: await readFile(join(cache, "blast-runtime.cjs"), "utf8"),
+  };
+}
+async function main(): Promise<void> {
+  await ensureDependencies();
+  const bundles = await buildBundles();
+  let host: Awaited<ReturnType<typeof server>> | undefined;
+  let sandbox: Awaited<ReturnType<typeof server>> | undefined;
   let browser: { close: () => Promise<void> } | undefined;
   try {
-    sandbox = await server((request, response) => {
-      if (request.url === "/almostnode.mjs")
-        return send(
-          response,
-          almostnodeBundle.replaceAll("__PAKO__", `http://127.0.0.1:${sandbox!.port}/pako.mjs`),
-          "text/javascript",
-        );
-      if (request.url === "/pako.mjs") return send(response, pakoBundleText, "text/javascript");
-      send(response, sandboxFiles);
-    });
+    sandbox = await server((request, response) =>
+      request.url === "/almostnode-full.mjs"
+        ? send(response, bundles.almostSandbox, "text/javascript")
+        : send(response, sandboxHtml(`http://127.0.0.1:${sandbox!.port}/almostnode-full.mjs`)),
+    );
     host = await server((request, response) => {
+      if (request.url === "/almostnode.mjs")
+        return send(response, bundles.almostHost, "text/javascript");
+      if (request.url === "/blast-runtime.cjs")
+        return send(response, bundles.blast, "text/javascript");
       send(response, hostHtml(`http://127.0.0.1:${sandbox!.port}/`));
     });
     const { chromium } = await import("playwright");
     browser = await chromium.launch({ headless: true });
     const page = await browser.newPage();
-    page.on("console", (message) => console.log(`[browser:${message.type()}] ${message.text()}`));
-    page.on("pageerror", (error) => console.error(`[browser:error] ${error.message}`));
     const started = performance.now();
     await page.goto(`http://127.0.0.1:${host.port}/`, { waitUntil: "load" });
+    await page.waitForFunction(() => Boolean((window as any).blastRuntimeReady));
+    await page.evaluate(() => (window as any).blastInit());
     await page.waitForFunction(() =>
-      Boolean((window as unknown as Record<string, unknown>)["__blast"]),
+      (window as any).blastState?.events?.some((x: any) => x.type === "scene"),
     );
     const coldStartMs = performance.now() - started;
-    const first = await page.evaluate(() =>
-      (window as unknown as Record<string, { received: unknown[] }>)["__blast"].received.at(-1),
+    const scene = await page.evaluate(
+      () => (window as any).blastState.events.find((x: any) => x.type === "scene")?.scene,
     );
-    if (!(first as { scene?: { items?: string[] } })?.scene?.items?.includes("apple"))
-      throw new Error("step 1 failed: first scene");
-    await page.evaluate(() =>
-      (window as unknown as Record<string, (event: unknown) => Promise<unknown>>)["__blastEvent"]({
-        type: "search",
-        text: "ban",
-      }),
+    if (!scene?.root?.children?.length && scene?.root?.type !== "List")
+      throw new Error("step 1 failed: Blast runtime scene missing");
+    // eslint-disable-next-line unicorn/consistent-function-scoping
+    const find = (node: any, type: string): any =>
+      node?.type === type ? node : node?.children?.map((x: any) => find(x, type)).find(Boolean);
+    const list = find(scene.root, "List");
+    const searchHandler = list?.props?.onSearchTextChange?.$handler;
+    if (!searchHandler)
+      throw new Error(
+        `step 2 failed: search handler missing from real scene ${JSON.stringify(scene)}`,
+      );
+    await page.evaluate(
+      (event) =>
+        (window as any).blastSend({
+          type: "event",
+          node: event.node,
+          handler: event.handler,
+          args: ["ban"],
+        }),
+      { node: list.id, handler: searchHandler },
     );
-    const searched = await page.evaluate(() =>
-      (window as unknown as Record<string, { received: unknown[] }>)["__blast"].received.at(-1),
-    );
-    if (!(searched as { scene?: { items?: string[] } })?.scene?.items?.includes("banana"))
-      throw new Error("step 2 failed: search event");
-    const copy = await page.evaluate(() =>
-      (window as unknown as Record<string, (event: unknown) => Promise<unknown>>)["__blastEvent"]({
-        type: "copy",
-        value: "banana",
-      }),
-    );
-    if (!(copy as { answered?: boolean }).answered)
-      throw new Error("step 3 failed: clipboard capability");
-    const isolation = await page
-      .waitForFunction(() => (window as unknown as Record<string, unknown>)["__probe"])
-      .then((handle) => handle.jsonValue());
-    const warmStarted = performance.now();
-    await page.reload({ waitUntil: "load" });
     await page.waitForFunction(() =>
-      Boolean(
-        (window as unknown as Record<string, { received: unknown[] }>)["__blast"]?.received.length,
+      (window as any).blastState.events.some(
+        (x: any) => x.type === "scene" && JSON.stringify(x.scene).includes("banana"),
       ),
     );
-    const warmStartMs = performance.now() - warmStarted;
-    const disk =
-      Bun.spawnSync(["du", "-sk", browsers]).stdout.toString().trim().split(/\s+/)[0] ?? "0";
+    const copyNode = await page.evaluate(() => {
+      const all = (window as any).blastState.events.at(-1).scene.root;
+      // eslint-disable-next-line unicorn/consistent-function-scoping
+      const walk = (x: any): any =>
+        x?.type === "Action.CopyToClipboard"
+          ? x
+          : x?.children?.map((y: any) => walk(y)).find(Boolean);
+      return walk(all);
+    });
+    const copyHandler = copyNode?.props?.onAction?.$handler;
+    if (!copyHandler) throw new Error("step 3 failed: copy handler missing from real scene");
+    await page.evaluate(
+      (event) =>
+        (window as any).blastSend({
+          type: "event",
+          node: event.node,
+          handler: event.handler,
+          args: [],
+        }),
+      { node: copyNode.id, handler: copyHandler },
+    );
+    await page.waitForFunction(() =>
+      (window as any).blastState.events.some((x: any) => x.type === "capability.request"),
+    );
+    await page.evaluate(() => {
+      const req = (window as any).blastState.events.find(
+        (x: any) => x.type === "capability.request",
+      );
+      (window as any).blastSend({ type: "capability.result", id: req.id, ok: true, value: null });
+    });
+    const bytes = bundles.almostHost.length + bundles.almostSandbox.length + bundles.blast.length;
     console.log(
       JSON.stringify(
         {
@@ -223,10 +235,11 @@ async function main(): Promise<void> {
           firstScene: true,
           search: true,
           clipboard: true,
-          isolation,
           coldStartMs: Math.round(coldStartMs),
-          warmStartMs: Math.round(warmStartMs),
-          chromiumCacheKiB: Number(disk),
+          warmStartMs: null,
+          pageBytes: bytes,
+          almostnodeBytes: bundles.almostHost.length + bundles.almostSandbox.length,
+          runtimeBytes: bundles.blast.length,
         },
         null,
         2,
@@ -238,5 +251,4 @@ async function main(): Promise<void> {
     await sandbox?.close();
   }
 }
-
 await main();
