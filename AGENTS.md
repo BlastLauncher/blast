@@ -127,8 +127,8 @@ their own branch; the orchestrator merges after review and pushes.
 
 Loop per task:
 
-1. Write/refresh the task file, set `status: doing`, **commit it** — worktree
-   children start from the last local commit and do not see uncommitted edits.
+1. Commit the task file (`status: todo`), then `bun run tasks:start NNNN`: it
+   commits `doing` (children see only commits) and prints the brief.
 2. Delegate to a worker in an isolated worktree with a prompt that says only:
    "Follow AGENTS.md. You are the Worker for `tasks/NNNN-*.md`." plus anything
    not already in the task file.
@@ -137,9 +137,10 @@ Loop per task:
    findings, remove the old worktree (keep its branch) and send a new round
    with the original brief plus numbered findings; the new worker starts with
    `git merge --ff-only <previous-branch>`.
-4. Find the worker branch with `git worktree list` (names can be wrong).
-   Merge (`--no-ff`), delete the task file, tick `PLAN.md`, verify, push, and
-   **confirm CI is green** (`gh run list`); remove the worker worktree/branch.
+4. `bun run tasks:merge NNNN` finds the worker branch, merges `--no-ff`,
+   deletes the task file, ticks `- [ ] NNNN` in PLAN.md (or `--plan "<text>"`),
+   verifies and commits done; `bun run tasks:land NNNN` pushes, waits for green
+   CI, then removes the worktree/branch. `git branch -d` earlier-round branches.
 
 Independent tasks may run in parallel; merge one at a time. Regenerate
 conflicting `compat/` files and `bun.lock` (`bun install`), never hand-merge.
