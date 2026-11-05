@@ -90,10 +90,10 @@ AppKit launcher over `blast serve`; automated tests and contract fixtures first.
 
 - [x] 0106 BlastKit + contract fixtures + macOS CI; 0107 AppKit window; 0108 hotkey, OS
       actions, picker; 0109 walkthroughs (`docs/walkthroughs/`)
+- [ ] 0110 Deterministic manifest-watch tests (inject the watcher)
 
 ## Later (not scheduled)
 
-- Watch tests (host/serve/TUI picker) rely on real `fs.watch` timing; one flaked under full-verify load: inject the watcher.
 - native: macOS window ops without yabai (System Events); honour paste `closeMainWindow`.
 - Orchestrator loop over `tasks/`; delete `archive/`. Out of scope (0009): MyGo, TUI launcher features.
 
