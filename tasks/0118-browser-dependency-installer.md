@@ -68,7 +68,7 @@ depends: []
 ## Handoff
 
 ```
-Branch/commit: t3-a6dfc770 @ 282f0324f37e4d7eaca3c85018107bad47cecd5a
+Branch/commit: t3/fix-browser-installer @ 282f0324f37e4d7eaca3c85018107bad47cecd5a
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 62.8s
 Done:
 - Reused the shared supplied-package policy so @raycast/utils installs while host-provided packages remain skipped.
