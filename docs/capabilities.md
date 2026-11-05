@@ -91,7 +91,8 @@ Missing executables fail with the required tool and capability name.
   Graphics and moves, resizes and fullscreen use System Events accessibility.
   The fallback exposes one `User` desktop per display (desktop IDs are stable
   `screen:<display UUID>` values); Mission Control Spaces cannot be distinguished.
-  Its window capability flags are conservative when Accessibility cannot identify
+  Without Accessibility permission, reads still work and capability flags are
+  false; setBounds fails naming the permission. Flags are also false when Accessibility cannot identify
   a window, and moving a window to another display is unsupported. The fallback's
   positionable and resizable flags use readable attributes when System Events does
   not expose settable checks. Space IDs from

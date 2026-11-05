@@ -25,7 +25,9 @@ for (let i = 0; i < screens.count; i++) {
   const display = number(description.objectForKey('NSScreenNumber'));
   const uuid = ObjC.unwrap($.CGDisplayCreateUUIDFromDisplayID(display).UUIDString);
   // CG window bounds and CGDisplayBounds share global top-left coordinates.
-  const frame = rect($.CGDisplayBounds(display));
+  // CGDisplayBounds is a CGRect struct (origin/size), not a bounds dictionary.
+  const d = $.CGDisplayBounds(display);
+  const frame = { position: { x: d.origin.x, y: d.origin.y }, size: { width: d.size.width, height: d.size.height } };
   screenInfo.push({ id: 'screen:' + uuid, screenId: uuid, display, frame });
 }
 const screenFor = (bounds) => {
@@ -41,7 +43,10 @@ const screenFor = (bounds) => {
 };
 const systemEvents = Application('System Events');
 const axCache = new Map();
+// Reads stay available without Accessibility; capability flags are then false.
+const trusted = !!systemEvents.uiElementsEnabled();
 const axWindows = (pid) => {
+  if (!trusted) return [];
   if (!axCache.has(pid)) axCache.set(pid, systemEvents.applicationProcesses.byId(pid).windows());
   return axCache.get(pid);
 };
@@ -62,7 +67,7 @@ const frontmostWindow = () => {
   return windows.find((window) => number(window.kCGWindowOwnerPID) === pid);
 };
 const requireAccessibility = () => {
-  if (!systemEvents.uiElementsEnabled()) throw new Error('Accessibility permission is required');
+  if (!trusted) throw new Error('Accessibility permission is required');
 };
 const windows = cg.filter((w) => number(w.kCGWindowLayer) === 0 && !!ObjC.unwrap(w.kCGWindowIsOnscreen));
 const convert = (w, active) => {
@@ -82,9 +87,8 @@ if (op === 'desktops') {
   const frontScreen = front ? screenFor(ObjC.unwrap(front.kCGWindowBounds)) : undefined;
   console.log(JSON.stringify(screenInfo.map((s) => ({ id: s.id, screenId: s.screenId, active: s === frontScreen, type: 'User', size: s.frame.size }))));
 } else if (op === 'list' || op === 'active') {
-  const result = windows.map((w) => convert(w, w === front));
   if (op === 'active' && !front) throw new Error('No active window');
-  console.log(JSON.stringify(op === 'active' ? result.find((w) => w.active) : result));
+  console.log(JSON.stringify(op === 'active' ? convert(front, true) : windows.map((w) => convert(w, w === front))));
 } else if (op === 'setBounds') {
   requireAccessibility();
   const id = String(input.id);
