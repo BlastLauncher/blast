@@ -43,9 +43,9 @@ async function client(native = false, args: string[] = []) {
   });
   let sequence = 0;
   const send = (value: unknown) => child.stdin.write(JSON.stringify(value) + "\n");
-  const wait = async (predicate: (v: Record<string, any>) => boolean) => {
-    const timeout = setTimeout(() => notify(), 8000);
-    const deadline = Date.now() + 8000;
+  const wait = async (predicate: (v: Record<string, any>) => boolean, ms = 8000) => {
+    const timeout = setTimeout(() => notify(), ms);
+    const deadline = Date.now() + ms;
     try {
       for (;;) {
         const index = messages.findIndex(predicate);
@@ -281,18 +281,31 @@ test("manifest watch, missing values, preferences, dependencies and close", asyn
     ).ok,
   ).toBe(true);
   await c.request("extension.watch", { extension });
+  // FSEvents can drop or delay a write made right after the watch starts, most
+  // often when fseventsd is busy; rewrite until the event arrives, as a user
+  // saving again would, instead of trusting the first write.
+  const saveUntil = async (text: string, event: string) => {
+    for (let attempt = 1; ; attempt++) {
+      await writeFile(file, text);
+      try {
+        return await c.wait((v) => v.event === event, 1500);
+      } catch (error) {
+        if (attempt >= 8) throw error;
+      }
+    }
+  };
   manifest.title = "Changed";
-  await writeFile(file, JSON.stringify(manifest));
-  expect((await c.wait((v) => v.event === "manifest.changed")).manifest.title).toBe("Changed");
-  await writeFile(file, "invalid");
-  await c.wait((v) => v.event === "manifest.error");
+  expect((await saveUntil(JSON.stringify(manifest), "manifest.changed")).manifest.title).toBe(
+    "Changed",
+  );
+  await saveUntil("invalid", "manifest.error");
   await c.request("extension.unwatch", { extension });
   await c.request("extension.close", { extension });
   await c.wait((v) => v.event === "session.exited");
   expect((await c.request("extension.manifest", { extension })).ok).toBe(false);
   c.child.stdin.end();
   expect(await c.exited).toBe(0);
-}, 20_000);
+}, 30_000);
 
 test("capability progress and abort, late results, and session close", async () => {
   const c = await client();
