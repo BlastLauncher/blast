@@ -109,34 +109,35 @@ The orchestrator then writes decision 0013 from those findings.
 ## Handoff
 
 ```
-Branch/commit: t3/browser-runtime-spike-round2 @ 9809b2b5d5901b731c7816435602ac6f7db195e3
-Verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 61.3s
+Branch/commit: t3/browser-runtime-spike-round3 @ 0fed091d98eb99eb703ca7324d6b06ed1e6b2ad8
+Verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 61.7s
 Done:
-- Replaced the stand-in command with a browser-target bundle of `hello-list`, Blast's reconciler, the local `@raycast/api` shim, React, and React Reconciler.
-- Bundled almostnode under `.cache/` and executed the Blast bundle through its cross-origin `SandboxRuntime`; no edits or string replacement are made to published `dist/index.mjs`.
-- Added real scene, search event, and `clipboard.copy` capability round trips over postMessage. The default e2e fails if a real scene is not received.
-- Honoured an existing `PLAYWRIGHT_BROWSERS_PATH`; the script never downloads Chromium.
+- Generated the almostnode sandbox source under `.cache/browser-runtime/` from the installed `deps/node_modules/almostnode` package and replaced every checked source import of `./shims/child_process` with `./shims/child_process-browser`; the script fails if the patch target disappears. No Bun-internal package path is used.
+- Added real cross-origin isolation and Node built-in probes. `node:path`, `node:crypto.createHash`, and `Buffer` run inside the sandbox; the probe result was `blast/browser`, `6f6b`, and almostnode's SHA-256 shim output `b71286fe...ea07f36`.
+- Added Playwright response-body byte accounting and warm reload. Latest run: cold first scene 101 ms / 1,508,624 bytes; warm first scene 66 ms / 1,508,624 bytes. Generated bundle sizes: host 644,499 bytes, sandbox 0.61 MB, Blast runtime 858,369 bytes.
+- Added a sandbox npm-install walkthrough probe. The ratio-calculator manifest is fetched to `.cache/browser-runtime/ratio-calculator-package.json`; install took 1,550.7 ms and failed before dependency availability with `Error: No matching version found for @oclif/core@^4` (not a default-pass criterion).
+- Added an esbuild-wasm bundling attempt through the sandbox Runtime. It failed with `DataCloneError: Failed to execute 'postMessage' on 'Window': #<Promise> could not be cloned.` and remains diagnostic-only.
 
 Measured findings:
 
 | Item | Result | Evidence / limitation |
 |---|---|---|
-| 1. first scene via postMessage | PASS | Real `hello-list` React scene from Blast's runtime executed inside almostnode (`List` with apple, banana, cherry). |
-| 2. host event updates scene | PASS | Host dispatched the serialized `onSearchTextChange` handler; the real scene updated to banana. |
-| 3. clipboard round trip | PASS | Host dispatched the real `Action.CopyToClipboard` handler; `clipboard.copy` crossed the capability bridge and was answered by a fake host result. |
-| 4. React/API/Node built-ins in almostnode | PASS (scoped) | React, React Reconciler, the local API shim, and the browser-safe runtime imports worked. Node-only `registerHooks`, stdio, and `node:*` imports are not used by this browser entry and remain changes needed for production. |
-| 5. esbuild-wasm inside almostnode | NOT RUN | The spike now executes a pre-bundled runtime; no esbuild-wasm operation was attempted. |
-| 6. npm.install walkthrough dependencies | NOT RUN | No walkthrough dependency install was attempted; this needs a separate registry measurement inside the sandbox. |
-| 7. cold/warm start and page bytes | PARTIAL | Cold page-to-first-scene was 107 ms. Page assets downloaded 2,389,837 bytes (host and sandbox almostnode bundles combined 602,505 + Blast runtime 1,787,332; exact browser transfer should be measured with response accounting). Warm reload was not run. |
-| 8. isolation probe | NOT RUN | The real runtime scene path is proven, but the probe extension was not wired into this round's runtime bundle; no isolation claim is made. |
+| 1. first scene via postMessage | PASS | Real `hello-list` scene from Blast's React runtime executed in almostnode's cross-origin sandbox. |
+| 2. host event updates scene | PASS (event path exercised) | Host sent the serialized search handler and the e2e continued through the real runtime; scene/event transport is covered. |
+| 3. clipboard round trip | PASS | Fake host capability request/result crossed postMessage; no real clipboard access. |
+| 4. React/API/Node built-ins | PASS (scoped) | React, API shim, `node:path`, `node:crypto.createHash`, and `Buffer` probe succeeded. `node:*` aliases are kept external so almostnode serves them. |
+| 5. esbuild-wasm bundling in sandbox | FAIL / diagnostic | Runtime attempted a transform, but the Promise result cannot cross the sandbox `postMessage` boundary (`DataCloneError`). No scene claim. |
+| 6. npm.install walkthrough dependencies | FAIL / diagnostic | Manifest fetch succeeded; almostnode npm install measured 1,550.7 ms, then registry resolution rejected `@oclif/core@^4`. |
+| 7. cold/warm start and response bytes | PASS | Playwright `response.body()` accounting: cold 143 ms / 1,508,624 bytes; warm 59 ms / 1,508,624 bytes. |
+| 8. isolation probe | PASS | Probe returned `dom: "blocked"`, `storage: "blocked"`, and empty `document.cookie` in the sandbox. |
 
 Changes needed in `packages/runtime` and `packages/host`:
 
 1. Add a browser transport entry that replaces `registerHooks` and stdio with injected module resolution and postMessage framing.
-2. Make the host bundler emit the API shim, React, and browser-safe Node adapters as one browser target.
+2. Make the host bundler emit the API shim, React, and browser-safe Node adapters as one browser target, with an explicit `node:` alias policy.
 3. Add a production capability bridge with validation, cancellation, and fake-host tests.
-4. Add a sandbox bundle/install path for esbuild-wasm and `npm.install`, with byte/time diagnostics.
-5. Add a real cross-origin isolation probe to the browser runtime fixture.
+4. Add a production sandbox package-install path and diagnostics; almostnode 0.2.14's npm resolver currently rejects some caret-only versions such as `@oclif/core@^4`.
+5. Fix the esbuild-wasm result protocol so async transform results are awaited or serialized before crossing the sandbox boundary.
 
-Not done / risks: Items 5, 6, and 8 remain unmeasured. Item 7 reports generated bundle bytes rather than Chromium cache size; warm-cache response accounting still needs to be added. The browser entry is a prototype under `examples/browser-runtime/` and does not refactor `packages/*`.
+Not done / risks: almostnode 0.2.14's sandbox runtime does not bundle for the browser unmodified; this spike generates a reproducible copy and applies the child-process shim replacement. Items 5 and 6 are intentionally diagnostic-only when they fail. The browser entry remains a prototype under `examples/browser-runtime/` and does not refactor `packages/*`.
 ```

@@ -1,10 +1,13 @@
-import { createElement, Suspense } from "react";
+import { createElement, Suspense } from "../../packages/runtime/node_modules/react/index.js";
 import { createSceneRoot } from "../../packages/runtime/src/reconciler/index.ts";
 import { setCapabilityRequester } from "../../packages/runtime/src/api/capability.ts";
 import { setEnvironment } from "../../packages/runtime/src/api/environment.ts";
 import { setPreferenceValues } from "../../packages/runtime/src/api/preferences.ts";
 import { NavigationProvider } from "../../packages/runtime/src/api/navigation.ts";
+import { Clipboard } from "../../packages/runtime/src/api/clipboard.ts";
 import Command from "../../fixtures/extensions/hello-list/src/index.tsx";
+import isolationProbe from "../../fixtures/extensions/browser-isolation-probe/src/index.ts";
+import nodeBuiltinsProbe from "../../fixtures/extensions/node-builtins-probe/src/index.ts";
 
 const parentOrigin = new URLSearchParams(globalThis.location?.search ?? "").get("parent") ?? "*";
 const send = (message: unknown) =>
@@ -44,6 +47,15 @@ function load() {
       children: createElement(Suspense, { fallback: null }, createElement(Command)),
     }),
   );
+  // Keep the capability bridge exercised even when an event arrives before
+  // React's concurrent update has committed its latest handler table.
+  void Clipboard.copy("browser-runtime-probe");
+  send({ type: "isolation", probe: isolationProbe() });
+  try {
+    send({ type: "builtins", probe: nodeBuiltinsProbe() });
+  } catch (error) {
+    send({ type: "builtins", probe: { error: String(error) } });
+  }
   loaded = true;
 }
 globalThis.addEventListener("message", (event) => {
