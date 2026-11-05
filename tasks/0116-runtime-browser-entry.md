@@ -61,8 +61,13 @@ depends: []
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/runtime-browser-entry @ 9e92c2e4dd8833ffc450c462db25222db1961dda
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 63.4s
 Done:
-Not done / risks:
+- Extracted transport-neutral runtime lifecycle into `packages/runtime/src/core.ts`.
+- Kept Node stdio framing, module hooks, stdout logging, and process exit in `src/main.ts`.
+- Added `src/browser.ts` MessagePort adapter with pre-evaluated module or loader support and browser exit notifications.
+- Added MessageChannel lifecycle/capability/error tests and a browser-target import-graph bundle test.
+- Removed the diagnostics module's Node-only formatting and memory dependency so the browser graph remains Node-free.
+Not done / risks: The browser `exit` notification is adapter-local because protocol message types are unchanged, as required by the task.
 ```

@@ -5,7 +5,8 @@
   "exports": {
     "./api": "./src/api/index.ts",
     "./reconciler": "./src/reconciler/index.ts",
-    "./main": "./src/main.ts"
+    "./main": "./src/main.ts",
+    "./browser": "./src/browser.ts"
   },
   "dependencies": {
     "@blastlauncher/protocol": "workspace:*",
