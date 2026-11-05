@@ -109,16 +109,19 @@ T3 Code, the app running the agents, has an open window on this Mac.
 ## Handoff
 
 ```
-Branch/commit: t3/orchestrator-loop @ f35befb201a49b0a27b858e75a016d83846f547f
-Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 56.9s
+Branch/commit: t3/fix-orchestrator-loop @ <commit>
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 60.9s
 Done:
-- Added `tasks:next`, `tasks:start`, `tasks:merge`, and `tasks:land` with injectable command execution.
-- Shared task filename/frontmatter parsing with `check-workflow.ts`.
-- Added temporary-repository and fake-runner coverage for preconditions, branch ambiguity, merge conflicts, PLAN updates, verify failures, and CI cleanup.
-- Usage: `bun run tasks:next [--json]` lists todo tasks and blockers.
-- Usage: `bun run tasks:start <id>` marks a task doing, commits it, and prints the worker brief.
-- Usage: `bun run tasks:merge <id> [--branch <b>] [--plan <text>]` merges, updates PLAN, verifies, and commits done.
-- Usage: `bun run tasks:land <id>` pushes, waits for CI, then safely removes the worker worktree and branch.
-- Run mutating commands only from a clean `main` checkout; use temporary repositories for tests.
-Not done / risks: CI polling requires GitHub CLI JSON output and a configured `origin`; no network operations were run by tests.
+- Corrected land cleanup to resolve the worker tip from the merge commit and added real temporary-worktree success/failure tests.
+- Added optional co-author trailers to start and merge commits, with no trailer by default.
+- Extended CI polling defaults to 30 minutes/20 seconds, added timeout CLI support and progress output.
+- Streamed check:workflow and verify through the runner and improved step-specific failures.
+- Listed doing/review tasks after todo tasks with status in text and JSON output.
+Usage:
+- `bun run tasks:next [--json]` lists todo tasks followed by doing/review tasks and blockers.
+- `bun run tasks:start <id> [--co-author "Name <email>"]` marks a task doing and commits it.
+- `bun run tasks:merge <id> [--branch <b>] [--plan <text>] [--co-author "Name <email>"]` merges, verifies, and commits done.
+- `bun run tasks:land <id> [--timeout-ms <ms>]` pushes, waits for CI, then removes the worker worktree and branch on success.
+- Run mutating commands only from a clean `main` checkout; tests use temporary repositories and injected fakes.
+Not done / risks: CI polling still requires GitHub CLI JSON output and a configured `origin`; no network operations were run by tests.
 ```

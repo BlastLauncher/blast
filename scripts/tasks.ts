@@ -4,10 +4,20 @@ import { join } from "node:path";
 import { TASK_FILE, parseFrontmatter } from "./check-workflow.ts";
 
 export type CommandResult = { status: number; stdout: string; stderr: string };
-export type CommandRunner = (command: string, args: string[], cwd: string) => CommandResult;
+export type RunnerOptions = { inherit?: boolean };
+export type CommandRunner = (
+  command: string,
+  args: string[],
+  cwd: string,
+  options?: RunnerOptions,
+) => CommandResult;
 
-const realRunner: CommandRunner = (command, args, cwd) => {
-  const result = spawnSync(command, args, { cwd, encoding: "utf8" });
+const realRunner: CommandRunner = (command, args, cwd, options) => {
+  const result = spawnSync(command, args, {
+    cwd,
+    encoding: "utf8",
+    ...(options?.inherit ? { stdio: "inherit" as const } : {}),
+  });
   return {
     status: result.status ?? 1,
     stdout: result.stdout ?? "",
@@ -50,12 +60,30 @@ export function readTasks(root: string): TaskInfo[] {
   });
 }
 
-export function readyTasks(root: string): Array<TaskInfo & { blocking: string[] }> {
-  const open = new Set(readTasks(root).map((task) => task.id));
-  return readTasks(root)
+export type ListedTask = TaskInfo & { blocking: string[] };
+
+export function readyTasks(root: string): ListedTask[] {
+  const tasks = readTasks(root);
+  const open = new Set(tasks.map((task) => task.id));
+  return tasks
     .filter((task) => task.status === "todo")
     .map((task) => ({ ...task, blocking: task.depends.filter((id) => open.has(id)) }))
     .toSorted((a, b) => a.id.localeCompare(b.id));
+}
+
+const taskRank = (task: ListedTask) => (task.status === "todo" ? 0 : 1);
+
+export function nextTasks(root: string): ListedTask[] {
+  const tasks = readTasks(root);
+  const open = new Set(tasks.map((task) => task.id));
+  const listed = tasks.map((task) => ({
+    ...task,
+    blocking: task.depends.filter((id) => open.has(id)),
+  }));
+  return [
+    ...listed.filter((task) => task.status === "todo"),
+    ...listed.filter((task) => task.status === "doing" || task.status === "review"),
+  ].toSorted((a, b) => taskRank(a) - taskRank(b) || a.id.localeCompare(b.id));
 }
 
 function fail(message: string): never {
@@ -90,7 +118,16 @@ function taskById(root: string, id: string): TaskInfo {
   return task;
 }
 
-export function startTask(root: string, id: string, runner: CommandRunner = realRunner): string {
+export type TaskMutationOptions = { coAuthor?: string };
+
+export function startTask(
+  root: string,
+  id: string,
+  optionsOrRunner: TaskMutationOptions | CommandRunner = {},
+  maybeRunner: CommandRunner = realRunner,
+): string {
+  const options = typeof optionsOrRunner === "function" ? {} : optionsOrRunner;
+  const runner = typeof optionsOrRunner === "function" ? optionsOrRunner : maybeRunner;
   requireMainClean(runner, root);
   const task = taskById(root, id);
   if (task.status !== "todo") fail(`task ${id} has status ${task.status}, expected todo`);
@@ -98,13 +135,9 @@ export function startTask(root: string, id: string, runner: CommandRunner = real
   if (updated === task.text) fail(`task ${id} has no todo status line`);
   writeFileSync(join(root, "tasks", task.file), updated);
   runOrFail(runner, root, "git", ["add", join("tasks", task.file)]);
-  runOrFail(runner, root, "git", [
-    "commit",
-    "-m",
-    `chore: start ${id} (${task.title})`,
-    "-m",
-    "Co-Authored-By: Codex <noreply@openai.com>",
-  ]);
+  const commitArgs = ["commit", "-m", `chore: start ${id} (${task.title})`];
+  if (options.coAuthor) commitArgs.push("-m", `Co-Authored-By: ${options.coAuthor}`);
+  runOrFail(runner, root, "git", commitArgs);
   return `Follow AGENTS.md. You are the Worker for \`tasks/${task.file}\`.`;
 }
 
@@ -166,7 +199,7 @@ function planUpdate(root: string, task: TaskInfo, planText?: string): void {
 export function mergeTask(
   root: string,
   id: string,
-  options: { branch?: string; plan?: string } = {},
+  options: { branch?: string; plan?: string; coAuthor?: string } = {},
   runner: CommandRunner = realRunner,
 ): void {
   requireMainClean(runner, root);
@@ -196,12 +229,14 @@ export function mergeTask(
     ["bun", ["run", "check:workflow"]],
     ["bun", ["run", "verify"]],
   ] as Array<[string, string[]]>) {
-    const result = runner(command[0], command[1], root);
+    const result = runner(command[0], command[1], root, { inherit: true });
     if (result.status !== 0)
       fail(`${command[1].join(" ")} failed; fix the merged tree before committing done`);
   }
   runOrFail(runner, root, "git", ["add", "-A"]);
-  runOrFail(runner, root, "git", ["commit", "-m", `chore(${id}): done`]);
+  const commitArgs = ["commit", "-m", `chore(${id}): done`];
+  if (options.coAuthor) commitArgs.push("-m", `Co-Authored-By: ${options.coAuthor}`);
+  runOrFail(runner, root, "git", commitArgs);
 }
 
 type GhRun = { status?: string; conclusion?: string; name?: string };
@@ -218,8 +253,8 @@ export function landTask(root: string, id: string, options: LandOptions = {}): v
   const runner = options.runner ?? realRunner;
   const sleep = options.sleep ?? ((ms: number) => Bun.sleepSync(ms));
   const now = options.now ?? (() => Date.now());
-  const timeoutMs = options.timeoutMs ?? 120_000;
-  const pollMs = options.pollMs ?? 1_000;
+  const timeoutMs = options.timeoutMs ?? 1_800_000;
+  const pollMs = options.pollMs ?? 20_000;
   const subject = runOrFail(runner, root, "git", [
     "show",
     "-s",
@@ -247,6 +282,9 @@ export function landTask(root: string, id: string, options: LandOptions = {}): v
     } catch {
       fail("gh returned invalid run JSON");
     }
+    console.log(
+      `GitHub Actions: ${runs.length ? runs.map((run) => `${run.name ?? "unnamed"} ${run.status ?? "unknown"}`).join(", ") : "waiting for runs"}`,
+    );
     if (runs.length > 0 && runs.every((run) => run.status === "completed")) break;
     sleep(pollMs);
   }
@@ -255,7 +293,7 @@ export function landTask(root: string, id: string, options: LandOptions = {}): v
   const failed = runs.filter((run) => run.conclusion !== "success");
   if (failed.length > 0)
     fail(`GitHub Actions failed: ${failed.map((run) => run.name ?? "unnamed").join(", ")}`);
-  const secondParent = runOrFail(runner, root, "git", ["rev-parse", "HEAD^2"]).stdout.trim();
+  const secondParent = runOrFail(runner, root, "git", ["rev-parse", "HEAD^^2"]).stdout.trim();
   const worker = worktrees(runner, root).find((item) => {
     if (item.branch === "main") return false;
     return runner("git", ["rev-parse", item.branch], root).stdout.trim() === secondParent;
@@ -267,7 +305,7 @@ export function landTask(root: string, id: string, options: LandOptions = {}): v
 
 function usage(): never {
   console.error(
-    "usage: tasks.ts next [--json] | start <id> | merge <id> [--branch <b>] [--plan <text>] | land <id>",
+    "usage: tasks.ts next [--json] | start <id> [--co-author <value>] | merge <id> [--branch <b>] [--plan <text>] [--co-author <value>] | land <id> [--timeout-ms <ms>]",
   );
   process.exit(2);
 }
@@ -277,7 +315,7 @@ if (import.meta.main) {
     const [command, id, ...args] = process.argv.slice(2);
     const root = process.cwd();
     if (command === "next") {
-      const tasks = readyTasks(root);
+      const tasks = nextTasks(root);
       if (args.includes("--json"))
         console.log(
           JSON.stringify(
@@ -291,20 +329,29 @@ if (import.meta.main) {
       else
         for (const task of tasks)
           console.log(
-            `${task.id} ${task.title}${task.blocking.length ? ` (blocked by ${task.blocking.join(", ")})` : ""}`,
+            `${task.id} ${task.title}${task.blocking.length ? ` (blocked by ${task.blocking.join(", ")})` : task.status !== "todo" ? ` (${task.status})` : ""}`,
           );
-    } else if (command === "start" && id) console.log(startTask(root, id));
-    else if (command === "merge" && id) {
+    } else if (command === "start" && id) {
+      const coAuthorIndex = args.indexOf("--co-author");
+      const coAuthor = coAuthorIndex >= 0 ? args[coAuthorIndex + 1] : undefined;
+      console.log(startTask(root, id, coAuthor ? { coAuthor } : {}));
+    } else if (command === "merge" && id) {
       const branchIndex = args.indexOf("--branch");
       const planIndex = args.indexOf("--plan");
-      const mergeOptions: { branch?: string; plan?: string } = {};
+      const coAuthorIndex = args.indexOf("--co-author");
+      const mergeOptions: { branch?: string; plan?: string; coAuthor?: string } = {};
       const branchArg = branchIndex >= 0 ? args[branchIndex + 1] : undefined;
       const planArg = planIndex >= 0 ? args[planIndex + 1] : undefined;
+      const coAuthorArg = coAuthorIndex >= 0 ? args[coAuthorIndex + 1] : undefined;
       if (branchArg) mergeOptions.branch = branchArg;
       if (planArg) mergeOptions.plan = planArg;
+      if (coAuthorArg) mergeOptions.coAuthor = coAuthorArg;
       mergeTask(root, id, mergeOptions);
-    } else if (command === "land" && id) landTask(root, id);
-    else usage();
+    } else if (command === "land" && id) {
+      const timeoutIndex = args.indexOf("--timeout-ms");
+      const timeoutArg = timeoutIndex >= 0 ? Number(args[timeoutIndex + 1]) : undefined;
+      landTask(root, id, timeoutArg === undefined ? {} : { timeoutMs: timeoutArg });
+    } else usage();
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
     process.exit(1);

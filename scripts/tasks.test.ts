@@ -3,7 +3,7 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { landTask, mergeTask, readyTasks, startTask } from "./tasks.ts";
+import { landTask, mergeTask, nextTasks, readyTasks, startTask } from "./tasks.ts";
 
 const roots: string[] = [];
 const task = (id: string, status: string, depends = "[]") =>
@@ -19,6 +19,26 @@ const realTestRunner = (command: string, args: string[], cwd: string) => {
 };
 const mergeTestRunner = (command: string, args: string[], cwd: string) =>
   command === "bun" ? { status: 0, stdout: "", stderr: "" } : realTestRunner(command, args, cwd);
+const landRealRunner = (command: string, args: string[], cwd: string) => {
+  if (command === "git" && args[0] === "push") return { status: 0, stdout: "", stderr: "" };
+  if (command === "gh")
+    return {
+      status: 0,
+      stdout: JSON.stringify([{ status: "completed", conclusion: "success", name: "ci" }]),
+      stderr: "",
+    };
+  return realTestRunner(command, args, cwd);
+};
+const landRealFailureRunner = (command: string, args: string[], cwd: string) => {
+  if (command === "git" && args[0] === "push") return { status: 0, stdout: "", stderr: "" };
+  if (command === "gh")
+    return {
+      status: 0,
+      stdout: JSON.stringify([{ status: "completed", conclusion: "failure", name: "ci" }]),
+      stderr: "",
+    };
+  return realTestRunner(command, args, cwd);
+};
 
 function repo(files: Record<string, string>): string {
   const root = mkdtempSync(join(tmpdir(), "blast-tasks-"));
@@ -53,6 +73,20 @@ describe("task planning", () => {
       { id: "0003", blocking: [] },
     ]);
   });
+
+  test("lists in-progress tasks after todo tasks", () => {
+    const root = repo({
+      "PLAN.md": "# Plan\n",
+      "tasks/0003-review.md": task("0003", "review"),
+      "tasks/0002-doing.md": task("0002", "doing"),
+      "tasks/0001-todo.md": task("0001", "todo"),
+    });
+    expect(nextTasks(root).map(({ id, status }) => ({ id, status }))).toEqual([
+      { id: "0001", status: "todo" },
+      { id: "0002", status: "doing" },
+      { id: "0003", status: "review" },
+    ]);
+  });
 });
 
 describe("tasks:start", () => {
@@ -77,6 +111,14 @@ describe("tasks:start", () => {
       }).trim(),
     ).toBe("chore: start 0001 (Task 0001)");
     expect(calls.some((call) => call.includes("commit"))).toBe(true);
+  });
+
+  test("adds an optional co-author trailer", () => {
+    const root = repo({ "PLAN.md": "# Plan\n", "tasks/0001-start.md": task("0001", "todo") });
+    startTask(root, "0001", { coAuthor: "Alice <alice@example.com>" }, realTestRunner);
+    expect(
+      execFileSync("git", ["show", "-s", "--format=%B", "HEAD"], { cwd: root, encoding: "utf8" }),
+    ).toContain("Co-Authored-By: Alice <alice@example.com>");
   });
 
   test("rejects a non-main or dirty checkout", () => {
@@ -114,7 +156,7 @@ function landFake(conclusion: string) {
     "gh run list --commit head --json status,conclusion,name": {
       stdout: JSON.stringify([{ status: "completed", conclusion, name: "ci" }]),
     },
-    "git rev-parse HEAD^2": { stdout: "worker-tip\n" },
+    "git rev-parse HEAD^^2": { stdout: "worker-tip\n" },
     "git worktree list --porcelain": { stdout: "worktree /tmp/worker\nbranch refs/heads/worker\n" },
     "git rev-parse worker": { stdout: "worker-tip\n" },
     "git worktree remove /tmp/worker": {},
@@ -164,6 +206,31 @@ describe("tasks:merge", () => {
         encoding: "utf8",
       }).trim(),
     ).toBe("chore(0001): done");
+  });
+
+  test("adds an optional co-author trailer to the done commit", () => {
+    const root = repo({
+      "PLAN.md": "### M1\n- [ ] 0001\n",
+      "tasks/0001-merge.md": task("0001", "doing"),
+    });
+    const git = (...args: string[]) => execFileSync("git", args, { cwd: root });
+    git("switch", "-c", "worker");
+    writeFileSync(
+      join(root, "tasks/0001-merge.md"),
+      task("0001", "doing").replace("Task 0001", "changed"),
+    );
+    git("add", ".");
+    git("commit", "-m", "worker");
+    git("switch", "main");
+    mergeTask(
+      root,
+      "0001",
+      { branch: "worker", coAuthor: "Alice <alice@example.com>" },
+      mergeTestRunner,
+    );
+    expect(
+      execFileSync("git", ["show", "-s", "--format=%B", "HEAD"], { cwd: root, encoding: "utf8" }),
+    ).toContain("Co-Authored-By: Alice <alice@example.com>");
   });
 
   test("aborts a merge conflict and does not delete the task", () => {
@@ -232,5 +299,58 @@ describe("tasks:land", () => {
     landTask("/tmp", "0001", { runner, now: () => 0, sleep: () => undefined });
     expect(calls).toContainEqual(["git", "worktree", "remove", "/tmp/worker"]);
     expect(calls).toContainEqual(["git", "branch", "-d", "worker"]);
+  });
+
+  test("cleans a real worker worktree after successful CI", () => {
+    const root = repo({
+      "PLAN.md": "### M1\n- [ ] 0001\n",
+      "tasks/0001-merge.md": task("0001", "doing"),
+    });
+    const workerParent = mkdtempSync(join(tmpdir(), "blast-worker-"));
+    roots.push(workerParent);
+    const workerPath = join(workerParent, "tree");
+    execFileSync("git", ["worktree", "add", "-b", "worker", workerPath], { cwd: root });
+    writeFileSync(
+      join(workerPath, "tasks/0001-merge.md"),
+      task("0001", "doing").replace("Task 0001", "changed"),
+    );
+    execFileSync("git", ["add", "."], { cwd: workerPath });
+    execFileSync("git", ["commit", "-m", "worker"], { cwd: workerPath });
+    mergeTask(root, "0001", { branch: "worker" }, mergeTestRunner);
+    landTask(root, "0001", { runner: landRealRunner });
+    expect(() =>
+      execFileSync("git", ["show-ref", "--verify", "refs/heads/worker"], { cwd: root }),
+    ).toThrow();
+    expect(() => readFileSync(workerPath)).toThrow();
+  });
+
+  test("keeps a real worker worktree after failed CI", () => {
+    const root = repo({
+      "PLAN.md": "### M1\n- [ ] 0001\n",
+      "tasks/0001-merge.md": task("0001", "doing"),
+    });
+    const workerParent = mkdtempSync(join(tmpdir(), "blast-worker-"));
+    roots.push(workerParent);
+    const workerPath = join(workerParent, "tree");
+    execFileSync("git", ["worktree", "add", "-b", "worker", workerPath], { cwd: root });
+    writeFileSync(
+      join(workerPath, "tasks/0001-merge.md"),
+      task("0001", "doing").replace("Task 0001", "changed"),
+    );
+    execFileSync("git", ["add", "."], { cwd: workerPath });
+    execFileSync("git", ["commit", "-m", "worker"], { cwd: workerPath });
+    mergeTask(root, "0001", { branch: "worker" }, mergeTestRunner);
+    expect(() => landTask(root, "0001", { runner: landRealFailureRunner })).toThrow(
+      "GitHub Actions failed: ci",
+    );
+    expect(readFileSync(join(workerPath, "tasks/0001-merge.md"), "utf8")).toContain(
+      "status: doing",
+    );
+    expect(
+      execFileSync("git", ["show-ref", "--verify", "refs/heads/worker"], {
+        cwd: root,
+        encoding: "utf8",
+      }),
+    ).toContain("refs/heads/worker");
   });
 });
