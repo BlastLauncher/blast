@@ -109,7 +109,7 @@ The orchestrator then writes decision 0013 from those findings.
 ## Handoff
 
 ```
-Branch/commit: t3/browser-runtime-spike-round2 @ b3ac660dc023f10fa59160eb203b9e09f57acc6e
+Branch/commit: t3/browser-runtime-spike-round2 @ 9809b2b5d5901b731c7816435602ac6f7db195e3
 Verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 61.3s
 Done:
 - Replaced the stand-in command with a browser-target bundle of `hello-list`, Blast's reconciler, the local `@raycast/api` shim, React, and React Reconciler.
