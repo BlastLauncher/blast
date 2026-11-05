@@ -46,7 +46,12 @@ npx @blastlauncher/cli@next run ./my-extension index
     publishing ([docs/release.md](./docs/release.md)).
   - real examples (M7, in progress): an AppKit launcher over `blast serve`
     ([examples/macos-launcher](./examples/macos-launcher/)), walkthroughs, paste
-    `closeMainWindow`, and macOS window operations without yabai.
+    `closeMainWindow`, macOS window operations without yabai, and an
+    in-process web launcher ([examples/web-launcher](./examples/web-launcher/));
+  - extensions in the browser (M8): run a Raycast extension from its GitHub URL
+    with nothing installed, inside almostnode's cross-origin sandbox
+    ([decision 0013](./docs/decisions/0013-browser-runtime.md),
+    [examples/browser-demo](./examples/browser-demo/)).
 - **Engine size:** about 13 MiB installed without the optional shared libraries.
 - **Next:** more real embedder examples. Backlog in [PLAN.md](./PLAN.md), "Later".
 
