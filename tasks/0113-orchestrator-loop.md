@@ -109,7 +109,7 @@ T3 Code, the app running the agents, has an open window on this Mac.
 ## Handoff
 
 ```
-Branch/commit: t3/fix-orchestrator-loop @ <commit>
+Branch/commit: t3/fix-orchestrator-loop @ f7653b878308af44a6d5f6659e5e1c3cfd5e99e5
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 60.9s
 Done:
 - Corrected land cleanup to resolve the worker tip from the merge commit and added real temporary-worktree success/failure tests.
