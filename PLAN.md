@@ -5,8 +5,8 @@ branch: `main`. Keep this file under 120 lines; detail belongs in task files.
 
 ## Current focus
 
-M6 — evidence at scale. Blast is the engine; launchers embed it. The TUI and
-`blast run` stay reference clients and get no new launcher features.
+M8 — extensions in the browser, loaded by URL, with no install. Blast stays the
+engine; the TUI and `blast run` get no new launcher features.
 
 ## Milestones
 
@@ -63,19 +63,9 @@ Anyone can embed Blast and render Raycast extensions in their own UI: an
 in-process JS API and `blast serve` over stdio for other languages, with
 Raycast client semantics built in so embedders only draw.
 
-- [x] Decisions 0009 (engine boundary, two surfaces, distribution) and 0010
-      (platform-free core, capability registry + catalog, optional native)
-- [x] 0063–0069, 0071–0079, 0081 done (see git log): client-core (ranking,
-      shortcuts, controller), extension handle, engine registry, capability
-      catalog, `blast serve` + schema + docs, Go example, native I/II, release
-      build, slim engine (13 MiB), CLI package, TUI on the controller.
-      Coverage 2026-10-20: non-deprecated 1533/1534 (embedder-owned
-      `BrowserExtension.getContent`), deprecated 939/939.
-- [x] 0080 Views over `blast serve` (client-core controller per session)
-- [x] 0070 Deps-heavy corpus (`compat/SMOKE-DEPS.md`, after 0082–0087): 25/25
-      installs, 54/56 render (20 with placeholder inputs), 2 `open.url` denials
-- [x] 0082 tsconfig paths; 0083 lean installs; 0084 form editing; 0085 keep required peers
-- [x] 0086 smoke placeholder args/prefs; 0087 bundle time limit
+- [x] Decisions 0009/0010; 0063–0087 (see git log): client-core + controller, engine
+      registry, capability catalog, `blast serve` + schema + views, Go example, native,
+      release build, slim engine, lean installs, deps-heavy smoke (`compat/SMOKE-DEPS.md`).
 
 ### M6 — Evidence at scale
 
@@ -92,6 +82,14 @@ AppKit launcher over `blast serve`; automated tests and contract fixtures first.
 - [x] 0110 deterministic watch tests; 0111 paste `closeMainWindow`; 0112 macOS windows without
       yabai; `archive/` deleted (tag keeps it); `3.0.0-alpha.1` on `next` with provenance
 - [x] 0113 orchestrator loop: `tasks:next|start|merge|land`
+- [ ] 0114 In-process web launcher example (`examples/web-launcher`)
+
+### M8 — Browser runtime
+
+Run any Raycast extension in a browser tab from its URL, inside almostnode
+(Node-in-WASM, MIT) in a cross-origin sandbox. Feasibility before decision 0013.
+
+- [ ] 0115 Spike: runtime + fixture scene inside almostnode, headless browser, measured
 
 ## Later (not scheduled)
 
