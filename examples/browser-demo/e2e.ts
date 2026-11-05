@@ -128,9 +128,11 @@ try {
       // Move to the Hello List row with the keyboard, however many rows match:
       // a bare ArrowDown only worked while "hello" matched a single command.
       const target = await page.evaluate(() =>
-        [...document.querySelectorAll('[role="option"]')].findIndex((row) =>
-          (row.textContent ?? "").includes("Hello List"),
-        ),
+        Array.from(
+          document.querySelectorAll('[role="option"]') as unknown as ArrayLike<{
+            textContent: string | null;
+          }>,
+        ).findIndex((row) => (row.textContent ?? "").includes("Hello List")),
       );
       if (target < 0) throw new Error("Hello List is not in the filtered catalog");
       for (let step = 0; step < target; step++) await page.keyboard.press("ArrowDown");
