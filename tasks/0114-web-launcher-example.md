@@ -85,8 +85,13 @@ and is covered by automated tests that need no browser.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: `t3/fix-web-launcher-example @ HEAD`
+Verify: `verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok)`
 Done:
-Not done / risks:
+- Split the browser client and pure renderer into disk-served ESM modules, with tests importing the exact served `render.js` bytes.
+- Hardened every response with CSP, referrer, and MIME-sniffing headers, loopback Host validation, invalid-JSON 400 handling, and bodyless 204 responses.
+- Moved web-launcher dependencies into its private workspace package and regenerated the lockfile without root runtime dependencies.
+- Made action-panel rows clickable through controller movement inputs; Enter runs the selected action.
+- Added focused tests for headers, Host rejection, malformed JSON, 204 bodies, and renderer byte identity.
+Not done / risks: Browser-side effects are intentionally limited to the documented clipboard and URL handlers; no browser was opened during verification.
 ```

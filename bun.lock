@@ -15,6 +15,14 @@
         "typescript": "7.0.2",
       },
     },
+    "examples/web-launcher": {
+      "name": "@blastlauncher/example-web-launcher",
+      "dependencies": {
+        "@blastlauncher/client-core": "workspace:*",
+        "@blastlauncher/host": "workspace:*",
+        "@blastlauncher/protocol": "workspace:*",
+      },
+    },
     "packages/cli": {
       "name": "@blastlauncher/cli",
       "dependencies": {
@@ -114,6 +122,8 @@
     "@blastlauncher/cli": ["@blastlauncher/cli@workspace:packages/cli"],
 
     "@blastlauncher/client-core": ["@blastlauncher/client-core@workspace:packages/client-core"],
+
+    "@blastlauncher/example-web-launcher": ["@blastlauncher/example-web-launcher@workspace:examples/web-launcher"],
 
     "@blastlauncher/host": ["@blastlauncher/host@workspace:packages/host"],
 

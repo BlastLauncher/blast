@@ -15,8 +15,10 @@
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
     "skipLibCheck": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "allowJs": true,
+    "checkJs": false
   },
-  "include": ["scripts", "packages"],
+  "include": ["scripts", "packages", "examples/web-launcher"],
   "exclude": ["node_modules", "**/dist", ".cache"]
 }

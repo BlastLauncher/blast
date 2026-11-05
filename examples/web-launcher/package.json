@@ -1,0 +1,10 @@
+{
+  "name": "@blastlauncher/example-web-launcher",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@blastlauncher/client-core": "workspace:*",
+    "@blastlauncher/host": "workspace:*",
+    "@blastlauncher/protocol": "workspace:*"
+  }
+}

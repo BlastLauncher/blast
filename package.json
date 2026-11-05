@@ -3,7 +3,8 @@
   "private": true,
   "license": "MIT",
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "examples/web-launcher"
   ],
   "type": "module",
   "scripts": {
@@ -43,7 +44,8 @@
     "example:go": "cd examples/go-embedder && go test ./...",
     "release:bootstrap": "bun scripts/release/prerelease.ts bootstrap",
     "example:mac": "cd examples/macos-launcher && swift test",
-    "example:mac:fixtures": "bun scripts/mac-fixtures.ts"
+    "example:mac:fixtures": "bun scripts/mac-fixtures.ts",
+    "example:web": "node examples/web-launcher/main.ts"
   },
   "devDependencies": {
     "@blastlauncher/shared-deps": "workspace:*",
