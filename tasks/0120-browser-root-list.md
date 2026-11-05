@@ -1,7 +1,7 @@
 ---
 id: "0120"
 title: Raycast-style root list to pick and run an extension command in the browser demo
-status: todo
+status: doing
 milestone: M8
 depends: []
 ---
