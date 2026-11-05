@@ -1,7 +1,7 @@
 ---
 id: "0126"
 title: Prebuild catalog command bundles at site build time for a fast first open
-status: doing
+status: review
 milestone: M8
 depends: []
 ---
@@ -97,8 +97,14 @@ small bundle and starts it.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/optimize-prebuilt-catalog-bundles @ 241c2cd
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 64.9s
 Done:
+- Added a shared runtime registry and esbuild externalization for React, JSX runtimes, Raycast API, reconciler, scheduler, protocol, and runtime start; command bundles now execute after the verified runtime chunk in one almostnode instance.
+- Production build measured 225/237 commands (94.9%) built: 19,330,165 command bytes plus 257,682 runtime bytes (median 12,829, p95 466,252, max 1,657,408). Fixture smoke passes without an esbuild.wasm request.
+- Catalog-only sparse checkout excludes assets, media, metadata, and image/video/font files; measured 35.6 MB including `.git`. The CI 1000 MB override is removed.
+- Production smoke passes on 127.0.0.1 with the `/blast-sandbox/` prefix: ratio-calculator cold first scene 87 ms and bundle bytes 260,498, with no esbuild.wasm request.
+- Added a shared-runtime package-component test exercising React hook identity and minified bundles to keep the catalog under 30 MB.
 Not done / risks:
+- Production failures: `entities`, `cross-fetch`, and `node-fetch` are declared by the affected manifests but the browser installer cannot resolve those ranges from the npm registry; the other five failures are missing local source files in the pinned commit (`multi-ai-chat` x2, `promptty` x1). No installer code change was warranted.
 ```

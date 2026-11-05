@@ -1,7 +1,9 @@
 import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { buildBrowserAssets, projectRoot, relativeFiles } from "./build.ts";
+import { prebuildCatalog } from "./prebuild.ts";
 import { demoPage } from "./template.ts";
+import type { Catalog } from "./root.ts";
 
 export type SiteOptions = {
   siteOrigin: string;
@@ -120,7 +122,7 @@ export async function buildSite(
   await writeFile(join(demo, "blast-sources.json"), JSON.stringify(assets.sources));
   const catalog = JSON.parse(
     await readFile(join(projectRoot, "examples/browser-demo/catalog.json"), "utf8"),
-  ) as { extensions: unknown[]; commit: string };
+  ) as Catalog;
   if (options.fixtures) {
     catalog.extensions.push({
       name: "hello-list",
@@ -143,6 +145,7 @@ export async function buildSite(
       join(demo, "fixtures/hello-list/__files"),
       JSON.stringify(await relativeFiles(join(projectRoot, "fixtures/extensions/hello-list"))),
     );
+  await prebuildCatalog(catalog, buildSha, demo, options.fixtures);
   await writeFile(
     join(sandbox, "index.html"),
     `<!doctype html><script type="module">import {Runtime,VirtualFS} from './almostnode-full.mjs'; const runtime=new Runtime(new VirtualFS(),{}); addEventListener('message',async e=>{if(e.data?.type==='execute'){try{const result=await runtime.execute(e.data.code,e.data.filename); parent.postMessage({type:'result',id:e.data.id,result},'*')}catch(error){parent.postMessage({type:'error',id:e.data.id,error:String(error)},'*')}}}); parent.postMessage({type:'ready'},'*');</script>`,

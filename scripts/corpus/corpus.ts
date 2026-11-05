@@ -103,13 +103,38 @@ export function readPin(root: string): CorpusPin {
  * `node_modules/`, which must come after the include it narrows because the
  * last matching pattern decides.
  */
-export function buildPatterns(extensions: string[] = []): string[] {
+export function buildPatterns(extensions: string[] = [], catalogOnly = false): string[] {
   for (const name of extensions) requireName(name, "--extension");
   const names = [...new Set(extensions)].toSorted();
+  if (!catalogOnly)
+    return [
+      MANIFEST_PATTERN,
+      ...names.map((name) => `/extensions/${name}/`),
+      ...names.map((name) => `!/extensions/${name}/node_modules/`),
+    ];
+  const excludedDirectories = ["assets", "media", "metadata"];
+  const excludedFiles = [
+    "*.png",
+    "*.jpg",
+    "*.jpeg",
+    "*.gif",
+    "*.webp",
+    "*.svg",
+    "*.ico",
+    "*.avif",
+    "*.mp4",
+    "*.webm",
+    "*.mov",
+    "*.woff",
+    "*.woff2",
+    "*.ttf",
+    "*.otf",
+  ];
   return [
-    MANIFEST_PATTERN,
     ...names.map((name) => `/extensions/${name}/`),
     ...names.map((name) => `!/extensions/${name}/node_modules/`),
+    ...excludedDirectories.map((directory) => `!/extensions/*/${directory}/`),
+    ...excludedFiles.map((pattern) => `!${pattern}`),
   ];
 }
 

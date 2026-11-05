@@ -63,6 +63,34 @@ test("bundles memory files, includes Blast API and leaves node built-ins externa
   expect(result.code).toContain("dependency");
 });
 
+test("shared runtime keeps package React imports on one module instance", async () => {
+  const result = await bundleForBrowser({
+    esbuild: { build },
+    files: new Map([
+      ["/src/index.tsx", 'import { Component } from "@raycast/utils"; export default Component;'],
+      ["/runtime.js", "export function start(command) { globalThis.started = command; }"],
+    ]),
+    packages: new Map([
+      [
+        "/node_modules/@raycast/utils/index.js",
+        'import { useState } from "react"; export function Component() { return useState(7)[0]; }',
+      ],
+      ["/node_modules/react/index.js", "export const useState = (value) => [value, () => {}];"],
+    ]),
+    command: "/src/index.tsx",
+    runtimeEntry: "/runtime.js",
+    sharedRuntime: true,
+    sharedModules: ["react"],
+  });
+  const exports: Record<string, unknown> = {};
+  const module = { exports };
+  const registry = { react: { useState: (value: number) => [value, () => {}] }, start() {} };
+  const registryKey = ["__", "blastModules"].join("");
+  (globalThis as Record<string, unknown>)[registryKey] = registry;
+  new Function("exports", "module", result.code)(exports, module);
+  expect((module.exports as { default: () => number }).default()).toBe(7);
+});
+
 test("reports an unresolved package by its package name", async () => {
   const error = await bundleForBrowser({
     esbuild: { build },

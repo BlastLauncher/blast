@@ -34,7 +34,8 @@ jobs:
         with:
           bun-version: 1.4.2
       - run: bun install --frozen-lockfile
-      - run: bun run site:build --site-origin https://blast.yukai.dev --sandbox-url https://blastlauncher.github.io/blast-sandbox/
+      - name: Build site and sparse catalog checkout
+        run: bun run site:build --site-origin https://blast.yukai.dev --sandbox-url https://blastlauncher.github.io/blast-sandbox/
       - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
         with:
           path: .cache/site/www
