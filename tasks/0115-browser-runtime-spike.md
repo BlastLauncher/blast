@@ -1,7 +1,7 @@
 ---
 id: "0115"
 title: "Spike: Blast runtime inside almostnode in a headless browser"
-status: todo
+status: doing
 milestone: M8
 depends: []
 ---
