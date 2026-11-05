@@ -10,9 +10,14 @@ import {
   createPreferenceStore,
   type ExtensionManifest,
   type DependencyInstaller,
+  type DebounceScheduler,
+  type ExtensionWatcherFactory,
 } from "./index.ts";
 
-async function fixture(installer?: DependencyInstaller) {
+async function fixture(
+  installer?: DependencyInstaller,
+  watchOptions: { watcher?: ExtensionWatcherFactory; debounce?: DebounceScheduler } = {},
+) {
   const root = await mkdtemp(join(tmpdir(), "blast-extension-"));
   const extensionDir = join(root, "extension");
   const dataDir = join(root, "data");
@@ -21,7 +26,12 @@ async function fixture(installer?: DependencyInstaller) {
   });
   const file = join(extensionDir, "package.json");
   const raw = JSON.parse(await readFile(file, "utf8"));
-  const handle = openExtension({ extensionDir, dataDir, ...(installer ? { installer } : {}) });
+  const handle = openExtension({
+    extensionDir,
+    dataDir,
+    ...(installer ? { installer } : {}),
+    ...watchOptions,
+  });
   return {
     handle,
     raw,
@@ -65,43 +75,66 @@ test("extension manifest validates structure, preference schemas and unknown com
 });
 
 test("extension watch reloads atomic manifest and lockfile changes, errors, unsubscribe and close", async () => {
-  const f = await fixture();
+  const listeners: ((event: string, file: string) => void)[] = [];
+  const pending = new Set<() => void>();
+  const watcher: ExtensionWatcherFactory = (_path, listener) => {
+    listeners.push(listener);
+    return {
+      on: (_event, _listener) => watcherHandle,
+      close: () => {},
+    };
+  };
+  const watcherHandle = {
+    on: (_event: "error", _listener: (error: Error) => void) => watcherHandle,
+    close: () => {},
+  };
+  const debounce: DebounceScheduler = {
+    schedule: (callback) => (pending.add(callback), callback),
+    cancel: (handle) => pending.delete(handle as () => void),
+  };
+  const emit = async (file: string) => {
+    for (const listener of listeners) listener("change", file);
+    for (const callback of pending) {
+      pending.delete(callback);
+      callback();
+    }
+    await new Promise<void>((resolve) => setImmediate(resolve));
+    await new Promise<void>((resolve) => setImmediate(resolve));
+  };
+  const f = await fixture(undefined, { watcher, debounce });
   const updates: (ExtensionManifest | Error)[] = [];
   let notified = Promise.withResolvers<void>();
-  const next = async (write: () => Promise<unknown>) => {
-    notified = Promise.withResolvers<void>();
-    const timer = setTimeout(() => notified.reject(new Error("watch timeout")), 2000);
-    try {
-      await write();
-      await notified.promise;
-    } finally {
-      clearTimeout(timer);
-    }
-  };
   try {
     const unsubscribe = f.handle.watch((value) => {
       updates.push(value);
       notified.resolve();
     });
     f.raw.title = "Reloaded";
-    await next(async () => {
-      await writeFile(`${f.file}.tmp`, JSON.stringify(f.raw));
-      await rename(`${f.file}.tmp`, f.file);
-    });
+    await writeFile(`${f.file}.tmp`, JSON.stringify(f.raw));
+    await rename(`${f.file}.tmp`, f.file);
+    notified = Promise.withResolvers<void>();
+    await emit("package.json");
+    await notified.promise;
     expect(updates.at(-1)).toMatchObject({ title: "Reloaded" });
-    await next(() => writeFile(join(f.extensionDir, "package-lock.json"), "{}"));
+    await writeFile(join(f.extensionDir, "package-lock.json"), "{}");
+    notified = Promise.withResolvers<void>();
+    await emit("package-lock.json");
+    await notified.promise;
     expect(updates.at(-1)).toMatchObject({ title: "Reloaded" });
-    await next(() => writeFile(f.file, "{"));
+    await writeFile(f.file, "{");
+    notified = Promise.withResolvers<void>();
+    await emit("package.json");
+    await notified.promise;
     expect(updates.at(-1)).toBeInstanceOf(Error);
     unsubscribe();
     const count = updates.length;
     await f.write();
-    await new Promise((resolve) => setTimeout(resolve, 150));
+    await emit("package.json");
     expect(updates).toHaveLength(count);
     f.handle.watch((value) => updates.push(value));
     await f.handle.close();
     await f.write();
-    await new Promise((resolve) => setTimeout(resolve, 150));
+    await emit("package.json");
     expect(updates).toHaveLength(count);
     await expect(f.handle.manifest()).rejects.toThrow("closed");
   } finally {

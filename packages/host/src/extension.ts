@@ -64,6 +64,21 @@ export type OpenExtensionOptions = {
   dataDir?: string;
   installer?: DependencyInstaller;
   handlers?: Record<string, CapabilityHandler>;
+  watcher?: ExtensionWatcherFactory;
+  debounce?: DebounceScheduler;
+};
+
+export type ExtensionWatcher = {
+  on(event: "error", listener: (error: Error) => void): ExtensionWatcher;
+  close(): void;
+};
+export type ExtensionWatcherFactory = (
+  path: string,
+  listener: (event: string, filename: string | Buffer | null) => void,
+) => ExtensionWatcher;
+export type DebounceScheduler = {
+  schedule(callback: () => void, delayMs: number): unknown;
+  cancel(handle: unknown): void;
 };
 
 /** Opens an extension without starting a command or installing dependencies. */
@@ -80,6 +95,13 @@ export function createExtensionHandle(
   const extensionDir = resolve(options.extensionDir);
   const dataDir = options.dataDir ?? defaultDataDir();
   const dependencyOptions = { extensionDir, dataDir };
+  const watcherFactory = options.watcher ?? ((path, listener) => watchDirectory(path, listener));
+  const debounce =
+    options.debounce ??
+    ({
+      schedule: (callback, delayMs) => setTimeout(callback, delayMs),
+      cancel: (handle) => clearTimeout(handle as ReturnType<typeof setTimeout>),
+    } satisfies DebounceScheduler);
   let closed = false;
   let closing: Promise<void> | undefined;
   let queue: Promise<unknown> = Promise.resolve();
@@ -271,7 +293,7 @@ export function createExtensionHandle(
     watch(listener: (update: ExtensionManifest | Error) => void) {
       ensureOpen();
       let active = true;
-      let timer: ReturnType<typeof setTimeout> | undefined;
+      let timer: unknown;
       const reload = async () => {
         let update: ExtensionManifest | Error;
         try {
@@ -282,10 +304,10 @@ export function createExtensionHandle(
         if (active) listener(update);
       };
       // Directory watching also observes manifests replaced via atomic rename.
-      const watcher = watchDirectory(extensionDir, (_event, file) => {
+      const watcher = watcherFactory(extensionDir, (_event, file) => {
         if (file && file !== "package.json" && file !== "package-lock.json") return;
-        clearTimeout(timer);
-        timer = setTimeout(() => {
+        if (timer !== undefined) debounce.cancel(timer);
+        timer = debounce.schedule(() => {
           void reload();
         }, 100);
       });
@@ -294,7 +316,7 @@ export function createExtensionHandle(
       });
       const unsubscribe = () => {
         active = false;
-        clearTimeout(timer);
+        if (timer !== undefined) debounce.cancel(timer);
         watcher.close();
         subscriptions.delete(unsubscribe);
       };

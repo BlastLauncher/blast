@@ -50,8 +50,11 @@ randomized runs passed. Causes seen in the code:
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: `t3/deterministic-watch-tests` @ `b572230` (includes implementation `0e2efa4`).
+Verify: `bun run verify` passed 3/3 sequential runs while a second `bun run verify` passed 3/3 in parallel; each reported `verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok)`. The three target test files passed 50/50 consecutive `--randomize` seeds (0 failures).
 Done:
-Not done / risks:
+- Added optional watcher factory and debounce scheduler injection to extension handles, with engine pass-through and unchanged `fs.watch`/100 ms defaults.
+- Reworked host and TUI picker watch tests to use demand-driven fake events and manual debounce scheduling; unsubscribe/close are checked by post-unsubscribe emits.
+- Kept the serve manifest-watch test on the real filesystem because it exercises the child-process stdio protocol and cross-process event delivery.
+Not done / risks: None known.
 ```

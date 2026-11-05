@@ -7,6 +7,49 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { CommandPicker, CommandSession } from "./picker.tsx";
 import { settle } from "./test-support.ts";
+import {
+  openExtension,
+  type DebounceScheduler,
+  type ExtensionWatcherFactory,
+} from "@blastlauncher/host";
+
+function deterministicExtension(
+  extensionDir: string,
+  dataDir: string,
+  installer?: import("@blastlauncher/host").DependencyInstaller,
+) {
+  let listener: ((event: string, file: string) => void) | undefined;
+  const pending = new Set<() => void>();
+  const watcher: ExtensionWatcherFactory = (_path, next) => {
+    listener = next;
+    return { on: (_event, _listener) => watcherHandle, close: () => {} };
+  };
+  const watcherHandle = {
+    on: (_event: "error", _listener: (error: Error) => void) => watcherHandle,
+    close: () => {},
+  };
+  const debounce: DebounceScheduler = {
+    schedule: (callback) => (pending.add(callback), callback),
+    cancel: (handle) => pending.delete(handle as () => void),
+  };
+  const extension = openExtension({
+    extensionDir,
+    dataDir,
+    watcher,
+    debounce,
+    ...(installer ? { installer } : {}),
+  });
+  return {
+    extension,
+    emit(file: string) {
+      listener?.("change", file);
+      for (const callback of pending) {
+        pending.delete(callback);
+        callback();
+      }
+    },
+  };
+}
 
 /** Fixtures are never modified in place: every test drives a temp copy. */
 async function copyFixture(name: string): Promise<string> {
@@ -89,10 +132,12 @@ test("picker lists a manifest's commands with modes and filters by typed text", 
 
 test("rewriting the manifest updates the list; invalid JSON keeps the last list", async () => {
   const dir = await copyFixture("feedback");
+  const supplied = deterministicExtension(dir, join(dir, "../data"));
   const terminal = await testRender(
     <CommandPicker
       extensionDir={dir}
       dataDir={join(dir, "../data")}
+      extension={supplied.extension}
       onLaunch={() => {}}
       onQuit={() => {}}
     />,
@@ -105,13 +150,13 @@ test("rewriting the manifest updates the list; invalid JSON keeps the last list"
     manifest.commands.push({ name: "extra", title: "Extra One", mode: "view" });
     await act(async () => {
       await writeFile(manifestPath, JSON.stringify(manifest));
-      await new Promise((resolve) => setTimeout(resolve, 300));
     });
+    supplied.emit("package.json");
     await settle(terminal, (frame) => frame.includes("Extra One"));
     await act(async () => {
       await writeFile(manifestPath, "{ not json");
-      await new Promise((resolve) => setTimeout(resolve, 300));
     });
+    supplied.emit("package.json");
     const frame = await settle(
       terminal,
       (current) => current.includes("Manifest:") && current.includes("Extra One"),
@@ -119,6 +164,7 @@ test("rewriting the manifest updates the list; invalid JSON keeps the last list"
     expect(frame).toContain("› index");
   } finally {
     await act(async () => terminal.dispose());
+    await supplied.extension.close();
     await rm(join(dir, ".."), { recursive: true, force: true });
   }
 }, 30_000);
@@ -326,8 +372,14 @@ test("picker installs with progress, waits to launch, reuses installs and watche
       finish = resolve;
     });
   };
+  const supplied = deterministicExtension(dir, dataDir, installer);
   let terminal = await testRender(
-    <CommandSession extensionDir={dir} dataDir={dataDir} installer={installer} />,
+    <CommandSession
+      extensionDir={dir}
+      dataDir={dataDir}
+      extension={supplied.extension}
+      installer={installer}
+    />,
     { width: 100, height: 20, exitOnCtrlC: false },
   );
   try {
@@ -341,18 +393,21 @@ test("picker installs with progress, waits to launch, reuses installs and watche
     expect(calls).toBe(1);
     await act(async () => terminal.dispose());
     terminal = await testRender(
-      <CommandSession extensionDir={dir} dataDir={dataDir} installer={installer} />,
+      <CommandSession
+        extensionDir={dir}
+        dataDir={dataDir}
+        extension={supplied.extension}
+        installer={installer}
+      />,
       { width: 100, height: 20, exitOnCtrlC: false },
     );
     await settle(terminal, (f) => f.includes("Search commands"));
-    await act(async () => {
-      await new Promise((r) => setTimeout(r, 150));
-    });
     expect(calls).toBe(1);
     await writeFile(
       join(dir, "package-lock.json"),
       JSON.stringify({ lockfileVersion: 3, packages: {} }),
     );
+    supplied.emit("package-lock.json");
     await settle(terminal, (f) => f.includes("Installing example"));
     expect(calls).toBe(2);
     await act(async () => finish());
@@ -360,6 +415,7 @@ test("picker installs with progress, waits to launch, reuses installs and watche
   } finally {
     finish?.();
     await act(async () => terminal.dispose());
+    await supplied.extension.close();
     await rm(join(dir, ".."), { recursive: true, force: true });
   }
 }, 30_000);
