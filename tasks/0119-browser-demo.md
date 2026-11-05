@@ -67,7 +67,7 @@ plain `<name>`, and the page then:
 ## Handoff
 
 ```
-Branch/commit: t3/browser-demo-e2e @ 6477a61654be4cc4fcd4b9fad6d077c95bc007cb
+Branch/commit: t3/browser-demo-e2e @ 1a48cd850628dd9c450411c401d3363364251e39
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 63.5s
 Done:
 - Added the static browser-demo host, cross-origin almostnode sandbox wiring, browser dependency installation, esbuild-wasm bundling, controller, renderer, keyboard input, and visible capability denials.
