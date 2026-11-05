@@ -104,7 +104,7 @@ real domains:
 
 ## Handoff
 
-Branch/commit: t3/build-static-landing-page @ 5b44d44eba4336ccae9193d6f60c46bc092e107d
+Branch/commit: t3/build-static-landing-page @ 611aea10f3268882184ea3778e1e8b1e08a86983
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 63.7s
 Done:
 - Added `site:build` to emit the landing page, `/demo/`, and the separate almostnode sandbox with origin-aware URLs, CNAME rules, headers, 404 pages, and `.nojekyll` markers.
