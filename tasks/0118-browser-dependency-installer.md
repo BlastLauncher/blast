@@ -68,8 +68,11 @@ depends: []
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/browser-dependency-installer @ 629c6ce85747292fadce412230a98950aa3b5aa3
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 71.1s
 Done:
-Not done / risks:
+- Added browser-safe registry resolution with semver ranges, lockfile pins, lean dependency filtering, peer installation, integrity checks, and configurable byte/package caps.
+- Added in-memory gzip/tar unpacking with ustar/pax support and typed native-module, integrity, resolution, and limit errors.
+- Exported installForBrowser and added offline fixture-backed tests and hand-made npm archives.
+Not done / risks: Conflicting package versions are currently represented by the shared package map entry; the browser bundler should define nested-version path handling if it needs simultaneous versions.
 ```
