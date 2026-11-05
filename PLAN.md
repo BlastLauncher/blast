@@ -86,11 +86,9 @@ Run any Raycast extension in a browser tab from its URL, inside almostnode
 (Node-in-WASM, MIT) in a cross-origin sandbox (decision 0013).
 
 - [x] 0115 Spike: real runtime in almostnode's sandbox, measured (`examples/browser-runtime`)
-- [x] 0116 Runtime core + stdio / postMessage entries
-- [x] 0117 Browser bundle target (in-memory files, injected esbuild)
-- [x] 0118 Browser dependency installer (registry, tarballs, lean rules)
-- [x] 0119 Browser demo: run an extension from its URL (after 0116–0118)
+- [x] 0116 runtime core + postMessage; 0117 browser bundle; 0118 installer; 0119 demo by URL
 - [x] 0120 Raycast-style root list to pick and run commands in the browser demo
+- [ ] 0121 Static site build: landing + /demo, separate sandbox origin (GitHub Pages)
 
 ## Later (not scheduled)
 
