@@ -210,6 +210,7 @@ for (const mode of [
   "invalid JSON",
   "partial EOF",
   "invalid message",
+  "oversized line",
 ]) {
   test(`protocol failure: ${mode}`, async () => {
     const runtime = start();
@@ -218,6 +219,8 @@ for (const mode of [
     else if (mode === "invalid JSON") runtime.child.stdin.write("broken\n");
     else if (mode === "partial EOF") runtime.child.stdin.end("{");
     else if (mode === "invalid message") runtime.child.stdin.write('{"type":"unknown"}\n');
+    // One byte past the 8 MiB line cap (0001), with no newline yet.
+    else if (mode === "oversized line") runtime.child.stdin.write("x".repeat(8 * 1024 * 1024 + 1));
     else {
       runtime.init();
       await runtime.next("scene");

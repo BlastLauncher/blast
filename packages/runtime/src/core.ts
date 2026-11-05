@@ -35,7 +35,7 @@ export type RuntimeOptions = {
   log?(level: LogLevel, args: unknown[]): void;
 };
 
-export type RuntimeController = (() => void) & { fatal(error: unknown): void };
+export type RuntimeController = (() => void) & { fatal(error: unknown, code?: string): void };
 
 /* oxlint-disable unicorn/consistent-function-scoping */
 export function startRuntime(options: RuntimeOptions): RuntimeController {

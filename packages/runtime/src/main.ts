@@ -1,4 +1,4 @@
-import { encodeMessage, type LogLevel } from "@blastlauncher/protocol";
+import { createLineDecoder, encodeMessage, type LogLevel } from "@blastlauncher/protocol";
 import { Console } from "node:console";
 import { registerHooks } from "node:module";
 import { Writable } from "node:stream";
@@ -50,36 +50,22 @@ registerHooks({
     return url ? { url, shortCircuit: true } : nextResolve(specifier, context);
   },
 });
-const decoder = new TextDecoder();
-let buffer = "";
+// `runtime` is only read from stdin callbacks, after this assignment.
 const runtime = startRuntime({
   send(message) {
-    writeToStdout(`${JSON.stringify(message)}\n`);
+    writeToStdout(encodeMessage(message));
   },
   onMessage(listener) {
-    const onData = (chunk: Buffer) => {
-      buffer += decoder.decode(chunk, { stream: true });
-      for (;;) {
-        const index = buffer.indexOf("\n");
-        if (index < 0) break;
-        const line = buffer.slice(0, index);
-        buffer = buffer.slice(index + 1);
-        try {
-          listener(JSON.parse(line));
-        } catch (error) {
-          listener({ __invalid: String(error) });
-        }
-      }
-    };
+    // The protocol decoder enforces the 8 MiB line cap (0001), strict UTF-8 and
+    // the malformed/unterminated-line rules; do not hand-roll framing here.
+    const decoder = createLineDecoder({
+      onLine: listener,
+      onError: (error) => runtime.fatal(error, "PROTOCOL_ERROR"),
+    });
+    const onData = (chunk: Buffer) => decoder.push(chunk);
     process.stdin.on("data", onData);
     process.stdin.on("end", () => {
-      if (buffer) {
-        try {
-          listener(JSON.parse(buffer));
-        } catch (error) {
-          listener({ __invalid: String(error) });
-        }
-      }
+      decoder.end();
       runtime();
     });
     return () => process.stdin.off("data", onData);
@@ -95,4 +81,8 @@ const runtime = startRuntime({
 process.on("uncaughtException", (error) => runtime.fatal(error));
 process.on("unhandledRejection", (error) => runtime.fatal(error));
 process.stdin.on("error", (error) => runtime.fatal(error));
-process.stdout.on("error", () => process.exit(1));
+// EPIPE means the host closed our stdout: a normal shutdown, not a crash.
+process.stdout.on("error", (error: NodeJS.ErrnoException) => {
+  if (error.code === "EPIPE") process.exit(0);
+  process.exit(1);
+});
