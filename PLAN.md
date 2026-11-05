@@ -82,7 +82,7 @@ AppKit launcher over `blast serve`; automated tests and contract fixtures first.
 - [x] 0110 deterministic watch tests; 0111 paste `closeMainWindow`; 0112 macOS windows without
       yabai; `archive/` deleted (tag keeps it); `3.0.0-alpha.1` on `next` with provenance
 - [x] 0113 orchestrator loop: `tasks:next|start|merge|land`
-- [ ] 0114 In-process web launcher example (`examples/web-launcher`)
+- [x] 0114 In-process web launcher example (`examples/web-launcher`)
 
 ### M8 — Browser runtime
 
