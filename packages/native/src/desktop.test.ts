@@ -14,6 +14,11 @@ import {
 } from "./desktop-scripts.ts";
 import { psWindows } from "./windows-scripts.ts";
 import { psPrefix } from "./scripts.ts";
+import { macWindowsFallback } from "./windows-macos.ts";
+
+test("macOS fallback script parses as JavaScript", () => {
+  expect(() => new Function("$args", "ObjC", "$", "Application", macWindowsFallback)).not.toThrow();
+});
 
 type Call = [string, string[], { input?: string }];
 function fake(
@@ -39,6 +44,7 @@ const jxa = (script: string, args: string[] = []): Call => [
   ["-l", "JavaScript", "-e", script, "--", ...args],
   {},
 ];
+const failingYabaiRun: Runner = async () => ({ stdout: "permission denied", code: 1 });
 const app = { name: "Editor", path: "/Applications/Editor.app", bundleId: "test.editor" };
 const window = {
   id: "42",
@@ -266,6 +272,120 @@ test("macOS yabai maps real Spaces/displays and windows and preserves partial bo
     ["yabai", ["-m", "query", "--windows", "--window", "42"]],
     ["yabai", ["-m", "window", "42", "--toggle", "native-fullscreen"]],
   ]);
+});
+
+test("macOS windows fall back to the fixed JXA script when yabai is missing", async () => {
+  const calls: Call[] = [];
+  const output = [
+    JSON.stringify([
+      {
+        id: "screen:main",
+        screenId: "main",
+        active: true,
+        type: "User",
+        size: { width: 1920, height: 1080 },
+      },
+    ]),
+    JSON.stringify([window]),
+    JSON.stringify(window),
+    "null",
+    "null",
+  ];
+  const run: Runner = async (command, args, options) => {
+    calls.push([command, args, options]);
+    if (command === "yabai") throw Object.assign(new Error("not found"), { code: "ENOENT" });
+    return { stdout: output.shift()!, code: 0 };
+  };
+  const h = createNativeHandlers({ platform: "darwin", run, env: {} });
+  expect(await h["window.desktops"]!({})).toEqual([
+    {
+      id: "screen:main",
+      screenId: "main",
+      active: true,
+      type: "User",
+      size: { width: 1920, height: 1080 },
+    },
+  ]);
+  expect(await h["window.list"]!({})).toEqual([window]);
+  expect(await h["window.active"]!({})).toEqual(window);
+  await h["window.setBounds"]!({
+    id: "42",
+    bounds: { position: { x: 10 }, size: { height: 100 } },
+  });
+  await h["window.setBounds"]!({ id: "42", bounds: "fullscreen" });
+  expect(calls.slice(0, 2).map((call) => call.slice(0, 2))).toEqual([
+    ["yabai", ["-m", "query", "--spaces"]],
+    ["osascript", ["-l", "JavaScript", "-e", macWindowsFallback, "--", "desktops", "{}"]],
+  ]);
+  expect(calls.slice(-2).map((call) => call.slice(0, 2))).toEqual([
+    ["yabai", ["-m", "query", "--windows", "--window", "42"]],
+    [
+      "osascript",
+      [
+        "-l",
+        "JavaScript",
+        "-e",
+        macWindowsFallback,
+        "--",
+        "setBounds",
+        JSON.stringify({ id: "42", bounds: "fullscreen" }),
+      ],
+    ],
+  ]);
+  expect(calls.at(-3)?.slice(0, 2)).toEqual([
+    "osascript",
+    [
+      "-l",
+      "JavaScript",
+      "-e",
+      macWindowsFallback,
+      "--",
+      "setBounds",
+      JSON.stringify({ id: "42", bounds: { position: { x: 10 }, size: { height: 100 } } }),
+    ],
+  ]);
+});
+
+test("macOS yabai failures other than a missing executable propagate", async () => {
+  const h = createNativeHandlers({ platform: "darwin", run: failingYabaiRun, env: {} });
+  await expect(h["window.list"]!({})).rejects.toThrow(
+    "yabai failed for window.list on darwin (exit 1)",
+  );
+});
+
+test("macOS window validation rejects invalid ids before any tool runs", async () => {
+  const calls: Call[] = [];
+  const run: Runner = async (...args) => {
+    calls.push(args);
+    return { stdout: "", code: 0 };
+  };
+  const h = createNativeHandlers({ platform: "darwin", run, env: {} });
+  await expect(
+    h["window.setBounds"]!({ id: "not-a-window", bounds: "fullscreen" }),
+  ).rejects.toThrow("Invalid window id");
+  await expect(
+    h["window.setBounds"]!({ id: "42", desktopId: "bad id", bounds: {} }),
+  ).rejects.toThrow("Invalid desktop id");
+  expect(calls).toEqual([]);
+});
+
+test("macOS fallback names Accessibility failures and rejects foreign desktops", async () => {
+  const calls: Call[] = [];
+  const run: Runner = async (command, args, options) => {
+    calls.push([command, args, options]);
+    if (command === "yabai") throw Object.assign(new Error("not found"), { code: "ENOENT" });
+    if (args.at(-1)?.includes("screen:other"))
+      throw new Error("Window cannot move to a different desktop without yabai");
+    throw new Error("Accessibility permission is required to set window bounds");
+  };
+  const h = createNativeHandlers({ platform: "darwin", run, env: {} });
+  await expect(h["window.setBounds"]!({ id: "42", bounds: "fullscreen" })).rejects.toThrow(
+    "Accessibility permission is required",
+  );
+  await expect(
+    h["window.setBounds"]!({ id: "42", desktopId: "screen:other", bounds: { position: { x: 1 } } }),
+  ).rejects.toThrow("different desktop");
+  expect(calls.every(([command]) => command === "yabai" || command === "osascript")).toBe(true);
 });
 
 test("Windows window reads and mutation use JSON stdin; unsupported operations reject", async () => {

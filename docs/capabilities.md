@@ -85,12 +85,20 @@ scripts through `execFile` with argument arrays; it installs no tools or daemons
 Missing executables fail with the required tool and capability name.
 
 - macOS: AppKit/JXA discovers applications, associations and the frontmost app;
-  Finder/JXA reads selected files. Window operations require an installed, running
+  Finder/JXA reads selected files. Window operations prefer an installed, running
   [`yabai`](https://github.com/asmvik/yabai/blob/master/doc/yabai.asciidoc), including
-  its required accessibility permissions. Space IDs are Mission Control indices
-  (refresh after rearranging Spaces); screen IDs are display UUIDs. Numeric moves
-  and resizes require windows that yabai can move/resize (normally floating).
-  Exit native fullscreen before requesting numeric bounds.
+  its required accessibility permissions. If yabai is missing, reads use Core
+  Graphics and moves, resizes and fullscreen use System Events accessibility.
+  The fallback exposes one `User` desktop per display (desktop IDs are stable
+  `screen:<display UUID>` values); Mission Control Spaces cannot be distinguished.
+  Without Accessibility permission, reads still work and capability flags are
+  false; setBounds fails naming the permission. Flags are also false when Accessibility cannot identify
+  a window, and moving a window to another display is unsupported. The fallback's
+  positionable and resizable flags use readable attributes when System Events does
+  not expose settable checks. Space IDs from
+  yabai are Mission Control indices (refresh after rearranging Spaces); screen IDs
+  are display UUIDs. Numeric moves and resizes require windows that the selected
+  backend can move/resize. Exit native fullscreen before requesting numeric bounds.
 - Windows: PowerShell `Get-StartApps` supplies launch identities as
   `shell:AppsFolder\<AppID>`; `AssocQueryString` resolves default executables.
   `SHAssocEnumHandlers` lists handlers for a file extension. Explorer selection

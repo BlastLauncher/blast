@@ -84,8 +84,12 @@ resizing, hiding, fullscreening or closing it would break the session.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/fix-macos-window-fallback @ 6bdfee1b85ea936b4dcd53bfbd9a6022adf9de57
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 55.3s
 Done:
-Not done / risks:
+- Corrected fallback display matching to use global Core Graphics coordinates and largest screen intersection.
+- Selected the active window from the frontmost application's PID, cached System Events windows per PID, and separated permission from matching failures.
+- Used Accessibility attribute settable checks (with readable fallback) and the AXFullScreen attribute for capability flags.
+- Added a JXA syntax test, restored yabai rationale comments, and documented fallback capability limits.
+Not done / risks: The fallback depends on macOS Accessibility permission and intentionally cannot distinguish Mission Control Spaces or move windows across displays. Live macOS execution was not performed per the task Safety section.
 ```
