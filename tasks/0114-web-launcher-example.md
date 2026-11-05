@@ -85,12 +85,13 @@ and is covered by automated tests that need no browser.
 ## Handoff
 
 ```
-Branch/commit: `t3/web-launcher-example @ 879ea3e`
+Branch/commit: `t3/fix-web-launcher-example @ HEAD`
 Verify: `verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok)`
 Done:
-- Added the Node 24 in-process web launcher server with token-authenticated page, SSE view/effect stream, semantic input, and command switching.
-- Added the vanilla ES module page renderer and DOM keyboard/input wiring with escaped output.
-- Added focused server and renderer tests covering views, input, clipboard effects, auth, JSON content type, cleanup, and injection escaping.
-- Added the web example README, package script/workspace dependencies, and TypeScript inclusion.
+- Split the browser client and pure renderer into disk-served ESM modules, with tests importing the exact served `render.js` bytes.
+- Hardened every response with CSP, referrer, and MIME-sniffing headers, loopback Host validation, invalid-JSON 400 handling, and bodyless 204 responses.
+- Moved web-launcher dependencies into its private workspace package and regenerated the lockfile without root runtime dependencies.
+- Made action-panel rows clickable through controller movement inputs; Enter runs the selected action.
+- Added focused tests for headers, Host rejection, malformed JSON, 204 bodies, and renderer byte identity.
 Not done / risks: Browser-side effects are intentionally limited to the documented clipboard and URL handlers; no browser was opened during verification.
 ```

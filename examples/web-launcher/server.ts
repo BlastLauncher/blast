@@ -9,7 +9,7 @@ import {
   type ControllerResult,
 } from "@blastlauncher/client-core";
 import type { JsonValue } from "@blastlauncher/protocol";
-import { pageHtml, pageModule, pageSource } from "./page.ts";
+import { clientSource, pageHtml, renderSource } from "./page.ts";
 
 export type WebLauncherOptions = { extensionDir: string; command?: string; port?: number };
 export type WebLauncher = { url: string; token: string; server: Server; close(): Promise<void> };
@@ -24,9 +24,17 @@ async function readBody(request: IncomingMessage): Promise<unknown> {
   }
   return JSON.parse(body || "{}");
 }
-const respond = (response: ServerResponse, status: number, value: unknown) => {
-  response.writeHead(status, { "content-type": "application/json" });
-  response.end(JSON.stringify(value));
+const securityHeaders = {
+  "content-security-policy":
+    "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'",
+  "referrer-policy": "no-referrer",
+  "x-content-type-options": "nosniff",
+};
+const respond = (response: ServerResponse, status: number, value?: unknown) => {
+  const headers: Record<string, string> = { ...securityHeaders };
+  if (status !== 204) headers["content-type"] = "application/json";
+  response.writeHead(status, headers);
+  response.end(status === 204 ? undefined : JSON.stringify(value));
 };
 
 export async function startWebLauncher(options: WebLauncherOptions): Promise<WebLauncher> {
@@ -39,6 +47,7 @@ export async function startWebLauncher(options: WebLauncherOptions): Promise<Web
   let stopScenes: (() => void) | undefined;
   let stopController: (() => void) | undefined;
   let closed = false;
+  let expectedHost = "";
   const engine = createEngine({ handlers: capabilityHandlers() });
 
   const emit = (message: unknown) => {
@@ -95,10 +104,13 @@ export async function startWebLauncher(options: WebLauncherOptions): Promise<Web
     update(controller.view());
   };
   const authorized = (request: IncomingMessage, response: ServerResponse) => {
+    if (request.headers.host !== expectedHost) {
+      respond(response, 403, { error: "Invalid host" });
+      return false;
+    }
     const url = new URL(request.url ?? "/", "http://127.0.0.1");
     if (url.searchParams.get("t") !== token) {
-      response.writeHead(403);
-      response.end("Forbidden");
+      respond(response, 403, { error: "Forbidden" });
       return false;
     }
     return true;
@@ -108,17 +120,29 @@ export async function startWebLauncher(options: WebLauncherOptions): Promise<Web
     const url = new URL(request.url ?? "/", "http://127.0.0.1");
     try {
       if (request.method === "GET" && url.pathname === "/") {
-        response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+        response.writeHead(200, { ...securityHeaders, "content-type": "text/html; charset=utf-8" });
         response.end(pageHtml);
         return;
       }
-      if (request.method === "GET" && url.pathname === "/page.js") {
-        response.writeHead(200, { "content-type": "text/javascript; charset=utf-8" });
-        response.end(pageSource);
+      if (request.method === "GET" && url.pathname === "/render.js") {
+        response.writeHead(200, {
+          ...securityHeaders,
+          "content-type": "text/javascript; charset=utf-8",
+        });
+        response.end(await renderSource());
+        return;
+      }
+      if (request.method === "GET" && url.pathname === "/client.js") {
+        response.writeHead(200, {
+          ...securityHeaders,
+          "content-type": "text/javascript; charset=utf-8",
+        });
+        response.end(await clientSource());
         return;
       }
       if (request.method === "GET" && url.pathname === "/events") {
         response.writeHead(200, {
+          ...securityHeaders,
           "content-type": "text/event-stream",
           "cache-control": "no-cache",
           connection: "keep-alive",
@@ -158,10 +182,12 @@ export async function startWebLauncher(options: WebLauncherOptions): Promise<Web
         respond(response, 204, null);
         return;
       }
-      response.writeHead(404);
+      response.writeHead(404, securityHeaders);
       response.end("Not found");
     } catch (error) {
-      respond(response, 500, { error: error instanceof Error ? error.message : String(error) });
+      respond(response, error instanceof SyntaxError ? 400 : 500, {
+        error: error instanceof Error ? error.message : String(error),
+      });
     }
   });
   await new Promise<void>((resolve, reject) => {
@@ -170,6 +196,7 @@ export async function startWebLauncher(options: WebLauncherOptions): Promise<Web
   });
   const address = server.address();
   if (!address || typeof address === "string") throw new Error("Web server did not bind to a port");
+  expectedHost = `127.0.0.1:${address.port}`;
   const command =
     options.command ??
     (await (extension ??= engine.openExtension({ extensionDir: options.extensionDir })).manifest())
@@ -194,4 +221,3 @@ export async function startWebLauncher(options: WebLauncherOptions): Promise<Web
 }
 
 export const createWebLauncher = startWebLauncher;
-export { pageModule };

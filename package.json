@@ -3,7 +3,8 @@
   "private": true,
   "license": "MIT",
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "examples/web-launcher"
   ],
   "type": "module",
   "scripts": {
@@ -45,11 +46,6 @@
     "example:mac": "cd examples/macos-launcher && swift test",
     "example:mac:fixtures": "bun scripts/mac-fixtures.ts",
     "example:web": "node examples/web-launcher/main.ts"
-  },
-  "dependencies": {
-    "@blastlauncher/client-core": "workspace:*",
-    "@blastlauncher/host": "workspace:*",
-    "@blastlauncher/protocol": "workspace:*"
   },
   "devDependencies": {
     "@blastlauncher/shared-deps": "workspace:*",

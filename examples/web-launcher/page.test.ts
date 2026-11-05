@@ -1,5 +1,7 @@
 import { expect, test } from "bun:test";
-import { render } from "./page.ts";
+import { readFile } from "node:fs/promises";
+import { render } from "./render.js";
+import { startWebLauncher } from "./server.ts";
 import type { ControllerView } from "@blastlauncher/client-core";
 
 const view = (patch: Partial<ControllerView> = {}): ControllerView => ({
@@ -108,4 +110,16 @@ test("render escapes HTML injection", () => {
   expect(html).not.toContain("<script>");
   expect(html).not.toContain("<img");
   expect(html).toContain("&lt;script&gt;");
+});
+
+test("serves the exact renderer module imported by tests", async () => {
+  const launcher = await startWebLauncher({ extensionDir: "./fixtures/extensions/hello-list" });
+  try {
+    const response = await fetch(launcher.url.replace("/?", "/render.js?"));
+    expect(await response.text()).toBe(
+      await readFile(new URL("./render.js", import.meta.url), "utf8"),
+    );
+  } finally {
+    await launcher.close();
+  }
 });

@@ -31,6 +31,11 @@ describe("web launcher", () => {
     launcher = await startWebLauncher({ extensionDir: "./fixtures/extensions/hello-list" });
     const stream = await fetch(endpoint("/events", launcher.token));
     expect(stream.status).toBe(200);
+    expect(stream.headers.get("content-security-policy")).toBe(
+      "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'",
+    );
+    expect(stream.headers.get("referrer-policy")).toBe("no-referrer");
+    expect(stream.headers.get("x-content-type-options")).toBe("nosniff");
     const reader = stream.body!.getReader();
     let pending = "";
     let event;
@@ -41,15 +46,13 @@ describe("web launcher", () => {
       if (event.type === "view" && event.view.kind === "list") break;
     }
     expect(event.view.rows.length).toBeGreaterThan(0);
-    expect(
-      (
-        await fetch(endpoint("/input", launcher.token), {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({ type: "search", text: "apple" }),
-        })
-      ).status,
-    ).toBe(204);
+    const inputResponse = await fetch(endpoint("/input", launcher.token), {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ type: "search", text: "apple" }),
+    });
+    expect(inputResponse.status).toBe(204);
+    expect(await inputResponse.text()).toBe("");
     expect(
       (
         await fetch(endpoint("/input", launcher.token), {
@@ -68,6 +71,15 @@ describe("web launcher", () => {
         })
       ).status,
     ).toBe(403);
+    expect(
+      (
+        await fetch(endpoint("/input", launcher.token), {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: "{invalid",
+        })
+      ).status,
+    ).toBe(400);
     await fetch(endpoint("/input", launcher.token), {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -95,5 +107,11 @@ describe("web launcher", () => {
       fetch(endpoint("/launch", "bad"), { method: "POST" }),
     ])
       expect((await request).status).toBe(403);
+  });
+
+  test("rejects a Host header that is not the bound loopback address", async () => {
+    launcher = await startWebLauncher({ extensionDir: "./fixtures/extensions/hello-list" });
+    const response = await fetch(endpoint("/", launcher.token), { headers: { host: "localhost" } });
+    expect(response.status).toBe(403);
   });
 });

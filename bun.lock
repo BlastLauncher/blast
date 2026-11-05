@@ -4,11 +4,6 @@
   "workspaces": {
     "": {
       "name": "@blastlauncher/workspace",
-      "dependencies": {
-        "@blastlauncher/client-core": "workspace:*",
-        "@blastlauncher/host": "workspace:*",
-        "@blastlauncher/protocol": "workspace:*",
-      },
       "devDependencies": {
         "@blastlauncher/shared-deps": "workspace:*",
         "@types/bun": "1.4.3",
@@ -18,6 +13,14 @@
         "oxfmt": "0.73.0",
         "oxlint": "1.88.0",
         "typescript": "7.0.2",
+      },
+    },
+    "examples/web-launcher": {
+      "name": "@blastlauncher/example-web-launcher",
+      "dependencies": {
+        "@blastlauncher/client-core": "workspace:*",
+        "@blastlauncher/host": "workspace:*",
+        "@blastlauncher/protocol": "workspace:*",
       },
     },
     "packages/cli": {
@@ -119,6 +122,8 @@
     "@blastlauncher/cli": ["@blastlauncher/cli@workspace:packages/cli"],
 
     "@blastlauncher/client-core": ["@blastlauncher/client-core@workspace:packages/client-core"],
+
+    "@blastlauncher/example-web-launcher": ["@blastlauncher/example-web-launcher@workspace:examples/web-launcher"],
 
     "@blastlauncher/host": ["@blastlauncher/host@workspace:packages/host"],
 
