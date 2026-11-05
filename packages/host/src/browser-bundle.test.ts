@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { build } from "esbuild";
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import {
@@ -185,4 +185,48 @@ test("lists exactly Node's built-in modules", () => {
   expect([...(browserBuiltinModules as readonly string[])].toSorted()).toEqual(
     [...nodeModules].toSorted(),
   );
+});
+
+async function readTree(
+  directory: string,
+  prefix: string,
+  output: Map<string, string>,
+): Promise<void> {
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    const diskPath = `${directory}/${entry.name}`;
+    const mapPath = `${prefix}/${entry.name}`;
+    if (entry.isDirectory()) await readTree(diskPath, mapPath, output);
+    else if (entry.name.endsWith(".ts")) output.set(mapPath, await readFile(diskPath, "utf8"));
+  }
+}
+
+test("bundles the real Blast API through an explicit Raycast alias", async () => {
+  const runtimeRoot = fileURLToPath(new URL("../../runtime/src", import.meta.url));
+  const apiFiles = new Map<string, string>();
+  await readTree(`${runtimeRoot}/api`, "/runtime/src/api", apiFiles);
+  await readTree(`${runtimeRoot}/reconciler`, "/runtime/src/reconciler", apiFiles);
+  apiFiles.set("/src/index.ts", 'import { List } from "@raycast/api"; export default List;');
+  apiFiles.set("/runtime.js", "export default null;");
+  apiFiles.set(
+    "/vendor/react.js",
+    "export const Fragment = Symbol.for('react.fragment'); export const Children = { map: (v, f) => Array.isArray(v) ? v.map(f) : v }; export const createContext = (value) => ({ Provider: (p) => p.children, Consumer: (p) => p.children(value), _currentValue: value }); export const createElement = (type, props, ...children) => ({ type, props, children }); export const cloneElement = (element, props, ...children) => ({ ...element, props: { ...element.props, ...props }, children }); export const isValidElement = (value) => Boolean(value && value.type); export const useContext = () => null; export const useEffect = () => {}; export const useLayoutEffect = () => {}; export const useMemo = (fn) => fn(); export const useRef = (value) => ({ current: value }); export const useState = (value) => [value, () => {}]; export const useSyncExternalStore = () => undefined; export const forwardRef = (fn) => fn; export const useImperativeHandle = () => {}; export const useReducer = (reducer, initial) => [initial, () => {}]; export const useCallback = (fn) => fn; export const useId = () => 'id';",
+  );
+  const result = await bundleForBrowser({
+    esbuild: { build },
+    files: apiFiles,
+    packages: new Map(),
+    aliases: {
+      "@raycast/api": "/runtime/src/api/index.ts",
+      react: "/vendor/react.js",
+      "react/jsx-runtime": "/vendor/react.js",
+    },
+    command: "/src/index.ts",
+    runtimeEntry: "/runtime.js",
+  });
+  const module = { exports: {} as Record<string, unknown> };
+  new Function("module", "exports", "require", result.code)(module, module.exports, () => ({}));
+  const List = module.exports.default as { Item?: unknown; Section?: unknown };
+  expect(typeof List).toBe("function");
+  expect(typeof List.Item).toBe("function");
+  expect(typeof List.Section).toBe("function");
 });

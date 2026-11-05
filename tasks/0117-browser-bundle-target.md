@@ -70,10 +70,11 @@ So the same function runs in Node and in a browser.
 
 ```text
 Branch/commit: t3/fix-browser-bundle-resolution @ 24a0b0b4369e31d5eced373581a2c2d87f2360b4
+  (latest handoff update: see follow-up commit below)
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok)
 Done:
 - Added Node-style in-memory package resolution with exports conditions and subpath patterns, browser/module/main/index fallback, and nearest importer-relative node_modules lookup.
 - Replaced suffix-based supplied module matching with explicit aliases and expanded Node 24 built-in coverage.
 - Added focused tests for package metadata, nested versions, aliases, and built-in parity; existing bundle tests continue to cover evaluation, externals, missing and native imports.
-Not done / risks: The real Blast API alias is exercised by the existing in-memory API fixture; 0118 remains responsible for browser package installation inputs.
+Not done / risks: The real Blast API is loaded from runtime source files in a focused test; 0118 remains responsible for browser package installation inputs.
 ```
