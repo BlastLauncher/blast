@@ -28,3 +28,7 @@ controller and renderer. `clipboard.copy` is answered by the demo handler,
 `open.url` uses `window.open`, and other capabilities are denied visibly.
 
 Extension network requests still require CORS. `child_process` is unavailable in a browser and native npm modules are rejected during bundling. The demo is headless-testable, binds only to 127.0.0.1, and does not publish or persist anything.
+
+Each command receives `/blast/support/<extension>` and `/blast/assets/<extension>`
+inside almostnode's virtual filesystem. Cache data therefore lasts only for the
+current sandbox session.

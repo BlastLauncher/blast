@@ -1,7 +1,11 @@
-import { Action, ActionPanel, List } from "@raycast/api";
+import { Cache, Action, ActionPanel, List } from "@raycast/api";
+import { pipeline } from "stream/promises";
 import { useState } from "react";
 
 const FRUITS = ["apple", "banana", "cherry"];
+const cache = new Cache({ namespace: "hello-list" });
+cache.set("fixture", "stream-promises");
+void pipeline;
 
 export default function Command() {
   const [pinned, setPinned] = useState<string | null>(null);

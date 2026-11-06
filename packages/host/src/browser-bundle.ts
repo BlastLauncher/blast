@@ -380,6 +380,8 @@ export async function bundleForBrowser(options: BrowserBundleOptions): Promise<B
         }
         if (options.sharedRuntime && options.sharedModules?.includes(specifier))
           return { path: `/__blast_shared_${specifier.replaceAll("/", "_")}` };
+        const alias = options.aliases?.[specifier];
+        if (alias) return { path: findFile(files, alias) ?? alias };
         if (isBuiltin(specifier)) return { path: specifier, external: true };
         if (specifier.endsWith(".node")) {
           native.add(specifier);
@@ -397,7 +399,6 @@ export async function bundleForBrowser(options: BrowserBundleOptions): Promise<B
         }
         if (specifier === "@blastlauncher/command") return { path: command };
         const relative = specifier.startsWith(".") || specifier.startsWith("/");
-        const alias = options.aliases?.[specifier];
         const candidate = relative
           ? findFile(
               files,

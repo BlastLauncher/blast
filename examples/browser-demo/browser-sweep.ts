@@ -61,7 +61,7 @@ export function classifyBrowserOutcome(observation: BrowserObservation): Browser
   )
     return "network";
   if (observation.statusError || pageErrors.length > 0)
-    return `runtime-error:${compact(observation.status || pageErrors[0] || "runtime error")}`;
+    return `runtime-error:${compact(pageErrors[0] || consoleErrors[0] || observation.status || "runtime error")}`;
   const scene = observation.scene;
   if (!scene) return "timeout";
   const content = scene.rows > 0 || scene.detail || scene.fields > 0;

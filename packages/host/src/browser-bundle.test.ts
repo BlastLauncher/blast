@@ -14,6 +14,7 @@ const source = fileURLToPath(new URL("./browser-bundle.ts", import.meta.url));
 const helloList = fileURLToPath(
   new URL("../../../fixtures/extensions/hello-list/src/index.tsx", import.meta.url),
 );
+const fakeWritable = function FakeWritable() {};
 
 function maps(command: string, extra: Map<string, string> = new Map()) {
   return {
@@ -24,7 +25,7 @@ function maps(command: string, extra: Map<string, string> = new Map()) {
     packages: new Map<string, string>([
       [
         "/node_modules/@raycast/api/index.js",
-        "export const List = Symbol.for('Blast.List'); export const Action = {}; export const ActionPanel = {};",
+        "export const List = Symbol.for('Blast.List'); export const Action = {}; export const ActionPanel = {}; export const Cache = class { set() {} };",
       ],
       ["/node_modules/react/index.js", "export const useState = (value) => [value, () => {}];"],
       [
@@ -54,6 +55,15 @@ test("bundles memory files, includes Blast API and leaves node built-ins externa
     module,
     (specifier: string) => {
       if (specifier === "node:path") return { join: () => "joined" };
+      if (specifier === "stream/promises") return { pipeline: () => {}, finished: () => {} };
+      if (specifier === "stream")
+        return {
+          pipeline: () => {},
+          finished: () => {},
+          Readable: { from: () => ({}) },
+          Writable: fakeWritable,
+        };
+      if (specifier === "util") return { promisify: (fn: Function) => fn };
       throw new Error(`unexpected require ${specifier}`);
     },
   );
@@ -120,6 +130,29 @@ test("browser bundle source has no Node filesystem imports", async () => {
   const text = await readFile(source, "utf8");
   expect(text).not.toMatch(/from\s+["']node:(?:fs|path)["']/);
   expect(text).not.toMatch(/import\s*\(\s*["']node:(?:fs|path)["']\s*\)/);
+});
+
+test("aliases can replace external built-in subpaths", async () => {
+  const result = await bundleForBrowser({
+    esbuild: { build },
+    ...maps(
+      'import { pipeline } from "stream/promises"; import { finished } from "node:stream/promises"; export default [pipeline, finished];',
+      new Map([
+        [
+          "/examples/browser-demo/stream-promises.ts",
+          "export const pipeline = 1; export const finished = 2;",
+        ],
+      ]),
+    ),
+    command: "/src/index.tsx",
+    runtimeEntry: "/runtime.js",
+    aliases: {
+      "stream/promises": "/examples/browser-demo/stream-promises.ts",
+      "node:stream/promises": "/examples/browser-demo/stream-promises.ts",
+    },
+  });
+  expect(result.code).not.toContain("stream/promises");
+  expect(result.code).not.toContain("node:stream/promises");
 });
 
 test("resolves package exports, conditions, main, browser, and subpaths", async () => {

@@ -23,6 +23,10 @@ type FileMap = Record<string, string>;
 type BrowserFile = string | Uint8Array;
 type SandboxRuntime = {
   execute(code: string, filename?: string): Promise<unknown>;
+  getVFS(): {
+    mkdirSync(path: string, options?: { recursive?: boolean }): void;
+    writeFileSync(path: string, data: string): void;
+  };
   iframe?: HTMLIFrameElement;
   terminate?: () => void;
 };
@@ -285,12 +289,25 @@ async function launch(source: string, commandName: string): Promise<void> {
     });
   }
   const active = await acquireSandbox();
+  const extensionName = String(extension.manifest.name ?? source);
+  const pathSegment = extensionName.replace(/[^A-Za-z0-9._-]/gu, "_") || "extension";
+  const supportPath = `/blast/support/${pathSegment}`;
+  const assetsPath = `/blast/assets/${pathSegment}`;
+  const vfs = active.runtime.getVFS();
+  vfs.mkdirSync(supportPath, { recursive: true });
+  vfs.mkdirSync(assetsPath, { recursive: true });
+  // A marker syncs directories created after a warmed sandbox was initialized.
+  vfs.writeFileSync(`${supportPath}/.keep`, "");
+  vfs.writeFileSync(`${assetsPath}/.keep`, "");
   const channel = new MessageChannel();
   port = channel.port1;
   port.start();
   port.addEventListener("message", (event) => handleRuntime(event.data));
   try {
-    await active.runtime.execute(`${bundled.code}\nmodule.exports = null;`, "/bundle.cjs");
+    await active.runtime.execute(
+      `globalThis.__blastSupportPath = ${JSON.stringify(supportPath)};\n${bundled.code}\nmodule.exports = null;`,
+      "/bundle.cjs",
+    );
   } catch (error) {
     setStatus(`Runtime failed: ${String(error)}`, true);
     return;
@@ -316,11 +333,11 @@ async function launch(source: string, commandName: string): Promise<void> {
         },
         preferences: {},
         environment: {
-          extensionName: String(extension.manifest.name ?? source),
+          extensionName,
           commandName: selectedCommand,
           ownerOrAuthorName: "Browser",
-          assetsPath: "",
-          supportPath: "",
+          assetsPath,
+          supportPath,
           isDevelopment: false,
           appearance: "dark",
           textSize: "medium",
@@ -391,6 +408,10 @@ async function createSandbox(kind: "warm" | "session"): Promise<Sandbox> {
       options: { sandbox: string },
     ) => Promise<{
       execute(code: string, filename?: string): Promise<unknown>;
+      getVFS(): {
+        mkdirSync(path: string, options?: { recursive?: boolean }): void;
+        writeFileSync(path: string, data: string): void;
+      };
       iframe?: HTMLIFrameElement;
       terminate?: () => void;
     }>;
