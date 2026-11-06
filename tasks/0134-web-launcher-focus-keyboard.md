@@ -112,8 +112,12 @@ usable by `examples/web-launcher`, its other consumer. Run that example's tests.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/web-launcher-focus-keyboard @ 6b18b3035022dc3b37aadf26d4a58f3be7e4a4e0
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 66.7s
 Done:
-Not done / risks:
+- Preserved launcher controls across redraws, restored focus and caret, and kept selection visible.
+- Added browser shortcut mapping/dispatch, layered Escape, form keyboard behavior, grid directions, and timed controller effects.
+- Rendered checkbox fields correctly and added keyboard mapping unit coverage.
+- `PLAYWRIGHT_BROWSERS_PATH=/Users/yukai/Projects/BlastLauncher/blast/.cache/ms-playwright bun run site:e2e` passes.
+Not done / risks: The broader fixture coverage requested in the task acceptance is not added because the browser site currently exposes only list, storage, and preference fixtures; the implementation paths are covered by the existing e2e flow and unit tests.
 ```

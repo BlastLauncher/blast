@@ -36,6 +36,7 @@ import {
   type RootRow,
 } from "./root.ts";
 import { statusError, statusForStage, statusInfo, type DemoStatus } from "./status.ts";
+import { keyInputFromEvent } from "./keyboard.ts";
 
 type FileMap = Record<string, string>;
 type BrowserFile = string | Uint8Array;
@@ -83,6 +84,7 @@ let preferenceForm:
     }
   | undefined;
 let preferenceFormVisible = false;
+const sessionTimers = new Set<ReturnType<typeof setTimeout>>();
 
 let extensionContext:
   | {
@@ -109,11 +111,54 @@ const setStatus = (text: string, error = false) => {
     else draw(controller.view());
   }
 };
+function replaceApp(markup: string) {
+  const active = document.activeElement;
+  const controls = new Map<string, HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>();
+  for (const control of app.querySelectorAll<
+    HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+  >("input,select,textarea")) {
+    const key = control.id || control.dataset.field;
+    if (key) controls.set(key, control);
+  }
+  app.innerHTML = markup;
+  for (const next of app.querySelectorAll<
+    HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+  >("input,select,textarea")) {
+    const key = next.id || next.dataset.field;
+    const previous = key ? controls.get(key) : undefined;
+    if (!previous || previous.tagName !== next.tagName) continue;
+    const focused = active === previous;
+    if (next instanceof HTMLInputElement && next.type === "checkbox") {
+      if (!focused && previous instanceof HTMLInputElement) previous.checked = next.checked;
+    } else if (!focused && previous.value !== next.value) previous.value = next.value;
+    next.replaceWith(previous);
+  }
+}
 const draw = (view: ReturnType<Controller["view"]>) => {
-  app.innerHTML = render(view, {
-    status: statusState,
-    ...(extensionContext ? { context: extensionContext } : {}),
-  });
+  const active = document.activeElement as HTMLInputElement | null;
+  const focusKey = active?.id || active?.dataset.field;
+  const selectionStart = active?.selectionStart;
+  const selectionEnd = active?.selectionEnd;
+  replaceApp(
+    render(view, {
+      status: statusState,
+      ...(extensionContext ? { context: extensionContext } : {}),
+    }),
+  );
+  const next = (
+    view.form?.focusId
+      ? document.querySelector<HTMLInputElement>(`[data-field="${CSS.escape(view.form.focusId)}"]`)
+      : focusKey
+        ? (document.getElementById(focusKey) ??
+          document.querySelector<HTMLInputElement>(`[data-field="${CSS.escape(focusKey)}"]`))
+        : undefined
+  ) as HTMLInputElement | null | undefined;
+  if (next) {
+    next.focus();
+    if (selectionStart !== null && selectionStart !== undefined && "setSelectionRange" in next)
+      next.setSelectionRange(selectionStart, selectionEnd ?? selectionStart);
+  }
+  document.querySelector<HTMLElement>(".rows li.selected")?.scrollIntoView({ block: "nearest" });
 };
 const drawRoot = () => {
   const model = rootModel(
@@ -126,14 +171,16 @@ const drawRoot = () => {
   rootSelected = model.selected;
   const actions = rootActionModel(rootRows[rootSelected], actionQuery, actionSelected);
   actionSelected = actions.selected;
-  app.innerHTML = renderRoot(rootRows, rootSelected, rootQuery, {
-    open: actionOpen,
-    query: actionQuery,
-    actions: actions.actions,
-    selected: actionSelected,
-    toast: rootToast,
-    status: statusState,
-  });
+  replaceApp(
+    renderRoot(rootRows, rootSelected, rootQuery, {
+      open: actionOpen,
+      query: actionQuery,
+      actions: actions.actions,
+      selected: actionSelected,
+      toast: rootToast,
+      status: statusState,
+    }),
+  );
   const search = document.querySelector<HTMLInputElement>("#root-search");
   (actionOpen ? document.querySelector<HTMLInputElement>("#root-action-search") : search)?.focus();
   search?.setSelectionRange(search.value.length, search.value.length);
@@ -172,9 +219,28 @@ function openPreferenceForm(scope: "extension" | "command", _context: Capability
 const sendInput = (value: Parameters<Controller["input"]>[0]) => {
   const result = controller?.input(value);
   if (!result || !port) return;
-  for (const event of result.events)
-    port.postMessage({ type: "event", node: event.node, handler: event.handler, args: event.args });
+  processResult(result);
 };
+function processResult(result: ReturnType<Controller["input"]>) {
+  for (const event of result.events)
+    port?.postMessage({
+      type: "event",
+      node: event.node,
+      handler: event.handler,
+      args: event.args,
+    });
+  for (const effect of result.effects) {
+    if (effect.type === "quit") stopSession();
+    else {
+      const timer = setTimeout(() => {
+        sessionTimers.delete(timer);
+        const next = controller?.tick(effect.token);
+        if (next) processResult(next);
+      }, effect.ms);
+      sessionTimers.add(timer);
+    }
+  }
+}
 const githubApiPath = (path: string) =>
   path
     .split("/")
@@ -194,7 +260,7 @@ function handleRuntime(
     if (!controller || rootOpen) return;
     const result = controller.scene(message);
     draw(controller.view());
-    for (const effect of result.effects) if (effect.type === "quit") setStatus("Command exited");
+    processResult(result);
   } else if (message.type === "capability.request") {
     if (!browserCapabilities || !activeCapabilityContext) return;
     void browserCapabilities(message, activeCapabilityContext)
@@ -630,6 +696,8 @@ async function acquireSandbox(): Promise<Sandbox> {
 }
 
 function stopSession() {
+  for (const timer of sessionTimers) clearTimeout(timer);
+  sessionTimers.clear();
   port?.close();
   port = undefined;
   controller = undefined;
@@ -645,15 +713,9 @@ function stopSession() {
 function backFromExtension() {
   const result = controller?.input({ type: "back" });
   if (!result) return stopSession();
-  for (const event of result.events)
-    port?.postMessage({
-      type: "event",
-      node: event.node,
-      handler: event.handler,
-      args: event.args,
-    });
-  if (result.effects.some((effect) => effect.type === "quit")) stopSession();
-  else if (controller) draw(controller.view());
+  processResult(result);
+  if (controller && !result.effects.some((effect) => effect.type === "quit"))
+    draw(controller.view());
 }
 
 function runSelected() {
@@ -726,6 +788,14 @@ async function start() {
 }
 
 document.addEventListener("keydown", (event) => {
+  if (!rootOpen && controller) {
+    const result = controller.input({ type: "key", key: keyInputFromEvent(event) });
+    if (result.handled) {
+      event.preventDefault();
+      processResult(result);
+      return;
+    }
+  }
   if (rootOpen) {
     if (actionOpen) {
       const actionCount = rootActionModel(rootRows[rootSelected], actionQuery, actionSelected)
@@ -746,6 +816,13 @@ document.addEventListener("keydown", (event) => {
         actionOpen = false;
         actionQuery = "";
         actionSelected = 0;
+        drawRoot();
+      }
+    } else if (event.key === "Escape") {
+      event.preventDefault();
+      if (rootQuery) {
+        rootQuery = "";
+        rootSelected = 0;
         drawRoot();
       }
     } else if (event.key === "ArrowDown") {
@@ -769,9 +846,35 @@ document.addEventListener("keydown", (event) => {
   } else if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
     event.preventDefault();
     toggleExtensionActions();
-  } else if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+  } else if (controller?.view().kind === "form" && event.key === "Tab") {
     event.preventDefault();
-    sendInput({ type: "move", direction: event.key === "ArrowDown" ? "down" : "up" });
+    sendInput({ type: event.shiftKey ? "focusPrev" : "focusNext" });
+  } else if (
+    controller?.view().kind === "form" &&
+    (event.metaKey || event.ctrlKey) &&
+    event.key === "Enter"
+  ) {
+    event.preventDefault();
+    sendInput({ type: "submit" });
+  } else if (controller?.view().kind === "form" && event.key === " ") {
+    const field = controller.view().form?.fields.find((candidate) => candidate.focused);
+    if (field?.type === "Form.Checkbox") {
+      event.preventDefault();
+      sendInput({ type: "toggle", id: field.id });
+    }
+  } else if (
+    event.key === "ArrowLeft" ||
+    event.key === "ArrowRight" ||
+    event.key === "ArrowDown" ||
+    event.key === "ArrowUp"
+  ) {
+    event.preventDefault();
+    sendInput({
+      type: "move",
+      direction: (
+        { ArrowDown: "down", ArrowUp: "up", ArrowLeft: "left", ArrowRight: "right" } as const
+      )[event.key],
+    });
   } else if (event.key === "Enter") {
     event.preventDefault();
     sendInput({ type: "primary" });
@@ -782,6 +885,10 @@ document.addEventListener("keydown", (event) => {
       preferenceFormVisible = false;
       rootOpen = true;
       drawRoot();
+    } else if (controller?.view().actions.open || controller?.view().dropdown?.open) {
+      backFromExtension();
+    } else if (controller?.view().search.text) {
+      sendInput({ type: "search", text: "" });
     } else backFromExtension();
   }
 });
@@ -849,6 +956,10 @@ document.addEventListener("input", (event) => {
     drawRoot();
   } else if (target.id === "search") sendInput({ type: "search", text: target.value });
   else if (target.id === "action-search") sendInput({ type: "actionsQuery", text: target.value });
+  else if (target.dataset.field && target instanceof HTMLInputElement && target.type === "checkbox")
+    sendInput({ type: "toggle", id: target.dataset.field });
+  else if (target.dataset.field)
+    sendInput({ type: "setValue", id: target.dataset.field, value: target.value });
 });
 document.addEventListener("click", (event) => {
   const target = event.target as HTMLElement;
