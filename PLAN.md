@@ -89,7 +89,7 @@ Run any Raycast extension in a browser tab from its URL, inside almostnode
 - [x] 0120–0127 root list, static site, deploy (blast.yukai.dev), live fixes, polish, prebuilt
       bundles, parity and warm sandbox (3 KB command opens)
 - [ ] 0128 Browser-backed capabilities (storage, clipboard, command, oauth tokens)
-- [ ] 0129 Browser catalog sweep (compat/BROWSER-SWEEP.md)
+- [x] 0129 Browser catalog sweep (compat/BROWSER-SWEEP.md)
 - [ ] 0130 Rank the demo root list with cmdk's matcher
 
 ## Later (not scheduled)
