@@ -110,8 +110,11 @@ an empty view or an "API key missing" error. Values persist per browser.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/browser-preferences @ HEAD
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 64.2s
 Done:
-Not done / risks:
+- Shared browser-safe preference parsing, defaults, deduplication, and missing-value logic with desktop re-exports.
+- Browser-local preference store, required-preference form, supported field types, preferences.open, persistence, and fixture e2e coverage.
+- Added needs-preferences sweep classification and regenerated browser sweep reports.
+Not done / risks: The full corpus sweep has no fixture commands, so its needs-preferences total remains zero; fixture e2e covers the form path.
 ```

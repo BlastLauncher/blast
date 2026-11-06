@@ -108,3 +108,32 @@ export function renderRoot(rows, selected, query, panel = {}) {
   const status = panel.status ?? { text: "Ready" };
   return `<main class="root" data-kind="root"><header><h1>Blast</h1><input id="root-search" value="${escapeHtml(query)}" placeholder="Search extension commands…" aria-label="Search extension commands" role="combobox" aria-controls="root-options" aria-activedescendant="${selected >= 0 ? `root-option-${selected}` : ""}" autocomplete="off" autofocus></header><ul id="root-options" class="rows root-options" role="listbox" aria-label="Extension commands">${options}</ul>${rows.length === 0 ? '<p class="empty">No matching commands</p>' : ""}<footer>${statusMarkup(status)}<span class="footer-hints">${footerButton("Run Command", "↵", "primary")}${footerButton("Actions", "⌘K", "actions")}${status.error ? footerButton("Back", "Esc", "back") : ""}</span>${toast}</footer>${actionPanel}</main>`;
 }
+
+/** @param {import("../../packages/host/src/preference-fields.ts").Preference[]} fields @param {Record<string, unknown>} values @param {string} title @param {string[]} unavailable */
+export function renderPreferences(fields, values, title, unavailable = []) {
+  const rows = fields
+    .map((field) => {
+      const value = values[field.name] ?? field.default ?? (field.type === "checkbox" ? false : "");
+      const required = field.required ? " *" : "";
+      const description = field.description
+        ? `<small class="preference-description">${escapeHtml(field.description)}</small>`
+        : "";
+      if (field.type === "checkbox")
+        return `<label class="preference-row"><span>${escapeHtml(field.title)}${required}</span><input name="${escapeHtml(field.name)}" type="checkbox" data-preference="${escapeHtml(field.name)}"${value ? " checked" : ""}>${description}</label>`;
+      if (field.type === "dropdown")
+        return `<label class="preference-row"><span>${escapeHtml(field.title)}${required}</span><select name="${escapeHtml(field.name)}" data-preference="${escapeHtml(field.name)}">${field.data.map((option) => `<option value="${escapeHtml(option.value)}"${String(value) === option.value ? " selected" : ""}>${escapeHtml(option.title)}</option>`).join("")}</select>${description}</label>`;
+      if (field.type === "file" || field.type === "directory" || field.type === "appPicker")
+        return `<div class="preference-row unavailable"><strong>${escapeHtml(field.title)}${required}</strong><span>Needs a file on your computer; this is not available in the browser.</span>${description}</div>`;
+      return `<label class="preference-row"><span>${escapeHtml(field.title)}${required}</span><input name="${escapeHtml(field.name)}" type="${field.type === "password" ? "password" : "text"}" data-preference="${escapeHtml(field.name)}" value="${escapeHtml(String(value))}" placeholder="${escapeHtml(field.placeholder ?? "")}">${description}</label>`;
+    })
+    .join("");
+  const disabled =
+    unavailable.length > 0 ||
+    fields.some(
+      (field) =>
+        field.required &&
+        field.default === undefined &&
+        (values[field.name] === undefined || values[field.name] === ""),
+    );
+  return `<main class="preferences" data-kind="preferences"><header><h1>${escapeHtml(title)}</h1><p class="preference-note">These values stay in this browser only.</p></header><form id="preferences-form"><div class="preference-fields">${rows}</div><footer><span id="preference-error" role="alert"></span><span class="footer-hints"><button type="submit" class="footer-key"${disabled ? " disabled" : ""}><span>Run</span><kbd>↵</kbd></button><button type="button" class="footer-key" data-preference-back><span>Back</span><kbd>Esc</kbd></button></span></footer></form></main>`;
+}

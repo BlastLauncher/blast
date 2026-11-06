@@ -1,11 +1,11 @@
 # Browser catalog sweep
 
-Catalog commit `bad7de0172ce6ea5e721ed919f4e1d7186f74192`; date 2026-11-06; 237 command records; wall time 78.8 s.
+Catalog commit `bad7de0172ce6ea5e721ed919f4e1d7186f74192`; date 2026-11-06; 237 command records; wall time 77.7 s.
 
 ## Totals
 
-- empty: 75 command(s)
-- network: 6 command(s)
+- empty: 76 command(s)
+- network: 5 command(s)
 - rendered: 138 command(s)
 - runtime-error:api key missing: 2 command(s)
 - runtime-error:API key not found. Please add your Parcel API key in extension preferences.: 1 command(s)
@@ -24,8 +24,8 @@ Catalog commit `bad7de0172ce6ea5e721ed919f4e1d7186f74192`; date 2026-11-06; 237 
 
 | Signature                                                                                                                                                                                                | Commands | Examples                                                                                                                                 |
 | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------: | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| network                                                                                                                                                                                                  |        6 | `gradle-plugins/index`, `hyrule-compendium-search/broadSearch`, `jisho/search`, `leetcode/potd-menu-bar`, `scrapbook/view-recent-posts`  |
 | runtime-error:Selection is unavailable in a browser tab                                                                                                                                                  |        6 | `8-divide/divide-by-8`, `cangjie/cangjie`, `color-studio-picker/index`, `input-source-switcher/index`, `tategaki/japanese-vertical-text` |
+| network                                                                                                                                                                                                  |        5 | `gradle-plugins/index`, `hyrule-compendium-search/broadSearch`, `jisho/search`, `scrapbook/view-recent-posts`, `workflowy-inbox/view`    |
 | runtime-error:api key missing                                                                                                                                                                            |        2 | `humaans/holidays`, `humaans/people`                                                                                                     |
 | runtime-error:API key not found. Please add your Parcel API key in extension preferences.                                                                                                                |        1 | `parcel/my-deliveries`                                                                                                                   |
 | runtime-error:Applications are unavailable in a browser tab                                                                                                                                              |        1 | `input-source-switcher/form`                                                                                                             |

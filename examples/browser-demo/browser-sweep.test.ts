@@ -72,4 +72,7 @@ describe("classifyBrowserOutcome", () => {
     expect(classifyBrowserOutcome({ bundleFallbackFailed: true })).toBe("bundle-fallback-failed");
     expect(classifyBrowserOutcome({ timedOut: true })).toBe("timeout");
   });
+  test("classifies a preference form", () => {
+    expect(classifyBrowserOutcome({ needsPreferences: true })).toBe("needs-preferences");
+  });
 });

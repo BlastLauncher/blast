@@ -31,9 +31,70 @@ export type BrowserCapabilityOptions = {
   openUrl?: (url: string) => void;
   launchCommand?: (source: string, command: string) => Promise<void>;
   status?: (message: string, error?: boolean) => void;
+  openPreferences?: (scope: "extension" | "command", context: CapabilityContext) => void;
 };
 
+export type BrowserPreferences = {
+  extension: Record<string, JsonValue>;
+  commands: Record<string, Record<string, JsonValue>>;
+};
 type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
+const emptyPreferences = (): BrowserPreferences => ({ extension: {}, commands: {} });
+
+export function createBrowserPreferenceStore(extension: string, storage?: BrowserStorage) {
+  const key = `blast:${extension}:preferences`;
+  let memory: string | null = null;
+  const readRaw = () => {
+    try {
+      return storage?.getItem(key) ?? memory;
+    } catch {
+      return memory;
+    }
+  };
+  const read = (): BrowserPreferences => {
+    const raw = readRaw();
+    if (!raw) return emptyPreferences();
+    try {
+      const parsed = JSON.parse(raw) as Partial<BrowserPreferences>;
+      if (!parsed || typeof parsed !== "object" || !parsed.extension || !parsed.commands)
+        return emptyPreferences();
+      return { extension: parsed.extension, commands: parsed.commands };
+    } catch {
+      return emptyPreferences();
+    }
+  };
+  const save = (next: BrowserPreferences) => {
+    const value = JSON.stringify(next);
+    memory = value;
+    try {
+      storage?.setItem(key, value);
+    } catch {
+      // The memory copy keeps the demo usable in private browsing.
+    }
+  };
+  return {
+    read,
+    save,
+    values(command: string) {
+      const current = read();
+      return { ...current.extension, ...current.commands[command] };
+    },
+    update(
+      extensionValues: Record<string, JsonValue>,
+      command: string,
+      commandValues: Record<string, JsonValue>,
+    ) {
+      const current = read();
+      save({
+        extension: { ...current.extension, ...extensionValues },
+        commands: {
+          ...current.commands,
+          [command]: { ...current.commands[command], ...commandValues },
+        },
+      });
+    },
+  };
+}
 
 const denial = (message: string): CapabilityResult => ({
   ok: false,
@@ -239,8 +300,13 @@ export function createBrowserCapabilities(options: BrowserCapabilityOptions) {
       return denial(
         "OAuth authorization needs a host redirect and is unavailable in a browser tab",
       );
-    if (request.name === "preferences.open")
-      return denial("Preferences are managed by the browser demo host");
+    if (request.name === "preferences.open") {
+      const scope = params.scope;
+      if (scope !== "extension" && scope !== "command")
+        return denial("preferences.open requires an extension or command scope");
+      options.openPreferences?.(scope, context);
+      return { ok: true, value: null };
+    }
     if (request.name === "applications.list") return { ok: true, value: [] };
     if (request.name === "applications.default" || request.name === "applications.frontmost")
       return denial("Applications are unavailable in a browser tab");

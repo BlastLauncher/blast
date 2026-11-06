@@ -1,0 +1,34 @@
+{
+  "name": "browser-preferences",
+  "commands": [
+    {
+      "name": "index",
+      "title": "Browser Preferences",
+      "mode": "view"
+    }
+  ],
+  "preferences": [
+    {
+      "name": "secret",
+      "type": "password",
+      "title": "Secret",
+      "required": true
+    },
+    {
+      "name": "flavor",
+      "type": "dropdown",
+      "title": "Flavor",
+      "default": "vanilla",
+      "data": [
+        {
+          "title": "Vanilla",
+          "value": "vanilla"
+        },
+        {
+          "title": "Chocolate",
+          "value": "chocolate"
+        }
+      ]
+    }
+  ]
+}

@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { createBrowserCapabilities, type BrowserStorage } from "./capabilities.ts";
+import {
+  createBrowserCapabilities,
+  createBrowserPreferenceStore,
+  type BrowserStorage,
+} from "./capabilities.ts";
 
 function catalog() {
   return {
@@ -210,7 +214,6 @@ describe("browser capabilities", () => {
       ["window.active", "Window management"],
       ["ai.ask", "AI access"],
       ["oauth.authorize", "host redirect"],
-      ["preferences.open", "managed by the browser demo host"],
     ] as const) {
       const result = await handle({ name, params: {} }, context);
       expect(result).toMatchObject({
@@ -218,5 +221,33 @@ describe("browser capabilities", () => {
         error: { message: expect.stringContaining(phrase) },
       });
     }
+  });
+
+  test("browser preference store scopes values and survives storage failures", () => {
+    const browserStorage = storage();
+    const first = createBrowserPreferenceStore("alpha", browserStorage);
+    first.update({ shared: "extension" }, "index", { secret: "one" });
+    expect(first.values("index")).toEqual({ shared: "extension", secret: "one" });
+    expect(createBrowserPreferenceStore("beta", browserStorage).values("index")).toEqual({});
+    browserStorage.setItem("blast:alpha:preferences", "not-json");
+    expect(createBrowserPreferenceStore("alpha", browserStorage).values("index")).toEqual({});
+    const fallback = createBrowserPreferenceStore("alpha", storage(true));
+    fallback.update({ answer: true }, "index", {});
+    expect(fallback.values("index")).toEqual({ answer: true });
+  });
+
+  test("preferences.open invokes the host form callback", async () => {
+    const scopes: string[] = [];
+    const handle = createBrowserCapabilities({
+      catalog: catalog(),
+      openPreferences: (scope) => scopes.push(scope),
+    });
+    expect(
+      await handle({ name: "preferences.open", params: { scope: "extension" } }, context),
+    ).toEqual({ ok: true, value: null });
+    expect(
+      await handle({ name: "preferences.open", params: { scope: "command" } }, context),
+    ).toEqual({ ok: true, value: null });
+    expect(scopes).toEqual(["extension", "command"]);
   });
 });
