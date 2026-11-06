@@ -112,7 +112,7 @@ usable by `examples/web-launcher`, its other consumer. Run that example's tests.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit: t3/web-launcher-focus-keyboard @ 6b18b3035022dc3b37aadf26d4a58f3be7e4a4e0
+Branch/commit: t3/web-launcher-focus-keyboard @ 8e0d8fe28807e7e30741283ef74bbfd71090db55
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 66.7s
 Done:
 - Preserved launcher controls across redraws, restored focus and caret, and kept selection visible.
