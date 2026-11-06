@@ -4,10 +4,11 @@ import { useState } from "react";
 export default function Command() {
   const [name, setName] = useState("");
   const [agree, setAgree] = useState(false);
-  const [result, setResult] = useState("Fill form");
+  const [result, setResult] = useState<string>();
   return (
     <Form
-      navigationTitle={result}
+      // Before submit the title mirrors the name, so the browser test can wait for the echo.
+      navigationTitle={result ?? `Name: ${name}`}
       actions={
         <ActionPanel>
           <Action.SubmitForm

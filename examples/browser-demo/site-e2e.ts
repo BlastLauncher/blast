@@ -9,6 +9,7 @@ type BrowserElement = {
   value?: string;
   textContent: string | null;
   matches?(selector: string): boolean;
+  getAttribute?(name: string): string | null;
   getBoundingClientRect(): { top: number; bottom: number; height: number; width: number };
 };
 type BrowserDocument = {
@@ -189,10 +190,15 @@ try {
           `${error} after browser-keyboard: ${await page.locator("#app").innerText()}`,
         );
       });
-    if (!(await page.locator(".rows li").first().textContent())?.includes("Subtitle"))
-      throw new Error("row subtitle did not render");
-    if (!(await page.locator(".rows li").first().textContent())?.includes("Accessory"))
-      throw new Error("row accessory did not render");
+    const firstItem =
+      (await page.locator(".rows li:not(.section-header)").first().textContent()) ?? "";
+    if (!firstItem.includes("Subtitle abc-special"))
+      throw new Error(`row subtitle did not render: ${firstItem}`);
+    if (!firstItem.includes("Accessory abc-special"))
+      throw new Error(`row accessory did not render: ${firstItem}`);
+    const header = (await page.locator(".rows li.section-header").first().textContent()) ?? "";
+    if (!header.includes("Items") || !header.includes("50"))
+      throw new Error(`section header or count did not render: ${header}`);
     await page.locator("#search").click();
     await page.locator("#search").pressSequentially("abc");
     await page.waitForFunction(
@@ -228,35 +234,154 @@ try {
     await page.keyboard.press("Escape");
     await page.locator("#root-search").waitFor({ timeout: 10_000 });
 
-    await page.locator("#root-search").fill("grid");
+    // Grid: selection moves in both dimensions across two rows of three cells.
+    await page.locator("#root-search").fill("browser-grid");
     await page.keyboard.press("Enter");
-    await page.locator(".grid-cell").first().waitFor({ timeout: 30_000 });
-    await page.keyboard.press("ArrowRight");
-    if ((await page.locator(".grid-cell.selected").count()) !== 1)
-      throw new Error("grid selection did not move");
-    await page.locator("[data-dropdown-open]").click();
-    await page.locator("#dropdown-search").fill("wine");
-    await page.locator('[data-dropdown-value="wine"]').click();
     await page.waitForFunction(
-      () => (document.querySelector("#app")?.textContent ?? "").includes("drink wine"),
+      () => document.querySelectorAll(".grid-cell").length === 6,
+      undefined,
+      { timeout: 30_000 },
+    );
+    const expectSelected = (title: string) =>
+      page
+        .waitForFunction(
+          (expected: string) =>
+            document.querySelectorAll(".grid-cell.selected").length === 1 &&
+            document.querySelector(".grid-cell.selected strong")?.textContent === expected,
+          title,
+          { timeout: 10_000 },
+        )
+        .catch(async (error) => {
+          const now = await page.evaluate(
+            () => document.querySelector(".grid-cell.selected strong")?.textContent ?? "none",
+          );
+          throw new Error(`${error} expected selected cell ${title}, got ${now}`);
+        });
+    await expectSelected("beer");
+    await page.keyboard.press("ArrowRight");
+    await expectSelected("wine");
+    await page.keyboard.press("ArrowDown");
+    await expectSelected("tea");
+    await page.keyboard.press("ArrowLeft");
+    await expectSelected("cider");
+    await page.keyboard.press("ArrowUp");
+    await expectSelected("beer");
+
+    // The dropdown fits a phone viewport, filters, and chooses by keyboard and by mouse.
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.locator("[data-dropdown-open]").click();
+    await page.locator(".dropdown-panel").waitFor({ timeout: 10_000 });
+    const dropdownBox = await page.locator(".dropdown-panel").boundingBox();
+    if (
+      !dropdownBox ||
+      dropdownBox.x < 0 ||
+      dropdownBox.y < 0 ||
+      dropdownBox.x + dropdownBox.width > 390 ||
+      dropdownBox.y + dropdownBox.height > 844
+    )
+      throw new Error(`dropdown does not fit the phone viewport: ${JSON.stringify(dropdownBox)}`);
+    await page.setViewportSize({ width: 1280, height: 800 });
+    if ((await page.locator("[data-dropdown-value]").count()) !== 6)
+      throw new Error("dropdown should list all six drinks");
+    await page.locator("#dropdown-search").fill("w");
+    await page.waitForFunction(
+      () => document.querySelectorAll("[data-dropdown-value]").length === 2,
       undefined,
       { timeout: 10_000 },
     );
+    for (const hidden of ["beer", "cider", "tea", "milk"])
+      if ((await page.locator(`[data-dropdown-value="${hidden}"]`).count()) !== 0)
+        throw new Error(`filtering "w" should hide ${hidden}`);
+    const highlighted = () =>
+      page.evaluate(
+        () =>
+          document
+            .querySelector(".dropdown-panel button.selected")
+            ?.getAttribute?.("data-dropdown-value") ?? "none",
+      );
+    if ((await highlighted()) !== "wine") throw new Error("filtered dropdown should start on wine");
+    await page.keyboard.press("ArrowDown");
+    if ((await highlighted()) !== "water") throw new Error("ArrowDown did not move the dropdown");
+    await page.keyboard.press("ArrowUp");
+    if ((await highlighted()) !== "wine") throw new Error("ArrowUp did not move the dropdown");
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("Enter");
+    await page.locator(".dropdown-panel").waitFor({ state: "detached", timeout: 10_000 });
+    await page.getByRole("heading", { name: "drink water" }).waitFor({ timeout: 10_000 });
+    // Escape closes only the dropdown; the extension stays open.
+    await page.locator("[data-dropdown-open]").click();
+    await page.locator(".dropdown-panel").waitFor({ timeout: 10_000 });
+    await page.keyboard.press("Escape");
+    await page.locator(".dropdown-panel").waitFor({ state: "detached", timeout: 10_000 });
+    if ((await page.locator("#root-search").count()) !== 0)
+      throw new Error("Escape with the dropdown open left the extension");
+    await page.locator("[data-dropdown-open]").click();
+    await page.locator('[data-dropdown-value="milk"]').click();
+    await page.getByRole("heading", { name: "drink milk" }).waitFor({ timeout: 10_000 });
     await page.locator('#app [data-footer="back"]').click();
     await page.locator("#root-search").waitFor({ timeout: 10_000 });
 
-    await page.locator("#root-search").fill("feedback");
+    // Alert: buttons, Escape and Enter each answer; Tab stays inside the dialog.
+    await page.locator("#root-search").fill("browser-feedback");
     await page.keyboard.press("Enter");
-    await page.locator(".alert").waitFor({ timeout: 30_000 });
+    await page.getByText("Answers: none").waitFor({ timeout: 30_000 });
+    const answered = (answers: string) =>
+      page.getByText(`Answers: ${answers}`).waitFor({ timeout: 10_000 });
+    const inAlert = (selector: string) =>
+      page.evaluate(
+        (expected: string) => document.activeElement?.matches?.(expected) ?? false,
+        selector,
+      );
+    await page.keyboard.press("Enter");
+    await page.locator(".alert").waitFor({ timeout: 10_000 });
     await page.setViewportSize({ width: 390, height: 844 });
     const alertBox = await page.locator(".alert").boundingBox();
-    if (!alertBox || alertBox.right > 390 || alertBox.bottom > 844)
-      throw new Error("alert does not fit the phone viewport");
-    await page.locator('[data-alert="dismiss"]').click();
+    if (
+      !alertBox ||
+      alertBox.x < 0 ||
+      alertBox.y < 0 ||
+      alertBox.x + alertBox.width > 390 ||
+      alertBox.y + alertBox.height > 844
+    )
+      throw new Error(`alert does not fit the phone viewport: ${JSON.stringify(alertBox)}`);
+    await page.setViewportSize({ width: 1280, height: 800 });
+    if (!(await inAlert('.alert [data-alert="confirm"]')))
+      throw new Error("the alert did not focus its primary button");
+    await page.keyboard.press("Tab");
+    if (!(await inAlert('.alert [data-alert="dismiss"]')))
+      throw new Error("Tab did not wrap to the dismiss button");
+    await page.keyboard.press("Shift+Tab");
+    if (!(await inAlert('.alert [data-alert="confirm"]')))
+      throw new Error("Shift-Tab did not wrap back to the primary button");
+    for (let index = 0; index < 5; index++) await page.keyboard.press("Tab");
+    if (!(await inAlert(".alert *"))) throw new Error("focus escaped the alert");
+    await page.locator('[data-alert="confirm"]').click();
+    await page.locator(".alert").waitFor({ state: "detached", timeout: 10_000 });
+    await answered("true");
+    await page.keyboard.press("Enter");
+    await page.locator(".alert").waitFor({ timeout: 10_000 });
+    await page.keyboard.press("Escape");
+    await page.locator(".alert").waitFor({ state: "detached", timeout: 10_000 });
+    await answered("true,false");
+    // Escape answered the alert instead of leaving the extension.
+    if ((await page.locator("#root-search").count()) !== 0)
+      throw new Error("Escape on the alert left the extension");
+    await page.keyboard.press("Enter");
+    await page.locator(".alert").waitFor({ timeout: 10_000 });
+    await page.keyboard.press("Enter");
+    await page.locator(".alert").waitFor({ state: "detached", timeout: 10_000 });
+    await answered("true,false,true");
+
+    // Toast action: the HUD title only the action produces.
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("Enter");
     await page.locator(".toast").waitFor({ timeout: 10_000 });
+    if ((await page.locator(".hud").count()) !== 0)
+      throw new Error("the HUD appeared before the toast action ran");
     await page.locator('[data-toast-action="0"]').click();
     await page.locator(".hud").waitFor({ timeout: 10_000 });
-    await page.setViewportSize({ width: 1280, height: 800 });
+    if ((await page.locator(".hud").textContent()) !== "From action")
+      throw new Error(`unexpected HUD: ${await page.locator(".hud").textContent()}`);
     await page.keyboard.press("Escape");
     await page.locator("#root-search").waitFor({ timeout: 10_000 });
 
@@ -272,6 +397,9 @@ try {
       });
     const firstField = page.locator('input[data-field="1"]');
     await firstField.pressSequentially("one");
+    // Let the extension echo the controlled value before focus leaves, or a stale scene
+    // could overwrite the text.
+    await page.getByRole("heading", { name: "Name: one" }).waitFor({ timeout: 10_000 });
     await page.keyboard.press("Tab");
     if (
       !(await page.evaluate(
@@ -289,7 +417,7 @@ try {
       throw new Error("Shift-Tab did not return to first form field");
     await page.keyboard.press("ArrowDown");
     if ((await firstField.inputValue()) !== "one")
-      throw new Error("ArrowDown changed the focused text field");
+      throw new Error(`ArrowDown changed the focused text field: ${await firstField.inputValue()}`);
     await page.keyboard.press("Tab");
     await page.keyboard.press("Tab");
     await page.keyboard.press("Space");
@@ -304,6 +432,44 @@ try {
       throw new Error("Space did not toggle the checkbox");
     await page.keyboard.press("Meta+Enter");
     await page.getByRole("heading", { name: /Submitted:/ }).waitFor({ timeout: 10_000 });
+    await page.keyboard.press("Escape");
+    await page.locator("#root-search").waitFor({ timeout: 10_000 });
+    // Every field kind round-trips through the UI and into the submitted values.
+    await page.locator("#root-search").fill("browser-fields");
+    await page.keyboard.press("Enter");
+    await page.locator("label.form-field textarea").waitFor({ timeout: 30_000 });
+    const field = (label: string, control: string) =>
+      page.locator(`label.form-field:has-text("${label}") ${control}`);
+    await field("Notes", "textarea").fill("line1\nline2");
+    await field("Secret", "input").fill("hunter2");
+    await field("Color", "select").selectOption("blue");
+    await field("When", "input").fill("2026-03-15");
+    // Alpha starts selected: this drops it and adds two, so de-selection round-trips.
+    await field("Tags", "select").selectOption(["b", "c"]);
+    await page.getByRole("heading", { name: "Tags: b+c" }).waitFor({ timeout: 10_000 });
+    if (
+      !(await page.locator(".form-unavailable").textContent())?.includes(
+        "not available in the browser",
+      )
+    )
+      throw new Error("the file picker did not show its unavailable note");
+    await page.keyboard.press("Meta+Enter");
+    const submitted = page.getByRole("heading", { name: /Submitted:/ });
+    await submitted.waitFor({ timeout: 10_000 });
+    const values = JSON.parse(((await submitted.textContent()) ?? "").replace(/^Submitted: /, ""));
+    const expected = {
+      notes: "line1\nline2",
+      secret: "hunter2",
+      color: "blue",
+      when: "2026-03-15T00:00:00.000Z",
+      tags: ["b", "c"],
+      files: [],
+    };
+    for (const [key, value] of Object.entries(expected))
+      if (JSON.stringify(values[key]) !== JSON.stringify(value))
+        throw new Error(
+          `form value ${key}: ${JSON.stringify(values[key])} !== ${JSON.stringify(value)}`,
+        );
     await page.keyboard.press("Escape");
     await page.locator("#root-search").waitFor({ timeout: 10_000 });
     // LocalStorage is extension-scoped and survives closing and reopening a command.

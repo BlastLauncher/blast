@@ -36,31 +36,33 @@ export default function Command() {
         </ActionPanel>
       }
     >
-      {items.map((item) => (
-        <List.Item
-          key={item}
-          title={item}
-          subtitle={`Subtitle ${item}`}
-          accessory={{ text: `Accessory ${item}` }}
-          actions={
-            <ActionPanel>
-              <Action.Push title="Open detail" target={<DetailView item={item} />} />
-              <Action
-                title="Run Cmd Shift C"
-                shortcut={{ modifiers: ["cmd", "shift"], key: "c" }}
-                onAction={() => setShortcutState("Shortcut ran")}
-              />
-              <Action
-                title="Show success toast"
-                shortcut={{ modifiers: ["cmd", "shift"], key: "t" }}
-                onAction={() =>
-                  void showToast({ style: Toast.Style.Success, title: "Success toast" })
-                }
-              />
-            </ActionPanel>
-          }
-        />
-      ))}
+      <List.Section title="Items">
+        {items.map((item) => (
+          <List.Item
+            key={item}
+            title={item}
+            subtitle={`Subtitle ${item}`}
+            accessories={[{ text: `Accessory ${item}` }]}
+            actions={
+              <ActionPanel>
+                <Action.Push title="Open detail" target={<DetailView item={item} />} />
+                <Action
+                  title="Run Cmd Shift C"
+                  shortcut={{ modifiers: ["cmd", "shift"], key: "c" }}
+                  onAction={() => setShortcutState("Shortcut ran")}
+                />
+                <Action
+                  title="Show success toast"
+                  shortcut={{ modifiers: ["cmd", "shift"], key: "t" }}
+                  onAction={() =>
+                    void showToast({ style: Toast.Style.Success, title: "Success toast" })
+                  }
+                />
+              </ActionPanel>
+            }
+          />
+        ))}
+      </List.Section>
     </List>
   );
 }

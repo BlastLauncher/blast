@@ -15,12 +15,7 @@
     "alert": null,
     "hud": null,
     "toast": {
-      "actions": [
-        {
-          "shortcut": "",
-          "title": "Finish"
-        }
-      ],
+      "actions": [],
       "message": "",
       "style": "success",
       "title": "Confirmed"

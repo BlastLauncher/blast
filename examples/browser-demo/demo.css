@@ -184,6 +184,10 @@ input {
   border-radius: 8px;
   padding: 0.7rem;
 }
+.form-field .form-error {
+  grid-column: 2;
+  color: #ff6363;
+}
 .form-field.checkbox {
   display: flex;
   justify-content: space-between;

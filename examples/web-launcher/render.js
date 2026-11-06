@@ -24,23 +24,48 @@ const footerButton = (label, key, action) =>
 const button = (label, action, selected = false) =>
   `<button data-input="${escapeHtml(action)}"${selected ? ' class="selected"' : ""}>${escapeHtml(label)}</button>`;
 
-/** @param {string} value */
+/**
+ * Links and images only carry https URLs; images may also inline `data:image`.
+ * Anything else (javascript:, http:, relative) keeps just its visible text.
+ * @param {string} raw @param {boolean} image
+ */
+const safeUrl = (raw, image) => {
+  if (image && /^data:image\/[a-z0-9.+-]+[;,]\S*$/iu.test(raw)) return raw;
+  try {
+    return new URL(raw).protocol === "https:" ? raw : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+/** Emphasis only ever sees escaped text segments, never generated tags or URLs. @param {string} text */
+const emphasis = (text) =>
+  escapeHtml(text)
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/(^|[^\w])__([^_]+)__(?!\w)/g, "$1<strong>$2</strong>")
+    .replace(/\*([^*]+)\*/g, "<em>$1</em>")
+    .replace(/(^|[^\w])_([^_]+)_(?!\w)/g, "$1<em>$2</em>");
+
+/** Tokenize code, links and images first so emphasis cannot rewrite inside them. @param {string} value */
 const renderMarkdownInline = (value) => {
-  let out = escapeHtml(value);
-  out = out.replace(
-    /!\[([^\]]*)\]\((https:[^\s)]+|data:image\/[^\s)]+)\)/giu,
-    '<img src="$2" alt="$1">',
-  );
-  out = out.replace(
-    /\[([^\]]+)\]\((https?:[^\s)]+)\)/giu,
-    '<a href="$2" rel="noreferrer noopener">$1</a>',
-  );
-  out = out.replace(/`([^`]+)`/g, "<code>$1</code>");
-  out = out.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
-  out = out.replace(/__([^_]+)__/g, "<strong>$1</strong>");
-  out = out.replace(/\*([^*]+)\*/g, "<em>$1</em>");
-  out = out.replace(/_([^_]+)_/g, "<em>$1</em>");
-  return out;
+  let out = "";
+  let last = 0;
+  for (const match of value.matchAll(/`([^`]+)`|(!?)\[([^\]]*)\]\(([^\s)]+)\)/gu)) {
+    out += emphasis(value.slice(last, match.index));
+    last = match.index + match[0].length;
+    const [, code, bang, label = "", url = ""] = match;
+    if (code !== undefined) out += `<code>${escapeHtml(code)}</code>`;
+    else if (bang) {
+      const src = safeUrl(url, true);
+      out += src ? `<img src="${escapeHtml(src)}" alt="${escapeHtml(label)}">` : escapeHtml(label);
+    } else {
+      const href = safeUrl(url, false);
+      out += href
+        ? `<a href="${escapeHtml(href)}" rel="noreferrer noopener">${emphasis(label)}</a>`
+        : emphasis(label);
+    }
+  }
+  return out + emphasis(value.slice(last));
 };
 
 /** Render the deliberately small, safe markdown subset used by Detail. @param {unknown} markdown */
@@ -122,18 +147,21 @@ export function render(view, options = {}) {
         .map((field) => {
           const label = escapeHtml(field.title || field.label || field.id);
           const common = `id="field-${escapeHtml(field.id)}" data-field="${escapeHtml(field.id)}"`;
+          const error = field.error
+            ? `<small class="form-error" role="alert">${escapeHtml(field.error)}</small>`
+            : "";
           if (field.type === "Form.Separator") return `<hr class="form-separator">`;
           if (field.type === "Form.Description") return `<p class="form-description">${label}</p>`;
           if (field.type === "Form.Checkbox")
             return `<label class="form-field checkbox"><span>${label}</span><input ${common} type="checkbox"${field.checked ? " checked" : ""}></label>`;
           if (field.type === "Form.Dropdown" || field.type === "Form.TagPicker")
-            return `<label class="form-field"><span>${label}</span><select ${common} ${field.type === "Form.TagPicker" ? "multiple" : ""}>${field.options.map((option) => `<option value="${escapeHtml(option.value)}"${field.selected.some((selected) => selected.value === option.value) ? " selected" : ""}>${escapeHtml(option.title)}</option>`).join("")}</select></label>`;
+            return `<label class="form-field"><span>${label}</span><select ${common} ${field.type === "Form.TagPicker" ? "multiple" : ""}>${field.options.map((option) => `<option value="${escapeHtml(option.value)}"${field.selected.some((selected) => selected.value === option.value) ? " selected" : ""}>${escapeHtml(option.title)}</option>`).join("")}</select>${error}</label>`;
           if (field.type === "Form.DatePicker")
-            return `<label class="form-field"><span>${label}</span><input ${common} type="date" value="${escapeHtml(field.text.slice(0, 10))}"></label>`;
+            return `<label class="form-field"><span>${label}</span><input ${common} type="date" value="${escapeHtml(field.text.slice(0, 10))}">${error}</label>`;
           if (field.type === "Form.FilePicker")
             return `<p class="form-unavailable">${label}: not available in the browser</p>`;
           const area = field.type === "Form.TextArea";
-          return `<label class="form-field"><span>${label}</span>${area ? `<textarea ${common} placeholder="${escapeHtml(field.placeholder)}">${escapeHtml(field.text)}</textarea>` : `<input ${common} type="${field.type === "Form.PasswordField" ? "password" : "text"}" value="${escapeHtml(field.text)}" placeholder="${escapeHtml(field.placeholder)}">`}</label>`;
+          return `<label class="form-field"><span>${label}</span>${area ? `<textarea ${common} placeholder="${escapeHtml(field.placeholder)}">${escapeHtml(field.text)}</textarea>` : `<input ${common} type="${field.type === "Form.PasswordField" ? "password" : "text"}"${field.hasValue ? " data-has-value" : ""} value="${escapeHtml(field.text)}" placeholder="${escapeHtml(field.placeholder)}">`}${error}</label>`;
         })
         .join("")}${button("Submit", "primary")}</form>`
     : "";

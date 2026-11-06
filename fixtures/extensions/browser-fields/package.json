@@ -1,0 +1,10 @@
+{
+  "name": "browser-fields",
+  "commands": [
+    {
+      "name": "index",
+      "title": "Browser Fields",
+      "mode": "view"
+    }
+  ]
+}

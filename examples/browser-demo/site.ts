@@ -149,16 +149,16 @@ export async function buildSite(
       title: "Browser Form",
       commands: [{ name: "index", title: "Browser Form", mode: "view" }],
     });
-    catalog.extensions.push({
-      name: "grid",
-      title: "Grid",
-      commands: [{ name: "index", title: "Grid", mode: "view" }],
-    });
-    catalog.extensions.push({
-      name: "feedback",
-      title: "Feedback",
-      commands: [{ name: "index", title: "Feedback", mode: "view" }],
-    });
+    for (const [name, title] of [
+      ["browser-grid", "Browser Grid"],
+      ["browser-feedback", "Browser Feedback"],
+      ["browser-fields", "Browser Fields"],
+    ] as const)
+      catalog.extensions.push({
+        name,
+        title,
+        commands: [{ name: "index", title, mode: "view" }],
+      });
     catalog.extensions.sort((a, b) =>
       String((a as { name?: unknown }).name).localeCompare(String((b as { name?: unknown }).name)),
     );
@@ -225,7 +225,7 @@ export async function buildSite(
       join(demo, "fixtures/browser-form/__files"),
       JSON.stringify(await relativeFiles(join(projectRoot, "fixtures/extensions/browser-form"))),
     );
-  for (const fixture of ["grid", "feedback"]) {
+  for (const fixture of ["browser-grid", "browser-feedback", "browser-fields"]) {
     if (!options.fixtures) break;
     await cp(join(projectRoot, "fixtures/extensions", fixture), join(demo, "fixtures", fixture), {
       recursive: true,

@@ -128,10 +128,27 @@ function replaceApp(markup: string) {
     const previous = key ? controls.get(key) : undefined;
     if (!previous || previous.tagName !== next.tagName) continue;
     const focused = active === previous;
-    if (next instanceof HTMLInputElement && next.type === "checkbox") {
+    if (next instanceof HTMLSelectElement && previous instanceof HTMLSelectElement) {
+      // `.value` only names the first selected option of a multi-select, so sync flags.
+      const same =
+        previous.multiple === next.multiple &&
+        previous.options.length === next.options.length &&
+        [...next.options].every((option, index) => option.value === previous.options[index]?.value);
+      if (!same) continue;
+      [...next.options].forEach((option, index) => {
+        const kept = previous.options[index];
+        if (kept) kept.selected = option.selected;
+      });
+    } else if (next instanceof HTMLInputElement && next.type === "checkbox") {
       if (previous instanceof HTMLInputElement && previous.checked !== next.checked)
         previous.checked = next.checked;
-    } else if (!focused && previous.value !== next.value) previous.value = next.value;
+    } else if (
+      !focused &&
+      previous.value !== next.value &&
+      // The scene never carries a password, so an unfocused field that still has one keeps it.
+      !(next instanceof HTMLInputElement && next.type === "password" && "hasValue" in next.dataset)
+    )
+      previous.value = next.value;
     next.replaceWith(previous);
   }
 }
@@ -165,12 +182,18 @@ const draw = (view: ReturnType<Controller["view"]>) => {
       next.setSelectionRange(selectionStart, selectionEnd ?? selectionStart);
   }
   document.querySelector<HTMLElement>(".rows li.selected")?.scrollIntoView({ block: "nearest" });
+  // The primary button takes focus so Enter confirms, as in the other clients.
   const alertButton = document.querySelector<HTMLButtonElement>(
     "[data-alert=confirm], [data-alert=dismiss]",
   );
   if (view.feedback.alert && alertButton && !document.querySelector(".alert :focus"))
-    alertButton.focus();
-  if (view.dropdown?.open) document.querySelector<HTMLInputElement>("#dropdown-search")?.focus();
+    (document.querySelector<HTMLButtonElement>("[data-alert=confirm]") ?? alertButton).focus();
+  if (view.dropdown?.open) {
+    document.querySelector<HTMLInputElement>("#dropdown-search")?.focus();
+    document
+      .querySelector<HTMLElement>(".dropdown-panel button.selected")
+      ?.scrollIntoView({ block: "nearest" });
+  }
 };
 const drawRoot = () => {
   const model = rootModel(
@@ -799,7 +822,52 @@ async function start() {
   }
 }
 
+/** Answer the open alert; the remember checkbox travels with either answer. */
+function answerAlert(confirm: boolean) {
+  const remember = document.querySelector<HTMLInputElement>("#alert-remember")?.checked;
+  sendInput({
+    type: "alert",
+    confirm,
+    ...(remember === undefined ? {} : { remember }),
+  });
+}
+/** The alert is modal: Enter confirms, Escape dismisses, Tab stays inside it. */
+function alertKey(event: KeyboardEvent) {
+  if (event.key === "Escape") {
+    event.preventDefault();
+    answerAlert(false);
+  } else if (event.key === "Enter") {
+    event.preventDefault();
+    const focused = document.activeElement?.closest<HTMLElement>("[data-alert]");
+    answerAlert(focused?.dataset.alert !== "dismiss");
+  } else if (event.key === "Tab") {
+    event.preventDefault();
+    const stops = [...document.querySelectorAll<HTMLElement>(".alert button, .alert input")];
+    if (!stops.length) return;
+    const index = stops.findIndex((stop) => stop === document.activeElement);
+    const step = event.shiftKey ? -1 : 1;
+    const next = index < 0 ? (event.shiftKey ? stops.length - 1 : 0) : index + step;
+    stops[(next + stops.length) % stops.length]?.focus();
+  }
+}
+/** An open search-bar dropdown owns the arrows, Enter and Escape; its filter keeps typing. */
+function dropdownKey(event: KeyboardEvent) {
+  if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+    event.preventDefault();
+    sendInput({ type: "move", direction: event.key === "ArrowDown" ? "down" : "up" });
+  } else if (event.key === "Enter") {
+    event.preventDefault();
+    sendInput({ type: "chooseDropdown" });
+  } else if (event.key === "Escape") {
+    event.preventDefault();
+    sendInput({ type: "back" });
+  } else if (event.key === "Tab") event.preventDefault();
+}
+
 document.addEventListener("keydown", (event) => {
+  const modalView = rootOpen ? undefined : controller?.view();
+  if (modalView?.feedback.alert) return alertKey(event);
+  if (modalView?.dropdown?.open) return dropdownKey(event);
   if (!rootOpen && controller) {
     const result = controller.input({ type: "key", key: keyInputFromEvent(event) });
     if (result.handled) {
@@ -951,6 +1019,12 @@ function preferenceFormValues(
   }
   return values;
 }
+// Clicking into a field must move the controller's focus too, or the next redraw
+// would pull the caret back to the field the controller still considers focused.
+document.addEventListener("focusin", (event) => {
+  const field = (event.target as HTMLElement).dataset?.field;
+  if (field && controller?.view().form?.focusId !== field) sendInput({ type: "focus", id: field });
+});
 document.addEventListener("input", (event) => {
   const target = event.target as HTMLInputElement;
   if (target.closest("#preferences-form") && preferenceForm) {
@@ -982,26 +1056,55 @@ document.addEventListener("input", (event) => {
   else if (target.id === "action-search") sendInput({ type: "actionsQuery", text: target.value });
   else if (target.dataset.field && target instanceof HTMLInputElement && target.type === "checkbox")
     sendInput({ type: "toggle", id: target.dataset.field });
-  else if (target.dataset.field)
+  else if (target.dataset.field && !(target instanceof HTMLSelectElement))
+    // A select reports through "change"; a setValue would filter a Dropdown's options.
     sendInput({ type: "setValue", id: target.dataset.field, value: target.value });
 });
+/** Resolve once the controller publishes its next view, or after `ms`. */
+function nextView(active: Controller, ms = 2000) {
+  return new Promise<void>((resolve) => {
+    const stop = active.subscribe(() => done());
+    const timer = setTimeout(() => done(), ms);
+    function done() {
+      stop();
+      clearTimeout(timer);
+      resolve();
+    }
+  });
+}
+/**
+ * Make a Dropdown or TagPicker hold exactly `wanted`. `optionChoose` toggles one
+ * option and its onChange builds on the extension's current value, so toggle one
+ * at a time and wait for the scene that reflects it before the next.
+ */
+async function syncFieldOptions(fieldId: string, wanted: Set<string>, multiple: boolean) {
+  const active = controller;
+  if (!active) return;
+  sendInput({ type: "focus", id: fieldId });
+  for (let step = 0; step < 64; step++) {
+    const field = active.view().form?.fields.find((candidate) => candidate.id === fieldId);
+    if (!field) return;
+    const have = new Set(field.selected.map((option) => option.value));
+    // A Dropdown choice replaces its value, so only a missing option needs choosing.
+    const index = field.options.findIndex((option) =>
+      multiple
+        ? wanted.has(option.value) !== have.has(option.value)
+        : wanted.has(option.value) && !have.has(option.value),
+    );
+    if (index < 0) return;
+    const changed = nextView(active);
+    sendInput({ type: "optionMove", delta: index - field.optionIndex });
+    sendInput({ type: "optionChoose" });
+    await changed;
+  }
+}
 document.addEventListener("change", (event) => {
   const target = event.target as HTMLSelectElement;
   if (!(target instanceof HTMLSelectElement) || !target.dataset.field) return;
-  const view = controller?.view();
-  const field = view?.form?.fields.find((candidate) => candidate.id === target.dataset.field);
-  if (!field) return;
-  sendInput({ type: "focus", id: field.id });
-  const selected = target.multiple
-    ? [...target.selectedOptions].map((option) => option.value)
-    : [target.value];
-  for (const value of selected) {
-    const index = field.options.findIndex((option) => option.value === value);
-    if (index >= 0) {
-      sendInput({ type: "optionMove", delta: index - field.optionIndex });
-      sendInput({ type: "optionChoose" });
-    }
-  }
+  const wanted = new Set(
+    target.multiple ? [...target.selectedOptions].map((option) => option.value) : [target.value],
+  );
+  void syncFieldOptions(target.dataset.field, wanted, target.multiple);
 });
 document.addEventListener("click", (event) => {
   const target = event.target as HTMLElement;
@@ -1013,8 +1116,9 @@ document.addEventListener("click", (event) => {
   }
   if (target.closest("#preferences-form")) return;
   if (target.closest("[data-dropdown-open]")) {
+    if (!controller) return;
     sendInput({ type: "openDropdown" });
-    draw(controller?.view() ?? ({} as ReturnType<Controller["view"]>));
+    draw(controller.view());
     return;
   }
   const dropdownValue = target.closest<HTMLElement>("[data-dropdown-value]")?.dataset.dropdownValue;
@@ -1031,12 +1135,7 @@ document.addEventListener("click", (event) => {
   }
   const alertAction = target.closest<HTMLElement>("[data-alert]")?.dataset.alert;
   if (alertAction) {
-    const remember = document.querySelector<HTMLInputElement>("#alert-remember")?.checked;
-    sendInput({
-      type: "alert",
-      confirm: alertAction === "confirm",
-      ...(remember === undefined ? {} : { remember }),
-    });
+    answerAlert(alertAction === "confirm");
     return;
   }
   const toastAction = target.closest<HTMLElement>("[data-toast-action]")?.dataset.toastAction;
