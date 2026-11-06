@@ -1,7 +1,7 @@
 ---
 id: "0134"
 title: Web launcher focus, keyboard navigation and shortcuts
-status: todo
+status: doing
 milestone: M8
 depends: ["0133"]
 ---
