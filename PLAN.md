@@ -87,10 +87,10 @@ Raycast extensions in a browser tab, in almostnode's cross-origin sandbox (decis
 - [x] 0115–0119 spike, runtime core, browser bundle, installer, demo by URL (`examples/browser-*`)
 - [x] 0120–0127 root list, static site, deploy (blast.yukai.dev), live fixes, polish, prebuilt
       bundles, parity and warm sandbox (3 KB command opens)
-- [x] 0128 browser capabilities; 0129 browser sweep; 0130 cmdk matching; 0131 sandbox
-      gaps (stream/promises, Cache): 34 → 103/237 rendered
-- [x] 0132 Sweep round 2: lazy command load, applications, assets in VFS, empty triage
+- [x] 0128–0132 capabilities, sweep, cmdk matching, sandbox gaps, lazy load: 34 → 138/237
 - [ ] 0133 Browser preferences: defaults, required-preference form, preferences.open
+- [ ] 0134 Web launcher focus, keyboard navigation, action shortcuts, timed effects
+- [ ] 0135 Web launcher surfaces: rich rows, grid, dropdown, alert, HUD, form fields
 
 ## Later (not scheduled)
 
