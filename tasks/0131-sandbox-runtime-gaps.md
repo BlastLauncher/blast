@@ -87,7 +87,7 @@ gone, and a re-run sweep shows the gain:
 ## Handoff
 
 ```
-Branch/commit: t3/fix-sandbox-runtime-gaps @ pending
+Branch/commit: t3/fix-sandbox-runtime-gaps @ e77a22695185784d198a59767dc5db7ac7182aa0
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 64.1s
 Done:
 - Added bundled `stream/promises` and `node:stream/promises` shims for `pipeline` and `finished`, plus the used `util.types` compatibility predicates.
