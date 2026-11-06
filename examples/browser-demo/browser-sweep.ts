@@ -22,6 +22,8 @@ type SceneSnapshot = {
   detail: boolean;
   fields: number;
   hasEmptyView: boolean;
+  hasSearchBar?: boolean;
+  isLoading?: boolean;
 };
 export type BrowserObservation = {
   scene?: SceneSnapshot;
@@ -66,6 +68,7 @@ export function classifyBrowserOutcome(observation: BrowserObservation): Browser
   if (!scene) return "timeout";
   const content = scene.rows > 0 || scene.detail || scene.fields > 0;
   if (content) return "rendered";
+  if (scene.kind === "list" && scene.hasSearchBar && !scene.isLoading) return "rendered";
   return scene.hasEmptyView ? "rendered" : "empty";
 }
 
@@ -197,6 +200,8 @@ async function runCommand(
               detail: Boolean(sceneMain.querySelector(".detail")?.textContent?.trim()),
               fields: sceneMain.querySelectorAll("form input[data-field]").length,
               hasEmptyView: Boolean(sceneMain.querySelector(".empty strong")),
+              hasSearchBar: Boolean(sceneMain.querySelector("#search")),
+              isLoading: sceneMain.querySelector("[data-loading='true']") !== null,
             }
           : undefined,
         status: document.querySelector("#status")?.textContent?.trim() ?? "",

@@ -112,7 +112,9 @@ export function buildPatterns(extensions: string[] = [], catalogOnly = false): s
       ...names.map((name) => `/extensions/${name}/`),
       ...names.map((name) => `!/extensions/${name}/node_modules/`),
     ];
-  const excludedDirectories = ["assets", "media", "metadata"];
+  // Keep JSON and other data assets available to browser prebuilds. Binary
+  // artwork and media remain excluded by the extension patterns below.
+  const excludedDirectories = ["media", "metadata"];
   const excludedFiles = [
     "*.png",
     "*.jpg",

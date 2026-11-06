@@ -3,16 +3,19 @@ import {
   type BrowserMessagePort,
 } from "../../packages/runtime/src/browser.ts";
 import type { CommandModule } from "../../packages/runtime/src/core.ts";
+import type { InitCommand } from "../../packages/protocol/src/index.ts";
 
 let started = false;
 
 /** Starts the real Blast runtime after the trusted host transfers a port. */
-export function start(command: CommandModule): void {
+export type BrowserCommandLoader = (command: InitCommand) => Promise<CommandModule> | CommandModule;
+
+export function start(loadCommand: BrowserCommandLoader): void {
   if (started) return;
   const begin = (port: BrowserMessagePort) => {
     if (started) return;
     started = true;
-    startBrowserRuntime({ port, command });
+    startBrowserRuntime({ port, loadCommand });
   };
   const existing = (globalThis as Record<string, unknown>)["__blastPort"] as
     | BrowserMessagePort

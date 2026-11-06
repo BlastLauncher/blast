@@ -23,6 +23,34 @@ describe("classifyBrowserOutcome", () => {
       }),
     ).toBe("rendered");
   });
+  test("classifies a settled search-first List as rendered", () => {
+    expect(
+      classifyBrowserOutcome({
+        scene: {
+          kind: "list",
+          rows: 0,
+          detail: false,
+          fields: 0,
+          hasEmptyView: false,
+          hasSearchBar: true,
+          isLoading: false,
+        },
+      }),
+    ).toBe("rendered");
+    expect(
+      classifyBrowserOutcome({
+        scene: {
+          kind: "list",
+          rows: 0,
+          detail: false,
+          fields: 0,
+          hasEmptyView: false,
+          hasSearchBar: true,
+          isLoading: true,
+        },
+      }),
+    ).toBe("empty");
+  });
   test("classifies capability denials with their name", () => {
     expect(classifyBrowserOutcome({ capability: "clipboard.copy", statusError: true })).toBe(
       "capability-denied:clipboard.copy",

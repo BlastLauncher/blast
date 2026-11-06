@@ -241,6 +241,9 @@ export function createBrowserCapabilities(options: BrowserCapabilityOptions) {
       );
     if (request.name === "preferences.open")
       return denial("Preferences are managed by the browser demo host");
+    if (request.name === "applications.list") return { ok: true, value: [] };
+    if (request.name === "applications.default" || request.name === "applications.frontmost")
+      return denial("Applications are unavailable in a browser tab");
     if (request.name.startsWith("applications."))
       return denial("Applications are unavailable in a browser tab");
     if (request.name.startsWith("selection."))
