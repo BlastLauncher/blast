@@ -71,8 +71,12 @@ counterpart of `compat/SWEEP.md`.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/browser-sweep-classifier @ 27eac00
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 104.1s
 Done:
-Not done / risks:
+- Added headless production-site Chromium sweep with four-page concurrency, fresh pages, loopback serving, clipboard/open stubs, trimmed browser diagnostics, and deterministic JSON/Markdown reports.
+- Added pure outcome classifier tests for rendered, empty, capability-denied, network, runtime-error, bundle-fallback-failed, and timeout.
+- Ran all 237 catalog commands: capability-denied 82, empty 15, network 1, rendered 34, runtime-error 105, total 237.
+- Top five failure signatures: runtime-error: Cannot find module stream/promises (80); capability-denied: applications.list (50); capability-denied: storage.get (18); runtime-error: Cache requires an assigned support directory (15); runtime-error: Runtime failed: Error: Error: Cache requires an assigned support directory (8).
+Not done / risks: The sweep records current browser behavior; failures are intentionally not fixed. One command timed out into the current Ready signature and one command was classified network; generated reports include the full per-command diagnostics.
 ```

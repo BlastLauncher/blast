@@ -52,7 +52,8 @@
     "example:browser-demo:e2e": "bun examples/browser-demo/e2e.ts",
     "site:build": "bun examples/browser-demo/site.ts",
     "site:e2e": "bun examples/browser-demo/site-e2e.ts",
-    "site:smoke:browser": "bun examples/browser-demo/site-smoke-browser.ts"
+    "site:smoke:browser": "bun examples/browser-demo/site-smoke-browser.ts",
+    "site:sweep:browser": "bun examples/browser-demo/browser-sweep.ts"
   },
   "devDependencies": {
     "@blastlauncher/shared-deps": "workspace:*",

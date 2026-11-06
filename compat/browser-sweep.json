@@ -1,0 +1,2715 @@
+{
+  "schema": 1,
+  "commit": "bad7de0172ce6ea5e721ed919f4e1d7186f74192",
+  "date": "2026-11-06",
+  "commands": 237,
+  "wallTimeMs": 32370,
+  "totals": {
+    "capability-denied:applications.frontmost": 1,
+    "capability-denied:applications.list": 50,
+    "capability-denied:clipboard.read": 5,
+    "capability-denied:selection.text": 4,
+    "capability-denied:storage.all": 3,
+    "capability-denied:storage.get": 18,
+    "capability-denied:storage.set": 1,
+    "empty": 15,
+    "network": 1,
+    "rendered": 34,
+    "runtime-error:Cache requires an assigned support directory": 15,
+    "runtime-error:Cannot read properties of undefined (reading '$and')": 1,
+    "runtime-error:Ready": 1,
+    "runtime-error:Runtime failed: Error: Error: Cache requires an assigned support directory": 8,
+    "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'": 80
+  },
+  "capabilities": {
+    "applications.frontmost": 1,
+    "applications.list": 50,
+    "clipboard.read": 5,
+    "selection.text": 4,
+    "storage.all": 3,
+    "storage.get": 18,
+    "storage.set": 1
+  },
+  "results": [
+    {
+      "extension": "8-divide",
+      "command": "divide-by-8",
+      "title": "Divide by 8",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/8-divide",
+      "outcome": "capability-denied:selection.text",
+      "status": "selection.text is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 491
+    },
+    {
+      "extension": "advanced-replace",
+      "command": "advanced-replace",
+      "title": "Extract and Replace Text",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/advanced-replace",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 228
+    },
+    {
+      "extension": "android-versions",
+      "command": "search-android-version",
+      "title": "Search Android Version",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/android-versions",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 470
+    },
+    {
+      "extension": "anilist-airing-schedule",
+      "command": "index",
+      "title": "Get Airing Schedule",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/anilist-airing-schedule",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 227
+    },
+    {
+      "extension": "appgrid",
+      "command": "index",
+      "title": "Search AppGrid",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/appgrid",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [
+        "Dropdown restore failed Error: storage.get is unavailable in the browser demo",
+        "Failed to load usage data: Error: storage.get is unavailable in the browser demo"
+      ],
+      "elapsedMs": 403
+    },
+    {
+      "extension": "atomtick",
+      "command": "analog-clock",
+      "title": "Analog Clock",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/atomtick",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cache requires an assigned support directory",
+      "status": "Runtime failed: Error: Error: Cache requires an assigned support directory",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 143
+    },
+    {
+      "extension": "axios-docs",
+      "command": "index",
+      "title": "Search Documentation",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/axios-docs",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 380
+    },
+    {
+      "extension": "biaodian",
+      "command": "biaodian",
+      "title": "Biaodian",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/biaodian",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 411
+    },
+    {
+      "extension": "bookstack",
+      "command": "search-command",
+      "title": "Search Documentation",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/bookstack",
+      "outcome": "empty",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 2152
+    },
+    {
+      "extension": "bookstack",
+      "command": "show-all-books",
+      "title": "Show All Books",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/bookstack",
+      "outcome": "empty",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "elapsedMs": 2099
+    },
+    {
+      "extension": "bookstack",
+      "command": "show-all-shelves",
+      "title": "Show All Shelves",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/bookstack",
+      "outcome": "empty",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "elapsedMs": 2265
+    },
+    {
+      "extension": "bugmenot",
+      "command": "find-login",
+      "title": "Find Login",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/bugmenot",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 244
+    },
+    {
+      "extension": "cangjie",
+      "command": "cangjie",
+      "title": "Search Cangjie Codes",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/cangjie",
+      "outcome": "capability-denied:selection.text",
+      "status": "selection.text is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [
+        "Dropdown restore failed Error: storage.get is unavailable in the browser demo"
+      ],
+      "elapsedMs": 471
+    },
+    {
+      "extension": "chakra-ui-docs",
+      "command": "components",
+      "title": "Search Components",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/chakra-ui-docs",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 104
+    },
+    {
+      "extension": "chakra-ui-docs",
+      "command": "get-started",
+      "title": "Get Started",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/chakra-ui-docs",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 119
+    },
+    {
+      "extension": "chakra-ui-docs",
+      "command": "hooks",
+      "title": "Search Hooks",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/chakra-ui-docs",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 375
+    },
+    {
+      "extension": "chakra-ui-docs",
+      "command": "styled-system",
+      "title": "Search Styled System",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/chakra-ui-docs",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 364
+    },
+    {
+      "extension": "clocky-time-tracker",
+      "command": "clock-in",
+      "title": "Clock In",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/clocky-time-tracker",
+      "outcome": "capability-denied:storage.get",
+      "status": "storage.get is unavailable in the browser demo",
+      "pageErrors": [
+        "storage.get is unavailable in the browser demo"
+      ],
+      "consoleErrors": [],
+      "elapsedMs": 356
+    },
+    {
+      "extension": "clocky-time-tracker",
+      "command": "clock-out",
+      "title": "Clock Out",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/clocky-time-tracker",
+      "outcome": "capability-denied:storage.get",
+      "status": "storage.get is unavailable in the browser demo",
+      "pageErrors": [
+        "storage.get is unavailable in the browser demo"
+      ],
+      "consoleErrors": [],
+      "elapsedMs": 368
+    },
+    {
+      "extension": "clocky-time-tracker",
+      "command": "history",
+      "title": "Adjust Entries",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/clocky-time-tracker",
+      "outcome": "capability-denied:storage.get",
+      "status": "storage.get is unavailable in the browser demo",
+      "pageErrors": [
+        "storage.get is unavailable in the browser demo"
+      ],
+      "consoleErrors": [],
+      "elapsedMs": 365
+    },
+    {
+      "extension": "clocky-time-tracker",
+      "command": "status",
+      "title": "Status",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/clocky-time-tracker",
+      "outcome": "capability-denied:storage.get",
+      "status": "storage.get is unavailable in the browser demo",
+      "pageErrors": [
+        "storage.get is unavailable in the browser demo"
+      ],
+      "consoleErrors": [],
+      "elapsedMs": 384
+    },
+    {
+      "extension": "clocky-time-tracker",
+      "command": "today",
+      "title": "Today",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/clocky-time-tracker",
+      "outcome": "capability-denied:storage.get",
+      "status": "storage.get is unavailable in the browser demo",
+      "pageErrors": [
+        "storage.get is unavailable in the browser demo"
+      ],
+      "consoleErrors": [],
+      "elapsedMs": 392
+    },
+    {
+      "extension": "clocky-time-tracker",
+      "command": "toggle-pause",
+      "title": "Toggle Pause",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/clocky-time-tracker",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 371
+    },
+    {
+      "extension": "clocky-time-tracker",
+      "command": "week",
+      "title": "Week",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/clocky-time-tracker",
+      "outcome": "capability-denied:storage.get",
+      "status": "storage.get is unavailable in the browser demo",
+      "pageErrors": [
+        "storage.get is unavailable in the browser demo"
+      ],
+      "consoleErrors": [],
+      "elapsedMs": 384
+    },
+    {
+      "extension": "code-review-emojis",
+      "command": "index",
+      "title": "Show Review Emoji",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/code-review-emojis",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 418
+    },
+    {
+      "extension": "codepen",
+      "command": "create-collection",
+      "title": "Create Collection",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/codepen",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 152
+    },
+    {
+      "extension": "codepen",
+      "command": "create-pen",
+      "title": "Create Pen",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/codepen",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 166
+    },
+    {
+      "extension": "codepen",
+      "command": "search-assets",
+      "title": "Search Assets",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/codepen",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 247
+    },
+    {
+      "extension": "codepen",
+      "command": "search-collections",
+      "title": "Search Collections",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/codepen",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 220
+    },
+    {
+      "extension": "codepen",
+      "command": "search-pens",
+      "title": "Search Pens",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/codepen",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 230
+    },
+    {
+      "extension": "codepen",
+      "command": "upload-asset",
+      "title": "Upload Asset",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/codepen",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 169
+    },
+    {
+      "extension": "codex-reset-forecast",
+      "command": "check-reset-forecast",
+      "title": "Check Reset Forecast",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/codex-reset-forecast",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 192
+    },
+    {
+      "extension": "codex-reset-forecast",
+      "command": "reset-history-calendar",
+      "title": "View Reset Calendar",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/codex-reset-forecast",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 221
+    },
+    {
+      "extension": "codex-reset-forecast",
+      "command": "toggle-reset-forecast-menu-bar",
+      "title": "Show Reset Forecast in Menu Bar",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/codex-reset-forecast",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 190
+    },
+    {
+      "extension": "color-studio-picker",
+      "command": "index",
+      "title": "Pick a Color",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/color-studio-picker",
+      "outcome": "capability-denied:selection.text",
+      "status": "selection.text is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 597
+    },
+    {
+      "extension": "conventional-commits",
+      "command": "commit-message-structure",
+      "title": "View Conventional Commit Message Structure",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/conventional-commits",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 494
+    },
+    {
+      "extension": "conventional-commits",
+      "command": "index",
+      "title": "Insert Conventional Commit Prefix",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/conventional-commits",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 486
+    },
+    {
+      "extension": "convert-px-to-vw-vh",
+      "command": "height",
+      "title": "Pixels Viewport Height",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/convert-px-to-vw-vh",
+      "outcome": "empty",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 2197
+    },
+    {
+      "extension": "convert-px-to-vw-vh",
+      "command": "index",
+      "title": "Convert PX to VW or VH",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/convert-px-to-vw-vh",
+      "outcome": "capability-denied:storage.get",
+      "status": "storage.get is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [
+        "Form field restore failed Error: storage.get is unavailable in the browser demo"
+      ],
+      "elapsedMs": 490
+    },
+    {
+      "extension": "convert-px-to-vw-vh",
+      "command": "menu-bar",
+      "title": "Conversion History",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/convert-px-to-vw-vh",
+      "outcome": "runtime-error:Cache requires an assigned support directory",
+      "status": "Cache requires an assigned support directory",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 485
+    },
+    {
+      "extension": "convert-px-to-vw-vh",
+      "command": "width",
+      "title": "Pixels Viewport Width",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/convert-px-to-vw-vh",
+      "outcome": "empty",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 2234
+    },
+    {
+      "extension": "devpod",
+      "command": "workspaces-manage",
+      "title": "DevPod Workspaces",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/devpod",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 191
+    },
+    {
+      "extension": "dice-tiles",
+      "command": "index",
+      "title": "Dice Tiles",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/dice-tiles",
+      "outcome": "capability-denied:storage.get",
+      "status": "storage.get is unavailable in the browser demo",
+      "pageErrors": [
+        "storage.get is unavailable in the browser demo"
+      ],
+      "consoleErrors": [],
+      "elapsedMs": 420
+    },
+    {
+      "extension": "donut",
+      "command": "show-donut",
+      "title": "Show Donut",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/donut",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 347
+    },
+    {
+      "extension": "dot-new",
+      "command": "index",
+      "title": ".new",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/dot-new",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 119
+    },
+    {
+      "extension": "douban",
+      "command": "search-books",
+      "title": "Search Books",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/douban",
+      "outcome": "runtime-error:Cache requires an assigned support directory",
+      "status": "Cache requires an assigned support directory",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 423
+    },
+    {
+      "extension": "douban",
+      "command": "search-games",
+      "title": "Search Games",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/douban",
+      "outcome": "runtime-error:Cache requires an assigned support directory",
+      "status": "Cache requires an assigned support directory",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 401
+    },
+    {
+      "extension": "douban",
+      "command": "search-groups",
+      "title": "Search Groups",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/douban",
+      "outcome": "runtime-error:Cache requires an assigned support directory",
+      "status": "Cache requires an assigned support directory",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 474
+    },
+    {
+      "extension": "douban",
+      "command": "search-movies",
+      "title": "Search Movies",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/douban",
+      "outcome": "runtime-error:Cache requires an assigned support directory",
+      "status": "Cache requires an assigned support directory",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 470
+    },
+    {
+      "extension": "douban",
+      "command": "search-music",
+      "title": "Search Music",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/douban",
+      "outcome": "runtime-error:Cache requires an assigned support directory",
+      "status": "Cache requires an assigned support directory",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 450
+    },
+    {
+      "extension": "douban",
+      "command": "search-sites",
+      "title": "Search Sites",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/douban",
+      "outcome": "runtime-error:Cache requires an assigned support directory",
+      "status": "Cache requires an assigned support directory",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 525
+    },
+    {
+      "extension": "douban",
+      "command": "search-users",
+      "title": "Search Users",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/douban",
+      "outcome": "runtime-error:Cache requires an assigned support directory",
+      "status": "Cache requires an assigned support directory",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 524
+    },
+    {
+      "extension": "duan-raycast-extension",
+      "command": "list-links",
+      "title": "List Links",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/duan-raycast-extension",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 260
+    },
+    {
+      "extension": "duan-raycast-extension",
+      "command": "shorten-link",
+      "title": "Shorten Link",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/duan-raycast-extension",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 184
+    },
+    {
+      "extension": "ego-lite",
+      "command": "new-tab",
+      "title": "New Tab",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/ego-lite",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 180
+    },
+    {
+      "extension": "ego-lite",
+      "command": "search-bookmarks",
+      "title": "Search Bookmarks",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/ego-lite",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 174
+    },
+    {
+      "extension": "ego-lite",
+      "command": "search-history",
+      "title": "Search History",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/ego-lite",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 245
+    },
+    {
+      "extension": "evernote",
+      "command": "search-notes",
+      "title": "Search Notes",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/evernote",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 244
+    },
+    {
+      "extension": "evernote",
+      "command": "search-tasks",
+      "title": "Search Open Tasks",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/evernote",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 204
+    },
+    {
+      "extension": "fibonacci-sequence",
+      "command": "index",
+      "title": "Fibonacci Sequence",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/fibonacci-sequence",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 451
+    },
+    {
+      "extension": "fix-helper",
+      "command": "fix-parser",
+      "title": "Parse FIX Messages",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/fix-helper",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 477
+    },
+    {
+      "extension": "fix-helper",
+      "command": "fix-search-tags",
+      "title": "Search FIX Tags",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/fix-helper",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 531
+    },
+    {
+      "extension": "flighty",
+      "command": "view-flights",
+      "title": "View Flights",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/flighty",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 209
+    },
+    {
+      "extension": "google-cloud-run",
+      "command": "index",
+      "title": "Migrate Traffic",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/google-cloud-run",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 151
+    },
+    {
+      "extension": "google-maps-search",
+      "command": "find",
+      "title": "Search Google Maps",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/google-maps-search",
+      "outcome": "capability-denied:storage.get",
+      "status": "storage.get is unavailable in the browser demo",
+      "pageErrors": [
+        "storage.get is unavailable in the browser demo"
+      ],
+      "consoleErrors": [],
+      "elapsedMs": 382
+    },
+    {
+      "extension": "google-maps-search",
+      "command": "travelTo",
+      "title": "Get Me Somewhere",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/google-maps-search",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 399
+    },
+    {
+      "extension": "gradle-plugins",
+      "command": "index",
+      "title": "Search Plugin",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/gradle-plugins",
+      "outcome": "network",
+      "status": "Ready",
+      "pageErrors": [
+        "Network Error"
+      ],
+      "consoleErrors": [
+        "Access to XMLHttpRequest at 'https://plugins.gradle.org/search' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+        "Failed to load resource: net::ERR_FAILED"
+      ],
+      "elapsedMs": 2202
+    },
+    {
+      "extension": "hetzner",
+      "command": "addProject",
+      "title": "Add Project",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/hetzner",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 434
+    },
+    {
+      "extension": "hetzner",
+      "command": "manageProject",
+      "title": "Manage Projects",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/hetzner",
+      "outcome": "capability-denied:storage.all",
+      "status": "storage.all is unavailable in the browser demo",
+      "pageErrors": [
+        "storage.all is unavailable in the browser demo"
+      ],
+      "consoleErrors": [],
+      "elapsedMs": 424
+    },
+    {
+      "extension": "hetzner",
+      "command": "manageServer",
+      "title": "Manage Servers",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/hetzner",
+      "outcome": "capability-denied:storage.all",
+      "status": "storage.all is unavailable in the browser demo",
+      "pageErrors": [
+        "storage.all is unavailable in the browser demo"
+      ],
+      "consoleErrors": [],
+      "elapsedMs": 403
+    },
+    {
+      "extension": "hevy",
+      "command": "search-routines",
+      "title": "Search Routines",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/hevy",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 146
+    },
+    {
+      "extension": "hevy",
+      "command": "search-workouts",
+      "title": "Search Workouts",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/hevy",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 143
+    },
+    {
+      "extension": "humaans",
+      "command": "clock-in",
+      "title": "Clock In",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/humaans",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cache requires an assigned support directory",
+      "status": "Runtime failed: Error: Error: Cache requires an assigned support directory",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 156
+    },
+    {
+      "extension": "humaans",
+      "command": "clock-out",
+      "title": "Clock Out",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/humaans",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cache requires an assigned support directory",
+      "status": "Runtime failed: Error: Error: Cache requires an assigned support directory",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 221
+    },
+    {
+      "extension": "humaans",
+      "command": "holidays",
+      "title": "View Holidays",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/humaans",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cache requires an assigned support directory",
+      "status": "Runtime failed: Error: Error: Cache requires an assigned support directory",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 201
+    },
+    {
+      "extension": "humaans",
+      "command": "people",
+      "title": "View People",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/humaans",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cache requires an assigned support directory",
+      "status": "Runtime failed: Error: Error: Cache requires an assigned support directory",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 166
+    },
+    {
+      "extension": "hyrule-compendium-search",
+      "command": "broadSearch",
+      "title": "Search Entries",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/hyrule-compendium-search",
+      "outcome": "runtime-error:Cache requires an assigned support directory",
+      "status": "Cache requires an assigned support directory",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 466
+    },
+    {
+      "extension": "hyrule-compendium-search",
+      "command": "getEntry",
+      "title": "Get Entry",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/hyrule-compendium-search",
+      "outcome": "runtime-error:Cannot read properties of undefined (reading '$and')",
+      "status": "Cannot read properties of undefined (reading '$and')",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 455
+    },
+    {
+      "extension": "input-source-switcher",
+      "command": "form",
+      "title": "Switch Input Source Form",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/input-source-switcher",
+      "outcome": "capability-denied:applications.frontmost",
+      "status": "applications.frontmost is unavailable in the browser demo",
+      "pageErrors": [
+        "applications.frontmost is unavailable in the browser demo"
+      ],
+      "consoleErrors": [],
+      "elapsedMs": 388
+    },
+    {
+      "extension": "input-source-switcher",
+      "command": "index",
+      "title": "Switch Input Source",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/input-source-switcher",
+      "outcome": "capability-denied:selection.text",
+      "status": "selection.text is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 438
+    },
+    {
+      "extension": "invisible-text-detector",
+      "command": "analyze-clipboard-invisible-characters",
+      "title": "Analyze Clipboard for Invisible Characters",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/invisible-text-detector",
+      "outcome": "capability-denied:clipboard.read",
+      "status": "clipboard.read is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 438
+    },
+    {
+      "extension": "invisible-text-detector",
+      "command": "fix-invisible-characters",
+      "title": "Fix Invisible Characters",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/invisible-text-detector",
+      "outcome": "capability-denied:clipboard.read",
+      "status": "clipboard.read is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 439
+    },
+    {
+      "extension": "invisible-text-detector",
+      "command": "open-invisible-text-detector",
+      "title": "Open Invisible Text Detector",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/invisible-text-detector",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 489
+    },
+    {
+      "extension": "jisho",
+      "command": "history",
+      "title": "Search History",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/jisho",
+      "outcome": "runtime-error:Cache requires an assigned support directory",
+      "status": "Cache requires an assigned support directory",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 488
+    },
+    {
+      "extension": "jisho",
+      "command": "search",
+      "title": "Translate Japanese",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/jisho",
+      "outcome": "runtime-error:Cache requires an assigned support directory",
+      "status": "Cache requires an assigned support directory",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 488
+    },
+    {
+      "extension": "kaalam",
+      "command": "index",
+      "title": "Show Time",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/kaalam",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 461
+    },
+    {
+      "extension": "kagi-search",
+      "command": "index",
+      "title": "Search Kagi",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/kagi-search",
+      "outcome": "capability-denied:storage.get",
+      "status": "storage.get is unavailable in the browser demo",
+      "pageErrors": [
+        "storage.get is unavailable in the browser demo"
+      ],
+      "consoleErrors": [],
+      "elapsedMs": 493
+    },
+    {
+      "extension": "keeper-security",
+      "command": "generate-passphrase",
+      "title": "Generate Passphrase",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/keeper-security",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 527
+    },
+    {
+      "extension": "keeper-security",
+      "command": "generate-password",
+      "title": "Generate Password",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/keeper-security",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 262
+    },
+    {
+      "extension": "keeper-security",
+      "command": "generate-password-quick",
+      "title": "Generate Password - Quick",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/keeper-security",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 470
+    },
+    {
+      "extension": "keeper-security",
+      "command": "my-vault",
+      "title": "My Vault",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/keeper-security",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 117
+    },
+    {
+      "extension": "keygen",
+      "command": "api-tokens",
+      "title": "View API Tokens",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/keygen",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 154
+    },
+    {
+      "extension": "keygen",
+      "command": "api-usage",
+      "title": "API Usage",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/keygen",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 275
+    },
+    {
+      "extension": "keygen",
+      "command": "environments",
+      "title": "View Environments",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/keygen",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 261
+    },
+    {
+      "extension": "keygen",
+      "command": "licenses",
+      "title": "View Licenses",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/keygen",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 233
+    },
+    {
+      "extension": "keygen",
+      "command": "policies",
+      "title": "View Policies",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/keygen",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 177
+    },
+    {
+      "extension": "keygen",
+      "command": "products",
+      "title": "View Products",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/keygen",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 254
+    },
+    {
+      "extension": "keygen",
+      "command": "users",
+      "title": "View Users",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/keygen",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 273
+    },
+    {
+      "extension": "laravel-artisan",
+      "command": "index",
+      "title": "Search Console Commands",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/laravel-artisan",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 273
+    },
+    {
+      "extension": "laravel-shift",
+      "command": "generate-shift",
+      "title": "Generate Shift Command",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/laravel-shift",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 476
+    },
+    {
+      "extension": "leap-new",
+      "command": "generate-app",
+      "title": "Generate App",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/leap-new",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 223
+    },
+    {
+      "extension": "leap-new",
+      "command": "menu-bar",
+      "title": "Menu Bar",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/leap-new",
+      "outcome": "empty",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 2204
+    },
+    {
+      "extension": "leetcode",
+      "command": "daily-challenge",
+      "title": "View LeetCode Daily Challenge",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/leetcode",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 228
+    },
+    {
+      "extension": "leetcode",
+      "command": "potd-menu-bar",
+      "title": "Daily Challenge Status",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/leetcode",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 201
+    },
+    {
+      "extension": "leetcode",
+      "command": "problem-search",
+      "title": "Search LeetCode Problems",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/leetcode",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 205
+    },
+    {
+      "extension": "leetcode",
+      "command": "random-problem",
+      "title": "Pick a Random LeetCode Problem",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/leetcode",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 182
+    },
+    {
+      "extension": "leetcode",
+      "command": "user-profile",
+      "title": "View LeetCode User Profile",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/leetcode",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 220
+    },
+    {
+      "extension": "markdown-reference",
+      "command": "markdown-reference",
+      "title": "Search Markdown Syntax",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/markdown-reference",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 452
+    },
+    {
+      "extension": "mbta-tracker",
+      "command": "browse-stops",
+      "title": "Browse Stops",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/mbta-tracker",
+      "outcome": "runtime-error:Cache requires an assigned support directory",
+      "status": "Cache requires an assigned support directory",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 452
+    },
+    {
+      "extension": "mbta-tracker",
+      "command": "view-favorites",
+      "title": "View Favorites",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/mbta-tracker",
+      "outcome": "capability-denied:storage.get",
+      "status": "storage.get is unavailable in the browser demo",
+      "pageErrors": [
+        "storage.get is unavailable in the browser demo"
+      ],
+      "consoleErrors": [],
+      "elapsedMs": 414
+    },
+    {
+      "extension": "mealie",
+      "command": "add-to-shopping-list",
+      "title": "Add to Shopping List",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/mealie",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 178
+    },
+    {
+      "extension": "mealie",
+      "command": "import-recipe",
+      "title": "Import Recipe",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/mealie",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 186
+    },
+    {
+      "extension": "mealie",
+      "command": "meal-plan",
+      "title": "Meal Plan",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/mealie",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 215
+    },
+    {
+      "extension": "mealie",
+      "command": "search-recipes",
+      "title": "Search Recipes",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/mealie",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 172
+    },
+    {
+      "extension": "mealie",
+      "command": "shopping-lists",
+      "title": "Shopping Lists",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/mealie",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 172
+    },
+    {
+      "extension": "melanite-search",
+      "command": "search-files",
+      "title": "Search Files",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/melanite-search",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 203
+    },
+    {
+      "extension": "menucloak",
+      "command": "open-settings",
+      "title": "Open MenuCloak Settings",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/menucloak",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 445
+    },
+    {
+      "extension": "menucloak",
+      "command": "set-focus",
+      "title": "Set Focus Text",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/menucloak",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 446
+    },
+    {
+      "extension": "menucloak",
+      "command": "toggle",
+      "title": "Toggle MenuCloak",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/menucloak",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 383
+    },
+    {
+      "extension": "menucloak",
+      "command": "turn-off",
+      "title": "Turn off MenuCloak",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/menucloak",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 419
+    },
+    {
+      "extension": "menucloak",
+      "command": "turn-on",
+      "title": "Turn on MenuCloak",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/menucloak",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 419
+    },
+    {
+      "extension": "mise-window-sets",
+      "command": "apply-set",
+      "title": "Apply Set",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/mise-window-sets",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 212
+    },
+    {
+      "extension": "mise-window-sets",
+      "command": "reload-sets",
+      "title": "Reload Sets",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/mise-window-sets",
+      "outcome": "empty",
+      "status": "Command exited",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 2176
+    },
+    {
+      "extension": "multi-ai-chat",
+      "command": "multi-ai-chat",
+      "title": "Multi AI Chat",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/multi-ai-chat",
+      "outcome": "capability-denied:storage.get",
+      "status": "storage.get is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [
+        "Form field restore failed Error: storage.get is unavailable in the browser demo",
+        "Form field restore failed Error: storage.get is unavailable in the browser demo",
+        "Form field restore failed Error: storage.get is unavailable in the browser demo",
+        "Form field restore failed Error: storage.get is unavailable in the browser demo"
+      ],
+      "elapsedMs": 457
+    },
+    {
+      "extension": "multi-ai-chat",
+      "command": "run-presets",
+      "title": "Saved Prompts",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/multi-ai-chat",
+      "outcome": "capability-denied:storage.all",
+      "status": "storage.all is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 438
+    },
+    {
+      "extension": "nano-games",
+      "command": "play-nano-snake",
+      "title": "Play Nano Snake",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/nano-games",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 186
+    },
+    {
+      "extension": "nterm-calculator",
+      "command": "nterm-calculator",
+      "title": "N-Term Grade Calculator",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/nterm-calculator",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 394
+    },
+    {
+      "extension": "ohmyzsh-git-alias",
+      "command": "index",
+      "title": "Git Alias",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/ohmyzsh-git-alias",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 419
+    },
+    {
+      "extension": "one-thing",
+      "command": "remove-one-thing",
+      "title": "Remove One Thing",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/one-thing",
+      "outcome": "runtime-error:Cache requires an assigned support directory",
+      "status": "Cache requires an assigned support directory",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 430
+    },
+    {
+      "extension": "one-thing",
+      "command": "set-one-thing",
+      "title": "Set One Thing",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/one-thing",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cache requires an assigned support directory",
+      "status": "Runtime failed: Error: Error: Cache requires an assigned support directory",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 122
+    },
+    {
+      "extension": "one-thing",
+      "command": "show-one-thing",
+      "title": "One Thing",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/one-thing",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cache requires an assigned support directory",
+      "status": "Runtime failed: Error: Error: Cache requires an assigned support directory",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 141
+    },
+    {
+      "extension": "openweathermap",
+      "command": "weather",
+      "title": "Weather",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/openweathermap",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 463
+    },
+    {
+      "extension": "parcel",
+      "command": "add-delivery",
+      "title": "Add Delivery",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/parcel",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 166
+    },
+    {
+      "extension": "parcel",
+      "command": "my-deliveries",
+      "title": "My Deliveries",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/parcel",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 161
+    },
+    {
+      "extension": "pbr-assistant",
+      "command": "find-pbr-ior-value",
+      "title": "Find PBR/IOR Value",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/pbr-assistant",
+      "outcome": "empty",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 2149
+    },
+    {
+      "extension": "pinch-svg",
+      "command": "custom-rectangle",
+      "title": "Create SVG rectangle using pixels",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/pinch-svg",
+      "outcome": "empty",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 2123
+    },
+    {
+      "extension": "pinch-svg",
+      "command": "grid",
+      "title": "Copy SVG Spacing Increment",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/pinch-svg",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 124
+    },
+    {
+      "extension": "pokemon-tcg-pocket-binder",
+      "command": "pokemon-tcg-pocket-binder",
+      "title": "Pokémon Tcg Pocket",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/pokemon-tcg-pocket-binder",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 366
+    },
+    {
+      "extension": "portless",
+      "command": "list",
+      "title": "List Active Routes",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/portless",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 129
+    },
+    {
+      "extension": "promptty",
+      "command": "search-promptty",
+      "title": "Search Promptty",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/promptty",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 147
+    },
+    {
+      "extension": "punch-clock",
+      "command": "menu-bar",
+      "title": "Work Timer",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/punch-clock",
+      "outcome": "capability-denied:storage.get",
+      "status": "storage.get is unavailable in the browser demo",
+      "pageErrors": [
+        "storage.set is unavailable in the browser demo"
+      ],
+      "consoleErrors": [],
+      "elapsedMs": 383
+    },
+    {
+      "extension": "punch-clock",
+      "command": "start-timer",
+      "title": "Start Work Timer",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/punch-clock",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 106
+    },
+    {
+      "extension": "px-to-rem-converter",
+      "command": "index",
+      "title": "Convert PX to REM",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/px-to-rem-converter",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 374
+    },
+    {
+      "extension": "quick-jump",
+      "command": "search",
+      "title": "Search",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/quick-jump",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [
+        "Failed to load configuration: Error: JSON file path is not configured. Please set it in extension preferences.",
+        "Failed to fetch applications: Error: applications.list is unavailable in the browser demo"
+      ],
+      "elapsedMs": 362
+    },
+    {
+      "extension": "radix",
+      "command": "colors",
+      "title": "Radix Colors",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/radix",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 363
+    },
+    {
+      "extension": "radix",
+      "command": "primitives",
+      "title": "Radix Primitives",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/radix",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 358
+    },
+    {
+      "extension": "radix",
+      "command": "themes",
+      "title": "Radix Themes",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/radix",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 360
+    },
+    {
+      "extension": "random-color",
+      "command": "select-color",
+      "title": "Select Color",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/random-color",
+      "outcome": "capability-denied:storage.get",
+      "status": "storage.get is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [
+        "Dropdown restore failed Error: storage.get is unavailable in the browser demo"
+      ],
+      "elapsedMs": 360
+    },
+    {
+      "extension": "ratio-calculator",
+      "command": "calculate-ratio",
+      "title": "Calculate Ratio",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/ratio-calculator",
+      "outcome": "empty",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 2144
+    },
+    {
+      "extension": "raytyping",
+      "command": "raytype",
+      "title": "Start Raytyping",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/raytyping",
+      "outcome": "capability-denied:storage.get",
+      "status": "storage.get is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [
+        "Dropdown restore failed Error: storage.get is unavailable in the browser demo"
+      ],
+      "elapsedMs": 365
+    },
+    {
+      "extension": "rectangle",
+      "command": "almost-maximize",
+      "title": "Almost Maximize",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 373
+    },
+    {
+      "extension": "rectangle",
+      "command": "bottom-center-sixth",
+      "title": "Bottom Center Sixth",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 367
+    },
+    {
+      "extension": "rectangle",
+      "command": "bottom-half",
+      "title": "Bottom Half",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 364
+    },
+    {
+      "extension": "rectangle",
+      "command": "bottom-left",
+      "title": "Bottom Left",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 366
+    },
+    {
+      "extension": "rectangle",
+      "command": "bottom-left-sixth",
+      "title": "Bottom Left Sixth",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 358
+    },
+    {
+      "extension": "rectangle",
+      "command": "bottom-right",
+      "title": "Bottom Right",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 365
+    },
+    {
+      "extension": "rectangle",
+      "command": "bottom-right-sixth",
+      "title": "Bottom Right Sixth",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 365
+    },
+    {
+      "extension": "rectangle",
+      "command": "cascade-all",
+      "title": "Cascade All",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 378
+    },
+    {
+      "extension": "rectangle",
+      "command": "center",
+      "title": "Center",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 364
+    },
+    {
+      "extension": "rectangle",
+      "command": "center-half",
+      "title": "Half Width Center",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 352
+    },
+    {
+      "extension": "rectangle",
+      "command": "center-third",
+      "title": "Center Third",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 353
+    },
+    {
+      "extension": "rectangle",
+      "command": "first-fourth",
+      "title": "First Fourth",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 361
+    },
+    {
+      "extension": "rectangle",
+      "command": "first-third",
+      "title": "First Third",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 360
+    },
+    {
+      "extension": "rectangle",
+      "command": "first-three-fourths",
+      "title": "First Three Fourths",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 345
+    },
+    {
+      "extension": "rectangle",
+      "command": "first-two-thirds",
+      "title": "First Two Thirds",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 363
+    },
+    {
+      "extension": "rectangle",
+      "command": "index",
+      "title": "Rectangle Actions",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [
+        "applications.list is unavailable in the browser demo"
+      ],
+      "consoleErrors": [],
+      "elapsedMs": 426
+    },
+    {
+      "extension": "rectangle",
+      "command": "larger",
+      "title": "Make Larger",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 390
+    },
+    {
+      "extension": "rectangle",
+      "command": "last-fourth",
+      "title": "Last Fourth",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 362
+    },
+    {
+      "extension": "rectangle",
+      "command": "last-third",
+      "title": "Last Third",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 372
+    },
+    {
+      "extension": "rectangle",
+      "command": "last-three-fourths",
+      "title": "Last Three Fourths",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 418
+    },
+    {
+      "extension": "rectangle",
+      "command": "last-two-thirds",
+      "title": "Last Two Thirds",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 407
+    },
+    {
+      "extension": "rectangle",
+      "command": "left-half",
+      "title": "Left Half",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 377
+    },
+    {
+      "extension": "rectangle",
+      "command": "maximize",
+      "title": "Maximize",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 366
+    },
+    {
+      "extension": "rectangle",
+      "command": "maximize-height",
+      "title": "Maximize Height",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 465
+    },
+    {
+      "extension": "rectangle",
+      "command": "move-down",
+      "title": "Move Down",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 480
+    },
+    {
+      "extension": "rectangle",
+      "command": "move-left",
+      "title": "Move Left",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 400
+    },
+    {
+      "extension": "rectangle",
+      "command": "move-right",
+      "title": "Move Right",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 358
+    },
+    {
+      "extension": "rectangle",
+      "command": "move-up",
+      "title": "Move Up",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 510
+    },
+    {
+      "extension": "rectangle",
+      "command": "next-display",
+      "title": "Next Display",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 489
+    },
+    {
+      "extension": "rectangle",
+      "command": "previous-display",
+      "title": "Previous Display",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 469
+    },
+    {
+      "extension": "rectangle",
+      "command": "restore",
+      "title": "Restore",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 407
+    },
+    {
+      "extension": "rectangle",
+      "command": "right-half",
+      "title": "Right Half",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 495
+    },
+    {
+      "extension": "rectangle",
+      "command": "second-fourth",
+      "title": "Second Fourth",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 494
+    },
+    {
+      "extension": "rectangle",
+      "command": "smaller",
+      "title": "Make Smaller",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 482
+    },
+    {
+      "extension": "rectangle",
+      "command": "specified",
+      "title": "Reasonable Size",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 498
+    },
+    {
+      "extension": "rectangle",
+      "command": "third-fourth",
+      "title": "Third Fourth",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 517
+    },
+    {
+      "extension": "rectangle",
+      "command": "top-center-sixth",
+      "title": "Top Center Sixth",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 500
+    },
+    {
+      "extension": "rectangle",
+      "command": "top-half",
+      "title": "Top Half",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 500
+    },
+    {
+      "extension": "rectangle",
+      "command": "top-left",
+      "title": "Top Left",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 499
+    },
+    {
+      "extension": "rectangle",
+      "command": "top-left-sixth",
+      "title": "Top Left Sixth",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 501
+    },
+    {
+      "extension": "rectangle",
+      "command": "top-right",
+      "title": "Top Right",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 501
+    },
+    {
+      "extension": "rectangle",
+      "command": "top-right-sixth",
+      "title": "Top Right Sixth",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 498
+    },
+    {
+      "extension": "ring-intercom",
+      "command": "authenticate",
+      "title": "Authenticate",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/ring-intercom",
+      "outcome": "capability-denied:storage.get",
+      "status": "storage.get is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [
+        "Initialization failed: Error: storage.get is unavailable in the browser demo"
+      ],
+      "elapsedMs": 514
+    },
+    {
+      "extension": "ring-intercom",
+      "command": "unlock",
+      "title": "Unlock Door",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/ring-intercom",
+      "outcome": "capability-denied:storage.get",
+      "status": "storage.get is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [
+        "Error during unlock process: Error: storage.get is unavailable in the browser demo"
+      ],
+      "elapsedMs": 736
+    },
+    {
+      "extension": "rtl-reader",
+      "command": "rtl-text",
+      "title": "RTL Text Formatter",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rtl-reader",
+      "outcome": "capability-denied:clipboard.read",
+      "status": "clipboard.read is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 587
+    },
+    {
+      "extension": "saved-items",
+      "command": "index",
+      "title": "Saved Items",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/saved-items",
+      "outcome": "capability-denied:storage.set",
+      "status": "storage.set is unavailable in the browser demo",
+      "pageErrors": [
+        "storage.get is unavailable in the browser demo",
+        "storage.set is unavailable in the browser demo"
+      ],
+      "consoleErrors": [],
+      "elapsedMs": 568
+    },
+    {
+      "extension": "scrapbook",
+      "command": "search-users",
+      "title": "Search Users",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/scrapbook",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 324
+    },
+    {
+      "extension": "scrapbook",
+      "command": "search-users-posts",
+      "title": "Search User's Posts",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/scrapbook",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 143
+    },
+    {
+      "extension": "scrapbook",
+      "command": "view-recent-posts",
+      "title": "View Recent Posts",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/scrapbook",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 242
+    },
+    {
+      "extension": "sf-symbols-search",
+      "command": "index",
+      "title": "Search SF Symbols",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/sf-symbols-search",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cache requires an assigned support directory",
+      "status": "Runtime failed: Error: Error: Cache requires an assigned support directory",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 170
+    },
+    {
+      "extension": "spacejump",
+      "command": "list-spaces",
+      "title": "List Spaces",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/spacejump",
+      "outcome": "empty",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 2160
+    },
+    {
+      "extension": "spacejump",
+      "command": "switch-space",
+      "title": "Jump to Space",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/spacejump",
+      "outcome": "empty",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 2209
+    },
+    {
+      "extension": "splatoon",
+      "command": "splatoon-2-schedules",
+      "title": "View Schedules",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/splatoon",
+      "outcome": "runtime-error:Cache requires an assigned support directory",
+      "status": "Cache requires an assigned support directory",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 429
+    },
+    {
+      "extension": "splatoon",
+      "command": "splatoon-3-schedules",
+      "title": "View Schedules",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/splatoon",
+      "outcome": "runtime-error:Cache requires an assigned support directory",
+      "status": "Cache requires an assigned support directory",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 429
+    },
+    {
+      "extension": "stockholm-public-transport",
+      "command": "departures",
+      "title": "List Departures",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/stockholm-public-transport",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 209
+    },
+    {
+      "extension": "storybook-sandboxes",
+      "command": "local",
+      "title": "Create Local Storybook Sandbox",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/storybook-sandboxes",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 472
+    },
+    {
+      "extension": "storybook-sandboxes",
+      "command": "online",
+      "title": "Create Online Storybook Sandbox",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/storybook-sandboxes",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 427
+    },
+    {
+      "extension": "superwhisper",
+      "command": "copy-last-history",
+      "title": "Copy Last History",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/superwhisper",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 129
+    },
+    {
+      "extension": "superwhisper",
+      "command": "open-settings",
+      "title": "Open Settings",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/superwhisper",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 363
+    },
+    {
+      "extension": "superwhisper",
+      "command": "paste-last-history",
+      "title": "Paste Last History",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/superwhisper",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 124
+    },
+    {
+      "extension": "superwhisper",
+      "command": "search-history",
+      "title": "Search History",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/superwhisper",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 137
+    },
+    {
+      "extension": "superwhisper",
+      "command": "select-mode",
+      "title": "Select Mode",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/superwhisper",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 165
+    },
+    {
+      "extension": "superwhisper",
+      "command": "toggle-record",
+      "title": "Start Recording",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/superwhisper",
+      "outcome": "capability-denied:applications.list",
+      "status": "applications.list is unavailable in the browser demo",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 381
+    },
+    {
+      "extension": "tategaki",
+      "command": "japanese-vertical-text",
+      "title": "Japanese Vertical Text",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/tategaki",
+      "outcome": "capability-denied:clipboard.read",
+      "status": "clipboard.read is unavailable in the browser demo",
+      "pageErrors": [
+        "clipboard.read is unavailable in the browser demo"
+      ],
+      "consoleErrors": [],
+      "elapsedMs": 355
+    },
+    {
+      "extension": "text-decorator",
+      "command": "decorate-text-with-font",
+      "title": "Decorate Text with Font",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/text-decorator",
+      "outcome": "capability-denied:clipboard.read",
+      "status": "clipboard.read is unavailable in the browser demo",
+      "pageErrors": [
+        "storage.get is unavailable in the browser demo"
+      ],
+      "consoleErrors": [],
+      "elapsedMs": 356
+    },
+    {
+      "extension": "text-decorator",
+      "command": "undecorate-text",
+      "title": "Undecorate Text",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/text-decorator",
+      "outcome": "empty",
+      "status": "Copied (clipboard handler simulated)",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 2108
+    },
+    {
+      "extension": "time-until-i-do",
+      "command": "index",
+      "title": "Big Day Countdown",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/time-until-i-do",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 433
+    },
+    {
+      "extension": "timezone-buddy",
+      "command": "timezone-buddy",
+      "title": "Timezone Buddy",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/timezone-buddy",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 155
+    },
+    {
+      "extension": "timezone-buddy",
+      "command": "timezone-buddy-menubar",
+      "title": "Timezone Buddy Menu Bar",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/timezone-buddy",
+      "outcome": "capability-denied:storage.get",
+      "status": "storage.get is unavailable in the browser demo",
+      "pageErrors": [
+        "storage.get is unavailable in the browser demo"
+      ],
+      "consoleErrors": [],
+      "elapsedMs": 385
+    },
+    {
+      "extension": "tiny-tycho",
+      "command": "index",
+      "title": "Search Stickers",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/tiny-tycho",
+      "outcome": "empty",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 2123
+    },
+    {
+      "extension": "trenit",
+      "command": "departures-and-arrivals",
+      "title": "Check Trains Status",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/trenit",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 147
+    },
+    {
+      "extension": "uk-bank-holidays",
+      "command": "index",
+      "title": "Show Upcoming Bank Holidays in England and Wales",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/uk-bank-holidays",
+      "outcome": "runtime-error:Ready",
+      "status": "Ready",
+      "pageErrors": [
+        "hn.types.isBoxedPrimitive is not a function"
+      ],
+      "consoleErrors": [],
+      "elapsedMs": 2121
+    },
+    {
+      "extension": "url-designer",
+      "command": "create-prompt",
+      "title": "Create Prompt",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/url-designer",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 119
+    },
+    {
+      "extension": "v0-by-vercel",
+      "command": "create-project",
+      "title": "Create Project",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/v0-by-vercel",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 112
+    },
+    {
+      "extension": "v0-by-vercel",
+      "command": "manage-profiles",
+      "title": "Manage Profiles",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/v0-by-vercel",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 117
+    },
+    {
+      "extension": "v0-by-vercel",
+      "command": "new-chat",
+      "title": "New Chat",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/v0-by-vercel",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 115
+    },
+    {
+      "extension": "v0-by-vercel",
+      "command": "view-billing",
+      "title": "View Billing",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/v0-by-vercel",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 120
+    },
+    {
+      "extension": "v0-by-vercel",
+      "command": "view-chats",
+      "title": "View Chats",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/v0-by-vercel",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 111
+    },
+    {
+      "extension": "v0-by-vercel",
+      "command": "view-projects",
+      "title": "View Projects",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/v0-by-vercel",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 115
+    },
+    {
+      "extension": "valkey-commands-search",
+      "command": "search-valkey-commands",
+      "title": "Search Valkey Commands",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/valkey-commands-search",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 130
+    },
+    {
+      "extension": "vim-bro",
+      "command": "index",
+      "title": "Search Commands",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/vim-bro",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 122
+    },
+    {
+      "extension": "vocab-search",
+      "command": "vocab",
+      "title": "Vocab Search",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/vocab-search",
+      "outcome": "empty",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 2125
+    },
+    {
+      "extension": "windows-domain",
+      "command": "my-user",
+      "title": "My User",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/windows-domain",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 106
+    },
+    {
+      "extension": "windows-domain",
+      "command": "search-user",
+      "title": "Search User",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/windows-domain",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 114
+    },
+    {
+      "extension": "workflowy-inbox",
+      "command": "index",
+      "title": "Send to Workflowy Inbox",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/workflowy-inbox",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 159
+    },
+    {
+      "extension": "workflowy-inbox",
+      "command": "view",
+      "title": "View Workflowy Inbox",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/workflowy-inbox",
+      "outcome": "runtime-error:Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "status": "Runtime failed: Error: Error: Cannot find module 'stream/promises'",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 146
+    },
+    {
+      "extension": "wrike",
+      "command": "search",
+      "title": "Search Tasks",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/wrike",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 377
+    }
+  ]
+}
