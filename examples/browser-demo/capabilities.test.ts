@@ -205,7 +205,7 @@ describe("browser capabilities", () => {
   test("denials name the browser limitation", async () => {
     const handle = createBrowserCapabilities({ catalog: catalog() });
     for (const [name, phrase] of [
-      ["applications.list", "Applications"],
+      ["applications.default", "Applications"],
       ["selection.text", "Selection"],
       ["window.active", "Window management"],
       ["ai.ask", "AI access"],

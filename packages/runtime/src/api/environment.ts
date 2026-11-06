@@ -40,12 +40,6 @@ export type Environment = {
   canAccess(api: unknown): boolean;
 };
 
-const initialSupportPath =
-  typeof globalThis !== "undefined" &&
-  typeof (globalThis as Record<string, unknown>)["__blastSupportPath"] === "string"
-    ? ((globalThis as Record<string, unknown>)["__blastSupportPath"] as string)
-    : "";
-
 let availableAPIs: readonly string[] = [];
 function canAccess(api: unknown): boolean {
   const optional =
@@ -67,7 +61,7 @@ export const environment: Environment = {
   entryPointName: "",
   entryPointMode: "view",
   assetsPath: "",
-  supportPath: initialSupportPath,
+  supportPath: "",
   isDevelopment: false,
   appearance: "dark",
   textSize: "medium",

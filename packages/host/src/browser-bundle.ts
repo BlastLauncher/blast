@@ -423,8 +423,8 @@ export async function bundleForBrowser(options: BrowserBundleOptions): Promise<B
             contents: options.entryCode
               ? options.entryCode
               : options.sharedRuntime
-                ? `const __blastRuntime = globalThis.__blastRuntime;\nimport * as __blastCommand from ${JSON.stringify(command)};\nif (typeof __blastRuntime?.start === "function") __blastRuntime.start(__blastCommand);\nexport * from ${JSON.stringify(command)};\nexport default __blastCommand.default;`
-                : `import * as __blastRuntime from ${JSON.stringify(runtimeEntry)};\nimport * as __blastCommand from ${JSON.stringify(command)};\nconst __blastCommandValue = __blastCommand.default ?? __blastCommand;\nif (typeof __blastRuntime.start === "function") __blastRuntime.start({ default: __blastCommandValue });\nexport * from ${JSON.stringify(command)};\nexport default __blastCommandValue;`,
+                ? `const __blastRuntime = globalThis.__blastRuntime;\nif (typeof __blastRuntime?.start === "function") __blastRuntime.start(async () => { const __blastCommand = await import(${JSON.stringify(command)}); return { ...__blastCommand, default: __blastCommand.default ?? __blastCommand }; });`
+                : `import * as __blastRuntime from ${JSON.stringify(runtimeEntry)};\nif (typeof __blastRuntime.start === "function") __blastRuntime.start(async () => { const __blastCommand = await import(${JSON.stringify(command)}); return { ...__blastCommand, default: __blastCommand.default ?? __blastCommand }; });`,
             loader: "js",
             resolveDir: "/",
           };

@@ -26,12 +26,7 @@ export class Cache {
   private capacity: number;
 
   constructor(options: CacheOptions = {}) {
-    const browserSupportPath =
-      typeof globalThis !== "undefined" &&
-      typeof (globalThis as Record<string, unknown>)["__blastSupportPath"] === "string"
-        ? ((globalThis as Record<string, unknown>)["__blastSupportPath"] as string)
-        : "";
-    const parent = options.directory ?? (environment.supportPath || browserSupportPath);
+    const parent = options.directory ?? environment.supportPath;
     if (!parent) throw new Error("Cache requires an assigned support directory");
     this.capacity = options.capacity ?? Cache.DEFAULT_CAPACITY;
     if (!Number.isFinite(this.capacity) || this.capacity < 0)

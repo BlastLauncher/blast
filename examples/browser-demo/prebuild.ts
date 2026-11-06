@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import * as esbuild from "esbuild";
 import { bundleForBrowser } from "../../packages/host/src/browser-bundle.ts";
 import { installForBrowser, type BrowserFetch } from "../../packages/host/src/browser-install.ts";
@@ -182,10 +182,32 @@ globalThis.__blastModules = { react, "react/jsx-runtime": jsxRuntime, "react/jsx
           const relativePath = `bundles/${extension.name}/${command.name}.js`;
           await mkdir(join(output, "bundles", extension.name), { recursive: true });
           await writeFile(join(output, relativePath), bytes);
+          const assetEntries: Record<string, { path: string; bytes: number; sha256: string }> = {};
+          for (const [sourcePath, sourceValue] of files) {
+            if (sourcePath.includes("/node_modules/")) continue;
+            const assetPath = sourcePath.startsWith("/assets/")
+              ? sourcePath.slice("/assets/".length)
+              : sourcePath.startsWith("/src/")
+                ? /\.(?:cjs|css|html?|js|jsx|mjs|ts|tsx)$/iu.test(sourcePath)
+                  ? undefined
+                  : sourcePath.slice("/src/".length)
+                : sourcePath.replace(/^\//u, "");
+            if (!assetPath) continue;
+            const relativeAssetPath = `bundles/${extension.name}/files/${assetPath}`;
+            const assetBytes = Buffer.from(sourceValue);
+            await mkdir(dirname(join(output, relativeAssetPath)), { recursive: true });
+            await writeFile(join(output, relativeAssetPath), assetBytes);
+            assetEntries[assetPath] = {
+              path: relativeAssetPath,
+              bytes: assetBytes.byteLength,
+              sha256: createHash("sha256").update(assetBytes).digest("hex"),
+            };
+          }
           index.bundles[bundleKey(extension.name, command.name)] = {
             path: relativePath,
             bytes: bytes.byteLength,
             sha256: createHash("sha256").update(bytes).digest("hex"),
+            files: assetEntries,
           };
           built++;
         } catch (error) {

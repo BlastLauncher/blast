@@ -26,7 +26,7 @@ type SandboxRuntime = {
   execute(code: string, filename?: string): Promise<unknown>;
   getVFS(): {
     mkdirSync(path: string, options?: { recursive?: boolean }): void;
-    writeFileSync(path: string, data: string): void;
+    writeFileSync(path: string, data: string | Uint8Array): void;
   };
   iframe?: HTMLIFrameElement;
   terminate?: () => void;
@@ -263,9 +263,9 @@ async function launch(source: string, commandName: string): Promise<void> {
   const bundle = catalogSource ? await prebuiltBundle(source, selectedCommand) : undefined;
   let extension: Awaited<ReturnType<typeof fetchFiles>>;
   let command: string;
-  let bundled: { code: string };
+  let bundled: { code: string; files?: Map<string, BrowserFile> };
   if (bundle) {
-    extension = { files: new Map(), manifest: { name: source }, root: "" };
+    extension = { files: bundle.files, manifest: { name: source }, root: "" };
     command = `/src/${selectedCommand}.tsx`;
     bundled = bundle;
     setStatus("Starting prebuilt bundle…");
@@ -309,14 +309,29 @@ async function launch(source: string, commandName: string): Promise<void> {
   // A marker syncs directories created after a warmed sandbox was initialized.
   vfs.writeFileSync(`${supportPath}/.keep`, "");
   vfs.writeFileSync(`${assetsPath}/.keep`, "");
+  for (const [path, value] of extension.files) {
+    if (path.includes("/node_modules/")) continue;
+    const relativePath = path.startsWith("/assets/")
+      ? path.slice("/assets/".length)
+      : path.startsWith("/src/")
+        ? /\.(?:cjs|css|html?|js|jsx|mjs|ts|tsx)$/iu.test(path)
+          ? undefined
+          : path.slice("/src/".length)
+        : path.replace(/^\//u, "");
+    if (!relativePath) continue;
+    const target = `${assetsPath}/${relativePath}`;
+    vfs.mkdirSync(target.slice(0, target.lastIndexOf("/")), { recursive: true });
+    vfs.writeFileSync(target, value);
+    if (path === "/package.json") vfs.writeFileSync("/blast/assets/package.json", value);
+  }
   const channel = new MessageChannel();
   port = channel.port1;
   port.start();
   port.addEventListener("message", (event) => handleRuntime(event.data));
   try {
     await active.runtime.execute(
-      `globalThis.__blastSupportPath = ${JSON.stringify(supportPath)};\n${bundled.code}\nmodule.exports = null;`,
-      "/bundle.cjs",
+      `${bundled.code}\nmodule.exports = null;`,
+      `${assetsPath}/bundle.cjs`,
     );
   } catch (error) {
     setStatus(`Runtime failed: ${String(error)}`, true);
@@ -388,7 +403,7 @@ async function loadRuntimeCode(): Promise<string | undefined> {
 async function prebuiltBundle(
   source: string,
   command: string,
-): Promise<{ code: string } | undefined> {
+): Promise<{ code: string; files: Map<string, BrowserFile> } | undefined> {
   try {
     const index = await loadBundleIndex();
     if (!index) return undefined;
@@ -403,7 +418,21 @@ async function prebuiltBundle(
     if (!response.ok) return undefined;
     const bytes = await response.arrayBuffer();
     if (!(await bundleMatches(index, index.buildSha, key, bytes))) return undefined;
-    return { code: new TextDecoder().decode(bytes) };
+    const files = new Map<string, BrowserFile>();
+    for (const [name, file] of Object.entries(entry.files ?? {})) {
+      const assetResponse = await fetch(asset(file.path));
+      if (!assetResponse.ok) return undefined;
+      const assetBytes = await assetResponse.arrayBuffer();
+      if (assetBytes.byteLength !== file.bytes || (await sha256Hex(assetBytes)) !== file.sha256)
+        return undefined;
+      files.set(
+        `/${name}`,
+        /\.(?:cjs|css|html?|js|jsx|json|md|mjs|ts|tsx|txt|yaml|yml)$/iu.test(name)
+          ? new TextDecoder().decode(assetBytes)
+          : new Uint8Array(assetBytes),
+      );
+    }
+    return { code: new TextDecoder().decode(bytes), files };
   } catch {
     return undefined;
   }

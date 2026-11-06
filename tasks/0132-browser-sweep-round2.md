@@ -101,8 +101,13 @@ on main after 0128–0131, followed by a re-run sweep.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/browser-sweep-round2 @ pending
+Verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 69.6s
 Done:
-Not done / risks:
+- Browser bundles now pass a deferred command loader; command modules evaluate after init, and the temporary __blastSupportPath workaround is removed.
+- Browser applications.list returns [], while applications.default/frontmost remain denied; source and prebuilt bundles stage extension data/assets in the VFS with checksummed file metadata.
+- Empty classification treats a settled List with a search bar and isLoading=false as rendered; the sweep report and JSON were regenerated.
+- Headless e2e checks pass: site:e2e and example:browser-demo:e2e.
+- Sweep before: 103/237 rendered. Sweep after: 138/237 rendered; 75 empty, 6 network, 18 other runtime-error outcomes.
+Not done / risks: The 75 empty commands triage as 69 view commands (primarily search-first or preference/API-key dependent) and 6 menu-bar commands; they remain recorded as empty until interaction or host setup. Remaining runtime signatures include missing API keys, sqlite, selection/application browser limitations, and two data-file ENOENT cases for extensions whose generated data is not present in the upstream corpus snapshot. No pushes or deploys.
 ```

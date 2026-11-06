@@ -1,4 +1,9 @@
-export type CatalogBundle = { path: string; bytes: number; sha256: string };
+export type CatalogBundle = {
+  path: string;
+  bytes: number;
+  sha256: string;
+  files?: Record<string, CatalogBundle>;
+};
 export type BundleIndex = {
   buildSha: string;
   bundles: Record<string, CatalogBundle>;
@@ -45,7 +50,33 @@ export function parseBundleIndex(value: unknown): BundleIndex {
       !/^[0-9a-f]{64}$/.test(item.sha256)
     )
       throw new Error(`Invalid bundle entry shape: ${key}`);
-    bundles[key] = { path: item.path, bytes: item.bytes, sha256: item.sha256 };
+    const files: Record<string, CatalogBundle> = {};
+    if (item.files !== undefined) {
+      if (!item.files || typeof item.files !== "object")
+        throw new Error(`Invalid bundle files: ${key}`);
+      for (const [name, fileValue] of Object.entries(item.files as Record<string, unknown>)) {
+        if (!fileValue || typeof fileValue !== "object")
+          throw new Error(`Invalid bundle file: ${key}/${name}`);
+        const file = fileValue as Record<string, unknown>;
+        if (
+          typeof file.path !== "string" ||
+          !file.path.startsWith("bundles/") ||
+          typeof file.bytes !== "number" ||
+          !Number.isInteger(file.bytes) ||
+          file.bytes < 0 ||
+          typeof file.sha256 !== "string" ||
+          !/^[0-9a-f]{64}$/.test(file.sha256)
+        )
+          throw new Error(`Invalid bundle file shape: ${key}/${name}`);
+        files[name] = { path: file.path, bytes: file.bytes, sha256: file.sha256 };
+      }
+    }
+    bundles[key] = {
+      path: item.path,
+      bytes: item.bytes,
+      sha256: item.sha256,
+      ...(Object.keys(files).length ? { files } : {}),
+    };
   }
   return { buildSha: input.buildSha, bundles, ...(runtime ? { runtime } : {}) };
 }
