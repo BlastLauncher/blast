@@ -82,15 +82,15 @@ AppKit launcher over `blast serve`; automated tests and contract fixtures first.
 
 ### M8 — Browser runtime
 
-Run any Raycast extension in a browser tab from its URL, inside almostnode
-(Node-in-WASM, MIT) in a cross-origin sandbox (decision 0013).
+Raycast extensions in a browser tab, in almostnode's cross-origin sandbox (decision 0013).
 
 - [x] 0115–0119 spike, runtime core, browser bundle, installer, demo by URL (`examples/browser-*`)
 - [x] 0120–0127 root list, static site, deploy (blast.yukai.dev), live fixes, polish, prebuilt
       bundles, parity and warm sandbox (3 KB command opens)
 - [ ] 0128 Browser-backed capabilities (storage, clipboard, command, oauth tokens)
-- [x] 0129 Browser catalog sweep (compat/BROWSER-SWEEP.md)
+- [x] 0129 browser sweep (compat/BROWSER-SWEEP.md, 34/237 rendered at first)
 - [ ] 0130 Rank the demo root list with cmdk's matcher
+- [ ] 0131 Sandbox gaps: stream/promises shim, Cache support directory (103 commands)
 
 ## Later (not scheduled)
 
