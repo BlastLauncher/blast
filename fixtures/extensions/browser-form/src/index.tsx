@@ -3,24 +3,22 @@ import { useState } from "react";
 
 export default function Command() {
   const [name, setName] = useState("");
+  const [agree, setAgree] = useState(false);
   const [result, setResult] = useState("Fill form");
   return (
     <Form
       navigationTitle={result}
       actions={
         <ActionPanel>
-          <Action.SubmitForm onSubmit={(values) => setResult(JSON.stringify(values))} />
+          <Action.SubmitForm
+            onSubmit={(values) => setResult(`Submitted: ${JSON.stringify(values)}`)}
+          />
         </ActionPanel>
       }
     >
       <Form.TextField id="name" value={name} onChange={setName} />
-      <Form.TextArea id="notes" defaultValue="initial" />
-      <Form.Dropdown id="drink">
-        <Form.Dropdown.Item value="water" title="Water" />
-        <Form.Dropdown.Item value="tea" title="Tea" />
-      </Form.Dropdown>
-      <Form.Checkbox id="agree" label="Agree" />
-      <Form.DatePicker id="date" />
+      <Form.TextField id="notes" defaultValue="initial" />
+      <Form.Checkbox id="agree" label="Agree" value={agree} onChange={setAgree} />
     </Form>
   );
 }

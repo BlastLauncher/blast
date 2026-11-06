@@ -29,7 +29,6 @@ export default function Command() {
             onAction={() => setShortcutState("Shortcut ran")}
           />
           <Action.Push title="Open detail" target={<DetailView item={items[0] ?? "item"} />} />
-          <Action.Push title="Open form" target={<FormView />} />
           <Action
             title="Show success toast"
             onAction={() => void showToast({ style: Toast.Style.Success, title: "Success toast" })}

@@ -4,13 +4,19 @@ import { buildSite } from "./site.ts";
 import { projectRoot } from "./build.ts";
 
 type BrowserElement = {
+  id?: string;
+  tagName?: string;
+  value?: string;
   textContent: string | null;
+  matches?(selector: string): boolean;
   getBoundingClientRect(): { top: number; bottom: number; height: number; width: number };
 };
 type BrowserDocument = {
+  activeElement?: BrowserElement | null;
   scrollingElement?: { scrollHeight: number };
   documentElement: { scrollWidth: number; clientHeight: number };
   querySelector<T extends BrowserElement = BrowserElement>(selector: string): T | null;
+  querySelectorAll(selector: string): { length: number };
 };
 declare const document: BrowserDocument;
 
@@ -172,10 +178,21 @@ try {
     await page.locator("#root-search").pressSequentially("browser-keyboard");
     await page.keyboard.press("Enter");
     await page.locator("#app #search").waitFor({ timeout: 30_000 });
+    await page
+      .waitForFunction(
+        () => (document.querySelector("#app")?.textContent ?? "").includes("abc-special"),
+        undefined,
+        { timeout: 30_000 },
+      )
+      .catch(async (error) => {
+        throw new Error(
+          `${error} after browser-keyboard: ${await page.locator("#app").innerText()}`,
+        );
+      });
     await page.locator("#search").click();
     await page.locator("#search").pressSequentially("abc");
     await page.waitForFunction(
-      () => (document.querySelector("#search") as HTMLInputElement)?.value === "abc",
+      () => document.querySelector("#search")?.value === "abc",
       undefined,
       { timeout: 10_000 },
     );
@@ -206,29 +223,43 @@ try {
     await page.locator("#root-search").fill("browser-form");
     await page.keyboard.press("Enter");
     await page
-      .locator("input:not(#search)")
+      .locator('input[data-field="1"]')
       .waitFor({ timeout: 30_000 })
       .catch(async (error) => {
         throw new Error(
           `${error} status=${await page.locator("#status").textContent()} app=${await page.locator("#app").innerText()}`,
         );
       });
-    await page.locator("input:not(#search)").pressSequentially("one");
+    const firstField = page.locator('input[data-field="1"]');
+    await firstField.pressSequentially("one");
     await page.keyboard.press("Tab");
-    if (!(await page.evaluate(() => document.activeElement?.tagName === "TEXTAREA")))
+    if (
+      !(await page.evaluate(
+        () => document.activeElement?.matches?.('input[data-field="2"]') ?? false,
+      ))
+    )
       throw new Error("Tab did not focus second form field");
-    await page.locator("textarea").pressSequentially("two");
+    await page.locator('input[data-field="2"]').pressSequentially("two");
     await page.keyboard.press("Shift+Tab");
     if (
-      !(await page.evaluate(() => document.activeElement?.matches('input[type="text"]') ?? false))
+      !(await page.evaluate(
+        () => document.activeElement?.matches?.('input[data-field="1"]') ?? false,
+      ))
     )
       throw new Error("Shift-Tab did not return to first form field");
     await page.keyboard.press("ArrowDown");
-    if ((await page.locator("input:not(#search)").inputValue()) !== "one")
+    if ((await firstField.inputValue()) !== "one")
       throw new Error("ArrowDown changed the focused text field");
     await page.keyboard.press("Tab");
     await page.keyboard.press("Tab");
     await page.keyboard.press("Space");
+    await page.waitForFunction(
+      () =>
+        (document.querySelector('input[type="checkbox"]') as { checked?: boolean } | null)
+          ?.checked === true,
+      undefined,
+      { timeout: 10_000 },
+    );
     if (!(await page.locator('input[type="checkbox"]').isChecked()))
       throw new Error("Space did not toggle the checkbox");
     await page.keyboard.press("Meta+Enter");

@@ -20,6 +20,9 @@ declare module "playwright" {
       state?: "attached" | "detached" | "visible" | "hidden";
     }): Promise<void>;
     fill(value: string): Promise<void>;
+    pressSequentially(value: string): Promise<void>;
+    inputValue(): Promise<string>;
+    isChecked(): Promise<boolean>;
     count(): Promise<number>;
     innerText(): Promise<string>;
     textContent(): Promise<string | null>;
@@ -57,6 +60,7 @@ declare module "playwright" {
     reload(options?: { waitUntil?: "load" }): Promise<unknown>;
     locator(selector: string): Locator;
     getByRole(role: string, options: { name: RegExp | string }): Locator;
+    getByText(text: RegExp | string): Locator;
     keyboard: { press(key: string): Promise<void> };
   };
 }

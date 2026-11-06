@@ -129,7 +129,8 @@ function replaceApp(markup: string) {
     if (!previous || previous.tagName !== next.tagName) continue;
     const focused = active === previous;
     if (next instanceof HTMLInputElement && next.type === "checkbox") {
-      if (!focused && previous instanceof HTMLInputElement) previous.checked = next.checked;
+      if (previous instanceof HTMLInputElement && previous.checked !== next.checked)
+        previous.checked = next.checked;
     } else if (!focused && previous.value !== next.value) previous.value = next.value;
     next.replaceWith(previous);
   }
@@ -155,7 +156,12 @@ const draw = (view: ReturnType<Controller["view"]>) => {
   ) as HTMLInputElement | null | undefined;
   if (next) {
     next.focus();
-    if (selectionStart !== null && selectionStart !== undefined && "setSelectionRange" in next)
+    if (
+      selectionStart !== null &&
+      selectionStart !== undefined &&
+      "setSelectionRange" in next &&
+      !(next instanceof HTMLInputElement && next.type === "checkbox")
+    )
       next.setSelectionRange(selectionStart, selectionEnd ?? selectionStart);
   }
   document.querySelector<HTMLElement>(".rows li.selected")?.scrollIntoView({ block: "nearest" });
