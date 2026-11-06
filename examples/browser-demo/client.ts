@@ -863,18 +863,23 @@ document.addEventListener("keydown", (event) => {
       sendInput({ type: "toggle", id: field.id });
     }
   } else if (
-    event.key === "ArrowLeft" ||
-    event.key === "ArrowRight" ||
-    event.key === "ArrowDown" ||
-    event.key === "ArrowUp"
+    controller &&
+    ["ArrowDown", "ArrowUp", "ArrowLeft", "ArrowRight"].includes(event.key)
   ) {
-    event.preventDefault();
-    sendInput({
-      type: "move",
-      direction: (
-        { ArrowDown: "down", ArrowUp: "up", ArrowLeft: "left", ArrowRight: "right" } as const
-      )[event.key],
-    });
+    const view = controller.view();
+    const vertical = event.key === "ArrowDown" || event.key === "ArrowUp";
+    const horizontal = event.key === "ArrowLeft" || event.key === "ArrowRight";
+    // Vertical arrows select list rows; horizontal arrows are grid navigation.
+    // Form fields and text inputs keep all arrow keys for caret movement.
+    if ((vertical && view.kind !== "form") || (horizontal && view.kind === "grid")) {
+      event.preventDefault();
+      sendInput({
+        type: "move",
+        direction: (
+          { ArrowDown: "down", ArrowUp: "up", ArrowLeft: "left", ArrowRight: "right" } as const
+        )[event.key],
+      });
+    }
   } else if (event.key === "Enter") {
     event.preventDefault();
     sendInput({ type: "primary" });
@@ -889,12 +894,17 @@ document.addEventListener("keydown", (event) => {
       backFromExtension();
     } else if (controller?.view().search.text) {
       sendInput({ type: "search", text: "" });
+      // Keep the focused control in sync while the extension sends its next scene.
+      const search = document.querySelector<HTMLInputElement>("#search");
+      if (search) search.value = "";
     } else backFromExtension();
   }
 });
 
 function toggleExtensionActions() {
-  sendInput({ type: controller?.view().actions.open ? "closeActions" : "openActions" });
+  if (!controller) return;
+  sendInput({ type: controller.view().actions.open ? "closeActions" : "openActions" });
+  draw(controller.view());
 }
 
 /** A footer button does exactly what its key does, in either view. */

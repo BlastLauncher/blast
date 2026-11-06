@@ -103,6 +103,17 @@ try {
       return { visible: row.top >= box.top - 1 && row.bottom <= box.bottom + 1 };
     });
     if (!selectedPosition?.visible) throw new Error("selected option left the visible list");
+    // Real typing keeps the root search focused while filtering its catalog.
+    await page.locator("#root-search").click();
+    await page.locator("#root-search").pressSequentially("browser");
+    if (
+      (await page.evaluate(() => document.activeElement?.id)) !== "root-search" ||
+      (await page.locator("#root-search").inputValue()) !== "browser"
+    )
+      throw new Error("root search lost focus or text while typing");
+    if ((await page.locator('[role="option"]').count()) === 0)
+      throw new Error("root search did not filter to browser fixtures");
+    await page.keyboard.press("Escape");
     // Footer keys are buttons: the Actions button opens the root action panel.
     await page.locator('main.root [data-footer="actions"]').click();
     await page.getByRole("option", { name: /^Run Command/ }).waitFor({ timeout: 10_000 });
@@ -154,6 +165,53 @@ try {
       throw new Error("the Back button did not return to root list");
     if ((await page.locator('iframe[data-blast="session"]').count()) !== 0)
       throw new Error("the sandbox session outlived the extension view");
+
+    // Keyboard fixture: long list search, shortcut dispatch, layered Escape, detail push,
+    // form focus movement/submission, and a real-duration success toast.
+    await page.locator("#root-search").fill("");
+    await page.locator("#root-search").pressSequentially("browser-keyboard");
+    await page.keyboard.press("Enter");
+    await page.locator("#app #search").waitFor({ timeout: 30_000 });
+    await page.locator("#search").click();
+    await page.locator("#search").pressSequentially("abc");
+    await page.waitForFunction(() => (document.querySelector("#search") as HTMLInputElement)?.value === "abc", undefined, { timeout: 10_000 });
+    await page.locator("#search").fill("");
+    await page.waitForFunction(() => document.querySelectorAll("#app .rows li").length >= 40, undefined, { timeout: 10_000 });
+    await page.keyboard.press("Meta+Shift+C");
+    await page.getByRole("heading", { name: "Shortcut ran" }).waitFor({ timeout: 10_000 });
+    await page.locator('#app [data-footer="actions"]').click();
+    await page.locator("#app section.actions").waitFor({ timeout: 10_000 });
+    await page.keyboard.press("Escape");
+    await page.locator("#app section.actions").waitFor({ state: "detached", timeout: 10_000 });
+    await page.keyboard.press("Enter");
+    await page.locator(".detail").waitFor({ timeout: 10_000 });
+    await page.keyboard.press("Escape");
+    await page.locator("#app .rows").waitFor({ timeout: 10_000 });
+    await page.keyboard.press("Meta+Shift+T");
+    await page.getByText("Success toast").waitFor({ timeout: 10_000 });
+    await page.waitForFunction(() => !document.querySelector(".toast"), undefined, { timeout: 10_000 });
+    await page.keyboard.press("Escape");
+    await page.locator("#root-search").waitFor({ timeout: 10_000 });
+
+    await page.locator("#root-search").fill("browser-form");
+    await page.keyboard.press("Enter");
+    await page.locator('input:not(#search)').waitFor({ timeout: 30_000 }).catch(async (error) => { throw new Error(`${error} status=${await page.locator("#status").textContent()} app=${await page.locator("#app").innerText()}`); });
+    await page.locator('input:not(#search)').pressSequentially("one");
+    await page.keyboard.press("Tab");
+    if (!(await page.evaluate(() => document.activeElement?.tagName === "TEXTAREA"))) throw new Error("Tab did not focus second form field");
+    await page.locator('textarea').pressSequentially("two");
+    await page.keyboard.press("Shift+Tab");
+    if (!(await page.evaluate(() => document.activeElement?.matches('input[type="text"]') ?? false))) throw new Error("Shift-Tab did not return to first form field");
+    await page.keyboard.press("ArrowDown");
+    if ((await page.locator('input:not(#search)').inputValue()) !== "one") throw new Error("ArrowDown changed the focused text field");
+    await page.keyboard.press("Tab");
+    await page.keyboard.press("Tab");
+    await page.keyboard.press("Space");
+    if (!(await page.locator('input[type="checkbox"]').isChecked())) throw new Error("Space did not toggle the checkbox");
+    await page.keyboard.press("Meta+Enter");
+    await page.getByRole("heading", { name: /Submitted:/ }).waitFor({ timeout: 10_000 });
+    await page.keyboard.press("Escape");
+    await page.locator("#root-search").waitFor({ timeout: 10_000 });
     // LocalStorage is extension-scoped and survives closing and reopening a command.
     await page.locator("#root-search").fill("browser-storage");
     await page.keyboard.press("Enter");
