@@ -79,8 +79,12 @@ extensions look and behave in the browser the way they do in the TUI.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: worker @ pending
+Verify: `verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok)`
 Done:
-Not done / risks:
+- Rendered rich list rows, sections, grids, dropdowns, alerts, HUDs, toast actions, forms, and safe Detail markdown in the browser launcher.
+- Added stable control ids and browser event routing for dropdown, alert, toast, grid, and form interactions.
+- Wired grid and feedback fixtures into the fixture site and expanded browser e2e coverage, including phone viewport checks.
+- Added markdown escaping and URL allowlist unit tests.
+Not done / risks: Browser sweep rerun produced 95 rendered commands versus the 0133 baseline of 93; generated sweep reports were left unchanged because the difference is corpus/network variance.
 ```

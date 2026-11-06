@@ -9,7 +9,7 @@ const ITEMS = [
 function DetailView({ item }: { item: string }) {
   return (
     <Detail
-      markdown={`# ${item}\n\nThis detail view was pushed from the long list.`}
+      markdown={`# ${item}\n\nThis detail view was pushed from the long list.\n\n<script>this stays text</script>`}
       navigationTitle={`Detail: ${item}`}
     />
   );
@@ -40,6 +40,8 @@ export default function Command() {
         <List.Item
           key={item}
           title={item}
+          subtitle={`Subtitle ${item}`}
+          accessory={{ text: `Accessory ${item}` }}
           actions={
             <ActionPanel>
               <Action.Push title="Open detail" target={<DetailView item={item} />} />

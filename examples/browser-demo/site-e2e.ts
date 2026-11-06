@@ -189,6 +189,10 @@ try {
           `${error} after browser-keyboard: ${await page.locator("#app").innerText()}`,
         );
       });
+    if (!(await page.locator(".rows li").first().textContent())?.includes("Subtitle"))
+      throw new Error("row subtitle did not render");
+    if (!(await page.locator(".rows li").first().textContent())?.includes("Accessory"))
+      throw new Error("row accessory did not render");
     await page.locator("#search").click();
     await page.locator("#search").pressSequentially("abc");
     await page.waitForFunction(
@@ -210,6 +214,10 @@ try {
     await page.locator("#app section.actions").waitFor({ state: "detached", timeout: 10_000 });
     await page.keyboard.press("Enter");
     await page.locator(".detail").waitFor({ timeout: 10_000 });
+    if (
+      !(await page.locator(".detail").textContent())?.includes("<script>this stays text</script>")
+    )
+      throw new Error("detail markdown was not escaped");
     await page.keyboard.press("Escape");
     await page.locator("#app .rows").waitFor({ timeout: 10_000 });
     await page.keyboard.press("Meta+Shift+T");
@@ -217,6 +225,38 @@ try {
     await page.waitForFunction(() => !document.querySelector(".toast"), undefined, {
       timeout: 10_000,
     });
+    await page.keyboard.press("Escape");
+    await page.locator("#root-search").waitFor({ timeout: 10_000 });
+
+    await page.locator("#root-search").fill("grid");
+    await page.keyboard.press("Enter");
+    await page.locator(".grid-cell").first().waitFor({ timeout: 30_000 });
+    await page.keyboard.press("ArrowRight");
+    if ((await page.locator(".grid-cell.selected").count()) !== 1)
+      throw new Error("grid selection did not move");
+    await page.locator("[data-dropdown-open]").click();
+    await page.locator("#dropdown-search").fill("wine");
+    await page.locator('[data-dropdown-value="wine"]').click();
+    await page.waitForFunction(
+      () => (document.querySelector("#app")?.textContent ?? "").includes("drink wine"),
+      undefined,
+      { timeout: 10_000 },
+    );
+    await page.locator('#app [data-footer="back"]').click();
+    await page.locator("#root-search").waitFor({ timeout: 10_000 });
+
+    await page.locator("#root-search").fill("feedback");
+    await page.keyboard.press("Enter");
+    await page.locator(".alert").waitFor({ timeout: 30_000 });
+    await page.setViewportSize({ width: 390, height: 844 });
+    const alertBox = await page.locator(".alert").boundingBox();
+    if (!alertBox || alertBox.right > 390 || alertBox.bottom > 844)
+      throw new Error("alert does not fit the phone viewport");
+    await page.locator('[data-alert="dismiss"]').click();
+    await page.locator(".toast").waitFor({ timeout: 10_000 });
+    await page.locator('[data-toast-action="0"]').click();
+    await page.locator(".hud").waitFor({ timeout: 10_000 });
+    await page.setViewportSize({ width: 1280, height: 800 });
     await page.keyboard.press("Escape");
     await page.locator("#root-search").waitFor({ timeout: 10_000 });
 

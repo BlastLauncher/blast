@@ -165,6 +165,12 @@ const draw = (view: ReturnType<Controller["view"]>) => {
       next.setSelectionRange(selectionStart, selectionEnd ?? selectionStart);
   }
   document.querySelector<HTMLElement>(".rows li.selected")?.scrollIntoView({ block: "nearest" });
+  const alertButton = document.querySelector<HTMLButtonElement>(
+    "[data-alert=confirm], [data-alert=dismiss]",
+  );
+  if (view.feedback.alert && alertButton && !document.querySelector(".alert :focus"))
+    alertButton.focus();
+  if (view.dropdown?.open) document.querySelector<HTMLInputElement>("#dropdown-search")?.focus();
 };
 const drawRoot = () => {
   const model = rootModel(
@@ -971,11 +977,31 @@ document.addEventListener("input", (event) => {
     actionSelected = 0;
     drawRoot();
   } else if (target.id === "search") sendInput({ type: "search", text: target.value });
+  else if (target.id === "dropdown-search")
+    sendInput({ type: "dropdownQuery", text: target.value });
   else if (target.id === "action-search") sendInput({ type: "actionsQuery", text: target.value });
   else if (target.dataset.field && target instanceof HTMLInputElement && target.type === "checkbox")
     sendInput({ type: "toggle", id: target.dataset.field });
   else if (target.dataset.field)
     sendInput({ type: "setValue", id: target.dataset.field, value: target.value });
+});
+document.addEventListener("change", (event) => {
+  const target = event.target as HTMLSelectElement;
+  if (!(target instanceof HTMLSelectElement) || !target.dataset.field) return;
+  const view = controller?.view();
+  const field = view?.form?.fields.find((candidate) => candidate.id === target.dataset.field);
+  if (!field) return;
+  sendInput({ type: "focus", id: field.id });
+  const selected = target.multiple
+    ? [...target.selectedOptions].map((option) => option.value)
+    : [target.value];
+  for (const value of selected) {
+    const index = field.options.findIndex((option) => option.value === value);
+    if (index >= 0) {
+      sendInput({ type: "optionMove", delta: index - field.optionIndex });
+      sendInput({ type: "optionChoose" });
+    }
+  }
 });
 document.addEventListener("click", (event) => {
   const target = event.target as HTMLElement;
@@ -986,6 +1012,38 @@ document.addEventListener("click", (event) => {
     return;
   }
   if (target.closest("#preferences-form")) return;
+  if (target.closest("[data-dropdown-open]")) {
+    sendInput({ type: "openDropdown" });
+    draw(controller?.view() ?? ({} as ReturnType<Controller["view"]>));
+    return;
+  }
+  const dropdownValue = target.closest<HTMLElement>("[data-dropdown-value]")?.dataset.dropdownValue;
+  if (dropdownValue !== undefined) {
+    const view = controller?.view();
+    const option =
+      view?.dropdown?.options.findIndex((candidate) => candidate.value === dropdownValue) ?? -1;
+    const current = view?.dropdown?.selectedIndex ?? 0;
+    if (option >= 0)
+      for (let index = current; index !== option; index += option > current ? 1 : -1)
+        sendInput({ type: "move", direction: option > current ? "down" : "up" });
+    sendInput({ type: "chooseDropdown" });
+    return;
+  }
+  const alertAction = target.closest<HTMLElement>("[data-alert]")?.dataset.alert;
+  if (alertAction) {
+    const remember = document.querySelector<HTMLInputElement>("#alert-remember")?.checked;
+    sendInput({
+      type: "alert",
+      confirm: alertAction === "confirm",
+      ...(remember === undefined ? {} : { remember }),
+    });
+    return;
+  }
+  const toastAction = target.closest<HTMLElement>("[data-toast-action]")?.dataset.toastAction;
+  if (toastAction !== undefined) {
+    sendInput({ type: "toastAction", index: Number(toastAction) });
+    return;
+  }
   const footer = target.closest<HTMLElement>("[data-footer]")?.dataset.footer;
   if (footer !== undefined) {
     runFooter(footer);
@@ -1009,7 +1067,8 @@ document.addEventListener("click", (event) => {
     sendInput({ type: "primary" });
     return;
   }
-  const rowId = target.closest<HTMLElement>("#app .rows li[data-id]")?.dataset.id;
+  const rowId = target.closest<HTMLElement>("#app .rows li[data-id], #app .grid-cell[data-id]")
+    ?.dataset.id;
   if (rowId !== undefined) sendInput({ type: "select", id: rowId });
 });
 document.addEventListener("submit", (event) => {
