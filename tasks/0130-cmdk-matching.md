@@ -71,7 +71,7 @@ boosts, keywords.
 
 ```
 Branch/commit: t3/cmdk-matching-ranking @ 57b173f722de46766576cc46241b3a6710e6032f
-Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 114.9s
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 94.5s
 Done:
 - root.ts ranks the root list with cmdk's defaultFilter over the command title plus extension title/name and command name/description; score 0 is hidden, ties sort by title then id, and an empty query keeps the curated suggestions order.
 - root.test.ts covers the real catalog: ratio and cal rat -> Calculate Ratio, rect -> Rectangle's commands first, the acronym tl -> Top Left, empty query keeps suggestions, and a no-match query returns [].
