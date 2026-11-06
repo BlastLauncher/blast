@@ -57,7 +57,7 @@ export function render(view, options = {}) {
     ? `<section class="actions"><strong>${escapeHtml(view.actions.title)}</strong><div class="breadcrumb">${view.actions.breadcrumb.map(escapeHtml).join(" / ")}</div><input id="action-search" value="${escapeHtml(view.actions.query)}" aria-label="Action search"><ul>${view.actions.rows.map((row, index) => `<li${row.selected ? ' class="selected"' : ""} data-action-index="${index}">${escapeHtml(row.title)} <small>${escapeHtml(row.shortcut)}</small></li>`).join("")}</ul></section>`
     : "";
   const form = view.form
-    ? `<form>${view.form.fields.map((field) => `<label>${escapeHtml(field.title || field.label)}<input data-field="${escapeHtml(field.id)}" value="${escapeHtml(field.text)}" placeholder="${escapeHtml(field.placeholder)}"${field.focused ? " autofocus" : ""}></label>`).join("")}${button("Submit", "primary")}</form>`
+    ? `<form>${view.form.fields.map((field) => (field.type === "Form.Checkbox" ? `<label>${escapeHtml(field.title || field.label)}<input type="checkbox" data-field="${escapeHtml(field.id)}"${field.checked ? " checked" : ""}${field.focused ? " autofocus" : ""}></label>` : `<label>${escapeHtml(field.title || field.label)}<input data-field="${escapeHtml(field.id)}" value="${escapeHtml(field.text)}" placeholder="${escapeHtml(field.placeholder)}"${field.focused ? " autofocus" : ""}></label>`)).join("")}${button("Submit", "primary")}</form>`
     : "";
   const detail =
     view.kind === "detail" ? `<article class="detail">${escapeHtml(view.detail)}</article>` : "";

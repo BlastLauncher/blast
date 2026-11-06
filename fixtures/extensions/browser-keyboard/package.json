@@ -1,0 +1,10 @@
+{
+  "name": "browser-keyboard",
+  "commands": [
+    {
+      "name": "index",
+      "title": "Browser Keyboard",
+      "mode": "view"
+    }
+  ]
+}

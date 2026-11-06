@@ -109,11 +109,13 @@ usable by `examples/web-launcher`, its other consumer. Run that example's tests.
 
 ## Handoff
 
-Filled in by the worker when finishing:
-
-```
-Branch/commit:
-Verify:
+Branch/commit: t3/fix-web-launcher-focus-keyboard @ 3a151b7a542ff10b565d7d69c9901e7737905364
+Verify: `verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 64.2s`
 Done:
-Not done / risks:
-```
+
+- Extended the hand-written Playwright and DOM ambients for the browser e2e APIs used by this task.
+- Reduced the form fixture to two text fields and a controlled checkbox, with visible submitted output.
+- Stabilized waits on rendered command output and verified form focus, arrow behavior, checkbox Space toggling, and Cmd/Ctrl-Enter submission.
+- Fixed checkbox reconciliation and avoided applying text caret selection APIs to checkbox inputs.
+- Removed the undefined form action from the keyboard fixture.
+Not done / risks: none.
