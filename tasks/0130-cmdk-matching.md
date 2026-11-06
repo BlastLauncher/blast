@@ -70,7 +70,7 @@ boosts, keywords.
 ## Handoff
 
 ```
-Branch/commit: t3/cmdk-matching-ranking @ <sha>
+Branch/commit: t3/cmdk-matching-ranking @ 57b173f722de46766576cc46241b3a6710e6032f
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 114.9s
 Done:
 - root.ts ranks the root list with cmdk's defaultFilter over the command title plus extension title/name and command name/description; score 0 is hidden, ties sort by title then id, and an empty query keeps the curated suggestions order.
