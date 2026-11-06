@@ -26,4 +26,8 @@ export const aliases: Record<string, string> = {
   "react-reconciler": "/node_modules/react-reconciler/index.js",
   "react-reconciler/constants.js": "/node_modules/react-reconciler/constants.js",
   scheduler: "/node_modules/scheduler/index.js",
+  "stream/promises": "/examples/browser-demo/stream-promises.ts",
+  "node:stream/promises": "/examples/browser-demo/stream-promises.ts",
+  "util/types": "/examples/browser-demo/util-types.ts",
+  "node:util/types": "/examples/browser-demo/util-types.ts",
 };

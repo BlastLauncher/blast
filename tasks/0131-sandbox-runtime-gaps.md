@@ -87,8 +87,13 @@ gone, and a re-run sweep shows the gain:
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/fix-sandbox-runtime-gaps @ e77a22695185784d198a59767dc5db7ac7182aa0
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 64.1s
 Done:
-Not done / risks:
+- Added bundled `stream/promises` and `node:stream/promises` shims for `pipeline` and `finished`, plus the used `util.types` compatibility predicates.
+- Assigned per-extension virtual support and assets paths, including warmed-sandbox VFS synchronization, and documented session-only Cache lifetime.
+- Added the Cache/stream fixture coverage, shim and alias tests, and fixed Ready-status classification to retain the underlying page error.
+- Regenerated the browser sweep: before 237 commands / 34 rendered, with 80 stream failures and 23 Cache support-directory failures (15 direct + 8 wrapped); after 237 / 79 rendered, with 0 of both target signatures.
+- After-sweep top five non-success signatures: `capability-denied:applications.list` (58), `capability-denied:storage.get` (35), `capability-denied:clipboard.read` (6), `network` (6), `capability-denied:selection.text` (4).
+Not done / risks: Cache data remains in almostnode's in-memory VFS for the browser session; no persistent storage was added.
 ```

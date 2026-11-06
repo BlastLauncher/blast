@@ -37,3 +37,7 @@ controller and renderer.
 | Applications, selection, windows and AI    | Denied because a browser tab cannot honestly provide these host services                          |
 
 Extension network requests still require CORS. `child_process` is unavailable in a browser and native npm modules are rejected during bundling. The demo is headless-testable, binds only to 127.0.0.1, and does not publish or persist anything.
+
+Each command receives `/blast/support/<extension>` and `/blast/assets/<extension>`
+inside almostnode's virtual filesystem. Cache data therefore lasts only for the
+current sandbox session.

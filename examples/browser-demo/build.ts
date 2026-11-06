@@ -81,6 +81,26 @@ async function buildAlmost() {
     join(copied, "runtime.ts"),
     source.replaceAll("./shims/child_process", "./shims/child_process-browser"),
   );
+  const utilShim = join(copied, "shims", "util.ts");
+  const utilSource = await readFile(utilShim, "utf8");
+  await writeFile(
+    utilShim,
+    utilSource
+      .replace(
+        "export const types = {",
+        `export function isAnyArrayBuffer(value: unknown): boolean {
+  return value instanceof ArrayBuffer ||
+    (typeof SharedArrayBuffer !== "undefined" && value instanceof SharedArrayBuffer);
+}
+export function isBoxedPrimitive(value: unknown): boolean {
+  const tag = Object.prototype.toString.call(value);
+  return ["[object Boolean]", "[object Number]", "[object String]", "[object BigInt]", "[object Symbol]"].includes(tag);
+}
+
+export const types = {`,
+      )
+      .replace("  isBuffer,\n};", "  isBuffer,\n  isAnyArrayBuffer,\n  isBoxedPrimitive,\n};"),
+  );
   if (!(await exists(join(cache, "node_modules"))))
     await symlink(join(deps, "node_modules"), join(cache, "node_modules"), "dir");
   const hostEntry = join(cache, "host.ts");
