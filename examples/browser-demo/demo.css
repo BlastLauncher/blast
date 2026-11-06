@@ -231,6 +231,64 @@ footer button {
 .breadcrumb-separator {
   color: #666;
 }
+.preference-note {
+  color: #aaa;
+  margin: -4px 0 0;
+}
+.preference-fields {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 4px 20px 12px;
+}
+.preference-row {
+  display: grid;
+  grid-template-columns: minmax(110px, 0.35fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 8px 0;
+  color: #ddd;
+}
+.preference-row > span:first-child,
+.preference-row > strong {
+  min-width: 0;
+}
+.preference-row input,
+.preference-row select {
+  width: 100%;
+  min-width: 0;
+}
+.preference-row input[type="checkbox"] {
+  width: auto;
+  justify-self: start;
+}
+.preference-description {
+  grid-column: 2;
+  color: #999;
+  margin-top: -5px;
+}
+.preference-row.unavailable {
+  grid-template-columns: 1fr;
+  color: #ffb0a0;
+}
+.preference-row.unavailable span {
+  color: #aaa;
+}
+.preferences footer {
+  margin-top: auto;
+}
+#preference-error {
+  color: #ff8b8b;
+}
+@media (max-width: 600px) {
+  .preference-row {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+  .preference-description {
+    grid-column: 1;
+  }
+}
 @media (max-width: 600px) {
   body {
     padding: 0;

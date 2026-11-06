@@ -173,6 +173,43 @@ try {
       undefined,
       { timeout: 30_000 },
     );
+    await page.locator('#app [data-footer="back"]').click();
+    await page.locator("#root-search").waitFor({ timeout: 10_000 });
+    await page.locator("#root-search").fill("browser-preferences");
+    await page.keyboard.press("Enter");
+    await page.locator("#preferences-form").waitFor({ timeout: 30_000 });
+    if (
+      await page.evaluate(
+        () => !(document.querySelector('#preferences-form button[type="submit"]') as any)?.disabled,
+      )
+    )
+      throw new Error("Run should be disabled while the required preference is empty");
+    await page.locator('input[name="secret"]').fill("browser-secret");
+    await page.locator('#preferences-form button[type="submit"]').click();
+    // The frame (and its search bar) renders before the first scene, so wait for
+    // the command's own output rather than the search input.
+    await page
+      .waitForFunction(
+        () => (document.querySelector("#app")?.textContent ?? "").includes("Secret: "),
+        undefined,
+        { timeout: 30_000 },
+      )
+      .catch(async (error) => {
+        throw new Error(`${error} after preferences: ${await page.locator("#app").innerText()}`);
+      });
+    if (!(await page.locator("#app").textContent())?.includes("browser-secret"))
+      throw new Error("preference value did not reach the command");
+    if (!(await page.locator("#app").textContent())?.includes("vanilla"))
+      throw new Error("preference default did not reach the command");
+    await page.locator('#app [data-footer="actions"]').click();
+    await page.locator('[data-action-index="0"]').click();
+    await page.locator('input[name="secret"]').waitFor({ timeout: 10_000 });
+    if (
+      (await page.evaluate(
+        () => (document.querySelector('input[name="secret"]') as any)?.value,
+      )) !== "browser-secret"
+    )
+      throw new Error("preferences form did not reopen with its saved value");
     console.log(
       JSON.stringify({
         pass: true,

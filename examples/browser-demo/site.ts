@@ -134,6 +134,11 @@ export async function buildSite(
       title: "Browser Storage",
       commands: [{ name: "index", title: "Browser Storage", mode: "view" }],
     });
+    catalog.extensions.push({
+      name: "browser-preferences",
+      title: "Browser Preferences",
+      commands: [{ name: "index", title: "Browser Preferences", mode: "view" }],
+    });
     catalog.extensions.sort((a, b) =>
       String((a as { name?: unknown }).name).localeCompare(String((b as { name?: unknown }).name)),
     );
@@ -162,6 +167,19 @@ export async function buildSite(
     await writeFile(
       join(demo, "fixtures/browser-storage/__files"),
       JSON.stringify(await relativeFiles(join(projectRoot, "fixtures/extensions/browser-storage"))),
+    );
+  if (options.fixtures)
+    await cp(
+      join(projectRoot, "fixtures/extensions/browser-preferences"),
+      join(demo, "fixtures/browser-preferences"),
+      { recursive: true },
+    );
+  if (options.fixtures)
+    await writeFile(
+      join(demo, "fixtures/browser-preferences/__files"),
+      JSON.stringify(
+        await relativeFiles(join(projectRoot, "fixtures/extensions/browser-preferences")),
+      ),
     );
   await prebuildCatalog(catalog, buildSha, demo, options.fixtures);
   await writeFile(

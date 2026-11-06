@@ -4,9 +4,26 @@ import { installForBrowser } from "../../packages/host/src/browser-install.ts";
 import { bundleForBrowser } from "../../packages/host/src/browser-bundle.ts";
 import type { SceneMessage } from "../../packages/protocol/src/index.ts";
 import { aliases } from "./bundle-config.ts";
-import { bundleKey, bundleMatches, parseBundleIndex, sha256Hex } from "./bundles.ts";
-import { render, renderRoot } from "../web-launcher/render.js";
-import { createBrowserCapabilities, type CapabilityContext } from "./capabilities.ts";
+import {
+  bundleKey,
+  bundleMatches,
+  parseBundleIndex,
+  sha256Hex,
+  type CatalogManifest,
+} from "./bundles.ts";
+import { render, renderPreferences, renderRoot } from "../web-launcher/render.js";
+import {
+  createBrowserCapabilities,
+  createBrowserPreferenceStore,
+  type CapabilityContext,
+} from "./capabilities.ts";
+import {
+  missingPreferences,
+  parsePreferences,
+  preferenceDefaults,
+  preferenceFields,
+  type Preference,
+} from "../../packages/host/src/preference-fields.ts";
 import { canUseLocalFixture, isTextExtension, parseExtensionSource } from "./source.ts";
 import {
   catalogCommandTitle,
@@ -54,6 +71,18 @@ let sandbox: Sandbox | undefined;
 let warming: Promise<Sandbox | undefined> | undefined;
 let activeCapabilityContext: CapabilityContext | undefined;
 let browserCapabilities: ReturnType<typeof createBrowserCapabilities> | undefined;
+let esbuildReady = false;
+let preferenceForm:
+  | {
+      source: string;
+      command: string;
+      extension: Preference[];
+      commandFields: Preference[];
+      scope: "extension" | "command";
+      store: ReturnType<typeof createBrowserPreferenceStore>;
+    }
+  | undefined;
+let preferenceFormVisible = false;
 
 let extensionContext:
   | {
@@ -112,6 +141,34 @@ const drawRoot = () => {
     .querySelector<HTMLElement>(`#root-option-${rootSelected}`)
     ?.scrollIntoView({ block: "nearest" });
 };
+function drawPreferences(scope: "extension" | "command" = "command") {
+  if (!preferenceForm) return;
+  const fields =
+    scope === "extension"
+      ? preferenceForm.extension
+      : preferenceFields(preferenceForm.extension, preferenceForm.commandFields);
+  const values = preferenceForm.store.values(preferenceForm.command);
+  preferenceForm.scope = scope;
+  const unavailable = fields
+    .filter(
+      (field) =>
+        ["file", "directory", "appPicker"].includes(field.type) &&
+        field.required &&
+        field.default === undefined,
+    )
+    .map((field) => field.name);
+  app.innerHTML = renderPreferences(
+    fields,
+    values,
+    scope === "extension" ? "Extension preferences" : "Set up preferences",
+    unavailable,
+  );
+  preferenceFormVisible = true;
+  document.querySelector<HTMLInputElement | HTMLSelectElement>("[data-preference]")?.focus();
+}
+function openPreferenceForm(scope: "extension" | "command", _context: CapabilityContext) {
+  drawPreferences(scope);
+}
 const sendInput = (value: Parameters<Controller["input"]>[0]) => {
   const result = controller?.input(value);
   if (!result || !port) return;
@@ -258,14 +315,13 @@ async function launch(source: string, commandName: string): Promise<void> {
       }
     : undefined;
   const selectedCommand = commandName || commandSelect?.value || "index";
-  activeCapabilityContext = { extensionName: source, commandName: selectedCommand, source };
   const catalogSource = source.startsWith("https://github.com/raycast/extensions/tree/");
   const bundle = catalogSource ? await prebuiltBundle(source, selectedCommand) : undefined;
   let extension: Awaited<ReturnType<typeof fetchFiles>>;
   let command: string;
   let bundled: { code: string; files?: Map<string, BrowserFile> };
   if (bundle) {
-    extension = { files: bundle.files, manifest: { name: source }, root: "" };
+    extension = { files: bundle.files, manifest: bundle.manifest, root: "" };
     command = `/src/${selectedCommand}.tsx`;
     bundled = bundle;
     setStatus("Starting prebuilt bundle…");
@@ -283,7 +339,10 @@ async function launch(source: string, commandName: string): Promise<void> {
       ...(extension.lockfile === undefined ? {} : { lockfile: extension.lockfile }),
     });
     setStatus("Bundling…");
-    await esbuild.initialize({ wasmURL: asset("esbuild.wasm"), worker: false });
+    if (!esbuildReady) {
+      await esbuild.initialize({ wasmURL: asset("esbuild.wasm"), worker: false });
+      esbuildReady = true;
+    }
     bundled = await bundleForBrowser({
       esbuild,
       files,
@@ -293,6 +352,51 @@ async function launch(source: string, commandName: string): Promise<void> {
       aliases,
     });
   }
+  const preferenceFieldsRaw = (extension.manifest.preferences as unknown[] | undefined) ?? [];
+  const commandDeclarations = extension.manifest.commands;
+  const commandDeclaration = Array.isArray(commandDeclarations)
+    ? commandDeclarations.find(
+        (item) => item && typeof item === "object" && item.name === selectedCommand,
+      )
+    : undefined;
+  const commandPreferenceValue = Array.isArray(commandDeclarations)
+    ? commandDeclaration?.preferences
+    : (commandDeclarations as Record<string, unknown> | undefined)?.[selectedCommand];
+  const extensionPreferences = parsePreferences(preferenceFieldsRaw, "Extension preferences");
+  const commandPreferences = parsePreferences(
+    commandPreferenceValue,
+    `Command ${selectedCommand} preferences`,
+  );
+  let preferenceStorage;
+  try {
+    preferenceStorage = globalThis.localStorage;
+  } catch {
+    preferenceStorage = undefined;
+  }
+  const preferenceStore = createBrowserPreferenceStore(
+    String(extension.manifest.name ?? source),
+    preferenceStorage,
+  );
+  const fields = preferenceFields(extensionPreferences, commandPreferences);
+  const values = {
+    ...preferenceDefaults(extensionPreferences, commandPreferences),
+    ...preferenceStore.values(selectedCommand),
+  };
+  const missing = missingPreferences(fields, values);
+  preferenceForm = {
+    source,
+    command: selectedCommand,
+    extension: extensionPreferences,
+    commandFields: commandPreferences,
+    scope: "command",
+    store: preferenceStore,
+  };
+  if (missing.length) {
+    rootOpen = false;
+    drawPreferences();
+    return;
+  }
+  preferenceFormVisible = false;
   activeCapabilityContext = {
     extensionName: String(extension.manifest.name ?? source),
     commandName: selectedCommand,
@@ -356,7 +460,7 @@ async function launch(source: string, commandName: string): Promise<void> {
           entry: command,
           mode: "view",
         },
-        preferences: {},
+        preferences: { ...values },
         environment: {
           extensionName,
           commandName: selectedCommand,
@@ -403,7 +507,9 @@ async function loadRuntimeCode(): Promise<string | undefined> {
 async function prebuiltBundle(
   source: string,
   command: string,
-): Promise<{ code: string; files: Map<string, BrowserFile> } | undefined> {
+): Promise<
+  { code: string; files: Map<string, BrowserFile>; manifest: CatalogManifest } | undefined
+> {
   try {
     const index = await loadBundleIndex();
     if (!index) return undefined;
@@ -432,7 +538,10 @@ async function prebuiltBundle(
           : new Uint8Array(assetBytes),
       );
     }
-    return { code: new TextDecoder().decode(bytes), files };
+    // An index without manifest data predates 0133; the source path still has
+    // the full package.json, so fall back to it.
+    if (!entry.manifest) return undefined;
+    return { code: new TextDecoder().decode(bytes), files, manifest: entry.manifest };
   } catch {
     return undefined;
   }
@@ -601,6 +710,7 @@ async function start() {
       openUrl: (url) => window.open(url, "_blank", "noopener"),
       launchCommand: (source, command) => launch(source, command),
       status: (message) => setStatus(message),
+      openPreferences: openPreferenceForm,
     });
     const params = new URLSearchParams(location.search);
     const extension = params.get("ext");
@@ -668,7 +778,11 @@ document.addEventListener("keydown", (event) => {
   } else if (event.key === "Escape") {
     event.preventDefault();
     // The controller closes an open action panel on back before leaving the view.
-    backFromExtension();
+    if (preferenceFormVisible) {
+      preferenceFormVisible = false;
+      rootOpen = true;
+      drawRoot();
+    } else backFromExtension();
   }
 });
 
@@ -690,8 +804,41 @@ function runFooter(action: string) {
   else if (action === "actions") toggleExtensionActions();
   else if (action === "back") backFromExtension();
 }
+function preferenceFormValues(
+  form: HTMLFormElement,
+  fields: Preference[],
+): Record<string, string | boolean> {
+  const values: Record<string, string | boolean> = {};
+  for (const field of fields) {
+    const input = form.elements.namedItem(field.name) as
+      | HTMLInputElement
+      | HTMLSelectElement
+      | null;
+    if (input)
+      values[field.name] =
+        input instanceof HTMLInputElement && input.type === "checkbox"
+          ? input.checked
+          : input.value;
+  }
+  return values;
+}
 document.addEventListener("input", (event) => {
   const target = event.target as HTMLInputElement;
+  if (target.closest("#preferences-form") && preferenceForm) {
+    const fields =
+      preferenceForm.scope === "extension"
+        ? preferenceForm.extension
+        : preferenceFields(preferenceForm.extension, preferenceForm.commandFields);
+    const form = document.querySelector<HTMLFormElement>("#preferences-form");
+    const missing = form
+      ? missingPreferences(fields, preferenceFormValues(form, fields)).length > 0
+      : true;
+    const submit = document.querySelector<HTMLButtonElement>(
+      '#preferences-form button[type="submit"]',
+    );
+    if (submit) submit.disabled = missing;
+    return;
+  }
   if (target.id === "root-search") {
     rootQuery = target.value;
     rootSelected = 0;
@@ -705,6 +852,13 @@ document.addEventListener("input", (event) => {
 });
 document.addEventListener("click", (event) => {
   const target = event.target as HTMLElement;
+  if (target.closest("[data-preference-back]")) {
+    preferenceFormVisible = false;
+    rootOpen = true;
+    drawRoot();
+    return;
+  }
+  if (target.closest("#preferences-form")) return;
   const footer = target.closest<HTMLElement>("[data-footer]")?.dataset.footer;
   if (footer !== undefined) {
     runFooter(footer);
@@ -730,5 +884,34 @@ document.addEventListener("click", (event) => {
   }
   const rowId = target.closest<HTMLElement>("#app .rows li[data-id]")?.dataset.id;
   if (rowId !== undefined) sendInput({ type: "select", id: rowId });
+});
+document.addEventListener("submit", (event) => {
+  if (
+    !(event.target instanceof HTMLFormElement) ||
+    event.target.id !== "preferences-form" ||
+    !preferenceForm
+  )
+    return;
+  event.preventDefault();
+  const fields =
+    preferenceForm.scope === "extension"
+      ? preferenceForm.extension
+      : preferenceFields(preferenceForm.extension, preferenceForm.commandFields);
+  const values = preferenceFormValues(event.target, fields);
+  const missing = missingPreferences(fields, values);
+  if (missing.length) {
+    const error = document.querySelector("#preference-error");
+    if (error) error.textContent = `Required: ${missing.map((field) => field.title).join(", ")}`;
+    return;
+  }
+  const extensionNames = new Set(preferenceForm.extension.map((field) => field.name));
+  const extensionValues: Record<string, string | boolean> = {};
+  const commandValues: Record<string, string | boolean> = {};
+  for (const [name, value] of Object.entries(values))
+    (extensionNames.has(name) ? extensionValues : commandValues)[name] = value;
+  preferenceForm.store.update(extensionValues, preferenceForm.command, commandValues);
+  const { source, command } = preferenceForm;
+  preferenceFormVisible = false;
+  void launch(source, command).catch((error) => setStatus(String(error), true));
 });
 void start();

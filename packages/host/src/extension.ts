@@ -2,6 +2,7 @@ import { watch as watchDirectory } from "node:fs";
 import { readFile, rm } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { bundleCommand, MissingDependencyError, type Preference } from "./bundle.ts";
+import { missingPreferences, preferenceFields, preferenceValues } from "./preference-fields.ts";
 import { createSessionBroker } from "./client.ts";
 import { parseManifest, missingRequired, type ExtensionManifest } from "./extension-manifest.ts";
 import {
@@ -135,22 +136,15 @@ export function createExtensionHandle(
     const store = createPreferenceStore({ extensionName: extension.name, dataDir });
     const stored = await store.read();
     const values =
-      scope === "extension" ? stored.extension : { ...stored.extension, ...stored.commands[name] };
-    const fields = [
-      ...new Map(
-        [...extension.preferences, ...command.preferences].map((p) => [p.name, p]),
-      ).values(),
-    ];
+      scope === "extension"
+        ? stored.extension
+        : preferenceValues(stored.extension, stored.commands, name);
+    const fields = preferenceFields(extension.preferences, command.preferences);
     return {
       extension: extension.preferences,
       command: command.preferences,
       values,
-      missing: fields.filter(
-        (p) =>
-          p.required &&
-          p.default === undefined &&
-          (values[p.name] === undefined || values[p.name] === ""),
-      ),
+      missing: missingPreferences(fields, values),
     };
   };
   // A failed install remains observable to its caller but does not poison the

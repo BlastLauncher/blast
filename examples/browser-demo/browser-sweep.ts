@@ -35,6 +35,7 @@ export type BrowserObservation = {
   network?: boolean;
   bundleFallbackFailed?: boolean;
   timedOut?: boolean;
+  needsPreferences?: boolean;
 };
 export type BrowserOutcome =
   | "rendered"
@@ -43,6 +44,7 @@ export type BrowserOutcome =
   | "network"
   | `runtime-error:${string}`
   | "bundle-fallback-failed"
+  | "needs-preferences"
   | "timeout";
 
 const firstLine = (value: string) => value.split(/\r?\n/u, 1)[0]!.trim();
@@ -53,6 +55,7 @@ const networkPattern =
 export function classifyBrowserOutcome(observation: BrowserObservation): BrowserOutcome {
   if (observation.timedOut) return "timeout";
   if (observation.bundleFallbackFailed) return "bundle-fallback-failed";
+  if (observation.needsPreferences) return "needs-preferences";
   if (observation.capability) return `capability-denied:${observation.capability}`;
   const pageErrors = observation.pageErrors ?? [];
   const consoleErrors = observation.consoleErrors ?? [];
@@ -171,6 +174,7 @@ async function runCommand(
     await page.waitForFunction(
       () =>
         document.querySelector("#app #search") !== null ||
+        document.querySelector("#preferences-form") !== null ||
         document.querySelector('#status[data-error="true"]') !== null,
       { timeout: 15_000 },
     );
@@ -183,6 +187,7 @@ async function runCommand(
           document.querySelector("#app .rows li") !== null ||
           document.querySelector("#app .detail") !== null ||
           document.querySelector("#app form input[data-field]") !== null ||
+          document.querySelector("#preferences-form") !== null ||
           document.querySelector("#app .empty strong") !== null ||
           document.querySelector('#status[data-error="true"]') !== null,
         { timeout: 15_000 },
@@ -199,11 +204,13 @@ async function runCommand(
               rows: sceneMain.querySelectorAll(".rows li").length,
               detail: Boolean(sceneMain.querySelector(".detail")?.textContent?.trim()),
               fields: sceneMain.querySelectorAll("form input[data-field]").length,
+              needsPreferences: document.querySelector("#preferences-form") !== null,
               hasEmptyView: Boolean(sceneMain.querySelector(".empty strong")),
               hasSearchBar: Boolean(sceneMain.querySelector("#search")),
               isLoading: sceneMain.querySelector("[data-loading='true']") !== null,
             }
           : undefined,
+        needsPreferences: document.querySelector("#preferences-form") !== null,
         status: document.querySelector("#status")?.textContent?.trim() ?? "",
         statusError: document.querySelector('#status[data-error="true"]') !== null,
         capability: document
@@ -214,6 +221,7 @@ async function runCommand(
     const capability = snapshot.capability;
     const observation: BrowserObservation = {
       ...(snapshot.scene ? { scene: snapshot.scene } : {}),
+      needsPreferences: snapshot.needsPreferences,
       status: snapshot.status,
       statusError: snapshot.statusError,
       pageErrors,

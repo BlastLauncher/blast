@@ -26,6 +26,16 @@ import {
   type SharedDependencyLoader,
 } from "./dependencies.ts";
 import { loadTsconfigAliases } from "./tsconfig-paths.ts";
+import { parsePreferences, preferenceDefaults } from "./preference-fields.ts";
+export {
+  missingPreferences,
+  parsePreferences,
+  preferenceDefaults,
+  preferenceFields,
+  preferenceValues,
+  type Preference,
+  type PreferenceValue,
+} from "./preference-fields.ts";
 
 // Bundles run in Node even when Bun runs the host. Bun's built-in list also
 // includes npm packages such as undici and ws, which must be bundled for Node.
@@ -385,77 +395,6 @@ export type BundledCommand = {
   dependencyWarnings?: string[];
 };
 
-/** The preference types Raycast's manifest schema defines. */
-const PREFERENCE_TYPES = [
-  "appPicker",
-  "checkbox",
-  "dropdown",
-  "password",
-  "textfield",
-  "file",
-  "directory",
-];
-
-export type Preference = {
-  name: string;
-  type: string;
-  title: string;
-  description?: string;
-  required: boolean;
-  data: { title: string; value: string }[];
-  default?: string | number | boolean;
-};
-
-/** Shared manifest parsing for bundling defaults and client preference forms. */
-export function parsePreferences(value: unknown, at = "Preferences"): Preference[] {
-  if (value === undefined) return [];
-  if (!Array.isArray(value)) throw new Error(`${at} must be an array`);
-  return value.map((item, index) => {
-    if (typeof item !== "object" || item === null || Array.isArray(item))
-      throw new Error(`${at} entry ${index + 1} must be an object`);
-    const { name, type, default: fallback, description } = item;
-    if (typeof name !== "string" || !name) throw new Error(`${at} entry ${index + 1} needs a name`);
-    if (typeof type !== "string" || !PREFERENCE_TYPES.includes(type))
-      throw new Error(
-        `Preference ${JSON.stringify(name)} has an unknown type ${JSON.stringify(type)}`,
-      );
-    if (
-      fallback !== undefined &&
-      typeof fallback !== "string" &&
-      typeof fallback !== "boolean" &&
-      !(typeof fallback === "number" && Number.isFinite(fallback))
-    )
-      throw new Error(`Preference ${JSON.stringify(name)} needs a scalar "default"`);
-    if (description !== undefined && typeof description !== "string")
-      throw new Error(`Preference ${JSON.stringify(name)} needs a string "description"`);
-    return {
-      name,
-      type,
-      title: (type === "checkbox" ? item.label : item.title) || name,
-      required: item.required === true,
-      data: Array.isArray(item.data)
-        ? item.data.filter(
-            (option: { value?: unknown; title?: unknown }) =>
-              typeof option.value === "string" && typeof option.title === "string",
-          )
-        : [],
-      ...(typeof description === "string" ? { description } : {}),
-      ...(fallback === undefined ? {} : { default: fallback }),
-    };
-  });
-}
-
-function parsePreferenceDefaults(
-  value: unknown,
-  at: string,
-): Record<string, string | number | boolean> {
-  return Object.fromEntries(
-    parsePreferences(value, at)
-      .filter((p) => p.default !== undefined)
-      .map((p) => [p.name, p.default!]),
-  );
-}
-
 /** The argument types Raycast's manifest schema defines. */
 const ARGUMENT_TYPES = ["text", "password", "dropdown"];
 
@@ -749,10 +688,10 @@ async function bundleEntryWithSignal(
     mode: command.mode,
     arguments: commandArguments,
     // Command preferences shadow extension preferences with the same name.
-    preferenceDefaults: {
-      ...parsePreferenceDefaults(manifest.preferences, "Extension preferences"),
-      ...parsePreferenceDefaults(command.preferences, `Command ${command.name} preferences`),
-    },
+    preferenceDefaults: preferenceDefaults(
+      parsePreferences(manifest.preferences, "Extension preferences"),
+      parsePreferences(command.preferences, `Command ${command.name} preferences`),
+    ),
     assetsPath: join(outDir, "assets"),
     ...(manifest.ai?.modelProvider && !options.modelProvider
       ? { modelProviderDir: extensionDir }

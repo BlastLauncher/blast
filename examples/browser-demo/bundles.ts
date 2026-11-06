@@ -1,8 +1,16 @@
+import { parsePreferences, type Preference } from "../../packages/host/src/preference-fields.ts";
+
+export type CatalogManifest = {
+  name: string;
+  preferences: Preference[];
+  commands: Record<string, Preference[]>;
+};
 export type CatalogBundle = {
   path: string;
   bytes: number;
   sha256: string;
   files?: Record<string, CatalogBundle>;
+  manifest?: CatalogManifest;
 };
 export type BundleIndex = {
   buildSha: string;
@@ -71,11 +79,34 @@ export function parseBundleIndex(value: unknown): BundleIndex {
         files[name] = { path: file.path, bytes: file.bytes, sha256: file.sha256 };
       }
     }
+    let manifest: CatalogManifest | undefined;
+    if (item.manifest !== undefined) {
+      if (!item.manifest || typeof item.manifest !== "object")
+        throw new Error(`Invalid bundle manifest: ${key}`);
+      const declared = item.manifest as Record<string, unknown>;
+      if (
+        typeof declared.name !== "string" ||
+        !declared.commands ||
+        typeof declared.commands !== "object"
+      )
+        throw new Error(`Invalid bundle manifest shape: ${key}`);
+      const commands: Record<string, Preference[]> = {};
+      for (const [name, preferences] of Object.entries(
+        declared.commands as Record<string, unknown>,
+      ))
+        commands[name] = parsePreferences(preferences, `Bundle ${key} command ${name} preferences`);
+      manifest = {
+        name: declared.name,
+        preferences: parsePreferences(declared.preferences, `Bundle ${key} preferences`),
+        commands,
+      };
+    }
     bundles[key] = {
       path: item.path,
       bytes: item.bytes,
       sha256: item.sha256,
       ...(Object.keys(files).length ? { files } : {}),
+      ...(manifest ? { manifest } : {}),
     };
   }
   return { buildSha: input.buildSha, bundles, ...(runtime ? { runtime } : {}) };
