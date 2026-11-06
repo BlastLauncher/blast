@@ -1,7 +1,7 @@
 ---
 id: "0133"
 title: Browser demo preferences (defaults, required-preference form, preferences.open)
-status: todo
+status: doing
 milestone: M8
 depends: ["0132"]
 ---
