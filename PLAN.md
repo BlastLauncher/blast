@@ -87,10 +87,9 @@ Raycast extensions in a browser tab, in almostnode's cross-origin sandbox (decis
 - [x] 0115–0119 spike, runtime core, browser bundle, installer, demo by URL (`examples/browser-*`)
 - [x] 0120–0127 root list, static site, deploy (blast.yukai.dev), live fixes, polish, prebuilt
       bundles, parity and warm sandbox (3 KB command opens)
-- [x] 0128 Browser-backed capabilities (storage, clipboard, command, oauth tokens)
-- [x] 0129 browser sweep (compat/BROWSER-SWEEP.md, 34/237 rendered at first)
-- [x] 0130 Rank the demo root list with cmdk's matcher
-- [x] 0131 Sandbox gaps: stream/promises shim, Cache support directory (103 commands)
+- [x] 0128 browser capabilities; 0129 browser sweep; 0130 cmdk matching; 0131 sandbox
+      gaps (stream/promises, Cache): 34 → 103/237 rendered
+- [ ] 0132 Sweep round 2: lazy command load, applications, assets in VFS, empty triage
 
 ## Later (not scheduled)
 
