@@ -109,15 +109,12 @@ usable by `examples/web-launcher`, its other consumer. Run that example's tests.
 
 ## Handoff
 
-Filled in by the worker when finishing:
-
-```
-Branch/commit: t3/web-launcher-focus-keyboard @ 8e0d8fe28807e7e30741283ef74bbfd71090db55
-Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 66.7s
+Branch/commit: t3/web-launcher-focus-keyboard-1 @ 1381491
+Verify: `bun run verify` not passing: existing Playwright e2e ambient typings are missing in the repository typecheck, and the new browser e2e still needs final stabilization.
 Done:
-- Preserved launcher controls across redraws, restored focus and caret, and kept selection visible.
-- Added browser shortcut mapping/dispatch, layered Escape, form keyboard behavior, grid directions, and timed controller effects.
-- Rendered checkbox fields correctly and added keyboard mapping unit coverage.
-- `PLAYWRIGHT_BROWSERS_PATH` set, `bun run site:e2e` passes.
-Not done / risks: The broader fixture coverage requested in the task acceptance is not added because the browser site currently exposes only list, storage, and preference fixtures; the implementation paths are covered by the existing e2e flow and unit tests.
-```
+
+- Added browser-keyboard and browser-form fixtures, wired through `site.ts --fixtures` and prebuild catalog generation.
+- Added real-key browser coverage for search focus, list filtering, shortcut dispatch, pushed detail, form navigation, submission, and timed toast behavior.
+- Restricted horizontal arrows to grids and vertical arrows out of forms; expanded keyboard mapping coverage.
+- Sanitized the handoff so it contains no personal filesystem path.
+  Not done / risks: `site:e2e` currently reaches the browser-form scene but its rendered controls need selector/runtime follow-up; no Chromium was downloaded.
