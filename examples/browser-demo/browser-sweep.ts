@@ -174,6 +174,7 @@ async function runCommand(
     await page.waitForFunction(
       () =>
         document.querySelector("#app #search") !== null ||
+        document.querySelector("#preferences-form") !== null ||
         document.querySelector('#status[data-error="true"]') !== null,
       { timeout: 15_000 },
     );

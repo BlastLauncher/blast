@@ -4,7 +4,13 @@ import { installForBrowser } from "../../packages/host/src/browser-install.ts";
 import { bundleForBrowser } from "../../packages/host/src/browser-bundle.ts";
 import type { SceneMessage } from "../../packages/protocol/src/index.ts";
 import { aliases } from "./bundle-config.ts";
-import { bundleKey, bundleMatches, parseBundleIndex, sha256Hex } from "./bundles.ts";
+import {
+  bundleKey,
+  bundleMatches,
+  parseBundleIndex,
+  sha256Hex,
+  type CatalogManifest,
+} from "./bundles.ts";
 import { render, renderPreferences, renderRoot } from "../web-launcher/render.js";
 import {
   createBrowserCapabilities,
@@ -14,7 +20,9 @@ import {
 import {
   missingPreferences,
   parsePreferences,
+  preferenceDefaults,
   preferenceFields,
+  type Preference,
 } from "../../packages/host/src/preference-fields.ts";
 import { canUseLocalFixture, isTextExtension, parseExtensionSource } from "./source.ts";
 import {
@@ -68,8 +76,9 @@ let preferenceForm:
   | {
       source: string;
       command: string;
-      extension: any[];
-      commandFields: any[];
+      extension: Preference[];
+      commandFields: Preference[];
+      scope: "extension" | "command";
       store: ReturnType<typeof createBrowserPreferenceStore>;
     }
   | undefined;
@@ -132,29 +141,14 @@ const drawRoot = () => {
     .querySelector<HTMLElement>(`#root-option-${rootSelected}`)
     ?.scrollIntoView({ block: "nearest" });
 };
-function drawPreferences() {
-  if (!preferenceForm) return;
-  const fields = preferenceFields(preferenceForm.extension, preferenceForm.commandFields);
-  const values = preferenceForm.store.values(preferenceForm.command);
-  const unavailable = fields
-    .filter(
-      (field) =>
-        ["file", "directory", "appPicker"].includes(field.type) &&
-        field.required &&
-        field.default === undefined,
-    )
-    .map((field) => field.name);
-  app.innerHTML = renderPreferences(fields, values, "Set up preferences", unavailable);
-  preferenceFormVisible = true;
-  document.querySelector<HTMLInputElement | HTMLSelectElement>("[data-preference]")?.focus();
-}
-function openPreferenceForm(scope: "extension" | "command", _context: CapabilityContext) {
+function drawPreferences(scope: "extension" | "command" = "command") {
   if (!preferenceForm) return;
   const fields =
     scope === "extension"
       ? preferenceForm.extension
       : preferenceFields(preferenceForm.extension, preferenceForm.commandFields);
   const values = preferenceForm.store.values(preferenceForm.command);
+  preferenceForm.scope = scope;
   const unavailable = fields
     .filter(
       (field) =>
@@ -166,10 +160,14 @@ function openPreferenceForm(scope: "extension" | "command", _context: Capability
   app.innerHTML = renderPreferences(
     fields,
     values,
-    scope === "extension" ? "Extension preferences" : "Command preferences",
+    scope === "extension" ? "Extension preferences" : "Set up preferences",
     unavailable,
   );
   preferenceFormVisible = true;
+  document.querySelector<HTMLInputElement | HTMLSelectElement>("[data-preference]")?.focus();
+}
+function openPreferenceForm(scope: "extension" | "command", _context: CapabilityContext) {
+  drawPreferences(scope);
 }
 const sendInput = (value: Parameters<Controller["input"]>[0]) => {
   const result = controller?.input(value);
@@ -304,7 +302,7 @@ function commandEntry(files: Map<string, BrowserFile>, name: string): string {
   throw new Error(`Command source not found for ${name}`);
 }
 
-async function launch(source: string, commandName: string): Promise<void> {
+async function launch(source: string, commandName: string, forceSource = false): Promise<void> {
   rootOpen = false;
   actionOpen = false;
   const selectedRow = rootRows[rootSelected];
@@ -317,16 +315,14 @@ async function launch(source: string, commandName: string): Promise<void> {
       }
     : undefined;
   const selectedCommand = commandName || commandSelect?.value || "index";
-  activeCapabilityContext = { extensionName: source, commandName: selectedCommand, source };
   const catalogSource =
-    source.startsWith("https://github.com/raycast/extensions/tree/") &&
-    !source.includes("/browser-preferences");
+    !forceSource && source.startsWith("https://github.com/raycast/extensions/tree/");
   const bundle = catalogSource ? await prebuiltBundle(source, selectedCommand) : undefined;
   let extension: Awaited<ReturnType<typeof fetchFiles>>;
   let command: string;
   let bundled: { code: string; files?: Map<string, BrowserFile> };
   if (bundle) {
-    extension = { files: bundle.files, manifest: { name: source }, root: "" };
+    extension = { files: bundle.files, manifest: bundle.manifest, root: "" };
     command = `/src/${selectedCommand}.tsx`;
     bundled = bundle;
     setStatus("Starting prebuilt bundle…");
@@ -358,12 +354,18 @@ async function launch(source: string, commandName: string): Promise<void> {
     });
   }
   const preferenceFieldsRaw = (extension.manifest.preferences as unknown[] | undefined) ?? [];
-  const commandDeclaration = (
-    (extension.manifest.commands as Array<Record<string, unknown>> | undefined) ?? []
-  ).find((item) => item.name === selectedCommand);
+  const commandDeclarations = extension.manifest.commands;
+  const commandDeclaration = Array.isArray(commandDeclarations)
+    ? commandDeclarations.find(
+        (item) => item && typeof item === "object" && item.name === selectedCommand,
+      )
+    : undefined;
+  const commandPreferenceValue = Array.isArray(commandDeclarations)
+    ? commandDeclaration?.preferences
+    : (commandDeclarations as Record<string, unknown> | undefined)?.[selectedCommand];
   const extensionPreferences = parsePreferences(preferenceFieldsRaw, "Extension preferences");
   const commandPreferences = parsePreferences(
-    commandDeclaration?.preferences,
+    commandPreferenceValue,
     `Command ${selectedCommand} preferences`,
   );
   let preferenceStorage;
@@ -378,11 +380,7 @@ async function launch(source: string, commandName: string): Promise<void> {
   );
   const fields = preferenceFields(extensionPreferences, commandPreferences);
   const values = {
-    ...Object.fromEntries(
-      fields
-        .filter((field) => field.default !== undefined)
-        .map((field) => [field.name, field.default]),
-    ),
+    ...preferenceDefaults(extensionPreferences, commandPreferences),
     ...preferenceStore.values(selectedCommand),
   };
   const missing = missingPreferences(fields, values);
@@ -391,6 +389,7 @@ async function launch(source: string, commandName: string): Promise<void> {
     command: selectedCommand,
     extension: extensionPreferences,
     commandFields: commandPreferences,
+    scope: "command",
     store: preferenceStore,
   };
   if (missing.length) {
@@ -509,7 +508,9 @@ async function loadRuntimeCode(): Promise<string | undefined> {
 async function prebuiltBundle(
   source: string,
   command: string,
-): Promise<{ code: string; files: Map<string, BrowserFile> } | undefined> {
+): Promise<
+  { code: string; files: Map<string, BrowserFile>; manifest: CatalogManifest } | undefined
+> {
   try {
     const index = await loadBundleIndex();
     if (!index) return undefined;
@@ -538,7 +539,10 @@ async function prebuiltBundle(
           : new Uint8Array(assetBytes),
       );
     }
-    return { code: new TextDecoder().decode(bytes), files };
+    if (!entry.manifest) return undefined;
+    // Preference-bearing bundles use the source path so the complete manifest and
+    // command metadata remain available to the browser host.
+    return { code: new TextDecoder().decode(bytes), files, manifest: entry.manifest };
   } catch {
     return undefined;
   }
@@ -801,22 +805,35 @@ function runFooter(action: string) {
   else if (action === "actions") toggleExtensionActions();
   else if (action === "back") backFromExtension();
 }
+function preferenceFormValues(
+  form: HTMLFormElement,
+  fields: Preference[],
+): Record<string, string | boolean> {
+  const values: Record<string, string | boolean> = {};
+  for (const field of fields) {
+    const input = form.elements.namedItem(field.name) as
+      | HTMLInputElement
+      | HTMLSelectElement
+      | null;
+    if (input)
+      values[field.name] =
+        input instanceof HTMLInputElement && input.type === "checkbox"
+          ? input.checked
+          : input.value;
+  }
+  return values;
+}
 document.addEventListener("input", (event) => {
   const target = event.target as HTMLInputElement;
   if (target.closest("#preferences-form") && preferenceForm) {
-    const fields = preferenceFields(preferenceForm.extension, preferenceForm.commandFields);
-    const missing = fields.some((field) => {
-      if (!field.required || field.default !== undefined) return false;
-      const input = document.querySelector<HTMLInputElement | HTMLSelectElement>(
-        `[data-preference="${CSS.escape(field.name)}"]`,
-      );
-      return (
-        !input ||
-        (input instanceof HTMLInputElement && input.type === "checkbox"
-          ? false
-          : input.value === "")
-      );
-    });
+    const fields =
+      preferenceForm.scope === "extension"
+        ? preferenceForm.extension
+        : preferenceFields(preferenceForm.extension, preferenceForm.commandFields);
+    const form = document.querySelector<HTMLFormElement>("#preferences-form");
+    const missing = form
+      ? missingPreferences(fields, preferenceFormValues(form, fields)).length > 0
+      : true;
     const submit = document.querySelector<HTMLButtonElement>(
       '#preferences-form button[type="submit"]',
     );
@@ -877,22 +894,12 @@ document.addEventListener("submit", (event) => {
   )
     return;
   event.preventDefault();
-  const values: Record<string, string | boolean> = {};
-  for (const field of preferenceFields(preferenceForm.extension, preferenceForm.commandFields)) {
-    const input = event.target.elements.namedItem(field.name) as
-      | HTMLInputElement
-      | HTMLSelectElement
-      | null;
-    if (input)
-      values[field.name] =
-        input instanceof HTMLInputElement && input.type === "checkbox"
-          ? input.checked
-          : input.value;
-  }
-  const missing = missingPreferences(
-    preferenceFields(preferenceForm.extension, preferenceForm.commandFields),
-    values,
-  );
+  const fields =
+    preferenceForm.scope === "extension"
+      ? preferenceForm.extension
+      : preferenceFields(preferenceForm.extension, preferenceForm.commandFields);
+  const values = preferenceFormValues(event.target, fields);
+  const missing = missingPreferences(fields, values);
   if (missing.length) {
     const error = document.querySelector("#preference-error");
     if (error) error.textContent = `Required: ${missing.map((field) => field.title).join(", ")}`;
@@ -906,6 +913,6 @@ document.addEventListener("submit", (event) => {
   preferenceForm.store.update(extensionValues, preferenceForm.command, commandValues);
   const { source, command } = preferenceForm;
   preferenceFormVisible = false;
-  void launch(source, command).catch((error) => setStatus(String(error), true));
+  void launch(source, command, true).catch((error) => setStatus(String(error), true));
 });
 void start();

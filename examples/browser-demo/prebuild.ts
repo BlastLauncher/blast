@@ -5,7 +5,8 @@ import * as esbuild from "esbuild";
 import { bundleForBrowser } from "../../packages/host/src/browser-bundle.ts";
 import { installForBrowser, type BrowserFetch } from "../../packages/host/src/browser-install.ts";
 import { aliases, sharedModules } from "./bundle-config.ts";
-import { bundleKey, type BundleIndex } from "./bundles.ts";
+import { bundleKey, type BundleIndex, type CatalogManifest } from "./bundles.ts";
+import { parsePreferences } from "../../packages/host/src/preference-fields.ts";
 import { projectRoot, relativeFiles } from "./build.ts";
 import { ensureCorpusCheckout } from "../../scripts/corpus/fetch.ts";
 import type { Catalog } from "./root.ts";
@@ -157,6 +158,25 @@ globalThis.__blastModules = { react, "react/jsx-runtime": jsxRuntime, "react/jsx
         ? await extensionFrom(join(projectRoot, "fixtures/extensions", extension.name))
         : await fetchExtension(checkout, extension.name);
       const manifest = JSON.parse(String(files.get("/package.json"))) as Record<string, unknown>;
+      const manifestName = typeof manifest.name === "string" ? manifest.name : extension.name;
+      const manifestPreferences = parsePreferences(
+        manifest.preferences,
+        `${extension.name} preferences`,
+      );
+      const manifestCommands: Record<string, ReturnType<typeof parsePreferences>> = {};
+      for (const declaration of (manifest.commands as Array<Record<string, unknown>> | undefined) ??
+        []) {
+        if (typeof declaration.name === "string")
+          manifestCommands[declaration.name] = parsePreferences(
+            declaration.preferences,
+            `${extension.name}/${declaration.name} preferences`,
+          );
+      }
+      const bundleManifest: CatalogManifest = {
+        name: manifestName,
+        preferences: manifestPreferences,
+        commands: manifestCommands,
+      };
       const lockfile = files.get("/package-lock.json");
       const installed = await installForBrowser({
         fetch: options.fetch ?? ((input, init) => fetch(input, init)),
@@ -208,6 +228,7 @@ globalThis.__blastModules = { react, "react/jsx-runtime": jsxRuntime, "react/jsx
             bytes: bytes.byteLength,
             sha256: createHash("sha256").update(bytes).digest("hex"),
             files: assetEntries,
+            manifest: bundleManifest,
           };
           built++;
         } catch (error) {

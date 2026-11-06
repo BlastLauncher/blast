@@ -19,6 +19,53 @@ test("bundle index schema accepts entries and rejects malformed values", () => {
   ).toThrow("Invalid bundle entry shape");
 });
 
+test("prebuilt index round-trips extension and command preferences", () => {
+  const index = parseBundleIndex({
+    buildSha: "abc",
+    bundles: {
+      "humaans/holidays": {
+        path: "bundles/humaans/holidays.js",
+        bytes: 1,
+        sha256: "e".repeat(64),
+        manifest: {
+          name: "humaans",
+          preferences: [
+            { name: "token", type: "password", title: "Token", required: true, data: [] },
+          ],
+          commands: {
+            holidays: [
+              {
+                name: "calendar",
+                type: "dropdown",
+                title: "Calendar",
+                required: false,
+                data: [{ title: "Work", value: "work" }],
+                default: "work",
+              },
+            ],
+          },
+        },
+      },
+    },
+  });
+  expect(index.bundles["humaans/holidays"]?.manifest).toEqual({
+    name: "humaans",
+    preferences: [{ name: "token", type: "password", title: "Token", required: true, data: [] }],
+    commands: {
+      holidays: [
+        {
+          name: "calendar",
+          type: "dropdown",
+          title: "Calendar",
+          required: false,
+          data: [{ title: "Work", value: "work" }],
+          default: "work",
+        },
+      ],
+    },
+  });
+});
+
 test("prebuilt fast path requires the build, entry and digest to match", async () => {
   const sha256 = await sha256Hex(bytes.buffer);
   const index = parseBundleIndex({
