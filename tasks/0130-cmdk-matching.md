@@ -1,7 +1,7 @@
 ---
 id: "0130"
 title: Rank the demo root list with cmdk's matcher
-status: todo
+status: doing
 milestone: M8
 depends: []
 ---
