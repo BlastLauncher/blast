@@ -51,7 +51,9 @@ function extensionEntry(catalog: Catalog, name: string) {
 }
 
 const keyFor = (extension: string, key: string, internal: boolean) =>
-  `blast:${extension}:${internal ? "internal:" : ""}${key}`;
+  // User keys get their own namespace so a LocalStorage key such as
+  // "internal:x" can never collide with Blast's internal or OAuth entries.
+  `blast:${extension}:${internal ? "internal" : "user"}:${key}`;
 const decode = (value: string | null): JsonValue | null => {
   if (value === null) return null;
   try {
@@ -93,12 +95,12 @@ export function createBrowserCapabilities(options: BrowserCapabilityOptions) {
     }
   };
   const all = (extension: string): Record<string, JsonValue> => {
-    const prefix = `blast:${extension}:`;
+    const prefix = `blast:${extension}:user:`;
     const values = new Map<string, string>();
     try {
       for (let index = 0; index < (browserStorage?.length ?? 0); index++) {
         const storedKey = browserStorage?.key(index);
-        if (storedKey?.startsWith(prefix) && !storedKey.startsWith(`${prefix}internal:`)) {
+        if (storedKey?.startsWith(prefix)) {
           const name = storedKey.slice(prefix.length);
           const value = browserStorage?.getItem(storedKey);
           if (typeof value === "string") values.set(name, value);
@@ -108,8 +110,7 @@ export function createBrowserCapabilities(options: BrowserCapabilityOptions) {
       // Merge the memory fallback below.
     }
     for (const [storedKey, value] of memory) {
-      if (storedKey.startsWith(prefix) && !storedKey.startsWith(`${prefix}internal:`))
-        values.set(storedKey.slice(prefix.length), value);
+      if (storedKey.startsWith(prefix)) values.set(storedKey.slice(prefix.length), value);
     }
     const result: Record<string, JsonValue> = {};
     for (const [name, value] of values) {
@@ -122,14 +123,13 @@ export function createBrowserCapabilities(options: BrowserCapabilityOptions) {
     return result;
   };
   const clear = (extension: string) => {
-    const prefix = `blast:${extension}:`;
+    const prefix = `blast:${extension}:user:`;
     const keys = new Set<string>();
-    for (const key of memory.keys())
-      if (key.startsWith(prefix) && !key.startsWith(`${prefix}internal:`)) keys.add(key);
+    for (const key of memory.keys()) if (key.startsWith(prefix)) keys.add(key);
     try {
       for (let index = 0; index < (browserStorage?.length ?? 0); index++) {
         const key = browserStorage?.key(index);
-        if (key?.startsWith(prefix) && !key.startsWith(`${prefix}internal:`)) keys.add(key);
+        if (key?.startsWith(prefix)) keys.add(key);
       }
     } catch {
       // Clear the known memory keys even when browser storage is inaccessible.

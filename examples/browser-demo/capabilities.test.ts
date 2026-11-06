@@ -82,6 +82,35 @@ describe("browser capabilities", () => {
     ).toEqual({ ok: true, value: "x" });
   });
 
+  test("a user key named like an internal one stays in LocalStorage and never collides", async () => {
+    const handle = createBrowserCapabilities({ catalog: catalog(), storage: storage() });
+    await handle(
+      { name: "storage.set", params: { key: "draft", value: "internal", scope: "blast:internal" } },
+      context,
+    );
+    await handle(
+      { name: "storage.set", params: { key: "internal:draft", value: "user" } },
+      context,
+    );
+    expect(await handle({ name: "storage.all", params: {} }, context)).toEqual({
+      ok: true,
+      value: { "internal:draft": "user" },
+    });
+    expect(
+      await handle(
+        { name: "storage.get", params: { key: "draft", scope: "blast:internal" } },
+        context,
+      ),
+    ).toEqual({ ok: true, value: "internal" });
+    await handle({ name: "storage.clear", params: {} }, context);
+    expect(
+      await handle(
+        { name: "storage.get", params: { key: "draft", scope: "blast:internal" } },
+        context,
+      ),
+    ).toEqual({ ok: true, value: "internal" });
+  });
+
   test("falls back to memory when localStorage throws", async () => {
     const handle = createBrowserCapabilities({ catalog: catalog(), storage: storage(true) });
     await handle({ name: "storage.set", params: { key: "answer", value: true } }, context);
