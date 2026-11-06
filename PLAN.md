@@ -89,7 +89,7 @@ Raycast extensions in a browser tab, in almostnode's cross-origin sandbox (decis
       bundles, parity and warm sandbox (3 KB command opens)
 - [x] 0128 browser capabilities; 0129 browser sweep; 0130 cmdk matching; 0131 sandbox
       gaps (stream/promises, Cache): 34 → 103/237 rendered
-- [ ] 0132 Sweep round 2: lazy command load, applications, assets in VFS, empty triage
+- [x] 0132 Sweep round 2: lazy command load, applications, assets in VFS, empty triage
 
 ## Later (not scheduled)
 
