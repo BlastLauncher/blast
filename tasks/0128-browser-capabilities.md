@@ -1,7 +1,7 @@
 ---
 id: "0128"
 title: Back common capabilities in the browser demo (storage, clipboard, command, oauth tokens)
-status: todo
+status: doing
 milestone: M8
 depends: []
 ---
