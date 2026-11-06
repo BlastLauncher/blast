@@ -131,3 +131,17 @@ test("actions filter, clamp selection, and produce host effects", () => {
     url: "https://github.com/raycast/extensions/tree/x/extensions/zeta",
   });
 });
+
+test("the extracted scorer is cmdk's defaultFilter, without cmdk's React entry", async () => {
+  const { defaultFilter } = await import("cmdk");
+  const { commandScore } = await import("./cmdk-score.ts");
+  const cases: Array<[string, string, string[]]> = [
+    ["Calculate Ratio", "ratio", ["ratio-calculator"]],
+    ["Calculate Ratio", "cal rat", []],
+    ["Top Left", "tl", ["rectangle"]],
+    ["Almost Maximize", "rect", ["Rectangle", "rectangle"]],
+    ["Hello List", "zzz", []],
+  ];
+  for (const [value, search, keywords] of cases)
+    expect(commandScore(value, search, keywords)).toBe(defaultFilter(value, search, keywords));
+});

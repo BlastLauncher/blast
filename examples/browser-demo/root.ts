@@ -1,4 +1,4 @@
-import { defaultFilter } from "cmdk";
+import { commandScore } from "./cmdk-score.ts";
 
 export type CatalogCommand = { name: string; title: string; subtitle?: string; mode: string };
 export type CatalogExtension = {
@@ -126,7 +126,7 @@ export function rootRows(catalog: Catalog, query: string): RootRow[] {
   return indexed
     .map((entry) => ({
       row: entry.row,
-      value: defaultFilter(entry.row.title, search, entry.keywords),
+      value: commandScore(entry.row.title, search, entry.keywords),
     }))
     .filter((entry) => entry.value > 0)
     .toSorted(
