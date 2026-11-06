@@ -186,9 +186,14 @@ try {
       throw new Error("Run should be disabled while the required preference is empty");
     await page.locator('input[name="secret"]').fill("browser-secret");
     await page.locator('#preferences-form button[type="submit"]').click();
+    // The frame (and its search bar) renders before the first scene, so wait for
+    // the command's own output rather than the search input.
     await page
-      .locator("#app #search")
-      .waitFor({ timeout: 30_000 })
+      .waitForFunction(
+        () => (document.querySelector("#app")?.textContent ?? "").includes("Secret: "),
+        undefined,
+        { timeout: 30_000 },
+      )
       .catch(async (error) => {
         throw new Error(`${error} after preferences: ${await page.locator("#app").innerText()}`);
       });

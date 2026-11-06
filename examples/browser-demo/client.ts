@@ -302,7 +302,7 @@ function commandEntry(files: Map<string, BrowserFile>, name: string): string {
   throw new Error(`Command source not found for ${name}`);
 }
 
-async function launch(source: string, commandName: string, forceSource = false): Promise<void> {
+async function launch(source: string, commandName: string): Promise<void> {
   rootOpen = false;
   actionOpen = false;
   const selectedRow = rootRows[rootSelected];
@@ -315,8 +315,7 @@ async function launch(source: string, commandName: string, forceSource = false):
       }
     : undefined;
   const selectedCommand = commandName || commandSelect?.value || "index";
-  const catalogSource =
-    !forceSource && source.startsWith("https://github.com/raycast/extensions/tree/");
+  const catalogSource = source.startsWith("https://github.com/raycast/extensions/tree/");
   const bundle = catalogSource ? await prebuiltBundle(source, selectedCommand) : undefined;
   let extension: Awaited<ReturnType<typeof fetchFiles>>;
   let command: string;
@@ -539,9 +538,9 @@ async function prebuiltBundle(
           : new Uint8Array(assetBytes),
       );
     }
+    // An index without manifest data predates 0133; the source path still has
+    // the full package.json, so fall back to it.
     if (!entry.manifest) return undefined;
-    // Preference-bearing bundles use the source path so the complete manifest and
-    // command metadata remain available to the browser host.
     return { code: new TextDecoder().decode(bytes), files, manifest: entry.manifest };
   } catch {
     return undefined;
@@ -913,6 +912,6 @@ document.addEventListener("submit", (event) => {
   preferenceForm.store.update(extensionValues, preferenceForm.command, commandValues);
   const { source, command } = preferenceForm;
   preferenceFormVisible = false;
-  void launch(source, command, true).catch((error) => setStatus(String(error), true));
+  void launch(source, command).catch((error) => setStatus(String(error), true));
 });
 void start();
