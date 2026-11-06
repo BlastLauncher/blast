@@ -118,6 +118,6 @@ Done:
 - Preserved launcher controls across redraws, restored focus and caret, and kept selection visible.
 - Added browser shortcut mapping/dispatch, layered Escape, form keyboard behavior, grid directions, and timed controller effects.
 - Rendered checkbox fields correctly and added keyboard mapping unit coverage.
-- `PLAYWRIGHT_BROWSERS_PATH=/Users/yukai/Projects/BlastLauncher/blast/.cache/ms-playwright bun run site:e2e` passes.
+- `PLAYWRIGHT_BROWSERS_PATH` set, `bun run site:e2e` passes.
 Not done / risks: The broader fixture coverage requested in the task acceptance is not added because the browser site currently exposes only list, storage, and preference fixtures; the implementation paths are covered by the existing e2e flow and unit tests.
 ```

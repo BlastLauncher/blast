@@ -144,7 +144,11 @@ export async function buildSite(
       title: "Browser Keyboard",
       commands: [{ name: "index", title: "Browser Keyboard", mode: "view" }],
     });
-    catalog.extensions.push({ name: "browser-form", title: "Browser Form", commands: [{ name: "index", title: "Browser Form", mode: "view" }] });
+    catalog.extensions.push({
+      name: "browser-form",
+      title: "Browser Form",
+      commands: [{ name: "index", title: "Browser Form", mode: "view" }],
+    });
     catalog.extensions.sort((a, b) =>
       String((a as { name?: unknown }).name).localeCompare(String((b as { name?: unknown }).name)),
     );
@@ -186,7 +190,12 @@ export async function buildSite(
       join(demo, "fixtures/browser-keyboard"),
       { recursive: true },
     );
-  if (options.fixtures) await cp(join(projectRoot, "fixtures/extensions/browser-form"), join(demo, "fixtures/browser-form"), { recursive: true });
+  if (options.fixtures)
+    await cp(
+      join(projectRoot, "fixtures/extensions/browser-form"),
+      join(demo, "fixtures/browser-form"),
+      { recursive: true },
+    );
   if (options.fixtures)
     await writeFile(
       join(demo, "fixtures/browser-preferences/__files"),
@@ -197,9 +206,15 @@ export async function buildSite(
   if (options.fixtures)
     await writeFile(
       join(demo, "fixtures/browser-keyboard/__files"),
-      JSON.stringify(await relativeFiles(join(projectRoot, "fixtures/extensions/browser-keyboard"))),
+      JSON.stringify(
+        await relativeFiles(join(projectRoot, "fixtures/extensions/browser-keyboard")),
+      ),
     );
-  if (options.fixtures) await writeFile(join(demo, "fixtures/browser-form/__files"), JSON.stringify(await relativeFiles(join(projectRoot, "fixtures/extensions/browser-form"))));
+  if (options.fixtures)
+    await writeFile(
+      join(demo, "fixtures/browser-form/__files"),
+      JSON.stringify(await relativeFiles(join(projectRoot, "fixtures/extensions/browser-form"))),
+    );
   await prebuildCatalog(catalog, buildSha, demo, options.fixtures);
   await writeFile(
     join(sandbox, "index.html"),

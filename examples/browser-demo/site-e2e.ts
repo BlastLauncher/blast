@@ -174,9 +174,17 @@ try {
     await page.locator("#app #search").waitFor({ timeout: 30_000 });
     await page.locator("#search").click();
     await page.locator("#search").pressSequentially("abc");
-    await page.waitForFunction(() => (document.querySelector("#search") as HTMLInputElement)?.value === "abc", undefined, { timeout: 10_000 });
+    await page.waitForFunction(
+      () => (document.querySelector("#search") as HTMLInputElement)?.value === "abc",
+      undefined,
+      { timeout: 10_000 },
+    );
     await page.locator("#search").fill("");
-    await page.waitForFunction(() => document.querySelectorAll("#app .rows li").length >= 40, undefined, { timeout: 10_000 });
+    await page.waitForFunction(
+      () => document.querySelectorAll("#app .rows li").length >= 40,
+      undefined,
+      { timeout: 10_000 },
+    );
     await page.keyboard.press("Meta+Shift+C");
     await page.getByRole("heading", { name: "Shortcut ran" }).waitFor({ timeout: 10_000 });
     await page.locator('#app [data-footer="actions"]').click();
@@ -189,25 +197,40 @@ try {
     await page.locator("#app .rows").waitFor({ timeout: 10_000 });
     await page.keyboard.press("Meta+Shift+T");
     await page.getByText("Success toast").waitFor({ timeout: 10_000 });
-    await page.waitForFunction(() => !document.querySelector(".toast"), undefined, { timeout: 10_000 });
+    await page.waitForFunction(() => !document.querySelector(".toast"), undefined, {
+      timeout: 10_000,
+    });
     await page.keyboard.press("Escape");
     await page.locator("#root-search").waitFor({ timeout: 10_000 });
 
     await page.locator("#root-search").fill("browser-form");
     await page.keyboard.press("Enter");
-    await page.locator('input:not(#search)').waitFor({ timeout: 30_000 }).catch(async (error) => { throw new Error(`${error} status=${await page.locator("#status").textContent()} app=${await page.locator("#app").innerText()}`); });
-    await page.locator('input:not(#search)').pressSequentially("one");
+    await page
+      .locator("input:not(#search)")
+      .waitFor({ timeout: 30_000 })
+      .catch(async (error) => {
+        throw new Error(
+          `${error} status=${await page.locator("#status").textContent()} app=${await page.locator("#app").innerText()}`,
+        );
+      });
+    await page.locator("input:not(#search)").pressSequentially("one");
     await page.keyboard.press("Tab");
-    if (!(await page.evaluate(() => document.activeElement?.tagName === "TEXTAREA"))) throw new Error("Tab did not focus second form field");
-    await page.locator('textarea').pressSequentially("two");
+    if (!(await page.evaluate(() => document.activeElement?.tagName === "TEXTAREA")))
+      throw new Error("Tab did not focus second form field");
+    await page.locator("textarea").pressSequentially("two");
     await page.keyboard.press("Shift+Tab");
-    if (!(await page.evaluate(() => document.activeElement?.matches('input[type="text"]') ?? false))) throw new Error("Shift-Tab did not return to first form field");
+    if (
+      !(await page.evaluate(() => document.activeElement?.matches('input[type="text"]') ?? false))
+    )
+      throw new Error("Shift-Tab did not return to first form field");
     await page.keyboard.press("ArrowDown");
-    if ((await page.locator('input:not(#search)').inputValue()) !== "one") throw new Error("ArrowDown changed the focused text field");
+    if ((await page.locator("input:not(#search)").inputValue()) !== "one")
+      throw new Error("ArrowDown changed the focused text field");
     await page.keyboard.press("Tab");
     await page.keyboard.press("Tab");
     await page.keyboard.press("Space");
-    if (!(await page.locator('input[type="checkbox"]').isChecked())) throw new Error("Space did not toggle the checkbox");
+    if (!(await page.locator('input[type="checkbox"]').isChecked()))
+      throw new Error("Space did not toggle the checkbox");
     await page.keyboard.press("Meta+Enter");
     await page.getByRole("heading", { name: /Submitted:/ }).waitFor({ timeout: 10_000 });
     await page.keyboard.press("Escape");
