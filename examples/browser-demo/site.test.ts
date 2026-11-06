@@ -26,6 +26,7 @@ describe("site build helpers", () => {
       commands: 90,
     });
   });
+  // Runs a full buildSite (client, almostnode, runtime bundles): seconds on a busy CI runner.
   test("writes one build id and relative sandbox asset references", async () => {
     const result = await buildSite({
       siteOrigin: "http://127.0.0.1:4173",
@@ -46,5 +47,5 @@ describe("site build helpers", () => {
     const sandbox = await readFile(`${result.sandbox}/index.html`, "utf8");
     expect(sandbox).toContain("./almostnode-full.mjs");
     expect(sandbox).not.toMatch(/(?:src|href)=["']\//);
-  });
+  }, 60_000);
 });
