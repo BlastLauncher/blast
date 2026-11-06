@@ -1,4 +1,4 @@
-import { rankGroups, score, type Searchable } from "../../packages/client-core/src/rank.ts";
+import { commandScore } from "./cmdk-score.ts";
 
 export type CatalogCommand = { name: string; title: string; subtitle?: string; mode: string };
 export type CatalogExtension = {
@@ -93,27 +93,49 @@ function row(extension: CatalogExtension, command: CatalogCommand, commit: strin
   };
 }
 
-export function rootRows(catalog: Catalog, query: string): RootRow[] {
-  const all = catalog.extensions.flatMap((extension) =>
-    extension.commands.map((command) => row(extension, command, catalog.commit)),
-  );
-  const searchable = (item: RootRow): Searchable => ({
-    title: item.title,
-    subtitle: item.subtitle,
-    keywords: [item.extension, item.command],
-  });
-  const ranked =
-    rankGroups([{ items: all }], query, (item) => score(searchable(item), query), {
-      enabled: true,
-      keepSectionOrder: true,
-    })[0]?.items ?? [];
-  if (query) return ranked;
-  return ranked.toSorted(
+type IndexedRow = { row: RootRow; keywords: string[] };
+
+function keywordsOf(extension: CatalogExtension, command: CatalogCommand): string[] {
+  return [
+    extension.title,
+    extension.name,
+    command.name,
+    ...(extension.description ? [extension.description] : []),
+  ];
+}
+
+/** Suggestions order: curated extensions first, then by title. */
+function suggestions(rows: RootRow[]): RootRow[] {
+  return rows.toSorted(
     (a, b) =>
       Number(curated.has(b.extension)) - Number(curated.has(a.extension)) ||
       a.title.localeCompare(b.title) ||
       a.id.localeCompare(b.id),
   );
+}
+
+export function rootRows(catalog: Catalog, query: string): RootRow[] {
+  const indexed: IndexedRow[] = catalog.extensions.flatMap((extension) =>
+    extension.commands.map((command) => ({
+      row: row(extension, command, catalog.commit),
+      keywords: keywordsOf(extension, command),
+    })),
+  );
+  const search = query.trim();
+  if (!search) return suggestions(indexed.map((entry) => entry.row));
+  return indexed
+    .map((entry) => ({
+      row: entry.row,
+      value: commandScore(entry.row.title, search, entry.keywords),
+    }))
+    .filter((entry) => entry.value > 0)
+    .toSorted(
+      (a, b) =>
+        b.value - a.value ||
+        a.row.title.localeCompare(b.row.title) ||
+        a.row.id.localeCompare(b.row.id),
+    )
+    .map((entry) => entry.row);
 }
 
 export function rootModel(catalog: Catalog, query: string, selected: number, url?: string) {

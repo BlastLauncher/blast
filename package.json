@@ -4,6 +4,7 @@
   "license": "MIT",
   "workspaces": [
     "packages/*",
+    "examples/browser-demo",
     "examples/web-launcher"
   ],
   "type": "module",

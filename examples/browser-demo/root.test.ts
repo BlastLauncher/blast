@@ -1,4 +1,6 @@
 import { expect, test } from "bun:test";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import {
   catalogCommandTitle,
   executeRootAction,
@@ -34,6 +36,22 @@ test("root rows rank matches and keep curated suggestions first", () => {
     "alpha",
     "zeta",
   ]);
+});
+
+const realCatalog = validateCatalog(
+  JSON.parse(await readFile(join(import.meta.dir, "catalog.json"), "utf8")),
+);
+
+test("cmdk's matcher ranks real catalog titles", () => {
+  expect(rootRows(realCatalog, "ratio")[0]?.title).toBe("Calculate Ratio");
+  expect(rootRows(realCatalog, "cal rat")[0]?.title).toBe("Calculate Ratio");
+
+  const rectangle = rootRows(realCatalog, "rect");
+  expect(rectangle[0]?.title).toBe("Rectangle Actions");
+  expect(rectangle.slice(0, 5).every((row) => row.extension === "rectangle")).toBe(true);
+
+  expect(rootRows(realCatalog, "tl")[0]?.title).toBe("Top Left");
+  expect(rootRows(realCatalog, "zzzzqqq")).toEqual([]);
 });
 
 test("catalog icons resolve from each extension assets directory", () => {
@@ -112,4 +130,18 @@ test("actions filter, clamp selection, and produce host effects", () => {
     type: "copy",
     url: "https://github.com/raycast/extensions/tree/x/extensions/zeta",
   });
+});
+
+test("the extracted scorer is cmdk's defaultFilter, without cmdk's React entry", async () => {
+  const { defaultFilter } = await import("cmdk");
+  const { commandScore } = await import("./cmdk-score.ts");
+  const cases: Array<[string, string, string[]]> = [
+    ["Calculate Ratio", "ratio", ["ratio-calculator"]],
+    ["Calculate Ratio", "cal rat", []],
+    ["Top Left", "tl", ["rectangle"]],
+    ["Almost Maximize", "rect", ["Rectangle", "rectangle"]],
+    ["Hello List", "zzz", []],
+  ];
+  for (const [value, search, keywords] of cases)
+    expect(commandScore(value, search, keywords)).toBe(defaultFilter(value, search, keywords));
 });
