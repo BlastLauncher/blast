@@ -90,6 +90,7 @@ Raycast extensions in a browser tab, in almostnode's cross-origin sandbox (decis
 - [x] 0128 browser capabilities; 0129 browser sweep; 0130 cmdk matching; 0131 sandbox
       gaps (stream/promises, Cache): 34 → 103/237 rendered
 - [x] 0132 Sweep round 2: lazy command load, applications, assets in VFS, empty triage
+- [ ] 0133 Browser preferences: defaults, required-preference form, preferences.open
 
 ## Later (not scheduled)
 
