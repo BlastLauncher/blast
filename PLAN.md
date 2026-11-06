@@ -90,7 +90,7 @@ Raycast extensions in a browser tab, in almostnode's cross-origin sandbox (decis
 - [x] 0128 Browser-backed capabilities (storage, clipboard, command, oauth tokens)
 - [x] 0129 browser sweep (compat/BROWSER-SWEEP.md, 34/237 rendered at first)
 - [x] 0130 Rank the demo root list with cmdk's matcher
-- [ ] 0131 Sandbox gaps: stream/promises shim, Cache support directory (103 commands)
+- [x] 0131 Sandbox gaps: stream/promises shim, Cache support directory (103 commands)
 
 ## Later (not scheduled)
 
