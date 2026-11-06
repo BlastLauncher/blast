@@ -61,7 +61,7 @@ const renderMarkdownInline = (value) => {
     } else {
       const href = safeUrl(url, false);
       out += href
-        ? `<a href="${escapeHtml(href)}" rel="noreferrer noopener">${emphasis(label)}</a>`
+        ? `<a href="${escapeHtml(href)}" target="_blank" rel="noreferrer noopener">${emphasis(label)}</a>`
         : emphasis(label);
     }
   }

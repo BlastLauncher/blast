@@ -20,6 +20,8 @@ describe("renderMarkdown", () => {
       "[ok](https://example.com) [bad](javascript:alert(1)) [plain](http://example.com) ![image](data:image/png;base64,abc) ![bad](http://example.com/x.png) ![data](data:text/html;base64,abc)",
     );
     expect(html).toContain('href="https://example.com"');
+    // A detail link opens beside the demo instead of replacing the running session.
+    expect(html).toContain('target="_blank"');
     expect(html).toContain('src="data:image/png;base64,abc"');
     expect(html).not.toContain("javascript:");
     expect(html).not.toContain('href="http:');
@@ -49,7 +51,7 @@ describe("renderMarkdown", () => {
 
   test("applies emphasis inside a link label", () => {
     expect(renderMarkdown("[**bold** label](https://e.com)")).toContain(
-      '<a href="https://e.com" rel="noreferrer noopener"><strong>bold</strong> label</a>',
+      '<a href="https://e.com" target="_blank" rel="noreferrer noopener"><strong>bold</strong> label</a>',
     );
   });
 
