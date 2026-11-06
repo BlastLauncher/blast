@@ -6,6 +6,7 @@ import type { SceneMessage } from "../../packages/protocol/src/index.ts";
 import { aliases } from "./bundle-config.ts";
 import { bundleKey, bundleMatches, parseBundleIndex, sha256Hex } from "./bundles.ts";
 import { render, renderRoot } from "../web-launcher/render.js";
+import { createBrowserCapabilities, type CapabilityContext } from "./capabilities.ts";
 import { canUseLocalFixture, isTextExtension, parseExtensionSource } from "./source.ts";
 import {
   catalogCommandTitle,
@@ -47,6 +48,8 @@ let bundleIndex: ReturnType<typeof parseBundleIndex> | undefined;
 let runtimeCode: string | undefined;
 let sandbox: Sandbox | undefined;
 let warming: Promise<Sandbox | undefined> | undefined;
+let activeCapabilityContext: CapabilityContext | undefined;
+let browserCapabilities: ReturnType<typeof createBrowserCapabilities> | undefined;
 
 let extensionContext:
   | {
@@ -132,21 +135,22 @@ function handleRuntime(
     draw(controller.view());
     for (const effect of result.effects) if (effect.type === "quit") setStatus("Command exited");
   } else if (message.type === "capability.request") {
-    if (message.name === "clipboard.copy") {
-      port?.postMessage({ type: "capability.result", id: message.id, ok: true, value: null });
-      setStatus("Copied (clipboard handler simulated)");
-    } else if (message.name === "open.url") {
-      window.open(String((message.params as { url?: string })?.url ?? ""), "_blank", "noopener");
-      port?.postMessage({ type: "capability.result", id: message.id, ok: true, value: null });
-    } else {
-      port?.postMessage({
-        type: "capability.result",
-        id: message.id,
-        ok: false,
-        error: { code: "DENIED", message: `${message.name} is unavailable in the browser demo` },
+    if (!browserCapabilities || !activeCapabilityContext) return;
+    void browserCapabilities(message, activeCapabilityContext)
+      .then((result) => {
+        port?.postMessage({ type: "capability.result", id: message.id, ...result });
+        if (!result.ok) setStatus(result.error.message, true);
+      })
+      .catch((error) => {
+        const text = error instanceof Error ? error.message : String(error);
+        port?.postMessage({
+          type: "capability.result",
+          id: message.id,
+          ok: false,
+          error: { code: "DENIED", message: text },
+        });
+        setStatus(text, true);
       });
-      setStatus(`${message.name} is unavailable in the browser demo`, true);
-    }
   } else if (message.type === "error") setStatus(message.message, true);
 }
 
@@ -250,6 +254,7 @@ async function launch(source: string, commandName: string): Promise<void> {
       }
     : undefined;
   const selectedCommand = commandName || commandSelect?.value || "index";
+  activeCapabilityContext = { extensionName: source, commandName: selectedCommand, source };
   const catalogSource = source.startsWith("https://github.com/raycast/extensions/tree/");
   const bundle = catalogSource ? await prebuiltBundle(source, selectedCommand) : undefined;
   let extension: Awaited<ReturnType<typeof fetchFiles>>;
@@ -284,6 +289,11 @@ async function launch(source: string, commandName: string): Promise<void> {
       aliases,
     });
   }
+  activeCapabilityContext = {
+    extensionName: String(extension.manifest.name ?? source),
+    commandName: selectedCommand,
+    source,
+  };
   const active = await acquireSandbox();
   const channel = new MessageChannel();
   port = channel.port1;
@@ -467,6 +477,7 @@ function stopSession() {
   discardSandbox();
   rootOpen = true;
   extensionContext = undefined;
+  activeCapabilityContext = undefined;
   setStatus("Ready");
   drawRoot();
   scheduleWarm();
@@ -524,6 +535,23 @@ function runAction() {
 async function start() {
   try {
     catalog = validateCatalog(await (await fetch(asset("catalog.json"))).json());
+    let storage;
+    try {
+      storage = globalThis.localStorage;
+    } catch {
+      storage = undefined;
+    }
+    browserCapabilities = createBrowserCapabilities({
+      catalog,
+      ...(storage ? { storage } : {}),
+      clipboard: {
+        readText: () => navigator.clipboard.readText(),
+        writeText: (text) => navigator.clipboard.writeText(text),
+      },
+      openUrl: (url) => window.open(url, "_blank", "noopener"),
+      launchCommand: (source, command) => launch(source, command),
+      status: (message) => setStatus(message),
+    });
     const params = new URLSearchParams(location.search);
     const extension = params.get("ext");
     const command = params.get("cmd");

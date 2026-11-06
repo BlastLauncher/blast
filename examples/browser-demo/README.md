@@ -24,7 +24,16 @@ the command selector chooses which `src/<name>.{tsx,ts,jsx,js}` entry to run.
 The host installs only non-Raycast npm dependencies, and bundles in memory with
 `esbuild-wasm`. The resulting code runs in almostnode's `SandboxRuntime` in an
 iframe on a different loopback origin (decision 0013). The host owns the
-controller and renderer. `clipboard.copy` is answered by the demo handler,
-`open.url` uses `window.open`, and other capabilities are denied visibly.
+controller and renderer.
+
+| Capability                                 | Browser demo behavior                                                                             |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| LocalStorage and internal form storage     | Backed by extension-namespaced `localStorage`, with an in-memory fallback when storage is blocked |
+| Clipboard read, copy, clear and paste      | Uses the Clipboard API when permitted; keeps a session fallback and explains that paste needs ⌘V  |
+| `open.url`                                 | Opens a new tab with `window.open`                                                                |
+| Command metadata and same-extension launch | Answered from the catalog and routed through the normal command launch path                       |
+| OAuth tokens                               | Stored per extension and provider in the browser store                                            |
+| OAuth authorization and preferences        | Denied with a browser-specific explanation                                                        |
+| Applications, selection, windows and AI    | Denied because a browser tab cannot honestly provide these host services                          |
 
 Extension network requests still require CORS. `child_process` is unavailable in a browser and native npm modules are rejected during bundling. The demo is headless-testable, binds only to 127.0.0.1, and does not publish or persist anything.

@@ -129,6 +129,11 @@ export async function buildSite(
       title: "Hello List",
       commands: [{ name: "index", title: "Hello List", mode: "view" }],
     });
+    catalog.extensions.push({
+      name: "browser-storage",
+      title: "Browser Storage",
+      commands: [{ name: "index", title: "Browser Storage", mode: "view" }],
+    });
     catalog.extensions.sort((a, b) =>
       String((a as { name?: unknown }).name).localeCompare(String((b as { name?: unknown }).name)),
     );
@@ -144,6 +149,19 @@ export async function buildSite(
     await writeFile(
       join(demo, "fixtures/hello-list/__files"),
       JSON.stringify(await relativeFiles(join(projectRoot, "fixtures/extensions/hello-list"))),
+    );
+  if (options.fixtures)
+    await cp(
+      join(projectRoot, "fixtures/extensions/browser-storage"),
+      join(demo, "fixtures/browser-storage"),
+      {
+        recursive: true,
+      },
+    );
+  if (options.fixtures)
+    await writeFile(
+      join(demo, "fixtures/browser-storage/__files"),
+      JSON.stringify(await relativeFiles(join(projectRoot, "fixtures/extensions/browser-storage"))),
     );
   await prebuildCatalog(catalog, buildSha, demo, options.fixtures);
   await writeFile(
