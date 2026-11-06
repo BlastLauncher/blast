@@ -70,8 +70,15 @@ boosts, keywords.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/cmdk-matching-ranking @ <sha>
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 114.9s
 Done:
+- root.ts ranks the root list with cmdk's defaultFilter over the command title plus extension title/name and command name/description; score 0 is hidden, ties sort by title then id, and an empty query keeps the curated suggestions order.
+- root.test.ts covers the real catalog: ratio and cal rat -> Calculate Ratio, rect -> Rectangle's commands first, the acronym tl -> Top Left, empty query keeps suggestions, and a no-match query returns [].
+- examples/browser-demo is now a workspace package pinning cmdk@1.1.1 (plus react@19.3.1/react-dom@19.3.1, the peers cmdk requires to import); root workspaces and bun.lock were regenerated with bun install.
+- Added client.js bytes: 313,148 -> 497,473 (+184,325, unminified). cmdk's index.mjs imports React and Radix at module scope, so Bun keeps the whole module graph. That is far above the 15 KB threshold; no alternative was chosen without orchestrator direction.
+- bun run site:e2e passed (headless, 127.0.0.1).
 Not done / risks:
+- The client bundle size needs an orchestrator decision: keep cmdk's public import (+184 KB) or approve a build-time shim over cmdk's command-score that preserves the same matcher.
+- esbuild-wasm, almostnode and Playwright remain on the .cache bootstrap; only cmdk (and its React peers) moved into the demo workspace.
 ```

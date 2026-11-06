@@ -1,0 +1,14 @@
+{
+  "name": "@blastlauncher/example-browser-demo",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@blastlauncher/client-core": "workspace:*",
+    "@blastlauncher/host": "workspace:*",
+    "@blastlauncher/protocol": "workspace:*",
+    "@blastlauncher/runtime": "workspace:*",
+    "cmdk": "1.1.1",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  }
+}
