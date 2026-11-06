@@ -55,6 +55,230 @@ input {
   width: 100%;
   box-sizing: border-box;
 }
+.search-line {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.search-line input {
+  flex: 1;
+}
+.dropdown-trigger,
+.dropdown-panel button,
+.alert button,
+.toast button {
+  border: 1px solid #4b4b50;
+  border-radius: 7px;
+  padding: 7px 10px;
+  background: #252528;
+  color: inherit;
+}
+.section-header {
+  color: #aaa;
+  font-size: 12px;
+  border-bottom: 1px solid #333;
+}
+.section-header small {
+  margin-left: 7px;
+  color: #777;
+}
+.grid {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  list-style: none;
+  margin: 0;
+  padding: 12px 16px;
+}
+.grid-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.grid-header {
+  color: #aaa;
+  font-size: 12px;
+  padding: 4px 0;
+}
+.grid-cell {
+  min-height: 82px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 9px;
+  border: 1px solid #3b3b40;
+  border-radius: 8px;
+  background: #252528;
+  color: inherit;
+  text-align: left;
+}
+.grid-cell.selected {
+  background: #3b3b45;
+  outline: 1px solid #7aa7ff;
+}
+.grid-cell small {
+  color: #aaa;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}
+.grid-content {
+  font-size: 22px;
+  color: #aaa;
+}
+.dropdown-panel {
+  position: absolute;
+  z-index: 4;
+  top: 74px;
+  left: 12px;
+  right: 12px;
+  padding: 12px;
+  background: #222226;
+  border: 1px solid #4b4b50;
+  border-radius: 10px;
+  box-shadow: 0 18px 45px #0008;
+}
+.dropdown-panel ul {
+  max-height: 240px;
+  overflow: auto;
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+}
+.dropdown-panel button {
+  width: 100%;
+  text-align: left;
+  border: 0;
+}
+.dropdown-panel button.selected {
+  background: #3b3b45;
+}
+.extension-form {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 8px 20px;
+}
+.form-field {
+  display: grid;
+  grid-template-columns: minmax(100px, 0.4fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  padding: 7px 0;
+}
+.form-field input,
+.form-field textarea,
+.form-field select {
+  width: 100%;
+  box-sizing: border-box;
+}
+.form-field textarea {
+  min-height: 70px;
+  resize: vertical;
+  background: #252528;
+  color: inherit;
+  border: 1px solid #4b4b50;
+  border-radius: 8px;
+  padding: 0.7rem;
+}
+.form-field .form-error {
+  grid-column: 2;
+  color: #ff6363;
+}
+.form-field.checkbox {
+  display: flex;
+  justify-content: space-between;
+}
+.form-field.checkbox input {
+  width: auto;
+}
+.form-description,
+.form-unavailable {
+  color: #aaa;
+  padding: 7px 0;
+}
+.form-separator {
+  border: 0;
+  border-top: 1px solid #333;
+}
+.detail {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 10px 20px;
+  line-height: 1.5;
+}
+.detail img {
+  max-width: 100%;
+}
+.detail code {
+  background: #2a2a30;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+.alert-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  display: grid;
+  place-items: center;
+  background: #0009;
+  padding: 16px;
+}
+.alert {
+  width: min(420px, 100%);
+  box-sizing: border-box;
+  margin: 0;
+  padding: 20px;
+  background: #242428;
+  color: inherit;
+  border: 1px solid #555;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px #000b;
+}
+.alert footer {
+  margin: 16px -20px -20px;
+  padding: 12px 20px;
+  justify-content: flex-end;
+}
+.alert footer button:last-child {
+  background: #4777d5;
+  border-color: #6692e9;
+}
+.hud {
+  position: absolute;
+  z-index: 6;
+  left: 50%;
+  bottom: 62px;
+  transform: translateX(-50%);
+  padding: 9px 14px;
+  border-radius: 999px;
+  background: #3a3a42;
+  box-shadow: 0 8px 24px #0008;
+}
+.toast {
+  position: absolute;
+  z-index: 5;
+  right: 14px;
+  bottom: 58px;
+  max-width: min(360px, calc(100% - 28px));
+  padding: 10px 12px;
+  border-radius: 9px;
+  background: #303038;
+  box-shadow: 0 10px 30px #0008;
+}
+.toast[data-style="success"] {
+  border-left: 3px solid #62d38a;
+}
+.toast[data-style="failure"] {
+  border-left: 3px solid #ef7070;
+}
+.toast button {
+  margin-left: 8px;
+}
 .rows {
   flex: 1;
   min-height: 0;
@@ -160,6 +384,25 @@ footer button {
   background: transparent;
   color: inherit;
   font: inherit;
+}
+@media (max-width: 520px) {
+  body {
+    padding: 8px;
+  }
+  main {
+    height: calc(100vh - 16px);
+    border-radius: 10px;
+  }
+  .grid-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .form-field {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .dropdown-panel {
+    top: 78px;
+  }
 }
 /* Footer hints are buttons that do what their key does. */
 .footer-key {

@@ -1,0 +1,10 @@
+{
+  "name": "browser-feedback",
+  "commands": [
+    {
+      "name": "index",
+      "title": "Browser Feedback",
+      "mode": "view"
+    }
+  ]
+}

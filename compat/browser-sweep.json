@@ -3,12 +3,11 @@
   "commit": "bad7de0172ce6ea5e721ed919f4e1d7186f74192",
   "date": "2026-11-06",
   "commands": 237,
-  "wallTimeMs": 64780,
+  "wallTimeMs": 63764,
   "totals": {
-    "empty": 72,
+    "empty": 74,
     "needs-preferences": 51,
-    "network": 5,
-    "rendered": 93,
+    "rendered": 96,
     "runtime-error:Applications are unavailable in a browser tab": 1,
     "runtime-error:Cannot find module 'sqlite'": 1,
     "runtime-error:Cannot read properties of undefined (reading '$and')": 1,
@@ -29,7 +28,7 @@
       "status": "Selection is unavailable in a browser tab",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 482
+      "elapsedMs": 469
     },
     {
       "extension": "advanced-replace",
@@ -40,7 +39,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2214
+      "elapsedMs": 2205
     },
     {
       "extension": "android-versions",
@@ -51,7 +50,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 483
+      "elapsedMs": 469
     },
     {
       "extension": "anilist-airing-schedule",
@@ -62,7 +61,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2228
+      "elapsedMs": 2204
     },
     {
       "extension": "appgrid",
@@ -73,7 +72,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2148
+      "elapsedMs": 2131
     },
     {
       "extension": "atomtick",
@@ -84,7 +83,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 414
+      "elapsedMs": 396
     },
     {
       "extension": "axios-docs",
@@ -95,7 +94,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 371
+      "elapsedMs": 388
     },
     {
       "extension": "biaodian",
@@ -106,7 +105,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 375
+      "elapsedMs": 388
     },
     {
       "extension": "bookstack",
@@ -116,7 +115,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 61
+      "elapsedMs": 57
     },
     {
       "extension": "bookstack",
@@ -126,7 +125,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 56
+      "elapsedMs": 54
     },
     {
       "extension": "bookstack",
@@ -136,7 +135,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 56
+      "elapsedMs": 54
     },
     {
       "extension": "bugmenot",
@@ -147,7 +146,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2117
+      "elapsedMs": 2115
     },
     {
       "extension": "cangjie",
@@ -158,7 +157,7 @@
       "status": "Selection is unavailable in a browser tab",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 496
+      "elapsedMs": 509
     },
     {
       "extension": "chakra-ui-docs",
@@ -169,7 +168,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 383
+      "elapsedMs": 404
     },
     {
       "extension": "chakra-ui-docs",
@@ -180,7 +179,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 403
+      "elapsedMs": 407
     },
     {
       "extension": "chakra-ui-docs",
@@ -191,7 +190,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 388
+      "elapsedMs": 409
     },
     {
       "extension": "chakra-ui-docs",
@@ -202,7 +201,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 360
+      "elapsedMs": 392
     },
     {
       "extension": "clocky-time-tracker",
@@ -213,7 +212,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 395
+      "elapsedMs": 387
     },
     {
       "extension": "clocky-time-tracker",
@@ -235,7 +234,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 372
+      "elapsedMs": 354
     },
     {
       "extension": "clocky-time-tracker",
@@ -246,7 +245,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2170
+      "elapsedMs": 2142
     },
     {
       "extension": "clocky-time-tracker",
@@ -257,7 +256,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 434
+      "elapsedMs": 390
     },
     {
       "extension": "clocky-time-tracker",
@@ -268,7 +267,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 389
+      "elapsedMs": 355
     },
     {
       "extension": "clocky-time-tracker",
@@ -279,7 +278,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 404
+      "elapsedMs": 389
     },
     {
       "extension": "code-review-emojis",
@@ -290,7 +289,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 398
+      "elapsedMs": 372
     },
     {
       "extension": "codepen",
@@ -300,7 +299,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 78
+      "elapsedMs": 77
     },
     {
       "extension": "codepen",
@@ -310,7 +309,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 78
+      "elapsedMs": 81
     },
     {
       "extension": "codepen",
@@ -320,7 +319,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 149
+      "elapsedMs": 147
     },
     {
       "extension": "codepen",
@@ -330,7 +329,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 100
+      "elapsedMs": 124
     },
     {
       "extension": "codepen",
@@ -340,7 +339,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 91
+      "elapsedMs": 111
     },
     {
       "extension": "codepen",
@@ -350,7 +349,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 144
+      "elapsedMs": 135
     },
     {
       "extension": "codex-reset-forecast",
@@ -361,7 +360,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 447
+      "elapsedMs": 454
     },
     {
       "extension": "codex-reset-forecast",
@@ -372,7 +371,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 431
+      "elapsedMs": 456
     },
     {
       "extension": "codex-reset-forecast",
@@ -383,7 +382,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2127
+      "elapsedMs": 2117
     },
     {
       "extension": "color-studio-picker",
@@ -394,7 +393,7 @@
       "status": "Selection is unavailable in a browser tab",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 408
+      "elapsedMs": 426
     },
     {
       "extension": "conventional-commits",
@@ -405,7 +404,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 399
+      "elapsedMs": 395
     },
     {
       "extension": "conventional-commits",
@@ -416,7 +415,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 391
+      "elapsedMs": 382
     },
     {
       "extension": "convert-px-to-vw-vh",
@@ -427,7 +426,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2136
+      "elapsedMs": 2108
     },
     {
       "extension": "convert-px-to-vw-vh",
@@ -438,7 +437,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 360
+      "elapsedMs": 354
     },
     {
       "extension": "convert-px-to-vw-vh",
@@ -449,7 +448,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2106
+      "elapsedMs": 2107
     },
     {
       "extension": "convert-px-to-vw-vh",
@@ -460,7 +459,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2096
+      "elapsedMs": 2094
     },
     {
       "extension": "devpod",
@@ -470,7 +469,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 60
+      "elapsedMs": 59
     },
     {
       "extension": "dice-tiles",
@@ -481,7 +480,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 368
+      "elapsedMs": 376
     },
     {
       "extension": "donut",
@@ -492,7 +491,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 354
+      "elapsedMs": 348
     },
     {
       "extension": "dot-new",
@@ -503,7 +502,7 @@
       "status": "ENOENT: no such file or directory, open '/blast/assets/dot-new/dataset.json'",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 370
+      "elapsedMs": 356
     },
     {
       "extension": "douban",
@@ -525,7 +524,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 420
+      "elapsedMs": 405
     },
     {
       "extension": "douban",
@@ -536,7 +535,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 412
+      "elapsedMs": 398
     },
     {
       "extension": "douban",
@@ -547,7 +546,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 411
+      "elapsedMs": 395
     },
     {
       "extension": "douban",
@@ -558,7 +557,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 411
+      "elapsedMs": 396
     },
     {
       "extension": "douban",
@@ -569,7 +568,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 434
+      "elapsedMs": 423
     },
     {
       "extension": "douban",
@@ -580,7 +579,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 434
+      "elapsedMs": 423
     },
     {
       "extension": "duan-raycast-extension",
@@ -591,7 +590,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2142
+      "elapsedMs": 2139
     },
     {
       "extension": "duan-raycast-extension",
@@ -602,18 +601,18 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 409
+      "elapsedMs": 389
     },
     {
       "extension": "ego-lite",
       "command": "new-tab",
       "title": "New Tab",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/ego-lite",
-      "outcome": "empty",
-      "status": "Command exited",
+      "outcome": "rendered",
+      "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2149
+      "elapsedMs": 404
     },
     {
       "extension": "ego-lite",
@@ -624,7 +623,7 @@
       "status": "Cannot find module 'sqlite'",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 399
+      "elapsedMs": 393
     },
     {
       "extension": "ego-lite",
@@ -635,7 +634,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 388
+      "elapsedMs": 363
     },
     {
       "extension": "evernote",
@@ -646,7 +645,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 375
+      "elapsedMs": 407
     },
     {
       "extension": "evernote",
@@ -657,7 +656,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 357
+      "elapsedMs": 402
     },
     {
       "extension": "fibonacci-sequence",
@@ -668,7 +667,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 368
+      "elapsedMs": 405
     },
     {
       "extension": "fix-helper",
@@ -679,7 +678,7 @@
       "status": "Selection is unavailable in a browser tab",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 411
+      "elapsedMs": 428
     },
     {
       "extension": "fix-helper",
@@ -690,7 +689,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 428
+      "elapsedMs": 479
     },
     {
       "extension": "flighty",
@@ -703,7 +702,7 @@
       "consoleErrors": [
         "Error: The database does not exist"
       ],
-      "elapsedMs": 393
+      "elapsedMs": 450
     },
     {
       "extension": "google-cloud-run",
@@ -713,7 +712,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 61
+      "elapsedMs": 114
     },
     {
       "extension": "google-maps-search",
@@ -723,7 +722,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 119
+      "elapsedMs": 103
     },
     {
       "extension": "google-maps-search",
@@ -733,23 +732,18 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 100
+      "elapsedMs": 129
     },
     {
       "extension": "gradle-plugins",
       "command": "index",
       "title": "Search Plugin",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/gradle-plugins",
-      "outcome": "network",
+      "outcome": "rendered",
       "status": "Ready",
-      "pageErrors": [
-        "Network Error"
-      ],
-      "consoleErrors": [
-        "Access to XMLHttpRequest at 'https://plugins.gradle.org/search' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
-        "Failed to load resource: net::ERR_FAILED"
-      ],
-      "elapsedMs": 2160
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 2192
     },
     {
       "extension": "hetzner",
@@ -760,7 +754,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 391
+      "elapsedMs": 374
     },
     {
       "extension": "hetzner",
@@ -771,7 +765,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 390
+      "elapsedMs": 360
     },
     {
       "extension": "hetzner",
@@ -782,7 +776,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 369
+      "elapsedMs": 362
     },
     {
       "extension": "hevy",
@@ -792,7 +786,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 119
+      "elapsedMs": 74
     },
     {
       "extension": "hevy",
@@ -802,7 +796,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 120
+      "elapsedMs": 102
     },
     {
       "extension": "humaans",
@@ -812,7 +806,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 151
+      "elapsedMs": 102
     },
     {
       "extension": "humaans",
@@ -822,7 +816,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 152
+      "elapsedMs": 146
     },
     {
       "extension": "humaans",
@@ -832,7 +826,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 145
+      "elapsedMs": 147
     },
     {
       "extension": "humaans",
@@ -842,885 +836,18 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 140
+      "elapsedMs": 139
     },
     {
       "extension": "hyrule-compendium-search",
       "command": "broadSearch",
       "title": "Search Entries",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/hyrule-compendium-search",
-      "outcome": "network",
+      "outcome": "empty",
       "status": "Ready",
       "pageErrors": [],
-      "consoleErrors": [
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/chuchu' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested reso",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/swift_carrot' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requeste",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/dragonbone_moblin_spear' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on t",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/fireblight_ganon' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/savage_lynel_shield' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the r",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/throwing_spear' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reques",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/moblin_arm' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/igneo_talus' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/traveler's_sword' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/ice_keese' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested r",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/emblazoned_shield' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the req",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/ice_rod' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested res",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/knight's_halberd' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/decayed_guardian' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/cursed_lizalfos' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reque",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/treasure_chest' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reques",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/guardian_scout_iii' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the re",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/kite_shield' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/courser_bee_honey' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the req",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/guardian_sword' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reques",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/hearty_radish' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the request",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/fire-breath_lizalfos' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/guardian_scout_ii' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the req",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/hearty_durian' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the request",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/master_kohga' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requeste",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/sentry' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested reso",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/fire_chuchu' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/thunder_wizzrobe' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/guardian_sword++' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/guardian_turret' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reque",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/palm_fruit' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/zora_sword' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/stalizalfos' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/sunshroom' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested r",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/chillshroom' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/silver_moblin' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the request",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/savage_lynel_spear' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the re",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/snow_octorok' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requeste",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/cool_safflina' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the request",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/dark_beast_ganon' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/stalkoblin' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/silver_lizalfos' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reque",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/hydromelon' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/big_hearty_truffle' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the re",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/arrow' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resou",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/mighty_thistle' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reques",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/stone_talus_(rare)' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the re",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/electric_wizzrobe' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the req",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/eightfold_blade' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reque",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/rushroom' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested re",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/black_moblin' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requeste",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/soldier's_spear' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reque",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/soldier's_shield' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/lizal_spear' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/voltfruit' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested r",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/windblight_ganon' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/lizalfos' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested re",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/hylian_shroom' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the request",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/guardian_shield++' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the req",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/shock_arrow' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/forest_dweller's_shield' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on t",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/blue_lizalfos' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the request",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/water_octorok' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the request",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/silent_shroom' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the request",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/yiga_blademaster' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/molduking' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested r",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/blue-maned_lynel' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/electric_safflina' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the req",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/rock_octorok' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requeste",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/daybreaker' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/black_hinox' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/drillshaft' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/ancient_arrow' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the request",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/blue_moblin' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/blue_nightshade' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reque",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/zora_spear' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/hearty_truffle' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reques",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/zapshroom' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested r",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/frost_pebblit' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the request",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/forest_octorok' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reques",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/knight's_shield' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reque",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/ice-breath_lizalfos' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the r",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/savage_lynel_crusher' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/black_lizalfos' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reques",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/boko_shield' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/silver_longsword' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/stone_smasher' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the request",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/keese' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resou",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/stone_talus_(luminous)' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on th",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/spicy_pepper' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requeste",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/igneo_talus_titan' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the req",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/guardian_scout_iv' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the req",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/cursed_bokoblin' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reque",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/royal_shield' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requeste",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/vicious_sickle' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reques",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/guardian_shield+' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/spiked_boko_spear' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the req",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/blizzrobe' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested r",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/stalnox' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested res",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/great_frostblade' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/hinox' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resou",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/fire_keese' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/cursed_moblin' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the request",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/mighty_lynel_shield' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the r",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/moblin' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested reso",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/bokoblin' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested re",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/farosh' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested reso",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/lightscale_trident' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the re",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/blue_bokoblin' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the request",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/swift_violet' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requeste",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/guardian_stalker' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/molduga' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested res",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/mighty_bananas' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reques",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/white-maned_lynel' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the req",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/silent_princess' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reque",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/endura_shroom' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the request",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/enhanced_lizal_spear' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/hyrule_herb' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/fleet-lotus_seeds' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the req",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/flameblade' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/silver_lynel' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requeste",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/luminous_ore_deposit' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/yiga_footsoldier' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/black_bokoblin' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reques",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/lizal_forked_boomerang' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on th",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/rare_ore_deposit' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/frostblade' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/fire_wizzrobe' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the request",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/fortified_pumpkin' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the req",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/ice_wizzrobe' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requeste",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/knight's_bow' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requeste",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/knight's_broadsword' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the r",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/ironshroom' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/monk_maz_koshia' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reque",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/guardian_scout_i' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/dragonbone_moblin_club' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on th",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/wooden_shield' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the request",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/frost_talus' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/ore_deposit' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/meteo_wizzrobe' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reques",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/electric_lizalfos' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the req",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/bright-eyed_crab' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/savage_lynel_bow' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/restless_cricket' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/lizal_shield' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requeste",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/swallow_bow' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/forest_dweller's_spear' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on th",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/lord_of_the_mountain' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/lightning_rod' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the request",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/farming_hoe' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/giant_boomerang' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reque",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/royal_guard's_claymore' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on th",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/guardian_skywatcher' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the r",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/farmer's_pitchfork' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the re",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/flamespear' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/ceremonial_trident' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the re",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/pot_lid' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested res",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/fireproof_lizard' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/lizal_tri-boomerang' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the r",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/ancient_short_sword' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the r",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/waterblight_ganon' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the req",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/cold_darner' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/forest_dweller's_bow' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/royal_guard's_shield' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/thunderspear' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requeste",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/korok_leaf' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/hearty_salmon' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the request",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/blizzard_rod' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requeste",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/gerudo_shield' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the request",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/hot-footed_frog' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reque",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/boat_oar' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested re",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/rugged_rhino_beetle' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the r",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/fishing_harpoon' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reque",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/soup_ladle' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/lynel_crusher' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the request",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/dragonbone_boko_shield' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on th",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/royal_bow' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested r",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/spiked_boko_bat' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reque",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/spiked_moblin_spear' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the r",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/ancient_bow' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/bow_of_light' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requeste",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/mountain_doe' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requeste",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/ancient_shield' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reques",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/soldier's_bow' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the request",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/bladed_rhino_beetle' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the r",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/falcon_bow' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/electric_darner' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reque",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/dragonbone_boko_bat' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the r",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/hearty_lizard' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the request",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/spiked_boko_club' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/rusty_claymore' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reques",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/moblin_club' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/thunderstorm_rod' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/sneaky_river_snail' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the re",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/treasure_octorok' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/eightfold_longblade' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the r",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/traveler's_shield' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the req",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/tree_branch' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/mighty_lynel_bow' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/royal_broadsword' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/ancient_battle_axe+' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the r",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/dinraal' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested res",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/windcleaver' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/strengthened_lizal_bow' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on th",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/soldier's_broadsword' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/dragonbone_boko_spear' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/duplex_bow' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/guardian_sword+' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reque",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/summerwing_butterfly' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/ancient_battle_axe++' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/voltfin_trout' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the request",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/fisherman's_shield' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the re",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/ice_chuchu' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/bomb_arrow' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/ancient_spear' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the request",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/silver_bokoblin' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reque",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/ancient_battle_axe' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the re",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/royal_halberd' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the request",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/cucco' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resou",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/forked_lizal_spear' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the re",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/hearty_blueshell_snail' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on th",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/stone_talus' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/scimitar_of_the_seven' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/sizzlefin_trout' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reque",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/sunset_firefly' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reques",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/royal_guard's_spear' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the r",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/maraudo_wolf' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requeste",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/forest_dweller's_sword' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on th",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/cobble_crusher' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reques",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/edge_of_duality' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reque",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/rusty_shield' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requeste",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/stamella_shroom' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reque",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/mighty_porgy' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requeste",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/armored_carp' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requeste",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/frostspear' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/spiked_moblin_club' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the re",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/grassland_fox' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the request",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/royal_claymore' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reques",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/hightail_lizard' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reque",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/stalmoblin' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/feathered_spear' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reque",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/savage_lynel_sword' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the re",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/traveler's_claymore' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the r",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/hyrule_bass' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/dragon_bone_boko_bow' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/radiant_shield' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reques",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/bokoblin_arm' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requeste",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/serpentine_spear' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/great_eagle_bow' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reque",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/stone_pebblit' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the request",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/ironshell_crab' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reques",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/great-horned_rhinoceros' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on t",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/wooden_bow' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/boko_club' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested r",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/mighty_lynel_sword' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the re",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/lizal_boomerang' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reque",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/ice_arrow' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested r",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/lizalfos_arm' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requeste",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/warm_safflina' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the request",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/hylian_shield' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the request",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/steel_lizal_bow' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reque",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/meteor_rod' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/demon_carver' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requeste",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/wooden_mop' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/one-hit_obliterator' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the r",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/gerudo_spear' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requeste",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/spring-loaded_hammer' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/great_flameblade' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/rusty_halberd' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the request",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/fire_arrow' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/mighty_lynel_crusher' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/lynel_spear' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/traveler's_bow' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reques",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/royal_guard's_sword' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the r",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/golden_bow' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/guardian_spear++' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requ",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/fairy' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resou",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/mountain_goat' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the request",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/armored_porgy' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the request",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/phrenic_bow' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/hotfeather_pigeon' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the req",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/gerudo_scimitar' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reque",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/master_sword' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requeste",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/golden_claymore' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reque",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/silver_shield' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the request",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/boomerang' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested r",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/lynel_shield' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requeste",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/rainbow_sparrow' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the reque",
-        "TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED",
-        "Access to XMLHttpRequest at 'https://botw-compendium.herokuapp.com/api/v3/compendium/entry/reinforced_lizal_shield' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on t",
-        "TypeError: Network request failed"
-      ],
-      "elapsedMs": 10266
+      "consoleErrors": [],
+      "elapsedMs": 2168
     },
     {
       "extension": "hyrule-compendium-search",
@@ -1731,7 +858,7 @@
       "status": "Cannot read properties of undefined (reading '$and')",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 429
+      "elapsedMs": 436
     },
     {
       "extension": "input-source-switcher",
@@ -1744,7 +871,7 @@
         "Applications are unavailable in a browser tab"
       ],
       "consoleErrors": [],
-      "elapsedMs": 367
+      "elapsedMs": 436
     },
     {
       "extension": "input-source-switcher",
@@ -1755,7 +882,7 @@
       "status": "Selection is unavailable in a browser tab",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 374
+      "elapsedMs": 399
     },
     {
       "extension": "invisible-text-detector",
@@ -1766,7 +893,7 @@
       "status": "Selection is unavailable in a browser tab",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 356
+      "elapsedMs": 399
     },
     {
       "extension": "invisible-text-detector",
@@ -1777,7 +904,7 @@
       "status": "Selection is unavailable in a browser tab",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 363
+      "elapsedMs": 395
     },
     {
       "extension": "invisible-text-detector",
@@ -1788,7 +915,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 360
+      "elapsedMs": 394
     },
     {
       "extension": "jisho",
@@ -1799,23 +926,20 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2197
+      "elapsedMs": 2181
     },
     {
       "extension": "jisho",
       "command": "search",
       "title": "Translate Japanese",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/jisho",
-      "outcome": "network",
+      "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [
-        "Refused to set unsafe header \"user-agent\"",
-        "Access to XMLHttpRequest at 'https://jisho.org/api/v1/search/words?keyword=' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
-        "search error TypeError: Network request failed",
-        "Failed to load resource: net::ERR_FAILED"
+        "Refused to set unsafe header \"user-agent\""
       ],
-      "elapsedMs": 2186
+      "elapsedMs": 2170
     },
     {
       "extension": "kaalam",
@@ -1826,7 +950,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 374
+      "elapsedMs": 443
     },
     {
       "extension": "kagi-search",
@@ -1836,7 +960,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 91
+      "elapsedMs": 73
     },
     {
       "extension": "keeper-security",
@@ -1846,7 +970,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 64
+      "elapsedMs": 55
     },
     {
       "extension": "keeper-security",
@@ -1856,7 +980,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 64
+      "elapsedMs": 54
     },
     {
       "extension": "keeper-security",
@@ -1866,7 +990,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 58
+      "elapsedMs": 64
     },
     {
       "extension": "keeper-security",
@@ -1876,7 +1000,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 60
+      "elapsedMs": 78
     },
     {
       "extension": "keygen",
@@ -1896,7 +1020,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 61
+      "elapsedMs": 79
     },
     {
       "extension": "keygen",
@@ -1906,7 +1030,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 58
+      "elapsedMs": 80
     },
     {
       "extension": "keygen",
@@ -1916,7 +1040,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 59
+      "elapsedMs": 78
     },
     {
       "extension": "keygen",
@@ -1926,7 +1050,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 59
+      "elapsedMs": 79
     },
     {
       "extension": "keygen",
@@ -1936,7 +1060,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 58
+      "elapsedMs": 80
     },
     {
       "extension": "keygen",
@@ -1946,7 +1070,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 58
+      "elapsedMs": 81
     },
     {
       "extension": "laravel-artisan",
@@ -1957,7 +1081,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 358
+      "elapsedMs": 396
     },
     {
       "extension": "laravel-shift",
@@ -1968,18 +1092,18 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 447
+      "elapsedMs": 385
     },
     {
       "extension": "leap-new",
       "command": "generate-app",
       "title": "Generate App",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/leap-new",
-      "outcome": "rendered",
+      "outcome": "empty",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 406
+      "elapsedMs": 2132
     },
     {
       "extension": "leap-new",
@@ -1990,7 +1114,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2134
+      "elapsedMs": 2124
     },
     {
       "extension": "leetcode",
@@ -2001,21 +1125,18 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 419
+      "elapsedMs": 410
     },
     {
       "extension": "leetcode",
       "command": "potd-menu-bar",
       "title": "Daily Challenge Status",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/leetcode",
-      "outcome": "network",
+      "outcome": "empty",
       "status": "Ready",
       "pageErrors": [],
-      "consoleErrors": [
-        "Access to fetch at 'https://leetcode.com/graphql' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on th",
-        "Failed to load resource: net::ERR_FAILED"
-      ],
-      "elapsedMs": 2146
+      "consoleErrors": [],
+      "elapsedMs": 2127
     },
     {
       "extension": "leetcode",
@@ -2026,7 +1147,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 377
+      "elapsedMs": 401
     },
     {
       "extension": "leetcode",
@@ -2037,7 +1158,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 366
+      "elapsedMs": 377
     },
     {
       "extension": "leetcode",
@@ -2048,7 +1169,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 379
+      "elapsedMs": 372
     },
     {
       "extension": "markdown-reference",
@@ -2059,7 +1180,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 364
+      "elapsedMs": 427
     },
     {
       "extension": "mbta-tracker",
@@ -2070,7 +1191,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 1132
+      "elapsedMs": 2163
     },
     {
       "extension": "mbta-tracker",
@@ -2081,7 +1202,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2115
+      "elapsedMs": 2119
     },
     {
       "extension": "mealie",
@@ -2091,7 +1212,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 66
+      "elapsedMs": 83
     },
     {
       "extension": "mealie",
@@ -2101,7 +1222,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 66
+      "elapsedMs": 71
     },
     {
       "extension": "mealie",
@@ -2111,7 +1232,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 63
+      "elapsedMs": 78
     },
     {
       "extension": "mealie",
@@ -2121,7 +1242,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 61
+      "elapsedMs": 79
     },
     {
       "extension": "mealie",
@@ -2131,7 +1252,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 65
+      "elapsedMs": 80
     },
     {
       "extension": "melanite-search",
@@ -2141,7 +1262,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 61
+      "elapsedMs": 80
     },
     {
       "extension": "menucloak",
@@ -2152,7 +1273,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2103
+      "elapsedMs": 2123
     },
     {
       "extension": "menucloak",
@@ -2163,7 +1284,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 361
+      "elapsedMs": 386
     },
     {
       "extension": "menucloak",
@@ -2174,7 +1295,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2106
+      "elapsedMs": 2107
     },
     {
       "extension": "menucloak",
@@ -2185,7 +1306,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2094
+      "elapsedMs": 2128
     },
     {
       "extension": "menucloak",
@@ -2196,7 +1317,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2096
+      "elapsedMs": 2131
     },
     {
       "extension": "mise-window-sets",
@@ -2207,29 +1328,29 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 384
+      "elapsedMs": 378
     },
     {
       "extension": "mise-window-sets",
       "command": "reload-sets",
       "title": "Reload Sets",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/mise-window-sets",
-      "outcome": "empty",
-      "status": "Command exited",
+      "outcome": "rendered",
+      "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2098
+      "elapsedMs": 403
     },
     {
       "extension": "multi-ai-chat",
       "command": "multi-ai-chat",
       "title": "Multi AI Chat",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/multi-ai-chat",
-      "outcome": "rendered",
+      "outcome": "empty",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 389
+      "elapsedMs": 2121
     },
     {
       "extension": "multi-ai-chat",
@@ -2240,7 +1361,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 360
+      "elapsedMs": 363
     },
     {
       "extension": "nano-games",
@@ -2251,7 +1372,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 409
+      "elapsedMs": 391
     },
     {
       "extension": "nterm-calculator",
@@ -2262,7 +1383,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 377
+      "elapsedMs": 381
     },
     {
       "extension": "ohmyzsh-git-alias",
@@ -2273,7 +1394,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 372
+      "elapsedMs": 387
     },
     {
       "extension": "one-thing",
@@ -2284,7 +1405,7 @@
       "status": "Starting…",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2127
+      "elapsedMs": 2097
     },
     {
       "extension": "one-thing",
@@ -2295,7 +1416,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 358
+      "elapsedMs": 377
     },
     {
       "extension": "one-thing",
@@ -2306,7 +1427,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2108
+      "elapsedMs": 2125
     },
     {
       "extension": "openweathermap",
@@ -2316,7 +1437,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 80
+      "elapsedMs": 77
     },
     {
       "extension": "parcel",
@@ -2326,7 +1447,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 80
+      "elapsedMs": 77
     },
     {
       "extension": "parcel",
@@ -2336,7 +1457,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 79
+      "elapsedMs": 73
     },
     {
       "extension": "pbr-assistant",
@@ -2347,7 +1468,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2104
+      "elapsedMs": 2134
     },
     {
       "extension": "pinch-svg",
@@ -2358,7 +1479,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2107
+      "elapsedMs": 2115
     },
     {
       "extension": "pinch-svg",
@@ -2369,7 +1490,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2099
+      "elapsedMs": 2109
     },
     {
       "extension": "pokemon-tcg-pocket-binder",
@@ -2380,7 +1501,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 370
+      "elapsedMs": 361
     },
     {
       "extension": "portless",
@@ -2391,7 +1512,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 377
+      "elapsedMs": 382
     },
     {
       "extension": "promptty",
@@ -2402,7 +1523,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 384
+      "elapsedMs": 437
     },
     {
       "extension": "punch-clock",
@@ -2413,7 +1534,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2101
+      "elapsedMs": 2174
     },
     {
       "extension": "punch-clock",
@@ -2424,7 +1545,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 378
+      "elapsedMs": 381
     },
     {
       "extension": "px-to-rem-converter",
@@ -2435,7 +1556,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 356
+      "elapsedMs": 375
     },
     {
       "extension": "quick-jump",
@@ -2445,7 +1566,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 95
+      "elapsedMs": 77
     },
     {
       "extension": "radix",
@@ -2456,7 +1577,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 373
+      "elapsedMs": 360
     },
     {
       "extension": "radix",
@@ -2467,7 +1588,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 354
+      "elapsedMs": 369
     },
     {
       "extension": "radix",
@@ -2478,7 +1599,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 378
+      "elapsedMs": 360
     },
     {
       "extension": "random-color",
@@ -2489,7 +1610,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2111
+      "elapsedMs": 2149
     },
     {
       "extension": "ratio-calculator",
@@ -2500,7 +1621,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2106
+      "elapsedMs": 2115
     },
     {
       "extension": "raytyping",
@@ -2511,7 +1632,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 367
+      "elapsedMs": 369
     },
     {
       "extension": "rectangle",
@@ -2522,7 +1643,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2104
+      "elapsedMs": 2110
     },
     {
       "extension": "rectangle",
@@ -2533,7 +1654,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2111
+      "elapsedMs": 2098
     },
     {
       "extension": "rectangle",
@@ -2544,7 +1665,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2126
+      "elapsedMs": 2136
     },
     {
       "extension": "rectangle",
@@ -2555,7 +1676,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2110
+      "elapsedMs": 2121
     },
     {
       "extension": "rectangle",
@@ -2566,7 +1687,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2099
+      "elapsedMs": 2103
     },
     {
       "extension": "rectangle",
@@ -2577,7 +1698,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2111
+      "elapsedMs": 2101
     },
     {
       "extension": "rectangle",
@@ -2588,7 +1709,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2146
+      "elapsedMs": 2135
     },
     {
       "extension": "rectangle",
@@ -2599,7 +1720,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2107
+      "elapsedMs": 2135
     },
     {
       "extension": "rectangle",
@@ -2610,7 +1731,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2124
+      "elapsedMs": 2105
     },
     {
       "extension": "rectangle",
@@ -2621,7 +1742,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2122
+      "elapsedMs": 2103
     },
     {
       "extension": "rectangle",
@@ -2632,7 +1753,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2129
+      "elapsedMs": 2128
     },
     {
       "extension": "rectangle",
@@ -2643,7 +1764,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2129
+      "elapsedMs": 2128
     },
     {
       "extension": "rectangle",
@@ -2654,7 +1775,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2103
+      "elapsedMs": 2111
     },
     {
       "extension": "rectangle",
@@ -2665,7 +1786,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2110
+      "elapsedMs": 2115
     },
     {
       "extension": "rectangle",
@@ -2676,7 +1797,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2176
+      "elapsedMs": 2120
     },
     {
       "extension": "rectangle",
@@ -2687,7 +1808,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2177
+      "elapsedMs": 2134
     },
     {
       "extension": "rectangle",
@@ -2698,7 +1819,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2186
+      "elapsedMs": 2107
     },
     {
       "extension": "rectangle",
@@ -2709,7 +1830,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2103
+      "elapsedMs": 2099
     },
     {
       "extension": "rectangle",
@@ -2720,7 +1841,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2132
+      "elapsedMs": 2130
     },
     {
       "extension": "rectangle",
@@ -2731,7 +1852,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2132
+      "elapsedMs": 2126
     },
     {
       "extension": "rectangle",
@@ -2742,7 +1863,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2113
+      "elapsedMs": 2100
     },
     {
       "extension": "rectangle",
@@ -2753,7 +1874,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2132
+      "elapsedMs": 2105
     },
     {
       "extension": "rectangle",
@@ -2764,7 +1885,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2137
+      "elapsedMs": 2119
     },
     {
       "extension": "rectangle",
@@ -2775,7 +1896,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2137
+      "elapsedMs": 2120
     },
     {
       "extension": "rectangle",
@@ -2786,7 +1907,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2116
+      "elapsedMs": 2104
     },
     {
       "extension": "rectangle",
@@ -2797,7 +1918,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2103
+      "elapsedMs": 2108
     },
     {
       "extension": "rectangle",
@@ -2808,7 +1929,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2130
+      "elapsedMs": 2131
     },
     {
       "extension": "rectangle",
@@ -2830,7 +1951,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2144
+      "elapsedMs": 2106
     },
     {
       "extension": "rectangle",
@@ -2841,7 +1962,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2120
+      "elapsedMs": 2098
     },
     {
       "extension": "rectangle",
@@ -2852,7 +1973,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2129
+      "elapsedMs": 2127
     },
     {
       "extension": "rectangle",
@@ -2863,7 +1984,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2130
+      "elapsedMs": 2127
     },
     {
       "extension": "rectangle",
@@ -2874,7 +1995,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2147
+      "elapsedMs": 2091
     },
     {
       "extension": "rectangle",
@@ -2885,7 +2006,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2127
+      "elapsedMs": 2100
     },
     {
       "extension": "rectangle",
@@ -2896,7 +2017,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2140
+      "elapsedMs": 2128
     },
     {
       "extension": "rectangle",
@@ -2907,7 +2028,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2139
+      "elapsedMs": 2128
     },
     {
       "extension": "rectangle",
@@ -2918,7 +2039,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2141
+      "elapsedMs": 2109
     },
     {
       "extension": "rectangle",
@@ -2929,7 +2050,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2129
+      "elapsedMs": 2098
     },
     {
       "extension": "rectangle",
@@ -2940,7 +2061,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2138
+      "elapsedMs": 2134
     },
     {
       "extension": "rectangle",
@@ -2951,7 +2072,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2138
+      "elapsedMs": 2135
     },
     {
       "extension": "rectangle",
@@ -2962,7 +2083,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2128
+      "elapsedMs": 2099
     },
     {
       "extension": "rectangle",
@@ -2973,7 +2094,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2131
+      "elapsedMs": 2092
     },
     {
       "extension": "ring-intercom",
@@ -2984,7 +2105,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 382
+      "elapsedMs": 401
     },
     {
       "extension": "ring-intercom",
@@ -2997,18 +2118,18 @@
       "consoleErrors": [
         "Error during unlock process: Error: Not authenticated. Please run the 'Authenticate' command."
       ],
-      "elapsedMs": 2134
+      "elapsedMs": 2136
     },
     {
       "extension": "rtl-reader",
       "command": "rtl-text",
       "title": "RTL Text Formatter",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rtl-reader",
-      "outcome": "rendered",
+      "outcome": "empty",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 356
+      "elapsedMs": 2102
     },
     {
       "extension": "saved-items",
@@ -3019,7 +2140,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 388
+      "elapsedMs": 376
     },
     {
       "extension": "scrapbook",
@@ -3030,7 +2151,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 387
+      "elapsedMs": 368
     },
     {
       "extension": "scrapbook",
@@ -3041,21 +2162,18 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 365
+      "elapsedMs": 373
     },
     {
       "extension": "scrapbook",
       "command": "view-recent-posts",
       "title": "View Recent Posts",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/scrapbook",
-      "outcome": "network",
+      "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
-      "consoleErrors": [
-        "Access to XMLHttpRequest at 'https://scrapbook.hackclub.com/api/posts' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
-        "Failed to load resource: net::ERR_FAILED"
-      ],
-      "elapsedMs": 2144
+      "consoleErrors": [],
+      "elapsedMs": 2107
     },
     {
       "extension": "sf-symbols-search",
@@ -3066,7 +2184,7 @@
       "status": "ENOENT: no such file or directory, open '/blast/assets/sf-symbols-search/symbols/data.json'",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 408
+      "elapsedMs": 373
     },
     {
       "extension": "spacejump",
@@ -3077,7 +2195,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2120
+      "elapsedMs": 2106
     },
     {
       "extension": "spacejump",
@@ -3088,7 +2206,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2112
+      "elapsedMs": 2119
     },
     {
       "extension": "splatoon",
@@ -3101,7 +2219,7 @@
       "consoleErrors": [
         "Refused to set unsafe header \"user-agent\""
       ],
-      "elapsedMs": 1048
+      "elapsedMs": 2120
     },
     {
       "extension": "splatoon",
@@ -3114,7 +2232,7 @@
       "consoleErrors": [
         "Refused to set unsafe header \"user-agent\""
       ],
-      "elapsedMs": 1039
+      "elapsedMs": 2110
     },
     {
       "extension": "stockholm-public-transport",
@@ -3125,7 +2243,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2123
+      "elapsedMs": 2111
     },
     {
       "extension": "storybook-sandboxes",
@@ -3136,7 +2254,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 362
+      "elapsedMs": 386
     },
     {
       "extension": "storybook-sandboxes",
@@ -3147,7 +2265,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 369
+      "elapsedMs": 387
     },
     {
       "extension": "superwhisper",
@@ -3158,7 +2276,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2109
+      "elapsedMs": 2122
     },
     {
       "extension": "superwhisper",
@@ -3169,7 +2287,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2092
+      "elapsedMs": 2098
     },
     {
       "extension": "superwhisper",
@@ -3180,7 +2298,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2115
+      "elapsedMs": 2111
     },
     {
       "extension": "superwhisper",
@@ -3191,7 +2309,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 389
+      "elapsedMs": 395
     },
     {
       "extension": "superwhisper",
@@ -3202,7 +2320,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 375
+      "elapsedMs": 376
     },
     {
       "extension": "superwhisper",
@@ -3213,7 +2331,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2126
+      "elapsedMs": 2115
     },
     {
       "extension": "tategaki",
@@ -3224,7 +2342,7 @@
       "status": "Selection is unavailable in a browser tab",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 365
+      "elapsedMs": 392
     },
     {
       "extension": "text-decorator",
@@ -3235,18 +2353,18 @@
       "status": "Selection is unavailable in a browser tab",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 364
+      "elapsedMs": 415
     },
     {
       "extension": "text-decorator",
       "command": "undecorate-text",
       "title": "Undecorate Text",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/text-decorator",
-      "outcome": "empty",
-      "status": "Copied — paste with ⌘V",
+      "outcome": "rendered",
+      "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2114
+      "elapsedMs": 436
     },
     {
       "extension": "time-until-i-do",
@@ -3256,7 +2374,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 59
+      "elapsedMs": 89
     },
     {
       "extension": "timezone-buddy",
@@ -3267,7 +2385,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2109
+      "elapsedMs": 2111
     },
     {
       "extension": "timezone-buddy",
@@ -3278,7 +2396,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2109
+      "elapsedMs": 2101
     },
     {
       "extension": "tiny-tycho",
@@ -3289,7 +2407,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2108
+      "elapsedMs": 2089
     },
     {
       "extension": "trenit",
@@ -3300,7 +2418,7 @@
       "status": "ENOENT: no such file or directory, open '/blast/assets/package.json'",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 404
+      "elapsedMs": 418
     },
     {
       "extension": "uk-bank-holidays",
@@ -3313,7 +2431,7 @@
         "Unexpected end of JSON input"
       ],
       "consoleErrors": [],
-      "elapsedMs": 2116
+      "elapsedMs": 2118
     },
     {
       "extension": "url-designer",
@@ -3324,7 +2442,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2094
+      "elapsedMs": 2095
     },
     {
       "extension": "v0-by-vercel",
@@ -3334,7 +2452,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 75
+      "elapsedMs": 72
     },
     {
       "extension": "v0-by-vercel",
@@ -3344,7 +2462,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 75
+      "elapsedMs": 76
     },
     {
       "extension": "v0-by-vercel",
@@ -3354,7 +2472,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 79
+      "elapsedMs": 76
     },
     {
       "extension": "v0-by-vercel",
@@ -3364,7 +2482,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 75
+      "elapsedMs": 104
     },
     {
       "extension": "v0-by-vercel",
@@ -3374,7 +2492,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 70
+      "elapsedMs": 79
     },
     {
       "extension": "v0-by-vercel",
@@ -3384,7 +2502,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 71
+      "elapsedMs": 100
     },
     {
       "extension": "valkey-commands-search",
@@ -3395,7 +2513,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2108
+      "elapsedMs": 1980
     },
     {
       "extension": "vim-bro",
@@ -3406,7 +2524,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 373
+      "elapsedMs": 397
     },
     {
       "extension": "vocab-search",
@@ -3417,7 +2535,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2099
+      "elapsedMs": 2105
     },
     {
       "extension": "windows-domain",
@@ -3428,7 +2546,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2149
+      "elapsedMs": 2109
     },
     {
       "extension": "windows-domain",
@@ -3439,7 +2557,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 358
+      "elapsedMs": 354
     },
     {
       "extension": "workflowy-inbox",
@@ -3449,7 +2567,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 72
+      "elapsedMs": 103
     },
     {
       "extension": "workflowy-inbox",
@@ -3459,7 +2577,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 75
+      "elapsedMs": 97
     },
     {
       "extension": "wrike",
@@ -3469,7 +2587,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 78
+      "elapsedMs": 71
     }
   ]
 }

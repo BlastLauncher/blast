@@ -1,0 +1,10 @@
+{
+  "name": "browser-grid",
+  "commands": [
+    {
+      "name": "index",
+      "title": "Browser Grid",
+      "mode": "view"
+    }
+  ]
+}

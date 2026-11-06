@@ -79,8 +79,17 @@ extensions look and behave in the browser the way they do in the TUI.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/5b0bde01 @ c2c89ec (round 2, on top of round 1 7e3d8ad)
+Verify: `verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 86.1s`
 Done:
+- Alert is keyboard-complete: Enter confirms, Escape dismisses (no fall-through to back), Tab/Shift-Tab cycle inside `.alert`, primary button takes focus. The controller ignores `primary`/`move` while an alert is open, so the client sends `{ type: "alert" }` itself. An open dropdown owns arrows/Enter/Escape.
+- Shared `feedback` fixture and `toast.json` restored to main. New browser fixtures `browser-grid` (2x3 cells), `browser-feedback` (alert answers rendered, toast action -> HUD "From action") and `browser-fields` (TextArea, Password, Dropdown, DatePicker, TagPicker, Separator, Description, FilePicker). `browser-keyboard` uses `accessories` and a titled `List.Section`.
+- `site:e2e` (4 consecutive green runs): section header and count, subtitle/accessory, grid selection beer->wine->tea->cider->beer, dropdown filter hides non-matches + keyboard choose + Escape + mouse choose, alert via button/Escape/Enter, exact HUD text, form field JSON round-trip incl. TagPicker de-selection, phone-fit boxes for alert and dropdown.
+- Markdown: links/images/code tokenized before emphasis; links and images are https only (images also `data:image`); `http:` links keep their label only. Unit tests for URL underscores, quotes, `javascript:`.
+- Browser sweep re-run: 237 commands, 96 rendered (0133 baseline 93), 51 needs-preferences (unchanged), 74 empty (+2), network 0 (was 5). The delta is network availability and corpus state, not renderer changes.
 Not done / risks:
+- client-core does not expose `Form.Separator`/`Form.Description` in `view.form.fields` (`formFields` keeps only editable kinds), so the browser cannot draw them; they sit in the fixture and the render branches are inert. Exposing them is a client-core change, left for a follow-up.
+- `accessory={{ text }}` is not a List.Item prop and client-core only reads `accessories`; with the singular form the row text is only title and subtitle (the new e2e fails with it, so round 1's claim that it rendered was wrong).
+- Fixed in passing: Playwright `boundingBox()` returns x/y/width/height, so the round-1 phone-fit check compared `undefined` and never failed; selects no longer send `setValue` on `input` (it filtered a Dropdown to its own query); `browser-form` waits for the echoed name because a stale scene could overwrite typed text after Tab (client-core drafts are dropped per scene).
+- Playwright deps were copied from the main checkout's `.cache` into this worktree's `.cache`; no download.
 ```

@@ -25,6 +25,82 @@ const button = (label, action, selected = false) =>
   `<button data-input="${escapeHtml(action)}"${selected ? ' class="selected"' : ""}>${escapeHtml(label)}</button>`;
 
 /**
+ * Links and images only carry https URLs; images may also inline `data:image`.
+ * Anything else (javascript:, http:, relative) keeps just its visible text.
+ * @param {string} raw @param {boolean} image
+ */
+const safeUrl = (raw, image) => {
+  if (image && /^data:image\/[a-z0-9.+-]+[;,]\S*$/iu.test(raw)) return raw;
+  try {
+    return new URL(raw).protocol === "https:" ? raw : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+/** Emphasis only ever sees escaped text segments, never generated tags or URLs. @param {string} text */
+const emphasis = (text) =>
+  escapeHtml(text)
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/(^|[^\w])__([^_]+)__(?!\w)/g, "$1<strong>$2</strong>")
+    .replace(/\*([^*]+)\*/g, "<em>$1</em>")
+    .replace(/(^|[^\w])_([^_]+)_(?!\w)/g, "$1<em>$2</em>");
+
+/** Tokenize code, links and images first so emphasis cannot rewrite inside them. @param {string} value */
+const renderMarkdownInline = (value) => {
+  let out = "";
+  let last = 0;
+  for (const match of value.matchAll(/`([^`]+)`|(!?)\[([^\]]*)\]\(([^\s)]+)\)/gu)) {
+    out += emphasis(value.slice(last, match.index));
+    last = match.index + match[0].length;
+    const [, code, bang, label = "", url = ""] = match;
+    if (code !== undefined) out += `<code>${escapeHtml(code)}</code>`;
+    else if (bang) {
+      const src = safeUrl(url, true);
+      out += src ? `<img src="${escapeHtml(src)}" alt="${escapeHtml(label)}">` : escapeHtml(label);
+    } else {
+      const href = safeUrl(url, false);
+      out += href
+        ? `<a href="${escapeHtml(href)}" target="_blank" rel="noreferrer noopener">${emphasis(label)}</a>`
+        : emphasis(label);
+    }
+  }
+  return out + emphasis(value.slice(last));
+};
+
+/** Render the deliberately small, safe markdown subset used by Detail. @param {unknown} markdown */
+export function renderMarkdown(markdown) {
+  const lines = String(markdown ?? "").split(/\r?\n/);
+  const result = [];
+  let list = false;
+  for (const line of lines) {
+    const item = line.match(/^\s*[-*]\s+(.+)$/);
+    if (item) {
+      if (!list) {
+        result.push("<ul>");
+        list = true;
+      }
+      result.push(`<li>${renderMarkdownInline(item[1] ?? "")}</li>`);
+      continue;
+    }
+    if (list) {
+      result.push("</ul>");
+      list = false;
+    }
+    const heading = line.match(/^\s*(#{1,3})\s+(.+)$/);
+    if (heading) {
+      const level = heading[1]?.length ?? 1;
+      result.push(`<h${level}>${renderMarkdownInline(heading[2] ?? "")}</h${level}>`);
+      continue;
+    }
+    if (!line.trim()) continue;
+    result.push(`<p>${renderMarkdownInline(line)}</p>`);
+  }
+  if (list) result.push("</ul>");
+  return result.join("");
+}
+
+/**
  * @typedef {{text: string, error?: boolean, progress?: boolean}} FooterStatus
  * @typedef {{extensionTitle: string, commandTitle: string, icon?: string, iconUrl?: string}} ExtensionContext
  */
@@ -46,23 +122,61 @@ function breadcrumbMarkup(context) {
 /** @param {import("@blastlauncher/client-core").ControllerView} view @param {{status?: FooterStatus, context?: ExtensionContext}} [options] */
 export function render(view, options = {}) {
   const status = options.status ?? { text: "Ready" };
-  const search = `<input id="search" value="${escapeHtml(view.search.text)}" placeholder="${escapeHtml(view.search.placeholder)}" aria-label="Search">`;
+  const search = `<input id="search" value="${escapeHtml(view.search.text)}" placeholder="${escapeHtml(view.search.placeholder)}" aria-label="Search">${view.dropdown ? `<button type="button" class="dropdown-trigger" data-dropdown-open aria-label="${escapeHtml(view.dropdown.tooltip || view.dropdown.label)}">${escapeHtml(view.dropdown.label || "Filter")}⌄</button>` : ""}`;
   const rows = view.rows
-    .map(
-      (row) =>
-        `<li${row.selected ? ' class="selected"' : ""} data-id="${escapeHtml(row.id)}">${escapeHtml(row.text)}</li>`,
+    .map((row) =>
+      row.kind === "section"
+        ? `<li class="section-header" data-id="${escapeHtml(row.id)}"><strong>${escapeHtml(row.title)}</strong>${row.count === null ? "" : `<small>${row.count}</small>`}</li>`
+        : `<li${row.selected ? ' class="selected"' : ""} data-id="${escapeHtml(row.id)}"><span class="root-icon"${row.iconTint ? ` style="color:${escapeHtml(row.iconTint)}"` : ""}>${escapeHtml(row.iconLabel)}</span><span class="root-copy"><strong>${escapeHtml(row.title)}</strong>${row.subtitle ? `<small>${escapeHtml(row.subtitle)}</small>` : ""}</span>${row.accessories ? `<span class="root-accessory">${escapeHtml(row.accessories)}</span>` : ""}</li>`,
     )
     .join("");
+  const grid = (view.grid ?? [])
+    .map(
+      (row) =>
+        `${row.header ? `<li class="grid-header">${escapeHtml(row.header)}</li>` : ""}<li class="grid-row">${row.cells.map((cell) => `<button type="button" class="grid-cell${cell.selected ? " selected" : ""}" data-id="${escapeHtml(cell.id)}"><span class="grid-content">${escapeHtml(cell.content)}</span><strong>${escapeHtml(cell.title)}</strong><small>${escapeHtml(cell.subtitle)}</small></button>`).join("")}</li>`,
+    )
+    .join("");
+  const dropdown = view.dropdown?.open
+    ? `<section class="dropdown-panel" role="dialog" aria-label="${escapeHtml(view.dropdown.label)}"><input id="dropdown-search" data-dropdown-search value="${escapeHtml(view.dropdown.query)}" aria-label="Filter options"><ul>${view.dropdown.options.map((option) => `<li><button type="button" data-dropdown-value="${escapeHtml(option.value)}"${option.selected ? ' class="selected"' : ""}>${escapeHtml(option.title)}${option.current ? " ✓" : ""}</button></li>`).join("")}</ul></section>`
+    : "";
   const actions = view.actions.open
     ? `<section class="actions"><strong>${escapeHtml(view.actions.title)}</strong><div class="breadcrumb">${view.actions.breadcrumb.map(escapeHtml).join(" / ")}</div><input id="action-search" value="${escapeHtml(view.actions.query)}" aria-label="Action search"><ul>${view.actions.rows.map((row, index) => `<li${row.selected ? ' class="selected"' : ""} data-action-index="${index}">${escapeHtml(row.title)} <small>${escapeHtml(row.shortcut)}</small></li>`).join("")}</ul></section>`
     : "";
   const form = view.form
-    ? `<form>${view.form.fields.map((field) => (field.type === "Form.Checkbox" ? `<label>${escapeHtml(field.title || field.label)}<input type="checkbox" data-field="${escapeHtml(field.id)}"${field.checked ? " checked" : ""}${field.focused ? " autofocus" : ""}></label>` : `<label>${escapeHtml(field.title || field.label)}<input data-field="${escapeHtml(field.id)}" value="${escapeHtml(field.text)}" placeholder="${escapeHtml(field.placeholder)}"${field.focused ? " autofocus" : ""}></label>`)).join("")}${button("Submit", "primary")}</form>`
+    ? `<form class="extension-form">${view.form.fields
+        .map((field) => {
+          const label = escapeHtml(field.title || field.label || field.id);
+          const common = `id="field-${escapeHtml(field.id)}" data-field="${escapeHtml(field.id)}"`;
+          const error = field.error
+            ? `<small class="form-error" role="alert">${escapeHtml(field.error)}</small>`
+            : "";
+          if (field.type === "Form.Separator") return `<hr class="form-separator">`;
+          if (field.type === "Form.Description") return `<p class="form-description">${label}</p>`;
+          if (field.type === "Form.Checkbox")
+            return `<label class="form-field checkbox"><span>${label}</span><input ${common} type="checkbox"${field.checked ? " checked" : ""}></label>`;
+          if (field.type === "Form.Dropdown" || field.type === "Form.TagPicker")
+            return `<label class="form-field"><span>${label}</span><select ${common} ${field.type === "Form.TagPicker" ? "multiple" : ""}>${field.options.map((option) => `<option value="${escapeHtml(option.value)}"${field.selected.some((selected) => selected.value === option.value) ? " selected" : ""}>${escapeHtml(option.title)}</option>`).join("")}</select>${error}</label>`;
+          if (field.type === "Form.DatePicker")
+            return `<label class="form-field"><span>${label}</span><input ${common} type="date" value="${escapeHtml(field.text.slice(0, 10))}">${error}</label>`;
+          if (field.type === "Form.FilePicker")
+            return `<p class="form-unavailable">${label}: not available in the browser</p>`;
+          const area = field.type === "Form.TextArea";
+          return `<label class="form-field"><span>${label}</span>${area ? `<textarea ${common} placeholder="${escapeHtml(field.placeholder)}">${escapeHtml(field.text)}</textarea>` : `<input ${common} type="${field.type === "Form.PasswordField" ? "password" : "text"}"${field.hasValue ? " data-has-value" : ""} value="${escapeHtml(field.text)}" placeholder="${escapeHtml(field.placeholder)}">`}${error}</label>`;
+        })
+        .join("")}${button("Submit", "primary")}</form>`
     : "";
   const detail =
-    view.kind === "detail" ? `<article class="detail">${escapeHtml(view.detail)}</article>` : "";
+    view.kind === "detail"
+      ? `<article class="detail">${renderMarkdown(view.detail)}</article>`
+      : "";
   const toast = view.feedback.toast
-    ? `<aside class="toast" data-style="${escapeHtml(view.feedback.toast.style)}"><strong>${escapeHtml(view.feedback.toast.title)}</strong> ${escapeHtml(view.feedback.toast.message)}</aside>`
+    ? `<aside class="toast" data-style="${escapeHtml(view.feedback.toast.style)}"><strong>${escapeHtml(view.feedback.toast.title)}</strong> ${escapeHtml(view.feedback.toast.message)}${view.feedback.toast.actions.map((action, index) => `<button type="button" data-toast-action="${index}">${escapeHtml(action.title)} <small>${escapeHtml(action.shortcut)}</small></button>`).join("")}</aside>`
+    : "";
+  const hud = view.feedback.hud
+    ? `<aside class="hud" role="status">${escapeHtml(view.feedback.hud.title)}</aside>`
+    : "";
+  const alert = view.feedback.alert
+    ? `<section class="alert-backdrop"><dialog open class="alert" role="alertdialog" aria-modal="true" aria-labelledby="alert-title"><h2 id="alert-title">${escapeHtml(view.feedback.alert.title)}</h2><p>${escapeHtml(view.feedback.alert.message)}</p>${view.feedback.alert.rememberUserChoice ? `<label><input id="alert-remember" type="checkbox"${view.feedback.alert.remember ? " checked" : ""}> Remember my choice</label>` : ""}<footer>${view.feedback.alert.dismiss ? `<button type="button" data-alert="dismiss">${escapeHtml(view.feedback.alert.dismiss.title)}</button>` : ""}${view.feedback.alert.primary ? `<button type="button" data-alert="confirm">${escapeHtml(view.feedback.alert.primary.title)}</button>` : ""}</footer></dialog></section>`
     : "";
   const noRows =
     view.kind === "grid"
@@ -78,9 +192,11 @@ export function render(view, options = {}) {
       ? form
       : view.kind === "detail"
         ? detail
-        : `<ul class="rows">${rows}</ul>${empty}`;
+        : view.kind === "grid"
+          ? `<ul class="grid">${grid}</ul>${empty}`
+          : `<ul class="rows">${rows}</ul>${empty}`;
   const footer = `<footer>${statusMarkup(status)}<span class="footer-hints">${view.primary.enabled ? footerButton(view.primary.title, view.primary.shortcut || "↵", "primary") : ""}${footerButton("Actions", "⌘K", "actions")}${footerButton("Back", "Esc", "back")}</span></footer>`;
-  return `<main data-kind="${escapeHtml(view.kind)}"><header>${breadcrumbMarkup(options.context)}<h1>${escapeHtml(view.title)}</h1>${search}</header>${body}${actions}${footer}${toast}</main>`;
+  return `<main data-kind="${escapeHtml(view.kind)}"><header>${breadcrumbMarkup(options.context)}<h1>${escapeHtml(view.title)}</h1><div class="search-line">${search}</div></header>${body}${actions}${dropdown}${footer}${toast}${hud}${alert}</main>`;
 }
 
 /** @param {import("../browser-demo/root.ts").RootRow[]} rows @param {number} selected @param {string} query @param {{open?: boolean, query?: string, actions?: import("../browser-demo/root.ts").RootAction[], selected?: number, toast?: string, status?: FooterStatus}} [panel] */

@@ -15,6 +15,9 @@ declare module "playwright" {
     fulfill(options: { contentType: string; body: string }): Promise<void>;
   };
   export type Locator = {
+    first(): Locator;
+    boundingBox(): Promise<{ x: number; y: number; width: number; height: number } | null>;
+    selectOption(values: string | string[]): Promise<unknown>;
     waitFor(options?: {
       timeout?: number;
       state?: "attached" | "detached" | "visible" | "hidden";
