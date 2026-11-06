@@ -84,8 +84,11 @@ honestly provide. The first report from the live site was:
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/browser-capabilities-client @ 1c811c9b531c59452f4e0e3d1d93367389d67b54
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 81.2s
 Done:
-Not done / risks:
+- Added injected browser capability handlers and unit coverage for storage, clipboard, command, OAuth, and browser-specific denials.
+- Wired `client.ts` to the handlers, including catalog-checked same-extension launches and browser status messages.
+- Added the `browser-storage` fixture and site e2e persistence check; documented the capability matrix.
+Not done / risks: Browser Clipboard API permissions remain browser-controlled; the session copy fallback is used when permission is denied.
 ```

@@ -1,0 +1,10 @@
+{
+  "name": "browser-storage",
+  "commands": [
+    {
+      "name": "index",
+      "title": "Browser Storage",
+      "mode": "view"
+    }
+  ]
+}

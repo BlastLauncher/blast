@@ -154,6 +154,25 @@ try {
       throw new Error("the Back button did not return to root list");
     if ((await page.locator('iframe[data-blast="session"]').count()) !== 0)
       throw new Error("the sandbox session outlived the extension view");
+    // LocalStorage is extension-scoped and survives closing and reopening a command.
+    await page.locator("#root-search").fill("browser-storage");
+    await page.keyboard.press("Enter");
+    await page.locator("#app #search").waitFor({ timeout: 30_000 });
+    await page.waitForFunction(
+      () => (document.querySelector("#app")?.textContent ?? "").includes("Storage: persists"),
+      undefined,
+      { timeout: 30_000 },
+    );
+    await page.locator('#app [data-footer="back"]').click();
+    await page.locator("#root-search").waitFor({ timeout: 10_000 });
+    await page.locator("#root-search").fill("browser-storage");
+    await page.keyboard.press("Enter");
+    await page.locator("#app #search").waitFor({ timeout: 30_000 });
+    await page.waitForFunction(
+      () => (document.querySelector("#app")?.textContent ?? "").includes("Storage: persists"),
+      undefined,
+      { timeout: 30_000 },
+    );
     console.log(
       JSON.stringify({
         pass: true,
