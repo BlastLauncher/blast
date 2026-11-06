@@ -71,7 +71,7 @@ counterpart of `compat/SWEEP.md`.
 ## Handoff
 
 ```
-Branch/commit: t3/browser-sweep-classifier @ 74c78b9
+Branch/commit: t3/browser-sweep-classifier @ 27eac00
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 104.1s
 Done:
 - Added headless production-site Chromium sweep with four-page concurrency, fresh pages, loopback serving, clipboard/open stubs, trimmed browser diagnostics, and deterministic JSON/Markdown reports.
