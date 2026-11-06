@@ -1,7 +1,7 @@
 ---
 id: "0132"
 title: "Browser sweep round 2: lazy command evaluation, applications, assets in the VFS, empty-view triage"
-status: todo
+status: doing
 milestone: M8
 depends: []
 ---
