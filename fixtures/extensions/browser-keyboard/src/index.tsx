@@ -3,7 +3,8 @@ import { useState } from "react";
 
 const ITEMS = [
   "abc-special",
-  ...Array.from({ length: 49 }, (_, index) => `item-${String(index + 1).padStart(2, "0")}`),
+  "ac-special",
+  ...Array.from({ length: 48 }, (_, index) => `item-${String(index + 1).padStart(2, "0")}`),
 ];
 
 function DetailView({ item }: { item: string }) {

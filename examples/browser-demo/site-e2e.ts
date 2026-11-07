@@ -178,10 +178,14 @@ try {
     await page.locator("#root-search").fill("");
     await page.locator("#root-search").pressSequentially("browser-keyboard");
     await page.keyboard.press("Enter");
-    await page.locator("#app #search").waitFor({ timeout: 30_000 });
+    await page.keyboard.type("ab");
+    await page.keyboard.press("Backspace");
+    await page.keyboard.type("c");
     await page
       .waitForFunction(
-        () => (document.querySelector("#app")?.textContent ?? "").includes("abc-special"),
+        () =>
+          document.querySelector("#search")?.value === "ac" &&
+          (document.querySelector("#app")?.textContent ?? "").includes("ac-special"),
         undefined,
         { timeout: 30_000 },
       )
@@ -190,16 +194,24 @@ try {
           `${error} after browser-keyboard: ${await page.locator("#app").innerText()}`,
         );
       });
+    if ((await page.evaluate(() => document.activeElement?.id)) !== "search")
+      throw new Error("early search input did not receive focus");
+    const earlyRows = await page.locator(".rows li").count();
+    if (earlyRows !== 2 || (await page.locator(".rows").innerText()).includes("item-"))
+      throw new Error(
+        `early search did not filter rows: ${await page.locator(".rows").innerText()}`,
+      );
     const firstItem =
       (await page.locator(".rows li:not(.section-header)").first().textContent()) ?? "";
-    if (!firstItem.includes("Subtitle abc-special"))
+    if (!firstItem.includes("Subtitle ac-special"))
       throw new Error(`row subtitle did not render: ${firstItem}`);
-    if (!firstItem.includes("Accessory abc-special"))
+    if (!firstItem.includes("Accessory ac-special"))
       throw new Error(`row accessory did not render: ${firstItem}`);
     const header = (await page.locator(".rows li.section-header").first().textContent()) ?? "";
-    if (!header.includes("Items") || !header.includes("50"))
-      throw new Error(`section header or count did not render: ${header}`);
+    if (!header.includes("Items") || !header.includes("1"))
+      throw new Error(`section header or filtered count did not render: ${header}`);
     await page.locator("#search").click();
+    await page.locator("#search").fill("");
     await page.locator("#search").pressSequentially("abc");
     await page.waitForFunction(
       () => document.querySelector("#search")?.value === "abc",
@@ -387,6 +399,7 @@ try {
 
     await page.locator("#root-search").fill("browser-form");
     await page.keyboard.press("Enter");
+    await page.keyboard.type("stray");
     await page
       .locator('input[data-field="1"]')
       .waitFor({ timeout: 30_000 })
@@ -396,6 +409,10 @@ try {
         );
       });
     const firstField = page.locator('input[data-field="1"]');
+    if ((await firstField.inputValue()) !== "")
+      throw new Error(`early form typing leaked into field 1: ${await firstField.inputValue()}`);
+    if ((await page.locator('input[data-field="2"]').inputValue()) !== "initial")
+      throw new Error("early form typing leaked into field 2");
     await firstField.pressSequentially("one");
     // Let the extension echo the controlled value before focus leaves, or a stale scene
     // could overwrite the text.

@@ -64,6 +64,6 @@ declare module "playwright" {
     locator(selector: string): Locator;
     getByRole(role: string, options: { name: RegExp | string }): Locator;
     getByText(text: RegExp | string): Locator;
-    keyboard: { press(key: string): Promise<void> };
+    keyboard: { press(key: string): Promise<void>; type(text: string): Promise<void> };
   };
 }

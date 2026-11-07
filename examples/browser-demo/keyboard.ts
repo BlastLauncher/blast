@@ -7,6 +7,7 @@ export type KeyboardLike = {
   metaKey?: boolean;
   shiftKey?: boolean;
   altKey?: boolean;
+  isComposing?: boolean;
 };
 
 const names: Record<string, string> = {
@@ -36,4 +37,20 @@ export function keyInputFromEvent(event: KeyboardLike): KeyInput {
     ...(event.shiftKey ? { shift: true } : {}),
     ...(event.altKey ? { option: true } : {}),
   };
+}
+
+/**
+ * Apply one key while a command is starting. The caller decides whether the
+ * returned value should be rendered or replayed; unsupported keys return
+ * undefined so shortcuts and navigation are never buffered.
+ */
+export function applyEarlyKey(buffer: string, event: KeyboardLike): string | undefined {
+  if (event.isComposing || event.ctrlKey || event.metaKey || event.altKey) return undefined;
+  if (event.key === "Backspace") return buffer.slice(0, -1);
+  return event.key.length === 1 ? buffer + event.key : undefined;
+}
+
+/** Paste data is already text; no clipboard read is needed during startup. */
+export function applyEarlyPaste(buffer: string, text: string): string {
+  return buffer + text;
 }
