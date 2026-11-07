@@ -438,6 +438,22 @@ try {
     await page.locator("#root-search").fill("browser-fields");
     await page.keyboard.press("Enter");
     await page.locator("label.form-field textarea").waitFor({ timeout: 30_000 });
+    await page.waitForFunction(
+      () =>
+        (document.querySelector(".form-description")?.textContent ?? "").includes(
+          "One of each field kind",
+        ) && document.querySelectorAll(".form-separator").length === 1,
+      undefined,
+      { timeout: 30_000 },
+    );
+    if ((await page.locator(".form-description").textContent()) !== "About: One of each field kind")
+      throw new Error("form description did not render its title and text");
+    if ((await page.locator(".form-description + .form-field").count()) !== 1)
+      throw new Error("form description is not before the first field");
+    if ((await page.locator('.form-field:has-text("Notes") + .form-separator').count()) !== 1)
+      throw new Error("form separator is not after Notes");
+    if ((await page.locator('.form-separator + .form-field:has-text("Secret")').count()) !== 1)
+      throw new Error("form separator is not before Secret");
     const field = (label: string, control: string) =>
       page.locator(`label.form-field:has-text("${label}") ${control}`);
     await field("Notes", "textarea").fill("line1\nline2");

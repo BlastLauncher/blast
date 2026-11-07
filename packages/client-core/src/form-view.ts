@@ -91,6 +91,11 @@ export type FormFieldView = {
   focused: boolean;
 };
 
+export type FormItemView =
+  | { kind: "field"; id: string }
+  | { kind: "separator"; id: string }
+  | { kind: "description"; id: string; title: string; text: string };
+
 const valueOf = (field: SceneNode) =>
   Object.hasOwn(field.props, "value") ? field.props.value! : (field.props.defaultValue ?? null);
 const emit = (
@@ -254,6 +259,20 @@ export function createFormController() {
     view() {
       return {
         focusId,
+        items: (form?.children ?? []).flatMap((node): FormItemView[] => {
+          if (editable.has(node.type)) return [{ kind: "field", id: node.id }];
+          if (node.type === "Form.Separator") return [{ kind: "separator", id: node.id }];
+          if (node.type === "Form.Description")
+            return [
+              {
+                kind: "description",
+                id: node.id,
+                title: text(node.props.title),
+                text: text(node.props.text),
+              },
+            ];
+          return [];
+        }),
         fields: fields.map((field): FormFieldView => {
           const password = field.type === "Form.PasswordField";
           const value = password ? null : valueOf(field);

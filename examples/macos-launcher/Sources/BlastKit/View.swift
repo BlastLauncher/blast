@@ -173,6 +173,53 @@ public struct ControllerView: Codable, Equatable, Sendable {
     }
 
     public struct Form: Codable, Equatable, Sendable {
+        public enum Item: Codable, Equatable, Sendable {
+            case field(id: String)
+            case separator(id: String)
+            case description(id: String, title: String, text: String)
+
+            private enum CodingKeys: String, CodingKey { case kind, id, title, text }
+
+            public init(from decoder: Decoder) throws {
+                let container = try decoder.container(keyedBy: CodingKeys.self)
+                let kind = try container.decode(String.self, forKey: .kind)
+                let id = try container.decode(String.self, forKey: .id)
+                switch kind {
+                case "field": self = .field(id: id)
+                case "separator": self = .separator(id: id)
+                case "description":
+                    self = .description(
+                        id: id,
+                        title: try container.decode(String.self, forKey: .title),
+                        text: try container.decode(String.self, forKey: .text)
+                    )
+                default:
+                    throw DecodingError.dataCorruptedError(
+                        forKey: .kind,
+                        in: container,
+                        debugDescription: "Unknown form item kind: \(kind)"
+                    )
+                }
+            }
+
+            public func encode(to encoder: Encoder) throws {
+                var container = encoder.container(keyedBy: CodingKeys.self)
+                switch self {
+                case .field(let id):
+                    try container.encode("field", forKey: .kind)
+                    try container.encode(id, forKey: .id)
+                case .separator(let id):
+                    try container.encode("separator", forKey: .kind)
+                    try container.encode(id, forKey: .id)
+                case .description(let id, let title, let text):
+                    try container.encode("description", forKey: .kind)
+                    try container.encode(id, forKey: .id)
+                    try container.encode(title, forKey: .title)
+                    try container.encode(text, forKey: .text)
+                }
+            }
+        }
+
         public struct Field: Codable, Equatable, Sendable {
             public struct Option: Codable, Equatable, Sendable {
                 public let value: String
@@ -197,6 +244,7 @@ public struct ControllerView: Codable, Equatable, Sendable {
             public let focused: Bool
         }
 
+        public let items: [Item]
         public let fields: [Field]
         public let focusId: String?
     }

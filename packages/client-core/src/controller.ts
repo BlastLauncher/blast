@@ -4,8 +4,13 @@ import { activeNode, actionRows, defaultActionShortcut, panelRows, sceneToView }
 import { contentGlyph, gridMove } from "./grid.ts";
 import { iconView } from "./icons.ts";
 import { dropdownLabel, dropdownOptions, visibleOptions } from "./dropdown.ts";
-import { createFormController, type FormInput, type FormFieldView } from "./form-view.ts";
-export type { FormFieldView } from "./form-view.ts";
+import {
+  createFormController,
+  type FormInput,
+  type FormFieldView,
+  type FormItemView,
+} from "./form-view.ts";
+export type { FormFieldView, FormItemView } from "./form-view.ts";
 import { loadMoreRequest } from "./pagination.ts";
 import { searchDispatch } from "./search.ts";
 import { feedbackState, TOAST_DURATION_MS } from "./feedback.ts";
@@ -151,7 +156,7 @@ export type ControllerView = {
     rows: MenuRowView[];
     selectedId: string | null;
   } | null;
-  form: { fields: FormFieldView[]; focusId: string | null } | null;
+  form: { items: FormItemView[]; fields: FormFieldView[]; focusId: string | null } | null;
   requests: {
     quit: boolean;
     /** The last scene asked the client to clear the search bar. */
