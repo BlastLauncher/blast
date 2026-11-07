@@ -85,16 +85,16 @@ AppKit launcher over `blast serve`; automated tests and contract fixtures first.
 Raycast extensions in a browser tab, in almostnode's cross-origin sandbox (decision 0013).
 
 - [x] 0115–0119 spike, runtime core, browser bundle, installer, demo by URL (`examples/browser-*`)
-- [x] 0120–0127 root list, static site, deploy (blast.yukai.dev), live fixes, polish, prebuilt
-      bundles, parity and warm sandbox (3 KB command opens)
+- [x] 0120–0127 root list, site, deploy (blast.yukai.dev), prebuilt bundles, warm sandbox
 - [x] 0128–0132 capabilities, sweep, cmdk matching, sandbox gaps, lazy load: 34 → 138/237
-- [x] 0133 Browser preferences: defaults, required-preference form, preferences.open
-- [x] 0134 Web launcher focus, keyboard navigation, action shortcuts, timed effects
-- [x] 0135 Web launcher surfaces: rich rows, grid, dropdown, alert, HUD, form fields
+- [x] 0133–0135 preferences form, focus and keyboard, shortcuts, rich rows, grid, dropdown,
+      alert, HUD, form fields
+- [ ] 0136 Form separators and descriptions in the controller view
+- [ ] 0137 Demo: keep keystrokes typed before an extension's first scene
 
 ## Later (not scheduled)
 
-- Demo: buffer keystrokes typed before an extension's first scene. Out of scope (0009): MyGo, TUI launcher features.
+Out of scope (0009): MyGo, TUI launcher features.
 
 ## Decision log
 
