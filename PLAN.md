@@ -89,7 +89,7 @@ Raycast extensions in a browser tab, in almostnode's cross-origin sandbox (decis
 - [x] 0128–0132 capabilities, sweep, cmdk matching, sandbox gaps, lazy load: 34 → 138/237
 - [x] 0133–0135 preferences form, focus and keyboard, shortcuts, rich rows, grid, dropdown,
       alert, HUD, form fields
-- [ ] 0136 Form separators and descriptions in the controller view
+- [x] 0136 Form separators and descriptions in the controller view
 - [ ] 0137 Demo: keep keystrokes typed before an extension's first scene
 
 ## Later (not scheduled)
