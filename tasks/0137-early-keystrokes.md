@@ -1,7 +1,7 @@
 ---
 id: "0137"
 title: Keep keystrokes typed before an extension's first scene
-status: todo
+status: doing
 milestone: M8
 depends: ["0135"]
 ---
