@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { keyInputFromEvent } from "./keyboard.ts";
+import { applyEarlyKey, applyEarlyPaste, keyInputFromEvent } from "./keyboard.ts";
 
 test("maps browser keys and modifiers to client-core shortcut names", () => {
   expect(keyInputFromEvent({ key: "c", metaKey: true, shiftKey: true })).toEqual({
@@ -28,4 +28,23 @@ test("maps browser keys and modifiers to client-core shortcut names", () => {
   expect(keyInputFromEvent({ key: "ArrowRight" })).toEqual({ name: "right" });
   expect(keyInputFromEvent({ key: "Escape" })).toEqual({ name: "escape" });
   expect(keyInputFromEvent({ key: " " })).toEqual({ name: "space" });
+});
+
+test("buffers only printable, unmodified keys and backspace", () => {
+  let value = "";
+  value = applyEarlyKey(value, { key: "a" }) ?? value;
+  value = applyEarlyKey(value, { key: "b" }) ?? value;
+  value = applyEarlyKey(value, { key: "Backspace" }) ?? value;
+  expect(value).toBe("a");
+  expect(applyEarlyKey(value, { key: "Enter" })).toBeUndefined();
+  expect(applyEarlyKey(value, { key: "ArrowDown" })).toBeUndefined();
+  expect(applyEarlyKey(value, { key: "c", metaKey: true })).toBeUndefined();
+  expect(applyEarlyKey(value, { key: "d", ctrlKey: true })).toBeUndefined();
+  expect(applyEarlyKey(value, { key: "e", altKey: true })).toBeUndefined();
+  expect(applyEarlyKey(value, { key: "f", isComposing: true })).toBeUndefined();
+});
+
+test("appends paste text without reading the clipboard", () => {
+  expect(applyEarlyPaste("ab", "c d")).toBe("abc d");
+  expect(applyEarlyPaste("", "one\r\ntwo\nthree")).toBe("one two three");
 });

@@ -1,5 +1,9 @@
 import * as esbuild from "esbuild-wasm";
-import { createController, type Controller } from "../../packages/client-core/src/index.ts";
+import {
+  activeNode,
+  createController,
+  type Controller,
+} from "../../packages/client-core/src/index.ts";
 import { installForBrowser } from "../../packages/host/src/browser-install.ts";
 import { bundleForBrowser } from "../../packages/host/src/browser-bundle.ts";
 import type { SceneMessage } from "../../packages/protocol/src/index.ts";
@@ -36,7 +40,8 @@ import {
   type RootRow,
 } from "./root.ts";
 import { statusError, statusForStage, statusInfo, type DemoStatus } from "./status.ts";
-import { keyInputFromEvent } from "./keyboard.ts";
+import { applyEarlyKey, applyEarlyPaste, keyInputFromEvent } from "./keyboard.ts";
+import { escapeHtml } from "../web-launcher/render.js";
 
 type FileMap = Record<string, string>;
 type BrowserFile = string | Uint8Array;
@@ -84,6 +89,8 @@ let preferenceForm:
     }
   | undefined;
 let preferenceFormVisible = false;
+let sessionStarting = false;
+let earlyInput = "";
 const sessionTimers = new Set<ReturnType<typeof setTimeout>>();
 
 let extensionContext:
@@ -107,8 +114,10 @@ const statusForText = (text: string, error: boolean): DemoStatus => {
 const setStatus = (text: string, error = false) => {
   statusState = statusForText(text, error);
   if (catalog) {
-    if (rootOpen || !controller) drawRoot();
-    else draw(controller.view());
+    if (rootOpen) drawRoot();
+    else if (sessionStarting && !controller) drawStarting();
+    else if (controller) draw(controller.view());
+    else drawRoot();
   }
 };
 function replaceApp(markup: string) {
@@ -126,7 +135,8 @@ function replaceApp(markup: string) {
   >("input,select,textarea")) {
     const key = next.id || next.dataset.field;
     const previous = key ? controls.get(key) : undefined;
-    if (!previous || previous.tagName !== next.tagName) continue;
+    if (!previous || previous.dataset.starting === "true" || previous.tagName !== next.tagName)
+      continue;
     const focused = active === previous;
     if (next instanceof HTMLSelectElement && previous instanceof HTMLSelectElement) {
       // `.value` only names the first selected option of a multi-select, so sync flags.
@@ -152,6 +162,9 @@ function replaceApp(markup: string) {
     next.replaceWith(previous);
   }
 }
+const drawStarting = () => {
+  app.innerHTML = `<main data-kind="list"><header>${extensionContext ? `<div class="breadcrumb"><span>${escapeHtml(extensionContext.extensionTitle)}</span><span class="breadcrumb-separator">›</span><span>${escapeHtml(extensionContext.commandTitle)}</span></div>` : ""}<h1>Starting…</h1><div class="search-line"><input id="search" data-starting="true" value="${escapeHtml(earlyInput)}" placeholder="Search…" aria-label="Search" readonly></div></header><p class="empty">Starting command…</p><footer><span id="status" role="status">${escapeHtml(statusState.text)}</span></footer></main>`;
+};
 const draw = (view: ReturnType<Controller["view"]>) => {
   const active = document.activeElement as HTMLInputElement | null;
   const focusKey = active?.id || active?.dataset.field;
@@ -294,8 +307,28 @@ function handleRuntime(
   } else if (message.type === "scene") {
     if (!controller || rootOpen) return;
     const result = controller.scene(message);
+    const view = controller.view();
+    const list = activeNode(message.root);
+    const controlledSearch =
+      list?.props.searchText !== undefined || list?.props.onSearchTextChange !== undefined;
+    const pending = earlyInput;
+    earlyInput = "";
+    sessionStarting = false;
+    const canFlush =
+      pending.length > 0 &&
+      (view.kind === "list" || view.kind === "grid") &&
+      view.search.text === "" &&
+      !controlledSearch;
+    const searchResult = canFlush ? controller.input({ type: "search", text: pending }) : undefined;
     draw(controller.view());
     processResult(result);
+    if (searchResult) {
+      processResult(searchResult);
+      draw(controller.view());
+      const search = document.querySelector<HTMLInputElement>("#search");
+      search?.focus();
+      search?.setSelectionRange(search.value.length, search.value.length);
+    }
   } else if (message.type === "capability.request") {
     if (!browserCapabilities || !activeCapabilityContext) return;
     void browserCapabilities(message, activeCapabilityContext)
@@ -404,6 +437,8 @@ function commandEntry(files: Map<string, BrowserFile>, name: string): string {
 }
 
 async function launch(source: string, commandName: string): Promise<void> {
+  earlyInput = "";
+  sessionStarting = true;
   rootOpen = false;
   actionOpen = false;
   const selectedRow = rootRows[rootSelected];
@@ -493,6 +528,8 @@ async function launch(source: string, commandName: string): Promise<void> {
     store: preferenceStore,
   };
   if (missing.length) {
+    sessionStarting = false;
+    earlyInput = "";
     rootOpen = false;
     drawPreferences();
     return;
@@ -731,6 +768,8 @@ async function acquireSandbox(): Promise<Sandbox> {
 }
 
 function stopSession() {
+  sessionStarting = false;
+  earlyInput = "";
   for (const timer of sessionTimers) clearTimeout(timer);
   sessionTimers.clear();
   port?.close();
@@ -865,6 +904,15 @@ function dropdownKey(event: KeyboardEvent) {
 }
 
 document.addEventListener("keydown", (event) => {
+  if (sessionStarting && !controller && !rootOpen) {
+    const next = applyEarlyKey(earlyInput, event);
+    if (next !== undefined) {
+      event.preventDefault();
+      earlyInput = next;
+      drawStarting();
+      return;
+    }
+  }
   const modalView = rootOpen ? undefined : controller?.view();
   if (modalView?.feedback.alert) return alertKey(event);
   if (modalView?.dropdown?.open) return dropdownKey(event);
@@ -1024,6 +1072,14 @@ function preferenceFormValues(
 document.addEventListener("focusin", (event) => {
   const field = (event.target as HTMLElement).dataset?.field;
   if (field && controller?.view().form?.focusId !== field) sendInput({ type: "focus", id: field });
+});
+document.addEventListener("paste", (event) => {
+  if (!sessionStarting || controller || rootOpen) return;
+  const text = event.clipboardData?.getData("text") ?? "";
+  if (!text) return;
+  event.preventDefault();
+  earlyInput = applyEarlyPaste(earlyInput, text);
+  drawStarting();
 });
 document.addEventListener("input", (event) => {
   const target = event.target as HTMLInputElement;

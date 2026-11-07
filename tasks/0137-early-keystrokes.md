@@ -71,8 +71,12 @@ appears, the way a native launcher feels. Nothing is lost or typed twice.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/fix-early-keystrokes @ 38b436439fd102cbedc2fc01435c6cc5dfab5c30
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok)
 Done:
-Not done / risks:
+- Added pure startup key and paste buffering helpers with modifier/composition filtering.
+- Added a visible startup frame and flushed buffered input into uncontrolled list/grid search on the first scene.
+- Cleared startup state across launches, stops, forms, details, and extension-owned search.
+- Extended browser e2e coverage for immediate typing, filtering, focus, and form isolation.
+Not done / risks: None.
 ```
