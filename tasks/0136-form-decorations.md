@@ -66,8 +66,12 @@ order between the fields.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/form-decorations @ 6777a6d7238cd2b4327727f46ccbb2876e905e1f
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 103.3s
 Done:
-Not done / risks:
+- Added ordered `form.items` entries for editable fields, separators, and descriptions while preserving editable-only focus and Tab state.
+- Rendered form decorations and description text in the web launcher and added browser order assertions.
+- Updated the macOS controller model and regenerated the form contract fixture.
+- Added client-core coverage for mixed form item order and decoration-skipping focus.
+Not done / risks: `Form.LinkAccessory` remains outside browser rendering scope.
 ```

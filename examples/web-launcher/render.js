@@ -142,16 +142,20 @@ export function render(view, options = {}) {
   const actions = view.actions.open
     ? `<section class="actions"><strong>${escapeHtml(view.actions.title)}</strong><div class="breadcrumb">${view.actions.breadcrumb.map(escapeHtml).join(" / ")}</div><input id="action-search" value="${escapeHtml(view.actions.query)}" aria-label="Action search"><ul>${view.actions.rows.map((row, index) => `<li${row.selected ? ' class="selected"' : ""} data-action-index="${index}">${escapeHtml(row.title)} <small>${escapeHtml(row.shortcut)}</small></li>`).join("")}</ul></section>`
     : "";
-  const form = view.form
-    ? `<form class="extension-form">${view.form.fields
-        .map((field) => {
+  const formView = view.form;
+  const form = formView
+    ? `<form class="extension-form">${formView.items
+        .map((item) => {
+          if (item.kind === "separator") return `<hr class="form-separator">`;
+          if (item.kind === "description")
+            return `<p class="form-description">${escapeHtml(item.title)}${item.text ? `: ${escapeHtml(item.text)}` : ""}</p>`;
+          const field = formView.fields.find((candidate) => candidate.id === item.id);
+          if (!field) return "";
           const label = escapeHtml(field.title || field.label || field.id);
           const common = `id="field-${escapeHtml(field.id)}" data-field="${escapeHtml(field.id)}"`;
           const error = field.error
             ? `<small class="form-error" role="alert">${escapeHtml(field.error)}</small>`
             : "";
-          if (field.type === "Form.Separator") return `<hr class="form-separator">`;
-          if (field.type === "Form.Description") return `<p class="form-description">${label}</p>`;
           if (field.type === "Form.Checkbox")
             return `<label class="form-field checkbox"><span>${label}</span><input ${common} type="checkbox"${field.checked ? " checked" : ""}></label>`;
           if (field.type === "Form.Dropdown" || field.type === "Form.TagPicker")

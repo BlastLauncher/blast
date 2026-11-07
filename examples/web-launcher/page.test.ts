@@ -70,6 +70,7 @@ test("render draws list, selection, detail, action panel, form and toast", () =>
     view({
       kind: "form",
       form: {
+        items: [{ kind: "field", id: "name" }],
         fields: [
           {
             id: "name",

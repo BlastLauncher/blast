@@ -4,7 +4,14 @@
 // @covers Form.Dropdown.Props.onSearchTextChange
 import { expect, test } from "bun:test";
 import type { SceneNode } from "@blastlauncher/protocol";
-import { formDropdownOptions, formFields, formOptions, nextField, parseDate } from "./form-view.ts";
+import {
+  createFormController,
+  formDropdownOptions,
+  formFields,
+  formOptions,
+  nextField,
+  parseDate,
+} from "./form-view.ts";
 import { searchDispatch } from "./search.ts";
 
 const node = (type: string, id: string, children: SceneNode[] = []): SceneNode => ({
@@ -26,6 +33,31 @@ test("focus skips presentation fields and wraps in both directions", () => {
   expect(nextField(fields, "a", -1)?.id).toBe("b");
   expect(nextField(fields, "b", 1)?.id).toBe("a");
   expect(nextField([], undefined, 1)).toBeUndefined();
+});
+test("form view preserves visible item order without adding decorations to fields", () => {
+  const form = node("Form", "form", [
+    node("Form.Description", "intro", []),
+    node("Form.TextField", "name"),
+    node("Form.Separator", "divider"),
+    node("Form.TextArea", "notes"),
+    node("Form.Description", "outro", []),
+  ]);
+  form.children[0]!.props = { title: "About", text: "Enter details" };
+  form.children[4]!.props = { title: "More", text: "Optional" };
+  const controller = createFormController();
+  controller.scene(form, []);
+  const view = controller.view();
+  expect(view.items).toEqual([
+    { kind: "description", id: "intro", title: "About", text: "Enter details" },
+    { kind: "field", id: "name" },
+    { kind: "separator", id: "divider" },
+    { kind: "field", id: "notes" },
+    { kind: "description", id: "outro", title: "More", text: "Optional" },
+  ]);
+  expect(view.fields.map((field) => field.id)).toEqual(["name", "notes"]);
+  expect(view.focusId).toBe("name");
+  controller.input({ type: "focusNext" }, []);
+  expect(controller.view().focusId).toBe("notes");
 });
 test("picker options include section children", () => {
   expect(

@@ -702,7 +702,7 @@ test("form focus wraps, ignores stale acknowledgements, and follows scene reques
   expect(controller.view().form?.focusId).toBe("c");
   expect(controller.input({ type: "focus", id: "missing" }).events).toEqual([]);
   controller.scene(scene(node("Form", "other", {}, [])));
-  expect(controller.view().form).toEqual({ fields: [], focusId: null });
+  expect(controller.view().form).toEqual({ items: [], fields: [], focusId: null });
 });
 
 test("form scenes control text values, preserve date syntax on acknowledgement, and clear removed fields", () => {
@@ -729,7 +729,7 @@ test("form scenes control text values, preserve date syntax on acknowledgement, 
   controller.scene(show("changed", "2025-01-01T00:00:00.000Z"));
   expect(controller.view().form?.fields[1]?.text).toBe("2025-01-01T00:00:00.000Z");
   controller.scene(scene(node("Form", "form")));
-  expect(controller.view().form).toEqual({ fields: [], focusId: null });
+  expect(controller.view().form).toEqual({ items: [], fields: [], focusId: null });
 });
 
 test("the command title is the fallback when the list has no navigation title", () => {
