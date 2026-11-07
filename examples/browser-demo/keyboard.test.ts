@@ -46,4 +46,5 @@ test("buffers only printable, unmodified keys and backspace", () => {
 
 test("appends paste text without reading the clipboard", () => {
   expect(applyEarlyPaste("ab", "c d")).toBe("abc d");
+  expect(applyEarlyPaste("", "one\r\ntwo\nthree")).toBe("one two three");
 });

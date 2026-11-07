@@ -50,7 +50,10 @@ export function applyEarlyKey(buffer: string, event: KeyboardLike): string | und
   return event.key.length === 1 ? buffer + event.key : undefined;
 }
 
-/** Paste data is already text; no clipboard read is needed during startup. */
+/**
+ * Paste data is already text; no clipboard read is needed during startup. The
+ * search bar is one line, so line breaks collapse to spaces as an input would.
+ */
 export function applyEarlyPaste(buffer: string, text: string): string {
-  return buffer + text;
+  return buffer + text.replace(/\r?\n/g, " ");
 }
