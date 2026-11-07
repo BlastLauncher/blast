@@ -66,7 +66,7 @@ order between the fields.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit: t3/form-decorations @ 6777a6d7238cd2b4327727f46ccbb2876e905e1f
+Branch/commit: t3/form-decorations @ 3cd4532697b52aaabe7f3cf8af84409574126f23
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 103.3s
 Done:
 - Added ordered `form.items` entries for editable fields, separators, and descriptions while preserving editable-only focus and Tab state.
