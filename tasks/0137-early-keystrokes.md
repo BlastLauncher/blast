@@ -71,7 +71,7 @@ appears, the way a native launcher feels. Nothing is lost or typed twice.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit: t3/fix-early-keystrokes @ c02bc431234f0c526c640cf4289a385133010b5d
+Branch/commit: t3/fix-early-keystrokes @ 38b436439fd102cbedc2fc01435c6cc5dfab5c30
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok)
 Done:
 - Added pure startup key and paste buffering helpers with modifier/composition filtering.
