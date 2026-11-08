@@ -16,9 +16,25 @@ declare const document: {
 };
 declare const window: { open: (...args: unknown[]) => null };
 
+/** A grid cell is drawn as a button inside `.grid`, not as a `.rows` item. */
+export const gridCellSelector = ".grid-cell";
+/** Form controls carry `data-field` on input, textarea and select alike. */
+export const formFieldSelector = "form [data-field]";
+/** Content that means the command's first scene (or a prompt) has arrived. */
+export const contentSelector = [
+  "#app .rows li",
+  `#app ${gridCellSelector}`,
+  "#app .detail",
+  `#app ${formFieldSelector}`,
+  "#preferences-form",
+  "#app .empty strong",
+  '#status[data-error="true"]',
+].join(", ");
+
 type SceneSnapshot = {
   kind: string;
   rows: number;
+  cells: number;
   detail: boolean;
   fields: number;
   hasEmptyView: boolean;
@@ -69,7 +85,7 @@ export function classifyBrowserOutcome(observation: BrowserObservation): Browser
     return `runtime-error:${compact(pageErrors[0] || consoleErrors[0] || observation.status || "runtime error")}`;
   const scene = observation.scene;
   if (!scene) return "timeout";
-  const content = scene.rows > 0 || scene.detail || scene.fields > 0;
+  const content = scene.rows > 0 || scene.cells > 0 || scene.detail || scene.fields > 0;
   if (content) return "rendered";
   if (scene.kind === "list" && scene.hasSearchBar && !scene.isLoading) return "rendered";
   return scene.hasEmptyView ? "rendered" : "empty";
@@ -100,8 +116,12 @@ type Report = {
 type BrowserPage = {
   addInitScript(fn: () => void): Promise<void>;
   goto(url: string, options?: { waitUntil?: "load" }): Promise<unknown>;
-  waitForFunction<T>(fn: () => T, options?: { timeout?: number }): Promise<unknown>;
-  evaluate<T>(fn: () => T): Promise<T>;
+  waitForFunction<T, A>(
+    fn: (arg: A) => T,
+    arg: A,
+    options?: { timeout?: number },
+  ): Promise<unknown>;
+  evaluate<T, A>(fn: (arg: A) => T, arg: A): Promise<T>;
   locator(selector: string): { count(): Promise<number>; textContent(): Promise<string | null> };
   on(event: "console", fn: (message: { type(): string; text(): string }) => void): void;
   on(event: "pageerror", fn: (error: { message: string }) => void): void;
@@ -176,6 +196,7 @@ async function runCommand(
         document.querySelector("#app #search") !== null ||
         document.querySelector("#preferences-form") !== null ||
         document.querySelector('#status[data-error="true"]') !== null,
+      undefined,
       { timeout: 15_000 },
     );
     // The controller publishes its initial empty view before the sandbox can
@@ -183,41 +204,40 @@ async function runCommand(
     // genuinely empty commands a bounded settle window.
     await Promise.race([
       page.waitForFunction(
-        () =>
-          document.querySelector("#app .rows li") !== null ||
-          document.querySelector("#app .detail") !== null ||
-          document.querySelector("#app form input[data-field]") !== null ||
-          document.querySelector("#preferences-form") !== null ||
-          document.querySelector("#app .empty strong") !== null ||
-          document.querySelector('#status[data-error="true"]') !== null,
+        (selector) => document.querySelector(selector) !== null,
+        contentSelector,
         { timeout: 15_000 },
       ),
       new Promise((resolve) => setTimeout(resolve, 2_000)),
     ]);
-    const snapshot = await page.evaluate(() => {
-      const sceneMain = document.querySelector<SweepElement>("#app main[data-kind]");
-      const kind = sceneMain?.dataset?.kind ?? "";
-      return {
-        scene: sceneMain
-          ? {
-              kind,
-              rows: sceneMain.querySelectorAll(".rows li").length,
-              detail: Boolean(sceneMain.querySelector(".detail")?.textContent?.trim()),
-              fields: sceneMain.querySelectorAll("form input[data-field]").length,
-              needsPreferences: document.querySelector("#preferences-form") !== null,
-              hasEmptyView: Boolean(sceneMain.querySelector(".empty strong")),
-              hasSearchBar: Boolean(sceneMain.querySelector("#search")),
-              isLoading: sceneMain.querySelector("[data-loading='true']") !== null,
-            }
-          : undefined,
-        needsPreferences: document.querySelector("#preferences-form") !== null,
-        status: document.querySelector("#status")?.textContent?.trim() ?? "",
-        statusError: document.querySelector('#status[data-error="true"]') !== null,
-        capability: document
-          .querySelector('#status[data-error="true"]')
-          ?.textContent?.match(/([a-z]+\.[a-z]+) is unavailable/u)?.[1],
-      };
-    });
+    const snapshot = await page.evaluate(
+      (selectors) => {
+        const sceneMain = document.querySelector<SweepElement>("#app main[data-kind]");
+        const kind = sceneMain?.dataset?.kind ?? "";
+        return {
+          scene: sceneMain
+            ? {
+                kind,
+                rows: sceneMain.querySelectorAll(".rows li").length,
+                cells: sceneMain.querySelectorAll(selectors.cells).length,
+                detail: Boolean(sceneMain.querySelector(".detail")?.textContent?.trim()),
+                fields: sceneMain.querySelectorAll(selectors.fields).length,
+                needsPreferences: document.querySelector("#preferences-form") !== null,
+                hasEmptyView: Boolean(sceneMain.querySelector(".empty strong")),
+                hasSearchBar: Boolean(sceneMain.querySelector("#search")),
+                isLoading: sceneMain.querySelector("[data-loading='true']") !== null,
+              }
+            : undefined,
+          needsPreferences: document.querySelector("#preferences-form") !== null,
+          status: document.querySelector("#status")?.textContent?.trim() ?? "",
+          statusError: document.querySelector('#status[data-error="true"]') !== null,
+          capability: document
+            .querySelector('#status[data-error="true"]')
+            ?.textContent?.match(/([a-z]+\.[a-z]+) is unavailable/u)?.[1],
+        };
+      },
+      { cells: gridCellSelector, fields: formFieldSelector },
+    );
     const capability = snapshot.capability;
     const observation: BrowserObservation = {
       ...(snapshot.scene ? { scene: snapshot.scene } : {}),

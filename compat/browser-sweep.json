@@ -1,13 +1,14 @@
 {
   "schema": 1,
   "commit": "bad7de0172ce6ea5e721ed919f4e1d7186f74192",
-  "date": "2026-11-06",
+  "date": "2026-11-08",
   "commands": 237,
-  "wallTimeMs": 63764,
+  "wallTimeMs": 57795,
   "totals": {
-    "empty": 74,
+    "empty": 64,
     "needs-preferences": 51,
-    "rendered": 96,
+    "network": 4,
+    "rendered": 102,
     "runtime-error:Applications are unavailable in a browser tab": 1,
     "runtime-error:Cannot find module 'sqlite'": 1,
     "runtime-error:Cannot read properties of undefined (reading '$and')": 1,
@@ -28,7 +29,7 @@
       "status": "Selection is unavailable in a browser tab",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 469
+      "elapsedMs": 516
     },
     {
       "extension": "advanced-replace",
@@ -39,7 +40,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2205
+      "elapsedMs": 2168
     },
     {
       "extension": "android-versions",
@@ -50,7 +51,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 469
+      "elapsedMs": 534
     },
     {
       "extension": "anilist-airing-schedule",
@@ -61,7 +62,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2204
+      "elapsedMs": 2168
     },
     {
       "extension": "appgrid",
@@ -72,7 +73,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2131
+      "elapsedMs": 2060
     },
     {
       "extension": "atomtick",
@@ -83,7 +84,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 396
+      "elapsedMs": 376
     },
     {
       "extension": "axios-docs",
@@ -105,7 +106,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 388
+      "elapsedMs": 373
     },
     {
       "extension": "bookstack",
@@ -115,7 +116,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 57
+      "elapsedMs": 76
     },
     {
       "extension": "bookstack",
@@ -125,7 +126,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 54
+      "elapsedMs": 55
     },
     {
       "extension": "bookstack",
@@ -135,7 +136,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 54
+      "elapsedMs": 74
     },
     {
       "extension": "bugmenot",
@@ -146,7 +147,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2115
+      "elapsedMs": 2099
     },
     {
       "extension": "cangjie",
@@ -157,7 +158,7 @@
       "status": "Selection is unavailable in a browser tab",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 509
+      "elapsedMs": 541
     },
     {
       "extension": "chakra-ui-docs",
@@ -168,7 +169,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 404
+      "elapsedMs": 414
     },
     {
       "extension": "chakra-ui-docs",
@@ -179,7 +180,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 407
+      "elapsedMs": 414
     },
     {
       "extension": "chakra-ui-docs",
@@ -190,7 +191,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 409
+      "elapsedMs": 400
     },
     {
       "extension": "chakra-ui-docs",
@@ -201,7 +202,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 392
+      "elapsedMs": 389
     },
     {
       "extension": "clocky-time-tracker",
@@ -212,7 +213,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 387
+      "elapsedMs": 401
     },
     {
       "extension": "clocky-time-tracker",
@@ -223,7 +224,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 381
+      "elapsedMs": 375
     },
     {
       "extension": "clocky-time-tracker",
@@ -234,7 +235,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 354
+      "elapsedMs": 347
     },
     {
       "extension": "clocky-time-tracker",
@@ -245,7 +246,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2142
+      "elapsedMs": 2061
     },
     {
       "extension": "clocky-time-tracker",
@@ -256,7 +257,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 390
+      "elapsedMs": 358
     },
     {
       "extension": "clocky-time-tracker",
@@ -267,7 +268,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 355
+      "elapsedMs": 347
     },
     {
       "extension": "clocky-time-tracker",
@@ -278,7 +279,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 389
+      "elapsedMs": 348
     },
     {
       "extension": "code-review-emojis",
@@ -289,7 +290,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 372
+      "elapsedMs": 357
     },
     {
       "extension": "codepen",
@@ -299,7 +300,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 77
+      "elapsedMs": 122
     },
     {
       "extension": "codepen",
@@ -309,7 +310,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 81
+      "elapsedMs": 115
     },
     {
       "extension": "codepen",
@@ -319,7 +320,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 147
+      "elapsedMs": 145
     },
     {
       "extension": "codepen",
@@ -329,7 +330,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 124
+      "elapsedMs": 114
     },
     {
       "extension": "codepen",
@@ -339,7 +340,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 111
+      "elapsedMs": 109
     },
     {
       "extension": "codepen",
@@ -349,7 +350,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 135
+      "elapsedMs": 145
     },
     {
       "extension": "codex-reset-forecast",
@@ -360,7 +361,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 454
+      "elapsedMs": 448
     },
     {
       "extension": "codex-reset-forecast",
@@ -371,7 +372,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 456
+      "elapsedMs": 396
     },
     {
       "extension": "codex-reset-forecast",
@@ -382,7 +383,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2117
+      "elapsedMs": 2055
     },
     {
       "extension": "color-studio-picker",
@@ -393,7 +394,7 @@
       "status": "Selection is unavailable in a browser tab",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 426
+      "elapsedMs": 416
     },
     {
       "extension": "conventional-commits",
@@ -404,7 +405,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 395
+      "elapsedMs": 374
     },
     {
       "extension": "conventional-commits",
@@ -415,7 +416,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 382
+      "elapsedMs": 365
     },
     {
       "extension": "convert-px-to-vw-vh",
@@ -426,7 +427,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2108
+      "elapsedMs": 2058
     },
     {
       "extension": "convert-px-to-vw-vh",
@@ -437,7 +438,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 354
+      "elapsedMs": 377
     },
     {
       "extension": "convert-px-to-vw-vh",
@@ -448,7 +449,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2107
+      "elapsedMs": 2054
     },
     {
       "extension": "convert-px-to-vw-vh",
@@ -459,7 +460,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2094
+      "elapsedMs": 2038
     },
     {
       "extension": "devpod",
@@ -469,7 +470,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 59
+      "elapsedMs": 49
     },
     {
       "extension": "dice-tiles",
@@ -480,7 +481,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 376
+      "elapsedMs": 366
     },
     {
       "extension": "donut",
@@ -491,7 +492,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 348
+      "elapsedMs": 338
     },
     {
       "extension": "dot-new",
@@ -502,7 +503,7 @@
       "status": "ENOENT: no such file or directory, open '/blast/assets/dot-new/dataset.json'",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 356
+      "elapsedMs": 352
     },
     {
       "extension": "douban",
@@ -513,7 +514,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 366
+      "elapsedMs": 365
     },
     {
       "extension": "douban",
@@ -524,7 +525,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 405
+      "elapsedMs": 392
     },
     {
       "extension": "douban",
@@ -535,7 +536,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 398
+      "elapsedMs": 385
     },
     {
       "extension": "douban",
@@ -546,7 +547,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 395
+      "elapsedMs": 381
     },
     {
       "extension": "douban",
@@ -557,7 +558,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 396
+      "elapsedMs": 356
     },
     {
       "extension": "douban",
@@ -568,7 +569,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 423
+      "elapsedMs": 409
     },
     {
       "extension": "douban",
@@ -579,7 +580,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 423
+      "elapsedMs": 396
     },
     {
       "extension": "duan-raycast-extension",
@@ -590,7 +591,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2139
+      "elapsedMs": 2076
     },
     {
       "extension": "duan-raycast-extension",
@@ -601,7 +602,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 389
+      "elapsedMs": 368
     },
     {
       "extension": "ego-lite",
@@ -612,7 +613,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 404
+      "elapsedMs": 392
     },
     {
       "extension": "ego-lite",
@@ -623,7 +624,7 @@
       "status": "Cannot find module 'sqlite'",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 393
+      "elapsedMs": 399
     },
     {
       "extension": "ego-lite",
@@ -634,7 +635,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 363
+      "elapsedMs": 358
     },
     {
       "extension": "evernote",
@@ -645,7 +646,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 407
+      "elapsedMs": 361
     },
     {
       "extension": "evernote",
@@ -656,7 +657,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 402
+      "elapsedMs": 365
     },
     {
       "extension": "fibonacci-sequence",
@@ -667,7 +668,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 405
+      "elapsedMs": 358
     },
     {
       "extension": "fix-helper",
@@ -678,7 +679,7 @@
       "status": "Selection is unavailable in a browser tab",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 428
+      "elapsedMs": 388
     },
     {
       "extension": "fix-helper",
@@ -689,7 +690,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 479
+      "elapsedMs": 492
     },
     {
       "extension": "flighty",
@@ -702,7 +703,7 @@
       "consoleErrors": [
         "Error: The database does not exist"
       ],
-      "elapsedMs": 450
+      "elapsedMs": 434
     },
     {
       "extension": "google-cloud-run",
@@ -712,7 +713,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 114
+      "elapsedMs": 57
     },
     {
       "extension": "google-maps-search",
@@ -722,7 +723,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 103
+      "elapsedMs": 86
     },
     {
       "extension": "google-maps-search",
@@ -732,18 +733,23 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 129
+      "elapsedMs": 187
     },
     {
       "extension": "gradle-plugins",
       "command": "index",
       "title": "Search Plugin",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/gradle-plugins",
-      "outcome": "rendered",
+      "outcome": "network",
       "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 2192
+      "pageErrors": [
+        "Network Error"
+      ],
+      "consoleErrors": [
+        "Access to XMLHttpRequest at 'https://plugins.gradle.org/search' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+        "Failed to load resource: net::ERR_FAILED"
+      ],
+      "elapsedMs": 2153
     },
     {
       "extension": "hetzner",
@@ -754,7 +760,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 374
+      "elapsedMs": 433
     },
     {
       "extension": "hetzner",
@@ -765,7 +771,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 360
+      "elapsedMs": 357
     },
     {
       "extension": "hetzner",
@@ -776,7 +782,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 362
+      "elapsedMs": 384
     },
     {
       "extension": "hevy",
@@ -786,7 +792,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 74
+      "elapsedMs": 67
     },
     {
       "extension": "hevy",
@@ -796,7 +802,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 102
+      "elapsedMs": 80
     },
     {
       "extension": "humaans",
@@ -806,7 +812,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 102
+      "elapsedMs": 133
     },
     {
       "extension": "humaans",
@@ -816,7 +822,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 146
+      "elapsedMs": 94
     },
     {
       "extension": "humaans",
@@ -826,7 +832,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 147
+      "elapsedMs": 93
     },
     {
       "extension": "humaans",
@@ -836,18 +842,18 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 139
+      "elapsedMs": 121
     },
     {
       "extension": "hyrule-compendium-search",
       "command": "broadSearch",
       "title": "Search Entries",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/hyrule-compendium-search",
-      "outcome": "empty",
+      "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2168
+      "elapsedMs": 523
     },
     {
       "extension": "hyrule-compendium-search",
@@ -858,7 +864,7 @@
       "status": "Cannot read properties of undefined (reading '$and')",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 436
+      "elapsedMs": 372
     },
     {
       "extension": "input-source-switcher",
@@ -867,11 +873,9 @@
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/input-source-switcher",
       "outcome": "runtime-error:Applications are unavailable in a browser tab",
       "status": "Applications are unavailable in a browser tab",
-      "pageErrors": [
-        "Applications are unavailable in a browser tab"
-      ],
+      "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 436
+      "elapsedMs": 342
     },
     {
       "extension": "input-source-switcher",
@@ -882,7 +886,7 @@
       "status": "Selection is unavailable in a browser tab",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 399
+      "elapsedMs": 351
     },
     {
       "extension": "invisible-text-detector",
@@ -893,7 +897,7 @@
       "status": "Selection is unavailable in a browser tab",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 399
+      "elapsedMs": 361
     },
     {
       "extension": "invisible-text-detector",
@@ -904,7 +908,7 @@
       "status": "Selection is unavailable in a browser tab",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 395
+      "elapsedMs": 344
     },
     {
       "extension": "invisible-text-detector",
@@ -915,7 +919,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 394
+      "elapsedMs": 348
     },
     {
       "extension": "jisho",
@@ -926,20 +930,23 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2181
+      "elapsedMs": 2056
     },
     {
       "extension": "jisho",
       "command": "search",
       "title": "Translate Japanese",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/jisho",
-      "outcome": "rendered",
+      "outcome": "network",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [
-        "Refused to set unsafe header \"user-agent\""
+        "Refused to set unsafe header \"user-agent\"",
+        "Access to XMLHttpRequest at 'https://jisho.org/api/v1/search/words?keyword=' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+        "search error TypeError: Network request failed",
+        "Failed to load resource: net::ERR_FAILED"
       ],
-      "elapsedMs": 2170
+      "elapsedMs": 2055
     },
     {
       "extension": "kaalam",
@@ -950,7 +957,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 443
+      "elapsedMs": 350
     },
     {
       "extension": "kagi-search",
@@ -960,7 +967,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 73
+      "elapsedMs": 64
     },
     {
       "extension": "keeper-security",
@@ -970,7 +977,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 55
+      "elapsedMs": 45
     },
     {
       "extension": "keeper-security",
@@ -980,7 +987,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 54
+      "elapsedMs": 52
     },
     {
       "extension": "keeper-security",
@@ -990,7 +997,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 64
+      "elapsedMs": 68
     },
     {
       "extension": "keeper-security",
@@ -1000,7 +1007,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 78
+      "elapsedMs": 68
     },
     {
       "extension": "keygen",
@@ -1010,7 +1017,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 59
+      "elapsedMs": 69
     },
     {
       "extension": "keygen",
@@ -1020,7 +1027,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 79
+      "elapsedMs": 69
     },
     {
       "extension": "keygen",
@@ -1030,7 +1037,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 80
+      "elapsedMs": 67
     },
     {
       "extension": "keygen",
@@ -1040,7 +1047,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 78
+      "elapsedMs": 67
     },
     {
       "extension": "keygen",
@@ -1050,7 +1057,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 79
+      "elapsedMs": 67
     },
     {
       "extension": "keygen",
@@ -1060,7 +1067,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 80
+      "elapsedMs": 67
     },
     {
       "extension": "keygen",
@@ -1070,7 +1077,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 81
+      "elapsedMs": 71
     },
     {
       "extension": "laravel-artisan",
@@ -1092,18 +1099,18 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 385
+      "elapsedMs": 368
     },
     {
       "extension": "leap-new",
       "command": "generate-app",
       "title": "Generate App",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/leap-new",
-      "outcome": "empty",
+      "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2132
+      "elapsedMs": 346
     },
     {
       "extension": "leap-new",
@@ -1114,7 +1121,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2124
+      "elapsedMs": 2047
     },
     {
       "extension": "leetcode",
@@ -1125,18 +1132,21 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 410
+      "elapsedMs": 347
     },
     {
       "extension": "leetcode",
       "command": "potd-menu-bar",
       "title": "Daily Challenge Status",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/leetcode",
-      "outcome": "empty",
+      "outcome": "network",
       "status": "Ready",
       "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 2127
+      "consoleErrors": [
+        "Access to fetch at 'https://leetcode.com/graphql' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on th",
+        "Failed to load resource: net::ERR_FAILED"
+      ],
+      "elapsedMs": 2057
     },
     {
       "extension": "leetcode",
@@ -1147,7 +1157,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 401
+      "elapsedMs": 386
     },
     {
       "extension": "leetcode",
@@ -1158,7 +1168,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 377
+      "elapsedMs": 347
     },
     {
       "extension": "leetcode",
@@ -1169,7 +1179,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 372
+      "elapsedMs": 350
     },
     {
       "extension": "markdown-reference",
@@ -1180,7 +1190,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 427
+      "elapsedMs": 332
     },
     {
       "extension": "mbta-tracker",
@@ -1191,7 +1201,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2163
+      "elapsedMs": 1453
     },
     {
       "extension": "mbta-tracker",
@@ -1202,7 +1212,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2119
+      "elapsedMs": 2043
     },
     {
       "extension": "mealie",
@@ -1212,7 +1222,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 83
+      "elapsedMs": 54
     },
     {
       "extension": "mealie",
@@ -1222,7 +1232,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 71
+      "elapsedMs": 49
     },
     {
       "extension": "mealie",
@@ -1232,7 +1242,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 78
+      "elapsedMs": 46
     },
     {
       "extension": "mealie",
@@ -1242,7 +1252,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 79
+      "elapsedMs": 48
     },
     {
       "extension": "mealie",
@@ -1252,7 +1262,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 80
+      "elapsedMs": 44
     },
     {
       "extension": "melanite-search",
@@ -1262,7 +1272,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 80
+      "elapsedMs": 54
     },
     {
       "extension": "menucloak",
@@ -1273,7 +1283,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2123
+      "elapsedMs": 2046
     },
     {
       "extension": "menucloak",
@@ -1284,7 +1294,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 386
+      "elapsedMs": 335
     },
     {
       "extension": "menucloak",
@@ -1295,7 +1305,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2107
+      "elapsedMs": 2039
     },
     {
       "extension": "menucloak",
@@ -1306,7 +1316,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2128
+      "elapsedMs": 2037
     },
     {
       "extension": "menucloak",
@@ -1317,7 +1327,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2131
+      "elapsedMs": 2047
     },
     {
       "extension": "mise-window-sets",
@@ -1328,7 +1338,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 378
+      "elapsedMs": 346
     },
     {
       "extension": "mise-window-sets",
@@ -1339,18 +1349,18 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 403
+      "elapsedMs": 357
     },
     {
       "extension": "multi-ai-chat",
       "command": "multi-ai-chat",
       "title": "Multi AI Chat",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/multi-ai-chat",
-      "outcome": "empty",
+      "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2121
+      "elapsedMs": 379
     },
     {
       "extension": "multi-ai-chat",
@@ -1361,7 +1371,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 363
+      "elapsedMs": 352
     },
     {
       "extension": "nano-games",
@@ -1372,7 +1382,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 391
+      "elapsedMs": 366
     },
     {
       "extension": "nterm-calculator",
@@ -1383,7 +1393,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 381
+      "elapsedMs": 363
     },
     {
       "extension": "ohmyzsh-git-alias",
@@ -1394,7 +1404,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 387
+      "elapsedMs": 369
     },
     {
       "extension": "one-thing",
@@ -1405,7 +1415,7 @@
       "status": "Starting…",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2097
+      "elapsedMs": 2051
     },
     {
       "extension": "one-thing",
@@ -1416,7 +1426,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 377
+      "elapsedMs": 348
     },
     {
       "extension": "one-thing",
@@ -1427,7 +1437,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2125
+      "elapsedMs": 2046
     },
     {
       "extension": "openweathermap",
@@ -1437,7 +1447,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 77
+      "elapsedMs": 75
     },
     {
       "extension": "parcel",
@@ -1447,7 +1457,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 77
+      "elapsedMs": 99
     },
     {
       "extension": "parcel",
@@ -1457,18 +1467,18 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 73
+      "elapsedMs": 84
     },
     {
       "extension": "pbr-assistant",
       "command": "find-pbr-ior-value",
       "title": "Find PBR/IOR Value",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/pbr-assistant",
-      "outcome": "empty",
+      "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2134
+      "elapsedMs": 400
     },
     {
       "extension": "pinch-svg",
@@ -1479,18 +1489,18 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2115
+      "elapsedMs": 2049
     },
     {
       "extension": "pinch-svg",
       "command": "grid",
       "title": "Copy SVG Spacing Increment",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/pinch-svg",
-      "outcome": "empty",
+      "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2109
+      "elapsedMs": 392
     },
     {
       "extension": "pokemon-tcg-pocket-binder",
@@ -1501,7 +1511,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 361
+      "elapsedMs": 372
     },
     {
       "extension": "portless",
@@ -1512,7 +1522,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 382
+      "elapsedMs": 356
     },
     {
       "extension": "promptty",
@@ -1523,7 +1533,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 437
+      "elapsedMs": 356
     },
     {
       "extension": "punch-clock",
@@ -1534,7 +1544,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2174
+      "elapsedMs": 2060
     },
     {
       "extension": "punch-clock",
@@ -1545,7 +1555,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 381
+      "elapsedMs": 372
     },
     {
       "extension": "px-to-rem-converter",
@@ -1556,7 +1566,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 375
+      "elapsedMs": 357
     },
     {
       "extension": "quick-jump",
@@ -1566,7 +1576,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 77
+      "elapsedMs": 49
     },
     {
       "extension": "radix",
@@ -1577,7 +1587,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 360
+      "elapsedMs": 344
     },
     {
       "extension": "radix",
@@ -1588,7 +1598,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 369
+      "elapsedMs": 348
     },
     {
       "extension": "radix",
@@ -1599,18 +1609,18 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 360
+      "elapsedMs": 351
     },
     {
       "extension": "random-color",
       "command": "select-color",
       "title": "Select Color",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/random-color",
-      "outcome": "empty",
+      "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2149
+      "elapsedMs": 347
     },
     {
       "extension": "ratio-calculator",
@@ -1621,7 +1631,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2115
+      "elapsedMs": 2052
     },
     {
       "extension": "raytyping",
@@ -1632,7 +1642,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 369
+      "elapsedMs": 352
     },
     {
       "extension": "rectangle",
@@ -1643,7 +1653,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2110
+      "elapsedMs": 2051
     },
     {
       "extension": "rectangle",
@@ -1654,7 +1664,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2098
+      "elapsedMs": 2038
     },
     {
       "extension": "rectangle",
@@ -1665,7 +1675,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2136
+      "elapsedMs": 2052
     },
     {
       "extension": "rectangle",
@@ -1676,7 +1686,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2121
+      "elapsedMs": 2051
     },
     {
       "extension": "rectangle",
@@ -1687,7 +1697,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2103
+      "elapsedMs": 2059
     },
     {
       "extension": "rectangle",
@@ -1698,7 +1708,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2101
+      "elapsedMs": 2045
     },
     {
       "extension": "rectangle",
@@ -1709,7 +1719,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2135
+      "elapsedMs": 2051
     },
     {
       "extension": "rectangle",
@@ -1720,7 +1730,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2135
+      "elapsedMs": 2051
     },
     {
       "extension": "rectangle",
@@ -1731,7 +1741,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2105
+      "elapsedMs": 2041
     },
     {
       "extension": "rectangle",
@@ -1742,7 +1752,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2103
+      "elapsedMs": 2043
     },
     {
       "extension": "rectangle",
@@ -1753,7 +1763,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2128
+      "elapsedMs": 2047
     },
     {
       "extension": "rectangle",
@@ -1764,7 +1774,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2128
+      "elapsedMs": 2054
     },
     {
       "extension": "rectangle",
@@ -1775,7 +1785,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2111
+      "elapsedMs": 2057
     },
     {
       "extension": "rectangle",
@@ -1786,7 +1796,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2115
+      "elapsedMs": 2043
     },
     {
       "extension": "rectangle",
@@ -1797,18 +1807,18 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2120
+      "elapsedMs": 2057
     },
     {
       "extension": "rectangle",
       "command": "index",
       "title": "Rectangle Actions",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
+      "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2134
+      "elapsedMs": 384
     },
     {
       "extension": "rectangle",
@@ -1819,7 +1829,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2107
+      "elapsedMs": 2057
     },
     {
       "extension": "rectangle",
@@ -1830,7 +1840,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2099
+      "elapsedMs": 2045
     },
     {
       "extension": "rectangle",
@@ -1841,7 +1851,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2130
+      "elapsedMs": 2042
     },
     {
       "extension": "rectangle",
@@ -1852,7 +1862,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2126
+      "elapsedMs": 2050
     },
     {
       "extension": "rectangle",
@@ -1863,7 +1873,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2100
+      "elapsedMs": 2055
     },
     {
       "extension": "rectangle",
@@ -1874,7 +1884,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2105
+      "elapsedMs": 2060
     },
     {
       "extension": "rectangle",
@@ -1885,7 +1895,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2119
+      "elapsedMs": 2053
     },
     {
       "extension": "rectangle",
@@ -1896,7 +1906,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2120
+      "elapsedMs": 2059
     },
     {
       "extension": "rectangle",
@@ -1907,7 +1917,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2104
+      "elapsedMs": 2053
     },
     {
       "extension": "rectangle",
@@ -1918,7 +1928,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2108
+      "elapsedMs": 2052
     },
     {
       "extension": "rectangle",
@@ -1929,7 +1939,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2131
+      "elapsedMs": 2045
     },
     {
       "extension": "rectangle",
@@ -1940,7 +1950,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2130
+      "elapsedMs": 2050
     },
     {
       "extension": "rectangle",
@@ -1951,7 +1961,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2106
+      "elapsedMs": 2067
     },
     {
       "extension": "rectangle",
@@ -1962,7 +1972,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2098
+      "elapsedMs": 2049
     },
     {
       "extension": "rectangle",
@@ -1973,7 +1983,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2127
+      "elapsedMs": 2058
     },
     {
       "extension": "rectangle",
@@ -1984,7 +1994,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2127
+      "elapsedMs": 2057
     },
     {
       "extension": "rectangle",
@@ -1995,7 +2005,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2091
+      "elapsedMs": 2045
     },
     {
       "extension": "rectangle",
@@ -2006,7 +2016,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2100
+      "elapsedMs": 2044
     },
     {
       "extension": "rectangle",
@@ -2017,7 +2027,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2128
+      "elapsedMs": 2053
     },
     {
       "extension": "rectangle",
@@ -2028,7 +2038,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2128
+      "elapsedMs": 2045
     },
     {
       "extension": "rectangle",
@@ -2039,7 +2049,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2109
+      "elapsedMs": 2086
     },
     {
       "extension": "rectangle",
@@ -2050,7 +2060,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2098
+      "elapsedMs": 2046
     },
     {
       "extension": "rectangle",
@@ -2061,7 +2071,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2134
+      "elapsedMs": 2044
     },
     {
       "extension": "rectangle",
@@ -2072,7 +2082,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2135
+      "elapsedMs": 2047
     },
     {
       "extension": "rectangle",
@@ -2083,7 +2093,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2099
+      "elapsedMs": 2079
     },
     {
       "extension": "rectangle",
@@ -2094,7 +2104,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2092
+      "elapsedMs": 2062
     },
     {
       "extension": "ring-intercom",
@@ -2105,7 +2115,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 401
+      "elapsedMs": 342
     },
     {
       "extension": "ring-intercom",
@@ -2118,18 +2128,18 @@
       "consoleErrors": [
         "Error during unlock process: Error: Not authenticated. Please run the 'Authenticate' command."
       ],
-      "elapsedMs": 2136
+      "elapsedMs": 2048
     },
     {
       "extension": "rtl-reader",
       "command": "rtl-text",
       "title": "RTL Text Formatter",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rtl-reader",
-      "outcome": "empty",
+      "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2102
+      "elapsedMs": 350
     },
     {
       "extension": "saved-items",
@@ -2140,7 +2150,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 376
+      "elapsedMs": 357
     },
     {
       "extension": "scrapbook",
@@ -2151,7 +2161,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 368
+      "elapsedMs": 352
     },
     {
       "extension": "scrapbook",
@@ -2162,18 +2172,21 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 373
+      "elapsedMs": 392
     },
     {
       "extension": "scrapbook",
       "command": "view-recent-posts",
       "title": "View Recent Posts",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/scrapbook",
-      "outcome": "rendered",
+      "outcome": "network",
       "status": "Ready",
       "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 2107
+      "consoleErrors": [
+        "Access to XMLHttpRequest at 'https://scrapbook.hackclub.com/api/posts' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+        "Failed to load resource: net::ERR_FAILED"
+      ],
+      "elapsedMs": 2080
     },
     {
       "extension": "sf-symbols-search",
@@ -2184,7 +2197,7 @@
       "status": "ENOENT: no such file or directory, open '/blast/assets/sf-symbols-search/symbols/data.json'",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 373
+      "elapsedMs": 419
     },
     {
       "extension": "spacejump",
@@ -2195,7 +2208,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2106
+      "elapsedMs": 2056
     },
     {
       "extension": "spacejump",
@@ -2206,7 +2219,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2119
+      "elapsedMs": 2065
     },
     {
       "extension": "splatoon",
@@ -2219,7 +2232,7 @@
       "consoleErrors": [
         "Refused to set unsafe header \"user-agent\""
       ],
-      "elapsedMs": 2120
+      "elapsedMs": 1966
     },
     {
       "extension": "splatoon",
@@ -2232,7 +2245,7 @@
       "consoleErrors": [
         "Refused to set unsafe header \"user-agent\""
       ],
-      "elapsedMs": 2110
+      "elapsedMs": 2047
     },
     {
       "extension": "stockholm-public-transport",
@@ -2243,7 +2256,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2111
+      "elapsedMs": 2072
     },
     {
       "extension": "storybook-sandboxes",
@@ -2254,7 +2267,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 386
+      "elapsedMs": 399
     },
     {
       "extension": "storybook-sandboxes",
@@ -2265,7 +2278,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 387
+      "elapsedMs": 378
     },
     {
       "extension": "superwhisper",
@@ -2276,7 +2289,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2122
+      "elapsedMs": 2054
     },
     {
       "extension": "superwhisper",
@@ -2287,7 +2300,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2098
+      "elapsedMs": 2063
     },
     {
       "extension": "superwhisper",
@@ -2298,7 +2311,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2111
+      "elapsedMs": 2058
     },
     {
       "extension": "superwhisper",
@@ -2309,7 +2322,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 395
+      "elapsedMs": 381
     },
     {
       "extension": "superwhisper",
@@ -2320,7 +2333,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 376
+      "elapsedMs": 410
     },
     {
       "extension": "superwhisper",
@@ -2331,7 +2344,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2115
+      "elapsedMs": 2062
     },
     {
       "extension": "tategaki",
@@ -2342,7 +2355,7 @@
       "status": "Selection is unavailable in a browser tab",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 392
+      "elapsedMs": 394
     },
     {
       "extension": "text-decorator",
@@ -2353,7 +2366,7 @@
       "status": "Selection is unavailable in a browser tab",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 415
+      "elapsedMs": 422
     },
     {
       "extension": "text-decorator",
@@ -2364,7 +2377,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 436
+      "elapsedMs": 417
     },
     {
       "extension": "time-until-i-do",
@@ -2374,7 +2387,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 89
+      "elapsedMs": 76
     },
     {
       "extension": "timezone-buddy",
@@ -2385,7 +2398,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2111
+      "elapsedMs": 2060
     },
     {
       "extension": "timezone-buddy",
@@ -2396,18 +2409,18 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2101
+      "elapsedMs": 2046
     },
     {
       "extension": "tiny-tycho",
       "command": "index",
       "title": "Search Stickers",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/tiny-tycho",
-      "outcome": "empty",
+      "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2089
+      "elapsedMs": 367
     },
     {
       "extension": "trenit",
@@ -2418,7 +2431,7 @@
       "status": "ENOENT: no such file or directory, open '/blast/assets/package.json'",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 418
+      "elapsedMs": 396
     },
     {
       "extension": "uk-bank-holidays",
@@ -2431,7 +2444,7 @@
         "Unexpected end of JSON input"
       ],
       "consoleErrors": [],
-      "elapsedMs": 2118
+      "elapsedMs": 2055
     },
     {
       "extension": "url-designer",
@@ -2442,7 +2455,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2095
+      "elapsedMs": 2047
     },
     {
       "extension": "v0-by-vercel",
@@ -2452,7 +2465,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 72
+      "elapsedMs": 94
     },
     {
       "extension": "v0-by-vercel",
@@ -2462,7 +2475,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 76
+      "elapsedMs": 95
     },
     {
       "extension": "v0-by-vercel",
@@ -2472,7 +2485,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 76
+      "elapsedMs": 88
     },
     {
       "extension": "v0-by-vercel",
@@ -2482,7 +2495,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 104
+      "elapsedMs": 75
     },
     {
       "extension": "v0-by-vercel",
@@ -2492,7 +2505,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 79
+      "elapsedMs": 81
     },
     {
       "extension": "v0-by-vercel",
@@ -2502,7 +2515,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 100
+      "elapsedMs": 82
     },
     {
       "extension": "valkey-commands-search",
@@ -2513,7 +2526,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 1980
+      "elapsedMs": 2051
     },
     {
       "extension": "vim-bro",
@@ -2524,7 +2537,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 397
+      "elapsedMs": 394
     },
     {
       "extension": "vocab-search",
@@ -2535,7 +2548,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2105
+      "elapsedMs": 2052
     },
     {
       "extension": "windows-domain",
@@ -2546,7 +2559,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2109
+      "elapsedMs": 2057
     },
     {
       "extension": "windows-domain",
@@ -2557,7 +2570,7 @@
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 354
+      "elapsedMs": 357
     },
     {
       "extension": "workflowy-inbox",
@@ -2567,7 +2580,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 103
+      "elapsedMs": 76
     },
     {
       "extension": "workflowy-inbox",
@@ -2577,7 +2590,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 97
+      "elapsedMs": 68
     },
     {
       "extension": "wrike",
@@ -2587,7 +2600,7 @@
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 71
+      "elapsedMs": 72
     }
   ]
 }

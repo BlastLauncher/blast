@@ -1,25 +1,57 @@
 import { describe, expect, test } from "bun:test";
-import { classifyBrowserOutcome } from "./browser-sweep.ts";
+import { classifyBrowserOutcome, contentSelector, formFieldSelector } from "./browser-sweep.ts";
+
+describe("sweep selectors", () => {
+  test("the settle marker recognizes grids and non-input form controls", () => {
+    // Only `.rows` items and text inputs would leave pinch-svg/grid and
+    // random-color/select-color reporting empty.
+    expect(contentSelector).toContain("#app .grid-cell");
+    expect(contentSelector).toContain("#app form [data-field]");
+    expect(contentSelector).not.toContain("input[data-field]");
+  });
+  test("the snapshot counts every data-field control", () => {
+    expect(formFieldSelector).toBe("form [data-field]");
+  });
+});
 
 describe("classifyBrowserOutcome", () => {
-  test("classifies rendered list, detail, form and grid scenes", () => {
+  test("classifies rendered list and detail scenes", () => {
     for (const scene of [
-      { kind: "list", rows: 1, detail: false, fields: 0, hasEmptyView: false },
-      { kind: "detail", rows: 0, detail: true, fields: 0, hasEmptyView: false },
-      { kind: "form", rows: 0, detail: false, fields: 1, hasEmptyView: false },
-      { kind: "grid", rows: 1, detail: false, fields: 0, hasEmptyView: false },
+      { kind: "list", rows: 1, cells: 0, detail: false, fields: 0, hasEmptyView: false },
+      { kind: "detail", rows: 0, cells: 0, detail: true, fields: 0, hasEmptyView: false },
     ])
       expect(classifyBrowserOutcome({ scene })).toBe("rendered");
+  });
+  test("counts grid cells as content", () => {
+    expect(
+      classifyBrowserOutcome({
+        scene: { kind: "grid", rows: 0, cells: 6, detail: false, fields: 0, hasEmptyView: false },
+      }),
+    ).toBe("rendered");
+    expect(
+      classifyBrowserOutcome({
+        scene: { kind: "grid", rows: 0, cells: 0, detail: false, fields: 0, hasEmptyView: false },
+      }),
+    ).toBe("empty");
+  });
+  test("counts a form whose only control is a text area or dropdown", () => {
+    // The snapshot counts every [data-field] control, so a text area or select
+    // without a plain text input still makes the form rendered.
+    expect(
+      classifyBrowserOutcome({
+        scene: { kind: "form", rows: 0, cells: 0, detail: false, fields: 1, hasEmptyView: false },
+      }),
+    ).toBe("rendered");
   });
   test("distinguishes an empty scene from an explicit empty view", () => {
     expect(
       classifyBrowserOutcome({
-        scene: { kind: "list", rows: 0, detail: false, fields: 0, hasEmptyView: false },
+        scene: { kind: "list", rows: 0, cells: 0, detail: false, fields: 0, hasEmptyView: false },
       }),
     ).toBe("empty");
     expect(
       classifyBrowserOutcome({
-        scene: { kind: "list", rows: 0, detail: false, fields: 0, hasEmptyView: true },
+        scene: { kind: "list", rows: 0, cells: 0, detail: false, fields: 0, hasEmptyView: true },
       }),
     ).toBe("rendered");
   });
@@ -29,6 +61,7 @@ describe("classifyBrowserOutcome", () => {
         scene: {
           kind: "list",
           rows: 0,
+          cells: 0,
           detail: false,
           fields: 0,
           hasEmptyView: false,
@@ -42,6 +75,7 @@ describe("classifyBrowserOutcome", () => {
         scene: {
           kind: "list",
           rows: 0,
+          cells: 0,
           detail: false,
           fields: 0,
           hasEmptyView: false,
