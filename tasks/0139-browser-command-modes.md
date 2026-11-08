@@ -1,7 +1,7 @@
 ---
 id: "0139"
 title: Demo runs no-view and menu-bar commands in their declared mode
-status: todo
+status: doing
 milestone: M8
 depends: ["0138"]
 ---
