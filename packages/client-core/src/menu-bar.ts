@@ -2,6 +2,7 @@ import type { SceneMessage, SceneNode } from "@blastlauncher/protocol";
 import { handler, handlerEvent, event, selectionId, text, type OutboundEvent } from "./nodes.ts";
 import { shortcutLabel, type Platform } from "./shortcut.ts";
 import { activeNode } from "./view.ts";
+import { iconView } from "./icons.ts";
 
 // `MenuBarExtra` as a navigable menu. Sections are headers, Items run their
 // `onAction` with the `left-click` event the runtime dispatches, and Submenus
@@ -14,6 +15,8 @@ export type MenuRow = {
   disabled: boolean;
   title?: string;
   subtitle?: string;
+  iconLabel?: string;
+  iconTint?: string;
   shortcut?: string;
   isSubmenu?: boolean;
 };
@@ -64,12 +67,14 @@ export function menuRows(
       const title = text(node.props.title);
       const subtitle = text(node.props.subtitle);
       const shortcut = shortcutLabel(node.props.shortcut, platform);
+      const icon = node.props.icon === undefined ? undefined : iconView(node.props.icon);
       rows.push({
         node,
         item: true,
         disabled: !handler(node.props.onAction),
         title,
         subtitle,
+        ...(icon ? { iconLabel: icon.label, ...(icon.tint ? { iconTint: icon.tint } : {}) } : {}),
         shortcut,
         text: [title, subtitle, shortcut].filter(Boolean).join("  "),
       });

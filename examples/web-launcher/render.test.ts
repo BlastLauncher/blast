@@ -41,3 +41,70 @@ test("an empty list shows the extension EmptyView, else a neutral hint", () => {
   const bare = { ...view, empty: null, emptyText: "No results" };
   expect(render(bare as unknown as Parameters<typeof render>[0])).toContain("No results");
 });
+
+test("menu-bar markup includes title, sections, item details, submenu, disabled and selected states", () => {
+  const menu = render({
+    ...view,
+    kind: "menu-bar",
+    title: "Modes",
+    menuBar: {
+      title: "Modes",
+      tooltip: "Open modes",
+      loading: false,
+      path: [],
+      selectedId: "run",
+      rows: [
+        {
+          id: "section",
+          kind: "section",
+          title: "Actions",
+          subtitle: "",
+          iconLabel: "",
+          shortcut: "",
+          disabled: true,
+          selected: false,
+        },
+        {
+          id: "run",
+          kind: "item",
+          title: "Run",
+          subtitle: "Do it",
+          iconLabel: "▶",
+          iconTint: "green",
+          shortcut: "⌘R",
+          disabled: false,
+          selected: true,
+        },
+        {
+          id: "more",
+          kind: "submenu",
+          title: "More",
+          subtitle: "",
+          iconLabel: "★",
+          shortcut: "",
+          disabled: false,
+          selected: false,
+        },
+        {
+          id: "off",
+          kind: "item",
+          title: "Disabled",
+          subtitle: "",
+          iconLabel: "",
+          shortcut: "",
+          disabled: true,
+          selected: false,
+        },
+      ],
+    },
+  } as unknown as Parameters<typeof render>[0]);
+  expect(menu).toContain('aria-label="Open modes"');
+  expect(menu).toContain('class="menu-section"');
+  expect(menu).toContain('class="selected"');
+  expect(menu).toContain('class="menu-icon" style="color:green">▶</span>');
+  expect(menu).toContain("Do it");
+  expect(menu).toContain("⌘R");
+  expect(menu).toContain("More");
+  expect(menu).toContain("›");
+  expect(menu).toContain("disabled");
+});

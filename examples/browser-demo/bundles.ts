@@ -111,6 +111,7 @@ export function parseBundleIndex(value: unknown): BundleIndex {
         declared.commands as Record<string, unknown>,
       ))
         commands[name] = parsePreferences(preferences, `Bundle ${key} command ${name} preferences`);
+      for (const name of Object.keys(commands)) modes[name] ??= "view";
       manifest = {
         name: declared.name,
         preferences: parsePreferences(declared.preferences, `Bundle ${key} preferences`),

@@ -196,7 +196,7 @@ export function render(view, options = {}) {
         .map((row) =>
           row.kind === "section"
             ? `<li class="menu-section"><strong>${escapeHtml(row.title)}</strong></li>`
-            : `<li><button type="button" data-menu-id="${escapeHtml(row.id)}"${row.selected ? ' class="selected"' : ""}${row.disabled ? " disabled" : ""}><span>${escapeHtml(row.title)}</span>${row.subtitle ? `<small>${escapeHtml(row.subtitle)}</small>` : ""}${row.shortcut ? `<kbd>${escapeHtml(row.shortcut)}</kbd>` : ""}${row.kind === "submenu" ? " ›" : ""}</button></li>`,
+            : `<li><button type="button" data-menu-id="${escapeHtml(row.id)}"${row.selected ? ' class="selected"' : ""}${row.disabled ? " disabled" : ""}><span class="menu-icon"${row.iconTint ? ` style="color:${escapeHtml(row.iconTint)}"` : ""}>${escapeHtml(row.iconLabel || "")}</span><span>${escapeHtml(row.title)}</span>${row.subtitle ? `<small>${escapeHtml(row.subtitle)}</small>` : ""}${row.shortcut ? `<kbd>${escapeHtml(row.shortcut)}</kbd>` : ""}${row.kind === "submenu" ? " ›" : ""}</button></li>`,
         )
         .join("")}</ul></nav>`
     : "";

@@ -350,7 +350,7 @@ function handleRuntime(
       });
   } else if (message.type === "exit") {
     if (message.code !== 0) {
-      setStatus(`Command exited with code ${message.code}`, true);
+      if (!statusState.error) setStatus(`Command exited with code ${message.code}`, true);
       return;
     }
     const view = controller?.view();
