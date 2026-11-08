@@ -67,7 +67,7 @@ shows its `MenuBarExtra` as a navigable menu. Today both show a blank screen.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit: t3/command-modes @ e3ea949
+Branch/commit: t3/command-modes @ 2b17ace
 Verify: `bun run verify` — format/typecheck/compat/protocol/mac-fixtures/workflow passed; the full suite had one pre-existing flaky timeout in `packages/host/src/bundle.test.ts` (`engine deadlines inherit through handles and launch overrides win`).
 Done:
 - Catalog and source launches send validated command modes; no-view exits return to root with HUD/toast or a finished status.
