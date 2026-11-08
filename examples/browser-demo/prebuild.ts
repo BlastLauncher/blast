@@ -164,18 +164,27 @@ globalThis.__blastModules = { react, "react/jsx-runtime": jsxRuntime, "react/jsx
         `${extension.name} preferences`,
       );
       const manifestCommands: Record<string, ReturnType<typeof parsePreferences>> = {};
+      const manifestModes: Record<
+        string,
+        import("../../packages/protocol/src/index.ts").CommandMode
+      > = {};
       for (const declaration of (manifest.commands as Array<Record<string, unknown>> | undefined) ??
         []) {
-        if (typeof declaration.name === "string")
+        if (typeof declaration.name === "string") {
           manifestCommands[declaration.name] = parsePreferences(
             declaration.preferences,
             `${extension.name}/${declaration.name} preferences`,
           );
+          const mode = declaration.mode;
+          manifestModes[declaration.name] =
+            mode === "no-view" || mode === "menu-bar" || mode === "model-provider" ? mode : "view";
+        }
       }
       const bundleManifest: CatalogManifest = {
         name: manifestName,
         preferences: manifestPreferences,
         commands: manifestCommands,
+        modes: manifestModes,
       };
       const lockfile = files.get("/package-lock.json");
       const installed = await installForBrowser({

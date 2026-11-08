@@ -173,6 +173,29 @@ try {
     if ((await page.locator('iframe[data-blast="session"]').count()) !== 0)
       throw new Error("the sandbox session outlived the extension view");
 
+    // Declared no-view commands finish back at the root and retain their HUD title.
+    await page.locator("#root-search").fill("Finish Command");
+    await page.keyboard.press("Enter");
+    await page.waitForFunction(
+      () =>
+        document.querySelector("#root-search") !== null &&
+        (document.querySelector("#status")?.textContent ?? "").includes("Finished"),
+      undefined,
+      { timeout: 30_000 },
+    );
+    // Menu-bar commands draw sections, submenus and items, and keyboard navigation opens them.
+    await page.locator("#root-search").fill("Menu Command");
+    await page.keyboard.press("Enter");
+    await page.locator(".menu-bar button[data-menu-id]").waitFor({ timeout: 30_000 });
+    if (!(await page.locator(".menu-section").textContent())?.includes("Actions"))
+      throw new Error("menu-bar section did not render");
+    await page.keyboard.press("Enter");
+    if ((await page.locator(".menu-bar button[data-menu-id]").count()) !== 1)
+      throw new Error("menu-bar submenu item did not render");
+    await page.keyboard.press("ArrowLeft");
+    await page.keyboard.press("Escape");
+    await page.locator("#root-search").waitFor({ timeout: 10_000 });
+
     // Keyboard fixture: long list search, shortcut dispatch, layered Escape, detail push,
     // form focus movement/submission, and a real-duration success toast.
     await page.locator("#root-search").fill("");

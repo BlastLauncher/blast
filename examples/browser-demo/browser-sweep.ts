@@ -29,6 +29,7 @@ export const contentSelector = [
   "#preferences-form",
   "#app .empty strong",
   '#status[data-error="true"]',
+  "#app .menu-bar button[data-menu-id]",
 ].join(", ");
 
 type SceneSnapshot = {
@@ -40,6 +41,7 @@ type SceneSnapshot = {
   hasEmptyView: boolean;
   hasSearchBar?: boolean;
   isLoading?: boolean;
+  menuRows?: number;
 };
 export type BrowserObservation = {
   scene?: SceneSnapshot;
@@ -52,9 +54,11 @@ export type BrowserObservation = {
   bundleFallbackFailed?: boolean;
   timedOut?: boolean;
   needsPreferences?: boolean;
+  completed?: boolean;
 };
 export type BrowserOutcome =
   | "rendered"
+  | "completed"
   | "empty"
   | `capability-denied:${string}`
   | "network"
@@ -70,6 +74,7 @@ const networkPattern =
 
 export function classifyBrowserOutcome(observation: BrowserObservation): BrowserOutcome {
   if (observation.timedOut) return "timeout";
+  if (observation.completed) return "completed";
   if (observation.bundleFallbackFailed) return "bundle-fallback-failed";
   if (observation.needsPreferences) return "needs-preferences";
   if (observation.capability) return `capability-denied:${observation.capability}`;
@@ -85,13 +90,24 @@ export function classifyBrowserOutcome(observation: BrowserObservation): Browser
     return `runtime-error:${compact(pageErrors[0] || consoleErrors[0] || observation.status || "runtime error")}`;
   const scene = observation.scene;
   if (!scene) return "timeout";
-  const content = scene.rows > 0 || scene.cells > 0 || scene.detail || scene.fields > 0;
+  const content =
+    scene.rows > 0 ||
+    scene.cells > 0 ||
+    scene.detail ||
+    scene.fields > 0 ||
+    (scene.menuRows ?? 0) > 0;
   if (content) return "rendered";
   if (scene.kind === "list" && scene.hasSearchBar && !scene.isLoading) return "rendered";
   return scene.hasEmptyView ? "rendered" : "empty";
 }
 
-type CatalogCommand = { extension: string; command: string; title: string; url: string };
+type CatalogCommand = {
+  extension: string;
+  command: string;
+  title: string;
+  mode: string;
+  url: string;
+};
 type SweepResult = {
   extension: string;
   command: string;
@@ -163,6 +179,7 @@ function commands(catalog: Catalog): CatalogCommand[] {
         extension: extension.name,
         command: command.name,
         title: command.title,
+        mode: command.mode,
         url: `https://github.com/raycast/extensions/tree/${catalog.commit}/extensions/${extension.name}`,
       })),
     )
@@ -195,7 +212,8 @@ async function runCommand(
       () =>
         document.querySelector("#app #search") !== null ||
         document.querySelector("#preferences-form") !== null ||
-        document.querySelector('#status[data-error="true"]') !== null,
+        document.querySelector('#status[data-error="true"]') !== null ||
+        document.querySelector("#root-search") !== null,
       undefined,
       { timeout: 15_000 },
     );
@@ -219,6 +237,7 @@ async function runCommand(
             ? {
                 kind,
                 rows: sceneMain.querySelectorAll(".rows li").length,
+                menuRows: sceneMain.querySelectorAll(".menu-bar button[data-menu-id]").length,
                 cells: sceneMain.querySelectorAll(selectors.cells).length,
                 detail: Boolean(sceneMain.querySelector(".detail")?.textContent?.trim()),
                 fields: sceneMain.querySelectorAll(selectors.fields).length,
@@ -249,6 +268,8 @@ async function runCommand(
       ...(capability ? { capability } : {}),
       network,
       bundleFallbackFailed: bundleFallbackFailed && snapshot.statusError,
+      completed:
+        item.mode === "no-view" && snapshot.scene?.kind === "root" && !snapshot.statusError,
     };
     const outcome = classifyBrowserOutcome(observation);
     return {
@@ -282,7 +303,12 @@ async function runCommand(
 function markdown(report: Report): string {
   const failures = new Map<string, SweepResult[]>();
   for (const result of report.results) {
-    if (result.outcome === "rendered" || result.outcome === "empty") continue;
+    if (
+      result.outcome === "rendered" ||
+      result.outcome === "empty" ||
+      result.outcome === "completed"
+    )
+      continue;
     const list = failures.get(result.outcome) ?? [];
     list.push(result);
     failures.set(result.outcome, list);

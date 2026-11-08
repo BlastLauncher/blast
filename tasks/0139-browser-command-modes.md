@@ -67,8 +67,12 @@ shows its `MenuBarExtra` as a navigable menu. Today both show a blank screen.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/command-modes @ e3ea949
+Verify: `bun run verify` — format/typecheck/compat/protocol/mac-fixtures/workflow passed; the full suite had one pre-existing flaky timeout in `packages/host/src/bundle.test.ts` (`engine deadlines inherit through handles and launch overrides win`).
 Done:
-Not done / risks:
+- Catalog and source launches send validated command modes; no-view exits return to root with HUD/toast or a finished status.
+- Browser menu-bar rendering supports sections, subtitles, shortcuts, submenus, keyboard navigation, and pointer activation.
+- Added `browser-modes` no-view/menu-bar fixture and expanded browser e2e coverage; `site:e2e` passed three consecutive runs.
+- Browser sweep regenerated: 237 commands — completed 58, rendered 107, empty 6, needs-preferences 51, network 3, runtime-error 12.
+Not done / risks: Full verify should be rerun if the flaky bundle deadline test is needed as a clean gate; no product failures observed. Sweep totals are from catalog commit `bad7de0172ce6ea5e721ed919f4e1d7186f74192`.
 ```

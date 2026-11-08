@@ -22,6 +22,22 @@ describe("classifyBrowserOutcome", () => {
     ])
       expect(classifyBrowserOutcome({ scene })).toBe("rendered");
   });
+  test("classifies completed no-view commands and menus with items", () => {
+    expect(classifyBrowserOutcome({ completed: true })).toBe("completed");
+    expect(
+      classifyBrowserOutcome({
+        scene: {
+          kind: "menu-bar",
+          rows: 0,
+          cells: 0,
+          detail: false,
+          fields: 0,
+          hasEmptyView: false,
+          menuRows: 2,
+        },
+      }),
+    ).toBe("rendered");
+  });
   test("counts grid cells as content", () => {
     expect(
       classifyBrowserOutcome({

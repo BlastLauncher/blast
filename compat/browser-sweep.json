@@ -3,20 +3,16 @@
   "commit": "bad7de0172ce6ea5e721ed919f4e1d7186f74192",
   "date": "2026-11-08",
   "commands": 237,
-  "wallTimeMs": 57795,
+  "wallTimeMs": 36485,
   "totals": {
-    "empty": 64,
+    "completed": 58,
+    "empty": 6,
     "needs-preferences": 51,
-    "network": 4,
-    "rendered": 102,
+    "network": 3,
+    "rendered": 107,
     "runtime-error:Applications are unavailable in a browser tab": 1,
-    "runtime-error:Cannot find module 'sqlite'": 1,
-    "runtime-error:Cannot read properties of undefined (reading '$and')": 1,
-    "runtime-error:ENOENT: no such file or directory, open '/blast/assets/dot-new/dataset.json'": 1,
-    "runtime-error:ENOENT: no such file or directory, open '/blast/assets/package.json'": 1,
-    "runtime-error:ENOENT: no such file or directory, open '/blast/assets/sf-symbols-search/symbols/data.json'": 1,
-    "runtime-error:Selection is unavailable in a browser tab": 9,
-    "runtime-error:Unexpected end of JSON input": 1
+    "runtime-error:Command exited with code 1": 5,
+    "runtime-error:Selection is unavailable in a browser tab": 6
   },
   "capabilities": {},
   "results": [
@@ -24,84 +20,185 @@
       "extension": "8-divide",
       "command": "divide-by-8",
       "title": "Divide by 8",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/8-divide",
       "outcome": "runtime-error:Selection is unavailable in a browser tab",
       "status": "Selection is unavailable in a browser tab",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 516
+      "elapsedMs": 462
     },
     {
       "extension": "advanced-replace",
       "command": "advanced-replace",
       "title": "Extract and Replace Text",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/advanced-replace",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2168
+      "elapsedMs": 2172
     },
     {
       "extension": "android-versions",
       "command": "search-android-version",
       "title": "Search Android Version",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/android-versions",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 534
+      "elapsedMs": 472
     },
     {
       "extension": "anilist-airing-schedule",
       "command": "index",
       "title": "Get Airing Schedule",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/anilist-airing-schedule",
       "outcome": "empty",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2168
+      "elapsedMs": 2165
     },
     {
       "extension": "appgrid",
       "command": "index",
       "title": "Search AppGrid",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/appgrid",
       "outcome": "empty",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2060
+      "elapsedMs": 2052
     },
     {
       "extension": "atomtick",
       "command": "analog-clock",
       "title": "Analog Clock",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/atomtick",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 376
+      "elapsedMs": 396
     },
     {
       "extension": "axios-docs",
       "command": "index",
       "title": "Search Documentation",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/axios-docs",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 388
+      "elapsedMs": 366
     },
     {
       "extension": "biaodian",
       "command": "biaodian",
       "title": "Biaodian",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/biaodian",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 359
+    },
+    {
+      "extension": "bookstack",
+      "command": "search-command",
+      "title": "Search Documentation",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/bookstack",
+      "outcome": "needs-preferences",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 67
+    },
+    {
+      "extension": "bookstack",
+      "command": "show-all-books",
+      "title": "Show All Books",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/bookstack",
+      "outcome": "needs-preferences",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 63
+    },
+    {
+      "extension": "bookstack",
+      "command": "show-all-shelves",
+      "title": "Show All Shelves",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/bookstack",
+      "outcome": "needs-preferences",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 59
+    },
+    {
+      "extension": "bugmenot",
+      "command": "find-login",
+      "title": "Find Login",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/bugmenot",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 2057
+    },
+    {
+      "extension": "cangjie",
+      "command": "cangjie",
+      "title": "Search Cangjie Codes",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/cangjie",
+      "outcome": "runtime-error:Selection is unavailable in a browser tab",
+      "status": "Selection is unavailable in a browser tab",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 532
+    },
+    {
+      "extension": "chakra-ui-docs",
+      "command": "components",
+      "title": "Search Components",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/chakra-ui-docs",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 441
+    },
+    {
+      "extension": "chakra-ui-docs",
+      "command": "get-started",
+      "title": "Get Started",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/chakra-ui-docs",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 368
+    },
+    {
+      "extension": "chakra-ui-docs",
+      "command": "hooks",
+      "title": "Search Hooks",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/chakra-ui-docs",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
@@ -109,117 +206,11 @@
       "elapsedMs": 373
     },
     {
-      "extension": "bookstack",
-      "command": "search-command",
-      "title": "Search Documentation",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/bookstack",
-      "outcome": "needs-preferences",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 76
-    },
-    {
-      "extension": "bookstack",
-      "command": "show-all-books",
-      "title": "Show All Books",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/bookstack",
-      "outcome": "needs-preferences",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 55
-    },
-    {
-      "extension": "bookstack",
-      "command": "show-all-shelves",
-      "title": "Show All Shelves",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/bookstack",
-      "outcome": "needs-preferences",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 74
-    },
-    {
-      "extension": "bugmenot",
-      "command": "find-login",
-      "title": "Find Login",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/bugmenot",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 2099
-    },
-    {
-      "extension": "cangjie",
-      "command": "cangjie",
-      "title": "Search Cangjie Codes",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/cangjie",
-      "outcome": "runtime-error:Selection is unavailable in a browser tab",
-      "status": "Selection is unavailable in a browser tab",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 541
-    },
-    {
-      "extension": "chakra-ui-docs",
-      "command": "components",
-      "title": "Search Components",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/chakra-ui-docs",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 414
-    },
-    {
-      "extension": "chakra-ui-docs",
-      "command": "get-started",
-      "title": "Get Started",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/chakra-ui-docs",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 414
-    },
-    {
-      "extension": "chakra-ui-docs",
-      "command": "hooks",
-      "title": "Search Hooks",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/chakra-ui-docs",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 400
-    },
-    {
       "extension": "chakra-ui-docs",
       "command": "styled-system",
       "title": "Search Styled System",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/chakra-ui-docs",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 389
-    },
-    {
-      "extension": "clocky-time-tracker",
-      "command": "clock-in",
-      "title": "Clock In",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/clocky-time-tracker",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 401
-    },
-    {
-      "extension": "clocky-time-tracker",
-      "command": "clock-out",
-      "title": "Clock Out",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/clocky-time-tracker",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
@@ -228,52 +219,45 @@
     },
     {
       "extension": "clocky-time-tracker",
-      "command": "history",
-      "title": "Adjust Entries",
+      "command": "clock-in",
+      "title": "Clock In",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/clocky-time-tracker",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 347
+      "elapsedMs": 369
+    },
+    {
+      "extension": "clocky-time-tracker",
+      "command": "clock-out",
+      "title": "Clock Out",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/clocky-time-tracker",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 365
+    },
+    {
+      "extension": "clocky-time-tracker",
+      "command": "history",
+      "title": "Adjust Entries",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/clocky-time-tracker",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 346
     },
     {
       "extension": "clocky-time-tracker",
       "command": "status",
       "title": "Status",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/clocky-time-tracker",
-      "outcome": "empty",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 2061
-    },
-    {
-      "extension": "clocky-time-tracker",
-      "command": "today",
-      "title": "Today",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/clocky-time-tracker",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 358
-    },
-    {
-      "extension": "clocky-time-tracker",
-      "command": "toggle-pause",
-      "title": "Toggle Pause",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/clocky-time-tracker",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 347
-    },
-    {
-      "extension": "clocky-time-tracker",
-      "command": "week",
-      "title": "Week",
+      "mode": "menu-bar",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/clocky-time-tracker",
       "outcome": "rendered",
       "status": "Ready",
@@ -282,299 +266,363 @@
       "elapsedMs": 348
     },
     {
+      "extension": "clocky-time-tracker",
+      "command": "today",
+      "title": "Today",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/clocky-time-tracker",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 351
+    },
+    {
+      "extension": "clocky-time-tracker",
+      "command": "toggle-pause",
+      "title": "Toggle Pause",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/clocky-time-tracker",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 349
+    },
+    {
+      "extension": "clocky-time-tracker",
+      "command": "week",
+      "title": "Week",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/clocky-time-tracker",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 350
+    },
+    {
       "extension": "code-review-emojis",
       "command": "index",
       "title": "Show Review Emoji",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/code-review-emojis",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 357
+      "elapsedMs": 414
     },
     {
       "extension": "codepen",
       "command": "create-collection",
       "title": "Create Collection",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/codepen",
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 122
+      "elapsedMs": 88
     },
     {
       "extension": "codepen",
       "command": "create-pen",
       "title": "Create Pen",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/codepen",
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 115
+      "elapsedMs": 191
     },
     {
       "extension": "codepen",
       "command": "search-assets",
       "title": "Search Assets",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/codepen",
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 145
+      "elapsedMs": 181
     },
     {
       "extension": "codepen",
       "command": "search-collections",
       "title": "Search Collections",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/codepen",
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 114
+      "elapsedMs": 137
     },
     {
       "extension": "codepen",
       "command": "search-pens",
       "title": "Search Pens",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/codepen",
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 109
+      "elapsedMs": 230
     },
     {
       "extension": "codepen",
       "command": "upload-asset",
       "title": "Upload Asset",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/codepen",
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 145
+      "elapsedMs": 166
     },
     {
       "extension": "codex-reset-forecast",
       "command": "check-reset-forecast",
       "title": "Check Reset Forecast",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/codex-reset-forecast",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 448
+      "elapsedMs": 457
     },
     {
       "extension": "codex-reset-forecast",
       "command": "reset-history-calendar",
       "title": "View Reset Calendar",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/codex-reset-forecast",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 396
+      "elapsedMs": 458
     },
     {
       "extension": "codex-reset-forecast",
       "command": "toggle-reset-forecast-menu-bar",
       "title": "Show Reset Forecast in Menu Bar",
+      "mode": "menu-bar",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/codex-reset-forecast",
-      "outcome": "empty",
+      "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2055
+      "elapsedMs": 588
     },
     {
       "extension": "color-studio-picker",
       "command": "index",
       "title": "Pick a Color",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/color-studio-picker",
       "outcome": "runtime-error:Selection is unavailable in a browser tab",
       "status": "Selection is unavailable in a browser tab",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 416
+      "elapsedMs": 476
     },
     {
       "extension": "conventional-commits",
       "command": "commit-message-structure",
       "title": "View Conventional Commit Message Structure",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/conventional-commits",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 374
+      "elapsedMs": 423
     },
     {
       "extension": "conventional-commits",
       "command": "index",
       "title": "Insert Conventional Commit Prefix",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/conventional-commits",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 365
+      "elapsedMs": 421
     },
     {
       "extension": "convert-px-to-vw-vh",
       "command": "height",
       "title": "Pixels Viewport Height",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/convert-px-to-vw-vh",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Height must be an integer",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2058
+      "elapsedMs": 417
     },
     {
       "extension": "convert-px-to-vw-vh",
       "command": "index",
       "title": "Convert PX to VW or VH",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/convert-px-to-vw-vh",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 377
+      "elapsedMs": 408
     },
     {
       "extension": "convert-px-to-vw-vh",
       "command": "menu-bar",
       "title": "Conversion History",
+      "mode": "menu-bar",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/convert-px-to-vw-vh",
-      "outcome": "empty",
+      "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2054
+      "elapsedMs": 423
     },
     {
       "extension": "convert-px-to-vw-vh",
       "command": "width",
       "title": "Pixels Viewport Width",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/convert-px-to-vw-vh",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Width must be an integer",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2038
+      "elapsedMs": 418
     },
     {
       "extension": "devpod",
       "command": "workspaces-manage",
       "title": "DevPod Workspaces",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/devpod",
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 49
+      "elapsedMs": 67
     },
     {
       "extension": "dice-tiles",
       "command": "index",
       "title": "Dice Tiles",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/dice-tiles",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 366
+      "elapsedMs": 389
     },
     {
       "extension": "donut",
       "command": "show-donut",
       "title": "Show Donut",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/donut",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 338
+      "elapsedMs": 363
     },
     {
       "extension": "dot-new",
       "command": "index",
       "title": ".new",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/dot-new",
-      "outcome": "runtime-error:ENOENT: no such file or directory, open '/blast/assets/dot-new/dataset.json'",
-      "status": "ENOENT: no such file or directory, open '/blast/assets/dot-new/dataset.json'",
+      "outcome": "runtime-error:Command exited with code 1",
+      "status": "Command exited with code 1",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 352
+      "elapsedMs": 383
     },
     {
       "extension": "douban",
       "command": "search-books",
       "title": "Search Books",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/douban",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 365
+      "elapsedMs": 399
     },
     {
       "extension": "douban",
       "command": "search-games",
       "title": "Search Games",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/douban",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 392
+      "elapsedMs": 399
     },
     {
       "extension": "douban",
       "command": "search-groups",
       "title": "Search Groups",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/douban",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 385
+      "elapsedMs": 400
     },
     {
       "extension": "douban",
       "command": "search-movies",
       "title": "Search Movies",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/douban",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 381
+      "elapsedMs": 416
     },
     {
       "extension": "douban",
       "command": "search-music",
       "title": "Search Music",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/douban",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 356
+      "elapsedMs": 405
     },
     {
       "extension": "douban",
       "command": "search-sites",
       "title": "Search Sites",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/douban",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 409
+      "elapsedMs": 407
     },
     {
       "extension": "douban",
       "command": "search-users",
       "title": "Search Users",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/douban",
       "outcome": "rendered",
       "status": "Ready",
@@ -586,116 +634,127 @@
       "extension": "duan-raycast-extension",
       "command": "list-links",
       "title": "List Links",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/duan-raycast-extension",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2076
+      "elapsedMs": 2063
     },
     {
       "extension": "duan-raycast-extension",
       "command": "shorten-link",
       "title": "Shorten Link",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/duan-raycast-extension",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 368
+      "elapsedMs": 395
     },
     {
       "extension": "ego-lite",
       "command": "new-tab",
       "title": "New Tab",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/ego-lite",
-      "outcome": "rendered",
+      "outcome": "completed",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 392
+      "elapsedMs": 408
     },
     {
       "extension": "ego-lite",
       "command": "search-bookmarks",
       "title": "Search Bookmarks",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/ego-lite",
-      "outcome": "runtime-error:Cannot find module 'sqlite'",
-      "status": "Cannot find module 'sqlite'",
+      "outcome": "runtime-error:Command exited with code 1",
+      "status": "Command exited with code 1",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 399
+      "elapsedMs": 367
     },
     {
       "extension": "ego-lite",
       "command": "search-history",
       "title": "Search History",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/ego-lite",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 358
+      "elapsedMs": 383
     },
     {
       "extension": "evernote",
       "command": "search-notes",
       "title": "Search Notes",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/evernote",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 361
+      "elapsedMs": 417
     },
     {
       "extension": "evernote",
       "command": "search-tasks",
       "title": "Search Open Tasks",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/evernote",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 365
+      "elapsedMs": 426
     },
     {
       "extension": "fibonacci-sequence",
       "command": "index",
       "title": "Fibonacci Sequence",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/fibonacci-sequence",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 358
+      "elapsedMs": 427
     },
     {
       "extension": "fix-helper",
       "command": "fix-parser",
       "title": "Parse FIX Messages",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/fix-helper",
       "outcome": "runtime-error:Selection is unavailable in a browser tab",
       "status": "Selection is unavailable in a browser tab",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 388
+      "elapsedMs": 448
     },
     {
       "extension": "fix-helper",
       "command": "fix-search-tags",
       "title": "Search FIX Tags",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/fix-helper",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 492
+      "elapsedMs": 527
     },
     {
       "extension": "flighty",
       "command": "view-flights",
       "title": "View Flights",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/flighty",
       "outcome": "rendered",
       "status": "Ready",
@@ -703,42 +762,46 @@
       "consoleErrors": [
         "Error: The database does not exist"
       ],
-      "elapsedMs": 434
+      "elapsedMs": 424
     },
     {
       "extension": "google-cloud-run",
       "command": "index",
       "title": "Migrate Traffic",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/google-cloud-run",
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 57
+      "elapsedMs": 93
     },
     {
       "extension": "google-maps-search",
       "command": "find",
       "title": "Search Google Maps",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/google-maps-search",
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 86
+      "elapsedMs": 159
     },
     {
       "extension": "google-maps-search",
       "command": "travelTo",
       "title": "Get Me Somewhere",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/google-maps-search",
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 187
+      "elapsedMs": 143
     },
     {
       "extension": "gradle-plugins",
       "command": "index",
       "title": "Search Plugin",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/gradle-plugins",
       "outcome": "network",
       "status": "Ready",
@@ -749,13 +812,190 @@
         "Access to XMLHttpRequest at 'https://plugins.gradle.org/search' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
         "Failed to load resource: net::ERR_FAILED"
       ],
-      "elapsedMs": 2153
+      "elapsedMs": 2089
     },
     {
       "extension": "hetzner",
       "command": "addProject",
       "title": "Add Project",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/hetzner",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 379
+    },
+    {
+      "extension": "hetzner",
+      "command": "manageProject",
+      "title": "Manage Projects",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/hetzner",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 370
+    },
+    {
+      "extension": "hetzner",
+      "command": "manageServer",
+      "title": "Manage Servers",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/hetzner",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 386
+    },
+    {
+      "extension": "hevy",
+      "command": "search-routines",
+      "title": "Search Routines",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/hevy",
+      "outcome": "needs-preferences",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 187
+    },
+    {
+      "extension": "hevy",
+      "command": "search-workouts",
+      "title": "Search Workouts",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/hevy",
+      "outcome": "needs-preferences",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 178
+    },
+    {
+      "extension": "humaans",
+      "command": "clock-in",
+      "title": "Clock In",
+      "mode": "no-view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/humaans",
+      "outcome": "needs-preferences",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 126
+    },
+    {
+      "extension": "humaans",
+      "command": "clock-out",
+      "title": "Clock Out",
+      "mode": "no-view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/humaans",
+      "outcome": "needs-preferences",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 174
+    },
+    {
+      "extension": "humaans",
+      "command": "holidays",
+      "title": "View Holidays",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/humaans",
+      "outcome": "needs-preferences",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 158
+    },
+    {
+      "extension": "humaans",
+      "command": "people",
+      "title": "View People",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/humaans",
+      "outcome": "needs-preferences",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 145
+    },
+    {
+      "extension": "hyrule-compendium-search",
+      "command": "broadSearch",
+      "title": "Search Entries",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/hyrule-compendium-search",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 652
+    },
+    {
+      "extension": "hyrule-compendium-search",
+      "command": "getEntry",
+      "title": "Get Entry",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/hyrule-compendium-search",
+      "outcome": "runtime-error:Command exited with code 1",
+      "status": "Command exited with code 1",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 440
+    },
+    {
+      "extension": "input-source-switcher",
+      "command": "form",
+      "title": "Switch Input Source Form",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/input-source-switcher",
+      "outcome": "runtime-error:Applications are unavailable in a browser tab",
+      "status": "Applications are unavailable in a browser tab",
+      "pageErrors": [
+        "Applications are unavailable in a browser tab"
+      ],
+      "consoleErrors": [],
+      "elapsedMs": 481
+    },
+    {
+      "extension": "input-source-switcher",
+      "command": "index",
+      "title": "Switch Input Source",
+      "mode": "no-view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/input-source-switcher",
+      "outcome": "completed",
+      "status": "No text selected",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 504
+    },
+    {
+      "extension": "invisible-text-detector",
+      "command": "analyze-clipboard-invisible-characters",
+      "title": "Analyze Clipboard for Invisible Characters",
+      "mode": "no-view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/invisible-text-detector",
+      "outcome": "completed",
+      "status": "No text to analyze",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 486
+    },
+    {
+      "extension": "invisible-text-detector",
+      "command": "fix-invisible-characters",
+      "title": "Fix Invisible Characters",
+      "mode": "no-view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/invisible-text-detector",
+      "outcome": "completed",
+      "status": "No text to process",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 434
+    },
+    {
+      "extension": "invisible-text-detector",
+      "command": "open-invisible-text-detector",
+      "title": "Open Invisible Text Detector",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/invisible-text-detector",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
@@ -763,179 +1003,22 @@
       "elapsedMs": 433
     },
     {
-      "extension": "hetzner",
-      "command": "manageProject",
-      "title": "Manage Projects",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/hetzner",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 357
-    },
-    {
-      "extension": "hetzner",
-      "command": "manageServer",
-      "title": "Manage Servers",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/hetzner",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 384
-    },
-    {
-      "extension": "hevy",
-      "command": "search-routines",
-      "title": "Search Routines",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/hevy",
-      "outcome": "needs-preferences",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 67
-    },
-    {
-      "extension": "hevy",
-      "command": "search-workouts",
-      "title": "Search Workouts",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/hevy",
-      "outcome": "needs-preferences",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 80
-    },
-    {
-      "extension": "humaans",
-      "command": "clock-in",
-      "title": "Clock In",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/humaans",
-      "outcome": "needs-preferences",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 133
-    },
-    {
-      "extension": "humaans",
-      "command": "clock-out",
-      "title": "Clock Out",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/humaans",
-      "outcome": "needs-preferences",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 94
-    },
-    {
-      "extension": "humaans",
-      "command": "holidays",
-      "title": "View Holidays",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/humaans",
-      "outcome": "needs-preferences",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 93
-    },
-    {
-      "extension": "humaans",
-      "command": "people",
-      "title": "View People",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/humaans",
-      "outcome": "needs-preferences",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 121
-    },
-    {
-      "extension": "hyrule-compendium-search",
-      "command": "broadSearch",
-      "title": "Search Entries",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/hyrule-compendium-search",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 523
-    },
-    {
-      "extension": "hyrule-compendium-search",
-      "command": "getEntry",
-      "title": "Get Entry",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/hyrule-compendium-search",
-      "outcome": "runtime-error:Cannot read properties of undefined (reading '$and')",
-      "status": "Cannot read properties of undefined (reading '$and')",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 372
-    },
-    {
-      "extension": "input-source-switcher",
-      "command": "form",
-      "title": "Switch Input Source Form",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/input-source-switcher",
-      "outcome": "runtime-error:Applications are unavailable in a browser tab",
-      "status": "Applications are unavailable in a browser tab",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 342
-    },
-    {
-      "extension": "input-source-switcher",
-      "command": "index",
-      "title": "Switch Input Source",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/input-source-switcher",
-      "outcome": "runtime-error:Selection is unavailable in a browser tab",
-      "status": "Selection is unavailable in a browser tab",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 351
-    },
-    {
-      "extension": "invisible-text-detector",
-      "command": "analyze-clipboard-invisible-characters",
-      "title": "Analyze Clipboard for Invisible Characters",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/invisible-text-detector",
-      "outcome": "runtime-error:Selection is unavailable in a browser tab",
-      "status": "Selection is unavailable in a browser tab",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 361
-    },
-    {
-      "extension": "invisible-text-detector",
-      "command": "fix-invisible-characters",
-      "title": "Fix Invisible Characters",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/invisible-text-detector",
-      "outcome": "runtime-error:Selection is unavailable in a browser tab",
-      "status": "Selection is unavailable in a browser tab",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 344
-    },
-    {
-      "extension": "invisible-text-detector",
-      "command": "open-invisible-text-detector",
-      "title": "Open Invisible Text Detector",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/invisible-text-detector",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 348
-    },
-    {
       "extension": "jisho",
       "command": "history",
       "title": "Search History",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/jisho",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2056
+      "elapsedMs": 2119
     },
     {
       "extension": "jisho",
       "command": "search",
       "title": "Translate Japanese",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/jisho",
       "outcome": "network",
       "status": "Ready",
@@ -946,556 +1029,158 @@
         "search error TypeError: Network request failed",
         "Failed to load resource: net::ERR_FAILED"
       ],
-      "elapsedMs": 2055
+      "elapsedMs": 2079
     },
     {
       "extension": "kaalam",
       "command": "index",
       "title": "Show Time",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/kaalam",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 350
+      "elapsedMs": 409
     },
     {
       "extension": "kagi-search",
       "command": "index",
       "title": "Search Kagi",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/kagi-search",
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 64
+      "elapsedMs": 89
     },
     {
       "extension": "keeper-security",
       "command": "generate-passphrase",
       "title": "Generate Passphrase",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/keeper-security",
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 45
+      "elapsedMs": 65
     },
     {
       "extension": "keeper-security",
       "command": "generate-password",
       "title": "Generate Password",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/keeper-security",
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 52
+      "elapsedMs": 97
     },
     {
       "extension": "keeper-security",
       "command": "generate-password-quick",
       "title": "Generate Password - Quick",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/keeper-security",
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 68
+      "elapsedMs": 76
     },
     {
       "extension": "keeper-security",
       "command": "my-vault",
       "title": "My Vault",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/keeper-security",
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 68
+      "elapsedMs": 93
     },
     {
       "extension": "keygen",
       "command": "api-tokens",
       "title": "View API Tokens",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/keygen",
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 69
+      "elapsedMs": 77
     },
     {
       "extension": "keygen",
       "command": "api-usage",
       "title": "API Usage",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/keygen",
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 69
+      "elapsedMs": 113
     },
     {
       "extension": "keygen",
       "command": "environments",
       "title": "View Environments",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/keygen",
-      "outcome": "needs-preferences",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 67
-    },
-    {
-      "extension": "keygen",
-      "command": "licenses",
-      "title": "View Licenses",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/keygen",
-      "outcome": "needs-preferences",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 67
-    },
-    {
-      "extension": "keygen",
-      "command": "policies",
-      "title": "View Policies",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/keygen",
-      "outcome": "needs-preferences",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 67
-    },
-    {
-      "extension": "keygen",
-      "command": "products",
-      "title": "View Products",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/keygen",
-      "outcome": "needs-preferences",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 67
-    },
-    {
-      "extension": "keygen",
-      "command": "users",
-      "title": "View Users",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/keygen",
-      "outcome": "needs-preferences",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 71
-    },
-    {
-      "extension": "laravel-artisan",
-      "command": "index",
-      "title": "Search Console Commands",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/laravel-artisan",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 396
-    },
-    {
-      "extension": "laravel-shift",
-      "command": "generate-shift",
-      "title": "Generate Shift Command",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/laravel-shift",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 368
-    },
-    {
-      "extension": "leap-new",
-      "command": "generate-app",
-      "title": "Generate App",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/leap-new",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 346
-    },
-    {
-      "extension": "leap-new",
-      "command": "menu-bar",
-      "title": "Menu Bar",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/leap-new",
-      "outcome": "empty",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 2047
-    },
-    {
-      "extension": "leetcode",
-      "command": "daily-challenge",
-      "title": "View LeetCode Daily Challenge",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/leetcode",
-      "outcome": "empty",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 347
-    },
-    {
-      "extension": "leetcode",
-      "command": "potd-menu-bar",
-      "title": "Daily Challenge Status",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/leetcode",
-      "outcome": "network",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [
-        "Access to fetch at 'https://leetcode.com/graphql' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on th",
-        "Failed to load resource: net::ERR_FAILED"
-      ],
-      "elapsedMs": 2057
-    },
-    {
-      "extension": "leetcode",
-      "command": "problem-search",
-      "title": "Search LeetCode Problems",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/leetcode",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 386
-    },
-    {
-      "extension": "leetcode",
-      "command": "random-problem",
-      "title": "Pick a Random LeetCode Problem",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/leetcode",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 347
-    },
-    {
-      "extension": "leetcode",
-      "command": "user-profile",
-      "title": "View LeetCode User Profile",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/leetcode",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 350
-    },
-    {
-      "extension": "markdown-reference",
-      "command": "markdown-reference",
-      "title": "Search Markdown Syntax",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/markdown-reference",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 332
-    },
-    {
-      "extension": "mbta-tracker",
-      "command": "browse-stops",
-      "title": "Browse Stops",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/mbta-tracker",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 1453
-    },
-    {
-      "extension": "mbta-tracker",
-      "command": "view-favorites",
-      "title": "View Favorites",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/mbta-tracker",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 2043
-    },
-    {
-      "extension": "mealie",
-      "command": "add-to-shopping-list",
-      "title": "Add to Shopping List",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/mealie",
-      "outcome": "needs-preferences",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 54
-    },
-    {
-      "extension": "mealie",
-      "command": "import-recipe",
-      "title": "Import Recipe",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/mealie",
-      "outcome": "needs-preferences",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 49
-    },
-    {
-      "extension": "mealie",
-      "command": "meal-plan",
-      "title": "Meal Plan",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/mealie",
-      "outcome": "needs-preferences",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 46
-    },
-    {
-      "extension": "mealie",
-      "command": "search-recipes",
-      "title": "Search Recipes",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/mealie",
-      "outcome": "needs-preferences",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 48
-    },
-    {
-      "extension": "mealie",
-      "command": "shopping-lists",
-      "title": "Shopping Lists",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/mealie",
-      "outcome": "needs-preferences",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 44
-    },
-    {
-      "extension": "melanite-search",
-      "command": "search-files",
-      "title": "Search Files",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/melanite-search",
-      "outcome": "needs-preferences",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 54
-    },
-    {
-      "extension": "menucloak",
-      "command": "open-settings",
-      "title": "Open MenuCloak Settings",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/menucloak",
-      "outcome": "empty",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 2046
-    },
-    {
-      "extension": "menucloak",
-      "command": "set-focus",
-      "title": "Set Focus Text",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/menucloak",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 335
-    },
-    {
-      "extension": "menucloak",
-      "command": "toggle",
-      "title": "Toggle MenuCloak",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/menucloak",
-      "outcome": "empty",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 2039
-    },
-    {
-      "extension": "menucloak",
-      "command": "turn-off",
-      "title": "Turn off MenuCloak",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/menucloak",
-      "outcome": "empty",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 2037
-    },
-    {
-      "extension": "menucloak",
-      "command": "turn-on",
-      "title": "Turn on MenuCloak",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/menucloak",
-      "outcome": "empty",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 2047
-    },
-    {
-      "extension": "mise-window-sets",
-      "command": "apply-set",
-      "title": "Apply Set",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/mise-window-sets",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 346
-    },
-    {
-      "extension": "mise-window-sets",
-      "command": "reload-sets",
-      "title": "Reload Sets",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/mise-window-sets",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 357
-    },
-    {
-      "extension": "multi-ai-chat",
-      "command": "multi-ai-chat",
-      "title": "Multi AI Chat",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/multi-ai-chat",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 379
-    },
-    {
-      "extension": "multi-ai-chat",
-      "command": "run-presets",
-      "title": "Saved Prompts",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/multi-ai-chat",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 352
-    },
-    {
-      "extension": "nano-games",
-      "command": "play-nano-snake",
-      "title": "Play Nano Snake",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/nano-games",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 366
-    },
-    {
-      "extension": "nterm-calculator",
-      "command": "nterm-calculator",
-      "title": "N-Term Grade Calculator",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/nterm-calculator",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 363
-    },
-    {
-      "extension": "ohmyzsh-git-alias",
-      "command": "index",
-      "title": "Git Alias",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/ohmyzsh-git-alias",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 369
-    },
-    {
-      "extension": "one-thing",
-      "command": "remove-one-thing",
-      "title": "Remove One Thing",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/one-thing",
-      "outcome": "empty",
-      "status": "Starting…",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 2051
-    },
-    {
-      "extension": "one-thing",
-      "command": "set-one-thing",
-      "title": "Set One Thing",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/one-thing",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 348
-    },
-    {
-      "extension": "one-thing",
-      "command": "show-one-thing",
-      "title": "One Thing",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/one-thing",
-      "outcome": "empty",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 2046
-    },
-    {
-      "extension": "openweathermap",
-      "command": "weather",
-      "title": "Weather",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/openweathermap",
-      "outcome": "needs-preferences",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 75
-    },
-    {
-      "extension": "parcel",
-      "command": "add-delivery",
-      "title": "Add Delivery",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/parcel",
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
       "elapsedMs": 99
     },
     {
-      "extension": "parcel",
-      "command": "my-deliveries",
-      "title": "My Deliveries",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/parcel",
+      "extension": "keygen",
+      "command": "licenses",
+      "title": "View Licenses",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/keygen",
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 84
+      "elapsedMs": 93
     },
     {
-      "extension": "pbr-assistant",
-      "command": "find-pbr-ior-value",
-      "title": "Find PBR/IOR Value",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/pbr-assistant",
-      "outcome": "rendered",
-      "status": "Ready",
+      "extension": "keygen",
+      "command": "policies",
+      "title": "View Policies",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/keygen",
+      "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 400
+      "elapsedMs": 80
     },
     {
-      "extension": "pinch-svg",
-      "command": "custom-rectangle",
-      "title": "Create SVG rectangle using pixels",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/pinch-svg",
-      "outcome": "empty",
-      "status": "Ready",
+      "extension": "keygen",
+      "command": "products",
+      "title": "View Products",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/keygen",
+      "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2049
+      "elapsedMs": 87
     },
     {
-      "extension": "pinch-svg",
-      "command": "grid",
-      "title": "Copy SVG Spacing Increment",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/pinch-svg",
+      "extension": "keygen",
+      "command": "users",
+      "title": "View Users",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/keygen",
+      "outcome": "needs-preferences",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 68
+    },
+    {
+      "extension": "laravel-artisan",
+      "command": "index",
+      "title": "Search Console Commands",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/laravel-artisan",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
@@ -1503,65 +1188,305 @@
       "elapsedMs": 392
     },
     {
-      "extension": "pokemon-tcg-pocket-binder",
-      "command": "pokemon-tcg-pocket-binder",
-      "title": "Pokémon Tcg Pocket",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/pokemon-tcg-pocket-binder",
+      "extension": "laravel-shift",
+      "command": "generate-shift",
+      "title": "Generate Shift Command",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/laravel-shift",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 372
+      "elapsedMs": 379
     },
     {
-      "extension": "portless",
-      "command": "list",
-      "title": "List Active Routes",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/portless",
+      "extension": "leap-new",
+      "command": "generate-app",
+      "title": "Generate App",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/leap-new",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 356
+      "elapsedMs": 382
     },
     {
-      "extension": "promptty",
-      "command": "search-promptty",
-      "title": "Search Promptty",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/promptty",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 356
-    },
-    {
-      "extension": "punch-clock",
+      "extension": "leap-new",
       "command": "menu-bar",
-      "title": "Work Timer",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/punch-clock",
+      "title": "Menu Bar",
+      "mode": "menu-bar",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/leap-new",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 361
+    },
+    {
+      "extension": "leetcode",
+      "command": "daily-challenge",
+      "title": "View LeetCode Daily Challenge",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/leetcode",
       "outcome": "empty",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2060
+      "elapsedMs": 403
     },
     {
-      "extension": "punch-clock",
-      "command": "start-timer",
-      "title": "Start Work Timer",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/punch-clock",
+      "extension": "leetcode",
+      "command": "potd-menu-bar",
+      "title": "Daily Challenge Status",
+      "mode": "menu-bar",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/leetcode",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 372
+      "elapsedMs": 399
     },
     {
-      "extension": "px-to-rem-converter",
-      "command": "index",
-      "title": "Convert PX to REM",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/px-to-rem-converter",
+      "extension": "leetcode",
+      "command": "problem-search",
+      "title": "Search LeetCode Problems",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/leetcode",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 429
+    },
+    {
+      "extension": "leetcode",
+      "command": "random-problem",
+      "title": "Pick a Random LeetCode Problem",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/leetcode",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 442
+    },
+    {
+      "extension": "leetcode",
+      "command": "user-profile",
+      "title": "View LeetCode User Profile",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/leetcode",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 415
+    },
+    {
+      "extension": "markdown-reference",
+      "command": "markdown-reference",
+      "title": "Search Markdown Syntax",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/markdown-reference",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 427
+    },
+    {
+      "extension": "mbta-tracker",
+      "command": "browse-stops",
+      "title": "Browse Stops",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/mbta-tracker",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 1411
+    },
+    {
+      "extension": "mbta-tracker",
+      "command": "view-favorites",
+      "title": "View Favorites",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/mbta-tracker",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 2074
+    },
+    {
+      "extension": "mealie",
+      "command": "add-to-shopping-list",
+      "title": "Add to Shopping List",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/mealie",
+      "outcome": "needs-preferences",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 65
+    },
+    {
+      "extension": "mealie",
+      "command": "import-recipe",
+      "title": "Import Recipe",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/mealie",
+      "outcome": "needs-preferences",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 87
+    },
+    {
+      "extension": "mealie",
+      "command": "meal-plan",
+      "title": "Meal Plan",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/mealie",
+      "outcome": "needs-preferences",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 75
+    },
+    {
+      "extension": "mealie",
+      "command": "search-recipes",
+      "title": "Search Recipes",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/mealie",
+      "outcome": "needs-preferences",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 90
+    },
+    {
+      "extension": "mealie",
+      "command": "shopping-lists",
+      "title": "Shopping Lists",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/mealie",
+      "outcome": "needs-preferences",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 81
+    },
+    {
+      "extension": "melanite-search",
+      "command": "search-files",
+      "title": "Search Files",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/melanite-search",
+      "outcome": "needs-preferences",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 93
+    },
+    {
+      "extension": "menucloak",
+      "command": "open-settings",
+      "title": "Open MenuCloak Settings",
+      "mode": "no-view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/menucloak",
+      "outcome": "completed",
+      "status": "MenuCloak is not installed",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 413
+    },
+    {
+      "extension": "menucloak",
+      "command": "set-focus",
+      "title": "Set Focus Text",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/menucloak",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 375
+    },
+    {
+      "extension": "menucloak",
+      "command": "toggle",
+      "title": "Toggle MenuCloak",
+      "mode": "no-view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/menucloak",
+      "outcome": "completed",
+      "status": "MenuCloak is not installed",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 404
+    },
+    {
+      "extension": "menucloak",
+      "command": "turn-off",
+      "title": "Turn off MenuCloak",
+      "mode": "no-view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/menucloak",
+      "outcome": "completed",
+      "status": "MenuCloak is not installed",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 414
+    },
+    {
+      "extension": "menucloak",
+      "command": "turn-on",
+      "title": "Turn on MenuCloak",
+      "mode": "no-view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/menucloak",
+      "outcome": "completed",
+      "status": "MenuCloak is not installed",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 382
+    },
+    {
+      "extension": "mise-window-sets",
+      "command": "apply-set",
+      "title": "Apply Set",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/mise-window-sets",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 404
+    },
+    {
+      "extension": "mise-window-sets",
+      "command": "reload-sets",
+      "title": "Reload Sets",
+      "mode": "no-view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/mise-window-sets",
+      "outcome": "completed",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 377
+    },
+    {
+      "extension": "multi-ai-chat",
+      "command": "multi-ai-chat",
+      "title": "Multi AI Chat",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/multi-ai-chat",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 374
+    },
+    {
+      "extension": "multi-ai-chat",
+      "command": "run-presets",
+      "title": "Saved Prompts",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/multi-ai-chat",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
@@ -1569,63 +1494,282 @@
       "elapsedMs": 357
     },
     {
+      "extension": "nano-games",
+      "command": "play-nano-snake",
+      "title": "Play Nano Snake",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/nano-games",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 417
+    },
+    {
+      "extension": "nterm-calculator",
+      "command": "nterm-calculator",
+      "title": "N-Term Grade Calculator",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/nterm-calculator",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 374
+    },
+    {
+      "extension": "ohmyzsh-git-alias",
+      "command": "index",
+      "title": "Git Alias",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/ohmyzsh-git-alias",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 392
+    },
+    {
+      "extension": "one-thing",
+      "command": "remove-one-thing",
+      "title": "Remove One Thing",
+      "mode": "no-view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/one-thing",
+      "outcome": "empty",
+      "status": "Starting…",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 2053
+    },
+    {
+      "extension": "one-thing",
+      "command": "set-one-thing",
+      "title": "Set One Thing",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/one-thing",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 401
+    },
+    {
+      "extension": "one-thing",
+      "command": "show-one-thing",
+      "title": "One Thing",
+      "mode": "menu-bar",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/one-thing",
+      "outcome": "empty",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 2098
+    },
+    {
+      "extension": "openweathermap",
+      "command": "weather",
+      "title": "Weather",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/openweathermap",
+      "outcome": "needs-preferences",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 88
+    },
+    {
+      "extension": "parcel",
+      "command": "add-delivery",
+      "title": "Add Delivery",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/parcel",
+      "outcome": "needs-preferences",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 86
+    },
+    {
+      "extension": "parcel",
+      "command": "my-deliveries",
+      "title": "My Deliveries",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/parcel",
+      "outcome": "needs-preferences",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 135
+    },
+    {
+      "extension": "pbr-assistant",
+      "command": "find-pbr-ior-value",
+      "title": "Find PBR/IOR Value",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/pbr-assistant",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 415
+    },
+    {
+      "extension": "pinch-svg",
+      "command": "custom-rectangle",
+      "title": "Create SVG rectangle using pixels",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/pinch-svg",
+      "outcome": "empty",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 2051
+    },
+    {
+      "extension": "pinch-svg",
+      "command": "grid",
+      "title": "Copy SVG Spacing Increment",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/pinch-svg",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 387
+    },
+    {
+      "extension": "pokemon-tcg-pocket-binder",
+      "command": "pokemon-tcg-pocket-binder",
+      "title": "Pokémon Tcg Pocket",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/pokemon-tcg-pocket-binder",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 367
+    },
+    {
+      "extension": "portless",
+      "command": "list",
+      "title": "List Active Routes",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/portless",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 366
+    },
+    {
+      "extension": "promptty",
+      "command": "search-promptty",
+      "title": "Search Promptty",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/promptty",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 353
+    },
+    {
+      "extension": "punch-clock",
+      "command": "menu-bar",
+      "title": "Work Timer",
+      "mode": "menu-bar",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/punch-clock",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 371
+    },
+    {
+      "extension": "punch-clock",
+      "command": "start-timer",
+      "title": "Start Work Timer",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/punch-clock",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 370
+    },
+    {
+      "extension": "px-to-rem-converter",
+      "command": "index",
+      "title": "Convert PX to REM",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/px-to-rem-converter",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 378
+    },
+    {
       "extension": "quick-jump",
       "command": "search",
       "title": "Search",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/quick-jump",
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 49
+      "elapsedMs": 100
     },
     {
       "extension": "radix",
       "command": "colors",
       "title": "Radix Colors",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/radix",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 344
+      "elapsedMs": 396
     },
     {
       "extension": "radix",
       "command": "primitives",
       "title": "Radix Primitives",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/radix",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 348
+      "elapsedMs": 433
     },
     {
       "extension": "radix",
       "command": "themes",
       "title": "Radix Themes",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/radix",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 351
+      "elapsedMs": 432
     },
     {
       "extension": "random-color",
       "command": "select-color",
       "title": "Select Color",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/random-color",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 347
+      "elapsedMs": 452
     },
     {
       "extension": "ratio-calculator",
       "command": "calculate-ratio",
       "title": "Calculate Ratio",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/ratio-calculator",
       "outcome": "rendered",
       "status": "Ready",
@@ -1637,547 +1781,597 @@
       "extension": "raytyping",
       "command": "raytype",
       "title": "Start Raytyping",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/raytyping",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 352
+      "elapsedMs": 406
     },
     {
       "extension": "rectangle",
       "command": "almost-maximize",
       "title": "Almost Maximize",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2051
+      "elapsedMs": 424
     },
     {
       "extension": "rectangle",
       "command": "bottom-center-sixth",
       "title": "Bottom Center Sixth",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2038
+      "elapsedMs": 421
     },
     {
       "extension": "rectangle",
       "command": "bottom-half",
       "title": "Bottom Half",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2052
+      "elapsedMs": 439
     },
     {
       "extension": "rectangle",
       "command": "bottom-left",
       "title": "Bottom Left",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2051
+      "elapsedMs": 432
     },
     {
       "extension": "rectangle",
       "command": "bottom-left-sixth",
       "title": "Bottom Left Sixth",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2059
+      "elapsedMs": 420
     },
     {
       "extension": "rectangle",
       "command": "bottom-right",
       "title": "Bottom Right",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2045
+      "elapsedMs": 429
     },
     {
       "extension": "rectangle",
       "command": "bottom-right-sixth",
       "title": "Bottom Right Sixth",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2051
+      "elapsedMs": 439
     },
     {
       "extension": "rectangle",
       "command": "cascade-all",
       "title": "Cascade All",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2051
+      "elapsedMs": 417
     },
     {
       "extension": "rectangle",
       "command": "center",
       "title": "Center",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2041
+      "elapsedMs": 520
     },
     {
       "extension": "rectangle",
       "command": "center-half",
       "title": "Half Width Center",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2043
+      "elapsedMs": 507
     },
     {
       "extension": "rectangle",
       "command": "center-third",
       "title": "Center Third",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2047
+      "elapsedMs": 509
     },
     {
       "extension": "rectangle",
       "command": "first-fourth",
       "title": "First Fourth",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2054
+      "elapsedMs": 437
     },
     {
       "extension": "rectangle",
       "command": "first-third",
       "title": "First Third",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2057
+      "elapsedMs": 457
     },
     {
       "extension": "rectangle",
       "command": "first-three-fourths",
       "title": "First Three Fourths",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2043
+      "elapsedMs": 453
     },
     {
       "extension": "rectangle",
       "command": "first-two-thirds",
       "title": "First Two Thirds",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2057
+      "elapsedMs": 454
     },
     {
       "extension": "rectangle",
       "command": "index",
       "title": "Rectangle Actions",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 384
+      "elapsedMs": 404
     },
     {
       "extension": "rectangle",
       "command": "larger",
       "title": "Make Larger",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2057
+      "elapsedMs": 476
     },
     {
       "extension": "rectangle",
       "command": "last-fourth",
       "title": "Last Fourth",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2045
+      "elapsedMs": 447
     },
     {
       "extension": "rectangle",
       "command": "last-third",
       "title": "Last Third",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2042
+      "elapsedMs": 448
     },
     {
       "extension": "rectangle",
       "command": "last-three-fourths",
       "title": "Last Three Fourths",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2050
+      "elapsedMs": 443
     },
     {
       "extension": "rectangle",
       "command": "last-two-thirds",
       "title": "Last Two Thirds",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2055
+      "elapsedMs": 476
     },
     {
       "extension": "rectangle",
       "command": "left-half",
       "title": "Left Half",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2060
+      "elapsedMs": 476
     },
     {
       "extension": "rectangle",
       "command": "maximize",
       "title": "Maximize",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2053
+      "elapsedMs": 537
     },
     {
       "extension": "rectangle",
       "command": "maximize-height",
       "title": "Maximize Height",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2059
+      "elapsedMs": 390
     },
     {
       "extension": "rectangle",
       "command": "move-down",
       "title": "Move Down",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2053
+      "elapsedMs": 485
     },
     {
       "extension": "rectangle",
       "command": "move-left",
       "title": "Move Left",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2052
+      "elapsedMs": 487
     },
     {
       "extension": "rectangle",
       "command": "move-right",
       "title": "Move Right",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2045
+      "elapsedMs": 455
     },
     {
       "extension": "rectangle",
       "command": "move-up",
       "title": "Move Up",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2050
+      "elapsedMs": 419
     },
     {
       "extension": "rectangle",
       "command": "next-display",
       "title": "Next Display",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2067
+      "elapsedMs": 550
     },
     {
       "extension": "rectangle",
       "command": "previous-display",
       "title": "Previous Display",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2049
+      "elapsedMs": 549
     },
     {
       "extension": "rectangle",
       "command": "restore",
       "title": "Restore",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2058
+      "elapsedMs": 540
     },
     {
       "extension": "rectangle",
       "command": "right-half",
       "title": "Right Half",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2057
+      "elapsedMs": 451
     },
     {
       "extension": "rectangle",
       "command": "second-fourth",
       "title": "Second Fourth",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2045
+      "elapsedMs": 436
     },
     {
       "extension": "rectangle",
       "command": "smaller",
       "title": "Make Smaller",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2044
+      "elapsedMs": 480
     },
     {
       "extension": "rectangle",
       "command": "specified",
       "title": "Reasonable Size",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2053
+      "elapsedMs": 520
     },
     {
       "extension": "rectangle",
       "command": "third-fourth",
       "title": "Third Fourth",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2045
+      "elapsedMs": 511
     },
     {
       "extension": "rectangle",
       "command": "top-center-sixth",
       "title": "Top Center Sixth",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2086
+      "elapsedMs": 519
     },
     {
       "extension": "rectangle",
       "command": "top-half",
       "title": "Top Half",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2046
+      "elapsedMs": 503
     },
     {
       "extension": "rectangle",
       "command": "top-left",
       "title": "Top Left",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2044
+      "elapsedMs": 484
     },
     {
       "extension": "rectangle",
       "command": "top-left-sixth",
       "title": "Top Left Sixth",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2047
+      "elapsedMs": 483
     },
     {
       "extension": "rectangle",
       "command": "top-right",
       "title": "Top Right",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2079
+      "elapsedMs": 515
     },
     {
       "extension": "rectangle",
       "command": "top-right-sixth",
       "title": "Top Right Sixth",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rectangle",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Rectangle is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2062
+      "elapsedMs": 506
     },
     {
       "extension": "ring-intercom",
       "command": "authenticate",
       "title": "Authenticate",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/ring-intercom",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 342
+      "elapsedMs": 481
     },
     {
       "extension": "ring-intercom",
       "command": "unlock",
       "title": "Unlock Door",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/ring-intercom",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Failed to Unlock",
       "pageErrors": [],
       "consoleErrors": [
         "Error during unlock process: Error: Not authenticated. Please run the 'Authenticate' command."
       ],
-      "elapsedMs": 2048
+      "elapsedMs": 721
     },
     {
       "extension": "rtl-reader",
       "command": "rtl-text",
       "title": "RTL Text Formatter",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/rtl-reader",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 350
+      "elapsedMs": 405
     },
     {
       "extension": "saved-items",
       "command": "index",
       "title": "Saved Items",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/saved-items",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 357
+      "elapsedMs": 394
     },
     {
       "extension": "scrapbook",
       "command": "search-users",
       "title": "Search Users",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/scrapbook",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 352
+      "elapsedMs": 425
     },
     {
       "extension": "scrapbook",
       "command": "search-users-posts",
       "title": "Search User's Posts",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/scrapbook",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 392
+      "elapsedMs": 427
     },
     {
       "extension": "scrapbook",
       "command": "view-recent-posts",
       "title": "View Recent Posts",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/scrapbook",
       "outcome": "network",
       "status": "Ready",
@@ -2186,15 +2380,16 @@
         "Access to XMLHttpRequest at 'https://scrapbook.hackclub.com/api/posts' from origin 'http://127.0.0.1:4178' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
         "Failed to load resource: net::ERR_FAILED"
       ],
-      "elapsedMs": 2080
+      "elapsedMs": 2084
     },
     {
       "extension": "sf-symbols-search",
       "command": "index",
       "title": "Search SF Symbols",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/sf-symbols-search",
-      "outcome": "runtime-error:ENOENT: no such file or directory, open '/blast/assets/sf-symbols-search/symbols/data.json'",
-      "status": "ENOENT: no such file or directory, open '/blast/assets/sf-symbols-search/symbols/data.json'",
+      "outcome": "runtime-error:Command exited with code 1",
+      "status": "Command exited with code 1",
       "pageErrors": [],
       "consoleErrors": [],
       "elapsedMs": 419
@@ -2203,28 +2398,31 @@
       "extension": "spacejump",
       "command": "list-spaces",
       "title": "List Spaces",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/spacejump",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2056
+      "elapsedMs": 2075
     },
     {
       "extension": "spacejump",
       "command": "switch-space",
       "title": "Jump to Space",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/spacejump",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2065
+      "elapsedMs": 2059
     },
     {
       "extension": "splatoon",
       "command": "splatoon-2-schedules",
       "title": "View Schedules",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/splatoon",
       "outcome": "rendered",
       "status": "Ready",
@@ -2232,12 +2430,13 @@
       "consoleErrors": [
         "Refused to set unsafe header \"user-agent\""
       ],
-      "elapsedMs": 1966
+      "elapsedMs": 2052
     },
     {
       "extension": "splatoon",
       "command": "splatoon-3-schedules",
       "title": "View Schedules",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/splatoon",
       "outcome": "rendered",
       "status": "Ready",
@@ -2245,79 +2444,181 @@
       "consoleErrors": [
         "Refused to set unsafe header \"user-agent\""
       ],
-      "elapsedMs": 2047
+      "elapsedMs": 1875
     },
     {
       "extension": "stockholm-public-transport",
       "command": "departures",
       "title": "List Departures",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/stockholm-public-transport",
       "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 2072
-    },
-    {
-      "extension": "storybook-sandboxes",
-      "command": "local",
-      "title": "Create Local Storybook Sandbox",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/storybook-sandboxes",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 399
-    },
-    {
-      "extension": "storybook-sandboxes",
-      "command": "online",
-      "title": "Create Online Storybook Sandbox",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/storybook-sandboxes",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 378
-    },
-    {
-      "extension": "superwhisper",
-      "command": "copy-last-history",
-      "title": "Copy Last History",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/superwhisper",
-      "outcome": "empty",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
       "elapsedMs": 2054
     },
     {
-      "extension": "superwhisper",
-      "command": "open-settings",
-      "title": "Open Settings",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/superwhisper",
-      "outcome": "empty",
+      "extension": "storybook-sandboxes",
+      "command": "local",
+      "title": "Create Local Storybook Sandbox",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/storybook-sandboxes",
+      "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2063
+      "elapsedMs": 374
+    },
+    {
+      "extension": "storybook-sandboxes",
+      "command": "online",
+      "title": "Create Online Storybook Sandbox",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/storybook-sandboxes",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 375
+    },
+    {
+      "extension": "superwhisper",
+      "command": "copy-last-history",
+      "title": "Copy Last History",
+      "mode": "no-view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/superwhisper",
+      "outcome": "completed",
+      "status": "Superwhisper is not installed.",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 398
+    },
+    {
+      "extension": "superwhisper",
+      "command": "open-settings",
+      "title": "Open Settings",
+      "mode": "no-view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/superwhisper",
+      "outcome": "completed",
+      "status": "Superwhisper is not installed.",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 379
     },
     {
       "extension": "superwhisper",
       "command": "paste-last-history",
       "title": "Paste Last History",
+      "mode": "no-view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/superwhisper",
-      "outcome": "empty",
-      "status": "Ready",
+      "outcome": "completed",
+      "status": "Superwhisper is not installed.",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2058
+      "elapsedMs": 381
     },
     {
       "extension": "superwhisper",
       "command": "search-history",
       "title": "Search History",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/superwhisper",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 368
+    },
+    {
+      "extension": "superwhisper",
+      "command": "select-mode",
+      "title": "Select Mode",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/superwhisper",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 376
+    },
+    {
+      "extension": "superwhisper",
+      "command": "toggle-record",
+      "title": "Start Recording",
+      "mode": "no-view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/superwhisper",
+      "outcome": "completed",
+      "status": "Superwhisper is not installed.",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 377
+    },
+    {
+      "extension": "tategaki",
+      "command": "japanese-vertical-text",
+      "title": "Japanese Vertical Text",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/tategaki",
+      "outcome": "runtime-error:Selection is unavailable in a browser tab",
+      "status": "Selection is unavailable in a browser tab",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 376
+    },
+    {
+      "extension": "text-decorator",
+      "command": "decorate-text-with-font",
+      "title": "Decorate Text with Font",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/text-decorator",
+      "outcome": "runtime-error:Selection is unavailable in a browser tab",
+      "status": "Selection is unavailable in a browser tab",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 395
+    },
+    {
+      "extension": "text-decorator",
+      "command": "undecorate-text",
+      "title": "Undecorate Text",
+      "mode": "no-view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/text-decorator",
+      "outcome": "completed",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 384
+    },
+    {
+      "extension": "time-until-i-do",
+      "command": "index",
+      "title": "Big Day Countdown",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/time-until-i-do",
+      "outcome": "needs-preferences",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 64
+    },
+    {
+      "extension": "timezone-buddy",
+      "command": "timezone-buddy",
+      "title": "Timezone Buddy",
+      "mode": "view",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/timezone-buddy",
+      "outcome": "rendered",
+      "status": "Ready",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "elapsedMs": 2066
+    },
+    {
+      "extension": "timezone-buddy",
+      "command": "timezone-buddy-menubar",
+      "title": "Timezone Buddy Menu Bar",
+      "mode": "menu-bar",
+      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/timezone-buddy",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
@@ -2325,282 +2626,211 @@
       "elapsedMs": 381
     },
     {
-      "extension": "superwhisper",
-      "command": "select-mode",
-      "title": "Select Mode",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/superwhisper",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 410
-    },
-    {
-      "extension": "superwhisper",
-      "command": "toggle-record",
-      "title": "Start Recording",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/superwhisper",
-      "outcome": "empty",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 2062
-    },
-    {
-      "extension": "tategaki",
-      "command": "japanese-vertical-text",
-      "title": "Japanese Vertical Text",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/tategaki",
-      "outcome": "runtime-error:Selection is unavailable in a browser tab",
-      "status": "Selection is unavailable in a browser tab",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 394
-    },
-    {
-      "extension": "text-decorator",
-      "command": "decorate-text-with-font",
-      "title": "Decorate Text with Font",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/text-decorator",
-      "outcome": "runtime-error:Selection is unavailable in a browser tab",
-      "status": "Selection is unavailable in a browser tab",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 422
-    },
-    {
-      "extension": "text-decorator",
-      "command": "undecorate-text",
-      "title": "Undecorate Text",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/text-decorator",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 417
-    },
-    {
-      "extension": "time-until-i-do",
-      "command": "index",
-      "title": "Big Day Countdown",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/time-until-i-do",
-      "outcome": "needs-preferences",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 76
-    },
-    {
-      "extension": "timezone-buddy",
-      "command": "timezone-buddy",
-      "title": "Timezone Buddy",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/timezone-buddy",
-      "outcome": "rendered",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 2060
-    },
-    {
-      "extension": "timezone-buddy",
-      "command": "timezone-buddy-menubar",
-      "title": "Timezone Buddy Menu Bar",
-      "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/timezone-buddy",
-      "outcome": "empty",
-      "status": "Ready",
-      "pageErrors": [],
-      "consoleErrors": [],
-      "elapsedMs": 2046
-    },
-    {
       "extension": "tiny-tycho",
       "command": "index",
       "title": "Search Stickers",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/tiny-tycho",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 367
+      "elapsedMs": 400
     },
     {
       "extension": "trenit",
       "command": "departures-and-arrivals",
       "title": "Check Trains Status",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/trenit",
-      "outcome": "runtime-error:ENOENT: no such file or directory, open '/blast/assets/package.json'",
-      "status": "ENOENT: no such file or directory, open '/blast/assets/package.json'",
+      "outcome": "runtime-error:Command exited with code 1",
+      "status": "Command exited with code 1",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 396
+      "elapsedMs": 411
     },
     {
       "extension": "uk-bank-holidays",
       "command": "index",
       "title": "Show Upcoming Bank Holidays in England and Wales",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/uk-bank-holidays",
-      "outcome": "runtime-error:Unexpected end of JSON input",
+      "outcome": "rendered",
       "status": "Ready",
-      "pageErrors": [
-        "Unexpected end of JSON input"
-      ],
+      "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2055
+      "elapsedMs": 2074
     },
     {
       "extension": "url-designer",
       "command": "create-prompt",
       "title": "Create Prompt",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/url-designer",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2047
+      "elapsedMs": 2094
     },
     {
       "extension": "v0-by-vercel",
       "command": "create-project",
       "title": "Create Project",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/v0-by-vercel",
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 94
+      "elapsedMs": 129
     },
     {
       "extension": "v0-by-vercel",
       "command": "manage-profiles",
       "title": "Manage Profiles",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/v0-by-vercel",
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 95
+      "elapsedMs": 100
     },
     {
       "extension": "v0-by-vercel",
       "command": "new-chat",
       "title": "New Chat",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/v0-by-vercel",
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 88
+      "elapsedMs": 103
     },
     {
       "extension": "v0-by-vercel",
       "command": "view-billing",
       "title": "View Billing",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/v0-by-vercel",
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 75
+      "elapsedMs": 114
     },
     {
       "extension": "v0-by-vercel",
       "command": "view-chats",
       "title": "View Chats",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/v0-by-vercel",
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 81
+      "elapsedMs": 108
     },
     {
       "extension": "v0-by-vercel",
       "command": "view-projects",
       "title": "View Projects",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/v0-by-vercel",
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 82
+      "elapsedMs": 102
     },
     {
       "extension": "valkey-commands-search",
       "command": "search-valkey-commands",
       "title": "Search Valkey Commands",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/valkey-commands-search",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2051
+      "elapsedMs": 1082
     },
     {
       "extension": "vim-bro",
       "command": "index",
       "title": "Search Commands",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/vim-bro",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 394
+      "elapsedMs": 419
     },
     {
       "extension": "vocab-search",
       "command": "vocab",
       "title": "Vocab Search",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/vocab-search",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2052
+      "elapsedMs": 2076
     },
     {
       "extension": "windows-domain",
       "command": "my-user",
       "title": "My User",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/windows-domain",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 2057
+      "elapsedMs": 2159
     },
     {
       "extension": "windows-domain",
       "command": "search-user",
       "title": "Search User",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/windows-domain",
       "outcome": "rendered",
       "status": "Ready",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 357
+      "elapsedMs": 438
     },
     {
       "extension": "workflowy-inbox",
       "command": "index",
       "title": "Send to Workflowy Inbox",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/workflowy-inbox",
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 76
+      "elapsedMs": 86
     },
     {
       "extension": "workflowy-inbox",
       "command": "view",
       "title": "View Workflowy Inbox",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/workflowy-inbox",
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 68
+      "elapsedMs": 92
     },
     {
       "extension": "wrike",
       "command": "search",
       "title": "Search Tasks",
+      "mode": "view",
       "url": "https://github.com/raycast/extensions/tree/bad7de0172ce6ea5e721ed919f4e1d7186f74192/extensions/wrike",
       "outcome": "needs-preferences",
       "pageErrors": [],
       "consoleErrors": [],
-      "elapsedMs": 72
+      "elapsedMs": 114
     }
   ]
 }
