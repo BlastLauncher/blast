@@ -67,7 +67,7 @@ shows its `MenuBarExtra` as a navigable menu. Today both show a blank screen.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit: t3/command-modes-r2 @ e71c06d
+Branch/commit: t3/command-modes-r2 @ bc59302
 Verify: `bun run verify` — PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 90.1s.
 Done:
 - Catalog and source launches send validated command modes; missing catalog modes default to `view`, and no-view exits return to root with HUD/toast or a finished status while preserving reported errors.
