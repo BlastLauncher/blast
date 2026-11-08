@@ -89,7 +89,7 @@ Raycast extensions in a browser tab, in almostnode's cross-origin sandbox (decis
 - [x] 0128–0132 capabilities, sweep, cmdk matching, sandbox gaps, lazy load: 34 → 138/237
 - [x] 0133–0137 preferences form, focus, keyboard, shortcuts, rich rows, grid, dropdown,
       alert, HUD, form fields and separators, early keystrokes
-- [ ] 0138 Browser sweep counts grid cells and every form control
+- [x] 0138 Browser sweep counts grid cells and every form control
 - [ ] 0139 Demo runs no-view and menu-bar commands in their declared mode
 
 ## Later (not scheduled)
