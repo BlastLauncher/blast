@@ -1,12 +1,13 @@
 # Browser catalog sweep
 
-Catalog commit `bad7de0172ce6ea5e721ed919f4e1d7186f74192`; date 2026-11-06; 237 command records; wall time 63.8 s.
+Catalog commit `bad7de0172ce6ea5e721ed919f4e1d7186f74192`; date 2026-11-08; 237 command records; wall time 57.8 s.
 
 ## Totals
 
-- empty: 74 command(s)
+- empty: 64 command(s)
 - needs-preferences: 51 command(s)
-- rendered: 96 command(s)
+- network: 4 command(s)
+- rendered: 102 command(s)
 - runtime-error:Applications are unavailable in a browser tab: 1 command(s)
 - runtime-error:Cannot find module 'sqlite': 1 command(s)
 - runtime-error:Cannot read properties of undefined (reading '$and'): 1 command(s)
@@ -22,6 +23,7 @@ Catalog commit `bad7de0172ce6ea5e721ed919f4e1d7186f74192`; date 2026-11-06; 237 
 | --------------------------------------------------------------------------------------------------------- | -------: | --------------------------------------------------------------------------------------------------------------------------------------- |
 | needs-preferences                                                                                         |       51 | `bookstack/search-command`, `bookstack/show-all-books`, `bookstack/show-all-shelves`, `codepen/create-collection`, `codepen/create-pen` |
 | runtime-error:Selection is unavailable in a browser tab                                                   |        9 | `8-divide/divide-by-8`, `cangjie/cangjie`, `color-studio-picker/index`, `fix-helper/fix-parser`, `input-source-switcher/index`          |
+| network                                                                                                   |        4 | `gradle-plugins/index`, `jisho/search`, `leetcode/potd-menu-bar`, `scrapbook/view-recent-posts`                                         |
 | runtime-error:Applications are unavailable in a browser tab                                               |        1 | `input-source-switcher/form`                                                                                                            |
 | runtime-error:Cannot find module 'sqlite'                                                                 |        1 | `ego-lite/search-bookmarks`                                                                                                             |
 | runtime-error:Cannot read properties of undefined (reading '$and')                                        |        1 | `hyrule-compendium-search/getEntry`                                                                                                     |
