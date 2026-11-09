@@ -1,6 +1,6 @@
 # 0005 — Menu-bar commands in scene snapshots
 
-Status: accepted 2026-10-18
+Status: accepted 2026-10-18; amended by task 0140 (feedback beside the menu)
 
 ## Decision
 

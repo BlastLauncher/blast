@@ -33,17 +33,17 @@ keeps working.
 
 ## Acceptance
 
-- [ ] A menu-bar command's `showHUD`, a failure `Toast` and an `Alert` reach the
+- [x] A menu-bar command's `showHUD`, a failure `Toast` and an `Alert` reach the
       scene/controller view: a unit test in `packages/runtime/src/api/menu-bar.test.ts`
       (or the nearest runtime test that mounts a scene) renders a `MenuBarExtra` with
       each feedback call and asserts the `HUD`/`Toast`/`Alert` node is present next
       to the menu, not instead of it.
-- [ ] `bun run site:e2e` asserts a menu item's `showHUD` text in the browser and
+- [x] `bun run site:e2e` asserts a menu item's `showHUD` text in the browser and
       still passes its existing menu navigation and no-view checks; three
       consecutive runs pass.
-- [ ] The TUI still renders menu-bar feedback (check `packages/tui/src/app.tsx`
+- [x] The TUI still renders menu-bar feedback (check `packages/tui/src/app.tsx`
       and `menu-bar.tsx`); add or adjust a test only if it is broken.
-- [ ] `bun run verify` passes.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -64,6 +64,8 @@ Done:
 - Added a runtime unit test that dispatches HUD, failure Toast and Alert menu actions and asserts each feedback node is a sibling of the menu; extended the process-level menu fixture/test with `showHUD`.
 - The `browser-modes` menu fixture exposes HUD, failure-toast and alert actions; `site:e2e` asserts each beside the open menu and passed three consecutive runs.
 - Updated the CLI tree expectation and decision 0005, architecture and TUI docs for the Navigation root.
+- Kept the corpus smoke's empty-menu probe working: a menu-bar scene whose active
+  Navigation entry renders no menu is still reported as an empty menu bar, with tests.
 Not done / risks:
 - Menu-bar background refresh (`interval`), `LaunchType.Background`, a persistent menu-bar strip and the blank catalog commands (0141) stay out of scope.
 - The TUI needed no code or test change: `app.tsx` already renders `view.feedback` in the footer (and alerts over the menu); `packages/tui/src/menu-bar.test.tsx` and `app.test.tsx` pass.

@@ -81,10 +81,22 @@ export function createSweepBroker(extensionName: string, scratchDir: string): Br
  */
 type FirstScene = { probe: ProbeResult; scene?: SceneMessage; loading?: boolean };
 
-function sceneLoading(scene: SceneMessage): boolean {
+function sceneView(scene: SceneMessage) {
   const controller = createController({ platform: "macOS" });
   controller.scene(scene);
-  return controller.view().loading;
+  return controller.view();
+}
+
+function sceneLoading(scene: SceneMessage): boolean {
+  return sceneView(scene).loading;
+}
+
+/** A menu-bar command that rendered no menu is an empty menu bar, not content.
+ * The runtime wraps every mode in Navigation, so the old `root === null` check
+ * no longer sees it. */
+function emptyMenuBar(scene: SceneMessage): boolean {
+  const view = sceneView(scene);
+  return !view.loading && view.menuBar === null;
 }
 
 export function firstSceneOrExit(
@@ -128,6 +140,10 @@ export function firstSceneOrExit(
     unsubscribe = session.scenes((scene) => {
       if (scene.root) {
         if (!sceneLoading(scene)) {
+          if (mode === "menu-bar" && emptyMenuBar(scene)) {
+            finish({ kind: "empty-menu-bar" }, scene);
+            return;
+          }
           finish(
             { kind: "scene", nodeCount: countNodes(scene.root), rootType: scene.root.type },
             scene,
