@@ -1,17 +1,17 @@
 {
-  "version": "2.10.1",
+  "version": "2.11.1",
   "totals": {
     "all": {
-      "covered": 2479,
+      "covered": 2481,
       "partial": 1,
       "missing": 0,
-      "total": 2480
+      "total": 2482
     },
     "nonDeprecated": {
-      "covered": 1537,
+      "covered": 1539,
       "partial": 1,
       "missing": 0,
-      "total": 1538
+      "total": 1540
     },
     "deprecated": {
       "covered": 942,
@@ -57,10 +57,10 @@
         "total": 13
       },
       "enum-member": {
-        "covered": 694,
+        "covered": 696,
         "partial": 0,
         "missing": 0,
-        "total": 694
+        "total": 696
       },
       "interface": {
         "covered": 64,
@@ -1034,6 +1034,14 @@
       "weight": 0
     },
     {
+      "path": "AI.Model.OpenAI_GPT-6.1_Terra",
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
+      "weight": 0
+    },
+    {
       "path": "AI.Model.OpenAI_GPT-6_Astra",
       "status": "covered",
       "tests": [
@@ -1435,6 +1443,14 @@
     },
     {
       "path": "AI.Model.Vercel_Kimi_K3",
+      "status": "covered",
+      "tests": [
+        "packages/runtime/src/api/enums.generated.test.ts"
+      ],
+      "weight": 0
+    },
+    {
+      "path": "AI.Model.Vercel_Kimi_K3.1_Pro",
       "status": "covered",
       "tests": [
         "packages/runtime/src/api/enums.generated.test.ts"
