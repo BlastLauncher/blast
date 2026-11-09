@@ -28,6 +28,14 @@ function action(runtime: ReturnType<typeof start>, root: SceneNode, title: strin
   const ref = node.props.onAction as { $handler: string };
   runtime.send({ type: "event", node: node.id, handler: ref.$handler, args: [] });
 }
+/** The active `Navigation.Entry`'s contents (the command's own root). */
+function activeContent(root: SceneNode | null | undefined): SceneNode | undefined {
+  const entry =
+    root?.type === "Navigation"
+      ? root.children.find((child) => child.type === "Navigation.Entry" && child.props.active)
+      : undefined;
+  return entry?.children[0];
+}
 
 test("Node handshake, shared React hooks, events, clipboard results, logs and shutdown", async () => {
   const runtime = start();
@@ -176,11 +184,12 @@ test("no-view rejection is fatal", async () => {
   expect(await runtime.exited).toBe(1);
 });
 
-test("menu-bar renders without Navigation, retains callbacks after loading and shuts down", async () => {
+test("menu-bar renders inside Navigation, publishes feedback beside the menu and shuts down", async () => {
   const runtime = start();
   runtime.init({ fixture: "menu-bar.js", mode: "menu-bar" });
   const first = await runtime.next("scene");
-  expect(first.root).toMatchObject({
+  expect(first.root?.type).toBe("Navigation");
+  expect(activeContent(first.root)).toMatchObject({
     type: "MenuBarExtra",
     props: { title: "Ready", isLoading: true },
   });
@@ -189,10 +198,19 @@ test("menu-bar renders without Navigation, retains callbacks after loading and s
     const ref = node.props.onAction as { $handler: string };
     runtime.send({ type: "event", node: node.id, handler: ref.$handler, args: [{ type }] });
     const next = await runtime.next("scene");
-    expect(next.root?.props).toMatchObject({ title: type, isLoading: false });
+    expect(activeContent(next.root)?.props).toMatchObject({ title: type, isLoading: false });
   }
+  action(runtime, first.root!, "HUD");
+  const withHud = await runtime.next("scene");
+  // Feedback is a sibling of the entry, not a replacement for the menu.
+  expect(activeContent(withHud.root)?.type).toBe("MenuBarExtra");
+  expect(withHud.root?.children.find((child) => child.type === "HUD")?.props.title).toBe(
+    "Menu HUD",
+  );
   action(runtime, first.root!, "Hide");
-  expect((await runtime.next("scene")).root).toBeNull();
+  const hidden = await runtime.next("scene");
+  expect(hidden.root?.type).toBe("Navigation");
+  expect(activeContent(hidden.root)).toBeUndefined();
   runtime.send({ type: "shutdown" });
   expect(await runtime.exited).toBe(0);
   expect(runtime.messages).toContainEqual({

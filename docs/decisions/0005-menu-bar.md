@@ -1,13 +1,15 @@
 # 0005 — Menu-bar commands in scene snapshots
 
-Status: accepted 2026-10-18
+Status: accepted 2026-10-18; amended by task 0140 (feedback beside the menu)
 
 ## Decision
 
-Menu-bar commands render directly into the existing scene protocol, without a
-Navigation provider. A command returning MenuBarExtra publishes that host root;
-returning null removes it. Item, Section, Submenu and deprecated Separator use
-their public MenuBarExtra paths. Element-valued `alternate` is a Slot child.
+Menu-bar commands render into the existing scene protocol under the same
+Navigation provider as view commands. The active Navigation.Entry holds the
+MenuBarExtra, so feedback and window requests have a scene home next to the
+menu; returning null removes the menu from that entry. Item, Section, Submenu
+and deprecated Separator use their public MenuBarExtra paths. Element-valued
+`alternate` is a Slot child.
 Section boundaries imply separators; an item without onAction and an empty
 submenu are disabled. Clients own menu presentation, tooltips and shortcuts.
 Alternates inherit their parent's shortcut plus Option; the primary shortcut
@@ -24,8 +26,8 @@ null renders until client shutdown or stdin EOF, which unmounts the tree and
 ends the process. This preserves callbacks for subsequent headless events.
 A desktop client must add open-state reporting and a retained menu snapshot
 before implementing Raycast's unload/reload behavior. MenuBarExtra lifecycle
-coverage remains partial until then. Menu-bar feedback requiring Navigation
-is also deferred; the command has no navigation context.
+coverage remains partial until then. Feedback (HUD, Toast, Alert) and
+closeMainWindow/popToRoot requests publish beside the menu like view commands.
 
 Manifest interval scheduling and an actual OS menu bar are out of scope.
 The host starts a menu-bar session only when explicitly asked; no automatic

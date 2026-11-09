@@ -211,6 +211,32 @@ test("observation also keeps a scene-first action change", async () => {
   expect(result.dispatched).toBe(true);
 });
 
+test("a menu-bar command whose Navigation entry is empty is an empty menu bar", async () => {
+  const empty: SceneMessage = {
+    type: "scene",
+    revision: 1,
+    root: node("Navigation", "nav", {}, [node("Navigation.Entry", "entry", { active: true })]),
+  };
+  const result = await firstSceneOrExit(sceneStream(empty, empty), 200, "menu-bar");
+  expect(result.probe).toMatchObject({ kind: "empty-menu-bar" });
+});
+
+test("a menu-bar command with a menu is a scene, not an empty menu bar", async () => {
+  const menu: SceneMessage = {
+    type: "scene",
+    revision: 1,
+    root: node("Navigation", "nav", {}, [
+      node("Navigation.Entry", "entry", { active: true }, [
+        node("MenuBarExtra", "menu", { title: "Modes" }, [
+          node("MenuBarExtra.Item", "item", { title: "Run" }),
+        ]),
+      ]),
+    ]),
+  };
+  const result = await firstSceneOrExit(sceneStream(menu, menu), 200, "menu-bar");
+  expect(result.probe).toMatchObject({ kind: "scene", rootType: "Navigation" });
+});
+
 test("first scene waits through loading and returns the settled revision", async () => {
   const loading = actionScene(1, "loading");
   loading.root = {

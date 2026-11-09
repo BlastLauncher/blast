@@ -140,11 +140,9 @@ export function startRuntime(options: RuntimeOptions): RuntimeController {
       if (rendered) return;
       rendered = true;
       root.render(
-        message.command.mode === "menu-bar"
-          ? withSuspense(element, message.command.mode)
-          : createElement(NavigationProvider, {
-              children: withSuspense(element, message.command.mode),
-            }),
+        createElement(NavigationProvider, {
+          children: withSuspense(element, message.command.mode),
+        }),
       );
       loaded = true;
     });
@@ -193,11 +191,9 @@ export function startRuntime(options: RuntimeOptions): RuntimeController {
       props,
     );
     const suspended = withSuspense(element, message.command.mode);
-    root.render(
-      message.command.mode === "menu-bar"
-        ? suspended
-        : createElement(NavigationProvider, { children: suspended }),
-    );
+    // Every loaded command gets the provider, menu-bar included: it is the
+    // only scene home for feedback (HUD, toast, alert) and window requests.
+    root.render(createElement(NavigationProvider, { children: suspended }));
     loaded = true;
   }
   function shutdown() {

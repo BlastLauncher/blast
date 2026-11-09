@@ -73,7 +73,8 @@ Passwords masked, Space toggles checkboxes, ←/→ cycles dropdowns, Enter save
   `title`/`tooltip` head the window, Sections are headers, and Items (title,
   subtitle, shortcut) select with ↑/↓. → / Enter opens a Submenu and ← / Esc
   closes it; Enter on an Item runs `onAction` with a `left-click` event, and
-  Items without one render dimmed.
+  Items without one render dimmed. Toasts and the HUD share the footer, and
+  alerts open over the menu.
 - `no-view` commands render only feedback (alert, toast, HUD). When runtime
   exits 0, client quits after HUD (2.5 s). Errors offer relaunch or back;
   direct exits 1.

@@ -1,5 +1,5 @@
 import { createElement as h, useState, useEffect } from "react";
-import { MenuBarExtra } from "@raycast/api";
+import { MenuBarExtra, showHUD } from "@raycast/api";
 
 export default function Command() {
   const [loading, setLoading] = useState(true);
@@ -17,6 +17,7 @@ export default function Command() {
         setLoading(false);
       },
     }),
+    h(MenuBarExtra.Item, { title: "HUD", onAction: () => void showHUD("Menu HUD") }),
     h(MenuBarExtra.Item, { title: "Hide", onAction: () => setHidden(true) }),
   );
 }
