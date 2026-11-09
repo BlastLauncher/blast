@@ -1,7 +1,7 @@
 ---
 id: "0141"
 title: Triage the six blank catalog commands
-status: todo
+status: doing
 milestone: M8
 depends: ["0140"]
 ---
