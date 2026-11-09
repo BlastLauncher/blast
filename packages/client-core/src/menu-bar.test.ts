@@ -57,7 +57,8 @@ test("menuBarView exposes rows, the first item as selection, title and loading",
   expect(view.rows.map((row) => row.title)).toEqual(["Tools", "More", "Disabled", "Solo"]);
   expect(view.items.map((row) => row.node.id)).toEqual(["sub", "off", "solo"]);
   expect(view.selected?.node.id).toBe("sub");
-  expect(view.rows.find((row) => row.node.id === "click")?.iconLabel).toBeUndefined();
+  const open = menuBarView(sceneOf(menu({ isLoading: true })), { path: ["sub"], selectedId: null });
+  expect(open.rows.find((row) => row.node.id === "click")?.iconLabel).toBe("→");
   expect(menuRows(menu(), ["sub"])[0]?.iconLabel).toBe("→");
   expect([view.isLoading, view.title, view.tooltip]).toEqual([true, "Ready", "Status"]);
   expect(menuBarView(sceneOf(menu())).isLoading).toBe(false);

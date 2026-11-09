@@ -38,6 +38,18 @@ describe("classifyBrowserOutcome", () => {
       }),
     ).toBe("rendered");
   });
+  test("does not count root rows or unfinished no-view sessions as content", () => {
+    expect(
+      classifyBrowserOutcome({
+        scene: { kind: "root", rows: 42, cells: 0, detail: false, fields: 0, hasEmptyView: false },
+      }),
+    ).toBe("empty");
+    expect(
+      classifyBrowserOutcome({
+        scene: { kind: "list", rows: 0, cells: 0, detail: false, fields: 0, hasEmptyView: false },
+      }),
+    ).toBe("empty");
+  });
   test("counts grid cells as content", () => {
     expect(
       classifyBrowserOutcome({
@@ -115,7 +127,7 @@ describe("classifyBrowserOutcome", () => {
       "runtime-error:Boom",
     );
     expect(classifyBrowserOutcome({ consoleErrors: ["Failed to load resource: 404"] })).toBe(
-      "timeout",
+      "runtime-error:Failed to load resource: 404",
     );
   });
   test("classifies bundle fallback failure and timeout", () => {

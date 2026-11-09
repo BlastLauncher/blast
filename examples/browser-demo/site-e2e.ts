@@ -183,16 +183,28 @@ try {
       undefined,
       { timeout: 30_000 },
     );
-    // Menu-bar commands draw sections, submenus and items, and keyboard navigation opens them.
+    // Menu-bar commands draw sections, submenus and items; pointer and keyboard activate.
     await page.locator("#root-search").fill("Menu Command");
     await page.keyboard.press("Enter");
     await page.locator(".menu-bar button[data-menu-id]").waitFor({ timeout: 30_000 });
     if (!(await page.locator(".menu-section").textContent())?.includes("Actions"))
       throw new Error("menu-bar section did not render");
+    // The section header is not an item, so the click indexes selectable rows only.
+    await page.locator('.menu-bar button[data-menu-id]:has-text("More")').click();
+    await page.locator('.menu-bar button[data-menu-id]:has-text("Clicks: 0")').click();
+    await page
+      .locator('.menu-bar button[data-menu-id]:has-text("Clicks: 1")')
+      .waitFor({ timeout: 10_000 });
+    // Enter activates the selected item.
     await page.keyboard.press("Enter");
-    if ((await page.locator(".menu-bar button[data-menu-id]").count()) !== 1)
-      throw new Error("menu-bar submenu item did not render");
+    await page
+      .locator('.menu-bar button[data-menu-id]:has-text("Clicks: 2")')
+      .waitFor({ timeout: 10_000 });
+    // ← closes the submenu and stays in the command; Esc at the top returns to root.
     await page.keyboard.press("ArrowLeft");
+    await page
+      .locator('.menu-bar button[data-menu-id]:has-text("More")')
+      .waitFor({ timeout: 10_000 });
     await page.keyboard.press("Escape");
     await page.locator("#root-search").waitFor({ timeout: 10_000 });
 

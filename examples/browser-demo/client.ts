@@ -279,8 +279,11 @@ function processResult(result: ReturnType<Controller["input"]>) {
       args: event.args,
     });
   for (const effect of result.effects) {
-    if (effect.type === "quit") stopSession();
-    else {
+    if (effect.type === "quit") {
+      // `closeMainWindow()` requests a controller quit, but a no-view command
+      // is complete only when the runtime publishes its actual exit status.
+      if (activeMode !== "no-view") stopSession();
+    } else {
       const timer = setTimeout(() => {
         sessionTimers.delete(timer);
         const next = controller?.tick(effect.token);
@@ -354,9 +357,12 @@ function handleRuntime(
       return;
     }
     const view = controller?.view();
-    const feedbackTitle = view?.feedback.hud?.title || view?.feedback.toast?.title;
+    document.body.dataset.commandExit = "0";
+    const toast = view?.feedback.toast;
+    const feedbackTitle = view?.feedback.hud?.title || toast?.title;
     stopSession(
       feedbackTitle ? feedbackTitle : `${extensionContext?.commandTitle ?? "Command"} finished`,
+      toast?.style === "failure" || statusState.error,
     );
   } else if (message.type === "error") setStatus(message.message, true);
 }
@@ -450,6 +456,7 @@ function commandEntry(files: Map<string, BrowserFile>, name: string): string {
 
 async function launch(source: string, commandName: string): Promise<void> {
   earlyInput = "";
+  delete document.body.dataset.commandExit;
   sessionStarting = true;
   rootOpen = false;
   actionOpen = false;
@@ -797,7 +804,7 @@ async function acquireSandbox(): Promise<Sandbox> {
   return createSandbox("session");
 }
 
-function stopSession(message = "Ready") {
+function stopSession(message = "Ready", error = false) {
   sessionStarting = false;
   earlyInput = "";
   for (const timer of sessionTimers) clearTimeout(timer);
@@ -809,7 +816,7 @@ function stopSession(message = "Ready") {
   rootOpen = true;
   extensionContext = undefined;
   activeCapabilityContext = undefined;
-  setStatus(message);
+  setStatus(message, error);
   drawRoot();
   scheduleWarm();
 }
@@ -948,7 +955,12 @@ document.addEventListener("keydown", (event) => {
   if (modalView?.dropdown?.open) return dropdownKey(event);
   if (!rootOpen && controller) {
     if (controller.view().kind === "menu-bar") {
-      if (event.key === "ArrowLeft" || event.key === "Escape") {
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        sendInput({ type: "move", direction: "left" });
+        return;
+      }
+      if (event.key === "Escape") {
         event.preventDefault();
         sendInput({ type: "back" });
         return;
@@ -1270,9 +1282,9 @@ document.addEventListener("click", (event) => {
   const menuId = target.closest<HTMLElement>("[data-menu-id]")?.dataset.menuId;
   const menuView = controller?.view().menuBar;
   if (menuId !== undefined && menuView) {
-    const rows = menuView.rows;
-    const from = rows.findIndex((row) => row.selected);
-    const to = rows.findIndex((row) => row.id === menuId);
+    const items = menuView.rows.filter((row) => row.kind !== "section");
+    const from = items.findIndex((row) => row.selected);
+    const to = items.findIndex((row) => row.id === menuId);
     for (let step = 0; step < Math.abs(to - from); step++)
       sendInput({ type: "move", direction: to > from ? "down" : "up" });
     sendInput({ type: "primary" });

@@ -13,6 +13,7 @@ type SweepElement = {
 };
 declare const document: {
   querySelector<T extends SweepElement = SweepElement>(selector: string): T | null;
+  body: { dataset: Record<string, string | undefined> };
 };
 declare const window: { open: (...args: unknown[]) => null };
 
@@ -74,9 +75,6 @@ const networkPattern =
 
 export function classifyBrowserOutcome(observation: BrowserObservation): BrowserOutcome {
   if (observation.timedOut) return "timeout";
-  if (observation.completed) return "completed";
-  if (observation.bundleFallbackFailed) return "bundle-fallback-failed";
-  if (observation.needsPreferences) return "needs-preferences";
   if (observation.capability) return `capability-denied:${observation.capability}`;
   const pageErrors = observation.pageErrors ?? [];
   const consoleErrors = observation.consoleErrors ?? [];
@@ -86,12 +84,15 @@ export function classifyBrowserOutcome(observation: BrowserObservation): Browser
     consoleErrors.some((error) => networkPattern.test(error))
   )
     return "network";
-  if (observation.statusError || pageErrors.length > 0)
+  if (observation.statusError || pageErrors.length > 0 || consoleErrors.length > 0)
     return `runtime-error:${compact(pageErrors[0] || consoleErrors[0] || observation.status || "runtime error")}`;
+  if (observation.bundleFallbackFailed) return "bundle-fallback-failed";
+  if (observation.needsPreferences) return "needs-preferences";
+  if (observation.completed) return "completed";
   const scene = observation.scene;
   if (!scene) return "timeout";
   const content =
-    scene.rows > 0 ||
+    (scene.kind !== "root" && scene.rows > 0) ||
     scene.cells > 0 ||
     scene.detail ||
     scene.fields > 0 ||
@@ -236,7 +237,7 @@ async function runCommand(
           scene: sceneMain
             ? {
                 kind,
-                rows: sceneMain.querySelectorAll(".rows li").length,
+                rows: kind === "root" ? 0 : sceneMain.querySelectorAll(".rows li").length,
                 menuRows: sceneMain.querySelectorAll(".menu-bar button[data-menu-id]").length,
                 cells: sceneMain.querySelectorAll(selectors.cells).length,
                 detail: Boolean(sceneMain.querySelector(".detail")?.textContent?.trim()),
@@ -269,7 +270,10 @@ async function runCommand(
       network,
       bundleFallbackFailed: bundleFallbackFailed && snapshot.statusError,
       completed:
-        item.mode === "no-view" && snapshot.scene?.kind === "root" && !snapshot.statusError,
+        item.mode === "no-view" &&
+        snapshot.scene?.kind === "root" &&
+        !snapshot.statusError &&
+        (await page.evaluate(() => document.body.dataset.commandExit === "0", undefined)),
     };
     const outcome = classifyBrowserOutcome(observation);
     return {

@@ -64,15 +64,33 @@ shows its `MenuBarExtra` as a navigable menu. Today both show a blank screen.
 
 ## Handoff
 
-Filled in by the worker when finishing:
-
 ```
-Branch/commit: t3/command-modes-r2 @ bc59302
-Verify: `bun run verify` — PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 90.1s.
+Branch/commit: t3/command-modes-r3 @ (this commit)
+Verify: `bun run verify` — PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 91.0s.
 Done:
-- Catalog and source launches send validated command modes; missing catalog modes default to `view`, and no-view exits return to root with HUD/toast or a finished status while preserving reported errors.
-- Browser menu-bar rendering supports sections, icons, subtitles, shortcuts, submenus, keyboard navigation, and pointer activation.
-- Added manifest and markup unit coverage, refreshed the macOS menu fixture, and kept the `browser-modes` no-view/menu-bar fixture and e2e coverage; `site:e2e` passed three consecutive runs.
-- Browser sweep regenerated: 237 commands — completed 58, rendered 106, empty 6, needs-preferences 51, network 3, runtime-error 13 (including the five restored ENOENT/module/data errors).
-Not done / risks: none observed. Sweep totals are from catalog commit `bad7de0172ce6ea5e721ed919f4e1d7186f74192`.
+- Catalog and source launches send the declared mode; missing catalog modes default to
+  `view`, unknown modes are rejected, and manifest parsing has unit tests.
+- `no-view`: a real `exit 0` returns to the root list and shows the last HUD/toast title
+  (or "<Command> finished"); a failure toast is shown as an error; a non-zero exit keeps
+  the runtime's own message; `closeMainWindow()` no longer ends the session early, so the
+  sweep only counts a real exit as `completed`; early keystrokes are dropped.
+- `menu-bar`: render.js draws title/tooltip, sections, items with icons/subtitles/shortcuts
+  and submenus; ↑/↓ move, Enter/→ activate or open, ← closes a submenu, Esc leaves from the
+  top, and pointer clicks activate the item (indexing selectable rows, not section headers).
+- New `fixtures/extensions/browser-modes` fixture: a `no-view` `showHUD` command and a
+  `menu-bar` command with a submenu whose item counts activations. `bun run site:e2e` passes
+  three consecutive runs.
+- Sweep regenerated honestly (237 commands): completed 2, rendered 105, empty 6,
+  needs-preferences 51, network 2, runtime-error 71. `rectangle/*` (41) now reports
+  "Rectangle is not installed.", MenuCloak 4 and Superwhisper 4 report their install
+  failures, and console errors are no longer hidden behind `rendered`.
+Not done / risks:
+- `showHUD` from a menu-bar item has no scene slot in the runtime (the menu root is not
+  wrapped in a Navigation/Feedback scene), so the fixture proves activation with a counter
+  instead. Adding menu-bar feedback is a separate runtime task.
+- `showHUD` inside a `menu-bar` command is therefore untested end to end.
+- The sweep's `completed` needs the no-view command to really exit; commands that never exit
+  stay `timeout`/`empty` instead of being called complete.
+- Two `completed` commands (`mise-window-sets/reload-sets`, `text-decorator/undecorate-text`)
+  exit 0 after `closeMainWindow()`; they no longer end early and their exit is real.
 ```
