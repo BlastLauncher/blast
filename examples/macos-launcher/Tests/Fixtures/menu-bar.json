@@ -26,6 +26,7 @@
     "rows": [
       {
         "disabled": true,
+        "iconLabel": "",
         "id": "3",
         "kind": "section",
         "selected": false,
@@ -35,6 +36,7 @@
       },
       {
         "disabled": false,
+        "iconLabel": "",
         "id": "2",
         "kind": "submenu",
         "selected": true,

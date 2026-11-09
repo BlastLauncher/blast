@@ -94,6 +94,8 @@ export type MenuRowView = {
   kind: "item" | "submenu" | "section";
   title: string;
   subtitle: string;
+  iconLabel: string;
+  iconTint?: string;
   shortcut: string;
   disabled: boolean;
   selected: boolean;
@@ -794,6 +796,8 @@ export function createController(options: ControllerOptions): Controller {
               kind: !row.item ? "section" : row.isSubmenu ? "submenu" : "item",
               title: row.title ?? "",
               subtitle: row.subtitle ?? "",
+              iconLabel: row.iconLabel ?? "",
+              ...(row.iconTint ? { iconTint: row.iconTint } : {}),
               shortcut: row.shortcut ?? "",
               disabled: row.disabled,
               selected: row.item && row.node.id === bar.selected?.node.id,

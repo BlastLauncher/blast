@@ -1,0 +1,15 @@
+{
+  "name": "browser-modes",
+  "commands": [
+    {
+      "name": "finish",
+      "title": "Finish Command",
+      "mode": "no-view"
+    },
+    {
+      "name": "menu",
+      "title": "Menu Command",
+      "mode": "menu-bar"
+    }
+  ]
+}

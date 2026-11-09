@@ -173,6 +173,46 @@ try {
     if ((await page.locator('iframe[data-blast="session"]').count()) !== 0)
       throw new Error("the sandbox session outlived the extension view");
 
+    // Declared no-view commands finish back at the root and retain their HUD title.
+    await page.locator("#root-search").fill("Finish Command");
+    await page.keyboard.press("Enter");
+    await page.waitForFunction(
+      () =>
+        document.querySelector("#root-search") !== null &&
+        (document.querySelector("#status")?.textContent ?? "").includes("Finished"),
+      undefined,
+      { timeout: 30_000 },
+    );
+    // Menu-bar commands draw sections, submenus and items; pointer and keyboard activate.
+    await page.locator("#root-search").fill("Menu Command");
+    await page.keyboard.press("Enter");
+    await page.locator(".menu-bar").waitFor({ timeout: 30_000 });
+    const menuText = (await page.locator(".menu-bar").textContent()) ?? "";
+    if (!menuText.includes("Actions") || !menuText.includes("Direct"))
+      throw new Error("menu-bar sections did not render");
+    // Clicking the submenu opens it; Enter activates its item.
+    await page.locator('.menu-bar button[data-menu-id]:has-text("More")').click();
+    await page.locator('.menu-bar button[data-menu-id]:has-text("Nested")').waitFor({
+      timeout: 10_000,
+    });
+    await page.keyboard.press("Enter");
+    // ← closes the submenu and stays in the command; the counter reached 1.
+    await page.keyboard.press("ArrowLeft");
+    await page
+      .locator('.menu-bar button[data-menu-id]:has-text("Clicks: 1")')
+      .waitFor({ timeout: 10_000 });
+    // A click must step over the section header and stop on the clicked item;
+    // with the header counted it would land on "Other" instead.
+    await page.locator('.menu-bar button[data-menu-id]:has-text("Clicks: 1")').click();
+    await page
+      .locator('.menu-bar button[data-menu-id]:has-text("Clicks: 2")')
+      .waitFor({ timeout: 10_000 });
+    if (!(await page.locator('.menu-bar button[data-menu-id]:has-text("Other: 0")').count()))
+      throw new Error("the click activated the wrong menu item");
+    // Esc at the top returns to the root list.
+    await page.keyboard.press("Escape");
+    await page.locator("#root-search").waitFor({ timeout: 10_000 });
+
     // Keyboard fixture: long list search, shortcut dispatch, layered Escape, detail push,
     // form focus movement/submission, and a real-duration success toast.
     await page.locator("#root-search").fill("");

@@ -63,7 +63,49 @@ test("prebuilt index round-trips extension and command preferences", () => {
         },
       ],
     },
+    modes: { holidays: "view" },
   });
+});
+
+test("prebuilt manifests preserve declared modes, default missing modes, and reject unknown modes", () => {
+  const parsed = parseBundleIndex({
+    buildSha: "abc",
+    bundles: {
+      "demo/declared": {
+        path: "bundles/demo/declared.js",
+        bytes: 1,
+        sha256: "e".repeat(64),
+        manifest: {
+          name: "demo",
+          preferences: [],
+          commands: { declared: [], implicit: [] },
+          modes: { declared: "menu-bar" },
+        },
+      },
+    },
+  });
+  expect(parsed.bundles["demo/declared"]?.manifest?.modes).toEqual({
+    declared: "menu-bar",
+    implicit: "view",
+  });
+  expect(() =>
+    parseBundleIndex({
+      buildSha: "abc",
+      bundles: {
+        "demo/bad": {
+          path: "bundles/demo/bad.js",
+          bytes: 1,
+          sha256: "e".repeat(64),
+          manifest: {
+            name: "demo",
+            preferences: [],
+            commands: { bad: [] },
+            modes: { bad: "popup" },
+          },
+        },
+      },
+    }),
+  ).toThrow("Invalid bundle manifest mode: demo/bad/bad");
 });
 
 test("prebuilt fast path requires the build, entry and digest to match", async () => {

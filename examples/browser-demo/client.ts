@@ -6,7 +6,7 @@ import {
 } from "../../packages/client-core/src/index.ts";
 import { installForBrowser } from "../../packages/host/src/browser-install.ts";
 import { bundleForBrowser } from "../../packages/host/src/browser-bundle.ts";
-import type { SceneMessage } from "../../packages/protocol/src/index.ts";
+import type { CommandMode, SceneMessage } from "../../packages/protocol/src/index.ts";
 import { aliases } from "./bundle-config.ts";
 import {
   bundleKey,
@@ -91,6 +91,7 @@ let preferenceForm:
 let preferenceFormVisible = false;
 let sessionStarting = false;
 let earlyInput = "";
+let activeMode: CommandMode = "view";
 const sessionTimers = new Set<ReturnType<typeof setTimeout>>();
 
 let extensionContext:
@@ -278,8 +279,11 @@ function processResult(result: ReturnType<Controller["input"]>) {
       args: event.args,
     });
   for (const effect of result.effects) {
-    if (effect.type === "quit") stopSession();
-    else {
+    if (effect.type === "quit") {
+      // `closeMainWindow()` requests a controller quit, but a no-view command
+      // is complete only when the runtime publishes its actual exit status.
+      if (activeMode !== "no-view") stopSession();
+    } else {
       const timer = setTimeout(() => {
         sessionTimers.delete(timer);
         const next = controller?.tick(effect.token);
@@ -300,6 +304,7 @@ function handleRuntime(
     | SceneMessage
     | { type: "ready" }
     | { type: "capability.request"; id: string; name: string; params: unknown }
+    | { type: "exit"; code: number }
     | { type: "error"; message: string },
 ) {
   if (message.type === "ready") {
@@ -346,6 +351,19 @@ function handleRuntime(
         });
         setStatus(text, true);
       });
+  } else if (message.type === "exit") {
+    if (message.code !== 0) {
+      if (!statusState.error) setStatus(`Command exited with code ${message.code}`, true);
+      return;
+    }
+    const view = controller?.view();
+    document.body.dataset.commandExit = "0";
+    const toast = view?.feedback.toast;
+    const feedbackTitle = view?.feedback.hud?.title || toast?.title;
+    stopSession(
+      feedbackTitle ? feedbackTitle : `${extensionContext?.commandTitle ?? "Command"} finished`,
+      toast?.style === "failure" || statusState.error,
+    );
   } else if (message.type === "error") setStatus(message.message, true);
 }
 
@@ -438,6 +456,7 @@ function commandEntry(files: Map<string, BrowserFile>, name: string): string {
 
 async function launch(source: string, commandName: string): Promise<void> {
   earlyInput = "";
+  delete document.body.dataset.commandExit;
   sessionStarting = true;
   rootOpen = false;
   actionOpen = false;
@@ -503,6 +522,24 @@ async function launch(source: string, commandName: string): Promise<void> {
     commandPreferenceValue,
     `Command ${selectedCommand} preferences`,
   );
+  const catalogMode = catalogSource
+    ? catalog.extensions
+        .find(
+          (catalogExtension) =>
+            catalogExtension.name === new URL(source).pathname.split("/").filter(Boolean).at(-1),
+        )
+        ?.commands.find((catalogCommand) => catalogCommand.name === selectedCommand)?.mode
+    : undefined;
+  const declaredMode = Array.isArray(commandDeclarations)
+    ? commandDeclaration && typeof commandDeclaration === "object"
+      ? (commandDeclaration as Record<string, unknown>).mode
+      : undefined
+    : undefined;
+  const modeValue = bundle?.manifest.modes?.[selectedCommand] ?? declaredMode ?? catalogMode;
+  activeMode =
+    modeValue === "no-view" || modeValue === "menu-bar" || modeValue === "model-provider"
+      ? modeValue
+      : "view";
   let preferenceStorage;
   try {
     preferenceStorage = globalThis.localStorage;
@@ -596,7 +633,7 @@ async function launch(source: string, commandName: string): Promise<void> {
           extension: String(extension.manifest.name ?? source),
           name: selectedCommand,
           entry: command,
-          mode: "view",
+          mode: activeMode,
         },
         preferences: { ...values },
         environment: {
@@ -767,7 +804,7 @@ async function acquireSandbox(): Promise<Sandbox> {
   return createSandbox("session");
 }
 
-function stopSession() {
+function stopSession(message = "Ready", error = false) {
   sessionStarting = false;
   earlyInput = "";
   for (const timer of sessionTimers) clearTimeout(timer);
@@ -779,7 +816,7 @@ function stopSession() {
   rootOpen = true;
   extensionContext = undefined;
   activeCapabilityContext = undefined;
-  setStatus("Ready");
+  setStatus(message, error);
   drawRoot();
   scheduleWarm();
 }
@@ -917,6 +954,23 @@ document.addEventListener("keydown", (event) => {
   if (modalView?.feedback.alert) return alertKey(event);
   if (modalView?.dropdown?.open) return dropdownKey(event);
   if (!rootOpen && controller) {
+    if (controller.view().kind === "menu-bar") {
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        sendInput({ type: "move", direction: "left" });
+        return;
+      }
+      if (event.key === "Escape") {
+        event.preventDefault();
+        sendInput({ type: "back" });
+        return;
+      }
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        sendInput({ type: "primary" });
+        return;
+      }
+    }
     const result = controller.input({ type: "key", key: keyInputFromEvent(event) });
     if (result.handled) {
       event.preventDefault();
@@ -1225,6 +1279,16 @@ document.addEventListener("click", (event) => {
   const rowId = target.closest<HTMLElement>("#app .rows li[data-id], #app .grid-cell[data-id]")
     ?.dataset.id;
   if (rowId !== undefined) sendInput({ type: "select", id: rowId });
+  const menuId = target.closest<HTMLElement>("[data-menu-id]")?.dataset.menuId;
+  const menuView = controller?.view().menuBar;
+  if (menuId !== undefined && menuView) {
+    const items = menuView.rows.filter((row) => row.kind !== "section");
+    const from = items.findIndex((row) => row.selected);
+    const to = items.findIndex((row) => row.id === menuId);
+    for (let step = 0; step < Math.abs(to - from); step++)
+      sendInput({ type: "move", direction: to > from ? "down" : "up" });
+    sendInput({ type: "primary" });
+  }
 });
 document.addEventListener("submit", (event) => {
   if (

@@ -1,9 +1,11 @@
 import { parsePreferences, type Preference } from "../../packages/host/src/preference-fields.ts";
+import type { CommandMode } from "../../packages/protocol/src/index.ts";
 
 export type CatalogManifest = {
   name: string;
   preferences: Preference[];
   commands: Record<string, Preference[]>;
+  modes?: Record<string, CommandMode>;
 };
 export type CatalogBundle = {
   path: string;
@@ -91,14 +93,30 @@ export function parseBundleIndex(value: unknown): BundleIndex {
       )
         throw new Error(`Invalid bundle manifest shape: ${key}`);
       const commands: Record<string, Preference[]> = {};
+      const modes: Record<string, CommandMode> = {};
+      const declaredModes = declared.modes;
+      if (declaredModes !== undefined && (!declaredModes || typeof declaredModes !== "object"))
+        throw new Error(`Invalid bundle manifest modes: ${key}`);
+      for (const [name, mode] of Object.entries((declaredModes ?? {}) as Record<string, unknown>)) {
+        if (
+          mode !== "view" &&
+          mode !== "no-view" &&
+          mode !== "menu-bar" &&
+          mode !== "model-provider"
+        )
+          throw new Error(`Invalid bundle manifest mode: ${key}/${name}`);
+        modes[name] = mode;
+      }
       for (const [name, preferences] of Object.entries(
         declared.commands as Record<string, unknown>,
       ))
         commands[name] = parsePreferences(preferences, `Bundle ${key} command ${name} preferences`);
+      for (const name of Object.keys(commands)) modes[name] ??= "view";
       manifest = {
         name: declared.name,
         preferences: parsePreferences(declared.preferences, `Bundle ${key} preferences`),
         commands,
+        ...(Object.keys(modes).length ? { modes } : {}),
       };
     }
     bundles[key] = {

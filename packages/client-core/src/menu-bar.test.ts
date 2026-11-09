@@ -20,7 +20,11 @@ const menu = (props: SceneNode["props"] = {}) =>
     [
       node("s", "MenuBarExtra.Section", { title: "Tools" }, [
         node("sub", "MenuBarExtra.Submenu", { title: "More" }, [
-          node("click", "MenuBarExtra.Item", { title: "Click", onAction: action }),
+          node("click", "MenuBarExtra.Item", {
+            title: "Click",
+            icon: "ArrowRight",
+            onAction: action,
+          }),
         ]),
         node("off", "MenuBarExtra.Item", { title: "Disabled" }),
       ]),
@@ -53,6 +57,9 @@ test("menuBarView exposes rows, the first item as selection, title and loading",
   expect(view.rows.map((row) => row.title)).toEqual(["Tools", "More", "Disabled", "Solo"]);
   expect(view.items.map((row) => row.node.id)).toEqual(["sub", "off", "solo"]);
   expect(view.selected?.node.id).toBe("sub");
+  const open = menuBarView(sceneOf(menu({ isLoading: true })), { path: ["sub"], selectedId: null });
+  expect(open.rows.find((row) => row.node.id === "click")?.iconLabel).toBe("→");
+  expect(menuRows(menu(), ["sub"])[0]?.iconLabel).toBe("→");
   expect([view.isLoading, view.title, view.tooltip]).toEqual([true, "Ready", "Status"]);
   expect(menuBarView(sceneOf(menu())).isLoading).toBe(false);
   const none = menuBarView(sceneOf(node("l", "List")));

@@ -149,6 +149,14 @@ export async function buildSite(
       title: "Browser Form",
       commands: [{ name: "index", title: "Browser Form", mode: "view" }],
     });
+    catalog.extensions.push({
+      name: "browser-modes",
+      title: "Browser Modes",
+      commands: [
+        { name: "finish", title: "Finish Command", mode: "no-view" },
+        { name: "menu", title: "Menu Command", mode: "menu-bar" },
+      ],
+    });
     for (const [name, title] of [
       ["browser-grid", "Browser Grid"],
       ["browser-feedback", "Browser Feedback"],
@@ -175,6 +183,17 @@ export async function buildSite(
       join(demo, "fixtures/hello-list/__files"),
       JSON.stringify(await relativeFiles(join(projectRoot, "fixtures/extensions/hello-list"))),
     );
+  if (options.fixtures) {
+    await cp(
+      join(projectRoot, "fixtures/extensions/browser-modes"),
+      join(demo, "fixtures/browser-modes"),
+      { recursive: true },
+    );
+    await writeFile(
+      join(demo, "fixtures/browser-modes/__files"),
+      JSON.stringify(await relativeFiles(join(projectRoot, "fixtures/extensions/browser-modes"))),
+    );
+  }
   if (options.fixtures)
     await cp(
       join(projectRoot, "fixtures/extensions/browser-storage"),

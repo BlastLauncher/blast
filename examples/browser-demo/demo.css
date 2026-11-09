@@ -82,6 +82,49 @@ input {
   margin-left: 7px;
   color: #777;
 }
+.menu-bar {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 8px 16px;
+}
+.menu-bar h2 {
+  font-size: 14px;
+  margin: 0 0 8px;
+}
+.menu-bar ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.menu-bar button {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+}
+.menu-bar button.selected,
+.menu-bar button:hover {
+  background: #3b3b45;
+}
+.menu-bar button small {
+  color: #aaa;
+  flex: 1;
+}
+.menu-bar button kbd {
+  color: #aaa;
+}
+.menu-section {
+  color: #aaa;
+  font-size: 12px;
+  padding: 10px 10px 4px;
+}
 .grid {
   flex: 1;
   min-height: 0;

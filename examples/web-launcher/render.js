@@ -191,14 +191,25 @@ export function render(view, options = {}) {
     : noRows && (view.kind === "list" || view.kind === "grid")
       ? `<p class="empty">${escapeHtml(view.emptyText || "No results")}</p>`
       : "";
+  const menu = view.menuBar
+    ? `<nav class="menu-bar" aria-label="${escapeHtml(view.menuBar.tooltip || view.menuBar.title || "Menu")}"><h2>${escapeHtml(view.menuBar.title || "Menu")}</h2><ul>${view.menuBar.rows
+        .map((row) =>
+          row.kind === "section"
+            ? `<li class="menu-section"><strong>${escapeHtml(row.title)}</strong></li>`
+            : `<li><button type="button" data-menu-id="${escapeHtml(row.id)}"${row.selected ? ' class="selected"' : ""}${row.disabled ? " disabled" : ""}><span class="menu-icon"${row.iconTint ? ` style="color:${escapeHtml(row.iconTint)}"` : ""}>${escapeHtml(row.iconLabel || "")}</span><span>${escapeHtml(row.title)}</span>${row.subtitle ? `<small>${escapeHtml(row.subtitle)}</small>` : ""}${row.shortcut ? `<kbd>${escapeHtml(row.shortcut)}</kbd>` : ""}${row.kind === "submenu" ? " ›" : ""}</button></li>`,
+        )
+        .join("")}</ul></nav>`
+    : "";
   const body =
-    view.kind === "form"
-      ? form
-      : view.kind === "detail"
-        ? detail
-        : view.kind === "grid"
-          ? `<ul class="grid">${grid}</ul>${empty}`
-          : `<ul class="rows">${rows}</ul>${empty}`;
+    view.kind === "menu-bar"
+      ? menu
+      : view.kind === "form"
+        ? form
+        : view.kind === "detail"
+          ? detail
+          : view.kind === "grid"
+            ? `<ul class="grid">${grid}</ul>${empty}`
+            : `<ul class="rows">${rows}</ul>${empty}`;
   const footer = `<footer>${statusMarkup(status)}<span class="footer-hints">${view.primary.enabled ? footerButton(view.primary.title, view.primary.shortcut || "↵", "primary") : ""}${footerButton("Actions", "⌘K", "actions")}${footerButton("Back", "Esc", "back")}</span></footer>`;
   return `<main data-kind="${escapeHtml(view.kind)}"><header>${breadcrumbMarkup(options.context)}<h1>${escapeHtml(view.title)}</h1><div class="search-line">${search}</div></header>${body}${actions}${dropdown}${footer}${toast}${hud}${alert}</main>`;
 }
