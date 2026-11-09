@@ -90,7 +90,7 @@ Raycast extensions in a browser tab, in almostnode's cross-origin sandbox (decis
 - [x] 0133–0139 preferences, focus, keyboard, shortcuts, rows, grid, dropdown, alert, HUD, form
       fields/separators, early keystrokes; sweep counts grids/forms; no-view and menu-bar modes
 - [x] 0140 Menu-bar commands show HUD, toast and alert feedback
-- [ ] 0141 Triage the six blank catalog commands
+- [x] 0141 Triage the six blank catalog commands
 
 ## Later (not scheduled)
 
