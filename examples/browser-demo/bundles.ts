@@ -1,10 +1,12 @@
 import { parsePreferences, type Preference } from "../../packages/host/src/preference-fields.ts";
 import type { CommandMode } from "../../packages/protocol/src/index.ts";
 
+export type CatalogArgument = { name: string; required: boolean };
 export type CatalogManifest = {
   name: string;
   preferences: Preference[];
   commands: Record<string, Preference[]>;
+  arguments?: Record<string, CatalogArgument[]>;
   modes?: Record<string, CommandMode>;
 };
 export type CatalogBundle = {
@@ -112,10 +114,30 @@ export function parseBundleIndex(value: unknown): BundleIndex {
       ))
         commands[name] = parsePreferences(preferences, `Bundle ${key} command ${name} preferences`);
       for (const name of Object.keys(commands)) modes[name] ??= "view";
+      const argumentsByCommand: Record<string, CatalogArgument[]> = {};
+      const declaredArguments = declared.arguments;
+      if (
+        declaredArguments !== undefined &&
+        (!declaredArguments || typeof declaredArguments !== "object")
+      )
+        throw new Error(`Invalid bundle manifest arguments: ${key}`);
+      for (const [name, argumentsFor] of Object.entries(
+        (declaredArguments ?? {}) as Record<string, unknown>,
+      )) {
+        if (!Array.isArray(argumentsFor))
+          throw new Error(`Invalid bundle manifest arguments: ${key}/${name}`);
+        argumentsByCommand[name] = argumentsFor.map((argument) => {
+          const entry = argument as Record<string, unknown> | null;
+          if (!entry || typeof entry.name !== "string" || typeof entry.required !== "boolean")
+            throw new Error(`Invalid bundle manifest argument: ${key}/${name}`);
+          return { name: entry.name, required: entry.required };
+        });
+      }
       manifest = {
         name: declared.name,
         preferences: parsePreferences(declared.preferences, `Bundle ${key} preferences`),
         commands,
+        ...(Object.keys(argumentsByCommand).length ? { arguments: argumentsByCommand } : {}),
         ...(Object.keys(modes).length ? { modes } : {}),
       };
     }

@@ -158,11 +158,13 @@ describe("browser capabilities", () => {
 
   test("metadata and same-extension launch work, cross-extension launch is denied", async () => {
     const launches: string[] = [];
+    const statuses: string[] = [];
     const handle = createBrowserCapabilities({
       catalog: catalog(),
       launchCommand: async (source, command) => {
         launches.push(`${source}:${command}`);
       },
+      status: (value) => statuses.push(value),
     });
     expect(
       await handle({ name: "command.metadata", params: { subtitle: "changed" } }, context),
@@ -174,6 +176,17 @@ describe("browser capabilities", () => {
       ),
     ).toEqual({ ok: true, value: null });
     expect(launches).toEqual(["alpha:index"]);
+    // A background launch is acknowledged without replacing the caller's
+    // foreground session; doing so lost the capability reply and left
+    // one-thing/remove-one-thing waiting forever.
+    expect(
+      await handle(
+        { name: "command.launch", params: { name: "index", type: "background" } },
+        context,
+      ),
+    ).toEqual({ ok: true, value: null });
+    expect(launches).toEqual(["alpha:index"]);
+    expect(statuses.at(-1)).toBe("Background command accepted: index");
     const denied = await handle(
       {
         name: "command.launch",
@@ -184,6 +197,15 @@ describe("browser capabilities", () => {
     expect(denied).toMatchObject({
       ok: false,
       error: { message: "The browser demo can launch commands only from the current extension" },
+    });
+    expect(
+      await handle(
+        { name: "command.launch", params: { name: "missing", type: "background" } },
+        context,
+      ),
+    ).toMatchObject({
+      ok: false,
+      error: { message: "That command is not in the browser catalog" },
     });
   });
 

@@ -291,6 +291,14 @@ export function createBrowserCapabilities(options: BrowserCapabilityOptions) {
         )
       )
         return denial("That command is not in the browser catalog");
+      // A background launch is a host request, not a second foreground session.
+      // Running it through `launchCommand` would replace the port the caller is
+      // waiting on (one-thing/remove-one-thing then never finishes), and a
+      // browser tab has no background process or menu bar to update anyway.
+      if (params.type === "background") {
+        options.status?.(`Background command accepted: ${command}`);
+        return { ok: true, value: null };
+      }
       if (!options.launchCommand)
         return denial("Command launching is unavailable in this browser session");
       await options.launchCommand(context.source, command);

@@ -26,15 +26,15 @@ The host installs only non-Raycast npm dependencies, and bundles in memory with
 iframe on a different loopback origin (decision 0013). The host owns the
 controller and renderer.
 
-| Capability                                 | Browser demo behavior                                                                             |
-| ------------------------------------------ | ------------------------------------------------------------------------------------------------- |
-| LocalStorage and internal form storage     | Backed by extension-namespaced `localStorage`, with an in-memory fallback when storage is blocked |
-| Clipboard read, copy, clear and paste      | Uses the Clipboard API when permitted; keeps a session fallback and explains that paste needs ⌘V  |
-| `open.url`                                 | Opens a new tab with `window.open`                                                                |
-| Command metadata and same-extension launch | Answered from the catalog and routed through the normal command launch path                       |
-| OAuth tokens                               | Stored per extension and provider in the browser store                                            |
-| OAuth authorization and preferences        | Denied with a browser-specific explanation                                                        |
-| Applications, selection, windows and AI    | Denied because a browser tab cannot honestly provide these host services                          |
+| Capability                                 | Browser demo behavior                                                                                                                                                              |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| LocalStorage and internal form storage     | Backed by extension-namespaced `localStorage`, with an in-memory fallback when storage is blocked                                                                                  |
+| Clipboard read, copy, clear and paste      | Uses the Clipboard API when permitted; keeps a session fallback and explains that paste needs ⌘V                                                                                   |
+| `open.url`                                 | Opens a new tab with `window.open`                                                                                                                                                 |
+| Command metadata and same-extension launch | Answered from the catalog; user-initiated launches take over the page, while background launches are accepted and recorded because a tab has no menu bar or background process     |
+| OAuth tokens                               | Stored per extension and provider in the browser store                                                                                                                             |
+| OAuth authorization and preferences        | Denied with a browser-specific explanation                                                                                                                                         |
+| Applications, selection, windows and AI    | Denied because a browser tab cannot honestly provide these host services, except `applications.list`, which answers an empty list because the demo cannot enumerate installed apps |
 
 Extension network requests still require CORS. `child_process` is unavailable in a browser and native npm modules are rejected during bundling. The demo is headless-testable, binds only to 127.0.0.1, and does not publish or persist anything.
 
