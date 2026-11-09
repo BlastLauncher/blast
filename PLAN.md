@@ -90,7 +90,7 @@ Raycast extensions in a browser tab, in almostnode's cross-origin sandbox (decis
 - [x] 0133–0137 preferences form, focus, keyboard, shortcuts, rich rows, grid, dropdown,
       alert, HUD, form fields and separators, early keystrokes
 - [x] 0138 Browser sweep counts grid cells and every form control
-- [ ] 0139 Demo runs no-view and menu-bar commands in their declared mode
+- [x] 0139 Demo runs no-view and menu-bar commands in their declared mode
 
 ## Later (not scheduled)
 
