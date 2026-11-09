@@ -67,6 +67,54 @@ test("prebuilt index round-trips extension and command preferences", () => {
   });
 });
 
+test("prebuilt manifests preserve declared launch arguments", () => {
+  const index = parseBundleIndex({
+    buildSha: "abc",
+    bundles: {
+      "pinch-svg/custom-rectangle": {
+        path: "bundles/pinch-svg/custom-rectangle.js",
+        bytes: 1,
+        sha256: "e".repeat(64),
+        manifest: {
+          name: "pinch-svg",
+          preferences: [],
+          commands: { "custom-rectangle": [] },
+          arguments: {
+            "custom-rectangle": [
+              { name: "width", required: true },
+              { name: "height", required: true },
+            ],
+          },
+        },
+      },
+    },
+  });
+  expect(
+    index.bundles["pinch-svg/custom-rectangle"]?.manifest?.arguments?.["custom-rectangle"],
+  ).toEqual([
+    { name: "width", required: true },
+    { name: "height", required: true },
+  ]);
+  expect(() =>
+    parseBundleIndex({
+      buildSha: "abc",
+      bundles: {
+        "bad/args": {
+          path: "bundles/bad/args.js",
+          bytes: 1,
+          sha256: "e".repeat(64),
+          manifest: {
+            name: "bad",
+            preferences: [],
+            commands: { args: [] },
+            arguments: { args: [{ name: "query" }] },
+          },
+        },
+      },
+    }),
+  ).toThrow("Invalid bundle manifest argument");
+});
+
 test("prebuilt manifests preserve declared modes, default missing modes, and reject unknown modes", () => {
   const parsed = parseBundleIndex({
     buildSha: "abc",

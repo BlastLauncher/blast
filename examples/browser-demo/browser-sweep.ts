@@ -3,10 +3,11 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join, relative, sep } from "node:path";
 import { buildSite } from "./site.ts";
 import { depsReady, projectRoot } from "./build.ts";
+import { bundleKey, parseBundleIndex } from "./bundles.ts";
 import { validateCatalog, type Catalog } from "./root.ts";
 
 type SweepElement = {
-  dataset?: { kind?: string };
+  dataset?: { kind?: string; loading?: string };
   textContent?: string | null;
   querySelector<T extends SweepElement = SweepElement>(selector: string): T | null;
   querySelectorAll<T extends SweepElement = SweepElement>(selector: string): ArrayLike<T>;
@@ -25,10 +26,12 @@ export const formFieldSelector = "form [data-field]";
 export const contentSelector = [
   "#app .rows li",
   `#app ${gridCellSelector}`,
-  "#app .detail",
   `#app ${formFieldSelector}`,
   "#preferences-form",
   "#app .empty strong",
+  "#app .toast",
+  "#app .hud",
+  "#app .alert",
   '#status[data-error="true"]',
   "#app .menu-bar button[data-menu-id]",
 ].join(", ");
@@ -56,11 +59,13 @@ export type BrowserObservation = {
   timedOut?: boolean;
   needsPreferences?: boolean;
   completed?: boolean;
+  missingArguments?: string[];
 };
 export type BrowserOutcome =
   | "rendered"
   | "completed"
   | "empty"
+  | "missing-arguments"
   | `capability-denied:${string}`
   | "network"
   | `runtime-error:${string}`
@@ -79,27 +84,38 @@ export function classifyBrowserOutcome(observation: BrowserObservation): Browser
   if (observation.bundleFallbackFailed) return "bundle-fallback-failed";
   const pageErrors = observation.pageErrors ?? [];
   const consoleErrors = observation.consoleErrors ?? [];
+  const scene = observation.scene;
+  // A command that already produced real content (rows, cells, a detail, form
+  // fields, menu items or its own EmptyView) is rendered even when a later
+  // request fails. Hyrule's broadSearch draws its whole local grid while every
+  // lookup 404s; that is a rendered command with noisy network, not an empty
+  // one. A client-invented "No results" placeholder does not count.
+  const content =
+    scene !== undefined &&
+    ((scene.kind !== "root" && scene.rows > 0) ||
+      scene.cells > 0 ||
+      scene.detail ||
+      scene.fields > 0 ||
+      (scene.menuRows ?? 0) > 0 ||
+      scene.hasEmptyView);
   if (
     observation.network ||
     pageErrors.some((error) => networkPattern.test(error)) ||
     consoleErrors.some((error) => networkPattern.test(error))
   )
-    return "network";
+    return content && !observation.statusError ? "rendered" : "network";
   if (observation.statusError || pageErrors.length > 0 || consoleErrors.length > 0)
     return `runtime-error:${compact(pageErrors[0] || consoleErrors[0] || observation.status || "runtime error")}`;
   if (observation.needsPreferences) return "needs-preferences";
   if (observation.completed) return "completed";
-  const scene = observation.scene;
   if (!scene) return "timeout";
-  const content =
-    (scene.kind !== "root" && scene.rows > 0) ||
-    scene.cells > 0 ||
-    scene.detail ||
-    scene.fields > 0 ||
-    (scene.menuRows ?? 0) > 0;
   if (content) return "rendered";
   if (scene.kind === "list" && scene.hasSearchBar && !scene.isLoading) return "rendered";
-  return scene.hasEmptyView ? "rendered" : "empty";
+  // A still-loading scene with nothing to show is not proof of an empty
+  // command; name the state instead of calling it empty.
+  if (scene.isLoading) return "timeout";
+  if (observation.missingArguments?.length) return "missing-arguments";
+  return "empty";
 }
 
 type CatalogCommand = {
@@ -118,6 +134,7 @@ type SweepResult = {
   pageErrors: string[];
   consoleErrors: string[];
   elapsedMs: number;
+  missingArguments?: string[];
 };
 type Report = {
   schema: 1;
@@ -153,6 +170,81 @@ type Browser = {
   close(): Promise<void>;
 };
 
+/** How long a scene must stay unchanged before it counts as settled. */
+const settleQuietMs = 700;
+/** The longest a command may take to leave its loading state. */
+const settleTimeoutMs = 15_000;
+
+type SettleState = {
+  kind: string;
+  loading: boolean;
+  content: boolean;
+  statusError: boolean;
+  signature: string;
+};
+
+/**
+ * Wait for the command's own scene rather than a fixed delay. A fast command
+ * still settles in under a second; a fetch that resolves after two seconds is
+ * allowed to produce its rows, and a failed fetch is allowed to produce its
+ * error toast before the snapshot is classified.
+ */
+async function settleScene(page: BrowserPage): Promise<SettleState> {
+  const started = performance.now();
+  let signature = "";
+  let stableSince = started;
+  let state: SettleState = {
+    kind: "",
+    loading: true,
+    content: false,
+    statusError: false,
+    signature: "",
+  };
+  while (performance.now() - started < settleTimeoutMs) {
+    state = await page.evaluate(
+      (selectors) => {
+        const sceneMain = document.querySelector("#app main[data-kind]");
+        if (!sceneMain)
+          return {
+            kind: "",
+            loading: true,
+            content: false,
+            statusError: false,
+            signature: "",
+          };
+        const kind = sceneMain.dataset?.kind ?? "";
+        const statusError = document.querySelector('#status[data-error="true"]') !== null;
+        const detail = (sceneMain.querySelector(".detail")?.textContent ?? "").trim().length > 0;
+        return {
+          kind,
+          loading: sceneMain.dataset?.loading !== "false",
+          content: document.querySelector(selectors.content) !== null || detail,
+          statusError,
+          // Text changes when rows, empty views or feedback replace a
+          // placeholder, so a slow fetch cannot be mistaken for a quiet scene.
+          signature: `${kind}|${sceneMain.textContent ?? ""}|${statusError}`,
+        };
+      },
+      { content: contentSelector },
+    );
+    const signatureNow = state.signature;
+    if (state.statusError || state.kind === "root" || state.kind === "preferences") return state;
+    if (state.kind && (state.content || !state.loading)) {
+      if (signatureNow === signature) {
+        if (performance.now() - stableSince >= settleQuietMs) return state;
+      } else {
+        signature = signatureNow;
+        stableSince = performance.now();
+      }
+    } else {
+      signature = "";
+      stableSince = performance.now();
+    }
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+  return state;
+}
+
 function serve(root: string, port: number, basePath = "/") {
   return Bun.serve({
     hostname: "127.0.0.1",
@@ -187,10 +279,32 @@ function commands(catalog: Catalog): CatalogCommand[] {
     .toSorted((a, b) => `${a.extension}:${a.command}`.localeCompare(`${b.extension}:${b.command}`));
 }
 
+/** Required launch arguments per `extension:command`, read from the built bundles. */
+function requiredArguments(
+  catalog: Catalog,
+  index: ReturnType<typeof parseBundleIndex>,
+): Map<string, string[]> {
+  const result = new Map<string, string[]>();
+  for (const extension of catalog.extensions) {
+    for (const command of extension.commands) {
+      const declared =
+        index.bundles[bundleKey(extension.name, command.name)]?.manifest?.arguments?.[
+          command.name
+        ] ?? [];
+      const missing = declared
+        .filter((argument) => argument.required)
+        .map((argument) => argument.name);
+      if (missing.length) result.set(`${extension.name}:${command.name}`, missing);
+    }
+  }
+  return result;
+}
+
 async function runCommand(
   page: BrowserPage,
   item: CatalogCommand,
   baseUrl: string,
+  missingArguments: string[],
 ): Promise<SweepResult> {
   const started = performance.now();
   const pageErrors: string[] = [];
@@ -218,17 +332,10 @@ async function runCommand(
       undefined,
       { timeout: 15_000 },
     );
-    // The controller publishes its initial empty view before the sandbox can
-    // deliver the command's first scene. Prefer a content marker, but allow
-    // genuinely empty commands a bounded settle window.
-    await Promise.race([
-      page.waitForFunction(
-        (selector) => document.querySelector(selector) !== null,
-        contentSelector,
-        { timeout: 15_000 },
-      ),
-      new Promise((resolve) => setTimeout(resolve, 2_000)),
-    ]);
+    // A fixed wait classified commands that fetch during their first render as
+    // empty (or as content before their failure toast arrived). Follow the
+    // command's own loading state and DOM quiet period instead.
+    await settleScene(page);
     const snapshot = await page.evaluate(
       (selectors) => {
         const sceneMain = document.querySelector<SweepElement>("#app main[data-kind]");
@@ -245,7 +352,7 @@ async function runCommand(
                 needsPreferences: document.querySelector("#preferences-form") !== null,
                 hasEmptyView: Boolean(sceneMain.querySelector(".empty strong")),
                 hasSearchBar: Boolean(sceneMain.querySelector("#search")),
-                isLoading: sceneMain.querySelector("[data-loading='true']") !== null,
+                isLoading: sceneMain.dataset?.loading === "true",
               }
             : undefined,
           needsPreferences: document.querySelector("#preferences-form") !== null,
@@ -269,6 +376,7 @@ async function runCommand(
       ...(capability ? { capability } : {}),
       network,
       bundleFallbackFailed: bundleFallbackFailed && snapshot.statusError,
+      ...(missingArguments.length ? { missingArguments } : {}),
       completed:
         item.mode === "no-view" &&
         snapshot.scene?.kind === "root" &&
@@ -282,6 +390,7 @@ async function runCommand(
       ...(snapshot.status ? { status: snapshot.status } : {}),
       pageErrors,
       consoleErrors,
+      ...(missingArguments.length ? { missingArguments } : {}),
       elapsedMs: Math.round(performance.now() - started),
     };
   } catch (error) {
@@ -371,13 +480,17 @@ async function main() {
     const catalog = validateCatalog(
       JSON.parse(await readFile(join(projectRoot, "examples/browser-demo/catalog.json"), "utf8")),
     );
+    const index = parseBundleIndex(
+      JSON.parse(await readFile(join(built.www, "demo/bundles.json"), "utf8")),
+    );
+    const required = requiredArguments(catalog, index);
     const items = commands(catalog);
     const results: SweepResult[] = [];
     let next = 0;
     const worker = async () => {
       while (true) {
-        const index = next++;
-        if (index >= items.length) return;
+        const position = next++;
+        if (position >= items.length) return;
         const page = await browser.newPage({
           colorScheme: "dark",
           viewport: { width: 1280, height: 800 },
@@ -390,7 +503,14 @@ async function main() {
             });
             window.open = (() => null) as typeof window.open;
           });
-          results.push(await runCommand(page, items[index]!, `http://127.0.0.1:${wwwPort}`));
+          results.push(
+            await runCommand(
+              page,
+              items[position]!,
+              `http://127.0.0.1:${wwwPort}`,
+              required.get(`${items[position]!.extension}:${items[position]!.command}`) ?? [],
+            ),
+          );
         } finally {
           await page.close();
         }

@@ -34,6 +34,16 @@ test("error status renders with the footer error style", () => {
   expect(html).toContain("Failed");
 });
 
+test("extension and root scenes expose whether the command is still loading", () => {
+  expect(render({ ...view, loading: true } as unknown as Parameters<typeof render>[0])).toContain(
+    'data-loading="true" aria-busy="true"',
+  );
+  expect(render({ ...view, loading: false } as unknown as Parameters<typeof render>[0])).toContain(
+    'data-loading="false" aria-busy="false"',
+  );
+  expect(renderRoot([], -1, "")).toContain('data-loading="false"');
+});
+
 test("an empty list shows the extension EmptyView, else a neutral hint", () => {
   const withEmptyView = render(view);
   expect(withEmptyView).toContain("Nothing here");

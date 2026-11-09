@@ -38,16 +38,16 @@ found on the way is fixed with a test.
 
 ## Acceptance
 
-- [ ] Each of the six commands is investigated and its final outcome (rendered,
+- [x] Each of the six commands is investigated and its final outcome (rendered,
       runtime-error, network, capability-denied, or a justified empty) is listed in
       Handoff with a one-line cause.
-- [ ] `one-thing/remove-one-thing` no longer sits in "Starting…": either it
+- [x] `one-thing/remove-one-thing` no longer sits in "Starting…": either it
       completes, errors, or times out with a typed reason, and the fix has a test.
-- [ ] Any engine/client bug found is fixed in the shared packages (not patched
+- [x] Any engine/client bug found is fixed in the shared packages (not patched
       per extension) with a test, and no previously rendered command regresses.
-- [ ] `compat/browser-sweep.json` and `compat/BROWSER-SWEEP.md` are regenerated
+- [x] `compat/browser-sweep.json` and `compat/BROWSER-SWEEP.md` are regenerated
       by `bun run site:sweep:browser`; Handoff lists the new totals.
-- [ ] `bun run verify` passes.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -61,8 +61,19 @@ found on the way is fixed with a test.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/blank-commands @ <sha>
+Verify: <summary line of bun run verify>
 Done:
+- anilist-airing-schedule/index -> rendered: AniList's GraphQL endpoint allows CORS; the old fixed 2 s settle snapshotted before the 50-cell fetch finished.
+- appgrid/index -> empty (justified): the browser answers applications.list with [] because a tab cannot enumerate installed apps, so the Grid shows its own "No results" state; a denial would regress rectangle/index.
+- leetcode/daily-challenge -> network: leetcode.com/graphql fails its CORS preflight; the old content marker counted the empty <article class="detail"> as content and snapshotted at 381 ms, before useFetch's failure toast.
+- one-thing/show-one-thing -> empty (justified): a menu-bar command returns null when Cache has no "onething"; the sandbox starts with an empty cache so the empty menu bar is correct.
+- one-thing/remove-one-thing -> completed ("Removed One Thing"): its background launchCommand used to run a second foreground launch, which replaced the page's capability port and controller so the no-view promise never settled; background launches are now accepted/recorded in the browser client instead.
+- pinch-svg/custom-rectangle -> missing-arguments (width, height): the sweep supplies no launch arguments, so the command renders nothing and shows "Invalid Input"; bundle manifests now carry argument declarations and the sweep names that state.
+- Added missing-arguments and a loading-timeout outcome; the settle now follows data-loading and DOM quiet instead of a fixed 2 s, and real content wins over incidental network errors.
 Not done / risks:
+- Background command launches are recorded, not executed: a browser tab has no menu bar or background process, so show-one-thing is not run after remove/set.
+- gradle-plugins/index moved rendered -> network: it now waits long enough to see the CORS failure and never leaves isLoading; it has no content to regress.
+- input-source-switcher/index's runtime-error text changed from "Selection is unavailable…" to "No text selected" because the settle now catches the extension's own validation; it was already runtime-error.
+- compat totals: completed 3, empty 2, missing-arguments 1, needs-preferences 51, network 4, rendered 104, runtime-error 72 (237 records).
 ```

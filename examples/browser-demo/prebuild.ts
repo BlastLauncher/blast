@@ -164,6 +164,7 @@ globalThis.__blastModules = { react, "react/jsx-runtime": jsxRuntime, "react/jsx
         `${extension.name} preferences`,
       );
       const manifestCommands: Record<string, ReturnType<typeof parsePreferences>> = {};
+      const manifestArguments: Record<string, Array<{ name: string; required: boolean }>> = {};
       const manifestModes: Record<
         string,
         import("../../packages/protocol/src/index.ts").CommandMode
@@ -175,6 +176,17 @@ globalThis.__blastModules = { react, "react/jsx-runtime": jsxRuntime, "react/jsx
             declaration.preferences,
             `${extension.name}/${declaration.name} preferences`,
           );
+          const declaredArguments = Array.isArray(declaration.arguments)
+            ? declaration.arguments
+            : [];
+          const argumentsForCommand = declaredArguments.flatMap((argument) => {
+            if (!argument || typeof argument !== "object") return [];
+            const entry = argument as Record<string, unknown>;
+            return typeof entry.name === "string"
+              ? [{ name: entry.name, required: entry.required === true }]
+              : [];
+          });
+          if (argumentsForCommand.length) manifestArguments[declaration.name] = argumentsForCommand;
           const mode = declaration.mode;
           manifestModes[declaration.name] =
             mode === "no-view" || mode === "menu-bar" || mode === "model-provider" ? mode : "view";
@@ -184,6 +196,7 @@ globalThis.__blastModules = { react, "react/jsx-runtime": jsxRuntime, "react/jsx
         name: manifestName,
         preferences: manifestPreferences,
         commands: manifestCommands,
+        ...(Object.keys(manifestArguments).length ? { arguments: manifestArguments } : {}),
         modes: manifestModes,
       };
       const lockfile = files.get("/package-lock.json");

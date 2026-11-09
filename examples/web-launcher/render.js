@@ -211,7 +211,7 @@ export function render(view, options = {}) {
             ? `<ul class="grid">${grid}</ul>${empty}`
             : `<ul class="rows">${rows}</ul>${empty}`;
   const footer = `<footer>${statusMarkup(status)}<span class="footer-hints">${view.primary.enabled ? footerButton(view.primary.title, view.primary.shortcut || "↵", "primary") : ""}${footerButton("Actions", "⌘K", "actions")}${footerButton("Back", "Esc", "back")}</span></footer>`;
-  return `<main data-kind="${escapeHtml(view.kind)}"><header>${breadcrumbMarkup(options.context)}<h1>${escapeHtml(view.title)}</h1><div class="search-line">${search}</div></header>${body}${actions}${dropdown}${footer}${toast}${hud}${alert}</main>`;
+  return `<main data-kind="${escapeHtml(view.kind)}" data-loading="${view.loading ? "true" : "false"}" aria-busy="${view.loading ? "true" : "false"}"><header>${breadcrumbMarkup(options.context)}<h1>${escapeHtml(view.title)}</h1><div class="search-line">${search}</div></header>${body}${actions}${dropdown}${footer}${toast}${hud}${alert}</main>`;
 }
 
 /** @param {import("../browser-demo/root.ts").RootRow[]} rows @param {number} selected @param {string} query @param {{open?: boolean, query?: string, actions?: import("../browser-demo/root.ts").RootAction[], selected?: number, toast?: string, status?: FooterStatus}} [panel] */
@@ -237,7 +237,7 @@ export function renderRoot(rows, selected, query, panel = {}) {
     ? `<span role="status" class="root-toast">${escapeHtml(panel.toast)}</span>`
     : "";
   const status = panel.status ?? { text: "Ready" };
-  return `<main class="root" data-kind="root"><header><h1>Blast</h1><input id="root-search" value="${escapeHtml(query)}" placeholder="Search extension commands…" aria-label="Search extension commands" role="combobox" aria-controls="root-options" aria-activedescendant="${selected >= 0 ? `root-option-${selected}` : ""}" autocomplete="off" autofocus></header><ul id="root-options" class="rows root-options" role="listbox" aria-label="Extension commands">${options}</ul>${rows.length === 0 ? '<p class="empty">No matching commands</p>' : ""}<footer>${statusMarkup(status)}<span class="footer-hints">${footerButton("Run Command", "↵", "primary")}${footerButton("Actions", "⌘K", "actions")}${status.error ? footerButton("Back", "Esc", "back") : ""}</span>${toast}</footer>${actionPanel}</main>`;
+  return `<main class="root" data-kind="root" data-loading="false"><header><h1>Blast</h1><input id="root-search" value="${escapeHtml(query)}" placeholder="Search extension commands…" aria-label="Search extension commands" role="combobox" aria-controls="root-options" aria-activedescendant="${selected >= 0 ? `root-option-${selected}` : ""}" autocomplete="off" autofocus></header><ul id="root-options" class="rows root-options" role="listbox" aria-label="Extension commands">${options}</ul>${rows.length === 0 ? '<p class="empty">No matching commands</p>' : ""}<footer>${statusMarkup(status)}<span class="footer-hints">${footerButton("Run Command", "↵", "primary")}${footerButton("Actions", "⌘K", "actions")}${status.error ? footerButton("Back", "Esc", "back") : ""}</span>${toast}</footer>${actionPanel}</main>`;
 }
 
 /** @param {import("../../packages/host/src/preference-fields.ts").Preference[]} fields @param {Record<string, unknown>} values @param {string} title @param {string[]} unavailable */
