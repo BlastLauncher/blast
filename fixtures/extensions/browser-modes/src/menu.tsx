@@ -1,4 +1,4 @@
-import { MenuBarExtra } from "@raycast/api";
+import { MenuBarExtra, Toast, confirmAlert, showHUD, showToast } from "@raycast/api";
 import { useState } from "react";
 
 // Counters make activation observable: activating an item re-renders the menu,
@@ -22,6 +22,19 @@ export default function menu() {
         <MenuBarExtra.Item
           title={`Other: ${other}`}
           onAction={() => setOther((count) => count + 1)}
+        />
+      </MenuBarExtra.Section>
+      <MenuBarExtra.Section title="Feedback">
+        <MenuBarExtra.Item title="Show HUD" onAction={() => void showHUD("Menu HUD")} />
+        <MenuBarExtra.Item
+          title="Failure toast"
+          onAction={() =>
+            void showToast({ title: "Menu toast", message: "failed", style: Toast.Style.Failure })
+          }
+        />
+        <MenuBarExtra.Item
+          title="Ask"
+          onAction={() => void confirmAlert({ title: "Menu alert", message: "From the menu" })}
         />
       </MenuBarExtra.Section>
     </MenuBarExtra>

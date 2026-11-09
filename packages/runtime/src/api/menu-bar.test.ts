@@ -1,7 +1,8 @@
 import { expect, test } from "bun:test";
 import { createElement as h } from "react";
 import { createSceneRoot, type SceneSnapshot } from "../reconciler/index.ts";
-import { MenuBarExtra } from "./index.ts";
+import { Toast, MenuBarExtra, confirmAlert, showHUD, showToast } from "./index.ts";
+import { NavigationProvider } from "./navigation.ts";
 
 // @covers MenuBarExtra
 // @covers MenuBarExtra.Props
@@ -111,6 +112,90 @@ test("all menu props serialize, alternates are slots, and clicks reach the origi
   root.render(h(MenuBarExtra));
   expect(scene!.root!.props.isLoading).toBe(false);
   expect(warnings).toEqual([]);
+  root.unmount();
+});
+
+test("feedback from menu items publishes next to the menu, not instead of it", async () => {
+  let scene: SceneSnapshot;
+  let hudDone!: Promise<void>;
+  let toastDone!: Promise<unknown>;
+  let alertDone!: Promise<boolean>;
+  const root = createSceneRoot({
+    publish: (next) => {
+      scene = next;
+    },
+  });
+  root.render(
+    h(NavigationProvider, {
+      children: h(
+        MenuBarExtra,
+        { title: "Feedback" },
+        h(MenuBarExtra.Item, {
+          title: "HUD",
+          onAction: () => {
+            hudDone = showHUD("Menu HUD");
+          },
+        }),
+        h(MenuBarExtra.Item, {
+          title: "Toast",
+          onAction: () => {
+            toastDone = showToast({
+              title: "Menu toast",
+              message: "Broken",
+              style: Toast.Style.Failure,
+            });
+          },
+        }),
+        h(MenuBarExtra.Item, {
+          title: "Alert",
+          onAction: () => {
+            alertDone = confirmAlert({ title: "Menu alert", message: "Still there?" });
+          },
+        }),
+      ),
+    }),
+  );
+  const menu = () => {
+    expect(scene!.root?.type).toBe("Navigation");
+    const entry = scene!.root!.children.find(
+      (child) => child.type === "Navigation.Entry" && child.props.active === true,
+    );
+    return entry?.children[0];
+  };
+  const feedback = () => scene!.root!.children.filter((child) => child.type !== "Navigation.Entry");
+  for (const title of ["HUD", "Toast", "Alert"]) {
+    const item = menu()!.children.find((child) => child.props.title === title)!;
+    root.dispatch(item.id, (item.props.onAction as { $handler: string }).$handler, [
+      { type: "left-click" },
+    ]);
+    root.flush();
+    // Each feedback call republished the scene with the menu still active.
+    expect(menu()?.type).toBe("MenuBarExtra");
+    expect(menu()?.props).toMatchObject({ title: "Feedback", isLoading: false });
+  }
+  expect(
+    feedback()
+      .map((node) => node.type)
+      .toSorted(),
+  ).toEqual(["Alert", "HUD", "Toast"]);
+  expect(feedback().find((node) => node.type === "HUD")?.props.title).toBe("Menu HUD");
+  expect(feedback().find((node) => node.type === "Toast")?.props).toMatchObject({
+    title: "Menu toast",
+    style: "FAILURE",
+  });
+  await hudDone;
+  await toastDone;
+  // Answer the alert so its promise settles and nothing queues for the next test.
+  const alert = feedback().find((node) => node.type === "Alert")!;
+  const confirm = alert.children.find((child) => child.props.name === "primaryAction")!;
+  root.dispatch(confirm.id, (confirm.props.onAction as { $handler: string }).$handler, []);
+  root.flush();
+  expect(await alertDone).toBe(true);
+  expect(
+    feedback()
+      .map((node) => node.type)
+      .toSorted(),
+  ).toEqual(["HUD", "Toast"]);
   root.unmount();
 });
 

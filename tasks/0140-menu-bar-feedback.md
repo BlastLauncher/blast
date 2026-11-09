@@ -57,8 +57,15 @@ keeps working.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/menu-bar-feedback @ <sha>
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 81.7s
 Done:
+- Menu-bar commands now render under `NavigationProvider` in `packages/runtime/src/core.ts`; the active `Navigation.Entry` still holds `MenuBarExtra`, so menu navigation is unchanged while `FeedbackScene` and the window-request store mount.
+- Added a runtime unit test that dispatches HUD, failure Toast and Alert menu actions and asserts each feedback node is a sibling of the menu; extended the process-level menu fixture/test with `showHUD`.
+- The `browser-modes` menu fixture exposes HUD, failure-toast and alert actions; `site:e2e` asserts each beside the open menu and passed three consecutive runs.
+- Updated the CLI tree expectation and decision 0005, architecture and TUI docs for the Navigation root.
 Not done / risks:
+- Menu-bar background refresh (`interval`), `LaunchType.Background`, a persistent menu-bar strip and the blank catalog commands (0141) stay out of scope.
+- The TUI needed no code or test change: `app.tsx` already renders `view.feedback` in the footer (and alerts over the menu); `packages/tui/src/menu-bar.test.tsx` and `app.test.tsx` pass.
+- `closeMainWindow`/`popToRoot` use the same Navigation scene node as view commands; no new menu-specific test covers them, existing window/navigation tests still pass.
 ```

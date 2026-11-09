@@ -42,7 +42,7 @@ extension code (unmodified, bundled)
 
 ## Scene conventions
 
-View commands have a `Navigation` root with ordered `Navigation.Entry` children.
+View and menu-bar commands have a `Navigation` root with ordered `Navigation.Entry` children.
 Only the active entry exposes view contents and handlers; covered views stay
 mounted. `Navigation.props.pop` requests back above depth one (decision 0003),
 and `props.popToRoot` records the options of the latest `popToRoot()` call —

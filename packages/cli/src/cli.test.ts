@@ -731,7 +731,10 @@ test("menu-bar trees print and action dispatches a left-click to nested items", 
   expect(result.stdout).toContain('MenuBarExtra.Section "Tools"');
   expect(result.stdout).toContain('MenuBarExtra.Submenu "More"');
   expect(result.stdout).toContain('MenuBarExtra.Item "Click" [onAction]');
-  expect(result.stdout).not.toContain("Navigation");
+  // The menu is the active entry, like view commands, so feedback has a home.
+  expect(result.stdout).toContain(
+    'Navigation depth=1\n  Navigation.Entry active=true\n    MenuBarExtra "Ready"',
+  );
 }, 30_000);
 
 test("command metadata is recorded and printed without a grant", async () => {

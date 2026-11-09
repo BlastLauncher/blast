@@ -209,6 +209,27 @@ try {
       .waitFor({ timeout: 10_000 });
     if (!(await page.locator('.menu-bar button[data-menu-id]:has-text("Other: 0")').count()))
       throw new Error("the click activated the wrong menu item");
+    // Feedback from a menu item draws next to the menu, which stays open.
+    await page.locator('.menu-bar button[data-menu-id]:has-text("Show HUD")').click();
+    await page.locator(".hud").waitFor({ timeout: 10_000 });
+    if ((await page.locator(".hud").textContent()) !== "Menu HUD")
+      throw new Error(`unexpected menu HUD: ${await page.locator(".hud").textContent()}`);
+    if ((await page.locator(".menu-bar").count()) !== 1)
+      throw new Error("the menu disappeared after showHUD");
+    await page.locator('.menu-bar button[data-menu-id]:has-text("Failure toast")').click();
+    await page.locator('.toast[data-style="failure"]').waitFor({ timeout: 10_000 });
+    if (!(await page.locator(".toast").textContent())?.includes("Menu toast"))
+      throw new Error(`unexpected menu toast: ${await page.locator(".toast").textContent()}`);
+    if ((await page.locator(".menu-bar").count()) !== 1)
+      throw new Error("the menu disappeared after the failure toast");
+    await page.locator('.menu-bar button[data-menu-id]:has-text("Ask")').click();
+    await page.locator(".alert").waitFor({ timeout: 10_000 });
+    if ((await page.locator(".menu-bar").count()) !== 1)
+      throw new Error("the menu disappeared behind the alert");
+    await page.locator('[data-alert="confirm"]').click();
+    await page.locator(".alert").waitFor({ state: "detached", timeout: 10_000 });
+    if ((await page.locator(".menu-bar").count()) !== 1)
+      throw new Error("the menu did not survive answering its alert");
     // Esc at the top returns to the root list.
     await page.keyboard.press("Escape");
     await page.locator("#root-search").waitFor({ timeout: 10_000 });
