@@ -1,7 +1,7 @@
 ---
 id: "0140"
 title: Menu-bar commands show HUD, toast and alert feedback
-status: todo
+status: doing
 milestone: M8
 depends: []
 ---
