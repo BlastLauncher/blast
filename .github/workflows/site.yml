@@ -101,7 +101,9 @@ jobs:
 
   smoke:
     needs: [pages, sandbox]
-    runs-on: ubuntu-latest
+    # Playwright 1.58 does not support ubuntu-26.04 yet; keep this job on 24.04
+    # until `npx playwright install --with-deps chromium` accepts latest.
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     permissions:
       contents: read
