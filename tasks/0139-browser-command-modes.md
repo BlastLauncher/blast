@@ -78,10 +78,13 @@ Done:
   and submenus; ↑/↓ move, Enter/→ activate or open, ← closes a submenu, Esc leaves from the
   top, and pointer clicks activate the item (indexing selectable rows, not section headers).
 - New `fixtures/extensions/browser-modes` fixture: a `no-view` `showHUD` command and a
-  `menu-bar` command with a submenu whose item counts activations. `bun run site:e2e` passes
-  three consecutive runs.
-- Sweep regenerated honestly (237 commands): completed 2, rendered 105, empty 6,
-  needs-preferences 51, network 2, runtime-error 71. `rectangle/*` (41) now reports
+  `menu-bar` command with two sections, a submenu and two counter items; clicking the
+  second item has to skip a section header, so the click-indexing bug fails the test.
+  `bun run site:e2e` passes three consecutive runs.
+- `bundle-fallback-failed` is checked before the runtime-error branch again, with a test
+  that includes the status and console error a real 404 produces.
+- Sweep regenerated honestly (237 commands): completed 2, rendered 104, empty 6,
+  needs-preferences 51, network 2, runtime-error 72. `rectangle/*` (41) now reports
   "Rectangle is not installed.", MenuCloak 4 and Superwhisper 4 report their install
   failures, and console errors are no longer hidden behind `rendered`.
 Not done / risks:

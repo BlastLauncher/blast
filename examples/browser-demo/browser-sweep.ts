@@ -76,6 +76,7 @@ const networkPattern =
 export function classifyBrowserOutcome(observation: BrowserObservation): BrowserOutcome {
   if (observation.timedOut) return "timeout";
   if (observation.capability) return `capability-denied:${observation.capability}`;
+  if (observation.bundleFallbackFailed) return "bundle-fallback-failed";
   const pageErrors = observation.pageErrors ?? [];
   const consoleErrors = observation.consoleErrors ?? [];
   if (
@@ -86,7 +87,6 @@ export function classifyBrowserOutcome(observation: BrowserObservation): Browser
     return "network";
   if (observation.statusError || pageErrors.length > 0 || consoleErrors.length > 0)
     return `runtime-error:${compact(pageErrors[0] || consoleErrors[0] || observation.status || "runtime error")}`;
-  if (observation.bundleFallbackFailed) return "bundle-fallback-failed";
   if (observation.needsPreferences) return "needs-preferences";
   if (observation.completed) return "completed";
   const scene = observation.scene;

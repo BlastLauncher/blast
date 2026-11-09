@@ -131,7 +131,14 @@ describe("classifyBrowserOutcome", () => {
     );
   });
   test("classifies bundle fallback failure and timeout", () => {
-    expect(classifyBrowserOutcome({ bundleFallbackFailed: true })).toBe("bundle-fallback-failed");
+    expect(
+      classifyBrowserOutcome({
+        bundleFallbackFailed: true,
+        statusError: true,
+        status: "Failed to load bundle",
+        consoleErrors: ["Failed to load resource: 404"],
+      }),
+    ).toBe("bundle-fallback-failed");
     expect(classifyBrowserOutcome({ timedOut: true })).toBe("timeout");
   });
   test("classifies a preference form", () => {
