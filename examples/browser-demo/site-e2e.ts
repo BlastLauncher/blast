@@ -190,7 +190,7 @@ try {
     const menuText = (await page.locator(".menu-bar").textContent()) ?? "";
     if (!menuText.includes("Actions") || !menuText.includes("Direct"))
       throw new Error("menu-bar sections did not render");
-    // Enter opens the submenu and activates its item.
+    // Clicking the submenu opens it; Enter activates its item.
     await page.locator('.menu-bar button[data-menu-id]:has-text("More")').click();
     await page.locator('.menu-bar button[data-menu-id]:has-text("Nested")').waitFor({
       timeout: 10_000,

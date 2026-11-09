@@ -96,4 +96,6 @@ Not done / risks:
   stay `timeout`/`empty` instead of being called complete.
 - Two `completed` commands (`mise-window-sets/reload-sets`, `text-decorator/undecorate-text`)
   exit 0 after `closeMainWindow()`; they no longer end early and their exit is real.
+- Network-dependent commands are not fully repeatable: `uk-bank-holidays/index` flipped
+  between `rendered` and `runtime-error:Unexpected end of JSON input` across runs.
 ```
