@@ -57,8 +57,8 @@ keeps working.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit: t3/menu-bar-feedback @ <sha>
-Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 81.7s
+Branch/commit: t3/menu-bar-feedback @ 19a36db
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 95.9s
 Done:
 - Menu-bar commands now render under `NavigationProvider` in `packages/runtime/src/core.ts`; the active `Navigation.Entry` still holds `MenuBarExtra`, so menu navigation is unchanged while `FeedbackScene` and the window-request store mount.
 - Added a runtime unit test that dispatches HUD, failure Toast and Alert menu actions and asserts each feedback node is a sibling of the menu; extended the process-level menu fixture/test with `showHUD`.
