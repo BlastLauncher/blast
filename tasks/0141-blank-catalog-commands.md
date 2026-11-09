@@ -61,8 +61,8 @@ found on the way is fixed with a test.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit: t3/blank-commands @ <sha>
-Verify: <summary line of bun run verify>
+Branch/commit: t3/blank-commands @ d89ef21
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 85.5s
 Done:
 - anilist-airing-schedule/index -> rendered: AniList's GraphQL endpoint allows CORS; the old fixed 2 s settle snapshotted before the 50-cell fetch finished.
 - appgrid/index -> empty (justified): the browser answers applications.list with [] because a tab cannot enumerate installed apps, so the Grid shows its own "No results" state; a denial would regress rectangle/index.
