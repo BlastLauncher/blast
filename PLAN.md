@@ -87,10 +87,10 @@ Raycast extensions in a browser tab, in almostnode's cross-origin sandbox (decis
 - [x] 0115–0119 spike, runtime core, browser bundle, installer, demo by URL (`examples/browser-*`)
 - [x] 0120–0127 root list, site, deploy (blast.yukai.dev), prebuilt bundles, warm sandbox
 - [x] 0128–0132 capabilities, sweep, cmdk matching, sandbox gaps, lazy load: 34 → 138/237
-- [x] 0133–0137 preferences form, focus, keyboard, shortcuts, rich rows, grid, dropdown,
-      alert, HUD, form fields and separators, early keystrokes
-- [x] 0138 Browser sweep counts grid cells and every form control
-- [x] 0139 Demo runs no-view and menu-bar commands in their declared mode
+- [x] 0133–0139 preferences, focus, keyboard, shortcuts, rows, grid, dropdown, alert, HUD, form
+      fields/separators, early keystrokes; sweep counts grids/forms; no-view and menu-bar modes
+- [ ] 0140 Menu-bar commands show HUD, toast and alert feedback
+- [ ] 0141 Triage the six blank catalog commands
 
 ## Later (not scheduled)
 
