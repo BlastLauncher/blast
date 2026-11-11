@@ -7,6 +7,17 @@ declare module "esbuild-wasm" {
   export function build(options: object): Promise<BuildResult>;
 }
 
+declare module "react/jsx-runtime" {
+  export const jsx: (...args: unknown[]) => unknown;
+  export const jsxs: (...args: unknown[]) => unknown;
+  export const Fragment: unknown;
+}
+declare namespace JSX {
+  interface IntrinsicElements {
+    [element: string]: Record<string, unknown>;
+  }
+}
+
 declare module "playwright" {
   export type ConsoleMessage = { type(): string; text(): string };
   export type PageError = { message: string };
@@ -30,6 +41,7 @@ declare module "playwright" {
     innerText(): Promise<string>;
     textContent(): Promise<string | null>;
     click(): Promise<void>;
+    getAttribute(name: string): Promise<string | null>;
   };
   export const chromium: {
     launch(options: { headless: boolean }): Promise<Browser>;
@@ -69,4 +81,9 @@ declare module "playwright" {
     getByText(text: RegExp | string): Locator;
     keyboard: { press(key: string): Promise<void>; type(text: string): Promise<void> };
   };
+}
+
+declare module "react-dom/client" {
+  export type Root = { render(node: unknown): void; unmount(): void };
+  export function createRoot(element: HTMLElement): Root;
 }

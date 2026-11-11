@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { buildBrowserAssets, projectRoot, relativeFiles } from "./build.ts";
 import { prebuildCatalog } from "./prebuild.ts";
 import { demoPage } from "./template.ts";
-import type { Catalog } from "./root.ts";
+import { enrichCatalog, type Catalog, type SweepResult } from "./root.ts";
 
 export type SiteOptions = {
   siteOrigin: string;
@@ -123,6 +123,17 @@ export async function buildSite(
   const catalog = JSON.parse(
     await readFile(join(projectRoot, "examples/browser-demo/catalog.json"), "utf8"),
   ) as Catalog;
+  // Keep tab incompatibilities as generated catalog metadata so the launcher
+  // can explain them without coupling to extension names.
+  try {
+    const sweep = JSON.parse(
+      await readFile(join(projectRoot, "compat/browser-sweep.json"), "utf8"),
+    ) as { results?: SweepResult[] };
+    Object.assign(catalog, enrichCatalog(catalog, sweep.results ?? []));
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    // Local development can build from a slim checkout without sweep output.
+  }
   if (options.fixtures) {
     catalog.extensions.push({
       name: "hello-list",

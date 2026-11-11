@@ -1,6 +1,13 @@
 import { commandScore } from "./cmdk-score.ts";
 
-export type CatalogCommand = { name: string; title: string; subtitle?: string; mode: string };
+export type CatalogCommand = {
+  name: string;
+  title: string;
+  subtitle?: string;
+  mode: string;
+  unavailable?: "macos" | "setup";
+  outcome?: string;
+};
 export type CatalogExtension = {
   name: string;
   title: string;
@@ -20,6 +27,8 @@ export type RootRow = {
   command: string;
   url?: string;
   githubUrl?: string;
+  unavailable?: "macos" | "setup";
+  outcome?: string;
 };
 
 export type RootActionId = "run" | "github" | "copy";
@@ -29,7 +38,42 @@ export type RootActionResult =
   | { type: "open"; url: string }
   | { type: "copy"; url: string };
 
-const curated = new Set(["ratio-calculator", "hello-list", "weather", "github", "calendar"]);
+export const curated = new Set(["ratio-calculator", "hello-list", "weather", "github", "calendar"]);
+
+export type SweepResult = { extension?: string; command?: string; outcome?: string };
+
+/** Add generated browser-compatibility badges without coupling the catalog to names. */
+export function enrichCatalog(catalog: Catalog, results: SweepResult[]): Catalog {
+  const unavailable = new Map<string, "macos" | "setup">();
+  for (const result of results) {
+    if (!result.extension || !result.command) continue;
+    if (result.outcome === "needs-preferences") {
+      unavailable.set(`${result.extension}:${result.command}`, "setup");
+      continue;
+    }
+    const message = result.outcome?.replace(/^runtime-error:\s*/i, "") ?? "";
+    if (/is not installed|unavailable in a browser tab|Applications are unavailable/i.test(message))
+      unavailable.set(`${result.extension}:${result.command}`, "macos");
+  }
+  return {
+    ...catalog,
+    extensions: catalog.extensions.map((extension) => ({
+      ...extension,
+      commands: extension.commands.map((command) => {
+        const result = results.find(
+          (candidate) =>
+            candidate.extension === extension.name && candidate.command === command.name,
+        );
+        const value = unavailable.get(`${extension.name}:${command.name}`);
+        return {
+          ...command,
+          ...(result?.outcome ? { outcome: result.outcome } : {}),
+          ...(value ? { unavailable: value } : {}),
+        };
+      }),
+    })),
+  };
+}
 
 export function validateCatalog(value: unknown): Catalog {
   if (!value || typeof value !== "object") throw new Error("Invalid browser catalog");
@@ -54,10 +98,16 @@ export function validateCatalog(value: unknown): Catalog {
         typeof commandValue.mode !== "string"
       )
         throw new Error("Invalid catalog command shape");
+      const unavailable: "macos" | "setup" | undefined =
+        commandValue.unavailable === "macos" || commandValue.unavailable === "setup"
+          ? commandValue.unavailable
+          : undefined;
       return {
         name: commandValue.name,
         title: commandValue.title,
         mode: commandValue.mode,
+        ...(unavailable ? { unavailable } : {}),
+        ...(typeof commandValue.outcome === "string" ? { outcome: commandValue.outcome } : {}),
         ...(typeof commandValue.subtitle === "string" ? { subtitle: commandValue.subtitle } : {}),
       };
     });
@@ -86,7 +136,10 @@ function row(extension: CatalogExtension, command: CatalogCommand, commit: strin
           iconUrl: `https://raw.githubusercontent.com/raycast/extensions/${commit}/extensions/${extension.name}/assets/${extension.icon}`,
         }
       : {}),
-    accessory: "Command",
+    accessory:
+      command.mode === "no-view" ? "No View" : command.mode === "menu-bar" ? "Menu Bar" : "Command",
+    ...(command.unavailable ? { unavailable: command.unavailable } : {}),
+    ...(command.outcome ? { outcome: command.outcome } : {}),
     extension: extension.name,
     command: command.name,
     githubUrl: `https://github.com/raycast/extensions/tree/${commit}/extensions/${extension.name}`,
@@ -123,12 +176,21 @@ export function rootRows(catalog: Catalog, query: string): RootRow[] {
   );
   const search = query.trim();
   if (!search) return suggestions(indexed.map((entry) => entry.row));
+  const words = search.split(/\s+/u).filter(Boolean);
   return indexed
     .map((entry) => ({
       row: entry.row,
       value: commandScore(entry.row.title, search, entry.keywords),
+      matches:
+        words.length === 1
+          ? commandScore(entry.row.title, search, entry.keywords) > 0
+          : words.every((word) =>
+              entry.keywords.some((keyword) =>
+                keyword.toLocaleLowerCase().includes(word.toLocaleLowerCase()),
+              ),
+            ),
     }))
-    .filter((entry) => entry.value > 0)
+    .filter((entry) => entry.matches && entry.value > 0)
     .toSorted(
       (a, b) =>
         b.value - a.value ||
@@ -155,7 +217,7 @@ export function rootModel(catalog: Catalog, query: string, selected: number, url
         githubUrl: candidate,
       } satisfies RootRow)
     : undefined;
-  const visible = urlRow ? [urlRow, ...rows] : rows;
+  const visible: RootRow[] = urlRow ? [urlRow, ...rows] : rows;
   return {
     rows: visible,
     selected: visible.length === 0 ? -1 : Math.max(0, Math.min(selected, visible.length - 1)),
