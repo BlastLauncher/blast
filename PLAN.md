@@ -90,7 +90,7 @@ Raycast extensions in a browser tab, in almostnode's cross-origin sandbox (decis
 - [x] 0133–0139 preferences, focus, keyboard, shortcuts, rows, grid, dropdown, alert, HUD, form
       fields/separators, early keystrokes; sweep counts grids/forms; no-view and menu-bar modes
 - [x] 0140–0141 menu-bar feedback; blank catalog commands triaged
-- [x] 0142 Firefox launches (port handshake, staged timeouts, Firefox e2e lane)
+- [x] 0142 Firefox launches; 0143 cmdk root launcher (sections, recent, badges, ⌘K, loader)
 
 ## Later (not scheduled)
 
