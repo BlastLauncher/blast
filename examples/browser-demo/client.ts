@@ -475,7 +475,10 @@ function commandEntry(files: Map<string, BrowserFile>, name: string): string {
 }
 
 async function launch(source: string, commandName: string): Promise<void> {
+  const previousStage = launchStage;
+  launchStage = undefined;
   const generation = launchGenerations.next();
+  previousStage?.resolve();
   const stillCurrent = () => launchGenerations.isCurrent(generation);
   earlyInput = "";
   delete document.body.dataset.commandExit;
@@ -716,7 +719,7 @@ async function launch(source: string, commandName: string): Promise<void> {
   try {
     await withLaunchTimeout(firstScene, 30_000, "waiting for first scene");
   } finally {
-    if (launchStage?.generation === generation) launchStage = undefined;
+    if (launchGenerations.isCurrent(generation)) launchStage = undefined;
   }
 }
 
