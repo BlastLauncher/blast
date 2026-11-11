@@ -42,6 +42,8 @@ import {
 import { statusError, statusForStage, statusInfo, type DemoStatus } from "./status.ts";
 import { applyEarlyKey, applyEarlyPaste, keyInputFromEvent } from "./keyboard.ts";
 import { escapeHtml } from "../web-launcher/render.js";
+import { BrowserLaunchTimeoutError, withLaunchTimeout } from "./launch.ts";
+import { acceptsRuntimePortRequest } from "./runtime-port.ts";
 
 type FileMap = Record<string, string>;
 type BrowserFile = string | Uint8Array;
@@ -607,16 +609,29 @@ async function launch(source: string, commandName: string): Promise<void> {
   port = channel.port1;
   port.start();
   port.addEventListener("message", (event) => handleRuntime(event.data));
+  let transferred = false;
+  const transferPort = (event: MessageEvent) => {
+    if (!acceptsRuntimePortRequest(event.source, runtimeFrame, transferred, event.data)) return;
+    transferred = true;
+    window.removeEventListener("message", transferPort);
+    runtimeFrame?.postMessage({ type: "blast-port" }, "*", [channel.port2]);
+  };
+  window.addEventListener("message", transferPort);
   try {
     await active.runtime.execute(
       `${bundled.code}\nmodule.exports = null;`,
       `${assetsPath}/bundle.cjs`,
     );
   } catch (error) {
+    window.removeEventListener("message", transferPort);
     setStatus(`Runtime failed: ${String(error)}`, true);
     return;
   }
-  setTimeout(() => runtimeFrame?.postMessage({ type: "blast-port" }, "*", [channel.port2]), 100);
+  if (!transferred) {
+    window.removeEventListener("message", transferPort);
+    setStatus("Runtime did not request a message port", true);
+    return;
+  }
   const commandTitle =
     extensionContext?.commandTitle ?? catalogCommandTitle(catalog, source, selectedCommand);
   controller = createController({
@@ -835,7 +850,15 @@ function runSelected() {
   const source =
     selected.url ??
     `https://github.com/raycast/extensions/tree/${catalog.commit}/extensions/${selected.extension}`;
-  void launch(source, selected.command).catch((error) => setStatus(String(error), true));
+  void withLaunchTimeout(launch(source, selected.command), 30_000).catch((error: unknown) => {
+    const message =
+      error instanceof BrowserLaunchTimeoutError
+        ? "Command startup timed out"
+        : error instanceof Error
+          ? error.message
+          : String(error);
+    stopSession(message, true);
+  });
 }
 
 function runAction() {

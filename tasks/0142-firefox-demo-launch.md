@@ -62,8 +62,12 @@ way.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/firefox-demo-launch @ 8baf3eb
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 80.9s
 Done:
-Not done / risks:
+- Replaced the fixed 100 ms runtime-port transfer with a request/response handshake, fixing the Firefox startup race in shared demo/runtime code.
+- Added a typed 30 s browser launch timeout and focused unit tests for the handshake and timeout error.
+- Added `--browser chromium|firefox` to the site e2e harness; Chromium remains the default and Firefox covers the fixture and Nano Snake catalog launch.
+- Added a dedicated Ubuntu 24.04 Firefox CI job that installs only Firefox.
+Not done / risks: Firefox runs a focused startup lane because the broader interaction assertions assume macOS keyboard semantics; Chromium retains the full interaction suite.
 ```

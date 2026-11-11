@@ -34,6 +34,9 @@ declare module "playwright" {
   export const chromium: {
     launch(options: { headless: boolean }): Promise<Browser>;
   };
+  export const firefox: {
+    launch(options: { headless: boolean }): Promise<Browser>;
+  };
   export type Browser = {
     newPage(options?: {
       colorScheme?: "dark" | "light";
