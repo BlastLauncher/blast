@@ -23,8 +23,14 @@ declare const document: BrowserDocument;
 
 const browsers = process.env.PLAYWRIGHT_BROWSERS_PATH;
 if (!browsers) throw new Error("PLAYWRIGHT_BROWSERS_PATH is required");
+const browserName = process.argv.slice(2).find((value) => value === "--browser")
+  ? process.argv[process.argv.indexOf("--browser") + 1]
+  : "chromium";
+if (browserName !== "chromium" && browserName !== "firefox")
+  throw new Error(`unsupported browser: ${browserName}`);
 const wwwPort = 4175;
 const sandboxPort = 4176;
+const firefoxLaneDone = Symbol("firefox lane done");
 const result = await buildSite({
   siteOrigin: `http://127.0.0.1:${wwwPort}`,
   sandboxUrl: `http://127.0.0.1:${sandboxPort}/blast-sandbox/`,
@@ -52,10 +58,10 @@ function serve(root: string, basePath = "/") {
 const www = serve(result.www),
   sandbox = serve(result.sandbox, "/blast-sandbox/");
 try {
-  const { chromium } = (await import(
+  const { chromium, firefox } = (await import(
     join(projectRoot, ".cache/browser-demo/deps/node_modules/playwright/index.mjs")
   )) as typeof import("playwright");
-  const browser = await chromium.launch({ headless: true });
+  const browser = await (browserName === "firefox" ? firefox : chromium).launch({ headless: true });
   try {
     const page = await browser.newPage();
     const resources: string[] = [];
@@ -128,8 +134,17 @@ try {
     await page.locator("#root-search").fill("hello-list");
     await page.keyboard.press("Enter");
     await page
-      .locator("#app #search")
-      .waitFor({ timeout: 30_000 })
+      .waitForFunction(
+        () => {
+          const app = document.querySelector("#app");
+          return (
+            (app?.textContent ?? "").includes("banana") &&
+            document.querySelector("#status")?.getAttribute?.("data-error") !== "true"
+          );
+        },
+        undefined,
+        { timeout: 30_000 },
+      )
       .catch(async (error) => {
         throw new Error(
           `${error} status=${await page.locator("#status").textContent()} app=${await page.locator("#app").innerText()}`,
@@ -234,6 +249,26 @@ try {
     await page.keyboard.press("Escape");
     await page.locator("#root-search").waitFor({ timeout: 10_000 });
 
+    if (browserName === "firefox") {
+      // Firefox has a different native keyboard platform, so its lane focuses on
+      // the startup regression and a real catalog command.
+      await page.locator("#root-search").fill("Play Nano Snake");
+      await page.keyboard.press("Enter");
+      await page.waitForFunction(
+        () => {
+          const text = document.querySelector("#app")?.textContent ?? "";
+          return (
+            /Score:|GAME OVER|controls|arrow keys/i.test(text) &&
+            document.querySelector("#status")?.getAttribute?.("data-error") !== "true"
+          );
+        },
+        undefined,
+        { timeout: 30_000 },
+      );
+      if ((await page.locator("#status").textContent()) === "Starting…")
+        throw new Error("Nano Snake remained in Starting state in Firefox");
+      throw firefoxLaneDone;
+    }
     // Keyboard fixture: long list search, shortcut dispatch, layered Escape, detail push,
     // form focus movement/submission, and a real-duration success toast.
     await page.locator("#root-search").fill("");
@@ -625,10 +660,14 @@ try {
     console.log(
       JSON.stringify({
         pass: true,
+        browser: browserName,
         site: `http://127.0.0.1:${wwwPort}/`,
         sandbox: `http://127.0.0.1:${sandboxPort}/blast-sandbox/`,
       }),
     );
+  } catch (error) {
+    if (error !== firefoxLaneDone) throw error;
+    console.log(JSON.stringify({ pass: true, browser: browserName }));
   } finally {
     await browser.close();
   }
