@@ -1,7 +1,7 @@
 ---
 id: "0143"
 title: Demo root list is a cmdk launcher
-status: todo
+status: doing
 milestone: M8
 depends: ["0142"]
 ---
