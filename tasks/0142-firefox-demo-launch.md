@@ -62,12 +62,16 @@ way.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit: t3/firefox-demo-launch @ f189243
-Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 80.9s
+Branch/commit: t3/firefox-demo-launch-fixes @ 30c2fc1
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 89.0s
 Done:
 - Replaced the fixed 100 ms runtime-port transfer with a request/response handshake, fixing the Firefox startup race in shared demo/runtime code.
-- Added a typed 30 s browser launch timeout and focused unit tests for the handshake and timeout error.
+- Scoped typed startup timeouts to runtime port and first-scene stages, preserving slow dependency fetch/install/bundle launches.
+- Added launch generations so stale asynchronous launches cannot update a newer session or the root list, with focused unit tests for timeout stages and invalidation.
 - Added `--browser chromium|firefox` to the site e2e harness; Chromium remains the default and Firefox covers the fixture and Nano Snake catalog launch.
 - Added a dedicated Ubuntu 24.04 Firefox CI job that installs only Firefox.
 Not done / risks: Firefox runs a focused startup lane because the broader interaction assertions assume macOS keyboard semantics; Chromium retains the full interaction suite.
+E2E:
+- `{"pass":true,"browser":"chromium","site":"http://127.0.0.1:4175/","sandbox":"http://127.0.0.1:4176/blast-sandbox/"}`
+- `{"pass":true,"browser":"firefox"}`
 ```

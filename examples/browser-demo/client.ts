@@ -42,7 +42,7 @@ import {
 import { statusError, statusForStage, statusInfo, type DemoStatus } from "./status.ts";
 import { applyEarlyKey, applyEarlyPaste, keyInputFromEvent } from "./keyboard.ts";
 import { escapeHtml } from "../web-launcher/render.js";
-import { BrowserLaunchTimeoutError, withLaunchTimeout } from "./launch.ts";
+import { BrowserLaunchTimeoutError, createLaunchGeneration, withLaunchTimeout } from "./launch.ts";
 import { acceptsRuntimePortRequest } from "./runtime-port.ts";
 
 type FileMap = Record<string, string>;
@@ -94,6 +94,10 @@ let preferenceFormVisible = false;
 let sessionStarting = false;
 let earlyInput = "";
 let activeMode: CommandMode = "view";
+const launchGenerations = createLaunchGeneration();
+let launchStage:
+  | { generation: number; resolve: () => void; reject: (error: unknown) => void }
+  | undefined;
 const sessionTimers = new Set<ReturnType<typeof setTimeout>>();
 
 let extensionContext:
@@ -301,7 +305,16 @@ const githubApiPath = (path: string) =>
     .map((part) => encodeURIComponent(part))
     .join("/");
 
+function settleLaunchStage(generation: number, error?: unknown) {
+  if (launchStage?.generation !== generation) return;
+  const stage = launchStage;
+  launchStage = undefined;
+  if (error === undefined) stage.resolve();
+  else stage.reject(error);
+}
+
 function handleRuntime(
+  generation: number,
   message:
     | SceneMessage
     | { type: "ready" }
@@ -309,6 +322,7 @@ function handleRuntime(
     | { type: "exit"; code: number }
     | { type: "error"; message: string },
 ) {
+  if (!launchGenerations.isCurrent(generation)) return;
   if (message.type === "ready") {
     setStatus("Ready");
   } else if (message.type === "scene") {
@@ -321,6 +335,7 @@ function handleRuntime(
     const pending = earlyInput;
     earlyInput = "";
     sessionStarting = false;
+    settleLaunchStage(generation);
     const canFlush =
       pending.length > 0 &&
       (view.kind === "list" || view.kind === "grid") &&
@@ -340,10 +355,12 @@ function handleRuntime(
     if (!browserCapabilities || !activeCapabilityContext) return;
     void browserCapabilities(message, activeCapabilityContext)
       .then((result) => {
+        if (!launchGenerations.isCurrent(generation)) return;
         port?.postMessage({ type: "capability.result", id: message.id, ...result });
         if (!result.ok) setStatus(result.error.message, true);
       })
       .catch((error) => {
+        if (!launchGenerations.isCurrent(generation)) return;
         const text = error instanceof Error ? error.message : String(error);
         port?.postMessage({
           type: "capability.result",
@@ -354,6 +371,7 @@ function handleRuntime(
         setStatus(text, true);
       });
   } else if (message.type === "exit") {
+    if (message.code === 0) settleLaunchStage(generation);
     if (message.code !== 0) {
       if (!statusState.error) setStatus(`Command exited with code ${message.code}`, true);
       return;
@@ -457,6 +475,8 @@ function commandEntry(files: Map<string, BrowserFile>, name: string): string {
 }
 
 async function launch(source: string, commandName: string): Promise<void> {
+  const generation = launchGenerations.next();
+  const stillCurrent = () => launchGenerations.isCurrent(generation);
   earlyInput = "";
   delete document.body.dataset.commandExit;
   sessionStarting = true;
@@ -474,6 +494,7 @@ async function launch(source: string, commandName: string): Promise<void> {
   const selectedCommand = commandName || commandSelect?.value || "index";
   const catalogSource = source.startsWith("https://github.com/raycast/extensions/tree/");
   const bundle = catalogSource ? await prebuiltBundle(source, selectedCommand) : undefined;
+  if (!stillCurrent()) return;
   let extension: Awaited<ReturnType<typeof fetchFiles>>;
   let command: string;
   let bundled: { code: string; files?: Map<string, BrowserFile> };
@@ -485,7 +506,9 @@ async function launch(source: string, commandName: string): Promise<void> {
   } else {
     setStatus("Fetching extension…");
     extension = await fetchFiles(source);
+    if (!stillCurrent()) return;
     const sourceFiles = (await (await fetch(asset("blast-sources.json"))).json()) as FileMap;
+    if (!stillCurrent()) return;
     const files = new Map<string, BrowserFile>(Object.entries(sourceFiles));
     for (const [path, value] of extension.files) files.set(path, value);
     command = commandEntry(extension.files, selectedCommand);
@@ -495,11 +518,13 @@ async function launch(source: string, commandName: string): Promise<void> {
       manifest: extension.manifest,
       ...(extension.lockfile === undefined ? {} : { lockfile: extension.lockfile }),
     });
+    if (!stillCurrent()) return;
     setStatus("Bundling…");
     if (!esbuildReady) {
       await esbuild.initialize({ wasmURL: asset("esbuild.wasm"), worker: false });
       esbuildReady = true;
     }
+    if (!stillCurrent()) return;
     bundled = await bundleForBrowser({
       esbuild,
       files,
@@ -508,6 +533,7 @@ async function launch(source: string, commandName: string): Promise<void> {
       runtimeEntry: "/examples/browser-demo/runtime-entry.ts",
       aliases,
     });
+    if (!stillCurrent()) return;
   }
   const preferenceFieldsRaw = (extension.manifest.preferences as unknown[] | undefined) ?? [];
   const commandDeclarations = extension.manifest.commands;
@@ -580,6 +606,7 @@ async function launch(source: string, commandName: string): Promise<void> {
     source,
   };
   const active = await acquireSandbox();
+  if (!stillCurrent()) return;
   const extensionName = String(extension.manifest.name ?? source);
   const pathSegment = extensionName.replace(/[^A-Za-z0-9._-]/gu, "_") || "extension";
   const supportPath = `/blast/support/${pathSegment}`;
@@ -608,38 +635,58 @@ async function launch(source: string, commandName: string): Promise<void> {
   const channel = new MessageChannel();
   port = channel.port1;
   port.start();
-  port.addEventListener("message", (event) => handleRuntime(event.data));
+  port.addEventListener("message", (event) => handleRuntime(generation, event.data));
   let transferred = false;
+  let resolvePort!: () => void;
+  let rejectPort!: (error: unknown) => void;
+  const portReady = new Promise<void>((resolve, reject) => {
+    resolvePort = resolve;
+    rejectPort = reject;
+  });
   const transferPort = (event: MessageEvent) => {
+    if (!stillCurrent()) return;
     if (!acceptsRuntimePortRequest(event.source, runtimeFrame, transferred, event.data)) return;
     transferred = true;
     window.removeEventListener("message", transferPort);
     runtimeFrame?.postMessage({ type: "blast-port" }, "*", [channel.port2]);
+    resolvePort();
   };
   window.addEventListener("message", transferPort);
   try {
-    await active.runtime.execute(
-      `${bundled.code}\nmodule.exports = null;`,
-      `${assetsPath}/bundle.cjs`,
+    await withLaunchTimeout(
+      (async () => {
+        await active.runtime.execute(
+          `${bundled.code}\nmodule.exports = null;`,
+          `${assetsPath}/bundle.cjs`,
+        );
+        if (!stillCurrent()) return;
+        await portReady;
+      })(),
+      30_000,
+      "waiting for runtime port",
     );
   } catch (error) {
     window.removeEventListener("message", transferPort);
-    setStatus(`Runtime failed: ${String(error)}`, true);
-    return;
+    rejectPort(error);
+    if (!stillCurrent()) return;
+    if (error instanceof BrowserLaunchTimeoutError) throw error;
+    throw new Error(`Runtime failed: ${String(error)}`, { cause: error });
   }
-  if (!transferred) {
-    window.removeEventListener("message", transferPort);
-    setStatus("Runtime did not request a message port", true);
-    return;
-  }
+  if (!stillCurrent() || !transferred) return;
   const commandTitle =
     extensionContext?.commandTitle ?? catalogCommandTitle(catalog, source, selectedCommand);
   controller = createController({
     platform: "macOS",
     ...(commandTitle ? { fallbackTitle: commandTitle } : {}),
   });
-  controller.subscribe(draw);
-  setTimeout(
+  const launchController = controller;
+  controller.subscribe((view) => {
+    if (stillCurrent() && controller === launchController && !rootOpen) draw(view);
+  });
+  const firstScene = new Promise<void>((resolve, reject) => {
+    launchStage = { generation, resolve, reject };
+  });
+  const initTimer = setTimeout(
     () =>
       port?.postMessage({
         type: "init",
@@ -664,7 +711,13 @@ async function launch(source: string, commandName: string): Promise<void> {
       }),
     250,
   );
+  sessionTimers.add(initTimer);
   setStatus("Starting…");
+  try {
+    await withLaunchTimeout(firstScene, 30_000, "waiting for first scene");
+  } finally {
+    if (launchStage?.generation === generation) launchStage = undefined;
+  }
 }
 
 async function loadBundleIndex() {
@@ -820,6 +873,10 @@ async function acquireSandbox(): Promise<Sandbox> {
 }
 
 function stopSession(message = "Ready", error = false) {
+  const pendingStage = launchStage;
+  launchStage = undefined;
+  launchGenerations.next();
+  pendingStage?.resolve();
   sessionStarting = false;
   earlyInput = "";
   for (const timer of sessionTimers) clearTimeout(timer);
@@ -850,10 +907,10 @@ function runSelected() {
   const source =
     selected.url ??
     `https://github.com/raycast/extensions/tree/${catalog.commit}/extensions/${selected.extension}`;
-  void withLaunchTimeout(launch(source, selected.command), 30_000).catch((error: unknown) => {
+  void launch(source, selected.command).catch((error: unknown) => {
     const message =
       error instanceof BrowserLaunchTimeoutError
-        ? "Command startup timed out"
+        ? error.message
         : error instanceof Error
           ? error.message
           : String(error);

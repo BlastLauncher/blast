@@ -134,8 +134,17 @@ try {
     await page.locator("#root-search").fill("hello-list");
     await page.keyboard.press("Enter");
     await page
-      .locator("#app #search")
-      .waitFor({ timeout: 30_000 })
+      .waitForFunction(
+        () => {
+          const app = document.querySelector("#app");
+          return (
+            (app?.textContent ?? "").includes("banana") &&
+            document.querySelector("#status")?.getAttribute?.("data-error") !== "true"
+          );
+        },
+        undefined,
+        { timeout: 30_000 },
+      )
       .catch(async (error) => {
         throw new Error(
           `${error} status=${await page.locator("#status").textContent()} app=${await page.locator("#app").innerText()}`,
@@ -245,11 +254,13 @@ try {
       // the startup regression and a real catalog command.
       await page.locator("#root-search").fill("Play Nano Snake");
       await page.keyboard.press("Enter");
-      await page.locator("#app #search").waitFor({ timeout: 30_000 });
       await page.waitForFunction(
         () => {
           const text = document.querySelector("#app")?.textContent ?? "";
-          return !text.includes("Starting…") && document.querySelector("#app main") !== null;
+          return (
+            /Score:|GAME OVER|controls|arrow keys/i.test(text) &&
+            document.querySelector("#status")?.getAttribute?.("data-error") !== "true"
+          );
         },
         undefined,
         { timeout: 30_000 },
