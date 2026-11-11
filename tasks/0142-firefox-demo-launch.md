@@ -1,7 +1,7 @@
 ---
 id: "0142"
 title: Demo commands launch in Firefox
-status: todo
+status: doing
 milestone: M8
 depends: ["0141"]
 ---
