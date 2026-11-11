@@ -81,13 +81,13 @@ search, and clear loading and unavailable states.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit: t3/cmdk-root-launcher @ HEAD (final commit reported below)
-Verify: `bun run verify` completed all gates but the full suite hit the documented heavy-load timeout in `packages/host/src/bundle.test.ts` (`engine deadlines inherit through handles and launch overrides win`); isolated rerun passed: `1 pass, 0 fail`.
+Branch/commit: t3/fix-cmdk-launcher-round2 @ a27cfdec8fd0d8e1efaaa445314e9b75b7d116f2
+Verify: `bun run verify` completed format, lint, typecheck, compat, protocol, fixtures and workflow; the full suite hit the documented heavy-load timeout in `packages/host/src/bundle.test.ts` (`engine deadlines inherit through handles and launch overrides win`). Isolated rerun hit the same 5-second deadline under load.
 Done:
 - Replaced the root HTML list with a React 19 cmdk launcher using Command, Input, List, Group, Item and Empty.
 - Added recent, suggestions and commands sections, localStorage persistence, multi-word matching, command mode accessories and generated sweep badges.
 - Preserved staged launch status and generation/port handshake behavior, with an icon and stage-aware loading view.
-- Updated responsive/light-dark launcher styling and added the multi-word search regression test.
-- Chromium e2e passed; Firefox e2e passed in the Playwright v1.58.0 Noble container; browser sweep completed 237 commands in 86.8s.
-Not done / risks: Full verify should be rerun on a less-loaded host to clear the known 5-second bundle test deadline; no product failure reproduced in the isolated test.
+- Updated responsive/light-dark launcher styling, action popover, generated badges and enrichment tests.
+- Browser sweep completed 237 commands in 74.6s; totals remain rendered 104, completed 3, network 4, empty 2, missing-arguments 1, needs-preferences 51, runtime-error 72.
+Not done / risks: Chromium e2e still reports the pre-existing selected-option visibility check after 30 moves; Firefox lane and requested screenshot capture were not completed in this round. Full verify should be rerun on a less-loaded host to clear the known 5-second bundle test deadline.
 ```

@@ -41,6 +41,7 @@ import {
   type RootActionId,
   type RootRow,
 } from "./root.ts";
+import { curated } from "./root.ts";
 import { statusError, statusForStage, statusInfo, type DemoStatus } from "./status.ts";
 import { applyEarlyKey, applyEarlyPaste, keyInputFromEvent } from "./keyboard.ts";
 import { escapeHtml } from "../web-launcher/render.js";
@@ -181,7 +182,7 @@ const drawStarting = () => {
   const icon = extensionContext?.iconUrl
     ? `<img src="${escapeHtml(extensionContext.iconUrl)}" alt="" width="28" height="28">`
     : escapeHtml(extensionContext?.icon ?? "⌘");
-  app.innerHTML = `<main data-kind="list" data-loading="true" aria-busy="true"><header><div class="breadcrumb"><span class="breadcrumb-icon">${icon}</span><span>${escapeHtml(extensionContext?.extensionTitle ?? "Extension")}</span><span class="breadcrumb-separator">›</span><span>${escapeHtml(extensionContext?.commandTitle ?? "Command")}</span></div><h1>Loading command</h1><div class="search-line"><input id="search" data-starting="true" value="${escapeHtml(earlyInput)}" placeholder="Search…" aria-label="Search" readonly></div></header><p class="empty"><span class="status-spinner" aria-hidden="true"></span> ${escapeHtml(statusState.text)}</p><footer>${escapeHtml(statusState.text)}</footer></main>`;
+  app.innerHTML = `<main data-kind="list" data-loading="true" aria-busy="true"><header><div class="breadcrumb"><span class="breadcrumb-icon">${icon}</span><span>${escapeHtml(extensionContext?.extensionTitle ?? "Extension")}</span><span class="breadcrumb-separator">›</span><span>${escapeHtml(extensionContext?.commandTitle ?? "Command")}</span></div><h1>Loading command</h1><div class="search-line"><input id="search" data-starting="true" value="${escapeHtml(earlyInput)}" placeholder="Search…" aria-label="Search" readonly></div></header><section class="loading-stage"><span class="loading-icon">${icon}</span><strong>${escapeHtml(extensionContext?.commandTitle ?? "Command")}</strong><span class="status-spinner" aria-hidden="true"></span><span>${escapeHtml(statusState.text)}</span></section><footer><span id="status" role="status" data-error="${statusState.error ? "true" : "false"}"><span class="status-spinner" aria-hidden="true"></span>${escapeHtml(statusState.text)}</span></footer></main>`;
 };
 const draw = (view: ReturnType<Controller["view"]>) => {
   const active = document.activeElement as HTMLInputElement | null;
@@ -253,23 +254,18 @@ const drawRoot = () => {
   );
   rootRows = model.rows;
   rootSelected = model.selected;
-  const allRows =
-    rootRows === model.rows && !rootQuery.trim()
-      ? rootRows
-      : rootRows.length
-        ? rootRows
-        : rootModel(catalog, "", 0).rows;
+  const allRows = rootQuery.trim() ? rootModel(catalog, "", 0).rows : rootRows;
   const recent = allRows
     .filter((row) => recentIds.includes(row.id))
     .toSorted((a, b) => recentIds.indexOf(a.id) - recentIds.indexOf(b.id))
     .slice(0, 5);
   const suggested = allRows
-    .filter(
-      (row) =>
-        !recent.includes(row) &&
-        ["ratio-calculator", "hello-list", "weather", "github", "calendar"].includes(row.extension),
-    )
+    .filter((row) => !recent.includes(row) && curated.has(row.extension))
     .slice(0, 5);
+  for (const row of allRows) {
+    if (suggested.length >= 5) break;
+    if (!recent.includes(row) && !suggested.includes(row)) suggested.push(row);
+  }
   const commandRows = allRows.filter((row) => !recent.includes(row) && !suggested.includes(row));
   const actions = rootActionModel(
     rootRows[rootSelected] ?? rootRows[0],
@@ -277,98 +273,62 @@ const drawRoot = () => {
     actionSelected,
   );
   actionSelected = actions.selected;
-  if (!rootRenderer)
-    rootRenderer = mountRoot(app, {
-      query: rootQuery,
-      selected: rootSelected,
-      rows: rootRows,
-      sections: [
-        { title: "Recent", rows: recent },
-        { title: "Suggestions", rows: suggested },
-        { title: "Commands", rows: commandRows },
-      ],
-      actions: actions.actions,
-      actionOpen,
-      actionQuery,
-      actionSelected,
-      status: statusState,
-      toast: rootToast,
-      onQuery: (query) => {
-        rootQuery = query;
-        rootSelected = 0;
-        drawRoot();
-      },
-      onSelect: (id) => {
-        const index = rootRows.findIndex((row) => row.id === id);
-        if (index >= 0) {
-          rootSelected = index;
-          runSelected();
-        }
-      },
-      onHighlight: (id) => {
-        const index = rootRows.findIndex((row) => row.id === id);
-        if (index >= 0) rootSelected = index;
-      },
-      onActionQuery: (query) => {
-        actionQuery = query;
-        actionSelected = 0;
-        drawRoot();
-      },
-      onAction: (id) => {
-        const action = actions.actions.find((item) => item.id === id);
-        if (action) {
-          actionSelected = actions.actions.indexOf(action);
-          runAction();
-        }
-      },
-      onFooter: runFooter,
-    });
-  else
-    updateRoot(rootRenderer, {
-      query: rootQuery,
-      selected: rootSelected,
-      rows: rootRows,
-      sections: [
-        { title: "Recent", rows: recent },
-        { title: "Suggestions", rows: suggested },
-        { title: "Commands", rows: commandRows },
-      ],
-      actions: actions.actions,
-      actionOpen,
-      actionQuery,
-      actionSelected,
-      status: statusState,
-      toast: rootToast,
-      onQuery: (query) => {
-        rootQuery = query;
-        rootSelected = 0;
-        drawRoot();
-      },
-      onSelect: (id) => {
-        const index = rootRows.findIndex((row) => row.id === id);
-        if (index >= 0) {
-          rootSelected = index;
-          runSelected();
-        }
-      },
-      onHighlight: (id) => {
-        const index = rootRows.findIndex((row) => row.id === id);
-        if (index >= 0) rootSelected = index;
-      },
-      onActionQuery: (query) => {
-        actionQuery = query;
-        actionSelected = 0;
-        drawRoot();
-      },
-      onAction: (id) => {
-        const action = actions.actions.find((item) => item.id === id);
-        if (action) {
-          actionSelected = actions.actions.indexOf(action);
-          runAction();
-        }
-      },
-      onFooter: runFooter,
-    });
+  const props = {
+    query: rootQuery,
+    selected: rootSelected,
+    rows: rootRows,
+    sections: [
+      { title: "Recent", rows: recent },
+      { title: "Suggestions", rows: suggested },
+      { title: "Commands", rows: commandRows },
+    ].filter((section) => section.rows.length),
+    actions: actions.actions,
+    actionOpen,
+    actionQuery,
+    actionSelected,
+    status: statusState,
+    toast: rootToast,
+    onQuery: (query) => {
+      rootQuery = query;
+      rootSelected = 0;
+      drawRoot();
+    },
+    onSelect: (id) => {
+      const index = rootRows.findIndex((row) => row.id === id);
+      if (index >= 0) {
+        rootSelected = index;
+        runSelected();
+      }
+    },
+    onHighlight: (id) => {
+      const index = rootRows.findIndex((row) => row.id === id);
+      if (index >= 0) rootSelected = index;
+    },
+    onActionQuery: (query) => {
+      actionQuery = query;
+      actionSelected = 0;
+      drawRoot();
+    },
+    onActionHighlight: (id: string) => {
+      const index = actions.actions.findIndex((action) => action.id === id);
+      if (index >= 0) actionSelected = index;
+    },
+    onAction: (id) => {
+      const action = actions.actions.find((item) => item.id === id);
+      if (action) {
+        actionSelected = actions.actions.indexOf(action);
+        runAction();
+      }
+    },
+    onFooter: runFooter,
+  } satisfies Parameters<typeof mountRoot>[1];
+  if (!rootRenderer) rootRenderer = mountRoot(app, props);
+  else updateRoot(rootRenderer, props);
+  requestAnimationFrame(() => {
+    const selected = document.querySelector<HTMLElement>('.root-item[aria-selected="true"]');
+    const list = document.querySelector<HTMLElement>(".root-options");
+    if (selected && list) selected.scrollIntoView({ block: "nearest" });
+  });
 };
 
 function drawPreferences(scope: "extension" | "command" = "command") {

@@ -76,6 +76,7 @@ try {
     await page.getByRole("heading", { name: "Extensions, outside the launcher." }).waitFor();
     await page.getByRole("link", { name: "Open the browser demo" }).click();
     await page.locator("#root-search").waitFor();
+    await page.evaluate(() => localStorage.clear());
     // The root list warms the sandbox ahead of the first command open.
     await page.waitForFunction(
       () => document.querySelector('iframe[data-blast="warm"]') !== null,
@@ -106,6 +107,17 @@ try {
     if (phone.page > 390 || phone.panel > 390 || phone.footerBottom > phone.viewport)
       throw new Error(`launcher does not fit a 390x844 viewport: ${JSON.stringify(phone)}`);
     await page.setViewportSize({ width: 1280, height: 800 });
+    const initialSelection = await page
+      .locator('[role="option"][aria-selected="true"]')
+      .getAttribute("data-root-index");
+    await page.keyboard.press("ArrowDown");
+    const downSelection = await page
+      .locator('[role="option"][aria-selected="true"]')
+      .getAttribute("data-root-index");
+    if (initialSelection === downSelection)
+      throw new Error("ArrowDown did not move root selection");
+    await page.keyboard.press("Control+N");
+    await page.keyboard.press("Control+P");
     for (let index = 0; index < 30; index++) await page.keyboard.press("ArrowDown");
     const selectedPosition = await page.evaluate(() => {
       const selected = document.querySelector('[role="option"][aria-selected="true"]');
@@ -130,7 +142,11 @@ try {
     // Footer keys are buttons: the Actions button opens the root action panel.
     await page.locator('main.root [data-footer="actions"]').click();
     await page.getByRole("option", { name: /^Run Command/ }).waitFor({ timeout: 10_000 });
+    await page.locator("#root-action-search").fill("copy");
+    await page.getByRole("option", { name: /Copy Extension URL/ }).waitFor({ timeout: 10_000 });
     await page.keyboard.press("Escape");
+    if (await page.locator("#root-action-search").count())
+      throw new Error("Escape did not close root actions");
     await page.locator("#root-search").fill("hello-list");
     await page.keyboard.press("Enter");
     await page

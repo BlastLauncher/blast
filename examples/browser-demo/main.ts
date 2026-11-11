@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { buildBrowserAssets, projectRoot, relativeFiles } from "./build.ts";
 import { demoPage } from "./template.ts";
+import { enrichCatalog, type SweepResult } from "./root.ts";
 async function main() {
   const assets = await buildBrowserAssets();
   const sandbox = Bun.serve({
@@ -32,11 +33,23 @@ async function main() {
       if (path === "/client.js")
         return new Response(assets.clientJs, { headers: { "content-type": "text/javascript" } });
       if (path === "/blast-sources.json") return Response.json(assets.sources);
-      if (path === "/catalog.json")
-        return new Response(
-          await readFile(join(projectRoot, "examples/browser-demo/catalog.json")),
-          { headers: { "content-type": "application/json" } },
+      if (path === "/catalog.json") {
+        const catalog = JSON.parse(
+          await readFile(join(projectRoot, "examples/browser-demo/catalog.json"), "utf8"),
         );
+        let results: SweepResult[] = [];
+        try {
+          results =
+            (
+              JSON.parse(
+                await readFile(join(projectRoot, "compat/browser-sweep.json"), "utf8"),
+              ) as { results?: SweepResult[] }
+            ).results ?? [];
+        } catch (error) {
+          if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+        }
+        return Response.json(enrichCatalog(catalog, results));
+      }
       if (path === "/almostnode.mjs")
         return new Response(assets.almost, { headers: { "content-type": "text/javascript" } });
       if (path === "/esbuild.wasm")

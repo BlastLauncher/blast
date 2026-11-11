@@ -481,13 +481,38 @@ footer button {
 .actions {
   position: absolute;
   z-index: 2;
-  inset: 76px 12px 54px;
-  padding: 18px;
+  left: 12px;
+  right: 12px;
+  bottom: 52px;
+  padding: 12px;
   overflow: auto;
   background: color-mix(in srgb, #1b1b1d 94%, transparent);
   border: 1px solid #39393d;
   border-radius: 10px;
   box-shadow: 0 18px 45px #0008;
+}
+.actions strong {
+  display: block;
+  margin: 0 0 8px;
+}
+.actions [cmdk-item] {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border: 0;
+  border-radius: 6px;
+  padding: 8px 10px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+.actions [cmdk-item][data-selected="true"] {
+  background: #34343a;
+}
+.actions [cmdk-item] kbd {
+  margin-left: auto;
+  color: var(--demo-muted);
 }
 .actions li {
   padding: 10px;
@@ -593,7 +618,9 @@ footer button {
     box-sizing: border-box;
   }
   .actions {
-    inset: calc(76px + env(safe-area-inset-top)) 8px calc(48px + env(safe-area-inset-bottom));
+    left: 8px;
+    right: 8px;
+    bottom: calc(48px + env(safe-area-inset-bottom));
   }
   /* On phones the keycap carries the meaning; drop labels except the primary. */
   .footer-key:not([data-footer="primary"]) span {
@@ -625,6 +652,12 @@ footer button {
   }
   .rows li.selected {
     background: #e8e8ed;
+  }
+  .root-item[data-selected="true"],
+  .root-item[aria-selected="true"] {
+    background: #e8f0ff;
+    color: #171719;
+    outline-color: #9bbcf5;
   }
   .root-copy small,
   .root-accessory,
@@ -696,7 +729,7 @@ footer button {
 }
 .root-item[data-selected="true"],
 .root-item[aria-selected="true"] {
-  background: #34343a;
+  background: color-mix(in srgb, #7aa7ff 18%, var(--demo-panel));
   outline: 1px solid #666;
 }
 .root-badge {
@@ -718,4 +751,27 @@ footer button {
 }
 main.root {
   min-width: 0;
+}
+.root-shell,
+.root-command {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+}
+.loading-stage {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 10px;
+  color: var(--demo-muted);
+}
+.loading-stage strong {
+  color: var(--demo-text);
+  font-size: 16px;
+}
+.loading-icon {
+  font-size: 28px;
 }

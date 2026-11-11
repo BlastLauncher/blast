@@ -36,7 +36,34 @@ export type RootActionResult =
   | { type: "open"; url: string }
   | { type: "copy"; url: string };
 
-const curated = new Set(["ratio-calculator", "hello-list", "weather", "github", "calendar"]);
+export const curated = new Set(["ratio-calculator", "hello-list", "weather", "github", "calendar"]);
+
+export type SweepResult = { extension?: string; command?: string; outcome?: string };
+
+/** Add generated browser-compatibility badges without coupling the catalog to names. */
+export function enrichCatalog(catalog: Catalog, results: SweepResult[]): Catalog {
+  const unavailable = new Map<string, "macos" | "setup">();
+  for (const result of results) {
+    if (!result.extension || !result.command) continue;
+    if (result.outcome === "needs-preferences") {
+      unavailable.set(`${result.extension}:${result.command}`, "setup");
+      continue;
+    }
+    const message = result.outcome?.replace(/^runtime-error:\s*/i, "") ?? "";
+    if (/is not installed|unavailable in a browser tab|Applications are unavailable/i.test(message))
+      unavailable.set(`${result.extension}:${result.command}`, "macos");
+  }
+  return {
+    ...catalog,
+    extensions: catalog.extensions.map((extension) => ({
+      ...extension,
+      commands: extension.commands.map((command) => {
+        const value = unavailable.get(`${extension.name}:${command.name}`);
+        return value ? { ...command, unavailable: value } : command;
+      }),
+    })),
+  };
+}
 
 export function validateCatalog(value: unknown): Catalog {
   if (!value || typeof value !== "object") throw new Error("Invalid browser catalog");

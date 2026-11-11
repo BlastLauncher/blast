@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { buildBrowserAssets, projectRoot, relativeFiles } from "./build.ts";
 import { prebuildCatalog } from "./prebuild.ts";
 import { demoPage } from "./template.ts";
-import type { Catalog } from "./root.ts";
+import { enrichCatalog, type Catalog, type SweepResult } from "./root.ts";
 
 export type SiteOptions = {
   siteOrigin: string;
@@ -128,21 +128,10 @@ export async function buildSite(
   try {
     const sweep = JSON.parse(
       await readFile(join(projectRoot, "compat/browser-sweep.json"), "utf8"),
-    ) as { results?: Array<{ extension?: string; command?: string; outcome?: string }> };
-    const unavailable = new Map<string, "macos" | "setup">();
-    for (const result of sweep.results ?? []) {
-      if (!result.extension || !result.command) continue;
-      if (result.outcome === "needs-preferences")
-        unavailable.set(`${result.extension}:${result.command}`, "setup");
-      else if (result.outcome?.startsWith("runtime-error:"))
-        unavailable.set(`${result.extension}:${result.command}`, "macos");
-    }
-    for (const extension of catalog.extensions)
-      for (const command of extension.commands) {
-        const value = unavailable.get(`${extension.name}:${command.name}`);
-        if (value) command.unavailable = value;
-      }
-  } catch {
+    ) as { results?: SweepResult[] };
+    Object.assign(catalog, enrichCatalog(catalog, sweep.results ?? []));
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
     // Local development can build from a slim checkout without sweep output.
   }
   if (options.fixtures) {
