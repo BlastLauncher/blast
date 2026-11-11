@@ -117,7 +117,17 @@ try {
     if (initialSelection === downSelection)
       throw new Error("ArrowDown did not move root selection");
     await page.keyboard.press("Control+N");
+    const controlNSelection = await page
+      .locator('[role="option"][aria-selected="true"]')
+      .getAttribute("data-root-index");
+    if (controlNSelection === downSelection)
+      throw new Error("Control+N did not move root selection");
     await page.keyboard.press("Control+P");
+    const controlPSelection = await page
+      .locator('[role="option"][aria-selected="true"]')
+      .getAttribute("data-root-index");
+    if (controlPSelection !== downSelection)
+      throw new Error("Control+P did not move root selection");
     for (let index = 0; index < 30; index++) await page.keyboard.press("ArrowDown");
     const selectedPosition = await page.evaluate(() => {
       const selected = document.querySelector('[role="option"][aria-selected="true"]');
@@ -139,6 +149,8 @@ try {
     if ((await page.locator('[role="option"]').count()) === 0)
       throw new Error("root search did not filter to browser fixtures");
     await page.keyboard.press("Escape");
+    if ((await page.locator("#root-search").inputValue()) !== "")
+      throw new Error("Escape did not clear the root query");
     // Footer keys are buttons: the Actions button opens the root action panel.
     await page.locator('main.root [data-footer="actions"]').click();
     await page.getByRole("option", { name: /^Run Command/ }).waitFor({ timeout: 10_000 });
@@ -203,20 +215,52 @@ try {
       throw new Error("the Back button did not return to root list");
     if ((await page.locator('iframe[data-blast="session"]').count()) !== 0)
       throw new Error("the sandbox session outlived the extension view");
+    await page.locator("#root-search").fill("");
+    await page.locator('[cmdk-group-heading]:has-text("Recent")').waitFor({ timeout: 10_000 });
+    await page
+      .getByRole("option", { name: /Hello List/ })
+      .first()
+      .click();
+    await page
+      .waitForFunction(
+        () => (document.querySelector(".breadcrumb")?.textContent ?? "").includes("Hello List"),
+        undefined,
+        { timeout: 30_000 },
+      )
+      .catch(async (error) => {
+        throw new Error(
+          `${error} status=${await page.locator("#status").textContent()} app=${await page.locator("#app").innerText()}`,
+        );
+      });
+    if (!(await page.locator(".breadcrumb").textContent())?.includes("Hello List"))
+      throw new Error("launching a command from Recent failed");
+    await page.locator('#app [data-footer="back"]').click();
+    await page.locator("#root-search").waitFor({ timeout: 10_000 });
+    await page.reload({ waitUntil: "load" });
+    await page.locator("#root-search").waitFor({ timeout: 10_000 });
 
     // Declared no-view commands finish back at the root and retain their HUD title.
-    await page.locator("#root-search").fill("Finish Command");
+    await page.locator("#root-search").fill("finish");
     await page.keyboard.press("Enter");
-    await page.waitForFunction(
-      () =>
-        document.querySelector("#root-search") !== null &&
-        (document.querySelector("#status")?.textContent ?? "").includes("Finished"),
-      undefined,
-      { timeout: 30_000 },
-    );
+    await page
+      .waitForFunction(
+        () =>
+          document.querySelector("#root-search") !== null &&
+          (document.querySelector("#status")?.textContent ?? "").includes("Finished"),
+        undefined,
+        { timeout: 30_000 },
+      )
+      .catch(async (error) => {
+        throw new Error(
+          `${error} finish status=${await page.locator("#status").textContent()} app=${await page.locator("#app").innerText()}`,
+        );
+      });
     // Menu-bar commands draw sections, submenus and items; pointer and keyboard activate.
-    await page.locator("#root-search").fill("Menu Command");
-    await page.keyboard.press("Enter");
+    await page.locator("#root-search").fill("menu");
+    await page
+      .getByRole("option", { name: /Menu Command/ })
+      .first()
+      .click();
     await page.locator(".menu-bar").waitFor({ timeout: 30_000 });
     const menuText = (await page.locator(".menu-bar").textContent()) ?? "";
     if (!menuText.includes("Actions") || !menuText.includes("Direct"))

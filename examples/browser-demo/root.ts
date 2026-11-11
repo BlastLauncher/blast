@@ -6,6 +6,7 @@ export type CatalogCommand = {
   subtitle?: string;
   mode: string;
   unavailable?: "macos" | "setup";
+  outcome?: string;
 };
 export type CatalogExtension = {
   name: string;
@@ -27,6 +28,7 @@ export type RootRow = {
   url?: string;
   githubUrl?: string;
   unavailable?: "macos" | "setup";
+  outcome?: string;
 };
 
 export type RootActionId = "run" | "github" | "copy";
@@ -58,8 +60,16 @@ export function enrichCatalog(catalog: Catalog, results: SweepResult[]): Catalog
     extensions: catalog.extensions.map((extension) => ({
       ...extension,
       commands: extension.commands.map((command) => {
+        const result = results.find(
+          (candidate) =>
+            candidate.extension === extension.name && candidate.command === command.name,
+        );
         const value = unavailable.get(`${extension.name}:${command.name}`);
-        return value ? { ...command, unavailable: value } : command;
+        return {
+          ...command,
+          ...(result?.outcome ? { outcome: result.outcome } : {}),
+          ...(value ? { unavailable: value } : {}),
+        };
       }),
     })),
   };
@@ -97,6 +107,7 @@ export function validateCatalog(value: unknown): Catalog {
         title: commandValue.title,
         mode: commandValue.mode,
         ...(unavailable ? { unavailable } : {}),
+        ...(typeof commandValue.outcome === "string" ? { outcome: commandValue.outcome } : {}),
         ...(typeof commandValue.subtitle === "string" ? { subtitle: commandValue.subtitle } : {}),
       };
     });
@@ -128,6 +139,7 @@ function row(extension: CatalogExtension, command: CatalogCommand, commit: strin
     accessory:
       command.mode === "no-view" ? "No View" : command.mode === "menu-bar" ? "Menu Bar" : "Command",
     ...(command.unavailable ? { unavailable: command.unavailable } : {}),
+    ...(command.outcome ? { outcome: command.outcome } : {}),
     extension: extension.name,
     command: command.name,
     githubUrl: `https://github.com/raycast/extensions/tree/${commit}/extensions/${extension.name}`,
@@ -205,7 +217,7 @@ export function rootModel(catalog: Catalog, query: string, selected: number, url
         githubUrl: candidate,
       } satisfies RootRow)
     : undefined;
-  const visible = urlRow ? [urlRow, ...rows] : rows;
+  const visible: RootRow[] = urlRow ? [urlRow, ...rows] : rows;
   return {
     rows: visible,
     selected: visible.length === 0 ? -1 : Math.max(0, Math.min(selected, visible.length - 1)),

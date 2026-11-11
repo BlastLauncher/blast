@@ -27,6 +27,12 @@ export type RootLauncherProps = {
   onAction: (id: string) => void;
   onFooter: (action: "primary" | "actions" | "back") => void;
 };
+const scheduleFrame = (callback: () => void) => {
+  const browser = globalThis as unknown as {
+    requestAnimationFrame?: (callback: () => void) => void;
+  };
+  (browser.requestAnimationFrame ?? ((next) => setTimeout(next, 0)))(callback);
+};
 
 export const statusMarkup = (status: DemoStatus) => (
   <span id="status" role="status" data-error={status.error ? "true" : "false"}>
@@ -117,11 +123,33 @@ export function RootLauncher(props: RootLauncherProps) {
     if (inputRef.current) inputRef.current.id = "root-search";
     inputRef.current?.focus();
   }, []);
+  useEffect(() => {
+    if (!props.actionOpen)
+      scheduleFrame(() => {
+        const browser = globalThis as unknown as {
+          document?: { querySelector(selector: string): { focus(): void } | null };
+        };
+        browser.document?.querySelector("#root-search")?.focus();
+      });
+  }, [props.actionOpen]);
+  useEffect(() => {
+    scheduleFrame(() => {
+      const browser = globalThis as unknown as {
+        document?: {
+          querySelector(selector: string): {
+            scrollIntoView(options: { block: string }): void;
+          } | null;
+        };
+      };
+      browser.document?.querySelector('[data-selected="true"]')?.scrollIntoView({
+        block: "nearest",
+      });
+    });
+  }, [props.query, props.selected, props.actionSelected]);
   const rows = props.query.trim() ? props.rows : props.sections.flatMap((section) => section.rows);
   const selected = props.rows[props.selected]?.id;
   return (
     <div className="root-shell">
-      return{" "}
       <Command
         className="root-command"
         shouldFilter={false}

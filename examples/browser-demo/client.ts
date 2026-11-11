@@ -264,7 +264,13 @@ const drawRoot = () => {
     .slice(0, 5);
   for (const row of allRows) {
     if (suggested.length >= 5) break;
-    if (!recent.includes(row) && !suggested.includes(row)) suggested.push(row);
+    if (
+      !recent.includes(row) &&
+      !suggested.includes(row) &&
+      row.outcome === "rendered" &&
+      !row.unavailable
+    )
+      suggested.push(row);
   }
   const commandRows = allRows.filter((row) => !recent.includes(row) && !suggested.includes(row));
   const actions = rootActionModel(
@@ -302,7 +308,10 @@ const drawRoot = () => {
     },
     onHighlight: (id) => {
       const index = rootRows.findIndex((row) => row.id === id);
-      if (index >= 0) rootSelected = index;
+      if (index >= 0) {
+        rootSelected = index;
+        drawRoot();
+      }
     },
     onActionQuery: (query) => {
       actionQuery = query;
@@ -1165,6 +1174,14 @@ document.addEventListener("keydown", (event) => {
         actionOpen = true;
         actionQuery = "";
         actionSelected = 0;
+        drawRoot();
+      } else if (event.ctrlKey && event.key.toLowerCase() === "n") {
+        event.preventDefault();
+        rootSelected = Math.min(rootSelected + 1, rootRows.length - 1);
+        drawRoot();
+      } else if (event.ctrlKey && event.key.toLowerCase() === "p") {
+        event.preventDefault();
+        rootSelected = Math.max(rootSelected - 1, 0);
         drawRoot();
       }
       return;

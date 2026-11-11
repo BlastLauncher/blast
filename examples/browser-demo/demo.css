@@ -76,7 +76,7 @@ input {
 .section-header {
   color: #aaa;
   font-size: 12px;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid var(--demo-separator, #333);
 }
 .section-header small {
   margin-left: 7px;
@@ -245,7 +245,7 @@ input {
 }
 .form-separator {
   border: 0;
-  border-top: 1px solid #333;
+  border-top: 1px solid var(--demo-separator, #333);
 }
 .detail {
   flex: 1;
@@ -383,7 +383,7 @@ footer {
   display: flex;
   align-items: center;
   gap: 16px;
-  border-top: 1px solid #333;
+  border-top: 1px solid var(--demo-separator, #333);
   padding: 11px 20px;
   color: #aaa;
   font-size: 12px;
@@ -508,7 +508,7 @@ footer button {
   text-align: left;
 }
 .actions [cmdk-item][data-selected="true"] {
-  background: #34343a;
+  background: color-mix(in srgb, #7aa7ff 18%, var(--demo-panel));
 }
 .actions [cmdk-item] kbd {
   margin-left: auto;
@@ -684,6 +684,7 @@ footer button {
   --demo-border: #39393d;
   --demo-text: #eee;
   --demo-muted: #aaa;
+  --demo-separator: #333;
 }
 @media (prefers-color-scheme: light) {
   :root {
@@ -694,6 +695,7 @@ footer button {
     --demo-border: #d8dbe2;
     --demo-text: #202124;
     --demo-muted: #68707d;
+    --demo-separator: #d8dbe2;
   }
   body {
     background: var(--demo-bg);
@@ -730,7 +732,7 @@ footer button {
 .root-item[data-selected="true"],
 .root-item[aria-selected="true"] {
   background: color-mix(in srgb, #7aa7ff 18%, var(--demo-panel));
-  outline: 1px solid #666;
+  outline: 0;
 }
 .root-badge {
   color: var(--demo-muted);
