@@ -62,7 +62,7 @@ way.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit: t3/firefox-demo-launch @ 8baf3eb
+Branch/commit: t3/firefox-demo-launch @ f189243
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 80.9s
 Done:
 - Replaced the fixed 100 ms runtime-port transfer with a request/response handshake, fixing the Firefox startup race in shared demo/runtime code.
