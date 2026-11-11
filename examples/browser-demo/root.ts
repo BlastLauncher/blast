@@ -1,6 +1,12 @@
 import { commandScore } from "./cmdk-score.ts";
 
-export type CatalogCommand = { name: string; title: string; subtitle?: string; mode: string };
+export type CatalogCommand = {
+  name: string;
+  title: string;
+  subtitle?: string;
+  mode: string;
+  unavailable?: "macos" | "setup";
+};
 export type CatalogExtension = {
   name: string;
   title: string;
@@ -20,6 +26,7 @@ export type RootRow = {
   command: string;
   url?: string;
   githubUrl?: string;
+  unavailable?: "macos" | "setup";
 };
 
 export type RootActionId = "run" | "github" | "copy";
@@ -54,10 +61,15 @@ export function validateCatalog(value: unknown): Catalog {
         typeof commandValue.mode !== "string"
       )
         throw new Error("Invalid catalog command shape");
+      const unavailable: "macos" | "setup" | undefined =
+        commandValue.unavailable === "macos" || commandValue.unavailable === "setup"
+          ? commandValue.unavailable
+          : undefined;
       return {
         name: commandValue.name,
         title: commandValue.title,
         mode: commandValue.mode,
+        ...(unavailable ? { unavailable } : {}),
         ...(typeof commandValue.subtitle === "string" ? { subtitle: commandValue.subtitle } : {}),
       };
     });
@@ -86,7 +98,9 @@ function row(extension: CatalogExtension, command: CatalogCommand, commit: strin
           iconUrl: `https://raw.githubusercontent.com/raycast/extensions/${commit}/extensions/${extension.name}/assets/${extension.icon}`,
         }
       : {}),
-    accessory: "Command",
+    accessory:
+      command.mode === "no-view" ? "No View" : command.mode === "menu-bar" ? "Menu Bar" : "Command",
+    ...(command.unavailable ? { unavailable: command.unavailable } : {}),
     extension: extension.name,
     command: command.name,
     githubUrl: `https://github.com/raycast/extensions/tree/${commit}/extensions/${extension.name}`,
@@ -123,12 +137,21 @@ export function rootRows(catalog: Catalog, query: string): RootRow[] {
   );
   const search = query.trim();
   if (!search) return suggestions(indexed.map((entry) => entry.row));
+  const words = search.split(/\s+/u).filter(Boolean);
   return indexed
     .map((entry) => ({
       row: entry.row,
       value: commandScore(entry.row.title, search, entry.keywords),
+      matches:
+        words.length === 1
+          ? commandScore(entry.row.title, search, entry.keywords) > 0
+          : words.every((word) =>
+              entry.keywords.some((keyword) =>
+                keyword.toLocaleLowerCase().includes(word.toLocaleLowerCase()),
+              ),
+            ),
     }))
-    .filter((entry) => entry.value > 0)
+    .filter((entry) => entry.matches && entry.value > 0)
     .toSorted(
       (a, b) =>
         b.value - a.value ||

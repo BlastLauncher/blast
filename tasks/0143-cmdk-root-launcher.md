@@ -81,8 +81,13 @@ search, and clear loading and unavailable states.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/cmdk-root-launcher @ HEAD (final commit reported below)
+Verify: `bun run verify` completed all gates but the full suite hit the documented heavy-load timeout in `packages/host/src/bundle.test.ts` (`engine deadlines inherit through handles and launch overrides win`); isolated rerun passed: `1 pass, 0 fail`.
 Done:
-Not done / risks:
+- Replaced the root HTML list with a React 19 cmdk launcher using Command, Input, List, Group, Item and Empty.
+- Added recent, suggestions and commands sections, localStorage persistence, multi-word matching, command mode accessories and generated sweep badges.
+- Preserved staged launch status and generation/port handshake behavior, with an icon and stage-aware loading view.
+- Updated responsive/light-dark launcher styling and added the multi-word search regression test.
+- Chromium e2e passed; Firefox e2e passed in the Playwright v1.58.0 Noble container; browser sweep completed 237 commands in 86.8s.
+Not done / risks: Full verify should be rerun on a less-loaded host to clear the known 5-second bundle test deadline; no product failure reproduced in the isolated test.
 ```

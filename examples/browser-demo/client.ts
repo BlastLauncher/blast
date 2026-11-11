@@ -15,7 +15,9 @@ import {
   sha256Hex,
   type CatalogManifest,
 } from "./bundles.ts";
-import { render, renderPreferences, renderRoot } from "../web-launcher/render.js";
+import { render, renderPreferences } from "../web-launcher/render.js";
+import { mountRoot, updateRoot } from "./root-launcher.tsx";
+import type { Root as ReactRoot } from "react-dom/client";
 import {
   createBrowserCapabilities,
   createBrowserPreferenceStore,
@@ -67,6 +69,8 @@ let catalog: Catalog;
 let rootQuery = "";
 let rootSelected = 0;
 let rootRows: RootRow[] = [];
+let rootRenderer: ReactRoot | undefined;
+let recentIds: string[] = [];
 let rootOpen = true;
 let actionOpen = false;
 let actionQuery = "";
@@ -128,6 +132,8 @@ const setStatus = (text: string, error = false) => {
   }
 };
 function replaceApp(markup: string) {
+  rootRenderer?.unmount();
+  rootRenderer = undefined;
   const active = document.activeElement;
   const controls = new Map<string, HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>();
   for (const control of app.querySelectorAll<
@@ -170,7 +176,12 @@ function replaceApp(markup: string) {
   }
 }
 const drawStarting = () => {
-  app.innerHTML = `<main data-kind="list"><header>${extensionContext ? `<div class="breadcrumb"><span>${escapeHtml(extensionContext.extensionTitle)}</span><span class="breadcrumb-separator">›</span><span>${escapeHtml(extensionContext.commandTitle)}</span></div>` : ""}<h1>Starting…</h1><div class="search-line"><input id="search" data-starting="true" value="${escapeHtml(earlyInput)}" placeholder="Search…" aria-label="Search" readonly></div></header><p class="empty">Starting command…</p><footer><span id="status" role="status">${escapeHtml(statusState.text)}</span></footer></main>`;
+  rootRenderer?.unmount();
+  rootRenderer = undefined;
+  const icon = extensionContext?.iconUrl
+    ? `<img src="${escapeHtml(extensionContext.iconUrl)}" alt="" width="28" height="28">`
+    : escapeHtml(extensionContext?.icon ?? "⌘");
+  app.innerHTML = `<main data-kind="list" data-loading="true" aria-busy="true"><header><div class="breadcrumb"><span class="breadcrumb-icon">${icon}</span><span>${escapeHtml(extensionContext?.extensionTitle ?? "Extension")}</span><span class="breadcrumb-separator">›</span><span>${escapeHtml(extensionContext?.commandTitle ?? "Command")}</span></div><h1>Loading command</h1><div class="search-line"><input id="search" data-starting="true" value="${escapeHtml(earlyInput)}" placeholder="Search…" aria-label="Search" readonly></div></header><p class="empty"><span class="status-spinner" aria-hidden="true"></span> ${escapeHtml(statusState.text)}</p><footer>${escapeHtml(statusState.text)}</footer></main>`;
 };
 const draw = (view: ReturnType<Controller["view"]>) => {
   const active = document.activeElement as HTMLInputElement | null;
@@ -215,6 +226,24 @@ const draw = (view: ReturnType<Controller["view"]>) => {
       ?.scrollIntoView({ block: "nearest" });
   }
 };
+const readRecent = () => {
+  try {
+    const value = JSON.parse(globalThis.localStorage.getItem("blast.recent") ?? "[]");
+    return Array.isArray(value)
+      ? value.filter((id): id is string => typeof id === "string").slice(0, 5)
+      : [];
+  } catch {
+    return [];
+  }
+};
+const writeRecent = (id: string) => {
+  recentIds = [id, ...recentIds.filter((value) => value !== id)].slice(0, 5);
+  try {
+    globalThis.localStorage.setItem("blast.recent", JSON.stringify(recentIds));
+  } catch {
+    /* storage is optional */
+  }
+};
 const drawRoot = () => {
   const model = rootModel(
     catalog,
@@ -224,25 +253,124 @@ const drawRoot = () => {
   );
   rootRows = model.rows;
   rootSelected = model.selected;
-  const actions = rootActionModel(rootRows[rootSelected], actionQuery, actionSelected);
-  actionSelected = actions.selected;
-  replaceApp(
-    renderRoot(rootRows, rootSelected, rootQuery, {
-      open: actionOpen,
-      query: actionQuery,
-      actions: actions.actions,
-      selected: actionSelected,
-      toast: rootToast,
-      status: statusState,
-    }),
+  const allRows =
+    rootRows === model.rows && !rootQuery.trim()
+      ? rootRows
+      : rootRows.length
+        ? rootRows
+        : rootModel(catalog, "", 0).rows;
+  const recent = allRows
+    .filter((row) => recentIds.includes(row.id))
+    .toSorted((a, b) => recentIds.indexOf(a.id) - recentIds.indexOf(b.id))
+    .slice(0, 5);
+  const suggested = allRows
+    .filter(
+      (row) =>
+        !recent.includes(row) &&
+        ["ratio-calculator", "hello-list", "weather", "github", "calendar"].includes(row.extension),
+    )
+    .slice(0, 5);
+  const commandRows = allRows.filter((row) => !recent.includes(row) && !suggested.includes(row));
+  const actions = rootActionModel(
+    rootRows[rootSelected] ?? rootRows[0],
+    actionQuery,
+    actionSelected,
   );
-  const search = document.querySelector<HTMLInputElement>("#root-search");
-  (actionOpen ? document.querySelector<HTMLInputElement>("#root-action-search") : search)?.focus();
-  search?.setSelectionRange(search.value.length, search.value.length);
-  document
-    .querySelector<HTMLElement>(`#root-option-${rootSelected}`)
-    ?.scrollIntoView({ block: "nearest" });
+  actionSelected = actions.selected;
+  if (!rootRenderer)
+    rootRenderer = mountRoot(app, {
+      query: rootQuery,
+      selected: rootSelected,
+      rows: rootRows,
+      sections: [
+        { title: "Recent", rows: recent },
+        { title: "Suggestions", rows: suggested },
+        { title: "Commands", rows: commandRows },
+      ],
+      actions: actions.actions,
+      actionOpen,
+      actionQuery,
+      actionSelected,
+      status: statusState,
+      toast: rootToast,
+      onQuery: (query) => {
+        rootQuery = query;
+        rootSelected = 0;
+        drawRoot();
+      },
+      onSelect: (id) => {
+        const index = rootRows.findIndex((row) => row.id === id);
+        if (index >= 0) {
+          rootSelected = index;
+          runSelected();
+        }
+      },
+      onHighlight: (id) => {
+        const index = rootRows.findIndex((row) => row.id === id);
+        if (index >= 0) rootSelected = index;
+      },
+      onActionQuery: (query) => {
+        actionQuery = query;
+        actionSelected = 0;
+        drawRoot();
+      },
+      onAction: (id) => {
+        const action = actions.actions.find((item) => item.id === id);
+        if (action) {
+          actionSelected = actions.actions.indexOf(action);
+          runAction();
+        }
+      },
+      onFooter: runFooter,
+    });
+  else
+    updateRoot(rootRenderer, {
+      query: rootQuery,
+      selected: rootSelected,
+      rows: rootRows,
+      sections: [
+        { title: "Recent", rows: recent },
+        { title: "Suggestions", rows: suggested },
+        { title: "Commands", rows: commandRows },
+      ],
+      actions: actions.actions,
+      actionOpen,
+      actionQuery,
+      actionSelected,
+      status: statusState,
+      toast: rootToast,
+      onQuery: (query) => {
+        rootQuery = query;
+        rootSelected = 0;
+        drawRoot();
+      },
+      onSelect: (id) => {
+        const index = rootRows.findIndex((row) => row.id === id);
+        if (index >= 0) {
+          rootSelected = index;
+          runSelected();
+        }
+      },
+      onHighlight: (id) => {
+        const index = rootRows.findIndex((row) => row.id === id);
+        if (index >= 0) rootSelected = index;
+      },
+      onActionQuery: (query) => {
+        actionQuery = query;
+        actionSelected = 0;
+        drawRoot();
+      },
+      onAction: (id) => {
+        const action = actions.actions.find((item) => item.id === id);
+        if (action) {
+          actionSelected = actions.actions.indexOf(action);
+          runAction();
+        }
+      },
+      onFooter: runFooter,
+    });
 };
+
 function drawPreferences(scope: "extension" | "command" = "command") {
   if (!preferenceForm) return;
   const fields =
@@ -495,6 +623,7 @@ async function launch(source: string, commandName: string): Promise<void> {
       }
     : undefined;
   const selectedCommand = commandName || commandSelect?.value || "index";
+  if (selectedRow) writeRecent(selectedRow.id);
   const catalogSource = source.startsWith("https://github.com/raycast/extensions/tree/");
   const bundle = catalogSource ? await prebuiltBundle(source, selectedCommand) : undefined;
   if (!stillCurrent()) return;
@@ -956,6 +1085,7 @@ async function start() {
     } catch {
       storage = undefined;
     }
+    recentIds = readRecent();
     browserCapabilities = createBrowserCapabilities({
       catalog,
       ...(storage ? { storage } : {}),
@@ -1062,6 +1192,23 @@ document.addEventListener("keydown", (event) => {
     }
   }
   if (rootOpen) {
+    if (rootRenderer && !actionOpen) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        if (rootQuery) {
+          rootQuery = "";
+          rootSelected = 0;
+          drawRoot();
+        }
+      } else if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        actionOpen = true;
+        actionQuery = "";
+        actionSelected = 0;
+        drawRoot();
+      }
+      return;
+    }
     if (actionOpen) {
       const actionCount = rootActionModel(rootRows[rootSelected], actionQuery, actionSelected)
         .actions.length;
@@ -1336,15 +1483,10 @@ document.addEventListener("click", (event) => {
     sendInput({ type: "toastAction", index: Number(toastAction) });
     return;
   }
+  if (rootRenderer && rootOpen) return;
   const footer = target.closest<HTMLElement>("[data-footer]")?.dataset.footer;
   if (footer !== undefined) {
     runFooter(footer);
-    return;
-  }
-  const index = target.closest<HTMLElement>("[data-root-index]")?.dataset.rootIndex;
-  if (index !== undefined) {
-    rootSelected = Number(index);
-    runSelected();
     return;
   }
   if (rootOpen) return;

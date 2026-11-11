@@ -145,3 +145,11 @@ test("the extracted scorer is cmdk's defaultFilter, without cmdk's React entry",
   for (const [value, search, keywords] of cases)
     expect(commandScore(value, search, keywords)).toBe(defaultFilter(value, search, keywords));
 });
+
+test("multi-word search requires every word", () => {
+  const rows = rootRows(realCatalog, "nano snake");
+  expect(rows.map((row) => row.id)).toEqual(["nano-games:play-nano-snake"]);
+  expect(
+    rows.some((row) => ["Shorten Link", "RTL Text Formatter", "Dice Tiles"].includes(row.title)),
+  ).toBe(false);
+});

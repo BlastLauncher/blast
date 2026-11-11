@@ -70,3 +70,8 @@ declare module "playwright" {
     keyboard: { press(key: string): Promise<void>; type(text: string): Promise<void> };
   };
 }
+
+declare module "react-dom/client" {
+  export type Root = { render(node: unknown): void; unmount(): void };
+  export function createRoot(element: HTMLElement): Root;
+}

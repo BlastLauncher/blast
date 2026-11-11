@@ -123,6 +123,28 @@ export async function buildSite(
   const catalog = JSON.parse(
     await readFile(join(projectRoot, "examples/browser-demo/catalog.json"), "utf8"),
   ) as Catalog;
+  // Keep tab incompatibilities as generated catalog metadata so the launcher
+  // can explain them without coupling to extension names.
+  try {
+    const sweep = JSON.parse(
+      await readFile(join(projectRoot, "compat/browser-sweep.json"), "utf8"),
+    ) as { results?: Array<{ extension?: string; command?: string; outcome?: string }> };
+    const unavailable = new Map<string, "macos" | "setup">();
+    for (const result of sweep.results ?? []) {
+      if (!result.extension || !result.command) continue;
+      if (result.outcome === "needs-preferences")
+        unavailable.set(`${result.extension}:${result.command}`, "setup");
+      else if (result.outcome?.startsWith("runtime-error:"))
+        unavailable.set(`${result.extension}:${result.command}`, "macos");
+    }
+    for (const extension of catalog.extensions)
+      for (const command of extension.commands) {
+        const value = unavailable.get(`${extension.name}:${command.name}`);
+        if (value) command.unavailable = value;
+      }
+  } catch {
+    // Local development can build from a slim checkout without sweep output.
+  }
   if (options.fixtures) {
     catalog.extensions.push({
       name: "hello-list",
