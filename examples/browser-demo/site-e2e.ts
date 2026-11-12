@@ -451,7 +451,9 @@ try {
     if (
       !beside.menu ||
       !beside.submenu ||
-      !(beside.submenu.left >= beside.menu.right - 4 || beside.submenu.right <= beside.menu.left + 4)
+      !(
+        beside.submenu.left >= beside.menu.right - 4 || beside.submenu.right <= beside.menu.left + 4
+      )
     )
       throw new Error(`the submenu did not open beside its menu: ${JSON.stringify(beside)}`);
     await page.keyboard.press("Enter");
@@ -492,7 +494,8 @@ try {
     // Esc at the top returns to the root list.
     await page.keyboard.press("Escape");
     await page.locator("#root-search").waitFor({ timeout: 10_000 });
-    if ((await page.locator(".menu-panel").count()) !== 0) throw new Error("Esc left the menu open");
+    if ((await page.locator(".menu-panel").count()) !== 0)
+      throw new Error("Esc left the menu open");
     // The status item stays in the bar and toggles the menu; a click outside closes it.
     await page.locator("[data-status-item]").click();
     await page.locator('.menu-bar button[data-menu-id]:has-text("Clicks")').waitFor({
