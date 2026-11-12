@@ -777,3 +777,48 @@ main.root {
 .loading-icon {
   font-size: 28px;
 }
+
+/* Visual language adapted from cmdk's Raycast example (MIT, Paco Coursey). */
+:root {
+  --raycast-gray1: #111113;
+  --raycast-gray2: #1b1b1e;
+  --raycast-gray4: #343438;
+  --raycast-gray6: #4a4a50;
+  --raycast-gray9: #a1a1aa;
+}
+body { padding: 32px; background: #111113; color: #f4f4f5; }
+main { width: min(750px, 100%); height: 500px; border-radius: 12px; border-color: #4a4a50; background: #1b1b1e; box-shadow: 0 24px 70px #000b, 0 2px 8px #0008; }
+header { padding: 16px 20px 0; }
+h1 { display: none; }
+header .cmdk-input, header input, .search-line input { border: 0; border-radius: 0; background: transparent; padding: 12px 0 14px; font-size: 15px; outline: 0; }
+header { border-bottom: 1px solid #343438; }
+.root-item { min-height: 40px; padding: 6px 20px; border-radius: 8px; transition: background .12s ease, color .12s ease; }
+.root-item[data-selected="true"], .root-item[aria-selected="true"] { background: #343438; color: #fff; }
+.root-item[data-selected="true"] .root-accessory, .root-item[aria-selected="true"] .root-accessory { color: #e4e4e7; }
+.root-copy small, .root-accessory { color: #a1a1aa; }
+.root-group [cmdk-group-heading] { padding: 12px 20px 6px; color: #a1a1aa; font-size: 12px; font-weight: 500; letter-spacing: 0; text-transform: none; }
+.root-icon { width: 20px; }
+footer { min-height: 40px; padding: 8px 16px; border-top-color: #343438; color: #a1a1aa; }
+.footer-key { color: #a1a1aa; }
+.footer-key kbd { min-width: 20px; padding: 3px 6px; border-radius: 6px; background: #343438; border-color: #4a4a50; color: #e4e4e7; }
+.actions { left: auto; right: 12px; width: 320px; bottom: 52px; box-sizing: border-box; display: flex; flex-direction: column; max-height: 310px; padding: 10px; border-radius: 10px; background: #1b1b1e; border-color: #4a4a50; }
+.actions strong { order: 1; padding: 4px 8px 8px; }
+.actions [cmdk-list] { order: 2; min-height: 0; overflow: auto; }
+.actions input { order: 3; margin-top: 8px; border: 0; border-top: 1px solid #343438; border-radius: 0; background: transparent; padding: 12px 8px 4px; outline: 0; }
+.actions [cmdk-item] { min-height: 36px; border-radius: 7px; }
+.actions [cmdk-item][data-selected="true"] { background: #343438; }
+@keyframes raycast-loader { from { transform: translateX(-100%); } to { transform: translateX(300%); } }
+header::after { content: ""; display: block; height: 2px; width: 28%; margin-top: -1px; background: #a1a1aa; opacity: 0; }
+main[data-loading="true"] header::after { opacity: 1; animation: raycast-loader 1.1s ease-in-out infinite; }
+@media (prefers-color-scheme: light) {
+  body { background: #f4f4f5; color: #18181b; }
+  main { background: #fff; border-color: #d4d4d8; box-shadow: 0 24px 70px #18181b1c; }
+  header, footer, .actions { border-color: #e4e4e7; }
+  .root-item[data-selected="true"], .root-item[aria-selected="true"], .actions [cmdk-item][data-selected="true"] { background: #e4e4e7; color: #18181b; }
+  .root-item[data-selected="true"] .root-accessory, .root-item[aria-selected="true"] .root-accessory { color: #27272a; }
+  .root-copy small, .root-accessory, footer, .footer-key { color: #71717a; }
+  .footer-key kbd { background: #f4f4f5; border-color: #d4d4d8; color: #3f3f46; }
+  .actions { background: #fff; }
+}
+@media (max-width: 520px) { body { padding: 0; } main { width: 100%; height: 100vh; border-radius: 0; border-left: 0; border-right: 0; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
