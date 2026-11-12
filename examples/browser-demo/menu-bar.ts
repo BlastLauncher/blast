@@ -23,19 +23,17 @@ export function menuLevels(
   platform: Platform,
 ): MenuRowView[][] {
   const parents = bar.path.map((open, depth) =>
-    menuRows(menu, bar.path.slice(0, depth), platform).map(
-      (row): MenuRowView => ({
-        id: row.node.id,
-        kind: !row.item ? "section" : row.isSubmenu ? "submenu" : "item",
-        title: row.title ?? "",
-        subtitle: row.subtitle ?? "",
-        iconLabel: row.iconLabel ?? "",
-        ...(row.iconTint ? { iconTint: row.iconTint } : {}),
-        shortcut: row.shortcut ?? "",
-        disabled: row.disabled,
-        selected: row.node.id === open,
-      }),
-    ),
+    menuRows(menu, bar.path.slice(0, depth), platform).map((row): MenuRowView => ({
+      id: row.node.id,
+      kind: !row.item ? "section" : row.isSubmenu ? "submenu" : "item",
+      title: row.title ?? "",
+      subtitle: row.subtitle ?? "",
+      iconLabel: row.iconLabel ?? "",
+      ...(row.iconTint ? { iconTint: row.iconTint } : {}),
+      shortcut: row.shortcut ?? "",
+      disabled: row.disabled,
+      selected: row.node.id === open,
+    })),
   );
   return [...parents, bar.rows];
 }
@@ -71,7 +69,9 @@ export function renderMenuBar(
       const open = level < levels.length - 1;
       const body = rows.length
         ? rows
-            .map((row, index) => rowMarkup(row, level, index === 0, icons, open, options.reservedHint))
+            .map((row, index) =>
+              rowMarkup(row, level, index === 0, icons, open, options.reservedHint),
+            )
             .join("")
         : '<div class="menu-section" role="presentation">No items</div>';
       return `<div class="menu-panel" role="menu" data-menu-level="${level}" aria-label="${escapeHtml(label)}">${body}</div>`;
@@ -124,11 +124,7 @@ export function placeSubmenu(parent: Box, row: Box, size: Size, viewport: Size):
   const right = parent.right - 2;
   const left = parent.left - size.width + 2;
   const side =
-    right + size.width <= viewport.width - MARGIN
-      ? right
-      : left >= MARGIN
-        ? left
-        : undefined;
+    right + size.width <= viewport.width - MARGIN ? right : left >= MARGIN ? left : undefined;
   const top = side === undefined ? row.bottom : row.top - INSET;
   const maxHeight = viewport.height - 2 * MARGIN;
   return {

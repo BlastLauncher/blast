@@ -382,8 +382,7 @@ function syncStatusItem() {
     bar.insertBefore(item, bar.querySelector(".demo-github"));
   }
   const open =
-    !rootOpen &&
-    ((sessionStarting && menuLaunching) || controller?.view().kind === "menu-bar");
+    !rootOpen && ((sessionStarting && menuLaunching) || controller?.view().kind === "menu-bar");
   const markup = statusItemMarkup({
     title: menuItem.title,
     icon: menuItem.row.icon,
