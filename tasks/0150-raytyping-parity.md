@@ -1,7 +1,7 @@
 ---
 id: "0150"
 title: Raytyping works in the browser demo like it does in the TUI
-status: todo
+status: doing
 milestone: M8
 depends: []
 ---
