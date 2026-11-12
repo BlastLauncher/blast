@@ -1,7 +1,7 @@
 ---
 id: "0147"
 title: Keep list scroll position; render menu-bar commands as a top-right menu
-status: todo
+status: doing
 milestone: M8
 depends: []
 ---
