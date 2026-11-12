@@ -15,10 +15,11 @@ type BrowserElement = {
 type BrowserDocument = {
   activeElement?: BrowserElement | null;
   scrollingElement?: { scrollHeight: number };
-  documentElement: { scrollWidth: number; clientHeight: number };
+  documentElement: { scrollWidth: number; clientHeight: number; clientWidth: number };
   querySelector<T extends BrowserElement = BrowserElement>(selector: string): T | null;
   querySelectorAll(selector: string): { length: number };
 };
+type BrowserScroller = BrowserElement & { scrollTop: number };
 declare const document: BrowserDocument;
 declare const getComputedStyle: (element: BrowserElement) => { outlineStyle: string };
 
@@ -56,6 +57,55 @@ function serve(root: string, basePath = "/") {
     },
   });
 }
+type DemoPage = import("playwright").Page;
+let scrollPage: DemoPage | undefined;
+/**
+ * Wheel `list` to its end, redraw with `redraw` (by default a pointer move
+ * across the rows), and require the offset to survive; then ↓ must bring the
+ * scrolled-away selection back into view.
+ */
+async function expectScrollKept(
+  list: string,
+  selected: string,
+  redraw?: () => Promise<void>,
+): Promise<void> {
+  const page = scrollPage!;
+  const box = await page.locator(list).boundingBox();
+  if (!box) throw new Error(`${list} is not visible`);
+  await page.mouse.move(box.x + box.width / 2, box.y + 30);
+  for (let step = 0; step < 40; step++) await page.mouse.wheel(0, 600);
+  const offset = () =>
+    page.evaluate((selector) => document.querySelector<BrowserScroller>(selector)?.scrollTop, list);
+  await page.waitForTimeout(400);
+  const bottom = await offset();
+  if (!bottom) throw new Error(`${list} did not scroll`);
+  await page.mouse.move(box.x + box.width / 2 + 10, box.y + box.height - 40, { steps: 4 });
+  await redraw?.();
+  await page.waitForTimeout(600);
+  if (Math.abs((await offset())! - bottom) > 1)
+    throw new Error(`${list} scroll moved from ${bottom} to ${await offset()} after a redraw`);
+  // Leave the list so no hover highlight follows the next scroll.
+  await page.mouse.move(box.x + box.width / 2, Math.max(1, box.y - 30));
+  await page.evaluate((selector) => {
+    const element = document.querySelector<BrowserScroller>(selector);
+    if (element) element.scrollTop = 0;
+  }, list);
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  for (let step = 0; step < 40; step++) await page.mouse.wheel(0, 600);
+  await page.mouse.move(box.x + box.width / 2, Math.max(1, box.y - 30));
+  await page.waitForTimeout(300);
+  await page.keyboard.press("ArrowDown");
+  await page.waitForTimeout(300);
+  const visible = await page.evaluate(
+    ([listSelector, rowSelector]) => {
+      const row = document.querySelector(rowSelector)?.getBoundingClientRect();
+      const frame = document.querySelector(listSelector)?.getBoundingClientRect();
+      return !!row && !!frame && row.top >= frame.top - 1 && row.bottom <= frame.bottom + 1;
+    },
+    [list, selected] as const,
+  );
+  if (!visible) throw new Error(`↓ did not bring the ${list} selection into view`);
+}
 const www = serve(result.www),
   sandbox = serve(result.sandbox, "/blast-sandbox/");
 try {
@@ -65,6 +115,7 @@ try {
   const browser = await (browserName === "firefox" ? firefox : chromium).launch({ headless: true });
   try {
     const page = await browser.newPage();
+    scrollPage = page;
     const resources: string[] = [];
     page.on("console", (message) => console.error(`[browser:${message.type()}] ${message.text()}`));
     page.on("pageerror", (error) => console.error(`[pageerror] ${error.message}`));
@@ -146,6 +197,10 @@ try {
       return { visible: row.top >= box.top - 1 && row.bottom <= box.bottom + 1 };
     });
     if (!selectedPosition?.visible) throw new Error("selected option left the visible list");
+    // 0147 scroll: a wheel scroll stays put through redraws; a key brings the
+    // selection back. The pointer leaves the list at a different row than the
+    // one it scrolled from, which highlights it and redraws the launcher.
+    await expectScrollKept(".root-options", '[role="option"][aria-selected="true"]');
     // Real typing keeps the root search focused while filtering its catalog.
     await page.locator("#root-search").click();
     await page.locator("#root-search").pressSequentially("browser");
@@ -349,7 +404,40 @@ try {
       .getByRole("option", { name: /Menu Command/ })
       .first()
       .click();
-    await page.locator(".menu-bar").waitFor({ timeout: 30_000 });
+    await page.locator(".menu-bar button[data-menu-id]").first().waitFor({ timeout: 30_000 });
+    // 0147: the menu hangs from a status item at the right of the top bar.
+    const menuBoxes = () =>
+      page.evaluate(() => {
+        const box = (selector: string) => {
+          const rect = document.querySelector(selector)?.getBoundingClientRect() as
+            | { left: number; right: number; top: number; bottom: number }
+            | undefined;
+          return rect && { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom };
+        };
+        return {
+          viewport: document.documentElement.clientWidth,
+          item: box("[data-status-item]"),
+          github: box(".demo-github"),
+          menu: box('.menu-panel[data-menu-level="0"]'),
+          submenu: box('.menu-panel[data-menu-level="1"]'),
+          expanded: document.querySelector("[data-status-item]")?.getAttribute?.("aria-expanded"),
+        };
+      });
+    const placed = await menuBoxes();
+    if (
+      !placed.item ||
+      !placed.menu ||
+      !placed.github ||
+      placed.expanded !== "true" ||
+      placed.item.right > placed.github.left ||
+      placed.item.left < placed.viewport / 2 ||
+      placed.item.bottom > 60 ||
+      placed.menu.top < placed.item.bottom ||
+      placed.menu.top > placed.item.bottom + 12 ||
+      placed.menu.right <= placed.item.left ||
+      placed.menu.left > placed.item.right
+    )
+      throw new Error(`menu is not under a top-right status item: ${JSON.stringify(placed)}`);
     const menuText = (await page.locator(".menu-bar").textContent()) ?? "";
     if (!menuText.includes("Actions") || !menuText.includes("Direct"))
       throw new Error("menu-bar sections did not render");
@@ -358,6 +446,13 @@ try {
     await page.locator('.menu-bar button[data-menu-id]:has-text("Nested")').waitFor({
       timeout: 10_000,
     });
+    const beside = await menuBoxes();
+    if (
+      !beside.menu ||
+      !beside.submenu ||
+      !(beside.submenu.left >= beside.menu.right - 4 || beside.submenu.right <= beside.menu.left + 4)
+    )
+      throw new Error(`the submenu did not open beside its menu: ${JSON.stringify(beside)}`);
     await page.keyboard.press("Enter");
     // ← closes the submenu and stays in the command; the counter reached 1.
     await page.keyboard.press("ArrowLeft");
@@ -395,6 +490,45 @@ try {
       throw new Error("the menu did not survive answering its alert");
     // Esc at the top returns to the root list.
     await page.keyboard.press("Escape");
+    await page.locator("#root-search").waitFor({ timeout: 10_000 });
+    if ((await page.locator(".menu-panel").count()) !== 0) throw new Error("Esc left the menu open");
+    // The status item stays in the bar and toggles the menu; a click outside closes it.
+    await page.locator("[data-status-item]").click();
+    await page.locator('.menu-bar button[data-menu-id]:has-text("Clicks")').waitFor({
+      timeout: 30_000,
+    });
+    await page.locator("[data-status-item]").click();
+    await page.locator("#root-search").waitFor({ timeout: 10_000 });
+    await page.locator("[data-status-item]").click();
+    await page.locator('.menu-bar button[data-menu-id]:has-text("Clicks")').waitFor({
+      timeout: 30_000,
+    });
+    await page.mouse.click(40, 500);
+    await page.locator("#root-search").waitFor({ timeout: 10_000 });
+    if ((await page.locator('[data-status-item][aria-expanded="false"]').count()) !== 1)
+      throw new Error("the status item did not stay, collapsed, after the menu closed");
+    // 0147 scroll in a pushed list of 50 rows: an action-panel round trip and
+    // (Chromium, where ⌘⇧C reaches the page) a fresh scene keep the offset.
+    await page.locator("#root-search").fill("browser-keyboard");
+    await page.keyboard.press("Enter");
+    await page.waitForFunction(
+      () => document.querySelectorAll("#app .rows li").length >= 40,
+      undefined,
+      { timeout: 30_000 },
+    );
+    await expectScrollKept("#app .rows", "#app .rows li.selected", async () => {
+      await page.locator('#app [data-footer="actions"]').click();
+      await page.locator("#app section.actions").waitFor({ timeout: 10_000 });
+      await page.keyboard.press("Escape");
+      await page.locator("#app section.actions").waitFor({ state: "detached", timeout: 10_000 });
+      if (browserName !== "chromium") return;
+      await page.keyboard.press("ControlOrMeta+Shift+C");
+      await page.getByRole("heading", { name: "Shortcut ran" }).waitFor({ timeout: 10_000 });
+    });
+    for (let press = 0; press < 3 && !(await page.locator("#root-search").count()); press++) {
+      await page.keyboard.press("Escape");
+      await page.waitForTimeout(200);
+    }
     await page.locator("#root-search").waitFor({ timeout: 10_000 });
 
     // 0146 shortcuts, in both lanes. ControlOrMeta is ⌘ on macOS and Ctrl
