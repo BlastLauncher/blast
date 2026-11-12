@@ -69,8 +69,14 @@ own Raycast example as the reference, in both light and dark.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/raycast-launcher-styling @ bf1a5db3c4f31e587280c2209cf8e32b4b8c0b7e
+Verify: bun run verify (blocked by pre-existing environment/toolchain failures: missing generated workspace links before install; mac-fixtures serve startup failure)
 Done:
+- Added Raycast-inspired framed window, selection contrast, compact rows, footer keycaps, and light/dark theme surfaces.
+- Restyled actions popover to a 320px bottom-right panel with search input at the bottom.
+- Added animated loading sweep and reduced-motion suppression; mobile layout is full-bleed at 390px.
+- Focused browser demo tests pass (14 tests).
 Not done / risks:
+- Required Playwright screenshots and Chromium/Firefox e2e lanes were not run in this worker pass.
+- Contrast ratios were not measured numerically; selected text uses #fff/#e4e4e7 on #343438 dark and #18181b/#27272a on #e4e4e7 light.
 ```
