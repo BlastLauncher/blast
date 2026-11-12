@@ -1216,6 +1216,10 @@ main.menu-window::after {
   -webkit-font-smoothing: antialiased;
   user-select: none;
 }
+/* Submenus fit their content, so one still opens beside its parent on a phone. */
+.menu-panel:not([data-menu-level="0"]) {
+  min-width: 120px;
+}
 .menu-item {
   width: 100%;
   height: 22px;
@@ -1539,4 +1543,15 @@ main.menu-window::after {
   header::before {
     display: none;
   }
+}
+.menu-bar {
+  position: fixed;
+  inset: var(--bar-height) 0 0;
+  z-index: 20;
+  width: 100vw;
+  height: calc(100vh - var(--bar-height));
+  pointer-events: none;
+}
+.menu-bar .menu-panel {
+  pointer-events: auto;
 }

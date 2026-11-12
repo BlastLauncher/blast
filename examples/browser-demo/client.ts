@@ -387,7 +387,6 @@ function syncStatusItem() {
     title: menuItem.title,
     icon: menuItem.row.icon,
     ...(menuItem.row.iconUrl ? { iconUrl: menuItem.row.iconUrl } : {}),
-    open,
   });
   // Rewriting identical markup would reload the icon and flicker.
   if (item.innerHTML !== markup) item.innerHTML = markup;

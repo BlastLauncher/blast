@@ -86,7 +86,7 @@ export function renderMenuLoading(title: string): string {
   return `<main class="menu-window" data-kind="menu-bar" data-loading="true" aria-busy="true"><nav class="menu-bar menu-loading" aria-label="${escapeHtml(title)}"><div class="menu-panel" role="menu" data-menu-level="0" aria-label="${escapeHtml(title)}"><div class="menu-section" role="presentation">Loading…</div></div></nav></main>`;
 }
 
-export type StatusItem = { title: string; icon: string; iconUrl?: string; open: boolean };
+export type StatusItem = { title: string; icon: string; iconUrl?: string };
 
 /** The menu-bar command's item in the top bar; it toggles the menu. */
 export function statusItemMarkup(item: StatusItem): string {
