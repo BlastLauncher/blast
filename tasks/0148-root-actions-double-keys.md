@@ -45,8 +45,8 @@ runs the selected action exactly once.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit: `t3-158d6a60-fe44ad2cfeb719e3` @ 33c39a9870bcc1d1c93dbfca08f0755cc18dbf37
+Branch/commit: `t3/fix-root-actions-double-keys` @ 2d0a5db (plus e2e coverage commit below)
 Verify: `verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok)`
-Done: Guarded the document root-actions key handler when cmdk already called `preventDefault`, so ArrowUp/ArrowDown/Enter are processed once; Chromium `bun run site:e2e` passed. Before this fix, cmdk and the document handler both processed the same key, skipping an action on arrows and potentially running/opening an action twice on Enter.
-Not done / risks: Firefox lane was not run in Docker in this session; no other known risks.
+Done: Added a root ⌘K e2e covering three actions, one ArrowDown selecting GitHub, and exactly one `window.open` on Enter; the check runs before either browser lane diverges. Chromium site e2e passed with the guard.
+Not done / risks: Firefox Docker lane was not run in this session. Regression proof: temporarily removing the guard made the new flow fail at the existing root selection scroll assertion (the duplicate ArrowDown advanced selection twice); the guard was restored before verification.
 ```
