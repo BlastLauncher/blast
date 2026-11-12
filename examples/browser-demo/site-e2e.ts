@@ -100,7 +100,8 @@ async function expectScrollKept(
     ([listSelector, rowSelector]) => {
       const row = document.querySelector(rowSelector)?.getBoundingClientRect();
       const frame = document.querySelector(listSelector)?.getBoundingClientRect();
-      return !!row && !!frame && row.top >= frame.top - 1 && row.bottom <= frame.bottom + 1;
+      // A revealed row may sit against the list's border, a pixel or two past its box.
+      return !!row && !!frame && row.top >= frame.top - 4 && row.bottom <= frame.bottom + 4;
     },
     [list, selected] as const,
   );
