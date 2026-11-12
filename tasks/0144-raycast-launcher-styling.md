@@ -69,8 +69,47 @@ own Raycast example as the reference, in both light and dark.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/restyle-raycast-launcher @ c8557d4 (round 2, on top of round 1 bf1a5db)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 125.2s
 Done:
+- demo.css rewritten (not layered) on a Radix gray1–12 token scale adapted from cmdk's
+  Raycast example: 750px/12px/gray6 window, dark gray2 surface with a masked one-shot
+  border shine + top shine, borderless 15px input, 1px separator that becomes the loader
+  sweep (main[data-loading=true]), 40px single-line rows (title + muted subtitle, right
+  type label + "Needs …" badge), 12px muted headings, 40px footer, 320px bottom-right
+  actions popover with input at the bottom; grid/form/detail/menu/prefs/toast/HUD/alert
+  restyled on the same tokens. Phones (≤600px): full-bleed, 16px input, no subtitles.
+- Markup: root footer = Blast mark + "Blast" left, "Open Command ↵ │ Actions ⌘K" right
+  ("Clear Esc" only when status ≠ Ready); extension footer = grayscale extension icon +
+  navigation title (aria-hidden, repeats h1); #status gains data-stage and is visually
+  hidden only when Ready (text and data-error unchanged for e2e). Pushed views put a Back
+  chip (data-footer="back") and the command chip left of #search; h1 is visually hidden,
+  still a heading. Spinners removed: the loader line replaces them (root data-loading
+  now follows the status stage; drawStarting uses the same frame/footer).
+  Extension action search gets a "Search actions…" placeholder.
+- Screenshots (1280×800 unless noted), all opened and reviewed, under
+  .cache/browser-demo/shots/{name}-{light,dark}.png: root, query, actions,
+  hello-list, hello-actions, loading (loader caught mid-sweep), snake (Nano Snake
+  running), phone (390×844 root, scrollWidth 390), plus browser-grid,
+  browser-fields, browser-preferences, menu.
+- Contrast (WCAG relative luminance; computed colours confirmed in-page):
+  light selected title #171717 on #ededed 15.31:1, selected accessory #646464 on
+  #ededed 5.05:1 (Radix gray11 #6f6f6f would be 4.29:1, so it was darkened), badge on
+  selected #646464/#e2e2e2 4.57:1; dark selected title #ededed on #282828 12.59:1,
+  selected accessory #a0a0a0 on #282828 5.64:1, badge on selected #a0a0a0/#343434 4.76:1.
+- Reduced motion (emulated, computed): shine/ring/loader animation-name none, item
+  transition-duration 0s. Chromium site:e2e pass; Firefox lane pass in
+  mcr.microsoft.com/playwright:v1.58.0-noble (image deleted afterwards).
 Not done / risks:
+- mac-fixtures: passes once `bun install --frozen-lockfile` has run; round 1's failure
+  was only the missing install, no other error reproduced.
+- Firefox in Docker: bind-mounting the worktree failed (Bun mkdir EEXIST on the
+  .cache deps symlink; nested bind mounts rejected by OrbStack), and native esbuild
+  is needed for prebuild. Recipe that works: mount worktree and deps read-only, tar the
+  tree (no node_modules/.cache) into /tmp/w in the container, copy deps into
+  /tmp/w/.cache/browser-demo/deps, `npm i -g bun@1.4.4`, `bun install --frozen-lockfile`,
+  then `bun run site:e2e -- --browser firefox`.
+- demo.css diff is large (~1290 lines after fmt) because the old file was replaced
+  rather than patched; most of it is formatter-expanded declarations.
+- Nano Snake draws its board in the search text; that is the extension's own design.
 ```

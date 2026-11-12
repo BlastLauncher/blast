@@ -34,13 +34,30 @@ const scheduleFrame = (callback: () => void) => {
   (browser.requestAnimationFrame ?? ((next) => setTimeout(next, 0)))(callback);
 };
 
+/** Fetching, installing, bundling and starting all draw the loader line. */
+export const statusBusy = (status: DemoStatus) =>
+  !status.error && status.stage !== "ready" && status.stage !== "info";
+
 export const statusMarkup = (status: DemoStatus) => (
-  <span id="status" role="status" data-error={status.error ? "true" : "false"}>
-    {!status.error && status.stage !== "ready" && status.stage !== "info" ? (
-      <span className="status-spinner" aria-hidden="true" />
-    ) : null}
+  <span
+    id="status"
+    role="status"
+    data-error={status.error ? "true" : "false"}
+    data-stage={status.stage}
+  >
     {status.text}
   </span>
+);
+
+/** Blast's own mark for the root footer, where Raycast shows its logo. */
+const BlastMark = () => (
+  <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true">
+    <rect width="20" height="20" rx="5" fill="currentColor" opacity="0.18" />
+    <path
+      d="M10 3.5 11.6 8.4 16.5 10 11.6 11.6 10 16.5 8.4 11.6 3.5 10 8.4 8.4Z"
+      fill="currentColor"
+    />
+  </svg>
 );
 
 function Row({
@@ -65,18 +82,18 @@ function Row({
       aria-selected={selected}
     >
       <span className="root-icon" aria-hidden="true">
-        {row.iconUrl ? <img src={row.iconUrl} alt="" width="24" height="24" /> : row.icon}
+        {row.iconUrl ? <img src={row.iconUrl} alt="" width="20" height="20" /> : row.icon}
       </span>
       <span className="root-copy">
         <strong>{row.title}</strong>
         <small>{row.subtitle}</small>
       </span>
-      <span className="root-accessory">{row.accessory}</span>
       {row.unavailable ? (
         <span className="root-badge">
           {row.unavailable === "macos" ? "Needs macOS" : "Needs setup"}
         </span>
       ) : null}
+      <span className="root-accessory">{row.accessory}</span>
     </Command.Item>
   );
 }
@@ -96,7 +113,7 @@ function Actions({ props }: { props: RootLauncherProps }) {
       onValueChange={props.onActionHighlight}
       label="Command actions"
     >
-      <strong>Actions</strong>
+      <strong>{props.rows[props.selected]?.title ?? "Actions"}</strong>
       <Command.Input
         ref={inputRef}
         value={props.actionQuery}
@@ -108,7 +125,7 @@ function Actions({ props }: { props: RootLauncherProps }) {
         {props.actions.map((action) => (
           <Command.Item key={action.id} value={action.id} onSelect={props.onAction}>
             <span>{action.title}</span>
-            <kbd>{action.shortcut}</kbd>
+            {action.shortcut ? <kbd>{action.shortcut}</kbd> : null}
           </Command.Item>
         ))}
         <Command.Empty>No matching actions</Command.Empty>
@@ -157,7 +174,11 @@ export function RootLauncher(props: RootLauncherProps) {
         onValueChange={props.onHighlight}
         label="Extension commands"
       >
-        <main className="root" data-kind="root" data-loading="false">
+        <main
+          className="root"
+          data-kind="root"
+          data-loading={statusBusy(props.status) ? "true" : "false"}
+        >
           <header>
             <h1>Blast</h1>
             <Command.Input
@@ -201,6 +222,12 @@ export function RootLauncher(props: RootLauncherProps) {
           </Command.List>
           {props.actionOpen ? <Actions props={props} /> : null}
           <footer>
+            <span className="footer-context" aria-hidden="true">
+              <span className="footer-icon">
+                <BlastMark />
+              </span>
+              <span className="footer-title">Blast</span>
+            </span>
             {statusMarkup(props.status)}
             <span className="footer-hints">
               <button
@@ -209,7 +236,7 @@ export function RootLauncher(props: RootLauncherProps) {
                 data-footer="primary"
                 onClick={() => props.onFooter("primary")}
               >
-                <span>Run Command</span>
+                <span>Open Command</span>
                 <kbd>↵</kbd>
               </button>
               <button
@@ -221,6 +248,8 @@ export function RootLauncher(props: RootLauncherProps) {
                 <span>Actions</span>
                 <kbd>⌘K</kbd>
               </button>
+            </span>
+            {props.status.stage !== "ready" ? (
               <button
                 type="button"
                 className="footer-key"
@@ -230,7 +259,7 @@ export function RootLauncher(props: RootLauncherProps) {
                 <span>Clear</span>
                 <kbd>Esc</kbd>
               </button>
-            </span>
+            ) : null}
             {props.toast ? (
               <span role="status" className="root-toast">
                 {props.toast}
