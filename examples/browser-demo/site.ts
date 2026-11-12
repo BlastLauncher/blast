@@ -114,7 +114,10 @@ export async function buildSite(
     '<!doctype html><title>Blast — not found</title><p>That page is not here. <a href="/">Go home</a>.</p>\n',
   );
   await writeFile(join(www, ".nojekyll"), "");
-  await writeFile(join(demo, "index.html"), demoPage(sandboxUrl.href, "./", options.fixtures));
+  await writeFile(
+    join(demo, "index.html"),
+    demoPage(sandboxUrl.href, "./", options.fixtures, `${site.origin}/`),
+  );
   await cp(join(projectRoot, "examples/browser-demo/demo.css"), join(demo, "demo.css"));
   await writeFile(join(demo, "client.js"), assets.clientJs);
   await writeFile(join(demo, "almostnode.mjs"), assets.almost);

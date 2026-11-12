@@ -34,6 +34,18 @@ const scheduleFrame = (callback: () => void) => {
   (browser.requestAnimationFrame ?? ((next) => setTimeout(next, 0)))(callback);
 };
 
+/**
+ * cmdk refocuses its input by its generated id whenever the highlighted value
+ * changes, and falls back to focusing the list. These inputs carry our own ids
+ * (`#root-search`), so that lookup always misses: without this the list takes
+ * focus mid-typing, keys stop reaching the input and the list draws a focus
+ * ring. The list keeps cmdk's tabindex -1, so Tab still skips it.
+ */
+const caretBack =
+  (input: { current: unknown }) => (event: { target: unknown; currentTarget: unknown }) => {
+    if (event.target === event.currentTarget) (input.current as { focus(): void } | null)?.focus();
+  };
+
 /** Fetching, installing, bundling and starting all draw the loader line. */
 export const statusBusy = (status: DemoStatus) =>
   !status.error && status.stage !== "ready" && status.stage !== "info";
@@ -121,7 +133,7 @@ function Actions({ props }: { props: RootLauncherProps }) {
         placeholder="Search actions…"
         aria-label="Search actions"
       />
-      <Command.List id="root-actions" role="listbox">
+      <Command.List id="root-actions" role="listbox" onFocus={caretBack(inputRef)}>
         {props.actions.map((action) => (
           <Command.Item key={action.id} value={action.id} onSelect={props.onAction}>
             <span>{action.title}</span>
@@ -140,15 +152,22 @@ export function RootLauncher(props: RootLauncherProps) {
     if (inputRef.current) inputRef.current.id = "root-search";
     inputRef.current?.focus();
   }, []);
+  // After every commit, a launcher that lost focus (remounted on return from a
+  // command, closed ⌘K panel) puts the caret back in its search field. Focus
+  // that sits on a real control, e.g. a footer button reached with Tab, stays.
   useEffect(() => {
-    if (!props.actionOpen)
-      scheduleFrame(() => {
-        const browser = globalThis as unknown as {
-          document?: { querySelector(selector: string): { focus(): void } | null };
-        };
-        browser.document?.querySelector("#root-search")?.focus();
-      });
-  }, [props.actionOpen]);
+    const browser = globalThis as unknown as {
+      document?: {
+        body: unknown;
+        activeElement: { isConnected: boolean } | null;
+        querySelector(selector: string): { focus(): void } | null;
+      };
+    };
+    const document = browser.document;
+    const active = document?.activeElement;
+    if (!document || (active && active !== document.body && active.isConnected)) return;
+    document.querySelector(props.actionOpen ? "#root-action-search" : "#root-search")?.focus();
+  });
   useEffect(() => {
     scheduleFrame(() => {
       const browser = globalThis as unknown as {
@@ -194,6 +213,7 @@ export function RootLauncher(props: RootLauncherProps) {
             className="rows root-options"
             role="listbox"
             aria-label="Extension commands"
+            onFocus={caretBack(inputRef)}
           >
             {props.query.trim()
               ? rows.map((row, index) => (

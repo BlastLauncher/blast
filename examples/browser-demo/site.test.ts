@@ -43,6 +43,11 @@ describe("site build helpers", () => {
     const demo = await readFile(`${result.www}/demo/index.html`, "utf8");
     expect(demo).toContain("https://blastlauncher.github.io/blast-sandbox/");
     expect(demo).toContain('href="./demo.css"');
+    // The demo says what it is and links home; home links back to the demo.
+    expect(demo).toContain('<a class="demo-home" href="http://127.0.0.1:4173/">');
+    expect(demo).toContain("Browser demo · alpha");
+    const landing = await readFile(`${result.www}/index.html`, "utf8");
+    expect(landing).toContain('href="http://127.0.0.1:4173/demo/"');
     await expect(readFile(`${result.www}/demo/demo.css`, "utf8")).resolves.toContain(".root-icon");
     const sandbox = await readFile(`${result.sandbox}/index.html`, "utf8");
     expect(sandbox).toContain("./almostnode-full.mjs");

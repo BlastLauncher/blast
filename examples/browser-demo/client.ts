@@ -230,6 +230,17 @@ const draw = (view: ReturnType<Controller["view"]>) => {
       .querySelector<HTMLElement>(".dropdown-panel button.selected")
       ?.scrollIntoView({ block: "nearest" });
   }
+  // A redraw that dropped focus (first scene, closed panel or alert, clicked
+  // row) hands the caret back to the view's text field, as Raycast does, so
+  // typing never needs a click first.
+  const current = document.activeElement;
+  const field = view.actions.open
+    ? "#action-search"
+    : view.kind === "list" || view.kind === "grid"
+      ? "#search"
+      : undefined;
+  if (field && (!current || current === document.body || !current.isConnected))
+    document.querySelector<HTMLInputElement>(field)?.focus();
 };
 const readRecent = () => {
   try {
@@ -449,6 +460,9 @@ function handleRuntime(
       processResult(searchResult);
       draw(controller.view());
       const search = document.querySelector<HTMLInputElement>("#search");
+      // The first draw already focused the field, and a redraw never overwrites
+      // a focused field's text, so write the flushed keys in directly.
+      if (search) search.value = controller.view().search.text;
       search?.focus();
       search?.setSelectionRange(search.value.length, search.value.length);
     }
@@ -1332,6 +1346,14 @@ function preferenceFormValues(
   }
   return values;
 }
+// Pressing a row, list background or button activates it on click but never
+// takes focus, so the caret stays in the search field. Text controls and
+// labels still take focus normally, and Detail text stays selectable.
+document.addEventListener("mousedown", (event) => {
+  const target = event.target as Element | null;
+  if (!target?.closest("#app") || target.closest("input, textarea, select, label, .detail")) return;
+  event.preventDefault();
+});
 // Clicking into a field must move the controller's focus too, or the next redraw
 // would pull the caret back to the field the controller still considers focused.
 document.addEventListener("focusin", (event) => {

@@ -20,6 +20,7 @@ type BrowserDocument = {
   querySelectorAll(selector: string): { length: number };
 };
 declare const document: BrowserDocument;
+declare const getComputedStyle: (element: BrowserElement) => { outlineStyle: string };
 
 const browsers = process.env.PLAYWRIGHT_BROWSERS_PATH;
 if (!browsers) throw new Error("PLAYWRIGHT_BROWSERS_PATH is required");
@@ -77,6 +78,13 @@ try {
     await page.getByRole("link", { name: "Open the browser demo" }).click();
     await page.locator("#root-search").waitFor();
     await page.evaluate(() => localStorage.clear());
+    // The demo bar names the page and links back to the landing page.
+    await page.getByText("Browser demo · alpha").waitFor();
+    if (
+      (await page.getByRole("link", { name: /^Blast$/ }).getAttribute("href")) !==
+      `http://127.0.0.1:${wwwPort}/`
+    )
+      throw new Error("the demo bar does not link to the landing page");
     // The root list warms the sandbox ahead of the first command open.
     await page.waitForFunction(
       () => document.querySelector('iframe[data-blast="warm"]') !== null,
@@ -159,6 +167,86 @@ try {
     await page.keyboard.press("Escape");
     if (await page.locator("#root-action-search").count())
       throw new Error("Escape did not close root actions");
+    // 0145 focus: the caret never strands outside the search field.
+    const activeId = () => page.evaluate(() => document.activeElement?.id ?? "");
+    const typesIntoRoot = async (label: string) => {
+      await page.locator("#root-search").waitFor({ timeout: 10_000 });
+      await page.waitForFunction(() => document.activeElement?.id === "root-search", undefined, {
+        timeout: 5_000,
+      });
+      // Two keys: the first changes the highlighted row, which is when cmdk
+      // used to move focus to the list.
+      await page.keyboard.type("zq");
+      const query = await page.locator("#root-search").inputValue();
+      if (!query.endsWith("zq"))
+        throw new Error(`${label}: typing reached ${await activeId()}, query ${query}`);
+      await page.locator("#root-search").fill("");
+    };
+    const openHello = async () => {
+      await page.locator("#root-search").fill("hello-list");
+      await page.keyboard.press("Enter");
+      await page.waitForFunction(
+        () => (document.querySelector("#app .rows li:nth-child(3)")?.textContent ?? "") !== "",
+        undefined,
+        { timeout: 30_000 },
+      );
+    };
+    // Pressing a row keeps focus in the search field, so the list draws no ring.
+    await page.locator("#root-search").fill("hello-list");
+    const row = await page
+      .getByRole("option", { name: /Hello List/ })
+      .first()
+      .boundingBox();
+    if (!row) throw new Error("hello-list row is not visible");
+    await page.mouse.move(row.x + 40, row.y + row.height / 2);
+    await page.mouse.down();
+    const pressed = await page.evaluate(() => ({
+      active: document.activeElement?.id,
+      outline: getComputedStyle(document.querySelector(".root-options")!).outlineStyle,
+    }));
+    if (pressed.active !== "root-search" || pressed.outline !== "none")
+      throw new Error(`pressing a root row moved focus: ${JSON.stringify(pressed)}`);
+    await page.mouse.up();
+    await page.waitForFunction(
+      () => (document.querySelector("#app .rows li:nth-child(3)")?.textContent ?? "") !== "",
+      undefined,
+      { timeout: 30_000 },
+    );
+    // A pushed view focuses its own search field.
+    if ((await activeId()) !== "search")
+      throw new Error(`opened command did not focus its search: ${await activeId()}`);
+    await page.keyboard.press("Escape");
+    await typesIntoRoot("Esc from hello-list");
+    await openHello();
+    // Clicking a row or closing the action panel leaves the caret in search.
+    await page.locator("#app .rows li:nth-child(2)").click();
+    await page.locator('#app [data-footer="actions"]').click();
+    await page.locator("#app section.actions").waitFor({ timeout: 10_000 });
+    await page.keyboard.press("Escape");
+    await page.locator("#app section.actions").waitFor({ state: "detached", timeout: 10_000 });
+    if ((await activeId()) !== "search")
+      throw new Error(`closing actions did not refocus search: ${await activeId()}`);
+    await page.locator('#app [data-footer="back"]').click();
+    await typesIntoRoot("Back button from hello-list");
+    await page.keyboard.press("ControlOrMeta+K");
+    await page.locator("#root-action-search").waitFor({ timeout: 10_000 });
+    await page.keyboard.press("Escape");
+    await page.locator("#root-action-search").waitFor({ state: "detached", timeout: 10_000 });
+    await typesIntoRoot("closing ⌘K");
+    // Tab still reaches real controls, and they show a focus ring.
+    await page.keyboard.press("Tab");
+    const tabbed = await page.evaluate(() => {
+      const active = document.activeElement;
+      return {
+        tag: active?.tagName,
+        visible: active?.matches?.(":focus-visible") ?? false,
+        outline: active ? getComputedStyle(active).outlineStyle : "none",
+      };
+    });
+    if (tabbed.tag !== "BUTTON" || !tabbed.visible || tabbed.outline === "none")
+      throw new Error(`Tab did not reach a control with a ring: ${JSON.stringify(tabbed)}`);
+    await page.locator("#root-search").click();
+
     await page.locator("#root-search").fill("hello-list");
     await page.keyboard.press("Enter");
     await page
