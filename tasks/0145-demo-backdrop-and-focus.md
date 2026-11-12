@@ -1,7 +1,7 @@
 ---
 id: "0145"
 title: Demo page backdrop, way back to the landing page, and launcher focus fixes
-status: todo
+status: doing
 milestone: M8
 depends: []
 ---
