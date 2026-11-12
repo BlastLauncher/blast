@@ -25,7 +25,7 @@ const footerButton = (label, key, action) =>
  * the hint as its tooltip, so it never looks live when it is not.
  * @param {"small" | "kbd"} tag @param {string} label @param {(label: string) => string} [hint]
  */
-const keycap = (tag, label, hint) => {
+export const keycap = (tag, label, hint) => {
   if (!label) return "";
   const reserved = hint?.(label);
   return reserved
@@ -147,6 +147,24 @@ function footerContextMarkup(context, title) {
 }
 
 /**
+ * Toast, HUD and alert: the feedback a command shows over whatever it draws.
+ * @param {import("@blastlauncher/client-core").ControllerView} view
+ * @param {{reservedHint?: (label: string) => string}} [options]
+ */
+export function feedbackMarkup(view, options = {}) {
+  const toast = view.feedback.toast
+    ? `<aside class="toast" data-style="${escapeHtml(view.feedback.toast.style)}"><strong>${escapeHtml(view.feedback.toast.title)}</strong> ${escapeHtml(view.feedback.toast.message)}${view.feedback.toast.actions.map((action, index) => `<button type="button" data-toast-action="${index}">${escapeHtml(action.title)} ${keycap("small", action.shortcut, options.reservedHint)}</button>`).join("")}</aside>`
+    : "";
+  const hud = view.feedback.hud
+    ? `<aside class="hud" role="status">${escapeHtml(view.feedback.hud.title)}</aside>`
+    : "";
+  const alert = view.feedback.alert
+    ? `<section class="alert-backdrop"><dialog open class="alert" role="alertdialog" aria-modal="true" aria-labelledby="alert-title"><h2 id="alert-title">${escapeHtml(view.feedback.alert.title)}</h2><p>${escapeHtml(view.feedback.alert.message)}</p>${view.feedback.alert.rememberUserChoice ? `<label><input id="alert-remember" type="checkbox"${view.feedback.alert.remember ? " checked" : ""}> Remember my choice</label>` : ""}<footer>${view.feedback.alert.dismiss ? `<button type="button" data-alert="dismiss">${escapeHtml(view.feedback.alert.dismiss.title)}</button>` : ""}${view.feedback.alert.primary ? `<button type="button" data-alert="confirm">${escapeHtml(view.feedback.alert.primary.title)}</button>` : ""}</footer></dialog></section>`
+    : "";
+  return `${toast}${hud}${alert}`;
+}
+
+/**
  * `actionsKey` labels the Actions footer (`⌘K`, or `Ctrl+K` off macOS);
  * `reservedHint` returns a tooltip for a shortcut label the browser reserves.
  * @param {import("@blastlauncher/client-core").ControllerView} view
@@ -205,15 +223,6 @@ export function render(view, options = {}) {
     view.kind === "detail"
       ? `<article class="detail">${renderMarkdown(view.detail)}</article>`
       : "";
-  const toast = view.feedback.toast
-    ? `<aside class="toast" data-style="${escapeHtml(view.feedback.toast.style)}"><strong>${escapeHtml(view.feedback.toast.title)}</strong> ${escapeHtml(view.feedback.toast.message)}${view.feedback.toast.actions.map((action, index) => `<button type="button" data-toast-action="${index}">${escapeHtml(action.title)} ${keycap("small", action.shortcut, options.reservedHint)}</button>`).join("")}</aside>`
-    : "";
-  const hud = view.feedback.hud
-    ? `<aside class="hud" role="status">${escapeHtml(view.feedback.hud.title)}</aside>`
-    : "";
-  const alert = view.feedback.alert
-    ? `<section class="alert-backdrop"><dialog open class="alert" role="alertdialog" aria-modal="true" aria-labelledby="alert-title"><h2 id="alert-title">${escapeHtml(view.feedback.alert.title)}</h2><p>${escapeHtml(view.feedback.alert.message)}</p>${view.feedback.alert.rememberUserChoice ? `<label><input id="alert-remember" type="checkbox"${view.feedback.alert.remember ? " checked" : ""}> Remember my choice</label>` : ""}<footer>${view.feedback.alert.dismiss ? `<button type="button" data-alert="dismiss">${escapeHtml(view.feedback.alert.dismiss.title)}</button>` : ""}${view.feedback.alert.primary ? `<button type="button" data-alert="confirm">${escapeHtml(view.feedback.alert.primary.title)}</button>` : ""}</footer></dialog></section>`
-    : "";
   const noRows =
     view.kind === "grid"
       ? (view.grid ?? []).every((row) => row.cells.length === 0)
@@ -245,7 +254,7 @@ export function render(view, options = {}) {
   const footer = `<footer>${footerContextMarkup(options.context, view.title)}${statusMarkup(status)}<span class="footer-hints">${view.primary.enabled ? footerButton(view.primary.title, view.primary.shortcut || "↵", "primary") : ""}${footerButton("Actions", options.actionsKey ?? "⌘K", "actions")}</span></footer>`;
   // Back sits left of the search field, where Raycast puts it in pushed views.
   const back = `<button type="button" class="back-key" data-footer="back" title="Back (Esc)"><span aria-hidden="true">←</span><span class="visually-hidden">Back</span></button>`;
-  return `<main data-kind="${escapeHtml(view.kind)}" data-loading="${view.loading ? "true" : "false"}" aria-busy="${view.loading ? "true" : "false"}"><header><h1>${escapeHtml(view.title)}</h1><div class="search-line">${back}${breadcrumbMarkup(options.context)}${search}</div></header>${body}${actions}${dropdown}${footer}${toast}${hud}${alert}</main>`;
+  return `<main data-kind="${escapeHtml(view.kind)}" data-loading="${view.loading ? "true" : "false"}" aria-busy="${view.loading ? "true" : "false"}"><header><h1>${escapeHtml(view.title)}</h1><div class="search-line">${back}${breadcrumbMarkup(options.context)}${search}</div></header>${body}${actions}${dropdown}${footer}${feedbackMarkup(view, options)}</main>`;
 }
 
 /** @param {import("../browser-demo/root.ts").RootRow[]} rows @param {number} selected @param {string} query @param {{open?: boolean, query?: string, actions?: import("../browser-demo/root.ts").RootAction[], selected?: number, toast?: string, status?: FooterStatus}} [panel] */

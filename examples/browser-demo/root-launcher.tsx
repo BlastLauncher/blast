@@ -30,13 +30,6 @@ export type RootLauncherProps = {
   onAction: (id: string) => void;
   onFooter: (action: "primary" | "actions" | "back") => void;
 };
-const scheduleFrame = (callback: () => void) => {
-  const browser = globalThis as unknown as {
-    requestAnimationFrame?: (callback: () => void) => void;
-  };
-  (browser.requestAnimationFrame ?? ((next) => setTimeout(next, 0)))(callback);
-};
-
 /**
  * cmdk refocuses its input by its generated id whenever the highlighted value
  * changes, and falls back to focusing the list. These inputs carry our own ids
@@ -171,27 +164,16 @@ export function RootLauncher(props: RootLauncherProps) {
     if (!document || (active && active !== document.body && active.isConnected)) return;
     document.querySelector(props.actionOpen ? "#root-action-search" : "#root-search")?.focus();
   });
-  useEffect(() => {
-    scheduleFrame(() => {
-      const browser = globalThis as unknown as {
-        document?: {
-          querySelector(selector: string): {
-            scrollIntoView(options: { block: string }): void;
-          } | null;
-        };
-      };
-      browser.document?.querySelector('[data-selected="true"]')?.scrollIntoView({
-        block: "nearest",
-      });
-    });
-  }, [props.query, props.selected, props.actionSelected]);
   const rows = props.query.trim() ? props.rows : props.sections.flatMap((section) => section.rows);
   const selected = props.rows[props.selected]?.id;
   return (
     <div className="root-shell">
+      {/* Ctrl+N/P move in client.ts; cmdk's Ctrl+J/K bindings would also take
+          Ctrl+K, the Actions key off macOS. */}
       <Command
         className="root-command"
         shouldFilter={false}
+        vimBindings={false}
         {...(selected ? { value: selected } : {})}
         onValueChange={props.onHighlight}
         label="Extension commands"
