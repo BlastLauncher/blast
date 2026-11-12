@@ -85,12 +85,12 @@ AppKit launcher over `blast serve`; automated tests and contract fixtures first.
 Raycast extensions in a browser tab, in almostnode's cross-origin sandbox (decision 0013).
 
 - [x] 0115–0119 spike, runtime core, browser bundle, installer, demo by URL (`examples/browser-*`)
-- [x] 0120–0127 root list, site, deploy (blast.yukai.dev), prebuilt bundles, warm sandbox
-- [x] 0128–0132 capabilities, sweep, cmdk matching, sandbox gaps, lazy load: 34 → 138/237
+- [x] 0120–0132 root list, site (blast.yukai.dev), bundles, warm sandbox, sweep, lazy load: 34 → 138/237
 - [x] 0133–0139 preferences, focus, keyboard, shortcuts, rows, grid, dropdown, alert, HUD, form
       fields/separators, early keystrokes; sweep counts grids/forms; no-view and menu-bar modes
 - [x] 0140–0144 menu-bar feedback; blank commands triaged; Firefox launches; cmdk + Raycast-style launcher
 - [ ] 0145 demo backdrop, link home, focus stays in search
+- [ ] 0146 bind every shortcut the demo shows
 
 ## Later (not scheduled)
 
