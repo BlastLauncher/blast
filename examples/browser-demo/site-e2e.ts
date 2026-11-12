@@ -247,6 +247,43 @@ try {
         { timeout: 30_000 },
       );
     };
+    // Root ⌘K actions are handled by cmdk once: ↓ selects GitHub (the second
+    // action), and Enter opens exactly one popup.
+    await page.locator("#root-search").fill("hello-list");
+    await page.keyboard.press("ControlOrMeta+K");
+    await page.locator("#root-action-search").waitFor({ timeout: 10_000 });
+    const rootActions = page.locator('#root-actions [role="option"]');
+    if ((await rootActions.count()) < 3) throw new Error("root row has fewer than 3 actions");
+    await page.keyboard.press("ArrowDown");
+    await page.waitForFunction(
+      () =>
+        (
+          document.querySelector('#root-actions [aria-selected="true"]')?.textContent ?? ""
+        ).includes("Open Extension on GitHub"),
+      undefined,
+    );
+    await page.evaluate(() => {
+      const pageWindow = globalThis as unknown as {
+        open: (...args: unknown[]) => unknown;
+        blastOpenCount?: number;
+      };
+      const original = pageWindow.open;
+      pageWindow.blastOpenCount = 0;
+      pageWindow.open = (...args: unknown[]) => {
+        pageWindow.blastOpenCount = (pageWindow.blastOpenCount ?? 0) + 1;
+        return original(...args);
+      };
+    });
+    await page.keyboard.press("Enter");
+    if (
+      (await page.evaluate(
+        () => (globalThis as unknown as { blastOpenCount?: number }).blastOpenCount,
+      )) !== 1
+    )
+      throw new Error("root GitHub action did not open exactly one popup");
+    if (await page.locator("#root-action-search").count())
+      throw new Error("root actions remained open after selecting GitHub");
+    await page.locator("#root-search").fill("");
     // Pressing a row keeps focus in the search field, so the list draws no ring.
     await page.locator("#root-search").fill("hello-list");
     const row = await page

@@ -1494,6 +1494,10 @@ document.addEventListener("keydown", (event) => {
       return;
     }
     if (actionOpen) {
+      // The root action panel is a cmdk instance. It owns ArrowUp/ArrowDown/
+      // Enter and calls preventDefault before its selection/activation hooks;
+      // only handle keys here when cmdk did not consume them.
+      if (event.defaultPrevented) return;
       const actionCount = rootActionModel(
         rootRows[rootSelected],
         actionQuery,

@@ -45,8 +45,8 @@ runs the selected action exactly once.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
-Done:
-Not done / risks:
+Branch/commit: `t3/fix-root-actions-double-keys` @ 2d0a5db (plus e2e coverage commit below)
+Verify: `verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok)`
+Done: Added a root ⌘K e2e covering three actions, one ArrowDown selecting GitHub, and exactly one `window.open` on Enter; the check runs before either browser lane diverges. Chromium site e2e passed with the guard.
+Not done / risks: Firefox Docker lane was not run in this session. Regression proof: temporarily removing the guard made the new flow fail at the existing root selection scroll assertion (the duplicate ArrowDown advanced selection twice); the guard was restored before verification.
 ```
