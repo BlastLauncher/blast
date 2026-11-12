@@ -86,11 +86,11 @@ Raycast extensions in a browser tab, in almostnode's cross-origin sandbox (decis
 
 - [x] 0115–0119 spike, runtime core, browser bundle, installer, demo by URL (`examples/browser-*`)
 - [x] 0120–0132 root list, site (blast.yukai.dev), bundles, warm sandbox, sweep, lazy load: 34 → 138/237
-- [x] 0133–0139 preferences, focus, keyboard, shortcuts, rows, grid, dropdown, alert, HUD, form
-      fields/separators, early keystrokes; sweep counts grids/forms; no-view and menu-bar modes
-- [x] 0140–0144 menu-bar feedback; blank commands triaged; Firefox launches; cmdk + Raycast-style launcher
-- [x] 0145–0147 demo backdrop, link home, focus, shown shortcuts bound, scroll kept, top-right menu bar
-- [x] 0148 root ⌘K panel handles each key once
+- [x] 0133–0144 preferences, keyboard, grid/form/alert/HUD, menu-bar/no-view modes, Firefox, cmdk Raycast-style UI
+- [x] 0145–0148 backdrop, home link, focus, shortcuts, scroll kept, top-right menu bar, ⌘K keys once
+- [ ] 0149 fill viewport, restore root on return, visible launch progress
+- [ ] 0150 Raytyping parity with the TUI
+- [ ] 0151 capability showcase section
 
 ## Later (not scheduled)
 
