@@ -89,7 +89,7 @@ Raycast extensions in a browser tab, in almostnode's cross-origin sandbox (decis
 - [x] 0133–0144 preferences, keyboard, grid/form/alert/HUD, menu-bar/no-view modes, Firefox, cmdk Raycast-style UI
 - [x] 0145–0148 backdrop, home link, focus, shortcuts, scroll kept, top-right menu bar, ⌘K keys once
 - [x] 0149 fill viewport, restore root on return, visible launch progress
-- [ ] 0150 Raytyping parity with the TUI
+- [x] 0150 Raytyping parity with the TUI
 - [x] 0151 capability showcase section
 
 ## Later (not scheduled)
