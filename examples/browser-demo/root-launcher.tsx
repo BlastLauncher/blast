@@ -2,7 +2,7 @@
 // @ts-ignore React is provided by the browser demo bundle.
 import { Command } from "cmdk";
 // @ts-ignore React is provided by the browser demo bundle.
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import type { DemoStatus } from "./status.ts";
 import type { RootAction, RootRow } from "./root.ts";
@@ -19,6 +19,8 @@ export type RootLauncherProps = {
   actionSelected: number;
   status: DemoStatus;
   toast?: string;
+  /** The list offset to restore when the launcher mounts again after a command. */
+  scrollTop?: number;
   /** Platform labels: `↵`/`⌘K` on macOS, `Enter`/`Ctrl+K` elsewhere. */
   primaryKey: string;
   actionsKey: string;
@@ -144,6 +146,15 @@ function Actions({ props }: { props: RootLauncherProps }) {
 
 export function RootLauncher(props: RootLauncherProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
+  // Before the first paint, so returning from a command never flashes the top.
+  useLayoutEffect(() => {
+    const list = (
+      globalThis as unknown as {
+        document?: { querySelector(selector: string): { scrollTop: number } | null };
+      }
+    ).document?.querySelector(".root-options");
+    if (list && props.scrollTop) list.scrollTop = props.scrollTop;
+  }, []);
   useEffect(() => {
     if (inputRef.current) inputRef.current.id = "root-search";
     inputRef.current?.focus();

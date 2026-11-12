@@ -169,7 +169,26 @@ try {
     }));
     if (phone.page > 390 || phone.panel > 390 || phone.footerBottom > phone.viewport)
       throw new Error(`launcher does not fit a 390x844 viewport: ${JSON.stringify(phone)}`);
-    await page.setViewportSize({ width: 1280, height: 800 });
+    // 0149: no viewport leaves an empty scroll below the window: iPad both ways,
+    // a phone, and a short landscape window where fixed heights overflowed.
+    const fitsViewports = async (label: string) => {
+      for (const [width, height] of [
+        [820, 1180],
+        [1180, 820],
+        [390, 844],
+        [1180, 560],
+      ] as const) {
+        await page.setViewportSize({ width, height });
+        const size = await page.evaluate(() => ({
+          scroll: document.scrollingElement?.scrollHeight ?? Infinity,
+          inner: (globalThis as unknown as { innerHeight: number }).innerHeight,
+        }));
+        if (size.scroll > size.inner)
+          throw new Error(`${label} scrolls at ${width}x${height}: ${JSON.stringify(size)}`);
+      }
+      await page.setViewportSize({ width: 1280, height: 800 });
+    };
+    await fitsViewports("the root");
     const initialSelection = await page
       .locator('[role="option"][aria-selected="true"]')
       .getAttribute("data-root-index");
@@ -205,6 +224,57 @@ try {
     // selection back. The pointer leaves the list at a different row than the
     // one it scrolled from, which highlights it and redraws the launcher.
     await expectScrollKept(".root-options", '[role="option"][aria-selected="true"]');
+    // 0149: leaving a command, by Esc or by Back, finds the root as it was: the
+    // same row selected at the same list offset, though opening it made it recent.
+    const rootPlace = (value?: string) =>
+      page.evaluate((wanted) => {
+        const row = document.querySelector(
+          wanted ? `[cmdk-item][data-value="${wanted}"]` : '[cmdk-item][aria-selected="true"]',
+        );
+        const list = document.querySelector<BrowserScroller>("[cmdk-list]");
+        return {
+          selected: row?.getAttribute?.("data-value") ?? "none",
+          top: list?.scrollTop ?? -1,
+          // Where the row sits in the list's box: a reordered list moves it.
+          rowTop: Math.round(
+            (row?.getBoundingClientRect().top ?? 0) - (list?.getBoundingClientRect().top ?? 0),
+          ),
+        };
+      }, value);
+    for (const leave of ["Escape", "Back"] as const) {
+      const far = page.locator('[cmdk-item][data-value="browser-storage:index"]');
+      // Off by half a row, so a restore that snaps to rows would show.
+      await page.evaluate(() => {
+        const list = document.querySelector<BrowserScroller>("[cmdk-list]");
+        const row = document.querySelector<BrowserScroller & { offsetTop: number }>(
+          '[cmdk-item][data-value="browser-storage:index"]',
+        );
+        if (!list || !row) throw new Error("the root list or the browser-storage row is missing");
+        list.scrollTop = row.offsetTop - 117;
+      });
+      // The click both selects and opens the row, replacing the root at once.
+      const before = await rootPlace("browser-storage:index");
+      if (before.top < 400) throw new Error(`the root list did not scroll: ${before.top}`);
+      await far.click();
+      await page.waitForFunction(
+        () => (document.querySelector("#app")?.textContent ?? "").includes("Storage: persists"),
+        undefined,
+        { timeout: 30_000 },
+      );
+      if (leave === "Escape") await page.keyboard.press("Escape");
+      else await page.locator('#app [data-footer="back"]').click();
+      await page.locator("[cmdk-list]").waitFor({ timeout: 10_000 });
+      await page.waitForTimeout(300);
+      const after = await rootPlace();
+      if (
+        after.selected !== before.selected ||
+        Math.abs(after.top - before.top) > 4 ||
+        Math.abs(after.rowTop - before.rowTop) > 4
+      )
+        throw new Error(
+          `${leave} did not restore the root: ${JSON.stringify(before)} -> ${JSON.stringify(after)}`,
+        );
+    }
     // Real typing keeps the root search focused while filtering its catalog.
     await page.locator("#root-search").click();
     await page.locator("#root-search").pressSequentially("browser");
@@ -313,6 +383,7 @@ try {
       undefined,
       { timeout: 30_000 },
     );
+    await fitsViewports("a pushed list");
     // A pushed view focuses its own search field.
     if ((await activeId()) !== "search")
       throw new Error(`opened command did not focus its search: ${await activeId()}`);
@@ -349,7 +420,66 @@ try {
     await page.locator("#root-search").click();
 
     await page.locator("#root-search").fill("hello-list");
+    // 0149: the launch stage replaces the root by the next frame after ↵ (no
+    // frame without it), names the command and its stage, and sweeps its loader.
+    await page.evaluate(() => {
+      const scope = globalThis as unknown as {
+        addEventListener(type: string, listener: () => void, options: object): void;
+        requestAnimationFrame(callback: () => void): void;
+        performance: { now(): number };
+        blastStage?: object | undefined;
+        document: {
+          getAnimations(): {
+            animationName?: string;
+            playState: string;
+            effect: { pseudoElement?: string | null } | null;
+          }[];
+        };
+      };
+      scope.blastStage = undefined;
+      scope.addEventListener(
+        "keydown",
+        () => {
+          const pressedAt = scope.performance.now();
+          scope.requestAnimationFrame(() => {
+            const stage = document.querySelector("#app .loading-stage");
+            scope.blastStage = {
+              ms: scope.performance.now() - pressedAt,
+              text: stage?.textContent ?? "",
+              height: stage?.getBoundingClientRect().height ?? 0,
+              sweeping: scope.document
+                .getAnimations()
+                .some(
+                  (animation) =>
+                    animation.animationName === "loading" &&
+                    animation.playState === "running" &&
+                    animation.effect?.pseudoElement === "::after",
+                ),
+            };
+          });
+        },
+        { once: true },
+      );
+    });
     await page.keyboard.press("Enter");
+    await page.waitForFunction(
+      () => (globalThis as unknown as { blastStage?: object }).blastStage !== undefined,
+      undefined,
+      { timeout: 5_000 },
+    );
+    const stage = (await page.evaluate(
+      () => (globalThis as unknown as { blastStage: object }).blastStage,
+    )) as { ms: number; text: string; height: number; sweeping: boolean };
+    if (
+      stage.ms > 100 ||
+      !stage.height ||
+      !stage.text.includes("Hello List") ||
+      !["Fetching extension…", "Installing…", "Bundling…", "Starting…"].some((text) =>
+        stage.text.includes(text),
+      ) ||
+      !stage.sweeping
+    )
+      throw new Error(`the launch stage did not show at once: ${JSON.stringify(stage)}`);
     await page
       .waitForFunction(
         () => {

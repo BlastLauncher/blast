@@ -103,6 +103,14 @@ let rootSelected = 0;
 let rootRows: RootRow[] = [];
 let rootRenderer: ReactRoot | undefined;
 let recentIds: string[] = [];
+/**
+ * Recents as the root draws them. A launch records its row at once, but the
+ * root shows the new order only once the query changes, so coming back from a
+ * command finds every row where it was left.
+ */
+let shownRecent: { query: string; ids: string[] } | undefined;
+/** The root list's offset when a command replaced it; restored when it mounts again. */
+let rootScroll = 0;
 let rootOpen = true;
 let actionOpen = false;
 let actionQuery = "";
@@ -186,9 +194,14 @@ const setStatus = (text: string, error = false) => {
     else drawRoot();
   }
 };
-function replaceApp(markup: string) {
-  rootRenderer?.unmount();
+function unmountRoot() {
+  if (!rootRenderer) return;
+  rootScroll = app.querySelector(".root-options")?.scrollTop ?? 0;
+  rootRenderer.unmount();
   rootRenderer = undefined;
+}
+function replaceApp(markup: string) {
+  unmountRoot();
   const active = document.activeElement;
   const controls = new Map<string, HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>();
   for (const control of app.querySelectorAll<
@@ -230,9 +243,26 @@ function replaceApp(markup: string) {
     next.replaceWith(previous);
   }
 }
+/** One sweep of the loader line: the `loading` animation in demo.css. */
+const LOADER_SECONDS = 1.5;
+/** When the current launch began; after two seconds the stage shows how long it has taken. */
+let launchStartedAt = 0;
+let stageClock: ReturnType<typeof setInterval> | undefined;
+const stageElapsed = () => {
+  const seconds = Math.floor((performance.now() - launchStartedAt) / 1000);
+  return seconds >= 2 ? `${seconds} s` : "";
+};
+/** Keeps the elapsed hint current; stops itself once the stage is gone. */
+function tickStage() {
+  const elapsed = app.querySelector(".loading-elapsed");
+  if (elapsed) elapsed.textContent = stageElapsed();
+  else {
+    clearInterval(stageClock);
+    stageClock = undefined;
+  }
+}
 const drawStarting = () => {
-  rootRenderer?.unmount();
-  rootRenderer = undefined;
+  unmountRoot();
   if (menuLaunching && menuItem) {
     app.innerHTML = renderMenuLoading(menuItem.title);
     syncStatusItem();
@@ -245,8 +275,14 @@ const drawStarting = () => {
       : escapeHtml(extensionContext?.icon ?? "⌘");
   const extensionTitle = escapeHtml(extensionContext?.extensionTitle ?? "Extension");
   const commandTitle = escapeHtml(extensionContext?.commandTitle ?? "Command");
-  // Same frame as a rendered view; the loader line under the input shows progress.
-  app.innerHTML = `<main data-kind="list" data-loading="true" aria-busy="true"><header><h1>Loading command</h1><div class="search-line"><div class="breadcrumb"><span class="breadcrumb-icon">${iconMarkup(20)}</span><span>${extensionTitle}</span><span class="breadcrumb-separator">›</span><span>${commandTitle}</span></div><input id="search" data-starting="true" value="${escapeHtml(earlyInput)}" placeholder="Search…" aria-label="Search" readonly></div></header><section class="loading-stage"><span class="loading-icon">${iconMarkup(40)}</span><strong>${commandTitle}</strong><span>${escapeHtml(statusState.text)}</span></section><footer><span class="footer-context" aria-hidden="true"><span class="footer-icon">${iconMarkup(20)}</span><span class="footer-title">${extensionTitle}</span></span><span id="status" role="status" data-error="${statusState.error ? "true" : "false"}" data-stage="${statusState.stage}">${escapeHtml(statusState.text)}</span></footer></main>`;
+  const failed = statusState.error;
+  // The runtime reports ready a moment before its first scene; that is still starting.
+  const stageText = statusState.stage === "ready" ? "Starting…" : statusState.text;
+  // Same frame as a rendered view; the loader line under the input sweeps until
+  // the first scene. Redraws (a new stage, early typing) continue its sweep
+  // from where it was rather than restarting it.
+  const sweep = -(((performance.now() - launchStartedAt) / 1000) % LOADER_SECONDS);
+  app.innerHTML = `<main class="launching" data-kind="list" data-loading="${failed ? "false" : "true"}" aria-busy="${failed ? "false" : "true"}" style="--loader-delay:${sweep.toFixed(2)}s"><header><h1>${failed ? "Command failed" : "Loading command"}</h1><div class="search-line"><div class="breadcrumb"><span class="breadcrumb-icon">${iconMarkup(20)}</span><span>${extensionTitle}</span><span class="breadcrumb-separator">›</span><span>${commandTitle}</span></div><input id="search" data-starting="true" value="${escapeHtml(earlyInput)}" placeholder="Search…" aria-label="Search" readonly></div></header><section class="loading-stage" data-error="${failed ? "true" : "false"}"><span class="loading-icon">${iconMarkup(40)}</span><strong>${commandTitle}</strong><span class="loading-text">${escapeHtml(stageText)}</span>${failed ? "" : `<span class="loading-elapsed">${stageElapsed()}</span>`}</section><footer><span class="footer-context" aria-hidden="true"><span class="footer-icon">${iconMarkup(20)}</span><span class="footer-title">${extensionTitle}</span></span><span id="status" role="status" data-error="${failed ? "true" : "false"}" data-stage="${statusState.stage}">${escapeHtml(statusState.text)}</span><span class="footer-hints"><button type="button" class="footer-key" data-footer="back"><span>Back</span><kbd>Esc</kbd></button></span></footer></main>`;
 };
 /** Lists, grids and panels that scroll inside a drawn extension view. */
 const SCROLLERS = [
@@ -448,6 +484,9 @@ const drawRoot = () => {
   rootRows = model.rows;
   rootSelected = model.selected;
   const allRows = rootQuery.trim() ? rootModel(catalog, "", 0).rows : rootRows;
+  // Keep the Recent order fixed until the query changes, so opening a row
+  // does not shift the list the visitor returns to.
+  if (shownRecent?.query !== rootQuery) shownRecent = { query: rootQuery, ids: recentIds };
   const actions = rootActionModel(
     rootRows[rootSelected] ?? rootRows[0],
     actionQuery,
@@ -459,13 +498,14 @@ const drawRoot = () => {
     query: rootQuery,
     selected: rootSelected,
     rows: rootRows,
-    sections: rootSections(allRows, recentIds),
+    sections: rootSections(allRows, shownRecent.ids),
     actions: actions.actions,
     actionOpen,
     actionQuery,
     actionSelected,
     status: statusState,
     toast: rootToast,
+    scrollTop: rootScroll,
     ...keyLabels,
     onQuery: (query) => {
       if (query !== rootQuery) revealRoot = true;
@@ -805,6 +845,11 @@ async function launch(
       .find((entry) => entry.name === selectedRow.extension)
       ?.commands.find((entry) => entry.name === selectedCommand)?.mode === "menu-bar";
   if (menuLaunching && selectedRow) rememberMenuItem(source, selectedCommand, selectedRow);
+  // Draw the stage in the same task as the key or click, before any fetch.
+  launchStartedAt = performance.now();
+  clearInterval(stageClock);
+  stageClock = setInterval(tickStage, 250);
+  setStatus("Fetching extension…");
   const catalogSource = source.startsWith("https://github.com/raycast/extensions/tree/");
   const bundle = catalogSource ? await prebuiltBundle(source, selectedCommand) : undefined;
   if (!stillCurrent()) return;
@@ -815,9 +860,8 @@ async function launch(
     extension = { files: bundle.files, manifest: bundle.manifest, root: "" };
     command = `/src/${selectedCommand}.tsx`;
     bundled = bundle;
-    setStatus("Starting prebuilt bundle…");
+    setStatus("Starting…");
   } else {
-    setStatus("Fetching extension…");
     extension = await fetchFiles(source);
     if (!stillCurrent()) return;
     const sourceFiles = (await (await fetch(asset("blast-sources.json"))).json()) as FileMap;
@@ -1192,22 +1236,27 @@ function rememberMenuItem(source: string, command: string, row: RootRow) {
     menuItem = { source, command, row, title: row.title };
 }
 
-function stopSession(message = "Ready", error = false) {
+/** Cancel the running launch and close its sandbox; the caller decides what to draw. */
+function releaseSession() {
   const pendingStage = launchStage;
   launchStage = undefined;
   launchGenerations.next();
   pendingStage?.resolve();
+  for (const timer of sessionTimers) clearTimeout(timer);
+  sessionTimers.clear();
+  port?.close();
+  port = undefined;
+  discardSandbox();
+}
+
+function stopSession(message = "Ready", error = false) {
+  releaseSession();
   sessionStarting = false;
   menuLaunching = false;
   lastScene = undefined;
   drawn = undefined;
   earlyInput = "";
-  for (const timer of sessionTimers) clearTimeout(timer);
-  sessionTimers.clear();
-  port?.close();
-  port = undefined;
   controller = undefined;
-  discardSandbox();
   rootOpen = true;
   extensionContext = undefined;
   activeCapabilityContext = undefined;
@@ -1241,7 +1290,13 @@ function launchFromLauncher(source: string, command: string, row: RootRow) {
         : error instanceof Error
           ? error.message
           : String(error);
-    stopSession(message, true);
+    // Before the first scene the stage stays, now with the error, until Esc or
+    // Back; a running view or a menu returns to the root as before.
+    if (controller || menuLaunching || !sessionStarting) stopSession(message, true);
+    else {
+      releaseSession();
+      setStatus(message, true);
+    }
   });
 }
 
