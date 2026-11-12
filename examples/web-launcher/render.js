@@ -101,13 +101,13 @@ export function renderMarkdown(markdown) {
 }
 
 /**
- * @typedef {{text: string, error?: boolean, progress?: boolean}} FooterStatus
+ * @typedef {{text: string, error?: boolean, progress?: boolean, stage?: string}} FooterStatus
  * @typedef {{extensionTitle: string, commandTitle: string, icon?: string, iconUrl?: string}} ExtensionContext
  */
 
 /** @param {FooterStatus} status */
 function statusMarkup(status) {
-  return `<span id="status" role="status" data-error="${status.error ? "true" : "false"}">${status.progress ? '<span class="status-spinner" aria-hidden="true"></span>' : ""}${escapeHtml(status.text)}</span>`;
+  return `<span id="status" role="status" data-error="${status.error ? "true" : "false"}"${status.stage ? ` data-stage="${escapeHtml(status.stage)}"` : ""}>${status.progress ? '<span class="status-spinner" aria-hidden="true"></span>' : ""}${escapeHtml(status.text)}</span>`;
 }
 
 /** @param {ExtensionContext | undefined} context */
@@ -117,6 +117,20 @@ function breadcrumbMarkup(context) {
     ? `<img src="${escapeHtml(context.iconUrl)}" alt="" width="20" height="20" onerror="this.hidden=true">`
     : escapeHtml(context.icon ?? "⌘");
   return `<div class="breadcrumb"><span class="breadcrumb-icon" aria-hidden="true">${icon}</span><span>${escapeHtml(context.extensionTitle)}</span><span class="breadcrumb-separator">›</span><span>${escapeHtml(context.commandTitle)}</span></div>`;
+}
+
+/**
+ * The footer names where the user is, as Raycast does: the extension's icon and
+ * the view's navigation title. It repeats the h1 and breadcrumb, so it is hidden
+ * from assistive tech.
+ * @param {ExtensionContext | undefined} context @param {string} title
+ */
+function footerContextMarkup(context, title) {
+  if (!context) return "";
+  const icon = context.iconUrl
+    ? `<img src="${escapeHtml(context.iconUrl)}" alt="" width="20" height="20" onerror="this.hidden=true">`
+    : escapeHtml(context.icon ?? "⌘");
+  return `<span class="footer-context" aria-hidden="true"><span class="footer-icon">${icon}</span><span class="footer-title">${escapeHtml(title || context.commandTitle)}</span></span>`;
 }
 
 /** @param {import("@blastlauncher/client-core").ControllerView} view @param {{status?: FooterStatus, context?: ExtensionContext}} [options] */
@@ -140,7 +154,7 @@ export function render(view, options = {}) {
     ? `<section class="dropdown-panel" role="dialog" aria-label="${escapeHtml(view.dropdown.label)}"><input id="dropdown-search" data-dropdown-search value="${escapeHtml(view.dropdown.query)}" aria-label="Filter options"><ul>${view.dropdown.options.map((option) => `<li><button type="button" data-dropdown-value="${escapeHtml(option.value)}"${option.selected ? ' class="selected"' : ""}>${escapeHtml(option.title)}${option.current ? " ✓" : ""}</button></li>`).join("")}</ul></section>`
     : "";
   const actions = view.actions.open
-    ? `<section class="actions"><strong>${escapeHtml(view.actions.title)}</strong><div class="breadcrumb">${view.actions.breadcrumb.map(escapeHtml).join(" / ")}</div><input id="action-search" value="${escapeHtml(view.actions.query)}" aria-label="Action search"><ul>${view.actions.rows.map((row, index) => `<li${row.selected ? ' class="selected"' : ""} data-action-index="${index}">${escapeHtml(row.title)} <small>${escapeHtml(row.shortcut)}</small></li>`).join("")}</ul></section>`
+    ? `<section class="actions"><strong>${escapeHtml(view.actions.title)}</strong><div class="breadcrumb">${view.actions.breadcrumb.map(escapeHtml).join(" / ")}</div><input id="action-search" value="${escapeHtml(view.actions.query)}" placeholder="Search actions…" aria-label="Action search"><ul>${view.actions.rows.map((row, index) => `<li${row.selected ? ' class="selected"' : ""} data-action-index="${index}">${escapeHtml(row.title)} <small>${escapeHtml(row.shortcut)}</small></li>`).join("")}</ul></section>`
     : "";
   const formView = view.form;
   const form = formView
@@ -210,8 +224,10 @@ export function render(view, options = {}) {
           : view.kind === "grid"
             ? `<ul class="grid">${grid}</ul>${empty}`
             : `<ul class="rows">${rows}</ul>${empty}`;
-  const footer = `<footer>${statusMarkup(status)}<span class="footer-hints">${view.primary.enabled ? footerButton(view.primary.title, view.primary.shortcut || "↵", "primary") : ""}${footerButton("Actions", "⌘K", "actions")}${footerButton("Back", "Esc", "back")}</span></footer>`;
-  return `<main data-kind="${escapeHtml(view.kind)}" data-loading="${view.loading ? "true" : "false"}" aria-busy="${view.loading ? "true" : "false"}"><header>${breadcrumbMarkup(options.context)}<h1>${escapeHtml(view.title)}</h1><div class="search-line">${search}</div></header>${body}${actions}${dropdown}${footer}${toast}${hud}${alert}</main>`;
+  const footer = `<footer>${footerContextMarkup(options.context, view.title)}${statusMarkup(status)}<span class="footer-hints">${view.primary.enabled ? footerButton(view.primary.title, view.primary.shortcut || "↵", "primary") : ""}${footerButton("Actions", "⌘K", "actions")}</span></footer>`;
+  // Back sits left of the search field, where Raycast puts it in pushed views.
+  const back = `<button type="button" class="back-key" data-footer="back" title="Back (Esc)"><span aria-hidden="true">←</span><span class="visually-hidden">Back</span></button>`;
+  return `<main data-kind="${escapeHtml(view.kind)}" data-loading="${view.loading ? "true" : "false"}" aria-busy="${view.loading ? "true" : "false"}"><header><h1>${escapeHtml(view.title)}</h1><div class="search-line">${back}${breadcrumbMarkup(options.context)}${search}</div></header>${body}${actions}${dropdown}${footer}${toast}${hud}${alert}</main>`;
 }
 
 /** @param {import("../browser-demo/root.ts").RootRow[]} rows @param {number} selected @param {string} query @param {{open?: boolean, query?: string, actions?: import("../browser-demo/root.ts").RootAction[], selected?: number, toast?: string, status?: FooterStatus}} [panel] */

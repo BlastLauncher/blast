@@ -179,10 +179,14 @@ function replaceApp(markup: string) {
 const drawStarting = () => {
   rootRenderer?.unmount();
   rootRenderer = undefined;
-  const icon = extensionContext?.iconUrl
-    ? `<img src="${escapeHtml(extensionContext.iconUrl)}" alt="" width="28" height="28">`
-    : escapeHtml(extensionContext?.icon ?? "⌘");
-  app.innerHTML = `<main data-kind="list" data-loading="true" aria-busy="true"><header><div class="breadcrumb"><span class="breadcrumb-icon">${icon}</span><span>${escapeHtml(extensionContext?.extensionTitle ?? "Extension")}</span><span class="breadcrumb-separator">›</span><span>${escapeHtml(extensionContext?.commandTitle ?? "Command")}</span></div><h1>Loading command</h1><div class="search-line"><input id="search" data-starting="true" value="${escapeHtml(earlyInput)}" placeholder="Search…" aria-label="Search" readonly></div></header><section class="loading-stage"><span class="loading-icon">${icon}</span><strong>${escapeHtml(extensionContext?.commandTitle ?? "Command")}</strong><span class="status-spinner" aria-hidden="true"></span><span>${escapeHtml(statusState.text)}</span></section><footer><span id="status" role="status" data-error="${statusState.error ? "true" : "false"}"><span class="status-spinner" aria-hidden="true"></span>${escapeHtml(statusState.text)}</span></footer></main>`;
+  const iconMarkup = (size: number) =>
+    extensionContext?.iconUrl
+      ? `<img src="${escapeHtml(extensionContext.iconUrl)}" alt="" width="${size}" height="${size}">`
+      : escapeHtml(extensionContext?.icon ?? "⌘");
+  const extensionTitle = escapeHtml(extensionContext?.extensionTitle ?? "Extension");
+  const commandTitle = escapeHtml(extensionContext?.commandTitle ?? "Command");
+  // Same frame as a rendered view; the loader line under the input shows progress.
+  app.innerHTML = `<main data-kind="list" data-loading="true" aria-busy="true"><header><h1>Loading command</h1><div class="search-line"><div class="breadcrumb"><span class="breadcrumb-icon">${iconMarkup(20)}</span><span>${extensionTitle}</span><span class="breadcrumb-separator">›</span><span>${commandTitle}</span></div><input id="search" data-starting="true" value="${escapeHtml(earlyInput)}" placeholder="Search…" aria-label="Search" readonly></div></header><section class="loading-stage"><span class="loading-icon">${iconMarkup(40)}</span><strong>${commandTitle}</strong><span>${escapeHtml(statusState.text)}</span></section><footer><span class="footer-context" aria-hidden="true"><span class="footer-icon">${iconMarkup(20)}</span><span class="footer-title">${extensionTitle}</span></span><span id="status" role="status" data-error="${statusState.error ? "true" : "false"}" data-stage="${statusState.stage}">${escapeHtml(statusState.text)}</span></footer></main>`;
 };
 const draw = (view: ReturnType<Controller["view"]>) => {
   const active = document.activeElement as HTMLInputElement | null;
