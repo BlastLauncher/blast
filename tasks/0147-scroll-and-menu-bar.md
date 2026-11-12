@@ -27,7 +27,7 @@ right end of the page's top bar with its menu dropping down beneath it.
   moves by keyboard; wheel/trackpad scrolling is left alone and a redraw
   keeps the current offset.
 - Menu bar: `examples/web-launcher/render.js` renders `view.kind ===
-"menu-bar"` as a `nav.menu-bar` inside the launcher window;
+  "menu-bar"` as a `nav.menu-bar` inside the launcher window;
   `client.ts` (~line 1230) handles its keys; `template.ts` builds the
   `.demo-bar` top bar (from 0145). Running a menu-bar command should place
   its title/icon as a status item at the right of `.demo-bar` (before
