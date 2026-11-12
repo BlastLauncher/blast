@@ -91,6 +91,7 @@ Raycast extensions in a browser tab, in almostnode's cross-origin sandbox (decis
       fields/separators, early keystrokes; sweep counts grids/forms; no-view and menu-bar modes
 - [x] 0140–0141 menu-bar feedback; blank catalog commands triaged
 - [x] 0142 Firefox launches; 0143 cmdk root launcher (sections, recent, badges, ⌘K, loader)
+- [ ] 0144 Raycast-style window, loader, footer and actions panel
 
 ## Later (not scheduled)
 
