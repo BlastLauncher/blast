@@ -26,6 +26,13 @@
   --focus: #0090ff;
   --shadow: 0 16px 70px rgb(0 0 0 / 20%);
   --popover-shadow: 0 8px 30px rgb(0 0 0 / 14%);
+  /* Blast's mark and accent, shared with the landing page. */
+  --accent: #ff6338;
+  --accent-text: #b8401f;
+  --backdrop-warm: rgb(255 99 56 / 13%);
+  --backdrop-cool: rgb(70 110 220 / 9%);
+  --backdrop-dot: rgb(0 0 0 / 7%);
+  --bar-height: 52px;
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -50,6 +57,10 @@
     --focus: #70b8ff;
     --shadow: 0 16px 70px rgb(0 0 0 / 55%);
     --popover-shadow: 0 8px 30px rgb(0 0 0 / 50%);
+    --accent-text: #ff8a66;
+    --backdrop-warm: rgb(255 99 56 / 9%);
+    --backdrop-cool: rgb(90 130 255 / 7%);
+    --backdrop-dot: rgb(255 255 255 / 5%);
   }
 }
 
@@ -62,12 +73,95 @@ body {
   /* An auto column grows to the widest nowrap row, so the window's
      min(750px, 100%) resolved against it and overflowed on phones. */
   grid-template-columns: minmax(0, 1fr);
-  place-items: center;
-  padding: 24px;
-  background: var(--page);
+  grid-template-rows: auto minmax(0, 1fr);
+  /* The backdrop: two soft washes over the page gray, nothing to read. */
+  background:
+    radial-gradient(70rem 42rem at 8% -12%, var(--backdrop-warm), transparent 65%),
+    radial-gradient(60rem 40rem at 104% 112%, var(--backdrop-cool), transparent 65%), var(--page);
   color: var(--gray12);
   font: 14px/1.4 var(--font);
   -webkit-font-smoothing: antialiased;
+}
+/* A faint dot grid that fades out before the edges. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(var(--backdrop-dot) 1px, transparent 1.5px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, black, transparent);
+}
+#app {
+  box-sizing: border-box;
+  align-self: center;
+  padding: 16px 24px 56px;
+}
+
+/* ---------- demo bar: where you are and the way home ---------- */
+.demo-bar {
+  box-sizing: border-box;
+  height: var(--bar-height);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--gray6);
+  color: var(--gray11);
+  font-size: 13px;
+  white-space: nowrap;
+}
+.demo-bar a {
+  color: inherit;
+  text-decoration: none;
+  border-radius: 6px;
+}
+.demo-bar a:focus-visible {
+  outline-offset: 3px;
+}
+.demo-bar .demo-home {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--gray12);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+.demo-home i {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: var(--accent);
+}
+.demo-label {
+  flex: none;
+  padding: 2px 8px;
+  border: 1px solid var(--gray7);
+  border-radius: 999px;
+  color: var(--accent-text);
+  font-size: 12px;
+  font-weight: 600;
+}
+.demo-note {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.demo-github {
+  margin-left: auto;
+  padding: 4px 2px;
+  font-weight: 600;
+}
+.demo-github:hover,
+.demo-home:hover {
+  color: var(--gray12);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 #app,
 #app > [cmdk-root],
@@ -225,7 +319,8 @@ main.root > header {
   padding: 0 16px;
 }
 header input,
-#root-search {
+#root-search,
+#search {
   flex: 1;
   min-width: 0;
   height: 38px;
@@ -1212,19 +1307,30 @@ main.preferences > header > h1 {
 
 /* ---------- phones: the window becomes the screen ---------- */
 @media (max-width: 600px) {
-  body {
+  :root {
+    --bar-height: calc(44px + env(safe-area-inset-top));
+  }
+  #app {
     padding: 0;
+  }
+  .demo-bar {
+    gap: 10px;
+    padding: env(safe-area-inset-top) max(16px, env(safe-area-inset-right)) 0
+      max(16px, env(safe-area-inset-left));
+  }
+  .demo-note {
+    display: none;
   }
   main {
     width: 100%;
-    /* 100vh includes the area behind mobile toolbars; dvh is the visible viewport. */
-    height: 100vh;
-    height: 100dvh;
+    /* 100vh includes the area behind mobile toolbars; dvh is the visible viewport.
+       The demo bar above takes the top inset. */
+    height: calc(100vh - var(--bar-height));
+    height: calc(100dvh - var(--bar-height));
     border: 0;
     border-radius: 0;
     box-shadow: none;
-    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
-      env(safe-area-inset-left);
+    padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
   main::before,
   main::after {

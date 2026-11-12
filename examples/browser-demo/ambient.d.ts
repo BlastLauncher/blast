@@ -80,6 +80,11 @@ declare module "playwright" {
     getByRole(role: string, options: { name: RegExp | string }): Locator;
     getByText(text: RegExp | string): Locator;
     keyboard: { press(key: string): Promise<void>; type(text: string): Promise<void> };
+    mouse: {
+      move(x: number, y: number): Promise<void>;
+      down(): Promise<void>;
+      up(): Promise<void>;
+    };
   };
 }
 
