@@ -33,6 +33,16 @@
   --backdrop-cool: rgb(70 110 220 / 9%);
   --backdrop-dot: rgb(0 0 0 / 7%);
   --bar-height: 52px;
+  /* macOS menu materials */
+  --menu-bg: rgb(246 246 246 / 82%);
+  --menu-edge: rgb(0 0 0 / 18%);
+  --menu-rim: rgb(255 255 255 / 60%);
+  --menu-text: rgb(0 0 0 / 88%);
+  --menu-secondary: rgb(0 0 0 / 45%);
+  --menu-disabled: rgb(0 0 0 / 26%);
+  --menu-separator: rgb(0 0 0 / 10%);
+  --menu-accent: #0a64d6;
+  --menu-item-active: rgb(0 0 0 / 9%);
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -61,6 +71,15 @@
     --backdrop-warm: rgb(255 99 56 / 9%);
     --backdrop-cool: rgb(90 130 255 / 7%);
     --backdrop-dot: rgb(255 255 255 / 5%);
+    --menu-bg: rgb(40 40 40 / 78%);
+    --menu-edge: rgb(0 0 0 / 70%);
+    --menu-rim: rgb(255 255 255 / 14%);
+    --menu-text: rgb(255 255 255 / 88%);
+    --menu-secondary: rgb(255 255 255 / 45%);
+    --menu-disabled: rgb(255 255 255 / 25%);
+    --menu-separator: rgb(255 255 255 / 12%);
+    --menu-accent: #0a5ccc;
+    --menu-item-active: rgb(255 255 255 / 14%);
   }
 }
 
@@ -1117,60 +1136,180 @@ main.preferences > header > h1 {
   color: var(--red);
 }
 
-/* ---------- menu bar ---------- */
-.menu-bar {
-  flex: 1;
-  min-height: 0;
-  overflow: auto;
-  padding: 8px;
-}
-.menu-bar h2 {
-  margin: 0 0 4px;
-  padding: 0 8px;
-  color: var(--gray11);
-  font-size: 12px;
-  font-weight: 400;
-}
-.menu-section strong {
-  font-weight: inherit;
-}
-.menu-bar ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.menu-bar button {
-  width: 100%;
-  height: 36px;
+/* ---------- menu bar: a status item and its macOS menu ---------- */
+.status-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 5px;
+  height: 24px;
+  max-width: 180px;
+  margin-left: auto;
   padding: 0 8px;
   border: 0;
-  border-radius: 8px;
+  border-radius: 5px;
   background: transparent;
   color: var(--gray12);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: default;
+}
+.status-item:hover,
+.status-item[aria-expanded="true"] {
+  background: var(--menu-item-active);
+}
+.status-item + .demo-github {
+  margin-left: 4px;
+}
+.status-item-icon {
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  font-size: 13px;
+}
+.status-item-icon img {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+}
+.status-item-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* The launcher window steps aside; the transparent layer catches the click
+   outside that closes the menu, and holds the command's toast, HUD and alert. */
+main.menu-window {
+  position: fixed;
+  inset: var(--bar-height) 0 0;
+  z-index: 20;
+  width: auto;
+  height: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+main.menu-window::before,
+main.menu-window::after {
+  display: none;
+}
+.menu-panel {
+  position: fixed;
+  z-index: 21;
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: min(320px, calc(100vw - 16px));
+  overflow-y: auto;
+  padding: 5px;
+  border-radius: 9px;
+  background: var(--menu-bg);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  box-shadow:
+    0 0 0 0.5px var(--menu-edge),
+    inset 0 0 0 0.5px var(--menu-rim),
+    0 10px 32px rgb(0 0 0 / 22%);
+  color: var(--menu-text);
+  font: 13px/1 var(--font);
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+/* Submenus fit their content, so one still opens beside its parent on a phone. */
+.menu-panel:not([data-menu-level="0"]) {
+  min-width: 120px;
+}
+.menu-item {
+  width: 100%;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px 0 9px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
   text-align: left;
-  cursor: pointer;
+  white-space: nowrap;
+  cursor: default;
 }
-.menu-bar button.selected,
-.menu-bar button:hover {
-  background: var(--selection);
+/* One highlight, as on macOS: the keyboard's until the pointer is in the menu. */
+.menu-item.selected,
+.menu-panel:hover .menu-item:not(:disabled):hover,
+.menu-item[aria-expanded="true"] {
+  background: var(--menu-accent);
+  color: #fff;
 }
-.menu-bar button:disabled {
-  color: var(--gray9);
-  cursor: not-allowed;
+.menu-panel:hover .menu-item.selected:not(:hover):not([aria-expanded="true"]) {
+  background: transparent;
+  color: inherit;
 }
-.menu-bar button small {
-  flex: 1;
-  color: var(--gray11);
+.menu-item:disabled {
+  color: var(--menu-disabled);
 }
-.menu-bar button kbd {
+.menu-title {
+  flex: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.menu-item small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.6;
+  font-size: 13px;
+}
+.menu-item kbd {
   margin-left: auto;
+  padding: 0 0 0 18px;
+  border: 0;
+  background: none;
+  color: var(--menu-secondary);
+  font: inherit;
+  letter-spacing: 0.08em;
+}
+.menu-item.selected kbd,
+.menu-panel:hover .menu-item:hover kbd {
+  color: rgb(255 255 255 / 75%);
+}
+.menu-chevron {
+  margin-left: auto;
+  padding-left: 18px;
+}
+.menu-chevron::after {
+  content: "";
+  display: block;
+  width: 5px;
+  height: 5px;
+  border: solid currentColor;
+  border-width: 1.5px 1.5px 0 0;
+  transform: translateX(-2px) rotate(45deg);
+  opacity: 0.8;
+}
+.menu-item kbd + .menu-chevron {
+  padding-left: 8px;
 }
 .menu-icon {
-  width: 20px;
+  width: 16px;
+  flex: none;
   text-align: center;
+}
+.menu-separator {
+  height: 1px;
+  margin: 5px 10px;
+  background: var(--menu-separator);
+}
+.menu-section {
+  display: flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 9px;
+  color: var(--menu-secondary);
+  font-size: 11px;
+  font-weight: 600;
 }
 
 /* ---------- dropdown, toast, HUD, alert ---------- */
@@ -1328,6 +1467,10 @@ main.preferences > header > h1 {
   .demo-note {
     display: none;
   }
+  /* The status item takes the label's place on a phone. */
+  .demo-bar:has(.status-item) .demo-label {
+    display: none;
+  }
   main {
     width: 100%;
     /* 100vh includes the area behind mobile toolbars; dvh is the visible viewport.
@@ -1400,4 +1543,15 @@ main.preferences > header > h1 {
   header::before {
     display: none;
   }
+}
+.menu-bar {
+  position: fixed;
+  inset: var(--bar-height) 0 0;
+  z-index: 20;
+  width: 100vw;
+  height: calc(100vh - var(--bar-height));
+  pointer-events: none;
+}
+.menu-bar .menu-panel {
+  pointer-events: auto;
 }

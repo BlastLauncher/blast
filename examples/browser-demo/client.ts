@@ -58,6 +58,14 @@ import { matchesShortcut, shortcutLabel } from "../../packages/client-core/src/s
 import { escapeHtml } from "../web-launcher/render.js";
 import { BrowserLaunchTimeoutError, createLaunchGeneration, withLaunchTimeout } from "./launch.ts";
 import { acceptsRuntimePortRequest } from "./runtime-port.ts";
+import {
+  menuLevels,
+  placeMenu,
+  placeSubmenu,
+  renderMenuBar,
+  renderMenuLoading,
+  statusItemMarkup,
+} from "./menu-bar.ts";
 
 type FileMap = Record<string, string>;
 type BrowserFile = string | Uint8Array;
@@ -122,6 +130,29 @@ let preferenceFormVisible = false;
 let sessionStarting = false;
 let earlyInput = "";
 let activeMode: CommandMode = "view";
+/** The scene the controller last saw; its active node names the view being drawn. */
+let lastScene: SceneMessage | undefined;
+/**
+ * Scroll follows the selection only after a key press, as in Raycast; a wheel
+ * or touch scroll since then leaves the list where the visitor put it.
+ */
+let followSelection = true;
+/** What the previous extension draw showed, to tell a redraw from a new view. */
+let drawn:
+  | {
+      key: string;
+      selection: string | null;
+      search: string;
+      actions: number | null;
+      dropdown: number | null;
+    }
+  | undefined;
+/** The root moved its selection by a key cmdk does not handle; reveal it once. */
+let revealRoot = false;
+/** The last menu-bar command: its status item stays in the top bar and reopens it. */
+let menuItem: { source: string; command: string; row: RootRow; title: string } | undefined;
+/** A menu-bar command is starting: its menu shows a loading row under the status item. */
+let menuLaunching = false;
 const launchGenerations = createLaunchGeneration();
 let launchStage:
   | { generation: number; resolve: () => void; reject: (error: unknown) => void }
@@ -202,6 +233,12 @@ function replaceApp(markup: string) {
 const drawStarting = () => {
   rootRenderer?.unmount();
   rootRenderer = undefined;
+  if (menuLaunching && menuItem) {
+    app.innerHTML = renderMenuLoading(menuItem.title);
+    syncStatusItem();
+    placeMenus();
+    return;
+  }
   const iconMarkup = (size: number) =>
     extensionContext?.iconUrl
       ? `<img src="${escapeHtml(extensionContext.iconUrl)}" alt="" width="${size}" height="${size}">`
@@ -211,7 +248,73 @@ const drawStarting = () => {
   // Same frame as a rendered view; the loader line under the input shows progress.
   app.innerHTML = `<main data-kind="list" data-loading="true" aria-busy="true"><header><h1>Loading command</h1><div class="search-line"><div class="breadcrumb"><span class="breadcrumb-icon">${iconMarkup(20)}</span><span>${extensionTitle}</span><span class="breadcrumb-separator">›</span><span>${commandTitle}</span></div><input id="search" data-starting="true" value="${escapeHtml(earlyInput)}" placeholder="Search…" aria-label="Search" readonly></div></header><section class="loading-stage"><span class="loading-icon">${iconMarkup(40)}</span><strong>${commandTitle}</strong><span>${escapeHtml(statusState.text)}</span></section><footer><span class="footer-context" aria-hidden="true"><span class="footer-icon">${iconMarkup(20)}</span><span class="footer-title">${extensionTitle}</span></span><span id="status" role="status" data-error="${statusState.error ? "true" : "false"}" data-stage="${statusState.stage}">${escapeHtml(statusState.text)}</span></footer></main>`;
 };
+/** Lists, grids and panels that scroll inside a drawn extension view. */
+const SCROLLERS = [
+  ".rows",
+  ".grid",
+  ".detail",
+  ".extension-form",
+  ".actions > ul",
+  ".dropdown-panel ul",
+  ".menu-panel",
+];
+/**
+ * `#app` is redrawn from markup, which starts every list at the top again.
+ * A redraw of the same view keeps each scroller where it was.
+ */
+const scrollOffsets = () =>
+  SCROLLERS.flatMap((selector) =>
+    [...app.querySelectorAll<HTMLElement>(selector)].map(
+      (element, index) => [selector, index, element.scrollTop] as const,
+    ),
+  );
+const restoreScrollOffsets = (offsets: ReturnType<typeof scrollOffsets>) => {
+  for (const [selector, index, top] of offsets) {
+    const element = app.querySelectorAll<HTMLElement>(selector)[index];
+    if (element) element.scrollTop = top;
+  }
+};
+const reveal = (selector: string) =>
+  document.querySelector<HTMLElement>(selector)?.scrollIntoView({ block: "nearest" });
+/** The scene's active node changes on push and pop; a redraw keeps it. */
+const viewKey = (view: ReturnType<Controller["view"]>) =>
+  `${activeNode(lastScene?.root)?.id ?? ""}:${view.kind}:${view.menuBar?.path.join("/") ?? ""}`;
+/** The primary button takes focus so Enter confirms, as in the other clients. */
+const focusAlert = (view: ReturnType<Controller["view"]>) => {
+  const alertButton = document.querySelector<HTMLButtonElement>(
+    "[data-alert=confirm], [data-alert=dismiss]",
+  );
+  if (view.feedback.alert && alertButton && !document.querySelector(".alert :focus"))
+    (document.querySelector<HTMLButtonElement>("[data-alert=confirm]") ?? alertButton).focus();
+};
 const draw = (view: ReturnType<Controller["view"]>) => {
+  const key = viewKey(view);
+  const previous = drawn?.key === key ? drawn : undefined;
+  const offsets = previous ? scrollOffsets() : [];
+  const selection = view.menuBar?.selectedId ?? view.selectedId;
+  // A new view, a new search, or a key that moved the selection brings it into
+  // view; a scene that arrives after a wheel scroll leaves the offset alone.
+  const follow =
+    !previous ||
+    view.search.text !== previous.search ||
+    (followSelection && selection !== previous.selection);
+  const actions = view.actions.open ? view.actions.selectedIndex : null;
+  const dropdown = view.dropdown?.open ? view.dropdown.selectedIndex : null;
+  drawn = { key, selection, search: view.search.text, actions, dropdown };
+  if (view.kind === "menu-bar" && view.menuBar) {
+    if (menuItem && view.menuBar.title) menuItem.title = view.menuBar.title;
+    replaceApp(
+      renderMenuBar(view, menuLevels(activeNode(lastScene?.root), view.menuBar, platform), {
+        reservedHint,
+      }),
+    );
+    syncStatusItem();
+    placeMenus();
+    restoreScrollOffsets(offsets);
+    if (follow) reveal(".menu-panel:last-child .menu-item.selected");
+    focusAlert(view);
+    return;
+  }
   const active = document.activeElement as HTMLInputElement | null;
   const focusKey = active?.id || active?.dataset.field;
   const selectionStart = active?.selectionStart;
@@ -224,6 +327,8 @@ const draw = (view: ReturnType<Controller["view"]>) => {
       ...(extensionContext ? { context: extensionContext } : {}),
     }),
   );
+  syncStatusItem();
+  restoreScrollOffsets(offsets);
   const next = (
     view.form?.focusId
       ? document.querySelector<HTMLInputElement>(`[data-field="${CSS.escape(view.form.focusId)}"]`)
@@ -233,7 +338,9 @@ const draw = (view: ReturnType<Controller["view"]>) => {
         : undefined
   ) as HTMLInputElement | null | undefined;
   if (next) {
-    next.focus();
+    // Focus that moved (Tab in a form) scrolls to its field; focus that stayed
+    // put must not undo the offsets restored above.
+    next.focus(view.form?.focusId !== focusKey ? undefined : { preventScroll: true });
     if (
       selectionStart !== null &&
       selectionStart !== undefined &&
@@ -242,18 +349,12 @@ const draw = (view: ReturnType<Controller["view"]>) => {
     )
       next.setSelectionRange(selectionStart, selectionEnd ?? selectionStart);
   }
-  document.querySelector<HTMLElement>(".rows li.selected")?.scrollIntoView({ block: "nearest" });
-  // The primary button takes focus so Enter confirms, as in the other clients.
-  const alertButton = document.querySelector<HTMLButtonElement>(
-    "[data-alert=confirm], [data-alert=dismiss]",
-  );
-  if (view.feedback.alert && alertButton && !document.querySelector(".alert :focus"))
-    (document.querySelector<HTMLButtonElement>("[data-alert=confirm]") ?? alertButton).focus();
+  if (follow) reveal(".rows li.selected, .grid-cell.selected");
+  if (actions !== null && actions !== previous?.actions) reveal(".actions li.selected");
+  focusAlert(view);
   if (view.dropdown?.open) {
     document.querySelector<HTMLInputElement>("#dropdown-search")?.focus();
-    document
-      .querySelector<HTMLElement>(".dropdown-panel button.selected")
-      ?.scrollIntoView({ block: "nearest" });
+    if (dropdown !== previous?.dropdown) reveal(".dropdown-panel button.selected");
   }
   // A redraw that dropped focus (first scene, closed panel or alert, clicked
   // row) hands the caret back to the view's text field, as Raycast does, so
@@ -267,6 +368,58 @@ const draw = (view: ReturnType<Controller["view"]>) => {
   if (field && (!current || current === document.body || !current.isConnected))
     document.querySelector<HTMLInputElement>(field)?.focus();
 };
+/** The status item: shown once a menu-bar command ran, expanded while its menu is. */
+function syncStatusItem() {
+  const bar = document.querySelector<HTMLElement>(".demo-bar");
+  let item = bar?.querySelector<HTMLButtonElement>("[data-status-item]");
+  if (!bar || !menuItem) return item?.remove();
+  if (!item) {
+    item = document.createElement("button");
+    item.type = "button";
+    item.className = "status-item";
+    item.dataset.statusItem = "";
+    item.setAttribute("aria-haspopup", "menu");
+    bar.insertBefore(item, bar.querySelector(".demo-github"));
+  }
+  const open =
+    !rootOpen && ((sessionStarting && menuLaunching) || controller?.view().kind === "menu-bar");
+  const markup = statusItemMarkup({
+    title: menuItem.title,
+    icon: menuItem.row.icon,
+    ...(menuItem.row.iconUrl ? { iconUrl: menuItem.row.iconUrl } : {}),
+  });
+  // Rewriting identical markup would reload the icon and flicker.
+  if (item.innerHTML !== markup) item.innerHTML = markup;
+  item.setAttribute("aria-expanded", String(open));
+  item.setAttribute("aria-label", `${menuItem.title} menu`);
+}
+/** Hang the menu from the status item and each open submenu beside its row. */
+function placeMenus() {
+  const panels = [...app.querySelectorAll<HTMLElement>(".menu-panel")];
+  const anchor = document.querySelector("[data-status-item]")?.getBoundingClientRect();
+  const viewport = { width: document.documentElement.clientWidth, height: window.innerHeight };
+  panels.forEach((panel, level) => {
+    const size = { width: panel.offsetWidth, height: panel.offsetHeight };
+    const parent = panels[level - 1];
+    const row = parent?.querySelector(".menu-item.selected")?.getBoundingClientRect();
+    const place =
+      parent && row
+        ? placeSubmenu(parent.getBoundingClientRect(), row, size, viewport)
+        : placeMenu(
+            anchor ?? {
+              left: viewport.width,
+              right: viewport.width,
+              top: 0,
+              bottom: document.querySelector(".demo-bar")?.getBoundingClientRect().bottom ?? 0,
+            },
+            size,
+            viewport,
+          );
+    panel.style.left = `${place.left}px`;
+    panel.style.top = `${place.top}px`;
+    panel.style.maxHeight = `${place.maxHeight}px`;
+  });
+}
 const readRecent = () => {
   try {
     const value = JSON.parse(globalThis.localStorage.getItem("blast.recent") ?? "[]");
@@ -337,6 +490,7 @@ const drawRoot = () => {
     toast: rootToast,
     ...keyLabels,
     onQuery: (query) => {
+      if (query !== rootQuery) revealRoot = true;
       rootQuery = query;
       rootSelected = 0;
       drawRoot();
@@ -375,12 +529,33 @@ const drawRoot = () => {
   } satisfies Parameters<typeof mountRoot>[1];
   if (!rootRenderer) rootRenderer = mountRoot(app, props);
   else updateRoot(rootRenderer, props);
+  syncStatusItem();
+  // cmdk scrolls its own selection into view after the keys it handles and
+  // leaves pointer highlights and wheel scrolls alone; only the moves Blast
+  // makes itself (Ctrl+N/P, a new query) reveal the selection here.
+  if (!revealRoot) return;
+  revealRoot = false;
   requestAnimationFrame(() => {
-    const selected = document.querySelector<HTMLElement>('.root-item[aria-selected="true"]');
-    const list = document.querySelector<HTMLElement>(".root-options");
-    if (selected && list) selected.scrollIntoView({ block: "nearest" });
+    const selected = app.querySelector('.root-item[aria-selected="true"]');
+    // The first row scrolls its group heading back into view with it.
+    if (selected && selected === app.querySelector(".root-item"))
+      app.querySelector(".root-options")?.scrollTo({ top: 0 });
+    else reveal('.root-item[aria-selected="true"]');
   });
 };
+/** Move the root selection by `delta` rows in the order they are drawn. */
+function moveRoot(delta: 1 | -1) {
+  const drawnIds = [...app.querySelectorAll<HTMLElement>(".root-item")].map(
+    (item) => item.getAttribute("data-value") ?? "",
+  );
+  const at = drawnIds.indexOf(rootRows[rootSelected]?.id ?? "");
+  const id = drawnIds[Math.max(0, Math.min(drawnIds.length - 1, at + delta))];
+  const index = rootRows.findIndex((row) => row.id === id);
+  if (index < 0) return;
+  rootSelected = index;
+  revealRoot = true;
+  drawRoot();
+}
 
 function drawPreferences(scope: "extension" | "command" = "command") {
   if (!preferenceForm) return;
@@ -466,6 +641,7 @@ function handleRuntime(
     setStatus("Ready");
   } else if (message.type === "scene") {
     if (!controller || rootOpen) return;
+    lastScene = message;
     const result = controller.scene(message);
     const view = controller.view();
     const list = activeNode(message.root);
@@ -616,7 +792,11 @@ function commandEntry(files: Map<string, BrowserFile>, name: string): string {
   throw new Error(`Command source not found for ${name}`);
 }
 
-async function launch(source: string, commandName: string): Promise<void> {
+async function launch(
+  source: string,
+  commandName: string,
+  selectedRow: RootRow | undefined = rootRows[rootSelected],
+): Promise<void> {
   const previousStage = launchStage;
   launchStage = undefined;
   const generation = launchGenerations.next();
@@ -627,7 +807,8 @@ async function launch(source: string, commandName: string): Promise<void> {
   sessionStarting = true;
   rootOpen = false;
   actionOpen = false;
-  const selectedRow = rootRows[rootSelected];
+  lastScene = undefined;
+  drawn = undefined;
   extensionContext = selectedRow
     ? {
         extensionTitle: selectedRow.subtitle,
@@ -638,6 +819,14 @@ async function launch(source: string, commandName: string): Promise<void> {
     : undefined;
   const selectedCommand = commandName || commandSelect?.value || "index";
   if (selectedRow) writeRecent(selectedRow.id);
+  // The catalog knows a menu-bar command before its bundle loads, so its menu
+  // can open under the status item at once instead of after a launcher frame.
+  menuLaunching =
+    selectedRow !== undefined &&
+    catalog.extensions
+      .find((entry) => entry.name === selectedRow.extension)
+      ?.commands.find((entry) => entry.name === selectedCommand)?.mode === "menu-bar";
+  if (menuLaunching && selectedRow) rememberMenuItem(source, selectedCommand, selectedRow);
   const catalogSource = source.startsWith("https://github.com/raycast/extensions/tree/");
   const bundle = catalogSource ? await prebuiltBundle(source, selectedCommand) : undefined;
   if (!stillCurrent()) return;
@@ -714,6 +903,8 @@ async function launch(source: string, commandName: string): Promise<void> {
     modeValue === "no-view" || modeValue === "menu-bar" || modeValue === "model-provider"
       ? modeValue
       : "view";
+  if (activeMode === "menu-bar" && selectedRow && !menuLaunching)
+    rememberMenuItem(source, selectedCommand, selectedRow);
   let preferenceStorage;
   try {
     preferenceStorage = globalThis.localStorage;
@@ -1018,12 +1209,20 @@ async function acquireSandbox(): Promise<Sandbox> {
   return createSandbox("session");
 }
 
+function rememberMenuItem(source: string, command: string, row: RootRow) {
+  if (menuItem?.source !== source || menuItem.command !== command)
+    menuItem = { source, command, row, title: row.title };
+}
+
 function stopSession(message = "Ready", error = false) {
   const pendingStage = launchStage;
   launchStage = undefined;
   launchGenerations.next();
   pendingStage?.resolve();
   sessionStarting = false;
+  menuLaunching = false;
+  lastScene = undefined;
+  drawn = undefined;
   earlyInput = "";
   for (const timer of sessionTimers) clearTimeout(timer);
   sessionTimers.clear();
@@ -1053,7 +1252,11 @@ function runSelected() {
   const source =
     selected.url ??
     `https://github.com/raycast/extensions/tree/${catalog.commit}/extensions/${selected.extension}`;
-  void launch(source, selected.command).catch((error: unknown) => {
+  launchFromLauncher(source, selected.command, selected);
+}
+
+function launchFromLauncher(source: string, command: string, row: RootRow) {
+  void launch(source, command, row).catch((error: unknown) => {
     const message =
       error instanceof BrowserLaunchTimeoutError
         ? error.message
@@ -1204,6 +1407,18 @@ window.addEventListener(
   { capture: true },
 );
 
+// Any key may move the selection; a wheel or touch scroll means the visitor is
+// looking elsewhere, so redraws stop pulling the selection into view.
+window.addEventListener("keydown", () => (followSelection = true), { capture: true });
+for (const type of ["wheel", "touchmove"])
+  window.addEventListener(type, () => (followSelection = false), {
+    capture: true,
+    passive: true,
+  });
+window.addEventListener("resize", () => {
+  if (app.querySelector(".menu-panel")) placeMenus();
+});
+
 /** A text field keeps plain typing; see `shortcutAllowedInText`. */
 const typingIn = (event: KeyboardEvent) => {
   const target = event.target as HTMLElement | null;
@@ -1260,6 +1475,7 @@ document.addEventListener("keydown", (event) => {
         if (rootQuery) {
           rootQuery = "";
           rootSelected = 0;
+          revealRoot = true;
           drawRoot();
         }
       } else if (isActionsKey(event)) {
@@ -1270,12 +1486,10 @@ document.addEventListener("keydown", (event) => {
         drawRoot();
       } else if (event.ctrlKey && event.key.toLowerCase() === "n") {
         event.preventDefault();
-        rootSelected = Math.min(rootSelected + 1, rootRows.length - 1);
-        drawRoot();
+        moveRoot(1);
       } else if (event.ctrlKey && event.key.toLowerCase() === "p") {
         event.preventDefault();
-        rootSelected = Math.max(rootSelected - 1, 0);
-        drawRoot();
+        moveRoot(-1);
       }
       return;
     }
@@ -1437,6 +1651,7 @@ function preferenceFormValues(
 // labels still take focus normally, and Detail text stays selectable.
 document.addEventListener("mousedown", (event) => {
   const target = event.target as Element | null;
+  if (target?.closest("[data-status-item]")) return event.preventDefault();
   if (!target?.closest("#app") || target.closest("input, textarea, select, label, .detail")) return;
   event.preventDefault();
 });
@@ -1472,6 +1687,7 @@ document.addEventListener("input", (event) => {
     return;
   }
   if (target.id === "root-search") {
+    if (target.value !== rootQuery) revealRoot = true;
     rootQuery = target.value;
     rootSelected = 0;
     drawRoot();
@@ -1537,6 +1753,15 @@ document.addEventListener("change", (event) => {
 });
 document.addEventListener("click", (event) => {
   const target = event.target as HTMLElement;
+  if (target.closest("[data-status-item]")) {
+    toggleMenu();
+    return;
+  }
+  // Like a macOS menu, a click anywhere outside it closes it.
+  if (target.matches(".menu-window, .menu-window > nav")) {
+    stopSession();
+    return;
+  }
   if (target.closest("[data-preference-back]")) {
     preferenceFormVisible = false;
     rootOpen = true;
@@ -1593,17 +1818,26 @@ document.addEventListener("click", (event) => {
   const rowId = target.closest<HTMLElement>("#app .rows li[data-id], #app .grid-cell[data-id]")
     ?.dataset.id;
   if (rowId !== undefined) sendInput({ type: "select", id: rowId });
-  const menuId = target.closest<HTMLElement>("[data-menu-id]")?.dataset.menuId;
-  const menuView = controller?.view().menuBar;
-  if (menuId !== undefined && menuView) {
-    const items = menuView.rows.filter((row) => row.kind !== "section");
+  const menuButton = target.closest<HTMLElement>("[data-menu-id]");
+  if (menuButton && controller?.view().menuBar) {
+    // A row in a parent level first closes the submenus open beside it.
+    const level = Number(menuButton.dataset.menuLevel ?? 0);
+    while ((controller?.view().menuBar?.path.length ?? 0) > level)
+      sendInput({ type: "move", direction: "left" });
+    const items = controller?.view().menuBar?.rows.filter((row) => row.kind !== "section") ?? [];
     const from = items.findIndex((row) => row.selected);
-    const to = items.findIndex((row) => row.id === menuId);
+    const to = items.findIndex((row) => row.id === menuButton.dataset.menuId);
+    if (to < 0) return;
     for (let step = 0; step < Math.abs(to - from); step++)
       sendInput({ type: "move", direction: to > from ? "down" : "up" });
     sendInput({ type: "primary" });
   }
 });
+/** The status item opens its command's menu, or closes the open one. */
+function toggleMenu() {
+  if (!rootOpen && (menuLaunching || controller?.view().kind === "menu-bar")) stopSession();
+  else if (menuItem) launchFromLauncher(menuItem.source, menuItem.command, menuItem.row);
+}
 document.addEventListener("submit", (event) => {
   if (
     !(event.target instanceof HTMLFormElement) ||

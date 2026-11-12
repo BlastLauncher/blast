@@ -87,7 +87,9 @@ declare module "playwright" {
     getByText(text: RegExp | string): Locator;
     keyboard: { press(key: string): Promise<void>; type(text: string): Promise<void> };
     mouse: {
-      move(x: number, y: number): Promise<void>;
+      move(x: number, y: number, options?: { steps?: number }): Promise<void>;
+      wheel(deltaX: number, deltaY: number): Promise<void>;
+      click(x: number, y: number): Promise<void>;
       down(): Promise<void>;
       up(): Promise<void>;
     };
