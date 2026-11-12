@@ -90,7 +90,7 @@ Raycast extensions in a browser tab, in almostnode's cross-origin sandbox (decis
 - [x] 0145–0148 backdrop, home link, focus, shortcuts, scroll kept, top-right menu bar, ⌘K keys once
 - [ ] 0149 fill viewport, restore root on return, visible launch progress
 - [ ] 0150 Raytyping parity with the TUI
-- [ ] 0151 capability showcase section
+- [x] 0151 capability showcase section
 
 ## Later (not scheduled)
 
