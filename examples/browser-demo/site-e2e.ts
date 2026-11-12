@@ -252,13 +252,18 @@ try {
     await page.locator("#root-search").fill("hello-list");
     await page.keyboard.press("ControlOrMeta+K");
     await page.locator("#root-action-search").waitFor({ timeout: 10_000 });
-    const rootActions = page.locator('#root-actions [role="option"]');
-    if ((await rootActions.count()) < 3) throw new Error("root row has fewer than 3 actions");
+    // cmdk replaces the list's id, so select the panel's items by attribute;
+    // and wait for them, since the input can mount a frame before its rows.
+    await page.waitForFunction(
+      () => document.querySelectorAll(".actions [cmdk-item]").length >= 3,
+      undefined,
+      { timeout: 10_000 },
+    );
     await page.keyboard.press("ArrowDown");
     await page.waitForFunction(
       () =>
         (
-          document.querySelector('#root-actions [aria-selected="true"]')?.textContent ?? ""
+          document.querySelector('.actions [cmdk-item][aria-selected="true"]')?.textContent ?? ""
         ).includes("Open Extension on GitHub"),
       undefined,
     );
