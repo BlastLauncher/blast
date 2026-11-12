@@ -33,6 +33,7 @@
     ".cache",
     "examples/browser-demo/client.ts",
     "examples/browser-demo/root.ts",
+    "examples/browser-demo/showcase",
     "examples/browser-runtime/runtime-entry.ts"
   ]
 }

@@ -19,6 +19,8 @@ export type CatalogExtension = {
   title: string;
   description?: string;
   icon?: string;
+  /** Blast-authored demo commands, listed in their own root section. */
+  showcase?: boolean;
   commands: CatalogCommand[];
 };
 export type Catalog = { commit: string; extensions: CatalogExtension[] };
@@ -35,6 +37,7 @@ export type RootRow = {
   githubUrl?: string;
   unavailable?: "macos" | "setup";
   outcome?: string;
+  showcase?: boolean;
 };
 
 export type RootActionId = "run" | "github" | "copy";
@@ -129,6 +132,7 @@ export function validateCatalog(value: unknown): Catalog {
       commands,
       ...(typeof item.description === "string" ? { description: item.description } : {}),
       ...(typeof item.icon === "string" ? { icon: item.icon } : {}),
+      ...(item.showcase === true ? { showcase: true } : {}),
     };
   });
   const names = extensions.map((extension) => extension.name);
@@ -137,7 +141,22 @@ export function validateCatalog(value: unknown): Catalog {
   return { commit: input.commit, extensions };
 }
 
+export const showcaseSourceUrl =
+  "https://github.com/blastlauncher/blast/tree/main/examples/browser-demo/showcase";
+
 function row(extension: CatalogExtension, command: CatalogCommand, commit: string): RootRow {
+  if (extension.showcase)
+    return {
+      id: `${extension.name}:${command.name}`,
+      title: command.title,
+      subtitle: command.subtitle ?? extension.title,
+      icon: "✦",
+      accessory: command.mode === "menu-bar" ? "Menu Bar" : "Command",
+      extension: extension.name,
+      command: command.name,
+      showcase: true,
+      githubUrl: showcaseSourceUrl,
+    };
   return {
     id: `${extension.name}:${command.name}`,
     title: command.title,
@@ -169,14 +188,55 @@ function keywordsOf(extension: CatalogExtension, command: CatalogCommand): strin
   ];
 }
 
-/** Suggestions order: curated extensions first, then by title. */
+/**
+ * Suggestions order: showcase commands first in manifest order (the sort is
+ * stable), then curated extensions, then by title.
+ */
 function suggestions(rows: RootRow[]): RootRow[] {
-  return rows.toSorted(
-    (a, b) =>
-      Number(curated.has(b.extension)) - Number(curated.has(a.extension)) ||
-      a.title.localeCompare(b.title) ||
-      a.id.localeCompare(b.id),
+  return rows.toSorted((a, b) =>
+    a.showcase || b.showcase
+      ? Number(!!b.showcase) - Number(!!a.showcase)
+      : Number(curated.has(b.extension)) - Number(curated.has(a.extension)) ||
+        a.title.localeCompare(b.title) ||
+        a.id.localeCompare(b.id),
   );
+}
+
+export type RootSection = { title: string; rows: RootRow[] };
+
+/**
+ * The empty-query root: Showcase first, then Recent, Suggestions and the rest.
+ * `rows` is the full suggestions order from `rootRows(catalog, "")`.
+ */
+export function rootSections(rows: RootRow[], recentIds: string[]): RootSection[] {
+  const showcase = rows.filter((item) => item.showcase);
+  const catalogRows = rows.filter((item) => !item.showcase);
+  const recent = catalogRows
+    .filter((item) => recentIds.includes(item.id))
+    .toSorted((a, b) => recentIds.indexOf(a.id) - recentIds.indexOf(b.id))
+    .slice(0, 5);
+  const suggested = catalogRows
+    .filter((item) => !recent.includes(item) && curated.has(item.extension))
+    .slice(0, 5);
+  for (const item of catalogRows) {
+    if (suggested.length >= 5) break;
+    if (
+      !recent.includes(item) &&
+      !suggested.includes(item) &&
+      item.outcome === "rendered" &&
+      !item.unavailable
+    )
+      suggested.push(item);
+  }
+  const commandRows = catalogRows.filter(
+    (item) => !recent.includes(item) && !suggested.includes(item),
+  );
+  return [
+    { title: "Showcase", rows: showcase },
+    { title: "Recent", rows: recent },
+    { title: "Suggestions", rows: suggested },
+    { title: "Commands", rows: commandRows },
+  ].filter((section) => section.rows.length);
 }
 
 export function rootRows(catalog: Catalog, query: string): RootRow[] {

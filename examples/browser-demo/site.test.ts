@@ -1,6 +1,26 @@
 import { describe, expect, test } from "bun:test";
 import { readFile } from "node:fs/promises";
-import { buildSite, cnameForOrigin, extractStats, parseOrigin, parseSandboxUrl } from "./site.ts";
+import { rootModel, rootSections, validateCatalog } from "./root.ts";
+import {
+  buildSite,
+  cnameForOrigin,
+  extractStats,
+  parseOrigin,
+  parseSandboxUrl,
+  showcaseDirectory,
+  siteCatalog,
+} from "./site.ts";
+
+const showcaseCommands = [
+  "list",
+  "detail",
+  "form",
+  "grid",
+  "actions",
+  "feedback",
+  "storage",
+  "menu",
+];
 
 describe("site build helpers", () => {
   test("validates origins and rejects paths", () => {
@@ -26,6 +46,41 @@ describe("site build helpers", () => {
       commands: 90,
     });
   });
+  test("the production catalog opens with the Showcase section, in manifest order", async () => {
+    const catalog = validateCatalog(await siteCatalog());
+    // A production build carries no test fixtures.
+    expect(catalog.extensions.some((extension) => extension.name === "hello-list")).toBe(false);
+    const sections = rootSections(rootModel(catalog, "", 0).rows, []);
+    expect(sections.map((section) => section.title)).toEqual([
+      "Showcase",
+      "Suggestions",
+      "Commands",
+    ]);
+    const showcase = sections[0]!.rows;
+    expect(showcase.map((row) => row.command)).toEqual(showcaseCommands);
+    expect(showcase.every((row) => row.subtitle && row.subtitle !== "Blast Showcase")).toBe(true);
+    expect(showcase.find((row) => row.command === "menu")?.accessory).toBe("Menu Bar");
+    expect(new Set(showcase.map((row) => row.githubUrl))).toEqual(
+      new Set(["https://github.com/blastlauncher/blast/tree/main/examples/browser-demo/showcase"]),
+    );
+    // Showcase rows are not repeated in later sections, even once recently used.
+    const used = rootSections(rootModel(catalog, "", 0).rows, ["blast-showcase:form"]);
+    expect(used.map((section) => section.title)).toEqual(["Showcase", "Suggestions", "Commands"]);
+    const ids = used.flatMap((section) => section.rows.map((row) => row.id));
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+  test("the showcase manifest matches its sources", async () => {
+    const manifest = JSON.parse(await readFile(`${showcaseDirectory}/package.json`, "utf8")) as {
+      license: string;
+      commands: Array<{ name: string }>;
+    };
+    expect(manifest.license).toBe("MIT");
+    expect(manifest.commands.map((command) => command.name)).toEqual(showcaseCommands);
+    for (const command of showcaseCommands)
+      await expect(readFile(`${showcaseDirectory}/src/${command}.tsx`, "utf8")).resolves.toContain(
+        '"@raycast/api"',
+      );
+  });
   // Runs a full buildSite (client, almostnode, runtime bundles): seconds on a busy CI runner.
   test("writes one build id and relative sandbox asset references", async () => {
     const result = await buildSite({
@@ -49,6 +104,12 @@ describe("site build helpers", () => {
     const landing = await readFile(`${result.www}/index.html`, "utf8");
     expect(landing).toContain('href="http://127.0.0.1:4173/demo/"');
     await expect(readFile(`${result.www}/demo/demo.css`, "utf8")).resolves.toContain(".root-icon");
+    // The showcase ships prebuilt with every build, fixtures or not.
+    const bundles = JSON.parse(await readFile(`${result.www}/demo/bundles.json`, "utf8")) as {
+      bundles: Record<string, unknown>;
+    };
+    for (const command of showcaseCommands)
+      expect(Object.keys(bundles.bundles)).toContain(`blast-showcase/${command}`);
     const sandbox = await readFile(`${result.sandbox}/index.html`, "utf8");
     expect(sandbox).toContain("./almostnode-full.mjs");
     expect(sandbox).not.toMatch(/(?:src|href)=["']\//);
