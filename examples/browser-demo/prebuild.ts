@@ -87,6 +87,8 @@ function commandEntry(files: Map<string, string | Uint8Array>, name: string): st
 export type PrebuildOptions = {
   /** Registry requests for dependency installs; tests inject an offline one. */
   fetch?: BrowserFetch;
+  /** Extensions built from a repository directory instead of the corpus, by name. */
+  local?: Record<string, string>;
 };
 
 export async function prebuildCatalog(
@@ -103,11 +105,14 @@ export async function prebuildCatalog(
   bytes: number;
 }> {
   const shared = await sharedSources();
+  const local = options.local ?? {};
   const checkout = fixtures
     ? ""
     : ensureCorpusCheckout(
         projectRoot,
-        catalog.extensions.map((extension) => extension.name),
+        catalog.extensions
+          .map((extension) => extension.name)
+          .filter((name) => !Object.hasOwn(local, name)),
         catalog.commit,
         { catalogOnly: true },
       );
@@ -144,19 +149,25 @@ globalThis.__blastModules = { react, "react/jsx-runtime": jsxRuntime, "react/jsx
   // Fixture builds stay offline and local: only extensions checked into the
   // repository are built, so the production catalog passed by `--fixtures`
   // still prebuilds just its fixture commands.
-  const local = fixtures
+  const fixtureNames = fixtures
     ? new Set(await readdir(join(projectRoot, "fixtures/extensions")))
     : undefined;
   const extensions = catalog.extensions.filter(
-    (extension) => local === undefined || local.has(extension.name),
+    (extension) =>
+      Object.hasOwn(local, extension.name) ||
+      fixtureNames === undefined ||
+      fixtureNames.has(extension.name),
   );
   let next = 0;
   async function buildOne(extension: Catalog["extensions"][number]) {
     let files: Map<string, string | Uint8Array>;
     try {
-      files = fixtures
-        ? await extensionFrom(join(projectRoot, "fixtures/extensions", extension.name))
-        : await fetchExtension(checkout, extension.name);
+      const directory = local[extension.name];
+      files = directory
+        ? await extensionFrom(directory)
+        : fixtures
+          ? await extensionFrom(join(projectRoot, "fixtures/extensions", extension.name))
+          : await fetchExtension(checkout, extension.name);
       const manifest = JSON.parse(String(files.get("/package.json"))) as Record<string, unknown>;
       const manifestName = typeof manifest.name === "string" ? manifest.name : extension.name;
       const manifestPreferences = parsePreferences(

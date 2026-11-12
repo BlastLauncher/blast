@@ -1,7 +1,7 @@
 ---
 id: "0151"
 title: Showcase section that demonstrates each capability
-status: doing
+status: review
 milestone: M8
 depends: []
 ---
@@ -53,11 +53,31 @@ in a minute without hunting through the catalog.
 
 ## Handoff
 
-Filled in by the worker when finishing:
-
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/capability-showcase-extension @ 6729467 (feature commit; this Handoff commit follows it)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 116.2s
 Done:
+- examples/browser-demo/showcase/: MIT `blast-showcase` extension, 8 commands
+  (list, detail, form, grid, actions, feedback, storage, menu), `@raycast/api` only.
+- site.ts `siteCatalog()` adds it from its manifest to every build (`showcase: true`);
+  prebuild.ts `local` option builds it from the repo, never the corpus.
+- root.ts `rootSections()`: Showcase first, then Recent/Suggestions/Commands (no
+  duplicates); client.ts drawRoot calls it. Showcase rows link to the Blast repo.
+- site.test.ts asserts the production (no --fixtures) catalog opens with Showcase in
+  manifest order and every showcase bundle is prebuilt.
+- showcase-e2e.ts (called from site-e2e.ts in both lanes) opens each command and checks
+  a markdown heading, form fields + validation + toast, grid cells, submenu/shortcut/
+  open URL/push, toast/HUD/alert, a count that grows after a reload, and the menu under
+  the status item. `--screenshots <dir>` saves light/dark shots.
+- Chromium `bun run site:e2e` passed; Firefox lane passed in Docker
+  (mcr.microsoft.com/playwright:v1.58.0-noble; image deleted afterwards).
+Screenshots (light + dark, from `site:e2e --screenshots`): root, list, detail, form,
+grid, actions, feedback, storage, menu — `<name>-light.png` / `<name>-dark.png`
+(18 files, kept outside the repo).
 Not done / risks:
+- The browser host does not render Detail metadata, List detail panes, tables or
+  fenced code. The showcase leaves them out, since new host capabilities are out of scope.
+- Showcase rows reuse the fixture launch path (an internal raycast-tree-style source
+  keyed by name). If the prebuilt bundle is missing, the GitHub fallback 404s.
+- client.ts change is limited to drawRoot's sections (may conflict lightly with 0149).
 ```

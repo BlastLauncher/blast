@@ -41,3 +41,10 @@ Extension network requests still require CORS. `child_process` is unavailable in
 Each command receives `/blast/support/<extension>` and `/blast/assets/<extension>`
 inside almostnode's virtual filesystem. Cache data therefore lasts only for the
 current sandbox session.
+
+The published site (`bun run site:build`) opens its root list with a Showcase
+section: `showcase/` is a small MIT extension written for Blast, one command
+per capability (List, Detail markdown, Form, Grid, actions, feedback, storage
+and menu bar). It is prebuilt with every site build, from its manifest.
+`bun run site:e2e -- --screenshots <dir>` saves each showcase command in light
+and dark.

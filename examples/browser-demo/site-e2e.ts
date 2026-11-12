@@ -2,6 +2,7 @@ import { existsSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 import { buildSite } from "./site.ts";
 import { projectRoot } from "./build.ts";
+import { checkShowcase } from "./showcase-e2e.ts";
 
 type BrowserElement = {
   id?: string;
@@ -30,6 +31,8 @@ const browserName = process.argv.slice(2).find((value) => value === "--browser")
   : "chromium";
 if (browserName !== "chromium" && browserName !== "firefox")
   throw new Error(`unsupported browser: ${browserName}`);
+const screenshotIndex = process.argv.indexOf("--screenshots");
+const screenshots = screenshotIndex >= 0 ? process.argv[screenshotIndex + 1] : undefined;
 const wwwPort = 4175;
 const sandboxPort = 4176;
 const firefoxLaneDone = Symbol("firefox lane done");
@@ -708,6 +711,8 @@ try {
       });
     if (!(await page.evaluate(() => "blastNoReload" in globalThis)))
       throw new Error("⌘R reloaded the page instead of restarting Nano Snake");
+    // Both lanes open every Showcase command from the root.
+    await checkShowcase(page, screenshots ? { screenshots } : {});
     if (browserName === "firefox") throw firefoxLaneDone;
     // Esc clears the game board from the search bar, then leaves.
     for (let press = 0; press < 5 && !(await page.locator("#root-search").count()); press++) {

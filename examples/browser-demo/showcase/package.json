@@ -1,0 +1,56 @@
+{
+  "name": "blast-showcase",
+  "description": "Small commands that show what Blast can render in a browser tab.",
+  "license": "MIT",
+  "commands": [
+    {
+      "name": "list",
+      "title": "List",
+      "description": "Sections, icons, accessories and search",
+      "mode": "view"
+    },
+    {
+      "name": "detail",
+      "title": "Markdown Detail",
+      "description": "Headings, lists, links and an image",
+      "mode": "view"
+    },
+    {
+      "name": "form",
+      "title": "Form",
+      "description": "Every field kind, with validation",
+      "mode": "view"
+    },
+    {
+      "name": "grid",
+      "title": "Grid",
+      "description": "Cells grouped into sections",
+      "mode": "view"
+    },
+    {
+      "name": "actions",
+      "title": "Actions",
+      "description": "Submenus, shortcuts, copy, open and push",
+      "mode": "view"
+    },
+    {
+      "name": "feedback",
+      "title": "Feedback",
+      "description": "Toast, HUD and a confirm dialog",
+      "mode": "view"
+    },
+    {
+      "name": "storage",
+      "title": "Storage",
+      "description": "LocalStorage that survives a relaunch",
+      "mode": "view"
+    },
+    {
+      "name": "menu",
+      "title": "Menu Bar",
+      "description": "A status item with a menu",
+      "mode": "menu-bar"
+    }
+  ],
+  "title": "Blast Showcase"
+}

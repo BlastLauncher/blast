@@ -37,12 +37,12 @@ import {
   rootActionForKey,
   rootActionModel,
   rootModel,
+  rootSections,
   validateCatalog,
   type Catalog,
   type RootActionId,
   type RootRow,
 } from "./root.ts";
-import { curated } from "./root.ts";
 import { statusError, statusForStage, statusInfo, type DemoStatus } from "./status.ts";
 import {
   applyEarlyKey,
@@ -448,24 +448,6 @@ const drawRoot = () => {
   rootRows = model.rows;
   rootSelected = model.selected;
   const allRows = rootQuery.trim() ? rootModel(catalog, "", 0).rows : rootRows;
-  const recent = allRows
-    .filter((row) => recentIds.includes(row.id))
-    .toSorted((a, b) => recentIds.indexOf(a.id) - recentIds.indexOf(b.id))
-    .slice(0, 5);
-  const suggested = allRows
-    .filter((row) => !recent.includes(row) && curated.has(row.extension))
-    .slice(0, 5);
-  for (const row of allRows) {
-    if (suggested.length >= 5) break;
-    if (
-      !recent.includes(row) &&
-      !suggested.includes(row) &&
-      row.outcome === "rendered" &&
-      !row.unavailable
-    )
-      suggested.push(row);
-  }
-  const commandRows = allRows.filter((row) => !recent.includes(row) && !suggested.includes(row));
   const actions = rootActionModel(
     rootRows[rootSelected] ?? rootRows[0],
     actionQuery,
@@ -477,11 +459,7 @@ const drawRoot = () => {
     query: rootQuery,
     selected: rootSelected,
     rows: rootRows,
-    sections: [
-      { title: "Recent", rows: recent },
-      { title: "Suggestions", rows: suggested },
-      { title: "Commands", rows: commandRows },
-    ].filter((section) => section.rows.length),
+    sections: rootSections(allRows, recentIds),
     actions: actions.actions,
     actionOpen,
     actionQuery,
