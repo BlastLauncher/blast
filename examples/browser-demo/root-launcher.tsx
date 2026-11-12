@@ -19,6 +19,9 @@ export type RootLauncherProps = {
   actionSelected: number;
   status: DemoStatus;
   toast?: string;
+  /** Platform labels: `↵`/`⌘K` on macOS, `Enter`/`Ctrl+K` elsewhere. */
+  primaryKey: string;
+  actionsKey: string;
   onQuery: (query: string) => void;
   onSelect: (id: string) => void;
   onHighlight: (id: string) => void;
@@ -257,7 +260,7 @@ export function RootLauncher(props: RootLauncherProps) {
                 onClick={() => props.onFooter("primary")}
               >
                 <span>Open Command</span>
-                <kbd>↵</kbd>
+                <kbd>{props.primaryKey}</kbd>
               </button>
               <button
                 type="button"
@@ -266,7 +269,7 @@ export function RootLauncher(props: RootLauncherProps) {
                 onClick={() => props.onFooter("actions")}
               >
                 <span>Actions</span>
-                <kbd>⌘K</kbd>
+                <kbd>{props.actionsKey}</kbd>
               </button>
             </span>
             {props.status.stage !== "ready" ? (

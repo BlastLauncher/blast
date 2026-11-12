@@ -180,8 +180,10 @@ export function sceneToView(scene: SceneMessage | undefined, state: UIState) {
     grid,
     accessory: searchBarDropdown(list),
     navigation: scene?.root?.type === "Navigation" ? scene.root : undefined,
+    // An empty list shows its EmptyView, whose actions replace the list's, as in Raycast.
     actions:
       (selected ? slot(selected, "actions") : undefined) ??
+      (!selected && empty ? slot(empty, "actions") : undefined) ??
       (list ? slot(list, "actions") : undefined),
     detail:
       list?.type === "Detail"
@@ -212,6 +214,7 @@ export function sceneToView(scene: SceneMessage | undefined, state: UIState) {
       : "No results",
     primary:
       firstAction(selected ? slot(selected, "actions") : undefined) ??
+      firstAction(!selected && empty ? slot(empty, "actions") : undefined) ??
       firstAction(list ? slot(list, "actions") : undefined),
   };
 }

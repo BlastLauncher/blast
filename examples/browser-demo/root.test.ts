@@ -5,6 +5,7 @@ import {
   catalogCommandTitle,
   enrichCatalog,
   executeRootAction,
+  rootActionForKey,
   rootActionModel,
   rootActions,
   rootModel,
@@ -118,6 +119,18 @@ test("actions filter, clamp selection, and produce host effects", () => {
     "Open Extension on GitHub",
     "Copy Extension URL",
   ]);
+  expect(rootActions(row).map((action) => action.shortcut)).toEqual(["↵", "⌘O", "⇧⌘C"]);
+  expect(rootActions(row, "Linux").map((action) => action.shortcut)).toEqual([
+    "Enter",
+    "Ctrl+O",
+    "Ctrl+Shift+C",
+  ]);
+  expect(rootActionForKey(row, { name: "o", meta: true })).toBe("github");
+  expect(rootActionForKey(row, { name: "c", meta: true, shift: true })).toBe("copy");
+  expect(rootActionForKey(row, { name: "o", ctrl: true })).toBeUndefined();
+  expect(rootActionForKey(row, { name: "o", ctrl: true }, "Windows")).toBe("github");
+  expect(rootActionForKey(row, { name: "return" })).toBeUndefined();
+  expect(rootActionForKey(undefined, { name: "o", meta: true })).toBeUndefined();
   expect(rootActionModel(row, "copy", 99)).toMatchObject({
     selected: 0,
     actions: [{ id: "copy", title: "Copy Extension URL" }],

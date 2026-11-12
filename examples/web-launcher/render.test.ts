@@ -118,3 +118,27 @@ test("menu-bar markup includes title, sections, item details, submenu, disabled 
   expect(menu).toContain("›");
   expect(menu).toContain("disabled");
 });
+
+test("a browser-reserved shortcut is muted with its hint; the Actions key follows the platform", () => {
+  const panel = {
+    ...view,
+    actions: {
+      open: true,
+      title: "Actions",
+      breadcrumb: [],
+      query: "",
+      rows: [
+        { id: "a", kind: "action", title: "New Tab", shortcut: "Ctrl+T", selected: true },
+        { id: "b", kind: "action", title: "Reload", shortcut: "Ctrl+R", selected: false },
+      ],
+    },
+  } as unknown as Parameters<typeof render>[0];
+  const html = render(panel, {
+    actionsKey: "Ctrl+K",
+    reservedHint: (label) => (label === "Ctrl+T" ? "Browser reserved" : ""),
+  });
+  expect(html).toContain('<small class="reserved" title="Browser reserved"');
+  expect(html).toContain("<small>Ctrl+R</small>");
+  expect(html).toContain("<kbd>Ctrl+K</kbd>");
+  expect(render(panel)).toContain("<small>Ctrl+T</small>");
+});

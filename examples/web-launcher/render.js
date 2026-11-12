@@ -20,6 +20,19 @@ export function escapeHtml(value) {
 const footerButton = (label, key, action) =>
   `<button type="button" class="footer-key" data-footer="${action}"><span>${escapeHtml(label)}</span><kbd>${escapeHtml(key)}</kbd></button>`;
 
+/**
+ * A shortcut keycap. A combo the browser keeps for itself is drawn muted with
+ * the hint as its tooltip, so it never looks live when it is not.
+ * @param {"small" | "kbd"} tag @param {string} label @param {(label: string) => string} [hint]
+ */
+const keycap = (tag, label, hint) => {
+  if (!label) return "";
+  const reserved = hint?.(label);
+  return reserved
+    ? `<${tag} class="reserved" title="${escapeHtml(reserved)}" aria-label="${escapeHtml(`${label}, ${reserved}`)}">${escapeHtml(label)}</${tag}>`
+    : `<${tag}>${escapeHtml(label)}</${tag}>`;
+};
+
 /** @param {string} label @param {string} action @param {boolean} [selected] */
 const button = (label, action, selected = false) =>
   `<button data-input="${escapeHtml(action)}"${selected ? ' class="selected"' : ""}>${escapeHtml(label)}</button>`;
@@ -133,7 +146,12 @@ function footerContextMarkup(context, title) {
   return `<span class="footer-context" aria-hidden="true"><span class="footer-icon">${icon}</span><span class="footer-title">${escapeHtml(title || context.commandTitle)}</span></span>`;
 }
 
-/** @param {import("@blastlauncher/client-core").ControllerView} view @param {{status?: FooterStatus, context?: ExtensionContext}} [options] */
+/**
+ * `actionsKey` labels the Actions footer (`⌘K`, or `Ctrl+K` off macOS);
+ * `reservedHint` returns a tooltip for a shortcut label the browser reserves.
+ * @param {import("@blastlauncher/client-core").ControllerView} view
+ * @param {{status?: FooterStatus, context?: ExtensionContext, actionsKey?: string, reservedHint?: (label: string) => string}} [options]
+ */
 export function render(view, options = {}) {
   const status = options.status ?? { text: "Ready" };
   const search = `<input id="search" value="${escapeHtml(view.search.text)}" placeholder="${escapeHtml(view.search.placeholder)}" aria-label="Search">${view.dropdown ? `<button type="button" class="dropdown-trigger" data-dropdown-open aria-label="${escapeHtml(view.dropdown.tooltip || view.dropdown.label)}">${escapeHtml(view.dropdown.label || "Filter")}⌄</button>` : ""}`;
@@ -154,7 +172,7 @@ export function render(view, options = {}) {
     ? `<section class="dropdown-panel" role="dialog" aria-label="${escapeHtml(view.dropdown.label)}"><input id="dropdown-search" data-dropdown-search value="${escapeHtml(view.dropdown.query)}" aria-label="Filter options"><ul>${view.dropdown.options.map((option) => `<li><button type="button" data-dropdown-value="${escapeHtml(option.value)}"${option.selected ? ' class="selected"' : ""}>${escapeHtml(option.title)}${option.current ? " ✓" : ""}</button></li>`).join("")}</ul></section>`
     : "";
   const actions = view.actions.open
-    ? `<section class="actions"><strong>${escapeHtml(view.actions.title)}</strong><div class="breadcrumb">${view.actions.breadcrumb.map(escapeHtml).join(" / ")}</div><input id="action-search" value="${escapeHtml(view.actions.query)}" placeholder="Search actions…" aria-label="Action search"><ul>${view.actions.rows.map((row, index) => `<li${row.selected ? ' class="selected"' : ""} data-action-index="${index}">${escapeHtml(row.title)} <small>${escapeHtml(row.shortcut)}</small></li>`).join("")}</ul></section>`
+    ? `<section class="actions"><strong>${escapeHtml(view.actions.title)}</strong><div class="breadcrumb">${view.actions.breadcrumb.map(escapeHtml).join(" / ")}</div><input id="action-search" value="${escapeHtml(view.actions.query)}" placeholder="Search actions…" aria-label="Action search"><ul>${view.actions.rows.map((row, index) => `<li${row.selected ? ' class="selected"' : ""} data-action-index="${index}">${escapeHtml(row.title)} ${keycap("small", row.shortcut, options.reservedHint)}</li>`).join("")}</ul></section>`
     : "";
   const formView = view.form;
   const form = formView
@@ -188,7 +206,7 @@ export function render(view, options = {}) {
       ? `<article class="detail">${renderMarkdown(view.detail)}</article>`
       : "";
   const toast = view.feedback.toast
-    ? `<aside class="toast" data-style="${escapeHtml(view.feedback.toast.style)}"><strong>${escapeHtml(view.feedback.toast.title)}</strong> ${escapeHtml(view.feedback.toast.message)}${view.feedback.toast.actions.map((action, index) => `<button type="button" data-toast-action="${index}">${escapeHtml(action.title)} <small>${escapeHtml(action.shortcut)}</small></button>`).join("")}</aside>`
+    ? `<aside class="toast" data-style="${escapeHtml(view.feedback.toast.style)}"><strong>${escapeHtml(view.feedback.toast.title)}</strong> ${escapeHtml(view.feedback.toast.message)}${view.feedback.toast.actions.map((action, index) => `<button type="button" data-toast-action="${index}">${escapeHtml(action.title)} ${keycap("small", action.shortcut, options.reservedHint)}</button>`).join("")}</aside>`
     : "";
   const hud = view.feedback.hud
     ? `<aside class="hud" role="status">${escapeHtml(view.feedback.hud.title)}</aside>`
@@ -210,7 +228,7 @@ export function render(view, options = {}) {
         .map((row) =>
           row.kind === "section"
             ? `<li class="menu-section"><strong>${escapeHtml(row.title)}</strong></li>`
-            : `<li><button type="button" data-menu-id="${escapeHtml(row.id)}"${row.selected ? ' class="selected"' : ""}${row.disabled ? " disabled" : ""}><span class="menu-icon"${row.iconTint ? ` style="color:${escapeHtml(row.iconTint)}"` : ""}>${escapeHtml(row.iconLabel || "")}</span><span>${escapeHtml(row.title)}</span>${row.subtitle ? `<small>${escapeHtml(row.subtitle)}</small>` : ""}${row.shortcut ? `<kbd>${escapeHtml(row.shortcut)}</kbd>` : ""}${row.kind === "submenu" ? " ›" : ""}</button></li>`,
+            : `<li><button type="button" data-menu-id="${escapeHtml(row.id)}"${row.selected ? ' class="selected"' : ""}${row.disabled ? " disabled" : ""}><span class="menu-icon"${row.iconTint ? ` style="color:${escapeHtml(row.iconTint)}"` : ""}>${escapeHtml(row.iconLabel || "")}</span><span>${escapeHtml(row.title)}</span>${row.subtitle ? `<small>${escapeHtml(row.subtitle)}</small>` : ""}${keycap("kbd", row.shortcut, options.reservedHint)}${row.kind === "submenu" ? " ›" : ""}</button></li>`,
         )
         .join("")}</ul></nav>`
     : "";
@@ -224,7 +242,7 @@ export function render(view, options = {}) {
           : view.kind === "grid"
             ? `<ul class="grid">${grid}</ul>${empty}`
             : `<ul class="rows">${rows}</ul>${empty}`;
-  const footer = `<footer>${footerContextMarkup(options.context, view.title)}${statusMarkup(status)}<span class="footer-hints">${view.primary.enabled ? footerButton(view.primary.title, view.primary.shortcut || "↵", "primary") : ""}${footerButton("Actions", "⌘K", "actions")}</span></footer>`;
+  const footer = `<footer>${footerContextMarkup(options.context, view.title)}${statusMarkup(status)}<span class="footer-hints">${view.primary.enabled ? footerButton(view.primary.title, view.primary.shortcut || "↵", "primary") : ""}${footerButton("Actions", options.actionsKey ?? "⌘K", "actions")}</span></footer>`;
   // Back sits left of the search field, where Raycast puts it in pushed views.
   const back = `<button type="button" class="back-key" data-footer="back" title="Back (Esc)"><span aria-hidden="true">←</span><span class="visually-hidden">Back</span></button>`;
   return `<main data-kind="${escapeHtml(view.kind)}" data-loading="${view.loading ? "true" : "false"}" aria-busy="${view.loading ? "true" : "false"}"><header><h1>${escapeHtml(view.title)}</h1><div class="search-line">${back}${breadcrumbMarkup(options.context)}${search}</div></header>${body}${actions}${dropdown}${footer}${toast}${hud}${alert}</main>`;

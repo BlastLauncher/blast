@@ -705,6 +705,13 @@ kbd {
 .footer-key:hover kbd {
   background: var(--gray7);
 }
+/* A combo the browser keeps (⌘T, ⌘W…): drawn muted, explained by its title. */
+small.reserved,
+kbd.reserved {
+  opacity: 0.45;
+  text-decoration: line-through dotted;
+  cursor: help;
+}
 
 /* ---------- actions popover (root and extension) ---------- */
 .actions {

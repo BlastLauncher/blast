@@ -1,4 +1,9 @@
-import type { KeyInput } from "../../packages/client-core/src/shortcut.ts";
+import {
+  matchesShortcut,
+  shortcutLabel,
+  type KeyInput,
+  type Platform,
+} from "../../packages/client-core/src/shortcut.ts";
 
 /** The keyboard fields the browser supplies and the launcher needs. */
 export type KeyboardLike = {
@@ -56,4 +61,59 @@ export function applyEarlyKey(buffer: string, event: KeyboardLike): string | und
  */
 export function applyEarlyPaste(buffer: string, text: string): string {
   return buffer + text.replace(/\r?\n/g, " ");
+}
+
+/** The navigator fields that name the OS; `userAgentData` is Chromium-only. */
+export type NavigatorLike = { platform?: string; userAgentData?: { platform?: string } };
+
+/** Raycast's ⌘ is Ctrl off macOS; this picks which, from the browser's OS. */
+export function platformFromNavigator(navigator: NavigatorLike | undefined): Platform {
+  const name = navigator?.userAgentData?.platform || navigator?.platform || "";
+  if (/mac|iphone|ipad/i.test(name)) return "macOS";
+  return /win/i.test(name) ? "Windows" : "Linux";
+}
+
+/**
+ * Combos the browser keeps for itself: pages never receive them, so
+ * `preventDefault` cannot help. `cmd` is Ctrl off macOS, like any Raycast
+ * shortcut. The only table of these; labels and matching both read it.
+ */
+export const BROWSER_RESERVED = [
+  { modifiers: ["cmd"], key: "t" },
+  { modifiers: ["cmd"], key: "w" },
+  { modifiers: ["cmd"], key: "n" },
+  { modifiers: ["cmd"], key: "q" },
+  { modifiers: ["cmd"], key: "l" },
+  { modifiers: ["cmd", "shift"], key: "t" },
+  { modifiers: ["cmd", "shift"], key: "n" },
+  { modifiers: ["cmd", "shift"], key: "w" },
+  { modifiers: ["cmd"], key: "tab" },
+  { modifiers: ["ctrl"], key: "tab" },
+  { modifiers: ["ctrl", "shift"], key: "tab" },
+] as const;
+
+/** Whether the browser swallows `press` before the page sees it. */
+export function isBrowserReserved(press: KeyInput, platform: Platform): boolean {
+  return BROWSER_RESERVED.some((shortcut) => matchesShortcut(shortcut, press, platform));
+}
+
+/** Whether a rendered shortcut label (`⌘T`, `Ctrl+T`) names a reserved combo. */
+export function isReservedLabel(label: string, platform: Platform): boolean {
+  return (
+    !!label && BROWSER_RESERVED.some((shortcut) => shortcutLabel(shortcut, platform) === label)
+  );
+}
+
+/** Tooltip for a reserved combo: the action stays reachable from the panel. */
+export const RESERVED_HINT = "Browser reserved: run it from the Actions panel";
+
+/**
+ * Whether a key pressed in a text field may run a shortcut. Like Raycast, a
+ * field keeps plain typing (letters, Shift+letter, Space, Backspace, ←/→)
+ * and gives up modifier combos, ↵, Esc and ↑/↓.
+ */
+export function shortcutAllowedInText(event: KeyboardLike): boolean {
+  if (event.isComposing) return false;
+  if (event.ctrlKey || event.metaKey || event.altKey) return true;
+  return ["Enter", "Escape", "ArrowUp", "ArrowDown"].includes(event.key);
 }

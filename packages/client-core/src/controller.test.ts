@@ -86,7 +86,11 @@ test("view is plain JSON that round-trips, and the first item is selected and re
     ["banana", false],
   ]);
   expect(JSON.parse(JSON.stringify(view))).toEqual(view);
-  expect(view.primary).toEqual({ title: "apple-open", shortcut: "Enter", enabled: true });
+  expect(view.primary).toEqual({
+    title: "apple-open",
+    shortcut: "Enter",
+    enabled: true,
+  });
 });
 
 test("typing filters, ranks and keeps or resets the selection", () => {
@@ -162,7 +166,10 @@ test("primary runs the selected item's first action; shortcuts match per platfor
 test("a key input reports whether it matched a shortcut", () => {
   const controller = ready("Linux");
   expect(controller.input({ type: "key", key: { name: "o", ctrl: true } }).handled).toBe(true);
-  const miss = controller.input({ type: "key", key: { name: "o", meta: true } });
+  const miss = controller.input({
+    type: "key",
+    key: { name: "o", meta: true },
+  });
   expect(miss.handled).toBeUndefined();
   expect("handled" in miss).toBe(false);
   expect("handled" in controller.input({ type: "primary" })).toBe(false);
@@ -311,7 +318,11 @@ test("a HUD is visible until its scheduled tick; a new HUD restarts the window",
     scene(list({}, item("a")), node("HUD", "hud", { title: "Copied" })),
   );
   const timer = result.effects[0];
-  expect(timer).toEqual({ type: "schedule", ms: 2500, token: expect.any(String) });
+  expect(timer).toEqual({
+    type: "schedule",
+    ms: 2500,
+    token: expect.any(String),
+  });
   expect(controller.view().feedback.hud).toEqual({ title: "Copied" });
   // Same HUD in a later scene does not restart the window.
   expect(
@@ -344,8 +355,16 @@ test("an alert blocks other input; confirm reports remember first", () => {
       onRememberUserChoiceChange: h("remember"),
     },
     [
-      node("Alert.Action", "yes", { name: "primaryAction", title: "Delete", onAction: h("yes") }),
-      node("Alert.Action", "no", { name: "dismissAction", title: "Cancel", onAction: h("no") }),
+      node("Alert.Action", "yes", {
+        name: "primaryAction",
+        title: "Delete",
+        onAction: h("yes"),
+      }),
+      node("Alert.Action", "no", {
+        name: "dismissAction",
+        title: "Cancel",
+        onAction: h("no"),
+      }),
     ],
   );
   const message = scene(list({}, item("a"), item("b")), alert);
@@ -375,7 +394,11 @@ test("toast actions run by index and by shortcut", () => {
       onAction: h("retry"),
       shortcut: { modifiers: ["ctrl"], key: "r" },
     }),
-    node("Toast.Action", "copy", { name: "secondaryAction", title: "Copy", onAction: h("copy") }),
+    node("Toast.Action", "copy", {
+      name: "secondaryAction",
+      title: "Copy",
+      onAction: h("copy"),
+    }),
   ]);
   const controller = ready("Linux", scene(list({}, item("a")), toast));
   expect(controller.view().feedback.toast).toEqual({
@@ -403,7 +426,10 @@ test("Raycast default action shortcuts run secondary and copy actions", () => {
         item("a", {}, [
           act("primary"),
           act("secondary", { onAction: h("secondary") }),
-          node("Action.CopyToClipboard", "copy", { title: "Copy", onAction: h("copy") }),
+          node("Action.CopyToClipboard", "copy", {
+            title: "Copy",
+            onAction: h("copy"),
+          }),
         ]),
       ),
     ),
@@ -422,7 +448,10 @@ test("Raycast default action shortcuts run secondary and copy actions", () => {
 });
 
 test("success and failure toasts schedule dismissal while animated toasts stay mounted", () => {
-  const controller = createController({ platform: "Linux", toastDurationMs: 25 });
+  const controller = createController({
+    platform: "Linux",
+    toastDurationMs: 25,
+  });
   const success = scene(
     list({}, item("a")),
     node("Toast", "toast", { style: "success", title: "Done" }),
@@ -479,6 +508,61 @@ test("menu-bar navigation: move, open a submenu, activate, back, and leave", () 
   expect(bare.input({ type: "back" }).effects).toEqual([]);
 });
 
+test("menu-bar item shortcuts fire from any open level, per platform", () => {
+  const shortcut = {
+    macOS: { modifiers: ["cmd"], key: "r" },
+    Windows: { modifiers: ["ctrl"], key: "r" },
+  };
+  const menu = node("MenuBarExtra", "menu", { title: "Ready" }, [
+    node("MenuBarExtra.Item", "one", { title: "One", onAction: h("one") }),
+    node("MenuBarExtra.Submenu", "sub", { title: "More" }, [
+      node("MenuBarExtra.Item", "two", {
+        title: "Two",
+        onAction: h("two"),
+        shortcut,
+      }),
+    ]),
+  ]);
+  const mac = createController({ platform: "macOS" });
+  mac.scene(scene(menu));
+  const run = mac.input({ type: "key", key: { name: "r", meta: true } });
+  expect([run.handled, names(run)]).toEqual([true, ["two"]]);
+  expect(mac.input({ type: "key", key: { name: "r", ctrl: true } }).handled).toBeUndefined();
+  const linux = createController({ platform: "Linux" });
+  linux.scene(scene(menu));
+  expect(names(linux.input({ type: "key", key: { name: "r", ctrl: true } }))).toEqual(["two"]);
+});
+
+test("an action shortcut runs with the action panel open and closes it", () => {
+  const actions = [
+    act("first"),
+    act("pair", {
+      shortcut: {
+        macOS: { modifiers: ["cmd"], key: "r" },
+        Windows: { modifiers: ["ctrl"], key: "r" },
+      },
+    }),
+  ];
+  for (const [platform, key] of [
+    ["macOS", { name: "r", meta: true }],
+    ["Windows", { name: "r", ctrl: true }],
+  ] as const) {
+    const controller = ready(platform, scene(list({}, item("only", {}, actions))));
+    controller.input({ type: "openActions" });
+    controller.input({ type: "actionsQuery", text: "fi" });
+    const result = controller.input({ type: "key", key });
+    expect([result.handled, names(result)]).toEqual([true, ["act-pair"]]);
+    expect(controller.view().actions.open).toBe(false);
+    // The secondary action keeps Raycast's ⌘↵ / Ctrl+Enter when it declares none.
+    const plain = ready(platform, scene(list({}, item("only", {}, [act("a"), act("b")]))));
+    const secondary = {
+      name: "return",
+      ...(platform === "macOS" ? { meta: true } : { ctrl: true }),
+    };
+    expect(names(plain.input({ type: "key", key: secondary }))).toEqual(["act-b"]);
+  }
+});
+
 test("back pops the navigation stack, or quits when there is nothing to pop", () => {
   const controller = ready();
   expect(names(controller.input({ type: "back" }))).toEqual(["pop"]);
@@ -507,9 +591,19 @@ test("clearSearchBar, popToRoot and closeMainWindow requests from the scene", ()
   expect(controller.view().search.text).toBe("def");
   expect(controller.view().requests.clearSearch).toBe(false);
   // popToRoot only clears the search when it asks to.
-  controller.scene(navScene({ clearSearchBar: { id: 1 }, popToRoot: { clearSearchBar: false } }));
+  controller.scene(
+    navScene({
+      clearSearchBar: { id: 1 },
+      popToRoot: { clearSearchBar: false },
+    }),
+  );
   expect(controller.view().search.text).toBe("def");
-  controller.scene(navScene({ clearSearchBar: { id: 1 }, popToRoot: { clearSearchBar: true } }));
+  controller.scene(
+    navScene({
+      clearSearchBar: { id: 1 },
+      popToRoot: { clearSearchBar: true },
+    }),
+  );
   expect(controller.view().search.text).toBe("");
   const closing = controller.scene(navScene({ closeMainWindow: true }));
   expect(closing.effects).toEqual([{ type: "quit" }]);
@@ -596,8 +690,14 @@ test("controller edits every form field, validates dates, hides passwords and su
       },
       ["Dropdown", "TagPicker"].includes(kind)
         ? [
-            node(`Form.${kind}.Item`, `${kind}-a`, { value: "a", title: "Apple" }),
-            node(`Form.${kind}.Item`, `${kind}-b`, { value: "b", title: "Banana" }),
+            node(`Form.${kind}.Item`, `${kind}-a`, {
+              value: "a",
+              title: "Apple",
+            }),
+            node(`Form.${kind}.Item`, `${kind}-b`, {
+              value: "b",
+              title: "Banana",
+            }),
           ]
         : [],
     ),
@@ -631,7 +731,11 @@ test("controller edits every form field, validates dates, hides passwords and su
   expect(JSON.stringify(controller.view())).not.toContain("never-expose-this");
   fields[2]!.props.hasValue = true;
   controller.scene(scene(form));
-  expect(display("PasswordField")).toMatchObject({ value: null, text: "", hasValue: true });
+  expect(display("PasswordField")).toMatchObject({
+    value: null,
+    text: "",
+    hasValue: true,
+  });
   expect(input({ type: "toggle", id: "Checkbox" }).events[0]?.args).toEqual([true]);
   expect(input({ type: "focus", id: "Dropdown" }).events.map((e) => e.handler)).toEqual([
     "blur-TextField",
@@ -665,7 +769,10 @@ test("controller edits every form field, validates dates, hides passwords and su
   ).toEqual(["2024-02-29T00:00:00.000Z"]);
   fields[6]!.props.value = "2024-02-29T00:00:00.000Z";
   controller.scene(scene(form));
-  expect(display("DatePicker")).toMatchObject({ text: "2024-02-29", error: "" });
+  expect(display("DatePicker")).toMatchObject({
+    text: "2024-02-29",
+    error: "",
+  });
   expect(input({ type: "setValue", id: "DatePicker", value: "" }).events[0]?.args).toEqual([null]);
   expect(
     input({ type: "setValue", id: "FilePicker", value: " /one, /two, " }).events[0]?.args,
@@ -683,7 +790,10 @@ test("controller edits every form field, validates dates, hides passwords and su
 
 test("form focus wraps, ignores stale acknowledgements, and follows scene requests", () => {
   const fields = ["a", "b", "c"].map((id) =>
-    node("Form.TextField", id, { onFocus: h(`focus-${id}`), onBlur: h(`blur-${id}`) }),
+    node("Form.TextField", id, {
+      onFocus: h(`focus-${id}`),
+      onBlur: h(`blur-${id}`),
+    }),
   );
   const form = node("Form", "form", {}, fields);
   const controller = ready("Linux", scene(form));
@@ -702,7 +812,11 @@ test("form focus wraps, ignores stale acknowledgements, and follows scene reques
   expect(controller.view().form?.focusId).toBe("c");
   expect(controller.input({ type: "focus", id: "missing" }).events).toEqual([]);
   controller.scene(scene(node("Form", "other", {}, [])));
-  expect(controller.view().form).toEqual({ items: [], fields: [], focusId: null });
+  expect(controller.view().form).toEqual({
+    items: [],
+    fields: [],
+    focusId: null,
+  });
 });
 
 test("form scenes control text values, preserve date syntax on acknowledgement, and clear removed fields", () => {
@@ -710,7 +824,11 @@ test("form scenes control text values, preserve date syntax on acknowledgement, 
   const show = (name: string, date: string | null = null) =>
     scene(
       node("Form", "form", {}, [
-        node("Form.TextField", "name", { value: name, onChange: h("name"), error: "Required" }),
+        node("Form.TextField", "name", {
+          value: name,
+          onChange: h("name"),
+          error: "Required",
+        }),
         node("Form.DatePicker", "date", {
           value: date,
           defaultValue: "2020-01-01",
@@ -722,18 +840,28 @@ test("form scenes control text values, preserve date syntax on acknowledgement, 
   expect(controller.view().form?.fields[1]?.value).toBeNull();
   controller.input({ type: "setValue", id: "name", value: "rejected" });
   controller.scene(show("original"));
-  expect(controller.view().form?.fields[0]).toMatchObject({ text: "original", error: "Required" });
+  expect(controller.view().form?.fields[0]).toMatchObject({
+    text: "original",
+    error: "Required",
+  });
   controller.input({ type: "setValue", id: "date", value: "2024-02-29" });
   controller.scene(show("changed", "2024-02-29T00:00:00.000Z"));
   expect(controller.view().form?.fields[1]?.text).toBe("2024-02-29");
   controller.scene(show("changed", "2025-01-01T00:00:00.000Z"));
   expect(controller.view().form?.fields[1]?.text).toBe("2025-01-01T00:00:00.000Z");
   controller.scene(scene(node("Form", "form")));
-  expect(controller.view().form).toEqual({ items: [], fields: [], focusId: null });
+  expect(controller.view().form).toEqual({
+    items: [],
+    fields: [],
+    focusId: null,
+  });
 });
 
 test("the command title is the fallback when the list has no navigation title", () => {
-  const controller = createController({ platform: "macOS", fallbackTitle: "View People" });
+  const controller = createController({
+    platform: "macOS",
+    fallbackTitle: "View People",
+  });
   controller.scene(scene(list({}, item("a"))));
   expect(controller.view().title).toBe("View People");
   controller.scene(scene(list({ navigationTitle: "People" }, item("a"))));

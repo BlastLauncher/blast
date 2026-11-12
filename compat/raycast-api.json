@@ -16451,6 +16451,7 @@
       "path": "List.EmptyView.Props.actions",
       "status": "covered",
       "tests": [
+        "packages/client-core/src/view.test.ts",
         "packages/runtime/src/api/index.test.ts"
       ],
       "weight": 874
