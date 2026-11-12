@@ -1,7 +1,7 @@
 ---
 id: "0144"
 title: Style the browser demo after cmdk's Raycast example
-status: todo
+status: doing
 milestone: M8
 depends: []
 ---
