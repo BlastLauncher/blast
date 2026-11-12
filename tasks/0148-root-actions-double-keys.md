@@ -1,7 +1,7 @@
 ---
 id: "0148"
 title: Handle each key once in the root ⌘K actions panel
-status: todo
+status: doing
 milestone: M8
 depends: []
 ---
