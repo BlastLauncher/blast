@@ -90,7 +90,7 @@ Raycast extensions in a browser tab, in almostnode's cross-origin sandbox (decis
       fields/separators, early keystrokes; sweep counts grids/forms; no-view and menu-bar modes
 - [x] 0140–0144 menu-bar feedback; blank commands triaged; Firefox launches; cmdk + Raycast-style launcher
 - [x] 0145 demo backdrop, link home, focus stays in search
-- [ ] 0146 bind every shortcut the demo shows
+- [x] 0146 bind every shortcut the demo shows
 
 ## Later (not scheduled)
 
