@@ -142,3 +142,24 @@ test("a browser-reserved shortcut is muted with its hint; the Actions key follow
   expect(html).toContain("<kbd>Ctrl+K</kbd>");
   expect(render(panel)).toContain("<small>Ctrl+T</small>");
 });
+
+// @covers List.Props.isShowingDetail
+// @covers List.Item.Detail.Props.markdown
+test("a list showing detail draws the selected item's detail beside its rows", () => {
+  const game = {
+    ...view,
+    search: { text: "red f", placeholder: "Type here" },
+    rows: [{ kind: "item", id: "6", title: "42 wpm", selected: true, iconLabel: "◷" }],
+    empty: null,
+    detail: "**red f**ox jumps over\nSpeed: 42 wpm",
+  } as unknown as Parameters<typeof render>[0];
+  const html = render(game);
+  expect(html).toContain('placeholder="Type here"');
+  expect(html).toContain('value="red f"');
+  expect(html).toMatch(
+    /<div class="list-split"><div class="list-pane"><ul class="rows"><li class="selected" data-id="6">.*42 wpm.*<\/ul><\/div><article class="detail"><p><strong>red f<\/strong>ox jumps over<\/p><p>Speed: 42 wpm<\/p><\/article><\/div>/,
+  );
+  // Without detail the rows fill the view, as before.
+  expect(render({ ...game, detail: "" })).not.toContain("list-split");
+  expect(render({ ...game, detail: "" })).not.toContain('class="detail"');
+});

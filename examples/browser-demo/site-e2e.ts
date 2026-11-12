@@ -813,6 +813,76 @@ try {
     await waitTitle("Reserved ran");
     await page.keyboard.press("Escape");
     await page.locator("#root-search").waitFor({ timeout: 10_000 });
+    // 0150 Raytyping's shape (browser-typing): the search field is the game's
+    // input, the detail beside the row shows progress, and the end of a round
+    // clears the field, so the next round is typed into the same field.
+    await page.locator("#root-search").fill("browser-typing");
+    await page.keyboard.press("Enter");
+    const gameDetail = page.locator("#app .list-split > article.detail");
+    await gameDetail.waitFor({ timeout: 30_000 });
+    const gameState = async () => ({
+      field: await page.locator("#app #search").inputValue(),
+      placeholder: await page.locator("#app #search").getAttribute("placeholder"),
+      focused: await activeId(),
+      row: await page.locator("#app .rows li.selected .root-copy").textContent(),
+      detail: await page.evaluate(
+        () =>
+          document.querySelector<BrowserElement & { innerHTML: string }>(
+            "#app .list-split > article.detail",
+          )?.innerHTML,
+      ),
+    });
+    const expectGame = async (
+      label: string,
+      check: (state: Awaited<ReturnType<typeof gameState>>) => boolean,
+    ) => {
+      let state = await gameState();
+      for (let tries = 0; tries < 100 && !check(state); tries++) {
+        await page.waitForTimeout(100);
+        state = await gameState();
+      }
+      if (!check(state)) throw new Error(`typing game ${label}: ${JSON.stringify(state)}`);
+    };
+    await expectGame(
+      "did not start",
+      (state) =>
+        state.placeholder === "Type here" &&
+        state.focused === "search" &&
+        state.detail === "<p>red fox jumps</p>",
+    );
+    // Typed into the focused search field, with no click first.
+    await page.keyboard.type("red");
+    await expectGame(
+      "did not advance",
+      (state) =>
+        state.field === "red" &&
+        state.row === "3 typed" &&
+        state.detail === "<p><strong>red</strong> fox jumps</p>",
+    );
+    // The rest at full speed: no keystroke may be lost to a lagging echo.
+    await page.keyboard.type(" fox jumps");
+    await expectGame(
+      "did not finish",
+      (state) =>
+        state.field === "" &&
+        !!state.detail?.includes("Round complete") &&
+        !!state.detail?.includes("<p>Rounds: 1</p>"),
+    );
+    await page.keyboard.press("Enter");
+    await expectGame("did not reload", (state) => state.detail === "<p>red fox jumps</p>");
+    await page.keyboard.type("re");
+    await expectGame(
+      "did not take a second round in the same field",
+      (state) =>
+        state.field === "re" &&
+        state.row === "2 typed" &&
+        state.detail === "<p><strong>re</strong>d fox jumps</p>",
+    );
+    for (let press = 0; press < 5 && !(await page.locator("#root-search").count()); press++) {
+      await page.keyboard.press("Escape");
+      await page.waitForTimeout(200);
+    }
+    await page.locator("#root-search").waitFor({ timeout: 10_000 });
     // Nano Snake (a real catalog command): ⌘R restarts the game, not the page.
     await page.locator("#root-search").fill("Play Nano Snake");
     await page.keyboard.press("Enter");

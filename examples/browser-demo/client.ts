@@ -30,6 +30,7 @@ import {
   preferenceFields,
   type Preference,
 } from "../../packages/host/src/preference-fields.ts";
+import { controlledSearchText, syncAttributes } from "./search-sync.ts";
 import { canUseLocalFixture, isTextExtension, parseExtensionSource } from "./source.ts";
 import {
   catalogCommandTitle,
@@ -137,6 +138,10 @@ let preferenceForm:
 let preferenceFormVisible = false;
 let sessionStarting = false;
 let earlyInput = "";
+/** The controller's search text as of the field's last input or sync (see `controlledSearchText`). */
+let searchBaseline = "";
+/** An IME composition is open in a text field; its text must not be replaced. */
+let composing = false;
 let activeMode: CommandMode = "view";
 /** The scene the controller last saw; its active node names the view being drawn. */
 let lastScene: SceneMessage | undefined;
@@ -240,6 +245,7 @@ function replaceApp(markup: string) {
       !(next instanceof HTMLInputElement && next.type === "password" && "hasValue" in next.dataset)
     )
       previous.value = next.value;
+    syncAttributes(previous, next);
     next.replaceWith(previous);
   }
 }
@@ -384,6 +390,22 @@ const draw = (view: ReturnType<Controller["view"]>) => {
       !(next instanceof HTMLInputElement && next.type === "checkbox")
     )
       next.setSelectionRange(selectionStart, selectionEnd ?? selectionStart);
+  }
+  // A controlled `searchText` the extension changed (cleared, reset, rewritten)
+  // reaches the field even while it is focused, which replaceApp never does.
+  const search = document.querySelector<HTMLInputElement>("#search");
+  if (search && (view.kind === "list" || view.kind === "grid")) {
+    const text = controlledSearchText({
+      field: search.value,
+      view: view.search.text,
+      baseline: searchBaseline,
+      composing,
+    });
+    if (text !== undefined) {
+      search.value = text;
+      if (document.activeElement === search) search.setSelectionRange(text.length, text.length);
+    }
+    if (!composing) searchBaseline = view.search.text;
   }
   if (follow) reveal(".rows li.selected, .grid-cell.selected");
   if (actions !== null && actions !== previous?.actions) reveal(".actions li.selected");
@@ -1706,6 +1728,8 @@ document.addEventListener("paste", (event) => {
   earlyInput = applyEarlyPaste(earlyInput, text);
   drawStarting();
 });
+document.addEventListener("compositionstart", () => (composing = true), true);
+document.addEventListener("compositionend", () => (composing = false), true);
 document.addEventListener("input", (event) => {
   const target = event.target as HTMLInputElement;
   if (target.closest("#preferences-form") && preferenceForm) {
@@ -1732,8 +1756,10 @@ document.addEventListener("input", (event) => {
     actionQuery = target.value;
     actionSelected = 0;
     drawRoot();
-  } else if (target.id === "search") sendInput({ type: "search", text: target.value });
-  else if (target.id === "dropdown-search")
+  } else if (target.id === "search") {
+    sendInput({ type: "search", text: target.value });
+    if (controller) searchBaseline = controller.view().search.text;
+  } else if (target.id === "dropdown-search")
     sendInput({ type: "dropdownQuery", text: target.value });
   else if (target.id === "action-search") sendInput({ type: "actionsQuery", text: target.value });
   else if (target.dataset.field && target instanceof HTMLInputElement && target.type === "checkbox")

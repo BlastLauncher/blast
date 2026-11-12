@@ -166,6 +166,7 @@ export async function siteCatalog(fixtures = false): Promise<Catalog> {
       ["browser-grid", "Browser Grid"],
       ["browser-feedback", "Browser Feedback"],
       ["browser-fields", "Browser Fields"],
+      ["browser-typing", "Browser Typing"],
     ] as const)
       catalog.extensions.push({
         name,
@@ -288,7 +289,7 @@ export async function buildSite(
       join(demo, "fixtures/browser-form/__files"),
       JSON.stringify(await relativeFiles(join(projectRoot, "fixtures/extensions/browser-form"))),
     );
-  for (const fixture of ["browser-grid", "browser-feedback", "browser-fields"]) {
+  for (const fixture of ["browser-grid", "browser-feedback", "browser-fields", "browser-typing"]) {
     if (!options.fixtures) break;
     await cp(join(projectRoot, "fixtures/extensions", fixture), join(demo, "fixtures", fixture), {
       recursive: true,

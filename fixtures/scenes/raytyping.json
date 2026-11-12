@@ -1,0 +1,156 @@
+{
+  "type": "scene",
+  "revision": 1,
+  "root": {
+    "id": "15",
+    "type": "Navigation",
+    "props": {
+      "depth": 1
+    },
+    "children": [
+      {
+        "id": "14",
+        "type": "Navigation.Entry",
+        "props": {
+          "active": true
+        },
+        "children": [
+          {
+            "id": "13",
+            "type": "List",
+            "props": {
+              "searchText": "red f",
+              "isLoading": true,
+              "isShowingDetail": true,
+              "searchBarPlaceholder": "Type here",
+              "onSearchTextChange": {
+                "$handler": "onSearchTextChange"
+              }
+            },
+            "children": [
+              {
+                "id": "6",
+                "type": "List.Item",
+                "props": {
+                  "icon": {
+                    "source": "stopwatch-16",
+                    "tintColor": "raycast-green"
+                  },
+                  "title": "42 wpm"
+                },
+                "children": [
+                  {
+                    "id": "3",
+                    "type": "Slot",
+                    "props": {
+                      "name": "actions"
+                    },
+                    "children": [
+                      {
+                        "id": "2",
+                        "type": "ActionPanel",
+                        "props": {},
+                        "children": [
+                          {
+                            "id": "1",
+                            "type": "Action",
+                            "props": {
+                              "title": "Reload",
+                              "onAction": {
+                                "$handler": "onAction"
+                              },
+                              "icon": "bolt-16"
+                            },
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "id": "5",
+                    "type": "Slot",
+                    "props": {
+                      "name": "detail"
+                    },
+                    "children": [
+                      {
+                        "id": "4",
+                        "type": "List.Item.Detail",
+                        "props": {
+                          "markdown": "**red f**ox jumps over"
+                        },
+                        "children": []
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "12",
+                "type": "Slot",
+                "props": {
+                  "name": "searchBarAccessory"
+                },
+                "children": [
+                  {
+                    "id": "11",
+                    "type": "List.Dropdown",
+                    "props": {
+                      "tooltip": "Word Amount",
+                      "defaultValue": "10",
+                      "onChange": {
+                        "$handler": "onChange"
+                      },
+                      "filtering": false,
+                      "storeValue": true,
+                      "value": "10"
+                    },
+                    "children": [
+                      {
+                        "id": "7",
+                        "type": "List.Dropdown.Item",
+                        "props": {
+                          "title": "10 words",
+                          "value": "10"
+                        },
+                        "children": []
+                      },
+                      {
+                        "id": "8",
+                        "type": "List.Dropdown.Item",
+                        "props": {
+                          "title": "25 words",
+                          "value": "25"
+                        },
+                        "children": []
+                      },
+                      {
+                        "id": "9",
+                        "type": "List.Dropdown.Item",
+                        "props": {
+                          "title": "50 words",
+                          "value": "50"
+                        },
+                        "children": []
+                      },
+                      {
+                        "id": "10",
+                        "type": "List.Dropdown.Item",
+                        "props": {
+                          "title": "100 words",
+                          "value": "100"
+                        },
+                        "children": []
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
