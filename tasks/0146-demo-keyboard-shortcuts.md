@@ -1,7 +1,7 @@
 ---
 id: "0146"
 title: Bind every shortcut the browser demo shows
-status: todo
+status: doing
 milestone: M8
 depends: ["0145"]
 ---
