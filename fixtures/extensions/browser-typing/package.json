@@ -1,0 +1,10 @@
+{
+  "name": "browser-typing",
+  "commands": [
+    {
+      "name": "index",
+      "title": "Browser Typing",
+      "mode": "view"
+    }
+  ]
+}

@@ -948,6 +948,21 @@ kbd.reserved {
 }
 
 /* ---------- detail ---------- */
+/* A List with `isShowingDetail`: rows on the left, the selected item's detail on the right. */
+.list-split {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+}
+.list-pane {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.list-split > .detail {
+  border-left: 1px solid var(--gray6);
+}
 .detail {
   flex: 1;
   min-height: 0;

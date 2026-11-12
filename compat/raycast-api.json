@@ -16629,6 +16629,7 @@
       "path": "List.Item.Detail.Metadata.Label.Props.text",
       "status": "covered",
       "tests": [
+        "packages/client-core/src/controlled-search.test.ts",
         "packages/runtime/src/api/metadata.test.ts"
       ],
       "weight": 652
@@ -16829,6 +16830,7 @@
       "path": "List.Item.Detail.Props.markdown",
       "status": "covered",
       "tests": [
+        "packages/client-core/src/controlled-search.test.ts",
         "packages/runtime/src/api/metadata.test.ts"
       ],
       "weight": 800
@@ -16837,6 +16839,7 @@
       "path": "List.Item.Detail.Props.metadata",
       "status": "covered",
       "tests": [
+        "packages/client-core/src/controlled-search.test.ts",
         "packages/runtime/src/api/metadata.test.ts"
       ],
       "weight": 708
@@ -17066,6 +17069,7 @@
       "path": "List.Props.isShowingDetail",
       "status": "covered",
       "tests": [
+        "packages/client-core/src/controlled-search.test.ts",
         "packages/runtime/src/api/index.test.ts"
       ],
       "weight": 1002
@@ -17142,6 +17146,7 @@
       "path": "List.Props.searchBarPlaceholder",
       "status": "covered",
       "tests": [
+        "packages/client-core/src/controlled-search.test.ts",
         "packages/runtime/src/api/index.test.ts"
       ],
       "weight": 1917
@@ -17150,6 +17155,7 @@
       "path": "List.Props.searchText",
       "status": "covered",
       "tests": [
+        "packages/client-core/src/controlled-search.test.ts",
         "packages/runtime/src/api/index.test.ts"
       ],
       "weight": 528
@@ -17280,6 +17286,7 @@
       "path": "ListItem.Detail.Metadata.Label.Props.text",
       "status": "covered",
       "tests": [
+        "packages/client-core/src/controlled-search.test.ts",
         "packages/runtime/src/api/aliases.test.ts",
         "packages/runtime/src/api/metadata.test.ts"
       ],
@@ -17530,6 +17537,7 @@
       "path": "ListItem.Detail.Props.markdown",
       "status": "covered",
       "tests": [
+        "packages/client-core/src/controlled-search.test.ts",
         "packages/runtime/src/api/aliases.test.ts",
         "packages/runtime/src/api/metadata.test.ts"
       ],
@@ -17540,6 +17548,7 @@
       "path": "ListItem.Detail.Props.metadata",
       "status": "covered",
       "tests": [
+        "packages/client-core/src/controlled-search.test.ts",
         "packages/runtime/src/api/aliases.test.ts",
         "packages/runtime/src/api/metadata.test.ts"
       ],
@@ -18019,6 +18028,7 @@
       "path": "ListProps.isShowingDetail",
       "status": "covered",
       "tests": [
+        "packages/client-core/src/controlled-search.test.ts",
         "packages/runtime/src/api/aliases.test.ts",
         "packages/runtime/src/api/index.test.ts"
       ],
@@ -18113,6 +18123,7 @@
       "path": "ListProps.searchBarPlaceholder",
       "status": "covered",
       "tests": [
+        "packages/client-core/src/controlled-search.test.ts",
         "packages/runtime/src/api/aliases.test.ts",
         "packages/runtime/src/api/index.test.ts"
       ],
@@ -18123,6 +18134,7 @@
       "path": "ListProps.searchText",
       "status": "covered",
       "tests": [
+        "packages/client-core/src/controlled-search.test.ts",
         "packages/runtime/src/api/aliases.test.ts",
         "packages/runtime/src/api/index.test.ts"
       ],

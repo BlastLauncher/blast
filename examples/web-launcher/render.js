@@ -220,7 +220,7 @@ export function render(view, options = {}) {
         .join("")}${button("Submit", "primary")}</form>`
     : "";
   const detail =
-    view.kind === "detail"
+    view.kind === "detail" || (view.kind === "list" && view.detail)
       ? `<article class="detail">${renderMarkdown(view.detail)}</article>`
       : "";
   const noRows =
@@ -250,7 +250,10 @@ export function render(view, options = {}) {
           ? detail
           : view.kind === "grid"
             ? `<ul class="grid">${grid}</ul>${empty}`
-            : `<ul class="rows">${rows}</ul>${empty}`;
+            : detail
+              ? // `isShowingDetail`: the selected item's detail sits beside the rows, as in Raycast.
+                `<div class="list-split"><div class="list-pane"><ul class="rows">${rows}</ul>${empty}</div>${detail}</div>`
+              : `<ul class="rows">${rows}</ul>${empty}`;
   const footer = `<footer>${footerContextMarkup(options.context, view.title)}${statusMarkup(status)}<span class="footer-hints">${view.primary.enabled ? footerButton(view.primary.title, view.primary.shortcut || "↵", "primary") : ""}${footerButton("Actions", options.actionsKey ?? "⌘K", "actions")}</span></footer>`;
   // Back sits left of the search field, where Raycast puts it in pushed views.
   const back = `<button type="button" class="back-key" data-footer="back" title="Back (Esc)"><span aria-hidden="true">←</span><span class="visually-hidden">Back</span></button>`;
