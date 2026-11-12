@@ -1,7 +1,7 @@
 ---
 id: "0149"
 title: Fill the viewport, restore the root on return, and show launch progress
-status: doing
+status: review
 milestone: M8
 depends: []
 ---
@@ -39,19 +39,19 @@ User feedback on blast.yukai.dev:
 
 ## Acceptance
 
-- [ ] `site-e2e.ts`: at 820×1180 and 390×844, `document.scrollingElement.
+- [x] `site-e2e.ts`: at 820×1180 and 390×844, `document.scrollingElement.
       scrollHeight <= innerHeight` on the root and in a pushed list.
-- [ ] `site-e2e.ts`: scroll the root list down, select a row far below the
+- [x] `site-e2e.ts`: scroll the root list down, select a row far below the
       fold, open it, press Esc → the same row is selected and its
       `scrollTop` is within 4px of before; same with the Back button.
-- [ ] `site-e2e.ts`: right after ↵ on a command, the loading stage with the
+- [x] `site-e2e.ts`: right after ↵ on a command, the loading stage with the
       command title and a stage text is visible within 100 ms, and the
       loader line has a running animation.
-- [ ] Screenshots (iPad portrait, iPad landscape, phone; a launch in
+- [x] Screenshots (iPad portrait, iPad landscape, phone; a launch in
       progress light and dark) in `.cache/browser-demo/shots/`, listed in
       Handoff.
-- [ ] `bun run site:e2e` (Chromium) and the Firefox lane pass.
-- [ ] `bun run verify` passes.
+- [x] `bun run site:e2e` (Chromium) and the Firefox lane pass.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -60,11 +60,35 @@ User feedback on blast.yukai.dev:
 
 ## Handoff
 
-Filled in by the worker when finishing:
-
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/3fa5bdee @ e77b41f (code); this Handoff commit follows it
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok)
 Done:
+- Height: body uses 100dvh (iOS vh is the toolbar-hidden viewport, the empty
+  scroll); the window clamps to the viewport so short windows never scroll;
+  touch tablets get a full-height window; the bar honours safe-area insets.
+- Return: the root list's scrollTop is kept across unmount and restored in a
+  layout effect; recents re-sort only on the next query change, so the opened
+  row does not jump to Recent under the visitor.
+- Launch: the stage draws in the same task as ↵/click (it used to wait for the
+  bundle fetch), with an accent 2px sweep continued across redraws, a pulsing
+  icon, stage text and an elapsed hint after 2 s; reduced motion shows a still
+  line. A failed launch keeps the stage with the error and a Back/Esc key.
+- site-e2e: viewport checks (820x1180, 1180x820, 390x844, 1180x560) on the
+  root and a pushed list; Esc and Back restore selection, scrollTop and the
+  row's position; stage visible on the first frame after ↵ (<100 ms) with
+  title, stage text and a running sweep. Each check failed with its fix
+  reverted. Chromium and Firefox (Docker, playwright v1.58.0-noble) pass.
+- Shots in .cache/browser-demo/shots/ of the main checkout:
+  0149-ipad-portrait.png, 0149-ipad-landscape.png, 0149-phone.png,
+  0149-launch-light.png, 0149-launch-dark.png, 0149-launch-error.png
 Not done / risks:
+- Headless Chromium cannot reproduce iOS vh; the 1180x560 check is the one
+  that fails without the CSS fix. Not checked on a real iPad.
+- Pre-existing flake (also 1 in 3 on HEAD before this change): 0147's
+  expectScrollKept on the root fails when ↓ reveals a row 5px under the list
+  top (tolerance 4px). Left alone; worth its own task.
+- site:e2e fixes ports 4175/4176, so parallel worktrees collide; Nano Snake
+  hits the unauthenticated GitHub API and fails while rate-limited.
+- The stage now shows "Starting…" where it said "Starting prebuilt bundle…".
 ```
