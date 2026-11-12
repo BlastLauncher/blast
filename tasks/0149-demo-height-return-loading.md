@@ -1,7 +1,7 @@
 ---
 id: "0149"
 title: Fill the viewport, restore the root on return, and show launch progress
-status: todo
+status: doing
 milestone: M8
 depends: []
 ---
