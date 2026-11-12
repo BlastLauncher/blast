@@ -1,6 +1,6 @@
 import type { SceneMessage, SceneNode } from "@blastlauncher/protocol";
 import { handler, handlerEvent, event, selectionId, text, type OutboundEvent } from "./nodes.ts";
-import { shortcutLabel, type Platform } from "./shortcut.ts";
+import { matchesShortcut, shortcutLabel, type KeyInput, type Platform } from "./shortcut.ts";
 import { activeNode } from "./view.ts";
 import { iconView } from "./icons.ts";
 
@@ -175,4 +175,24 @@ export function menuBarStep(
       ].filter((e) => e !== undefined),
     };
   return same;
+}
+
+/** The enabled item anywhere in `menu` whose shortcut is `press`, if any. */
+export function menuShortcut(
+  menu: SceneNode | undefined,
+  press: KeyInput,
+  platform: Platform = "Linux",
+): SceneNode | undefined {
+  if (menu?.type !== "MenuBarExtra") return;
+  const queue = [...menu.children];
+  for (let node = queue.shift(); node; node = queue.shift()) {
+    if (
+      node.type === "MenuBarExtra.Item" &&
+      handler(node.props.onAction) &&
+      matchesShortcut(node.props.shortcut, press, platform)
+    )
+      return node;
+    queue.push(...node.children);
+  }
+  return;
 }

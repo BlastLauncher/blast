@@ -1,4 +1,10 @@
 import { commandScore } from "./cmdk-score.ts";
+import {
+  matchesShortcut,
+  shortcutLabel,
+  type KeyInput,
+  type Platform,
+} from "../../packages/client-core/src/shortcut.ts";
 
 export type CatalogCommand = {
   name: string;
@@ -32,7 +38,13 @@ export type RootRow = {
 };
 
 export type RootActionId = "run" | "github" | "copy";
-export type RootAction = { id: RootActionId; title: string; shortcut: string };
+/** `shortcut` is the label for the platform; `keys` the Raycast shortcut it shows. */
+export type RootAction = {
+  id: RootActionId;
+  title: string;
+  shortcut: string;
+  keys: { modifiers: string[]; key: string };
+};
 export type RootActionResult =
   | { type: "run" }
   | { type: "open"; url: string }
@@ -235,18 +247,51 @@ export function catalogCommandTitle(
     ?.commands.find((item) => item.name === command)?.title;
 }
 
-export function rootActions(selectedRow: RootRow | undefined): RootAction[] {
+// Raycast's root opens with ⌘O-style keys and copies a command's link with ⇧⌘C.
+const ROOT_KEYS: Record<RootActionId, { modifiers: string[]; key: string }> = {
+  run: { modifiers: [], key: "return" },
+  github: { modifiers: ["cmd"], key: "o" },
+  copy: { modifiers: ["cmd", "shift"], key: "c" },
+};
+
+export function rootActions(
+  selectedRow: RootRow | undefined,
+  platform: Platform = "macOS",
+): RootAction[] {
   if (!selectedRow) return [];
-  return [
-    { id: "run", title: "Run Command", shortcut: "↵" },
-    { id: "github", title: "Open Extension on GitHub", shortcut: "" },
-    { id: "copy", title: "Copy Extension URL", shortcut: "" },
-  ];
+  return (
+    [
+      ["run", "Run Command"],
+      ["github", "Open Extension on GitHub"],
+      ["copy", "Copy Extension URL"],
+    ] as const
+  ).map(([id, title]) => ({
+    id,
+    title,
+    shortcut: shortcutLabel(ROOT_KEYS[id], platform),
+    keys: ROOT_KEYS[id],
+  }));
 }
 
-export function rootActionModel(selectedRow: RootRow | undefined, query: string, selected: number) {
+/** The root action whose shortcut is `press`; ↵ stays with the list and panel. */
+export function rootActionForKey(
+  selectedRow: RootRow | undefined,
+  press: KeyInput,
+  platform: Platform = "macOS",
+): RootActionId | undefined {
+  return rootActions(selectedRow, platform).find(
+    (action) => action.id !== "run" && matchesShortcut(action.keys, press, platform),
+  )?.id;
+}
+
+export function rootActionModel(
+  selectedRow: RootRow | undefined,
+  query: string,
+  selected: number,
+  platform: Platform = "macOS",
+) {
   const normalized = query.trim().toLocaleLowerCase();
-  const actions = rootActions(selectedRow).filter((action) =>
+  const actions = rootActions(selectedRow, platform).filter((action) =>
     normalized ? action.title.toLocaleLowerCase().includes(normalized) : true,
   );
   return {

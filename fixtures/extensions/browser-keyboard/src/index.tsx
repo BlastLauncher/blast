@@ -59,6 +59,11 @@ export default function Command() {
                     void showToast({ style: Toast.Style.Success, title: "Success toast" })
                   }
                 />
+                <Action
+                  title="Open in New Tab"
+                  shortcut={{ modifiers: ["cmd"], key: "t" }}
+                  onAction={() => setShortcutState("Reserved ran")}
+                />
               </ActionPanel>
             }
           />

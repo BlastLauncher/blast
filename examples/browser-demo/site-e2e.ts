@@ -397,26 +397,144 @@ try {
     await page.keyboard.press("Escape");
     await page.locator("#root-search").waitFor({ timeout: 10_000 });
 
-    if (browserName === "firefox") {
-      // Firefox has a different native keyboard platform, so its lane focuses on
-      // the startup regression and a real catalog command.
-      await page.locator("#root-search").fill("Play Nano Snake");
-      await page.keyboard.press("Enter");
-      await page.waitForFunction(
-        () => {
-          const text = document.querySelector("#app")?.textContent ?? "";
-          return (
-            /Score:|GAME OVER|controls|arrow keys/i.test(text) &&
-            document.querySelector("#status")?.getAttribute?.("data-error") !== "true"
-          );
-        },
-        undefined,
-        { timeout: 30_000 },
+    // 0146 shortcuts, in both lanes. ControlOrMeta is ⌘ on macOS and Ctrl
+    // elsewhere, the same mapping the demo applies to Raycast's `cmd`.
+    const mac = await page.evaluate(() => /mac/i.test(navigator.platform));
+    const cmd = (key: string) => (mac ? `⌘${key}` : `Ctrl+${key}`);
+    const headingText = () => page.locator("#app h1").first().textContent();
+    const waitTitle = (text: string) =>
+      page
+        .waitForFunction(
+          (expected: string) =>
+            (document.querySelector("#app h1")?.textContent ?? "").includes(expected),
+          text,
+          { timeout: 10_000 },
+        )
+        .catch(async (error) => {
+          throw new Error(`${error} expected title ${text}, got ${await headingText()}`);
+        });
+    // A root ⌘K panel shortcut: ⌘O opens the selected extension on GitHub.
+    await page
+      .context()
+      .route("https://github.com/**", (route) =>
+        route.fulfill({ contentType: "text/plain", body: "ok" }),
       );
-      if ((await page.locator("#status").textContent()) === "Starting…")
-        throw new Error("Nano Snake remained in Starting state in Firefox");
-      throw firefoxLaneDone;
+    await page.locator("#root-search").fill("Play Nano Snake");
+    await page.keyboard.press("ControlOrMeta+K");
+    await page.locator("#root-action-search").waitFor({ timeout: 10_000 });
+    const openKey = await page
+      .locator('main.root .actions [cmdk-item]:has-text("Open Extension on GitHub") kbd')
+      .textContent();
+    if (openKey !== cmd("O")) throw new Error(`root GitHub action shows ${openKey}`);
+    if ((await page.locator('main.root [data-footer="actions"] kbd').textContent()) !== cmd("K"))
+      throw new Error("the root Actions footer does not show the platform key");
+    const opened = page.context().waitForEvent("page", { timeout: 10_000 });
+    await page.keyboard.press("ControlOrMeta+O");
+    const githubPage = await opened;
+    if (!githubPage.url().includes("/extensions/nano-games"))
+      throw new Error(`⌘O opened ${githubPage.url()}`);
+    await githubPage.close();
+    await page.locator("#root-action-search").waitFor({ state: "detached", timeout: 10_000 });
+    // ⌘↵ runs the secondary action with the search field focused.
+    await page.locator("#root-search").fill("hello-list");
+    await page.keyboard.press("Enter");
+    await page.waitForFunction(
+      () => (document.querySelector("#app .rows li:nth-child(3)")?.textContent ?? "") !== "",
+      undefined,
+      { timeout: 30_000 },
+    );
+    if ((await activeId()) !== "search") throw new Error("hello-list search is not focused");
+    const selectedFruit = (fruit: string) =>
+      page.waitForFunction(
+        (expected: string) =>
+          (document.querySelector("#app .rows li.selected")?.textContent ?? "") === expected,
+        fruit,
+        { timeout: 10_000 },
+      );
+    await page.keyboard.press("Control+N");
+    await selectedFruit("banana");
+    await page.keyboard.press("Control+P");
+    await selectedFruit("apple");
+    await page.keyboard.press("ControlOrMeta+Enter");
+    await waitTitle("pinned apple");
+    // With the action panel open, the shortcut runs and closes the panel.
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("ControlOrMeta+K");
+    await page.locator("#app section.actions").waitFor({ timeout: 10_000 });
+    await page.keyboard.press("ControlOrMeta+Enter");
+    await waitTitle("pinned banana");
+    await page.locator("#app section.actions").waitFor({ state: "detached", timeout: 10_000 });
+    await page.keyboard.press("Escape");
+    await page.locator("#root-search").waitFor({ timeout: 10_000 });
+    // An action shortcut fires from the search field and with the panel open;
+    // a reserved combo is muted but its action stays reachable from the panel.
+    await page.locator("#root-search").fill("browser-keyboard");
+    await page.keyboard.press("Enter");
+    await page.waitForFunction(
+      () => document.querySelectorAll("#app .rows li").length >= 40,
+      undefined,
+      { timeout: 30_000 },
+    );
+    if ((await activeId()) !== "search") throw new Error("browser-keyboard search is not focused");
+    await page.keyboard.press("ControlOrMeta+Shift+C");
+    await waitTitle("Shortcut ran");
+    await page.keyboard.press("ControlOrMeta+K");
+    await page.locator("#app section.actions").waitFor({ timeout: 10_000 });
+    const reserved = page.locator(
+      `#app section.actions li:has-text("Open in New Tab") small.reserved`,
+    );
+    if (
+      (await reserved.textContent()) !== cmd("T") ||
+      !(await reserved.getAttribute("title"))?.includes("Browser reserved")
+    )
+      throw new Error(`reserved combo is not marked: ${await reserved.count()}`);
+    if (await page.locator('#app section.actions li:has-text("Run Cmd") small.reserved').count())
+      throw new Error("a deliverable combo is marked reserved");
+    await page.locator("#action-search").fill("new tab");
+    await page.waitForFunction(
+      () => document.querySelectorAll("#app section.actions li[data-action-index]").length === 1,
+      undefined,
+      { timeout: 10_000 },
+    );
+    await page.keyboard.press("Enter");
+    await waitTitle("Reserved ran");
+    await page.keyboard.press("Escape");
+    await page.locator("#root-search").waitFor({ timeout: 10_000 });
+    // Nano Snake (a real catalog command): ⌘R restarts the game, not the page.
+    await page.locator("#root-search").fill("Play Nano Snake");
+    await page.keyboard.press("Enter");
+    const snakeText = () => page.locator("#app").textContent();
+    await page
+      .waitForFunction(
+        () => (document.querySelector("#app")?.textContent ?? "").includes("GAME OVER"),
+        undefined,
+        { timeout: 60_000 },
+      )
+      .catch(async (error) => {
+        throw new Error(
+          `${error} status=${await page.locator("#status").textContent()} app=${await snakeText()}`,
+        );
+      });
+    await page.evaluate(() => Object.assign(globalThis, { blastNoReload: true }));
+    await page.keyboard.press("ControlOrMeta+R");
+    await page
+      .waitForFunction(
+        () => (document.querySelector("#app")?.textContent ?? "").includes("Playing"),
+        undefined,
+        { timeout: 10_000 },
+      )
+      .catch(async (error) => {
+        throw new Error(`${error} after ⌘R: ${await snakeText()}`);
+      });
+    if (!(await page.evaluate(() => "blastNoReload" in globalThis)))
+      throw new Error("⌘R reloaded the page instead of restarting Nano Snake");
+    if (browserName === "firefox") throw firefoxLaneDone;
+    // Esc clears the game board from the search bar, then leaves.
+    for (let press = 0; press < 5 && !(await page.locator("#root-search").count()); press++) {
+      await page.keyboard.press("Escape");
+      await page.waitForTimeout(200);
     }
+    await page.locator("#root-search").waitFor({ timeout: 10_000 });
     // Keyboard fixture: long list search, shortcut dispatch, layered Escape, detail push,
     // form focus movement/submission, and a real-duration success toast.
     await page.locator("#root-search").fill("");
@@ -468,7 +586,7 @@ try {
       undefined,
       { timeout: 10_000 },
     );
-    await page.keyboard.press("Meta+Shift+C");
+    await page.keyboard.press("ControlOrMeta+Shift+C");
     await page.getByRole("heading", { name: "Shortcut ran" }).waitFor({ timeout: 10_000 });
     await page.locator('#app [data-footer="actions"]').click();
     await page.locator("#app section.actions").waitFor({ timeout: 10_000 });
@@ -482,7 +600,7 @@ try {
       throw new Error("detail markdown was not escaped");
     await page.keyboard.press("Escape");
     await page.locator("#app .rows").waitFor({ timeout: 10_000 });
-    await page.keyboard.press("Meta+Shift+T");
+    await page.keyboard.press("ControlOrMeta+Shift+T");
     await page.getByText("Success toast").waitFor({ timeout: 10_000 });
     await page.waitForFunction(() => !document.querySelector(".toast"), undefined, {
       timeout: 10_000,
@@ -691,7 +809,7 @@ try {
     );
     if (!(await page.locator('input[type="checkbox"]').isChecked()))
       throw new Error("Space did not toggle the checkbox");
-    await page.keyboard.press("Meta+Enter");
+    await page.keyboard.press("ControlOrMeta+Enter");
     await page.getByRole("heading", { name: /Submitted:/ }).waitFor({ timeout: 10_000 });
     await page.keyboard.press("Escape");
     await page.locator("#root-search").waitFor({ timeout: 10_000 });
@@ -730,7 +848,7 @@ try {
       )
     )
       throw new Error("the file picker did not show its unavailable note");
-    await page.keyboard.press("Meta+Enter");
+    await page.keyboard.press("ControlOrMeta+Enter");
     const submitted = page.getByRole("heading", { name: /Submitted:/ });
     await submitted.waitFor({ timeout: 10_000 });
     const values = JSON.parse(((await submitted.textContent()) ?? "").replace(/^Submitted: /, ""));

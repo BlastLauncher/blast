@@ -34,6 +34,7 @@ import { canUseLocalFixture, isTextExtension, parseExtensionSource } from "./sou
 import {
   catalogCommandTitle,
   executeRootAction,
+  rootActionForKey,
   rootActionModel,
   rootModel,
   validateCatalog,
@@ -43,7 +44,17 @@ import {
 } from "./root.ts";
 import { curated } from "./root.ts";
 import { statusError, statusForStage, statusInfo, type DemoStatus } from "./status.ts";
-import { applyEarlyKey, applyEarlyPaste, keyInputFromEvent } from "./keyboard.ts";
+import {
+  applyEarlyKey,
+  applyEarlyPaste,
+  isReservedLabel,
+  keyInputFromEvent,
+  platformFromNavigator,
+  RESERVED_HINT,
+  shortcutAllowedInText,
+  type NavigatorLike,
+} from "./keyboard.ts";
+import { matchesShortcut, shortcutLabel } from "../../packages/client-core/src/shortcut.ts";
 import { escapeHtml } from "../web-launcher/render.js";
 import { BrowserLaunchTimeoutError, createLaunchGeneration, withLaunchTimeout } from "./launch.ts";
 import { acceptsRuntimePortRequest } from "./runtime-port.ts";
@@ -62,6 +73,18 @@ type SandboxRuntime = {
 type Sandbox = { runtime: SandboxRuntime; iframe?: HTMLIFrameElement };
 const asset = (path: string) => new URL(path, new URL(".", location.href)).toString();
 const app = document.querySelector<HTMLElement>("#app")!;
+// Raycast's ⌘ is Ctrl off macOS, for matching and for every label drawn.
+const platform = platformFromNavigator(navigator as NavigatorLike);
+const ACTIONS_KEY = { modifiers: ["cmd"], key: "k" };
+const keyLabels = {
+  primaryKey: shortcutLabel({ modifiers: [], key: "return" }, platform),
+  actionsKey: shortcutLabel(ACTIONS_KEY, platform),
+};
+const isActionsKey = (event: KeyboardEvent) =>
+  matchesShortcut(ACTIONS_KEY, keyInputFromEvent(event), platform);
+const isSubmitKey = (event: KeyboardEvent) =>
+  matchesShortcut({ modifiers: ["cmd"], key: "return" }, keyInputFromEvent(event), platform);
+const reservedHint = (label: string) => (isReservedLabel(label, platform) ? RESERVED_HINT : "");
 const commandSelect = document.querySelector<HTMLSelectElement>("#command");
 let controller: Controller | undefined;
 let port: MessagePort | undefined;
@@ -196,6 +219,8 @@ const draw = (view: ReturnType<Controller["view"]>) => {
   replaceApp(
     render(view, {
       status: statusState,
+      actionsKey: keyLabels.actionsKey,
+      reservedHint,
       ...(extensionContext ? { context: extensionContext } : {}),
     }),
   );
@@ -292,6 +317,7 @@ const drawRoot = () => {
     rootRows[rootSelected] ?? rootRows[0],
     actionQuery,
     actionSelected,
+    platform,
   );
   actionSelected = actions.selected;
   const props = {
@@ -309,6 +335,7 @@ const drawRoot = () => {
     actionSelected,
     status: statusState,
     toast: rootToast,
+    ...keyLabels,
     onQuery: (query) => {
       rootQuery = query;
       rootSelected = 0;
@@ -795,7 +822,7 @@ async function launch(source: string, commandName: string): Promise<void> {
   const commandTitle =
     extensionContext?.commandTitle ?? catalogCommandTitle(catalog, source, selectedCommand);
   controller = createController({
-    platform: "macOS",
+    platform,
     ...(commandTitle ? { fallbackTitle: commandTitle } : {}),
   });
   const launchController = controller;
@@ -1039,10 +1066,16 @@ function runSelected() {
 
 function runAction() {
   const row = rootRows[rootSelected];
-  const actions = rootActionModel(row, actionQuery, actionSelected).actions;
-  const action = actions[actionSelected];
-  if (!row || !action) return;
-  const result = executeRootAction(row, action.id as RootActionId);
+  const action = rootActionModel(row, actionQuery, actionSelected, platform).actions[
+    actionSelected
+  ];
+  if (row && action) runRootAction(action.id);
+}
+
+function runRootAction(id: RootActionId) {
+  const row = rootRows[rootSelected];
+  if (!row) return;
+  const result = executeRootAction(row, id);
   if (result.type === "run") {
     actionOpen = false;
     drawRoot();
@@ -1055,11 +1088,14 @@ function runAction() {
     actionOpen = false;
     actionQuery = "";
     actionSelected = 0;
-    void navigator.clipboard.writeText(result.url).then(() => {
-      rootToast = "Copied extension URL";
-      setStatus("Copied extension URL");
-      drawRoot();
-    });
+    void navigator.clipboard.writeText(result.url).then(
+      () => {
+        rootToast = "Copied extension URL";
+        setStatus("Copied extension URL");
+        drawRoot();
+      },
+      () => setStatus("Could not copy the extension URL", true),
+    );
   }
 }
 
@@ -1140,6 +1176,43 @@ function dropdownKey(event: KeyboardEvent) {
   } else if (event.key === "Tab") event.preventDefault();
 }
 
+// Capture phase, before cmdk and before the browser's own default for combos
+// such as ⌘R, ⌘D, ⌘P, ⌘S, ⌘F and ⌘[: a modifier combo the root or the
+// extension declares goes to it, and anything else keeps its browser meaning.
+// Combos the browser never delivers are labelled by `reservedHint` instead.
+window.addEventListener(
+  "keydown",
+  (event) => {
+    if (event.isComposing || !(event.metaKey || event.ctrlKey || event.altKey)) return;
+    const press = keyInputFromEvent(event);
+    if (rootOpen) {
+      const id = rootRenderer && rootActionForKey(rootRows[rootSelected], press, platform);
+      if (!id) return;
+      event.preventDefault();
+      event.stopPropagation();
+      runRootAction(id);
+      return;
+    }
+    const view = controller?.view();
+    if (!controller || !view || view.feedback.alert || view.dropdown?.open) return;
+    const result = controller.input({ type: "key", key: press });
+    if (!result.handled) return;
+    event.preventDefault();
+    event.stopPropagation();
+    processResult(result);
+  },
+  { capture: true },
+);
+
+/** A text field keeps plain typing; see `shortcutAllowedInText`. */
+const typingIn = (event: KeyboardEvent) => {
+  const target = event.target as HTMLElement | null;
+  const text =
+    target instanceof HTMLTextAreaElement ||
+    (target instanceof HTMLInputElement && !["checkbox", "radio", "button"].includes(target.type));
+  return text && !shortcutAllowedInText(event);
+};
+
 document.addEventListener("keydown", (event) => {
   if (sessionStarting && !controller && !rootOpen) {
     const next = applyEarlyKey(earlyInput, event);
@@ -1171,8 +1244,10 @@ document.addEventListener("keydown", (event) => {
         return;
       }
     }
-    const result = controller.input({ type: "key", key: keyInputFromEvent(event) });
-    if (result.handled) {
+    const result = typingIn(event)
+      ? undefined
+      : controller.input({ type: "key", key: keyInputFromEvent(event) });
+    if (result?.handled) {
       event.preventDefault();
       processResult(result);
       return;
@@ -1187,7 +1262,7 @@ document.addEventListener("keydown", (event) => {
           rootSelected = 0;
           drawRoot();
         }
-      } else if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+      } else if (isActionsKey(event)) {
         event.preventDefault();
         actionOpen = true;
         actionQuery = "";
@@ -1205,8 +1280,12 @@ document.addEventListener("keydown", (event) => {
       return;
     }
     if (actionOpen) {
-      const actionCount = rootActionModel(rootRows[rootSelected], actionQuery, actionSelected)
-        .actions.length;
+      const actionCount = rootActionModel(
+        rootRows[rootSelected],
+        actionQuery,
+        actionSelected,
+        platform,
+      ).actions.length;
       if (event.key === "ArrowDown") {
         event.preventDefault();
         actionSelected = Math.min(actionSelected + 1, actionCount - 1);
@@ -1243,24 +1322,20 @@ document.addEventListener("keydown", (event) => {
     } else if (event.key === "Enter") {
       event.preventDefault();
       runSelected();
-    } else if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+    } else if (isActionsKey(event)) {
       event.preventDefault();
       actionOpen = true;
       actionQuery = "";
       actionSelected = 0;
       drawRoot();
     }
-  } else if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+  } else if (isActionsKey(event)) {
     event.preventDefault();
     toggleExtensionActions();
   } else if (controller?.view().kind === "form" && event.key === "Tab") {
     event.preventDefault();
     sendInput({ type: event.shiftKey ? "focusPrev" : "focusNext" });
-  } else if (
-    controller?.view().kind === "form" &&
-    (event.metaKey || event.ctrlKey) &&
-    event.key === "Enter"
-  ) {
+  } else if (controller?.view().kind === "form" && isSubmitKey(event)) {
     event.preventDefault();
     sendInput({ type: "submit" });
   } else if (controller?.view().kind === "form" && event.key === " ") {
@@ -1269,6 +1344,17 @@ document.addEventListener("keydown", (event) => {
       event.preventDefault();
       sendInput({ type: "toggle", id: field.id });
     }
+  } else if (
+    controller &&
+    controller.view().kind !== "form" &&
+    event.ctrlKey &&
+    !event.metaKey &&
+    !event.altKey &&
+    ["n", "p"].includes(event.key.toLowerCase())
+  ) {
+    // Ctrl+N / Ctrl+P move like ↓/↑ in pushed views too, as in the root.
+    event.preventDefault();
+    sendInput({ type: "move", direction: event.key.toLowerCase() === "n" ? "down" : "up" });
   } else if (
     controller &&
     ["ArrowDown", "ArrowUp", "ArrowLeft", "ArrowRight"].includes(event.key)

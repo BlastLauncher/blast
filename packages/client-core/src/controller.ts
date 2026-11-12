@@ -1,5 +1,5 @@
 import type { SceneMessage, SceneNode } from "@blastlauncher/protocol";
-import { event, handler, selectionId, text, type OutboundEvent } from "./nodes.ts";
+import { event, handler, handlerEvent, selectionId, text, type OutboundEvent } from "./nodes.ts";
 import { activeNode, actionRows, defaultActionShortcut, panelRows, sceneToView } from "./view.ts";
 import { contentGlyph, gridMove } from "./grid.ts";
 import { iconView } from "./icons.ts";
@@ -15,7 +15,7 @@ import { loadMoreRequest } from "./pagination.ts";
 import { searchDispatch } from "./search.ts";
 import { feedbackState, TOAST_DURATION_MS } from "./feedback.ts";
 import { HUD_DURATION_MS } from "./hud.ts";
-import { menuBarStep, menuBarView, type MenuBarAction } from "./menu-bar.ts";
+import { menuBarStep, menuBarView, menuShortcut, type MenuBarAction } from "./menu-bar.ts";
 import { matchesShortcut, shortcutLabel, type KeyInput, type Platform } from "./shortcut.ts";
 
 // The whole Raycast client as one state machine. An embedder feeds it scenes
@@ -524,8 +524,22 @@ export function createController(options: ControllerOptions): Controller {
 
   function shortcutKey(out: ControllerResult, view: Base, press: KeyInput) {
     const feedback = feedbackState(current);
-    if (mode(view, !!feedback.alert) !== "base") return;
+    const level = mode(view, !!feedback.alert);
+    if (level === "menu") {
+      // A menu item's key equivalent works while its menu is open, as in a
+      // native menu, from any submenu level.
+      const item = menuShortcut(view.list, press, platform);
+      if (!item) return;
+      out.handled = true;
+      const value = handlerEvent(item, item.props.onAction, [{ type: "left-click" }]);
+      if (value) send(out, value);
+      return;
+    }
+    // Raycast runs an action's shortcut with its action panel open too, and
+    // closes the panel; alerts and dropdowns keep every key to themselves.
+    if (level !== "base" && level !== "panel") return;
     const toast =
+      level === "base" &&
       toastVisible &&
       feedback.toast?.actions.find((action) => matchesShortcut(action.shortcut, press, platform));
     if (toast) {
@@ -542,6 +556,9 @@ export function createController(options: ControllerOptions): Controller {
     });
     if (!shortcut) return;
     out.handled = true;
+    panel = null;
+    panelQuery = "";
+    panelIndex = 0;
     if (shortcut.node.type === "ActionPanel.Submenu") {
       send(out, event(shortcut.node, "onOpen"));
       openPanel([shortcut.node.id]);

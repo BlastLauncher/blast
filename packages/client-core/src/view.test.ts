@@ -1,3 +1,4 @@
+// @covers List.EmptyView.Props.actions
 import { expect, test } from "bun:test";
 import type { SceneMessage, SceneNode } from "@blastlauncher/protocol";
 import { sceneToView } from "./view.ts";
@@ -138,4 +139,29 @@ test("the command title is the fallback when the scene has no navigation title",
     "Humaans People",
   );
   expect(sceneToView(scene(), { searchText: "", selectedId: null }).title).toBe("Blast");
+});
+
+const panel = (id: string) =>
+  node("Slot", "slot-actions", { name: "actions" }, [
+    node("ActionPanel", `${id}-panel`, {}, [node("Action", id, { title: id })]),
+  ]);
+
+const withEmptyView = (children: SceneNode[]): SceneMessage => ({
+  type: "scene",
+  revision: 1,
+  root: node("List", "list", {}, [
+    panel("list-action"),
+    ...children,
+    node("List.EmptyView", "empty", { title: "Nothing" }, [panel("restart")]),
+  ]),
+});
+
+test("an empty list's EmptyView actions are the panel and primary, over the list's own", () => {
+  const empty = sceneToView(withEmptyView([]), { searchText: "", selectedId: null });
+  expect(empty.actions?.id).toBe("slot-actions");
+  expect(empty.actions?.children[0]?.id).toBe("restart-panel");
+  expect(empty.primary?.id).toBe("restart");
+  // Once a row exists the EmptyView is hidden and the list's actions apply.
+  const full = sceneToView(withEmptyView([item("row")]), { searchText: "", selectedId: null });
+  expect(full.primary?.id).toBe("list-action");
 });

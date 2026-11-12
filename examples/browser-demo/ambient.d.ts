@@ -76,6 +76,12 @@ declare module "playwright" {
     on(event: "response", handler: (response: Response) => void): void;
     off(event: "response", handler: (response: Response) => void): void;
     reload(options?: { waitUntil?: "load" }): Promise<unknown>;
+    url(): string;
+    waitForTimeout(ms: number): Promise<void>;
+    context(): {
+      route(url: string, handler: (route: Route) => Promise<void>): Promise<void>;
+      waitForEvent(event: "page", options?: { timeout?: number }): Promise<Page>;
+    };
     locator(selector: string): Locator;
     getByRole(role: string, options: { name: RegExp | string }): Locator;
     getByText(text: RegExp | string): Locator;

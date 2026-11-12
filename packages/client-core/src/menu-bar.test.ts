@@ -3,7 +3,7 @@
 // @covers MenuBarExtra.Props.isLoading
 import { expect, test } from "bun:test";
 import type { HandlerRef, SceneMessage, SceneNode } from "@blastlauncher/protocol";
-import { MENU_BAR_START, menuBarStep, menuBarView, menuRows } from "./menu-bar.ts";
+import { MENU_BAR_START, menuBarStep, menuBarView, menuRows, menuShortcut } from "./menu-bar.ts";
 
 const node = (
   id: string,
@@ -104,4 +104,13 @@ test("back at the top level leaves only on escape", () => {
   const scene = sceneOf(menu());
   expect(menuBarStep(scene, MENU_BAR_START, { type: "back" }).leave).toBe(false);
   expect(menuBarStep(scene, MENU_BAR_START, { type: "back", escape: true }).leave).toBe(true);
+});
+
+test("menuShortcut finds an enabled item by its platform shortcut", () => {
+  expect(menuShortcut(menu(), { name: "s", meta: true }, "macOS")?.id).toBe("solo");
+  expect(menuShortcut(menu(), { name: "s", ctrl: true }, "macOS")).toBeUndefined();
+  expect(menuShortcut(menu(), { name: "s", ctrl: true }, "Windows")?.id).toBe("solo");
+  expect(menuShortcut(menu(), { name: "s", ctrl: true }, "Linux")?.id).toBe("solo");
+  expect(menuShortcut(menu(), { name: "x", ctrl: true })).toBeUndefined();
+  expect(menuShortcut(node("l", "List"), { name: "s", ctrl: true })).toBeUndefined();
 });

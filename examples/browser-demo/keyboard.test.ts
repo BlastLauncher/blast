@@ -1,5 +1,14 @@
 import { expect, test } from "bun:test";
-import { applyEarlyKey, applyEarlyPaste, keyInputFromEvent } from "./keyboard.ts";
+import { matchesShortcut, shortcutLabel } from "../../packages/client-core/src/shortcut.ts";
+import {
+  applyEarlyKey,
+  applyEarlyPaste,
+  isBrowserReserved,
+  isReservedLabel,
+  keyInputFromEvent,
+  platformFromNavigator,
+  shortcutAllowedInText,
+} from "./keyboard.ts";
 
 test("maps browser keys and modifiers to client-core shortcut names", () => {
   expect(keyInputFromEvent({ key: "c", metaKey: true, shiftKey: true })).toEqual({
@@ -47,4 +56,81 @@ test("buffers only printable, unmodified keys and backspace", () => {
 test("appends paste text without reading the clipboard", () => {
   expect(applyEarlyPaste("ab", "c d")).toBe("abc d");
   expect(applyEarlyPaste("", "one\r\ntwo\nthree")).toBe("one two three");
+});
+
+test("cmd is Command on macOS and Ctrl elsewhere, from the browser's platform", () => {
+  expect(platformFromNavigator({ platform: "MacIntel" })).toBe("macOS");
+  expect(platformFromNavigator({ platform: "iPad" })).toBe("macOS");
+  expect(platformFromNavigator({ platform: "Win32" })).toBe("Windows");
+  expect(platformFromNavigator({ platform: "Linux x86_64" })).toBe("Linux");
+  expect(platformFromNavigator({ platform: "", userAgentData: { platform: "macOS" } })).toBe(
+    "macOS",
+  );
+  expect(platformFromNavigator({ userAgentData: { platform: "Windows" } })).toBe("Windows");
+  expect(platformFromNavigator(undefined)).toBe("Linux");
+  const restart = { modifiers: ["cmd"], key: "r" };
+  const meta = keyInputFromEvent({ key: "r", metaKey: true });
+  const ctrl = keyInputFromEvent({ key: "r", ctrlKey: true });
+  expect([
+    matchesShortcut(restart, meta, "macOS"),
+    matchesShortcut(restart, ctrl, "macOS"),
+  ]).toEqual([true, false]);
+  expect([
+    matchesShortcut(restart, meta, "Linux"),
+    matchesShortcut(restart, ctrl, "Linux"),
+  ]).toEqual([false, true]);
+  expect([shortcutLabel(restart, "macOS"), shortcutLabel(restart, "Linux")]).toEqual([
+    "⌘R",
+    "Ctrl+R",
+  ]);
+});
+
+test("an action's { macOS, Windows } shortcut matches the right press on each platform", () => {
+  const pair = {
+    macOS: { modifiers: ["cmd", "shift"], key: "d" },
+    Windows: { modifiers: ["ctrl", "alt"], key: "d" },
+  };
+  const macPress = keyInputFromEvent({ key: "D", metaKey: true, shiftKey: true });
+  const winPress = keyInputFromEvent({ key: "d", ctrlKey: true, altKey: true });
+  expect(matchesShortcut(pair, macPress, "macOS")).toBe(true);
+  expect(matchesShortcut(pair, winPress, "macOS")).toBe(false);
+  for (const platform of ["Windows", "Linux"] as const) {
+    expect(matchesShortcut(pair, winPress, platform)).toBe(true);
+    expect(matchesShortcut(pair, macPress, platform)).toBe(false);
+  }
+  expect([shortcutLabel(pair, "macOS"), shortcutLabel(pair, "Windows")]).toEqual([
+    "⇧⌘D",
+    "Ctrl+Alt+D",
+  ]);
+});
+
+test("reserved combos are detected by press and by label on each platform", () => {
+  expect(isBrowserReserved(keyInputFromEvent({ key: "t", metaKey: true }), "macOS")).toBe(true);
+  expect(isBrowserReserved(keyInputFromEvent({ key: "t", ctrlKey: true }), "macOS")).toBe(false);
+  expect(isBrowserReserved(keyInputFromEvent({ key: "t", ctrlKey: true }), "Linux")).toBe(true);
+  expect(isBrowserReserved(keyInputFromEvent({ key: "Tab", ctrlKey: true }), "macOS")).toBe(true);
+  expect(
+    isBrowserReserved(keyInputFromEvent({ key: "N", metaKey: true, shiftKey: true }), "macOS"),
+  ).toBe(true);
+  // Combos a page can take with preventDefault are not reserved.
+  for (const key of ["r", "d", "p", "s", "f", "["])
+    expect(isBrowserReserved(keyInputFromEvent({ key, metaKey: true }), "macOS")).toBe(false);
+  expect(isReservedLabel("⌘T", "macOS")).toBe(true);
+  expect(isReservedLabel("⌘W", "macOS")).toBe(true);
+  expect(isReservedLabel("Ctrl+W", "Windows")).toBe(true);
+  expect(isReservedLabel("⌘R", "macOS")).toBe(false);
+  expect(isReservedLabel("", "macOS")).toBe(false);
+});
+
+test("a text field keeps plain typing but yields combos, Enter, Escape and up/down", () => {
+  expect(shortcutAllowedInText({ key: "a" })).toBe(false);
+  expect(shortcutAllowedInText({ key: "A", shiftKey: true })).toBe(false);
+  expect(shortcutAllowedInText({ key: "ArrowLeft" })).toBe(false);
+  expect(shortcutAllowedInText({ key: " " })).toBe(false);
+  expect(shortcutAllowedInText({ key: "r", metaKey: true })).toBe(true);
+  expect(shortcutAllowedInText({ key: "k", ctrlKey: true })).toBe(true);
+  expect(shortcutAllowedInText({ key: "x", altKey: true })).toBe(true);
+  for (const key of ["Enter", "Escape", "ArrowUp", "ArrowDown"])
+    expect(shortcutAllowedInText({ key })).toBe(true);
+  expect(shortcutAllowedInText({ key: "r", metaKey: true, isComposing: true })).toBe(false);
 });
