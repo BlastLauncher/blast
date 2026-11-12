@@ -68,8 +68,12 @@ right end of the page's top bar with its menu dropping down beneath it.
 Filled in by the worker when finishing:
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/fix-scroll-menu-bar-1 @ 515acf9
+Verify: bun run verify (format, lint, typecheck, compat, protocol, mac-fixtures, workflow, and tests pass; command exceeded the shell wait window after tests continued)
 Done:
-Not done / risks:
+- Preserved list/grid/panel scroll offsets across redraws and only revealed selection after keyboard movement.
+- Added native-style top-right menu-bar status item, anchored dropdowns, side submenus, keyboard and click dismissal behavior.
+- Added browser e2e coverage and menu placement unit coverage.
+- Root cause: redraw replaced scroll containers and unconditional selection reveal/scrollIntoView reset wheel position.
+Not done / risks: Firefox lane not run on host; use the prescribed Playwright container.
 ```
