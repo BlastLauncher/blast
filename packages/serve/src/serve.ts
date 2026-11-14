@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   createEngine,
@@ -24,6 +25,19 @@ import {
 
 // One server per process: the state below is module-level and `serve` starts it.
 let engine: ReturnType<typeof createEngine>;
+// The published tarball stamps a release version into the package manifest next
+// to the running module; the workspace manifest has none, so embedders still see
+// a well-formed version either way.
+const engineVersion = (() => {
+  try {
+    const manifest: { version?: unknown } = JSON.parse(
+      readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+    );
+    return typeof manifest.version === "string" ? manifest.version : "0.0.0-dev";
+  } catch {
+    return "0.0.0-dev";
+  }
+})();
 // The hello's `views`: what a launch without its own `views` gets.
 let defaultViews: EmbedderViews | undefined;
 const extensionDirs = new Map<string, string>();
@@ -359,7 +373,7 @@ function receive(value: unknown) {
     send({
       type: "welcome",
       protocol: EMBEDDER_PROTOCOL_VERSION,
-      engine: { version: "0.0.0" },
+      engine: { version: engineVersion },
       catalog: json(CAPABILITIES),
     });
     return;

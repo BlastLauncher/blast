@@ -1,5 +1,6 @@
 import { afterEach, expect, test } from "bun:test";
 import { execFileSync, spawn } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { mkdtemp, cp, mkdir, readFile, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { resolve, join } from "node:path";
@@ -113,6 +114,19 @@ test("handshake, version mismatch and malformed-line recovery", async () => {
   mismatch.send({ type: "hello", protocol: 99, capabilities: [] });
   expect((await mismatch.wait((v) => v.type === "error")).error.code).toBe("version_mismatch");
   expect(await mismatch.exited).toBe(2);
+});
+
+test("welcome reports the running serve package version", async () => {
+  const c = await client();
+  const welcome = await c.hello();
+  const manifest = JSON.parse(readFileSync(resolve("packages/serve/package.json"), "utf8")) as {
+    version?: unknown;
+  };
+  expect(welcome.engine.version).toBe(
+    typeof manifest.version === "string" ? manifest.version : "0.0.0-dev",
+  );
+  c.child.stdin.end();
+  expect(await c.exited).toBe(0);
 });
 
 test("launch, scenes, events, capability forwarding and EOF shutdown", async () => {

@@ -18,7 +18,7 @@ newline-delimited JSON. Stdout carries protocol output only.
 
 ```text
 ← {"type":"hello","protocol":1,"capabilities":["clipboard.copy"]}
-→ {"type":"welcome","protocol":1,"engine":{"version":"0.0.0"},"catalog":{...}}
+→ {"type":"welcome","protocol":1,"engine":{"version":"0.0.0-dev"},"catalog":{...}}
 ← {"type":"request","id":"1","method":"extension.open","params":{"dir":"./myext"}}
 → {"type":"response","id":"1","ok":true,"result":{"extension":"1"}}
 ← {"type":"request","id":"2","method":"extension.launch","params":{"extension":"1","command":"index","views":{"platform":"macOS"}}}
