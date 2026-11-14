@@ -137,6 +137,13 @@ try {
       if (response.status() >= 400)
         console.error(`[response:${response.status()}] ${response.url()}`);
     });
+    // 0167: the default run serves fixtures and prebuilt bundles, so GitHub's
+    // anonymous API quota must never decide whether it passes.
+    const githubApiRequests: string[] = [];
+    page.on("request", (request) => {
+      if (request.url().startsWith("https://api.github.com/"))
+        githubApiRequests.push(request.url());
+    });
     await page.goto(`http://127.0.0.1:${wwwPort}/`, { waitUntil: "load" });
     await page.getByRole("heading", { name: "Raycast extensions, inside your app." }).waitFor();
 
@@ -930,34 +937,25 @@ try {
       await page.waitForTimeout(200);
     }
     await page.locator("#root-search").waitFor({ timeout: 10_000 });
-    // Nano Snake (a real catalog command): ⌘R restarts the game, not the page.
-    await page.locator("#root-search").fill("Play Nano Snake");
+    // 0167: a prebuilt fixture, not a catalog command: ⌘R is also a browser
+    // combo, so the command must take it and the page must not reload.
+    await page.locator("#root-search").fill("browser-keyboard");
     await page.keyboard.press("Enter");
-    const snakeText = () => page.locator("#app").textContent();
-    await page
-      .waitForFunction(
-        () => (document.querySelector("#app")?.textContent ?? "").includes("GAME OVER"),
-        undefined,
-        { timeout: 60_000 },
-      )
-      .catch(async (error) => {
-        throw new Error(
-          `${error} status=${await page.locator("#status").textContent()} app=${await snakeText()}`,
-        );
-      });
+    await page.waitForFunction(
+      () => document.querySelectorAll("#app .rows li").length >= 40,
+      undefined,
+      { timeout: 30_000 },
+    );
     await page.evaluate(() => Object.assign(globalThis, { blastNoReload: true }));
     await page.keyboard.press("ControlOrMeta+R");
     await page
-      .waitForFunction(
-        () => (document.querySelector("#app")?.textContent ?? "").includes("Playing"),
-        undefined,
-        { timeout: 10_000 },
-      )
+      .getByRole("heading", { name: "Restarted" })
+      .waitFor({ timeout: 10_000 })
       .catch(async (error) => {
-        throw new Error(`${error} after ⌘R: ${await snakeText()}`);
+        throw new Error(`${error} after ⌘R: ${await page.locator("#app").innerText()}`);
       });
     if (!(await page.evaluate(() => "blastNoReload" in globalThis)))
-      throw new Error("⌘R reloaded the page instead of restarting Nano Snake");
+      throw new Error("⌘R reloaded the page instead of restarting the command");
     // Both lanes open every Showcase command from the root.
     await checkShowcase(page, screenshots ? { screenshots } : {});
     if (browserName === "firefox") throw firefoxLaneDone;
@@ -1355,6 +1353,8 @@ try {
       )) !== "browser-secret"
     )
       throw new Error("preferences form did not reopen with its saved value");
+    if (githubApiRequests.length)
+      throw new Error(`the default run fetched GitHub's API: ${githubApiRequests.join(", ")}`);
     console.log(
       JSON.stringify({
         pass: true,

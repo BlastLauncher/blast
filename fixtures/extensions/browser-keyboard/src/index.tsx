@@ -34,6 +34,11 @@ export default function Command() {
             title="Show success toast"
             onAction={() => void showToast({ style: Toast.Style.Success, title: "Success toast" })}
           />
+          <Action
+            title="Restart"
+            shortcut={{ modifiers: ["cmd"], key: "r" }}
+            onAction={() => setShortcutState("Restarted")}
+          />
         </ActionPanel>
       }
     >
@@ -63,6 +68,11 @@ export default function Command() {
                   title="Open in New Tab"
                   shortcut={{ modifiers: ["cmd"], key: "t" }}
                   onAction={() => setShortcutState("Reserved ran")}
+                />
+                <Action
+                  title="Restart"
+                  shortcut={{ modifiers: ["cmd"], key: "r" }}
+                  onAction={() => setShortcutState("Restarted")}
                 />
               </ActionPanel>
             }
