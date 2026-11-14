@@ -925,7 +925,7 @@ try await blast.sendInput(.primary, root: root)`);
     <section class="install">
       <div class="container">
         <h2 class="section-title">Install</h2>
-        <p class="section-desc">Prereleases (<code>3.0.0-alpha.2</code>) are on npm under <code>next</code>; <code>latest</code> is still Blast v1. The <a href="${quickstartUrl}">quickstart</a> runs each one against a real extension.</p>
+        <p class="section-desc">Prereleases (<code>3.0.0-alpha.2</code>) are on npm under <code>next</code>; install with <code>@next</code>, not <code>latest</code>. The <a href="${quickstartUrl}">quickstart</a> runs each one against a real extension.</p>
 
         <div class="install-boxes">
           <div class="install-box">
