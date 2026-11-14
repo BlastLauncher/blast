@@ -58,14 +58,21 @@ themeable styles, or hands views to the page's own renderer.
 ## Handoff
 
 ```
-Branch/commit: t3/extract-web-package @ 7d7865c
-Verify: bun run verify — passed (format, lint, typecheck, compat, protocol, mac-fixtures, workflow, tests)
+Branch/commit: t3/fix-web-package-mount @ 9dc18fb (round 2; round 1 was t3/extract-web-package)
+Verify: bun run verify — PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 121.5s
 Done:
-- Added decision 0015 defining the browser-only boundary, sandbox hosting, capability defaults, and overrides.
-- Added @blastlauncher/web with browser installer/bundler extraction, mount(), default handlers, theme support, and <blast-extension>.
-- Added examples/web-embed/index.html and included @blastlauncher/web in release builds and tarball smoke expectations.
+- mount() runs an extension end to end (session.ts): fetch (extension-files.ts), install, esbuild-wasm bundle, almostnode sandbox at sandboxUrl, runtime port handshake, client-core controller, scenes drawn by the built-in renderer (default-renderer.ts over the shared render.js, themeable --blast-* CSS) or options.render, input back through the port, capabilities via default or page handlers (handlers.storage/clipboard/openUrl/capability); root:true shows the engine root view over the manifest's commands and returns to it when a command closes.
+- Moved, not copied: browser-bundle/install, preference-fields, dependency-policy (host now imports the last two from @blastlauncher/web subpaths), runtime-port, launch, source, bundles, capabilities, bundle-config, extension fetch (new extension-files.ts, which the demo's fetchFiles now calls), render.js (web-launcher and the demo import it from packages/web), the sandbox page, and the sandbox shims (packages/web/sandbox/). The demo's client.ts wiring is otherwise unchanged (import paths plus the fetch call).
+- Decision 0015 rewritten in the standard shape (Status/Decision/Why/Consequences).
+- examples/web-embed e2e (bun run example:web-embed:e2e): headless Chromium, loopback only, mounts hello-list in a cross-origin sandbox, asserts 3 rows, filters to banana, runs the primary action (clipboard gets "banana"), then repeats with root:true.
+- Fixed a stale step in the demo e2e (first Esc clears the search; a second one leaves the command): it failed identically on main b8df4a1. Fixed release:smoke, which also failed on main (client-core missing from the slim install); it now installs client-core and web and imports web in Node.
+E2E outputs (PLAYWRIGHT_BROWSERS_PATH=$HOME/.cache/ms-playwright):
+- example:web-embed:e2e -> {"pass":true,"rows":3,"copied":"banana","root":true}
+- example:browser-demo:e2e -> {"pass": true, "live": false, "coldStartMs": 4312, ...}
+- site:e2e -> {"pass":true,"browser":"chromium","site":"http://127.0.0.1:4175/","sandbox":"http://127.0.0.1:4176/blast-sandbox/"}
+- release:build emits blastlauncher-web-0.0.0-dev.tgz; release:smoke passes.
 Not done / risks:
-- The existing browser demo was not migrated to consume the new package; its bespoke client remains in place.
-- Browser e2e commands could not run because .cache/ms-playwright is absent in this worktree.
-- mount currently establishes the sandbox iframe and root controller/default rendering, but extension bundle/port wiring remains to be connected for a full live extension session.
+- Embedders must build and serve the assets (almostnode.mjs, almostnode-full.mjs, esbuild.mjs, esbuild.wasm, blast-sources.json); the e2e builds them with the demo's buildBrowserAssets. Packaging them from the package is 0163.
+- No prebuilt-bundle path (bundles.json) and no preference form in mount(): missing required preferences fail with a message; the demo keeps both until 0163. Backgrounded command.launch is accepted but not run, as in the demo.
+- One full-suite run printed a single test failure that I could not reproduce (two later full runs, including verify, were green).
 ```
