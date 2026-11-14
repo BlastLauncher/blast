@@ -328,7 +328,7 @@ async function runCommand(
     if (response.url().includes("/bundles/") && response.status() >= 400)
       bundleFallbackFailed = true;
   });
-  const deep = `${baseUrl}/demo/?ext=${encodeURIComponent(item.url)}&cmd=${encodeURIComponent(item.command)}`;
+  const deep = `${baseUrl}/demo/?sweep-placeholders&ext=${encodeURIComponent(item.url)}&cmd=${encodeURIComponent(item.command)}`;
   try {
     await page.goto(deep, { waitUntil: "load" });
     await page.waitForFunction(

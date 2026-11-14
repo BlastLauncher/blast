@@ -591,6 +591,15 @@ function drawPreferences() {
 }
 /** The session's `preferenceForm`: show the form; the submit or Back handler answers it. */
 function askPreferences(request: WebPreferenceRequest) {
+  if (new URL(location.href).searchParams.has("sweep-placeholders")) {
+    const values: Record<string, string | boolean> = {};
+    for (const field of request.fields) {
+      if (field.type === "checkbox") values[field.name] = false;
+      else if (field.type === "dropdown") values[field.name] = field.data?.[0]?.value ?? "";
+      else values[field.name] = "blast-smoke";
+    }
+    return Promise.resolve(values);
+  }
   return new Promise<Record<string, string | boolean> | undefined>((resolve) => {
     preferenceForm?.answer();
     preferenceForm = {
