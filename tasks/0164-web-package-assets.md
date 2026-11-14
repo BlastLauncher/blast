@@ -1,7 +1,7 @@
 ---
 id: "0164"
 title: "@blastlauncher/web ships its sandbox and runtime assets"
-status: todo
+status: doing
 milestone: M9
 depends: ["0163"]
 ---
