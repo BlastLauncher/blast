@@ -7,6 +7,10 @@ export interface SiteStats {
   commands: number;
 }
 
+function escapeHtml(text: string): string {
+  return text.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+}
+
 export function landing(stats: SiteStats, siteOrigin = ""): string {
   const origin = siteOrigin.replace(/\/$/, "");
   const demoUrl = `${origin}/demo/`;
@@ -14,6 +18,68 @@ export function landing(stats: SiteStats, siteOrigin = ""): string {
   const coverageUrl = "https://github.com/blastlauncher/blast/blob/main/compat/COVERAGE.md";
   const sweepUrl = "https://github.com/blastlauncher/blast/blob/main/SWEEP.md";
   const repoUrl = "https://github.com/blastlauncher/blast";
+
+  const jsSnippet = escapeHtml(String.raw`import { createEngine } from "@blastlauncher/engine";
+import { createController } from "@blastlauncher/client-core";
+
+const engine = createEngine({ handlers: { "clipboard.copy": (p) => copy(p) } });
+const extension = engine.openExtension({ extensionDir: "./my-extension" });
+const { session, close } = await extension.launch("index");
+const controller = createController({ platform: "macOS" });
+const apply = ({ events }) =>
+  events.forEach((e) => session.sendEvent(e.node, e.handler, e.args));
+session.scenes((scene) => apply(controller.scene(scene)));
+controller.subscribe((view) => draw(view));
+onSearch((text) => apply(controller.input({ type: "search", text })));`);
+
+  const goSnippet =
+    escapeHtml(String.raw`client, _ := Start("packages/serve/src/main.ts", os.Stdout) // spawns blast serve
+defer client.Close()
+extension, _ := client.Open("./my-extension")
+client.Launch(extension, "index") // views on, platform macOS
+view, _ := client.WaitView(-1, 5*time.Second)
+draw(view) // search, rows, actions, toast
+client.Input(controllerInput{Type: "search", Text: "ap"})`);
+
+  const pySnippet = escapeHtml(String.raw`import json, subprocess
+blast = subprocess.Popen(["npx", "-p", "@blastlauncher/serve@next", "blast-serve"],
+                         stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
+def send(message):
+    blast.stdin.write(json.dumps(message) + "\n"); blast.stdin.flush()
+def request(id, method, **params):
+    send({"type": "request", "id": id, "method": method, "params": params})
+
+send({"type": "hello", "protocol": 1, "capabilities": ["clipboard.copy"]})
+request("1", "extension.open", dir="./my-extension")
+for message in map(json.loads, blast.stdout):
+    if message["type"] == "response" and message["id"] == "1":
+        request("2", "extension.launch", extension=message["result"]["extension"],
+                command="index", views={"platform": "macOS"})
+    elif message.get("event") == "session.view":
+        draw(message["view"])
+    elif message["type"] == "capability.request":
+        send({"type": "capability.result", "id": message["id"], "ok": True, "value": None})`);
+
+  const swiftSnippet = escapeHtml(String.raw`let blast = BlastClient(transport: ProcessTransport(
+    servePath: ProcessTransport.defaultServePath, workingDirectory: root))
+blast.onEvent = { event in
+    if case let .view(_, view) = event { draw(view) }
+}
+_ = try await blast.start(capabilities: ["clipboard.copy"])
+let ext = try await blast.openExtension(dir: "./my-extension")
+let session = try await blast.launchExtension(extension: ext, command: "index")
+try await blast.sendInput(.search("ap"), session: session)`);
+
+  const ndjsonSnippet =
+    escapeHtml(String.raw`→ {"type":"hello","protocol":1,"capabilities":["clipboard.copy"]}
+← {"type":"welcome","protocol":1,"engine":{…},"catalog":{…}}
+→ {"type":"request","id":"1","method":"extension.open","params":{"dir":"./my-extension"}}
+← {"type":"response","id":"1","ok":true,"result":{"extension":"1"}}
+→ {"type":"request","id":"2","method":"extension.launch","params":{"extension":"1","command":"index","views":{"platform":"macOS"}}}
+← {"type":"event","event":"session.view","session":"2","view":{"kind":"list","rows":[…]}}
+→ {"type":"request","id":"3","method":"session.input","params":{"session":"2","input":{"type":"search","text":"ap"}}}
+← {"type":"capability.request","id":"c1","session":"2","name":"clipboard.copy","params":{…}}
+→ {"type":"capability.result","id":"c1","ok":true,"value":null}`);
 
   return `<!doctype html>
 <html lang="en">
@@ -425,6 +491,13 @@ export function landing(stats: SiteStats, siteOrigin = ""): string {
       line-height: 1.55;
       font-size: 0.84rem;
     }
+    .tab-panels .tab-caption {
+      margin-top: 0.875rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--code-border);
+      font-size: 0.8125rem;
+      color: #94a3b8;
+    }
 
     #tab-js:checked ~ .tab-panels .panel-js,
     #tab-go:checked ~ .tab-panels .panel-go,
@@ -646,7 +719,7 @@ export function landing(stats: SiteStats, siteOrigin = ""): string {
       <div class="container hero-grid">
         <div class="hero-content">
           <h1>Raycast extensions, inside your app.</h1>
-          <p>The engine builds, sandboxes and runs unmodified extensions; you draw views and answer the capabilities you grant.</p>
+          <p>The engine builds and runs unmodified extensions, each command in its own process; you draw views and answer the capabilities you grant.</p>
           <div class="hero-actions">
             <a href="${demoUrl}" class="btn btn-primary">Try the live demo</a>
             <a href="${quickstartUrl}" class="btn btn-secondary">Quickstart</a>
@@ -660,27 +733,24 @@ export function landing(stats: SiteStats, siteOrigin = ""): string {
             </div>
             <div class="wire-mock-split">
               <div class="mock-view">
-                <div class="mock-search-bar">&#128269; Search notes&hellip;</div>
+                <div class="mock-search-bar">&#128269; Search&hellip;</div>
                 <ul class="mock-list">
                   <li class="mock-item active">
-                    <span>Meeting Notes</span>
-                    <span class="mock-item-sub">Work</span>
+                    <span>Apple</span>
                   </li>
                   <li class="mock-item">
-                    <span>Grocery list</span>
-                    <span class="mock-item-sub">Personal</span>
+                    <span>Banana</span>
                   </li>
                   <li class="mock-item">
-                    <span>Project Roadmap</span>
-                    <span class="mock-item-sub">Planning</span>
+                    <span>Cherry</span>
                   </li>
                 </ul>
               </div>
               <div class="mock-wire">
-                <pre><span class="wire-in">&rarr; {"type":"init","protocol":1,"capabilities":["storage"]}</span>
-<span class="wire-out">&larr; {"type":"ready","protocol":1,"version":"0.1.0"}</span>
-<span class="wire-in">&rarr; {"type":"launch","id":"1","extension":"notes","command":"list"}</span>
-<span class="wire-out">&larr; {"type":"scene","id":"1","root":{"type":"List","children":[...]}}</span></pre>
+                <pre><span class="wire-in">→ {"type":"hello","protocol":1,"capabilities":["clipboard.copy"]}</span>
+<span class="wire-out">← {"type":"welcome","protocol":1,…}</span>
+<span class="wire-in">→ {"type":"request","id":"2","method":"extension.launch","params":{"extension":"1","command":"index","views":{"platform":"macOS"}}}</span>
+<span class="wire-out">← {"type":"event","event":"session.view","session":"2","view":{"kind":"list","rows":[…]}}</span></pre>
               </div>
             </div>
           </div>
@@ -712,77 +782,27 @@ export function landing(stats: SiteStats, siteOrigin = ""): string {
 
           <div class="tab-panels">
             <div class="tab-panel panel-js" id="panel-js" role="tabpanel" aria-labelledby="label-js">
-              <pre><code>import { Engine } from "@blastlauncher/engine";
-
-const engine = new Engine({ capabilities: ["storage"] });
-const session = await engine.launch("raycast/github", "search-repositories");
-
-for await (const view of session.views()) {
-  renderer.draw(view);
-}
-
-renderer.onInput((event) => session.send(event));</code></pre>
+              <pre><code>${jsSnippet}</code></pre>
             </div>
 
             <div class="tab-panel panel-go" id="panel-go" role="tabpanel" aria-labelledby="label-go">
-              <pre><code>client, _ := blast.Connect(ctx, blast.Options{Capabilities: []string{"storage"}})
-defer client.Close()
-
-session, _ := client.Launch(ctx, "raycast/github", "search-repositories")
-go func() {
-    for view := range session.Views() {
-        renderer.Draw(view)
-    }
-}()
-
-renderer.OnInput(func(event blast.Input) {
-    session.Send(ctx, event)
-})</code></pre>
+              <pre><code>${goSnippet}</code></pre>
+              <p class="tab-caption">Client from examples/go-embedder</p>
             </div>
 
             <div class="tab-panel panel-py" id="panel-py" role="tabpanel" aria-labelledby="label-py">
-              <pre><code>import subprocess, json
-
-proc = subprocess.Popen(["blast", "serve"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
-def send(msg): proc.stdin.write(json.dumps(msg) + "\\n"); proc.stdin.flush()
-
-send({"type": "init", "protocol": 1, "capabilities": ["storage"]})
-send({"type": "launch", "id": "1", "extension": "raycast/github", "command": "search-repositories"})
-
-for line in proc.stdout:
-    msg = json.loads(line)
-    if msg.get("type") == "scene":
-        renderer.draw(msg["root"])</code></pre>
+              <pre><code>${pySnippet}</code></pre>
+              <p class="tab-caption">Standard library only</p>
             </div>
 
             <div class="tab-panel panel-swift" id="panel-swift" role="tabpanel" aria-labelledby="label-swift">
-              <pre><code>let client = try await BlastClient.connect(capabilities: ["storage"])
-let session = try await client.launch(
-    extension: "raycast/github",
-    command: "search-repositories"
-)
-
-Task {
-    for await view in session.views {
-        await renderer.draw(view)
-    }
-}
-renderer.onInput = { event in Task { try await session.send(event) } }</code></pre>
+              <pre><code>${swiftSnippet}</code></pre>
+              <p class="tab-caption">BlastKit from examples/macos-launcher</p>
             </div>
 
             <div class="tab-panel panel-ndjson" id="panel-ndjson" role="tabpanel" aria-labelledby="label-ndjson">
-              <pre><code>// 1. Connect to \`blast serve\` or spawn \`blast\` CLI
-{"type":"init","protocol":1,"capabilities":["storage"]}
-{"type":"ready","protocol":1,"version":"0.1.0"}
-
-// 2. Launch extension command
-{"type":"launch","id":"1","extension":"raycast/github","command":"search-repositories"}
-
-// 3. Receive views and draw them
-{"type":"scene","id":"1","root":{"type":"List","items":[...]}}
-
-// 4. Forward user input back
-{"type":"event","id":"1","target":"item-1","name":"select"}</code></pre>
+              <pre><code>${ndjsonSnippet}</code></pre>
+              <p class="tab-caption">Lines starting with → are what you send, ← what you receive.</p>
             </div>
           </div>
         </div>
@@ -799,11 +819,11 @@ renderer.onInput = { event in Task { try await session.send(event) } }</code></p
           <div class="compare-col">
             <h3><span class="bullet-blast">&check;</span> What Blast does</h3>
             <ul class="compare-list">
-              <li><strong>Extension lifecycle:</strong> Discovers manifests, installs dependencies, and manages command sessions.</li>
-              <li><strong>Bundling &amp; runtime:</strong> Bundles TypeScript into isolated ESM and executes inside sandboxed runtimes.</li>
-              <li><strong>Raycast compatibility:</strong> Implements <code>@raycast/api</code> and <code>@raycast/utils</code> with identical semantics.</li>
+              <li><strong>Extension lifecycle:</strong> Validates manifests, installs dependencies, and manages command sessions.</li>
+              <li><strong>Bundling &amp; runtime:</strong> Bundles TypeScript into isolated ESM and runs each command in its own process.</li>
+              <li><strong>Raycast compatibility:</strong> Implements <code>@raycast/api</code> and <code>@raycast/utils</code>, measured against the latest <code>@raycast/api</code> (see Receipts).</li>
               <li><strong>UI reconciliation:</strong> Reconciles React views into a minimal, serializable tree structure.</li>
-              <li><strong>Capability brokering:</strong> Mediates storage, network, clipboard, and AI access through explicit grants.</li>
+              <li><strong>Capability brokering:</strong> Mediates storage, clipboard, OAuth and AI access, through explicit grants.</li>
             </ul>
           </div>
 
@@ -830,7 +850,7 @@ renderer.onInput = { event in Task { try await session.send(event) } }</code></p
           <a href="https://github.com/blastlauncher/blast/tree/main/packages/host" class="card">
             <div>
               <h3>Node / Bun / Electron</h3>
-              <p>In-process engine integration for JavaScript and TypeScript hosts with zero wire overhead.</p>
+              <p>In-process engine integration for JavaScript and TypeScript hosts with no separate process for the engine.</p>
             </div>
             <span class="card-link">Explore package &rarr;</span>
           </a>
@@ -838,7 +858,7 @@ renderer.onInput = { event in Task { try await session.send(event) } }</code></p
           <a href="https://github.com/blastlauncher/blast/tree/main/packages/serve" class="card">
             <div>
               <h3>Any language via serve</h3>
-              <p>Simple NDJSON protocol over standard I/O or loopback sockets for Go, Python, Swift, or Rust.</p>
+              <p>Simple NDJSON protocol over standard I/O for Go, Python, Swift, or Rust.</p>
             </div>
             <span class="card-link">Explore serve &rarr;</span>
           </a>
@@ -846,7 +866,7 @@ renderer.onInput = { event in Task { try await session.send(event) } }</code></p
           <a href="https://github.com/blastlauncher/blast/tree/main/examples/browser-demo" class="card">
             <div>
               <h3>Browser tab</h3>
-              <p>Run extensions directly inside browser sandboxes (Web Workers and iframes) with client-side bundling.</p>
+              <p>Run extensions in a cross-origin sandboxed iframe (almostnode), loaded by URL with nothing installed.</p>
             </div>
             <span class="card-link">Explore browser demo &rarr;</span>
           </a>
@@ -912,7 +932,7 @@ renderer.onInput = { event in Task { try await session.send(event) } }</code></p
 
   <footer>
     <div class="container footer-inner">
-      <p>Blast is open source and community maintained.</p>
+      <p>Blast is open source (MIT) and in alpha.</p>
       <nav class="nav-links" aria-label="Footer Navigation">
         <a href="${demoUrl}">Demo</a>
         <a href="${quickstartUrl}">Quickstart</a>
