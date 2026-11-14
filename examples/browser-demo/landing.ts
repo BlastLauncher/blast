@@ -651,9 +651,9 @@ try await blast.sendInput(.primary, root: root)`);
       grid-template-columns: minmax(0, 1fr);
       gap: 1rem;
     }
-    @media (min-width: 700px) {
+    @media (min-width: 900px) {
       .install-boxes {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-columns: repeat(3, minmax(0, 1fr));
       }
     }
     .install-box {
@@ -925,16 +925,20 @@ try await blast.sendInput(.primary, root: root)`);
     <section class="install">
       <div class="container">
         <h2 class="section-title">Install</h2>
-        <p class="section-desc">The root view, prompts and web package above are newer than <code>3.0.0-alpha.1</code> on npm; until the next prerelease, build the packages from source.</p>
+        <p class="section-desc">Prereleases (<code>3.0.0-alpha.2</code>) are on npm under <code>next</code>; <code>latest</code> is still Blast v1. The <a href="${quickstartUrl}">quickstart</a> runs each one against a real extension.</p>
 
         <div class="install-boxes">
           <div class="install-box">
-            <div class="install-label">From Source (Engine, Serve, Web)</div>
-            <div class="install-code">bun install --frozen-lockfile &amp;&amp; bun run release:build</div>
+            <div class="install-label">JS/TS Engine</div>
+            <div class="install-code">npm install @blastlauncher/engine@next</div>
           </div>
           <div class="install-box">
-            <div class="install-label">npm Prerelease (3.0.0-alpha.1)</div>
-            <div class="install-code">npm install @blastlauncher/engine@next</div>
+            <div class="install-label">Any Language (stdio)</div>
+            <div class="install-code">npx -p @blastlauncher/serve@next blast-serve</div>
+          </div>
+          <div class="install-box">
+            <div class="install-label">Web Page</div>
+            <div class="install-code">npm install @blastlauncher/web@next</div>
           </div>
         </div>
       </div>

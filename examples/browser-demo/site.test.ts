@@ -53,6 +53,13 @@ function expectLandingSnippets(html: string) {
     expect(html).not.toContain(stale);
   expect(html).not.toContain('"type":"init"');
   expect(html).not.toContain("new Engine");
+  // Install: the published packages from npm `next`, nothing from source.
+  expect(html).toContain("npm install @blastlauncher/engine@next");
+  expect(html).toContain("npx -p @blastlauncher/serve@next blast-serve");
+  expect(html).toContain("npm install @blastlauncher/web@next");
+  expect(html).toContain("<code>3.0.0-alpha.2</code>");
+  for (const stale of ["alpha.1", "From Source", "release:build"])
+    expect(html).not.toContain(stale);
 }
 
 describe("site build helpers", () => {
