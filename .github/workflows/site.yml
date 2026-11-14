@@ -148,7 +148,7 @@ jobs:
             sleep 15
           done
           fetch "$SITE_URL/" "$RUNNER_TEMP/site.html" "$site_headers"
-          grep -F '<title>Blast — an engine for extension experiences</title>' "$RUNNER_TEMP/site.html"
+          grep -F '<title>Blast — Raycast extensions, inside your app</title>' "$RUNNER_TEMP/site.html"
           fetch "$SITE_URL/demo/" "$RUNNER_TEMP/demo.html" "$site_headers"
           grep -F '<title>Blast browser demo</title>' "$RUNNER_TEMP/demo.html"
           grep -F "$SANDBOX_URL/" "$RUNNER_TEMP/demo.html"
