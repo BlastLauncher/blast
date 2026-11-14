@@ -98,8 +98,7 @@ implemented APIs are accessible and stubs are inaccessible.
 Bundling reports `bundleMs`; `timeoutMs` (engine/extension/launch/bundle options, default 60_000; 0 disables) and a bundle/launch `signal` cancel esbuild work.
 
 `createEngine({ dataDir?, installer?, handlers? })` groups extension handles: `register(handlers)` returns unregister (later wins, future launches), and `engine.openExtension` inherits its options; standalone `openExtension` works too.
-Handlers resolve engine → extension → launch, then session storage, OAuth tokens
-and own-provider AI win. Unregistered capabilities are denied (decision 0010).
+Handlers resolve engine → extension → launch, then session storage, OAuth tokens and own-provider AI win. Unregistered capabilities are denied (decision 0010).
 
 `openExtension({ extensionDir, dataDir?, installer?, handlers? })` returns a handle:
 `manifest()` (validated commands, arguments, preference schemas), `watch(listener)`
@@ -108,8 +107,8 @@ and own-provider AI win. Unregistered capabilities are denied (decision 0010).
 values, missing required) and `savePreferences(command, values)` (scope split),
 and `launch(command, { argumentValues?, handlers?, launchContext? })`, which waits
 for installs, rejects missing values with `MissingLaunchValuesError` and returns
-`{ session, close }`; `startLaunchFlow(handle, command, { views })` is that launch with
-prompts as views (form, install toast, Retry), shared by root and serve. `close()` ends sessions.
+`{ session, close }`; `startLaunchFlow(handle, command, { views })` does it with
+prompts as views (form, install toast, Retry); `close()` ends sessions.
 
 `blast deps` keeps keyed production installs outside extensions under `<dataDir>/deps/`. It repairs required non-supplied peers in two passes, preferring lock pins; conflicts warn and additions enter the key.
 Bundling resolves the extension's tsconfig `baseUrl`/`paths` aliases first (read only
