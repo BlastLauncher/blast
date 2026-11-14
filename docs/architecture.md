@@ -20,9 +20,9 @@ extension code (unmodified, bundled)
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------- |
 | `packages/protocol`    | message types, validation, NDJSON framing                                                                                      | nothing                                  |
 | `packages/runtime`     | reconciler, `@raycast/api` shim, child entry                                                                                   | protocol, react                          |
-| `packages/serve`       | versioned embedder stdio, capability forwarding                                                                                | host, protocol, native                   |
+| `packages/serve`       | versioned embedder stdio, capability forwarding                                                                                | host, client-core, protocol, native      |
 | `packages/shared-deps` | optional shared extension libraries and resolver                                                                               | pinned portable npm libraries            |
-| `packages/host`        | engine: bundling, process lifecycle, broker, registry                                                                          | protocol, esbuild                        |
+| `packages/host`        | engine: bundling, process lifecycle, broker, registry, root view over opened extensions                                        | protocol, client-core, esbuild           |
 | `packages/client-core` | framework-free Raycast client controller (view model, filtering, actions, shortcuts, pagination, dropdown, grid, form, timing) | protocol                                 |
 | `packages/native`      | optional OS clipboard, open, file manager, trash                                                                               | protocol                                 |
 | `packages/cli`         | `blast` debug CLI and headless capability answers                                                                              | host, protocol                           |

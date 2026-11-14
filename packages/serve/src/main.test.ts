@@ -636,3 +636,64 @@ test("launch forwards bundleTimeoutMs and the server remains usable after a time
   await c.request("engine.shutdown");
   expect(await c.exited).toBe(0);
 }, 15000);
+
+test("root.open lists every opened extension's commands, launches one and resumes when it closes", async () => {
+  const c = await client();
+  await c.hello();
+  for (const name of ["hello-list", "selection"])
+    await c.request("extension.open", { dir: resolve(`fixtures/extensions/${name}`) });
+  expect((await c.request("root.open", {})).error.message).toContain("needs views");
+  const opened = await c.request("root.open", { views: { platform: "Linux" } });
+  const root = opened.result.root;
+  const ids = (view: any) => view.rows.filter((r: any) => r.kind === "item").map((r: any) => r.id);
+  const listed = await c.wait((v) => v.event === "root.view" && v.root === root);
+  expect(ids(listed.view)).toEqual(["hello-list:index", "selection:index"]);
+  expect(listed.view.title).toBe("Commands");
+
+  const input = (value: unknown) => c.request("root.input", { root, input: value });
+  await input({ type: "search", text: "selection" });
+  const narrowed = await c.wait(
+    (v) => v.event === "root.view" && v.view.search.text === "selection",
+  );
+  expect(ids(narrowed.view)).toEqual(["selection:index"]);
+  await input({ type: "search", text: "hello" });
+  await c.wait((v) => v.event === "root.view" && ids(v.view).join() === "hello-list:index");
+  await input({ type: "primary" });
+
+  const launched = await c.wait((v) => v.event === "root.launched");
+  expect(launched.root).toBe(root);
+  const session = launched.session;
+  const command = await c.wait(
+    (v) =>
+      v.event === "session.view" &&
+      v.session === session &&
+      v.view.rows.some((r: any) => r.title === "apple"),
+  );
+  expect(command.view.title).toBe("hello-list");
+
+  // The command is an ordinary session: back at its root closes it, then the root returns.
+  await c.request("session.input", { session, input: { type: "back" } });
+  await c.wait((v) => v.event === "session.exited" && v.session === session);
+  const resumed = await c.wait((v) => v.event === "root.view" && ids(v.view).length === 2);
+  expect(resumed.view.search.text).toBe("");
+
+  expect((await c.request("root.close", { root })).ok).toBe(true);
+  expect((await c.request("root.input", { root, input: { type: "primary" } })).ok).toBe(false);
+  await c.request("engine.shutdown");
+  expect(await c.exited).toBe(0);
+}, 30_000);
+
+test("root.open uses the hello views and follows extensions opened afterwards", async () => {
+  const c = await client();
+  await c.hello([], { platform: "Linux", appearance: "dark" });
+  const { result } = await c.request("root.open", {});
+  const empty = await c.wait((v) => v.event === "root.view");
+  expect(empty.view.rows).toEqual([]);
+  await c.request("extension.open", { dir: resolve("fixtures/extensions/hello-list") });
+  const added = await c.wait(
+    (v) => v.event === "root.view" && v.root === result.root && v.view.rows.length > 0,
+  );
+  expect(added.view.selectedId).toBe("hello-list:index");
+  await c.request("engine.shutdown");
+  expect(await c.exited).toBe(0);
+});

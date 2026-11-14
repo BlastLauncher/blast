@@ -6,6 +6,7 @@ import {
   MissingLaunchValuesError,
   type CapabilityHandler,
   type ExtensionHandle,
+  type Root,
 } from "@blastlauncher/host";
 import { createNativeHandlers } from "@blastlauncher/native";
 import { createController, type ControllerResult } from "@blastlauncher/client-core";
@@ -14,6 +15,7 @@ import {
   DEFAULT_MAX_LINE_BYTES,
   EMBEDDER_PROTOCOL_VERSION,
   parseEmbedderMessage,
+  type EmbedderParams,
   type EmbedderRequest,
   type EmbedderViews,
   type JsonValue,
@@ -29,6 +31,7 @@ const extensions = new Map<string, ExtensionHandle>();
 const watches = new Map<string, () => void>();
 const sessions = new Map<string, { close(): Promise<void> }>();
 const extensionSessions = new Map<string, Set<string>>();
+const roots = new Map<string, Root>();
 const controllers = new Map<string, ReturnType<typeof createController>>();
 const sessionTimers = new Map<string, Set<ReturnType<typeof setTimeout>>>();
 function clearTimers(key: string) {
@@ -171,6 +174,37 @@ async function request(message: EmbedderRequest): Promise<JsonValue> {
     extensionDirs.set(key, message.params.dir);
     return { extension: key };
   }
+  if (message.method === "root.open") {
+    const views = message.params.views ?? defaultViews;
+    if (!views) throw new Error("root.open needs views, in its params or the hello");
+    const key = id();
+    const root = engine.root({
+      views,
+      // The root only lists and picks; the session is an ordinary one, so its
+      // views and capabilities flow exactly like extension.launch's.
+      launch: async ({ extension: handle, command }) => {
+        const extension = [...extensions].find(([, candidate]) => candidate === handle)?.[0];
+        if (!extension) throw new Error("Extension is closed");
+        const session = await launchSession(extension, { extension, command, views }, (started) =>
+          event("root.launched", { root: key, session: started }),
+        );
+        return { exited: get(liveSessions, session).exited };
+      },
+    });
+    roots.set(key, root);
+    await root.ready();
+    root.subscribe((view) => event("root.view", { root: key, view: json(view) }));
+    return { root: key };
+  }
+  if (message.method === "root.input") {
+    get(roots, message.params.root).input(message.params.input);
+    return null;
+  }
+  if (message.method === "root.close") {
+    await get(roots, message.params.root).close();
+    roots.delete(message.params.root);
+    return null;
+  }
   if (message.method === "session.close") {
     clearTimers(message.params.session);
     await get(sessions, message.params.session).close();
@@ -222,61 +256,8 @@ async function request(message: EmbedderRequest): Promise<JsonValue> {
     case "extension.savePreferences":
       await extension.savePreferences(message.params.command, message.params.values);
       return null;
-    case "extension.launch": {
-      const key = id();
-      const opened = await extension.launch(message.params.command, {
-        ...message.params,
-        ...(message.params.bundleTimeoutMs === undefined
-          ? {}
-          : { timeoutMs: message.params.bundleTimeoutMs }),
-        onDependencyLog: (logMessage) =>
-          event("dependencies.log", { extension: p.extension, message: logMessage }),
-        handlers: forwarding(key),
-      });
-      sessions.set(key, opened);
-      if (!extensionSessions.has(p.extension)) extensionSessions.set(p.extension, new Set());
-      extensionSessions.get(p.extension)!.add(key);
-      liveSessions.set(key, opened.session);
-      const views = message.params.views ?? defaultViews;
-      const controller = views
-        ? createController({
-            ...views,
-            assetsDir: join(extensionDirs.get(p.extension) ?? "", "assets"),
-          })
-        : undefined;
-      if (controller) {
-        controllers.set(key, controller);
-        sessionTimers.set(key, new Set());
-      }
-      const stopViews = controller?.subscribe((view) =>
-        event("session.view", { session: key, view: json(view) }),
-      );
-      const unsubscribe = opened.session.scenes((scene) => {
-        event("session.scene", { session: key, scene: json(scene) });
-        if (controller && controllers.has(key)) apply(key, controller.scene(scene));
-      });
-      // Logs that arrived during startup are replayed once, then streamed.
-      for (const log of opened.session.logs) event("session.log", { session: key, log: json(log) });
-      const stopLogs = opened.session.onLog((log) =>
-        event("session.log", { session: key, log: json(log) }),
-      );
-      void opened.session.exited.then(async (exit) => {
-        stopLogs();
-        unsubscribe();
-        stopViews?.();
-        clearTimers(key);
-        event("session.exited", {
-          session: key,
-          code: exit.code,
-          ...(exit.error ? { error: errorInfo(exit.error) } : {}),
-        });
-        await opened.close();
-        sessions.delete(key);
-        liveSessions.delete(key);
-        extensionSessions.get(p.extension)?.delete(key);
-      });
-      return { session: key };
-    }
+    case "extension.launch":
+      return { session: await launchSession(p.extension, message.params) };
     case "extension.close":
       // Stop timer input before the extension begins shutting down its runtimes.
       // Sessions from other extensions retain their controllers.
@@ -290,6 +271,66 @@ async function request(message: EmbedderRequest): Promise<JsonValue> {
   }
 }
 const liveSessions = new Map<string, Awaited<ReturnType<ExtensionHandle["launch"]>>["session"]>();
+/** Starts a command and streams its session; `started` runs before its first event. */
+async function launchSession(
+  extensionKey: string,
+  params: EmbedderParams["extension.launch"],
+  started?: (session: string) => void,
+): Promise<string> {
+  const extension = get(extensions, extensionKey);
+  const key = id();
+  const opened = await extension.launch(params.command, {
+    ...params,
+    ...(params.bundleTimeoutMs === undefined ? {} : { timeoutMs: params.bundleTimeoutMs }),
+    onDependencyLog: (logMessage) =>
+      event("dependencies.log", { extension: extensionKey, message: logMessage }),
+    handlers: forwarding(key),
+  });
+  sessions.set(key, opened);
+  if (!extensionSessions.has(extensionKey)) extensionSessions.set(extensionKey, new Set());
+  extensionSessions.get(extensionKey)!.add(key);
+  liveSessions.set(key, opened.session);
+  started?.(key);
+  const views = params.views ?? defaultViews;
+  const controller = views
+    ? createController({
+        ...views,
+        assetsDir: join(extensionDirs.get(extensionKey) ?? "", "assets"),
+      })
+    : undefined;
+  if (controller) {
+    controllers.set(key, controller);
+    sessionTimers.set(key, new Set());
+  }
+  const stopViews = controller?.subscribe((view) =>
+    event("session.view", { session: key, view: json(view) }),
+  );
+  const unsubscribe = opened.session.scenes((scene) => {
+    event("session.scene", { session: key, scene: json(scene) });
+    if (controller && controllers.has(key)) apply(key, controller.scene(scene));
+  });
+  // Logs that arrived during startup are replayed once, then streamed.
+  for (const log of opened.session.logs) event("session.log", { session: key, log: json(log) });
+  const stopLogs = opened.session.onLog((log) =>
+    event("session.log", { session: key, log: json(log) }),
+  );
+  void opened.session.exited.then(async (exit) => {
+    stopLogs();
+    unsubscribe();
+    stopViews?.();
+    clearTimers(key);
+    event("session.exited", {
+      session: key,
+      code: exit.code,
+      ...(exit.error ? { error: errorInfo(exit.error) } : {}),
+    });
+    await opened.close();
+    sessions.delete(key);
+    liveSessions.delete(key);
+    extensionSessions.get(extensionKey)?.delete(key);
+  });
+  return key;
+}
 function receive(value: unknown) {
   if (stopping) return;
   const parsed = parseEmbedderMessage(value);
