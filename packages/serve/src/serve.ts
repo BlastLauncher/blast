@@ -299,9 +299,10 @@ async function request(message: EmbedderRequest): Promise<JsonValue> {
   }
 }
 const liveSessions = new Map<string, Awaited<ReturnType<ExtensionHandle["launch"]>>["session"]>();
-type LaunchParams =
-  | (Omit<EmbedderParams["extension.launch"], "prompts"> & { prompts?: boolean })
-  | EmbedderParams["extension.configure"];
+type LaunchParams = Omit<EmbedderParams["extension.launch"], "prompts"> & {
+  prompts?: boolean;
+  scope?: "extension" | "command";
+};
 /**
  * Starts a command and streams its session; `started` runs before its first
  * event. With `prompts` (or `configure`) the session starts at once and the

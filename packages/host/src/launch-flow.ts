@@ -124,7 +124,9 @@ export function startLaunchFlow(
       (section) =>
         section.fields.length &&
         (!options.configureScope ||
-          (options.configureScope === "extension" ? section.title === "Extension" : section.title === "Command")),
+          (options.configureScope === "extension"
+            ? section.title === "Extension"
+            : section.title === "Command")),
     );
     const form: PromptForm = {
       title: `Configure ${command.title}`,

@@ -76,6 +76,7 @@ test("render draws list, selection, detail, action panel, form and toast", () =>
             id: "name",
             type: "TextField",
             title: "Name",
+            required: false,
             info: "",
             label: "",
             placeholder: "",

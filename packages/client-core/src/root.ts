@@ -188,17 +188,16 @@ export function createRootController(
     const current = chosen(visible());
     actionsOpen = false;
     return {
-      effects:
-        current
-          ? [
-              {
-                type,
-                extension: current.extension,
-                command: current.command,
-                ...(type === "configure" ? { scope: "command" as const } : {}),
-              },
-            ]
-          : [],
+      effects: current
+        ? [
+            {
+              type,
+              extension: current.extension,
+              command: current.command,
+              ...(type === "configure" ? { scope: "command" as const } : {}),
+            },
+          ]
+        : [],
     };
   };
 

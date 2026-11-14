@@ -965,6 +965,12 @@
             "command": {
               "type": "string"
             },
+            "scope": {
+              "enum": [
+                "extension",
+                "command"
+              ]
+            },
             "views": {
               "type": "object",
               "properties": {

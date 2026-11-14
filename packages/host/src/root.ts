@@ -212,7 +212,9 @@ export function createRoot(source: RootSource, options: RootOptions): Root {
       const flow = startLaunchFlow(handle, commandName, {
         views: options.views,
         configure,
-                ...(scope || options.configureScope ? { configureScope: scope ?? options.configureScope } : {}),
+        ...(scope || options.configureScope
+          ? { configureScope: scope ?? options.configureScope }
+          : {}),
       });
       launching = flow;
       active = flow;
