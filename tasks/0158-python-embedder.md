@@ -44,8 +44,35 @@ launch prompts, actions and one capability.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/add-python-embedder @ 91ddf28e5729127cbaa669b81fe3fcbe3ad7950a
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok,
+mac-fixtures ok, workflow ok, test ok) in 122.7s
 Done:
+- examples/python-embedder/ (embedder.py 199 lines ≤ 200, test_embedder.py,
+  README.md): Python 3.10 stdlib embedder that spawns `blast serve`, says
+  hello with views, opens the extension dirs on the command line, drives the
+  engine root view (`root.open`/`root.input`, `root.launched`/`session.view`),
+  maps terminal keys to `root.input`/`session.input` and answers
+  `clipboard.copy` by printing. unittest suite against the real server covers
+  handshake, root search, launch (root primary), the 0157 prompt-form fixture
+  (engine-handle + required password preference and argument; asserts the
+  saved preferences and that the form never echoes the password), primary
+  action, clipboard round trip, shutdown and key mapping.
+- `bun run example:python` (scripts/example-python.ts) runs the suite with
+  `python3 -I` and skips with a clear message when python3 is absent; CI job
+  `python-example` (Python 3.10) runs it next to the Go one.
+- examples/go-embedder rewritten onto the same engine-owned flow: root view +
+  automatic prompts; dropped launch/WaitView/LatestView/ExitStatus client
+  logic; main.go 692 → 643 lines; test and README follow; `bun run example:go`
+  passes.
+- docs/embedding.md and docs/quickstart.md now point at both reference
+  embedders.
 Not done / risks:
+- Engine gaps observed: none blocking; `session.scene` events still arrive
+  alongside `session.view` for root-launched sessions (embedders ignore
+  unknown events; noted in case 0160 wants them silenced).
+- The Python client resolves all pending requests when the server sends a
+  protocol `error` (a rejected line never gets a response); the Go client
+  does the same after the same hang was found there — behaviour worth
+  encoding in the protocol docs if not already there.
 ```
