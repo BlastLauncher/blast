@@ -33,6 +33,9 @@ themeable styles, or hands views to the page's own renderer.
 - API: `mount(el, {extension | source, command?, sandboxUrl, root?: boolean,
   handlers?, render?: (view, input) => void, theme?})` returns
   `{close(), input()}`; `root: true` uses the engine root view (0156).
+- Move, do not copy: shared code the demo also uses (bundler, installer,
+  runtime port, capabilities) lives once in `packages/web` and the demo
+  imports it from there.
 - `release:build` publishes it with the other packages; add its files to
   the tarball smoke.
 
@@ -44,7 +47,7 @@ themeable styles, or hands views to the page's own renderer.
       `example:browser-demo:e2e`) loads it and asserts a rendered row and a
       primary action.
 - [ ] `bun run example:browser-demo:e2e` and `bun run site:e2e` still pass
-      with the demo consuming the package.
+      (the demo moves onto the package in 0163; here it may keep its client).
 - [ ] `bun run release:build` emits `@blastlauncher/web`.
 - [ ] `bun run verify` passes.
 
