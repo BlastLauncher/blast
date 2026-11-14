@@ -27,3 +27,9 @@ session.close();
 
 `examples/web-embed` is a complete page and `bun run example:web-embed:e2e`
 runs it headless against loopback servers.
+
+For deployments with prebuilt extension bundles, pass `bundlesUrl` to `mount`; the
+validated `bundles.json` index is tried before source fetching. Extensions that
+need required preferences can provide `preferenceForm`, which receives the
+parsed fields and current values and returns the submitted values (or
+`undefined` to cancel).
