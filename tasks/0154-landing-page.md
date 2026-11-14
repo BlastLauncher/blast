@@ -46,14 +46,14 @@ invites them to try the live demo and then embed.
 
 ## Acceptance
 
-- [ ] `bun run site:build` then the generated `index.html` contains the hero,
+- [x] `bun run site:build` then the generated `index.html` contains the hero,
       tab panels for the five snippets, and the `/demo/` link (asserted in
       `site.test.ts`).
-- [ ] `bun run site:e2e -- --screenshots .cache/landing-shots` (extend it to
+- [x] `bun run site:e2e -- --screenshots .cache/landing-shots` (extend it to
       capture the landing page) saves light/dark desktop and 360px shots;
       list them in Handoff; no horizontal scroll at 360px (asserted).
-- [ ] Tabs work with JS disabled (CSS-only) and by keyboard.
-- [ ] `bun run verify` passes.
+- [x] Tabs work with JS disabled (CSS-only) and by keyboard.
+- [x] `bun run verify` passes.
 
 ## Out of scope
 
@@ -62,8 +62,14 @@ invites them to try the live demo and then embed.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/landing-page-review-fixes @ 818d26c861af662fe96be722c54966a5e6b90d8a
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 141.8s (1035 pass, 2 skip, 0 fail); bun run site:e2e -- --screenshots .cache/landing-shots (pass)
 Done:
+- Replaced all 5 integration snippets in `examples/browser-demo/landing.ts` (JavaScript `createEngine`/`createController`, Go `Start`, Python `blast-serve` stdlib, Swift `BlastClient`, NDJSON `hello`/`welcome`/`extension.launch`/`session.view`/`session.input`/`capability.request`/`capability.result`) with HTML-escaped real APIs, keeping tab labels `JavaScript`, `Go`, `Python`, `Swift`, `NDJSON` and adding `.tab-caption` notes for Go (`Client from examples/go-embedder`), Python (`Standard library only`), Swift (`BlastKit from examples/macos-launcher`), and NDJSON.
+- Updated hero `.mock-wire` to real protocol lines (`hello`, `welcome`, `extension.launch`, `session.view`) and `.mock-view` to a plain `Apple` / `Banana` / `Cherry` list matching `fixtures/extensions/hello-list`.
+- Replaced inaccurate copy in hero, Section 3 ("What Blast does"), Section 4 ("Runs everywhere"), and footer (removed sandbox claims outside the cross-origin iframe browser demo, removed brokered network / identical semantics / loopback sockets / zero wire overhead / community-maintained / discovers manifests claims).
+- Updated `examples/browser-demo/site.test.ts` (both `landing()` unit test and `buildSite` integration test) to assert `createEngine`, `"type":"hello"`, `blast-serve`, `launchExtension`, the three tab captions, and absence of `"type":"init"` and `new Engine`.
+- Ran `bun run site:e2e -- --screenshots .cache/landing-shots` (pass; 0 horizontal overflow at 360px) and saved `.cache/landing-shots/desktop-light.png` (1280x2864), `desktop-dark.png` (1280x2864), `mobile-360-light.png` (360x5209), `mobile-360-dark.png` (360x5209).
 Not done / risks:
+- `view_file` in this environment decodes PNGs as raw text rather than rendering images, so the four `.cache/landing-shots/*.png` captures were checked via PNG dimensions/file sizes and headless Chromium DOM/style/bounds inspection at 1280x800 and 360x740 (light and dark) rather than visual pixel inspection.
 ```
