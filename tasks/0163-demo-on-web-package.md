@@ -21,8 +21,11 @@ what remains is catalog, theming and site-specific UI.
   keyboard behaviour, root launcher, showcase and progress UI.
 - If the package lacks a hook the demo needs, add it to the package (small,
   documented in its README) rather than reaching around it.
-- Playwright browsers: set `PLAYWRIGHT_BROWSERS_PATH` to the existing
-  install (see `examples/browser-demo/README.md`); do not download a second copy.
+- Playwright: export `PLAYWRIGHT_BROWSERS_PATH="$HOME/.cache/ms-playwright"`;
+  do not download browsers.
+- 0159 left two demo-only paths for this task: prebuilt bundles
+  (`bundles.json`) and the preferences form. Add them to `mount()` (options
+  or hooks) so the demo needs no private wiring.
 
 ## Acceptance
 
