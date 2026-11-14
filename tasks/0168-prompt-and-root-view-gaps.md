@@ -51,8 +51,12 @@ match Raycast and the old TUI picker, so no client patches around them.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/fix-prompt-root-view-gaps @ 413007b
+Verify: `verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 151.4s`
 Done:
-Not done / risks:
+- Added required and focused-info metadata to form views.
+- Added stable Extension/Command prompt sections and scoped configuration through host, serve, root, and TUI.
+- Preserved root selection across launch completion/failure and exposed launch argument values for relaunch.
+- Regenerated protocol schema, macOS fixtures, and launch prompt documentation; updated coverage tests.
+Not done / risks: None known.
 ```
