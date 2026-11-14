@@ -52,7 +52,7 @@ client and doc shows the smaller API.
 - [x] 0170 Docs and landing install from npm `@next` (alpha.2)
 - [ ] 0171 Browser sweep: fresh baseline, placeholder preferences, browser limits apart
 - [ ] 0172 Browser runtime fixes: extension assets, forbidden fetch headers, triaged errors
-- [ ] 0173 Coverage measured against `@raycast/api` 2.11.1 (#89)
+- [x] 0173 Coverage measured against `@raycast/api` 2.11.1 (#89)
 
 ## Later (not scheduled)
 
