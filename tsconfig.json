@@ -39,6 +39,8 @@
     "packages/web/src/custom-element.ts",
     "packages/web/src/default-renderer.ts",
     "packages/web/src/handlers.ts",
+    "packages/web/src/prebuilt.ts",
+    "packages/web/src/sandbox.ts",
     "packages/web/src/session.ts"
   ]
 }

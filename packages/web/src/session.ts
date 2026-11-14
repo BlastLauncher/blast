@@ -74,7 +74,11 @@ export type WebMountOptions = {
   ) => PreferenceValues | undefined | Promise<PreferenceValues | undefined>;
   handlers?: WebHandlers;
   /** Replaces the built-in renderer: receives every view and a callback for input. */
-  render?: (view: WebView, input: (value: ControllerInput) => void, frame: WebFrame) => void;
+  render?: (
+    view: WebView,
+    input: (value: ControllerInput) => ControllerResult | undefined,
+    frame: WebFrame,
+  ) => void;
   /** Called when the command ends without an error; default: back to the root, or a status. */
   onExit?: (exit: WebExit) => void;
   theme?: Theme;
@@ -318,7 +322,9 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
   }
 
   async function run(commandName: string) {
-    const generation = launches.next();
+    // A command launched from the running one (`launchCommand`) replaces it.
+    stopCommand();
+    const generation = launches.current();
     const current = () => !closed && launches.isCurrent(generation);
     try {
       setStatus("Fetching extension…", false, true);
@@ -601,8 +607,8 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
       if (closed) return;
       stopCommand();
       closed = true;
+      // A custom `render` owns what it drew into `element`.
       renderer?.destroy();
-      if (options.render) element.replaceChildren();
     },
   };
 }
