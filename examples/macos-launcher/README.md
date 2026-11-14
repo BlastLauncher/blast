@@ -12,8 +12,9 @@ The package has three layers:
   turns a `ControllerView` into `LauncherDisplay` values (rows with title,
   subtitle, icon text and selection; search text and placeholder; action rows
   with shortcut labels; toast; detail markdown; empty and loading states; title
-  and back affordance) and maps `LauncherKey` presses to `ControllerInput`. It
-  also owns the command picker shown before a session starts.
+  and back affordance) and maps `LauncherKey` presses to `ControllerInput`.
+  `LauncherRouter` sends input to the engine's root view, or to the session
+  the root launched until its `session.exited`.
 - **BlastLauncher** — a thin AppKit executable: an `NSPanel`, a search field, a
   view-based `NSTableView`, a `NSTextView` for detail and a small action panel.
   It renders `LauncherDisplay` and forwards keys and clicks back as semantic
@@ -30,8 +31,9 @@ From the repository root (so the launcher can find `packages/serve/src/main.ts`)
 swift run --package-path examples/macos-launcher BlastLauncher fixtures/extensions/hello-list
 ```
 
-That opens the command picker for the extension; Return (or a click) launches
-the selected command. Pass a command name to skip the picker:
+That opens the engine's root view with the extension's commands; Return (or a
+click) launches the selected command, with launch prompts for anything
+missing. Pass a command name to search for it and launch it at once:
 
 ```sh
 swift run --package-path examples/macos-launcher BlastLauncher fixtures/extensions/hello-list index
@@ -70,9 +72,10 @@ The suite has four layers:
   capability arguments (clipboard content, open targets and applications) are
   parsed and asserted without touching the pasteboard, `NSWorkspace` or files.
 - **Contract fixtures** (`ViewTests`) decode every recorded `ControllerView`.
-- **Presenter tests** (`PresenterTests`, `CommandPickerTests`) drive
-  `LauncherPresenter` over all seven fixtures: list, grid, detail, form,
-  menu-bar, toast and an open action panel. They assert rows, selection, search
+- **Presenter tests** (`PresenterTests`, `LauncherRouterTests`) drive
+  `LauncherPresenter` over all nine fixtures: list, grid, detail, form,
+  menu-bar, toast, an open action panel, the root view and a launch prompt, and
+  route input between the root and its session. They assert rows, selection, search
   text, action shortcut labels, toasts, markdown, empty/loading states, the back
   affordance, and the key mapping for arrows, Return, ⌘K, ⌘↵, Esc and typing.
 - **AppKit view tests** (`AppKitTests`) build the real window offscreen, with no
@@ -111,14 +114,19 @@ let transport = ProcessTransport(
 )
 let client = BlastClient(transport: transport, capabilityHandler: MyHandlers())
 client.onEvent = { event in
+    if case .rootView(_, let view) = event { draw(view) }
     if case .view(_, let view) = event { draw(view) }
 }
 let welcome = try await client.start(capabilities: ["clipboard.copy"])
-let extensionID = try await client.openExtension(dir: "/path/to/extension")
-let session = try await client.launchExtension(extension: extensionID, command: "index")
-try await client.sendInput(.move(.down), session: session)
-try await client.sendInput(.primary, session: session)
+_ = try await client.openExtension(dir: "/path/to/extension")
+let root = try await client.openRoot(views: .macOS)
+try await client.sendInput(.move(.down), root: root)
+try await client.sendInput(.primary, root: root)
 ```
+
+After `.rootLaunched(root:session:)`, send input to that session until its
+`.exited`; `LauncherRouter` does this bookkeeping. `launchExtension` still runs
+one command directly, without the root.
 
 `ProcessTransport` spawns `node <servePath>` through `/usr/bin/env`; point
 `servePath` at `packages/serve/src/main.ts`, an installed `blast-serve`, or pass

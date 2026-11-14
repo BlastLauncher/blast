@@ -1,14 +1,29 @@
 # Quickstart
 
-Blast runs an unmodified Raycast extension and gives your app view models and
-capability requests. Packages are on npm under the `next` tag (alpha). The
-examples run the `hello-list` fixture from a checkout of this repository;
-point them at any Raycast extension directory instead.
+Blast runs unmodified Raycast extensions and hands your app views to draw.
+The engine owns the launcher flow: it lists the commands of every extension
+you open as a root view, asks for missing preferences and arguments, installs
+dependencies, and runs the command. You draw views and forward input.
 
 ## Try it
 
 Open [the browser demo](https://blast.yukai.dev/demo/) and choose an extension.
-Nothing is installed locally; the demo runs the browser runtime in its sandbox.
+Nothing is installed locally.
+
+## Get the packages
+
+The API below is newer than `3.0.0-alpha.1`, the latest prerelease on npm
+under `next`, and `@blastlauncher/web` is not published yet. Until the next
+prerelease, build the packages from source (Bun and Node.js 24):
+
+```sh
+git clone --depth 1 https://github.com/blastlauncher/blast && cd blast
+bun install --frozen-lockfile
+bun run release:build   # tarballs in .cache/release/tarballs/
+```
+
+The examples run from inside that checkout against the `hello-list` fixture;
+point them at any Raycast extension directory instead.
 
 ## Embed in JS/TS
 
@@ -16,45 +31,62 @@ Requires Node.js 24.
 
 ```sh
 mkdir quickstart-js && cd quickstart-js && npm init -y
-npm install @blastlauncher/engine@next @blastlauncher/client-core@next
+npm install ../.cache/release/tarballs/*.tgz
 ```
 
 Save this as `index.mjs`:
 
 ```js
 import { createEngine } from "@blastlauncher/engine";
-import { createController } from "@blastlauncher/client-core";
 const engine = createEngine();
-const extension = engine.openExtension({ extensionDir: "../fixtures/extensions/hello-list" });
-const { session, close } = await extension.launch("index");
-const controller = createController({ platform: "macOS" });
-// Forward the controller's events to the command; run its timers.
-const apply = ({ events, effects }) => {
-  for (const e of events) session.sendEvent(e.node, e.handler, e.args);
-  for (const f of effects)
-    if (f.type === "schedule") setTimeout(() => apply(controller.tick(f.token)), f.ms);
-    else close();
-};
-session.scenes((scene) => apply(controller.scene(scene)));
-controller.subscribe((view) => console.log(view.rows.map((row) => row.text).join("\n")));
-// Draw `view` in your UI; send input with apply(controller.input({ type: "search", text: "ap" })).
+engine.openExtension({ extensionDir: "../fixtures/extensions/hello-list" });
+const root = engine.root({ views: { platform: "macOS" } });
+root.subscribe((view) => console.log(`${view.title}: ${view.rows.map((row) => row.title)}`));
+await root.ready();
+root.input({ type: "primary" }); // run the selected command; its views follow
+// Draw `view` in your UI and send input, e.g. root.input({ type: "search", text: "ap" }).
 ```
 
 ```sh
-node index.mjs
+node index.mjs   # Ctrl-C to stop; the command keeps running like in an app
+```
+
+It prints the root list (`Commands: hello-list,index`), then the command's
+list (`hello-list: apple,banana,cherry`). Grant capabilities with
+`createEngine({ handlers: { "clipboard.copy": (params) => … } })`.
+
+## Embed in any language
+
+Start the stdio server from the same `npm install` and send one JSON object
+per line:
+
+```sh
+npx blast-serve
+```
+
+```json
+{"type":"hello","protocol":1,"capabilities":[],"views":{"platform":"macOS"}}
+{"type":"request","id":"1","method":"extension.open","params":{"dir":"../fixtures/extensions/hello-list"}}
+{"type":"request","id":"2","method":"root.open","params":{}}
+```
+
+The server answers with `root.view` events carrying the command list and
+`{"root":"1"}`. Send `root.input` with `{"type":"primary"}` to launch the
+selected command; draw the `session.view` events of the session named in
+`root.launched` and send it `session.input` until `session.exited`. The
+[Go](../examples/go-embedder/) and [Python](../examples/python-embedder/)
+examples are complete standard-library clients; from the checkout root:
+
+```sh
+python3 -I examples/python-embedder/embedder.py fixtures/extensions/hello-list
 ```
 
 ## Embed in a web page
 
-No build step: the package ships the browser bundle and the sandbox page.
-
-```sh
-npm install @blastlauncher/web@next
-```
-
-Serve `node_modules/@blastlauncher/web/assets/` on your page's origin (here at
-`/blast/`) and `node_modules/@blastlauncher/web/sandbox/` on a second origin
-you control. Extensions run in that sandbox origin, away from your page's data.
+No build step: the `@blastlauncher/web` tarball ships the browser bundle and
+the sandbox page. Serve its `assets/` directory on your page's origin (here at
+`/blast/`) and its `sandbox/` directory on a second origin you control.
+Extensions run in that sandbox origin, away from your page's data.
 
 ```html
 <div id="app"></div>
@@ -67,29 +99,9 @@ you control. Extensions run in that sandbox origin, away from your page's data.
 </script>
 ```
 
-Options, theming and custom renderers: [`@blastlauncher/web`](../packages/web/README.md).
+`bun run release:web:e2e` installs the tarball and runs this page against two
+loopback origins. Options, theming and custom renderers:
+[`@blastlauncher/web`](../packages/web/README.md).
 
-## Embed in any language
-
-Start the stdio server and send one JSON object per line:
-
-```sh
-npx -p @blastlauncher/serve@next blast-serve
-```
-
-```json
-{"type":"hello","protocol":1,"capabilities":[]}
-{"type":"request","id":"1","method":"extension.open","params":{"dir":"fixtures/extensions/hello-list"}}
-```
-
-Use the returned extension key to send `extension.launch` with
-`"views":{"platform":"macOS"}`. Draw `session.view` and send semantic
-`session.input`; the [Go](../examples/go-embedder/) and
-[Python](../examples/python-embedder/) examples are complete
-standard-library clients.
-
-From a checkout, `bun run release:build` writes the same packages as tarballs
-under `.cache/release/tarballs/` to install instead of `@next`.
-
-Next: [capabilities](./capabilities.md), the [views reference](./embedding.md),
+Next: the [embedding guide](./embedding.md), [capabilities](./capabilities.md)
 and [examples](../examples/).

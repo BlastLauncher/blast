@@ -20,66 +20,66 @@ export function landing(stats: SiteStats, siteOrigin = ""): string {
   const repoUrl = "https://github.com/blastlauncher/blast";
 
   const jsSnippet = escapeHtml(String.raw`import { createEngine } from "@blastlauncher/engine";
-import { createController } from "@blastlauncher/client-core";
 
-const engine = createEngine({ handlers: { "clipboard.copy": (p) => copy(p) } });
-const extension = engine.openExtension({ extensionDir: "./my-extension" });
-const { session, close } = await extension.launch("index");
-const controller = createController({ platform: "macOS" });
-const apply = ({ events }) =>
-  events.forEach((e) => session.sendEvent(e.node, e.handler, e.args));
-session.scenes((scene) => apply(controller.scene(scene)));
-controller.subscribe((view) => draw(view));
-onSearch((text) => apply(controller.input({ type: "search", text })));`);
+const engine = createEngine({ handlers: { "clipboard.copy": (params) => copy(params) } });
+engine.openExtension({ extensionDir: "./my-extension" });
+const root = engine.root({ views: { platform: "macOS" } });
+root.subscribe((view) => draw(view)); // the command list, prompts, then the command
+root.input({ type: "search", text: "ap" });
+root.input({ type: "primary" });`);
+
+  const webSnippet = escapeHtml(String.raw`<div id="app"></div>
+<script type="module">
+  import { mount } from "/blast/blast-web.js";
+  mount(document.querySelector("#app"), {
+    extension: "raycast/extensions/android-versions",
+    sandboxUrl: "https://sandbox.example.com/",
+  });
+</script>`);
 
   const goSnippet =
-    escapeHtml(String.raw`client, _ := Start("packages/serve/src/main.ts", os.Stdout) // spawns blast serve
+    escapeHtml(String.raw`client, _ := Start("packages/serve/src/main.ts", os.Stdout) // spawns blast serve, views on
 defer client.Close()
-extension, _ := client.Open("./my-extension")
-client.Launch(extension, "index") // views on, platform macOS
-view, _ := client.WaitView(-1, 5*time.Second)
-draw(view) // search, rows, actions, toast
-client.Input(controllerInput{Type: "search", Text: "ap"})`);
+client.Open("./my-extension")
+client.OpenRoot() // root.view events: the command list, drawn as they arrive
+client.Input(controllerInput{Type: "search", Text: textPointer("ap")})
+client.Input(controllerInput{Type: "primary"}) // root.launched: input goes to the session`);
 
-  const pySnippet = escapeHtml(String.raw`import json, subprocess
-blast = subprocess.Popen(["npx", "-p", "@blastlauncher/serve@next", "blast-serve"],
-                         stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
-def send(message):
-    blast.stdin.write(json.dumps(message) + "\n"); blast.stdin.flush()
-def request(id, method, **params):
-    send({"type": "request", "id": id, "method": method, "params": params})
+  const pySnippet =
+    escapeHtml(String.raw`from embedder import Client  # spawns blast serve; views on in the hello
 
-send({"type": "hello", "protocol": 1, "capabilities": ["clipboard.copy"]})
-request("1", "extension.open", dir="./my-extension")
-for message in map(json.loads, blast.stdout):
-    if message["type"] == "response" and message["id"] == "1":
-        request("2", "extension.launch", extension=message["result"]["extension"],
-                command="index", views={"platform": "macOS"})
-    elif message.get("event") == "session.view":
-        draw(message["view"])
-    elif message["type"] == "capability.request":
-        send({"type": "capability.result", "id": message["id"], "ok": True, "value": None})`);
+client = Client()
+client.request("extension.open", {"dir": "./my-extension"})
+client.root = client.request("root.open", {})["root"]  # root.view events are drawn
+client.input({"type": "search", "text": "ap"})
+client.input({"type": "primary"})  # root.launched: input goes to the session
+client.shutdown()`);
 
   const swiftSnippet = escapeHtml(String.raw`let blast = BlastClient(transport: ProcessTransport(
     servePath: ProcessTransport.defaultServePath, workingDirectory: root))
 blast.onEvent = { event in
+    if case let .rootView(_, view) = event { draw(view) }
     if case let .view(_, view) = event { draw(view) }
 }
 _ = try await blast.start(capabilities: ["clipboard.copy"])
-let ext = try await blast.openExtension(dir: "./my-extension")
-let session = try await blast.launchExtension(extension: ext, command: "index")
-try await blast.sendInput(.search("ap"), session: session)`);
+_ = try await blast.openExtension(dir: "./my-extension")
+let root = try await blast.openRoot(views: .macOS)
+try await blast.sendInput(.search("ap"), root: root)
+try await blast.sendInput(.primary, root: root)`);
 
   const ndjsonSnippet =
-    escapeHtml(String.raw`→ {"type":"hello","protocol":1,"capabilities":["clipboard.copy"]}
+    escapeHtml(String.raw`→ {"type":"hello","protocol":1,"capabilities":["clipboard.copy"],"views":{"platform":"macOS"}}
 ← {"type":"welcome","protocol":1,"engine":{…},"catalog":{…}}
 → {"type":"request","id":"1","method":"extension.open","params":{"dir":"./my-extension"}}
-← {"type":"response","id":"1","ok":true,"result":{"extension":"1"}}
-→ {"type":"request","id":"2","method":"extension.launch","params":{"extension":"1","command":"index","views":{"platform":"macOS"}}}
-← {"type":"event","event":"session.view","session":"2","view":{"kind":"list","rows":[…]}}
-→ {"type":"request","id":"3","method":"session.input","params":{"session":"2","input":{"type":"search","text":"ap"}}}
-← {"type":"capability.request","id":"c1","session":"2","name":"clipboard.copy","params":{…}}
-→ {"type":"capability.result","id":"c1","ok":true,"value":null}`);
+← {"type":"response","id":"1","ok":true,"result":{"extension":"2"}}
+→ {"type":"request","id":"2","method":"root.open","params":{}}
+← {"type":"event","event":"root.view","root":"1","view":{"kind":"list","rows":[…]}}
+← {"type":"response","id":"2","ok":true,"result":{"root":"1"}}
+→ {"type":"request","id":"3","method":"root.input","params":{"root":"1","input":{"type":"primary"}}}
+← {"type":"event","event":"root.launched","root":"1","session":"3"}
+← {"type":"event","event":"session.view","session":"3","view":{"kind":"list","rows":[…]}}
+← {"type":"capability.request","id":"4","session":"3","name":"clipboard.copy","params":{…}}
+→ {"type":"capability.result","id":"4","ok":true,"value":null}`);
 
   return `<!doctype html>
 <html lang="en">
@@ -464,6 +464,7 @@ try await blast.sendInput(.search("ap"), session: session)`);
 
     /* Radio checked selectors */
     #tab-js:checked ~ .tab-nav label[for="tab-js"],
+    #tab-web:checked ~ .tab-nav label[for="tab-web"],
     #tab-go:checked ~ .tab-nav label[for="tab-go"],
     #tab-py:checked ~ .tab-nav label[for="tab-py"],
     #tab-swift:checked ~ .tab-nav label[for="tab-swift"],
@@ -474,6 +475,7 @@ try await blast.sendInput(.search("ap"), session: session)`);
     }
 
     #tab-js:focus-visible ~ .tab-nav label[for="tab-js"],
+    #tab-web:focus-visible ~ .tab-nav label[for="tab-web"],
     #tab-go:focus-visible ~ .tab-nav label[for="tab-go"],
     #tab-py:focus-visible ~ .tab-nav label[for="tab-py"],
     #tab-swift:focus-visible ~ .tab-nav label[for="tab-swift"],
@@ -502,6 +504,7 @@ try await blast.sendInput(.search("ap"), session: session)`);
     }
 
     #tab-js:checked ~ .tab-panels .panel-js,
+    #tab-web:checked ~ .tab-panels .panel-web,
     #tab-go:checked ~ .tab-panels .panel-go,
     #tab-py:checked ~ .tab-panels .panel-py,
     #tab-swift:checked ~ .tab-panels .panel-swift,
@@ -719,7 +722,7 @@ try await blast.sendInput(.search("ap"), session: session)`);
       <div class="container hero-grid">
         <div class="hero-content">
           <h1>Raycast extensions, inside your app.</h1>
-          <p>The engine builds and runs unmodified extensions, each command in its own process; you draw views and answer the capabilities you grant.</p>
+          <p>The engine runs the launcher flow (command search, prompts, dependency installs) and each unmodified command in its own process; you draw views and answer the capabilities you grant.</p>
           <div class="hero-actions">
             <a href="${demoUrl}" class="btn btn-primary">Try the live demo</a>
             <a href="${quickstartUrl}" class="btn btn-secondary">Quickstart</a>
@@ -747,10 +750,10 @@ try await blast.sendInput(.search("ap"), session: session)`);
                 </ul>
               </div>
               <div class="mock-wire">
-                <pre><span class="wire-in">→ {"type":"hello","protocol":1,"capabilities":["clipboard.copy"]}</span>
-<span class="wire-out">← {"type":"welcome","protocol":1,…}</span>
-<span class="wire-in">→ {"type":"request","id":"2","method":"extension.launch","params":{"extension":"1","command":"index","views":{"platform":"macOS"}}}</span>
-<span class="wire-out">← {"type":"event","event":"session.view","session":"2","view":{"kind":"list","rows":[…]}}</span></pre>
+                <pre><span class="wire-in">→ {"type":"hello","protocol":1,"capabilities":["clipboard.copy"],"views":{"platform":"macOS"}}</span>
+<span class="wire-in">→ {"type":"request","id":"2","method":"root.open","params":{}}</span>
+<span class="wire-in">→ {"type":"request","id":"3","method":"root.input","params":{"root":"1","input":{"type":"primary"}}}</span>
+<span class="wire-out">← {"type":"event","event":"session.view","session":"3","view":{"kind":"list","rows":[…]}}</span></pre>
               </div>
             </div>
           </div>
@@ -762,11 +765,12 @@ try await blast.sendInput(.search("ap"), session: session)`);
     <section class="integration" id="integration">
       <div class="container">
         <h2 class="section-title">The whole integration</h2>
-        <p class="section-desc">Connect, launch, draw views, and forward user interactions in a few lines of code in your language of choice.</p>
+        <p class="section-desc">Open extensions, draw the engine's views, and forward input in a few lines of your language of choice, or one <code>mount()</code> call in a web page.</p>
 
         <div class="tab-group">
           <!-- Radio inputs for CSS-only tab switching -->
           <input type="radio" id="tab-js" name="tab-lang" class="tab-radio" checked aria-controls="panel-js">
+          <input type="radio" id="tab-web" name="tab-lang" class="tab-radio" aria-controls="panel-web">
           <input type="radio" id="tab-go" name="tab-lang" class="tab-radio" aria-controls="panel-go">
           <input type="radio" id="tab-py" name="tab-lang" class="tab-radio" aria-controls="panel-py">
           <input type="radio" id="tab-swift" name="tab-lang" class="tab-radio" aria-controls="panel-swift">
@@ -774,6 +778,7 @@ try await blast.sendInput(.search("ap"), session: session)`);
 
           <div class="tab-nav" role="tablist" aria-label="Integration code examples">
             <label for="tab-js" id="label-js" role="tab">JavaScript</label>
+            <label for="tab-web" id="label-web" role="tab">Web page</label>
             <label for="tab-go" id="label-go" role="tab">Go</label>
             <label for="tab-py" id="label-py" role="tab">Python</label>
             <label for="tab-swift" id="label-swift" role="tab">Swift</label>
@@ -783,6 +788,12 @@ try await blast.sendInput(.search("ap"), session: session)`);
           <div class="tab-panels">
             <div class="tab-panel panel-js" id="panel-js" role="tabpanel" aria-labelledby="label-js">
               <pre><code>${jsSnippet}</code></pre>
+              <p class="tab-caption">The in-process engine: Node.js, Bun or Electron</p>
+            </div>
+
+            <div class="tab-panel panel-web" id="panel-web" role="tabpanel" aria-labelledby="label-web">
+              <pre><code>${webSnippet}</code></pre>
+              <p class="tab-caption">@blastlauncher/web: the extension runs in a sandbox on a second origin you host</p>
             </div>
 
             <div class="tab-panel panel-go" id="panel-go" role="tabpanel" aria-labelledby="label-go">
@@ -792,7 +803,7 @@ try await blast.sendInput(.search("ap"), session: session)`);
 
             <div class="tab-panel panel-py" id="panel-py" role="tabpanel" aria-labelledby="label-py">
               <pre><code>${pySnippet}</code></pre>
-              <p class="tab-caption">Standard library only</p>
+              <p class="tab-caption">Standard library only, from examples/python-embedder</p>
             </div>
 
             <div class="tab-panel panel-swift" id="panel-swift" role="tabpanel" aria-labelledby="label-swift">
@@ -819,10 +830,10 @@ try await blast.sendInput(.search("ap"), session: session)`);
           <div class="compare-col">
             <h3><span class="bullet-blast">&check;</span> What Blast does</h3>
             <ul class="compare-list">
-              <li><strong>Extension lifecycle:</strong> Validates manifests, installs dependencies, and manages command sessions.</li>
+              <li><strong>Launcher flow:</strong> Lists every extension's commands as a root view, asks for missing preferences and arguments, and installs dependencies.</li>
               <li><strong>Bundling &amp; runtime:</strong> Bundles each extension with esbuild and runs each command in its own Node.js process.</li>
               <li><strong>Raycast compatibility:</strong> Provides <code>@raycast/api</code> (and ships <code>@raycast/utils</code>), with coverage measured against the latest release (see Receipts).</li>
-              <li><strong>UI reconciliation:</strong> Reconciles React views into a minimal, serializable tree structure.</li>
+              <li><strong>UI reconciliation:</strong> Reconciles React trees into serializable views with search, selection and actions applied.</li>
               <li><strong>Capability brokering:</strong> Mediates storage, clipboard, OAuth and AI access, through explicit grants.</li>
             </ul>
           </div>
@@ -833,7 +844,7 @@ try await blast.sendInput(.search("ap"), session: session)`);
               <li><strong>Render views:</strong> Draw the view nodes (List, Detail, Form, Grid) in your app's native UI toolkit.</li>
               <li><strong>Forward input:</strong> Send search keystrokes, item selections, and button clicks back to the session.</li>
               <li><strong>Answer capabilities:</strong> Choose which capabilities to grant (clipboard, storage, OAuth) per your security policy.</li>
-              <li><strong>Pick your transport:</strong> Embed directly in-process via TypeScript, or across processes via standard I/O.</li>
+              <li><strong>Pick your transport:</strong> Embed in-process via TypeScript, across processes via standard I/O, or in a web page with <code>@blastlauncher/web</code>.</li>
             </ul>
           </div>
         </div>
@@ -863,12 +874,12 @@ try await blast.sendInput(.search("ap"), session: session)`);
             <span class="card-link">Explore serve &rarr;</span>
           </a>
 
-          <a href="https://github.com/blastlauncher/blast/tree/main/examples/browser-demo" class="card">
+          <a href="https://github.com/blastlauncher/blast/tree/main/packages/web" class="card">
             <div>
-              <h3>Browser tab</h3>
-              <p>Run extensions in a cross-origin sandboxed iframe (almostnode), loaded by URL with nothing installed.</p>
+              <h3>Any web page</h3>
+              <p>One <code>mount()</code> runs extensions by URL in a cross-origin sandboxed iframe (almostnode), with nothing installed.</p>
             </div>
-            <span class="card-link">Explore browser demo &rarr;</span>
+            <span class="card-link">Explore web package &rarr;</span>
           </a>
 
           <a href="https://github.com/blastlauncher/blast/tree/main/packages/tui" class="card">
@@ -914,16 +925,16 @@ try await blast.sendInput(.search("ap"), session: session)`);
     <section class="install">
       <div class="container">
         <h2 class="section-title">Install</h2>
-        <p class="section-desc">Get started in your project today.</p>
+        <p class="section-desc">The root view, prompts and web package above are newer than <code>3.0.0-alpha.1</code> on npm; until the next prerelease, build the packages from source.</p>
 
         <div class="install-boxes">
           <div class="install-box">
-            <div class="install-label">Engine Package (TypeScript / Node)</div>
-            <div class="install-code">npm install @blastlauncher/engine@next</div>
+            <div class="install-label">From Source (Engine, Serve, Web)</div>
+            <div class="install-code">bun install --frozen-lockfile &amp;&amp; bun run release:build</div>
           </div>
           <div class="install-box">
-            <div class="install-label">Serve CLI (Any Language)</div>
-            <div class="install-code">npx -p @blastlauncher/serve@next blast-serve</div>
+            <div class="install-label">npm Prerelease (3.0.0-alpha.1)</div>
+            <div class="install-code">npm install @blastlauncher/engine@next</div>
           </div>
         </div>
       </div>

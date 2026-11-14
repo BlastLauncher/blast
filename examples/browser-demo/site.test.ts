@@ -23,6 +23,38 @@ const showcaseCommands = [
   "menu",
 ];
 
+/** Every tab shows the engine-owned flow, copied from the client it names. */
+function expectLandingSnippets(html: string) {
+  for (const panel of ["js", "web", "go", "py", "swift", "ndjson"])
+    expect(html).toContain(`id="panel-${panel}"`);
+  // JavaScript: the in-process root view.
+  expect(html).toContain("createEngine");
+  expect(html).toContain('engine.root({ views: { platform: "macOS" } })');
+  // Web page: one mount() from @blastlauncher/web.
+  expect(html).toContain('import { mount } from "/blast/blast-web.js"');
+  expect(html).toContain("sandboxUrl");
+  // Go, Python, Swift and NDJSON: hello with views, then the root.
+  expect(html).toContain("client.OpenRoot()");
+  expect(html).toContain("Client from examples/go-embedder");
+  expect(html).toContain('client.request("root.open", {})');
+  expect(html).toContain("Standard library only, from examples/python-embedder");
+  expect(html).toContain("blast.openRoot(views: .macOS)");
+  expect(html).toContain("BlastKit from examples/macos-launcher");
+  expect(html).toContain('"views":{"platform":"macOS"}');
+  expect(html).toContain('"method":"root.open"');
+  expect(html).toContain('"event":"root.launched"');
+  // Pre-M9 APIs are gone.
+  for (const stale of [
+    "launchExtension",
+    "WaitView",
+    "client.Launch(",
+    '"method":"extension.launch"',
+  ])
+    expect(html).not.toContain(stale);
+  expect(html).not.toContain('"type":"init"');
+  expect(html).not.toContain("new Engine");
+}
+
 describe("site build helpers", () => {
   test("validates origins and rejects paths", () => {
     expect(parseOrigin("https://example.com/").origin).toBe("https://example.com");
@@ -47,7 +79,7 @@ describe("site build helpers", () => {
       commands: 90,
     });
   });
-  test("landing page renders hero, 5 code tabs, receipts, and demo link", () => {
+  test("landing page renders hero, 6 code tabs, receipts, and demo link", () => {
     const stats = {
       coverage: { covered: 180, total: 200, percent: "90.0%" },
       rendered: 1250,
@@ -56,25 +88,9 @@ describe("site build helpers", () => {
     const html = landing(stats, "http://127.0.0.1:4173");
     expect(html).toContain("Raycast extensions, inside your app.");
     expect(html).toContain('href="http://127.0.0.1:4173/demo/"');
-    expect(html).toContain("JavaScript");
-    expect(html).toContain("Go");
-    expect(html).toContain("Python");
-    expect(html).toContain("Swift");
-    expect(html).toContain("NDJSON");
-    expect(html).toContain("panel-js");
-    expect(html).toContain("panel-go");
-    expect(html).toContain("panel-py");
-    expect(html).toContain("panel-swift");
-    expect(html).toContain("panel-ndjson");
-    expect(html).toContain("createEngine");
-    expect(html).toContain('"type":"hello"');
-    expect(html).toContain("blast-serve");
-    expect(html).toContain("launchExtension");
-    expect(html).toContain("Client from examples/go-embedder");
-    expect(html).toContain("Standard library only");
-    expect(html).toContain("BlastKit from examples/macos-launcher");
-    expect(html).not.toContain('"type":"init"');
-    expect(html).not.toContain("new Engine");
+    for (const label of ["JavaScript", "Web page", "Go", "Python", "Swift", "NDJSON"])
+      expect(html).toContain(`role="tab">${label}</label>`);
+    expectLandingSnippets(html);
     expect(html).toContain("90.0%");
     expect(html).toContain("1,250");
     expect(html).toContain("1,500");
@@ -137,20 +153,7 @@ describe("site build helpers", () => {
     const landingHtml = await readFile(`${result.www}/index.html`, "utf8");
     expect(landingHtml).toContain('href="http://127.0.0.1:4173/demo/"');
     expect(landingHtml).toContain("Raycast extensions, inside your app.");
-    expect(landingHtml).toContain("panel-js");
-    expect(landingHtml).toContain("panel-go");
-    expect(landingHtml).toContain("panel-py");
-    expect(landingHtml).toContain("panel-swift");
-    expect(landingHtml).toContain("panel-ndjson");
-    expect(landingHtml).toContain("createEngine");
-    expect(landingHtml).toContain('"type":"hello"');
-    expect(landingHtml).toContain("blast-serve");
-    expect(landingHtml).toContain("launchExtension");
-    expect(landingHtml).toContain("Client from examples/go-embedder");
-    expect(landingHtml).toContain("Standard library only");
-    expect(landingHtml).toContain("BlastKit from examples/macos-launcher");
-    expect(landingHtml).not.toContain('"type":"init"');
-    expect(landingHtml).not.toContain("new Engine");
+    expectLandingSnippets(landingHtml);
     expect(landingHtml).toContain(`${result.stats.coverage.percent}`);
     expect(landingHtml).toContain(`${result.stats.rendered.toLocaleString()}`);
     await expect(readFile(`${result.www}/demo/demo.css`, "utf8")).resolves.toContain(".root-icon");
