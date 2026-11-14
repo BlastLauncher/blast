@@ -62,9 +62,15 @@ try {
 
   await page.goto(new URL("demo/", site).href, { waitUntil: "load" });
   await page.locator("#root-search").waitFor({ timeout: 30_000 });
+  // The catalog shrinks when the sweep excludes browser-limited commands, so
+  // compare against what this deployment actually ships.
+  const catalog = (await (await fetch(new URL("demo/catalog.json", site))).json()) as {
+    extensions: { commands: unknown[] }[];
+  };
+  const expected = catalog.extensions.reduce((sum, item) => sum + item.commands.length, 0);
   const optionCount = await page.locator('[role="option"]').count();
-  if (optionCount < 200)
-    throw new Error(`expected at least 200 catalog options, got ${optionCount}`);
+  if (expected === 0 || optionCount < expected)
+    throw new Error(`expected ${expected} catalog options, got ${optionCount}`);
   const demoStyled = await page.evaluate(
     () => getComputedStyle(document.body).backgroundColor !== "rgba(0, 0, 0, 0)",
   );
