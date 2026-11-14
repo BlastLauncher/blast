@@ -591,6 +591,22 @@ function drawPreferences() {
 }
 /** The session's `preferenceForm`: show the form; the submit or Back handler answers it. */
 function askPreferences(request: WebPreferenceRequest) {
+  // Only the browser sweep defines this (Playwright `addInitScript`); it holds
+  // the corpus smoke's placeholder values, so the sweep sees what a command
+  // does with them. No URL or user action reaches it.
+  const placeholders = (
+    globalThis as { blastSweepPlaceholders?: Record<string, string | number | boolean> }
+  ).blastSweepPlaceholders;
+  if (placeholders) {
+    document.body.dataset.sweepPlaceholders = "true";
+    const values: Record<string, string | number | boolean> = { ...request.values };
+    for (const field of request.fields) {
+      const placeholder = placeholders[field.name];
+      if ((values[field.name] ?? "") === "" && placeholder !== undefined)
+        values[field.name] = placeholder;
+    }
+    return Promise.resolve(values);
+  }
   return new Promise<Record<string, string | boolean> | undefined>((resolve) => {
     preferenceForm?.answer();
     preferenceForm = {

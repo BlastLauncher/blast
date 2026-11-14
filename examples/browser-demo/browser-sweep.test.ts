@@ -1,5 +1,14 @@
 import { describe, expect, test } from "bun:test";
-import { classifyBrowserOutcome, contentSelector, formFieldSelector } from "./browser-sweep.ts";
+import {
+  browserLimitCapability,
+  classifyBrowserOutcome,
+  contentSelector,
+  credentialFailure,
+  formFieldSelector,
+  placeholderPreferences,
+  recordCapabilities,
+  type CapabilityCall,
+} from "./browser-sweep.ts";
 
 describe("sweep selectors", () => {
   test("the settle marker recognizes grids, feedback and non-input form controls", () => {
@@ -117,14 +126,38 @@ describe("classifyBrowserOutcome", () => {
       }),
     ).toBe("timeout");
   });
-  test("classifies capability denials with their name", () => {
-    expect(classifyBrowserOutcome({ capability: "clipboard.copy", statusError: true })).toBe(
-      "capability-denied:clipboard.copy",
+  test("a failure after a browser-limited capability is a browser limit", () => {
+    // The extension's own message ("<App> is not installed", "No text to
+    // process") does not matter; the capability log does.
+    expect(
+      classifyBrowserOutcome({
+        browserLimit: "applications.list",
+        statusError: true,
+        status: "Some App is not installed.",
+      }),
+    ).toBe("browser-limit");
+    expect(
+      classifyBrowserOutcome({
+        browserLimit: "selection.text",
+        scene: { kind: "list", rows: 0, cells: 0, detail: false, fields: 0, hasEmptyView: false },
+      }),
+    ).toBe("browser-limit");
+    // The same request in a command that rendered or finished is no limit.
+    expect(
+      classifyBrowserOutcome({
+        browserLimit: "applications.list",
+        scene: { kind: "list", rows: 3, cells: 0, detail: false, fields: 0, hasEmptyView: false },
+      }),
+    ).toBe("rendered");
+    expect(classifyBrowserOutcome({ browserLimit: "open.url rectangle:", completed: true })).toBe(
+      "completed",
     );
   });
   test("classifies network errors", () => {
-    expect(classifyBrowserOutcome({ pageErrors: ["TypeError: Failed to fetch"] })).toBe("network");
-    expect(classifyBrowserOutcome({ network: true })).toBe("network");
+    expect(classifyBrowserOutcome({ pageErrors: ["TypeError: Failed to fetch"] })).toBe(
+      "browser-limit",
+    );
+    expect(classifyBrowserOutcome({ network: true })).toBe("browser-limit");
   });
   test("keeps real content when a background request fails", () => {
     // A command that draws its own UI while a lookup fails is still rendered;
@@ -155,7 +188,7 @@ describe("classifyBrowserOutcome", () => {
           isLoading: false,
         },
       }),
-    ).toBe("network");
+    ).toBe("browser-limit");
   });
   test("keeps only the first runtime error line", () => {
     expect(classifyBrowserOutcome({ statusError: true, status: "Boom\nsecond line" })).toBe(
@@ -178,6 +211,37 @@ describe("classifyBrowserOutcome", () => {
   });
   test("classifies a preference form", () => {
     expect(classifyBrowserOutcome({ needsPreferences: true })).toBe("needs-preferences");
+  });
+  test("a service refusing placeholder credentials needs credentials", () => {
+    const refused = {
+      placeholders: true,
+      credentials: "HTTP 401 api.example.com",
+      consoleErrors: ["Failed to load resource: the server responded with a status of 401 ()"],
+    };
+    expect(classifyBrowserOutcome(refused)).toBe("needs-credentials");
+    // Without placeholders the same 401 is a failure to explain, not a setup step.
+    expect(classifyBrowserOutcome({ ...refused, placeholders: false })).toBe(
+      "runtime-error:Failed to load resource: the server responded with a status of 401 ()",
+    );
+    // A browser limit explains the failure first.
+    expect(classifyBrowserOutcome({ ...refused, browserLimit: "selection.text" })).toBe(
+      "browser-limit",
+    );
+    expect(
+      classifyBrowserOutcome({
+        ...refused,
+        scene: { kind: "list", rows: 2, cells: 0, detail: false, fields: 0, hasEmptyView: false },
+        consoleErrors: [],
+      }),
+    ).toBe("rendered-with-placeholders");
+  });
+  test("marks content rendered after placeholder preferences", () => {
+    expect(
+      classifyBrowserOutcome({
+        placeholders: true,
+        scene: { kind: "list", rows: 1, cells: 0, detail: false, fields: 0, hasEmptyView: false },
+      }),
+    ).toBe("rendered-with-placeholders");
   });
   test("classifies a settled empty scene with required arguments as missing-arguments", () => {
     expect(
@@ -224,5 +288,122 @@ describe("classifyBrowserOutcome", () => {
         },
       }),
     ).toBe("timeout");
+  });
+});
+
+describe("browserLimitCapability", () => {
+  test("names applications, denied selection and non-web URLs", () => {
+    expect(browserLimitCapability([{ name: "applications.list", ok: true }])).toBe(
+      "applications.list",
+    );
+    expect(
+      browserLimitCapability([
+        { name: "storage.get", ok: true },
+        { name: "selection.text", ok: false, error: "Selection is unavailable in a browser tab" },
+      ]),
+    ).toBe("selection.text");
+    expect(
+      browserLimitCapability([{ name: "open.url", params: { url: "someapp://do?x=1" }, ok: true }]),
+    ).toBe("open.url someapp:");
+    expect(
+      browserLimitCapability([{ name: "open.path", params: { path: "/tmp" }, ok: false }]),
+    ).toBe("open.path");
+  });
+  test("ignores what a tab can do", () => {
+    expect(
+      browserLimitCapability([
+        { name: "open.url", params: { url: "https://example.com" }, ok: true },
+        { name: "clipboard.copy", ok: true },
+        { name: "storage.get", ok: false, error: "storage.get requires a non-empty key" },
+        { name: "unknown.thing", ok: false, error: "unknown.thing is not supported" },
+      ]),
+    ).toBeUndefined();
+  });
+});
+
+describe("credentialFailure", () => {
+  test("reports the first remote 401/403/404", () => {
+    expect(
+      credentialFailure([
+        { status: 404, url: "http://127.0.0.1:4177/demo/bundles/x.js" },
+        { status: 500, url: "https://api.example.com/a" },
+        { status: 403, url: "https://api.example.com/b" },
+      ]),
+    ).toBe("HTTP 403 api.example.com");
+    expect(credentialFailure([{ status: 404, url: "http://localhost/x" }])).toBeUndefined();
+  });
+});
+
+const field = (name: string, type: string, extra: object = {}) => ({
+  name,
+  type,
+  title: name,
+  required: true,
+  data: [],
+  ...extra,
+});
+describe("placeholderPreferences", () => {
+  test("uses the corpus smoke placeholders for required preferences", () => {
+    expect(
+      placeholderPreferences(
+        {
+          preferences: [
+            field("token", "password"),
+            field("unit", "dropdown", { data: [{ title: "C", value: "celsius" }] }),
+          ],
+          commands: {
+            index: [field("verbose", "checkbox"), field("limit", "textfield", { default: "5" })],
+          },
+        },
+        "index",
+      ),
+    ).toEqual({ limit: "5", token: "blast-smoke", unit: "celsius", verbose: false });
+    expect(placeholderPreferences(undefined, "index")).toEqual({});
+  });
+});
+
+describe("recordCapabilities", () => {
+  test("pairs each request the port receives with the answer it posts", () => {
+    class FakePort {
+      listeners: ((event: { data: unknown }) => void)[] = [];
+      posted: unknown[] = [];
+      addEventListener(_type: unknown, listener: unknown) {
+        this.listeners.push(listener as (event: { data: unknown }) => void);
+      }
+      postMessage(message: unknown) {
+        this.posted.push(message);
+      }
+    }
+    const scope: { MessagePort: typeof FakePort; blastSweepCapabilities?: CapabilityCall[] } = {
+      MessagePort: FakePort,
+    };
+    recordCapabilities(scope);
+    const port = new FakePort();
+    const seen: unknown[] = [];
+    port.addEventListener("message", (event: { data: unknown }) => seen.push(event.data));
+    const request = { type: "capability.request", id: "1", name: "applications.list", params: {} };
+    port.listeners[0]!({ data: request });
+    port.listeners[0]!({ data: { type: "scene" } });
+    port.postMessage({ type: "capability.result", id: "1", ok: true, value: [] });
+    port.listeners[0]!({
+      data: { type: "capability.request", id: "2", name: "selection.text", params: null },
+    });
+    port.postMessage({
+      type: "capability.result",
+      id: "2",
+      ok: false,
+      error: { code: "DENIED", message: "Selection is unavailable in a browser tab" },
+    });
+    expect(seen).toEqual([request, { type: "scene" }, expect.any(Object)]);
+    expect(port.posted).toHaveLength(2);
+    expect(scope.blastSweepCapabilities).toEqual([
+      { name: "applications.list", params: {}, ok: true },
+      {
+        name: "selection.text",
+        params: null,
+        ok: false,
+        error: "Selection is unavailable in a browser tab",
+      },
+    ]);
   });
 });

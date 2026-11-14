@@ -2,19 +2,6 @@
   "commit": "bad7de0172ce6ea5e721ed919f4e1d7186f74192",
   "extensions": [
     {
-      "name": "8-divide",
-      "title": "8 Divide",
-      "description": "Check if the number you highlighted is divisable by 8. If it isn't, paste the up- or down rounded number",
-      "icon": "icon.png",
-      "commands": [
-        {
-          "name": "divide-by-8",
-          "title": "Divide by 8",
-          "mode": "view"
-        }
-      ]
-    },
-    {
       "name": "advanced-replace",
       "title": "Advanced Replace",
       "description": "Extract and replace text using custom regex.",
@@ -49,19 +36,6 @@
         {
           "name": "index",
           "title": "Get Airing Schedule",
-          "mode": "view"
-        }
-      ]
-    },
-    {
-      "name": "appgrid",
-      "title": "AppGrid",
-      "description": "Smart app launcher with grid view and category grouping",
-      "icon": "icon.png",
-      "commands": [
-        {
-          "name": "index",
-          "title": "Search AppGrid",
           "mode": "view"
         }
       ]
@@ -144,20 +118,6 @@
           "title": "Find Login",
           "mode": "view",
           "subtitle": "BugMeNot"
-        }
-      ]
-    },
-    {
-      "name": "cangjie",
-      "title": "Cangjie Dictionary",
-      "description": "Fast Chinese characters lookup for Cangjie and Sucheng codes. Supports instant search from selected text and provides both English letters and Chinese radicals.",
-      "icon": "icon.png",
-      "commands": [
-        {
-          "name": "cangjie",
-          "title": "Search Cangjie Codes",
-          "mode": "view",
-          "subtitle": "Cangjie Dictionary"
         }
       ]
     },
@@ -320,19 +280,6 @@
           "name": "toggle-reset-forecast-menu-bar",
           "title": "Show Reset Forecast in Menu Bar",
           "mode": "menu-bar"
-        }
-      ]
-    },
-    {
-      "name": "color-studio-picker",
-      "title": "Color Studio Picker",
-      "description": "Helps you identify and pick colors from Automattic's Color Studio",
-      "icon": "command-icon.png",
-      "commands": [
-        {
-          "name": "index",
-          "title": "Pick a Color",
-          "mode": "view"
         }
       ]
     },
@@ -506,12 +453,6 @@
       "icon": "extension-icon.png",
       "commands": [
         {
-          "name": "new-tab",
-          "title": "New Tab",
-          "mode": "no-view",
-          "subtitle": "Ego Lite"
-        },
-        {
           "name": "search-bookmarks",
           "title": "Search Bookmarks",
           "mode": "view",
@@ -565,29 +506,10 @@
       "icon": "extension-icon.png",
       "commands": [
         {
-          "name": "fix-parser",
-          "title": "Parse FIX Messages",
-          "mode": "view",
-          "subtitle": "FIX Helper"
-        },
-        {
           "name": "fix-search-tags",
           "title": "Search FIX Tags",
           "mode": "view",
           "subtitle": "FIX Helper"
-        }
-      ]
-    },
-    {
-      "name": "flighty",
-      "title": "Flighty",
-      "description": "Interact with the Flighty app.",
-      "icon": "flighty.png",
-      "commands": [
-        {
-          "name": "view-flights",
-          "title": "View Flights",
-          "mode": "view"
         }
       ]
     },
@@ -621,19 +543,6 @@
           "title": "Get Me Somewhere",
           "mode": "view",
           "subtitle": "Google Maps"
-        }
-      ]
-    },
-    {
-      "name": "gradle-plugins",
-      "title": "Gradle Plugins",
-      "description": "Search for gradle plugins",
-      "icon": "gradle-icon.png",
-      "commands": [
-        {
-          "name": "index",
-          "title": "Search Plugin",
-          "mode": "view"
         }
       ]
     },
@@ -740,11 +649,6 @@
       "icon": "extension-icon.png",
       "commands": [
         {
-          "name": "form",
-          "title": "Switch Input Source Form",
-          "mode": "view"
-        },
-        {
           "name": "index",
           "title": "Switch Input Source",
           "mode": "no-view"
@@ -757,16 +661,6 @@
       "description": "Remove all hidden Unicode characters in your text, usually injected by LLMs.",
       "icon": "icon.png",
       "commands": [
-        {
-          "name": "analyze-clipboard-invisible-characters",
-          "title": "Analyze Clipboard for Invisible Characters",
-          "mode": "no-view"
-        },
-        {
-          "name": "fix-invisible-characters",
-          "title": "Fix Invisible Characters",
-          "mode": "no-view"
-        },
         {
           "name": "open-invisible-text-detector",
           "title": "Open Invisible Text Detector",
@@ -783,12 +677,6 @@
         {
           "name": "history",
           "title": "Search History",
-          "mode": "view",
-          "subtitle": "Jisho"
-        },
-        {
-          "name": "search",
-          "title": "Translate Japanese",
           "mode": "view",
           "subtitle": "Jisho"
         }
@@ -957,12 +845,6 @@
       "icon": "leetcode.png",
       "commands": [
         {
-          "name": "daily-challenge",
-          "title": "View LeetCode Daily Challenge",
-          "mode": "view",
-          "subtitle": "LeetCode"
-        },
-        {
           "name": "potd-menu-bar",
           "title": "Daily Challenge Status",
           "mode": "menu-bar",
@@ -1078,29 +960,9 @@
       "icon": "extension-icon.png",
       "commands": [
         {
-          "name": "open-settings",
-          "title": "Open MenuCloak Settings",
-          "mode": "no-view"
-        },
-        {
           "name": "set-focus",
           "title": "Set Focus Text",
           "mode": "view"
-        },
-        {
-          "name": "toggle",
-          "title": "Toggle MenuCloak",
-          "mode": "no-view"
-        },
-        {
-          "name": "turn-off",
-          "title": "Turn off MenuCloak",
-          "mode": "no-view"
-        },
-        {
-          "name": "turn-on",
-          "title": "Turn on MenuCloak",
-          "mode": "no-view"
         }
       ]
     },
@@ -1343,20 +1205,6 @@
       ]
     },
     {
-      "name": "quick-jump",
-      "title": "Quick Jump",
-      "description": "Quick access to your team's Git repositories, dashboards, databases, and internal tools.",
-      "icon": "icon.png",
-      "commands": [
-        {
-          "name": "search",
-          "title": "Search",
-          "mode": "view",
-          "subtitle": "Quick Jump"
-        }
-      ]
-    },
-    {
       "name": "radix",
       "title": "Radix",
       "description": "Search and open Radix content directly from Raycast.",
@@ -1428,256 +1276,10 @@
       "icon": "rectangle-icon.png",
       "commands": [
         {
-          "name": "almost-maximize",
-          "title": "Almost Maximize",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "bottom-center-sixth",
-          "title": "Bottom Center Sixth",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "bottom-half",
-          "title": "Bottom Half",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "bottom-left",
-          "title": "Bottom Left",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "bottom-left-sixth",
-          "title": "Bottom Left Sixth",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "bottom-right",
-          "title": "Bottom Right",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "bottom-right-sixth",
-          "title": "Bottom Right Sixth",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "cascade-all",
-          "title": "Cascade All",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "center",
-          "title": "Center",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "center-half",
-          "title": "Half Width Center",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "center-third",
-          "title": "Center Third",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "first-fourth",
-          "title": "First Fourth",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "first-third",
-          "title": "First Third",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "first-three-fourths",
-          "title": "First Three Fourths",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "first-two-thirds",
-          "title": "First Two Thirds",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
           "name": "index",
           "title": "Rectangle Actions",
           "mode": "view",
           "subtitle": "Window management"
-        },
-        {
-          "name": "larger",
-          "title": "Make Larger",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "last-fourth",
-          "title": "Last Fourth",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "last-third",
-          "title": "Last Third",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "last-three-fourths",
-          "title": "Last Three Fourths",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "last-two-thirds",
-          "title": "Last Two Thirds",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "left-half",
-          "title": "Left Half",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "maximize",
-          "title": "Maximize",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "maximize-height",
-          "title": "Maximize Height",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "move-down",
-          "title": "Move Down",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "move-left",
-          "title": "Move Left",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "move-right",
-          "title": "Move Right",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "move-up",
-          "title": "Move Up",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "next-display",
-          "title": "Next Display",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "previous-display",
-          "title": "Previous Display",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "restore",
-          "title": "Restore",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "right-half",
-          "title": "Right Half",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "second-fourth",
-          "title": "Second Fourth",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "smaller",
-          "title": "Make Smaller",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "specified",
-          "title": "Reasonable Size",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "third-fourth",
-          "title": "Third Fourth",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "top-center-sixth",
-          "title": "Top Center Sixth",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "top-half",
-          "title": "Top Half",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "top-left",
-          "title": "Top Left",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "top-left-sixth",
-          "title": "Top Left Sixth",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "top-right",
-          "title": "Top Right",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
-        },
-        {
-          "name": "top-right-sixth",
-          "title": "Top Right Sixth",
-          "mode": "no-view",
-          "subtitle": "Rectangle"
         }
       ]
     },
@@ -1742,12 +1344,6 @@
         {
           "name": "search-users-posts",
           "title": "Search User's Posts",
-          "mode": "view",
-          "subtitle": "Scrapbook"
-        },
-        {
-          "name": "view-recent-posts",
-          "title": "View Recent Posts",
           "mode": "view",
           "subtitle": "Scrapbook"
         }
@@ -1842,24 +1438,6 @@
       "icon": "superwhisper-light-icon.png",
       "commands": [
         {
-          "name": "copy-last-history",
-          "title": "Copy Last History",
-          "mode": "no-view",
-          "subtitle": "superwhisper"
-        },
-        {
-          "name": "open-settings",
-          "title": "Open Settings",
-          "mode": "no-view",
-          "subtitle": "superwhisper"
-        },
-        {
-          "name": "paste-last-history",
-          "title": "Paste Last History",
-          "mode": "no-view",
-          "subtitle": "superwhisper"
-        },
-        {
           "name": "search-history",
           "title": "Search History",
           "mode": "view",
@@ -1870,25 +1448,6 @@
           "title": "Select Mode",
           "mode": "view",
           "subtitle": "superwhisper"
-        },
-        {
-          "name": "toggle-record",
-          "title": "Start Recording",
-          "mode": "no-view",
-          "subtitle": "superwhisper"
-        }
-      ]
-    },
-    {
-      "name": "tategaki",
-      "title": "Tategaki",
-      "description": "Convert text to Japanese vertical writing",
-      "icon": "extension-icon.png",
-      "commands": [
-        {
-          "name": "japanese-vertical-text",
-          "title": "Japanese Vertical Text",
-          "mode": "view"
         }
       ]
     },
@@ -1898,11 +1457,6 @@
       "description": "Super cool unicode text magic. Use 𝐛𝐨𝐥𝐝, 𝒊𝒕𝒂𝒍𝒊𝒄𝒔, and 🅜🅞🅡🅔 🄲🅁🄰🅉🅈 𝔩𝔬𝔬𝔨𝔦𝔫𝔤 fonts on Facebook, Twitter, and everywhere else.",
       "icon": "text-decorator.png",
       "commands": [
-        {
-          "name": "decorate-text-with-font",
-          "title": "Decorate Text with Font",
-          "mode": "view"
-        },
         {
           "name": "undecorate-text",
           "title": "Undecorate Text",
@@ -2104,11 +1658,6 @@
         {
           "name": "index",
           "title": "Send to Workflowy Inbox",
-          "mode": "view"
-        },
-        {
-          "name": "view",
-          "title": "View Workflowy Inbox",
           "mode": "view"
         }
       ]
