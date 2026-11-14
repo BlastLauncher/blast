@@ -1,4 +1,5 @@
 import { existsSync } from "node:fs";
+import { mkdir } from "node:fs/promises";
 import { join, relative, sep } from "node:path";
 import { buildSite } from "./site.ts";
 import { projectRoot } from "./build.ts";
@@ -15,6 +16,7 @@ type BrowserElement = {
 };
 type BrowserDocument = {
   activeElement?: BrowserElement | null;
+  body: { scrollWidth: number; clientWidth: number };
   scrollingElement?: { scrollHeight: number };
   documentElement: { scrollWidth: number; clientHeight: number; clientWidth: number };
   querySelector<T extends BrowserElement = BrowserElement>(selector: string): T | null;
@@ -24,8 +26,15 @@ type BrowserScroller = BrowserElement & { scrollTop: number };
 declare const document: BrowserDocument;
 declare const getComputedStyle: (element: BrowserElement) => { outlineStyle: string };
 
-const browsers = process.env.PLAYWRIGHT_BROWSERS_PATH;
+const browsers =
+  process.env.PLAYWRIGHT_BROWSERS_PATH ??
+  (existsSync(join(projectRoot, ".cache", "ms-playwright"))
+    ? join(projectRoot, ".cache", "ms-playwright")
+    : existsSync(`${process.env.HOME}/.cache/ms-playwright`)
+      ? `${process.env.HOME}/.cache/ms-playwright`
+      : undefined);
 if (!browsers) throw new Error("PLAYWRIGHT_BROWSERS_PATH is required");
+process.env.PLAYWRIGHT_BROWSERS_PATH = browsers;
 const browserName = process.argv.slice(2).find((value) => value === "--browser")
   ? process.argv[process.argv.indexOf("--browser") + 1]
   : "chromium";
@@ -129,8 +138,46 @@ try {
         console.error(`[response:${response.status()}] ${response.url()}`);
     });
     await page.goto(`http://127.0.0.1:${wwwPort}/`, { waitUntil: "load" });
-    await page.getByRole("heading", { name: "Extensions, outside the launcher." }).waitFor();
-    await page.getByRole("link", { name: "Open the browser demo" }).click();
+    await page.getByRole("heading", { name: "Raycast extensions, inside your app." }).waitFor();
+
+    // Verify pure CSS tab switching
+    await page.locator('label[for="tab-go"]').click();
+    await page.locator("#panel-go").waitFor({ state: "visible" });
+    await page.locator('label[for="tab-js"]').click();
+    await page.locator("#panel-js").waitFor({ state: "visible" });
+
+    // Responsive check at 360px viewport: no horizontal scroll
+    await page.setViewportSize({ width: 360, height: 740 });
+    const { docScrollWidth, bodyScrollWidth } = await page.evaluate(() => ({
+      docScrollWidth: document.documentElement.scrollWidth,
+      bodyScrollWidth: document.body.scrollWidth,
+    }));
+    if (docScrollWidth > 360 || bodyScrollWidth > 360) {
+      throw new Error(
+        `landing page overflows horizontally at 360px: doc=${docScrollWidth}, body=${bodyScrollWidth}`,
+      );
+    }
+
+    if (screenshots) {
+      await mkdir(screenshots, { recursive: true });
+      await page.emulateMedia({ colorScheme: "light" });
+      await page.screenshot({ path: join(screenshots, "mobile-360-light.png"), fullPage: true });
+
+      await page.emulateMedia({ colorScheme: "dark" });
+      await page.screenshot({ path: join(screenshots, "mobile-360-dark.png"), fullPage: true });
+
+      await page.setViewportSize({ width: 1280, height: 800 });
+      await page.emulateMedia({ colorScheme: "dark" });
+      await page.screenshot({ path: join(screenshots, "desktop-dark.png"), fullPage: true });
+
+      await page.emulateMedia({ colorScheme: "light" });
+      await page.screenshot({ path: join(screenshots, "desktop-light.png"), fullPage: true });
+    }
+
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.emulateMedia({ colorScheme: "light" });
+
+    await page.getByRole("link", { name: "Try the live demo" }).click();
     await page.locator("#root-search").waitFor();
     await page.evaluate(() => localStorage.clear());
     // The demo bar names the page and links back to the landing page.
