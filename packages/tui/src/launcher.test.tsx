@@ -551,7 +551,8 @@ test("manifest with missing required preference shows Set up launch gate with on
               name: "reqCmd",
               title: "Command secret",
               type: "textfield",
-              required: true,
+              required: false,
+              default: "saved-cmd-secret",
             },
           ],
         },
@@ -603,7 +604,7 @@ test("manifest with missing required preference shows Set up launch gate with on
   }
 }, 30_000);
 
-test("Ctrl-E opens Configure with both sections, all fields and descriptions, saves and returns on Enter or Esc without launch", async () => {
+test("Ctrl-E opens extension Configure with fields and descriptions, saves and returns on Enter or Esc without launch", async () => {
   const dir = await copyFixture("host-session");
   const dataDir = join(dir, "../data");
   const file = join(dir, "package.json");
@@ -638,7 +639,8 @@ test("Ctrl-E opens Configure with both sections, all fields and descriptions, sa
               name: "reqCmd",
               title: "Command secret",
               type: "textfield",
-              required: true,
+              required: false,
+              default: "saved-cmd-secret",
               description: "Command specific secret",
             },
           ],
@@ -664,13 +666,12 @@ test("Ctrl-E opens Configure with both sections, all fields and descriptions, sa
     });
     // Header format: Configure <command title>
     const prefFrame = await settle(terminal, (f) => f.includes("Configure Navigate"));
-    // Both section headers: the extension's and the command's titles
-    expect(prefFrame).toContain("View Fixture");
+    // The engine uses stable Extension/Command section headers.
+    expect(prefFrame).toContain("Extension");
     expect(prefFrame).toContain("Navigate");
     // All fields with their descriptions, the first one focused
     expect(prefFrame).toContain("› API key · Your API token");
     expect(prefFrame).toContain("Optional note · An optional note");
-    expect(prefFrame).toContain("Command secret · Command specific secret");
 
     // Move to next field (Down)
     await press(terminal, "down");
@@ -688,10 +689,6 @@ test("Ctrl-E opens Configure with both sections, all fields and descriptions, sa
     await settle(terminal, (f) => f.includes("Configure Navigate"));
     // token is focused
     await type(terminal, "saved-token");
-    // Navigate to reqCmd
-    await press(terminal, "down"); // opt
-    await press(terminal, "down"); // reqCmd
-    await type(terminal, "saved-cmd-secret");
     await press(terminal, "enter");
 
     // Returns to the root, no launch

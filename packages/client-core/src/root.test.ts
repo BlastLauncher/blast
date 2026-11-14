@@ -161,7 +161,7 @@ test("root: Configure Command is an action and a shortcut; neither launches the 
   ]);
   expect(root.view().actions.open).toBe(false);
   expect(root.input({ type: "key", key: { name: ",", meta: true, shift: true } }).effects).toEqual([
-    { type: "configure", extension: "hello", command: "quiet" },
+    { type: "configure", extension: "hello", command: "quiet", scope: "extension" },
   ]);
   expect(root.input({ type: "key", key: { name: "," } }).effects).toEqual([]);
 });
