@@ -1,54 +1,51 @@
 # Blast
 
-Raycast extensions in any app. Blast is an embeddable engine: it builds and
-runs an extension command, renders its Raycast client behaviour into scenes or
-view models, and asks your app to answer the capabilities it grants. You draw
-the pixels; Blast brings the extension.
+Raycast extensions in any app. Blast is an embeddable engine: it runs the
+launcher flow for you (command search, preference and argument prompts,
+dependency installs, each command's UI) and hands your app views to draw and
+capability requests to answer. You draw the pixels; Blast brings the extension.
 
 **Try it in a browser** — no install: [blast.yukai.dev/demo](https://blast.yukai.dev/demo/).
 
-**Embed in JS/TS** with the in-process engine and framework-free controller:
+**Embed in JS/TS** with the in-process engine:
 
-```ts
+```js
 import { createEngine } from "@blastlauncher/engine";
-import { createController } from "@blastlauncher/client-core";
-const engine = createEngine({ handlers: { "clipboard.copy": (p) => copy(p) } });
-const extension = engine.openExtension({ extensionDir: "./my-extension" });
-const { session, close } = await extension.launch("index");
-const controller = createController({ platform: "macOS" });
-// Forward the controller's events to the command; run its timers.
-const apply = ({ events, effects }) => {
-  for (const e of events) session.sendEvent(e.node, e.handler, e.args);
-  for (const f of effects)
-    if (f.type === "schedule") setTimeout(() => apply(controller.tick(f.token)), f.ms);
-    else close();
-};
-session.scenes((scene) => apply(controller.scene(scene)));
-controller.subscribe((view) => draw(view)); // input: apply(controller.input(…))
+const engine = createEngine({ handlers: { "clipboard.copy": (params) => copy(params) } });
+engine.openExtension({ extensionDir: "./my-extension" });
+const root = engine.root({ views: { platform: "macOS" } });
+root.subscribe((view) => draw(view)); // the command list, prompts, then the command
+root.input({ type: "search", text: "ap" });
 ```
 
-**Embed in any language** by spawning `blast serve` from
-`@blastlauncher/serve@next` (bin `blast-serve`) and speaking versioned NDJSON:
+**Embed in any language** by spawning `blast serve` (bin `blast-serve`) and
+speaking versioned NDJSON; the [Go](./examples/go-embedder/) and
+[Python](./examples/python-embedder/) examples are standard-library clients:
 
 ```text
-hello → welcome
-extension.open → extension.launch (with views: { platform: "macOS" })
-session.view → draw it; session.input → forward semantic input
+hello (with views) → welcome
+extension.open, root.open → root.view: draw it; root.input → forward input
+root.launched → session.view: draw it; session.input until session.exited
 capability.request → answer capability.result
 ```
 
+**Embed in a web page** with `@blastlauncher/web`: one `mount()` call runs an
+extension in a sandbox on a second origin you host.
+
 The [quickstart](./docs/quickstart.md) runs each path. The [embedding
-reference](./docs/embedding.md) has the complete API and transcript.
+guide](./docs/embedding.md) has the complete API and transcript.
 
 ## What the engine does for you
 
-- Builds extensions and installs their declared dependencies.
+- Lists every opened extension's commands as a Raycast-style root view.
+- Asks for missing preferences and arguments, and installs declared dependencies.
 - Runs each command in its own Node.js process, brokering every privileged call.
 - Implements Raycast client semantics, including storage and OAuth.
 
 ## What you do
 
-- Draw scenes or controller views in your UI.
+- Draw views (list, grid, form, detail, actions, toasts) in your UI.
+- Forward semantic input: search text, movement, primary action, back.
 - Answer only the OS capabilities you choose to grant.
 
 ## Receipts and status
@@ -60,8 +57,10 @@ The curated [smoke](./compat/SMOKE.md) renders 237/253 commands; dependency
 smoke renders 51/52 ([details](./compat/SMOKE-DEPS.md)).
 
 > **Alpha:** `3.0.0-alpha.1` is published on npm under `next`; `latest` still
-> points at Blast v1. The browser demo, Go embedder and AppKit example are
-> current reference clients. More engine-owned flows are planned in M9.
+> points at Blast v1. The root view, launch prompts and `@blastlauncher/web`
+> are newer than that prerelease: build them from source with
+> `bun run release:build` until the next one. Reference clients: the browser
+> demo, the TUI, the Go and Python embedders, the AppKit and web launchers.
 
 ## Packages
 
@@ -72,6 +71,7 @@ smoke renders 51/52 ([details](./compat/SMOKE-DEPS.md)).
 | `protocol`                       | Message types, capability catalog and schema           |
 | `client-core`                    | Framework-free views, ranking, selection and input     |
 | `serve`                          | `blast serve` over stdio                               |
+| `web`                            | Browser runtime for any web page, via `mount()`        |
 | `native`                         | Optional macOS, Windows and Linux handlers             |
 | `cli`                            | `blast run`, a headless debug client                   |
 | `tui`                            | OpenTUI terminal reference client (Bun)                |
