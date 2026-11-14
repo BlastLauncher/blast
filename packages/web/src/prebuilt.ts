@@ -19,12 +19,14 @@ export type PrebuiltCommand = {
   manifest: CatalogManifest;
 };
 
+/** Relative URLs resolve against the page; tests pass absolute ones. */
+const page = () => (globalThis as { location?: { href: string } }).location?.href;
 const indexes = new Map<string, Promise<BundleIndex | undefined>>();
 const runtimes = new Map<string, Promise<string | undefined>>();
 const locationKey = (location: BundleLocation) =>
   `${location.bundlesUrl}\n${location.buildUrl ?? ""}`;
 const urlFor = (path: string, location: BundleLocation) =>
-  new URL(path, new URL(location.bundlesUrl, globalThis.location.href));
+  new URL(path, new URL(location.bundlesUrl, page()));
 
 /** Fetches a file the index lists; undefined unless its size and digest match. */
 async function verified(entry: CatalogBundle, location: BundleLocation) {
@@ -47,8 +49,8 @@ export function loadBundleIndex(location: BundleLocation): Promise<BundleIndex |
   if (!pending) {
     pending = (async () => {
       const [indexResponse, buildResponse] = await Promise.all([
-        fetch(new URL(location.bundlesUrl, globalThis.location.href)),
-        location.buildUrl ? fetch(new URL(location.buildUrl, globalThis.location.href)) : null,
+        fetch(new URL(location.bundlesUrl, page())),
+        location.buildUrl ? fetch(new URL(location.buildUrl, page())) : null,
       ]);
       if (!indexResponse.ok || (buildResponse && !buildResponse.ok)) return undefined;
       const index = parseBundleIndex(await indexResponse.json());

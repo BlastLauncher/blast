@@ -20,22 +20,26 @@ CORS-enabled contents API and fetches source bytes from
 `raw.githubusercontent.com`; a GitHub API 403 with no remaining quota is shown
 as a rate-limit error. Local fixture names use the same fetch path in the
 default e2e. Every file under the extension directory is fetched (apart from
-`node_modules`), including binary assets. If an extension has several commands,
-the command selector chooses which `src/<name>.{tsx,ts,jsx,js}` entry to run.
+`node_modules`), including binary assets.
 
-The host installs only non-Raycast npm dependencies, and bundles in memory with
-`esbuild-wasm`. The resulting code runs in almostnode's `SandboxRuntime` in an
-iframe on a different loopback origin (decision 0013). The host owns the
-controller and renderer.
+Each command runs through `mount()` from `@blastlauncher/web`: the package
+installs only non-Raycast npm dependencies, bundles in memory with
+`esbuild-wasm`, runs the code in almostnode's `SandboxRuntime` in an iframe on
+a different loopback origin (decision 0013), and answers capabilities. The demo
+keeps the catalog, the root launcher, the loading stage, keyboard handling and
+its own HTML renderer (a custom `render`), and warms a sandbox with `prewarm`
+while the root is idle. The published site passes `bundlesUrl`, so catalog
+commands start from prebuilt bundles.
 
 | Capability                                 | Browser demo behavior                                                                                                                                                              |
 | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | LocalStorage and internal form storage     | Backed by extension-namespaced `localStorage`, with an in-memory fallback when storage is blocked                                                                                  |
 | Clipboard read, copy, clear and paste      | Uses the Clipboard API when permitted; keeps a session fallback and explains that paste needs ⌘V                                                                                   |
-| `open.url`                                 | Opens a new tab with `window.open`                                                                                                                                                 |
-| Command metadata and same-extension launch | Answered from the catalog; user-initiated launches take over the page, while background launches are accepted and recorded because a tab has no menu bar or background process     |
+| `open.url`                                 | Opens an `http(s)` URL in a new tab                                                                                                                                                |
+| Command metadata and same-extension launch | Answered from the manifest; user-initiated launches take over the page, while background launches are accepted and recorded because a tab has no menu bar or background process    |
 | OAuth tokens                               | Stored per extension and provider in the browser store                                                                                                                             |
-| OAuth authorization and preferences        | Denied with a browser-specific explanation                                                                                                                                         |
+| OAuth authorization                        | Denied with a browser-specific explanation                                                                                                                                         |
+| Preferences                                | Missing required values and `open*Preferences` show a form; submitted values stay in `localStorage`                                                                                |
 | Applications, selection, windows and AI    | Denied because a browser tab cannot honestly provide these host services, except `applications.list`, which answers an empty list because the demo cannot enumerate installed apps |
 
 Extension network requests still require CORS. `child_process` is unavailable in a browser and native npm modules are rejected during bundling. The demo is headless-testable, binds only to 127.0.0.1, and does not publish or persist anything.
