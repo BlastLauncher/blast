@@ -14,10 +14,17 @@ import { createEngine } from "@blastlauncher/engine";
 import { createController } from "@blastlauncher/client-core";
 const engine = createEngine({ handlers: { "clipboard.copy": (p) => copy(p) } });
 const extension = engine.openExtension({ extensionDir: "./my-extension" });
-const { session } = await extension.launch("index");
+const { session, close } = await extension.launch("index");
 const controller = createController({ platform: "macOS" });
-session.scenes((scene) => controller.scene(scene));
-controller.subscribe((view) => draw(view));
+// Forward the controller's events to the command; run its timers.
+const apply = ({ events, effects }) => {
+  for (const e of events) session.sendEvent(e.node, e.handler, e.args);
+  for (const f of effects)
+    if (f.type === "schedule") setTimeout(() => apply(controller.tick(f.token)), f.ms);
+    else close();
+};
+session.scenes((scene) => apply(controller.scene(scene)));
+controller.subscribe((view) => draw(view)); // input: apply(controller.input(…))
 ```
 
 **Embed in any language** by spawning `blast serve` from
@@ -36,7 +43,7 @@ reference](./docs/embedding.md) has the complete API and transcript.
 ## What the engine does for you
 
 - Builds extensions and installs their declared dependencies.
-- Runs each command in its own sandboxed Node.js process.
+- Runs each command in its own Node.js process, brokering every privileged call.
 - Implements Raycast client semantics, including storage and OAuth.
 
 ## What you do
