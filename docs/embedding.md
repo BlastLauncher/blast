@@ -13,7 +13,7 @@ shortcuts and pagination already applied. **Input** is semantic (`search`,
 command. A **capability** is an OS or service operation named in the catalog,
 either answered by Blast (storage, OAuth, provider AI) or forwarded to you.
 
-Install from npm `next` (`3.0.0-alpha.2`; `latest` is still Blast v1), e.g.
+Install from npm `next` (`3.0.0-alpha.2`; use `@next`, not `latest`), e.g.
 `npm install @blastlauncher/engine@next`; the [quickstart](quickstart.md) runs
 each path end to end.
 
