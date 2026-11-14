@@ -1,4 +1,6 @@
 // Explicit network-enabled check after `release:build`; never imported by bun test.
+// `--from-npm <version>` installs that published version from the registry
+// instead, to check a release as readers of the docs get it.
 // Installs the @blastlauncher/web tarball like an embedder would, serves its
 // assets/ and sandbox/ directories as-is on two loopback origins, and renders
 // hello-list from a page whose only setup is one mount() call.
@@ -12,21 +14,28 @@ const browsers = process.env.PLAYWRIGHT_BROWSERS_PATH ?? join(root, ".cache", "m
 process.env.PLAYWRIGHT_BROWSERS_PATH = browsers;
 if (!existsSync(browsers)) throw new Error(`PLAYWRIGHT_BROWSERS_PATH is missing: ${browsers}`);
 
-const tarballs = (await readdir(join(output, "tarballs")).catch(() => [])).filter((file) =>
-  /^blastlauncher-(web|client-core|protocol)-.+\.tgz$/.test(file),
-);
-if (tarballs.length !== 3) throw new Error("Run release:build first");
-const project = join(output, "web-e2e");
+const flag = process.argv.indexOf("--from-npm");
+const fromNpm = flag === -1 ? undefined : process.argv[flag + 1];
+if (flag !== -1 && !fromNpm) throw new Error("Usage: --from-npm <version>");
+let specs: string[];
+if (fromNpm) specs = [`@blastlauncher/web@${fromNpm}`];
+else {
+  const tarballs = (await readdir(join(output, "tarballs")).catch(() => [])).filter((file) =>
+    /^blastlauncher-(web|client-core|protocol)-.+\.tgz$/.test(file),
+  );
+  if (tarballs.length !== 3) throw new Error("Run release:build first");
+  specs = tarballs.map((file) => join(output, "tarballs", file));
+}
+const project = join(output, fromNpm ? "web-e2e-npm" : "web-e2e");
 await rm(project, { recursive: true, force: true });
 await mkdir(project, { recursive: true });
 run("npm", ["init", "-y"], project);
-run(
-  "npm",
-  ["install", "--no-audit", "--no-fund", ...tarballs.map((file) => join(output, "tarballs", file))],
-  project,
-);
+run("npm", ["install", "--no-audit", "--no-fund", ...specs], project);
 await depsReady();
 const web = join(project, "node_modules/@blastlauncher/web");
+const installed = ((await Bun.file(join(web, "package.json")).json()) as { version: string })
+  .version;
+if (fromNpm && installed !== fromNpm) throw new Error(`npm installed ${installed}, not ${fromNpm}`);
 
 /** Serves `directory` unchanged, like any static host would. */
 const serveStatic = (directory: string, path: string) => {
@@ -82,7 +91,13 @@ try {
     if ((await tab.locator(`iframe[src^="http://127.0.0.1:${sandbox.port}/"]`).count()) === 0)
       throw new Error("the extension did not run in the sandbox origin");
     console.log(
-      JSON.stringify({ pass: true, row: "apple", pageLines: page.trim().split("\n").length }),
+      JSON.stringify({
+        pass: true,
+        version: installed,
+        source: fromNpm ? "npm" : "tarball",
+        row: "apple",
+        pageLines: page.trim().split("\n").length,
+      }),
     );
   } finally {
     await browser.close();
