@@ -1,7 +1,7 @@
 ---
 id: "0153"
 title: "Product story: README, docs/quickstart.md, docs/embedding.md"
-status: todo
+status: doing
 milestone: M9
 depends: ["0152"]
 ---
