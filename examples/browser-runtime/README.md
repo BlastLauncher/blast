@@ -1,5 +1,7 @@
 # Browser runtime spike
 
+See the [quickstart](../../docs/quickstart.md) for the three embedding paths.
+
 `e2e.ts` bundles almostnode's browser pieces and Blast's real React runtime, then executes the runtime bundle through almostnode's documented cross-origin sandbox API. The host and sandbox use separate `127.0.0.1` origins. The test is headless only and closes both servers and the browser in `finally`.
 
 ```sh

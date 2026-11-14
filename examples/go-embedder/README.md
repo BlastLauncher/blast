@@ -1,5 +1,7 @@
 # go-embedder
 
+See the [quickstart](../../docs/quickstart.md) for the three embedding paths.
+
 A minimal non-JS embedder of Blast, in Go with the standard library only. It
 spawns `blast serve` and speaks embedder protocol v1 over NDJSON stdio
 (`docs/embedding.md`): it opts into views, draws the list view and forwards

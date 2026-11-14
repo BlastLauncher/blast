@@ -1,5 +1,7 @@
 # Browser demo
 
+See the [quickstart](../../docs/quickstart.md) for the three embedding paths.
+
 Run a Raycast extension from a URL without installing it:
 
 ```sh

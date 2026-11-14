@@ -12,6 +12,7 @@ export const LINE_LIMITS: Record<string, number> = {
   "docs/cli.md": 120,
   "docs/capabilities.md": 150,
   "docs/embedding.md": 150,
+  "docs/quickstart.md": 120,
   "docs/tui.md": 120,
 };
 export const DECISION_LINE_LIMIT = 60;

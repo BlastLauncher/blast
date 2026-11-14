@@ -1,5 +1,7 @@
 # macOS launcher example
 
+See the [quickstart](../../docs/quickstart.md) for the three embedding paths.
+
 An AppKit launcher that runs Raycast-compatible extensions through `blast serve`.
 The package has three layers:
 
