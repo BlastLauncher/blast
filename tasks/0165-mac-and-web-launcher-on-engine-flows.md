@@ -43,7 +43,7 @@ prompts instead, keeping their look and keys.
 ## Handoff
 
 ```
-Branch/commit: t3/9fe212e3 @ HEAD (round 2 on top of t3/mac-web-launcher-engine-flows @ cf5c863)
+Branch/commit: t3/9fe212e3 @ 9987afa (round 2 on top of t3/mac-web-launcher-engine-flows @ cf5c863)
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 193.3s
 Done:
 - Finding 1 (macOS input routing): new `BlastPresenter/LauncherRouter.swift` (pure Swift)
