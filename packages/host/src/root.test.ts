@@ -29,15 +29,15 @@ function until(
   ms = 10_000,
 ): Promise<ControllerView> {
   return new Promise((resolve, reject) => {
-    let stop = () => {};
+    let stop: (() => void) | undefined;
     const timer = setTimeout(() => {
-      stop();
+      stop?.();
       reject(new Error("Timed out waiting for a view"));
     }, ms);
     stop = root.subscribe((view) => {
       if (!match(view)) return;
       clearTimeout(timer);
-      queueMicrotask(stop);
+      queueMicrotask(() => stop?.());
       resolve(view);
     });
   });
@@ -152,7 +152,7 @@ test("engine root: a launch hook owns the session and the root resumes when it e
   instance.openExtension({ extensionDir: hello });
   instance.openExtension({ extensionDir: selection });
   const launched: string[] = [];
-  let end = () => {};
+  let end: (() => void) | undefined;
   const root = instance.root({
     views,
     launch: async ({ command }) => {
@@ -169,7 +169,7 @@ test("engine root: a launch hook owns the session and the root resumes when it e
   root.input({ type: "primary" });
   await new Promise((done) => setTimeout(done, 20));
   expect(launched).toEqual(["index"]);
-  end();
+  end?.();
   const resumed = await until(root, (v) => v.search.text === "" && items(v).length === 2);
   expect(resumed.selectedId).toBe("hello-list:index");
   root.input({ type: "primary" });

@@ -637,6 +637,8 @@ test("launch forwards bundleTimeoutMs and the server remains usable after a time
   expect(await c.exited).toBe(0);
 }, 15000);
 
+const ids = (view: any) => view.rows.filter((r: any) => r.kind === "item").map((r: any) => r.id);
+
 test("root.open lists every opened extension's commands, launches one and resumes when it closes", async () => {
   const c = await client();
   await c.hello();
@@ -645,7 +647,6 @@ test("root.open lists every opened extension's commands, launches one and resume
   expect((await c.request("root.open", {})).error.message).toContain("needs views");
   const opened = await c.request("root.open", { views: { platform: "Linux" } });
   const root = opened.result.root;
-  const ids = (view: any) => view.rows.filter((r: any) => r.kind === "item").map((r: any) => r.id);
   const listed = await c.wait((v) => v.event === "root.view" && v.root === root);
   expect(ids(listed.view)).toEqual(["hello-list:index", "selection:index"]);
   expect(listed.view.title).toBe("Commands");

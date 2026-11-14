@@ -527,13 +527,19 @@ test("session.view requires a session and opaque JSON object view", () => {
   expect(schemaOf({ type: "event", event: "session.view", view: {} })).not.toBeNull();
 });
 
+const rootOpen = (params: unknown) => ({
+  type: "request",
+  id: "1",
+  method: "root.open",
+  params,
+});
+
 test("root.open views are optional; root events require their ids and payload", () => {
-  const request = (params: unknown) => ({ type: "request", id: "1", method: "root.open", params });
-  expect(schemaOf(request({}))).toBeNull();
-  expect(schemaOf(request({ views: { platform: "macOS", appearance: "dark" } }))).toBeNull();
-  expect(schemaOf(request({ views: { platform: "Plan9" } }))).not.toBeNull();
-  expect(parseEmbedderMessage(request({ views: { platform: "Plan9" } })).ok).toBe(false);
-  expect(parseEmbedderMessage(request({})).ok).toBe(true);
+  expect(schemaOf(rootOpen({}))).toBeNull();
+  expect(schemaOf(rootOpen({ views: { platform: "macOS", appearance: "dark" } }))).toBeNull();
+  expect(schemaOf(rootOpen({ views: { platform: "Plan9" } }))).not.toBeNull();
+  expect(parseEmbedderMessage(rootOpen({ views: { platform: "Plan9" } })).ok).toBe(false);
+  expect(parseEmbedderMessage(rootOpen({})).ok).toBe(true);
   expect(
     parseEmbedderMessage({
       type: "request",

@@ -232,7 +232,7 @@ export function createRoot(source: RootSource, options: RootOptions): Root {
         if (!busy) void start(effect.extension, effect.command);
     },
     async ready() {
-      while (loads.size) await Promise.all([...loads]);
+      while (loads.size) await Promise.all(loads);
     },
     async close() {
       closed = true;
