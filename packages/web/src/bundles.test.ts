@@ -1,6 +1,5 @@
 import { describe, expect, test } from "bun:test";
 import { bundleKey, bundleMatches, parseBundleIndex, sha256Hex } from "./bundles.ts";
-import { extensionFilesFromTree } from "./prebuild.ts";
 
 const bytes = new TextEncoder().encode("bundle");
 
@@ -182,21 +181,6 @@ test("prebuilt fast path requires the build, entry and digest to match", async (
   expect(await bundleMatches(undefined, "build", "ratio-calculator/index", bytes.buffer)).toBe(
     false,
   );
-});
-
-test("tree listing maps only files below the extension and excludes node_modules", () => {
-  expect(
-    extensionFilesFromTree(
-      [
-        { path: "extensions/ratio-calculator/package.json", type: "blob" },
-        { path: "extensions/ratio-calculator/src/index.tsx", type: "blob" },
-        { path: "extensions/ratio-calculator/node_modules/x/index.js", type: "blob" },
-        { path: "extensions/other/index.ts", type: "blob" },
-        { path: "extensions/ratio-calculator/src", type: "tree" },
-      ],
-      "extensions/ratio-calculator",
-    ),
-  ).toEqual(["package.json", "src/index.tsx"]);
 });
 
 describe("bundle key", () => {

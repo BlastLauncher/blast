@@ -23,6 +23,7 @@
         "@blastlauncher/host": "workspace:*",
         "@blastlauncher/protocol": "workspace:*",
         "@blastlauncher/runtime": "workspace:*",
+        "@blastlauncher/web": "workspace:*",
         "cmdk": "1.1.1",
         "react": "19.3.1",
         "react-dom": "19.3.1",
@@ -57,6 +58,7 @@
         "@blastlauncher/client-core": "workspace:*",
         "@blastlauncher/protocol": "workspace:*",
         "@blastlauncher/runtime": "workspace:*",
+        "@blastlauncher/web": "workspace:*",
         "esbuild": "0.28.2",
         "semver": "7.8.5",
       },
@@ -137,6 +139,7 @@
       "dependencies": {
         "@blastlauncher/client-core": "workspace:*",
         "@blastlauncher/protocol": "workspace:*",
+        "semver": "7.8.5",
       },
     },
   },

@@ -10,5 +10,5 @@
     "examples/browser-demo/ambient.d.ts",
     "packages/web/src/**/*.ts"
   ],
-  "exclude": ["node_modules", "**/dist", ".cache"]
+  "exclude": ["node_modules", "**/dist", ".cache", "**/*.test.ts"]
 }

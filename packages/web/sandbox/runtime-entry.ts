@@ -1,9 +1,6 @@
-import {
-  startBrowserRuntime,
-  type BrowserMessagePort,
-} from "../../packages/runtime/src/browser.ts";
-import type { CommandModule } from "../../packages/runtime/src/core.ts";
-import type { InitCommand } from "../../packages/protocol/src/index.ts";
+import { startBrowserRuntime, type BrowserMessagePort } from "../../runtime/src/browser.ts";
+import type { CommandModule } from "../../runtime/src/core.ts";
+import type { InitCommand } from "../../protocol/src/index.ts";
 
 let started = false;
 

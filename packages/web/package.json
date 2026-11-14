@@ -3,10 +3,13 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./dependency-policy": "./src/dependency-policy.ts",
+    "./preference-fields": "./src/preference-fields.ts"
   },
   "dependencies": {
     "@blastlauncher/client-core": "workspace:*",
-    "@blastlauncher/protocol": "workspace:*"
+    "@blastlauncher/protocol": "workspace:*",
+    "semver": "7.8.5"
   }
 }

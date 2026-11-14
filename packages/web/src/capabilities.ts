@@ -1,4 +1,7 @@
-import type { Catalog } from "./root.ts";
+/** The slice of the host catalog the capability handlers consult. */
+export type CapabilityCatalog = {
+  extensions: { name: string; commands: { name: string }[] }[];
+};
 
 export type BrowserStorage = {
   getItem(key: string): string | null;
@@ -25,7 +28,7 @@ export type CapabilityContext = {
 };
 
 export type BrowserCapabilityOptions = {
-  catalog: Catalog;
+  catalog: CapabilityCatalog;
   storage?: BrowserStorage;
   clipboard?: ClipboardBridge;
   openUrl?: (url: string) => void;
@@ -107,7 +110,7 @@ function paramsOf(value: unknown): Record<string, unknown> {
     : {};
 }
 
-function extensionEntry(catalog: Catalog, name: string) {
+function extensionEntry(catalog: CapabilityCatalog, name: string) {
   return catalog.extensions.find((extension) => extension.name === name);
 }
 

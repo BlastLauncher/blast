@@ -2,7 +2,7 @@ import { readFile, readdir } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { Range, minVersion, rcompare, satisfies, valid } from "semver";
 
-import { supplied } from "./dependency-policy.ts";
+import { supplied } from "@blastlauncher/web/dependency-policy";
 
 export { supplied };
 

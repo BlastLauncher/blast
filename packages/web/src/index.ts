@@ -1,5 +1,5 @@
-import { createRootController, type RootCommand } from "../../client-core/src/index.ts";
-import type { ControllerView } from "../../client-core/src/index.ts";
+import { createRootController, type RootCommand } from "@blastlauncher/client-core";
+import type { ControllerView } from "@blastlauncher/client-core";
 
 export * from "./browser-install.ts";
 export * from "./browser-bundle.ts";

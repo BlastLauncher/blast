@@ -3,10 +3,11 @@ import {
   createBrowserCapabilities,
   createBrowserPreferenceStore,
   type BrowserStorage,
+  type CapabilityCatalog,
 } from "./capabilities.ts";
 
-function catalog() {
-  return {
+function catalog(): CapabilityCatalog {
+  const value = {
     commit: "fixture",
     extensions: [
       {
@@ -16,7 +17,8 @@ function catalog() {
       },
       { name: "beta", title: "Beta", commands: [{ name: "other", title: "Other", mode: "view" }] },
     ],
-  } as const as import("./root.ts").Catalog;
+  };
+  return value;
 }
 
 function storage(throws = false): BrowserStorage {

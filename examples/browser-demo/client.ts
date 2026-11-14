@@ -4,17 +4,17 @@ import {
   createController,
   type Controller,
 } from "../../packages/client-core/src/index.ts";
-import { installForBrowser } from "../../packages/host/src/browser-install.ts";
-import { bundleForBrowser } from "../../packages/host/src/browser-bundle.ts";
+import { installForBrowser } from "../../packages/web/src/browser-install.ts";
+import { bundleForBrowser } from "../../packages/web/src/browser-bundle.ts";
 import type { CommandMode, SceneMessage } from "../../packages/protocol/src/index.ts";
-import { aliases } from "./bundle-config.ts";
+import { aliases } from "../../packages/web/src/bundle-config.ts";
 import {
   bundleKey,
   bundleMatches,
   parseBundleIndex,
   sha256Hex,
   type CatalogManifest,
-} from "./bundles.ts";
+} from "../../packages/web/src/bundles.ts";
 import { render, renderPreferences } from "../web-launcher/render.js";
 import { mountRoot, updateRoot } from "./root-launcher.tsx";
 import type { Root as ReactRoot } from "react-dom/client";
@@ -22,16 +22,20 @@ import {
   createBrowserCapabilities,
   createBrowserPreferenceStore,
   type CapabilityContext,
-} from "./capabilities.ts";
+} from "../../packages/web/src/capabilities.ts";
 import {
   missingPreferences,
   parsePreferences,
   preferenceDefaults,
   preferenceFields,
   type Preference,
-} from "../../packages/host/src/preference-fields.ts";
+} from "../../packages/web/src/preference-fields.ts";
 import { controlledSearchText, syncAttributes } from "./search-sync.ts";
-import { canUseLocalFixture, isTextExtension, parseExtensionSource } from "./source.ts";
+import {
+  canUseLocalFixture,
+  isTextExtension,
+  parseExtensionSource,
+} from "../../packages/web/src/source.ts";
 import {
   catalogCommandTitle,
   executeRootAction,
@@ -57,8 +61,12 @@ import {
 } from "./keyboard.ts";
 import { matchesShortcut, shortcutLabel } from "../../packages/client-core/src/shortcut.ts";
 import { escapeHtml } from "../web-launcher/render.js";
-import { BrowserLaunchTimeoutError, createLaunchGeneration, withLaunchTimeout } from "./launch.ts";
-import { acceptsRuntimePortRequest } from "./runtime-port.ts";
+import {
+  BrowserLaunchTimeoutError,
+  createLaunchGeneration,
+  withLaunchTimeout,
+} from "../../packages/web/src/launch.ts";
+import { acceptsRuntimePortRequest } from "../../packages/web/src/runtime-port.ts";
 import {
   menuLevels,
   placeMenu,
@@ -909,7 +917,7 @@ async function launch(
       files,
       packages: installed.packages,
       command,
-      runtimeEntry: "/examples/browser-demo/runtime-entry.ts",
+      runtimeEntry: "/packages/web/sandbox/runtime-entry.ts",
       aliases,
     });
     if (!stillCurrent()) return;

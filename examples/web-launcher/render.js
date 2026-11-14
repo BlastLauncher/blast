@@ -286,7 +286,7 @@ export function renderRoot(rows, selected, query, panel = {}) {
   return `<main class="root" data-kind="root" data-loading="false"><header><h1>Blast</h1><input id="root-search" value="${escapeHtml(query)}" placeholder="Search extension commands…" aria-label="Search extension commands" role="combobox" aria-controls="root-options" aria-activedescendant="${selected >= 0 ? `root-option-${selected}` : ""}" autocomplete="off" autofocus></header><ul id="root-options" class="rows root-options" role="listbox" aria-label="Extension commands">${options}</ul>${rows.length === 0 ? '<p class="empty">No matching commands</p>' : ""}<footer>${statusMarkup(status)}<span class="footer-hints">${footerButton("Run Command", "↵", "primary")}${footerButton("Actions", "⌘K", "actions")}${status.error ? footerButton("Back", "Esc", "back") : ""}</span>${toast}</footer>${actionPanel}</main>`;
 }
 
-/** @param {import("../../packages/host/src/preference-fields.ts").Preference[]} fields @param {Record<string, unknown>} values @param {string} title @param {string[]} unavailable */
+/** @param {import("../../packages/web/src/preference-fields.ts").Preference[]} fields @param {Record<string, unknown>} values @param {string} title @param {string[]} unavailable */
 export function renderPreferences(fields, values, title, unavailable = []) {
   const rows = fields
     .map((field) => {

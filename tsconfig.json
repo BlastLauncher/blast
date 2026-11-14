@@ -24,7 +24,6 @@
     "packages",
     "examples/web-launcher",
     "examples/browser-demo",
-    "examples/browser-demo/runtime-entry.ts",
     "examples/browser-runtime/e2e.ts"
   ],
   "exclude": [
@@ -35,6 +34,7 @@
     "examples/browser-demo/root.ts",
     "examples/browser-demo/showcase",
     "examples/browser-runtime/runtime-entry.ts",
-    "packages/web"
+    "packages/web/src/index.ts",
+    "packages/web/src/custom-element.ts"
   ]
 }

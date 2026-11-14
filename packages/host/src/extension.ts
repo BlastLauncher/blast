@@ -2,7 +2,11 @@ import { watch as watchDirectory } from "node:fs";
 import { readFile, rm } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { bundleCommand, MissingDependencyError, type Preference } from "./bundle.ts";
-import { missingPreferences, preferenceFields, preferenceValues } from "./preference-fields.ts";
+import {
+  missingPreferences,
+  preferenceFields,
+  preferenceValues,
+} from "@blastlauncher/web/preference-fields";
 import { createSessionBroker } from "./client.ts";
 import { parseManifest, missingRequired, type ExtensionManifest } from "./extension-manifest.ts";
 import {
