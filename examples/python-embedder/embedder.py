@@ -54,12 +54,9 @@ def draw(view: dict) -> None:
 
 
 def key_inputs(data: bytes, search: list[str]) -> list[dict]:
-    """Map a chunk of terminal bytes into semantic inputs.
-
-    `search` is a one-element list holding the search text (the view owns the
-    authoritative value and echoes it asynchronously). Arrow escape sequences
-    usually arrive in one chunk; anything else after ESC is `back`.
-    """
+    """Map a chunk of terminal bytes into semantic inputs. `search` is a one-element
+    list holding the search text (the view echoes the authoritative value). Arrow
+    escape sequences usually arrive in one chunk; anything else after ESC is `back`."""
     inputs: list[dict] = []
     index = 0
     while index < len(data):
@@ -169,6 +166,9 @@ class Client:
             elif kind == "error":
                 say(f'error {(message.get("error") or {}).get("code")}: {(message.get("error") or {}).get("message")}')
             with self.ready:
+                if kind == "error":  # the rejected line's request never gets a response: fail them all
+                    failed = {"ok": False, "error": message.get("error") or {}}
+                    self.pending.update({id: failed for id, got in self.pending.items() if got is None})
                 self.ready.notify_all()
         with self.ready:
             self.closed = True

@@ -67,7 +67,7 @@ missing dependencies by default (`--dependencies manual` to opt out).
   keys are opaque: use the ones the server returns.
 - A line the server cannot accept gets a protocol `{"type":"error","error":{…}}`
   with no request id, so the request it carried never gets a response. Fail
-  every outstanding request when one arrives (the Go example does).
+  every outstanding request when one arrives (the Go and Python examples do).
 - Send every field an input requires: a cleared search is
   `{"type":"search","text":""}`, never a missing `text` (that line is
   rejected). The view echoes the authoritative search text.
