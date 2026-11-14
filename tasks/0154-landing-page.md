@@ -62,24 +62,14 @@ invites them to try the live demo and then embed.
 ## Handoff
 
 ```
-Branch/commit: t3/landing-page-refresh (33b6616)
-Verify:
-- ./node_modules/.bin/oxfmt --check examples/browser-demo/landing.ts examples/browser-demo/site.ts examples/browser-demo/site.test.ts examples/browser-demo/site-e2e.ts (passed, 0 issues)
-- bun run lint (passed, 0 warnings, 0 errors)
-- bun run typecheck (passed, 0 errors)
-- bun test examples/browser-demo/site.test.ts (7 pass, 0 fail)
-- bun examples/browser-demo/site-e2e.ts --screenshots .cache/landing-shots (passed, 0 fail)
-- bun run verify (format FAIL due to 3 pre-existing untouched files; lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok: 1035 passed, 0 failed across 143 test files)
+Branch/commit: t3/landing-page-review-fixes @ 818d26c861af662fe96be722c54966a5e6b90d8a
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 141.8s (1035 pass, 2 skip, 0 fail); bun run site:e2e -- --screenshots .cache/landing-shots (pass)
 Done:
-- Created standalone landing page generator module in `examples/browser-demo/landing.ts` implementing `landing(stats, siteOrigin)` with hero, side-by-side Raycast component vs Blast wire NDJSON preview, pure CSS multi-language tabs (TS/JS, Go, Python, Swift, raw NDJSON) with keyboard focusability and zero JS requirement, "What Blast does / what you do" comparison, "Runs everywhere" embedder cards linking to repo examples, live test-coverage and sweep receipts linking to GitHub markdown reports, install snippet boxes, quickstart doc link, and link to browser demo.
-- Integrated `landing` generator into `examples/browser-demo/site.ts`, replacing legacy inline template.
-- Updated `examples/browser-demo/site.test.ts` with unit and integration assertions verifying hero, all 5 code tabs, coverage & sweep stats, and demo link in `index.html`.
-- Extended `examples/browser-demo/site-e2e.ts` with assertions verifying hero heading, CSS tab switching, horizontal scroll containment at 360px viewport (`docScrollWidth <= 360 && bodyScrollWidth <= 360`), and screenshot capture in light/dark themes.
-- Generated screenshots in `.cache/landing-shots/`:
-  - `.cache/landing-shots/desktop-light.png` (1280x2798)
-  - `.cache/landing-shots/desktop-dark.png` (1280x2798)
-  - `.cache/landing-shots/mobile-360-light.png` (360x5157)
-  - `.cache/landing-shots/mobile-360-dark.png` (360x5157)
+- Replaced all 5 integration snippets in `examples/browser-demo/landing.ts` (JavaScript `createEngine`/`createController`, Go `Start`, Python `blast-serve` stdlib, Swift `BlastClient`, NDJSON `hello`/`welcome`/`extension.launch`/`session.view`/`session.input`/`capability.request`/`capability.result`) with HTML-escaped real APIs, keeping tab labels `JavaScript`, `Go`, `Python`, `Swift`, `NDJSON` and adding `.tab-caption` notes for Go (`Client from examples/go-embedder`), Python (`Standard library only`), Swift (`BlastKit from examples/macos-launcher`), and NDJSON.
+- Updated hero `.mock-wire` to real protocol lines (`hello`, `welcome`, `extension.launch`, `session.view`) and `.mock-view` to a plain `Apple` / `Banana` / `Cherry` list matching `fixtures/extensions/hello-list`.
+- Replaced inaccurate copy in hero, Section 3 ("What Blast does"), Section 4 ("Runs everywhere"), and footer (removed sandbox claims outside the cross-origin iframe browser demo, removed brokered network / identical semantics / loopback sockets / zero wire overhead / community-maintained / discovers manifests claims).
+- Updated `examples/browser-demo/site.test.ts` (both `landing()` unit test and `buildSite` integration test) to assert `createEngine`, `"type":"hello"`, `blast-serve`, `launchExtension`, the three tab captions, and absence of `"type":"init"` and `new Engine`.
+- Ran `bun run site:e2e -- --screenshots .cache/landing-shots` (pass; 0 horizontal overflow at 360px) and saved `.cache/landing-shots/desktop-light.png` (1280x2864), `desktop-dark.png` (1280x2864), `mobile-360-light.png` (360x5209), `mobile-360-dark.png` (360x5209).
 Not done / risks:
-- `fmt:check` in `bun run verify` reports 3 pre-existing unformatted files from repo baseline (`docs/decisions/0014-thin-embedders.md`, `tasks/0153-product-story-docs.md`, `tasks/0157-launch-prompts-as-views.md`). Per task scope instructions ("touch only the landing page... Do not edit README, docs/"), these files were left untouched.
+- `view_file` in this environment decodes PNGs as raw text rather than rendering images, so the four `.cache/landing-shots/*.png` captures were checked via PNG dimensions/file sizes and headless Chromium DOM/style/bounds inspection at 1280x800 and 360x740 (light and dark) rather than visual pixel inspection.
 ```
