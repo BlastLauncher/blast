@@ -7,7 +7,7 @@
 // ids from the engine's own counters and a throwaway data directory.
 
 import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
-import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { cp, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -22,6 +22,8 @@ export const FIXTURE_NAMES = [
   "menu-bar",
   "toast",
   "action-panel",
+  "root",
+  "prompt",
 ] as const;
 
 export type FixtureName = (typeof FIXTURE_NAMES)[number];
@@ -38,20 +40,22 @@ const VIEW_TIMEOUT_MS = 30_000;
 
 class ServeSession {
   private readonly child: ChildProcessWithoutNullStreams;
-  private readonly root: string;
+  private readonly repository: string;
   private readonly exited: Promise<void>;
   private readonly messages: Message[] = [];
   private readonly views: View[] = [];
+  private readonly rootViews: View[] = [];
   private readonly stderr: string[] = [];
   private buffer = "";
   private consumed = 0;
   private sequence = 0;
   private exitCode: number | null | undefined;
   private session = "";
+  private root = "";
 
   private constructor(child: ChildProcessWithoutNullStreams, root: string) {
     this.child = child;
-    this.root = root;
+    this.repository = root;
     child.stdout.setEncoding("utf8");
     child.stdout.on("data", (chunk: string) => {
       this.buffer += chunk;
@@ -83,11 +87,38 @@ class ServeSession {
   }
 
   async open(name: string): Promise<string> {
-    const result = (await this.request("extension.open", {
-      dir: join(this.root, "fixtures/extensions", name),
-    })) as { extension?: string };
-    if (!result.extension) throw new Error(`extension.open returned no extension for ${name}`);
+    return this.openDirectory(join(this.repository, "fixtures/extensions", name));
+  }
+
+  async openDirectory(dir: string): Promise<string> {
+    const result = (await this.request("extension.open", { dir })) as { extension?: string };
+    if (!result.extension) throw new Error(`extension.open returned no extension for ${dir}`);
     return result.extension;
+  }
+
+  /** Opens the engine root over the opened extensions, returning its first view. */
+  async openRoot(): Promise<View> {
+    const before = this.rootViews.length;
+    const result = (await this.request("root.open", { views: { platform: "macOS" } })) as {
+      root?: string;
+    };
+    if (!result.root) throw new Error("root.open returned no root");
+    this.root = result.root;
+    return this.waitFor(() => this.rootViews[before], "the first root view");
+  }
+
+  /** Sends root input that launches a command, then follows the launched session. */
+  async launchFromRoot(input: Record<string, unknown>): Promise<void> {
+    if (!this.root) throw new Error("no root is open");
+    await this.request("root.input", { root: this.root, input });
+    const launched = await this.waitFor(
+      () =>
+        this.messages.find(
+          (message) => message.event === "root.launched" && message.root === this.root,
+        ),
+      "root.launched",
+    );
+    this.session = String(launched.session);
   }
 
   /** Opens and launches a fixture command with `views`, returning its first view. */
@@ -159,6 +190,9 @@ class ServeSession {
     if (message.type === "event" && message.event === "session.view") {
       this.views.push(message.view as View);
     }
+    if (message.type === "event" && message.event === "root.view") {
+      this.rootViews.push(message.view as View);
+    }
   }
 
   private take(view: View): View {
@@ -185,7 +219,7 @@ class ServeSession {
   }
 }
 
-const scenarios: Record<FixtureName, (serve: ServeSession) => Promise<View>> = {
+const scenarios: Record<FixtureName, (serve: ServeSession, scratch: string) => Promise<View>> = {
   list: (serve) => serve.launch("hello-list", "index"),
   grid: (serve) => serve.launch("grid", "index"),
   detail: async (serve) => {
@@ -207,6 +241,25 @@ const scenarios: Record<FixtureName, (serve: ServeSession) => Promise<View>> = {
     await serve.launch("actions-variants", "index");
     await serve.input({ type: "openActions" });
     return serve.waitView((view) => view.actions?.open === true, "the open action panel");
+  },
+  root: async (serve) => {
+    await serve.open("hello-list");
+    return serve.openRoot();
+  },
+  // The 0157 prompt fixture: engine-handle with a required preference and
+  // argument, so a root launch shows the launch prompt form.
+  prompt: async (serve, scratch) => {
+    const dir = join(scratch, "prompt-extension");
+    await cp(join(repositoryRoot, "fixtures/extensions/engine-handle"), dir, { recursive: true });
+    const file = join(dir, "package.json");
+    const manifest = JSON.parse(await readFile(file, "utf8"));
+    manifest.preferences = [{ name: "token", type: "password", title: "Token", required: true }];
+    manifest.commands[0].arguments = [{ name: "query", type: "text", required: true }];
+    await writeFile(file, JSON.stringify(manifest));
+    await serve.openDirectory(dir);
+    await serve.openRoot();
+    await serve.launchFromRoot({ type: "primary" });
+    return serve.waitView((view) => view.kind === "form", "the launch prompt form");
   },
 };
 
@@ -268,7 +321,7 @@ export async function generateFixtures(root: string): Promise<Record<FixtureName
     for (const name of FIXTURE_NAMES) {
       const serve = await ServeSession.start(root, dataDirectory);
       try {
-        entries.push([name, renderFixture(await scenarios[name](serve))]);
+        entries.push([name, renderFixture(await scenarios[name](serve, dataDirectory))]);
         await serve.shutdown();
       } finally {
         await serve.close();

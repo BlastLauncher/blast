@@ -64,6 +64,37 @@ struct PresenterTests {
         #expect(display.primaryTitle == "Submit Form")
     }
 
+    @Test("maps the root fixture: extension sections head their command rows")
+    func root() throws {
+        let display = LauncherPresenter(view: try Fixtures.view("root")).display
+
+        #expect(display.title == "Commands")
+        #expect(display.searchPlaceholder == "Search commands…")
+        #expect(display.rows.map(\.title) == ["hello-list", "index"])
+        #expect(display.rows.map(\.kind) == [.section, .item])
+        #expect(display.rows.map(\.enabled) == [false, true])
+        #expect(display.rows.last?.accessories == "Command")
+        #expect(display.rows.last?.iconText == "I")
+        #expect(display.selectedRowIndex == 1)
+        #expect(display.selectedRowId == "hello-list:index")
+        #expect(display.canGoBack == false)
+        #expect(display.primaryTitle == "Open Command")
+    }
+
+    @Test("maps the prompt fixture: missing preference and argument become form rows")
+    func prompt() throws {
+        let display = LauncherPresenter(view: try Fixtures.view("prompt")).display
+
+        #expect(display.title == "Set up index")
+        #expect(display.rows.map(\.title) == ["Token", "query"])
+        #expect(display.rows.map(\.kind) == [.formField, .formField])
+        #expect(display.rows.map(\.subtitle) == ["PasswordField", "TextField"])
+        #expect(display.selectedRowIndex == 0)
+        #expect(display.selectedRowId == "token")
+        #expect(display.canGoBack)
+        #expect(display.primaryTitle == "Save & Launch")
+    }
+
     @Test("maps the menu-bar fixture: sections are not selectable")
     func menuBar() throws {
         let display = LauncherPresenter(view: try Fixtures.view("menu-bar")).display

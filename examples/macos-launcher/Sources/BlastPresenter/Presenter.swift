@@ -119,7 +119,11 @@ public final class LauncherPresenter {
     }
 
     private static func itemRow(_ row: ControllerView.Row) -> LauncherRow {
-        LauncherRow(
+        // The root search groups commands under one section row per extension.
+        if row.kind == "section" {
+            return LauncherRow(id: row.id, kind: .section, title: row.title, enabled: false)
+        }
+        return LauncherRow(
             id: row.id,
             kind: .item,
             title: row.title,

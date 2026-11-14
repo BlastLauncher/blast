@@ -11,7 +11,7 @@ struct LauncherRouterTests {
         var router = LauncherRouter()
         #expect(router.inputTarget == nil)
 
-        let rootView = try Fixtures.view("list")
+        let rootView = try Fixtures.view("root")
         let pending = router.open(root: "r1")
         #expect(pending == nil)
         #expect(router.inputTarget == .root("r1"))
@@ -23,7 +23,7 @@ struct LauncherRouterTests {
     @Test("draws the root view serve sent before the root.open response")
     func earlyRootView() throws {
         var router = LauncherRouter()
-        let rootView = try Fixtures.view("list")
+        let rootView = try Fixtures.view("root")
         let early = router.receive(.rootView(root: "r1", view: rootView))
         #expect(early == nil)
         let pending = router.open(root: "r1")
@@ -35,7 +35,7 @@ struct LauncherRouterTests {
     func sessionAfterLaunch() throws {
         var router = LauncherRouter()
         _ = router.open(root: "r1")
-        let rootView = try Fixtures.view("list")
+        let rootView = try Fixtures.view("root")
         let commandView = try Fixtures.view("form")
 
         let launched = router.receive(.rootLaunched(root: "r1", session: "s1"))
@@ -53,7 +53,7 @@ struct LauncherRouterTests {
     func backToRoot() throws {
         var router = LauncherRouter()
         _ = router.open(root: "r1")
-        let rootView = try Fixtures.view("list")
+        let rootView = try Fixtures.view("root")
         _ = router.receive(.rootLaunched(root: "r1", session: "s1"))
 
         let exited = router.receive(.exited(session: "s1", code: 0, error: nil))
@@ -70,7 +70,7 @@ struct LauncherRouterTests {
     func otherHandles() throws {
         var router = LauncherRouter()
         _ = router.open(root: "r1")
-        let view = try Fixtures.view("list")
+        let view = try Fixtures.view("root")
 
         let otherRootView = router.receive(.rootView(root: "r2", view: view))
         #expect(otherRootView == nil)
