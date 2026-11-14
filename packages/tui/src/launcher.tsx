@@ -118,16 +118,7 @@ export function CommandSession({
   /** Prompts as needed, then starts the command; `undefined` when the user cancelled. */
   async function run(target: Target, argumentValues?: Record<string, string>) {
     const effects = createClientHandlers();
-    let used = argumentValues ?? {};
-    // Relaunch reuses the arguments the prompt collected.
-    const extension: ExtensionHandle = {
-      ...target.extension,
-      launch: (name, options) => {
-        used = options?.argumentValues ?? {};
-        return target.extension.launch(name, options);
-      },
-    };
-    const flow = startLaunchFlow(extension, target.command, {
+    const flow = startLaunchFlow(target.extension, target.command, {
       views,
       ...(target.configure ? { configure: true } : {}),
       launch: {
@@ -157,7 +148,7 @@ export function CommandSession({
     setScreen({ kind: "flow", flow, title });
     try {
       const opened = await flow.opened;
-      return opened && { opened, argumentValues: used };
+      return opened && { opened, argumentValues: await flow.argumentValues };
     } finally {
       delete live.current.flow;
     }

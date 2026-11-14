@@ -45,6 +45,8 @@ export type LaunchFlow = {
   subscribe(listener: (view: ControllerView) => void): () => void;
   input(input: ControllerInput): void;
   opened: Promise<Opened | undefined>;
+  /** Argument values used by the successful launch, for a direct relaunch. */
+  argumentValues: Promise<Record<string, string>>;
   /** Stop now; closes the command if it already started. */
   cancel(): void;
 };
@@ -96,6 +98,7 @@ export function startLaunchFlow(
   let cancelled = false;
   let waiting: ((effect: PromptEffect) => void) | undefined;
   let running: Opened | undefined;
+  const argumentResult = Promise.withResolvers<Record<string, string>>();
 
   const ask = (): Promise<PromptEffect> =>
     cancelled
@@ -108,6 +111,7 @@ export function startLaunchFlow(
     const answer = waiting;
     waiting = undefined;
     answer?.({ type: "cancel" });
+    argumentResult.resolve({});
     void running?.close();
   };
 
@@ -139,6 +143,7 @@ export function startLaunchFlow(
     const effect = await ask();
     if (effect.type === "submit")
       await handle.savePreferences(commandName, effect.values, options.configureScope);
+    argumentResult.resolve({});
   };
 
   const failure = async (title: string, message: string): Promise<boolean> => {
@@ -237,6 +242,7 @@ export function startLaunchFlow(
           return undefined;
         }
         running = opened;
+        argumentResult.resolve({ ...argumentValues });
         return opened;
       } catch (error) {
         if (error instanceof MissingLaunchValuesError) continue;
@@ -274,6 +280,7 @@ export function startLaunchFlow(
       }
     },
     opened,
+    argumentValues: argumentResult.promise,
     cancel,
   };
 }
