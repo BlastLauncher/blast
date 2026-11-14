@@ -53,11 +53,12 @@ because it has no application association database. `captureException` and
 Manifest preference defaults reach `getPreferenceValues()`, with command defaults
 and then caller-supplied preferences taking precedence. The TUI loads saved
 extension and command values from `<dataDir>/preferences/<encoded-name>.json`
-(plaintext, mode 0600). Required values without defaults prompt before launch;
-Ctrl-E edits the selected command's preferences. `preferences.open` returns to
-the picker form (extension scope edits extension fields only). The picker
-installs dependencies under `<dataDir>/deps/`, showing npm progress and failures;
-a failed install still permits a shared-dependency fallback launch.
+(plaintext, mode 0600). Required values without defaults prompt before launch
+(the engine's launch prompt); Ctrl-E opens the selected command's Configure
+form. `preferences.open` returns to the root and opens that form (both scopes
+show every extension and command preference). The launch prompt installs
+dependencies under `<dataDir>/deps/`, showing npm progress, and offers Retry
+on failure.
 
 `open(target, application?)` requests `open.url` for URLs (a `file:` URL counts
 as a file) and `open.path` for files, so a client can grant opening links
