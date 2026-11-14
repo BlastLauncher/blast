@@ -52,7 +52,7 @@ guide](./docs/embedding.md) has the complete API and transcript.
 ## Receipts and status
 
 Compatibility is measured against the latest `@raycast/api`, not claimed:
-[API coverage](./compat/COVERAGE.md) is 1537/1538 current symbols and the
+[API coverage](./compat/COVERAGE.md) is 1539/1540 current symbols (`@raycast/api` 2.11.1) and the
 [sandboxed sweep](./compat/SWEEP.md) renders 91.4% of 5,759 corpus commands.
 The curated [smoke](./compat/SMOKE.md) renders 237/253 commands; dependency
 smoke renders 51/52 ([details](./compat/SMOKE-DEPS.md)).
