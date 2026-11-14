@@ -139,7 +139,13 @@ const SAMPLE_PARAMS: Record<string, JsonValue> = {
   "extension.dependencies.install": { extension: "1" },
   "extension.preferences": { extension: "1", command: "index" },
   "extension.savePreferences": { extension: "1", command: "index", values: { name: "x" } },
-  "extension.launch": { extension: "1", command: "index", argumentValues: { query: "a" } },
+  "extension.launch": {
+    extension: "1",
+    command: "index",
+    argumentValues: { query: "a" },
+    prompts: true,
+  },
+  "extension.configure": { extension: "1", command: "index", views: { platform: "Linux" } },
   "root.open": { views: { platform: "Linux" } },
   "root.input": { root: "3", input: { type: "primary" } },
   "root.close": { root: "3" },
@@ -156,6 +162,7 @@ const SAMPLE_RESULTS: Record<string, JsonValue> = {
   "extension.dependencies.install": { installed: [] },
   "extension.preferences": { schemas: [] },
   "extension.launch": { session: "2" },
+  "extension.configure": { session: "2" },
   "root.open": { root: "3" },
 };
 
