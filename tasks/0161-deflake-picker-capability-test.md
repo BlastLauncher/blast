@@ -1,7 +1,7 @@
 ---
 id: "0161"
 title: Make the TUI picker capability-handler test deterministic
-status: todo
+status: doing
 milestone: M9
 depends: []
 ---
