@@ -941,6 +941,141 @@
       ],
       "additionalProperties": false
     },
+    "request.root.open": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "request"
+        },
+        "id": {
+          "type": "string"
+        },
+        "method": {
+          "const": "root.open"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "views": {
+              "type": "object",
+              "properties": {
+                "platform": {
+                  "enum": [
+                    "macOS",
+                    "Windows",
+                    "Linux"
+                  ]
+                },
+                "appearance": {
+                  "enum": [
+                    "light",
+                    "dark"
+                  ]
+                }
+              },
+              "required": [
+                "platform"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "method"
+      ],
+      "additionalProperties": false
+    },
+    "result.root.open": {
+      "type": "object",
+      "properties": {
+        "root": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "root"
+      ],
+      "additionalProperties": false
+    },
+    "request.root.input": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "request"
+        },
+        "id": {
+          "type": "string"
+        },
+        "method": {
+          "const": "root.input"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "root": {
+              "type": "string"
+            },
+            "input": {
+              "$ref": "#/$defs/controllerInput"
+            }
+          },
+          "required": [
+            "root",
+            "input"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "method"
+      ],
+      "additionalProperties": false
+    },
+    "result.root.input": {
+      "type": "null"
+    },
+    "request.root.close": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "request"
+        },
+        "id": {
+          "type": "string"
+        },
+        "method": {
+          "const": "root.close"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "root": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "root"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "method"
+      ],
+      "additionalProperties": false
+    },
+    "result.root.close": {
+      "type": "null"
+    },
     "request.session.input": {
       "type": "object",
       "properties": {
@@ -1125,6 +1260,15 @@
         },
         {
           "$ref": "#/$defs/request.extension.launch"
+        },
+        {
+          "$ref": "#/$defs/request.root.open"
+        },
+        {
+          "$ref": "#/$defs/request.root.input"
+        },
+        {
+          "$ref": "#/$defs/request.root.close"
         },
         {
           "$ref": "#/$defs/request.session.input"
@@ -1449,6 +1593,54 @@
           "required": [
             "type",
             "event"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "event"
+            },
+            "event": {
+              "const": "root.view"
+            },
+            "root": {
+              "type": "string"
+            },
+            "view": {
+              "$ref": "#/$defs/controllerView"
+            }
+          },
+          "required": [
+            "type",
+            "event",
+            "root",
+            "view"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "event"
+            },
+            "event": {
+              "const": "root.launched"
+            },
+            "root": {
+              "type": "string"
+            },
+            "session": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "event",
+            "root",
+            "session"
           ],
           "additionalProperties": false
         },

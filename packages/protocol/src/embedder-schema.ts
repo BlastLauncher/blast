@@ -52,6 +52,9 @@ const RESULTS: Record<keyof EmbedderParams, Schema> = {
   "extension.watch": nullResult,
   "extension.unwatch": nullResult,
   "extension.close": nullResult,
+  "root.open": envelope(["root"], { root: string }),
+  "root.input": nullResult,
+  "root.close": nullResult,
   "session.event": nullResult,
   "session.input": nullResult,
   "session.close": nullResult,
@@ -67,6 +70,7 @@ const OPTIONAL_KEYS: Partial<Record<keyof EmbedderParams, readonly string[]>> = 
     "installDependencies",
     "views",
   ],
+  "root.open": ["views"],
 };
 
 const PARAMS: Record<keyof EmbedderParams, Schema> = {
@@ -92,6 +96,9 @@ const PARAMS: Record<keyof EmbedderParams, Schema> = {
     installDependencies: { type: "boolean" },
     views,
   },
+  "root.open": { views },
+  "root.input": { root: string, input: ref("controllerInput") },
+  "root.close": { root: string },
   "session.input": { session: string, input: ref("controllerInput") },
   "session.event": {
     session: string,
@@ -130,14 +137,22 @@ const EVENT_PROPERTIES: Record<string, Schema> = {
   "manifest.changed": { extension: string, manifest: json },
   "manifest.error": { extension: string, error: embedderError },
   "dependencies.log": { extension: string, message: string },
+  "root.view": { root: string, view: ref("controllerView") },
+  "root.launched": { root: string, session: string },
   "session.scene": { session: string, scene: ref("sceneMessage") },
   "session.view": { session: string, view: ref("controllerView") },
   "session.log": { session: string, log: ref("logMessage") },
   "session.exited": { session: string, code: integer, error: embedderError },
 };
 
+const EVENT_REQUIRED: Record<string, string[]> = {
+  "session.view": ["session", "view"],
+  "root.view": ["root", "view"],
+  "root.launched": ["root", "session"],
+};
+
 const eventVariants: Schema[] = Object.entries(EVENT_PROPERTIES).map(([name, props]) =>
-  envelope(["type", "event", ...(name === "session.view" ? ["session", "view"] : [])], {
+  envelope(["type", "event", ...(EVENT_REQUIRED[name] ?? [])], {
     type: { const: "event" },
     event: { const: name },
     ...props,

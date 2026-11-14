@@ -140,6 +140,9 @@ const SAMPLE_PARAMS: Record<string, JsonValue> = {
   "extension.preferences": { extension: "1", command: "index" },
   "extension.savePreferences": { extension: "1", command: "index", values: { name: "x" } },
   "extension.launch": { extension: "1", command: "index", argumentValues: { query: "a" } },
+  "root.open": { views: { platform: "Linux" } },
+  "root.input": { root: "3", input: { type: "primary" } },
+  "root.close": { root: "3" },
   "session.event": { session: "2", node: "n1", handler: "onAction", args: [["a", 1, null]] },
   "session.input": { session: "2", input: { type: "primary" } },
   "session.close": { session: "2" },
@@ -153,6 +156,7 @@ const SAMPLE_RESULTS: Record<string, JsonValue> = {
   "extension.dependencies.install": { installed: [] },
   "extension.preferences": { schemas: [] },
   "extension.launch": { session: "2" },
+  "root.open": { root: "3" },
 };
 
 const SERVED = {
@@ -399,6 +403,8 @@ test("every method has a request and a result schema entry", () => {
         "extension.unwatch",
         "extension.close",
         "extension.savePreferences",
+        "root.input",
+        "root.close",
         "session.event",
         "session.input",
         "session.close",
@@ -406,6 +412,13 @@ test("every method has a request and a result schema entry", () => {
       ].includes(method)
     ) {
       expect(result).toEqual({ type: "null" });
+    } else if (method === "root.open") {
+      expect(result).toEqual({
+        type: "object",
+        properties: { root: { type: "string" } },
+        required: ["root"],
+        additionalProperties: false,
+      });
     } else if (method === "extension.open") {
       expect(result).toEqual({
         type: "object",
@@ -512,6 +525,30 @@ test("session.view requires a session and opaque JSON object view", () => {
   for (const view of [null, [], "list"]) expect(schemaOf({ ...message, view })).not.toBeNull();
   expect(schemaOf({ type: "event", event: "session.view", session: "2" })).not.toBeNull();
   expect(schemaOf({ type: "event", event: "session.view", view: {} })).not.toBeNull();
+});
+
+test("root.open views are optional; root events require their ids and payload", () => {
+  const request = (params: unknown) => ({ type: "request", id: "1", method: "root.open", params });
+  expect(schemaOf(request({}))).toBeNull();
+  expect(schemaOf(request({ views: { platform: "macOS", appearance: "dark" } }))).toBeNull();
+  expect(schemaOf(request({ views: { platform: "Plan9" } }))).not.toBeNull();
+  expect(parseEmbedderMessage(request({ views: { platform: "Plan9" } })).ok).toBe(false);
+  expect(parseEmbedderMessage(request({})).ok).toBe(true);
+  expect(
+    parseEmbedderMessage({
+      type: "request",
+      id: "1",
+      method: "root.input",
+      params: { root: "3", input: { type: "move", direction: "down" } },
+    }).ok,
+  ).toBe(true);
+  const view = { type: "event", event: "root.view", root: "3", view: { kind: "list" } };
+  expect(schemaOf(view)).toBeNull();
+  expect(schemaOf({ ...view, root: undefined })).not.toBeNull();
+  expect(schemaOf({ ...view, view: [] })).not.toBeNull();
+  const launched = { type: "event", event: "root.launched", root: "3", session: "4" };
+  expect(schemaOf(launched)).toBeNull();
+  expect(schemaOf({ ...launched, session: undefined })).not.toBeNull();
 });
 
 test("launch bundleTimeoutMs agrees between the validator and schema", () => {
