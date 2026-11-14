@@ -10,8 +10,8 @@
 </style>
 <div id="app"></div>
 <script type="module">
-  // blast-web.js is `bun build packages/web/src/index.ts`; an app imports
-  // "@blastlauncher/web" through its own bundler instead.
+  // blast-web.js is the package's assets/blast-web.js; an app with a bundler imports
+  // "@blastlauncher/web" instead.
   import { mount } from "./blast-web.js";
   const query = new URLSearchParams(location.search);
   mount(document.querySelector("#app"), {

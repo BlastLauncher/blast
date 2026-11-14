@@ -1,8 +1,7 @@
-import { readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { buildBrowserAssets, projectRoot, relativeFiles } from "../browser-demo/build.ts";
+import { buildWebAssets, projectRoot, relativeFiles } from "../../packages/web/build/assets.ts";
 import { sandboxPage } from "../../packages/web/sandbox/page.ts";
 
 // Loopback only, headless: the page and the sandbox are two origins on 127.0.0.1.
@@ -12,15 +11,7 @@ const browsers =
 process.env.PLAYWRIGHT_BROWSERS_PATH = browsers;
 if (!existsSync(browsers)) throw new Error(`PLAYWRIGHT_BROWSERS_PATH is missing: ${browsers}`);
 
-const assets = await buildBrowserAssets();
-const deps = join(projectRoot, ".cache/browser-demo/deps/node_modules");
-const web = await Bun.build({
-  entrypoints: [join(projectRoot, "packages/web/src/index.ts")],
-  target: "browser",
-  format: "esm",
-});
-if (!web.success) throw new Error(web.logs.map((log) => log.message).join("\n"));
-const webJs = await web.outputs[0]!.text();
+const assets = await buildWebAssets();
 const js = (body: string) => new Response(body, { headers: { "content-type": "text/javascript" } });
 
 const sandbox = Bun.serve({
@@ -39,10 +30,9 @@ const host = Bun.serve({
   fetch: async (request) => {
     const path = new URL(request.url).pathname;
     if (path === "/") return new Response(Bun.file(join(here, "index.html")));
-    if (path === "/blast-web.js") return js(webJs);
+    if (path === "/blast-web.js") return js(assets.web);
     if (path === "/assets/almostnode.mjs") return js(assets.almost);
-    if (path === "/assets/esbuild.mjs")
-      return js(await readFile(join(deps, "esbuild-wasm/esm/browser.js"), "utf8"));
+    if (path === "/assets/esbuild.mjs") return js(assets.esbuild);
     if (path === "/assets/esbuild.wasm")
       return new Response(assets.wasm, { headers: { "content-type": "application/wasm" } });
     if (path === "/assets/blast-sources.json") return Response.json(assets.sources);
