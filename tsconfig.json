@@ -24,7 +24,8 @@
     "packages",
     "examples/web-launcher",
     "examples/browser-demo",
-    "examples/browser-runtime/e2e.ts"
+    "examples/browser-runtime/e2e.ts",
+    "examples/web-embed/e2e.ts"
   ],
   "exclude": [
     "node_modules",
