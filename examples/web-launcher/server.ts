@@ -5,7 +5,7 @@ import { type ControllerInput, type ControllerView } from "@blastlauncher/client
 import type { JsonValue } from "@blastlauncher/protocol";
 import { clientSource, pageHtml, renderSource } from "./page.ts";
 
-export type WebLauncherOptions = { extensionDir: string; command?: string; port?: number };
+export type WebLauncherOptions = { extensionDir: string; port?: number };
 export type WebLauncher = { url: string; token: string; server: Server; close(): Promise<void> };
 
 type Client = ServerResponse;
@@ -62,13 +62,8 @@ export async function startWebLauncher(options: WebLauncherOptions): Promise<Web
       },
     };
   }
-  const closeSession = async () => {
-    await root?.close();
-    root = undefined;
-  };
-  const launch = async (_command: string) => {
-    await closeSession();
-    extension ??= engine.openExtension({ extensionDir: options.extensionDir });
+  const openRoot = async () => {
+    extension = engine.openExtension({ extensionDir: options.extensionDir });
     root = engine.root({ views: { platform: "macOS" } });
     root.subscribe(update);
     await root.ready();
@@ -128,33 +123,17 @@ export async function startWebLauncher(options: WebLauncherOptions): Promise<Web
         if (latest) response.write(`data: ${JSON.stringify({ type: "view", view: latest })}\n\n`);
         return;
       }
-      if (request.method === "POST" && ["/input", "/launch"].includes(url.pathname)) {
+      if (request.method === "POST" && url.pathname === "/input") {
         if (!request.headers["content-type"]?.toLowerCase().startsWith("application/json")) {
           respond(response, 415, { error: "JSON required" });
           return;
         }
         const body = await readBody(request);
-        if (url.pathname === "/input") {
-          if (!root) {
-            respond(response, 409, { error: "No session" });
-            return;
-          }
-          apply(body as ControllerInput);
-          respond(response, 204, null);
+        if (!root) {
+          respond(response, 409, { error: "No session" });
           return;
         }
-        const command =
-          typeof body === "object" &&
-          body !== null &&
-          "command" in body &&
-          typeof body.command === "string"
-            ? body.command
-            : undefined;
-        if (!command) {
-          respond(response, 400, { error: "command required" });
-          return;
-        }
-        await launch(command);
+        apply(body as ControllerInput);
         respond(response, 204, null);
         return;
       }
@@ -173,12 +152,7 @@ export async function startWebLauncher(options: WebLauncherOptions): Promise<Web
   const address = server.address();
   if (!address || typeof address === "string") throw new Error("Web server did not bind to a port");
   expectedHost = `127.0.0.1:${address.port}`;
-  const command =
-    options.command ??
-    (await (extension ??= engine.openExtension({ extensionDir: options.extensionDir })).manifest())
-      .commands[0]?.name;
-  if (!command) throw new Error("Extension has no commands");
-  await launch(command);
+  await openRoot();
   return {
     url: `http://127.0.0.1:${address.port}/?t=${token}`,
     token,
@@ -188,7 +162,7 @@ export async function startWebLauncher(options: WebLauncherOptions): Promise<Web
       closed = true;
       for (const client of clients) client.end();
       clients.clear();
-      await closeSession();
+      await root?.close();
       await extension?.close();
       await engine.close();
       await new Promise<void>((resolve) => server.close(() => resolve()));

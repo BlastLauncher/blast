@@ -2,7 +2,7 @@
 """Flow tests for embedder.py against the real server (`bun run example:python`).
 
 Covers handshake, root search, launch, the 0157 prompt-form fixture, primary
-action, the clipboard round trip and shutdown.
+action, the clipboard round trip, protocol errors and shutdown.
 """
 
 from __future__ import annotations
@@ -143,6 +143,21 @@ class EmbedderFlow(unittest.TestCase):
             [row["id"] for row in resumed["view"]["rows"] if row.get("kind") == "item"],
             ["hello-list:index"],
         )
+        self.shutdown()
+
+    def test_protocol_error_fails_outstanding_requests(self) -> None:
+        extension = self.client.request("extension.open", {"dir": HELLO})["extension"]
+        session = self.client.request("extension.launch", {"extension": extension, "command": "index"})["session"]
+        # A search without `text` is rejected as a line: no response, only a protocol error.
+        started = time.monotonic()
+        with self.assertRaises(RuntimeError) as raised:
+            self.client.request("session.input", {"session": session, "input": {"type": "search"}})
+        self.assertLess(time.monotonic() - started, 30)
+        self.assertIn("session.input failed", str(raised.exception))
+        self.assertTrue(any(line.startswith("error ") for line in OUT), list(OUT))
+        # The client keeps working after the error.
+        self.client.request("session.input", {"session": session, "input": {"type": "back"}})
+        wait(self.client, lambda m: m.get("event") == "session.exited" and m.get("session") == session)
         self.shutdown()
 
     def test_launch_prompts_a_form_for_missing_values(self) -> None:

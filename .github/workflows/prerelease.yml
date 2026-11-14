@@ -19,8 +19,11 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # Playwright 1.58 does not support ubuntu-26.04 yet (see site.yml); keep
+    # this job on 24.04 until `npx playwright install --with-deps chromium`
+    # accepts latest.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
     permissions:
       contents: read
     outputs:
@@ -45,6 +48,14 @@ jobs:
           VERSION: ${{ inputs.version }}
         run: bun run release:build --version "$VERSION"
       - run: bun run release:smoke
+      - name: Install Chromium
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: .cache/ms-playwright
+        run: npx --yes playwright@1.58.0 install --with-deps chromium
+      - name: Web tarball browser e2e
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: .cache/ms-playwright
+        run: bun run release:web:e2e
       - name: Stage release artifacts
         run: |
           mkdir -p .cache/release/artifact

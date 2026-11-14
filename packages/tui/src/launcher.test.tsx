@@ -496,10 +496,11 @@ test("required preferences block launch, persist, reach the runtime and Ctrl-E e
     const { preferenceFile } = await import("@blastlauncher/host");
     const { stat } = await import("node:fs/promises");
     expect((await stat(preferenceFile(dataDir, "preferences-fixture"))).mode & 0o777).toBe(0o600);
-    // The extension's capability returns to the root and opens the form.
+    // The extension's capability returns to the root and opens the command's form.
     await press(terminal, "enter");
     await settle(terminal, (f) => f.includes("Configure navigation"));
-    await settle(terminal, (f) => f.includes("API key") && f.includes("Extension"));
+    await settle(terminal, (f) => f.includes("Choice") && f.includes("Command"));
+    expect(terminal.captureCharFrame()).not.toContain("API key");
     await press(terminal, "escape");
     await settle(terminal, (f) => f.includes("Search commands"));
     await act(async () => {
@@ -707,67 +708,73 @@ test("Ctrl-E opens extension Configure with fields and descriptions, saves and r
   }
 }, 30_000);
 
-test("preferences.open returns to the root and opens the command's Configure form", async () => {
-  const dir = await copyFixture("host-session");
-  const dataDir = join(dir, "../data");
-  const file = join(dir, "package.json");
-  await writeFile(
-    file,
-    JSON.stringify({
-      name: "preferences-scope-fixture",
-      title: "Scope Fixture",
-      preferences: [{ name: "token", title: "API key", type: "password", required: true }],
-      commands: [
-        {
-          name: "navigation",
-          title: "Navigate",
-          mode: "view",
-          preferences: [
-            {
-              name: "choice",
-              title: "Choice",
-              type: "textfield",
-              default: "default-val",
-            },
-          ],
-        },
-      ],
-    }),
-  );
-  // Pre-store token so command can launch without gate
-  const { createPreferenceStore } = await import("@blastlauncher/host");
-  const store = createPreferenceStore({ extensionName: "preferences-scope-fixture", dataDir });
-  await store.save({ token: "initial-token" }, "navigation", {});
+test.each([
+  ["openExtensionPreferences", "Extension", "API key", "Choice"],
+  ["openCommandPreferences", "Command", "Choice", "API key"],
+] as const)(
+  "%s returns to the root and opens that Configure scope",
+  async (api, section, shown, hidden) => {
+    const dir = await copyFixture("host-session");
+    const dataDir = join(dir, "../data");
+    const file = join(dir, "package.json");
+    await writeFile(
+      file,
+      JSON.stringify({
+        name: "preferences-scope-fixture",
+        title: "Scope Fixture",
+        preferences: [{ name: "token", title: "API key", type: "password", required: true }],
+        commands: [
+          {
+            name: "navigation",
+            title: "Navigate",
+            mode: "view",
+            preferences: [
+              {
+                name: "choice",
+                title: "Choice",
+                type: "textfield",
+                default: "default-val",
+              },
+            ],
+          },
+        ],
+      }),
+    );
+    // Pre-store token so command can launch without gate
+    const { createPreferenceStore } = await import("@blastlauncher/host");
+    const store = createPreferenceStore({ extensionName: "preferences-scope-fixture", dataDir });
+    await store.save({ token: "initial-token" }, "navigation", {});
 
-  await writeFile(
-    join(dir, "src/navigation.tsx"),
-    `import { List, Action, ActionPanel, openExtensionPreferences } from "@raycast/api";
-    export default function Command() { return <List><List.Item title="Item" actions={<ActionPanel><Action title="Open Ext Prefs" onAction={openExtensionPreferences} /></ActionPanel>} /></List>; }`,
-  );
-  const terminal = await testRender(<CommandSession extensionDir={dir} dataDir={dataDir} />, {
-    width: 120,
-    height: 25,
-    exitOnCtrlC: false,
-  });
-  try {
-    await settle(terminal, (f) => f.includes("Search commands"));
-    await press(terminal, "enter");
-    await settle(terminal, (f) => f.includes("Item"));
-    // Trigger openExtensionPreferences
-    await press(terminal, "enter");
-    // Extension preferences are selected by the root's Configure scope.
-    const frame = await settle(terminal, (f) => f.includes("Configure Navigate"));
-    expect(frame).toContain("Extension");
-    expect(frame).toContain("API key");
-    expect(frame).not.toContain("Choice");
+    await writeFile(
+      join(dir, "src/navigation.tsx"),
+      `import { List, Action, ActionPanel, ${api} } from "@raycast/api";
+    export default function Command() { return <List><List.Item title="Item" actions={<ActionPanel><Action title="Open Prefs" onAction={${api}} /></ActionPanel>} /></List>; }`,
+    );
+    const terminal = await testRender(<CommandSession extensionDir={dir} dataDir={dataDir} />, {
+      width: 120,
+      height: 25,
+      exitOnCtrlC: false,
+    });
+    try {
+      await settle(terminal, (f) => f.includes("Search commands"));
+      await press(terminal, "enter");
+      await settle(terminal, (f) => f.includes("Item"));
+      await press(terminal, "enter");
+      // Only the requested scope shows, not the root's own Configure scope.
+      const frame = await settle(terminal, (f) => f.includes("Configure Navigate"));
+      expect(frame).toContain(section);
+      expect(frame).toContain(shown);
+      expect(frame).not.toContain(hidden);
 
-    await press(terminal, "escape");
-    await settle(terminal, (f) => f.includes("Search commands"));
-  } finally {
-    await act(async () => terminal.dispose());
-    await rm(join(dir, ".."), { recursive: true, force: true });
-  }
-}, 30_000);
+      await press(terminal, "escape");
+      await settle(terminal, (f) => f.includes("Search commands"));
+    } finally {
+      await act(async () => terminal.dispose());
+      await rm(join(dir, ".."), { recursive: true, force: true });
+    }
+  },
+  30_000,
+);
 
 test("the launcher passes custom capability handlers to launched commands", async () => {
   const dir = await copyFixture("hello-list");

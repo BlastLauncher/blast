@@ -90,7 +90,6 @@ describe("web launcher", () => {
     expect((await post("/input", launcher.token, "{}", "text/plain")).status).toBe(415);
     expect((await post("/input", "wrong", "{}")).status).toBe(403);
     expect((await post("/input", launcher.token, "{invalid")).status).toBe(400);
-    expect((await post("/launch", launcher.token, "{}")).status).toBe(400);
     await reader.cancel();
   });
 
@@ -100,7 +99,6 @@ describe("web launcher", () => {
       fetch(endpoint("/", "bad")),
       fetch(endpoint("/events", "bad")),
       fetch(endpoint("/input", "bad"), { method: "POST" }),
-      fetch(endpoint("/launch", "bad"), { method: "POST" }),
     ])
       expect((await request).status).toBe(403);
   });
