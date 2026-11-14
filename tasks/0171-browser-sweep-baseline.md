@@ -52,8 +52,31 @@ Blast failures, so the headline is "rendered / renderable in a browser".
 ## Handoff
 
 ```
-Branch/commit: t3/browser-sweep-baseline @ bd4aa89
-Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 190.5s
-Done: Added browser-limit and rendered-with-placeholders classification, generic native dependency catalog filtering, deterministic browser preference placeholders, and fresh compat/browser-sweep.json plus BROWSER-SWEEP.md.
-Not done / risks: Rectangle/MenuCloak/Superwhisper remain in the generated catalog because their native-app requirement is surfaced by runtime errors rather than dependency metadata; runtime fixes are task 0172.
+Branch/commit: t3/browser-sweep-baseline-fixes @ df482da (round 2, on t3/browser-sweep-baseline)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 125.6s
+Done:
+- browser-limit comes from a capability log: the sweep wraps MessagePort in an
+  init script and records each request and answer (applications.*, denied
+  selection/window/ai/oauth, open.path, non-web open.url); CORS/connection
+  failures stay "network". No extension text is matched.
+- needs-credentials (placeholder preferences + remote HTTP 401/403/404) and
+  rendered-with-placeholders (read after the form was answered) are reported
+  apart; placeholders come from scripts/corpus launchInputs via addInitScript,
+  and the demo no longer reads a URL parameter.
+- scripts/browser-catalog.ts drops browser-limit commands (persisted through
+  browser-sweep.json "excluded"), and the report lists them under "Excluded
+  from the demo". Its main now runs only as a script, so the test does no fetch.
+- Headline: Rendered 134 / 170 (104 rendered + 30 with placeholders) of 237 −
+  67 browser-limit. Per outcome: rendered 104, rendered-with-placeholders 30,
+  completed 4, empty 1, browser-limit 67 (applications.list 53, selection.text
+  8, network 5, applications.frontmost 1), needs-credentials 16, Blast
+  failures 15 (14 runtime-error, 1 missing-arguments). Catalog 237 → 170.
+Not done / risks:
+- 1, 3, 4 and 5 share the classifier and runner, so they landed in one commit.
+- browser-limit takes the first limited capability: quick-jump/search is
+  listed as applications.list, but it fails on its placeholder file path.
+- Live services move a few commands between runs (humaans 401 vs unsafe
+  header; v0 manage-profiles rendered vs 401).
+- No-view commands now wait up to 5 s for their exit; undecorate-text read
+  as empty before. site:e2e reads the command count from catalog.json.
 ```
