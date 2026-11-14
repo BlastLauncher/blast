@@ -50,8 +50,38 @@ empty directory outside this repository.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/4f8f1903 @ d1583d9 (work); Handoff in the commit after it
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 170.0s
 Done:
+- quickstart: sparse-clone raycast/extensions android-versions (~25 MB),
+  `npm install @blastlauncher/engine@next`, `npx -p @blastlauncher/serve@next blast-serve`,
+  Python via curl'd embedder.py + npm serve, web via `npm install @blastlauncher/web@next`;
+  112 lines. embedding.md (145 lines), README, packages/web/README.md, Go/Python/macOS
+  example READMEs, docs/release.md install from npm next; alpha.1 notes removed.
+- scripts/release/web-e2e.ts: `--from-npm <version>` installs @blastlauncher/web from
+  the registry into .cache/release/web-e2e-npm and checks the installed version.
+- Landing install section: three npm next boxes (engine, serve, web); site.test.ts
+  asserts them and rejects alpha.1 / From Source / release:build.
 Not done / risks:
+- docs/root-view.md and docs/launch-prompts.md had no install paths or alpha notes;
+  unchanged. examples/web-launcher and browser-demo run from the checkout by design.
+- macOS README `servePath` npm line is untested here (Linux); same `node <path>` spawn
+  the Python/Go runs below use.
+- The web quickstart fetches the extension through the GitHub contents API (60/h unauth).
 ```
+
+Evidence (fresh `.cache/qs-run`, code blocks extracted from docs/quickstart.md and run as is):
+
+- JS: `Commands: Android Versions,Search Android Version` then
+  `Search Android Version: Android 15,Android 14,…,Android 5.0`.
+- serve: `welcome` engine `3.0.0-alpha.2`, `{"extension":"2"}`, `root.view` list
+  "Commands", `{"root":"1"}`.
+- Python block: `connected: engine 3.0.0-alpha.2, protocol v1, 38 capabilities`,
+  `view "Commands"`, `> Search Android Version` (Go with the npm serve: same root).
+- Web: `bun run release:web:e2e --from-npm 3.0.0-alpha.2` →
+  `{"pass":true,"version":"3.0.0-alpha.2","source":"npm","row":"apple","pageLines":11}`;
+  the quickstart page as written (android-versions from GitHub) against the npm
+  install rendered `Android 15 / API 35`.
+- `grep -rn -i "from source\|alpha\.1" README.md docs packages/*/README.md examples
+  --include=*.md --include=landing.ts`: no matches (exit 1).
+- `bun run site:e2e`: `{"pass":true,"browser":"chromium",…}`.
