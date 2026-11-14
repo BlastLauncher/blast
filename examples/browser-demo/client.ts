@@ -29,7 +29,7 @@ import {
   preferenceDefaults,
   preferenceFields,
   type Preference,
-} from "../../packages/web/src/preference-fields.ts";
+} from "@blastlauncher/protocol/preference-fields";
 import { controlledSearchText, syncAttributes } from "./search-sync.ts";
 import {
   commandEntry,

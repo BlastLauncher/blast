@@ -10,7 +10,7 @@ import {
   type BundleIndex,
   type CatalogManifest,
 } from "../../packages/web/src/bundles.ts";
-import { parsePreferences } from "../../packages/web/src/preference-fields.ts";
+import { parsePreferences } from "@blastlauncher/protocol/preference-fields";
 import { projectRoot, relativeFiles } from "./build.ts";
 import { ensureCorpusCheckout } from "../../scripts/corpus/fetch.ts";
 import type { Catalog } from "./root.ts";

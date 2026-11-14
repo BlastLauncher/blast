@@ -6,7 +6,7 @@ import {
   missingPreferences,
   preferenceFields,
   preferenceValues,
-} from "@blastlauncher/web/preference-fields";
+} from "@blastlauncher/protocol/preference-fields";
 import { createSessionBroker } from "./client.ts";
 import { parseManifest, missingRequired, type ExtensionManifest } from "./extension-manifest.ts";
 import {

@@ -26,7 +26,7 @@ import {
   type SharedDependencyLoader,
 } from "./dependencies.ts";
 import { loadTsconfigAliases } from "./tsconfig-paths.ts";
-import { parsePreferences, preferenceDefaults } from "@blastlauncher/web/preference-fields";
+import { parsePreferences, preferenceDefaults } from "@blastlauncher/protocol/preference-fields";
 export {
   missingPreferences,
   parsePreferences,
@@ -35,7 +35,7 @@ export {
   preferenceValues,
   type Preference,
   type PreferenceValue,
-} from "@blastlauncher/web/preference-fields";
+} from "@blastlauncher/protocol/preference-fields";
 
 // Bundles run in Node even when Bun runs the host. Bun's built-in list also
 // includes npm packages such as undici and ws, which must be bundled for Node.

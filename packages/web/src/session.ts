@@ -31,7 +31,7 @@ import {
   parsePreferences,
   preferenceDefaults,
   preferenceFields,
-} from "./preference-fields.ts";
+} from "@blastlauncher/protocol/preference-fields";
 import { acceptsRuntimePortRequest } from "./runtime-port.ts";
 
 export type { WebHandlers, WebStatus, WebView };

@@ -1,4 +1,4 @@
-import { parsePreferences, type Preference } from "./preference-fields.ts";
+import { parsePreferences, type Preference } from "@blastlauncher/protocol/preference-fields";
 import type { CommandMode } from "@blastlauncher/protocol";
 
 export type CatalogArgument = { name: string; required: boolean };

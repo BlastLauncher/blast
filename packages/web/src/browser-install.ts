@@ -1,5 +1,5 @@
 import { maxSatisfying, satisfies } from "semver";
-import { supplied } from "./dependency-policy.ts";
+import { supplied } from "@blastlauncher/protocol/dependency-policy";
 
 export type BrowserFetch = (input: string, init?: RequestInit) => Promise<Response>;
 export type BrowserManifest = {

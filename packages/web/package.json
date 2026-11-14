@@ -3,9 +3,7 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts",
-    "./dependency-policy": "./src/dependency-policy.ts",
-    "./preference-fields": "./src/preference-fields.ts"
+    ".": "./src/index.ts"
   },
   "dependencies": {
     "@blastlauncher/client-core": "workspace:*",

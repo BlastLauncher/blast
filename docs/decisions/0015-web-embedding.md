@@ -7,8 +7,8 @@ Status: accepted 2026-11-14; extends 0013
 1. **A browser-only embedder package.** `@blastlauncher/web` owns the browser
    host wiring (fetch, install, bundle, sandbox, runtime port, capabilities)
    and draws views into a page-selected element. It never imports the Node
-   engine. `packages/host` may import its pure modules (`preference-fields`,
-   `dependency-policy`), never the reverse.
+   engine, and the engine never imports it; logic both need
+   (`preference-fields`, `dependency-policy`) lives in `@blastlauncher/protocol`.
 2. **The embedder hosts the sandbox.** `mount(element, options)` takes a
    `sandboxUrl` that points at sandbox files the embedding application serves
    itself, plus an `assetsUrl` for almostnode, esbuild-wasm and the Blast
