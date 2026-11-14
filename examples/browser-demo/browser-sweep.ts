@@ -340,22 +340,10 @@ async function runCommand(
       undefined,
       { timeout: 15_000 },
     );
-    const placeholders = await page.evaluate(() => {
-      const form = document.querySelector<HTMLFormElement>("#preferences-form");
-      if (document.body.dataset.sweepPlaceholders === "true") return true;
-      if (!form) return false;
-      for (const field of form.querySelectorAll<HTMLInputElement | HTMLSelectElement>(
-        "[data-preference]",
-      )) {
-        if (field instanceof HTMLInputElement && field.type === "checkbox") field.checked = false;
-        else if (field instanceof HTMLSelectElement) field.selectedIndex = 0;
-        else field.value = "blast-smoke";
-        field.dispatchEvent(new Event("input", { bubbles: true }));
-        field.dispatchEvent(new Event("change", { bubbles: true }));
-      }
-      form.requestSubmit();
-      return true;
-    });
+    const placeholders = await page.evaluate(
+      () => document.body.dataset.sweepPlaceholders === "true",
+      undefined,
+    );
     // A fixed wait classified commands that fetch during their first render as
     // empty (or as content before their failure toast arrived). Follow the
     // command's own loading state and DOM quiet period instead.
