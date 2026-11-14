@@ -44,13 +44,9 @@ client and doc shows the smaller API.
 - [x] 0166 Docs, README and landing page show the final API
 - [x] 0167 Site e2e without GitHub API quota
 - [x] 0168 Engine prompt and root view gaps found by the TUI migration
+- [ ] 0169 M9 follow-ups: TUI scope, Python errors, web launcher, release web e2e
 
 ## Later (not scheduled)
-
-- TUI `preferences.open` honours scope `command` (opens extension scope today).
-- Python example fails pending requests on a protocol `error` (docs rule).
-- Web launcher: drop the ignored `/launch` endpoint and `command` option.
-- `release:web:e2e` in the prerelease workflow.
 
 Out of scope (0009): MyGo, TUI launcher features.
 
