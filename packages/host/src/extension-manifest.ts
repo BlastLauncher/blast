@@ -19,12 +19,16 @@ export type ExtensionCommand = {
   mode: ExtensionMode;
   arguments: ExtensionArgument[];
   preferences: Preference[];
+  /** The command's own `icon` file name; absent when it uses the extension's. */
+  icon?: string;
 };
 export type ExtensionManifest = {
   name: string;
   title: string;
   preferences: Preference[];
   commands: ExtensionCommand[];
+  /** The `icon` file name under the extension's `assets/`, when declared. */
+  icon?: string;
 };
 
 const MODES: ExtensionMode[] = ["view", "no-view", "menu-bar"];
@@ -47,6 +51,7 @@ export function parseManifest(value: unknown): ExtensionManifest {
     title: string(manifest.title) || name,
     preferences: parsePreferences(manifest.preferences),
     commands: manifest.commands.map(parseCommand),
+    ...(string(manifest.icon) ? { icon: string(manifest.icon) } : {}),
   };
 }
 
@@ -67,6 +72,7 @@ function parseCommand(value: unknown, index: number): ExtensionCommand {
     mode: mode as ExtensionMode,
     preferences: parsePreferences(command.preferences),
     arguments: Array.isArray(command.arguments) ? command.arguments.map(parseArgument) : [],
+    ...(string(command.icon) ? { icon: string(command.icon) } : {}),
   };
 }
 
