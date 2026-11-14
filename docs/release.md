@@ -2,9 +2,10 @@
 
 Run **v3 prerelease** from the repository's GitHub Actions tab and enter a
 version such as `3.0.0-alpha.1`, `3.0.0-beta.2`, or `3.0.0-rc.1`. Leave
-**dry_run** enabled to verify, build, smoke-test, and retain the eight npm
-tarballs plus the embedder schema as a workflow artifact. A real run clears
-that checkbox and publishes only versions that are not already on npm.
+**dry_run** enabled to verify, build, smoke-test (including the web tarball's
+browser e2e), and retain the eight npm tarballs plus the embedder schema as a
+workflow artifact. A real run clears that checkbox and publishes only versions
+that are not already on npm.
 
 Prereleases use the `next` npm dist-tag and do not move `latest`, which stays
 on Blast v1. The workflow tags the commit as `v<version>` and creates a GitHub
