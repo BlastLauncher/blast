@@ -3,7 +3,7 @@ import { createCliRenderer } from "@opentui/core";
 import { createRoot } from "@opentui/react";
 import { createNativeHandlers } from "@blastlauncher/native";
 import { App } from "./app.tsx";
-import { CommandSession } from "./picker.tsx";
+import { CommandSession } from "./launcher.tsx";
 import { openCommand } from "./session.ts";
 
 const args = process.argv.slice(2);
@@ -47,7 +47,7 @@ if (!extensionDir || rest.length) {
     await opened.close();
   }
 } else {
-  // Picker mode: choose a command from the manifest, launch it, and return.
+  // Launcher mode: the engine root lists the commands; launch one and return.
   let quit!: () => void;
   const finished = new Promise<void>((resolve) => {
     quit = resolve;
