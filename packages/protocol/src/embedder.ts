@@ -157,7 +157,7 @@ const shapes: Record<keyof EmbedderParams, string[]> = {
     "prompts?",
     "views?",
   ],
-  "extension.configure": ["extension", "command", "views?"],
+  "extension.configure": ["extension", "command", "scope?", "views?"],
   "root.open": ["views?"],
   "root.input": ["root", "input"],
   "root.close": ["root"],
@@ -228,6 +228,7 @@ function valid(v: unknown): boolean {
             return typeof y === "number" && Number.isSafeInteger(y) && y >= 0 && y <= 2_147_483_647;
           if (key === "installDependencies" || key === "prompts") return typeof y === "boolean";
           if (key === "launchContext") return record(y, json);
+          if (key === "scope") return y === "extension" || y === "command";
           if (key === "views") return viewsOptions(y);
           if (key === "input") return controllerInput(y);
           if (key === "values")

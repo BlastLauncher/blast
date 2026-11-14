@@ -194,7 +194,6 @@ export function createRootController(
               type,
               extension: current.extension,
               command: current.command,
-              ...(type === "configure" ? { scope: "extension" as const } : {}),
             },
           ]
         : [],

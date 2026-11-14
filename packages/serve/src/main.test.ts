@@ -910,6 +910,37 @@ test("extension.configure streams the preferences form and saves without launchi
   expect(await c.exited).toBe(0);
 });
 
+test("extension.configure shows only the requested preference scope", async () => {
+  const c = await client();
+  await c.hello([], linux);
+  const dir = join(c.dir, "scoped");
+  await cp(resolve("fixtures/extensions/engine-handle"), dir, { recursive: true });
+  const file = join(dir, "package.json");
+  const manifest = JSON.parse(await readFile(file, "utf8"));
+  manifest.preferences = [{ name: "token", type: "password", title: "Token", required: false }];
+  manifest.commands[0].preferences = [
+    { name: "mode", type: "textfield", title: "Mode", required: false },
+  ];
+  await writeFile(file, JSON.stringify(manifest));
+  const extension = (await c.request("extension.open", { dir })).result.extension as string;
+  const fields = async (scope?: "extension" | "command") => {
+    const { result } = await c.request("extension.configure", {
+      extension,
+      command: "index",
+      ...(scope ? { scope } : {}),
+    });
+    const form = await c.wait(sessionView(result.session, (view) => view.kind === "form"));
+    await c.request("session.input", { session: result.session, input: { type: "primary" } });
+    await c.wait((v) => v.event === "session.exited" && v.session === result.session);
+    return form.view.form.fields.map((f: any) => f.id);
+  };
+  expect(await fields("extension")).toEqual(["token"]);
+  expect(await fields("command")).toEqual(["mode"]);
+  expect(await fields()).toEqual(["token", "mode"]);
+  await c.request("engine.shutdown");
+  expect(await c.exited).toBe(0);
+}, 30_000);
+
 test("root.open launches with prompts and Configure Command opens the preferences session", async () => {
   const c = await client();
   await c.hello([], linux);

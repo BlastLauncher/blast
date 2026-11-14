@@ -195,6 +195,9 @@ export function createRoot(source: RootSource, options: RootOptions): Root {
     const manifest = handle && manifests.get(handle);
     const command = manifest?.commands.find((c) => c.name === commandName);
     if (!handle || !manifest || !command) return;
+    // The root's Configure Command shows extension preferences unless the
+    // effect or the embedder asks for another scope.
+    const configureScope = configure ? (scope ?? options.configureScope ?? "extension") : undefined;
     busy = true;
     try {
       if (options.launch) {
@@ -202,7 +205,7 @@ export function createRoot(source: RootSource, options: RootOptions): Root {
           extension: handle,
           command: commandName,
           ...(configure ? { configure } : {}),
-          ...(scope ? { scope } : {}),
+          ...(configureScope ? { scope: configureScope } : {}),
         });
         void exited.then(resume, resume);
         return;
@@ -212,9 +215,7 @@ export function createRoot(source: RootSource, options: RootOptions): Root {
       const flow = startLaunchFlow(handle, commandName, {
         views: options.views,
         configure,
-        ...(scope || options.configureScope
-          ? { configureScope: scope ?? options.configureScope }
-          : {}),
+        ...(configureScope ? { configureScope } : {}),
       });
       launching = flow;
       active = flow;

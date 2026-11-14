@@ -157,11 +157,11 @@ test("root: Configure Command is an action and a shortcut; neither launches the 
   expect(open.selectedIndex).toBe(1);
   expect(open.rows[1]).toMatchObject({ title: "Configure Command", shortcut: "⇧⌘," });
   expect(root.input({ type: "primary" }).effects).toEqual([
-    { type: "configure", extension: "hello", command: "quiet", scope: "extension" },
+    { type: "configure", extension: "hello", command: "quiet" },
   ]);
   expect(root.view().actions.open).toBe(false);
   expect(root.input({ type: "key", key: { name: ",", meta: true, shift: true } }).effects).toEqual([
-    { type: "configure", extension: "hello", command: "quiet", scope: "extension" },
+    { type: "configure", extension: "hello", command: "quiet" },
   ]);
   expect(root.input({ type: "key", key: { name: "," } }).effects).toEqual([]);
 });
