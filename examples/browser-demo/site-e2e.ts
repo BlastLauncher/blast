@@ -150,6 +150,8 @@ try {
     // Verify pure CSS tab switching
     await page.locator('label[for="tab-go"]').click();
     await page.locator("#panel-go").waitFor({ state: "visible" });
+    await page.locator('label[for="tab-web"]').click();
+    await page.locator("#panel-web").waitFor({ state: "visible" });
     await page.locator('label[for="tab-js"]').click();
     await page.locator("#panel-js").waitFor({ state: "visible" });
 
