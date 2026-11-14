@@ -65,6 +65,14 @@ export type EmbedderParams = {
     /** Overrides the hello default for this session. */
     views?: EmbedderViews;
   };
+  /**
+   * Opens the engine's root search over every opened extension. `root.view`
+   * events carry the list; launching from it starts a normal session
+   * (`root.launched`, then `session.view`). `views` falls back to the hello's.
+   */
+  "root.open": { views?: EmbedderViews };
+  "root.input": { root: string; input: EmbedderControllerInput };
+  "root.close": { root: string };
   "session.input": { session: string; input: EmbedderControllerInput };
   "session.event": { session: string; node: string; handler: string; args: JsonValue[] };
   "session.close": { session: string };
@@ -129,6 +137,9 @@ const shapes: Record<keyof EmbedderParams, string[]> = {
     "installDependencies?",
     "views?",
   ],
+  "root.open": ["views?"],
+  "root.input": ["root", "input"],
+  "root.close": ["root"],
   "session.input": ["session", "input"],
   "session.event": ["session", "node", "handler", "args"],
   "session.close": ["session"],

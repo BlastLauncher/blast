@@ -54,6 +54,7 @@
     "packages/host": {
       "name": "@blastlauncher/host",
       "dependencies": {
+        "@blastlauncher/client-core": "workspace:*",
         "@blastlauncher/protocol": "workspace:*",
         "@blastlauncher/runtime": "workspace:*",
         "esbuild": "0.28.2",

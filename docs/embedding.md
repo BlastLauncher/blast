@@ -94,6 +94,41 @@ and apply returned events and effects. `openExtension` also exposes
 values and unresolved dependencies are typed errors; retry with the requested
 values or `installDependencies: true`.
 
+## Root search
+
+Skip writing a picker: the engine serves Raycast-style root search over every
+opened extension's commands as an ordinary list view (sections per extension,
+subtitles, mode labels, icons, an "Open Command" action).
+
+```text
+← {"type":"request","id":"5","method":"root.open","params":{"views":{"platform":"macOS"}}}
+→ {"type":"response","id":"5","ok":true,"result":{"root":"3"}}
+→ {"type":"event","event":"root.view","root":"3","view":{...}}
+← {"type":"request","id":"6","method":"root.input","params":{"root":"3","input":{"type":"primary"}}}
+→ {"type":"event","event":"root.launched","root":"3","session":"4"}
+→ {"type":"event","event":"session.view","session":"4","view":{...}}
+```
+
+`views` defaults to the hello's. `root.view` carries the list again after every
+change, including extensions opened, closed or edited later. Inputs are the
+usual semantic ones (`search`, `move`, `select`, `primary`, `openActions`,
+`back`); others are ignored. A primary starts the command as a normal session:
+draw its `session.view` events and send `session.input`; `back` at its root
+closes it and the root resumes (`root.view`, search cleared) after
+`session.exited`. A launch that cannot start (missing preferences) stays on the
+root with a failure toast in `feedback.toast`. `root.close` releases the root.
+
+In process, `engine.root({ views })` returns `{ view, subscribe, input, ready,
+close }` over every extension opened on the engine; the view becomes the
+running command's until its session ends:
+
+```ts
+const root = engine.root({ views: { platform: "macOS" } });
+await root.ready(); // manifests of the extensions opened so far are read
+root.subscribe((view) => draw(view));
+root.input({ type: "primary" });
+```
+
 ## Capability contract
 
 `packages/protocol/src/capabilities.ts` is the catalog: each name declares its
