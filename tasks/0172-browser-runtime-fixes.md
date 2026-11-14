@@ -1,7 +1,7 @@
 ---
 id: "0172"
 title: "Browser runtime fixes: extension assets, forbidden fetch headers, triaged errors"
-status: todo
+status: doing
 milestone: M10
 depends: ["0171"]
 ---
