@@ -110,7 +110,6 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
   let port: MessagePort | undefined;
   let runtime: SandboxRuntime | undefined;
   let removePortListener: (() => void) | undefined;
-  let lastView: WebView = { type: "loading", extension: source };
   let extensionName = source;
 
   const input = (value: ControllerInput) => {
@@ -131,7 +130,6 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
       });
   const draw = (view: WebView) => {
     if (closed) return;
-    lastView = view;
     if (options.render) options.render(view, input);
     else renderer?.draw(view, status);
   };
@@ -219,7 +217,7 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
       setStatus("Fetching extension…", false, true);
       draw({ type: "loading", extension: source });
       fetched = await fetchExtensionFiles(source, {
-        ...(options.fixtures ? { fixturesUrl: asset("fixtures/") } : {}),
+        fixturesUrl: options.fixtures ? asset("fixtures/") : undefined,
       });
       extensionName = String(fetched.manifest.name ?? source);
     })());

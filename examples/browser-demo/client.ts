@@ -752,7 +752,7 @@ async function fetchFiles(source: string): Promise<FetchedExtension> {
   const allowFixtures =
     Object.getOwnPropertyDescriptor(globalThis, "__BLAST_FIXTURES__")?.value === true;
   const extension = await fetchExtensionFiles(source, {
-    ...(allowFixtures ? { fixturesUrl: asset("fixtures/") } : {}),
+    fixturesUrl: allowFixtures ? asset("fixtures/") : undefined,
   });
   commandSelect?.replaceChildren();
   for (const name of manifestCommands(extension.manifest)) {

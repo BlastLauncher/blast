@@ -11,7 +11,7 @@ export type FetchedExtension = {
 export type FetchExtensionOptions = {
   fetch?: BrowserFetch;
   /** Base URL of `<name>/__files` fixture listings; omit to always use GitHub. */
-  fixturesUrl?: string;
+  fixturesUrl?: string | undefined;
 };
 
 const githubApiPath = (path: string) =>
