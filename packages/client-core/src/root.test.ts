@@ -131,9 +131,13 @@ test("root: the actions panel opens on a command row, primary launches and close
     open: true,
     title: "Hello List",
     selectedIndex: 0,
-    rows: [{ id: "open", kind: "action", title: "Open Command", selected: true }],
+    rows: [
+      { id: "open", kind: "action", title: "Open Command", selected: true },
+      { id: "configure", kind: "action", title: "Configure Command", selected: false },
+    ],
   });
   root.input({ type: "move", direction: "down" });
+  root.input({ type: "move", direction: "up" });
   expect(root.view().selectedId).toBe("hello:hello-list");
   expect(root.input({ type: "primary" }).effects).toEqual([
     { type: "launch", extension: "hello", command: "hello-list" },
@@ -142,6 +146,24 @@ test("root: the actions panel opens on a command row, primary launches and close
   root.input({ type: "openActions" });
   root.input({ type: "back" });
   expect(root.view().actions.open).toBe(false);
+});
+
+test("root: Configure Command is an action and a shortcut; neither launches the command", () => {
+  const root = createRootController(catalog, { platform: "macOS" });
+  root.input({ type: "move", direction: "down" });
+  root.input({ type: "openActions" });
+  root.input({ type: "move", direction: "down" });
+  const open = root.view().actions;
+  expect(open.selectedIndex).toBe(1);
+  expect(open.rows[1]).toMatchObject({ title: "Configure Command", shortcut: "⇧⌘," });
+  expect(root.input({ type: "primary" }).effects).toEqual([
+    { type: "configure", extension: "hello", command: "quiet" },
+  ]);
+  expect(root.view().actions.open).toBe(false);
+  expect(root.input({ type: "key", key: { name: ",", meta: true, shift: true } }).effects).toEqual([
+    { type: "configure", extension: "hello", command: "quiet" },
+  ]);
+  expect(root.input({ type: "key", key: { name: "," } }).effects).toEqual([]);
 });
 
 test("root: there are no actions without a command", () => {
