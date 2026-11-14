@@ -13,19 +13,30 @@ report) is fixed or has a written reason in the report.
 
 ## Context
 
-- Known so far (2026-11-09 sweep; recheck against 0171's fresh report):
-  - `ENOENT … /blast/assets/<ext>/…` and `/blast/assets/package.json`
-    (dot-new, sf-symbols-search, one more): files the extension reads from
-    `environment.assetsPath` are missing or mapped to the wrong path in the
-    sandbox VFS (`packages/web/src/session.ts`, `extension-files.ts`,
-    `prebuilt.ts`; decision 0013 says commands get
+- The 15 Blast failures in `compat/BROWSER-SWEEP.md` (sweep of 2026-11-14,
+  table "Blast failures"):
+  - `Refused to set unsafe header "user-agent"` (humaans/people,
+    splatoon/splatoon-2-schedules, splatoon/splatoon-3-schedules): the
+    browser forbids some request headers; drop forbidden headers (Fetch
+    spec list) in the sandbox's fetch/XHR path instead of throwing, as a
+    browser would.
+  - `ENOENT /blast/assets/...` (dot-new/index, sf-symbols-search/index,
+    trenit/departures-and-arrivals): files an extension reads from its
+    assets (or its own `package.json`) are missing or mapped to the wrong
+    path in the sandbox VFS (`packages/web/src/session.ts`,
+    `extension-files.ts`, `prebuilt.ts`; decision 0013 gives commands
     `/blast/assets/<extension>`). Prebuilt bundles may omit assets.
-  - `Refused to set unsafe header "user-agent"` (2): the browser forbids
-    some request headers; drop forbidden headers (Fetch spec list) in the
-    sandbox's fetch/XHR path instead of throwing, as a browser would.
-  - `Width/Height must be an integer`, `reading '$and'`,
-    `Unexpected end of JSON input`, `The database does not exist`: find each
-    root cause; fix what is Blast's, document what is not.
+  - `Width/Height must be an integer` (convert-px-to-vw-vh): likely the
+    placeholder argument or preference value type; check what Node's smoke
+    passes and whether number-typed values are strings in the browser.
+  - `missing-arguments` (pinch-svg/custom-rectangle): placeholders should
+    cover required arguments as they do in the Node smoke.
+  - `reading '$and'` (hyrule-compendium-search/getEntry), `Unexpected end of
+    JSON input` (uk-bank-holidays/index), HTTP 404 (bookstack, 2 commands,
+    probably placeholder base URL → `needs-credentials`), `Cannot find
+    module 'sqlite'` (ego-lite, native: browser limit),
+    `ring-intercom/unlock` (needs authentication: needs-credentials): find
+    each root cause; fix Blast's, reclassify the rest with a reason.
 - Fix in `packages/web` / the runtime, never in extensions. Each fix gets a
   unit test or fixture-based browser test.
 - Export `PLAYWRIGHT_BROWSERS_PATH="$HOME/.cache/ms-playwright"`.
