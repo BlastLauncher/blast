@@ -22,6 +22,7 @@ declare module "playwright" {
   export type ConsoleMessage = { type(): string; text(): string };
   export type PageError = { message: string };
   export type Response = { status(): number; url(): string; body(): Promise<Buffer> };
+  export type Request = { url(): string };
   export type Route = {
     fulfill(options: { contentType: string; body: string }): Promise<void>;
   };
@@ -75,6 +76,7 @@ declare module "playwright" {
     on(event: "console", handler: (message: ConsoleMessage) => void): void;
     on(event: "pageerror", handler: (error: PageError) => void): void;
     on(event: "response", handler: (response: Response) => void): void;
+    on(event: "request", handler: (request: Request) => void): void;
     off(event: "response", handler: (response: Response) => void): void;
     reload(options?: { waitUntil?: "load" }): Promise<unknown>;
     url(): string;
