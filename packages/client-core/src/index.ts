@@ -15,3 +15,4 @@ export * from "./feedback.ts";
 export * from "./menu-bar.ts";
 export * from "./icons.ts";
 export * from "./controller.ts";
+export * from "./root.ts";
