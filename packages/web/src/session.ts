@@ -349,7 +349,7 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
           extension: extensionName,
           command: commandName,
           fields: preferenceFields(extensionPreferences, commandPreferences),
-          values,
+          values: values as Record<string, string | number | boolean>,
         });
         if (!supplied) return;
         resolvedValues = { ...values, ...supplied };
