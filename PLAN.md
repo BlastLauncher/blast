@@ -42,11 +42,14 @@ client and doc shows the smaller API.
 - [x] 0157 Launch prompts and dependency installs as views
 - [x] 0158 Minimal Python embedder (stdlib, ≤ 200 lines); Go example on new flow
 - [x] 0159 `@blastlauncher/web`: embed the browser runtime in any page (+ decision)
-- [ ] 0160 Reference clients on engine-owned flows; docs refresh
+- [ ] 0160 TUI on the engine root view and launch prompts
 - [x] 0161 Deterministic TUI picker capability-handler test
 - [x] 0162 Real engine version in the serve welcome
 - [x] 0163 Browser demo on `@blastlauncher/web`
 - [x] 0164 `@blastlauncher/web` ships its sandbox and runtime assets
+- [ ] 0165 macOS and web-launcher examples on the engine flows
+- [ ] 0166 Docs, README and landing page show the final API
+- [ ] 0167 Site e2e without GitHub API quota
 
 ## Later (not scheduled)
 

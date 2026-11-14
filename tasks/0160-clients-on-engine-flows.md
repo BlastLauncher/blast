@@ -1,6 +1,6 @@
 ---
 id: "0160"
-title: Reference clients on engine-owned flows; docs refresh
+title: TUI on the engine root view and launch prompts
 status: todo
 milestone: M9
 depends: ["0157", "0158", "0159"]
@@ -8,35 +8,34 @@ depends: ["0157", "0158", "0159"]
 
 ## Goal
 
-The reference clients use the engine root view and launch prompts instead of
-their own pickers and prompt forms, and every doc and landing snippet shows
-the final, smaller API.
+The terminal client (`packages/tui`) uses the engine root view and launch
+prompts (`engine.root`, `startLaunchFlow`) instead of its own command picker,
+ranking and preferences form, with the same look and keys.
 
 ## Context
 
-- Decision 0014 consequences. Migrate: `packages/tui` picker and preferences
-  prompt, `examples/macos-launcher` (`LauncherCommandPicker.swift`,
-  presenter), `examples/web-launcher`. The browser demo was migrated in 0159.
-  Keep their UX (look, keys); only the source of the data changes.
-- Then refresh: `README.md`, `docs/quickstart.md`, `docs/embedding.md`, the
-  landing snippets (`examples/browser-demo/landing.ts` from 0154): root view
-  in every path, `hello.views`, prompts, the web package, Python example.
-  Remove any "coming in M9" notes.
-- Report before/after line counts for each client.
+- Decision 0014 consequences. Today `packages/tui/src/picker.tsx` (812 lines)
+  ranks commands, builds the preferences form and installs dependencies
+  itself. The engine now does all of that: `packages/host/src/root.ts`
+  (`engine.root`), `packages/host/src/launch-flow.ts` (`startLaunchFlow`),
+  `packages/client-core/src/root.ts` and `prompt.ts`. Draw their
+  `ControllerView`s with the TUI's existing list/form renderers.
+- Keep the TUI's UX: layout, palette, keys (including Configure Command,
+  ⌘⇧, / Ctrl+Shift+,), live `package.json` reload, custom capability
+  handlers passed to launched commands.
+- Keep the existing `picker.test.tsx` scenarios as behaviour tests against
+  the new wiring; adapt only how they reach state, not what they assert.
 
 ## Acceptance
 
-- [ ] `grep -rn` shows no client-side command ranking or preference-form
-      building left in `packages/tui/src` and the examples (list leftovers
-      with reasons in Handoff).
-- [ ] TUI tests, `bun run example:mac` (macOS CI), web-launcher tests, site
-      e2e pass.
-- [ ] Every quickstart path re-run from tarballs as in 0153 (output in Handoff).
-- [ ] `bun run verify` passes.
+- [ ] No command ranking or preference-form building left in
+      `packages/tui/src` (grep in Handoff; list leftovers with reasons).
+- [ ] Handoff gives `picker.tsx` (or its replacement) line counts before/after.
+- [ ] TUI tests pass; `bun run verify` passes.
 
 ## Out of scope
 
-- New launcher features, visual redesigns, engine changes.
+- Engine changes (report gaps in Handoff), visual redesigns, other clients.
 
 ## Handoff
 
