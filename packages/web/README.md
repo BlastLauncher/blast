@@ -5,8 +5,12 @@ second origin you host, so it cannot reach your page's DOM, cookies or data.
 
 ## Quickstart
 
+The package is not on npm until the next prerelease. Build it from source
+(`bun run release:build` in a checkout) and install its tarball with the
+`client-core` and `protocol` ones it depends on:
+
 ```sh
-npm install @blastlauncher/web@next
+npm install ../blast/.cache/release/tarballs/blastlauncher-{web,client-core,protocol}-*.tgz
 ```
 
 Serve two directories from the package as static files, unchanged:
