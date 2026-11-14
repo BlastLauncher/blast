@@ -867,3 +867,66 @@ test("the command title is the fallback when the list has no navigation title", 
   controller.scene(scene(list({ navigationTitle: "People" }, item("a"))));
   expect(controller.view().title).toBe("People");
 });
+
+test("view rows, grid cells, menu rows and the empty view carry drawable icons", () => {
+  const options = { platform: "Linux", assetsDir: "/ext/assets" } as const;
+  const light = createController(options);
+  const dark = createController({ ...options, appearance: "dark" });
+  const message = scene(
+    node("List", "list", {}, [
+      item("a", {
+        icon: { source: { light: "l.png", dark: "d.png" }, mask: "circle", tintColor: "red" },
+      }),
+      item("b", { icon: "add-16" }),
+    ]),
+  );
+  light.scene(message);
+  dark.scene(message);
+  expect(light.view().rows[0]).toMatchObject({
+    iconSource: { kind: "file", path: "/ext/assets/l.png" },
+    iconMask: "circle",
+    iconTint: "red",
+  });
+  expect(dark.view().rows[0]?.iconSource).toEqual({ kind: "file", path: "/ext/assets/d.png" });
+  expect(light.view().rows[1]?.iconSource).toEqual({ kind: "builtin", name: "add-16" });
+
+  const grid = createController(options);
+  grid.scene(
+    scene(
+      node("Grid", "grid", {}, [
+        node("Grid.Item", "g1", {
+          title: "g1",
+          content: { value: { source: "c.png", mask: "circle" } },
+        }),
+        node("Grid.Item", "g2", { title: "g2", content: { value: { color: "red" } } }),
+      ]),
+    ),
+  );
+  const cells = grid.view().grid?.[0]?.cells;
+  expect(cells?.[0]).toMatchObject({
+    iconSource: { kind: "file", path: "/ext/assets/c.png" },
+    iconMask: "circle",
+  });
+  expect(cells?.[1]).not.toHaveProperty("iconSource");
+
+  const menu = createController(options);
+  menu.scene(
+    scene(
+      node("MenuBarExtra", "menu", { title: "m" }, [
+        node("MenuBarExtra.Item", "mi", { title: "mi", icon: "https://x.test/m.png" }),
+      ]),
+    ),
+  );
+  expect(menu.view().menuBar?.rows[0]?.iconSource).toEqual({
+    kind: "url",
+    url: "https://x.test/m.png",
+  });
+
+  const empty = createController(options);
+  empty.scene(
+    scene(
+      node("List", "list", {}, [node("List.EmptyView", "e", { title: "none", icon: "e.png" })]),
+    ),
+  );
+  expect(empty.view().empty?.iconSource).toEqual({ kind: "file", path: "/ext/assets/e.png" });
+});

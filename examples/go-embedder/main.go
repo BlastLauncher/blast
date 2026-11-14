@@ -41,6 +41,8 @@ type helloMessage struct {
 	Type         string   `json:"type"`
 	Protocol     int      `json:"protocol"`
 	Capabilities []string `json:"capabilities"`
+	// Views turns on view models for every launch; launches then need no options.
+	Views viewsOptions `json:"views"`
 }
 
 type requestMessage struct {
@@ -66,9 +68,8 @@ type viewsOptions struct {
 }
 
 type launchParams struct {
-	Extension string       `json:"extension"`
-	Command   string       `json:"command"`
-	Views     viewsOptions `json:"views"`
+	Extension string `json:"extension"`
+	Command   string `json:"command"`
 }
 
 type sessionInputParams struct {
@@ -285,7 +286,7 @@ func Start(servePath string, out io.Writer) (*Client, error) {
 		c.read(stdout)
 		_ = cmd.Wait()
 	}()
-	if err := c.send(helloMessage{Type: "hello", Protocol: protocolVersion, Capabilities: []string{"clipboard.copy"}}); err != nil {
+	if err := c.send(helloMessage{Type: "hello", Protocol: protocolVersion, Capabilities: []string{"clipboard.copy"}, Views: viewsOptions{Platform: "Linux"}}); err != nil {
 		_ = cmd.Process.Kill()
 		return nil, err
 	}
@@ -312,7 +313,6 @@ func (c *Client) Launch(extension, command string) (string, error) {
 	raw, err := c.request("extension.launch", launchParams{
 		Extension: extension,
 		Command:   command,
-		Views:     viewsOptions{Platform: "Linux"},
 	})
 	if err != nil {
 		return "", err

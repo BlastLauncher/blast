@@ -64,6 +64,10 @@
       "cells": [
         {
           "content": "beer.png",
+          "iconSource": {
+            "kind": "file",
+            "path": "<repository>/fixtures/extensions/grid/assets/beer.png"
+          },
           "id": "4",
           "selected": true,
           "subtitle": "Germany",
@@ -71,6 +75,10 @@
         },
         {
           "content": "wine.png",
+          "iconSource": {
+            "kind": "file",
+            "path": "<repository>/fixtures/extensions/grid/assets/wine.png"
+          },
           "id": "8",
           "selected": false,
           "subtitle": "France",
@@ -78,6 +86,10 @@
         },
         {
           "content": "water.png",
+          "iconSource": {
+            "kind": "file",
+            "path": "<repository>/fixtures/extensions/grid/assets/water.png"
+          },
           "id": "12",
           "selected": false,
           "subtitle": "Norway",

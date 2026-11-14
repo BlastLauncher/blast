@@ -12,7 +12,7 @@ import {
   type Group,
 } from "./rank.ts";
 import { shortcutLabel, type Platform } from "./shortcut.ts";
-import { iconView, type IconView } from "./icons.ts";
+import { iconView, type IconOptions, type IconView } from "./icons.ts";
 
 /** Raycast's built-in shortcuts for actions without an explicit shortcut. */
 export function defaultActionShortcut(node: SceneNode, index: number): unknown {
@@ -38,6 +38,7 @@ export type UIState = {
   selectedId: string | null;
   /** Shown when the scene has no navigation title, typically the command title. */
   fallbackTitle?: string;
+  icons?: IconOptions;
 };
 export type Row = {
   node: SceneNode;
@@ -75,12 +76,16 @@ export function activeNode(node: SceneNode | null | undefined): SceneNode | unde
   return node ?? undefined;
 }
 
-function itemAccessories(node: SceneNode): string {
+function itemAccessories(node: SceneNode, icons: IconOptions): string {
   const accessories = node.props.accessories;
   const labels = Array.isArray(accessories)
     ? accessories.map((value) => {
         if (!value || typeof value !== "object" || Array.isArray(value)) return "";
-        return [text(value.text), text(value.tag), value.icon ? iconView(value.icon).label : ""]
+        return [
+          text(value.text),
+          text(value.tag),
+          value.icon ? iconView(value.icon, icons).label : "",
+        ]
           .filter(Boolean)
           .join(" ");
       })
@@ -88,18 +93,22 @@ function itemAccessories(node: SceneNode): string {
   return labels.filter(Boolean).join("  ");
 }
 
-function itemText(node: SceneNode): string {
+function itemText(node: SceneNode, icons: IconOptions): string {
   const accessories = node.props.accessories;
   const labels = Array.isArray(accessories)
     ? accessories.map((value) => {
         if (!value || typeof value !== "object" || Array.isArray(value)) return "";
-        return [text(value.text), text(value.tag), value.icon ? iconView(value.icon).label : ""]
+        return [
+          text(value.text),
+          text(value.tag),
+          value.icon ? iconView(value.icon, icons).label : "",
+        ]
           .filter(Boolean)
           .join(" ");
       })
     : [];
   return [
-    node.props.icon ? iconView(node.props.icon).label : "",
+    node.props.icon ? iconView(node.props.icon, icons).label : "",
     text(node.props.title),
     text(node.props.subtitle),
     ...labels,
@@ -108,16 +117,16 @@ function itemText(node: SceneNode): string {
     .join("  ");
 }
 
-function itemRow(node: SceneNode): Row {
+function itemRow(node: SceneNode, icons: IconOptions): Row {
   return {
     node,
-    text: itemText(node),
+    text: itemText(node, icons),
     item: true,
     title: text(node.props.title),
     subtitle: text(node.props.subtitle),
-    accessories: itemAccessories(node),
+    accessories: itemAccessories(node, icons),
     icon: Boolean(node.props.icon),
-    ...(node.props.icon ? { iconView: iconView(node.props.icon) } : {}),
+    ...(node.props.icon ? { iconView: iconView(node.props.icon, icons) } : {}),
   };
 }
 
@@ -145,6 +154,7 @@ export function sceneToView(scene: SceneMessage | undefined, state: UIState) {
   const list = activeNode(scene?.root);
   const rows: Row[] = [];
   const query = state.searchText;
+  const icons = state.icons ?? {};
   const filtering = filteringOf(list);
   const grid = list?.type === "Grid" ? gridLayout(list, query, filtering) : undefined;
   if (list?.type === "List") {
@@ -161,7 +171,7 @@ export function sceneToView(scene: SceneMessage | undefined, state: UIState) {
     for (const group of groups) {
       const header = group.section ? sectionRow(group.section) : undefined;
       if (header) rows.push(header);
-      for (const node of group.items) rows.push(itemRow(node));
+      for (const node of group.items) rows.push(itemRow(node, icons));
       if (header) header.count = group.items.length;
     }
     // Children that are neither items nor sections have no list rendering.
@@ -205,7 +215,7 @@ export function sceneToView(scene: SceneMessage | undefined, state: UIState) {
     loading: list?.props.isLoading === true || !scene,
     emptyText: empty
       ? [
-          empty.props.icon ? iconView(empty.props.icon).label : "",
+          empty.props.icon ? iconView(empty.props.icon, icons).label : "",
           text(empty.props.title),
           text(empty.props.description),
         ]

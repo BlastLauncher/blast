@@ -200,6 +200,39 @@ const EVENTS: JsonValue[] = [
   },
 ];
 
+const launch = (views: unknown) => ({
+  type: "request",
+  id: "1",
+  method: "extension.launch",
+  params: { extension: "1", command: "index", views },
+});
+
+test("hello views default validates and rejects bad shapes", () => {
+  for (const views of [
+    { platform: "Linux" },
+    { platform: "macOS", appearance: "dark" },
+    false,
+  ] as const) {
+    const hello = { type: "hello", protocol: 1, capabilities: [], views };
+    expect(parseEmbedderMessage(hello).ok).toBe(true);
+    expect(schemaOf(hello)).toBeNull();
+  }
+  for (const views of [
+    true,
+    null,
+    {},
+    { platform: "other" },
+    { platform: "Linux", appearance: "x" },
+  ]) {
+    const hello = { type: "hello", protocol: 1, capabilities: [], views };
+    expect(parseEmbedderMessage(hello).ok).toBe(false);
+    expect(schemaOf(hello)).not.toBeNull();
+  }
+  expect(parseEmbedderMessage(launch({ platform: "Linux", appearance: "dark" })).ok).toBe(true);
+  expect(schemaOf(launch({ platform: "Linux", appearance: "dark" }))).toBeNull();
+  expect(parseEmbedderMessage(launch(false)).ok).toBe(false);
+});
+
 test("handshake messages validate", () => {
   expect(schemaOf({ type: "hello", protocol: 1, capabilities: [] })).toBeNull();
   expect(schemaOf(SERVED)).toBeNull();

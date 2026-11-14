@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/main.ts"
+    ".": "./src/main.ts",
+    "./serve": "./src/serve.ts"
   },
   "dependencies": {
     "@blastlauncher/client-core": "workspace:*",

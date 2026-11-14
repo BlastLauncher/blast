@@ -1170,3 +1170,22 @@ test("--bundle-timeout accepts zero and a limit, and rejects invalid millisecond
     expect(result.stderr).toContain("--bundle-timeout must be an integer");
   }
 }, 15_000);
+
+test("blast serve speaks the embedder protocol on stdio", async () => {
+  const hello = JSON.stringify({ type: "hello", protocol: 1, capabilities: [] });
+  const request = JSON.stringify({
+    type: "request",
+    id: "1",
+    method: "extension.open",
+    params: { dir: helloList },
+  });
+  const result = await runCli(["serve", "--dependencies", "manual"], `${hello}\n${request}\n`);
+  expect(result.code).toBe(0);
+  const lines = result.stdout
+    .trim()
+    .split("\n")
+    .map((line) => JSON.parse(line));
+  expect(lines[0]).toMatchObject({ type: "welcome", protocol: 1 });
+  expect(lines[1]).toMatchObject({ type: "response", id: "1", ok: true });
+  expect((await runCli(["serve", "--dependencies", "bogus"])).code).toBe(3);
+});

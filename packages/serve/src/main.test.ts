@@ -15,7 +15,13 @@ async function client(native = false, args: string[] = []) {
   const dir = await mkdtemp(join(tmpdir(), "blast-serve-"));
   const child = spawn(
     nodePath,
-    [resolve("packages/serve/src/main.ts"), ...(native ? ["--native"] : []), ...args],
+    [
+      resolve("packages/serve/src/main.ts"),
+      ...(native ? ["--native"] : []),
+      // The server defaults to auto installs; tests must never reach the network.
+      ...(args.includes("--dependencies") ? [] : ["--dependencies", "manual"]),
+      ...args,
+    ],
     { env: { ...process.env, XDG_DATA_HOME: dir }, stdio: ["pipe", "pipe", "pipe"] },
   );
   const messages: Record<string, any>[] = [];
@@ -67,12 +73,13 @@ async function client(native = false, args: string[] = []) {
   return {
     dir,
     child,
+    messages: () => messages,
     send,
     wait,
     request,
     exited,
-    async hello(capabilities: string[] = []) {
-      send({ type: "hello", protocol: 1, capabilities });
+    async hello(capabilities: string[] = [], views?: unknown) {
+      send({ type: "hello", protocol: 1, capabilities, ...(views === undefined ? {} : { views }) });
       return wait((v) => v.type === "welcome");
     },
   };
@@ -450,6 +457,58 @@ test("views opt-in ranks rows, dispatches primary and closes on the quit effect"
   ).toBe(false);
   await c.request("engine.shutdown");
   expect(await c.exited).toBe(0);
+}, 20_000);
+
+const iconList = `
+  import { List } from "@raycast/api";
+  export default () => <List><List.Item id="a" title="a" icon={{ source: "icon.png", mask: "circle" }} /></List>;
+`;
+
+test("hello views give every launch views and carry drawable icons", async () => {
+  const c = await client();
+  await c.hello([], { platform: "Linux", appearance: "dark" });
+  const extension = await viewExtension(c, iconList);
+  const {
+    result: { session },
+  } = await c.request("extension.launch", { extension, command: "index" });
+  const view = await c.wait((v) => v.event === "session.view" && v.session === session);
+  expect(view.view.rows[0]).toMatchObject({
+    iconMask: "circle",
+    iconSource: { kind: "file", path: join(c.dir, "views", "assets", "icon.png") },
+  });
+  expect((await c.request("session.input", { session, input: { type: "primary" } })).ok).toBe(true);
+  await c.request("engine.shutdown");
+  expect(await c.exited).toBe(0);
+}, 20_000);
+
+test("a launch's own views win over the hello default and views false keeps scenes only", async () => {
+  const off = await client();
+  await off.hello([], false);
+  const offExtension = await viewExtension(off, iconList);
+  const plain = await off.request("extension.launch", {
+    extension: offExtension,
+    command: "index",
+  });
+  await off.wait((v) => v.event === "session.scene" && v.session === plain.result.session);
+  expect(
+    (
+      await off.request("session.input", {
+        session: plain.result.session,
+        input: { type: "primary" },
+      })
+    ).ok,
+  ).toBe(false);
+  const own = await off.request("extension.launch", {
+    extension: offExtension,
+    command: "index",
+    views: { platform: "macOS" },
+  });
+  await off.wait((v) => v.event === "session.view" && v.session === own.result.session);
+  expect(
+    off.messages().some((v) => v.event === "session.view" && v.session === plain.result.session),
+  ).toBe(false);
+  await off.request("engine.shutdown");
+  expect(await off.exited).toBe(0);
 }, 20_000);
 
 test("view search timers forward only the latest throttled text once", async () => {

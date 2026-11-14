@@ -1,8 +1,15 @@
 import type { SceneMessage, SceneNode } from "@blastlauncher/protocol";
 import { event, handler, handlerEvent, selectionId, text, type OutboundEvent } from "./nodes.ts";
 import { activeNode, actionRows, defaultActionShortcut, panelRows, sceneToView } from "./view.ts";
-import { contentGlyph, gridMove } from "./grid.ts";
-import { iconView } from "./icons.ts";
+import { contentGlyph, contentIcon, gridMove } from "./grid.ts";
+import {
+  iconFields,
+  iconView,
+  type IconAppearance,
+  type IconMask,
+  type IconOptions,
+  type IconSource,
+} from "./icons.ts";
 import { dropdownLabel, dropdownOptions, visibleOptions } from "./dropdown.ts";
 import {
   createFormController,
@@ -63,6 +70,8 @@ export type RowView = {
   selected: boolean;
   iconLabel: string;
   iconTint?: string;
+  iconSource?: IconSource;
+  iconMask?: IconMask;
   /** The row as one line, for clients that do not lay columns out. */
   text: string;
 };
@@ -72,6 +81,9 @@ export type GridCellView = {
   subtitle: string;
   /** The cell content as short text: image source name or color. */
   content: string;
+  /** Set when the content is an image: what to draw for it. */
+  iconSource?: IconSource;
+  iconMask?: IconMask;
   selected: boolean;
 };
 export type GridRowView = { id: string | null; header: string; cells: GridCellView[] };
@@ -96,6 +108,8 @@ export type MenuRowView = {
   subtitle: string;
   iconLabel: string;
   iconTint?: string;
+  iconSource?: IconSource;
+  iconMask?: IconMask;
   shortcut: string;
   disabled: boolean;
   selected: boolean;
@@ -111,7 +125,14 @@ export type ControllerView = {
   grid: GridRowView[] | null;
   selectedId: string | null;
   emptyText: string;
-  empty: { title: string; description: string; iconLabel: string; iconTint?: string } | null;
+  empty: {
+    title: string;
+    description: string;
+    iconLabel: string;
+    iconTint?: string;
+    iconSource?: IconSource;
+    iconMask?: IconMask;
+  } | null;
   detail: string;
   primary: { title: string; shortcut: string; enabled: boolean };
   actions: {
@@ -183,6 +204,10 @@ export type ControllerOptions = {
   toastDurationMs?: number;
   /** Shown when the scene has no navigation title, typically the command title. */
   fallbackTitle?: string;
+  /** Which light/dark variant of icon sources and tints the view carries. Default: "light". */
+  appearance?: IconAppearance;
+  /** Absolute directory that relative icon image names resolve under (the extension's `assets/`). */
+  assetsDir?: string;
 };
 
 const fresh = (): ControllerResult => ({ events: [], effects: [] });
@@ -197,6 +222,10 @@ const runName = (node: SceneNode | undefined) =>
 
 export function createController(options: ControllerOptions): Controller {
   const { platform } = options;
+  const icons: IconOptions = {
+    appearance: options.appearance ?? "light",
+    ...(options.assetsDir === undefined ? {} : { assetsDir: options.assetsDir }),
+  };
   let current: SceneMessage | undefined;
   const form = createFormController();
   let searchText = "";
@@ -257,6 +286,7 @@ export function createController(options: ControllerOptions): Controller {
       searchText,
       selectedId,
       ...(options.fallbackTitle ? { fallbackTitle: options.fallbackTitle } : {}),
+      icons,
     });
   type Base = ReturnType<typeof base>;
   const isMenu = (view: Base) => view.list?.type === "MenuBarExtra";
@@ -683,7 +713,7 @@ export function createController(options: ControllerOptions): Controller {
         accessories: row.accessories ?? "",
         icon: row.icon === true,
         iconLabel: row.iconView?.label ?? "",
-        ...(row.iconView?.tint ? { iconTint: row.iconView.tint } : {}),
+        ...iconFields(row.iconView),
         count: row.count ?? null,
         selected: item && row.node.id === list.selected?.id,
         text: row.text,
@@ -691,7 +721,7 @@ export function createController(options: ControllerOptions): Controller {
     };
     const actions = panelState(list);
     const dropdown = dropdownState(list);
-    const bar = menuBarView(current, { path: menuPath, selectedId }, platform);
+    const bar = menuBarView(current, { path: menuPath, selectedId }, platform, icons);
     const primaryNode = list.primary;
     let breadcrumb: string[] = [];
     if (panel?.length) {
@@ -705,7 +735,7 @@ export function createController(options: ControllerOptions): Controller {
     const alert = feedback.alert;
     const dismiss = alert?.dismiss;
     const confirm = alert?.primary;
-    const emptyIcon = list.empty?.props.icon ? iconView(list.empty.props.icon) : undefined;
+    const emptyIcon = list.empty?.props.icon ? iconView(list.empty.props.icon, icons) : undefined;
     return {
       kind,
       title: list.title,
@@ -720,13 +750,18 @@ export function createController(options: ControllerOptions): Controller {
         ? list.grid.rows.map((row) => ({
             id: row.node ? row.node.id : null,
             header: row.header,
-            cells: row.cells.map((cell) => ({
-              id: selectionId(cell) ?? cell.id,
-              title: text(cell.props.title),
-              subtitle: text(cell.props.subtitle),
-              content: contentGlyph(cell),
-              selected: cell.id === list.selected?.id,
-            })),
+            cells: row.cells.map((cell) => {
+              const image = contentIcon(cell, icons);
+              return {
+                id: selectionId(cell) ?? cell.id,
+                title: text(cell.props.title),
+                subtitle: text(cell.props.subtitle),
+                content: contentGlyph(cell),
+                ...(image?.source ? { iconSource: image.source } : {}),
+                ...(image?.mask ? { iconMask: image.mask } : {}),
+                selected: cell.id === list.selected?.id,
+              };
+            }),
           }))
         : null,
       selectedId: selected,
@@ -736,7 +771,7 @@ export function createController(options: ControllerOptions): Controller {
             title: text(list.empty.props.title),
             description: text(list.empty.props.description),
             iconLabel: emptyIcon?.label ?? "",
-            ...(emptyIcon?.tint ? { iconTint: emptyIcon.tint } : {}),
+            ...iconFields(emptyIcon),
           }
         : null,
       detail: list.detail,
@@ -815,6 +850,8 @@ export function createController(options: ControllerOptions): Controller {
               subtitle: row.subtitle ?? "",
               iconLabel: row.iconLabel ?? "",
               ...(row.iconTint ? { iconTint: row.iconTint } : {}),
+              ...(row.iconSource ? { iconSource: row.iconSource } : {}),
+              ...(row.iconMask ? { iconMask: row.iconMask } : {}),
               shortcut: row.shortcut ?? "",
               disabled: row.disabled,
               selected: row.item && row.node.id === bar.selected?.node.id,

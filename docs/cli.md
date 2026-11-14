@@ -19,7 +19,7 @@ capability requests; token capabilities (`oauth.tokens.*`) are redacted.
 outside the extension, under `<dataDir>/deps/<encoded-name>/`. It uses the npm
 lockfile, skips install scripts, and reuses unchanged installs. Without a lockfile
 it warns that versions are unpinned. Run it before `blast run` when dependencies
-are missing; matching installs take precedence over Blast's shared packages. `blast run` reports missing packages as a typed launch failure and does not install them; run `blast deps` first. The stdio server accepts `--dependencies manual|auto` (manual is the default).
+are missing; matching installs take precedence over Blast's shared packages. `blast run` reports missing packages as a typed launch failure and does not install them; run `blast deps` first. `blast serve` (the stdio embedder server, also `npx @blastlauncher/serve`) accepts `--native` and `--dependencies manual|auto` (auto is the default).
 
 ## Options
 

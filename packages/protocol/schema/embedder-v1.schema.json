@@ -901,6 +901,12 @@
                     "Windows",
                     "Linux"
                   ]
+                },
+                "appearance": {
+                  "enum": [
+                    "light",
+                    "dark"
+                  ]
                 }
               },
               "required": [
@@ -1220,6 +1226,35 @@
           "items": {
             "type": "string"
           }
+        },
+        "views": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "platform": {
+                  "enum": [
+                    "macOS",
+                    "Windows",
+                    "Linux"
+                  ]
+                },
+                "appearance": {
+                  "enum": [
+                    "light",
+                    "dark"
+                  ]
+                }
+              },
+              "required": [
+                "platform"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "const": false
+            }
+          ]
         }
       },
       "required": [

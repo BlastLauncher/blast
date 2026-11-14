@@ -6,6 +6,7 @@
   "dependencies": {
     "@blastlauncher/host": "workspace:*",
     "@blastlauncher/protocol": "workspace:*",
+    "@blastlauncher/serve": "workspace:*",
     "@blastlauncher/shared-deps": "workspace:*"
   }
 }

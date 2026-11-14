@@ -224,8 +224,12 @@ export function sortKeys(value: unknown): unknown {
   return value;
 }
 
+/** Icon sources are absolute paths; recorded fixtures must not embed this checkout's location. */
 export function renderFixture(view: unknown): string {
-  return `${JSON.stringify(sortKeys(view), null, 2)}\n`;
+  return `${JSON.stringify(sortKeys(view), null, 2)}\n`.replaceAll(
+    JSON.stringify(repositoryRoot).slice(1, -1),
+    "<repository>",
+  );
 }
 
 export function compareFixtures(

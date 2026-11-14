@@ -1,5 +1,6 @@
 import type { SceneNode } from "@blastlauncher/protocol";
 import { selectionId, text } from "./nodes.ts";
+import { iconView, type IconOptions, type IconView } from "./icons.ts";
 import {
   filteringOf,
   groupsOf,
@@ -34,6 +35,18 @@ export function contentGlyph(node: SceneNode): string {
     return color ? `■ ${color}` : "■";
   }
   return "◇";
+}
+
+/** The drawable image of a cell, when its content is an image rather than a color. */
+export function contentIcon(node: SceneNode, icons: IconOptions): IconView | undefined {
+  const content = node.props.content;
+  const value =
+    content && typeof content === "object" && !Array.isArray(content) && "value" in content
+      ? content.value
+      : content;
+  if (value === undefined || value === null) return undefined;
+  if (typeof value === "object" && !Array.isArray(value) && "color" in value) return undefined;
+  return iconView(value, icons);
 }
 
 /**
