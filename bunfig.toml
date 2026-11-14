@@ -8,6 +8,3 @@ peer = false
 [test]
 pathIgnorePatterns = [".cache/**"]
 preload = ["./scripts/test-env.ts"]
-# Tests spawn real runtimes; Bun's 5s default times out machine-dependent
-# engine tests (~9s in isolation) before any real assertion can fail.
-timeout = 30000
