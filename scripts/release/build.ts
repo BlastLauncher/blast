@@ -3,6 +3,7 @@ import { cp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
+import { writeWebAssets } from "../../packages/web/build/assets.ts";
 
 export const root = fileURLToPath(new URL("../../", import.meta.url));
 export const output = join(root, ".cache/release");
@@ -48,7 +49,14 @@ export function releaseManifest(source: Record<string, unknown>, version: string
   };
   manifest.homepage = "https://github.com/BlastLauncher/blast#readme";
   manifest.engines = { node: ">=24.20.0" };
-  manifest.files = ["dist", "schema", "LICENSE", "README.md"];
+  manifest.files = [
+    "dist",
+    "schema",
+    "LICENSE",
+    "README.md",
+    // Static files the embedder hosts: assets/ on the page origin, sandbox/ on the sandbox origin.
+    ...(source.name === "@blastlauncher/web" ? ["assets", "sandbox"] : []),
+  ];
   manifest.exports =
     typeof source.exports === "string"
       ? { ".": entry(source.exports) }
@@ -125,12 +133,15 @@ export async function build(version: string) {
     await rewriteImports(join(dir, "dist"));
     if (pkg === "protocol")
       await cp(join(root, "packages/protocol/schema"), join(dir, "schema"), { recursive: true });
+    if (pkg === "web") await writeWebAssets(dir);
     await writeFile(join(dir, "package.json"), `${JSON.stringify(manifest, null, 2)}\n`);
     await cp(join(root, "LICENSE"), join(dir, "LICENSE"));
-    await writeFile(
-      join(dir, "README.md"),
-      `# ${manifest.name}\n\nBlast's ${pkg === "host" ? "engine" : pkg} package.\nEmitted ESM and TypeScript declarations for Node.js 24.20+.\nSee https://github.com/BlastLauncher/blast for documentation.\n`,
-    );
+    if (pkg === "web") await cp(join(root, "packages/web/README.md"), join(dir, "README.md"));
+    else
+      await writeFile(
+        join(dir, "README.md"),
+        `# ${manifest.name}\n\nBlast's ${pkg === "host" ? "engine" : pkg} package.\nEmitted ESM and TypeScript declarations for Node.js 24.20+.\nSee https://github.com/BlastLauncher/blast for documentation.\n`,
+      );
     if (manifest.bin)
       for (const path of Object.values(manifest.bin as Record<string, string>)) {
         const file = join(dir, path);
