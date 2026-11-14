@@ -21,7 +21,7 @@ git clone --depth 1 --filter=blob:none --sparse https://github.com/raycast/exten
 git -C raycast-extensions sparse-checkout set extensions/android-versions
 ```
 
-The packages are prereleases on npm under `next` (`latest` is still Blast v1).
+The packages are prereleases on npm under `next`; install them with `@next`, not `latest`.
 
 ## Embed in JS/TS
 
