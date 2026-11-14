@@ -228,6 +228,8 @@ try await blast.sendInput(.search("ap"), session: session)`);
     }
     .nav-links {
       display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
       align-items: center;
       gap: 1rem;
       font-size: 0.9375rem;
@@ -539,9 +541,7 @@ try await blast.sendInput(.search("ap"), session: session)`);
       gap: 0.75rem;
     }
     .compare-list li {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.5rem;
+      display: block;
       font-size: 0.9375rem;
       color: var(--text-muted);
       line-height: 1.45;
@@ -733,7 +733,7 @@ try await blast.sendInput(.search("ap"), session: session)`);
             </div>
             <div class="wire-mock-split">
               <div class="mock-view">
-                <div class="mock-search-bar">&#128269; Search&hellip;</div>
+                <div class="mock-search-bar">Search&hellip;</div>
                 <ul class="mock-list">
                   <li class="mock-item active">
                     <span>Apple</span>
@@ -820,8 +820,8 @@ try await blast.sendInput(.search("ap"), session: session)`);
             <h3><span class="bullet-blast">&check;</span> What Blast does</h3>
             <ul class="compare-list">
               <li><strong>Extension lifecycle:</strong> Validates manifests, installs dependencies, and manages command sessions.</li>
-              <li><strong>Bundling &amp; runtime:</strong> Bundles TypeScript into isolated ESM and runs each command in its own process.</li>
-              <li><strong>Raycast compatibility:</strong> Implements <code>@raycast/api</code> and <code>@raycast/utils</code>, measured against the latest <code>@raycast/api</code> (see Receipts).</li>
+              <li><strong>Bundling &amp; runtime:</strong> Bundles each extension with esbuild and runs each command in its own Node.js process.</li>
+              <li><strong>Raycast compatibility:</strong> Provides <code>@raycast/api</code> (and ships <code>@raycast/utils</code>), with coverage measured against the latest release (see Receipts).</li>
               <li><strong>UI reconciliation:</strong> Reconciles React views into a minimal, serializable tree structure.</li>
               <li><strong>Capability brokering:</strong> Mediates storage, clipboard, OAuth and AI access, through explicit grants.</li>
             </ul>
