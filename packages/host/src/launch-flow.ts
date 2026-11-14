@@ -198,6 +198,7 @@ export function startLaunchFlow(
         try {
           await handle.dependencies.install({
             onLog: (message) => {
+              options.launch?.onDependencyLog?.(message);
               const line = lastLine(message);
               if (line && !cancelled)
                 prompt.status({
