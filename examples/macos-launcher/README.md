@@ -129,6 +129,7 @@ After `.rootLaunched(root:session:)`, send input to that session until its
 one command directly, without the root.
 
 `ProcessTransport` spawns `node <servePath>` through `/usr/bin/env`; point
-`servePath` at `packages/serve/src/main.ts`, an installed `blast-serve`, or pass
-extra CLI arguments. `BlastClient.onDiagnostic` reports recoverable protocol
+`servePath` at `packages/serve/src/main.ts`, at
+`node_modules/@blastlauncher/serve/dist/main.js` after
+`npm install @blastlauncher/serve@next`, or pass extra CLI arguments. `BlastClient.onDiagnostic` reports recoverable protocol
 problems (a malformed line is skipped so the stream keeps working).

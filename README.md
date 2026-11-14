@@ -7,7 +7,8 @@ capability requests to answer. You draw the pixels; Blast brings the extension.
 
 **Try it in a browser** — no install: [blast.yukai.dev/demo](https://blast.yukai.dev/demo/).
 
-**Embed in JS/TS** with the in-process engine:
+**Embed in JS/TS** with the in-process engine
+(`npm install @blastlauncher/engine@next`):
 
 ```js
 import { createEngine } from "@blastlauncher/engine";
@@ -18,8 +19,8 @@ root.subscribe((view) => draw(view)); // the command list, prompts, then the com
 root.input({ type: "search", text: "ap" });
 ```
 
-**Embed in any language** by spawning `blast serve` (bin `blast-serve`) and
-speaking versioned NDJSON; the [Go](./examples/go-embedder/) and
+**Embed in any language** by spawning `blast serve`
+(`npx -p @blastlauncher/serve@next blast-serve`) and speaking versioned NDJSON; the [Go](./examples/go-embedder/) and
 [Python](./examples/python-embedder/) examples are standard-library clients:
 
 ```text
@@ -29,8 +30,8 @@ root.launched → session.view: draw it; session.input until session.exited
 capability.request → answer capability.result
 ```
 
-**Embed in a web page** with `@blastlauncher/web`: one `mount()` call runs an
-extension in a sandbox on a second origin you host.
+**Embed in a web page** with `@blastlauncher/web@next`: one `mount()` call runs
+an extension in a sandbox on a second origin you host.
 
 The [quickstart](./docs/quickstart.md) runs each path. The [embedding
 guide](./docs/embedding.md) has the complete API and transcript.
@@ -56,11 +57,10 @@ Compatibility is measured against the latest `@raycast/api`, not claimed:
 The curated [smoke](./compat/SMOKE.md) renders 237/253 commands; dependency
 smoke renders 51/52 ([details](./compat/SMOKE-DEPS.md)).
 
-> **Alpha:** `3.0.0-alpha.1` is published on npm under `next`; `latest` still
-> points at Blast v1. The root view, launch prompts and `@blastlauncher/web`
-> are newer than that prerelease: build them from source with
-> `bun run release:build` until the next one. Reference clients: the browser
-> demo, the TUI, the Go and Python embedders, the AppKit and web launchers.
+> **Alpha:** `3.0.0-alpha.2` is published on npm under `next`
+> (`npm install @blastlauncher/<package>@next`); `latest` still points at
+> Blast v1. Reference clients: the browser demo, the TUI, the Go and Python
+> embedders, the AppKit and web launchers.
 
 ## Packages
 
@@ -83,7 +83,7 @@ Requires Bun and Node.js 24.
 ```bash
 bun install --frozen-lockfile
 bun run verify
-bun run release:build
+bun run release:build   # the npm packages as tarballs, for local testing
 ```
 
 See [architecture](./docs/architecture.md), [capabilities](./docs/capabilities.md),

@@ -13,15 +13,14 @@ shortcuts and pagination already applied. **Input** is semantic (`search`,
 command. A **capability** is an OS or service operation named in the catalog,
 either answered by Blast (storage, OAuth, provider AI) or forwarded to you.
 
-> **Availability:** the root view, launch prompts, `views` in the hello,
-> `extension.configure`, `engine.root`, `startLaunchFlow` and
-> `@blastlauncher/web` are newer than the published `3.0.0-alpha.1`. Until the
-> next prerelease, use them from source: `bun run release:build` writes the
-> packages as tarballs under `.cache/release/tarballs/` ([quickstart](quickstart.md)).
+Install from npm `next` (`3.0.0-alpha.2`; `latest` is still Blast v1), e.g.
+`npm install @blastlauncher/engine@next`; the [quickstart](quickstart.md) runs
+each path end to end.
 
 ## Over stdio, in any language
 
-Start `blast serve` (`@blastlauncher/serve`, bin `blast-serve`) and exchange
+Start `blast serve` (`@blastlauncher/serve`, bin `blast-serve`; e.g.
+`npx -p @blastlauncher/serve@next blast-serve`) and exchange
 newline-delimited JSON. Stdout carries protocol output only. Ask for views in
 the hello, open extensions, then open the root and draw what it sends:
 

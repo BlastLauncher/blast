@@ -26,7 +26,8 @@ the launched session while it runs, then back to the root):
 - Ctrl-D (stdin EOF): shut the server down
 
 `-serve` points at the `packages/serve/src/main.ts` entry, which is spawned
-with `node`.
+with `node`. Outside a checkout, `npm install @blastlauncher/serve@next` and
+pass `-serve node_modules/@blastlauncher/serve/dist/main.js`.
 
 ## Test
 
