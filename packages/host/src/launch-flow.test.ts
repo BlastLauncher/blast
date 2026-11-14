@@ -93,6 +93,7 @@ test("launch flow: missing preferences and arguments become a form, then the com
   flow.input({ type: "primary" });
   const opened = await flow.opened;
   expect(opened).toBeDefined();
+  expect(await flow.argumentValues).toEqual({ query: "hello" });
   const text = await sceneText(opened!);
   expect(text).toContain("sekret");
   expect(text).toContain("hello");

@@ -299,7 +299,10 @@ async function request(message: EmbedderRequest): Promise<JsonValue> {
   }
 }
 const liveSessions = new Map<string, Awaited<ReturnType<ExtensionHandle["launch"]>>["session"]>();
-type LaunchParams = Omit<EmbedderParams["extension.launch"], "prompts"> & { prompts?: boolean };
+type LaunchParams = Omit<EmbedderParams["extension.launch"], "prompts"> & {
+  prompts?: boolean;
+  scope?: "extension" | "command";
+};
 /**
  * Starts a command and streams its session; `started` runs before its first
  * event. With `prompts` (or `configure`) the session starts at once and the
@@ -336,6 +339,7 @@ async function launchSession(
     views,
     launch: launchOptions,
     configure: mode === "configure",
+    ...(params.scope ? { configureScope: params.scope } : {}),
   });
   const ended = Promise.withResolvers<void>();
   const end = (exit: { code: number; error?: unknown }) => {

@@ -72,7 +72,7 @@ const OPTIONAL_KEYS: Partial<Record<keyof EmbedderParams, readonly string[]>> = 
     "prompts",
     "views",
   ],
-  "extension.configure": ["views"],
+  "extension.configure": ["scope", "views"],
   "root.open": ["views"],
 };
 
@@ -100,7 +100,12 @@ const PARAMS: Record<keyof EmbedderParams, Schema> = {
     prompts: { type: "boolean" },
     views,
   },
-  "extension.configure": { extension: string, command: string, views },
+  "extension.configure": {
+    extension: string,
+    command: string,
+    scope: { enum: ["extension", "command"] },
+    views,
+  },
   "root.open": { views },
   "root.input": { root: string, input: ref("controllerInput") },
   "root.close": { root: string },

@@ -8,7 +8,6 @@ import {
   startLaunchFlow,
   type CapabilityHandler,
   type DependencyInstaller,
-  type ExtensionHandle,
   type ExtensionManifest,
   type LaunchFlow,
   type RootOptions,
@@ -69,7 +68,11 @@ export function CommandSession({
         ...(installer ? { installer } : {}),
       });
     const extension = engine.openExtension({ extensionDir });
-    const root = engine.root({ views, launch: (target) => launchRef.current(target) });
+    const root = engine.root({
+      views,
+      configureScope: "extension",
+      launch: (target) => launchRef.current(target),
+    });
     return { engine, extension, root };
   });
   const [screen, setScreen] = useState<Screen>({ kind: "root" });
@@ -118,18 +121,10 @@ export function CommandSession({
   /** Prompts as needed, then starts the command; `undefined` when the user cancelled. */
   async function run(target: Target, argumentValues?: Record<string, string>) {
     const effects = createClientHandlers();
-    let used = argumentValues ?? {};
-    // Relaunch reuses the arguments the prompt collected.
-    const extension: ExtensionHandle = {
-      ...target.extension,
-      launch: (name, options) => {
-        used = options?.argumentValues ?? {};
-        return target.extension.launch(name, options);
-      },
-    };
-    const flow = startLaunchFlow(extension, target.command, {
+    const flow = startLaunchFlow(target.extension, target.command, {
       views,
       ...(target.configure ? { configure: true } : {}),
+      ...(target.scope ? { configureScope: target.scope } : {}),
       launch: {
         ...(argumentValues ? { argumentValues } : {}),
         handlers: {
@@ -157,7 +152,7 @@ export function CommandSession({
     setScreen({ kind: "flow", flow, title });
     try {
       const opened = await flow.opened;
-      return opened && { opened, argumentValues: used };
+      return opened && { opened, argumentValues: await flow.argumentValues };
     } finally {
       delete live.current.flow;
     }

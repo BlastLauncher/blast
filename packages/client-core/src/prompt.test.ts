@@ -9,7 +9,13 @@ const form: PromptForm = {
     {
       title: "Extension",
       fields: [
-        { key: "token", type: "password", title: "Token", required: true },
+        {
+          key: "token",
+          type: "password",
+          title: "Token",
+          description: "API token",
+          required: true,
+        },
         {
           key: "mode",
           type: "dropdown",
@@ -47,6 +53,9 @@ test("a form view shows every field with its start value and the submit title", 
     ["loud", "Form.Checkbox", "Loud"],
     ["argument:who", "Form.TextField", "Who"],
   ]);
+  expect(fields(p).map((f) => f.required)).toEqual([true, false, false, true]);
+  expect(fields(p)[0]?.info).toBe("API token");
+  expect(fields(p)[1]?.info).toBe("");
   expect(fields(p)[1]).toMatchObject({ selected: [{ value: "fast", title: "Fast" }] });
   expect(view.form!.items.map((item) => item.kind)).toEqual([
     "description",

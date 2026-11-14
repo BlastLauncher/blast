@@ -76,6 +76,7 @@ export type FormFieldView = {
   id: string;
   type: string;
   title: string;
+  required: boolean;
   info: string;
   label: string;
   placeholder: string;
@@ -282,7 +283,8 @@ export function createFormController() {
             id: field.id,
             type: field.type,
             title: text(field.props.title ?? field.props.id),
-            info: text(field.props.info),
+            required: field.props.required === true,
+            info: focusId === field.id ? text(field.props.info) : "",
             label: text(field.props.label),
             placeholder: text(field.props.placeholder),
             error: draft?.error || text(field.props.error),

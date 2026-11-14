@@ -84,6 +84,7 @@ function fieldNode(field: PromptField, value: PromptValue, error: string): Scene
   const common = {
     id: field.key,
     title: field.title,
+    required: field.required,
     ...(field.description ? { info: field.description } : {}),
     ...(error ? { error } : {}),
     onChange: handler(`${SET}${field.key}`),

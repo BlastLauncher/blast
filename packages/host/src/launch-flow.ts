@@ -27,6 +27,7 @@ export type LaunchFlowOptions = {
    * preference, current values filled in) and save it, without launching.
    */
   configure?: boolean;
+  configureScope?: "extension" | "command";
 };
 
 type Opened = Awaited<ReturnType<ExtensionHandle["launch"]>>;
@@ -44,6 +45,8 @@ export type LaunchFlow = {
   subscribe(listener: (view: ControllerView) => void): () => void;
   input(input: ControllerInput): void;
   opened: Promise<Opened | undefined>;
+  /** Argument values used by the successful launch, for a direct relaunch. */
+  argumentValues: Promise<Record<string, string>>;
   /** Stop now; closes the command if it already started. */
   cancel(): void;
 };
@@ -95,6 +98,7 @@ export function startLaunchFlow(
   let cancelled = false;
   let waiting: ((effect: PromptEffect) => void) | undefined;
   let running: Opened | undefined;
+  const argumentResult = Promise.withResolvers<Record<string, string>>();
 
   const ask = (): Promise<PromptEffect> =>
     cancelled
@@ -107,15 +111,23 @@ export function startLaunchFlow(
     const answer = waiting;
     waiting = undefined;
     answer?.({ type: "cancel" });
+    argumentResult.resolve({});
     void running?.close();
   };
 
   const configure = async (manifest: ExtensionManifest, command: ExtensionCommand) => {
-    const { values } = await handle.preferences(commandName);
+    const { values } = await handle.preferences(commandName, options.configureScope);
     const sections = [
-      { title: manifest.title, fields: manifest.preferences },
-      { title: command.title, fields: command.preferences },
-    ].filter((section) => section.fields.length);
+      { title: "Extension", fields: manifest.preferences },
+      { title: "Command", fields: command.preferences },
+    ].filter(
+      (section) =>
+        section.fields.length &&
+        (!options.configureScope ||
+          (options.configureScope === "extension"
+            ? section.title === "Extension"
+            : section.title === "Command")),
+    );
     const form: PromptForm = {
       title: `Configure ${command.title}`,
       submit: "Save",
@@ -131,7 +143,9 @@ export function startLaunchFlow(
     };
     prompt.form(form);
     const effect = await ask();
-    if (effect.type === "submit") await handle.savePreferences(commandName, effect.values);
+    if (effect.type === "submit")
+      await handle.savePreferences(commandName, effect.values, options.configureScope);
+    argumentResult.resolve({});
   };
 
   const failure = async (title: string, message: string): Promise<boolean> => {
@@ -161,7 +175,7 @@ export function startLaunchFlow(
       );
       if (missing.length || absent.length) {
         const sections = [
-          ...(missing.length ? [{ title: "Preferences", fields: missing.map(field) }] : []),
+          ...(missing.length ? [{ title: "Extension", fields: missing.map(field) }] : []),
           { title: "Arguments", fields: argumentFields(command) },
         ].filter((section) => section.fields.length);
         prompt.form({
@@ -230,6 +244,7 @@ export function startLaunchFlow(
           return undefined;
         }
         running = opened;
+        argumentResult.resolve({ ...argumentValues });
         return opened;
       } catch (error) {
         if (error instanceof MissingLaunchValuesError) continue;
@@ -267,6 +282,7 @@ export function startLaunchFlow(
       }
     },
     opened,
+    argumentValues: argumentResult.promise,
     cancel,
   };
 }

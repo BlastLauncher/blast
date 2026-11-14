@@ -17,6 +17,8 @@ import type { ExtensionManifest } from "./extension-manifest.ts";
 export type RootOptions = {
   /** Platform and appearance for the root list and every command view. */
   views: Pick<ControllerOptions, "platform" | "appearance">;
+  /** Scope shown by the root's Configure Command action. Defaults to extension. */
+  configureScope?: "extension" | "command";
   /**
    * Take over starting commands (the serve process keys sessions and forwards
    * capabilities itself). Resolve with a promise that settles when that
@@ -28,6 +30,7 @@ export type RootOptions = {
     extension: ExtensionHandle;
     command: string;
     configure?: boolean;
+    scope?: "extension" | "command";
   }) => Promise<{ exited: Promise<unknown> }>;
 };
 
@@ -182,11 +185,19 @@ export function createRoot(source: RootSource, options: RootOptions): Root {
     busy = false;
     if (!closed) catalog.reset();
   };
-  const start = async (extensionName: string, commandName: string, configure: boolean) => {
+  const start = async (
+    extensionName: string,
+    commandName: string,
+    configure: boolean,
+    scope?: "extension" | "command",
+  ) => {
     const handle = tracked.find((h) => manifests.get(h)?.name === extensionName);
     const manifest = handle && manifests.get(handle);
     const command = manifest?.commands.find((c) => c.name === commandName);
     if (!handle || !manifest || !command) return;
+    // The root's Configure Command shows extension preferences unless the
+    // effect or the embedder asks for another scope.
+    const configureScope = configure ? (scope ?? options.configureScope ?? "extension") : undefined;
     busy = true;
     try {
       if (options.launch) {
@@ -194,13 +205,18 @@ export function createRoot(source: RootSource, options: RootOptions): Root {
           extension: handle,
           command: commandName,
           ...(configure ? { configure } : {}),
+          ...(configureScope ? { scope: configureScope } : {}),
         });
         void exited.then(resume, resume);
         return;
       }
       // Missing values and dependency installs are views of the flow, shown
       // in place of the root until the command (or nothing) takes over.
-      const flow = startLaunchFlow(handle, commandName, { views: options.views, configure });
+      const flow = startLaunchFlow(handle, commandName, {
+        views: options.views,
+        configure,
+        ...(configureScope ? { configureScope } : {}),
+      });
       launching = flow;
       active = flow;
       const stopFlow = flow.subscribe(emit);
@@ -250,7 +266,8 @@ export function createRoot(source: RootSource, options: RootOptions): Root {
         return;
       }
       for (const effect of catalog.input(input).effects)
-        if (!busy) void start(effect.extension, effect.command, effect.type === "configure");
+        if (!busy)
+          void start(effect.extension, effect.command, effect.type === "configure", effect.scope);
     },
     async ready() {
       while (loads.size) await Promise.all(loads);

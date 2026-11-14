@@ -499,7 +499,7 @@ test("required preferences block launch, persist, reach the runtime and Ctrl-E e
     // The extension's capability returns to the root and opens the form.
     await press(terminal, "enter");
     await settle(terminal, (f) => f.includes("Configure navigation"));
-    await settle(terminal, (f) => f.includes("API key") && f.includes("preferences-fixture"));
+    await settle(terminal, (f) => f.includes("API key") && f.includes("Extension"));
     await press(terminal, "escape");
     await settle(terminal, (f) => f.includes("Search commands"));
     await act(async () => {
@@ -551,7 +551,8 @@ test("manifest with missing required preference shows Set up launch gate with on
               name: "reqCmd",
               title: "Command secret",
               type: "textfield",
-              required: true,
+              required: false,
+              default: "saved-cmd-secret",
             },
           ],
         },
@@ -603,7 +604,7 @@ test("manifest with missing required preference shows Set up launch gate with on
   }
 }, 30_000);
 
-test("Ctrl-E opens Configure with both sections, all fields and descriptions, saves and returns on Enter or Esc without launch", async () => {
+test("Ctrl-E opens extension Configure with fields and descriptions, saves and returns on Enter or Esc without launch", async () => {
   const dir = await copyFixture("host-session");
   const dataDir = join(dir, "../data");
   const file = join(dir, "package.json");
@@ -638,7 +639,8 @@ test("Ctrl-E opens Configure with both sections, all fields and descriptions, sa
               name: "reqCmd",
               title: "Command secret",
               type: "textfield",
-              required: true,
+              required: false,
+              default: "saved-cmd-secret",
               description: "Command specific secret",
             },
           ],
@@ -664,17 +666,16 @@ test("Ctrl-E opens Configure with both sections, all fields and descriptions, sa
     });
     // Header format: Configure <command title>
     const prefFrame = await settle(terminal, (f) => f.includes("Configure Navigate"));
-    // Both section headers: the extension's and the command's titles
-    expect(prefFrame).toContain("View Fixture");
+    // The engine uses stable Extension/Command section headers.
+    expect(prefFrame).toContain("Extension");
     expect(prefFrame).toContain("Navigate");
     // All fields with their descriptions, the first one focused
     expect(prefFrame).toContain("› API key · Your API token");
-    expect(prefFrame).toContain("Optional note · An optional note");
-    expect(prefFrame).toContain("Command secret · Command specific secret");
+    expect(prefFrame).toContain("Optional note");
 
     // Move to next field (Down)
     await press(terminal, "down");
-    await settle(terminal, (f) => f.includes("› Optional note"));
+    await settle(terminal, (f) => f.includes("› Optional note · An optional note"));
 
     // Press Esc - cancels and returns to the root without launching
     await press(terminal, "escape");
@@ -688,10 +689,6 @@ test("Ctrl-E opens Configure with both sections, all fields and descriptions, sa
     await settle(terminal, (f) => f.includes("Configure Navigate"));
     // token is focused
     await type(terminal, "saved-token");
-    // Navigate to reqCmd
-    await press(terminal, "down"); // opt
-    await press(terminal, "down"); // reqCmd
-    await type(terminal, "saved-cmd-secret");
     await press(terminal, "enter");
 
     // Returns to the root, no launch
@@ -758,10 +755,11 @@ test("preferences.open returns to the root and opens the command's Configure for
     await settle(terminal, (f) => f.includes("Item"));
     // Trigger openExtensionPreferences
     await press(terminal, "enter");
-    // The engine's Configure form has no scope: both sections show.
+    // Extension preferences are selected by the root's Configure scope.
     const frame = await settle(terminal, (f) => f.includes("Configure Navigate"));
-    expect(frame).toContain("Scope Fixture");
+    expect(frame).toContain("Extension");
     expect(frame).toContain("API key");
+    expect(frame).not.toContain("Choice");
 
     await press(terminal, "escape");
     await settle(terminal, (f) => f.includes("Search commands"));
