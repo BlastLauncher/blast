@@ -490,6 +490,18 @@ async function runCommand(
     // empty (or as content before their failure toast arrived). Follow the
     // command's own loading state and DOM quiet period instead.
     await settleScene(page);
+    // A no-view command is back at the root as soon as it starts; give it a
+    // moment to report its exit so a slow one is not snapshotted as empty.
+    if (item.mode === "no-view")
+      await page
+        .waitForFunction(
+          () =>
+            document.body.dataset.commandExit !== undefined ||
+            document.querySelector('#status[data-error="true"]') !== null,
+          undefined,
+          { timeout: 5_000 },
+        )
+        .catch(() => undefined);
     const snapshot = await page.evaluate(
       (selectors) => {
         const sceneMain = document.querySelector<SweepElement>("#app main[data-kind]");

@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { mkdir } from "node:fs/promises";
+import { mkdir, readFile } from "node:fs/promises";
 import { join, relative, sep } from "node:path";
 import { buildSite } from "./site.ts";
 import { projectRoot } from "./build.ts";
@@ -204,8 +204,15 @@ try {
     );
     // 0125 layout: a fixed panel, no page scroll, and selection kept in view.
     // (These checks were lost once in a merge; keep them with the flow.)
-    if ((await page.locator('[role="option"]').count()) < 237)
-      throw new Error("catalog should render at least 237 command options");
+    // Every generated catalog command is listed (the sweep's browser-limit
+    // exclusions change the count, so read it rather than pin it).
+    const generated = (
+      JSON.parse(
+        await readFile(join(projectRoot, "examples/browser-demo/catalog.json"), "utf8"),
+      ) as { extensions: { commands: unknown[] }[] }
+    ).extensions.reduce((total, extension) => total + extension.commands.length, 0);
+    if ((await page.locator('[role="option"]').count()) < generated)
+      throw new Error(`catalog should render at least ${generated} command options`);
     const panelHeight = await page.evaluate(
       () => document.querySelector("main.root")?.getBoundingClientRect().height ?? 0,
     );
