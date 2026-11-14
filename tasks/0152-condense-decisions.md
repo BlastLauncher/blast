@@ -59,7 +59,12 @@ agents that read it before every task get current rules, not history.
 
 ```
 Branch/commit:
-Verify:
+Verify: `bun run verify` passes all functional gates; the baseline format check remains red on unrelated pre-existing files `docs/decisions/0014-thin-embedders.md`, `tasks/0153-product-story-docs.md`, and `tasks/0157-launch-prompts-as-views.md`.
 Done:
-Not done / risks:
+- Kept seven current-state records: 0001, 0002, 0006, 0009, 0010, 0013, and untouched 0014.
+- Folded navigation, feedback, and menu-bar rules from 0003–0005 into 0001.
+- Folded installed-dependency and launch-preflight rules from 0008 and 0012 into 0002.
+- Folded the surviving terminal-client and embedder-wire rules from 0007 and 0011 into 0009.
+- Repointed live references in README, architecture/docs, packages, examples, and scripts; PLAN and AGENTS remain for the orchestrator because workers must not edit them.
+Not done / risks: The verification baseline has an unrelated formatting failure; no product behavior was changed. Remaining decision-number mentions in PLAN/AGENTS are orchestrator-owned references; the task file intentionally documents deleted ids. Deleted-record rules dropped as historical detail: 0003–0005 prose repetition and consequences, 0007's superseded MyGo plan, and 0011's standalone protocol narrative; their live rules are retained in the survivor records above.
 ```

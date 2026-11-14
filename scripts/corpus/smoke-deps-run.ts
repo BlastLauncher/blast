@@ -1,7 +1,7 @@
 // Entry point for `bun run corpus:smoke-deps` (task 0070). For every extension
 // of the dependency-heavy set in `compat/corpus-deps.json`: fetch it (sparse,
 // shallow, into `.cache/`), install its own dependencies with the engine's
-// dependency install (decision 0008) under a timeout, bundle and launch each
+// dependency install (decision 0002) under a timeout, bundle and launch each
 // command exactly as `corpus:smoke` does but with the installed dependencies
 // resolving, then delete the install so peak disk stays bounded. Writes
 // `compat/smoke-deps.json` and `compat/SMOKE-DEPS.md`. Failures are the

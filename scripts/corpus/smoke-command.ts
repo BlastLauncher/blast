@@ -49,7 +49,7 @@ const MAX_WARNINGS = 5;
 const MAX_ERROR_LOGS = 3;
 
 export type DependencyMode = {
-  /** `false` is the allowlist-only resolution of `corpus:smoke` (decision 0008). */
+  /** `false` is the allowlist-only resolution of `corpus:smoke` (decision 0002). */
   installedDependencies: boolean;
   /** Where `blast deps` installed the extension, when `installedDependencies` is on. */
   dataDir?: string;

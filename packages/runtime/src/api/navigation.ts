@@ -101,7 +101,7 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
     () => (options?: PopToRootOptions) => {
       setPopToRootOptions(options);
       // The root view is the provider's own children, not an entry (decision
-      // 0003), so nothing above it is kept; onPops run topmost first, like
+      // 0001), so nothing above it is kept; onPops run topmost first, like
       // successive `pop()` calls.
       if (entries.current.length === 0) return;
       const popped = entries.current.toReversed();

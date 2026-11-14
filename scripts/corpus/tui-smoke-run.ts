@@ -177,7 +177,7 @@ async function runOne(
     });
   let bundled: BundledCommand;
   try {
-    // Allowlist-only, like corpus:smoke, so reports stay comparable (decision 0008).
+    // Allowlist-only, like corpus:smoke, so reports stay comparable (decision 0002).
     bundled = await bundleCommand({
       extensionDir,
       command: commandName,

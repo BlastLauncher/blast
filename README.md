@@ -41,7 +41,7 @@ npx @blastlauncher/cli@next run ./my-extension index
     handlers, lean per-extension dependency installs, npm release build;
   - evidence at scale (M6): latest-API tracking, a sandboxed corpus sweep with
     primary-action probes, Suspense and `use()`, dependencies as part of launch
-    ([decision 0012](./docs/decisions/0012-launch-dependency-policy.md)), the
+    ([decision 0002](./docs/decisions/0002-extension-dependencies.md)), the
     Go example on views, TUI polish, and pre-releases via npm trusted
     publishing ([docs/release.md](./docs/release.md)).
   - real examples (M7, in progress): an AppKit launcher over `blast serve`

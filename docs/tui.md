@@ -49,7 +49,7 @@ A `[command]` opens it directly; otherwise the picker lists commands. `--native`
   launch failure (bundling) stays on the picker with an error line. The process
   exits 1 only if the last launched command crashed and the user then quits.
 
-The picker checks dependencies on open and on manifest changes; installs live under `<dataDir>/deps/` (decision 0008). Missing required preferences open **Set up <command>** before launch. Ctrl-E and `open*Preferences` open full **Preferences — <extension>** view (Extension
+The picker checks dependencies on open and on manifest changes; installs live under `<dataDir>/deps/` (decision 0002). Missing required preferences open **Set up <command>** before launch. Ctrl-E and `open*Preferences` open full **Preferences — <extension>** view (Extension
 and command sections, `*` required, field description); saves without launch.
 Passwords masked, Space toggles checkboxes, ←/→ cycles dropdowns, Enter saves, Esc cancels. Values persist in `<dataDir>/preferences/<encoded-name>.json` (**plaintext, mode 0600**). Data root: `$XDG_DATA_HOME/blast` (or `~/.local/share/blast`). Run `bun scripts/tui-benchmark.ts` for `hello-list` first-frame time and mean keystroke latency through a synthetic 10,000-item List; it uses OpenTUI's in-memory renderer, is outside `bun run verify`, and reports machine-dependent timing.
 

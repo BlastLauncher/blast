@@ -1,6 +1,6 @@
 // Pure selection rules for the dependency-heavy corpus set (task 0070): the
 // extensions that declare packages beyond the shared allowlist, so the smoke
-// run has to install them (decision 0008). Same shape as `selection.ts`: the
+// run has to install them (decision 0002). Same shape as `selection.ts`: the
 // entry point (`select-deps.ts`) feeds these functions manifests, lockfile
 // sizes and sources read from the pinned corpus, every rule is static and
 // deterministic, and nothing here runs git, reads files or touches the network.
@@ -31,7 +31,7 @@ export const PER_GROUP = 6;
 
 /**
  * Packages that ship native code or fetch a binary in an install script. Installs
- * run with `--ignore-scripts` (decision 0008), so they would only fail at runtime
+ * run with `--ignore-scripts` (decision 0002), so they would only fail at runtime
  * for a reason that says nothing about Blast.
  */
 export const NATIVE_PACKAGES: readonly (string | RegExp)[] = [
@@ -66,7 +66,7 @@ export function isNativePackage(name: string): boolean {
   );
 }
 
-/** Runtime-supplied or erased packages that never need an install (decision 0008). */
+/** Runtime-supplied or erased packages that never need an install (decision 0002). */
 function isInstalledPackage(name: string): boolean {
   return (
     !name.startsWith("@types/") &&

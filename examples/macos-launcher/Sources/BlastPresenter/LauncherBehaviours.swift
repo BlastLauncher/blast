@@ -107,7 +107,7 @@ public enum LauncherCommandCatalog {
     }
 }
 
-/// Coordinates a launch and the decision required by decision 0012. It is
+/// Coordinates a launch and the decision required by decision 0002. It is
 /// deliberately closure based so tests inject engine responses and confirmation.
 public final class LauncherLaunchCoordinator: @unchecked Sendable {
     public typealias Launch = @Sendable (_ installDependencies: Bool) async throws -> String

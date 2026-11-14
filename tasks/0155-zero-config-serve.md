@@ -21,7 +21,7 @@ view says what to draw.
   `blast-serve`; check whether `npx @blastlauncher/serve@next` resolves it
   (npm runs the sole bin) and make it so if not. Add `blast serve` to the CLI
   (`packages/cli`) delegating to the serve entry, same flags. `--native` stays
-  opt-in, `--dependencies auto` becomes the serve default (0012/decision on
+  opt-in, `--dependencies auto` becomes the serve default (0002/decision on
   dependencies; `manual` still selectable).
 - Views by default: add `hello.views?: {platform} | false`. When the hello
   has `views`, every `extension.launch` without its own `views` gets them;

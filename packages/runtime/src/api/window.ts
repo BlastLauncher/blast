@@ -1,6 +1,6 @@
 // `closeMainWindow` from the declarations. Closing the window is a client
 // action, so the runtime records the request on the root `Navigation` scene
-// node (decision 0001, like HUD in decision 0004) and resolves. A no-view
+// node (decision 0001, like HUD in decision 0001) and resolves. A no-view
 // command mounts its scene on the first request, exactly like feedback.
 import { PopToRootType } from "./enums.generated.ts";
 import { mountScene } from "./feedback.ts";
