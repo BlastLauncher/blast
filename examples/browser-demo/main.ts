@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { buildBrowserAssets, projectRoot, relativeFiles } from "./build.ts";
+import { sandboxPage } from "../../packages/web/sandbox/page.ts";
 import { demoPage } from "./template.ts";
 import { enrichCatalog, type SweepResult } from "./root.ts";
 async function main() {
@@ -11,10 +12,9 @@ async function main() {
     fetch: async (request) => {
       if (new URL(request.url).pathname === "/almostnode-full.mjs")
         return new Response(assets.sandbox, { headers: { "content-type": "text/javascript" } });
-      return new Response(
-        `<!doctype html><script type="module">import {Runtime,VirtualFS} from '/almostnode-full.mjs'; const runtime=new Runtime(new VirtualFS(),{}); addEventListener('message',async e=>{if(e.data?.type==='execute'){try{const result=await runtime.execute(e.data.code,e.data.filename); parent.postMessage({type:'result',id:e.data.id,result},'*')}catch(error){parent.postMessage({type:'error',id:e.data.id,error:String(error)},'*')}}}); parent.postMessage({type:'ready'},'*');</script>`,
-        { headers: { "content-type": "text/html" } },
-      );
+      return new Response(sandboxPage("/almostnode-full.mjs"), {
+        headers: { "content-type": "text/html" },
+      });
     },
   });
   const host = Bun.serve({

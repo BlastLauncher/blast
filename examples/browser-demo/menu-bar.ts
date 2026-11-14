@@ -5,7 +5,7 @@ import {
   type Platform,
 } from "../../packages/client-core/src/index.ts";
 import type { SceneNode } from "../../packages/protocol/src/index.ts";
-import { escapeHtml, feedbackMarkup, keycap } from "../web-launcher/render.js";
+import { escapeHtml, feedbackMarkup, keycap } from "../../packages/web/src/render.js";
 
 // A menu-bar command draws as macOS does: a status item in the page's top bar
 // and its menu dropping down beneath it, each open submenu beside its parent.

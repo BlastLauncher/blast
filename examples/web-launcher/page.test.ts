@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { readFile } from "node:fs/promises";
-import { render } from "./render.js";
+import { render } from "../../packages/web/src/render.js";
 import { startWebLauncher } from "./server.ts";
 import type { ControllerView } from "@blastlauncher/client-core";
 
@@ -118,7 +118,7 @@ test("serves the exact renderer module imported by tests", async () => {
   try {
     const response = await fetch(launcher.url.replace("/?", "/render.js?"));
     expect(await response.text()).toBe(
-      await readFile(new URL("./render.js", import.meta.url), "utf8"),
+      await readFile(new URL("../../packages/web/src/render.js", import.meta.url), "utf8"),
     );
   } finally {
     await launcher.close();
