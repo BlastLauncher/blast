@@ -1,7 +1,7 @@
 ---
 id: "0152"
 title: Condense decision records into a few current-state records
-status: todo
+status: doing
 milestone: M9
 depends: []
 ---
