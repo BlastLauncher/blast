@@ -38,6 +38,7 @@
         "options": [],
         "placeholder": "",
         "query": "",
+        "required": true,
         "selected": [],
         "text": "",
         "title": "Token",
@@ -56,6 +57,7 @@
         "options": [],
         "placeholder": "",
         "query": "",
+        "required": true,
         "selected": [],
         "text": "",
         "title": "query",
@@ -78,7 +80,7 @@
       {
         "id": "section:0",
         "kind": "description",
-        "text": "Preferences",
+        "text": "Extension",
         "title": ""
       },
       {
