@@ -360,7 +360,7 @@ export type BundleOptions = {
   sharedDependencies?: SharedDependencyLoader;
   outDir?: string;
   dataDir?: string;
-  /** `false` keeps resolution allowlist-only, as corpus reports need (decision 0008). */
+  /** `false` keeps resolution allowlist-only, as corpus reports need (decision 0002). */
   installedDependencies?: boolean;
 };
 /** One `commands[].arguments` entry from an extension manifest. */

@@ -336,7 +336,7 @@ test("matching installed utils override the shared version; stale installs fall 
   expect(await readFile(slim.entry, "utf8")).toContain("installed-utils");
   expect((await checkExtensionDependencies(slimOptions)).unresolved).toEqual(["not-installed"]);
 
-  // Corpus reports opt out and keep the shared allowlist (decision 0008).
+  // Corpus reports opt out and keep the shared allowlist (decision 0002).
   await writeFile(
     join(options.extensionDir, "src/index.ts"),
     'import { useCachedState } from "@raycast/utils"; console.log(useCachedState);',

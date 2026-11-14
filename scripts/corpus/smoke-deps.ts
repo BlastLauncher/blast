@@ -249,7 +249,7 @@ const HINTS: Partial<Record<DepsOutcome, string>> = {
   network: "none: the run is offline; the command needs a network to render",
 };
 const INSTALL_HINTS: Record<InstallReason, string> = {
-  lockfile: "installer: the copied lockfile (decision 0008) is rejected by npm",
+  lockfile: "installer: the copied lockfile (decision 0002) is rejected by npm",
   engine: "installer: pass or relax engines for a pinned dependency",
   peer: "installer: peer-dependency resolution after supplied packages are stripped",
   network: "none: the registry was unreachable",
@@ -326,7 +326,7 @@ export function renderDepsMarkdownReport(report: DepsReport): string {
     "Headless run of every command of the dependency-heavy set",
     "([corpus-deps.json](corpus-deps.json)) at corpus commit",
     `\`${report.commit}\`. Each extension's own dependencies are installed with the`,
-    "engine's dependency install (decision 0008: `npm install --omit=dev --ignore-scripts`",
+    "engine's dependency install (decision 0002: `npm install --omit=dev --ignore-scripts`",
     "from the extension's lockfile) before its commands are bundled, with the shared",
     "dependency fallback present; the install is deleted afterwards. Broker, preference",
     "defaults and probe are the same as [SMOKE.md](SMOKE.md).",

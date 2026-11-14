@@ -1,58 +1,38 @@
-# 0002 — Extension dependency resolution
+# 0002 — Extension dependency resolution and launch policy
 
-Status: accepted 2026-10-18; amended by task 0037 (interim allowlist)
+Status: accepted 2026-10-18; absorbs 0008 and 0012
 
 ## Decision
 
-Until v1, the host's esbuild plugin resolves extension imports in this order:
+1. Bundle resolution keeps `@raycast/api`, `react` and Node built-ins external,
+   then uses an extension's matching lean install, then the optional pinned
+   `@blastlauncher/shared-deps` allowlist. Other bare imports fail with a typed
+   missing-dependency result. Static `require` follows the same policy; dynamic
+   `require` permits only Node built-ins.
+2. Lean installs happen outside the extension from its lockfile with npm
+   `--omit=dev --omit=peer --ignore-scripts --no-audit --no-fund`. Supplied
+   runtime packages are stripped from lockfiles; required peer repairs are
+   bounded. Installs are keyed by extension manifest and lockfile and may be
+   removed at any time. Corpus smoke remains offline and allowlist-only.
+3. The shared fallback uses exact pinned versions and a bounded disk budget.
+   Selection follows imported rank and portability filters; native addons,
+   install hooks, binaries and oversized graphs are excluded. Extensions may
+   declare another major; Blast warns when the provided major excludes it.
+4. Launch checks dependencies before bundling. Unresolved packages produce a
+   typed `missing_dependencies` result with unresolved/installable/pinned data.
+   Installation is explicit per launch (`installDependencies: true`); an engine
+   or serve `auto` policy may make that the default, while `false` overrides it.
+5. Installed dependency code still runs only in the command child. The policy
+   is not a sandbox, and no extension source is modified.
 
-1. `@raycast/api`, `react`, and `react/*` stay external; the runtime supplies them.
-2. `PROVIDED_PACKAGES` in optional `@blastlauncher/shared-deps` resolves its exact pins,
-   including subpaths; corpus selection uses the same list.
-   Transitive graphs are bundled privately, with the same API/React externals.
-3. Node built-ins stay external, using Node's list even when Bun bundles.
-   Other bare imports fail even if locally installed. Emitted external imports
-   are checked before writing the bundle; unresolved npm imports fail there too.
+## Why
 
-Pick greedily by `compat/dependencies.json` imported rank (ties by name), using
-latest exact versions in each most-declared major. Hard filters: non-portable
-macOS automation, native addons, dependency install hooks, browser/CLI binaries,
-or a single installed graph over 15 MB of logical bytes (`du -sb`, including
-transitives). Total added allocated disk space (`du -sk`) must stay ≤ 75 MiB.
-Keep higher-ranked eligible picks before lower ones; on overflow remove the
-lowest-ranked pick. Do not fill leftover space with packages below that cutoff.
-
-Ranks 1–14 yield 13 additions through `node-html-markdown`; `run-applescript`
-(rank 4) is excluded as macOS automation. `date-fns@4.4.0` is 10,902,084 bytes
-unpacked, 11,893,316 logical installed graph bytes, but 28,076 KiB allocated due
-to its many small files. It meets the logical graph guard; its allocated cost
-counts fully toward the total. `zod` (6.1 MB unpacked) also earns its size by
-rank (64 importing extensions); both graphs have no native addons/install hooks.
-
-Adding rank 15 `rss-parser` exceeds the budget (77.01 MiB added). Lower-ranked
-`execa`, `got`, `turndown`, `fs-extra`, `openai`, `plist`, `swr`,
-`raycast-cross-extension`, `fast-xml-parser`, `form-data`, `yaml`, `algoliasearch`,
-`ai`, `chrono-node`, `javascript-time-ago`, and all later ranks are excluded by
-that cutoff, even when individually small enough. Rechecked installed logical
-graphs: `turndown` 8.07 MB, `openai` 11.86 MB, `chrono-node` 3.89 MB; none has
-native addons/install hooks. `javascript-time-ago` also exceeds 15 MB (15.74 MB).
-Exact pins, sizes and before/after allocated totals are in task 0037's Handoff.
-
-Extensions receive the shared major even when they declare another one. The CLI
-prints a `# log` warning (JSON: warning record) naming package, declared range
-and provided version when the range excludes that major entirely; non-semver
-ranges are skipped. Missing dependencies expose `MissingDependencyError`, code
-`MISSING_DEPENDENCY`, and sorted unique package names; the CLI exits 3. Optional
-imports in provided graphs retain esbuild's normal try/catch handling.
-
-CommonJS globals derive from the bundled `import.meta.url`. Static `require`
-follows import policy; dynamic `require` allows only Node built-ins.
+Extensions need their own pinned dependencies without turning the host into a
+package manager by default. A typed preflight lets every embedder decide when
+network access and third-party installation are appropriate.
 
 ## Consequences
 
-- The engine excludes shared libraries; install `@blastlauncher/shared-deps` for the fallback (0077).
-- Interim until v1: production should reference each extension's pinned dependencies with minimal disk.
-- No extension-local lookup, source changes, or per-extension installs.
-- Tree shaking utils avoids linking unused shim symbols. Assets need provisioning.
-- Bundling policy is not a security sandbox for arbitrary Node code.
-- Package satisfaction counts names, not major/API/host-capability compatibility.
+Missing dependencies are actionable before launch, and embedders handle one
+stable error shape. The shared allowlist remains a bounded fallback for offline
+and corpus workflows.

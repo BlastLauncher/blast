@@ -44,7 +44,7 @@ extension code (unmodified, bundled)
 
 View and menu-bar commands have a `Navigation` root with ordered `Navigation.Entry` children.
 Only the active entry exposes view contents and handlers; covered views stay
-mounted. `Navigation.props.pop` requests back above depth one (decision 0003),
+mounted. `Navigation.props.pop` requests back above depth one (decision 0001),
 and `props.popToRoot` records the options of the latest `popToRoot()` call —
 Blast has no client search-bar state, so `clearSearchBar` is a request for
 clients. The standalone `clearSearchBar()` similarly records its options in
@@ -52,9 +52,9 @@ clients. The standalone `clearSearchBar()` similarly records its options in
 `closeMainWindow()` request
 (its options, or an empty object) the same way. Feedback children follow the
 entries: `Toast`, `HUD`, and the first queued `Alert`, with action handlers on
-`Toast.Action` / `Alert.Action` children (decision 0004). No-view commands mount
+`Toast.Action` / `Alert.Action` children (decision 0001). No-view commands mount
 this scene only when showing feedback or closing the window. Promise-returning
-view exports run to completion with feedback mounted (decision 0004).
+view exports run to completion with feedback mounted (decision 0001).
 
 Host element `type`s are the public Raycast paths: `List`, `List.Item`,
 `List.Section`, `List.EmptyView`, `ActionPanel`, `ActionPanel.Section`,
