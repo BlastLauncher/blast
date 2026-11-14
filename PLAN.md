@@ -5,8 +5,9 @@ branch: `main`. Keep this file under 120 lines; detail belongs in task files.
 
 ## Current focus
 
-M9 — Embed anywhere is done (2026-11-14). Next, pending the user's go-ahead:
-publish `3.0.0-alpha.2` so docs can switch from "from source" to `@next`.
+M10 — Published and measured. `3.0.0-alpha.2` is on npm `next` (2026-11-14):
+docs install from npm, and the browser demo's coverage is measured honestly,
+then raised by fixing what Blast gets wrong.
 
 ## Milestones
 
@@ -46,6 +47,12 @@ client and doc shows the smaller API.
 - [x] 0168 Engine prompt and root view gaps found by the TUI migration
 - [x] 0169 M9 follow-ups: TUI scope, Python errors, web launcher, release web e2e
 
+### M10 — Published and measured
+
+- [ ] 0170 Docs and landing install from npm `@next` (alpha.2)
+- [ ] 0171 Browser sweep: fresh baseline, placeholder preferences, browser limits apart
+- [ ] 0172 Browser runtime fixes: extension assets, forbidden fetch headers, triaged errors
+
 ## Later (not scheduled)
 
 Out of scope (0009): MyGo, TUI launcher features.
@@ -72,3 +79,4 @@ One line per decision; link a record only when it exists.
 - 2026-11-04: Launch reports missing dependencies as a typed error (now in `0002`); M7 example uses AppKit.
 - 2026-11-05: Browser runtime runs extensions only in almostnode's cross-origin sandbox (`0013`).
 - 2026-11-14: Engine owns the launcher flow; embedders only draw views (`0014`).
+  \n- 2026-11-14: `3.0.0-alpha.2` published to npm `next`, including `@blastlauncher/web`.\n
