@@ -31,6 +31,11 @@ const stringRecord = (item: Schema): Schema => ({
   additionalProperties: item,
 });
 
+const views = envelope(["platform"], {
+  platform: { enum: ["macOS", "Windows", "Linux"] },
+  appearance: { enum: ["light", "dark"] },
+});
+
 /**
  * The result each request method answers. Loose shapes stay JSON values: the
  * engine forwards manifests, dependency reports and preference data without
@@ -85,7 +90,7 @@ const PARAMS: Record<keyof EmbedderParams, Schema> = {
     launchContext: stringRecord(json),
     bundleTimeoutMs: { type: "integer", minimum: 0, maximum: 2_147_483_647 },
     installDependencies: { type: "boolean" },
-    views: envelope(["platform"], { platform: { enum: ["macOS", "Windows", "Linux"] } }),
+    views,
   },
   "session.input": { session: string, input: ref("controllerInput") },
   "session.event": {
@@ -287,6 +292,7 @@ export const EMBEDDER_PROTOCOL_SCHEMA: Schema = {
       type: { const: "hello" },
       protocol: integer,
       capabilities: { type: "array", items: string },
+      views: { anyOf: [views, { const: false }] },
     }),
     embedderMessages: {
       oneOf: [

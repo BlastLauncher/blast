@@ -51,7 +51,12 @@ export function App({
   hudDurationMs?: number;
 }) {
   const controller = useMemo(
-    () => createController({ platform, ...(hudDurationMs === undefined ? {} : { hudDurationMs }) }),
+    () =>
+      createController({
+        platform,
+        appearance: "dark",
+        ...(hudDurationMs === undefined ? {} : { hudDurationMs }),
+      }),
     [session, hudDurationMs],
   );
   const [view, setView] = useState(() => controller.view());

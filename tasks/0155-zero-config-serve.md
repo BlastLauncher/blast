@@ -63,8 +63,16 @@ view says what to draw.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/zero-config-serve @ 14b586f
+Verify: verify: FAIL (format FAIL, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok on rerun) - format fails only on 3 files already unformatted at HEAD (docs/decisions/0014-thin-embedders.md, tasks/0153-*, tasks/0157-*), not touched here; test passed with 1044 pass, 0 fail
 Done:
+- Acceptance 1: release:build, npm install of all tarballs into .cache/, then `npx blast-serve`, `npx @blastlauncher/serve` and `npx blast serve` each answered hello with `{"type":"welcome","protocol":1,"engine":{"version":"0.0.0"},...}` (npx runs the sole bin, so build.ts needed no change).
+- serve split into serve.ts (`serve(args)` -> exit code, export `@blastlauncher/serve/serve`) + thin bin main.ts; `blast serve` in packages/cli delegates (test in cli.test.ts); `--dependencies` defaults to auto (serve tests pass `manual`).
+- additive protocol: `hello.views` ({platform, appearance?} | false), launch `views.appearance?`; launch-level views win; omitted hello.views keeps scenes-only. Schema regenerated; serve + protocol tests.
+- client-core IconView: `source` (builtin|url|file|fileIcon), `mask`, light/dark by `appearance` (default light; TUI passes dark), `assetsDir` resolves relative images (rejects `..`); exposed as iconSource/iconMask/iconTint on rows, grid cells (image content), menu rows, empty view. Serve passes `<extensionDir>/assets`.
+- Go example sends hello.views; `bun run example:go` passes locally.
 Not done / risks:
+- docs/embedding.md: only the hello.views/icon paragraph (merged into the ControllerView paragraph to stay under the 150-line limit); its "--dependencies auto ... makes it the default" and `node packages/serve/src/main.ts` lines are now stale for the docs task to fix (docs/cli.md updated).
+- Mac fixtures now record icon paths as `<repository>/...` (mac-fixtures.ts); Swift not run here.
+- tui picker test "passes custom capability handlers" flaked in 2 of 3 full runs under load; passes alone and with the same seed on clean HEAD and on this branch.
 ```

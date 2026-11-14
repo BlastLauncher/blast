@@ -1,5 +1,11 @@
 import { expect, test } from "bun:test";
-import { FIXTURE_NAMES, compareFixtures, renderFixture, sortKeys } from "./mac-fixtures.ts";
+import {
+  FIXTURE_NAMES,
+  compareFixtures,
+  renderFixture,
+  repositoryRoot,
+  sortKeys,
+} from "./mac-fixtures.ts";
 
 test("sortKeys sorts objects recursively but keeps array order", () => {
   expect(sortKeys({ b: 1, a: { d: [3, 1], c: 2 } })).toEqual({
@@ -42,4 +48,9 @@ test("the required fixtures are covered", () => {
     "toast",
     "action-panel",
   ]);
+});
+
+test("renderFixture replaces the checkout path in icon sources", () => {
+  const view = { iconSource: { kind: "file", path: `${repositoryRoot}/fixtures/a.png` } };
+  expect(renderFixture(view)).toContain('"path": "<repository>/fixtures/a.png"');
 });

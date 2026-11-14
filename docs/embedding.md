@@ -27,6 +27,16 @@ newline-delimited JSON. Stdout carries protocol output only.
 → {"type":"event","event":"session.view","session":"2","view":{...}}
 ```
 
+To get views for every launch (servers newer than `3.0.0-alpha.1`), send them
+once in the hello:
+`"views":{"platform":"macOS","appearance":"dark"}` (a launch's own `views`
+wins; `"views":false` or omitting it keeps scenes only). Icons in rows, grid
+cells, menu rows and the empty view carry `iconLabel` (text fallback) plus
+optional `iconSource` (`builtin` name, `url`, absolute `file` path under the
+extension's `assets/`, or `fileIcon`), `iconTint` and `iconMask`, already
+resolved for the appearance. `blast serve` installs missing dependencies by
+default (`--dependencies manual` to opt out).
+
 The Go [reference embedder](../examples/go-embedder/) draws `search`, `rows`,
 `selectedId`, `actions` and `feedback.toast`, then forwards input. Responses
 may be out of order and events may precede their response. IDs are unique while

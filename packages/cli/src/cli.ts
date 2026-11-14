@@ -46,6 +46,7 @@ Usage: blast run <extensionDir> <command> [options]
        blast deps <extensionDir> [--data-dir <dir>]
        blast models <extensionDir>
        blast complete <extensionDir> <modelId> <prompt>
+       blast serve [--native] [--dependencies manual|auto]
 
 Options:
   --argument <name=value>
@@ -811,6 +812,8 @@ async function readStdin(): Promise<string> {
 }
 
 async function main(argv: string[]): Promise<number> {
+  // The embedder protocol server (docs/embedding.md); its flags are its own.
+  if (argv[0] === "serve") return (await import("@blastlauncher/serve/serve")).serve(argv.slice(1));
   const parsed = parseArguments(argv);
   if (parsed.values.help) {
     console.log(USAGE);

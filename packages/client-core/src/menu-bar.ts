@@ -2,7 +2,7 @@ import type { SceneMessage, SceneNode } from "@blastlauncher/protocol";
 import { handler, handlerEvent, event, selectionId, text, type OutboundEvent } from "./nodes.ts";
 import { matchesShortcut, shortcutLabel, type KeyInput, type Platform } from "./shortcut.ts";
 import { activeNode } from "./view.ts";
-import { iconView } from "./icons.ts";
+import { iconFields, iconView, type IconMask, type IconOptions, type IconSource } from "./icons.ts";
 
 // `MenuBarExtra` as a navigable menu. Sections are headers, Items run their
 // `onAction` with the `left-click` event the runtime dispatches, and Submenus
@@ -17,6 +17,8 @@ export type MenuRow = {
   subtitle?: string;
   iconLabel?: string;
   iconTint?: string;
+  iconSource?: IconSource;
+  iconMask?: IconMask;
   shortcut?: string;
   isSubmenu?: boolean;
 };
@@ -45,6 +47,7 @@ export function menuRows(
   menu: SceneNode | undefined,
   path: string[],
   platform: Platform = "Linux",
+  icons: IconOptions = {},
 ): MenuRow[] {
   if (menu?.type !== "MenuBarExtra") return [];
   let level = menu;
@@ -67,14 +70,14 @@ export function menuRows(
       const title = text(node.props.title);
       const subtitle = text(node.props.subtitle);
       const shortcut = shortcutLabel(node.props.shortcut, platform);
-      const icon = node.props.icon === undefined ? undefined : iconView(node.props.icon);
+      const icon = node.props.icon === undefined ? undefined : iconView(node.props.icon, icons);
       rows.push({
         node,
         item: true,
         disabled: !handler(node.props.onAction),
         title,
         subtitle,
-        ...(icon ? { iconLabel: icon.label, ...(icon.tint ? { iconTint: icon.tint } : {}) } : {}),
+        ...(icon ? { iconLabel: icon.label, ...iconFields(icon) } : {}),
         shortcut,
         text: [title, subtitle, shortcut].filter(Boolean).join("  "),
       });
@@ -107,10 +110,11 @@ export function menuBarView(
   scene: SceneMessage | undefined,
   state: MenuBarState = MENU_BAR_START,
   platform: Platform = "Linux",
+  icons: IconOptions = {},
 ): MenuBarView {
   const active = activeNode(scene?.root);
   const menu = active?.type === "MenuBarExtra" ? active : undefined;
-  const rows = menuRows(menu, state.path, platform);
+  const rows = menuRows(menu, state.path, platform, icons);
   const items = rows.filter((row) => row.item);
   return {
     menu,

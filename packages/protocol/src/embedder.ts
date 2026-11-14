@@ -35,6 +35,12 @@ export type EmbedderControllerInput =
     }
   | { type: "toastAction"; index: number }
   | { type: "alert"; confirm: boolean; remember?: boolean };
+/** Opt-in to the client-core view model: `session.view` events next to scenes. */
+export type EmbedderViews = {
+  platform: "macOS" | "Windows" | "Linux";
+  /** Which light/dark icon variants the view carries. Default: "light". */
+  appearance?: "light" | "dark";
+};
 export type EmbedderParams = {
   "extension.open": { dir: string };
   "extension.manifest": { extension: string };
@@ -56,7 +62,8 @@ export type EmbedderParams = {
     launchContext?: Record<string, JsonValue>;
     bundleTimeoutMs?: number;
     installDependencies?: boolean;
-    views?: { platform: "macOS" | "Windows" | "Linux" };
+    /** Overrides the hello default for this session. */
+    views?: EmbedderViews;
   };
   "session.input": { session: string; input: EmbedderControllerInput };
   "session.event": { session: string; node: string; handler: string; args: JsonValue[] };
@@ -72,7 +79,13 @@ export type EmbedderRequest = {
   };
 }[keyof EmbedderParams];
 export type EmbedderMessage =
-  | { type: "hello"; protocol: number; capabilities: string[] }
+  | {
+      type: "hello";
+      protocol: number;
+      capabilities: string[];
+      /** Views for every launch that does not set its own; `false` keeps scenes only. */
+      views?: EmbedderViews | false;
+    }
   | EmbedderRequest
   | { type: "capability.result"; id: string; ok: true; value: JsonValue }
   | { type: "capability.result"; id: string; ok: false; error: EmbedderError }
@@ -137,15 +150,24 @@ function fields(
     })
   );
 }
+const viewsOptions = (y: unknown) =>
+  object(y) &&
+  fields(y, ["platform", "appearance?"], (key, z) =>
+    key === "platform"
+      ? ["macOS", "Windows", "Linux"].includes(z as string)
+      : ["light", "dark"].includes(z as string),
+  );
 function valid(v: unknown): boolean {
   if (!object(v)) return false;
   if (v.type === "hello")
-    return fields(v, ["type", "protocol", "capabilities"], (k, x) =>
+    return fields(v, ["type", "protocol", "capabilities", "views?"], (k, x) =>
       k === "protocol"
         ? Number.isSafeInteger(x)
         : k === "capabilities"
           ? Array.isArray(x) && x.every(string)
-          : string(x),
+          : k === "views"
+            ? x === false || viewsOptions(x)
+            : string(x),
     );
   if (v.type === "capability.progress")
     return fields(v, ["type", "id", "value"], (k, x) => (k === "value" ? json(x) : string(x)));
@@ -174,11 +196,7 @@ function valid(v: unknown): boolean {
             return typeof y === "number" && Number.isSafeInteger(y) && y >= 0 && y <= 2_147_483_647;
           if (key === "installDependencies") return typeof y === "boolean";
           if (key === "launchContext") return record(y, json);
-          if (key === "views")
-            return (
-              object(y) &&
-              fields(y, ["platform"], (_, z) => ["macOS", "Windows", "Linux"].includes(z as string))
-            );
+          if (key === "views") return viewsOptions(y);
           if (key === "input") return controllerInput(y);
           if (key === "values")
             return record(

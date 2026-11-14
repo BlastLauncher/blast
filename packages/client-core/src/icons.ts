@@ -1,12 +1,42 @@
 import type { JsonValue } from "@blastlauncher/protocol";
 
+/** What a graphical client draws for an icon; `label` stays the text fallback. */
+export type IconSource =
+  | { kind: "builtin"; name: string }
+  | { kind: "url"; url: string }
+  | { kind: "file"; path: string }
+  | { kind: "fileIcon"; path: string };
+export type IconMask = "circle" | "roundedRectangle";
+export type IconAppearance = "light" | "dark";
+export type IconOptions = {
+  /** Picks the light or dark variant of sources and tints. Default: "light". */
+  appearance?: IconAppearance;
+  /** Absolute directory that relative image names (`icon.png`) resolve under. */
+  assetsDir?: string;
+};
+
 /**
- * A compact terminal stand-in for a Raycast icon. `tint` is a Raycast colour
- * name (`red`, `raycast-blue`, `secondary-text`) or a raw CSS colour; turning
- * it into a palette entry is the client's job, so this module stays free of
- * framework and palette imports.
+ * An icon as a client draws it. `label` is a compact terminal stand-in; `tint`
+ * is a Raycast colour name (`red`, `raycast-blue`, `secondary-text`) or a raw
+ * CSS colour, and turning it into a palette entry is the client's job, so this
+ * module stays free of framework and palette imports. `source` and `mask` tell
+ * a graphical client what to draw: the variant for the requested appearance,
+ * with relative asset names already absolute.
  */
-export type IconView = { label: string; tint?: string };
+export type IconView = { label: string; tint?: string; source?: IconSource; mask?: IconMask };
+
+/** The optional icon fields every view row carries, flattened under `icon*` names. */
+export function iconFields(icon: IconView | undefined): {
+  iconTint?: string;
+  iconSource?: IconSource;
+  iconMask?: IconMask;
+} {
+  return {
+    ...(icon?.tint ? { iconTint: icon.tint } : {}),
+    ...(icon?.source ? { iconSource: icon.source } : {}),
+    ...(icon?.mask ? { iconMask: icon.mask } : {}),
+  };
+}
 
 // Keyed by the icon name without Raycast's `-16` size suffix, lowercase and
 // with separators removed (`Icon.ArrowDown` -> "arrowdown"). Aliases share a
@@ -344,49 +374,50 @@ const tintRoles: Record<string, string> = {
   yellow: "yellow",
 };
 
-function tintOf(value: unknown): string | undefined {
+function tintOf(value: unknown, appearance: IconAppearance): string | undefined {
   if (typeof value === "string") return tintRoles[value.toLowerCase()] ?? value;
   if (value && typeof value === "object" && !Array.isArray(value)) {
-    // A DynamicColor picks the dark variant: the reference client is dark.
     const dynamic = value as { dark?: unknown; light?: unknown };
-    return tintOf(dynamic.dark ?? dynamic.light);
+    return tintOf(
+      appearance === "dark" ? (dynamic.dark ?? dynamic.light) : (dynamic.light ?? dynamic.dark),
+      appearance,
+    );
   }
   return undefined;
 }
 
-type IconSource = {
+type ParsedIcon = {
   /** The raw icon name, image path or URL. */
   source?: string;
+  /** A FileIcon path: the icon the OS shows for that file. */
+  fileIcon?: string;
   tint?: string;
+  mask?: IconMask;
   /** Images and file icons render as a picture placeholder, not a name. */
   image?: boolean;
 };
 
-function sourceOf(value: JsonValue | undefined): IconSource {
+function parse(value: JsonValue | undefined, appearance: IconAppearance): ParsedIcon {
   if (typeof value === "string")
     return { source: value, ...(looksLikeImage(value) ? { image: true } : {}) };
   if (!value || typeof value !== "object" || Array.isArray(value)) return {};
   const icon = value as Record<string, unknown>;
-  if (typeof icon.fileIcon === "string") return { source: icon.fileIcon, image: true };
-  const tint = tintOf(icon.tintColor);
-  const source = icon.source;
-  if (typeof source === "string")
-    return {
-      source,
-      ...(tint ? { tint } : {}),
-      ...(looksLikeImage(source) ? { image: true } : {}),
-    };
+  if (typeof icon.fileIcon === "string") return { fileIcon: icon.fileIcon, image: true };
+  const tint = tintOf(icon.tintColor, appearance);
+  const mask = icon.mask === "circle" || icon.mask === "roundedRectangle" ? icon.mask : undefined;
+  let source = icon.source;
   if (source && typeof source === "object" && !Array.isArray(source)) {
     const dynamic = source as { dark?: unknown; light?: unknown };
-    const selected = dynamic.dark ?? dynamic.light;
-    if (typeof selected === "string")
-      return {
-        source: selected,
-        ...(tint ? { tint } : {}),
-        ...(looksLikeImage(selected) ? { image: true } : {}),
-      };
+    source =
+      appearance === "dark" ? (dynamic.dark ?? dynamic.light) : (dynamic.light ?? dynamic.dark);
   }
-  return tint ? { tint } : {};
+  return {
+    ...(typeof source === "string"
+      ? { source, ...(looksLikeImage(source) ? { image: true } : {}) }
+      : {}),
+    ...(tint ? { tint } : {}),
+    ...(mask ? { mask } : {}),
+  };
 }
 
 function looksLikeImage(source: string): boolean {
@@ -394,6 +425,26 @@ function looksLikeImage(source: string): boolean {
     /^(https?:|data:|file:|\/)/i.test(source) ||
     /\.(png|jpe?g|gif|svg|webp|bmp|heic)$/i.test(source)
   );
+}
+
+/** Where a string icon points; undefined when a relative asset has no directory to resolve under. */
+function sourceOf(source: string, assetsDir: string | undefined): IconSource | undefined {
+  if (/^(https?:|data:)/i.test(source)) return { kind: "url", url: source };
+  if (/^file:/i.test(source)) {
+    try {
+      return { kind: "file", path: decodeURIComponent(new URL(source).pathname) };
+    } catch {
+      return undefined;
+    }
+  }
+  if (source.startsWith("/") || /^[a-z]:[\\/]/i.test(source)) return { kind: "file", path: source };
+  if (!looksLikeImage(source)) return { kind: "builtin", name: source };
+  // An extension must not reach outside its own assets directory.
+  if (!assetsDir || source.split(/[\\/]/).includes("..")) return undefined;
+  return {
+    kind: "file",
+    path: `${assetsDir.replace(/[\\/]+$/, "")}/${source.replace(/^\.?[\\/]/, "")}`,
+  };
 }
 
 /** `globe-01-16` -> "globe": drop the file extension, `16` size and `01` index suffixes. */
@@ -422,13 +473,24 @@ function fallbackLabel(source: string): string {
   return label.length <= 12 ? label : `${titleCase(words.slice(0, 9))}…`;
 }
 
-/** Convert a Raycast image/icon value to a compact terminal representation. */
-export function iconView(value: JsonValue | undefined): IconView {
-  const { source, tint, image } = sourceOf(value);
-  if (!source) return { label: "◇", ...(tint ? { tint } : {}) };
+/** Convert a Raycast image/icon value to a terminal label plus a drawable source. */
+export function iconView(value: JsonValue | undefined, options: IconOptions = {}): IconView {
+  const { source, fileIcon, tint, mask, image } = parse(value, options.appearance ?? "light");
+  const drawable: IconSource | undefined =
+    fileIcon !== undefined
+      ? { kind: "fileIcon", path: fileIcon }
+      : source === undefined
+        ? undefined
+        : sourceOf(source, options.assetsDir);
+  const extras = {
+    ...(tint ? { tint } : {}),
+    ...(drawable ? { source: drawable } : {}),
+    ...(mask ? { mask } : {}),
+  };
+  if (!source) return { label: fileIcon === undefined ? "◇" : "▣", ...extras };
   const name = iconName(source);
   const glyph =
     glyphs[name] ?? glyphs[name.replace(/(?:filled|disabled|small|large)$/, "")] ?? undefined;
   const label = glyph ?? (image ? "▣" : fallbackLabel(source));
-  return { label, ...(tint ? { tint } : {}) };
+  return { label, ...extras };
 }
