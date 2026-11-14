@@ -39,21 +39,13 @@ struct MacOSCapabilityHandler: CapabilityHandler, @unchecked Sendable {
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
-    private enum Mode {
-        case picker
-        case session
-    }
-
     private let extensionDirectory: String
     private let requestedCommand: String?
     private let presenter = LauncherPresenter()
     private var windowController: LauncherWindowController?
     private var client: BlastClient?
     private var session: String?
-    private var extensionID: String?
-    private var mode: Mode = .picker
-    private var picker = LauncherCommandPicker(commands: [])
-    private var discovered: [DiscoveredLauncherCommand] = []
+    private var root: String?
     private var hotkeyController: LauncherHotkeyController?
 
     init(extensionDirectory: String, command: String?) {
@@ -111,88 +103,53 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 Task { @MainActor in self?.handle(event) }
             }
             _ = try await blast.start(capabilities: ["clipboard.copy", "clipboard.paste", "open.url", "open.path"])
-            discovered = try LauncherCommandCatalog.load(from: URL(fileURLWithPath: extensionDirectory))
-            if discovered.isEmpty { throw LauncherError.noCommands }
+            _ = try await blast.openExtension(dir: extensionDirectory)
+            let openedRoot = try await blast.openRoot(views: .macOS)
+            root = openedRoot
             if let requestedCommand {
-                let selected = discovered.first { $0.command.name == requestedCommand }?.command
-                await launch(selected ?? LauncherCommand(name: requestedCommand, title: requestedCommand, extensionDirectory: extensionDirectory))
-                return
+                try await blast.sendInput(.search(requestedCommand), root: openedRoot)
+                try await blast.sendInput(.primary, root: openedRoot)
             }
-            picker = LauncherCommandPicker(commands: discovered.map(\.command))
-            mode = .picker
-            render(picker.display)
         } catch {
             present(error)
-        }
-    }
-
-    private func launch(_ command: LauncherCommand) async {
-        guard let blast = client else { return }
-        do {
-            let directory = command.extensionDirectory ?? extensionDirectory
-            let opened = try await blast.openExtension(dir: directory)
-            extensionID = opened
-            let coordinator = LauncherLaunchCoordinator(
-                launch: { install in try await blast.launchExtension(extension: opened, command: command.name, installDependencies: install) },
-                confirmInstall: { [weak self] dependencies in await self?.confirmInstall(dependencies) ?? false },
-                prompt: { _ in }
-            )
-            mode = .session
-            session = try await coordinator.run()
-        } catch { present(error) }
-    }
-
-    private func confirmInstall(_ dependencies: MissingDependencies) async -> Bool {
-        await MainActor.run {
-            let alert = NSAlert()
-            alert.messageText = "Install dependencies?"
-            alert.informativeText = dependencies.unresolved.joined(separator: ", ")
-            alert.addButton(withTitle: "Install")
-            alert.addButton(withTitle: "Cancel")
-            return alert.runModal() == .alertFirstButtonReturn
         }
     }
 
     // MARK: - Events and inputs
 
     private func handle(_ event: BlastEvent) {
-        guard case .view(let viewSession, let view) = event else { return }
-        if session == nil { session = viewSession }
-        guard viewSession == session else { return }
-        presenter.apply(view)
-        render(presenter.display)
-    }
-
-    private func handle(_ input: ControllerInput) {
-        switch mode {
-        case .picker:
-            handlePicker(input)
-        case .session:
-            send(input)
-        }
-    }
-
-    private func handlePicker(_ input: ControllerInput) {
-        switch input {
-        case .move(let direction):
-            picker.move(direction)
-            render(picker.display)
-        case .search(let text):
-            picker.search(text)
-            render(picker.display)
-        case .select(let id):
-            picker.select(id: id)
-            render(picker.display)
-        case .primary:
-            guard let command = picker.selectedCommand else { return }
-            Task { await launch(command) }
+        switch event {
+        case .rootView(let viewRoot, let view):
+            guard viewRoot == root else { return }
+            presenter.apply(view)
+            render(presenter.display)
+        case .rootLaunched(let launchedRoot, let launchedSession):
+            guard launchedRoot == root else { return }
+            session = launchedSession
+        case .view(let viewSession, let view):
+            guard viewSession == session else { return }
+            presenter.apply(view)
+            render(presenter.display)
         default:
             break
         }
     }
 
-    private func send(_ input: ControllerInput) {
-        guard let client, let session else { return }
+    private func handle(_ input: ControllerInput) {
+        if let root { send(input, root: root) }
+        else { send(input) }
+    }
+
+    private func send(_ input: ControllerInput, root: String? = nil) {
+        guard let client else { return }
+        if let root {
+            Task {
+                do { try await client.sendInput(input, root: root) }
+                catch { present(error) }
+            }
+            return
+        }
+        guard let session else { return }
         Task {
             do {
                 try await client.sendInput(input, session: session)
@@ -215,16 +172,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     // MARK: - Manifest
-
-    static func commands(from manifest: JSONValue) -> [LauncherCommand] {
-        (manifest["commands"]?.arrayValue ?? []).compactMap { entry in
-            guard let name = entry["name"]?.stringValue else { return nil }
-            let title = entry["title"]?.stringValue ?? name
-            let mode = entry["mode"]?.stringValue ?? ""
-            let subtitle = entry["subtitle"]?.stringValue ?? ""
-            return LauncherCommand(name: name, title: title, subtitle: subtitle.isEmpty ? mode : subtitle)
-        }
-    }
 
     /// `swift run` starts in the package directory, but the example may be
     /// launched from anywhere inside a checkout, so walk up to the engine.

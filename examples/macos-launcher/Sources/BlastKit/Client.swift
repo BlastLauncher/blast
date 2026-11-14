@@ -17,6 +17,8 @@ public struct Welcome: Codable, Equatable, Sendable {
 /// Events the engine pushes; none of them answer a request by themselves.
 public enum BlastEvent: Equatable, Sendable {
     case view(session: String, view: ControllerView)
+    case rootView(root: String, view: ControllerView)
+    case rootLaunched(root: String, session: String)
     case scene(session: String, scene: JSONValue)
     case log(session: String, log: JSONValue)
     case exited(session: String, code: Int?, error: EmbedderError?)
@@ -199,6 +201,23 @@ public final class BlastClient: @unchecked Sendable {
         return session
     }
 
+    public func openRoot(views: ViewPlatform? = .macOS) async throws -> String {
+        var params: [String: JSONValue] = [:]
+        if let views { params["views"] = .object(["platform": .string(views.rawValue)]) }
+        let result = try await request("root.open", params: .object(params))
+        guard let root = result["root"]?.stringValue else {
+            throw BlastError.malformedMessage("root.open did not return a root id")
+        }
+        return root
+    }
+
+    public func sendInput(_ input: ControllerInput, root: String) async throws {
+        _ = try await request(
+            "root.input",
+            params: .object(["root": .string(root), "input": try input.toJSON()])
+        )
+    }
+
     public func sendInput(_ input: ControllerInput, session: String) async throws {
         _ = try await request(
             "session.input",
@@ -309,6 +328,19 @@ public final class BlastClient: @unchecked Sendable {
             return
         }
         switch name {
+        case "root.view":
+            guard let root = object["root"]?.stringValue, let value = object["view"] else {
+                report(.malformedMessage("root.view is missing root or view"))
+                return
+            }
+            do { emit(.rootView(root: root, view: try value.decode(ControllerView.self))) }
+            catch { report(.malformedMessage("root.view could not be decoded: \(error)")) }
+        case "root.launched":
+            guard let root = object["root"]?.stringValue, let session = object["session"]?.stringValue else {
+                report(.malformedMessage("root.launched is missing root or session"))
+                return
+            }
+            emit(.rootLaunched(root: root, session: session))
         case "session.view":
             guard let session = object["session"]?.stringValue, let value = object["view"] else {
                 report(.malformedMessage("session.view is missing session or view"))
