@@ -3,9 +3,10 @@
 See the [quickstart](../../docs/quickstart.md) for the three embedding paths.
 
 This example is a small in-process web embedder. It opens a Raycast-compatible
-extension with `createEngine`, applies its scenes to `createController`, and
-serves the controller view over Server-Sent Events. The page is vanilla ES
-modules and sends semantic controller input back to the server.
+extension with `createEngine`, shows its commands in the engine's root view
+(`engine.root`, which also runs launch prompts and the launched command), and
+serves each view over Server-Sent Events. The page is vanilla ES modules and
+sends semantic input back to the server.
 
 Run it with Node 24 (or Bun for the convenience script):
 
