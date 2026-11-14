@@ -45,7 +45,7 @@ client and doc shows the smaller API.
 - [ ] 0160 Reference clients on engine-owned flows; docs refresh
 - [x] 0161 Deterministic TUI picker capability-handler test
 - [x] 0162 Real engine version in the serve welcome
-- [ ] 0163 Browser demo on `@blastlauncher/web`
+- [x] 0163 Browser demo on `@blastlauncher/web`
 - [ ] 0164 `@blastlauncher/web` ships its sandbox and runtime assets
 
 ## Later (not scheduled)
