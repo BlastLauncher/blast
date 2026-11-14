@@ -802,7 +802,9 @@ test("picker passes custom capability handlers to launched commands", async () =
   try {
     await settle(terminal, (frame) => frame.includes("Search commands"));
     await press(terminal, "enter");
-    await settle(terminal, (frame) => frame.includes("Copy"));
+    // The footer always ends in ^C Copy, so wait for the action's own title
+    // before pressing Enter: an earlier frame has no selected action yet.
+    await settle(terminal, (frame) => frame.includes("Copy apple"));
     await press(terminal, "enter");
     await settle(terminal, () => copied.length > 0);
     expect(copied).toEqual([{ text: "apple" }]);

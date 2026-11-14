@@ -39,8 +39,24 @@ depends: []
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/deflake-picker-capability-test @ 76b3406
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 157.8s
 Done:
-Not done / risks:
+- Root cause: the test waited for the frame to contain "Copy", but the App
+  footer always ends with "· ^C Copy" (app.tsx). That predicate was already
+  true on the command's first, empty loading frame, so the second Enter ran
+  against a view with no selected action and was lost. The command scene then
+  painted "Copy apple", but no further Enter came and the final settle timed
+  out after 15s. It only passed when the scene won the race with the press.
+- Wait for the action's own title ("Copy apple") instead, which the footer gets
+  from the scene's selected action; the controller already holds that action
+  when the frame paints, so the press no longer races.
+- Failure reproduced reliably before the fix (4/10 focused runs) with five
+  parallel full-suite loads; after the fix, 10 consecutive
+  `bun test --randomize packages/tui` runs passed under the prescribed load
+  (5 sequential `bun test --randomize packages/` runs in parallel with a
+  `bun test packages/tui` loop): 64 pass / 0 fail each, 24-35s.
+Not done / risks: An extreme load of five simultaneous full-suite runs still
+times out unrelated tests (app.test resize, look.test dropdown, engine
+tests) that are outside this task's scope; this test itself passed every run.
 ```
