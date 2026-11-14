@@ -53,8 +53,16 @@ with progress feedback, and then renders the command.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/44172e57 @ HANDOFF_SHA
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 138.1s
 Done:
+- client-core `prompt.ts`: `createPromptController` builds a form scene (preferences + arguments; password, dropdown, checkbox, file) and a status scene (animated/failure toast, Retry) and runs them through the real controller; answers return as submit/retry/cancel effects. Root gets a Configure Command action (+ ⌘⇧, key, `configure` effect).
+- host `launch-flow.ts`: `startLaunchFlow(handle, command, { views, launch?, configure? })` = form for missing values -> save -> install deps behind an animated toast (failure toast with Retry) -> launch. In-process `engine.root` uses it by default; serve shares it.
+- serve/protocol (additive, v1): `extension.launch { prompts }` (session id returned at once, same id carries prompt then command views), new `extension.configure`; `root.open` launches use prompts and Configure Command; schema regenerated. Without `prompts` the old rejections are unchanged.
+- Tests: client-core prompt/root, host launch-flow/root, protocol schema, serve (form -> list with prefs persisted in dataDir; fake-`npm` on PATH for animated install, failure + Retry; configure; root prompts + configure). Docs: new `docs/launch-prompts.md` (embedding.md is at its 150-line limit), embedding.md, architecture.md.
 Not done / risks:
+- `prompts` always installs dependencies, ignoring `--dependencies manual`; non-missing-value errors (broken bundle) still reject / end the session with an error rather than a toast.
+- The serve install test uses a fake `npm` shell script on PATH (POSIX only), since serve runs as a subprocess.
+- First `session.view` of a prompt session is the form/toast (empty placeholder suppressed); after the flow, an empty loading command view is sent to replace the last prompt view.
+- appPicker preferences are a plain text field; no OAuth, no new field types.
 ```
