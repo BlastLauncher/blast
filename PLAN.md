@@ -37,7 +37,7 @@ client and doc shows the smaller API.
 - [x] 0152 Condense decision records into a few current-state records
 - [x] 0153 Product story: README, `docs/quickstart.md`, `docs/embedding.md`
 - [ ] 0154 Landing page: simple API, any language, demo front and centre
-- [ ] 0155 Zero-config serve: runnable bin, views by default, drawable icons
+- [x] 0155 Zero-config serve: runnable bin, views by default, drawable icons
 - [ ] 0156 Engine root view: search and launch commands across extensions
 - [ ] 0157 Launch prompts and dependency installs as views
 - [ ] 0158 Minimal Python embedder (stdlib, ≤ 200 lines); Go example on new flow
