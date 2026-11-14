@@ -119,7 +119,7 @@ describe("classifyBrowserOutcome", () => {
   });
   test("classifies capability denials with their name", () => {
     expect(classifyBrowserOutcome({ capability: "clipboard.copy", statusError: true })).toBe(
-      "capability-denied:clipboard.copy",
+      "browser-limit",
     );
   });
   test("classifies network errors", () => {

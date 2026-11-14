@@ -110,9 +110,7 @@ export function classifyBrowserOutcome(observation: BrowserObservation): Browser
       ? observation.placeholders
         ? "rendered-with-placeholders"
         : "rendered"
-      : observation.network
-        ? "browser-limit"
-        : "network";
+      : "browser-limit";
   if (observation.statusError || pageErrors.length > 0 || consoleErrors.length > 0)
     return `runtime-error:${compact(pageErrors[0] || consoleErrors[0] || observation.status || "runtime error")}`;
   if (observation.needsPreferences) return "needs-preferences";
