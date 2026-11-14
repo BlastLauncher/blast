@@ -27,6 +27,7 @@ export type LaunchFlowOptions = {
    * preference, current values filled in) and save it, without launching.
    */
   configure?: boolean;
+  configureScope?: "extension" | "command";
 };
 
 type Opened = Awaited<ReturnType<ExtensionHandle["launch"]>>;
@@ -113,8 +114,8 @@ export function startLaunchFlow(
   const configure = async (manifest: ExtensionManifest, command: ExtensionCommand) => {
     const { values } = await handle.preferences(commandName);
     const sections = [
-      { title: manifest.title, fields: manifest.preferences },
-      { title: command.title, fields: command.preferences },
+      { title: "Extension", fields: manifest.preferences },
+      { title: "Command", fields: command.preferences },
     ].filter((section) => section.fields.length);
     const form: PromptForm = {
       title: `Configure ${command.title}`,
@@ -161,7 +162,7 @@ export function startLaunchFlow(
       );
       if (missing.length || absent.length) {
         const sections = [
-          ...(missing.length ? [{ title: "Preferences", fields: missing.map(field) }] : []),
+          ...(missing.length ? [{ title: "Extension", fields: missing.map(field) }] : []),
           { title: "Arguments", fields: argumentFields(command) },
         ].filter((section) => section.fields.length);
         prompt.form({
