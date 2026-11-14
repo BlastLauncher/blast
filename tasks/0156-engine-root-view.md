@@ -56,8 +56,15 @@ the command's session ends.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/276b9c9b @ (this commit; worktree branch merged with t3/engine-root-view-icons, a non-ff merge because main moved)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 187.3s
 Done:
+- client-core `root.ts` reworked: live catalog (`setCatalog`), selection by id, "Open Command" actions panel (primary inside it launches), failure toast (`fail`), `reset`, `iconSource` on rows; tests in `root.test.ts`.
+- host `engine.root({views, launch?})` (`packages/host/src/root.ts`): catalog from opened extensions' manifests (live via `watch`, open/close tracked by the engine), launch -> command view -> back to root on session exit or `back`; `ready()`; manifests now carry optional `icon`. Host gains a client-core dependency (docs/architecture.md updated).
+- serve + protocol (additive v1): `root.open {views?}` -> `{root}`, `root.input`, `root.close`, events `root.view`, `root.launched {root, session}`; the root resumes after `session.exited`. Schema regenerated; protocol and serve tests cover it with two fixture extensions.
+- `docs/embedding.md` root section (143 lines).
 Not done / risks:
+- No "Configure" action: it needs the preference prompts of 0157.
+- Serve keeps its own session driver; `host/src/root.ts` has a similar ~25-line scene->controller loop for the in-process mode. Worth unifying in 0160.
+- Three full-suite runs on a loaded machine hit unrelated timing flakes in tui/cli/serve tests (all pass in isolation and in the final run).
 ```
