@@ -64,6 +64,37 @@ struct PresenterTests {
         #expect(display.primaryTitle == "Submit Form")
     }
 
+    @Test("maps the root fixture: extension sections head their command rows")
+    func root() throws {
+        let display = LauncherPresenter(view: try Fixtures.view("root")).display
+
+        #expect(display.title == "Commands")
+        #expect(display.searchPlaceholder == "Search commands…")
+        #expect(display.rows.map(\.title) == ["hello-list", "index"])
+        #expect(display.rows.map(\.kind) == [.section, .item])
+        #expect(display.rows.map(\.enabled) == [false, true])
+        #expect(display.rows.last?.accessories == "Command")
+        #expect(display.rows.last?.iconText == "I")
+        #expect(display.selectedRowIndex == 1)
+        #expect(display.selectedRowId == "hello-list:index")
+        #expect(display.canGoBack == false)
+        #expect(display.primaryTitle == "Open Command")
+    }
+
+    @Test("maps the prompt fixture: missing preference and argument become form rows")
+    func prompt() throws {
+        let display = LauncherPresenter(view: try Fixtures.view("prompt")).display
+
+        #expect(display.title == "Set up index")
+        #expect(display.rows.map(\.title) == ["Token", "query"])
+        #expect(display.rows.map(\.kind) == [.formField, .formField])
+        #expect(display.rows.map(\.subtitle) == ["PasswordField", "TextField"])
+        #expect(display.selectedRowIndex == 0)
+        #expect(display.selectedRowId == "token")
+        #expect(display.canGoBack)
+        #expect(display.primaryTitle == "Save & Launch")
+    }
+
     @Test("maps the menu-bar fixture: sections are not selectable")
     func menuBar() throws {
         let display = LauncherPresenter(view: try Fixtures.view("menu-bar")).display
@@ -207,71 +238,7 @@ struct PresenterTests {
     }
 }
 
-@Suite("Command picker")
-struct CommandPickerTests {
-    private let commands = [
-        LauncherCommand(name: "index", title: "Search Files", subtitle: "view"),
-        LauncherCommand(name: "clipboard", title: "Show Clipboard", subtitle: "no-view"),
-    ]
-
-    @Test("filters by title and resets the selection")
-    func filtering() {
-        var picker = LauncherCommandPicker(commands: commands, selectedIndex: 1)
-        #expect(picker.selectedCommand?.name == "clipboard")
-
-        picker.search("files")
-        #expect(picker.filtered.map(\.name) == ["index"])
-        #expect(picker.selectedIndex == 0)
-        #expect(picker.selectedCommand?.name == "index")
-
-        picker.search("CLIP")
-        #expect(picker.filtered.map(\.name) == ["clipboard"])
-    }
-
-    @Test("moves the selection within the filtered commands")
-    func moving() {
-        var picker = LauncherCommandPicker(commands: commands)
-        picker.move(.down)
-        #expect(picker.selectedCommand?.name == "clipboard")
-        picker.move(.down)
-        #expect(picker.selectedCommand?.name == "clipboard")
-        picker.move(.up)
-        #expect(picker.selectedCommand?.name == "index")
-        picker.move(.up)
-        #expect(picker.selectedCommand?.name == "index")
-        picker.move(.right)
-        #expect(picker.selectedCommand?.name == "index")
-    }
-
-    @Test("selects by command name")
-    func selecting() {
-        var picker = LauncherCommandPicker(commands: commands)
-        picker.select(id: "clipboard")
-        #expect(picker.selectedCommand?.name == "clipboard")
-        picker.select(id: "missing")
-        #expect(picker.selectedCommand?.name == "clipboard")
-    }
-
-    @Test("renders a picker display and an empty state")
-    func display() {
-        let picker = LauncherCommandPicker(commands: commands)
-        let shown = picker.display
-        #expect(shown.title == "Commands")
-        #expect(shown.searchPlaceholder == "Search commands…")
-        #expect(shown.rows.map(\.title) == ["Search Files", "Show Clipboard"])
-        #expect(shown.rows.map(\.subtitle) == ["view", "no-view"])
-        #expect(shown.selectedRowIndex == 0)
-        #expect(shown.primaryLabel == "Run  ↵")
-
-        var empty = LauncherCommandPicker(commands: commands)
-        empty.search("nothing")
-        #expect(empty.selectedCommand == nil)
-        #expect(empty.display.body == .empty(title: "No commands", description: "No command matches “nothing”."))
-        #expect(empty.display.primaryEnabled == false)
-    }
-}
-
-private enum Fixtures {
+enum Fixtures {
     static let directory = URL(fileURLWithPath: #filePath)
         .deletingLastPathComponent()
         .deletingLastPathComponent()
@@ -357,23 +324,6 @@ struct LauncherBehaviourTests {
         #expect(controller.hotkey == .defaultOptionSpace)
         #expect(controller.isPresented == false)
         #expect(recorder.values == [true, false])
-    }
-
-    @Test("catalog scans extension folders and picker searches across them")
-    func catalog() throws {
-        let root = FileManager.default.temporaryDirectory.appendingPathComponent("catalog-\(UUID().uuidString)")
-        defer { try? FileManager.default.removeItem(at: root) }
-        for (name, title) in [("one", "Alpha"), ("two", "Beta")] {
-            let directory = root.appendingPathComponent(name)
-            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-            let manifest = "{\"name\":\"\(name)\",\"commands\":[{\"name\":\"index\",\"title\":\"\(title)\",\"mode\":\"view\"}]}"
-            try Data(manifest.utf8).write(to: directory.appendingPathComponent("package.json"))
-        }
-        let found = try LauncherCommandCatalog.load(from: root)
-        #expect(found.map { $0.command.title } == ["Alpha", "Beta"])
-        var picker = LauncherCommandPicker(commands: found.map(\.command))
-        picker.search("beta")
-        #expect(picker.selectedCommand?.extensionDirectory?.hasSuffix("/two") == true)
     }
 
     @Test("dependency prompt retries only after confirmation")

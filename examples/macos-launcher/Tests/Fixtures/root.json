@@ -1,0 +1,68 @@
+{
+  "actions": {
+    "breadcrumb": [],
+    "open": false,
+    "query": "",
+    "rows": [],
+    "selectedIndex": -1,
+    "title": "index"
+  },
+  "detail": "",
+  "dropdown": null,
+  "empty": null,
+  "emptyText": "No commands",
+  "feedback": {
+    "alert": null,
+    "hud": null,
+    "toast": null
+  },
+  "form": null,
+  "grid": null,
+  "kind": "list",
+  "loading": false,
+  "menuBar": null,
+  "navigation": {
+    "canGoBack": false
+  },
+  "primary": {
+    "enabled": true,
+    "shortcut": "",
+    "title": "Open Command"
+  },
+  "requests": {
+    "clearSearch": false,
+    "quit": false
+  },
+  "rows": [
+    {
+      "accessories": "",
+      "count": 1,
+      "icon": false,
+      "iconLabel": "",
+      "id": "section:hello-list",
+      "kind": "section",
+      "selected": false,
+      "subtitle": "",
+      "text": "hello-list",
+      "title": "hello-list"
+    },
+    {
+      "accessories": "Command",
+      "count": null,
+      "icon": false,
+      "iconLabel": "",
+      "id": "hello-list:index",
+      "kind": "item",
+      "selected": true,
+      "subtitle": "",
+      "text": "index",
+      "title": "index"
+    }
+  ],
+  "search": {
+    "placeholder": "Search commands…",
+    "text": ""
+  },
+  "selectedId": "hello-list:index",
+  "title": "Commands"
+}

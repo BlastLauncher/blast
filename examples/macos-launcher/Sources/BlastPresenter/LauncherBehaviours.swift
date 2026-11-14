@@ -57,56 +57,6 @@ public final class LauncherHotkeyController: @unchecked Sendable {
     }
 }
 
-/// One command discovered in a package.json under a launcher root.
-public struct DiscoveredLauncherCommand: Equatable, Sendable {
-    public let command: LauncherCommand
-    public let extensionDirectory: URL
-
-    public init(command: LauncherCommand, extensionDirectory: URL) {
-        self.command = command
-        self.extensionDirectory = extensionDirectory
-    }
-}
-
-public enum LauncherCommandCatalogError: Error, Equatable, Sendable {
-    case unreadableManifest(URL)
-    case malformedManifest(URL)
-}
-
-/// Reads extension manifests without touching the engine. A directory that is
-/// itself an extension is accepted; otherwise its immediate child directories
-/// are scanned in stable path order.
-public enum LauncherCommandCatalog {
-    public static func load(from root: URL, fileManager: FileManager = .default) throws -> [DiscoveredLauncherCommand] {
-        let directories: [URL]
-        if fileManager.fileExists(atPath: root.appendingPathComponent("package.json").path) {
-            directories = [root]
-        } else {
-            directories = try fileManager.contentsOfDirectory(at: root, includingPropertiesForKeys: [.isDirectoryKey], options: [.skipsHiddenFiles])
-                .filter { (try? $0.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true }
-                .sorted { $0.path < $1.path }
-        }
-        return try directories.compactMap { directory -> [DiscoveredLauncherCommand]? in
-            let manifestURL = directory.appendingPathComponent("package.json")
-            guard fileManager.fileExists(atPath: manifestURL.path) else { return nil }
-            guard let data = try? Data(contentsOf: manifestURL) else { throw LauncherCommandCatalogError.unreadableManifest(manifestURL) }
-            guard let object = try? JSONDecoder().decode(JSONValue.self, from: data), let manifest = object.objectValue else {
-                throw LauncherCommandCatalogError.malformedManifest(manifestURL)
-            }
-            let extensionName = manifest["name"]?.stringValue ?? directory.lastPathComponent
-            return (manifest["commands"]?.arrayValue ?? []).compactMap { entry -> DiscoveredLauncherCommand? in
-                guard let name = entry["name"]?.stringValue else { return nil }
-                let title = entry["title"]?.stringValue ?? name
-                let mode = entry["mode"]?.stringValue ?? ""
-                let subtitle = entry["subtitle"]?.stringValue ?? (mode.isEmpty ? extensionName : mode)
-                let command = LauncherCommand(name: name, title: title, subtitle: subtitle, extensionDirectory: directory.path, extensionName: extensionName)
-                return DiscoveredLauncherCommand(command: command, extensionDirectory: directory)
-            }
-        }
-        .flatMap { $0 }
-    }
-}
-
 /// Coordinates a launch and the decision required by decision 0002. It is
 /// deliberately closure based so tests inject engine responses and confirmation.
 public final class LauncherLaunchCoordinator: @unchecked Sendable {

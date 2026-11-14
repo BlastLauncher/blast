@@ -364,7 +364,7 @@ final class LauncherWindowController: NSWindowController, NSTableViewDataSource,
 
     func tableView(_ tableView: NSTableView, shouldSelectRow row: Int) -> Bool {
         guard display.rows.indices.contains(row) else { return false }
-        return display.rows[row].kind != .gridHeader && display.rows[row].kind != .menuBarSection
+        return ![.section, .gridHeader, .menuBarSection].contains(display.rows[row].kind)
     }
 
     func tableViewSelectionDidChange(_ notification: Notification) {

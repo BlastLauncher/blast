@@ -1,13 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import { createEngine, type CapabilityHandler, type ExtensionHandle } from "@blastlauncher/host";
-import {
-  createController,
-  type Controller,
-  type ControllerInput,
-  type ControllerView,
-  type ControllerResult,
-} from "@blastlauncher/client-core";
+import { type ControllerInput, type ControllerView } from "@blastlauncher/client-core";
 import type { JsonValue } from "@blastlauncher/protocol";
 import { clientSource, pageHtml, renderSource } from "./page.ts";
 
@@ -41,11 +35,8 @@ export async function startWebLauncher(options: WebLauncherOptions): Promise<Web
   const token = randomBytes(18).toString("hex");
   const clients = new Set<Client>();
   let latest: ControllerView | undefined;
-  let controller: Controller | undefined;
   let extension: ExtensionHandle | undefined;
-  let opened: Awaited<ReturnType<ExtensionHandle["launch"]>> | undefined;
-  let stopScenes: (() => void) | undefined;
-  let stopController: (() => void) | undefined;
+  let root: ReturnType<ReturnType<typeof createEngine>["root"]> | undefined;
   let closed = false;
   let expectedHost = "";
   const engine = createEngine({ handlers: capabilityHandlers() });
@@ -58,18 +49,8 @@ export async function startWebLauncher(options: WebLauncherOptions): Promise<Web
     latest = view;
     emit({ type: "view", view });
   };
-  const apply = (result: ControllerResult) => {
-    if (!controller || !opened) return;
-    for (const event of result.events)
-      opened.session.sendEvent(event.node, event.handler, event.args);
-    for (const effect of result.effects) {
-      if (effect.type === "quit") void closeSession();
-      else
-        setTimeout(
-          () => apply(controller?.tick(effect.token) ?? { events: [], effects: [] }),
-          effect.ms,
-        );
-    }
+  const apply = (input: ControllerInput) => {
+    root?.input(input);
   };
   function capabilityHandlers(): Record<string, CapabilityHandler> {
     return {
@@ -82,26 +63,16 @@ export async function startWebLauncher(options: WebLauncherOptions): Promise<Web
     };
   }
   const closeSession = async () => {
-    stopScenes?.();
-    stopScenes = undefined;
-    stopController?.();
-    stopController = undefined;
-    if (opened) {
-      const current = opened;
-      opened = undefined;
-      await current.close();
-    }
-    controller = undefined;
-    latest = undefined;
+    await root?.close();
+    root = undefined;
   };
-  const launch = async (command: string) => {
+  const launch = async (_command: string) => {
     await closeSession();
     extension ??= engine.openExtension({ extensionDir: options.extensionDir });
-    opened = await extension.launch(command);
-    controller = createController({ platform: "macOS" });
-    stopController = controller.subscribe(update);
-    stopScenes = opened.session.scenes((scene) => apply(controller!.scene(scene)));
-    update(controller.view());
+    root = engine.root({ views: { platform: "macOS" } });
+    root.subscribe(update);
+    await root.ready();
+    update(root.view());
   };
   const publicAssets = new Set(["/client.js", "/render.js"]);
   const authorized = (request: IncomingMessage, response: ServerResponse) => {
@@ -164,11 +135,11 @@ export async function startWebLauncher(options: WebLauncherOptions): Promise<Web
         }
         const body = await readBody(request);
         if (url.pathname === "/input") {
-          if (!controller) {
+          if (!root) {
             respond(response, 409, { error: "No session" });
             return;
           }
-          apply(controller.input(body as ControllerInput));
+          apply(body as ControllerInput);
           respond(response, 204, null);
           return;
         }

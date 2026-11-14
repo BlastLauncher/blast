@@ -47,6 +47,8 @@ test("the required fixtures are covered", () => {
     "menu-bar",
     "toast",
     "action-panel",
+    "root",
+    "prompt",
   ]);
 });
 

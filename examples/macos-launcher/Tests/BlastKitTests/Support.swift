@@ -12,7 +12,7 @@ let macosLauncherDirectory = blastKitTestsDirectory.deletingLastPathComponent()
     .deletingLastPathComponent()
 let repositoryRoot = macosLauncherDirectory.deletingLastPathComponent().deletingLastPathComponent()
 
-let fixtureNames = ["list", "grid", "detail", "form", "menu-bar", "toast", "action-panel"]
+let fixtureNames = ["list", "grid", "detail", "form", "menu-bar", "toast", "action-panel", "root", "prompt"]
 
 struct WaitTimeout: Error, CustomStringConvertible {
     let label: String

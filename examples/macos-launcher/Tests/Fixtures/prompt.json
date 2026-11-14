@@ -1,0 +1,127 @@
+{
+  "actions": {
+    "breadcrumb": [],
+    "open": false,
+    "query": "",
+    "rows": [
+      {
+        "id": "submit",
+        "kind": "action",
+        "selected": true,
+        "shortcut": "",
+        "title": "Save & Launch"
+      }
+    ],
+    "selectedIndex": 0,
+    "title": "Actions"
+  },
+  "detail": "",
+  "dropdown": null,
+  "empty": null,
+  "emptyText": "No results",
+  "feedback": {
+    "alert": null,
+    "hud": null,
+    "toast": null
+  },
+  "form": {
+    "fields": [
+      {
+        "checked": false,
+        "error": "",
+        "focused": true,
+        "hasValue": false,
+        "id": "token",
+        "info": "",
+        "label": "",
+        "optionIndex": 0,
+        "options": [],
+        "placeholder": "",
+        "query": "",
+        "selected": [],
+        "text": "",
+        "title": "Token",
+        "type": "Form.PasswordField",
+        "value": null
+      },
+      {
+        "checked": false,
+        "error": "",
+        "focused": false,
+        "hasValue": false,
+        "id": "argument:query",
+        "info": "",
+        "label": "",
+        "optionIndex": 0,
+        "options": [],
+        "placeholder": "",
+        "query": "",
+        "selected": [],
+        "text": "",
+        "title": "query",
+        "type": "Form.TextField",
+        "value": ""
+      }
+    ],
+    "focusId": "token",
+    "items": [
+      {
+        "id": "description",
+        "kind": "description",
+        "text": "These values are required before the command can run.",
+        "title": ""
+      },
+      {
+        "id": "rule:0",
+        "kind": "separator"
+      },
+      {
+        "id": "section:0",
+        "kind": "description",
+        "text": "Preferences",
+        "title": ""
+      },
+      {
+        "id": "token",
+        "kind": "field"
+      },
+      {
+        "id": "rule:1",
+        "kind": "separator"
+      },
+      {
+        "id": "section:1",
+        "kind": "description",
+        "text": "Arguments",
+        "title": ""
+      },
+      {
+        "id": "argument:query",
+        "kind": "field"
+      }
+    ]
+  },
+  "grid": null,
+  "kind": "form",
+  "loading": false,
+  "menuBar": null,
+  "navigation": {
+    "canGoBack": true
+  },
+  "primary": {
+    "enabled": true,
+    "shortcut": "↵",
+    "title": "Save & Launch"
+  },
+  "requests": {
+    "clearSearch": false,
+    "quit": false
+  },
+  "rows": [],
+  "search": {
+    "placeholder": "Search…",
+    "text": ""
+  },
+  "selectedId": null,
+  "title": "Set up index"
+}

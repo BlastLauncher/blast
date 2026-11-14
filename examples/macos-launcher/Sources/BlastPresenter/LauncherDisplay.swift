@@ -6,6 +6,7 @@ import Foundation
 public struct LauncherRow: Equatable, Sendable {
     public enum Kind: String, Equatable, Sendable {
         case item
+        case section
         case gridCell
         case gridHeader
         case formField

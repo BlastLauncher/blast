@@ -43,8 +43,35 @@ prompts instead, keeping their look and keys.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/9fe212e3 @ 9987afa (round 2 on top of t3/mac-web-launcher-engine-flows @ cf5c863)
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 193.3s
 Done:
+- Finding 1 (macOS input routing): new `BlastPresenter/LauncherRouter.swift` (pure Swift)
+  owns the root/session ids. Input goes to the root until `rootLaunched`, then to that
+  session until its `exited`, then back to the root. Only the active handle's views
+  are drawn, and events for other roots or sessions are ignored. It also keeps the
+  first `root.view`, which serve writes before the `root.open` response. LauncherApp
+  uses it (201 lines, was 221). `LauncherRouterTests.swift` covers the four required
+  cases plus the early root view. Commit d3ad1a3.
+- Finding 2 (skipped web test): `server.test.ts` main test runs again on the root
+  flow: root view lists hello-list, primary launches it, its rows stream, search
+  input reaches it, clipboard.copy {text: "banana"} is forwarded, `back` returns to
+  the root, and 415/403/400 (and /launch without a command) are rejected. Commit 415789a.
+- Finding 3 (contract fixtures): `mac-fixtures.ts` records `root.json` (hello-list via
+  root.open) and `prompt.json` (0157 prompt fixture: engine-handle with a required
+  password preference and text argument, launched by root primary → root.launched →
+  form view). Presenter tests `root` and `prompt` decode and present them. To present
+  the root's per-extension section rows, list rows of kind `section` now map to a new
+  disabled `LauncherRow.Kind.section`, which the table does not select. Commit 9987afa.
+- Line counts (round 1 → now): web server.ts 228 → 199; macOS LauncherApp 274 → 201 (+58
+  LauncherRouter), LauncherBehaviours 137 → 87, LauncherCommandPicker 118 → deleted.
+- Picker grep: `rank|picker|catalog` in both examples finds only BlastKit's capability
+  catalog (welcome message), which is unrelated.
 Not done / risks:
+- Swift was not compiled here (Linux). I read it for Sendable/MainActor/switch issues.
+  Mutating router calls are kept outside `#expect`. macOS CI (`example:mac`) must
+  confirm after the orchestrator merges.
+- Web launcher still has the `/launch` endpoint and `command` option from before. Both
+  now just reopen the root and ignore the command name. Left as is (outside the
+  findings); a follow-up could remove them or make `command` search and launch from the root.
 ```
