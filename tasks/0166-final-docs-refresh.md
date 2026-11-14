@@ -1,7 +1,7 @@
 ---
 id: "0166"
 title: Docs, README and landing page show the final embedding API
-status: todo
+status: doing
 milestone: M9
 depends: ["0160", "0165"]
 ---
