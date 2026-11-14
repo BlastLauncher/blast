@@ -4,7 +4,7 @@
 bun run tui <extensionDir> [command] [--native]
 ```
 
-A `[command]` opens it directly; otherwise the picker lists commands. `--native` enables system clipboard/paste, URL/file opens, file-manager reveal and trash.
+A `[command]` opens it directly; otherwise the engine's root view lists commands. `--native` enables system clipboard/paste, URL/file opens, file-manager reveal and trash.
 
 ## Keys
 
@@ -30,28 +30,27 @@ A `[command]` opens it directly; otherwise the picker lists commands. `--native`
 - **Native window/clipboard** — terminal limitation; these remain embedder capabilities.
 - **Pointer, animation, desktop layout** — not planned for this terminal client.
 
-## Picker
+## Launcher
 
-`bun run tui <extensionDir>` lists manifest commands. Rows show each command's `title` (else name), `subtitle` (else `description`), mode; header shows title.
+`bun run tui <extensionDir>` draws the engine's root view (`engine.root`,
+decision 0014): commands with `title`, `subtitle` (else `description`) and
+mode. The engine ranks, prompts and installs; the TUI draws its views.
 
-- Typing filters case-insensitively on title, subtitle and name; ↑ / ↓ move
-  the selection; Enter launches; Esc / Ctrl-C quit the TUI.
-- The manifest is re-read while the picker is open (debounced `fs.watch` on
-  `package.json`): command edits show up live. Invalid JSON or a missing
-  `commands` array shows an inline error line and keeps the last good list.
-- A command declaring `arguments` opens a small form first: `text` and
-  `password` fields take typing (masked), `dropdown` cycles its `data` options
-  with ← / →; Tab / ↑ / ↓ move between fields. Enter launches once every
-  required argument is filled; values reach the command like `--argument`.
-- Esc at a command's root view, a no-view command finishing and the crash error
-  screen return to the picker, selection kept; the crash screen also offers R
-  to relaunch the same command and arguments. Ctrl-C quits from anywhere; a
-  launch failure (bundling) stays on the picker with an error line. The process
-  exits 1 only if the last launched command crashed and the user then quits.
+- Typing searches title, subtitle and name; ↑ / ↓ move; Enter opens; Ctrl-K
+  lists Open / Configure Command; Ctrl-E (⌃⇧, / ⌘⇧, where delivered) opens
+  **Configure <command>**, saved without launching. Esc / Ctrl-C quit.
+- The manifest is re-read while open (debounced `fs.watch`): edits show up
+  live; a broken manifest shows `Manifest: …` and keeps the last good list.
+- Launching runs `startLaunchFlow`: missing required preferences and arguments
+  become one **Set up <command>** form; dependencies install as a progress
+  view with Retry on failure (under `<dataDir>/deps/`, decision 0002).
+- Esc at a command's root, a no-view command finishing and the crash screen
+  return to the root, selection kept; the crash screen offers R to relaunch
+  with the same arguments. `open*Preferences` returns and opens Configure.
+  Ctrl-C quits from anywhere; the process exits 1 only if the last launched
+  command crashed. `--native` handlers reach every launched command.
 
-The picker checks dependencies on open and on manifest changes; installs live under `<dataDir>/deps/` (decision 0002). Missing required preferences open **Set up <command>** before launch. Ctrl-E and `open*Preferences` open full **Preferences — <extension>** view (Extension
-and command sections, `*` required, field description); saves without launch.
-Passwords masked, Space toggles checkboxes, ←/→ cycles dropdowns, Enter saves, Esc cancels. Values persist in `<dataDir>/preferences/<encoded-name>.json` (**plaintext, mode 0600**). Data root: `$XDG_DATA_HOME/blast` (or `~/.local/share/blast`). Run `bun scripts/tui-benchmark.ts` for `hello-list` first-frame time and mean keystroke latency through a synthetic 10,000-item List; it uses OpenTUI's in-memory renderer, is outside `bun run verify`, and reports machine-dependent timing.
+Prompt forms are ordinary form views (see Forms). Values persist in `<dataDir>/preferences/<encoded-name>.json` (**plaintext, mode 0600**). Data root: `$XDG_DATA_HOME/blast` (or `~/.local/share/blast`). Run `bun scripts/tui-benchmark.ts` for `hello-list` first-frame time and mean keystroke latency through a synthetic 10,000-item List; it uses OpenTUI's in-memory renderer, is outside `bun run verify`, and reports machine-dependent timing.
 
 ## Rendering
 

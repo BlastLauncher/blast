@@ -5,44 +5,45 @@ import { testRender } from "@opentui/react/test-utils";
 import { cp, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { CommandPicker, CommandSession } from "./picker.tsx";
+import { CommandSession } from "./launcher.tsx";
 import { settle } from "./test-support.ts";
 import {
-  openExtension,
+  createEngine,
   type DebounceScheduler,
   type ExtensionWatcherFactory,
 } from "@blastlauncher/host";
 
-function deterministicExtension(
-  extensionDir: string,
+function deterministicEngine(
   dataDir: string,
   installer?: import("@blastlauncher/host").DependencyInstaller,
 ) {
-  let listener: ((event: string, file: string) => void) | undefined;
+  // The root and the session's error line each watch the extension.
+  const listeners = new Set<(event: string, file: string) => void>();
   const pending = new Set<() => void>();
   const watcher: ExtensionWatcherFactory = (_path, next) => {
-    listener = next;
-    return { on: (_event, _listener) => watcherHandle, close: () => {} };
-  };
-  const watcherHandle = {
-    on: (_event: "error", _listener: (error: Error) => void) => watcherHandle,
-    close: () => {},
+    listeners.add(next);
+    const handle = {
+      on: (_event: "error", _listener: (error: Error) => void) => handle,
+      close: () => {
+        listeners.delete(next);
+      },
+    };
+    return handle;
   };
   const debounce: DebounceScheduler = {
     schedule: (callback) => (pending.add(callback), callback),
     cancel: (handle) => pending.delete(handle as () => void),
   };
-  const extension = openExtension({
-    extensionDir,
+  const engine = createEngine({
     dataDir,
     watcher,
     debounce,
     ...(installer ? { installer } : {}),
   });
   return {
-    extension,
+    engine,
     emit(file: string) {
-      listener?.("change", file);
+      for (const listener of listeners) listener("change", file);
       for (const callback of pending) {
         pending.delete(callback);
         callback();
@@ -101,15 +102,10 @@ const paste = async (
   });
 };
 
-test("picker lists a manifest's commands with modes and filters by typed text", async () => {
+test("the root lists the extension's commands with modes and filters by typed text", async () => {
   const dir = await copyFixture("host-session");
   const terminal = await testRender(
-    <CommandPicker
-      extensionDir={dir}
-      dataDir={join(dir, "../data")}
-      onLaunch={() => {}}
-      onQuit={() => {}}
-    />,
+    <CommandSession extensionDir={dir} dataDir={join(dir, "../data")} />,
     { width: 80, height: 20, exitOnCtrlC: false },
   );
   try {
@@ -132,15 +128,9 @@ test("picker lists a manifest's commands with modes and filters by typed text", 
 
 test("rewriting the manifest updates the list; invalid JSON keeps the last list", async () => {
   const dir = await copyFixture("feedback");
-  const supplied = deterministicExtension(dir, join(dir, "../data"));
+  const supplied = deterministicEngine(join(dir, "../data"));
   const terminal = await testRender(
-    <CommandPicker
-      extensionDir={dir}
-      dataDir={join(dir, "../data")}
-      extension={supplied.extension}
-      onLaunch={() => {}}
-      onQuit={() => {}}
-    />,
+    <CommandSession extensionDir={dir} engine={supplied.engine} />,
     { width: 80, height: 20, exitOnCtrlC: false },
   );
   try {
@@ -164,12 +154,12 @@ test("rewriting the manifest updates the list; invalid JSON keeps the last list"
     expect(frame).toContain("› index");
   } finally {
     await act(async () => terminal.dispose());
-    await supplied.extension.close();
+    await supplied.engine.close();
     await rm(join(dir, ".."), { recursive: true, force: true });
   }
 }, 30_000);
 
-test("Enter launches a command and Esc returns to the picker with the selection kept", async () => {
+test("Enter launches a command and Esc returns to the root with the selection kept", async () => {
   const dir = await copyFixture("host-session");
   const exits: boolean[] = [];
   const dataDir = await mkdtemp(join(tmpdir(), "blast-tui-picker-run-"));
@@ -217,15 +207,16 @@ test("a required argument blocks launch until filled, then reaches the command",
   try {
     await settle(terminal, (frame) => frame.includes("› index"));
     await press(terminal, "enter");
-    // The argument form opens instead of launching; the dropdown starts on One.
-    const form = await settle(terminal, (frame) => frame.includes("Launch index"));
-    expect(form).toContain("query *");
-    expect(form).toContain("option ‹ One ›");
+    // The engine's argument prompt opens instead of launching; the dropdown starts on One.
+    const form = await settle(terminal, (frame) => frame.includes("Set up index"));
+    expect(form).toContain("› query");
+    expect(form).toContain("option");
+    expect(form).toContain("[x] One");
     // Enter without the required text stays on the form.
     await press(terminal, "enter");
-    await settle(terminal, (frame) => frame.includes("Required: query"));
+    await settle(terminal, (frame) => frame.includes("Required"));
     await type(terminal, "hello");
-    await settle(terminal, (frame) => !frame.includes("Required: query"));
+    await settle(terminal, (frame) => !frame.includes("Required"));
     await press(terminal, "enter");
     // The command renders its arguments in the navigation title.
     await settle(
@@ -259,7 +250,7 @@ test("a password argument accepts a bracketed paste without echoing it", async (
   try {
     await settle(terminal, (frame) => frame.includes("› index"));
     await press(terminal, "enter");
-    await settle(terminal, (frame) => frame.includes("Launch index"));
+    await settle(terminal, (frame) => frame.includes("Set up index"));
     await paste(terminal, "pasted\n");
     expect(await settle(terminal, (frame) => frame.includes("••••••••"))).not.toContain("pasted");
     await press(terminal, "enter");
@@ -271,7 +262,7 @@ test("a password argument accepts a bracketed paste without echoing it", async (
   }
 }, 30_000);
 
-test("a no-view command finishes, shows its HUD and returns to the picker", async () => {
+test("a no-view command finishes, shows its HUD and returns to the root", async () => {
   const dir = await copyFixture("feedback");
   const dataDir = await mkdtemp(join(tmpdir(), "blast-tui-picker-noview-"));
   const terminal = await testRender(
@@ -293,7 +284,7 @@ test("a no-view command finishes, shows its HUD and returns to the picker", asyn
   }
 }, 30_000);
 
-test("a crashed command returns to the picker and quitting then exits 1", async () => {
+test("a crashed command returns to the root and quitting then exits 1", async () => {
   const dir = await copyFixture("host-session");
   const exits: boolean[] = [];
   const dataDir = await mkdtemp(join(tmpdir(), "blast-tui-picker-crash-"));
@@ -328,7 +319,7 @@ test("a crashed command returns to the picker and quitting then exits 1", async 
   }
 }, 30_000);
 
-test("a launch failure (missing dependency) stays on the picker with an error line", async () => {
+test("a launch failure (missing dependency) shows the error and Esc returns to the root", async () => {
   const dir = await copyFixture("missing-dependency");
   const dataDir = await mkdtemp(join(tmpdir(), "blast-picker-failure-"));
   const terminal = await testRender(
@@ -348,8 +339,10 @@ test("a launch failure (missing dependency) stays on the picker with an error li
   try {
     await settle(terminal, (frame) => frame.includes("› index"));
     await press(terminal, "enter");
-    const frame = await settle(terminal, (current) => current.includes("Launch failed:"));
-    expect(frame).toContain("Search commands…");
+    // The engine's launch view offers Retry; Esc cancels back to the root.
+    await settle(terminal, (current) => current.includes("Missing dependencies:"));
+    await press(terminal, "escape");
+    await settle(terminal, (current) => current.includes("Search commands…"));
   } finally {
     await act(async () => terminal.dispose());
     await rm(dataDir, { recursive: true, force: true });
@@ -357,7 +350,7 @@ test("a launch failure (missing dependency) stays on the picker with an error li
   }
 }, 30_000);
 
-test("picker installs with progress, waits to launch, reuses installs and watches lock changes", async () => {
+test("launch installs with progress before the command, reuses installs and reinstalls after lock changes", async () => {
   const dir = await copyFixture("host-session");
   const dataDir = join(dir, "../data");
   const file = join(dir, "package.json");
@@ -372,55 +365,52 @@ test("picker installs with progress, waits to launch, reuses installs and watche
       finish = resolve;
     });
   };
-  const supplied = deterministicExtension(dir, dataDir, installer);
-  let terminal = await testRender(
-    <CommandSession
-      extensionDir={dir}
-      dataDir={dataDir}
-      extension={supplied.extension}
-      installer={installer}
-    />,
-    { width: 100, height: 20, exitOnCtrlC: false },
-  );
+  const supplied = deterministicEngine(dataDir, installer);
+  const render = () =>
+    testRender(<CommandSession extensionDir={dir} engine={supplied.engine} />, {
+      width: 100,
+      height: 20,
+      exitOnCtrlC: false,
+    });
+  let terminal = await render();
   try {
-    await settle(terminal, (f) => f.includes("Installing example"));
+    await settle(terminal, (f) => f.includes("Search commands"));
+    // The install runs as the launch's progress view; the command waits for it.
     await press(terminal, "enter");
-    expect(terminal.captureCharFrame()).toContain("Search commands");
+    await settle(terminal, (f) => f.includes("Installing example"));
+    expect(terminal.captureCharFrame()).not.toContain("count 0 popped false");
     await act(async () => finish());
     await settle(terminal, (f) => f.includes("count 0 popped false"));
     await press(terminal, "escape");
     await settle(terminal, (f) => f.includes("Search commands"));
     expect(calls).toBe(1);
     await act(async () => terminal.dispose());
-    terminal = await testRender(
-      <CommandSession
-        extensionDir={dir}
-        dataDir={dataDir}
-        extension={supplied.extension}
-        installer={installer}
-      />,
-      { width: 100, height: 20, exitOnCtrlC: false },
-    );
+    terminal = await render();
     await settle(terminal, (f) => f.includes("Search commands"));
+    await press(terminal, "enter");
+    await settle(terminal, (f) => f.includes("count 0 popped false"));
     expect(calls).toBe(1);
+    await press(terminal, "escape");
+    await settle(terminal, (f) => f.includes("Search commands"));
     await writeFile(
       join(dir, "package-lock.json"),
       JSON.stringify({ lockfileVersion: 3, packages: {} }),
     );
     supplied.emit("package-lock.json");
+    await press(terminal, "enter");
     await settle(terminal, (f) => f.includes("Installing example"));
     expect(calls).toBe(2);
     await act(async () => finish());
-    await settle(terminal, (f) => !f.includes("Installing example"));
+    await settle(terminal, (f) => f.includes("count 0 popped false"));
   } finally {
     finish?.();
     await act(async () => terminal.dispose());
-    await supplied.extension.close();
+    await supplied.engine.close();
     await rm(join(dir, ".."), { recursive: true, force: true });
   }
 }, 30_000);
 
-test("failed install shows the typed dependency error", async () => {
+test("failed install shows the installer's error", async () => {
   const dir = await copyFixture("host-session");
   const file = join(dir, "package.json");
   const manifest = JSON.parse(await readFile(file, "utf8"));
@@ -436,9 +426,12 @@ test("failed install shows the typed dependency error", async () => {
     { width: 100, height: 20, exitOnCtrlC: false },
   );
   try {
-    await settle(terminal, (f) => f.includes("Install failed: Error: offline install failure"));
+    await settle(terminal, (f) => f.includes("Search commands"));
     await press(terminal, "enter");
-    await settle(terminal, (f) => f.includes("Launch failed: Missing dependencies:"));
+    await settle(
+      terminal,
+      (f) => f.includes("Could not install dependencies") && f.includes("offline install failure"),
+    );
   } finally {
     await act(async () => terminal.dispose());
     await rm(join(dir, ".."), { recursive: true, force: true });
@@ -493,9 +486,9 @@ test("required preferences block launch, persist, reach the runtime and Ctrl-E e
     await settle(terminal, (f) => f.includes("Search commands"));
     await press(terminal, "enter");
     await settle(terminal, (f) => f.includes("Set up navigation"));
-    await settle(terminal, (f) => f.includes("API key *"));
+    await settle(terminal, (f) => f.includes("› API key"));
     await press(terminal, "enter");
-    await settle(terminal, (f) => f.includes("Required: API key"));
+    await settle(terminal, (f) => f.includes("Required"));
     await type(terminal, "secret");
     expect(terminal.captureCharFrame()).not.toContain("secret");
     await press(terminal, "enter");
@@ -503,18 +496,19 @@ test("required preferences block launch, persist, reach the runtime and Ctrl-E e
     const { preferenceFile } = await import("@blastlauncher/host");
     const { stat } = await import("node:fs/promises");
     expect((await stat(preferenceFile(dataDir, "preferences-fixture"))).mode & 0o777).toBe(0o600);
-    // The extension's capability returns to the picker and opens the form.
+    // The extension's capability returns to the root and opens the form.
     await press(terminal, "enter");
-    await settle(terminal, (f) => f.includes("Preferences — preferences-fixture"));
-    await settle(terminal, (f) => f.includes("API key *"));
+    await settle(terminal, (f) => f.includes("Configure navigation"));
+    await settle(terminal, (f) => f.includes("API key") && f.includes("preferences-fixture"));
     await press(terminal, "escape");
     await settle(terminal, (f) => f.includes("Search commands"));
     await act(async () => {
       terminal.mockInput.pressKey("e", { ctrl: true });
     });
-    await settle(terminal, (f) => f.includes("Preferences — preferences-fixture"));
-    await settle(terminal, (f) => f.includes("API key *"));
-    await type(terminal, "2");
+    await settle(terminal, (f) => f.includes("Configure navigation"));
+    await settle(terminal, (f) => f.includes("API key"));
+    // A stored password is never sent to the client: typing replaces it.
+    await type(terminal, "secret2");
     await press(terminal, "enter");
     await settle(terminal, (f) => f.includes("Search commands"));
     await act(async () => terminal.dispose());
@@ -585,17 +579,18 @@ test("manifest with missing required preference shows Set up launch gate with on
     // Should show launch gate: "Set up Navigate", "These values are required before the command can run."
     const gateFrame = await settle(terminal, (f) => f.includes("Set up Navigate"));
     expect(gateFrame).toContain("These values are required before the command can run.");
-    expect(gateFrame).toContain("API key *");
+    // The engine's prompt shows each field's description next to its title.
+    expect(gateFrame).toContain("› API key · Your API token");
     // Optional extension pref and already stored command pref should NOT be in the launch gate
     expect(gateFrame).not.toContain("Optional note");
     expect(gateFrame).not.toContain("Command secret");
-    // Launch gate does not show field description
-    expect(gateFrame).not.toContain("Your API token");
 
     // Typed and pasted (bracketed, trailing newline dropped) secrets combine.
     await type(terminal, "my-secret");
     await paste(terminal, "-token\n");
-    expect(await settle(terminal, (f) => f.includes("••••••••"))).not.toContain("token");
+    const masked = await settle(terminal, (f) => f.includes("••••••••"));
+    expect(masked).not.toContain("my-secret");
+    expect(masked).not.toContain("-token");
     await press(terminal, "enter");
     // Launches and runtime receives both values
     await settle(
@@ -608,7 +603,7 @@ test("manifest with missing required preference shows Set up launch gate with on
   }
 }, 30_000);
 
-test("Ctrl-E opens Preferences view with both section headers, all fields, focused description, saves and returns on Enter or Esc without launch", async () => {
+test("Ctrl-E opens Configure with both sections, all fields and descriptions, saves and returns on Enter or Esc without launch", async () => {
   const dir = await copyFixture("host-session");
   const dataDir = join(dir, "../data");
   const file = join(dir, "package.json");
@@ -667,35 +662,30 @@ test("Ctrl-E opens Preferences view with both section headers, all fields, focus
     await act(async () => {
       terminal.mockInput.pressKey("e", { ctrl: true });
     });
-    // Header format: Preferences — <extension title>
-    const prefFrame = await settle(terminal, (f) => f.includes("Preferences — View Fixture"));
-    // Both section headers
-    expect(prefFrame).toContain("Extension");
+    // Header format: Configure <command title>
+    const prefFrame = await settle(terminal, (f) => f.includes("Configure Navigate"));
+    // Both section headers: the extension's and the command's titles
+    expect(prefFrame).toContain("View Fixture");
     expect(prefFrame).toContain("Navigate");
-    // All fields, including required marker and optional field
-    expect(prefFrame).toContain("API key *");
-    expect(prefFrame).toContain("Optional note");
-    expect(prefFrame).toContain("Command secret *");
-    // First field is focused, so its description is shown
-    expect(prefFrame).toContain("Your API token");
-    // Second field description not shown yet
-    expect(prefFrame).not.toContain("An optional note");
+    // All fields with their descriptions, the first one focused
+    expect(prefFrame).toContain("› API key · Your API token");
+    expect(prefFrame).toContain("Optional note · An optional note");
+    expect(prefFrame).toContain("Command secret · Command specific secret");
 
     // Move to next field (Down)
     await press(terminal, "down");
-    const nextFrame = await settle(terminal, (f) => f.includes("An optional note"));
-    expect(nextFrame).not.toContain("Your API token");
+    await settle(terminal, (f) => f.includes("› Optional note"));
 
-    // Press Esc - cancels and returns to picker without launching
+    // Press Esc - cancels and returns to the root without launching
     await press(terminal, "escape");
     await settle(terminal, (f) => f.includes("Search commands"));
-    expect(terminal.captureCharFrame()).not.toContain("Preferences — View Fixture");
+    expect(terminal.captureCharFrame()).not.toContain("Configure Navigate");
 
     // Open again with Ctrl-E, edit a field, and press Enter to save
     await act(async () => {
       terminal.mockInput.pressKey("e", { ctrl: true });
     });
-    await settle(terminal, (f) => f.includes("Preferences — View Fixture"));
+    await settle(terminal, (f) => f.includes("Configure Navigate"));
     // token is focused
     await type(terminal, "saved-token");
     // Navigate to reqCmd
@@ -704,7 +694,7 @@ test("Ctrl-E opens Preferences view with both section headers, all fields, focus
     await type(terminal, "saved-cmd-secret");
     await press(terminal, "enter");
 
-    // Returns to picker, no launch
+    // Returns to the root, no launch
     await settle(terminal, (f) => f.includes("Search commands"));
     expect(terminal.captureCharFrame()).not.toContain('"token":"saved-token"');
 
@@ -720,7 +710,7 @@ test("Ctrl-E opens Preferences view with both section headers, all fields, focus
   }
 }, 30_000);
 
-test("preferences.open with scope extension shows only Extension section", async () => {
+test("preferences.open returns to the root and opens the command's Configure form", async () => {
   const dir = await copyFixture("host-session");
   const dataDir = join(dir, "../data");
   const file = join(dir, "package.json");
@@ -768,13 +758,10 @@ test("preferences.open with scope extension shows only Extension section", async
     await settle(terminal, (f) => f.includes("Item"));
     // Trigger openExtensionPreferences
     await press(terminal, "enter");
-    // Should open preferences view with scope: "extension"
-    const frame = await settle(terminal, (f) => f.includes("Preferences — Scope Fixture"));
-    expect(frame).toContain("Extension");
-    expect(frame).toContain("API key *");
-    // Command section and command fields should NOT be shown
-    expect(frame).not.toContain("Navigate");
-    expect(frame).not.toContain("Choice");
+    // The engine's Configure form has no scope: both sections show.
+    const frame = await settle(terminal, (f) => f.includes("Configure Navigate"));
+    expect(frame).toContain("Scope Fixture");
+    expect(frame).toContain("API key");
 
     await press(terminal, "escape");
     await settle(terminal, (f) => f.includes("Search commands"));
@@ -784,7 +771,7 @@ test("preferences.open with scope extension shows only Extension section", async
   }
 }, 30_000);
 
-test("picker passes custom capability handlers to launched commands", async () => {
+test("the launcher passes custom capability handlers to launched commands", async () => {
   const dir = await copyFixture("hello-list");
   const copied: unknown[] = [];
   const terminal = await testRender(

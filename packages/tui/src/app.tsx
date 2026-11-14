@@ -1,14 +1,15 @@
 /** @jsxImportSource @opentui/react */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useKeyboard, useTerminalDimensions } from "@opentui/react";
-import { TextAttributes, type ScrollBoxRenderable } from "@opentui/core";
+import { TextAttributes, type KeyEvent, type ScrollBoxRenderable } from "@opentui/core";
 import type { Session } from "@blastlauncher/host";
-import type { SceneMessage } from "@blastlauncher/protocol";
+import type { SceneMessage, SceneNode } from "@blastlauncher/protocol";
 import {
   activeNode,
   createController,
   type ControllerInput,
   type ControllerResult,
+  type ControllerView,
   type Platform,
 } from "@blastlauncher/client-core";
 import { GridView } from "./grid.tsx";
@@ -20,7 +21,7 @@ import { MarkdownView } from "./markdown.tsx";
 import { iconTint, theme } from "./theme.ts";
 import { visibleRows } from "./virtual-list.ts";
 
-const platform: Platform =
+export const platform: Platform =
   process.platform === "darwin" ? "macOS" : process.platform === "win32" ? "Windows" : "Linux";
 
 /** Logs from stderr can be multi-line; the error panel shows one line. */
@@ -63,9 +64,6 @@ export function App({
   const [scene, setScene] = useState<SceneMessage | undefined>(undefined);
   const [failure, setFailure] = useState<string | undefined>(undefined);
   const [lastLog, setLastLog] = useState<string | undefined>(undefined);
-  const warnedUnsupported = useRef(new Set<string>());
-  const scroll = useRef<ScrollBoxRenderable>(null);
-  const actionScroll = useRef<ScrollBoxRenderable>(null);
   const timers = useRef(new Set<ReturnType<typeof setTimeout>>());
   const quitRequested = useRef(false);
   const settled = useRef(false);
@@ -75,7 +73,6 @@ export function App({
   onExitRef.current = onExit;
   const onRelaunchRef = useRef(onRelaunch);
   onRelaunchRef.current = onRelaunch;
-  const { height: terminalHeight } = useTerminalDimensions();
   const requestQuit = () => {
     if (quitRequested.current) return;
     quitRequested.current = true;
@@ -100,22 +97,17 @@ export function App({
     }
     quitIfSettled();
   };
-  const input = (action: ControllerInput) => dispatch(controller.input(action));
+  const input = (action: ControllerInput) => {
+    const result = controller.input(action);
+    dispatch(result);
+    return result.handled === true;
+  };
   useEffect(() => {
     setLastLog(lastLogLine(session.logs));
     return typeof session.onLog === "function"
       ? session.onLog((log) => setLastLog(lastLogLine([log])))
       : undefined;
   }, [session]);
-  // A node type the client cannot draw is a product gap: keep the terse
-  // in-frame notice, but leave the raw marker in the process log once per type.
-  useEffect(() => {
-    for (const row of view.rows) {
-      if (row.kind !== "unsupported" || warnedUnsupported.current.has(row.title)) continue;
-      warnedUnsupported.current.add(row.title);
-      console.warn(`Blast TUI: ${row.text}`);
-    }
-  }, [view.rows]);
   useEffect(() => {
     setView(controller.view());
     const stop = controller.subscribe(setView);
@@ -152,6 +144,137 @@ export function App({
       active = false;
     };
   }, [session, controller]);
+  // Ctrl-C always quits in a terminal, even when an action claims it as a
+  // copy shortcut (client-core's default for GUI embedders); copy actions
+  // stay reachable from the action panel.
+  const onKey = (key: KeyEvent) => {
+    if (key.ctrl && key.name === "c") {
+      key.preventDefault();
+      if (onExitRef.current) onExitRef.current();
+      else requestQuit();
+      return true;
+    }
+    if (!failure) return false;
+    if (key.name === "r" && onRelaunchRef.current) {
+      key.preventDefault();
+      setFailure(undefined);
+      setLastLog(undefined);
+      onRelaunchRef.current();
+    } else if (key.name === "escape" || key.name === "b") {
+      // Esc and b return to the picker (or quit in direct-command mode).
+      key.preventDefault();
+      requestQuit();
+    }
+    return true;
+  };
+  return (
+    <ViewFrame
+      view={view}
+      now={() => controller.view()}
+      form={view.kind === "form" ? activeNode(scene?.root) : undefined}
+      input={input}
+      onKey={onKey}
+      busy={!!failure}
+      overlay={
+        failure && (
+          <box
+            position="absolute"
+            top="25%"
+            left="15%"
+            width="70%"
+            zIndex={50}
+            borderStyle="rounded"
+            borderColor={theme.colors.danger}
+            backgroundColor={theme.colors.panel}
+            flexDirection="column"
+            padding={1}
+            title="Error"
+          >
+            <text fg={theme.colors.text} height={1} flexShrink={0}>
+              {failure}
+            </text>
+            <text fg={theme.colors.textMuted} flexShrink={0}>
+              {lastLog ? `Last log: ${lastLog}` : "No runtime log output."}
+            </text>
+            <text fg={theme.colors.textMuted} height={1} flexShrink={0}>
+              {onRelaunch ? "R Relaunch · Esc/B Back" : "Press Esc/B to go back"}
+            </text>
+          </box>
+        )
+      }
+    />
+  );
+}
+
+const node = (type: string, id: string, props: SceneNode["props"] = {}): SceneNode => ({
+  type,
+  id,
+  props,
+  children: [],
+});
+
+/** Engine prompts come without a scene: rebuild the form's nodes from its view for `FormView`. */
+function formFromView(view: ControllerView): SceneNode | undefined {
+  if (!view.form) return undefined;
+  const { fields, items } = view.form;
+  return {
+    ...node("Form", `view:${view.title}`),
+    children: items.map((item) => {
+      if (item.kind === "separator") return node("Form.Separator", item.id);
+      if (item.kind === "description")
+        return node("Form.Description", item.id, { title: item.title, text: item.text });
+      const field = fields.find((candidate) => candidate.id === item.id);
+      return node(field?.type ?? "Form.TextField", item.id, {
+        placeholder: field?.placeholder ?? "",
+      });
+    }),
+  };
+}
+
+/**
+ * Draws any `ControllerView` (a command's, the engine root's or a launch
+ * prompt's) and maps terminal keys to controller inputs. `input` returns
+ * whether a `key` input was handled; `onKey` sees every key first and returns
+ * true when it consumed it. `busy` (an overlay owns the keys) stops the rest.
+ */
+export function ViewFrame({
+  view,
+  now,
+  form: sceneForm,
+  input,
+  onKey,
+  busy = false,
+  overlay,
+  status,
+  hints,
+}: {
+  view: ControllerView;
+  /** The latest view, for keys pressed before the next render. */
+  now: () => ControllerView;
+  /** The active scene's form node, when the view came from a scene. */
+  form?: SceneNode | undefined;
+  input: (action: ControllerInput) => boolean;
+  onKey?: (key: KeyEvent) => boolean;
+  busy?: boolean;
+  overlay?: ReactNode;
+  /** Footer text when no toast, HUD or loading line is showing. */
+  status?: { text: string; color: string } | undefined;
+  /** Replaces the footer's key hints. */
+  hints?: ReactNode;
+}) {
+  const warnedUnsupported = useRef(new Set<string>());
+  const scroll = useRef<ScrollBoxRenderable>(null);
+  const actionScroll = useRef<ScrollBoxRenderable>(null);
+  const { height: terminalHeight } = useTerminalDimensions();
+  // A node type the client cannot draw is a product gap: keep the terse
+  // in-frame notice, but leave the raw marker in the process log once per type.
+  useEffect(() => {
+    for (const row of view.rows) {
+      if (row.kind !== "unsupported" || warnedUnsupported.current.has(row.title)) continue;
+      warnedUnsupported.current.add(row.title);
+      console.warn(`Blast TUI: ${row.text}`);
+    }
+  }, [view.rows]);
   const selectedRow = view.rows.find((row) => row.selected)?.id;
   const selectedCell = view.grid?.flatMap((row) => row.cells).find((cell) => cell.selected)?.id;
   const selectedMenu = view.menuBar?.rows.find((row) => row.selected)?.id;
@@ -164,8 +287,9 @@ export function App({
   }, [chosenAction]);
   const { alert, toast, hud } = view.feedback;
   useKeyboard((key) => {
-    const dispatchShortcut = () => {
-      const result = controller.input({
+    if (onKey?.(key) || busy) return;
+    const dispatchShortcut = () =>
+      input({
         type: "key",
         key: {
           name: key.name,
@@ -176,37 +300,12 @@ export function App({
           super: key.super === true,
         },
       });
-      dispatch(result);
-      return result.handled === true;
-    };
-    // Ctrl-C always quits in a terminal, even when an action claims it as a
-    // copy shortcut (client-core's default for GUI embedders); copy actions
-    // stay reachable from the action panel.
-    if (key.ctrl && key.name === "c") {
-      key.preventDefault();
-      if (onExitRef.current) onExitRef.current();
-      else requestQuit();
-      return;
-    }
-    if (failure) {
-      if (key.name === "r" && onRelaunchRef.current) {
-        key.preventDefault();
-        setFailure(undefined);
-        setLastLog(undefined);
-        onRelaunchRef.current();
-      } else if (key.name === "escape" || key.name === "b") {
-        // Esc and b return to the picker (or quit in direct-command mode).
-        key.preventDefault();
-        requestQuit();
-      }
-      return;
-    }
-    const now = controller.view();
+    const current = now();
     const press = (action: ControllerInput) => {
       key.preventDefault();
       input(action);
     };
-    if (now.feedback.alert) {
+    if (current.feedback.alert) {
       key.preventDefault();
       if (key.name === "return") input({ type: "alert", confirm: true });
       else if (key.name === "escape") input({ type: "alert", confirm: false });
@@ -219,10 +318,10 @@ export function App({
       if (dispatchShortcut()) key.preventDefault();
       return;
     }
-    const menu = now.kind === "menu-bar";
+    const menu = current.kind === "menu-bar";
     // The menu bar, the dropdown and the action panel own the arrows, Enter
     // and Esc while they are open.
-    if (menu || now.dropdown?.open || now.actions.open) {
+    if (menu || current.dropdown?.open || current.actions.open) {
       if (key.name === "escape") press({ type: "back" });
       else if (direction && (menu || direction === "up" || direction === "down"))
         press({ type: "move", direction });
@@ -231,20 +330,20 @@ export function App({
     }
     if (key.ctrl && key.name === "k") return press({ type: "openActions" });
     if (key.ctrl && key.name === "p") return press({ type: "openDropdown" });
-    if (key.name === "escape") return input({ type: "back" });
+    if (key.name === "escape") return void input({ type: "back" });
     const toastIndex = key.ctrl ? ["t", "y"].indexOf(key.name) : -1;
-    if (toastIndex >= 0 && now.feedback.toast?.actions[toastIndex])
+    if (toastIndex >= 0 && current.feedback.toast?.actions[toastIndex])
       return press({ type: "toastAction", index: toastIndex });
     if (dispatchShortcut()) return key.preventDefault();
-    if (now.kind === "form") return;
-    if (direction === "up" || direction === "down" || (now.grid && direction)) {
+    if (current.kind === "form") return;
+    if (direction === "up" || direction === "down" || (current.grid && direction)) {
       key.preventDefault();
       input({ type: "move", direction });
     }
     if (key.name === "return") input({ type: "primary" });
   });
 
-  const form = view.kind === "form" ? activeNode(scene?.root) : undefined;
+  const form = view.kind === "form" ? (sceneForm ?? formFromView(view)) : undefined;
   const dropdown = view.dropdown;
   let toastColor: string = theme.colors.text;
   const toastParts = toast
@@ -261,15 +360,19 @@ export function App({
     else if (toast.style === "animated") toastColor = theme.colors.accent;
   }
   const hudText = hud ? hud.title : "";
-  const leftFooter = [
+  let leftFooter = [
     toastParts.join(" · "),
     hudText,
-    !toastParts.length && !hudText && !failure && view.loading
+    !toastParts.length && !hudText && !busy && view.loading
       ? `${theme.glyphs.loading} Loading…`
       : "",
   ]
     .filter(Boolean)
     .join(" · ");
+  if (!leftFooter && status) {
+    leftFooter = status.text;
+    toastColor = status.color;
+  }
   const primaryTitle = view.primary.title;
   // The client-core view stays complete for filtering and selection. OpenTUI
   // only needs a bounded mount window; keeping a couple of rows around the
@@ -558,31 +661,7 @@ export function App({
           onQuery={(value) => input({ type: "dropdownQuery", text: value })}
         />
       )}
-      {failure && (
-        <box
-          position="absolute"
-          top="25%"
-          left="15%"
-          width="70%"
-          zIndex={50}
-          borderStyle="rounded"
-          borderColor={theme.colors.danger}
-          backgroundColor={theme.colors.panel}
-          flexDirection="column"
-          padding={1}
-          title="Error"
-        >
-          <text fg={theme.colors.text} height={1} flexShrink={0}>
-            {failure}
-          </text>
-          <text fg={theme.colors.textMuted} flexShrink={0}>
-            {lastLog ? `Last log: ${lastLog}` : "No runtime log output."}
-          </text>
-          <text fg={theme.colors.textMuted} height={1} flexShrink={0}>
-            {onRelaunch ? "R Relaunch · Esc/B Back" : "Press Esc/B to go back"}
-          </text>
-        </box>
-      )}
+      {overlay}
       {alert && (
         <box
           position="absolute"
@@ -625,9 +704,13 @@ export function App({
         <text flexShrink={0} wrapMode="none">
           <span fg={theme.colors.text}>{primaryTitle}</span>
           <span fg={theme.colors.textMuted}>{` ${theme.glyphs.enter}  `}</span>
-          <span fg={theme.colors.text}>Actions</span>
-          <span fg={theme.colors.textMuted}>{` ${theme.glyphs.actionMod}`}</span>
-          {!toast && <span fg={theme.colors.textMuted}>{" · ^↵ Secondary · ^C Copy"}</span>}
+          {hints ?? (
+            <>
+              <span fg={theme.colors.text}>Actions</span>
+              <span fg={theme.colors.textMuted}>{` ${theme.glyphs.actionMod}`}</span>
+              {!toast && <span fg={theme.colors.textMuted}>{" · ^↵ Secondary · ^C Copy"}</span>}
+            </>
+          )}
         </text>
       </box>
     </box>

@@ -1,12 +1,7 @@
 import { expect, test } from "bun:test";
-import { commandRow, filterCommands } from "./picker.ts";
-import {
-  missingRequired,
-  parseManifest,
-  type ExtensionCommand as PickerCommand,
-} from "@blastlauncher/host";
+import { missingRequired, parseManifest, type ExtensionCommand } from "./extension-manifest.ts";
 
-const command = (overrides: Record<string, unknown> = {}): PickerCommand =>
+const command = (overrides: Record<string, unknown> = {}): ExtensionCommand =>
   parseManifest({
     name: "ext",
     commands: [{ name: "index", ...overrides }],
@@ -87,29 +82,6 @@ test("parseManifest rejects a missing commands array and unknown types", () => {
       commands: [{ name: "a", arguments: [{ name: "x", type: "bool" }] }],
     }),
   ).toThrow("unknown type");
-});
-
-test("filterCommands matches title, subtitle and name case-insensitively", () => {
-  const commands = [
-    command({ name: "index", title: "Top Level" }),
-    command({ name: "detail", subtitle: "Show More" }),
-    command({ name: "env" }),
-  ];
-  expect(filterCommands(commands, "").map((item) => item.name)).toEqual(["index", "detail", "env"]);
-  expect(filterCommands(commands, "top").map((item) => item.name)).toEqual(["index"]);
-  expect(filterCommands(commands, "MORE").map((item) => item.name)).toEqual(["detail"]);
-  expect(filterCommands(commands, "env").map((item) => item.name)).toEqual(["env"]);
-  expect(filterCommands(commands, "nothing")).toEqual([]);
-});
-
-test("commandRow shows title, subtitle else description, and mode", () => {
-  expect(commandRow(command({ name: "index", title: "Index" }))).toBe("Index  Command");
-  expect(commandRow(command({ name: "close", subtitle: "Bye", mode: "no-view" }))).toBe(
-    "close  Bye  No View",
-  );
-  expect(commandRow(command({ name: "meta", description: "Metadata", mode: "menu-bar" }))).toBe(
-    "meta  Metadata  Menu Bar",
-  );
 });
 
 test("missingRequired lists unfilled required argument names", () => {
