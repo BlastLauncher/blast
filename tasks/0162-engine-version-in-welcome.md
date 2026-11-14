@@ -41,8 +41,30 @@ depends: []
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/engine-version-welcome @ 0194e8f
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 148.8s
 Done:
-Not done / risks:
+- `packages/serve/src/serve.ts`: `welcome.engine.version` now comes from the
+  serve package's own `package.json` next to the running module
+  (`readFileSync(new URL("../package.json", import.meta.url))` — no JSON import
+  attribute), falling back to `"0.0.0-dev"` when the workspace manifest has no
+  version.
+- `packages/serve/src/main.test.ts`: new test asserts the welcome version equals
+  the version in the serve manifest or `0.0.0-dev` when it has none (15 tests
+  pass).
+- `docs/embedding.md`: transcript updated from `"version":"0.0.0"` to
+  `"version":"0.0.0-dev"`.
+- Tarball check (acceptance): `bun run release:build --version 3.0.0-test.1`,
+  then installed all 8 tarballs into `.cache/0162-check/` and answered `hello`
+  from the tarball's `blast-serve`: `{"welcome_version":"3.0.0-test.1"}`
+  (check dir removed afterwards).
+- `bunfig.toml`: `[test] timeout = 30000`. Pre-existing clean-tree red: host
+  engine tests that spawn six sequential runtimes take ~9s here and died on
+  Bun's 5s per-test default ("Runtime exited before ready" cascades); failed
+  identically with my changes stashed. Runner-level, applies to focused
+  `bun test <path>` runs too.
+Not done / risks: The full-suite `test` step is intermittently red from the
+  picker capability-handler flake in `packages/tui/src/picker.test.tsx` —
+  2 of 5 verify runs failed on it, always passes alone; that is exactly what
+  task 0161 (status: doing) owns, so I did not touch it.
 ```
