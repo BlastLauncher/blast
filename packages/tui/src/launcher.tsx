@@ -74,7 +74,8 @@ export function CommandSession({
   });
   const [screen, setScreen] = useState<Screen>({ kind: "root" });
   const [rootView, setRootView] = useState(() => setup.root.view());
-  const [flowView, setFlowView] = useState<ControllerView>();
+  // Tagged with its flow, so a new flow never shows the previous one's view.
+  const [flowView, setFlowView] = useState<{ flow: LaunchFlow; view: ControllerView }>();
   const [manifestError, setManifestError] = useState<string>();
   const [launchError, setLaunchError] = useState<string>();
   const crashed = useRef(false);
@@ -87,8 +88,8 @@ export function CommandSession({
   useEffect(() => setup.root.subscribe(setRootView), []);
   useEffect(() => {
     if (screen.kind !== "flow") return;
-    setFlowView(undefined);
-    return screen.flow.subscribe(setFlowView);
+    const flow = screen.flow;
+    return flow.subscribe((view) => setFlowView({ flow, view }));
   }, [screen]);
   // The root keeps the last good commands; the broken manifest's reason shows here.
   useEffect(() => {
@@ -263,11 +264,11 @@ export function CommandSession({
     quit();
     return true;
   };
-  if (screen.kind === "flow" && flowView && flowView.kind !== "empty") {
+  if (screen.kind === "flow" && flowView?.flow === screen.flow && flowView.view.kind !== "empty") {
     const flow = screen.flow;
     return (
       <ViewFrame
-        view={flowView}
+        view={flowView.view}
         now={() => flow.view()}
         input={(action) => {
           flow.input(action);
