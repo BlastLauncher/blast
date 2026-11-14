@@ -35,7 +35,7 @@ Docs first for today's API, then the engine takes over the flow, then every
 client and doc shows the smaller API.
 
 - [x] 0152 Condense decision records into a few current-state records
-- [ ] 0153 Product story: README, `docs/quickstart.md`, `docs/embedding.md`
+- [x] 0153 Product story: README, `docs/quickstart.md`, `docs/embedding.md`
 - [ ] 0154 Landing page: simple API, any language, demo front and centre
 - [ ] 0155 Zero-config serve: runnable bin, views by default, drawable icons
 - [ ] 0156 Engine root view: search and launch commands across extensions
