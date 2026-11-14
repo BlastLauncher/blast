@@ -30,7 +30,7 @@ claimed.
 - Keep disk usage minimal: no global installs, no full clones of large repos;
   use sparse/shallow fetches into `.cache/` (gitignored).
 - Product code must run on Node.js 24 without a build step (type stripping);
-  only `packages/tui` may require Bun (decision 0007). Erasable TypeScript
+  only `packages/tui` may require Bun (decision 0009). Erasable TypeScript
   only: no `enum`, `namespace` values, or parameter properties.
   Bun is the dev toolchain (install, test, scripts).
 - Prefer the fewest packages that keep boundaries honest. Add a package only

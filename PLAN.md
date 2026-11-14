@@ -55,18 +55,18 @@ One line per decision; link a record only when it exists.
 - 2026-10-18: Bun dev toolchain, Node 24-runnable product; headless client first.
 - 2026-10-18: Process/protocol/scene model accepted (`docs/decisions/0001`).
 - 2026-10-18: Coverage denominator is the latest `@raycast/api` declarations.
-- 2026-10-19: M4 is an OpenTUI terminal client on Bun; MyGo desktop later (`0007`).
+- 2026-10-19: M4 is an OpenTUI terminal client on Bun; MyGo desktop later (now in `0009`).
 - 2026-10-18: AI model providers run in their own runtime child (`docs/decisions/0006`).
 - 2026-10-18: Extra npm deps: interim shared pinned allowlist until v1;
   production should reference each extension's own pinned deps via a thin,
   minimal-disk layer instead (0037 records it in `docs/decisions/0002`).
 - 2026-10-19: Extensions' own lockfile deps install outside the extension via
-  an explicit build step; allowlist stays the fallback (`docs/decisions/0008`).
+  an explicit build step; allowlist stays the fallback (now in `docs/decisions/0002`).
 - 2026-10-19: Engine first: Blast is embeddable (in-process + `blast serve`);
   launcher UI is the embedder's; MyGo deferred (`docs/decisions/0009`).
 - 2026-10-19: Engine core is platform-free; native capabilities are registered
   by embedders, with optional `@blastlauncher/native` (`docs/decisions/0010`).
 - 2026-11-02: Corpus sweeps run third-party code only in a no-network sandbox.
-- 2026-11-04: Launch reports missing dependencies as a typed error (`0012`); M7 example uses AppKit.
+- 2026-11-04: Launch reports missing dependencies as a typed error (now in `0002`); M7 example uses AppKit.
 - 2026-11-05: Browser runtime runs extensions only in almostnode's cross-origin sandbox (`0013`).
 - 2026-11-14: Engine owns the launcher flow; embedders only draw views (`0014`).
