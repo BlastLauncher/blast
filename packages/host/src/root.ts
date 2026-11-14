@@ -28,6 +28,7 @@ export type RootOptions = {
     extension: ExtensionHandle;
     command: string;
     configure?: boolean;
+    scope?: "extension" | "command";
   }) => Promise<{ exited: Promise<unknown> }>;
 };
 
@@ -182,7 +183,12 @@ export function createRoot(source: RootSource, options: RootOptions): Root {
     busy = false;
     if (!closed) catalog.reset();
   };
-  const start = async (extensionName: string, commandName: string, configure: boolean) => {
+  const start = async (
+    extensionName: string,
+    commandName: string,
+    configure: boolean,
+    scope?: "extension" | "command",
+  ) => {
     const handle = tracked.find((h) => manifests.get(h)?.name === extensionName);
     const manifest = handle && manifests.get(handle);
     const command = manifest?.commands.find((c) => c.name === commandName);
@@ -194,13 +200,18 @@ export function createRoot(source: RootSource, options: RootOptions): Root {
           extension: handle,
           command: commandName,
           ...(configure ? { configure } : {}),
+          ...(scope ? { scope } : {}),
         });
         void exited.then(resume, resume);
         return;
       }
       // Missing values and dependency installs are views of the flow, shown
       // in place of the root until the command (or nothing) takes over.
-      const flow = startLaunchFlow(handle, commandName, { views: options.views, configure });
+      const flow = startLaunchFlow(handle, commandName, {
+        views: options.views,
+        configure,
+        ...(scope ? { configureScope: scope } : {}),
+      });
       launching = flow;
       active = flow;
       const stopFlow = flow.subscribe(emit);
@@ -250,7 +261,8 @@ export function createRoot(source: RootSource, options: RootOptions): Root {
         return;
       }
       for (const effect of catalog.input(input).effects)
-        if (!busy) void start(effect.extension, effect.command, effect.type === "configure");
+        if (!busy)
+          void start(effect.extension, effect.command, effect.type === "configure", effect.scope);
     },
     async ready() {
       while (loads.size) await Promise.all(loads);

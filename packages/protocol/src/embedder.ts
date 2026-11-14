@@ -78,7 +78,12 @@ export type EmbedderParams = {
    * saves them and the session ends with `session.exited`; `back` ends it
    * without saving. Needs views (here or in the hello).
    */
-  "extension.configure": { extension: string; command: string; views?: EmbedderViews };
+  "extension.configure": {
+    extension: string;
+    command: string;
+    scope?: "extension" | "command";
+    views?: EmbedderViews;
+  };
   /**
    * Opens the engine's root search over every opened extension. `root.view`
    * events carry the list; launching from it starts a normal session

@@ -23,6 +23,7 @@ export type RootEffect = {
   type: "launch" | "configure";
   extension: string;
   command: string;
+  scope?: "extension" | "command";
 };
 export type RootResult = { effects: RootEffect[] };
 /** Any controller input is accepted; those with no meaning in the root list are ignored. */
@@ -187,7 +188,17 @@ export function createRootController(
     const current = chosen(visible());
     actionsOpen = false;
     return {
-      effects: current ? [{ type, extension: current.extension, command: current.command }] : [],
+      effects:
+        current
+          ? [
+              {
+                type,
+                extension: current.extension,
+                command: current.command,
+                ...(type === "configure" ? { scope: "command" as const } : {}),
+              },
+            ]
+          : [],
     };
   };
 

@@ -112,11 +112,16 @@ export function startLaunchFlow(
   };
 
   const configure = async (manifest: ExtensionManifest, command: ExtensionCommand) => {
-    const { values } = await handle.preferences(commandName);
+    const { values } = await handle.preferences(commandName, options.configureScope);
     const sections = [
       { title: "Extension", fields: manifest.preferences },
       { title: "Command", fields: command.preferences },
-    ].filter((section) => section.fields.length);
+    ].filter(
+      (section) =>
+        section.fields.length &&
+        (!options.configureScope ||
+          (options.configureScope === "extension" ? section.title === "Extension" : section.title === "Command")),
+    );
     const form: PromptForm = {
       title: `Configure ${command.title}`,
       submit: "Save",
@@ -132,7 +137,8 @@ export function startLaunchFlow(
     };
     prompt.form(form);
     const effect = await ask();
-    if (effect.type === "submit") await handle.savePreferences(commandName, effect.values);
+    if (effect.type === "submit")
+      await handle.savePreferences(commandName, effect.values, options.configureScope);
   };
 
   const failure = async (title: string, message: string): Promise<boolean> => {
