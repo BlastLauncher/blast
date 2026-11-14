@@ -159,12 +159,12 @@ export function createPromptController(options: ControllerOptions): PromptContro
         if (section.title)
           children.push(node("Form.Description", `section:${index}`, { text: section.title }));
         for (const field of section.fields)
-          children.push(
-            fieldNode(field, initial(field, values), errors.get(field.key) ?? ""),
-          );
+          children.push(fieldNode(field, initial(field, values), errors.get(field.key) ?? ""));
       });
       children.push(
-        actions(node("Action.SubmitForm", "submit", { title: form.submit, onSubmit: handler("submit") })),
+        actions(
+          node("Action.SubmitForm", "submit", { title: form.submit, onSubmit: handler("submit") }),
+        ),
       );
       show(node("Form", "prompt-form", { navigationTitle: form.title }, children));
     } else if (status) {
@@ -247,7 +247,11 @@ export function createPromptController(options: ControllerOptions): PromptContro
           const value = args[0];
           if (!field) continue;
           if (Array.isArray(value)) values[key] = typeof value[0] === "string" ? value[0] : "";
-          else if (typeof value === "string" || typeof value === "boolean" || typeof value === "number")
+          else if (
+            typeof value === "string" ||
+            typeof value === "boolean" ||
+            typeof value === "number"
+          )
             values[key] = value;
           errors.delete(key);
           changed = true;
