@@ -125,7 +125,7 @@ test("engine root: catalog follows opened and closed extensions and manifest edi
   await root.close();
 });
 
-test("engine root: a launch that cannot start stays at the root with a failure toast", async () => {
+async function needsToken() {
   const { instance, dataDir } = await engine();
   const dir = join(dataDir, "ext");
   await cp(hello, dir, { recursive: true });
@@ -135,13 +135,61 @@ test("engine root: a launch that cannot start stays at the root with a failure t
   instance.openExtension({ extensionDir: dir });
   const root = instance.root({ views });
   await root.ready();
+  return { root, dir };
+}
+
+test("engine root: a command missing a required preference opens a form; cancel returns to the root", async () => {
+  const { root } = await needsToken();
+  root.input({ type: "primary" });
+  const form = await until(root, (v) => v.kind === "form");
+  expect(form.form?.fields.map((f) => f.id)).toEqual(["token"]);
+  root.input({ type: "back" });
+  const back = await until(root, (v) => v.title === "Commands");
+  expect(items(back)).toEqual(["hello-list:index"]);
+  expect(back.feedback.toast).toBeNull();
+});
+
+test("engine root: submitting the prompt saves the value and shows the command in the same view", async () => {
+  const { root } = await needsToken();
+  root.input({ type: "primary" });
+  await until(root, (v) => v.kind === "form");
+  root.input({ type: "setValue", id: "token", value: "abc" });
+  root.input({ type: "primary" });
+  await until(root, inCommand);
+  root.input({ type: "back" });
+  await until(root, (v) => v.title === "Commands" && !inCommand(v));
+  // Saved: the second launch goes straight to the command.
+  root.input({ type: "primary" });
+  await until(root, inCommand);
+});
+
+test("engine root: Configure Command opens the preferences form without launching", async () => {
+  const { root } = await needsToken();
+  root.input({ type: "key", key: { name: ",", ctrl: true, shift: true } });
+  const form = await until(root, (v) => v.kind === "form");
+  expect(form.title).toBe("Configure index");
+  root.input({ type: "setValue", id: "token", value: "saved" });
+  root.input({ type: "primary" });
+  const back = await until(root, (v) => v.title === "Commands");
+  expect(inCommand(back)).toBe(false);
+  root.input({ type: "primary" });
+  await until(root, inCommand);
+});
+
+test("engine root: a launch that cannot start stays at the root with a failure toast", async () => {
+  const { instance, dataDir } = await engine();
+  const dir = join(dataDir, "ext");
+  await cp(hello, dir, { recursive: true });
+  await writeFile(join(dir, "src/index.tsx"), "export default (");
+  instance.openExtension({ extensionDir: dir });
+  const root = instance.root({ views });
+  await root.ready();
   root.input({ type: "primary" });
   const failed = await until(root, (v) => v.feedback.toast !== null);
   expect(failed.title).toBe("Commands");
   expect(failed.feedback.toast).toMatchObject({
     style: "failure",
     title: "Could not open index",
-    message: expect.stringContaining("token"),
   });
   root.input({ type: "move", direction: "down" });
   expect(root.view().feedback.toast).toBeNull();
@@ -155,8 +203,8 @@ test("engine root: a launch hook owns the session and the root resumes when it e
   let end: (() => void) | undefined;
   const root = instance.root({
     views,
-    launch: async ({ command }) => {
-      launched.push(command);
+    launch: async ({ command, configure }) => {
+      launched.push(configure ? `configure:${command}` : command);
       return { exited: new Promise<void>((done) => (end = done)) };
     },
   });
@@ -174,4 +222,21 @@ test("engine root: a launch hook owns the session and the root resumes when it e
   expect(resumed.selectedId).toBe("hello-list:index");
   root.input({ type: "primary" });
   await until(root, () => launched.length === 2);
+});
+
+test("engine root: Configure Command reaches a launch hook as configure", async () => {
+  const { instance } = await engine();
+  instance.openExtension({ extensionDir: hello });
+  const targets: { command: string; configure?: boolean }[] = [];
+  const root = instance.root({
+    views,
+    launch: async ({ command, configure }) => {
+      targets.push({ command, ...(configure ? { configure } : {}) });
+      return { exited: new Promise<void>(() => {}) };
+    },
+  });
+  await root.ready();
+  root.input({ type: "key", key: { name: ",", ctrl: true, shift: true } });
+  await until(root, () => targets.length === 1);
+  expect(targets).toEqual([{ command: "index", configure: true }]);
 });

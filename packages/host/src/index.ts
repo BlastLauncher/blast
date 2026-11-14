@@ -23,4 +23,5 @@ export {
 export * from "./extension-manifest.ts";
 export * from "./engine.ts";
 export type { Root, RootOptions } from "./root.ts";
+export * from "./launch-flow.ts";
 export * from "./browser-install.ts";

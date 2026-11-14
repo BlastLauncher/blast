@@ -892,6 +892,9 @@
             "installDependencies": {
               "type": "boolean"
             },
+            "prompts": {
+              "type": "boolean"
+            },
             "views": {
               "type": "object",
               "properties": {
@@ -930,6 +933,76 @@
       "additionalProperties": false
     },
     "result.extension.launch": {
+      "type": "object",
+      "properties": {
+        "session": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "session"
+      ],
+      "additionalProperties": false
+    },
+    "request.extension.configure": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "request"
+        },
+        "id": {
+          "type": "string"
+        },
+        "method": {
+          "const": "extension.configure"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "extension": {
+              "type": "string"
+            },
+            "command": {
+              "type": "string"
+            },
+            "views": {
+              "type": "object",
+              "properties": {
+                "platform": {
+                  "enum": [
+                    "macOS",
+                    "Windows",
+                    "Linux"
+                  ]
+                },
+                "appearance": {
+                  "enum": [
+                    "light",
+                    "dark"
+                  ]
+                }
+              },
+              "required": [
+                "platform"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "extension",
+            "command"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "method"
+      ],
+      "additionalProperties": false
+    },
+    "result.extension.configure": {
       "type": "object",
       "properties": {
         "session": {
@@ -1260,6 +1333,9 @@
         },
         {
           "$ref": "#/$defs/request.extension.launch"
+        },
+        {
+          "$ref": "#/$defs/request.extension.configure"
         },
         {
           "$ref": "#/$defs/request.root.open"

@@ -62,9 +62,23 @@ export type EmbedderParams = {
     launchContext?: Record<string, JsonValue>;
     bundleTimeoutMs?: number;
     installDependencies?: boolean;
+    /**
+     * Instead of failing with `missing_values` or `missing_dependencies`, the
+     * session starts at once and its `session.view`s are a form for the missing
+     * preferences and arguments, then dependency-install feedback, then the
+     * command's own views. Needs views (here or in the hello).
+     */
+    prompts?: boolean;
     /** Overrides the hello default for this session. */
     views?: EmbedderViews;
   };
+  /**
+   * Starts a session whose views are the command's preferences form (every
+   * extension and command preference, current values filled in). Submitting
+   * saves them and the session ends with `session.exited`; `back` ends it
+   * without saving. Needs views (here or in the hello).
+   */
+  "extension.configure": { extension: string; command: string; views?: EmbedderViews };
   /**
    * Opens the engine's root search over every opened extension. `root.view`
    * events carry the list; launching from it starts a normal session
@@ -135,8 +149,10 @@ const shapes: Record<keyof EmbedderParams, string[]> = {
     "launchContext?",
     "bundleTimeoutMs?",
     "installDependencies?",
+    "prompts?",
     "views?",
   ],
+  "extension.configure": ["extension", "command", "views?"],
   "root.open": ["views?"],
   "root.input": ["root", "input"],
   "root.close": ["root"],
@@ -205,7 +221,7 @@ function valid(v: unknown): boolean {
           if (key === "argumentValues") return record(y, string);
           if (key === "bundleTimeoutMs")
             return typeof y === "number" && Number.isSafeInteger(y) && y >= 0 && y <= 2_147_483_647;
-          if (key === "installDependencies") return typeof y === "boolean";
+          if (key === "installDependencies" || key === "prompts") return typeof y === "boolean";
           if (key === "launchContext") return record(y, json);
           if (key === "views") return viewsOptions(y);
           if (key === "input") return controllerInput(y);

@@ -92,7 +92,8 @@ For Raycast client behaviour, pass each scene through
 and apply returned events and effects. `openExtension` also exposes
 `manifest()`, dependency checks/installation and preferences. Missing launch
 values and unresolved dependencies are typed errors; retry with the requested
-values or `installDependencies: true`.
+values or `installDependencies: true`, or let the engine ask for them with
+`prompts: true` ([launch-prompts.md](launch-prompts.md)).
 
 ## Root search
 
@@ -115,8 +116,9 @@ usual semantic ones (`search`, `move`, `select`, `primary`, `openActions`,
 `back`); others are ignored. A primary starts the command as a normal session:
 draw its `session.view` events and send `session.input`; `back` at its root
 closes it and the root resumes (`root.view`, search cleared) after
-`session.exited`. A launch that cannot start (missing preferences) stays on the
-root with a failure toast in `feedback.toast`. `root.close` releases the root.
+`session.exited`. A launch with missing values or dependencies shows the launch prompts as that
+session's views; any other failure stays on the root with a failure toast. The
+actions panel (⌘⇧,) has Configure Command (`extension.configure`). `root.close` releases the root.
 
 In process, `engine.root({ views })` returns `{ view, subscribe, input, ready,
 close }` over every extension opened on the engine; the view becomes the

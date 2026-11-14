@@ -5,8 +5,10 @@ import {
   BundleTimeoutError,
   DependenciesRequiredError,
   MissingLaunchValuesError,
+  startLaunchFlow,
   type CapabilityHandler,
   type ExtensionHandle,
+  type LaunchFlow,
   type Root,
 } from "@blastlauncher/host";
 import { createNativeHandlers } from "@blastlauncher/native";
@@ -46,6 +48,8 @@ const watches = new Map<string, () => void>();
 const sessions = new Map<string, { close(): Promise<void> }>();
 const extensionSessions = new Map<string, Set<string>>();
 const roots = new Map<string, Root>();
+// Sessions still in their launch prompts: input goes to the flow, not a controller.
+const flows = new Map<string, LaunchFlow>();
 const controllers = new Map<string, ReturnType<typeof createController>>();
 const sessionTimers = new Map<string, Set<ReturnType<typeof setTimeout>>>();
 function clearTimers(key: string) {
@@ -121,6 +125,7 @@ async function stop(code = 0) {
   if (stopping) return;
   stopping = true;
   for (const key of controllers.keys()) clearTimers(key);
+  for (const flow of flows.values()) flow.cancel();
   process.stdin.pause();
   for (const [key, operation] of pending) {
     send({ type: "capability.cancel", id: key });
@@ -194,15 +199,18 @@ async function request(message: EmbedderRequest): Promise<JsonValue> {
     const key = id();
     const root = engine.root({
       views,
-      // The root only lists and picks; the session is an ordinary one, so its
-      // views and capabilities flow exactly like extension.launch's.
-      launch: async ({ extension: handle, command }) => {
+      // The root only lists and picks; the session is an ordinary one (with
+      // prompts), so its views and capabilities flow like extension.launch's.
+      launch: async ({ extension: handle, command, configure }) => {
         const extension = [...extensions].find(([, candidate]) => candidate === handle)?.[0];
         if (!extension) throw new Error("Extension is closed");
-        const session = await launchSession(extension, { extension, command, views }, (started) =>
-          event("root.launched", { root: key, session: started }),
+        const { exited } = await launchSession(
+          extension,
+          { extension, command, views, prompts: true },
+          configure ? "configure" : "launch",
+          (started) => event("root.launched", { root: key, session: started }),
         );
-        return { exited: get(liveSessions, session).exited };
+        return { exited };
       },
     });
     roots.set(key, root);
@@ -232,7 +240,9 @@ async function request(message: EmbedderRequest): Promise<JsonValue> {
   }
   if (message.method === "session.input") {
     const { session, input } = message.params;
-    apply(session, get(controllers, session).input(input));
+    const flow = flows.get(session);
+    if (flow) flow.input(input);
+    else apply(session, get(controllers, session).input(input));
     return null;
   }
   if (!("extension" in p)) throw new Error("Missing extension");
@@ -271,7 +281,11 @@ async function request(message: EmbedderRequest): Promise<JsonValue> {
       await extension.savePreferences(message.params.command, message.params.values);
       return null;
     case "extension.launch":
-      return { session: await launchSession(p.extension, message.params) };
+      return { session: (await launchSession(p.extension, message.params)).session };
+    case "extension.configure":
+      return {
+        session: (await launchSession(p.extension, message.params, "configure")).session,
+      };
     case "extension.close":
       // Stop timer input before the extension begins shutting down its runtimes.
       // Sessions from other extensions retain their controllers.
@@ -285,27 +299,93 @@ async function request(message: EmbedderRequest): Promise<JsonValue> {
   }
 }
 const liveSessions = new Map<string, Awaited<ReturnType<ExtensionHandle["launch"]>>["session"]>();
-/** Starts a command and streams its session; `started` runs before its first event. */
+type LaunchParams = Omit<EmbedderParams["extension.launch"], "prompts"> & { prompts?: boolean };
+/**
+ * Starts a command and streams its session; `started` runs before its first
+ * event. With `prompts` (or `configure`) the session starts at once and the
+ * launch flow's views come first, under the same session id.
+ */
 async function launchSession(
   extensionKey: string,
-  params: EmbedderParams["extension.launch"],
+  params: LaunchParams,
+  mode: "launch" | "configure" = "launch",
   started?: (session: string) => void,
-): Promise<string> {
+): Promise<{ session: string; exited: Promise<void> }> {
   const extension = get(extensions, extensionKey);
   const key = id();
-  const opened = await extension.launch(params.command, {
+  const views = params.views ?? defaultViews;
+  const launchOptions = {
     ...params,
     ...(params.bundleTimeoutMs === undefined ? {} : { timeoutMs: params.bundleTimeoutMs }),
-    onDependencyLog: (logMessage) =>
+    onDependencyLog: (logMessage: string) =>
       event("dependencies.log", { extension: extensionKey, message: logMessage }),
     handlers: forwarding(key),
+  };
+  const track = (session: { close(): Promise<void> }) => {
+    sessions.set(key, session);
+    if (!extensionSessions.has(extensionKey)) extensionSessions.set(extensionKey, new Set());
+    extensionSessions.get(extensionKey)!.add(key);
+  };
+  if (!params.prompts && mode === "launch") {
+    const opened = await extension.launch(params.command, launchOptions);
+    track(opened);
+    return { session: key, exited: stream(extensionKey, key, opened, views, started) };
+  }
+  if (!views) throw new Error("Launch prompts need views, in the params or the hello");
+  const flow = startLaunchFlow(extension, params.command, {
+    views,
+    launch: launchOptions,
+    configure: mode === "configure",
   });
-  sessions.set(key, opened);
-  if (!extensionSessions.has(extensionKey)) extensionSessions.set(extensionKey, new Set());
-  extensionSessions.get(extensionKey)!.add(key);
+  const ended = Promise.withResolvers<void>();
+  const end = (exit: { code: number; error?: unknown }) => {
+    event("session.exited", {
+      session: key,
+      code: exit.code,
+      ...(exit.error ? { error: errorInfo(exit.error) } : {}),
+    });
+    sessions.delete(key);
+    extensionSessions.get(extensionKey)?.delete(key);
+    ended.resolve();
+  };
+  flows.set(key, flow);
+  track({ close: async () => flow.cancel() });
+  started?.(key);
+  // The flow's current view is an empty placeholder; the first real view is its form or toast.
+  let current = true;
+  const stopViews = flow.subscribe((view) => {
+    if (current) current = false;
+    else event("session.view", { session: key, view: json(view) });
+  });
+  const settled = () => {
+    stopViews();
+    flows.delete(key);
+  };
+  void flow.opened.then(
+    (opened) => {
+      settled();
+      if (!opened) return end({ code: 0 });
+      track(opened);
+      void stream(extensionKey, key, opened, views, undefined, true).then(ended.resolve);
+    },
+    (error: unknown) => {
+      settled();
+      end({ code: 1, error });
+    },
+  );
+  return { session: key, exited: ended.promise };
+}
+/** Streams an opened command's scenes, views and logs; resolves when its session ends. */
+async function stream(
+  extensionKey: string,
+  key: string,
+  opened: Awaited<ReturnType<ExtensionHandle["launch"]>>,
+  views: EmbedderViews | undefined,
+  started?: (session: string) => void,
+  announce = false,
+): Promise<void> {
   liveSessions.set(key, opened.session);
   started?.(key);
-  const views = params.views ?? defaultViews;
   const controller = views
     ? createController({
         ...views,
@@ -319,6 +399,9 @@ async function launchSession(
   const stopViews = controller?.subscribe((view) =>
     event("session.view", { session: key, view: json(view) }),
   );
+  // After prompts the embedder is still drawing the last prompt view: replace it.
+  if (announce && controller)
+    event("session.view", { session: key, view: json(controller.view()) });
   const unsubscribe = opened.session.scenes((scene) => {
     event("session.scene", { session: key, scene: json(scene) });
     if (controller && controllers.has(key)) apply(key, controller.scene(scene));
@@ -328,22 +411,20 @@ async function launchSession(
   const stopLogs = opened.session.onLog((log) =>
     event("session.log", { session: key, log: json(log) }),
   );
-  void opened.session.exited.then(async (exit) => {
-    stopLogs();
-    unsubscribe();
-    stopViews?.();
-    clearTimers(key);
-    event("session.exited", {
-      session: key,
-      code: exit.code,
-      ...(exit.error ? { error: errorInfo(exit.error) } : {}),
-    });
-    await opened.close();
-    sessions.delete(key);
-    liveSessions.delete(key);
-    extensionSessions.get(extensionKey)?.delete(key);
+  const exit = await opened.session.exited;
+  stopLogs();
+  unsubscribe();
+  stopViews?.();
+  clearTimers(key);
+  event("session.exited", {
+    session: key,
+    code: exit.code,
+    ...(exit.error ? { error: errorInfo(exit.error) } : {}),
   });
-  return key;
+  await opened.close();
+  sessions.delete(key);
+  liveSessions.delete(key);
+  extensionSessions.get(extensionKey)?.delete(key);
 }
 function receive(value: unknown) {
   if (stopping) return;

@@ -16,3 +16,4 @@ export * from "./menu-bar.ts";
 export * from "./icons.ts";
 export * from "./controller.ts";
 export * from "./root.ts";
+export * from "./prompt.ts";

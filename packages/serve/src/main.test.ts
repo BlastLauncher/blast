@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { mkdtemp, cp, mkdir, readFile, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { resolve, join } from "node:path";
+import { preferenceFile } from "@blastlauncher/host";
 import type { SceneNode, SceneMessage } from "@blastlauncher/protocol";
 
 const noop = () => {};
@@ -12,7 +13,7 @@ const cleanups: (() => Promise<void>)[] = [];
 afterEach(async () => {
   await Promise.all(cleanups.splice(0).map((clean) => clean()));
 });
-async function client(native = false, args: string[] = []) {
+async function client(native = false, args: string[] = [], env: Record<string, string> = {}) {
   const dir = await mkdtemp(join(tmpdir(), "blast-serve-"));
   const child = spawn(
     nodePath,
@@ -23,7 +24,7 @@ async function client(native = false, args: string[] = []) {
       ...(args.includes("--dependencies") ? [] : ["--dependencies", "manual"]),
       ...args,
     ],
-    { env: { ...process.env, XDG_DATA_HOME: dir }, stdio: ["pipe", "pipe", "pipe"] },
+    { env: { ...process.env, XDG_DATA_HOME: dir, ...env }, stdio: ["pipe", "pipe", "pipe"] },
   );
   const messages: Record<string, any>[] = [];
   let buffer = "",
@@ -712,3 +713,223 @@ test("root.open uses the hello views and follows extensions opened afterwards", 
   await c.request("engine.shutdown");
   expect(await c.exited).toBe(0);
 });
+
+const linux = { platform: "Linux" };
+const sessionView =
+  (session: string, match: (view: any) => boolean = () => true) =>
+  (v: any) =>
+    v.event === "session.view" && v.session === session && match(v.view);
+
+async function promptExtension(c: Awaited<ReturnType<typeof client>>) {
+  const dir = join(c.dir, "extension");
+  await cp(resolve("fixtures/extensions/engine-handle"), dir, { recursive: true });
+  const file = join(dir, "package.json");
+  const manifest = JSON.parse(await readFile(file, "utf8"));
+  manifest.preferences = [{ name: "token", type: "password", title: "Token", required: true }];
+  manifest.commands[0].arguments = [{ name: "query", type: "text", required: true }];
+  await writeFile(file, JSON.stringify(manifest));
+  const { result } = await c.request("extension.open", { dir });
+  return result.extension as string;
+}
+
+test("launch with prompts asks for missing values as a form, saves them and streams the command", async () => {
+  const c = await client();
+  await c.hello([], linux);
+  const extension = await promptExtension(c);
+  // Without the flag the launch still fails the way it always did.
+  expect((await c.request("extension.launch", { extension, command: "index" })).error.code).toBe(
+    "missing_values",
+  );
+  const launched = await c.request("extension.launch", {
+    extension,
+    command: "index",
+    prompts: true,
+  });
+  expect(launched.ok).toBe(true);
+  const session = launched.result.session;
+  const form = await c.wait(sessionView(session, (view) => view.kind === "form"));
+  expect(form.view.form.fields.map((f: any) => [f.id, f.type])).toEqual([
+    ["token", "Form.PasswordField"],
+    ["argument:query", "Form.TextField"],
+  ]);
+  expect(form.view.navigation.canGoBack).toBe(true);
+  const input = (value: unknown) => c.request("session.input", { session, input: value });
+  await input({ type: "submit" });
+  const invalid = await c.wait(sessionView(session, (view) => !!view.form?.fields[0]?.error));
+  expect(invalid.view.form.fields.map((f: any) => f.error)).toEqual(["Required", "Required"]);
+  await input({ type: "setValue", id: "token", value: "hunter2" });
+  await input({ type: "setValue", id: "argument:query", value: "hello" });
+  const typed = await c.wait(sessionView(session, (view) => view.form?.fields[0]?.hasValue));
+  expect(JSON.stringify(typed)).not.toContain("hunter2");
+  await input({ type: "primary" });
+  // Same session id from here on: the command's own list view.
+  const command = await c.wait(
+    sessionView(session, (view) => view.kind === "list" && view.rows.length > 0),
+  );
+  expect(command.view.title).toBe("Engine fixture");
+  expect(command.view.rows[0].title).toContain("hello");
+  const saved = JSON.parse(
+    await readFile(preferenceFile(join(c.dir, "blast"), "engine-handle"), "utf8"),
+  );
+  expect(saved.extension.token).toBe("hunter2");
+  // The launch does not stay in the prompt: back now closes the command.
+  await input({ type: "back" });
+  expect((await c.wait((v) => v.event === "session.exited" && v.session === session)).code).toBe(0);
+  await c.request("engine.shutdown");
+  expect(await c.exited).toBe(0);
+}, 30_000);
+
+test("launch with prompts: back on the form ends the session; prompts need views", async () => {
+  const c = await client();
+  await c.hello();
+  const extension = await promptExtension(c);
+  expect(
+    (await c.request("extension.launch", { extension, command: "index", prompts: true })).error
+      .message,
+  ).toContain("need views");
+  const { result } = await c.request("extension.launch", {
+    extension,
+    command: "index",
+    prompts: true,
+    views: linux,
+  });
+  await c.wait(sessionView(result.session, (view) => view.kind === "form"));
+  await c.request("session.input", { session: result.session, input: { type: "back" } });
+  expect((await c.wait((v) => v.event === "session.exited")).code).toBe(0);
+  c.child.stdin.end();
+  expect(await c.exited).toBe(0);
+});
+
+async function fakeNpm(dir: string) {
+  const bin = join(dir, "fake-bin");
+  await mkdir(bin, { recursive: true });
+  // `npm install` for the dependency installer, offline: fails once when asked to.
+  await writeFile(
+    join(bin, "npm"),
+    `#!/bin/sh
+echo "fetching example"
+if [ -n "$FAKE_NPM_FAIL_ONCE" ] && [ ! -e "$FAKE_NPM_FAIL_ONCE" ]; then
+  touch "$FAKE_NPM_FAIL_ONCE"; echo "network is down" >&2; exit 1
+fi
+mkdir -p node_modules/example
+echo '{"name":"example","version":"1.0.0","type":"module","main":"index.js"}' > node_modules/example/package.json
+echo 'export default "installed";' > node_modules/example/index.js
+`,
+    { mode: 0o755 },
+  );
+  return bin;
+}
+async function dependencyExtension(c: Awaited<ReturnType<typeof client>>) {
+  const dir = join(c.dir, "needs-example");
+  await mkdir(join(dir, "src"), { recursive: true });
+  await writeFile(
+    join(dir, "package.json"),
+    JSON.stringify({
+      name: "needs-example",
+      dependencies: { example: "1" },
+      commands: [{ name: "index", mode: "view" }],
+    }),
+  );
+  await writeFile(
+    join(dir, "src/index.tsx"),
+    'import value from "example"; import { List } from "@raycast/api"; export default () => <List navigationTitle={value} />;',
+  );
+  return (await c.request("extension.open", { dir })).result.extension as string;
+}
+const withFakeNpm = async (failOnce: boolean) => {
+  const base = await mkdtemp(join(tmpdir(), "blast-fake-npm-"));
+  cleanups.push(() => rm(base, { recursive: true, force: true }));
+  return {
+    PATH: `${await fakeNpm(base)}:${process.env.PATH}`,
+    ...(failOnce ? { FAKE_NPM_FAIL_ONCE: join(base, "failed-once") } : {}),
+  };
+};
+
+test("launch with prompts installs missing dependencies behind a progress toast, then streams the view", async () => {
+  const c = await client(false, [], await withFakeNpm(false));
+  await c.hello([], linux);
+  const extension = await dependencyExtension(c);
+  const { result } = await c.request("extension.launch", {
+    extension,
+    command: "index",
+    prompts: true,
+  });
+  const progress = await c.wait(
+    sessionView(result.session, (view) => view.feedback.toast?.style === "animated"),
+  );
+  expect(progress.view.feedback.toast.title).toBe("Installing dependencies");
+  const command = await c.wait(sessionView(result.session, (view) => view.title === "installed"));
+  expect(command.view.kind).toBe("list");
+  await c.request("engine.shutdown");
+  expect(await c.exited).toBe(0);
+}, 30_000);
+
+test("launch with prompts: a failed install shows a failure toast whose Retry installs again", async () => {
+  const c = await client(false, [], await withFakeNpm(true));
+  await c.hello([], linux);
+  const extension = await dependencyExtension(c);
+  const { result } = await c.request("extension.launch", {
+    extension,
+    command: "index",
+    prompts: true,
+  });
+  const failed = await c.wait(
+    sessionView(result.session, (view) => view.feedback.toast?.style === "failure"),
+  );
+  expect(failed.view.feedback.toast).toMatchObject({
+    title: "Could not install dependencies",
+    message: expect.stringContaining("npm install failed"),
+    actions: [{ title: "Retry" }],
+  });
+  await c.request("session.input", {
+    session: result.session,
+    input: { type: "toastAction", index: 0 },
+  });
+  await c.wait(sessionView(result.session, (view) => view.title === "installed"));
+  await c.request("engine.shutdown");
+  expect(await c.exited).toBe(0);
+}, 30_000);
+
+test("extension.configure streams the preferences form and saves without launching", async () => {
+  const c = await client();
+  await c.hello([], linux);
+  const extension = await promptExtension(c);
+  const { result } = await c.request("extension.configure", { extension, command: "index" });
+  const form = await c.wait(sessionView(result.session, (view) => view.kind === "form"));
+  expect(form.view.title).toBe("Configure index");
+  expect(form.view.form.fields.map((f: any) => f.id)).toEqual(["token"]);
+  await c.request("session.input", {
+    session: result.session,
+    input: { type: "setValue", id: "token", value: "kept" },
+  });
+  await c.request("session.input", { session: result.session, input: { type: "primary" } });
+  expect((await c.wait((v) => v.event === "session.exited")).code).toBe(0);
+  const saved = await c.request("extension.preferences", { extension, command: "index" });
+  expect(saved.result.values.token).toBe("kept");
+  await c.request("engine.shutdown");
+  expect(await c.exited).toBe(0);
+});
+
+test("root.open launches with prompts and Configure Command opens the preferences session", async () => {
+  const c = await client();
+  await c.hello([], linux);
+  await promptExtension(c);
+  const { result } = await c.request("root.open", {});
+  const root = result.root;
+  await c.wait((v) => v.event === "root.view" && ids(v.view).length === 1);
+  const input = (value: unknown) => c.request("root.input", { root, input: value });
+  await input({ type: "primary" });
+  const launched = await c.wait((v) => v.event === "root.launched");
+  const form = await c.wait(sessionView(launched.session, (view) => view.kind === "form"));
+  expect(form.view.form.fields.map((f: any) => f.id)).toEqual(["token", "argument:query"]);
+  await c.request("session.input", { session: launched.session, input: { type: "back" } });
+  await c.wait((v) => v.event === "session.exited" && v.session === launched.session);
+  await c.wait((v) => v.event === "root.view" && ids(v.view).length === 1);
+
+  await input({ type: "key", key: { name: ",", ctrl: true, shift: true } });
+  const configure = await c.wait((v) => v.event === "root.launched");
+  const prefs = await c.wait(sessionView(configure.session, (view) => view.kind === "form"));
+  expect(prefs.view.title).toBe("Configure index");
+  await c.request("engine.shutdown");
+  expect(await c.exited).toBe(0);
+}, 30_000);

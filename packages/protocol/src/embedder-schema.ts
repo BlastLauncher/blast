@@ -44,6 +44,7 @@ const views = envelope(["platform"], {
 const RESULTS: Record<keyof EmbedderParams, Schema> = {
   "extension.open": envelope(["extension"], { extension: string }),
   "extension.launch": envelope(["session"], { session: string }),
+  "extension.configure": envelope(["session"], { session: string }),
   "extension.manifest": json,
   "extension.dependencies.check": json,
   "extension.dependencies.install": json,
@@ -68,8 +69,10 @@ const OPTIONAL_KEYS: Partial<Record<keyof EmbedderParams, readonly string[]>> = 
     "launchContext",
     "bundleTimeoutMs",
     "installDependencies",
+    "prompts",
     "views",
   ],
+  "extension.configure": ["views"],
   "root.open": ["views"],
 };
 
@@ -94,8 +97,10 @@ const PARAMS: Record<keyof EmbedderParams, Schema> = {
     launchContext: stringRecord(json),
     bundleTimeoutMs: { type: "integer", minimum: 0, maximum: 2_147_483_647 },
     installDependencies: { type: "boolean" },
+    prompts: { type: "boolean" },
     views,
   },
+  "extension.configure": { extension: string, command: string, views },
   "root.open": { views },
   "root.input": { root: string, input: ref("controllerInput") },
   "root.close": { root: string },
