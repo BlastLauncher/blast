@@ -33,13 +33,7 @@ import {
   preferenceFields,
 } from "@blastlauncher/protocol/preference-fields";
 import { acceptsRuntimePortRequest } from "./runtime-port.ts";
-import {
-  bundleKey,
-  bundleMatches,
-  parseBundleIndex,
-  sha256Hex,
-  type CatalogManifest,
-} from "./bundles.ts";
+import { bundleKey, bundleMatches, parseBundleIndex, sha256Hex } from "./bundles.ts";
 
 export type { WebHandlers, WebStatus, WebView };
 export type WebMountOptions = {
