@@ -44,8 +44,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let presenter = LauncherPresenter()
     private var windowController: LauncherWindowController?
     private var client: BlastClient?
-    private var session: String?
-    private var root: String?
+    private var router = LauncherRouter()
     private var hotkeyController: LauncherHotkeyController?
 
     init(extensionDirectory: String, command: String?) {
@@ -105,7 +104,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             _ = try await blast.start(capabilities: ["clipboard.copy", "clipboard.paste", "open.url", "open.path"])
             _ = try await blast.openExtension(dir: extensionDirectory)
             let openedRoot = try await blast.openRoot(views: .macOS)
-            root = openedRoot
+            if let view = router.open(root: openedRoot) { show(view) }
             if let requestedCommand {
                 try await blast.sendInput(.search(requestedCommand), root: openedRoot)
                 try await blast.sendInput(.primary, root: openedRoot)
@@ -118,41 +117,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Events and inputs
 
     private func handle(_ event: BlastEvent) {
-        switch event {
-        case .rootView(let viewRoot, let view):
-            guard viewRoot == root else { return }
-            presenter.apply(view)
-            render(presenter.display)
-        case .rootLaunched(let launchedRoot, let launchedSession):
-            guard launchedRoot == root else { return }
-            session = launchedSession
-        case .view(let viewSession, let view):
-            guard viewSession == session else { return }
-            presenter.apply(view)
-            render(presenter.display)
-        default:
-            break
-        }
+        if let view = router.receive(event) { show(view) }
+    }
+
+    private func show(_ view: ControllerView) {
+        presenter.apply(view)
+        render(presenter.display)
     }
 
     private func handle(_ input: ControllerInput) {
-        if let root { send(input, root: root) }
-        else { send(input) }
-    }
-
-    private func send(_ input: ControllerInput, root: String? = nil) {
-        guard let client else { return }
-        if let root {
-            Task {
-                do { try await client.sendInput(input, root: root) }
-                catch { present(error) }
-            }
-            return
-        }
-        guard let session else { return }
+        guard let client, let target = router.inputTarget else { return }
         Task {
             do {
-                try await client.sendInput(input, session: session)
+                switch target {
+                case .root(let root): try await client.sendInput(input, root: root)
+                case .session(let session): try await client.sendInput(input, session: session)
+                }
             } catch {
                 present(error)
             }

@@ -207,7 +207,7 @@ struct PresenterTests {
     }
 }
 
-private enum Fixtures {
+enum Fixtures {
     static let directory = URL(fileURLWithPath: #filePath)
         .deletingLastPathComponent()
         .deletingLastPathComponent()
