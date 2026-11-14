@@ -44,7 +44,7 @@ client and doc shows the smaller API.
 - [ ] 0159 `@blastlauncher/web`: embed the browser runtime in any page (+ decision)
 - [ ] 0160 Reference clients on engine-owned flows; docs refresh
 - [x] 0161 Deterministic TUI picker capability-handler test
-- [ ] 0162 Real engine version in the serve welcome
+- [x] 0162 Real engine version in the serve welcome
 
 ## Later (not scheduled)
 
