@@ -59,8 +59,9 @@ npx -p @blastlauncher/serve@next blast-serve
 
 Use the returned extension key to send `extension.launch` with
 `"views":{"platform":"macOS"}`. Draw `session.view` and send semantic
-`session.input`; the [Go example](../examples/go-embedder/) is a complete
-standard-library client.
+`session.input`; the [Go](../examples/go-embedder/) and
+[Python](../examples/python-embedder/) examples are complete
+standard-library clients.
 
 From a checkout, `bun run release:build` writes the same packages as tarballs
 under `.cache/release/tarballs/` to install instead of `@next`.
