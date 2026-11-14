@@ -83,7 +83,8 @@ export function CommandSession({
   const [launchError, setLaunchError] = useState<string>();
   const crashed = useRef(false);
   const exiting = useRef(false);
-  const configureNext = useRef(false);
+  // The scope a command's `preferences.open` asked for, until the root opens it.
+  const configureNext = useRef<"extension" | "command">(undefined);
   const commands = useRef(0);
   // What is running now, for quitting and unmounting.
   const live = useRef<{ flow?: LaunchFlow; stop?: () => Promise<void>; leave?: () => void }>({});
@@ -139,8 +140,9 @@ export function CommandSession({
               (params.scope !== "extension" && params.scope !== "command")
             )
               throw new Error("Invalid preferences scope");
+            const scope = params.scope;
             setTimeout(() => {
-              configureNext.current = true;
+              configureNext.current = scope;
               live.current.leave?.();
             }, 0);
           },
@@ -159,6 +161,9 @@ export function CommandSession({
   }
 
   launchRef.current = async (target) => {
+    // The root's Configure uses its own scope; a command may have asked for another.
+    if (target.configure && configureNext.current)
+      target = { ...target, scope: configureNext.current };
     setLaunchError(undefined);
     const selected = setup.root.view().selectedId;
     let finish!: () => void;
@@ -173,8 +178,9 @@ export function CommandSession({
         setScreen({ kind: "root" });
         if (selected) setup.root.input({ type: "select", id: selected });
         if (configureNext.current) {
-          configureNext.current = false;
+          // The root calls the launch hook synchronously, which reads the scope.
           setup.root.input({ type: "key", key: CONFIGURE });
+          configureNext.current = undefined;
         }
       }, 0),
     );
