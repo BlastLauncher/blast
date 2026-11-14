@@ -17,6 +17,8 @@ import type { ExtensionManifest } from "./extension-manifest.ts";
 export type RootOptions = {
   /** Platform and appearance for the root list and every command view. */
   views: Pick<ControllerOptions, "platform" | "appearance">;
+  /** Scope shown by the root's Configure Command action. Defaults to command. */
+  configureScope?: "extension" | "command";
   /**
    * Take over starting commands (the serve process keys sessions and forwards
    * capabilities itself). Resolve with a promise that settles when that
@@ -210,7 +212,7 @@ export function createRoot(source: RootSource, options: RootOptions): Root {
       const flow = startLaunchFlow(handle, commandName, {
         views: options.views,
         configure,
-        ...(scope ? { configureScope: scope } : {}),
+                ...(scope || options.configureScope ? { configureScope: scope ?? options.configureScope } : {}),
       });
       launching = flow;
       active = flow;

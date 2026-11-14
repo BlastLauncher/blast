@@ -8,7 +8,6 @@ import {
   startLaunchFlow,
   type CapabilityHandler,
   type DependencyInstaller,
-  type ExtensionHandle,
   type ExtensionManifest,
   type LaunchFlow,
   type RootOptions,
@@ -69,7 +68,11 @@ export function CommandSession({
         ...(installer ? { installer } : {}),
       });
     const extension = engine.openExtension({ extensionDir });
-    const root = engine.root({ views, launch: (target) => launchRef.current(target) });
+    const root = engine.root({
+      views,
+      configureScope: "extension",
+      launch: (target) => launchRef.current(target),
+    });
     return { engine, extension, root };
   });
   const [screen, setScreen] = useState<Screen>({ kind: "root" });
