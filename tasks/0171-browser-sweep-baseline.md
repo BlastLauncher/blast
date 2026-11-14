@@ -52,8 +52,8 @@ Blast failures, so the headline is "rendered / renderable in a browser".
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
-Done:
-Not done / risks:
+Branch/commit: t3/browser-sweep-baseline @ bd4aa89
+Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 190.5s
+Done: Added browser-limit and rendered-with-placeholders classification, generic native dependency catalog filtering, deterministic browser preference placeholders, and fresh compat/browser-sweep.json plus BROWSER-SWEEP.md.
+Not done / risks: Rectangle/MenuCloak/Superwhisper remain in the generated catalog because their native-app requirement is surfaced by runtime errors rather than dependency metadata; runtime fixes are task 0172.
 ```
