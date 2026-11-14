@@ -124,6 +124,7 @@ export function CommandSession({
     const flow = startLaunchFlow(target.extension, target.command, {
       views,
       ...(target.configure ? { configure: true } : {}),
+      ...(target.scope ? { configureScope: target.scope } : {}),
       launch: {
         ...(argumentValues ? { argumentValues } : {}),
         handlers: {

@@ -499,7 +499,7 @@ test("required preferences block launch, persist, reach the runtime and Ctrl-E e
     // The extension's capability returns to the root and opens the form.
     await press(terminal, "enter");
     await settle(terminal, (f) => f.includes("Configure navigation"));
-    await settle(terminal, (f) => f.includes("API key") && f.includes("preferences-fixture"));
+    await settle(terminal, (f) => f.includes("API key") && f.includes("Extension"));
     await press(terminal, "escape");
     await settle(terminal, (f) => f.includes("Search commands"));
     await act(async () => {
@@ -758,10 +758,11 @@ test("preferences.open returns to the root and opens the command's Configure for
     await settle(terminal, (f) => f.includes("Item"));
     // Trigger openExtensionPreferences
     await press(terminal, "enter");
-    // The engine's Configure form has no scope: both sections show.
+    // Extension preferences are selected by the root's Configure scope.
     const frame = await settle(terminal, (f) => f.includes("Configure Navigate"));
-    expect(frame).toContain("Scope Fixture");
+    expect(frame).toContain("Extension");
     expect(frame).toContain("API key");
+    expect(frame).not.toContain("Choice");
 
     await press(terminal, "escape");
     await settle(terminal, (f) => f.includes("Search commands"));
