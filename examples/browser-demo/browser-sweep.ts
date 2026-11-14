@@ -58,6 +58,7 @@ export type BrowserObservation = {
   bundleFallbackFailed?: boolean;
   timedOut?: boolean;
   needsPreferences?: boolean;
+  placeholders?: boolean;
   completed?: boolean;
   missingArguments?: string[];
 };
@@ -71,6 +72,8 @@ export type BrowserOutcome =
   | `runtime-error:${string}`
   | "bundle-fallback-failed"
   | "needs-preferences"
+  | "rendered-with-placeholders"
+  | "browser-limit"
   | "timeout";
 
 const firstLine = (value: string) => value.split(/\r?\n/u, 1)[0]!.trim();
@@ -80,7 +83,7 @@ const networkPattern =
 
 export function classifyBrowserOutcome(observation: BrowserObservation): BrowserOutcome {
   if (observation.timedOut) return "timeout";
-  if (observation.capability) return `capability-denied:${observation.capability}`;
+  if (observation.capability) return "browser-limit";
   if (observation.bundleFallbackFailed) return "bundle-fallback-failed";
   const pageErrors = observation.pageErrors ?? [];
   const consoleErrors = observation.consoleErrors ?? [];
@@ -103,14 +106,21 @@ export function classifyBrowserOutcome(observation: BrowserObservation): Browser
     pageErrors.some((error) => networkPattern.test(error)) ||
     consoleErrors.some((error) => networkPattern.test(error))
   )
-    return content && !observation.statusError ? "rendered" : "network";
+    return content && !observation.statusError
+      ? observation.placeholders
+        ? "rendered-with-placeholders"
+        : "rendered"
+      : observation.network
+        ? "browser-limit"
+        : "network";
   if (observation.statusError || pageErrors.length > 0 || consoleErrors.length > 0)
     return `runtime-error:${compact(pageErrors[0] || consoleErrors[0] || observation.status || "runtime error")}`;
   if (observation.needsPreferences) return "needs-preferences";
   if (observation.completed) return "completed";
   if (!scene) return "timeout";
-  if (content) return "rendered";
-  if (scene.kind === "list" && scene.hasSearchBar && !scene.isLoading) return "rendered";
+  if (content) return observation.placeholders ? "rendered-with-placeholders" : "rendered";
+  if (scene.kind === "list" && scene.hasSearchBar && !scene.isLoading)
+    return observation.placeholders ? "rendered-with-placeholders" : "rendered";
   // A still-loading scene with nothing to show is not proof of an empty
   // command; name the state instead of calling it empty.
   if (scene.isLoading) return "timeout";
@@ -332,6 +342,21 @@ async function runCommand(
       undefined,
       { timeout: 15_000 },
     );
+    const placeholders = await page.evaluate(() => {
+      const form = document.querySelector<HTMLFormElement>("#preferences-form");
+      if (!form) return false;
+      for (const field of form.querySelectorAll<HTMLInputElement | HTMLSelectElement>(
+        "[data-preference]",
+      )) {
+        if (field instanceof HTMLInputElement && field.type === "checkbox") field.checked = false;
+        else if (field instanceof HTMLSelectElement) field.selectedIndex = 0;
+        else field.value = "blast-smoke";
+        field.dispatchEvent(new Event("input", { bubbles: true }));
+        field.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+      form.requestSubmit();
+      return true;
+    });
     // A fixed wait classified commands that fetch during their first render as
     // empty (or as content before their failure toast arrived). Follow the
     // command's own loading state and DOM quiet period instead.
@@ -369,6 +394,7 @@ async function runCommand(
     const observation: BrowserObservation = {
       ...(snapshot.scene ? { scene: snapshot.scene } : {}),
       needsPreferences: snapshot.needsPreferences,
+      placeholders,
       status: snapshot.status,
       statusError: snapshot.statusError,
       pageErrors,
@@ -418,6 +444,7 @@ function markdown(report: Report): string {
   for (const result of report.results) {
     if (
       result.outcome === "rendered" ||
+      result.outcome === "rendered-with-placeholders" ||
       result.outcome === "empty" ||
       result.outcome === "completed"
     )
@@ -430,6 +457,8 @@ function markdown(report: Report): string {
     "# Browser catalog sweep",
     "",
     `Catalog commit \`${report.commit}\`; date ${report.date}; ${report.commands} command records; wall time ${(report.wallTimeMs / 1000).toFixed(1)} s.`,
+    "",
+    `Rendered / (catalog − browser-limit): ${report.totals.rendered ?? 0} + ${report.totals["rendered-with-placeholders"] ?? 0} / (${report.commands} − ${report.totals["browser-limit"] ?? 0})`,
     "",
     "## Totals",
     "",

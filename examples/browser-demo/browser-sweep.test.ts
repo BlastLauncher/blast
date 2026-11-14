@@ -123,8 +123,10 @@ describe("classifyBrowserOutcome", () => {
     );
   });
   test("classifies network errors", () => {
-    expect(classifyBrowserOutcome({ pageErrors: ["TypeError: Failed to fetch"] })).toBe("network");
-    expect(classifyBrowserOutcome({ network: true })).toBe("network");
+    expect(classifyBrowserOutcome({ pageErrors: ["TypeError: Failed to fetch"] })).toBe(
+      "browser-limit",
+    );
+    expect(classifyBrowserOutcome({ network: true })).toBe("browser-limit");
   });
   test("keeps real content when a background request fails", () => {
     // A command that draws its own UI while a lookup fails is still rendered;
@@ -155,7 +157,7 @@ describe("classifyBrowserOutcome", () => {
           isLoading: false,
         },
       }),
-    ).toBe("network");
+    ).toBe("browser-limit");
   });
   test("keeps only the first runtime error line", () => {
     expect(classifyBrowserOutcome({ statusError: true, status: "Boom\nsecond line" })).toBe(
@@ -178,6 +180,14 @@ describe("classifyBrowserOutcome", () => {
   });
   test("classifies a preference form", () => {
     expect(classifyBrowserOutcome({ needsPreferences: true })).toBe("needs-preferences");
+  });
+  test("marks content rendered after placeholder preferences", () => {
+    expect(
+      classifyBrowserOutcome({
+        placeholders: true,
+        scene: { kind: "list", rows: 1, cells: 0, detail: false, fields: 0, hasEmptyView: false },
+      }),
+    ).toBe("rendered-with-placeholders");
   });
   test("classifies a settled empty scene with required arguments as missing-arguments", () => {
     expect(

@@ -20,14 +20,15 @@ const denied = new Set([
   "sudo-prompt",
   "child_process",
 ]);
+export function isBrowserCatalogBlocked(dependencies: readonly string[]): boolean {
+  return dependencies.some(
+    (dependency) =>
+      denied.has(dependency) || /(^|-)native(-|$)|node-gyp|robotjs|sharp/.test(dependency),
+  );
+}
 const blocked = new Set(
   deps.extensions
-    .filter((item) =>
-      item.dependencies.some(
-        (dependency) =>
-          denied.has(dependency) || /(^|-)native(-|$)|node-gyp|robotjs|sharp/.test(dependency),
-      ),
-    )
+    .filter((item) => isBrowserCatalogBlocked(item.dependencies))
     .map((item) => item.name),
 );
 const rendered = smoke.results.filter(
