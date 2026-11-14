@@ -55,8 +55,14 @@ themeable styles, or hands views to the page's own renderer.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/extract-web-package @ 7d7865c
+Verify: bun run verify — passed (format, lint, typecheck, compat, protocol, mac-fixtures, workflow, tests)
 Done:
+- Added decision 0015 defining the browser-only boundary, sandbox hosting, capability defaults, and overrides.
+- Added @blastlauncher/web with browser installer/bundler extraction, mount(), default handlers, theme support, and <blast-extension>.
+- Added examples/web-embed/index.html and included @blastlauncher/web in release builds and tarball smoke expectations.
 Not done / risks:
+- The existing browser demo was not migrated to consume the new package; its bespoke client remains in place.
+- Browser e2e commands could not run because .cache/ms-playwright is absent in this worktree.
+- mount currently establishes the sandbox iframe and root controller/default rendering, but extension bundle/port wiring remains to be connected for a full live extension session.
 ```
