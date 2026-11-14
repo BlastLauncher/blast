@@ -69,6 +69,15 @@ const initial = (
       return value === undefined ? [] : [[preference.name, value] as const];
     }),
   );
+const argumentFields = (command: ExtensionCommand): PromptField[] =>
+  command.arguments.map((argument) => ({
+    key: `${ARGUMENT}${argument.name}`,
+    type: argument.type === "password" ? "password" : argument.type,
+    title: argument.name,
+    required: argument.required,
+    data: argument.data,
+    ...(argument.placeholder ? { placeholder: argument.placeholder } : {}),
+  }));
 const lastLine = (message: string) =>
   message
     .split(/\r?\n/)
@@ -100,16 +109,6 @@ export function startLaunchFlow(
     answer?.({ type: "cancel" });
     void running?.close();
   };
-
-  const argumentFields = (command: ExtensionCommand): PromptField[] =>
-    command.arguments.map((argument) => ({
-      key: `${ARGUMENT}${argument.name}`,
-      type: argument.type === "password" ? "password" : argument.type,
-      title: argument.name,
-      required: argument.required,
-      data: argument.data,
-      ...(argument.placeholder ? { placeholder: argument.placeholder } : {}),
-    }));
 
   const configure = async (manifest: ExtensionManifest, command: ExtensionCommand) => {
     const { values } = await handle.preferences(commandName);
@@ -154,7 +153,8 @@ export function startLaunchFlow(
     let argumentValues = { ...options.launch?.argumentValues };
     let installed = false;
     let installNow = false;
-    while (!cancelled) {
+    for (;;) {
+      if (cancelled) return undefined;
       const { missing, values } = await handle.preferences(commandName);
       const absent = command.arguments.filter(
         (argument) => argument.required && !argumentValues[argument.name],
@@ -246,7 +246,6 @@ export function startLaunchFlow(
         return undefined;
       }
     }
-    return undefined;
   };
 
   const opened = run();

@@ -595,3 +595,27 @@ test("launch installDependencies is an optional boolean", () => {
     expect(schemaOf(message) === null).toBe(valid);
   }
 });
+
+test("launch prompts is an optional boolean and extension.configure takes optional views", () => {
+  for (const prompts of [true, false, 1, "true", null]) {
+    const message = {
+      type: "request",
+      id: "1",
+      method: "extension.launch",
+      params: { extension: "1", command: "index", prompts },
+    };
+    const valid = typeof prompts === "boolean";
+    expect(parseEmbedderMessage(message).ok).toBe(valid);
+    expect(schemaOf(message) === null).toBe(valid);
+  }
+  for (const [params, valid] of [
+    [{ extension: "1", command: "index" }, true],
+    [{ extension: "1", command: "index", views: { platform: "macOS" } }, true],
+    [{ extension: "1" }, false],
+    [{ extension: "1", command: "index", prompts: true }, false],
+  ] as const) {
+    const message = { type: "request", id: "1", method: "extension.configure", params };
+    expect(parseEmbedderMessage(message).ok).toBe(valid);
+    expect(schemaOf(message) === null).toBe(valid);
+  }
+});

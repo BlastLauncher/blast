@@ -23,7 +23,7 @@ extension code (unmodified, bundled)
 | `packages/serve`       | versioned embedder stdio, capability forwarding                                                                                | host, client-core, protocol, native      |
 | `packages/shared-deps` | optional shared extension libraries and resolver                                                                               | pinned portable npm libraries            |
 | `packages/host`        | engine: bundling, process lifecycle, broker, registry, root view over opened extensions                                        | protocol, client-core, esbuild           |
-| `packages/client-core` | framework-free Raycast client controller (view model, filtering, actions, shortcuts, pagination, dropdown, grid, form, timing) | protocol                                 |
+| `packages/client-core` | framework-free Raycast client controller (view model, filtering, actions, shortcuts, pagination, dropdown, grid, form, prompt) | protocol                                 |
 | `packages/native`      | optional OS clipboard, open, file manager, trash                                                                               | protocol                                 |
 | `packages/cli`         | `blast` debug CLI and headless capability answers                                                                              | host, protocol                           |
 | `packages/tui`         | Bun terminal client: keys → controller, view → OpenTUI                                                                         | client-core, cli, host, protocol, native |
@@ -108,7 +108,8 @@ and own-provider AI win. Unregistered capabilities are denied (decision 0010).
 values, missing required) and `savePreferences(command, values)` (scope split),
 and `launch(command, { argumentValues?, handlers?, launchContext? })`, which waits
 for installs, rejects missing values with `MissingLaunchValuesError` and returns
-`{ session, close }`. `close()` ends watchers and all owned sessions.
+`{ session, close }`; `startLaunchFlow(handle, command, { views })` is that launch with
+prompts as views (form, install toast, Retry), shared by root and serve. `close()` ends sessions.
 
 `blast deps` keeps keyed production installs outside extensions under `<dataDir>/deps/`. It repairs required non-supplied peers in two passes, preferring lock pins; conflicts warn and additions enter the key.
 Bundling resolves the extension's tsconfig `baseUrl`/`paths` aliases first (read only
