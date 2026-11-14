@@ -671,11 +671,11 @@ test("Ctrl-E opens extension Configure with fields and descriptions, saves and r
     expect(prefFrame).toContain("Navigate");
     // All fields with their descriptions, the first one focused
     expect(prefFrame).toContain("› API key · Your API token");
-    expect(prefFrame).toContain("Optional note · An optional note");
+    expect(prefFrame).toContain("Optional note");
 
     // Move to next field (Down)
     await press(terminal, "down");
-    await settle(terminal, (f) => f.includes("› Optional note"));
+    await settle(terminal, (f) => f.includes("› Optional note · An optional note"));
 
     // Press Esc - cancels and returns to the root without launching
     await press(terminal, "escape");
