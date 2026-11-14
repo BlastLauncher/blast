@@ -591,13 +591,19 @@ function drawPreferences() {
 }
 /** The session's `preferenceForm`: show the form; the submit or Back handler answers it. */
 function askPreferences(request: WebPreferenceRequest) {
-  if (new URL(location.href).searchParams.has("sweep-placeholders")) {
+  // Only the browser sweep defines this (Playwright `addInitScript`); it holds
+  // the corpus smoke's placeholder values, so the sweep sees what a command
+  // does with them. No URL or user action reaches it.
+  const placeholders = (
+    globalThis as { blastSweepPlaceholders?: Record<string, string | number | boolean> }
+  ).blastSweepPlaceholders;
+  if (placeholders) {
     document.body.dataset.sweepPlaceholders = "true";
-    const values: Record<string, string | boolean> = {};
+    const values: Record<string, string | number | boolean> = { ...request.values };
     for (const field of request.fields) {
-      if (field.type === "checkbox") values[field.name] = false;
-      else if (field.type === "dropdown") values[field.name] = field.data?.[0]?.value ?? "";
-      else values[field.name] = "blast-smoke";
+      const placeholder = placeholders[field.name];
+      if ((values[field.name] ?? "") === "" && placeholder !== undefined)
+        values[field.name] = placeholder;
     }
     return Promise.resolve(values);
   }
