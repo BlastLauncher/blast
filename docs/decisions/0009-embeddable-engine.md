@@ -15,11 +15,18 @@ Status: accepted 2026-10-19; absorbs surviving points from 0007 and 0011
    ranking, selection, actions and shortcuts, navigation, pagination, grids,
    dropdowns, forms and feedback. Embedders draw the resulting views and send
    semantic input.
-4. The embedder protocol is versioned NDJSON. `blast serve` sends `hello`,
-   accepts `welcome`, then request/response envelopes and asynchronous events.
-   It supports extension and session methods, capability grants/progress/cancel,
-   optional controller views, and additive protocol-v1 fields. Lines are UTF-8,
-   capped at 8 MiB; ids are unique while outstanding; EOF shuts down cleanly.
+4. The embedder protocol is versioned NDJSON over `blast serve` stdio; stdout
+   carries protocol lines only, stderr diagnostics. The embedder sends
+   `hello {protocol, capabilities}` and receives `welcome {protocol, engine,
+   catalog}`; another version gets `version_mismatch` and exit 2. Then
+   `request {id, method, params}` / `response {id, ok, result | error}` and
+   asynchronous events, possibly before their response and out of order.
+   Ids are unique while outstanding. Lines are UTF-8, capped at 8 MiB; a
+   malformed line gets `error` and parsing resumes at the next newline.
+   Granted capabilities are forwarded as `capability.request` and answered with
+   `capability.result`/`progress`; aborts send `capability.cancel`.
+   `engine.shutdown` or EOF finishes pending work and exits 0. Additive
+   changes stay v1; breaking ones become `embedder-v2`.
 5. Distribution publishes emitted ESM and declarations; source remains directly
    runnable in the repository. The protocol schema ships with releases.
 
