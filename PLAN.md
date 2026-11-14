@@ -49,7 +49,7 @@ client and doc shows the smaller API.
 - [x] 0164 `@blastlauncher/web` ships its sandbox and runtime assets
 - [ ] 0165 macOS and web-launcher examples on the engine flows
 - [ ] 0166 Docs, README and landing page show the final API
-- [ ] 0167 Site e2e without GitHub API quota
+- [x] 0167 Site e2e without GitHub API quota
 
 ## Later (not scheduled)
 
