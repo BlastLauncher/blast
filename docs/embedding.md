@@ -37,8 +37,9 @@ extension's `assets/`, or `fileIcon`), `iconTint` and `iconMask`, already
 resolved for the appearance. `blast serve` installs missing dependencies by
 default (`--dependencies manual` to opt out).
 
-The Go [reference embedder](../examples/go-embedder/) draws `search`, `rows`,
-`selectedId`, `actions` and `feedback.toast`, then forwards input. Responses
+The [Go](../examples/go-embedder/) and [Python](../examples/python-embedder/)
+reference embedders draw the root's list, form and toast views, forward input,
+and answer `clipboard.copy`. Responses
 may be out of order and events may precede their response. IDs are unique while
 outstanding; opaque extension and session keys must be awaited. `engine.shutdown`
 finishes pending work and exits 0. EOF does the same. Malformed lines recover at
