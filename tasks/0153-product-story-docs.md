@@ -9,7 +9,7 @@ depends: ["0152"]
 ## Goal
 
 A newcomer understands in one screen what Blast is (an engine that renders
-Raycast extensions inside *your* app, in any language, through one small
+Raycast extensions inside _your_ app, in any language, through one small
 protocol) and can run an extension in their own code within five minutes by
 following `docs/quickstart.md`.
 

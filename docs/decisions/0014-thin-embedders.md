@@ -15,8 +15,8 @@ Status: accepted 2026-11-14; amends 0009 (the picker is no longer the embedder's
    - launch prompts: missing required preferences and arguments become a
      form view; submitting saves them and launches;
    - dependency installs: progress and failure as view feedback, then launch.
-   Embedders that want their own picker may still call `extension.launch`
-   directly; the root view is optional, not mandatory.
+     Embedders that want their own picker may still call `extension.launch`
+     directly; the root view is optional, not mandatory.
 3. **Views are the default surface.** Scenes stay available for clients that
    want raw trees, but quickstarts, examples and the browser package use
    views. View fields carry drawable values (resolved icon sources, tints),

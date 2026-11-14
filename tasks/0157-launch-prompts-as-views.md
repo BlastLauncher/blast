@@ -31,7 +31,7 @@ with progress feedback, and then renders the command.
      (`feedback.toast` with style `animated`) and failure toast with a retry
      action;
   4. then launches and streams the command's views in the same session id.
-  Cancel/`back` closes the session (or returns to root).
+     Cancel/`back` closes the session (or returns to root).
 - Same behaviour in-process and over serve; additive protocol change; schema
   and `docs/embedding.md` updated.
 
