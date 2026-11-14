@@ -33,6 +33,7 @@ import {
   preferenceFields,
 } from "@blastlauncher/protocol/preference-fields";
 import { acceptsRuntimePortRequest } from "./runtime-port.ts";
+import { bundleKey, bundleMatches, parseBundleIndex, sha256Hex } from "./bundles.ts";
 
 export type { WebHandlers, WebStatus, WebView };
 export type WebMountOptions = {
@@ -52,6 +53,15 @@ export type WebMountOptions = {
   root?: boolean;
   /** Preference values, applied over the manifest defaults and saved values. */
   preferences?: Record<string, string | number | boolean>;
+  /** Prebuilt bundle index (usually `/bundles.json`) used before fetching GitHub sources. */
+  bundlesUrl?: string;
+  /** Supplies missing preferences; returning undefined cancels the launch. */
+  preferenceForm?: (
+    request: WebPreferenceRequest,
+  ) =>
+    | Record<string, string | number | boolean>
+    | undefined
+    | Promise<Record<string, string | number | boolean> | undefined>;
   handlers?: WebHandlers;
   /** Replaces the built-in renderer: receives every view and a callback for input. */
   render?: (view: WebView, input: (value: ControllerInput) => void) => void;
@@ -59,6 +69,12 @@ export type WebMountOptions = {
   /** An esbuild-wasm module that is already initialised; default: `<assetsUrl>/esbuild.mjs`. */
   esbuild?: BrowserEsbuild;
   onStatus?: (status: WebStatus) => void;
+};
+export type WebPreferenceRequest = {
+  extension: string;
+  command: string;
+  fields: ReturnType<typeof preferenceFields>;
+  values: Record<string, string | number | boolean>;
 };
 export type WebMount = { close(): void; input(value: ControllerInput): void };
 
@@ -212,6 +228,44 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
 
   let fetched: Awaited<ReturnType<typeof fetchExtensionFiles>> | undefined;
   let catalogReady: Promise<void> | undefined;
+  let bundleIndex: ReturnType<typeof parseBundleIndex> | undefined;
+  const loadBundleIndex = async () => {
+    if (bundleIndex || !options.bundlesUrl) return bundleIndex;
+    const response = await fetch(new URL(options.bundlesUrl, location.href));
+    if (!response.ok) return undefined;
+    bundleIndex = parseBundleIndex(await response.json());
+    return bundleIndex;
+  };
+
+  const prebuilt = async (commandName: string) => {
+    const index = await loadBundleIndex();
+    if (!index) return undefined;
+    const pathParts = new URL(source).pathname.split("/").filter(Boolean);
+    const treeIndex = pathParts.indexOf("tree");
+    const extension = treeIndex >= 0 ? pathParts.at(-1) : undefined;
+    const entry = extension ? index.bundles[bundleKey(extension, commandName)] : undefined;
+    if (!entry) return undefined;
+    const response = await fetch(new URL(entry.path, new URL(options.bundlesUrl!, location.href)));
+    if (!response.ok) return undefined;
+    const bytes = await response.arrayBuffer();
+    if (!(await bundleMatches(index, index.buildSha, bundleKey(extension!, commandName), bytes)))
+      return undefined;
+    const manifest = entry.manifest;
+    if (!manifest) return undefined;
+    const files = new Map<string, BrowserBundleFile>();
+    for (const [name, file] of Object.entries(entry.files ?? {})) {
+      const fileResponse = await fetch(
+        new URL(file.path, new URL(options.bundlesUrl!, location.href)),
+      );
+      if (!fileResponse.ok) continue;
+      const fileBytes = await fileResponse.arrayBuffer();
+      if (file.bytes !== fileBytes.byteLength || (await sha256Hex(fileBytes)) !== file.sha256)
+        continue;
+      files.set(name, new Uint8Array(fileBytes));
+    }
+    return { code: new TextDecoder().decode(bytes), manifest, files };
+  };
+
   const ensureExtension = () =>
     (catalogReady ??= (async () => {
       setStatus("Fetching extension…", false, true);
@@ -231,39 +285,41 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
       const extension = fetched;
       setStatus("Installing…", false, true);
       draw({ type: "loading", extension: source, command: commandName });
-      const sources = (await (await fetch(asset("blast-sources.json"))).json()) as Record<
-        string,
-        string
-      >;
-      if (!current()) return;
-      const files = new Map<string, BrowserBundleFile>(Object.entries(sources));
-      for (const [path, value] of extension.files) files.set(path, value);
+      const built = await prebuilt(commandName);
       const entry = commandEntry(extension.files, commandName);
-      const installed = await installForBrowser({
-        fetch: (value, init) => fetch(value, init),
-        manifest: extension.manifest,
-        ...(extension.lockfile === undefined ? {} : { lockfile: extension.lockfile }),
-      });
-      if (!current()) return;
-      setStatus("Bundling…", false, true);
-      const bundled = await bundleForBrowser({
-        esbuild: await loadEsbuild(),
-        files,
-        packages: installed.packages,
-        command: entry,
-        runtimeEntry: RUNTIME_ENTRY,
-        aliases,
-      });
-      if (!current()) return;
+      const bundled =
+        built ??
+        (await (async () => {
+          const sources = (await (await fetch(asset("blast-sources.json"))).json()) as Record<
+            string,
+            string
+          >;
+          const files = new Map<string, BrowserBundleFile>(Object.entries(sources));
+          for (const [path, value] of extension.files) files.set(path, value);
+          const installed = await installForBrowser({
+            fetch: (value, init) => fetch(value, init),
+            manifest: extension.manifest,
+            ...(extension.lockfile === undefined ? {} : { lockfile: extension.lockfile }),
+          });
+          if (!current()) return undefined;
+          setStatus("Bundling…", false, true);
+          return bundleForBrowser({
+            esbuild: await loadEsbuild(),
+            files,
+            packages: installed.packages,
+            command: entry,
+            runtimeEntry: RUNTIME_ENTRY,
+            aliases,
+          });
+        })());
+      if (!current() || !bundled) return;
 
-      const declarations = extension.manifest.commands;
+      const manifest = built?.manifest ?? extension.manifest;
+      const declarations = manifest.commands;
       const declaration = Array.isArray(declarations)
         ? declarations.find((item) => item?.name === commandName)
         : undefined;
-      const extensionPreferences = parsePreferences(
-        extension.manifest.preferences,
-        "Extension preferences",
-      );
+      const extensionPreferences = parsePreferences(manifest.preferences, "Extension preferences");
       const commandPreferences = parsePreferences(
         declaration?.preferences,
         `Command ${commandName} preferences`,
@@ -278,10 +334,28 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
         preferenceFields(extensionPreferences, commandPreferences),
         values,
       );
-      if (missing.length > 0)
-        throw new Error(
-          `Missing required preferences: ${missing.map((item) => item.title || item.name).join(", ")}`,
-        );
+      let resolvedValues = values;
+      if (missing.length > 0) {
+        if (!options.preferenceForm)
+          throw new Error(
+            `Missing required preferences: ${missing.map((item) => item.title || item.name).join(", ")}`,
+          );
+        const supplied = await options.preferenceForm({
+          extension: extensionName,
+          command: commandName,
+          fields: preferenceFields(extensionPreferences, commandPreferences),
+          values: values as Record<string, string | number | boolean>,
+        });
+        if (!supplied) return;
+        resolvedValues = { ...values, ...supplied };
+        if (
+          missingPreferences(
+            preferenceFields(extensionPreferences, commandPreferences),
+            resolvedValues,
+          ).length
+        )
+          throw new Error("Required preferences are missing");
+      }
       const mode =
         declaration?.mode === "no-view" || declaration?.mode === "menu-bar"
           ? (declaration.mode as "no-view" | "menu-bar")
@@ -425,7 +499,7 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
         type: "init",
         protocol: 1,
         command: { extension: extensionName, name: commandName, entry, mode },
-        preferences: { ...values },
+        preferences: { ...resolvedValues },
         environment: {
           extensionName,
           commandName,

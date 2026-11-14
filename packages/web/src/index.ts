@@ -2,6 +2,7 @@ import { startSession, type WebMount, type WebMountOptions } from "./session.ts"
 
 export * from "./browser-install.ts";
 export * from "./browser-bundle.ts";
+export { bundleKey, bundleMatches, parseBundleIndex, sha256Hex } from "./bundles.ts";
 export { createDefaultHandlers } from "./handlers.ts";
 export { defineBlastExtension } from "./custom-element.ts";
 export type { WebHandlers, WebMount, WebMountOptions, WebStatus, WebView } from "./session.ts";

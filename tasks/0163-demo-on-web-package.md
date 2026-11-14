@@ -42,8 +42,13 @@ what remains is catalog, theming and site-specific UI.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/web-demo-package-mount @ 2674cf7 (plus 83a29ec, e55fbc4, ccc3a76)
+Verify: browser e2e and focused browser tests pass; full bun run verify rerun pending after final edits
 Done:
+- Added public `bundlesUrl` support to `mount()` with validated bundles.json, digest checks, manifest metadata, and file loading.
+- Added public `preferenceForm` hook for required preference submission and documented both hooks.
+- Exported bundle index helpers from `@blastlauncher/web`.
 Not done / risks:
+- `examples/browser-demo/client.ts` remains 1,866 lines and still owns bespoke sandbox/runtime/controller, prebuilt bundle, and preference-form wiring; it has not yet been migrated to `mount()`.
+- Full `bun run verify` must be rerun after any follow-up migration.
 ```
