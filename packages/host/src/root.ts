@@ -11,6 +11,7 @@ import {
   type RootCommand,
 } from "@blastlauncher/client-core";
 import type { ExtensionHandle } from "./extension.ts";
+import { startLaunchFlow, type LaunchFlow } from "./launch-flow.ts";
 import type { ExtensionManifest } from "./extension-manifest.ts";
 
 export type RootOptions = {
@@ -19,18 +20,20 @@ export type RootOptions = {
   /**
    * Take over starting commands (the serve process keys sessions and forwards
    * capabilities itself). Resolve with a promise that settles when that
-   * command's session ends; the root then resumes. Without it the root runs
-   * the command in-process and shows its view in place of the root.
+   * command's session ends; the root then resumes. `configure` asks for the
+   * command's preferences form instead of the command. Without it the root
+   * runs the flow in-process and shows its views in place of the root.
    */
   launch?: (target: {
     extension: ExtensionHandle;
     command: string;
+    configure?: boolean;
   }) => Promise<{ exited: Promise<unknown> }>;
 };
 
 /** The engine's root search over every opened extension; see `engine.root`. */
 export type Root = {
-  /** The root list, or the running command's view in the in-process mode. */
+  /** The root list, or the launch prompt's or running command's view in the in-process mode. */
   view(): ControllerView;
   subscribe(listener: (view: ControllerView) => void): () => void;
   input(input: ControllerInput): void;
@@ -82,18 +85,19 @@ function drive(opened: Opened, controller: Controller): { input(input: Controlle
 }
 
 export function createRoot(source: RootSource, options: RootOptions): Root {
-  const catalog = createRootController();
+  const catalog = createRootController([], { platform: options.views.platform });
   const tracked: ExtensionHandle[] = [];
   const manifests = new Map<ExtensionHandle, ExtensionManifest>();
   const watches = new Map<ExtensionHandle, () => void>();
   const loads = new Set<Promise<void>>();
   const listeners = new Set<(view: ControllerView) => void>();
-  let active: { controller: Controller; input(input: ControllerInput): void } | undefined;
+  let active: { view(): ControllerView; input(input: ControllerInput): void } | undefined;
   let busy = false;
   let closed = false;
   let running: Opened | undefined;
+  let launching: LaunchFlow | undefined;
 
-  const view = () => (active ? active.controller.view() : catalog.view());
+  const view = () => (active ? active.view() : catalog.view());
   const emit = (next: ControllerView) => {
     for (const listener of listeners) listener(next);
   };
@@ -174,10 +178,11 @@ export function createRoot(source: RootSource, options: RootOptions): Root {
   const resume = () => {
     active = undefined;
     running = undefined;
+    launching = undefined;
     busy = false;
     if (!closed) catalog.reset();
   };
-  const start = async (extensionName: string, commandName: string) => {
+  const start = async (extensionName: string, commandName: string, configure: boolean) => {
     const handle = tracked.find((h) => manifests.get(h)?.name === extensionName);
     const manifest = handle && manifests.get(handle);
     const command = manifest?.commands.find((c) => c.name === commandName);
@@ -185,11 +190,26 @@ export function createRoot(source: RootSource, options: RootOptions): Root {
     busy = true;
     try {
       if (options.launch) {
-        const { exited } = await options.launch({ extension: handle, command: commandName });
+        const { exited } = await options.launch({
+          extension: handle,
+          command: commandName,
+          ...(configure ? { configure } : {}),
+        });
         void exited.then(resume, resume);
         return;
       }
-      const opened = await handle.launch(commandName);
+      // Missing values and dependency installs are views of the flow, shown
+      // in place of the root until the command (or nothing) takes over.
+      const flow = startLaunchFlow(handle, commandName, { views: options.views, configure });
+      launching = flow;
+      active = flow;
+      const stopFlow = flow.subscribe(emit);
+      const opened = await flow.opened;
+      stopFlow();
+      if (!opened) {
+        resume();
+        return;
+      }
       if (closed) {
         await opened.close();
         return;
@@ -200,14 +220,15 @@ export function createRoot(source: RootSource, options: RootOptions): Root {
         fallbackTitle: command.title,
         assetsDir: join(source.dirOf(handle) ?? "", "assets"),
       });
-      active = { controller, ...drive(opened, controller) };
+      active = { view: () => controller.view(), ...drive(opened, controller) };
       controller.subscribe(emit);
+      emit(controller.view());
       void opened.session.exited.then(async () => {
         await opened.close();
         resume();
       });
     } catch (error) {
-      busy = false;
+      resume();
       catalog.fail(
         `Could not open ${command.title}`,
         error instanceof Error ? error.message : String(error),
@@ -229,7 +250,7 @@ export function createRoot(source: RootSource, options: RootOptions): Root {
         return;
       }
       for (const effect of catalog.input(input).effects)
-        if (!busy) void start(effect.extension, effect.command);
+        if (!busy) void start(effect.extension, effect.command, effect.type === "configure");
     },
     async ready() {
       while (loads.size) await Promise.all(loads);
@@ -240,6 +261,7 @@ export function createRoot(source: RootSource, options: RootOptions): Root {
       for (const stop of watches.values()) stop();
       watches.clear();
       listeners.clear();
+      launching?.cancel();
       await running?.close();
     },
   };
