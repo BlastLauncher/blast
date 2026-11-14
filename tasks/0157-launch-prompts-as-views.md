@@ -53,7 +53,7 @@ with progress feedback, and then renders the command.
 ## Handoff
 
 ```
-Branch/commit: t3/44172e57 @ HANDOFF_SHA
+Branch/commit: t3/44172e57 @ d22219d
 Verify: verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok) in 138.1s
 Done:
 - client-core `prompt.ts`: `createPromptController` builds a form scene (preferences + arguments; password, dropdown, checkbox, file) and a status scene (animated/failure toast, Retry) and runs them through the real controller; answers return as submit/retry/cancel effects. Root gets a Configure Command action (+ ⌘⇧, key, `configure` effect).
