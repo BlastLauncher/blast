@@ -41,7 +41,7 @@ client and doc shows the smaller API.
 - [x] 0156 Engine root view: search and launch commands across extensions
 - [x] 0157 Launch prompts and dependency installs as views
 - [ ] 0158 Minimal Python embedder (stdlib, ≤ 200 lines); Go example on new flow
-- [ ] 0159 `@blastlauncher/web`: embed the browser runtime in any page (+ decision)
+- [x] 0159 `@blastlauncher/web`: embed the browser runtime in any page (+ decision)
 - [ ] 0160 Reference clients on engine-owned flows; docs refresh
 - [x] 0161 Deterministic TUI picker capability-handler test
 - [x] 0162 Real engine version in the serve welcome
