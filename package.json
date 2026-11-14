@@ -51,6 +51,7 @@
     "example:browser-demo": "bun examples/browser-demo/main.ts",
     "example:browser-demo:catalog": "bun scripts/browser-catalog.ts",
     "example:browser-demo:e2e": "bun examples/browser-demo/e2e.ts",
+    "example:web-embed:e2e": "bun examples/web-embed/e2e.ts",
     "site:build": "bun examples/browser-demo/site.ts",
     "site:e2e": "bun examples/browser-demo/site-e2e.ts",
     "site:smoke:browser": "bun examples/browser-demo/site-smoke-browser.ts",

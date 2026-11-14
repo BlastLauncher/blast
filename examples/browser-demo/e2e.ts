@@ -184,6 +184,8 @@ try {
             `clipboard.copy did not reach the host: ${await page.locator("#status").textContent()}`,
           );
         });
+      // The first Esc clears the search text, the second leaves the command.
+      await page.keyboard.press("Escape");
       await page.keyboard.press("Escape");
       await page.locator("#root-search").waitFor();
       // Back at the root, the sandbox session must be gone, not just hidden. An

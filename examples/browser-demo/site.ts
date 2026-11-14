@@ -2,6 +2,7 @@ import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { buildBrowserAssets, projectRoot, relativeFiles } from "./build.ts";
 import { prebuildCatalog } from "./prebuild.ts";
+import { sandboxPage } from "../../packages/web/sandbox/page.ts";
 import { demoPage } from "./template.ts";
 import { enrichCatalog, type Catalog, type CatalogExtension, type SweepResult } from "./root.ts";
 import { landing } from "./landing.ts";
@@ -302,10 +303,7 @@ export async function buildSite(
   await prebuildCatalog(catalog, buildSha, demo, options.fixtures, {
     local: showcase ? { [showcase.name]: showcaseDirectory } : {},
   });
-  await writeFile(
-    join(sandbox, "index.html"),
-    `<!doctype html><script type="module">import {Runtime,VirtualFS} from './almostnode-full.mjs'; const runtime=new Runtime(new VirtualFS(),{}); addEventListener('message',async e=>{if(e.data?.type==='execute'){try{const result=await runtime.execute(e.data.code,e.data.filename); parent.postMessage({type:'result',id:e.data.id,result},'*')}catch(error){parent.postMessage({type:'error',id:e.data.id,error:String(error)},'*')}}}); parent.postMessage({type:'ready'},'*');</script>`,
-  );
+  await writeFile(join(sandbox, "index.html"), sandboxPage("./almostnode-full.mjs"));
   await writeFile(join(sandbox, "almostnode-full.mjs"), assets.sandbox);
   await writeFile(join(www, "build.json"), `${JSON.stringify({ sha: buildSha })}\n`);
   await writeFile(join(sandbox, "build.json"), `${JSON.stringify({ sha: buildSha })}\n`);

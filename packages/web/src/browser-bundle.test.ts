@@ -145,7 +145,7 @@ test("aliases can replace external built-in subpaths", async () => {
       'import { pipeline } from "stream/promises"; import { finished } from "node:stream/promises"; export default [pipeline, finished];',
       new Map([
         [
-          "/examples/browser-demo/stream-promises.ts",
+          "/packages/web/sandbox/stream-promises.ts",
           "export const pipeline = 1; export const finished = 2;",
         ],
       ]),
@@ -153,8 +153,8 @@ test("aliases can replace external built-in subpaths", async () => {
     command: "/src/index.tsx",
     runtimeEntry: "/runtime.js",
     aliases: {
-      "stream/promises": "/examples/browser-demo/stream-promises.ts",
-      "node:stream/promises": "/examples/browser-demo/stream-promises.ts",
+      "stream/promises": "/packages/web/sandbox/stream-promises.ts",
+      "node:stream/promises": "/packages/web/sandbox/stream-promises.ts",
     },
   });
   expect(result.code).not.toContain("stream/promises");

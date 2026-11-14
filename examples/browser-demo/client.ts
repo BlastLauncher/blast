@@ -4,34 +4,39 @@ import {
   createController,
   type Controller,
 } from "../../packages/client-core/src/index.ts";
-import { installForBrowser } from "../../packages/host/src/browser-install.ts";
-import { bundleForBrowser } from "../../packages/host/src/browser-bundle.ts";
+import { installForBrowser } from "../../packages/web/src/browser-install.ts";
+import { bundleForBrowser } from "../../packages/web/src/browser-bundle.ts";
 import type { CommandMode, SceneMessage } from "../../packages/protocol/src/index.ts";
-import { aliases } from "./bundle-config.ts";
+import { aliases } from "../../packages/web/src/bundle-config.ts";
 import {
   bundleKey,
   bundleMatches,
   parseBundleIndex,
   sha256Hex,
   type CatalogManifest,
-} from "./bundles.ts";
-import { render, renderPreferences } from "../web-launcher/render.js";
+} from "../../packages/web/src/bundles.ts";
+import { render, renderPreferences } from "../../packages/web/src/render.js";
 import { mountRoot, updateRoot } from "./root-launcher.tsx";
 import type { Root as ReactRoot } from "react-dom/client";
 import {
   createBrowserCapabilities,
   createBrowserPreferenceStore,
   type CapabilityContext,
-} from "./capabilities.ts";
+} from "../../packages/web/src/capabilities.ts";
 import {
   missingPreferences,
   parsePreferences,
   preferenceDefaults,
   preferenceFields,
   type Preference,
-} from "../../packages/host/src/preference-fields.ts";
+} from "@blastlauncher/protocol/preference-fields";
 import { controlledSearchText, syncAttributes } from "./search-sync.ts";
-import { canUseLocalFixture, isTextExtension, parseExtensionSource } from "./source.ts";
+import {
+  commandEntry,
+  fetchExtensionFiles,
+  manifestCommands,
+  type FetchedExtension,
+} from "../../packages/web/src/extension-files.ts";
 import {
   catalogCommandTitle,
   executeRootAction,
@@ -56,9 +61,13 @@ import {
   type NavigatorLike,
 } from "./keyboard.ts";
 import { matchesShortcut, shortcutLabel } from "../../packages/client-core/src/shortcut.ts";
-import { escapeHtml } from "../web-launcher/render.js";
-import { BrowserLaunchTimeoutError, createLaunchGeneration, withLaunchTimeout } from "./launch.ts";
-import { acceptsRuntimePortRequest } from "./runtime-port.ts";
+import { escapeHtml } from "../../packages/web/src/render.js";
+import {
+  BrowserLaunchTimeoutError,
+  createLaunchGeneration,
+  withLaunchTimeout,
+} from "../../packages/web/src/launch.ts";
+import { acceptsRuntimePortRequest } from "../../packages/web/src/runtime-port.ts";
 import {
   menuLevels,
   placeMenu,
@@ -653,12 +662,6 @@ function processResult(result: ReturnType<Controller["input"]>) {
     }
   }
 }
-const githubApiPath = (path: string) =>
-  path
-    .split("/")
-    .map((part) => encodeURIComponent(part))
-    .join("/");
-
 function settleLaunchStage(generation: number, error?: unknown) {
   if (launchStage?.generation !== generation) return;
   const stage = launchStage;
@@ -745,91 +748,21 @@ function handleRuntime(
   } else if (message.type === "error") setStatus(message.message, true);
 }
 
-async function fetchFiles(source: string): Promise<{
-  files: Map<string, BrowserFile>;
-  manifest: Record<string, unknown>;
-  lockfile?: string;
-  root: string;
-}> {
-  const parsed = parseExtensionSource(source);
-  const files = new Map<string, BrowserFile>();
-  const read = async (path: string, url: string) => {
-    const response = await fetch(url);
-    if (!response.ok) {
-      if (response.status === 403 && response.headers.get("x-ratelimit-remaining") === "0")
-        throw new Error("GitHub API rate limit reached; try again later or use a local fixture");
-      throw new Error(`Unable to fetch ${path} (${response.status})`);
-    }
-    const bytes = new Uint8Array(await response.arrayBuffer());
-    const value: BrowserFile = isTextExtension(path) ? new TextDecoder().decode(bytes) : bytes;
-    files.set(`/${path}`, value);
-    return value;
-  };
-  let root = parsed.path;
-  let paths: string[];
+async function fetchFiles(source: string): Promise<FetchedExtension> {
   const allowFixtures =
     Object.getOwnPropertyDescriptor(globalThis, "__BLAST_FIXTURES__")?.value === true;
-  if (canUseLocalFixture(parsed, allowFixtures)) {
-    const localBase = asset(
-      `fixtures/${encodeURIComponent(parsed.path.replace(/^extensions\//, ""))}`,
-    );
-    const localListing = await fetch(`${localBase}/__files`).catch(() => undefined);
-    if (localListing?.ok) {
-      paths = (await localListing.json()) as string[];
-      root = parsed.path.replace(/^extensions\//, "");
-      for (const path of paths) await read(path, `${localBase}/${path}`);
-    } else paths = [];
-  } else paths = [];
-  if (paths.length === 0) {
-    const list = async (path: string): Promise<string[]> => {
-      const response = await fetch(
-        `https://api.github.com/repos/${encodeURIComponent(parsed.owner)}/${encodeURIComponent(parsed.repo)}/contents/${githubApiPath(path)}?ref=${encodeURIComponent(parsed.ref)}`,
-        { headers: { Accept: "application/vnd.github+json" } },
-      );
-      if (!response.ok) {
-        if (response.status === 403 && response.headers.get("x-ratelimit-remaining") === "0")
-          throw new Error("GitHub API rate limit reached; try again later or use a local fixture");
-        throw new Error(`Unable to list GitHub extension files (${response.status})`);
-      }
-      const entries = (await response.json()) as Array<{ path?: string; type?: string }>;
-      const result: string[] = [];
-      for (const entry of entries) {
-        if (!entry.path || entry.path.split("/").includes("node_modules")) continue;
-        if (entry.type === "dir") result.push(...(await list(entry.path)));
-        else if (entry.type === "file") result.push(entry.path.slice(parsed.path.length + 1));
-      }
-      return result;
-    };
-    paths = await list(parsed.path);
-    if (!paths.includes("package.json")) throw new Error("Extension package.json was not found");
-    for (const path of paths)
-      await read(
-        path,
-        `https://raw.githubusercontent.com/${parsed.owner}/${parsed.repo}/${encodeURIComponent(parsed.ref)}/${parsed.path}/${path}`,
-      );
-  }
-  const manifest = JSON.parse(String(files.get("/package.json"))) as Record<string, unknown>;
-  const commands = (manifest.commands as Array<{ name?: string }> | undefined) ?? [];
+  const extension = await fetchExtensionFiles(source, {
+    fixturesUrl: allowFixtures ? asset("fixtures/") : undefined,
+  });
   commandSelect?.replaceChildren();
-  for (const command of commands) {
-    if (typeof command.name !== "string") continue;
+  for (const name of manifestCommands(extension.manifest)) {
     const option = document.createElement("option");
-    option.value = command.name;
-    option.textContent = command.name;
+    option.value = name;
+    option.textContent = name;
     commandSelect?.append(option);
   }
   if (commandSelect) commandSelect.hidden = commandSelect.options.length < 2;
-  const lockfile = files.get("/package-lock.json");
-  return { files, manifest, root, ...(typeof lockfile === "string" ? { lockfile } : {}) };
-}
-
-function commandEntry(files: Map<string, BrowserFile>, name: string): string {
-  for (const extension of ["tsx", "ts", "jsx", "js"]) {
-    const path = `/src/${name}.${extension}`;
-    if (files.has(path)) return path;
-  }
-  if (files.has("/src/index.tsx")) return "/src/index.tsx";
-  throw new Error(`Command source not found for ${name}`);
+  return extension;
 }
 
 async function launch(
@@ -875,7 +808,7 @@ async function launch(
   const catalogSource = source.startsWith("https://github.com/raycast/extensions/tree/");
   const bundle = catalogSource ? await prebuiltBundle(source, selectedCommand) : undefined;
   if (!stillCurrent()) return;
-  let extension: Awaited<ReturnType<typeof fetchFiles>>;
+  let extension: FetchedExtension;
   let command: string;
   let bundled: { code: string; files?: Map<string, BrowserFile> };
   if (bundle) {
@@ -909,7 +842,7 @@ async function launch(
       files,
       packages: installed.packages,
       command,
-      runtimeEntry: "/examples/browser-demo/runtime-entry.ts",
+      runtimeEntry: "/packages/web/sandbox/runtime-entry.ts",
       aliases,
     });
     if (!stillCurrent()) return;

@@ -1,0 +1,25 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Blast web embed</title>
+<style>
+  body {
+    font: 15px system-ui;
+    max-width: 32rem;
+    margin: 4rem auto;
+  }
+</style>
+<div id="app"></div>
+<script type="module">
+  // blast-web.js is `bun build packages/web/src/index.ts`; an app imports
+  // "@blastlauncher/web" through its own bundler instead.
+  import { mount } from "./blast-web.js";
+  const query = new URLSearchParams(location.search);
+  mount(document.querySelector("#app"), {
+    extension: "raycast/extensions/hello-list",
+    // The self-hosted sandbox origin (decision 0015); blast.yukai.dev's is for demos.
+    sandboxUrl: query.get("sandbox") ?? "https://blast.yukai.dev/blast-sandbox/",
+    assetsUrl: "./assets/",
+    fixtures: query.has("fixtures"),
+    root: query.has("root"),
+  });
+</script>

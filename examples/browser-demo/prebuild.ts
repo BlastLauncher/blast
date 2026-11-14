@@ -2,11 +2,15 @@ import { createHash } from "node:crypto";
 import { mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import * as esbuild from "esbuild";
-import { bundleForBrowser } from "../../packages/host/src/browser-bundle.ts";
-import { installForBrowser, type BrowserFetch } from "../../packages/host/src/browser-install.ts";
-import { aliases, sharedModules } from "./bundle-config.ts";
-import { bundleKey, type BundleIndex, type CatalogManifest } from "./bundles.ts";
-import { parsePreferences } from "../../packages/host/src/preference-fields.ts";
+import { bundleForBrowser } from "../../packages/web/src/browser-bundle.ts";
+import { installForBrowser, type BrowserFetch } from "../../packages/web/src/browser-install.ts";
+import { aliases, sharedModules } from "../../packages/web/src/bundle-config.ts";
+import {
+  bundleKey,
+  type BundleIndex,
+  type CatalogManifest,
+} from "../../packages/web/src/bundles.ts";
+import { parsePreferences } from "@blastlauncher/protocol/preference-fields";
 import { projectRoot, relativeFiles } from "./build.ts";
 import { ensureCorpusCheckout } from "../../scripts/corpus/fetch.ts";
 import type { Catalog } from "./root.ts";
@@ -32,7 +36,7 @@ async function sharedSources(): Promise<Map<string, string | Uint8Array>> {
   await add(join(projectRoot, "packages/runtime/src"), "packages/runtime/src");
   await add(join(projectRoot, "packages/protocol/src"), "packages/protocol/src");
   await add(join(projectRoot, "packages/client-core/src"), "packages/client-core/src");
-  await add(join(projectRoot, "examples/browser-demo"), "examples/browser-demo");
+  await add(join(projectRoot, "packages/web/sandbox"), "packages/web/sandbox");
   await add(join(projectRoot, "packages/runtime/node_modules/react"), "node_modules/react");
   await add(
     join(projectRoot, "packages/runtime/node_modules/react-reconciler"),
@@ -121,8 +125,8 @@ export async function prebuildCatalog(
     esbuild,
     files: shared,
     packages: new Map(),
-    command: "/examples/browser-demo/runtime-entry.ts",
-    runtimeEntry: "/examples/browser-demo/runtime-entry.ts",
+    command: "/packages/web/sandbox/runtime-entry.ts",
+    runtimeEntry: "/packages/web/sandbox/runtime-entry.ts",
     aliases,
     entryCode: `import * as react from "react";
 import * as jsxRuntime from "react/jsx-runtime";
@@ -131,7 +135,7 @@ import * as api from "@raycast/api";
 import * as reconciler from "react-reconciler";
 import * as scheduler from "scheduler";
 import * as protocol from "@blastlauncher/protocol";
-import { start } from "/examples/browser-demo/runtime-entry.ts";
+import { start } from "/packages/web/sandbox/runtime-entry.ts";
 globalThis.__blastModules = { react, "react/jsx-runtime": jsxRuntime, "react/jsx-dev-runtime": jsxDevRuntime, "@raycast/api": api, "react-reconciler": reconciler, scheduler, "@blastlauncher/protocol": protocol, start };`,
   });
   const runtimeBytes = Buffer.from(
@@ -226,7 +230,7 @@ globalThis.__blastModules = { react, "react/jsx-runtime": jsxRuntime, "react/jsx
             files: all,
             packages: installed.packages,
             command: commandPath,
-            runtimeEntry: "/examples/browser-demo/runtime-entry.ts",
+            runtimeEntry: "/packages/web/sandbox/runtime-entry.ts",
             aliases,
             sharedRuntime: true,
             sharedModules,

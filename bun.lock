@@ -23,6 +23,7 @@
         "@blastlauncher/host": "workspace:*",
         "@blastlauncher/protocol": "workspace:*",
         "@blastlauncher/runtime": "workspace:*",
+        "@blastlauncher/web": "workspace:*",
         "cmdk": "1.1.1",
         "react": "19.3.1",
         "react-dom": "19.3.1",
@@ -132,6 +133,14 @@
         "@types/react": "19.3.0",
       },
     },
+    "packages/web": {
+      "name": "@blastlauncher/web",
+      "dependencies": {
+        "@blastlauncher/client-core": "workspace:*",
+        "@blastlauncher/protocol": "workspace:*",
+        "semver": "7.8.5",
+      },
+    },
   },
   "packages": {
     "@blastlauncher/cli": ["@blastlauncher/cli@workspace:packages/cli"],
@@ -155,6 +164,8 @@
     "@blastlauncher/shared-deps": ["@blastlauncher/shared-deps@workspace:packages/shared-deps"],
 
     "@blastlauncher/tui": ["@blastlauncher/tui@workspace:packages/tui"],
+
+    "@blastlauncher/web": ["@blastlauncher/web@workspace:packages/web"],
 
     "@esbuild/aix-ppc64": ["@esbuild/aix-ppc64@0.28.2", "", { "os": "aix", "cpu": "ppc64" }, "sha512-XExcO+dvLKvVtNTibSTBej1NCAbaGhWn9Ww1ZPx80qsahhPFe/8jgWP0IchNe0F3HwkU7n8ejhH8bjonqht8mQ=="],
 

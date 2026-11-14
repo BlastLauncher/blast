@@ -1,0 +1,13 @@
+{
+  "name": "@blastlauncher/web",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@blastlauncher/client-core": "workspace:*",
+    "@blastlauncher/protocol": "workspace:*",
+    "semver": "7.8.5"
+  }
+}

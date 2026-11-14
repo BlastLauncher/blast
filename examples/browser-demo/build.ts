@@ -147,7 +147,7 @@ export async function buildBrowserAssets(): Promise<BrowserAssets> {
       join(projectRoot, "packages/client-core/src"),
       "packages/client-core/src",
     )),
-    ...(await filesUnder(join(projectRoot, "examples/browser-demo"), "examples/browser-demo")),
+    ...(await filesUnder(join(projectRoot, "packages/web/sandbox"), "packages/web/sandbox")),
     ...(await filesUnder(
       join(projectRoot, "packages/runtime/node_modules/react"),
       "node_modules/react",

@@ -3,7 +3,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join, relative, sep } from "node:path";
 import { buildSite } from "./site.ts";
 import { depsReady, projectRoot } from "./build.ts";
-import { bundleKey, parseBundleIndex } from "./bundles.ts";
+import { bundleKey, parseBundleIndex } from "../../packages/web/src/bundles.ts";
 import { validateCatalog, type Catalog } from "./root.ts";
 
 type SweepElement = {

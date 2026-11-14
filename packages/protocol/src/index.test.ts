@@ -41,11 +41,13 @@ test("the package has no dependencies and its source imports nothing from node",
     .toSorted();
   expect(sources).toEqual([
     "capabilities.ts",
+    "dependency-policy.ts",
     "embedder-schema.ts",
     "embedder.ts",
     "framing.ts",
     "index.ts",
     "messages.ts",
+    "preference-fields.ts",
     "provider-codec.ts",
     "provider.ts",
   ]);

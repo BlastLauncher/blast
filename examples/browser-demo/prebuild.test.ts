@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { prebuildCatalog } from "./prebuild.ts";
+import { extensionFilesFromTree, prebuildCatalog } from "./prebuild.ts";
 import type { Catalog } from "./root.ts";
 
 const encoder = new TextEncoder();
@@ -149,4 +149,19 @@ test("prebuilds a fixture whose lockfile nests conflicting versions", async () =
   } finally {
     await rm(output, { recursive: true, force: true });
   }
+});
+
+test("tree listing maps only files below the extension and excludes node_modules", () => {
+  expect(
+    extensionFilesFromTree(
+      [
+        { path: "extensions/ratio-calculator/package.json", type: "blob" },
+        { path: "extensions/ratio-calculator/src/index.tsx", type: "blob" },
+        { path: "extensions/ratio-calculator/node_modules/x/index.js", type: "blob" },
+        { path: "extensions/other/index.ts", type: "blob" },
+        { path: "extensions/ratio-calculator/src", type: "tree" },
+      ],
+      "extensions/ratio-calculator",
+    ),
+  ).toEqual(["package.json", "src/index.tsx"]);
 });

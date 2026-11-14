@@ -7,6 +7,7 @@
     "@blastlauncher/host": "workspace:*",
     "@blastlauncher/protocol": "workspace:*",
     "@blastlauncher/runtime": "workspace:*",
+    "@blastlauncher/web": "workspace:*",
     "cmdk": "1.1.1",
     "react": "19.3.1",
     "react-dom": "19.3.1"

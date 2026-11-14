@@ -16831,7 +16831,8 @@
       "status": "covered",
       "tests": [
         "packages/client-core/src/controlled-search.test.ts",
-        "packages/runtime/src/api/metadata.test.ts"
+        "packages/runtime/src/api/metadata.test.ts",
+        "packages/web/src/render.test.ts"
       ],
       "weight": 800
     },
@@ -17070,7 +17071,8 @@
       "status": "covered",
       "tests": [
         "packages/client-core/src/controlled-search.test.ts",
-        "packages/runtime/src/api/index.test.ts"
+        "packages/runtime/src/api/index.test.ts",
+        "packages/web/src/render.test.ts"
       ],
       "weight": 1002
     },
@@ -17539,7 +17541,8 @@
       "tests": [
         "packages/client-core/src/controlled-search.test.ts",
         "packages/runtime/src/api/aliases.test.ts",
-        "packages/runtime/src/api/metadata.test.ts"
+        "packages/runtime/src/api/metadata.test.ts",
+        "packages/web/src/render.test.ts"
       ],
       "weight": 0,
       "via": "List.Item"
@@ -18030,7 +18033,8 @@
       "tests": [
         "packages/client-core/src/controlled-search.test.ts",
         "packages/runtime/src/api/aliases.test.ts",
-        "packages/runtime/src/api/index.test.ts"
+        "packages/runtime/src/api/index.test.ts",
+        "packages/web/src/render.test.ts"
       ],
       "weight": 0,
       "via": "List.Props"

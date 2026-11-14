@@ -11,6 +11,7 @@ export const packages = [
   "runtime",
   "host",
   "client-core",
+  "web",
   "native",
   "serve",
   "cli",
@@ -106,10 +107,11 @@ export async function build(version: string) {
         target: "es2024",
         rootDir: join(root, "packages"),
         outDir: join(output, "emit"),
+        lib: ["esnext", "dom", "dom.iterable"],
       },
       include: packages.map((pkg) => join(root, "packages", pkg, "src/**/*")),
-      exclude: ["**/*.test.ts", "**/*.test.tsx", "**/*test-helper.ts"].map((pattern) =>
-        join(root, "packages", pattern),
+      exclude: ["**/*.test.ts", "**/*.test.tsx", "**/*.test.js", "**/*test-helper.ts"].map(
+        (pattern) => join(root, "packages", pattern),
       ),
     }),
   );
