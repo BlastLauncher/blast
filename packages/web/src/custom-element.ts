@@ -1,6 +1,10 @@
-import { mount, type WebMount, type WebMountOptions } from "./index.ts";
+import { startSession, type WebMount, type WebMountOptions } from "./session.ts";
 
-/** Defines <blast-extension> for pages that prefer declarative embedding. */
+/**
+ * Defines `<blast-extension extension="raycast/extensions/name" sandbox-url="…">`
+ * for pages that prefer declarative embedding. Optional attributes: `source`,
+ * `command`, `assets-url`, `theme`, and the booleans `root` and `fixtures`.
+ */
 export function defineBlastExtension(tag = "blast-extension"): void {
   if (customElements.get(tag)) return;
   customElements.define(
@@ -8,15 +12,22 @@ export function defineBlastExtension(tag = "blast-extension"): void {
     class extends HTMLElement {
       #session: WebMount | undefined;
       connectedCallback() {
-        const extension = this.getAttribute("extension") ?? undefined;
-        const source = this.getAttribute("source") ?? undefined;
-        const command = this.getAttribute("command") ?? undefined;
-        const sandboxUrl = this.getAttribute("sandbox-url") ?? "/sandbox/";
-        const options: WebMountOptions = { sandboxUrl };
-        if (extension) options.extension = extension;
-        if (source) options.source = source;
-        if (command) options.command = command;
-        this.#session = mount(this, options);
+        const options: WebMountOptions = {
+          sandboxUrl: this.getAttribute("sandbox-url") ?? "/sandbox/",
+          root: this.hasAttribute("root"),
+          fixtures: this.hasAttribute("fixtures"),
+        };
+        for (const [attribute, key] of [
+          ["extension", "extension"],
+          ["source", "source"],
+          ["command", "command"],
+          ["assets-url", "assetsUrl"],
+          ["theme", "theme"],
+        ] as const) {
+          const value = this.getAttribute(attribute);
+          if (value) options[key] = value;
+        }
+        this.#session = startSession(this, options);
       }
       disconnectedCallback() {
         this.#session?.close();
@@ -25,5 +36,3 @@ export function defineBlastExtension(tag = "blast-extension"): void {
     },
   );
 }
-
-export type { WebMountOptions };
