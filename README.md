@@ -1,138 +1,94 @@
 # Blast
 
-Blast is an embeddable engine that runs unmodified Raycast extensions outside
-Raycast. It builds an extension, runs each command in its own Node.js process,
-and hands your app what to draw: scenes, a ready-made view model with Raycast's
-client behaviour, and requests for anything that touches the OS. You bring the
-UI; Blast brings the extensions.
+Raycast extensions in any app. Blast is an embeddable engine: it builds and
+runs an extension command, renders its Raycast client behaviour into scenes or
+view models, and asks your app to answer the capabilities it grants. You draw
+the pixels; Blast brings the extension.
 
-Compatibility is measured against the latest `@raycast/api`, not claimed:
+**Try it in a browser** — no install: [blast.yukai.dev/demo](https://blast.yukai.dev/demo/).
 
-- **API coverage:** `@raycast/api` 2.10.1, 1537/1538 current symbols (the
-  remaining one needs the embedder's browser), 942/942 deprecated
-  ([COVERAGE.md](./compat/COVERAGE.md)).
-- **Real extensions:** across all 1,939 corpus extensions Blast's shared
-  libraries cover, 91.4% of 5,759 commands render in a sandboxed, offline sweep
-  ([SWEEP.md](./compat/SWEEP.md)); 237/253 curated commands render
-  ([SMOKE.md](./compat/SMOKE.md)); extensions with their own dependencies
-  install and render 51/52 ([SMOKE-DEPS.md](./compat/SMOKE-DEPS.md)).
-
-> **Status:** alpha. `3.0.0-alpha.1` is on npm under the `next` tag, published
-> from GitHub Actions with provenance
-> ([release](https://github.com/BlastLauncher/blast/releases/tag/v3.0.0-alpha.1));
-> `latest` still points at Blast v1 for `cli` and `runtime`. The previous
-> prototype is kept at tag
-> [`archive/v2-prototype-2026-10-18`](https://github.com/BlastLauncher/blast/tree/archive/v2-prototype-2026-10-18).
-
-```bash
-npm install @blastlauncher/engine@next @blastlauncher/client-core@next
-npx @blastlauncher/cli@next run ./my-extension index
-```
-
-## Where it stands (November 2026)
-
-- **Done:**
-  - headless runtime and host (M1);
-  - real-extension runs (M2);
-  - API coverage (M3);
-  - terminal client (M4);
-  - the embeddable engine (M5): in-process API and `blast serve` with a
-    schema, `client-core` views over the wire, capability registry, native
-    handlers, lean per-extension dependency installs, npm release build;
-  - evidence at scale (M6): latest-API tracking, a sandboxed corpus sweep with
-    primary-action probes, Suspense and `use()`, dependencies as part of launch
-    ([decision 0002](./docs/decisions/0002-extension-dependencies.md)), the
-    Go example on views, TUI polish, and pre-releases via npm trusted
-    publishing ([docs/release.md](./docs/release.md)).
-  - real examples (M7, in progress): an AppKit launcher over `blast serve`
-    ([examples/macos-launcher](./examples/macos-launcher/)), walkthroughs, paste
-    `closeMainWindow`, macOS window operations without yabai, and an
-    in-process web launcher ([examples/web-launcher](./examples/web-launcher/));
-  - extensions in the browser (M8): run a Raycast extension from its GitHub URL
-    with nothing installed, inside almostnode's cross-origin sandbox
-    ([decision 0013](./docs/decisions/0013-browser-runtime.md),
-    [examples/browser-demo](./examples/browser-demo/)).
-- **Engine size:** about 13 MiB installed without the optional shared libraries.
-- **Next:** more real embedder examples. Backlog in [PLAN.md](./PLAN.md), "Later".
-
-## Two ways to embed
-
-**In process (JS/TS: Node 24, Bun, Electron).**
+**Embed in JS/TS** with the in-process engine and framework-free controller:
 
 ```ts
-import { createEngine } from "@blastlauncher/host"; // published as @blastlauncher/engine
+import { createEngine } from "@blastlauncher/engine";
 import { createController } from "@blastlauncher/client-core";
-
-const engine = createEngine({ handlers: { "clipboard.copy": (p) => myClipboard(p) } });
+const engine = createEngine({ handlers: { "clipboard.copy": (p) => copy(p) } });
 const extension = engine.openExtension({ extensionDir: "./my-extension" });
-await extension.dependencies.install();
 const { session } = await extension.launch("index");
-
 const controller = createController({ platform: "macOS" });
-session.scenes((scene) => apply(controller.scene(scene)));
-controller.subscribe((view) => draw(view)); // rows, actions, search, toasts…
-// apply(): send result.events to session.sendEvent, run result.effects
+session.scenes((scene) => controller.scene(scene));
+controller.subscribe((view) => draw(view));
 ```
 
-**Out of process (any language).** Spawn `blast serve` and speak versioned
-NDJSON over stdio: open extensions, launch commands, receive scenes or view
-models, send input, answer capability requests. See the
-[JSON Schema](./packages/protocol/schema/embedder-v1.schema.json) and the
-[Go example](./examples/go-embedder/).
+**Embed in any language** by spawning `blast serve` from
+`@blastlauncher/serve@next` (bin `blast-serve`) and speaking versioned NDJSON:
 
-Full guide: [docs/embedding.md](./docs/embedding.md).
+```text
+hello → welcome
+extension.open → extension.launch (with views: { platform: "macOS" })
+session.view → draw it; session.input → forward semantic input
+capability.request → answer capability.result
+```
+
+The [quickstart](./docs/quickstart.md) runs each path. The [embedding
+reference](./docs/embedding.md) has the complete API and transcript.
+
+## What the engine does for you
+
+- Builds extensions and installs their declared dependencies.
+- Runs each command in its own sandboxed Node.js process.
+- Implements Raycast client semantics, including storage and OAuth.
+
+## What you do
+
+- Draw scenes or controller views in your UI.
+- Answer only the OS capabilities you choose to grant.
+
+## Receipts and status
+
+Compatibility is measured against the latest `@raycast/api`, not claimed:
+[API coverage](./compat/COVERAGE.md) is 1537/1538 current symbols and the
+[sandboxed sweep](./compat/SWEEP.md) renders 91.4% of 5,759 corpus commands.
+The curated [smoke](./compat/SMOKE.md) renders 237/253 commands; dependency
+smoke renders 51/52 ([details](./compat/SMOKE-DEPS.md)).
+
+> **Alpha:** `3.0.0-alpha.1` is published on npm under `next`; `latest` still
+> points at Blast v1. The browser demo, Go embedder and AppKit example are
+> current reference clients. More engine-owned flows are planned in M9.
 
 ## Packages
 
-| Package       | What it is                                                               |
-| ------------- | ------------------------------------------------------------------------ |
-| `host`        | The engine: bundling, dependency installs, sessions, capability registry |
-| `runtime`     | Runs one command: React reconciler + the `@raycast/api` implementation   |
-| `protocol`    | Message types, capability catalog, embedder protocol and schema          |
-| `client-core` | Framework-free Raycast client behaviour and the UI controller            |
-| `serve`       | `blast serve`, the engine over stdio                                     |
-| `native`      | Optional OS handlers for macOS, Windows and Linux (clipboard, open, …)   |
-| `shared-deps` | Optional fallback copies of common extension libraries                   |
-| `cli`         | `blast run`, a headless debug client                                     |
-| `tui`         | A terminal reference client (OpenTUI, Bun)                               |
+| Package                          | Role                                                   |
+| -------------------------------- | ------------------------------------------------------ |
+| `host` (`@blastlauncher/engine`) | Engine, bundling, sessions, dependencies, capabilities |
+| `runtime`                        | React reconciler and `@raycast/api` implementation     |
+| `protocol`                       | Message types, capability catalog and schema           |
+| `client-core`                    | Framework-free views, ranking, selection and input     |
+| `serve`                          | `blast serve` over stdio                               |
+| `native`                         | Optional macOS, Windows and Linux handlers             |
+| `cli`                            | `blast run`, a headless debug client                   |
+| `tui`                            | OpenTUI terminal reference client (Bun)                |
 
-The engine core is platform-free: OS actions are capabilities your app
-answers, or that you hand to `@blastlauncher/native`
-([decision 0010](./docs/decisions/0010-pluggable-native-capabilities.md)).
-
-## Try it
+## Development
 
 Requires Bun and Node.js 24.
 
 ```bash
 bun install --frozen-lockfile
-bun run blast run fixtures/extensions/hello-list index   # headless scene dump
-bun run tui path/to/extension                            # terminal client
-bun run blast:serve                                      # engine over stdio
+bun run verify
+bun run release:build
 ```
 
-## Development
-
-```bash
-bun run verify          # the only gate: format, lint, types, compat, protocol, workflow, tests
-bun run release:build   # npm tarballs into .cache/release (publishing: docs/release.md)
-```
-
-- [Architecture](./docs/architecture.md) · [Capabilities](./docs/capabilities.md) ·
-  [CLI](./docs/cli.md) · [TUI](./docs/tui.md) · [Decisions](./docs/decisions/)
-- [Cut a v3 prerelease](./docs/release.md)
-- [Plan, milestones and backlog](./PLAN.md)
-- [Contributor and agent workflow](./AGENTS.md)
+See [architecture](./docs/architecture.md), [capabilities](./docs/capabilities.md),
+[CLI](./docs/cli.md), [release](./docs/release.md), [PLAN.md](./PLAN.md) and
+[AGENTS.md](./AGENTS.md).
 
 ## History
 
-Blast v1 was an Electron launcher that ran Raycast extensions, published as
-the `@blastlauncher/cli`, `runtime`, `api`, `renderer` and `utils` npm
-packages (1.x). Its last app release is
-[v0.0.14](https://github.com/BlastLauncher/blast/releases/tag/v0.0.14)
-(August 2023), and its final source is
-[`f713dd6` on `main`](https://github.com/BlastLauncher/blast/tree/f713dd6).
-v3 is a from-scratch rewrite and an ongoing personal experiment, not a product.
+Blast v1 was an Electron launcher published as the `@blastlauncher/cli`,
+`runtime`, `api`, `renderer` and `utils` packages (1.x); its last app release
+was [v0.0.14](https://github.com/BlastLauncher/blast/releases/tag/v0.0.14).
+V3 is a from-scratch rewrite and an ongoing personal experiment.
 
 ## License
 

@@ -1,5 +1,7 @@
 # Web launcher example
 
+See the [quickstart](../../docs/quickstart.md) for the three embedding paths.
+
 This example is a small in-process web embedder. It opens a Raycast-compatible
 extension with `createEngine`, applies its scenes to `createController`, and
 serves the controller view over Server-Sent Events. The page is vanilla ES

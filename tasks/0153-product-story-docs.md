@@ -64,8 +64,13 @@ following `docs/quickstart.md`.
 ## Handoff
 
 ```
-Branch/commit:
-Verify:
+Branch/commit: t3/product-story-docs @ 7426d2931a9ca8d399af5234f8fd22da3aca02ec
+Verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok); 1034 pass, 2 skipped.
 Done:
-Not done / risks:
+- Reframed README around the engine product story and three embed paths; added receipts, package roles, status, development, and history.
+- Added `docs/quickstart.md` with browser, JS/TS tarball, and any-language stdio paths.
+- Reworked `docs/embedding.md` into the current views-first, scenes-second protocol and in-process/capability reference.
+- Added quickstart links to every example README and registered its 120-line workflow limit.
+- Executed JS and `blast-serve` quickstart checks from `.cache/quickstart-*` using `bun run release:build` tarballs.
+Not done / risks: Task 0155 may change `blast serve` defaults and icon/view fields; this documents the behavior present on this branch as requested.
 ```

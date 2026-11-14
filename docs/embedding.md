@@ -1,149 +1,98 @@
 # Embedding Blast
 
-Blast is an engine, not a launcher (decision 0009): it runs unmodified Raycast
-extensions and hands the embedder scenes, events, capability requests and
-Raycast client semantics, so the embedder only draws. It is not a UI, does not
-own windows, hotkeys, themes or a picker, and does not ship a launcher UI.
+Blast is an engine, not a launcher. It runs an unmodified Raycast extension
+command and gives an embedder a serializable UI plus requests for granted
+capabilities. The embedder owns windows, pixels, input devices and policy.
 
-Two surfaces, one contract: an in-process JS API and `blast serve` over stdio
-for other languages (decision 0011). Both expose the same operations with the
-same message shapes; only transport differs. The types and validators live in
-`packages/protocol`, the engine in `@blastlauncher/host`.
+A **session** is one launched command. A **scene** is the runtime's serializable
+React tree. A **view** is the optional `client-core` model derived from scenes;
+it includes ranking, selection, actions, shortcuts, pagination and feedback.
+**Input** is semantic (`search`, movement, activation, back). A **capability** is
+an OS or service operation, named in the catalog and either answered by Blast
+(storage, OAuth, provider AI) or forwarded to the embedder.
 
-## Installing
+## Views over stdio
 
-`bun run release:build [--version 0.0.0-dev]` emits eight npm tarballs in `.cache/release/tarballs/`. The engine alone installs with `npm install @blastlauncher/engine`; extension dependencies must be installed through `dependencies.install()` or `blast deps`.
-Add `@blastlauncher/shared-deps` for the optional shared-library fallback (CLI and serve include it); `dependencies.check().unresolved` lists declared packages unavailable from a matching install or that fallback.
-Install all local tarballs together with `npm install .cache/release/tarballs/*.tgz`; published host imports use `@blastlauncher/engine`.
-`bun run release:smoke` checks the emitted JS on Node 24 (API, `blast-serve`, `blast`), reports sizes and removes smoke `node_modules`.
+Start the server (`@blastlauncher/serve@next`, bin `blast-serve`) and exchange
+newline-delimited JSON. Stdout carries protocol output only.
 
-## In-process (JS/TS)
-
-```ts
-import { createEngine } from "@blastlauncher/host";
-
-const engine = createEngine({ dataDir?: string, handlers?, installer?, dependencies?: "manual" | "auto" });
-const unregister = engine.register(handlers);              // optional, later wins
-const extension = engine.openExtension({ extensionDir: "..." });
-const manifest = await extension.manifest();               // validated commands et al
-const { session, close } = await extension.launch("index", {
-  argumentValues: { query: "a" },                          // optional
-  installDependencies: true,                              // optional per-launch install
-  launchContext,                                           // optional
-  handlers: { "clipboard.copy": (params) => "ok" },        // grants, optional
-});
-session.scenes((scene) => draw(scene));                    // replays the latest scene
-session.sendEvent(nodeId, handlerName, args);              // after an event
-await session.exited;                                      // { code, signal, error? }
-await extension.close();                                   // ends its sessions
-```
-
-`openExtension` also works standalone (`import { openExtension }`), with
-`manifest()`, `watch(listener)`, dependency check/install, preferences and
-`launch(command, options)` as on the engine handle. Unresolved dependencies
-reject with `DependenciesRequiredError` (`unresolved`, `installable`, `pinned`);
-pass `installDependencies: true` to install via the configured installer.
-`createEngine({ dependencies: "auto" })` makes that the default, while a launch
-can pass `false`. Missing launch values reject with `MissingLaunchValuesError`
-(`preferences` / `arguments` data); launch returns `{ session, close }`.
-
-To render, turn scenes into view models with `@blastlauncher/client-core` —
-`sceneToView`, search, selection/event helpers, action rows, shortcuts, grid,
-dropdown, pagination and form fields — then handle pagination and `pop` requests.
-
-OS integration is opt-in: pass handlers yourself, or start from the optional
-`createNativeHandlers()` of `@blastlauncher/native` (clipboard, open, file
-manager, trash; more in decision 0010). `blast run`/`blast serve` merge the
-same way — `blast serve --native` plus any embedder-declared grants.
-
-## Out-of-process (`blast serve`)
-
-Decisions 0009/0011, types in `@blastlauncher/protocol`:
-
-```
-$ node packages/serve/src/main.ts [--native] [--dependencies manual|auto]      # or `bun run blast:serve`
-→ NDJSON on stdout, stdin lines in; stdout carries protocol output only.
-```
-
-Handshake, then a transcript:
-
-```
+```text
 ← {"type":"hello","protocol":1,"capabilities":["clipboard.copy"]}
-→ {"type":"welcome","protocol":1,"engine":{"version":"0.0.0"},
-   "catalog":{ ...CAPABILITIES, one entry per capability... }}
+→ {"type":"welcome","protocol":1,"engine":{"version":"0.0.0"},"catalog":{...}}
 ← {"type":"request","id":"1","method":"extension.open","params":{"dir":"./myext"}}
-→ {"type":"event","event":"manifest.changed","extension":"1","manifest":{...}}    (may precede)
 → {"type":"response","id":"1","ok":true,"result":{"extension":"1"}}
-← {"type":"request","id":"2","method":"extension.launch",
-   "params":{"extension":"1","command":"index"}}
-→ {"type":"event","event":"session.scene","session":"2","scene":{...whole scene message...}}
+← {"type":"request","id":"2","method":"extension.launch","params":{"extension":"1","command":"index","views":{"platform":"macOS"}}}
+→ {"type":"event","event":"session.view","session":"2","view":{...}}
+← {"type":"request","id":"3","method":"session.input","params":{"session":"2","input":{"type":"search","text":"apple"}}}
+→ {"type":"event","event":"session.view","session":"2","view":{...}}
+```
+
+The Go [reference embedder](../examples/go-embedder/) draws `search`, `rows`,
+`selectedId`, `actions` and `feedback.toast`, then forwards input. Responses
+may be out of order and events may precede their response. IDs are unique while
+outstanding; opaque extension and session keys must be awaited. `engine.shutdown`
+finishes pending work and exits 0. EOF does the same. Malformed lines recover at
+the next newline; protocol mismatch exits 2. Lines are capped at 8 MiB.
+
+Capability forwarding uses `capability.request {id,session,name,params}` and an
+answering `capability.result` (`ok:true,value` or `ok:false,error`); progress
+uses `capability.progress`, cancellation uses `capability.cancel`. Unregistered
+or ungranted capabilities are denied. See the [schema](../packages/protocol/schema/embedder-v1.schema.json).
+
+## Scenes without views
+
+Omit `views` from `extension.launch` to receive the raw scene stream instead:
+
+```text
+→ {"type":"event","event":"session.scene","session":"2","scene":{...}}
 → {"type":"event","event":"session.log","session":"2","log":{...}}
 → {"type":"event","event":"session.exited","session":"2","code":0}
-→ {"type":"response","id":"2","ok":true,"result":{"session":"2"}}
-← {"type":"request","id":"3","method":"session.event",
-   "params":{"session":"2","node":"5","handler":"onAction","args":[[...]]}}
+← {"type":"request","id":"4","method":"session.event","params":{"session":"2","node":"5","handler":"onAction","args":[]}}
 ```
 
-Rules: unique `id`s while outstanding; responses may return out of order;
-await `extension.open`/`extension.launch` before using their opaque keys;
-void results are `null`; events can precede their response (including
-manifest change and dependency-install logs). Malformed lines get
-`{"type":"error","error":{"code":…,"message":…}}` and the stream recovers at the next
-newline; a version mismatch ends the process with exit code 2. `engine.shutdown`
-finishes pending operations, cancels forwarded work and exits 0; EOF does the
-same. Line cap: 8 MiB.
+Scenes are replayed to new listeners and contain no private capability values.
+Use `session.event` to route a scene node event; use `session.input` only when
+views are enabled.
 
-`extension.launch` accepts optional `installDependencies`; `--dependencies auto`
-on the serve process makes it the default. A rejected launch can use
-`missing_dependencies` with `{unresolved,installable,pinned}` data to prompt for
-an explicit retry.
+## In-process JS/TS
 
-Capability forwarding: every grant you declared comes back as
-`capability.request {id,session,name,params}`; answer with
-`capability.result` (`ok:true,value` / `ok:false,error`) and stream
-`capability.progress` as needed. Runtime abort sends `capability.cancel`; late
-answers are ignored. Storage, OAuth tokens and own-provider AI are answered by
-the engine itself and cannot be shadowed by embedder handlers (decision 0010).
+The published package is `@blastlauncher/engine` (source workspace package:
+`@blastlauncher/host`). It runs on Node 24, Bun or Electron:
 
-### Views
-
-Opt into client-core view models — the server owns ranking, selection, actions, shortcuts, pagination and timers; draw `view` and forward semantic inputs:
-
-```json
-{"type":"request","id":"4","method":"extension.launch","params":{"extension":"1","command":"index","views":{"platform":"macOS"}}}
-{"type":"event","event":"session.view","session":"3","view":{"kind":"list","rows":["..."],"...":"..."}}
-{"type":"request","id":"5","method":"session.input","params":{"session":"3","input":{"type":"search","text":"apple"}}}
+```ts
+import { createEngine } from "@blastlauncher/engine";
+const engine = createEngine({
+  dataDir: "./data",
+  handlers: {
+    "clipboard.copy": (params) => myClipboard(params),
+  },
+});
+const extension = engine.openExtension({ extensionDir: "./myext" });
+const { session, close } = await extension.launch("index", {
+  installDependencies: true,
+});
+session.scenes((scene) => draw(scene));
+session.sendEvent(nodeId, "onAction", args);
+await session.exited;
+await close();
 ```
 
-`ControllerView` (`packages/client-core/src/controller.ts`) is deduplicated by JSON; scenes still flow without `views`, and `back` at the root closes the session. The Go example reads `search.text`/`placeholder`, list `rows` (including `id`, `title`, `subtitle`, `selected`, and `text`) plus `selectedId`, `actions.open`/`query`/`rows` (action rows include `title` and `selected`), and `feedback.toast` (`style`, `title`, `message`, and `actions`).
+For Raycast client behaviour, pass each scene through
+`createController({ platform: "macOS" })`, subscribe to its `ControllerView`,
+and apply returned events and effects. `openExtension` also exposes
+`manifest()`, dependency checks/installation and preferences. Missing launch
+values and unresolved dependencies are typed errors; retry with the requested
+values or `installDependencies: true`.
 
-## Capability catalog
+## Capability contract
 
-`packages/protocol/src/capabilities.ts` (`CAPABILITIES`) is the catalog: wire
-name → `{ scope, summary, params, result, api }`. `params`/`result` are a
-small JSON-Schema subset; `scope: "session"` capabilities are answered by the
-engine, `scope: "grant"` ones go to the embedder (or native). The `welcome`
-catalog carries this same structure.
+`packages/protocol/src/capabilities.ts` is the catalog: each name declares its
+scope, summary, JSON-schema-like `params` and `result`, and triggering API
+symbols. Grant handlers receive `(params, context)`, may be async, can report
+`context.progress(value)`, and should honor `context.signal`. Start from
+`createNativeHandlers()` in `@blastlauncher/native` for optional clipboard,
+open, file-manager and trash handlers; otherwise register only your own grants.
 
-To implement a capability, return a handler whose `params` (input) and value
-(output) match its shapes: `(params, context) => value` — async or streaming
-via `context.progress(value)`, cancellable via `context.signal`. Unregistered
-grants are denied. The per-API mapping (`api`) tells you which `@raycast/api`
-symbols trigger the request; `docs/capabilities.md` details the semantics.
-
-## Schema and versioning
-
-`bun run protocol:schema` (re)writes
-`packages/protocol/schema/embedder-v1.schema.json` (draft 2020-12) from the
-single source `packages/protocol/src/embedder-schema.ts`: `$defs` for every
-embedder/server message, per-method `request.*`/`result.*` envelopes, every
-event, scene/log shapes, and `capabilities.*` entries with catalog shapes.
-`bun run protocol:check` fails when the file is stale; `bun run verify` runs
-it as its `protocol` step — regenerate before committing instead of editing
-the file: the checked-in copy must always match the source.
-
-Version pinning follows decision 0009 point 5: the file and the `title` pin
-protocol version 1; the integer `protocol` field on `hello`/`welcome` is the
-negotiation pin (the `serve` process rejects other versions with exit 2), so
-additive changes stay version 1 while breaking ones become `embedder-v2` at a
-new `EMBEDDER_PROTOCOL_VERSION`.
+The protocol is version 1. Additive changes stay on version 1; breaking changes
+use a new schema and negotiation version. `bun run protocol:check` verifies the
+checked-in schema.
