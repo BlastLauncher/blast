@@ -48,7 +48,7 @@ client and doc shows the smaller API.
 - [x] 0163 Browser demo on `@blastlauncher/web`
 - [x] 0164 `@blastlauncher/web` ships its sandbox and runtime assets
 - [x] 0165 macOS and web-launcher examples on the engine flows
-- [ ] 0166 Docs, README and landing page show the final API
+- [x] 0166 Docs, README and landing page show the final API
 - [x] 0167 Site e2e without GitHub API quota
 - [ ] 0168 Engine prompt and root view gaps found by the TUI migration
 
