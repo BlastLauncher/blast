@@ -1,11 +1,13 @@
-// Command go-embedder shows a non-JS app embedding Blast: it spawns
-// `blast serve`, speaks embedder protocol v1 over NDJSON stdio
-// (docs/embedding.md), draws the session.view model, forwards semantic input,
-// and answers `clipboard.copy` by printing the copied text.
+// Command go-embedder shows a non-JS app embedding Blast on the engine-owned
+// flow: it spawns `blast serve`, speaks embedder protocol v1 over NDJSON
+// stdio (docs/embedding.md), opens the extension directories given on the
+// command line, draws the engine's root search views, maps terminal keys to
+// `root.input`/`session.input`, and answers `clipboard.copy` by printing the
+// copied text.
 //
 // Usage from this directory:
 //
-//	go run . [-serve ../../packages/serve/src/main.ts] <extensionDir> <command>
+//	go run . [-serve ../../packages/serve/src/main.ts] <extensionDir>...
 //
 // The Go standard library only; the message structs below are hand-written
 // against packages/protocol/schema/embedder-v1.schema.json.
@@ -33,7 +35,6 @@ const (
 	protocolVersion = 1
 	maxLineBytes    = 8 << 20
 	handshakeWait   = 30 * time.Second
-	viewWait        = 30 * time.Second
 	shutdownWait    = 10 * time.Second
 )
 
@@ -41,7 +42,7 @@ type helloMessage struct {
 	Type         string   `json:"type"`
 	Protocol     int      `json:"protocol"`
 	Capabilities []string `json:"capabilities"`
-	// Views turns on view models for every launch; launches then need no options.
+	// Views turns on view models for every launch; root launches need no options.
 	Views viewsOptions `json:"views"`
 }
 
@@ -67,9 +68,9 @@ type viewsOptions struct {
 	Platform string `json:"platform"`
 }
 
-type launchParams struct {
-	Extension string `json:"extension"`
-	Command   string `json:"command"`
+type rootInputParams struct {
+	Root  string          `json:"root"`
+	Input controllerInput `json:"input"`
 }
 
 type sessionInputParams struct {
@@ -78,17 +79,21 @@ type sessionInputParams struct {
 }
 
 type controllerInput struct {
-	Type      string `json:"type"`
-	Direction string `json:"direction,omitempty"`
-	Text      string `json:"text,omitempty"`
+	Type string `json:"type"`
+	// Text is a pointer so a cleared search still sends the required
+	// `"text":""`; every other input omits it.
+	Text      *string `json:"text,omitempty"`
+	Direction string  `json:"direction,omitempty"`
+	ID        string  `json:"id,omitempty"`
+	Value     string  `json:"value,omitempty"`
 }
 
 type openResult struct {
 	Extension string `json:"extension"`
 }
 
-type launchResult struct {
-	Session string `json:"session"`
+type rootResult struct {
+	Root string `json:"root"`
 }
 
 type engineInfo struct {
@@ -105,21 +110,23 @@ type welcomeMessage struct {
 // These are the ControllerView fields this example draws. Unknown fields are
 // deliberately ignored so the wire can grow without requiring a Go release.
 type searchView struct {
-	Text        string `json:"text"`
-	Placeholder string `json:"placeholder"`
+	Text string `json:"text"`
 }
 
 type rowView struct {
 	ID       string `json:"id"`
 	Kind     string `json:"kind"`
 	Title    string `json:"title"`
-	Subtitle string `json:"subtitle"`
 	Selected bool   `json:"selected"`
 }
 
-type primaryView struct {
-	Title   string `json:"title"`
-	Enabled bool   `json:"enabled"`
+type fieldView struct {
+	ID    string `json:"id"`
+	Error string `json:"error"`
+}
+
+type formView struct {
+	Fields []fieldView `json:"fields"`
 }
 
 type actionRowView struct {
@@ -134,7 +141,6 @@ type actionsView struct {
 }
 
 type toastView struct {
-	Style   string `json:"style"`
 	Title   string `json:"title"`
 	Message string `json:"message"`
 }
@@ -146,11 +152,9 @@ type feedbackView struct {
 type controllerView struct {
 	Kind     string       `json:"kind"`
 	Title    string       `json:"title"`
-	Loading  bool         `json:"loading"`
 	Search   searchView   `json:"search"`
 	Rows     []rowView    `json:"rows"`
-	Selected string       `json:"selectedId"`
-	Primary  primaryView  `json:"primary"`
+	Form     formView     `json:"form"`
 	Actions  actionsView  `json:"actions"`
 	Feedback feedbackView `json:"feedback"`
 }
@@ -171,6 +175,7 @@ type responseMessage struct {
 type eventMessage struct {
 	Type    string          `json:"type"`
 	Event   string          `json:"event"`
+	Root    string          `json:"root,omitempty"`
 	Session string          `json:"session,omitempty"`
 	View    *controllerView `json:"view,omitempty"`
 	Error   *embedderError  `json:"error,omitempty"`
@@ -229,12 +234,6 @@ func (m *serverMessage) UnmarshalJSON(data []byte) error {
 	}
 }
 
-type ExitStatus struct {
-	Session string
-	Code    int
-	Error   string
-}
-
 type Client struct {
 	cmd   *exec.Cmd
 	stdin io.WriteCloser
@@ -243,24 +242,17 @@ type Client struct {
 
 	stdinOnce sync.Once
 
-	mu       sync.Mutex
-	seq      int
-	pending  map[string]chan *responseMessage
-	welcome  *welcomeMessage
-	view     *controllerView
-	viewSeq  int
-	viewWait []viewWaiter
+	mu        sync.Mutex
+	seq       int
+	pending   map[string]chan *responseMessage
+	welcome   *welcomeMessage
+	rootID    string
+	sessionID string // set by root.launched; keys go to root.input until then
+	events    []*eventMessage
 
 	welcomed chan *welcomeMessage
-	exited   chan ExitStatus
 	done     chan struct{}
-
-	sessionID string
-}
-
-type viewWaiter struct {
-	after int
-	views chan *controllerView
+	exitErr  error
 }
 
 func Start(servePath string, out io.Writer) (*Client, error) {
@@ -279,12 +271,15 @@ func Start(servePath string, out io.Writer) (*Client, error) {
 	}
 	c := &Client{
 		cmd: cmd, stdin: stdin, out: out, pending: map[string]chan *responseMessage{},
-		welcomed: make(chan *welcomeMessage, 1), exited: make(chan ExitStatus, 1), done: make(chan struct{}),
+		welcomed: make(chan *welcomeMessage, 1), done: make(chan struct{}),
 	}
 	go func() {
-		defer close(c.done)
 		c.read(stdout)
-		_ = cmd.Wait()
+		err := cmd.Wait()
+		c.mu.Lock()
+		c.exitErr = err
+		c.mu.Unlock()
+		close(c.done)
 	}()
 	if err := c.send(helloMessage{Type: "hello", Protocol: protocolVersion, Capabilities: []string{"clipboard.copy"}, Views: viewsOptions{Platform: "Linux"}}); err != nil {
 		_ = cmd.Process.Kill()
@@ -307,22 +302,15 @@ func (c *Client) Welcome() *welcomeMessage {
 	return c.welcome
 }
 
-func (c *Client) Exited() <-chan ExitStatus { return c.exited }
-
-func (c *Client) Launch(extension, command string) (string, error) {
-	raw, err := c.request("extension.launch", launchParams{
-		Extension: extension,
-		Command:   command,
-	})
-	if err != nil {
-		return "", err
+// ExitStatus waits for the server process and returns its exit code.
+func (c *Client) ExitStatus() (int, error) {
+	<-c.done
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if c.exitErr == nil {
+		return 0, nil
 	}
-	var result launchResult
-	if err := json.Unmarshal(raw, &result); err != nil {
-		return "", err
-	}
-	c.sessionID = result.Session
-	return result.Session, nil
+	return c.cmd.ProcessState.ExitCode(), c.exitErr
 }
 
 func (c *Client) Open(dir string) (string, error) {
@@ -337,46 +325,32 @@ func (c *Client) Open(dir string) (string, error) {
 	return result.Extension, nil
 }
 
-func (c *Client) Input(input controllerInput) error {
-	if c.sessionID == "" {
-		return errors.New("no session launched")
+func (c *Client) OpenRoot() (string, error) {
+	// views fall back to the hello's, so root.open needs no params.
+	raw, err := c.request("root.open", struct{}{})
+	if err != nil {
+		return "", err
 	}
-	_, err := c.request("session.input", sessionInputParams{Session: c.sessionID, Input: input})
-	return err
-}
-
-func (c *Client) LatestView() (*controllerView, int) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	return c.view, c.viewSeq
-}
-
-func (c *Client) WaitView(after int, timeout time.Duration) (*controllerView, error) {
-	c.mu.Lock()
-	if c.view != nil && c.viewSeq > after {
-		view := c.view
-		c.mu.Unlock()
-		return view, nil
+	var result rootResult
+	if err := json.Unmarshal(raw, &result); err != nil {
+		return "", err
 	}
-	waiter := viewWaiter{after: after, views: make(chan *controllerView, 1)}
-	c.viewWait = append(c.viewWait, waiter)
+	c.mu.Lock()
+	c.rootID = result.Root
 	c.mu.Unlock()
-	select {
-	case view := <-waiter.views:
-		return view, nil
-	case <-c.done:
-		return nil, errors.New("server closed while waiting for a view")
-	case <-time.After(timeout):
-		c.mu.Lock()
-		for index, registered := range c.viewWait {
-			if registered.after == waiter.after && registered.views == waiter.views {
-				c.viewWait = append(c.viewWait[:index], c.viewWait[index+1:]...)
-				break
-			}
-		}
-		c.mu.Unlock()
-		return nil, fmt.Errorf("no view newer than sequence %d within %s", after, timeout)
+	return result.Root, nil
+}
+
+func (c *Client) Input(input controllerInput) error {
+	c.mu.Lock()
+	root, session := c.rootID, c.sessionID
+	c.mu.Unlock()
+	if session != "" {
+		_, err := c.request("session.input", sessionInputParams{Session: session, Input: input})
+		return err
 	}
+	_, err := c.request("root.input", rootInputParams{Root: root, Input: input})
+	return err
 }
 
 func (c *Client) Close() error {
@@ -474,41 +448,29 @@ func (c *Client) handle(message *serverMessage) {
 		c.answerCapability(message.capRequest)
 	case message.err != nil:
 		c.printf("# server error %s: %s\n", message.err.Error.Code, message.err.Error.Message)
+		// A rejected line never gets a response; fail every pending request.
+		c.mu.Lock()
+		for id, replies := range c.pending {
+			replies <- &responseMessage{Type: "response", ID: id, OK: false, Error: &message.err.Error}
+		}
+		c.pending = map[string]chan *responseMessage{}
+		c.mu.Unlock()
 	}
 }
 
 func (c *Client) handleEvent(event *eventMessage) {
+	c.mu.Lock()
+	c.events = append(c.events, event)
 	switch event.Event {
-	case "session.view":
-		if event.View == nil {
-			return
-		}
-		c.printView(event.View)
-		c.mu.Lock()
-		c.view = event.View
-		c.viewSeq++
-		seq := c.viewSeq
-		kept := c.viewWait[:0]
-		for _, waiter := range c.viewWait {
-			if seq > waiter.after {
-				waiter.views <- event.View
-			} else {
-				kept = append(kept, waiter)
-			}
-		}
-		c.viewWait = kept
-		c.mu.Unlock()
+	case "root.launched":
+		c.sessionID = event.Session
 	case "session.exited":
-		status := ExitStatus{Session: event.Session}
-		if event.Code != nil {
-			status.Code = *event.Code
-		}
-		if event.Error != nil {
-			status.Error = event.Error.Message
-		}
-		select {
-		case c.exited <- status:
-		default:
+		c.sessionID = ""
+	}
+	c.mu.Unlock()
+	if event.Event == "root.view" || event.Event == "session.view" {
+		if event.View != nil {
+			c.printView(event.View)
 		}
 	}
 }
@@ -518,8 +480,17 @@ func (c *Client) printView(view *controllerView) {
 	if view.Title != "" {
 		fmt.Fprintf(&output, "view %q\n", view.Title)
 	}
-	if view.Search.Text != "" || view.Search.Placeholder != "" {
+	if view.Search.Text != "" {
 		fmt.Fprintf(&output, "search %q\n", view.Search.Text)
+	}
+	if view.Kind == "form" {
+		for _, field := range view.Form.Fields {
+			state := ""
+			if field.Error != "" {
+				state = ` error "` + field.Error + `"`
+			}
+			fmt.Fprintf(&output, "  field %q%s\n", field.ID, state)
+		}
 	}
 	for _, row := range view.Rows {
 		marker := "  "
@@ -592,7 +563,7 @@ func terminalInput(reader *bufio.Reader, search *string) (controllerInput, bool,
 			return controllerInput{}, false, nil
 		}
 		*search = (*search)[:len(*search)-1]
-		return controllerInput{Type: "search", Text: *search}, true, nil
+		return controllerInput{Type: "search", Text: textPointer(*search)}, true, nil
 	case 0x1b:
 		next, readErr := reader.ReadByte()
 		if readErr != nil {
@@ -616,24 +587,26 @@ func terminalInput(reader *bufio.Reader, search *string) (controllerInput, bool,
 			return controllerInput{}, false, nil
 		}
 		*search += string(b)
-		return controllerInput{Type: "search", Text: *search}, true, nil
+		return controllerInput{Type: "search", Text: textPointer(*search)}, true, nil
 	}
 }
+
+func textPointer(value string) *string { return &value }
 
 func main() {
 	serve := flag.String("serve", defaultServePath, "path to the `serve` entry, spawned with node")
 	flag.Parse()
-	if flag.NArg() != 2 {
-		fmt.Fprintln(os.Stderr, "usage: go run . [-serve <main.ts>] <extensionDir> <command>")
+	if flag.NArg() < 1 {
+		fmt.Fprintln(os.Stderr, "usage: go run . [-serve <main.ts>] <extensionDir>...")
 		os.Exit(2)
 	}
-	if err := run(*serve, flag.Arg(0), flag.Arg(1)); err != nil {
+	if err := run(*serve, flag.Args()); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
 
-func run(servePath, extensionDir, command string) error {
+func run(servePath string, dirs []string) error {
 	client, err := Start(servePath, os.Stdout)
 	if err != nil {
 		return err
@@ -641,52 +614,30 @@ func run(servePath, extensionDir, command string) error {
 	defer client.Close()
 
 	welcome := client.Welcome()
-	fmt.Printf("connected: engine %s, protocol v%d, %d capabilities in the catalog\n",
+	client.printf("connected: engine %s, protocol v%d, %d capabilities in the catalog\n",
 		welcome.Engine.Version, welcome.Protocol, len(welcome.Catalog))
-	extension, err := client.Open(extensionDir)
-	if err != nil {
-		return err
-	}
-	if _, err := client.Launch(extension, command); err != nil {
-		return err
-	}
-	view, _ := client.LatestView()
-	if view == nil {
-		if _, err := client.WaitView(-1, viewWait); err != nil {
+	for _, dir := range dirs {
+		if _, err := client.Open(dir); err != nil {
 			return err
 		}
 	}
-	search := ""
-	if view, _ := client.LatestView(); view != nil {
-		search = view.Search.Text
+	if _, err := client.OpenRoot(); err != nil {
+		return err
 	}
 
+	// Keys go to the root until root.launched, then to the session, and back
+	// to the root after session.exited; stdin EOF shuts the server down.
 	input := bufio.NewReader(os.Stdin)
-	inputDone := make(chan struct{})
-	go func() {
-		defer close(inputDone)
-		for {
-			action, send, readErr := terminalInput(input, &search)
-			if readErr != nil {
-				return
-			}
-			if send {
-				if err := client.Input(action); err != nil {
-					fmt.Fprintln(os.Stderr, err)
-					return
-				}
+	search := ""
+	for {
+		action, send, readErr := terminalInput(input, &search)
+		if readErr != nil {
+			return nil
+		}
+		if send {
+			if err := client.Input(action); err != nil {
+				return err
 			}
 		}
-	}()
-
-	select {
-	case status := <-client.Exited():
-		fmt.Printf("session exited: code %d %s\n", status.Code, status.Error)
-		if status.Code != 0 || status.Error != "" {
-			return errors.New("session did not exit cleanly")
-		}
-		return client.Close()
-	case <-inputDone:
-		return client.Close()
 	}
 }
