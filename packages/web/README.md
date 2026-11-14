@@ -5,12 +5,8 @@ second origin you host, so it cannot reach your page's DOM, cookies or data.
 
 ## Quickstart
 
-The package is not on npm until the next prerelease. Build it from source
-(`bun run release:build` in a checkout) and install its tarball with the
-`client-core` and `protocol` ones it depends on:
-
 ```sh
-npm install ../blast/.cache/release/tarballs/blastlauncher-{web,client-core,protocol}-*.tgz
+npm install @blastlauncher/web@next
 ```
 
 Serve two directories from the package as static files, unchanged:
@@ -83,4 +79,5 @@ Browser-only (decision 0015): the package never imports the Node engine, and
 `packages/web/build/assets.ts` builds `assets/` and `sandbox/` for
 `release:build`, the browser demo and the examples. After `release:build`,
 `bun run release:web:e2e` installs the tarball and runs the quickstart page
-against two loopback origins.
+against two loopback origins; `bun run release:web:e2e --from-npm <version>`
+does the same with a published version.
