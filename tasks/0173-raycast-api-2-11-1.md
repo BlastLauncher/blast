@@ -1,7 +1,7 @@
 ---
 id: "0173"
 title: Upgrade the coverage denominator to @raycast/api 2.11.1
-status: todo
+status: doing
 milestone: M10
 depends: []
 ---
