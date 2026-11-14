@@ -94,7 +94,26 @@ try {
     await rooted.locator("#app li[data-id]:has-text('index')").waitFor({ timeout: 120_000 });
     await rooted.keyboard.press("Enter");
     await rooted.locator("#app li[data-id]:has-text('cherry')").waitFor({ timeout: 120_000 });
-    console.log(JSON.stringify({ pass: true, rows: 3, copied, root: true }));
+
+    // Files the command reads at load time are in the sandbox's own file system.
+    const assetPage = await browser.newPage();
+    assetPage.on("pageerror", (error) => console.error(`[pageerror] ${error.message}`));
+    assetPage.on("console", (message) => {
+      if (message.type() === "error") console.error(`[console] ${message.text()}`);
+    });
+    await assetPage.goto(`${url}&extension=raycast/extensions/browser-assets`, {
+      waitUntil: "load",
+    });
+    await assetPage
+      .locator("#app li[data-id]:has-text('manifest')")
+      .waitFor({ timeout: 120_000 })
+      .catch(async (error: unknown) => {
+        throw new Error(`${error} app=${await assetPage.locator("#app").innerText()}`);
+      });
+    const assetText = await assetPage.locator("#app").innerText();
+    for (const row of ["nested asset", "bytes 0,127,128,255", "manifest browser-assets"])
+      if (!assetText.includes(row)) throw new Error(`asset row ${row} missing: ${assetText}`);
+    console.log(JSON.stringify({ pass: true, rows: 3, copied, root: true, assets: true }));
   } finally {
     await browser.close();
   }

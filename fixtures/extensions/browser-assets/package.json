@@ -1,0 +1,10 @@
+{
+  "name": "browser-assets",
+  "commands": [
+    {
+      "name": "index",
+      "title": "Browser Assets",
+      "mode": "view"
+    }
+  ]
+}

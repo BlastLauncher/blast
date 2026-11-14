@@ -39,6 +39,38 @@ export const assetUrl = (options: Pick<SandboxOptions, "assetsUrl">, path: strin
 const keyOf = (options: SandboxOptions) =>
   [options.sandboxUrl, assetUrl(options, "./"), options.bundlesUrl, options.buildUrl].join("\n");
 
+const base64 = (value: string | Uint8Array) => {
+  const bytes = typeof value === "string" ? new TextEncoder().encode(value) : value;
+  let binary = "";
+  for (let start = 0; start < bytes.length; start += 0x8000)
+    binary += String.fromCharCode(...bytes.subarray(start, start + 0x8000));
+  return btoa(binary);
+};
+
+/**
+ * Writes files into the sandbox's own file system before a command runs.
+ * Writes to `getVFS()` never reach it (the sandbox page keeps its own
+ * VirtualFS, and almostnode's sync would decode binary files as text), and a
+ * message posted to the frame right after `createRuntime` can still land on
+ * its initial `about:blank`. `execute` is the channel every command already
+ * runs through, so the files go as one script, base64 for exact bytes.
+ */
+export async function writeSandboxFiles(
+  runtime: Pick<SandboxRuntime, "execute">,
+  files: ReadonlyArray<readonly [string, string | Uint8Array]>,
+): Promise<void> {
+  const encoded = JSON.stringify(files.map(([path, value]) => [path, base64(value)]));
+  await runtime.execute(
+    `const fs = require("fs");
+for (const [path, data] of ${encoded}) {
+  fs.mkdirSync(path.slice(0, path.lastIndexOf("/")) || "/", { recursive: true });
+  fs.writeFileSync(path, Buffer.from(data, "base64"));
+}
+module.exports = null;`,
+    "/blast/write-files.cjs",
+  );
+}
+
 export function disposeSandbox(runtime: SandboxRuntime | undefined) {
   try {
     runtime?.terminate?.();

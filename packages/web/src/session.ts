@@ -25,7 +25,13 @@ import {
   type WebStatus,
   type WebView,
 } from "./default-renderer.ts";
-import { commandEntry, fetchExtensionFiles, manifestCommands } from "./extension-files.ts";
+import {
+  commandEntry,
+  extensionAssets,
+  fetchExtensionFiles,
+  manifestCommands,
+  sandboxFiles,
+} from "./extension-files.ts";
 import { createDefaultHandlers, type WebHandlers } from "./handlers.ts";
 import { createLaunchGeneration, withLaunchTimeout } from "./launch.ts";
 import {
@@ -37,7 +43,13 @@ import {
 } from "@blastlauncher/protocol/preference-fields";
 import { loadPrebuiltCommand } from "./prebuilt.ts";
 import { acceptsRuntimePortRequest } from "./runtime-port.ts";
-import { acquireSandbox, assetUrl, disposeSandbox, type SandboxRuntime } from "./sandbox.ts";
+import {
+  acquireSandbox,
+  assetUrl,
+  disposeSandbox,
+  writeSandboxFiles,
+  type SandboxRuntime,
+} from "./sandbox.ts";
 
 export type { WebHandlers, WebStatus, WebView };
 type PreferenceValues = Record<string, string | number | boolean>;
@@ -340,19 +352,20 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
           )
         : undefined;
       if (!current()) return;
-      let files: Map<string, BrowserBundleFile>;
+      /** The extension's files by `assetRelativePath`, for the sandbox. */
+      let assets: Array<[string, BrowserBundleFile]>;
       let declared: Declared;
       let entry: string;
       let code: string;
       if (built) {
-        files = built.files;
+        assets = [...built.files].map(([path, value]) => [path.replace(/^\//u, ""), value]);
         declared = fromCatalog(built.manifest, commandName);
         entry = `/src/${commandName}.tsx`;
         code = built.code;
       } else {
         const extension = await fetchExtension();
         if (!current()) return;
-        files = extension.files;
+        assets = extensionAssets(extension.files);
         declared = fromManifest(extension.manifest, commandName, source);
         entry = commandEntry(extension.files, commandName);
         setStatus("Installing…", false, true);
@@ -418,27 +431,8 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
       const pathSegment = extensionName.replace(/[^A-Za-z0-9._-]/gu, "_") || "extension";
       const supportPath = `/blast/support/${pathSegment}`;
       const assetsPath = `/blast/assets/${pathSegment}`;
-      const vfs = active.getVFS();
-      vfs.mkdirSync(supportPath, { recursive: true });
-      vfs.mkdirSync(assetsPath, { recursive: true });
-      // A marker syncs directories created after the sandbox was initialised.
-      vfs.writeFileSync(`${supportPath}/.keep`, "");
-      vfs.writeFileSync(`${assetsPath}/.keep`, "");
-      for (const [path, value] of files) {
-        if (path.includes("/node_modules/")) continue;
-        const relative = path.startsWith("/assets/")
-          ? path.slice("/assets/".length)
-          : path.startsWith("/src/")
-            ? /\.(?:cjs|css|html?|js|jsx|mjs|ts|tsx)$/iu.test(path)
-              ? undefined
-              : path.slice("/src/".length)
-            : path.replace(/^\//u, "");
-        if (!relative) continue;
-        const target = `${assetsPath}/${relative}`;
-        vfs.mkdirSync(target.slice(0, target.lastIndexOf("/")), { recursive: true });
-        vfs.writeFileSync(target, value);
-        if (path === "/package.json") vfs.writeFileSync("/blast/assets/package.json", value);
-      }
+      await writeSandboxFiles(active, sandboxFiles(assets, assetsPath, supportPath));
+      if (!current()) return;
 
       const context: CapabilityContext = { extensionName, commandName, source };
       const capabilities = createBrowserCapabilities({

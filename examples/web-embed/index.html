@@ -15,7 +15,7 @@
   import { mount } from "./blast-web.js";
   const query = new URLSearchParams(location.search);
   mount(document.querySelector("#app"), {
-    extension: "raycast/extensions/hello-list",
+    extension: query.get("extension") ?? "raycast/extensions/hello-list",
     // The self-hosted sandbox origin (decision 0015); blast.yukai.dev's is for demos.
     sandboxUrl: query.get("sandbox") ?? "https://blast.yukai.dev/blast-sandbox/",
     assetsUrl: "./assets/",

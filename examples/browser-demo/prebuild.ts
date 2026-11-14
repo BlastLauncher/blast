@@ -5,6 +5,7 @@ import * as esbuild from "esbuild";
 import { bundleForBrowser } from "../../packages/web/src/browser-bundle.ts";
 import { installForBrowser, type BrowserFetch } from "../../packages/web/src/browser-install.ts";
 import { aliases, sharedModules } from "../../packages/web/src/bundle-config.ts";
+import { assetRelativePath } from "../../packages/web/src/extension-files.ts";
 import {
   bundleKey,
   type BundleIndex,
@@ -241,14 +242,7 @@ globalThis.__blastModules = { react, "react/jsx-runtime": jsxRuntime, "react/jsx
           await writeFile(join(output, relativePath), bytes);
           const assetEntries: Record<string, { path: string; bytes: number; sha256: string }> = {};
           for (const [sourcePath, sourceValue] of files) {
-            if (sourcePath.includes("/node_modules/")) continue;
-            const assetPath = sourcePath.startsWith("/assets/")
-              ? sourcePath.slice("/assets/".length)
-              : sourcePath.startsWith("/src/")
-                ? /\.(?:cjs|css|html?|js|jsx|mjs|ts|tsx)$/iu.test(sourcePath)
-                  ? undefined
-                  : sourcePath.slice("/src/".length)
-                : sourcePath.replace(/^\//u, "");
+            const assetPath = assetRelativePath(sourcePath);
             if (!assetPath) continue;
             const relativeAssetPath = `bundles/${extension.name}/files/${assetPath}`;
             const assetBytes = Buffer.from(sourceValue);
