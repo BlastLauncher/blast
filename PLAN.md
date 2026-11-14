@@ -46,7 +46,7 @@ client and doc shows the smaller API.
 - [x] 0161 Deterministic TUI picker capability-handler test
 - [x] 0162 Real engine version in the serve welcome
 - [x] 0163 Browser demo on `@blastlauncher/web`
-- [ ] 0164 `@blastlauncher/web` ships its sandbox and runtime assets
+- [x] 0164 `@blastlauncher/web` ships its sandbox and runtime assets
 
 ## Later (not scheduled)
 
