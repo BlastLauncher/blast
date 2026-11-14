@@ -1,16 +1,16 @@
 # Browser catalog sweep
 
-Catalog commit `bad7de0172ce6ea5e721ed919f4e1d7186f74192`; date 2026-11-14; 237 command records; wall time 152.5 s.
+Catalog commit `bad7de0172ce6ea5e721ed919f4e1d7186f74192`; date 2026-11-14; 237 command records; wall time 154.9 s.
 
-Rendered / (catalog − browser-limit): 131 + 0 / (237 − 5)
+Rendered / (catalog − browser-limit): 130 + 0 / (237 − 5)
 
 ## Totals
 
 - browser-limit: 5 command(s)
-- completed: 4 command(s)
-- empty: 4 command(s)
+- completed: 3 command(s)
+- empty: 5 command(s)
 - missing-arguments: 1 command(s)
-- rendered: 131 command(s)
+- rendered: 130 command(s)
 - runtime-error:Applications are unavailable in a browser tab: 1 command(s)
 - runtime-error:Cannot find module 'sqlite': 1 command(s)
 - runtime-error:Cannot read properties of undefined (reading '$and'): 1 command(s)
@@ -21,7 +21,7 @@ Rendered / (catalog − browser-limit): 131 + 0 / (237 − 5)
 - runtime-error:Error during unlock process: Error: Not authenticated. Please run the 'Authenticate' command.: 1 command(s)
 - runtime-error:Error: The database does not exist: 1 command(s)
 - runtime-error:Failed to load configuration: Error: Configuration file not found. Please check your extension preferences. Path: blast-smoke: 1 command(s)
-- runtime-error:Failed to load resource: the server responded with a status of 401 (): 5 command(s)
+- runtime-error:Failed to load resource: the server responded with a status of 401 (): 6 command(s)
 - runtime-error:Failed to load resource: the server responded with a status of 401 (Unauthorized): 1 command(s)
 - runtime-error:Failed to load resource: the server responded with a status of 404 (): 7 command(s)
 - runtime-error:Failed to load resource: the server responded with a status of 404 (Not Found): 5 command(s)
@@ -42,9 +42,9 @@ Rendered / (catalog − browser-limit): 131 + 0 / (237 − 5)
 | --- | ---: | --- |
 | runtime-error:Rectangle is not installed. | 41 | `rectangle/almost-maximize`, `rectangle/bottom-center-sixth`, `rectangle/bottom-half`, `rectangle/bottom-left`, `rectangle/bottom-left-sixth` |
 | runtime-error:Failed to load resource: the server responded with a status of 404 () | 7 | `keygen/api-tokens`, `keygen/api-usage`, `keygen/environments`, `keygen/licenses`, `keygen/policies` |
+| runtime-error:Failed to load resource: the server responded with a status of 401 () | 6 | `hevy/search-routines`, `hevy/search-workouts`, `v0-by-vercel/manage-profiles`, `v0-by-vercel/new-chat`, `v0-by-vercel/view-billing` |
 | runtime-error:Selection is unavailable in a browser tab | 6 | `8-divide/divide-by-8`, `cangjie/cangjie`, `color-studio-picker/index`, `fix-helper/fix-parser`, `tategaki/japanese-vertical-text` |
 | browser-limit | 5 | `gradle-plugins/index`, `jisho/search`, `leetcode/daily-challenge`, `scrapbook/view-recent-posts`, `workflowy-inbox/view` |
-| runtime-error:Failed to load resource: the server responded with a status of 401 () | 5 | `hevy/search-routines`, `hevy/search-workouts`, `v0-by-vercel/new-chat`, `v0-by-vercel/view-billing`, `v0-by-vercel/view-projects` |
 | runtime-error:Failed to load resource: the server responded with a status of 404 (Not Found) | 5 | `bookstack/show-all-books`, `bookstack/show-all-shelves`, `keeper-security/generate-passphrase`, `keeper-security/generate-password-quick`, `keeper-security/my-vault` |
 | runtime-error:MenuCloak is not installed | 4 | `menucloak/open-settings`, `menucloak/toggle`, `menucloak/turn-off`, `menucloak/turn-on` |
 | runtime-error:Refused to set unsafe header "user-agent" | 4 | `humaans/holidays`, `humaans/people`, `splatoon/splatoon-2-schedules`, `splatoon/splatoon-3-schedules` |
