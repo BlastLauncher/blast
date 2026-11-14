@@ -95,23 +95,30 @@ try {
     await rooted.keyboard.press("Enter");
     await rooted.locator("#app li[data-id]:has-text('cherry')").waitFor({ timeout: 120_000 });
 
-    // Files the command reads at load time are in the sandbox's own file system.
+    // Files the command reads at load time are in the sandbox's own file system,
+    // and the mount's launch arguments reach the command's props.
     const assetPage = await browser.newPage();
     assetPage.on("pageerror", (error) => console.error(`[pageerror] ${error.message}`));
     assetPage.on("console", (message) => {
       if (message.type() === "error") console.error(`[console] ${message.text()}`);
     });
-    await assetPage.goto(`${url}&extension=raycast/extensions/browser-assets`, {
+    const label = encodeURIComponent(JSON.stringify({ label: "given" }));
+    await assetPage.goto(`${url}&extension=raycast/extensions/browser-assets&arguments=${label}`, {
       waitUntil: "load",
     });
     await assetPage
-      .locator("#app li[data-id]:has-text('manifest')")
+      .locator("#app li[data-id]:has-text('argument')")
       .waitFor({ timeout: 120_000 })
       .catch(async (error: unknown) => {
         throw new Error(`${error} app=${await assetPage.locator("#app").innerText()}`);
       });
     const assetText = await assetPage.locator("#app").innerText();
-    for (const row of ["nested asset", "bytes 0,127,128,255", "manifest browser-assets"])
+    for (const row of [
+      "nested asset",
+      "bytes 0,127,128,255",
+      "manifest browser-assets",
+      "argument given",
+    ])
       if (!assetText.includes(row)) throw new Error(`asset row ${row} missing: ${assetText}`);
     console.log(JSON.stringify({ pass: true, rows: 3, copied, root: true, assets: true }));
   } finally {

@@ -5,7 +5,9 @@ import {
   contentSelector,
   credentialFailure,
   formFieldSelector,
+  placeholderArguments,
   placeholderPreferences,
+  unsuppliedArguments,
   recordCapabilities,
   type CapabilityCall,
 } from "./browser-sweep.ts";
@@ -359,6 +361,29 @@ describe("placeholderPreferences", () => {
       ),
     ).toEqual({ limit: "5", token: "blast-smoke", unit: "celsius", verbose: false });
     expect(placeholderPreferences(undefined, "index")).toEqual({});
+  });
+});
+
+describe("placeholderArguments", () => {
+  test("required arguments get the corpus smoke placeholders", () => {
+    const manifest = {
+      arguments: {
+        "custom-rectangle": [
+          { name: "width", required: true, type: "text" },
+          { name: "unit", required: true, type: "dropdown", values: ["px", "em"] },
+          { name: "note", required: false, type: "text" },
+          { name: "mode", required: true, type: "dropdown" },
+        ],
+      },
+    };
+    expect(placeholderArguments(manifest, "custom-rectangle")).toEqual({
+      unit: "px",
+      width: "blast",
+    });
+    // A dropdown without options has no placeholder; it stays a missing argument.
+    expect(unsuppliedArguments(manifest, "custom-rectangle")).toEqual(["mode"]);
+    expect(placeholderArguments(undefined, "index")).toEqual({});
+    expect(unsuppliedArguments(manifest, "index")).toEqual([]);
   });
 });
 

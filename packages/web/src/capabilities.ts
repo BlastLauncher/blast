@@ -32,7 +32,8 @@ export type BrowserCapabilityOptions = {
   storage?: BrowserStorage;
   clipboard?: ClipboardBridge;
   openUrl?: (url: string) => void;
-  launchCommand?: (source: string, command: string) => Promise<void>;
+  /** `args` are the launched command's manifest argument values. */
+  launchCommand?: (source: string, command: string, args: Record<string, string>) => Promise<void>;
   status?: (message: string, error?: boolean) => void;
   openPreferences?: (scope: "extension" | "command", context: CapabilityContext) => void;
 };
@@ -304,7 +305,11 @@ export function createBrowserCapabilities(options: BrowserCapabilityOptions) {
       }
       if (!options.launchCommand)
         return denial("Command launching is unavailable in this browser session");
-      await options.launchCommand(context.source, command);
+      const args: Record<string, string> = {};
+      if (params.arguments && typeof params.arguments === "object")
+        for (const [name, value] of Object.entries(params.arguments))
+          if (typeof value === "string") args[name] = value;
+      await options.launchCommand(context.source, command, args);
       return { ok: true, value: null };
     }
     if (request.name === "oauth.authorize")

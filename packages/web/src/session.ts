@@ -73,6 +73,8 @@ export type WebMountOptions = {
   fixtures?: boolean;
   /** Show the extension's commands as the engine root view instead of running one. */
   root?: boolean;
+  /** Manifest argument values for `command` (`LaunchProps.arguments`). */
+  arguments?: Record<string, string>;
   /** Preference values, applied over the manifest defaults and saved values. */
   preferences?: PreferenceValues;
   /** Prebuilt bundle index (usually `/bundles.json`) used before fetching GitHub sources. */
@@ -207,7 +209,7 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
     }
     if (!root) return undefined;
     const result = root.input(value);
-    for (const effect of result.effects) if (effect.type === "launch") void run(effect.command);
+    for (const effect of result.effects) if (effect.type === "launch") void run(effect.command, {});
     return { events: [], effects: [] };
   };
   const renderer = options.render
@@ -336,7 +338,7 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
     return supplied;
   }
 
-  async function run(commandName: string) {
+  async function run(commandName: string, args: Record<string, string>) {
     // A command launched from the running one (`launchCommand`) replaces it.
     stopCommand();
     const generation = launches.current();
@@ -445,8 +447,8 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
         ...(handlers.clipboard ? { clipboard: handlers.clipboard } : {}),
         ...(handlers.openUrl ? { openUrl: handlers.openUrl } : {}),
         status: (text, error) => setStatus(text, error === true),
-        launchCommand: async (_source, command) => {
-          void run(command);
+        launchCommand: async (_source, command, launchArgs) => {
+          void run(command, launchArgs);
         },
         openPreferences: (scope) => {
           if (!options.preferenceForm) {
@@ -455,7 +457,7 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
           }
           // Saved preferences reach a command when it launches, so it runs again.
           void askPreferences(declared, commandName, scope, { ...values }).then((supplied) => {
-            if (supplied && current()) void run(commandName);
+            if (supplied && current()) void run(commandName, args);
           });
         },
       });
@@ -535,7 +537,13 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
       port.postMessage({
         type: "init",
         protocol: 1,
-        command: { extension: extensionName, name: commandName, entry, mode },
+        command: {
+          extension: extensionName,
+          name: commandName,
+          entry,
+          mode,
+          ...(Object.keys(args).length ? { arguments: { ...args } } : {}),
+        },
         preferences: { ...values },
         environment: {
           extensionName,
@@ -564,7 +572,7 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
       });
       if (!options.root) {
         const command = options.command ?? manifestCommands((await fetchExtension()).manifest)[0];
-        if (!closed) await run(command ?? "index");
+        if (!closed) await run(command ?? "index", { ...options.arguments });
         return;
       }
       const manifest = (await fetchExtension()).manifest;

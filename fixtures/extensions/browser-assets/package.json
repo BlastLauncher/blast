@@ -4,7 +4,15 @@
     {
       "name": "index",
       "title": "Browser Assets",
-      "mode": "view"
+      "mode": "view",
+      "arguments": [
+        {
+          "name": "label",
+          "type": "text",
+          "placeholder": "Label",
+          "required": false
+        }
+      ]
     }
   ]
 }

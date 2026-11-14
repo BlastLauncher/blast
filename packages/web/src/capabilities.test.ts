@@ -163,8 +163,10 @@ describe("browser capabilities", () => {
     const statuses: string[] = [];
     const handle = createBrowserCapabilities({
       catalog: catalog(),
-      launchCommand: async (source, command) => {
-        launches.push(`${source}:${command}`);
+      launchCommand: async (source, command, args) => {
+        launches.push(
+          `${source}:${command}${Object.keys(args).length ? JSON.stringify(args) : ""}`,
+        );
       },
       status: (value) => statuses.push(value),
     });
@@ -178,6 +180,15 @@ describe("browser capabilities", () => {
       ),
     ).toEqual({ ok: true, value: null });
     expect(launches).toEqual(["alpha:index"]);
+    // Launch arguments reach the launched command (hyrule's broadSearch → getEntry).
+    await handle(
+      {
+        name: "command.launch",
+        params: { name: "index", type: "userInitiated", arguments: { entryName: "Link", n: 2 } },
+      },
+      context,
+    );
+    expect(launches.splice(1)).toEqual(['alpha:index{"entryName":"Link"}']);
     // A background launch is acknowledged without replacing the caller's
     // foreground session; doing so lost the capability reply and left
     // one-thing/remove-one-thing waiting forever.

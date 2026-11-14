@@ -4,17 +4,18 @@ import { join } from "node:path";
 
 // What the sandbox must hold before a command runs: its assets (binary ones
 // byte for byte) and its package.json one level above the bundle, where
-// bundled dependencies look for it.
+// bundled dependencies look for it. Launch arguments reach the props.
 const nested = JSON.parse(readFileSync(join(environment.assetsPath, "nested/data.json"), "utf8"));
 const bytes = Array.from(readFileSync(join(environment.assetsPath, "bytes.bin"))).join(",");
 const manifest = JSON.parse(readFileSync(join(__dirname, "..", "package.json"), "utf8"));
 
-export default function Command() {
+export default function Command(props: { arguments: { label?: string } }) {
   return (
     <List>
       <List.Item id="json" title={nested.message} />
       <List.Item id="bytes" title={`bytes ${bytes}`} />
       <List.Item id="manifest" title={`manifest ${manifest.name}`} />
+      <List.Item id="argument" title={`argument ${props.arguments.label ?? "none"}`} />
     </List>
   );
 }

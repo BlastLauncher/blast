@@ -21,5 +21,7 @@
     assetsUrl: "./assets/",
     fixtures: query.has("fixtures"),
     root: query.has("root"),
+    // Manifest argument values for the command, as JSON.
+    ...(query.has("arguments") ? { arguments: JSON.parse(query.get("arguments")) } : {}),
   });
 </script>
