@@ -64,7 +64,7 @@ following `docs/quickstart.md`.
 ## Handoff
 
 ```
-Branch/commit: t3/product-story-docs @ 7426d2931a9ca8d399af5234f8fd22da3aca02ec
+Branch/commit: t3/product-story-docs @ efecdca8c6a125da44001d311db5acd5ebf52dc3
 Verify: PASS (format ok, lint ok, typecheck ok, compat ok, protocol ok, mac-fixtures ok, workflow ok, test ok); 1034 pass, 2 skipped.
 Done:
 - Reframed README around the engine product story and three embed paths; added receipts, package roles, status, development, and history.
