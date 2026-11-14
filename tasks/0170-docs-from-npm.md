@@ -1,7 +1,7 @@
 ---
 id: "0170"
 title: Docs and landing install from npm @next (alpha.2)
-status: todo
+status: doing
 milestone: M10
 depends: []
 ---
