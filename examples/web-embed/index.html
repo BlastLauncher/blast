@@ -1,0 +1,23 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Blast web embed</title>
+<style>
+  body {
+    font: 15px system-ui;
+    max-width: 32rem;
+    margin: 4rem auto;
+  }
+  #app {
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+  }
+</style>
+<div id="app"><p role="status">Loading extension…</p></div>
+<script type="module">
+  import { mount } from "../../packages/web/src/index.ts";
+  mount(document.querySelector("#app"), {
+    extension: "raycast/extensions/fixture",
+    sandboxUrl: "/sandbox/",
+  });
+</script>

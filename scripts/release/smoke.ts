@@ -10,7 +10,7 @@ const tarballs = (await readdir(join(output, "tarballs")))
   .filter((file) => file.endsWith(".tgz"))
   .toSorted();
 if (tarballs.length !== packages.length)
-  throw new Error("Run release:build first (expected 8 tarballs)");
+  throw new Error("Run release:build first (expected 9 tarballs)");
 await rm(smoke, { recursive: true, force: true });
 await mkdir(smoke, { recursive: true });
 try {
