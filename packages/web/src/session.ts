@@ -246,8 +246,9 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
   const prebuilt = async (commandName: string) => {
     const index = await loadBundleIndex();
     if (!index) return undefined;
-    const match = source.match(/\/tree\/[^/]+\/([^/?#]+)(?:[/?#]|$)/u);
-    const extension = match?.[1];
+    const pathParts = new URL(source).pathname.split("/").filter(Boolean);
+    const treeIndex = pathParts.indexOf("tree");
+    const extension = treeIndex >= 0 ? pathParts.at(-1) : undefined;
     const entry = extension ? index.bundles[bundleKey(extension, commandName)] : undefined;
     if (!entry) return undefined;
     const response = await fetch(new URL(entry.path, new URL(options.bundlesUrl!, location.href)));
