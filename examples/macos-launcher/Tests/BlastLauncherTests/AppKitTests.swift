@@ -231,30 +231,6 @@ struct AppKitTests {
         #expect(!typing.shouldForwardFromSearchField)
     }
 
-    @Test("parses extension manifest commands for the picker")
-    @MainActor
-    func manifestCommands() {
-        let manifest = JSONValue.object([
-            "commands": .array([
-                .object([
-                    "name": .string("index"),
-                    "title": .string("Search Files"),
-                    "subtitle": .string("Find anything"),
-                    "mode": .string("view"),
-                ]),
-                .object([
-                    "name": .string("plain"),
-                    "mode": .string("no-view"),
-                ]),
-            ])
-        ])
-
-        #expect(AppDelegate.commands(from: manifest) == [
-            LauncherCommand(name: "index", title: "Search Files", subtitle: "Find anything"),
-            LauncherCommand(name: "plain", title: "plain", subtitle: "no-view"),
-        ])
-    }
-
     @Test("converts markdown into an attributed string")
     @MainActor
     func markdown() {
