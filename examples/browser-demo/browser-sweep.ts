@@ -4,6 +4,7 @@ import { join, relative, sep } from "node:path";
 import { buildSite } from "./site.ts";
 import { depsReady, projectRoot } from "./build.ts";
 import { bundleKey, parseBundleIndex } from "../../packages/web/src/bundles.ts";
+import { browserBuiltinModules } from "../../packages/web/src/browser-bundle.ts";
 import { validateCatalog, type Catalog } from "./root.ts";
 import { launchInputs, type Manifest } from "../../scripts/corpus/smoke.ts";
 import { markdown, type Exclusion, type Report, type SweepResult } from "./sweep-report.ts";
@@ -118,22 +119,41 @@ export function browserLimitCapability(calls: readonly CapabilityCall[]): string
   return undefined;
 }
 
+const builtins = new Set(browserBuiltinModules.map((name) => name.replace(/^node:/u, "")));
 /**
- * `HTTP <status> <host>` for the first 401/403/404 a remote service answered;
- * the sweep's own servers are local and never count.
+ * `node:<name>` when a command failed to load a Node built-in the sandbox
+ * does not provide (almostnode has no `node:sqlite`): the module resolution
+ * error names it, and no tab can supply it.
+ */
+export function missingBuiltin(messages: readonly string[]): string | undefined {
+  for (const message of messages) {
+    const name = /Cannot find module '(?:node:)?([^']+)'/u.exec(message)?.[1];
+    if (name && builtins.has(name)) return `node:${name}`;
+  }
+  return undefined;
+}
+
+/**
+ * `HTTP <status> <host>` for the first 401/403/404 a remote service answered.
+ * The sweep's own servers are local and count only for a request built from
+ * the invented preference value (`launchInputs`'s "blast-smoke"): a
+ * placeholder base URL is relative, so it lands on the sandbox's server
+ * (bookstack's `blast-smoke/api/books`).
  */
 export function credentialFailure(
   responses: readonly { status: number; url: string }[],
 ): string | undefined {
   for (const response of responses) {
     if (![401, 403, 404].includes(response.status)) continue;
-    let host: string;
+    let url: URL;
     try {
-      host = new URL(response.url).hostname;
+      url = new URL(response.url);
     } catch {
       continue;
     }
-    if (host !== "127.0.0.1" && host !== "localhost") return `HTTP ${response.status} ${host}`;
+    if (url.hostname !== "127.0.0.1" && url.hostname !== "localhost")
+      return `HTTP ${response.status} ${url.hostname}`;
+    if (url.pathname.includes("blast-smoke")) return `HTTP ${response.status} placeholder URL`;
   }
   return undefined;
 }
@@ -557,7 +577,9 @@ async function runCommand(
       },
       { cells: gridCellSelector, fields: formFieldSelector },
     );
-    const browserLimit = browserLimitCapability(snapshot.calls);
+    const browserLimit =
+      browserLimitCapability(snapshot.calls) ??
+      missingBuiltin([...pageErrors, ...consoleErrors, snapshot.status]);
     const credentials = credentialFailure(responses);
     const observation: BrowserObservation = {
       ...(snapshot.scene ? { scene: snapshot.scene } : {}),
@@ -654,7 +676,14 @@ async function main() {
     const index = parseBundleIndex(
       JSON.parse(await readFile(join(built.www, "demo/bundles.json"), "utf8")),
     );
-    const items = commands(catalog);
+    // `--only <extension/command>` (repeatable) sweeps just those commands and
+    // prints their results; the reports are left as they are.
+    const only = process.argv.flatMap((value, position) =>
+      process.argv[position - 1] === "--only" ? [value] : [],
+    );
+    const items = commands(catalog).filter(
+      (item) => !only.length || only.includes(`${item.extension}/${item.command}`),
+    );
     const results: SweepResult[] = [];
     let next = 0;
     const worker = async () => {
@@ -709,6 +738,10 @@ async function main() {
     results.sort((a, b) =>
       `${a.extension}:${a.command}`.localeCompare(`${b.extension}:${b.command}`),
     );
+    if (only.length) {
+      for (const result of results) console.log(JSON.stringify(result));
+      return;
+    }
     const totals: Record<string, number> = {};
     const limits: Record<string, number> = {};
     for (const result of results) {

@@ -5,6 +5,7 @@ import {
   contentSelector,
   credentialFailure,
   formFieldSelector,
+  missingBuiltin,
   placeholderArguments,
   placeholderPreferences,
   unsuppliedArguments,
@@ -323,6 +324,14 @@ describe("browserLimitCapability", () => {
   });
 });
 
+describe("missingBuiltin", () => {
+  test("names a Node built-in the sandbox cannot load, not a missing package", () => {
+    expect(missingBuiltin(["Ready", "Cannot find module 'sqlite'"])).toBe("node:sqlite");
+    expect(missingBuiltin(["Cannot find module 'node:sqlite'"])).toBe("node:sqlite");
+    expect(missingBuiltin(["Cannot find module 'left-pad'"])).toBeUndefined();
+  });
+});
+
 describe("credentialFailure", () => {
   test("reports the first remote 401/403/404", () => {
     expect(
@@ -333,6 +342,12 @@ describe("credentialFailure", () => {
       ]),
     ).toBe("HTTP 403 api.example.com");
     expect(credentialFailure([{ status: 404, url: "http://localhost/x" }])).toBeUndefined();
+    // A placeholder base URL is relative and lands on the sweep's sandbox server.
+    expect(
+      credentialFailure([
+        { status: 404, url: "http://127.0.0.1:4178/blast-sandbox/blast-smoke/api/books" },
+      ]),
+    ).toBe("HTTP 404 placeholder URL");
   });
 });
 

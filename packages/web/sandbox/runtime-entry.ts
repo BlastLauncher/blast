@@ -1,10 +1,14 @@
 import { startBrowserRuntime, type BrowserMessagePort } from "../../runtime/src/browser.ts";
 import type { CommandModule } from "../../runtime/src/core.ts";
 import type { InitCommand } from "../../protocol/src/index.ts";
+import { Readable, Stream, Writable } from "stream";
 import { dropForbiddenRequestHeaders } from "./request-headers.ts";
+import { patchStreams } from "./stream-compat.ts";
 
 let started = false;
-// Before any command code runs: its requests may go through an XHR polyfill.
+// Before any command code runs: its requests may go through an XHR polyfill,
+// and its HTTP client may read response bodies as Node streams.
+patchStreams({ Stream, Readable, Writable });
 dropForbiddenRequestHeaders(
   (
     globalThis as {
