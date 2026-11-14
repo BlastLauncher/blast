@@ -11,13 +11,13 @@ sends semantic input back to the server.
 Run it with Node 24 (or Bun for the convenience script):
 
 ```sh
-bun run example:web ./fixtures/extensions/hello-list index
-bun run example:web ./path/to/extension [command] --port 8787
+bun run example:web ./fixtures/extensions/hello-list
+bun run example:web ./path/to/extension --port 8787
 ```
 
 The server binds to `127.0.0.1` and chooses an ephemeral port by default. The
 printed URL contains a random token; the token is required for the page, event
-stream, input, and command-launch endpoints. JSON is required for POSTs.
+stream and input endpoints. JSON is required for POSTs.
 
 The server has no operating-system integrations. It forwards `clipboard.copy`
 and `open.url` as SSE effects; the page performs those effects with the browser
