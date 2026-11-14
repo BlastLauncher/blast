@@ -1,7 +1,7 @@
 ---
 id: "0157"
 title: Launch prompts and dependency installs as views
-status: todo
+status: doing
 milestone: M9
 depends: ["0156"]
 ---
