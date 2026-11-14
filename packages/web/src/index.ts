@@ -94,3 +94,5 @@ export const createDefaultHandlers = (): WebHandlers => ({
   },
   openUrl: (url) => window.open(url, "_blank", "noopener,noreferrer"),
 });
+
+export { defineBlastExtension } from "./custom-element.ts";
