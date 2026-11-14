@@ -46,6 +46,17 @@ describe("web launcher", () => {
       if (event.type === "view" && event.view.kind === "list") break;
     }
     expect(event.view.rows.length).toBeGreaterThan(0);
+    await fetch(endpoint("/input", launcher.token), {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ type: "primary" }),
+    });
+    for (;;) {
+      const next = await nextEvent(reader, pending);
+      event = next.event;
+      pending = next.pending;
+      if (event.type === "view" && event.view.kind === "list") break;
+    }
     const inputResponse = await fetch(endpoint("/input", launcher.token), {
       method: "POST",
       headers: { "content-type": "application/json" },
