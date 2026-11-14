@@ -4,13 +4,15 @@ import {
   type Controller,
   type ControllerInput,
   type ControllerResult,
+  type ControllerView,
   type RootCommand,
   type RootController,
 } from "@blastlauncher/client-core";
-import type { SceneMessage } from "@blastlauncher/protocol";
+import type { CommandMode, SceneMessage } from "@blastlauncher/protocol";
 import { bundleForBrowser, type BrowserBundleFile, type BrowserEsbuild } from "./browser-bundle.ts";
 import { installForBrowser } from "./browser-install.ts";
 import { aliases } from "./bundle-config.ts";
+import type { CatalogManifest } from "./bundles.ts";
 import {
   createBrowserCapabilities,
   createBrowserPreferenceStore,
@@ -25,16 +27,20 @@ import {
 } from "./default-renderer.ts";
 import { commandEntry, fetchExtensionFiles, manifestCommands } from "./extension-files.ts";
 import { createDefaultHandlers, type WebHandlers } from "./handlers.ts";
-import { BrowserLaunchTimeoutError, createLaunchGeneration, withLaunchTimeout } from "./launch.ts";
+import { createLaunchGeneration, withLaunchTimeout } from "./launch.ts";
 import {
   missingPreferences,
   parsePreferences,
   preferenceDefaults,
   preferenceFields,
+  type Preference,
 } from "@blastlauncher/protocol/preference-fields";
+import { loadPrebuiltCommand } from "./prebuilt.ts";
 import { acceptsRuntimePortRequest } from "./runtime-port.ts";
+import { acquireSandbox, assetUrl, disposeSandbox, type SandboxRuntime } from "./sandbox.ts";
 
 export type { WebHandlers, WebStatus, WebView };
+type PreferenceValues = Record<string, string | number | boolean>;
 export type WebMountOptions = {
   /** `raycast/extensions/<name>` or a `https://github.com/<owner>/<repo>/tree/<ref>/<path>` URL. */
   extension?: string;
@@ -42,6 +48,8 @@ export type WebMountOptions = {
   source?: string;
   /** Command to run; defaults to the first command in the manifest. Ignored with `root`. */
   command?: string;
+  /** Navigation title until the command sets one; defaults to the manifest's command title. */
+  commandTitle?: string;
   /** Origin that serves the cross-origin sandbox page (decision 0013). */
   sandboxUrl: string;
   /** Where `almostnode.mjs`, `esbuild.mjs`, `esbuild.wasm` and `blast-sources.json` are served. */
@@ -51,26 +59,53 @@ export type WebMountOptions = {
   /** Show the extension's commands as the engine root view instead of running one. */
   root?: boolean;
   /** Preference values, applied over the manifest defaults and saved values. */
-  preferences?: Record<string, string | number | boolean>;
+  preferences?: PreferenceValues;
+  /** Prebuilt bundle index (usually `/bundles.json`) used before fetching GitHub sources. */
+  bundlesUrl?: string;
+  /** JSON `{ "sha": … }`; a bundle index with another `buildSha` is ignored. */
+  buildUrl?: string;
+  /**
+   * Asks for preferences: missing required ones before a launch, or any when
+   * the extension calls `openExtensionPreferences`/`openCommandPreferences`.
+   * Submitted values are saved; returning undefined cancels.
+   */
+  preferenceForm?: (
+    request: WebPreferenceRequest,
+  ) => PreferenceValues | undefined | Promise<PreferenceValues | undefined>;
   handlers?: WebHandlers;
   /** Replaces the built-in renderer: receives every view and a callback for input. */
-  render?: (view: WebView, input: (value: ControllerInput) => void) => void;
+  render?: (
+    view: WebView,
+    input: (value: ControllerInput) => ControllerResult | undefined,
+    frame: WebFrame,
+  ) => void;
+  /** Called when the command ends without an error; default: back to the root, or a status. */
+  onExit?: (exit: WebExit) => void;
   theme?: Theme;
-  /** An esbuild-wasm module that is already initialised; default: `<assetsUrl>/esbuild.mjs`. */
-  esbuild?: BrowserEsbuild;
+  /** esbuild-wasm, initialised (or a loader that initialises it); default: `<assetsUrl>/esbuild.mjs`. */
+  esbuild?: BrowserEsbuild | (() => Promise<BrowserEsbuild>);
   onStatus?: (status: WebStatus) => void;
 };
-export type WebMount = { close(): void; input(value: ControllerInput): void };
-
-type SandboxRuntime = {
-  execute(code: string, filename?: string): Promise<unknown>;
-  getVFS(): {
-    mkdirSync(path: string, options?: { recursive?: boolean }): void;
-    writeFileSync(path: string, data: string | Uint8Array): void;
-  };
-  iframe?: HTMLIFrameElement;
-  terminate?: () => void;
+export type WebPreferenceRequest = {
+  extension: string;
+  command: string;
+  /** `command` lists the extension's and the command's fields; `extension` only the former. */
+  scope: "extension" | "command";
+  fields: Preference[];
+  values: PreferenceValues;
 };
+/** What a custom renderer may need beyond the view: the scene it came from and the status. */
+export type WebFrame = { scene?: SceneMessage; status: WebStatus };
+/** `quit`: the command closed its window; `exit`: its process ended with code 0. */
+export type WebExit = { reason: "quit" | "exit"; view?: ControllerView };
+export type WebMount = {
+  close(): void;
+  /** Sends input to the running command (or the root); the result says whether a key was handled. */
+  input(value: ControllerInput): ControllerResult | undefined;
+  /** The running command's current view. */
+  view(): ControllerView | undefined;
+};
+
 type RuntimeMessage =
   | SceneMessage
   | { type: "ready" }
@@ -79,6 +114,15 @@ type RuntimeMessage =
   | { type: "error"; message: string };
 type EsbuildModule = BrowserEsbuild & {
   initialize(options: { wasmURL: string; worker: boolean }): Promise<void>;
+};
+/** A command's manifest declarations, from `package.json` or a prebuilt bundle's index entry. */
+type Declared = {
+  extensionName: string;
+  commands: string[];
+  extensionPreferences: Preference[];
+  commandPreferences: Preference[];
+  mode: CommandMode;
+  title?: string;
 };
 
 const initialized = new WeakSet<object>();
@@ -90,6 +134,32 @@ const platformName = () => {
   if (/mac|iphone|ipad/i.test(name)) return "macOS";
   return /win/i.test(name) ? "Windows" : "Linux";
 };
+const commandMode = (value: unknown): CommandMode =>
+  value === "no-view" || value === "menu-bar" || value === "model-provider" ? value : "view";
+
+function fromManifest(manifest: Record<string, unknown>, name: string, source: string): Declared {
+  const declarations = Array.isArray(manifest.commands) ? manifest.commands : [];
+  const declaration = declarations.find(
+    (item: { name?: unknown } | null) => item?.name === name,
+  ) as Record<string, unknown> | undefined;
+  return {
+    extensionName: String(manifest.name ?? source),
+    commands: manifestCommands(manifest),
+    extensionPreferences: parsePreferences(manifest.preferences, "Extension preferences"),
+    commandPreferences: parsePreferences(declaration?.preferences, `Command ${name} preferences`),
+    mode: commandMode(declaration?.mode),
+    ...(typeof declaration?.title === "string" ? { title: declaration.title } : {}),
+  };
+}
+function fromCatalog(manifest: CatalogManifest, name: string): Declared {
+  return {
+    extensionName: manifest.name,
+    commands: Object.keys(manifest.commands),
+    extensionPreferences: manifest.preferences,
+    commandPreferences: manifest.commands[name] ?? [],
+    mode: commandMode(manifest.modes?.[name]),
+  };
+}
 
 /** Runs one extension in the sandbox and draws it into `element`. */
 export function startSession(element: HTMLElement, options: WebMountOptions): WebMount {
@@ -97,8 +167,7 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
   if (!given) throw new TypeError("mount requires extension or source");
   const source: string = given;
   if (!options.sandboxUrl) throw new TypeError("mount requires sandboxUrl");
-  const assetBase = new URL(options.assetsUrl ?? "./", location.href);
-  const asset = (path: string) => new URL(path, assetBase).toString();
+  const asset = (path: string) => assetUrl(options, path);
   const handlers: WebHandlers = { ...createDefaultHandlers(), ...options.handlers };
   const launches = createLaunchGeneration();
   const timers = new Set<ReturnType<typeof setTimeout>>();
@@ -110,27 +179,31 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
   let port: MessagePort | undefined;
   let runtime: SandboxRuntime | undefined;
   let removePortListener: (() => void) | undefined;
+  let scene: SceneMessage | undefined;
+  let mode: CommandMode = "view";
   let extensionName = source;
 
-  const input = (value: ControllerInput) => {
-    if (closed) return;
+  const input = (value: ControllerInput): ControllerResult | undefined => {
+    if (closed) return undefined;
     if (controller) {
       const result = controller.input(value);
       handle(result);
-    } else if (root) {
-      for (const effect of root.input(value).effects)
-        if (effect.type === "launch") void run(effect.command);
+      return result;
     }
+    if (!root) return undefined;
+    const result = root.input(value);
+    for (const effect of result.effects) if (effect.type === "launch") void run(effect.command);
+    return { events: [], effects: [] };
   };
   const renderer = options.render
     ? undefined
-    : createDefaultRenderer(element, input as ViewInput, {
+    : createDefaultRenderer(element, ((value) => void input(value)) as ViewInput, {
         ...(options.theme === undefined ? {} : { theme: options.theme }),
         actionsKey: platform === "macOS" ? "⌘K" : "Ctrl+K",
       });
   const draw = (view: WebView) => {
     if (closed) return;
-    if (options.render) options.render(view, input);
+    if (options.render) options.render(view, input, { ...(scene ? { scene } : {}), status });
     else renderer?.draw(view, status);
   };
   const setStatus = (text: string, error = false, progress = false) => {
@@ -147,8 +220,11 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
         args: event.args,
       });
     for (const effect of result.effects) {
-      if (effect.type === "quit") finish();
-      else {
+      if (effect.type === "quit") {
+        // `closeMainWindow()` asks to quit, but a no-view command is done only
+        // when the runtime reports its exit status.
+        if (mode !== "no-view") finish("quit");
+      } else {
         const launch = launches.current();
         const timer = setTimeout(() => {
           timers.delete(timer);
@@ -170,18 +246,16 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
     port?.close();
     port = undefined;
     controller = undefined;
-    try {
-      runtime?.terminate?.();
-    } catch {
-      // A sandbox that never finished starting has nothing to terminate.
-    }
+    scene = undefined;
+    disposeSandbox(runtime);
     runtime = undefined;
   }
 
-  function finish() {
+  function finish(reason: WebExit["reason"]) {
     const view = controller?.view();
     stopCommand();
-    if (root) {
+    if (options.onExit) options.onExit({ reason, ...(view ? { view } : {}) });
+    else if (root) {
       root.reset();
       draw(root.view() as WebView);
       setStatus("Ready");
@@ -201,6 +275,7 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
 
   let esbuildModule: EsbuildModule | undefined;
   const loadEsbuild = async (): Promise<BrowserEsbuild> => {
+    if (typeof options.esbuild === "function") return options.esbuild();
     if (options.esbuild) return options.esbuild;
     esbuildModule ??= (await import(/* @vite-ignore */ asset("esbuild.mjs"))) as EsbuildModule;
     if (!initialized.has(esbuildModule)) {
@@ -210,93 +285,130 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
     return esbuildModule;
   };
 
-  let fetched: Awaited<ReturnType<typeof fetchExtensionFiles>> | undefined;
-  let catalogReady: Promise<void> | undefined;
-  const ensureExtension = () =>
-    (catalogReady ??= (async () => {
-      setStatus("Fetching extension…", false, true);
-      draw({ type: "loading", extension: source });
-      fetched = await fetchExtensionFiles(source, {
-        fixturesUrl: options.fixtures ? asset("fixtures/") : undefined,
-      });
-      extensionName = String(fetched.manifest.name ?? source);
-    })());
+  let fetched: Promise<Awaited<ReturnType<typeof fetchExtensionFiles>>> | undefined;
+  const fetchExtension = () =>
+    (fetched ??= fetchExtensionFiles(source, {
+      fixturesUrl: options.fixtures ? asset("fixtures/") : undefined,
+    }));
+
+  /** Asks the embedder for preferences and saves what it submits. */
+  async function askPreferences(
+    declared: Declared,
+    command: string,
+    scope: WebPreferenceRequest["scope"],
+    values: PreferenceValues,
+  ) {
+    if (!options.preferenceForm) return undefined;
+    const store = createBrowserPreferenceStore(declared.extensionName, handlers.storage);
+    const fields =
+      scope === "extension"
+        ? declared.extensionPreferences
+        : preferenceFields(declared.extensionPreferences, declared.commandPreferences);
+    const supplied = await options.preferenceForm({
+      extension: declared.extensionName,
+      command,
+      scope,
+      fields,
+      values,
+    });
+    if (!supplied) return undefined;
+    const extensionNames = new Set(declared.extensionPreferences.map((field) => field.name));
+    const extensionValues: PreferenceValues = {};
+    const commandValues: PreferenceValues = {};
+    for (const [name, value] of Object.entries(supplied))
+      (extensionNames.has(name) ? extensionValues : commandValues)[name] = value;
+    store.update(extensionValues, command, commandValues);
+    return supplied;
+  }
 
   async function run(commandName: string) {
-    const generation = launches.next();
+    // A command launched from the running one (`launchCommand`) replaces it.
+    stopCommand();
+    const generation = launches.current();
     const current = () => !closed && launches.isCurrent(generation);
     try {
-      await ensureExtension();
-      if (!current() || !fetched) return;
-      const extension = fetched;
-      setStatus("Installing…", false, true);
+      setStatus("Fetching extension…", false, true);
       draw({ type: "loading", extension: source, command: commandName });
-      const sources = (await (await fetch(asset("blast-sources.json"))).json()) as Record<
-        string,
-        string
-      >;
-      if (!current()) return;
-      const files = new Map<string, BrowserBundleFile>(Object.entries(sources));
-      for (const [path, value] of extension.files) files.set(path, value);
-      const entry = commandEntry(extension.files, commandName);
-      const installed = await installForBrowser({
-        fetch: (value, init) => fetch(value, init),
-        manifest: extension.manifest,
-        ...(extension.lockfile === undefined ? {} : { lockfile: extension.lockfile }),
-      });
-      if (!current()) return;
-      setStatus("Bundling…", false, true);
-      const bundled = await bundleForBrowser({
-        esbuild: await loadEsbuild(),
-        files,
-        packages: installed.packages,
-        command: entry,
-        runtimeEntry: RUNTIME_ENTRY,
-        aliases,
-      });
-      if (!current()) return;
-
-      const declarations = extension.manifest.commands;
-      const declaration = Array.isArray(declarations)
-        ? declarations.find((item) => item?.name === commandName)
+      const built = options.bundlesUrl
+        ? await loadPrebuiltCommand(
+            { bundlesUrl: options.bundlesUrl, buildUrl: options.buildUrl },
+            source,
+            commandName,
+          )
         : undefined;
-      const extensionPreferences = parsePreferences(
-        extension.manifest.preferences,
-        "Extension preferences",
-      );
-      const commandPreferences = parsePreferences(
-        declaration?.preferences,
-        `Command ${commandName} preferences`,
-      );
+      if (!current()) return;
+      let files: Map<string, BrowserBundleFile>;
+      let declared: Declared;
+      let entry: string;
+      let code: string;
+      if (built) {
+        files = built.files;
+        declared = fromCatalog(built.manifest, commandName);
+        entry = `/src/${commandName}.tsx`;
+        code = built.code;
+      } else {
+        const extension = await fetchExtension();
+        if (!current()) return;
+        files = extension.files;
+        declared = fromManifest(extension.manifest, commandName, source);
+        entry = commandEntry(extension.files, commandName);
+        setStatus("Installing…", false, true);
+        const sources = (await (await fetch(asset("blast-sources.json"))).json()) as Record<
+          string,
+          string
+        >;
+        const installed = await installForBrowser({
+          fetch: (value, init) => fetch(value, init),
+          manifest: extension.manifest,
+          ...(extension.lockfile === undefined ? {} : { lockfile: extension.lockfile }),
+        });
+        if (!current()) return;
+        setStatus("Bundling…", false, true);
+        const esbuild = await loadEsbuild();
+        if (!current()) return;
+        const bundleFiles = new Map<string, BrowserBundleFile>(Object.entries(sources));
+        for (const [path, value] of extension.files) bundleFiles.set(path, value);
+        code = (
+          await bundleForBrowser({
+            esbuild,
+            files: bundleFiles,
+            packages: installed.packages,
+            command: entry,
+            runtimeEntry: RUNTIME_ENTRY,
+            aliases,
+          })
+        ).code;
+        if (!current()) return;
+      }
+      extensionName = declared.extensionName;
+      mode = declared.mode;
+
       const store = createBrowserPreferenceStore(extensionName, handlers.storage);
-      const values = {
-        ...preferenceDefaults(extensionPreferences, commandPreferences),
+      let values: PreferenceValues = {
+        ...preferenceDefaults(declared.extensionPreferences, declared.commandPreferences),
         ...store.values(commandName),
         ...options.preferences,
-      };
-      const missing = missingPreferences(
-        preferenceFields(extensionPreferences, commandPreferences),
-        values,
-      );
-      if (missing.length > 0)
-        throw new Error(
-          `Missing required preferences: ${missing.map((item) => item.title || item.name).join(", ")}`,
-        );
-      const mode =
-        declaration?.mode === "no-view" || declaration?.mode === "menu-bar"
-          ? (declaration.mode as "no-view" | "menu-bar")
-          : "view";
+      } as PreferenceValues;
+      const fields = preferenceFields(declared.extensionPreferences, declared.commandPreferences);
+      const missing = missingPreferences(fields, values);
+      if (missing.length > 0) {
+        if (!options.preferenceForm)
+          throw new Error(
+            `Missing required preferences: ${missing.map((item) => item.title || item.name).join(", ")}`,
+          );
+        const supplied = await askPreferences(declared, commandName, "command", values);
+        if (!current() || !supplied) return;
+        values = { ...values, ...supplied };
+        if (missingPreferences(fields, values).length)
+          throw new Error("Required preferences are missing");
+        setStatus("Fetching extension…", false, true);
+        draw({ type: "loading", extension: source, command: commandName });
+      }
 
       setStatus("Starting…", false, true);
-      const almost = (await import(/* @vite-ignore */ asset("almostnode.mjs"))) as {
-        VirtualFS: new () => unknown;
-        createRuntime(vfs: unknown, options: { sandbox: string }): Promise<SandboxRuntime>;
-      };
-      const active = await almost.createRuntime(new almost.VirtualFS(), {
-        sandbox: options.sandboxUrl,
-      });
+      const active = await acquireSandbox(options);
       if (!current()) {
-        active.terminate?.();
+        disposeSandbox(active);
         return;
       }
       runtime = active;
@@ -309,7 +421,7 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
       // A marker syncs directories created after the sandbox was initialised.
       vfs.writeFileSync(`${supportPath}/.keep`, "");
       vfs.writeFileSync(`${assetsPath}/.keep`, "");
-      for (const [path, value] of extension.files) {
+      for (const [path, value] of files) {
         if (path.includes("/node_modules/")) continue;
         const relative = path.startsWith("/assets/")
           ? path.slice("/assets/".length)
@@ -329,10 +441,7 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
       const capabilities = createBrowserCapabilities({
         catalog: {
           extensions: [
-            {
-              name: extensionName,
-              commands: manifestCommands(extension.manifest).map((name) => ({ name })),
-            },
+            { name: extensionName, commands: declared.commands.map((name) => ({ name })) },
           ],
         },
         ...(handlers.storage ? { storage: handlers.storage } : {}),
@@ -342,7 +451,16 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
         launchCommand: async (_source, command) => {
           void run(command);
         },
-        openPreferences: () => setStatus("Preferences are not available in this embed", true),
+        openPreferences: (scope) => {
+          if (!options.preferenceForm) {
+            setStatus("Preferences are not available in this embed", true);
+            return;
+          }
+          // Saved preferences reach a command when it launches, so it runs again.
+          void askPreferences(declared, commandName, scope, { ...values }).then((supplied) => {
+            if (supplied && current()) void run(commandName);
+          });
+        },
       });
       const answer = async (message: Extract<RuntimeMessage, { type: "capability.request" }>) => {
         const custom = await handlers.capability?.(message, context);
@@ -360,7 +478,9 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
         if (!current()) return;
         if (message.type === "scene") {
           if (!controller) return;
+          scene = message;
           const result = controller.scene(message);
+          if (firstScene) setStatus("Ready");
           firstScene?.resolve();
           firstScene = undefined;
           draw(controller.view());
@@ -378,7 +498,7 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
             setStatus(text, true);
           });
         } else if (message.type === "exit") {
-          if (message.code === 0) finish();
+          if (message.code === 0) finish("exit");
           else fail(new Error(`Command exited with code ${message.code}`));
         } else if (message.type === "error") fail(new Error(message.message));
       };
@@ -400,10 +520,7 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
       removePortListener = () => window.removeEventListener("message", transferPort);
       await withLaunchTimeout(
         (async () => {
-          await active.execute(
-            `${bundled.code}\nmodule.exports = null;`,
-            `${assetsPath}/bundle.cjs`,
-          );
+          await active.execute(`${code}\nmodule.exports = null;`, `${assetsPath}/bundle.cjs`);
           if (current()) await portReady;
         })(),
         LAUNCH_TIMEOUT_MS,
@@ -411,16 +528,13 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
       );
       if (!current() || !transferred) return;
 
-      const title = manifestCommandTitle(extension.manifest, commandName);
-      controller = createController({
-        platform,
-        ...(title ? { fallbackTitle: title } : {}),
-      });
+      const title = options.commandTitle ?? declared.title;
+      controller = createController({ platform, ...(title ? { fallbackTitle: title } : {}) });
       const launched = controller;
       launched.subscribe((view) => {
         if (current() && controller === launched) draw(view);
       });
-      const scene = new Promise<void>((resolve, reject) => (firstScene = { resolve, reject }));
+      const shown = new Promise<void>((resolve, reject) => (firstScene = { resolve, reject }));
       port.postMessage({
         type: "init",
         protocol: 1,
@@ -437,49 +551,50 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
           textSize: "medium",
         },
       });
-      await withLaunchTimeout(scene, LAUNCH_TIMEOUT_MS, "waiting for first scene");
-      if (current()) setStatus("Ready");
+      await withLaunchTimeout(shown, LAUNCH_TIMEOUT_MS, "waiting for first scene");
     } catch (error) {
-      if (!current()) return;
-      fail(
-        error instanceof BrowserLaunchTimeoutError
-          ? error
-          : error instanceof Error
-            ? error
-            : new Error(String(error)),
-      );
+      if (current()) fail(error);
     }
   }
 
   void (async () => {
     try {
-      await ensureExtension();
-      if (closed || !fetched) return;
-      const manifest = fetched.manifest;
-      if (options.root) {
-        const declared = Array.isArray(manifest.commands) ? manifest.commands : [];
-        const commands: RootCommand[] = declared.flatMap(
-          (item: { name?: unknown; title?: unknown; subtitle?: unknown; mode?: unknown }) =>
-            typeof item?.name === "string"
-              ? [
-                  {
-                    extension: extensionName,
-                    extensionTitle: String(manifest.title ?? extensionName),
-                    command: item.name,
-                    title: typeof item.title === "string" ? item.title : item.name,
-                    ...(typeof item.subtitle === "string" ? { subtitle: item.subtitle } : {}),
-                    mode: item.mode === "no-view" || item.mode === "menu-bar" ? item.mode : "view",
-                  } satisfies RootCommand,
-                ]
-              : [],
-        );
-        root = createRootController(commands);
-        root.subscribe((view) => {
-          if (!controller) draw(view as WebView);
-        });
-        setStatus("Ready");
-        draw(root.view() as WebView);
-      } else await run(options.command ?? manifestCommands(manifest)[0] ?? "index");
+      setStatus("Fetching extension…", false, true);
+      draw({
+        type: "loading",
+        extension: source,
+        ...(options.command ? { command: options.command } : {}),
+      });
+      if (!options.root) {
+        const command = options.command ?? manifestCommands((await fetchExtension()).manifest)[0];
+        if (!closed) await run(command ?? "index");
+        return;
+      }
+      const manifest = (await fetchExtension()).manifest;
+      if (closed) return;
+      extensionName = String(manifest.name ?? source);
+      const declared = Array.isArray(manifest.commands) ? manifest.commands : [];
+      const commands: RootCommand[] = declared.flatMap(
+        (item: { name?: unknown; title?: unknown; subtitle?: unknown; mode?: unknown }) =>
+          typeof item?.name === "string"
+            ? [
+                {
+                  extension: extensionName,
+                  extensionTitle: String(manifest.title ?? extensionName),
+                  command: item.name,
+                  title: typeof item.title === "string" ? item.title : item.name,
+                  ...(typeof item.subtitle === "string" ? { subtitle: item.subtitle } : {}),
+                  mode: item.mode === "no-view" || item.mode === "menu-bar" ? item.mode : "view",
+                } satisfies RootCommand,
+              ]
+            : [],
+      );
+      root = createRootController(commands);
+      root.subscribe((view) => {
+        if (!controller) draw(view as WebView);
+      });
+      setStatus("Ready");
+      draw(root.view() as WebView);
     } catch (error) {
       fail(error);
     }
@@ -487,20 +602,13 @@ export function startSession(element: HTMLElement, options: WebMountOptions): We
 
   return {
     input,
+    view: () => controller?.view(),
     close() {
       if (closed) return;
       stopCommand();
       closed = true;
+      // A custom `render` owns what it drew into `element`.
       renderer?.destroy();
-      if (options.render) element.replaceChildren();
     },
   };
-}
-
-function manifestCommandTitle(manifest: Record<string, unknown>, name: string): string | undefined {
-  const commands = manifest.commands;
-  const found = Array.isArray(commands)
-    ? commands.find((item: { name?: unknown }) => item?.name === name)
-    : undefined;
-  return typeof found?.title === "string" ? found.title : undefined;
 }

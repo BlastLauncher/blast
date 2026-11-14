@@ -1,42 +1,20 @@
 import * as esbuild from "esbuild-wasm";
+import { activeNode, type ControllerView } from "../../packages/client-core/src/index.ts";
+import type { SceneMessage } from "../../packages/protocol/src/index.ts";
 import {
-  activeNode,
-  createController,
-  type Controller,
-} from "../../packages/client-core/src/index.ts";
-import { installForBrowser } from "../../packages/web/src/browser-install.ts";
-import { bundleForBrowser } from "../../packages/web/src/browser-bundle.ts";
-import type { CommandMode, SceneMessage } from "../../packages/protocol/src/index.ts";
-import { aliases } from "../../packages/web/src/bundle-config.ts";
-import {
-  bundleKey,
-  bundleMatches,
-  parseBundleIndex,
-  sha256Hex,
-  type CatalogManifest,
-} from "../../packages/web/src/bundles.ts";
+  mount,
+  prewarm,
+  type WebExit,
+  type WebFrame,
+  type WebMount,
+  type WebPreferenceRequest,
+  type WebView,
+} from "../../packages/web/src/index.ts";
 import { render, renderPreferences } from "../../packages/web/src/render.js";
 import { mountRoot, updateRoot } from "./root-launcher.tsx";
 import type { Root as ReactRoot } from "react-dom/client";
-import {
-  createBrowserCapabilities,
-  createBrowserPreferenceStore,
-  type CapabilityContext,
-} from "../../packages/web/src/capabilities.ts";
-import {
-  missingPreferences,
-  parsePreferences,
-  preferenceDefaults,
-  preferenceFields,
-  type Preference,
-} from "@blastlauncher/protocol/preference-fields";
+import { missingPreferences, type Preference } from "@blastlauncher/protocol/preference-fields";
 import { controlledSearchText, syncAttributes } from "./search-sync.ts";
-import {
-  commandEntry,
-  fetchExtensionFiles,
-  manifestCommands,
-  type FetchedExtension,
-} from "../../packages/web/src/extension-files.ts";
 import {
   catalogCommandTitle,
   executeRootAction,
@@ -63,12 +41,6 @@ import {
 import { matchesShortcut, shortcutLabel } from "../../packages/client-core/src/shortcut.ts";
 import { escapeHtml } from "../../packages/web/src/render.js";
 import {
-  BrowserLaunchTimeoutError,
-  createLaunchGeneration,
-  withLaunchTimeout,
-} from "../../packages/web/src/launch.ts";
-import { acceptsRuntimePortRequest } from "../../packages/web/src/runtime-port.ts";
-import {
   menuLevels,
   placeMenu,
   placeSubmenu,
@@ -77,20 +49,22 @@ import {
   statusItemMarkup,
 } from "./menu-bar.ts";
 
-type FileMap = Record<string, string>;
-type BrowserFile = string | Uint8Array;
-type SandboxRuntime = {
-  execute(code: string, filename?: string): Promise<unknown>;
-  getVFS(): {
-    mkdirSync(path: string, options?: { recursive?: boolean }): void;
-    writeFileSync(path: string, data: string | Uint8Array): void;
-  };
-  iframe?: HTMLIFrameElement;
-  terminate?: () => void;
-};
-type Sandbox = { runtime: SandboxRuntime; iframe?: HTMLIFrameElement };
 const asset = (path: string) => new URL(path, new URL(".", location.href)).toString();
 const app = document.querySelector<HTMLElement>("#app")!;
+/** Every session uses these, so the one warmed while the root is idle is the one adopted. */
+const sandboxOptions = {
+  sandboxUrl:
+    ((globalThis as Record<string, unknown>)["__BLAST_SANDBOX__"] as string | undefined) ?? "",
+  assetsUrl: asset("./"),
+  bundlesUrl: asset("bundles.json"),
+  buildUrl: asset("../build.json"),
+};
+let esbuildReady: Promise<void> | undefined;
+/** esbuild-wasm ships inside client.js; the wasm loads only when a command needs bundling. */
+const loadEsbuild = async () => {
+  await (esbuildReady ??= esbuild.initialize({ wasmURL: asset("esbuild.wasm"), worker: false }));
+  return esbuild;
+};
 // Raycast's ⌘ is Ctrl off macOS, for matching and for every label drawn.
 const platform = platformFromNavigator(navigator as NavigatorLike);
 const ACTIONS_KEY = { modifiers: ["cmd"], key: "k" };
@@ -103,10 +77,11 @@ const isActionsKey = (event: KeyboardEvent) =>
 const isSubmitKey = (event: KeyboardEvent) =>
   matchesShortcut({ modifiers: ["cmd"], key: "return" }, keyInputFromEvent(event), platform);
 const reservedHint = (label: string) => (isReservedLabel(label, platform) ? RESERVED_HINT : "");
-const commandSelect = document.querySelector<HTMLSelectElement>("#command");
-let controller: Controller | undefined;
-let port: MessagePort | undefined;
-let runtimeFrame: Window | undefined;
+/** The running command; `sessionId` drops callbacks from one already closed. */
+let session: WebMount | undefined;
+let sessionId = 0;
+/** What the running session launched, and the root row it was opened from. */
+let launched: { source: string; command: string; row?: RootRow } | undefined;
 let catalog: Catalog;
 let rootQuery = "";
 let rootSelected = 0;
@@ -127,31 +102,18 @@ let actionQuery = "";
 let actionSelected = 0;
 let rootToast = "";
 let statusState: DemoStatus = statusForStage("ready");
-let bundleIndex: ReturnType<typeof parseBundleIndex> | undefined;
-let runtimeCode: string | undefined;
-let sandbox: Sandbox | undefined;
-let warming: Promise<Sandbox | undefined> | undefined;
-let activeCapabilityContext: CapabilityContext | undefined;
-let browserCapabilities: ReturnType<typeof createBrowserCapabilities> | undefined;
-let esbuildReady = false;
+/** The preferences the session asked for; answering it resumes (or cancels) the launch. */
 let preferenceForm:
-  | {
-      source: string;
-      command: string;
-      extension: Preference[];
-      commandFields: Preference[];
-      scope: "extension" | "command";
-      store: ReturnType<typeof createBrowserPreferenceStore>;
-    }
+  | { request: WebPreferenceRequest; answer: (values?: Record<string, string | boolean>) => void }
   | undefined;
 let preferenceFormVisible = false;
+/** Between a launch and the command's first view: the stage shows and keys are queued. */
 let sessionStarting = false;
 let earlyInput = "";
 /** The controller's search text as of the field's last input or sync (see `controlledSearchText`). */
 let searchBaseline = "";
 /** An IME composition is open in a text field; its text must not be replaced. */
 let composing = false;
-let activeMode: CommandMode = "view";
 /** The scene the controller last saw; its active node names the view being drawn. */
 let lastScene: SceneMessage | undefined;
 /**
@@ -175,11 +137,12 @@ let revealRoot = false;
 let menuItem: { source: string; command: string; row: RootRow; title: string } | undefined;
 /** A menu-bar command is starting: its menu shows a loading row under the status item. */
 let menuLaunching = false;
-const launchGenerations = createLaunchGeneration();
-let launchStage:
-  | { generation: number; resolve: () => void; reject: (error: unknown) => void }
-  | undefined;
-const sessionTimers = new Set<ReturnType<typeof setTimeout>>();
+/** Waiting for the session's next view (see `syncFieldOptions`). */
+const viewListeners = new Set<() => void>();
+/** The command's view, once it has drawn one and while no preference form covers it. */
+const commandView = () => (sessionStarting || preferenceFormVisible ? undefined : session?.view());
+const sendInput = (value: Parameters<WebMount["input"]>[0]) =>
+  commandView() ? session?.input(value) : undefined;
 
 let extensionContext:
   | {
@@ -201,12 +164,11 @@ const statusForText = (text: string, error: boolean): DemoStatus => {
 };
 const setStatus = (text: string, error = false) => {
   statusState = statusForText(text, error);
-  if (catalog) {
-    if (rootOpen) drawRoot();
-    else if (sessionStarting && !controller) drawStarting();
-    else if (controller) draw(controller.view());
-    else drawRoot();
-  }
+  if (!catalog || preferenceFormVisible) return;
+  if (rootOpen) return drawRoot();
+  const view = commandView();
+  if (view) draw(view);
+  else drawStarting();
 };
 function unmountRoot() {
   if (!rootRenderer) return;
@@ -328,17 +290,17 @@ const restoreScrollOffsets = (offsets: ReturnType<typeof scrollOffsets>) => {
 const reveal = (selector: string) =>
   document.querySelector<HTMLElement>(selector)?.scrollIntoView({ block: "nearest" });
 /** The scene's active node changes on push and pop; a redraw keeps it. */
-const viewKey = (view: ReturnType<Controller["view"]>) =>
+const viewKey = (view: ControllerView) =>
   `${activeNode(lastScene?.root)?.id ?? ""}:${view.kind}:${view.menuBar?.path.join("/") ?? ""}`;
 /** The primary button takes focus so Enter confirms, as in the other clients. */
-const focusAlert = (view: ReturnType<Controller["view"]>) => {
+const focusAlert = (view: ControllerView) => {
   const alertButton = document.querySelector<HTMLButtonElement>(
     "[data-alert=confirm], [data-alert=dismiss]",
   );
   if (view.feedback.alert && alertButton && !document.querySelector(".alert :focus"))
     (document.querySelector<HTMLButtonElement>("[data-alert=confirm]") ?? alertButton).focus();
 };
-const draw = (view: ReturnType<Controller["view"]>) => {
+const draw = (view: ControllerView) => {
   const key = viewKey(view);
   const previous = drawn?.key === key ? drawn : undefined;
   const offsets = previous ? scrollOffsets() : [];
@@ -449,7 +411,7 @@ function syncStatusItem() {
     bar.insertBefore(item, bar.querySelector(".demo-github"));
   }
   const open =
-    !rootOpen && ((sessionStarting && menuLaunching) || controller?.view().kind === "menu-bar");
+    !rootOpen && ((sessionStarting && menuLaunching) || commandView()?.kind === "menu-bar");
   const markup = statusItemMarkup({
     title: menuItem.title,
     icon: menuItem.row.icon,
@@ -606,14 +568,9 @@ function moveRoot(delta: 1 | -1) {
   drawRoot();
 }
 
-function drawPreferences(scope: "extension" | "command" = "command") {
+function drawPreferences() {
   if (!preferenceForm) return;
-  const fields =
-    scope === "extension"
-      ? preferenceForm.extension
-      : preferenceFields(preferenceForm.extension, preferenceForm.commandFields);
-  const values = preferenceForm.store.values(preferenceForm.command);
-  preferenceForm.scope = scope;
+  const { fields, values, scope } = preferenceForm.request;
   const unavailable = fields
     .filter(
       (field) =>
@@ -622,6 +579,7 @@ function drawPreferences(scope: "extension" | "command" = "command") {
         field.default === undefined,
     )
     .map((field) => field.name);
+  unmountRoot();
   app.innerHTML = renderPreferences(
     fields,
     values,
@@ -631,524 +589,159 @@ function drawPreferences(scope: "extension" | "command" = "command") {
   preferenceFormVisible = true;
   document.querySelector<HTMLInputElement | HTMLSelectElement>("[data-preference]")?.focus();
 }
-function openPreferenceForm(scope: "extension" | "command", _context: CapabilityContext) {
-  drawPreferences(scope);
-}
-const sendInput = (value: Parameters<Controller["input"]>[0]) => {
-  const result = controller?.input(value);
-  if (!result || !port) return;
-  processResult(result);
-};
-function processResult(result: ReturnType<Controller["input"]>) {
-  for (const event of result.events)
-    port?.postMessage({
-      type: "event",
-      node: event.node,
-      handler: event.handler,
-      args: event.args,
-    });
-  for (const effect of result.effects) {
-    if (effect.type === "quit") {
-      // `closeMainWindow()` requests a controller quit, but a no-view command
-      // is complete only when the runtime publishes its actual exit status.
-      if (activeMode !== "no-view") stopSession();
-    } else {
-      const timer = setTimeout(() => {
-        sessionTimers.delete(timer);
-        const next = controller?.tick(effect.token);
-        if (next) processResult(next);
-      }, effect.ms);
-      sessionTimers.add(timer);
-    }
-  }
-}
-function settleLaunchStage(generation: number, error?: unknown) {
-  if (launchStage?.generation !== generation) return;
-  const stage = launchStage;
-  launchStage = undefined;
-  if (error === undefined) stage.resolve();
-  else stage.reject(error);
-}
-
-function handleRuntime(
-  generation: number,
-  message:
-    | SceneMessage
-    | { type: "ready" }
-    | { type: "capability.request"; id: string; name: string; params: unknown }
-    | { type: "exit"; code: number }
-    | { type: "error"; message: string },
-) {
-  if (!launchGenerations.isCurrent(generation)) return;
-  if (message.type === "ready") {
-    setStatus("Ready");
-  } else if (message.type === "scene") {
-    if (!controller || rootOpen) return;
-    lastScene = message;
-    const result = controller.scene(message);
-    const view = controller.view();
-    const list = activeNode(message.root);
-    const controlledSearch =
-      list?.props.searchText !== undefined || list?.props.onSearchTextChange !== undefined;
-    const pending = earlyInput;
-    earlyInput = "";
+/** The session's `preferenceForm`: show the form; the submit or Back handler answers it. */
+function askPreferences(request: WebPreferenceRequest) {
+  return new Promise<Record<string, string | boolean> | undefined>((resolve) => {
+    preferenceForm?.answer();
+    preferenceForm = {
+      request,
+      answer: (values) => {
+        preferenceForm = undefined;
+        preferenceFormVisible = false;
+        resolve(values);
+      },
+    };
     sessionStarting = false;
-    settleLaunchStage(generation);
-    const canFlush =
-      pending.length > 0 &&
-      (view.kind === "list" || view.kind === "grid") &&
-      view.search.text === "" &&
-      !controlledSearch;
-    const searchResult = canFlush ? controller.input({ type: "search", text: pending }) : undefined;
-    draw(controller.view());
-    processResult(result);
-    if (searchResult) {
-      processResult(searchResult);
-      draw(controller.view());
-      const search = document.querySelector<HTMLInputElement>("#search");
-      // The first draw already focused the field, and a redraw never overwrites
-      // a focused field's text, so write the flushed keys in directly.
-      if (search) search.value = controller.view().search.text;
-      search?.focus();
-      search?.setSelectionRange(search.value.length, search.value.length);
-    }
-  } else if (message.type === "capability.request") {
-    if (!browserCapabilities || !activeCapabilityContext) return;
-    void browserCapabilities(message, activeCapabilityContext)
-      .then((result) => {
-        if (!launchGenerations.isCurrent(generation)) return;
-        port?.postMessage({ type: "capability.result", id: message.id, ...result });
-        if (!result.ok) setStatus(result.error.message, true);
-      })
-      .catch((error) => {
-        if (!launchGenerations.isCurrent(generation)) return;
-        const text = error instanceof Error ? error.message : String(error);
-        port?.postMessage({
-          type: "capability.result",
-          id: message.id,
-          ok: false,
-          error: { code: "DENIED", message: text },
-        });
-        setStatus(text, true);
-      });
-  } else if (message.type === "exit") {
-    if (message.code === 0) settleLaunchStage(generation);
-    if (message.code !== 0) {
-      if (!statusState.error) setStatus(`Command exited with code ${message.code}`, true);
-      return;
-    }
-    const view = controller?.view();
-    document.body.dataset.commandExit = "0";
-    const toast = view?.feedback.toast;
-    const feedbackTitle = view?.feedback.hud?.title || toast?.title;
-    stopSession(
-      feedbackTitle ? feedbackTitle : `${extensionContext?.commandTitle ?? "Command"} finished`,
-      toast?.style === "failure" || statusState.error,
-    );
-  } else if (message.type === "error") setStatus(message.message, true);
-}
-
-async function fetchFiles(source: string): Promise<FetchedExtension> {
-  const allowFixtures =
-    Object.getOwnPropertyDescriptor(globalThis, "__BLAST_FIXTURES__")?.value === true;
-  const extension = await fetchExtensionFiles(source, {
-    fixturesUrl: allowFixtures ? asset("fixtures/") : undefined,
+    earlyInput = "";
+    drawPreferences();
   });
-  commandSelect?.replaceChildren();
-  for (const name of manifestCommands(extension.manifest)) {
-    const option = document.createElement("option");
-    option.value = name;
-    option.textContent = name;
-    commandSelect?.append(option);
-  }
-  if (commandSelect) commandSelect.hidden = commandSelect.options.length < 2;
-  return extension;
 }
 
-async function launch(
-  source: string,
-  commandName: string,
-  selectedRow: RootRow | undefined = rootRows[rootSelected],
-): Promise<void> {
-  const previousStage = launchStage;
-  launchStage = undefined;
-  const generation = launchGenerations.next();
-  previousStage?.resolve();
-  const stillCurrent = () => launchGenerations.isCurrent(generation);
-  earlyInput = "";
-  delete document.body.dataset.commandExit;
+/** Show the loading stage for a command that is starting, from its first frame. */
+function restartStage(command?: string) {
   sessionStarting = true;
-  rootOpen = false;
-  actionOpen = false;
+  earlyInput = "";
   lastScene = undefined;
   drawn = undefined;
-  extensionContext = selectedRow
-    ? {
-        extensionTitle: selectedRow.subtitle,
-        commandTitle: selectedRow.title,
-        icon: selectedRow.icon,
-        ...(selectedRow.iconUrl ? { iconUrl: selectedRow.iconUrl } : {}),
-      }
-    : undefined;
-  const selectedCommand = commandName || commandSelect?.value || "index";
-  if (selectedRow) writeRecent(selectedRow.id);
-  // The catalog knows a menu-bar command before its bundle loads, so its menu
-  // can open under the status item at once instead of after a launcher frame.
-  menuLaunching =
-    selectedRow !== undefined &&
-    catalog.extensions
-      .find((entry) => entry.name === selectedRow.extension)
-      ?.commands.find((entry) => entry.name === selectedCommand)?.mode === "menu-bar";
-  if (menuLaunching && selectedRow) rememberMenuItem(source, selectedCommand, selectedRow);
-  // Draw the stage in the same task as the key or click, before any fetch.
+  // `launchCommand` starts another command of the same extension in this session.
+  if (command && launched && command !== launched.command) {
+    launched = { ...launched, command };
+    if (extensionContext)
+      extensionContext = {
+        ...extensionContext,
+        commandTitle: catalogCommandTitle(catalog, launched.source, command) ?? command,
+      };
+  }
   launchStartedAt = performance.now();
   clearInterval(stageClock);
   stageClock = setInterval(tickStage, 250);
-  setStatus("Fetching extension…");
-  const catalogSource = source.startsWith("https://github.com/raycast/extensions/tree/");
-  const bundle = catalogSource ? await prebuiltBundle(source, selectedCommand) : undefined;
-  if (!stillCurrent()) return;
-  let extension: FetchedExtension;
-  let command: string;
-  let bundled: { code: string; files?: Map<string, BrowserFile> };
-  if (bundle) {
-    extension = { files: bundle.files, manifest: bundle.manifest, root: "" };
-    command = `/src/${selectedCommand}.tsx`;
-    bundled = bundle;
-    setStatus("Starting…");
-  } else {
-    extension = await fetchFiles(source);
-    if (!stillCurrent()) return;
-    const sourceFiles = (await (await fetch(asset("blast-sources.json"))).json()) as FileMap;
-    if (!stillCurrent()) return;
-    const files = new Map<string, BrowserFile>(Object.entries(sourceFiles));
-    for (const [path, value] of extension.files) files.set(path, value);
-    command = commandEntry(extension.files, selectedCommand);
-    setStatus("Installing…");
-    const installed = await installForBrowser({
-      fetch: (value, init) => fetch(value, init),
-      manifest: extension.manifest,
-      ...(extension.lockfile === undefined ? {} : { lockfile: extension.lockfile }),
-    });
-    if (!stillCurrent()) return;
-    setStatus("Bundling…");
-    if (!esbuildReady) {
-      await esbuild.initialize({ wasmURL: asset("esbuild.wasm"), worker: false });
-      esbuildReady = true;
-    }
-    if (!stillCurrent()) return;
-    bundled = await bundleForBrowser({
-      esbuild,
-      files,
-      packages: installed.packages,
-      command,
-      runtimeEntry: "/packages/web/sandbox/runtime-entry.ts",
-      aliases,
-    });
-    if (!stillCurrent()) return;
+}
+
+/** Each session's `render`: the stage until the command's first view, then its views. */
+function renderSession(view: WebView, input: WebMount["input"], frame: WebFrame) {
+  if ("type" in view) {
+    if (view.type === "error") return failSession(view.message);
+    if (!sessionStarting) restartStage(view.command);
+    return drawStarting();
   }
-  const preferenceFieldsRaw = (extension.manifest.preferences as unknown[] | undefined) ?? [];
-  const commandDeclarations = extension.manifest.commands;
-  const commandDeclaration = Array.isArray(commandDeclarations)
-    ? commandDeclarations.find(
-        (item) => item && typeof item === "object" && item.name === selectedCommand,
-      )
-    : undefined;
-  const commandPreferenceValue = Array.isArray(commandDeclarations)
-    ? commandDeclaration?.preferences
-    : (commandDeclarations as Record<string, unknown> | undefined)?.[selectedCommand];
-  const extensionPreferences = parsePreferences(preferenceFieldsRaw, "Extension preferences");
-  const commandPreferences = parsePreferences(
-    commandPreferenceValue,
-    `Command ${selectedCommand} preferences`,
-  );
-  const catalogMode = catalogSource
-    ? catalog.extensions
-        .find(
-          (catalogExtension) =>
-            catalogExtension.name === new URL(source).pathname.split("/").filter(Boolean).at(-1),
-        )
-        ?.commands.find((catalogCommand) => catalogCommand.name === selectedCommand)?.mode
-    : undefined;
-  const declaredMode = Array.isArray(commandDeclarations)
-    ? commandDeclaration && typeof commandDeclaration === "object"
-      ? (commandDeclaration as Record<string, unknown>).mode
-      : undefined
-    : undefined;
-  const modeValue = bundle?.manifest.modes?.[selectedCommand] ?? declaredMode ?? catalogMode;
-  activeMode =
-    modeValue === "no-view" || modeValue === "menu-bar" || modeValue === "model-provider"
-      ? modeValue
-      : "view";
-  if (activeMode === "menu-bar" && selectedRow && !menuLaunching)
-    rememberMenuItem(source, selectedCommand, selectedRow);
-  let preferenceStorage;
-  try {
-    preferenceStorage = globalThis.localStorage;
-  } catch {
-    preferenceStorage = undefined;
-  }
-  const preferenceStore = createBrowserPreferenceStore(
-    String(extension.manifest.name ?? source),
-    preferenceStorage,
-  );
-  const fields = preferenceFields(extensionPreferences, commandPreferences);
-  const values = {
-    ...preferenceDefaults(extensionPreferences, commandPreferences),
-    ...preferenceStore.values(selectedCommand),
-  };
-  const missing = missingPreferences(fields, values);
-  preferenceForm = {
-    source,
-    command: selectedCommand,
-    extension: extensionPreferences,
-    commandFields: commandPreferences,
-    scope: "command",
-    store: preferenceStore,
-  };
-  if (missing.length) {
+  lastScene = frame.scene;
+  for (const listener of viewListeners) listener();
+  if (preferenceFormVisible || rootOpen) return;
+  if (view.kind === "menu-bar" && launched?.row && !menuLaunching)
+    rememberMenuItem(launched.source, launched.command, launched.row);
+  if (sessionStarting) {
     sessionStarting = false;
-    earlyInput = "";
-    rootOpen = false;
-    drawPreferences();
+    flushEarlyInput(view, input, frame.scene);
+  }
+  draw(view);
+}
+
+/** Keys typed on the stage become the search text, unless the extension controls it. */
+function flushEarlyInput(view: ControllerView, input: WebMount["input"], scene?: SceneMessage) {
+  const pending = earlyInput;
+  earlyInput = "";
+  const list = activeNode(scene?.root);
+  const controlled =
+    list?.props.searchText !== undefined || list?.props.onSearchTextChange !== undefined;
+  if (!pending || (view.kind !== "list" && view.kind !== "grid") || view.search.text || controlled)
     return;
-  }
-  preferenceFormVisible = false;
-  activeCapabilityContext = {
-    extensionName: String(extension.manifest.name ?? source),
-    commandName: selectedCommand,
-    source,
-  };
-  const active = await acquireSandbox();
-  if (!stillCurrent()) return;
-  const extensionName = String(extension.manifest.name ?? source);
-  const pathSegment = extensionName.replace(/[^A-Za-z0-9._-]/gu, "_") || "extension";
-  const supportPath = `/blast/support/${pathSegment}`;
-  const assetsPath = `/blast/assets/${pathSegment}`;
-  const vfs = active.runtime.getVFS();
-  vfs.mkdirSync(supportPath, { recursive: true });
-  vfs.mkdirSync(assetsPath, { recursive: true });
-  // A marker syncs directories created after a warmed sandbox was initialized.
-  vfs.writeFileSync(`${supportPath}/.keep`, "");
-  vfs.writeFileSync(`${assetsPath}/.keep`, "");
-  for (const [path, value] of extension.files) {
-    if (path.includes("/node_modules/")) continue;
-    const relativePath = path.startsWith("/assets/")
-      ? path.slice("/assets/".length)
-      : path.startsWith("/src/")
-        ? /\.(?:cjs|css|html?|js|jsx|mjs|ts|tsx)$/iu.test(path)
-          ? undefined
-          : path.slice("/src/".length)
-        : path.replace(/^\//u, "");
-    if (!relativePath) continue;
-    const target = `${assetsPath}/${relativePath}`;
-    vfs.mkdirSync(target.slice(0, target.lastIndexOf("/")), { recursive: true });
-    vfs.writeFileSync(target, value);
-    if (path === "/package.json") vfs.writeFileSync("/blast/assets/package.json", value);
-  }
-  const channel = new MessageChannel();
-  port = channel.port1;
-  port.start();
-  port.addEventListener("message", (event) => handleRuntime(generation, event.data));
-  let transferred = false;
-  let resolvePort!: () => void;
-  let rejectPort!: (error: unknown) => void;
-  const portReady = new Promise<void>((resolve, reject) => {
-    resolvePort = resolve;
-    rejectPort = reject;
+  const id = sessionId;
+  // Once the session has finished with this scene, as if the keys came right after it.
+  queueMicrotask(() => {
+    if (id !== sessionId || !commandView()) return;
+    input({ type: "search", text: pending });
+    const latest = commandView();
+    if (latest) draw(latest);
+    const search = document.querySelector<HTMLInputElement>("#search");
+    if (!search || !latest) return;
+    // The first draw already focused the field, and a redraw never overwrites
+    // a focused field's text, so write the flushed keys in directly.
+    search.value = latest.search.text;
+    search.focus();
+    search.setSelectionRange(search.value.length, search.value.length);
   });
-  const transferPort = (event: MessageEvent) => {
-    if (!stillCurrent()) return;
-    if (!acceptsRuntimePortRequest(event.source, runtimeFrame, transferred, event.data)) return;
-    transferred = true;
-    window.removeEventListener("message", transferPort);
-    runtimeFrame?.postMessage({ type: "blast-port" }, "*", [channel.port2]);
-    resolvePort();
-  };
-  window.addEventListener("message", transferPort);
-  try {
-    await withLaunchTimeout(
-      (async () => {
-        await active.runtime.execute(
-          `${bundled.code}\nmodule.exports = null;`,
-          `${assetsPath}/bundle.cjs`,
-        );
-        if (!stillCurrent()) return;
-        await portReady;
-      })(),
-      30_000,
-      "waiting for runtime port",
-    );
-  } catch (error) {
-    window.removeEventListener("message", transferPort);
-    rejectPort(error);
-    if (!stillCurrent()) return;
-    if (error instanceof BrowserLaunchTimeoutError) throw error;
-    throw new Error(`Runtime failed: ${String(error)}`, { cause: error });
-  }
-  if (!stillCurrent() || !transferred) return;
-  const commandTitle =
-    extensionContext?.commandTitle ?? catalogCommandTitle(catalog, source, selectedCommand);
-  controller = createController({
-    platform,
-    ...(commandTitle ? { fallbackTitle: commandTitle } : {}),
-  });
-  const launchController = controller;
-  controller.subscribe((view) => {
-    if (stillCurrent() && controller === launchController && !rootOpen) draw(view);
-  });
-  const firstScene = new Promise<void>((resolve, reject) => {
-    launchStage = { generation, resolve, reject };
-  });
-  const initTimer = setTimeout(
-    () =>
-      port?.postMessage({
-        type: "init",
-        protocol: 1,
-        command: {
-          extension: String(extension.manifest.name ?? source),
-          name: selectedCommand,
-          entry: command,
-          mode: activeMode,
-        },
-        preferences: { ...values },
-        environment: {
-          extensionName,
-          commandName: selectedCommand,
-          ownerOrAuthorName: "Browser",
-          assetsPath,
-          supportPath,
-          isDevelopment: false,
-          appearance: "dark",
-          textSize: "medium",
-        },
-      }),
-    250,
+}
+
+/** Before the first view the stage stays, now with the error, until Esc or Back; a running view or a menu returns to the root. */
+function failSession(message: string) {
+  if (!sessionStarting || menuLaunching) return stopSession(message, true);
+  closeSession();
+  setStatus(message, true);
+}
+
+function commandExited(exit: WebExit) {
+  if (exit.reason === "quit") return stopSession();
+  document.body.dataset.commandExit = "0";
+  const toast = exit.view?.feedback.toast;
+  const feedbackTitle = exit.view?.feedback.hud?.title || toast?.title;
+  stopSession(
+    feedbackTitle || `${extensionContext?.commandTitle ?? "Command"} finished`,
+    toast?.style === "failure" || statusState.error,
   );
-  sessionTimers.add(initTimer);
-  setStatus("Starting…");
-  try {
-    await withLaunchTimeout(firstScene, 30_000, "waiting for first scene");
-  } finally {
-    if (launchGenerations.isCurrent(generation)) launchStage = undefined;
-  }
 }
 
-async function loadBundleIndex() {
-  if (bundleIndex) return bundleIndex;
-  const [indexResponse, buildResponse] = await Promise.all([
-    fetch(asset("bundles.json")),
-    fetch(asset("../build.json")),
-  ]);
-  if (!indexResponse.ok || !buildResponse.ok) return undefined;
-  const index = parseBundleIndex(await indexResponse.json());
-  const build = (await buildResponse.json()) as { sha?: unknown };
-  if (typeof build.sha !== "string" || build.sha !== index.buildSha) return undefined;
-  bundleIndex = index;
-  return index;
-}
-
-async function loadRuntimeCode(): Promise<string | undefined> {
-  if (runtimeCode !== undefined) return runtimeCode;
-  const index = await loadBundleIndex();
-  if (!index?.runtime) return undefined;
-  const response = await fetch(asset(index.runtime.path));
-  if (!response.ok) return undefined;
-  const bytes = await response.arrayBuffer();
-  if (index.runtime.bytes !== bytes.byteLength || (await sha256Hex(bytes)) !== index.runtime.sha256)
-    return undefined;
-  runtimeCode = new TextDecoder().decode(bytes);
-  return runtimeCode;
-}
-
-async function prebuiltBundle(
-  source: string,
-  command: string,
-): Promise<
-  { code: string; files: Map<string, BrowserFile>; manifest: CatalogManifest } | undefined
-> {
-  try {
-    const index = await loadBundleIndex();
-    if (!index) return undefined;
-    const parts = new URL(source).pathname.split("/").filter(Boolean);
-    const treeIndex = parts.indexOf("tree");
-    const extension = treeIndex >= 0 ? parts[treeIndex + 3] : undefined;
-    if (!extension) return undefined;
-    const key = bundleKey(extension, command);
-    const entry = index.bundles[key];
-    if (!entry) return undefined;
-    const response = await fetch(asset(entry.path));
-    if (!response.ok) return undefined;
-    const bytes = await response.arrayBuffer();
-    if (!(await bundleMatches(index, index.buildSha, key, bytes))) return undefined;
-    const files = new Map<string, BrowserFile>();
-    for (const [name, file] of Object.entries(entry.files ?? {})) {
-      const assetResponse = await fetch(asset(file.path));
-      if (!assetResponse.ok) return undefined;
-      const assetBytes = await assetResponse.arrayBuffer();
-      if (assetBytes.byteLength !== file.bytes || (await sha256Hex(assetBytes)) !== file.sha256)
-        return undefined;
-      files.set(
-        `/${name}`,
-        /\.(?:cjs|css|html?|js|jsx|json|md|mjs|ts|tsx|txt|yaml|yml)$/iu.test(name)
-          ? new TextDecoder().decode(assetBytes)
-          : new Uint8Array(assetBytes),
-      );
-    }
-    // An index without manifest data predates 0133; the source path still has
-    // the full package.json, so fall back to it.
-    if (!entry.manifest) return undefined;
-    return { code: new TextDecoder().decode(bytes), files, manifest: entry.manifest };
-  } catch {
-    return undefined;
-  }
-}
-
-/** Create the cross-origin sandbox and load the shared runtime before any command code. */
-async function createSandbox(kind: "warm" | "session"): Promise<Sandbox> {
-  const almost = (await import(asset("almostnode.mjs"))) as unknown as {
-    VirtualFS: new () => unknown;
-    createRuntime: (
-      vfs: unknown,
-      options: { sandbox: string },
-    ) => Promise<{
-      execute(code: string, filename?: string): Promise<unknown>;
-      getVFS(): {
-        mkdirSync(path: string, options?: { recursive?: boolean }): void;
-        writeFileSync(path: string, data: string): void;
-      };
-      iframe?: HTMLIFrameElement;
-      terminate?: () => void;
-    }>;
-  };
-  const runtime = await almost.createRuntime(new almost.VirtualFS(), {
-    sandbox:
-      ((globalThis as Record<string, unknown>)["__BLAST_SANDBOX__"] as string | undefined) ?? "",
+function launch(source: string, command: string, row?: RootRow) {
+  closeSession();
+  const id = sessionId;
+  launched = { source, command, ...(row ? { row } : {}) };
+  delete document.body.dataset.commandExit;
+  rootOpen = false;
+  actionOpen = false;
+  restartStage();
+  extensionContext = row
+    ? {
+        extensionTitle: row.subtitle,
+        commandTitle: row.title,
+        icon: row.icon,
+        ...(row.iconUrl ? { iconUrl: row.iconUrl } : {}),
+      }
+    : undefined;
+  if (row) writeRecent(row.id);
+  // The catalog knows a menu-bar command before its bundle loads, so its menu
+  // can open under the status item at once instead of after a launcher frame.
+  menuLaunching =
+    row !== undefined &&
+    catalog.extensions
+      .find((entry) => entry.name === row.extension)
+      ?.commands.find((entry) => entry.name === command)?.mode === "menu-bar";
+  if (menuLaunching && row) rememberMenuItem(source, command, row);
+  const commandTitle =
+    extensionContext?.commandTitle ?? catalogCommandTitle(catalog, source, command);
+  // The session draws the stage in this task, before any fetch.
+  session = mount(app, {
+    ...sandboxOptions,
+    source,
+    command,
+    ...(commandTitle ? { commandTitle } : {}),
+    fixtures: Object.getOwnPropertyDescriptor(globalThis, "__BLAST_FIXTURES__")?.value === true,
+    esbuild: loadEsbuild,
+    render: (view, input, frame) => {
+      if (id === sessionId) renderSession(view, input, frame);
+    },
+    onStatus: (status) => {
+      if (id === sessionId) setStatus(status.text, status.error === true);
+    },
+    onExit: (exit) => {
+      if (id === sessionId) commandExited(exit);
+    },
+    preferenceForm: (request) => (id === sessionId ? askPreferences(request) : undefined),
   });
-  runtime.iframe?.setAttribute("data-blast", kind);
-  sandbox = { runtime, ...(runtime.iframe ? { iframe: runtime.iframe } : {}) };
-  runtimeFrame = runtime.iframe?.contentWindow ?? undefined;
-  const code = await loadRuntimeCode();
-  if (code) await runtime.execute(`${code}\nmodule.exports = null;`, "/runtime.cjs");
-  return sandbox;
-}
-
-function discardSandbox() {
-  const current = sandbox;
-  sandbox = undefined;
-  runtimeFrame = undefined;
-  try {
-    current?.runtime.terminate?.();
-  } catch {
-    // A sandbox that never finished initializing has nothing to terminate.
-  }
-  document.querySelector("iframe[data-blast]")?.remove();
 }
 
 function warmIdle() {
-  warmSandbox();
+  if (rootOpen && !session) prewarm(sandboxOptions);
 }
-
+/** Warm a sandbox while the root is idle, for the next command to adopt. */
 function scheduleWarm() {
   const idle = (
     globalThis as {
@@ -1159,73 +752,40 @@ function scheduleWarm() {
   else setTimeout(warmIdle, 200);
 }
 
-function warmSandbox() {
-  if (sandbox || warming) return;
-  warming = (async () => {
-    const index = await loadBundleIndex();
-    if (!index?.runtime) return undefined;
-    try {
-      return await createSandbox("warm");
-    } catch {
-      discardSandbox();
-      return undefined;
-    }
-  })().finally(() => {
-    warming = undefined;
-  });
-}
-
-/** Reuse the idle sandbox when it is ready; otherwise start a fresh session. */
-async function acquireSandbox(): Promise<Sandbox> {
-  if (warming) await warming;
-  const current = sandbox;
-  if (current) {
-    current.runtime.iframe?.setAttribute("data-blast", "session");
-    return current;
-  }
-  return createSandbox("session");
-}
-
 function rememberMenuItem(source: string, command: string, row: RootRow) {
   if (menuItem?.source !== source || menuItem.command !== command)
     menuItem = { source, command, row, title: row.title };
 }
 
-/** Cancel the running launch and close its sandbox; the caller decides what to draw. */
-function releaseSession() {
-  const pendingStage = launchStage;
-  launchStage = undefined;
-  launchGenerations.next();
-  pendingStage?.resolve();
-  for (const timer of sessionTimers) clearTimeout(timer);
-  sessionTimers.clear();
-  port?.close();
-  port = undefined;
-  discardSandbox();
+/** Close the running session; the caller decides what to draw. */
+function closeSession() {
+  const active = session;
+  session = undefined;
+  sessionId++;
+  preferenceForm?.answer();
+  active?.close();
 }
 
 function stopSession(message = "Ready", error = false) {
-  releaseSession();
+  closeSession();
   sessionStarting = false;
   menuLaunching = false;
   lastScene = undefined;
   drawn = undefined;
   earlyInput = "";
-  controller = undefined;
   rootOpen = true;
+  launched = undefined;
   extensionContext = undefined;
-  activeCapabilityContext = undefined;
   setStatus(message, error);
   drawRoot();
   scheduleWarm();
 }
 
 function backFromExtension() {
-  const result = controller?.input({ type: "back" });
+  const result = sendInput({ type: "back" });
   if (!result) return stopSession();
-  processResult(result);
-  if (controller && !result.effects.some((effect) => effect.type === "quit"))
-    draw(controller.view());
+  const view = commandView();
+  if (view && !result.effects.some((effect) => effect.type === "quit")) draw(view);
 }
 
 function runSelected() {
@@ -1234,25 +794,7 @@ function runSelected() {
   const source =
     selected.url ??
     `https://github.com/raycast/extensions/tree/${catalog.commit}/extensions/${selected.extension}`;
-  launchFromLauncher(source, selected.command, selected);
-}
-
-function launchFromLauncher(source: string, command: string, row: RootRow) {
-  void launch(source, command, row).catch((error: unknown) => {
-    const message =
-      error instanceof BrowserLaunchTimeoutError
-        ? error.message
-        : error instanceof Error
-          ? error.message
-          : String(error);
-    // Before the first scene the stage stays, now with the error, until Esc or
-    // Back; a running view or a menu returns to the root as before.
-    if (controller || menuLaunching || !sessionStarting) stopSession(message, true);
-    else {
-      releaseSession();
-      setStatus(message, true);
-    }
-  });
+  launch(source, selected.command, selected);
 }
 
 function runAction() {
@@ -1293,30 +835,11 @@ function runRootAction(id: RootActionId) {
 async function start() {
   try {
     catalog = validateCatalog(await (await fetch(asset("catalog.json"))).json());
-    let storage;
-    try {
-      storage = globalThis.localStorage;
-    } catch {
-      storage = undefined;
-    }
     recentIds = readRecent();
-    browserCapabilities = createBrowserCapabilities({
-      catalog,
-      ...(storage ? { storage } : {}),
-      clipboard: {
-        readText: () => navigator.clipboard.readText(),
-        writeText: (text) => navigator.clipboard.writeText(text),
-      },
-      openUrl: (url) => window.open(url, "_blank", "noopener"),
-      launchCommand: (source, command) => launch(source, command),
-      status: (message) => setStatus(message),
-      openPreferences: openPreferenceForm,
-    });
     const params = new URLSearchParams(location.search);
     const extension = params.get("ext");
     const command = params.get("cmd");
-    if (extension && command)
-      return void launch(extension, command).catch((error) => setStatus(String(error), true));
+    if (extension && command) return launch(extension, command);
     drawRoot();
     setStatus("Ready");
     scheduleWarm();
@@ -1384,13 +907,11 @@ window.addEventListener(
       runRootAction(id);
       return;
     }
-    const view = controller?.view();
-    if (!controller || !view || view.feedback.alert || view.dropdown?.open) return;
-    const result = controller.input({ type: "key", key: press });
-    if (!result.handled) return;
+    const view = commandView();
+    if (!view || view.feedback.alert || view.dropdown?.open) return;
+    if (!sendInput({ type: "key", key: press })?.handled) return;
     event.preventDefault();
     event.stopPropagation();
-    processResult(result);
   },
   { capture: true },
 );
@@ -1417,7 +938,7 @@ const typingIn = (event: KeyboardEvent) => {
 };
 
 document.addEventListener("keydown", (event) => {
-  if (sessionStarting && !controller && !rootOpen) {
+  if (sessionStarting && !rootOpen) {
     const next = applyEarlyKey(earlyInput, event);
     if (next !== undefined) {
       event.preventDefault();
@@ -1426,11 +947,11 @@ document.addEventListener("keydown", (event) => {
       return;
     }
   }
-  const modalView = rootOpen ? undefined : controller?.view();
-  if (modalView?.feedback.alert) return alertKey(event);
-  if (modalView?.dropdown?.open) return dropdownKey(event);
-  if (!rootOpen && controller) {
-    if (controller.view().kind === "menu-bar") {
+  const view = rootOpen ? undefined : commandView();
+  if (view?.feedback.alert) return alertKey(event);
+  if (view?.dropdown?.open) return dropdownKey(event);
+  if (view) {
+    if (view.kind === "menu-bar") {
       if (event.key === "ArrowLeft") {
         event.preventDefault();
         sendInput({ type: "move", direction: "left" });
@@ -1449,10 +970,9 @@ document.addEventListener("keydown", (event) => {
     }
     const result = typingIn(event)
       ? undefined
-      : controller.input({ type: "key", key: keyInputFromEvent(event) });
+      : sendInput({ type: "key", key: keyInputFromEvent(event) });
     if (result?.handled) {
       event.preventDefault();
-      processResult(result);
       return;
     }
   }
@@ -1538,21 +1058,21 @@ document.addEventListener("keydown", (event) => {
   } else if (isActionsKey(event)) {
     event.preventDefault();
     toggleExtensionActions();
-  } else if (controller?.view().kind === "form" && event.key === "Tab") {
+  } else if (view?.kind === "form" && event.key === "Tab") {
     event.preventDefault();
     sendInput({ type: event.shiftKey ? "focusPrev" : "focusNext" });
-  } else if (controller?.view().kind === "form" && isSubmitKey(event)) {
+  } else if (view?.kind === "form" && isSubmitKey(event)) {
     event.preventDefault();
     sendInput({ type: "submit" });
-  } else if (controller?.view().kind === "form" && event.key === " ") {
-    const field = controller.view().form?.fields.find((candidate) => candidate.focused);
+  } else if (view?.kind === "form" && event.key === " ") {
+    const field = view.form?.fields.find((candidate) => candidate.focused);
     if (field?.type === "Form.Checkbox") {
       event.preventDefault();
       sendInput({ type: "toggle", id: field.id });
     }
   } else if (
-    controller &&
-    controller.view().kind !== "form" &&
+    view &&
+    view.kind !== "form" &&
     event.ctrlKey &&
     !event.metaKey &&
     !event.altKey &&
@@ -1561,11 +1081,7 @@ document.addEventListener("keydown", (event) => {
     // Ctrl+N / Ctrl+P move like ↓/↑ in pushed views too, as in the root.
     event.preventDefault();
     sendInput({ type: "move", direction: event.key.toLowerCase() === "n" ? "down" : "up" });
-  } else if (
-    controller &&
-    ["ArrowDown", "ArrowUp", "ArrowLeft", "ArrowRight"].includes(event.key)
-  ) {
-    const view = controller.view();
+  } else if (view && ["ArrowDown", "ArrowUp", "ArrowLeft", "ArrowRight"].includes(event.key)) {
     const vertical = event.key === "ArrowDown" || event.key === "ArrowUp";
     const horizontal = event.key === "ArrowLeft" || event.key === "ArrowRight";
     // Vertical arrows select list rows; horizontal arrows are grid navigation.
@@ -1585,13 +1101,10 @@ document.addEventListener("keydown", (event) => {
   } else if (event.key === "Escape") {
     event.preventDefault();
     // The controller closes an open action panel on back before leaving the view.
-    if (preferenceFormVisible) {
-      preferenceFormVisible = false;
-      rootOpen = true;
-      drawRoot();
-    } else if (controller?.view().actions.open || controller?.view().dropdown?.open) {
+    if (preferenceFormVisible) stopSession();
+    else if (view?.actions.open || view?.dropdown?.open) {
       backFromExtension();
-    } else if (controller?.view().search.text) {
+    } else if (view?.search.text) {
       sendInput({ type: "search", text: "" });
       // Keep the focused control in sync while the extension sends its next scene.
       const search = document.querySelector<HTMLInputElement>("#search");
@@ -1601,9 +1114,11 @@ document.addEventListener("keydown", (event) => {
 });
 
 function toggleExtensionActions() {
-  if (!controller) return;
-  sendInput({ type: controller.view().actions.open ? "closeActions" : "openActions" });
-  draw(controller.view());
+  const view = commandView();
+  if (!view) return;
+  sendInput({ type: view.actions.open ? "closeActions" : "openActions" });
+  const next = commandView();
+  if (next) draw(next);
 }
 
 /** A footer button does exactly what its key does, in either view. */
@@ -1651,10 +1166,10 @@ document.addEventListener("mousedown", (event) => {
 // would pull the caret back to the field the controller still considers focused.
 document.addEventListener("focusin", (event) => {
   const field = (event.target as HTMLElement).dataset?.field;
-  if (field && controller?.view().form?.focusId !== field) sendInput({ type: "focus", id: field });
+  if (field && commandView()?.form?.focusId !== field) sendInput({ type: "focus", id: field });
 });
 document.addEventListener("paste", (event) => {
-  if (!sessionStarting || controller || rootOpen) return;
+  if (!sessionStarting || rootOpen) return;
   const text = event.clipboardData?.getData("text") ?? "";
   if (!text) return;
   event.preventDefault();
@@ -1666,10 +1181,7 @@ document.addEventListener("compositionend", () => (composing = false), true);
 document.addEventListener("input", (event) => {
   const target = event.target as HTMLInputElement;
   if (target.closest("#preferences-form") && preferenceForm) {
-    const fields =
-      preferenceForm.scope === "extension"
-        ? preferenceForm.extension
-        : preferenceFields(preferenceForm.extension, preferenceForm.commandFields);
+    const { fields } = preferenceForm.request;
     const form = document.querySelector<HTMLFormElement>("#preferences-form");
     const missing = form
       ? missingPreferences(fields, preferenceFormValues(form, fields)).length > 0
@@ -1691,7 +1203,8 @@ document.addEventListener("input", (event) => {
     drawRoot();
   } else if (target.id === "search") {
     sendInput({ type: "search", text: target.value });
-    if (controller) searchBaseline = controller.view().search.text;
+    const view = commandView();
+    if (view) searchBaseline = view.search.text;
   } else if (target.id === "dropdown-search")
     sendInput({ type: "dropdownQuery", text: target.value });
   else if (target.id === "action-search") sendInput({ type: "actionsQuery", text: target.value });
@@ -1701,16 +1214,16 @@ document.addEventListener("input", (event) => {
     // A select reports through "change"; a setValue would filter a Dropdown's options.
     sendInput({ type: "setValue", id: target.dataset.field, value: target.value });
 });
-/** Resolve once the controller publishes its next view, or after `ms`. */
-function nextView(active: Controller, ms = 2000) {
+/** Resolve once the session draws its next view, or after `ms`. */
+function nextView(ms = 2000) {
   return new Promise<void>((resolve) => {
-    const stop = active.subscribe(() => done());
     const timer = setTimeout(() => done(), ms);
     function done() {
-      stop();
+      viewListeners.delete(done);
       clearTimeout(timer);
       resolve();
     }
+    viewListeners.add(done);
   });
 }
 /**
@@ -1719,11 +1232,12 @@ function nextView(active: Controller, ms = 2000) {
  * at a time and wait for the scene that reflects it before the next.
  */
 async function syncFieldOptions(fieldId: string, wanted: Set<string>, multiple: boolean) {
-  const active = controller;
+  const active = session;
   if (!active) return;
   sendInput({ type: "focus", id: fieldId });
   for (let step = 0; step < 64; step++) {
-    const field = active.view().form?.fields.find((candidate) => candidate.id === fieldId);
+    if (session !== active) return;
+    const field = commandView()?.form?.fields.find((candidate) => candidate.id === fieldId);
     if (!field) return;
     const have = new Set(field.selected.map((option) => option.value));
     // A Dropdown choice replaces its value, so only a missing option needs choosing.
@@ -1733,7 +1247,7 @@ async function syncFieldOptions(fieldId: string, wanted: Set<string>, multiple: 
         : wanted.has(option.value) && !have.has(option.value),
     );
     if (index < 0) return;
-    const changed = nextView(active);
+    const changed = nextView();
     sendInput({ type: "optionMove", delta: index - field.optionIndex });
     sendInput({ type: "optionChoose" });
     await changed;
@@ -1759,21 +1273,19 @@ document.addEventListener("click", (event) => {
     return;
   }
   if (target.closest("[data-preference-back]")) {
-    preferenceFormVisible = false;
-    rootOpen = true;
-    drawRoot();
+    stopSession();
     return;
   }
   if (target.closest("#preferences-form")) return;
   if (target.closest("[data-dropdown-open]")) {
-    if (!controller) return;
     sendInput({ type: "openDropdown" });
-    draw(controller.view());
+    const view = commandView();
+    if (view) draw(view);
     return;
   }
   const dropdownValue = target.closest<HTMLElement>("[data-dropdown-value]")?.dataset.dropdownValue;
   if (dropdownValue !== undefined) {
-    const view = controller?.view();
+    const view = commandView();
     const option =
       view?.dropdown?.options.findIndex((candidate) => candidate.value === dropdownValue) ?? -1;
     const current = view?.dropdown?.selectedIndex ?? 0;
@@ -1803,7 +1315,7 @@ document.addEventListener("click", (event) => {
   // In an extension view, clicking a row selects it; clicking an action runs it.
   const actionIndex = target.closest<HTMLElement>("[data-action-index]")?.dataset.actionIndex;
   if (actionIndex !== undefined) {
-    const rows = controller?.view().actions.rows ?? [];
+    const rows = commandView()?.actions.rows ?? [];
     const from = rows.findIndex((row) => row.selected);
     const steps = Number(actionIndex) - Math.max(from, 0);
     for (let step = 0; step < Math.abs(steps); step++)
@@ -1815,12 +1327,12 @@ document.addEventListener("click", (event) => {
     ?.dataset.id;
   if (rowId !== undefined) sendInput({ type: "select", id: rowId });
   const menuButton = target.closest<HTMLElement>("[data-menu-id]");
-  if (menuButton && controller?.view().menuBar) {
+  if (menuButton && commandView()?.menuBar) {
     // A row in a parent level first closes the submenus open beside it.
     const level = Number(menuButton.dataset.menuLevel ?? 0);
-    while ((controller?.view().menuBar?.path.length ?? 0) > level)
+    while ((commandView()?.menuBar?.path.length ?? 0) > level)
       sendInput({ type: "move", direction: "left" });
-    const items = controller?.view().menuBar?.rows.filter((row) => row.kind !== "section") ?? [];
+    const items = commandView()?.menuBar?.rows.filter((row) => row.kind !== "section") ?? [];
     const from = items.findIndex((row) => row.selected);
     const to = items.findIndex((row) => row.id === menuButton.dataset.menuId);
     if (to < 0) return;
@@ -1831,8 +1343,8 @@ document.addEventListener("click", (event) => {
 });
 /** The status item opens its command's menu, or closes the open one. */
 function toggleMenu() {
-  if (!rootOpen && (menuLaunching || controller?.view().kind === "menu-bar")) stopSession();
-  else if (menuItem) launchFromLauncher(menuItem.source, menuItem.command, menuItem.row);
+  if (!rootOpen && (menuLaunching || commandView()?.kind === "menu-bar")) stopSession();
+  else if (menuItem) launch(menuItem.source, menuItem.command, menuItem.row);
 }
 document.addEventListener("submit", (event) => {
   if (
@@ -1842,10 +1354,7 @@ document.addEventListener("submit", (event) => {
   )
     return;
   event.preventDefault();
-  const fields =
-    preferenceForm.scope === "extension"
-      ? preferenceForm.extension
-      : preferenceFields(preferenceForm.extension, preferenceForm.commandFields);
+  const { fields } = preferenceForm.request;
   const values = preferenceFormValues(event.target, fields);
   const missing = missingPreferences(fields, values);
   if (missing.length) {
@@ -1853,14 +1362,7 @@ document.addEventListener("submit", (event) => {
     if (error) error.textContent = `Required: ${missing.map((field) => field.title).join(", ")}`;
     return;
   }
-  const extensionNames = new Set(preferenceForm.extension.map((field) => field.name));
-  const extensionValues: Record<string, string | boolean> = {};
-  const commandValues: Record<string, string | boolean> = {};
-  for (const [name, value] of Object.entries(values))
-    (extensionNames.has(name) ? extensionValues : commandValues)[name] = value;
-  preferenceForm.store.update(extensionValues, preferenceForm.command, commandValues);
-  const { source, command } = preferenceForm;
-  preferenceFormVisible = false;
-  void launch(source, command).catch((error) => setStatus(String(error), true));
+  // The session saves the values and goes on with the launch.
+  preferenceForm.answer(values);
 });
 void start();
