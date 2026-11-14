@@ -18,6 +18,7 @@ const at = (object: unknown, path: string) =>
 // @covers AI.Model.OpenAI_GPT-6_Astra
 // @covers AI.Model.OpenAI_GPT-6_Sol
 // @covers AI.Model.OpenAI_GPT-6.1_Sol
+// @covers AI.Model.OpenAI_GPT-6.1_Terra
 // @covers AI.Model.OpenAI_GPT-6_Luna
 // @covers AI.Model.Groq_GPT-OSS_20b
 // @covers AI.Model.Groq_GPT-OSS_120b
@@ -47,6 +48,7 @@ const at = (object: unknown, path: string) =>
 // @covers AI.Model.Vercel_GLM-5.3_Flash
 // @covers AI.Model.Vercel_Kimi_K2.7_Code
 // @covers AI.Model.Vercel_Kimi_K3
+// @covers AI.Model.Vercel_Kimi_K3.1_Pro
 // @covers AI.Model.Vercel_Gemma_4_31B
 // @covers AI.Model.Vercel_Inkling
 // @covers AI.Model.Vercel_Inkling_Small

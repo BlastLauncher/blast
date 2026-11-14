@@ -1,6 +1,6 @@
 {
-  "version": "2.10.1",
-  "sha256": "6fdf07769035b07c494070e27f30ba33e8ca51576b48b896fe641edded495f2e",
+  "version": "2.11.1",
+  "sha256": "779bd6399374f32c8187c6f49f594d32c619edb82b2cf5e5be312a1b7ed4ba2c",
   "entries": [
     {
       "path": "AI",
@@ -594,6 +594,11 @@
       "deprecated": false
     },
     {
+      "path": "AI.Model.OpenAI_GPT-6.1_Terra",
+      "kind": "enum-member",
+      "deprecated": false
+    },
+    {
       "path": "AI.Model.OpenAI_GPT-6_Astra",
       "kind": "enum-member",
       "deprecated": false
@@ -845,6 +850,11 @@
     },
     {
       "path": "AI.Model.Vercel_Kimi_K3",
+      "kind": "enum-member",
+      "deprecated": false
+    },
+    {
+      "path": "AI.Model.Vercel_Kimi_K3.1_Pro",
       "kind": "enum-member",
       "deprecated": false
     },
