@@ -48,11 +48,13 @@ test("cmdk's matcher ranks real catalog titles", () => {
   expect(rootRows(realCatalog, "ratio")[0]?.title).toBe("Calculate Ratio");
   expect(rootRows(realCatalog, "cal rat")[0]?.title).toBe("Calculate Ratio");
 
-  const rectangle = rootRows(realCatalog, "rect");
-  expect(rectangle[0]?.title).toBe("Rectangle Actions");
-  expect(rectangle.slice(0, 5).every((row) => row.extension === "rectangle")).toBe(true);
+  expect(rootRows(realCatalog, "rect")[0]?.title).toBe("Rectangle Actions");
+  // An extension name ranks all of its commands first.
+  const keygen = rootRows(realCatalog, "keygen");
+  expect(keygen.slice(0, 5).every((row) => row.extension === "keygen")).toBe(true);
 
-  expect(rootRows(realCatalog, "tl")[0]?.title).toBe("Top Left");
+  // Word initials match.
+  expect(rootRows(realCatalog, "tp")[0]?.title).toBe("Toggle Pause");
   expect(rootRows(realCatalog, "zzzzqqq")).toEqual([]);
 });
 
