@@ -5,15 +5,8 @@ branch: `main`. Keep this file under 120 lines; detail belongs in task files.
 
 ## Current focus
 
-M9 — Embed anywhere. Make Blast the easiest engine to embed: the engine owns
-the launcher flow (`docs/decisions/0014`), embedders only draw views and
-forward input, in any language or in a browser page. Product story, README,
-docs and landing page lead with that.
-
-Status 2026-11-14: M0–M8 done, CI green, `3.0.0-alpha.1` on npm `next`, site at
-blast.yukai.dev. Coverage 1537/1538 current symbols; sweep 5266/5759 render;
-browser demo 138/237. Embedding cost today: Go example 692 lines, AppKit 3288;
-the command picker exists three times (TUI, browser, AppKit).
+M9 — Embed anywhere is done (2026-11-14). Next, pending the user's go-ahead:
+publish `3.0.0-alpha.2` so docs can switch from "from source" to `@next`.
 
 ## Milestones
 
@@ -53,6 +46,11 @@ client and doc shows the smaller API.
 - [x] 0168 Engine prompt and root view gaps found by the TUI migration
 
 ## Later (not scheduled)
+
+- TUI `preferences.open` honours scope `command` (opens extension scope today).
+- Python example fails pending requests on a protocol `error` (docs rule).
+- Web launcher: drop the ignored `/launch` endpoint and `command` option.
+- `release:web:e2e` in the prerelease workflow.
 
 Out of scope (0009): MyGo, TUI launcher features.
 
