@@ -11,3 +11,4 @@ coverage/
 
 # SwiftPM build products
 examples/macos-launcher/.build/
+__pycache__/
