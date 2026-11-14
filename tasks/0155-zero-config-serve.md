@@ -1,7 +1,7 @@
 ---
 id: "0155"
 title: "Zero-config serve: runnable bin, views by default, drawable icons"
-status: todo
+status: doing
 milestone: M9
 depends: []
 ---
