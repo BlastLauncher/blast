@@ -110,8 +110,8 @@ export async function build(version: string) {
         lib: ["esnext", "dom", "dom.iterable"],
       },
       include: packages.map((pkg) => join(root, "packages", pkg, "src/**/*")),
-      exclude: ["**/*.test.ts", "**/*.test.tsx", "**/*test-helper.ts"].map((pattern) =>
-        join(root, "packages", pattern),
+      exclude: ["**/*.test.ts", "**/*.test.tsx", "**/*.test.js", "**/*test-helper.ts"].map(
+        (pattern) => join(root, "packages", pattern),
       ),
     }),
   );

@@ -28,8 +28,10 @@ try {
         smoke,
       ),
     );
-  const slim = tarballs.filter((file) => /^blastlauncher-(engine|runtime|protocol)-/.test(file));
-  if (slim.length !== 3) throw new Error("Missing slim engine tarballs");
+  const slim = tarballs.filter((file) =>
+    /^blastlauncher-(engine|runtime|protocol|client-core|web)-/.test(file),
+  );
+  if (slim.length !== 5) throw new Error("Missing slim engine tarballs");
   install(slim);
   const lock = JSON.parse(await readFile(join(smoke, "package-lock.json"), "utf8"));
   for (const name of ["shared-deps", "cli", "serve"])
@@ -41,6 +43,16 @@ try {
   });
   await cp(new URL("./smoke-program.mjs", import.meta.url), join(smoke, "smoke.mjs"));
   console.log(run("node", ["smoke.mjs", "hello-list", "apple", "--engine-only"], smoke));
+  // The browser package loads in Node (no DOM access at import) and exports mount.
+  run(
+    "node",
+    [
+      "--input-type=module",
+      "-e",
+      "const web = await import('@blastlauncher/web'); if (typeof web.mount !== 'function') throw new Error('mount missing');",
+    ],
+    smoke,
+  );
   console.log(
     `Slim engine installed: ${run("du", ["-sh", "node_modules"], smoke)} (${run("du", ["-sk", "node_modules"], smoke).split(/\s/)[0]} KiB allocated)`,
   );
