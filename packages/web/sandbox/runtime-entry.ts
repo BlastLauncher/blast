@@ -1,8 +1,17 @@
 import { startBrowserRuntime, type BrowserMessagePort } from "../../runtime/src/browser.ts";
 import type { CommandModule } from "../../runtime/src/core.ts";
 import type { InitCommand } from "../../protocol/src/index.ts";
+import { dropForbiddenRequestHeaders } from "./request-headers.ts";
 
 let started = false;
+// Before any command code runs: its requests may go through an XHR polyfill.
+dropForbiddenRequestHeaders(
+  (
+    globalThis as {
+      XMLHttpRequest?: { prototype: Parameters<typeof dropForbiddenRequestHeaders>[0] };
+    }
+  ).XMLHttpRequest?.prototype,
+);
 
 /** Starts the real Blast runtime after the trusted host transfers a port. */
 export type BrowserCommandLoader = (command: InitCommand) => Promise<CommandModule> | CommandModule;
