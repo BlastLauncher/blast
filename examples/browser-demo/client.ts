@@ -592,6 +592,7 @@ function drawPreferences() {
 /** The session's `preferenceForm`: show the form; the submit or Back handler answers it. */
 function askPreferences(request: WebPreferenceRequest) {
   if (new URL(location.href).searchParams.has("sweep-placeholders")) {
+    document.body.dataset.sweepPlaceholders = "true";
     const values: Record<string, string | boolean> = {};
     for (const field of request.fields) {
       if (field.type === "checkbox") values[field.name] = false;

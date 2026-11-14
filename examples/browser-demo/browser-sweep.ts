@@ -342,6 +342,7 @@ async function runCommand(
     );
     const placeholders = await page.evaluate(() => {
       const form = document.querySelector<HTMLFormElement>("#preferences-form");
+      if (document.body.dataset.sweepPlaceholders === "true") return true;
       if (!form) return false;
       for (const field of form.querySelectorAll<HTMLInputElement | HTMLSelectElement>(
         "[data-preference]",
