@@ -47,7 +47,7 @@ client and doc shows the smaller API.
 - [x] 0162 Real engine version in the serve welcome
 - [x] 0163 Browser demo on `@blastlauncher/web`
 - [x] 0164 `@blastlauncher/web` ships its sandbox and runtime assets
-- [ ] 0165 macOS and web-launcher examples on the engine flows
+- [x] 0165 macOS and web-launcher examples on the engine flows
 - [ ] 0166 Docs, README and landing page show the final API
 - [x] 0167 Site e2e without GitHub API quota
 
