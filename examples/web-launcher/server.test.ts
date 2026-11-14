@@ -9,25 +9,54 @@ afterEach(async () => {
 const endpoint = (path: string, token: string) =>
   `http://127.0.0.1:${new URL(launcher!.url).port}${path}?t=${token}`;
 type Reader = { read(): Promise<{ done: boolean; value?: Uint8Array }> };
-async function nextEvent(reader: Reader, pending = ""): Promise<{ event: any; pending: string }> {
-  let text = pending;
-  for (;;) {
-    const chunk = await reader.read();
-    if (chunk.done) throw new Error("SSE ended");
-    text += new TextDecoder().decode(chunk.value);
-    const split = text.indexOf("\n\n");
-    if (split < 0) continue;
-    const line = text
-      .slice(0, split)
-      .split("\n")
-      .find((value) => value.startsWith("data: "));
-    if (line) return { event: JSON.parse(line.slice(6)), pending: text.slice(split + 2) };
-    text = text.slice(split + 2);
-  }
+type View = {
+  kind: string;
+  title: string;
+  search: { text: string };
+  rows: Array<{ kind: string; title: string }>;
+};
+type Event = { type: "view"; view: View } | { type: "effect"; name: string; params: unknown };
+
+/** Reads the SSE stream until an event matches, skipping the ones before it. */
+function events(reader: Reader) {
+  let text = "";
+  const decoder = new TextDecoder();
+  return async function next(match: (event: Event) => boolean): Promise<Event> {
+    for (;;) {
+      let split = text.indexOf("\n\n");
+      while (split >= 0) {
+        const line = text
+          .slice(0, split)
+          .split("\n")
+          .find((value) => value.startsWith("data: "));
+        text = text.slice(split + 2);
+        if (line) {
+          const event = JSON.parse(line.slice(6)) as Event;
+          if (match(event)) return event;
+        }
+        split = text.indexOf("\n\n");
+      }
+      const chunk = await reader.read();
+      if (chunk.done) throw new Error("SSE ended");
+      text += decoder.decode(chunk.value, { stream: true });
+    }
+  };
 }
+const viewWhere = (match: (view: View) => boolean) => (event: Event) =>
+  event.type === "view" && match(event.view);
+const titles = (view: View) => view.rows.map((row) => `${row.kind}:${row.title}`).join(",");
+const isRoot = (view: View) =>
+  view.title === "Commands" && titles(view) === "section:hello-list,item:index";
+const post = (path: string, token: string, body: string, contentType = "application/json") =>
+  fetch(endpoint(path, token), { method: "POST", headers: { "content-type": contentType }, body });
+const input = async (value: unknown) => {
+  const response = await post("/input", launcher!.token, JSON.stringify(value));
+  expect(response.status).toBe(204);
+  expect(await response.text()).toBe("");
+};
 
 describe("web launcher", () => {
-  test.skip("streams views, accepts input, forwards clipboard effects, and rejects bad requests", async () => {
+  test("starts on the root, launches a command, routes its input and effects, and goes back", async () => {
     launcher = await startWebLauncher({ extensionDir: "./fixtures/extensions/hello-list" });
     const stream = await fetch(endpoint("/events", launcher.token));
     expect(stream.status).toBe(200);
@@ -37,64 +66,31 @@ describe("web launcher", () => {
     expect(stream.headers.get("referrer-policy")).toBe("no-referrer");
     expect(stream.headers.get("x-content-type-options")).toBe("nosniff");
     const reader = stream.body!.getReader();
-    let pending = "";
-    let event;
-    for (;;) {
-      const next = await nextEvent(reader, pending);
-      event = next.event;
-      pending = next.pending;
-      if (event.type === "view" && event.view.kind === "list") break;
-    }
-    expect(event.view.rows.length).toBeGreaterThan(0);
-    const inputResponse = await fetch(endpoint("/input", launcher.token), {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ type: "search", text: "apple" }),
+    const next = events(reader);
+
+    // The root lists the extension's commands; primary launches the selected one.
+    await next(viewWhere(isRoot));
+    await input({ type: "primary" });
+    await next(viewWhere((view) => titles(view) === "item:apple,item:banana,item:cherry"));
+
+    // Input now reaches the command: its search filters the rows, primary copies.
+    await input({ type: "search", text: "ban" });
+    await next(viewWhere((view) => view.search.text === "ban" && titles(view) === "item:banana"));
+    await input({ type: "primary" });
+    expect(await next((event) => event.type === "effect")).toEqual({
+      type: "effect",
+      name: "clipboard.copy",
+      params: { text: "banana" },
     });
-    expect(inputResponse.status).toBe(204);
-    expect(await inputResponse.text()).toBe("");
-    expect(
-      (
-        await fetch(endpoint("/input", launcher.token), {
-          method: "POST",
-          headers: { "content-type": "text/plain" },
-          body: "{}",
-        })
-      ).status,
-    ).toBe(415);
-    expect(
-      (
-        await fetch(endpoint("/input", "wrong"), {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: "{}",
-        })
-      ).status,
-    ).toBe(403);
-    expect(
-      (
-        await fetch(endpoint("/input", launcher.token), {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: "{invalid",
-        })
-      ).status,
-    ).toBe(400);
-    await fetch(endpoint("/input", launcher.token), {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ type: "primary" }),
-    });
-    let effect;
-    for (;;) {
-      const next = await nextEvent(reader, pending);
-      pending = next.pending;
-      if (next.event.type === "effect") {
-        effect = next.event;
-        break;
-      }
-    }
-    expect(effect).toMatchObject({ type: "effect", name: "clipboard.copy" });
+
+    // Back at the command's root closes it and the root view returns.
+    await input({ type: "back" });
+    await next(viewWhere(isRoot));
+
+    expect((await post("/input", launcher.token, "{}", "text/plain")).status).toBe(415);
+    expect((await post("/input", "wrong", "{}")).status).toBe(403);
+    expect((await post("/input", launcher.token, "{invalid")).status).toBe(400);
+    expect((await post("/launch", launcher.token, "{}")).status).toBe(400);
     await reader.cancel();
   });
 
