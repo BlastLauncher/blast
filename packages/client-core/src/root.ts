@@ -261,7 +261,6 @@ export function createRootController(
     },
     reset() {
       query = "";
-      selectedId = null;
       actionsOpen = false;
       failure = null;
       notify();
