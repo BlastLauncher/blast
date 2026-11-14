@@ -38,7 +38,7 @@ client and doc shows the smaller API.
 - [x] 0153 Product story: README, `docs/quickstart.md`, `docs/embedding.md`
 - [x] 0154 Landing page: simple API, any language, demo front and centre
 - [x] 0155 Zero-config serve: runnable bin, views by default, drawable icons
-- [ ] 0156 Engine root view: search and launch commands across extensions
+- [x] 0156 Engine root view: search and launch commands across extensions
 - [ ] 0157 Launch prompts and dependency installs as views
 - [ ] 0158 Minimal Python embedder (stdlib, ≤ 200 lines); Go example on new flow
 - [ ] 0159 `@blastlauncher/web`: embed the browser runtime in any page (+ decision)
