@@ -1,7 +1,7 @@
 ---
 id: "0156"
 title: "Engine root view: search and launch commands across extensions"
-status: todo
+status: doing
 milestone: M9
 depends: ["0155"]
 ---
